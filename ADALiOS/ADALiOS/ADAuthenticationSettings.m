@@ -1,0 +1,69 @@
+// Created by Boris Vidolov on 10/10/13.
+// Copyright © Microsoft Open Technologies, Inc.
+//
+// All Rights Reserved
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
+// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
+// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
+// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
+//
+// See the Apache License, Version 2.0 for the specific language
+// governing permissions and limitations under the License.
+
+#import "ADAuthenticationSettings.h"
+
+@implementation ADAuthenticationSettings
+
+
+/*!
+ An internal initializer used from the static creation function.
+ */
+-(id) initInternal
+{
+    self = [super init];
+    if (self)
+    {
+        //Initialize the defaults here:
+        self.credentialsType = AD_CREDENTIALS_AUTO;
+        self.requestTimeOut = 10;//in seconds.
+        self.expirationBuffer = 300;//in seconds, ensures catching of clock differences between the server and the device
+        // Search for the path
+        NSArray  *paths = NSSearchPathForDirectoriesInDomains( NSCachesDirectory, NSUserDomainMask, YES );
+        if (paths.count < 1)
+        {
+            AD_LOG_WARN(@"Default cache file error", @"The caches directory cannot be obtained");
+            self.defaultTokenCacheStoreLocation = @".ADALTokenCacheStore";
+        }
+        else
+        {
+            NSString* filePath = [[paths objectAtIndex:0] stringByAppendingPathComponent:@".ADALTokenCacheStore"];
+            self.defaultTokenCacheStoreLocation = filePath;
+        }
+        
+    }
+    return self;
+}
+
++(ADAuthenticationSettings*)sharedInstance
+{
+    /* Below is a standard objective C singleton pattern*/
+    static ADAuthenticationSettings* instance;
+    static dispatch_once_t onceToken;
+    @synchronized(self)
+    {
+        dispatch_once(&onceToken, ^{
+            instance = [[ADAuthenticationSettings alloc] initInternal];
+        });
+    }
+    return instance;
+}
+
+@end
+
