@@ -119,6 +119,8 @@
         NSString* redirectUri = @"http://todolistclient/";//OmerCan: @"https://omercantest.onmicrosoft.adal/hello"
         [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
         ADAuthenticationContext* context = [ADAuthenticationContext contextWithAuthority:authority error:&error];
+        //Test account:boris@msopentechbv.onmicrosoft.com
+        //Test password:~test123
         if (!context)
         {
             [weakSelf setStatus:error.errorDetails];
