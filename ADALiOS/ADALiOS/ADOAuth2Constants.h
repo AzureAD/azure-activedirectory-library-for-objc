@@ -20,8 +20,10 @@
 
 extern NSString *const OAUTH2_ACCESS_TOKEN;
 extern NSString *const OAUTH2_AUTHORIZATION;
+extern NSString *const OAUTH2_AUTHORIZATION_SUFFIX;
 extern NSString *const OAUTH2_AUTHORIZATION_CODE;
 extern NSString *const OAUTH2_AUTHORIZATION_URI;
+extern NSString *const OAUTH2_AUTHORIZE_SUFFIX;
 extern NSString *const OAUTH2_BEARER;
 extern NSString *const OAUTH2_CLIENT_ID;
 extern NSString *const OAUTH2_CLIENT_SECRET;
@@ -39,7 +41,9 @@ extern NSString *const OAUTH2_RESPONSE_TYPE;
 extern NSString *const OAUTH2_SCOPE;
 extern NSString *const OAUTH2_STATE;
 extern NSString *const OAUTH2_TOKEN;
+extern NSString *const OAUTH2_TOKEN_SUFFIX;
 extern NSString *const OAUTH2_TOKEN_TYPE;
+extern NSString *const OAUTH2_LOGIN_HINT;
 
 
 extern NSString *const AUTH_FAILED;

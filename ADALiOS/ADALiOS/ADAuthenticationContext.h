@@ -18,12 +18,20 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 #import <ADALiOS/ADAuthenticationResult.h>
 #import <ADALiOS/ADAuthenticationError.h>
 #import <ADALiOS/ADTokenCacheStoring.h>
 #import <ADALiOS/NSString+ADHelperMethods.h>
 
+#if TARGET_OS_IPHONE
+//iOS:
+#   include <UIKit/UIKit.h>
+typedef UIWebView WebViewType;
+#else
+//OS X:
+#   include <WebKit/WebKit.h>
+typedef WebView   WebViewType;
+#endif
 
 typedef enum
 {
@@ -40,9 +48,11 @@ typedef enum
     /*! The user will be prompted explicitly for credentials, consent or any other prompts. This option
      is useful in multi-user scenarios. Example is authenticating for the same e-mail service with different
      user */
-     AD_PROMPT_ALWAYS,
+    AD_PROMPT_ALWAYS,
 } ADPromptBehavior;
 
+/*! The completion block declaration */
+typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
 
 /*! The central class for managing multiple tokens. Usage: create one per AAD or ADFS authority.
  As authority is required, the class cannot be used with "new" or the parameterless "init" selectors.
@@ -88,7 +98,7 @@ typedef enum
  @param tokenCacheStore Allows the user to specify a dictionary object that will implement the token caching. If this
  parameter is null, the library will use a shared, internally implemented static instance instead.
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
-  be nil. */
+ be nil. */
 +(ADAuthenticationContext*) contextWithAuthority: (NSString*) authority
                                validateAuthority: (BOOL) validate
                                  tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
@@ -101,15 +111,12 @@ typedef enum
 /*! Controls authority validation in acquire token calls. */
 @property BOOL validateAuthority;
 
-/*! Gets or sets the owner of the browser view which pops up for supplying user credentials. It can be null.
- The pointer needs to be weak to ensure that the child won't prevent the parent from deleting. */
-@property (weak) UIViewController* ownerViewController;
+/*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
+ when needed. */
+@property (weak) WebViewType* webView;
 
 /*! Provides access to the token cache used in this context. If null, tokens will not be cached. */
 @property id<ADTokenCacheStoring> tokenCacheStore;
-
-/*! The completion block declaration */
-typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
@@ -133,7 +140,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param userId: The user to be prepopulated in the credentials form. Additionally, if token is found in the cache,
  it may not be used if it belongs to different token. This parameter can be nil.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
-*/
+ */
 -(void) acquireToken: (NSString*) resource
             clientId: (NSString*) clientId
          redirectUri: (NSURL*) redirectUri
@@ -170,7 +177,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param credentialsType: controls the way of obtaining client credentials if such are needed.
  @param promptBehavior: controls if any credentials UI will be shownt.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
-*/
+ */
 -(void)  acquireToken: (NSString*) resource
              clientId: (NSString*) clientId
           redirectUri: (NSURL*) redirectUri
@@ -185,19 +192,19 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param refreshToken: the resource whose token is needed.
  @param clientId: the client identifier
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here }"
-*/
+ */
 -(void) acquireTokenByRefreshToken: (NSString*) refreshToken
                           clientId: (NSString*) clientId
                    completionBlock: (ADAuthenticationCallback) completionBlock;
 
 /*! Follows the OAuth2 protocol (RFC 6749). Uses the refresh token to obtain an access token (and another refresh token). The method
- is superceded by acquireToken, which will implicitly use the refresh token if needed. Please use acquireTokenByRefreshToken 
+ is superceded by acquireToken, which will implicitly use the refresh token if needed. Please use acquireTokenByRefreshToken
  only if you would like to store the access and refresh tokens, managing the expiration times in your application logic.
  @param refreshToken: the resource whose token is needed.
  @param clientId: the client identifier
  @param resource: the desired resource to which the token applies.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
-*/
+ */
 -(void) acquireTokenByRefreshToken: (NSString*) refreshToken
                           clientId: (NSString*) clientId
                           resource: (NSString*) resource

@@ -181,7 +181,7 @@
 -(void) testProperties
 {
     ADAuthenticationError* error;
-    NSString* authority = @"https://authority.com/";
+    NSString* authority = @"https://authority.com";
     ADTestTokenCacheStore* testStore = [ADTestTokenCacheStore new];
     XCTAssertNotNil(testStore, "Failed to create a test cache store");
     //Minimal creator:
@@ -308,8 +308,8 @@
         XCTAssertNotNil(mError, "Error should be returned if the result did not succeed.");
         //These will be used by the tests to denote success, so we want to make sure that they are not
         //set in case of failure:
-        XCTAssertNil(mResult.accessToken);
-        XCTAssertNil(mResult.refreshToken);
+        XCTAssertNil(mResult.tokenCacheStoreItem.accessToken);
+        XCTAssertNil(mResult.tokenCacheStoreItem.refreshToken);
     }
     if (mResult && mResult.status == AD_SUCCEEDED)
     {
@@ -375,19 +375,19 @@
     NSString* someTokenValue = @"someToken value";
     [self addCacheWithToken:someTokenValue refreshToken:nil userId:mUserId];
     [self callAsynchronousAcquireToken];
-    ADAssertStringEquals(mResult.accessToken, someTokenValue);
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
 
     //Cache a token for nil user:
     NSString* nilUserTokenValue = @"nil user value";
     [self addCacheWithToken:nilUserTokenValue refreshToken:nil userId:nil];
     [self callAsynchronousAcquireToken];
-    ADAssertStringEquals(mResult.accessToken, someTokenValue);
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
     
     //Cache a token for another user:
     NSString* anotherUserTokenValue = @"another user token value";
     [self addCacheWithToken:anotherUserTokenValue refreshToken:nil userId:@"another user"];
     [self callAsynchronousAcquireToken];
-    ADAssertStringEquals(mResult.accessToken, someTokenValue);
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
 }
 
 //Tests the scenario where we have a cached item with nil user:
@@ -399,7 +399,7 @@
     NSString* nilUserTokenValue = @"nil user token";
     [self addCacheWithToken:nilUserTokenValue refreshToken:nil userId:nil];
     [self callAsynchronousAcquireToken];
-    ADAssertStringEquals(mResult.accessToken, nilUserTokenValue);
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, nilUserTokenValue);
     
     //Adds a cache for a real user:
     NSString* someUserTokenValue = @"Some user token";
@@ -420,7 +420,7 @@
     
     [self callAsynchronousAcquireToken];
     XCTAssertEqual(mResult.status, AD_FAILED);
-    XCTAssertEqual(mResult.error.code, AD_ERROR_MULTIPLE_USERS);
+    ADAssertLongEquals(mResult.error.code, AD_ERROR_MULTIPLE_USERS);
 }
 
 -(void) testAcquireTokenWithNoPrompt
@@ -430,13 +430,13 @@
     //Nothing in the cache, as we cannot prompt for credentials, this should fail:
     [self callAsynchronousAcquireToken];
     XCTAssertEqual(mResult.status, AD_FAILED);
-    XCTAssertEqual(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
+    ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
     
     //Something in the cache, should work even with AD_PROMPT_NEVER:
     NSString* someTokenValue = @"someToken value";
     [self addCacheWithToken:someTokenValue refreshToken:nil userId:mUserId];
     [self callAsynchronousAcquireToken];
-    ADAssertStringEquals(mResult.accessToken, someTokenValue);
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
     
     //Expire the cache item:
     NSArray* allItems = [mDefaultTokenCache allItems];
@@ -448,32 +448,32 @@
     ADAssertNoError;
     //The access token is expired and the refresh token is nil, so it should fail:
     [self callAsynchronousAcquireToken];
-    XCTAssertEqual(mResult.status, AD_FAILED);
-    XCTAssertEqual(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
+    ADAssertLongEquals(mResult.status, AD_FAILED);
+    ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
     
     //Now add an item with a fake refresh token:
-//Enable these lines after the refreshToken is implemented
-//    XCTAssertTrue(mDefaultTokenCache.allItems.count == 0, "Expired items should be removed from the cache");
-//    [self addCacheWithToken:someTokenValue refreshToken:@"some refresh token" userId:mUserId];
-//    NSArray* allItems = [mDefaultTokenCache allItems];
-//    XCTAssertTrue(allItems.count == 1);
-//    ADTokenCacheStoreItem* item = [allItems objectAtIndex:0];
-//    item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];//Expire it.
-//    ADAuthenticationError* error;
-//    [mDefaultTokenCache addOrUpdateItem:item error:&error];//Udpate the cache.
-//    ADAssertNoError;
-//    //The access token is expired and the refresh token is nil, so it should fail:
-//    [self callAsynchronousAcquireToken];
-//    XCTAssertEqual(mResult.status, AD_FAILED);
-//    XCTAssertEqual(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
-    
+    XCTAssertTrue(mDefaultTokenCache.allItems.count == 0, "Expired items should be removed from the cache");
+    [self addCacheWithToken:someTokenValue refreshToken:@"some refresh token" userId:mUserId];
+    allItems = [mDefaultTokenCache allItems];
+    XCTAssertTrue(allItems.count == 1);
+    item = [allItems objectAtIndex:0];
+    item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];//Expire it.
+    [mDefaultTokenCache addOrUpdateItem:item error:&error];//Udpate the cache.
+    ADAssertNoError;
+    //The access token is expired and the refresh token is nil, so it should fail:
+    [self callAsynchronousAcquireToken];
+    XCTAssertEqual(mResult.status, AD_FAILED);
+    ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
+    /**** The test breaks here because of the main thread being used for both
+     callbacks and unit test execution. This will be fixed, once we move away from the main thread*/
+     
     //Put a valid token in the cache, but set context token cache to nil:
     XCTAssertTrue(mDefaultTokenCache.allItems.count == 0, "Expired items should be removed from the cache");
     [self addCacheWithToken:someTokenValue refreshToken:@"some refresh token" userId:mUserId];
     mContext.tokenCacheStore = nil;
     [self callAsynchronousAcquireToken];
     XCTAssertEqual(mResult.status, AD_FAILED, "AcquireToken should fail, as the credentials are needed without cache.");
-    XCTAssertEqual(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
+    ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
 }
 
 -(void) testCanonicalizeAuthority

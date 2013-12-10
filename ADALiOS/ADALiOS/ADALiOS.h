@@ -21,20 +21,21 @@
 #import <ADALiOS/NSString+ADHelperMethods.h>
 #import "ADLogger.h"
 
+
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \
- NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u", __PRETTY_FUNCTION__, __LINE__]
+NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u", __PRETTY_FUNCTION__, __LINE__]
 //General macro for throwing exception named NSInvalidArgumentException
 #define THROW_ON_CONDITION_ARGUMENT(CONDITION, ARG) \
 { \
-    if (CONDITION) \
-    { \
-        WHERE; \
-        AD_LOG_ERROR(@"InvalidArgumentException: " #ARG, __where, AD_ERROR_INVALID_ARGUMENT); \
-        @throw [NSException exceptionWithName: NSInvalidArgumentException \
-                                       reason:@"Please provide a valid '" #ARG "' parameter." \
-                                     userInfo:nil];  \
-    } \
+if (CONDITION) \
+{ \
+WHERE; \
+AD_LOG_ERROR(@"InvalidArgumentException: " #ARG, __where, AD_ERROR_INVALID_ARGUMENT); \
+@throw [NSException exceptionWithName: NSInvalidArgumentException \
+reason:@"Please provide a valid '" #ARG "' parameter." \
+userInfo:nil];  \
+} \
 }
 
 // Checks a selector NSString argument to a method for being null or empty. Throws NSException with name
@@ -52,8 +53,8 @@
 #define FILL_PARAMETER_ERROR(ARG) \
 if (error) \
 { \
-    *error = [ADAuthenticationError errorFromArgument:ARG \
-                                         argumentName:@#ARG]; \
+*error = [ADAuthenticationError errorFromArgument:ARG \
+argumentName:@#ARG]; \
 }
 
 #define STRING_NIL_OR_EMPTY_CONDITION(ARG) [NSString isStringNilOrBlank:ARG]
@@ -61,13 +62,13 @@ if (error) \
 
 #define RETURN_ON_INVALID_ARGUMENT(CONDITION, ARG, RET) \
 { \
-    if (CONDITION) \
-    { \
-        WHERE; \
-        AD_LOG_ERROR(@"InvalidArgumentError: " #ARG, __where, AD_ERROR_INVALID_ARGUMENT); \
-        FILL_PARAMETER_ERROR(ARG); \
-        return RET; \
-    } \
+if (CONDITION) \
+{ \
+WHERE; \
+AD_LOG_ERROR(@"InvalidArgumentError: " #ARG, __where, AD_ERROR_INVALID_ARGUMENT); \
+FILL_PARAMETER_ERROR(ARG); \
+return RET; \
+} \
 }
 
 //Used for methods that have (ADAuthenticationError * __autoreleasing *) error parameter to be
@@ -85,14 +86,15 @@ if (error) \
 //Same as the macros above, but used for non-string parameters for nil checking.
 #define RETURN_ON_NIL_ARGUMENT(ARG) RETURN_ON_INVALID_ARGUMENT(NIL_CONDITION(ARG), ARG, )
 
-//An intermediate macros are needed to convert "..." to @"..."
+//Converts constant string literal to NSString. To be used in macros, e.g. TO_NSSTRING(__FILE__).
+//Can be used only inside another macro.
 #define TO_NSSTRING(x) @"" x
 
 //Logs public function call:
 #define API_ENTRY \
 { \
-    WHERE; \
-    AD_LOG_VERBOSE(@"ADAL API call", __where); \
+WHERE; \
+AD_LOG_VERBOSE(@"ADAL API call", __where); \
 }
 
 

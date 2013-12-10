@@ -99,7 +99,7 @@ typedef enum
 
 //Fixes the issue with XCTAssertEqual not comparing int and long values
 //Usage: ADAssertLongEquals(5, [self calculateFive]);
-#define ADAssertLongEquals(CONST, EXPR) XCTAssertEqual((long)CONST, EXPR)
+#define ADAssertLongEquals(CONST, EXPR) XCTAssertEqual((long)CONST, (long)EXPR)
 
 #define ADAssertThrowsArgument(EXP) \
 { \

@@ -43,13 +43,13 @@
     ADAuthenticationResultStatus expected = (code == AD_ERROR_USER_CANCEL) ? AD_USER_CANCELLED : AD_FAILED;
     XCTAssertEqual(result.status, expected, "Wrong status on cancellation");
     XCTAssertNotNil(result.error, "Nil error");
-    XCTAssertEqual(result.error.code, code, "Wrong error code");
-    XCTAssertNil(result.accessToken);
-    XCTAssertNil(result.accessTokenType);
-    XCTAssertNil(result.refreshToken);
-    XCTAssertNil(result.expiresOn);
-    XCTAssertNil(result.tenantId);
-    XCTAssertNil(result.userInformation);
+    ADAssertLongEquals(result.error.code, code);
+    XCTAssertNil(result.tokenCacheStoreItem.accessToken);
+    XCTAssertNil(result.tokenCacheStoreItem.accessTokenType);
+    XCTAssertNil(result.tokenCacheStoreItem.refreshToken);
+    XCTAssertNil(result.tokenCacheStoreItem.expiresOn);
+    XCTAssertNil(result.tokenCacheStoreItem.tenantId);
+    XCTAssertNil(result.tokenCacheStoreItem.userInformation);
 }
 
 -(void) testResultFromCancellation
@@ -72,11 +72,11 @@
     XCTAssertNotNil(resultFromItem);
     XCTAssertEqual(resultFromItem.status, AD_SUCCEEDED, "Result should be success.");
     XCTAssertNil(resultFromItem.error, "Unexpected error object: %@", resultFromItem.error.errorDetails);
-    XCTAssertEqual(item.accessTokenType, resultFromItem.accessTokenType);
-    XCTAssertEqual(item.accessToken, resultFromItem.accessToken);
-    XCTAssertEqual(item.expiresOn, resultFromItem.expiresOn);
-    XCTAssertEqual(item.tenantId, resultFromItem.tenantId);
-    ADAssertStringEquals(item.userInformation.userId, resultFromItem.userInformation.userId);
+    XCTAssertEqual(item.accessTokenType, resultFromItem.tokenCacheStoreItem.accessTokenType);
+    XCTAssertEqual(item.accessToken, resultFromItem.tokenCacheStoreItem.accessToken);
+    XCTAssertEqual(item.expiresOn, resultFromItem.tokenCacheStoreItem.expiresOn);
+    XCTAssertEqual(item.tenantId, resultFromItem.tokenCacheStoreItem.tenantId);
+    ADAssertStringEquals(item.userInformation.userId, resultFromItem.tokenCacheStoreItem.userInformation.userId);
 }
 
 -(void) testResultFromTokenCacheStoreItem

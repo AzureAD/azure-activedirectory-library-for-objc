@@ -104,41 +104,39 @@
     NSString* __block resourceString = @"http://testapi007.azurewebsites.net/api/WorkItem";
     NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters * params, ADAuthenticationError * error)
-    {
-        if (!params)
-        {
-            [weakSelf setStatus:error.errorDetails];
-            return;
-        }
-
-        //401 worked, now try to acquire the token:
-        //There is a temporary issue with the OmerCan account above, so currently, I am using another one:
-        NSString* authority = @"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2";//OmerCan: params.authority
-        NSString* clientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";//OmerCan: @"c4acbce5-b2ed-4dc5-a1b9-c95af96c0277"
-        resourceString = @"http://localhost/TodoListService";
-        NSString* redirectUri = @"http://todolistclient/";//OmerCan: @"https://omercantest.onmicrosoft.adal/hello"
-        [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
-        ADAuthenticationContext* context = [ADAuthenticationContext contextWithAuthority:authority error:&error];
-        //Test account:boris@msopentechbv.onmicrosoft.com
-        //Test password:~test123
-        if (!context)
-        {
-            [weakSelf setStatus:error.errorDetails];
-            return;
-        }
-        
-        [context acquireToken:resourceString clientId:clientId
-                  redirectUri:[NSURL URLWithString:redirectUri]
-              completionBlock:^(ADAuthenticationResult *result) {
-            if (result.status != AD_SUCCEEDED)
-            {
-                [weakSelf setStatus:result.error.errorDetails];
-                return;
-            }
-            
-            [weakSelf setStatus:[self processAccessToken:result.accessToken]];
-        }];
-    }];
+     {
+         if (!params)
+         {
+             [weakSelf setStatus:error.errorDetails];
+             return;
+         }
+         
+         //401 worked, now try to acquire the token:
+         //There is a temporary issue with the OmerCan account above, so currently, I am using another one:
+         NSString* authority = @"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2";//OmerCan: params.authority
+         NSString* clientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";//OmerCan: @"c4acbce5-b2ed-4dc5-a1b9-c95af96c0277"
+         resourceString = @"http://localhost/TodoListService";
+         NSString* redirectUri = @"http://todolistclient/";//OmerCan: @"https://omercantest.onmicrosoft.adal/hello"
+         [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
+         ADAuthenticationContext* context = [ADAuthenticationContext contextWithAuthority:authority error:&error];
+         if (!context)
+         {
+             [weakSelf setStatus:error.errorDetails];
+             return;
+         }
+         
+         [context acquireToken:resourceString clientId:clientId
+                   redirectUri:[NSURL URLWithString:redirectUri]
+               completionBlock:^(ADAuthenticationResult *result) {
+                   if (result.status != AD_SUCCEEDED)
+                   {
+                       [weakSelf setStatus:result.error.errorDetails];
+                       return;
+                   }
+                   
+                   [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+               }];
+     }];
 }
 
 - (IBAction)clearCachePressed:(id)sender
@@ -189,7 +187,7 @@
     NSString* authority = @"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2";//OmerCan: params.authority
     NSString* clientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";//OmerCan: @"c4acbce5-b2ed-4dc5-a1b9-c95af96c0277"
     NSString* resourceString = @"http://localhost/TodoListService";
-//    NSString* redirectUri = @"http://todolistclient/";//OmerCan: @"https://omercantest.onmicrosoft.adal/hello"
+    //    NSString* redirectUri = @"http://todolistclient/";//OmerCan: @"https://omercantest.onmicrosoft.adal/hello"
     [self setStatus:@"Attemp to refresh..."];
     ADAuthenticationError* error;
     ADAuthenticationContext* context = [ADAuthenticationContext contextWithAuthority:authority error:&error];
@@ -216,16 +214,16 @@
                                clientId:clientId
                                resource:resourceString
                         completionBlock:^(ADAuthenticationResult *result)
-    {
-        if (result.error)
-        {
-            [weakSelf setStatus:result.error.errorDetails];
-        }
-        else
-        {
-            [weakSelf setStatus:[self processAccessToken:result.accessToken]];
-        }
-    }];
+     {
+         if (result.error)
+         {
+             [weakSelf setStatus:result.error.errorDetails];
+         }
+         else
+         {
+             [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+         }
+     }];
 }
 
 - (IBAction)expireAllPressed:(id)sender

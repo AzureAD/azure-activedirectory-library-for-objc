@@ -293,7 +293,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 }
 
 -(long) findCharactersFromSet: (NSCharacterSet*) set
-                     start: (long) startIndex
+                        start: (long) startIndex
 {
     THROW_ON_NIL_ARGUMENT(set);
     long end = self.length;
@@ -350,6 +350,39 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 {
     NSRange range = {.location = substringStart, .length = (self.length - substringStart)};
     return [self rangeHasPrefixWord:prefixWord range:range];
+}
+
+- (NSString *)adUrlFormDecode
+{
+    // Two step decode: first replace + with a space, then percent unescape
+    CFMutableStringRef decodedString = CFStringCreateMutableCopy( NULL, 0, (__bridge CFStringRef)self );
+    CFStringFindAndReplace( decodedString, CFSTR("+"), CFSTR(" "), CFRangeMake( 0, CFStringGetLength( decodedString ) ), kCFCompareCaseInsensitive );
+    
+    CFStringRef unescapedString = CFURLCreateStringByReplacingPercentEscapesUsingEncoding( NULL,                    // Allocator
+                                                                                          decodedString,           // Original string
+                                                                                          CFSTR(""),               // Characters to leave escaped
+                                                                                          kCFStringEncodingUTF8 ); // Encoding
+    CFRelease( decodedString );
+    
+    return CFBridgingRelease(unescapedString);
+}
+
+- (NSString *)adUrlFormEncode
+{
+    // Two step encode: first percent escape everything except spaces, then convert spaces to +
+    CFStringRef escapedString = CFURLCreateStringByAddingPercentEscapes( NULL,                         // Allocator
+                                                                        (__bridge CFStringRef)self,            // Original string
+                                                                        CFSTR(" "),                   // Characters to leave unescaped
+                                                                        CFSTR("!#$&'()*+,/:;=?@[]%"), // Legal Characters to be escaped
+                                                                        kCFStringEncodingUTF8 );      // Encoding
+    
+    // Replace spaces with +
+    CFMutableStringRef encodedString = CFStringCreateMutableCopy( NULL, 0, escapedString );
+    CFStringFindAndReplace( encodedString, CFSTR(" "), CFSTR("+"), CFRangeMake( 0, CFStringGetLength( encodedString ) ), kCFCompareCaseInsensitive );
+    
+    CFRelease( escapedString );
+    
+    return CFBridgingRelease( encodedString );
 }
 
 @end

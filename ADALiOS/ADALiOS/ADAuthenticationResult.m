@@ -24,15 +24,9 @@
 @implementation ADAuthenticationResult
 
 //Explicit @synthesize is needed for the internal category to work:
-@synthesize accessTokenType = _accessTokenType;
-@synthesize accessToken = _accessToken;
-@synthesize refreshToken = _refreshToken;
-@synthesize expiresOn = _expiresOn;
+@synthesize tokenCacheStoreItem = _tokenCacheStoreItem;
 @synthesize status = _status;
-@synthesize multiResourceRefreshToken = _multiResourceRefreshToken;
 @synthesize error = _error;
-@synthesize tenantId = _tenantId;
-@synthesize userInformation = _userInformation;
 
 -(id) init
 {

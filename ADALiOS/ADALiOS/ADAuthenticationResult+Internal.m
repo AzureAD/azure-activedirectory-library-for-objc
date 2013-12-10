@@ -34,24 +34,13 @@ NSString* const cancelError = @"The user has cancelled the authorization.";
     return [self initWithError:error status:AD_USER_CANCELLED];
 }
 
-
--(id) initWithTokenType: (NSString*) accessTokenType
-            accessToken: (NSString*) token
-           refreshToken: (NSString*) refreshToken
-         expirationTime: (NSDate*) expiration
-               userInfo: (ADUserInformation*) user
-               tenantId: (NSString*) tenantId
+-(id) initWithItem: (ADTokenCacheStoreItem*) item
 {
     self = [super init];
     if (self)
     {
-        _accessTokenType = accessTokenType;
-        _accessToken = token;
-        _refreshToken = refreshToken;
-        _expiresOn = expiration;
-        _userInformation = user;
-        _tenantId = tenantId;
         _status = AD_SUCCEEDED;
+        _tokenCacheStoreItem = item;
     }
     return self;
 }
@@ -90,13 +79,7 @@ NSString* const cancelError = @"The user has cancelled the authorization.";
             return [ADAuthenticationResult resultFromError:error];
         }
         //The item can be used, just use it:
-        ADAuthenticationResult* result = [ADAuthenticationResult alloc];
-        return [result initWithTokenType:item.accessTokenType
-                             accessToken:item.accessToken
-                            refreshToken:item.refreshToken
-                          expirationTime:item.expiresOn
-                                userInfo:item.userInformation
-                                tenantId:item.tenantId];
+        return [[ADAuthenticationResult alloc] initWithItem:item];
     }
     else
     {

@@ -390,6 +390,7 @@ const int16_t LOWER_VERSION = 0;
     if (!key)
     {
         AD_LOG_WARN(@"removeItemWithKey called passing nil key", @"At ADDefaultTokenCacheStore::removeItemWithKey");
+        return;
     }
     
     @synchronized(mCache)

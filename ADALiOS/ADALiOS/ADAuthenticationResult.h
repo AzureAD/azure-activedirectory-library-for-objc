@@ -21,6 +21,8 @@
 #import <ADAliOS/ADAuthenticationError.h>
 #import <ADALiOS/ADUserInformation.h>
 
+@class ADTokenCacheStoreItem;
+
 typedef enum
 {
     /*! Everything went ok. The result object can be used directly. */
@@ -39,47 +41,21 @@ typedef enum
  */
 @interface ADAuthenticationResult : NSObject
 {
-    @protected
-
+@protected
+    
     //See the corresponding properties for details.
-    NSString* _accessTokenType;
-    NSString* _accessToken;
-    NSString* _refreshToken;
-    NSDate* _expiresOn;
+    ADTokenCacheStoreItem* _tokenCacheStoreItem;
     ADAuthenticationResultStatus _status;
-    BOOL _multiResourceRefreshToken;
     ADAuthenticationError* _error;
-    NSString* _tenantId;
-    ADUserInformation* _userInformation;
 }
-
-/*! Type of the obtained access token */
-@property (readonly) NSString* accessTokenType;
-
-/*! May be nil, if status is not AD_SUCCESS */
-@property (readonly) NSString* accessToken;
-
-/*! May be nil, if status is not AD_SUCCESS or if the authority didn't issue a refresh token. */
-@property (readonly) NSString* refreshToken;
-
-/*! The point of time when the accessToken will expire. */
-@property (readonly) NSDate* expiresOn;
 
 /*! See the ADAuthenticationResultStatus details */
 @property (readonly) ADAuthenticationResultStatus status;
 
-/*! Indicates that the refresh token may be used for requesting access token for other resources. */
-@property (readonly) BOOL multiResourceRefreshToken;
+@property (readonly) ADTokenCacheStoreItem* tokenCacheStoreItem;
 
 /*! The error that occurred or nil, if the operation was successful */
 @property (readonly) ADAuthenticationError* error;
-
-/*! The identifier for the tenant for which the token was acquired. 
- May be nil if the tenant was not returned by the service */
-@property (readonly) NSString* tenantId;
-
-/*! Provides information about the user that was authenticated */
-@property (readonly) ADUserInformation* userInformation;
 
 @end
 

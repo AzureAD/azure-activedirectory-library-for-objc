@@ -105,7 +105,7 @@ NSString* sTestEnd = @"|||TEST_END|||";
             [sLogLevelsLog appendFormat:@"|%u|", logLevel];
             [sMessagesLog appendFormat:@"|%@|", message];
             [sInformationLog appendFormat:@"|%@|", additionalInformation];
-            [sErrorCodesLog appendFormat:@"|%u|", errorCode];
+            [sErrorCodesLog appendFormat:@"|%lu|", errorCode];
         }
     };
 
@@ -132,7 +132,7 @@ NSString* sTestEnd = @"|||TEST_END|||";
 
 //Parses backwords the log to find the test begin prefix. Returns the beginning
 //of the log string if not found:
--(int) indexOfTestBegin: (NSString*) log
+-(long) indexOfTestBegin: (NSString*) log
 {
     NSUInteger index = [sLogLevelsLog rangeOfString:sTestBegin options:NSBackwardsSearch].location;
     return (index == NSNotFound) ? 0 : index;
@@ -176,7 +176,7 @@ NSString* sTestEnd = @"|||TEST_END|||";
     
     NSRange range = {.location = 0, .length = string.length};
     int occurences = 0;
-    int end = string.length - contained.length;
+    long end = string.length - contained.length;
     while (range.location < end)
     {
         NSRange result = [string rangeOfString:contained options:NSLiteralSearch range:range];

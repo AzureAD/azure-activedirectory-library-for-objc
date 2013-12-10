@@ -23,6 +23,9 @@ enum WebAuthenticationStatus
     WebAuthenticationCancelled = 2,
 };
 
+@class ADAuthenticationError;
+
+typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 @interface WebAuthenticationBroker : NSObject
 
 + (NSString *)resourcePath;
@@ -30,7 +33,7 @@ enum WebAuthenticationStatus
 
 + (WebAuthenticationBroker *)sharedInstance;
 
-- (void)start:(NSURL *)startURL end:(NSURL *)endURL ssoMode:(BOOL)ssoMode webView:(UIWebView *)webView fullScreen:(BOOL)fullScreen completion:( void (^)(NSError *, NSURL *) )completionBlock;
+- (void)start:(NSURL *)startURL end:(NSURL *)endURL ssoMode:(BOOL)ssoMode webView:(WebViewType *)webView fullScreen:(BOOL)fullScreen completion: (ADBrokerCallback) completionBlock;
 - (void)cancel;
 
 @end

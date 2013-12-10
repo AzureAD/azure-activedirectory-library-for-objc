@@ -65,4 +65,13 @@ typedef enum
  or empty string, the cache will not be persisted and will be stored only in memory.*/
 @property NSString* defaultTokenCacheStoreLocation;
 
+/*! Additional information to append to the requests with the platform_id URL parameter.*/
+@property NSString *platformId;
+
+/*! Enables or desables single sign on. Default is YES. */
+@property BOOL singleSignOn;
+
+/*! Used for the webView. Default is YES.*/
+@property BOOL enableFullScreen;
+
 @end

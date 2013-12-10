@@ -17,11 +17,12 @@
 // governing permissions and limitations under the License.
 
 #import "UIApplicationExtensions.h"
-
+#import "ADAuthenticationContext.h"
 #import "WebAuthenticationDelegate.h"
 #import "WebAuthenticationWebViewController.h"
 #import "WebAuthenticationViewController.h"
 #import "WebAuthenticationBroker.h"
+
 
 static NSString *const WAB_FAILED_ERROR         = @"Authorization Failed";
 static NSString *const WAB_FAILED_ERROR_CODE    = @"Authorization Failed: %ld";
@@ -128,23 +129,23 @@ static NSString *_resourcePath = nil;
     
     @synchronized(self)
     {
-    dispatch_once( &predicate,
-                  ^{
-                      NSString* mainBundlePath      = [[NSBundle mainBundle] resourcePath];
-                      NSString* frameworkBundlePath = nil;
-                      
-                      if ( _resourcePath != nil )
-                      {
-                          frameworkBundlePath = [[mainBundlePath stringByAppendingPathComponent:_resourcePath] stringByAppendingPathComponent:@"ADALiOSBundle.bundle"];
-                      }
-                      else
-                      {
-                          frameworkBundlePath = [mainBundlePath stringByAppendingPathComponent:@"ADALiOSBundle.bundle"];
-                      }
-                      
-                      bundle = [NSBundle bundleWithPath:frameworkBundlePath];
-                      NSAssert( bundle != nil, @"Failed to load resource bundle" );
-                  });
+        dispatch_once( &predicate,
+                      ^{
+                          NSString* mainBundlePath      = [[NSBundle mainBundle] resourcePath];
+                          NSString* frameworkBundlePath = nil;
+                          
+                          if ( _resourcePath != nil )
+                          {
+                              frameworkBundlePath = [[mainBundlePath stringByAppendingPathComponent:_resourcePath] stringByAppendingPathComponent:@"ADALiOSBundle.bundle"];
+                          }
+                          else
+                          {
+                              frameworkBundlePath = [mainBundlePath stringByAppendingPathComponent:@"ADALiOSBundle.bundle"];
+                          }
+                          
+                          bundle = [NSBundle bundleWithPath:frameworkBundlePath];
+                          NSAssert( bundle != nil, @"Failed to load resource bundle" );
+                      });
     }
     
     return bundle;
@@ -170,7 +171,7 @@ static NSString *_resourcePath = nil;
 // Start the authentication process. Note that there are two different behaviours here dependent on whether the caller has provided
 // a WebView to host the browser interface. If no WebView is provided, then a full window is launched that hosts a WebView to run
 // the authentication process. If a WebView is provided, then that is used instead of launching a complete window.
-- (void)start:(NSURL *)startURL end:(NSURL *)endURL ssoMode:(BOOL)ssoMode webView:(UIWebView *)webView fullScreen:(BOOL)fullScreen completion:( void (^)(NSError *, NSURL *) )completionBlock
+- (void)start:(NSURL *)startURL end:(NSURL *)endURL ssoMode:(BOOL)ssoMode webView:(UIWebView *)webView fullScreen:(BOOL)fullScreen completion:(ADBrokerCallback)completionBlock
 {
     NSAssert( startURL != nil, @"startURL is nil" );
     NSAssert( endURL != nil, @"endURL is nil" );
@@ -271,7 +272,7 @@ static NSString *_resourcePath = nil;
     //       be resilient to this condition and should not generate
     //       two callbacks.
     [_completionLock lock];
-
+    
     if ( _completionBlock )
     {
         void (^completionBlock)( NSError *, NSURL *) = _completionBlock;
@@ -291,7 +292,7 @@ static NSString *_resourcePath = nil;
 - (void)webAuthenticationDidCancel
 {
     DebugLog();
-
+    
     // Dispatch the completion block
     NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:WAB_FAILED_ERROR, @"error", WAB_FAILED_CANCELLED, @"error_description", nil];
     NSError      *err      = [[NSError alloc] initWithDomain:@"WebAuthenticationBroker" code:WebAuthenticationCancelled userInfo:userInfo];

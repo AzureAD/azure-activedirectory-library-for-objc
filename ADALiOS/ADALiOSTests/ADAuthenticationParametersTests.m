@@ -222,10 +222,10 @@
 {
     //Empty string:
     ADAuthenticationError* error;
-    int result = [ADAuthenticationParameters extractChallenge:text error:&error];
+    long result = [ADAuthenticationParameters extractChallenge:text error:&error];
     XCTAssertTrue(result < 0, "Nil should be returned for the error case: %@", text);
     [self expectedError:error];
-    XCTAssertEqual(error.code, AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT, "Wrong error for text: %@", text);
+    ADAssertLongEquals(error.code, AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT);
 }
 
 -(void)testExtractChallengeInvalid
@@ -245,7 +245,7 @@
 {
     ADAuthenticationError* error;
     NSString* bearer = @"Bearer test string";
-    int result = [ADAuthenticationParameters extractChallenge:@"Bearer test string" error:&error];
+    long result = [ADAuthenticationParameters extractChallenge:@"Bearer test string" error:&error];
     ADAssertStringEquals([bearer substringFromIndex:result], @"test string");
     XCTAssertNil(error);
 }
@@ -300,7 +300,7 @@
     ADAuthenticationParameters* params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:header error:&error];
     XCTAssertNil(params);
     [self expectedError:error];
-    XCTAssertEqual(error.code, AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT);
+    ADAssertLongEquals(error.code, AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT);
 }
 
 -(void) testParametersFromResponseAuthenticateHeaderInvalid

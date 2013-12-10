@@ -30,7 +30,7 @@
 +(BOOL) isStringNilOrBlank: (NSString*)string;
 
 /*! Returns YES if the passed string is contained. Throws if the passed
- argument is nil or empty string. 
+ argument is nil or empty string.
  @param cotnained:The string to search
  */
 -(BOOL) containsString: (NSString*) contained;
@@ -45,7 +45,7 @@
  @param set: The set of characters to find. E.g. [NSCharacterSet whitespaceAndNewlineCharacterSet]
  @param start: The character index where to start searching. */
 -(long) findCharactersFromSet: (NSCharacterSet*) set
-                       start: (long) startIndex;
+                        start: (long) startIndex;
 
 /*! Calls findCharactersFromSet with the non-white character set. */
 -(long) findNonWhiteCharacterAfter: (long) startIndex;
@@ -62,5 +62,11 @@
 /*! Calls rangeHasPrefixWord with the range of the substring from "substringStart"
  till the end of the string */
 -(BOOL) substringHasPrefixWord: (NSString*) prefixWord start: (long) substringStart;
+
+/*! Decodes a previously URL encoded string. */
+- (NSString *)adUrlFormDecode;
+
+/*! Encodes the string to pass it as a URL agrument. */
+- (NSString *)adUrlFormEncode;
 
 @end

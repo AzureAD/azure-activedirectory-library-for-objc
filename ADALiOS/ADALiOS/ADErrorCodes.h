@@ -70,6 +70,11 @@ typedef enum
     /*! An issue occurred while attempting to read the persisted token cache store. */
     AD_ERROR_BAD_CACHE_FORMAT,
     
+    /*! The user is currently prompted for another authentication. The library chose to raise this
+     error instead of waiting to avoid multiple sequential prompts. It is up to the application
+     developer to chose to retry later. */
+    AD_ERROR_USER_PROMPTED,
+    
     /*! A generic error code for all of the authentication errors. */
     AD_ERROR_AUTHENTICATION,
 } ADErrorCode;
