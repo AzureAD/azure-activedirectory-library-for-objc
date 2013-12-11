@@ -42,10 +42,6 @@
     __declspec(align(8)) volatile int mPersistingQueued;//Set to 1 if the persisting task is already in the queue.
 }
 
-/*! Return a copy of all items. The array will contain ADTokenCacheStoreItem objects, 
- containing all of the cached information.*/
--(NSArray*) allItems;
-
 /*! Extracts the key from the item properties. If the item for the key exists, the method removes it. If the item is not in the cache, the method won't do anything. The error (if specified) is filled
  when the passed item doesn't have valid key elements. */
 -(void) removeItem: (ADTokenCacheStoreItem*) item

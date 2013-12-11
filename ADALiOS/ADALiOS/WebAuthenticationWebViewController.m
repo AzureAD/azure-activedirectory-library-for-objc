@@ -184,24 +184,25 @@
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
 #pragma unused(webView)
-    
-    DebugLog( @"Error: %ld %@", (long)error.code, [error localizedDescription] );
-    
+
     // Ignore failures that are triggered after we have found the end URL
     if ( _complete == YES )
+    {
+        //We expect to get an error here, as we intentionally fail to navigate to the final redirect URL.
+        AD_LOG_VERBOSE(@"Expected error", [error localizedDescription]);
         return;
-    
-    // BUGBUG: Ignore cancellation. Must determine when/why this happens
-    //if ( error.code == NSURLErrorCancelled )
-    //    return;
-    
-    // BUGBUG: Ignore Frame Load Error. Must determine when/why this happens
-    //if ( [error.domain isEqualToString:@"WebKitErrorDomain"] && error.code == 102 )
-    //    return;
+    }
     
     // Tell our delegate that we are done after an error.
-    NSAssert( nil != _delegate, @"Delegate object was lost" );
-    dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidFailWithError:error]; } );
+    if (_delegate)
+    {
+        AD_LOG_ERROR(@"authorization error", [error localizedDescription], error.code);
+        dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidFailWithError:error]; } );
+    }
+    else
+    {
+        AD_LOG_ERROR(@"Delegate object is lost", @"The delegate object was lost, potentially due to another concurrent request.", AD_ERROR_APPLICATION);
+    }
 }
 
 @end

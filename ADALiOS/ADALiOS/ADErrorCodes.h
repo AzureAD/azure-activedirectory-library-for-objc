@@ -75,6 +75,10 @@ typedef enum
      developer to chose to retry later. */
     AD_ERROR_USER_PROMPTED,
     
+    /*! This type of error occurs when something went wrong with the application stack, e.g.
+     the resource bundle cannot be loaded. */
+    AD_ERROR_APPLICATION,
+    
     /*! A generic error code for all of the authentication errors. */
     AD_ERROR_AUTHENTICATION,
 } ADErrorCode;

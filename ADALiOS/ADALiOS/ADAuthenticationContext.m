@@ -429,11 +429,13 @@ extraQueryParameters: (NSString*) queryParams
                                             userId:userId
                                            webView:self.webView
                                     promptBehavior:promptBehavior
+                              extraQueryParameters:queryParams
                                         completion:^(NSString * code, ADAuthenticationError *error)
                         {
                             if (error)
                             {
-                                completionBlock([ADAuthenticationResult resultFromError:error]);
+                                ADAuthenticationResult* result = (AD_ERROR_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation] : [ADAuthenticationResult resultFromError:error];
+                                completionBlock(result);
                             }
                             else
                             {
@@ -662,6 +664,7 @@ extraQueryParameters: (NSString*) queryParams
                               userId: (NSString*) userId
                          requestType: (NSString*) requestType
                       promptBehavior: (ADPromptBehavior) promptBehavior
+                extraQueryParameters: (NSString*) queryParams
 {
     NSString *state    = [self encodeProtocolStateWithResource:resource scope:scope];
     // Start the web navigation process for the Implicit grant profile.
@@ -685,6 +688,14 @@ extraQueryParameters: (NSString*) queryParams
     {
         //Force the server to ignore cookies, by specifying explicitly the prompt behavior:
         startUrl = [startUrl stringByAppendingString:[NSString stringWithFormat:@"&prompt=login"]];
+    }
+    if (![NSString isStringNilOrBlank:queryParams])
+    {//Append the additional query parameters if specified:
+        queryParams = queryParams.trimmedString;
+        
+        //Add the '&' for the additional params if not there already:
+        startUrl = [queryParams hasPrefix:@"&"] ? [startUrl stringByAppendingString:queryParams]
+                                                : [startUrl stringByAppendingString:[NSString stringWithFormat:@"&%@", queryParams]];
     }
     
     return startUrl;
@@ -735,6 +746,7 @@ extraQueryParameters: (NSString*) queryParams
                        userId: (NSString*) userId
                       webView: (WebViewType *) webView
                promptBehavior: (ADPromptBehavior) promptBehavior
+         extraQueryParameters: (NSString*) queryParams
                    completion: (ADAuthorizationCodeCallback) completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
@@ -749,7 +761,8 @@ extraQueryParameters: (NSString*) queryParams
                                                  scope:scope
                                                 userId:userId
                                            requestType:OAUTH2_CODE
-                                        promptBehavior:promptBehavior];
+                                        promptBehavior:promptBehavior
+                                  extraQueryParameters:queryParams];
     
     [[WebAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
                                                 end:[NSURL URLWithString:[redirectUri absoluteString]]

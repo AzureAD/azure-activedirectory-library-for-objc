@@ -27,6 +27,10 @@
  It is a key-based store, which stores 'AdTokenCacheStoreItem elements. */
 @protocol ADTokenCacheStoring
 
+/*! Return a copy of all items. The array will contain ADTokenCacheStoreItem objects,
+ containing all of the cached information.*/
+-(NSArray*) allItems;
+
 /*! May return nil, if no cache item corresponds to the requested key
  @param key: The key of the item.
  @param user: The specific user whose item is needed. May be nil, in which
