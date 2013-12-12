@@ -144,7 +144,10 @@ static NSString *_resourcePath = nil;
                           }
                           
                           bundle = [NSBundle bundleWithPath:frameworkBundlePath];
-                          NSAssert( bundle != nil, @"Failed to load resource bundle" );
+                          if (!bundle)
+                          {
+                              AD_LOG_WARN(@"Cannot load ADALiOS bundle", frameworkBundlePath);
+                          }
                       });
     }
     

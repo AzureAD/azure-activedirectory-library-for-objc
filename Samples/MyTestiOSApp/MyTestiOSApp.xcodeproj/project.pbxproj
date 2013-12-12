@@ -27,7 +27,11 @@
 		8BA42B2F17E3C150002D206E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B2D17E3C150002D206E /* InfoPlist.strings */; };
 		8BA42B3117E3C150002D206E /* MyTestiOSAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */; };
 		8BAB18B4184576B700FDD4DD /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BAB18B3184576B700FDD4DD /* libADALiOS.a */; };
-		8BE96C9B185917A100EE0764 /* ADALiOSBundle.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96C9A185917A100EE0764 /* ADALiOSBundle.bundle */; };
+		8BE96CB11859382000EE0764 /* ADALiOSBundle-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CA91859382000EE0764 /* ADALiOSBundle-Info.plist */; };
+		8BE96CB21859382000EE0764 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CAB1859382000EE0764 /* InfoPlist.strings */; };
+		8BE96CB31859382000EE0764 /* IPAL_iPhone_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CAC1859382000EE0764 /* IPAL_iPhone_Storyboard.storyboard */; };
+		8BE96CB41859382000EE0764 /* IPAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CAD1859382000EE0764 /* IPAL_iPad_Storyboard.storyboard */; };
+		8BE96CB51859382000EE0764 /* ADALiOSBundle-Prefix.pch in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CAE1859382000EE0764 /* ADALiOSBundle-Prefix.pch */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,7 +70,11 @@
 		8BA42B2E17E3C150002D206E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyTestiOSAppTests.m; sourceTree = "<group>"; };
 		8BAB18B3184576B700FDD4DD /* libADALiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADALiOS.a; path = "../../../../Library/Developer/Xcode/DerivedData/ADALiOS-ckezcambqztutxakbxsnwblsewcb/Build/Products/Debug-iphoneos/libADALiOS.a"; sourceTree = "<group>"; };
-		8BE96C9A185917A100EE0764 /* ADALiOSBundle.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; name = ADALiOSBundle.bundle; path = "/Users/borisv/Library/Developer/Xcode/DerivedData/ADALiOS-djevopakwptcnvdftjinyinftwsm/Build/Products/Debug-iphoneos/ADALiOSBundle.bundle"; sourceTree = "<absolute>"; };
+		8BE96CA91859382000EE0764 /* ADALiOSBundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ADALiOSBundle-Info.plist"; sourceTree = "<group>"; };
+		8BE96CAA1859382000EE0764 /* en */ = {isa = PBXFileReference; lastKnownFileType = file; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		8BE96CAC1859382000EE0764 /* IPAL_iPhone_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = IPAL_iPhone_Storyboard.storyboard; path = ../ADALiOS/IPAL_iPhone_Storyboard.storyboard; sourceTree = "<group>"; };
+		8BE96CAD1859382000EE0764 /* IPAL_iPad_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = IPAL_iPad_Storyboard.storyboard; path = ../ADALiOS/IPAL_iPad_Storyboard.storyboard; sourceTree = "<group>"; };
+		8BE96CAE1859382000EE0764 /* ADALiOSBundle-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ADALiOSBundle-Prefix.pch"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,7 +107,6 @@
 		8BA42AED17E3C150002D206E = {
 			isa = PBXGroup;
 			children = (
-				8BE96C9A185917A100EE0764 /* ADALiOSBundle.bundle */,
 				8BA42B0117E3C150002D206E /* MyTestiOSApp */,
 				8BA42B2A17E3C150002D206E /* MyTestiOSAppTests */,
 				8BA42AF817E3C150002D206E /* Frameworks */,
@@ -150,6 +157,7 @@
 		8BA42B0217E3C150002D206E /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				8BE96CB01859382000EE0764 /* ADALiOSBundle */,
 				8BA42B0317E3C150002D206E /* MyTestiOSApp-Info.plist */,
 				8BA42B0417E3C150002D206E /* InfoPlist.strings */,
 				8BA42B0717E3C150002D206E /* main.m */,
@@ -174,6 +182,27 @@
 				8BA42B2D17E3C150002D206E /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		8BE96CAF1859382000EE0764 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				8BE96CA91859382000EE0764 /* ADALiOSBundle-Info.plist */,
+				8BE96CAB1859382000EE0764 /* InfoPlist.strings */,
+				8BE96CAC1859382000EE0764 /* IPAL_iPhone_Storyboard.storyboard */,
+				8BE96CAD1859382000EE0764 /* IPAL_iPad_Storyboard.storyboard */,
+				8BE96CAE1859382000EE0764 /* ADALiOSBundle-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		8BE96CB01859382000EE0764 /* ADALiOSBundle */ = {
+			isa = PBXGroup;
+			children = (
+				8BE96CAF1859382000EE0764 /* Supporting Files */,
+			);
+			name = ADALiOSBundle;
+			path = ../../../ADALiOS/ADALiOSBundle;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -254,10 +283,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BA42B1217E3C150002D206E /* Main_iPad.storyboard in Resources */,
+				8BE96CB41859382000EE0764 /* IPAL_iPad_Storyboard.storyboard in Resources */,
+				8BE96CB21859382000EE0764 /* InfoPlist.strings in Resources */,
 				8BA42B1D17E3C150002D206E /* Images.xcassets in Resources */,
+				8BE96CB31859382000EE0764 /* IPAL_iPhone_Storyboard.storyboard in Resources */,
+				8BE96CB51859382000EE0764 /* ADALiOSBundle-Prefix.pch in Resources */,
+				8BE96CB11859382000EE0764 /* ADALiOSBundle-Info.plist in Resources */,
 				8BA42B0F17E3C150002D206E /* Main_iPhone.storyboard in Resources */,
 				8BA42B0617E3C150002D206E /* InfoPlist.strings in Resources */,
-				8BE96C9B185917A100EE0764 /* ADALiOSBundle.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -331,6 +364,14 @@
 			isa = PBXVariantGroup;
 			children = (
 				8BA42B2E17E3C150002D206E /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		8BE96CAB1859382000EE0764 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8BE96CAA1859382000EE0764 /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
