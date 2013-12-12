@@ -27,11 +27,11 @@
 		8BA42B2F17E3C150002D206E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B2D17E3C150002D206E /* InfoPlist.strings */; };
 		8BA42B3117E3C150002D206E /* MyTestiOSAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */; };
 		8BAB18B4184576B700FDD4DD /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BAB18B3184576B700FDD4DD /* libADALiOS.a */; };
-		8BE96CB11859382000EE0764 /* ADALiOSBundle-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CA91859382000EE0764 /* ADALiOSBundle-Info.plist */; };
-		8BE96CB21859382000EE0764 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CAB1859382000EE0764 /* InfoPlist.strings */; };
-		8BE96CB31859382000EE0764 /* IPAL_iPhone_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CAC1859382000EE0764 /* IPAL_iPhone_Storyboard.storyboard */; };
-		8BE96CB41859382000EE0764 /* IPAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CAD1859382000EE0764 /* IPAL_iPad_Storyboard.storyboard */; };
-		8BE96CB51859382000EE0764 /* ADALiOSBundle-Prefix.pch in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CAE1859382000EE0764 /* ADALiOSBundle-Prefix.pch */; };
+		8BE96CBE1859439C00EE0764 /* ADALiOSBundle-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CB61859439C00EE0764 /* ADALiOSBundle-Info.plist */; };
+		8BE96CBF1859439C00EE0764 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CB81859439C00EE0764 /* InfoPlist.strings */; };
+		8BE96CC01859439C00EE0764 /* IPAL_iPhone_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CB91859439C00EE0764 /* IPAL_iPhone_Storyboard.storyboard */; };
+		8BE96CC11859439C00EE0764 /* IPAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CBA1859439C00EE0764 /* IPAL_iPad_Storyboard.storyboard */; };
+		8BE96CC21859439C00EE0764 /* ADALiOSBundle-Prefix.pch in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CBB1859439C00EE0764 /* ADALiOSBundle-Prefix.pch */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,11 +70,11 @@
 		8BA42B2E17E3C150002D206E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyTestiOSAppTests.m; sourceTree = "<group>"; };
 		8BAB18B3184576B700FDD4DD /* libADALiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADALiOS.a; path = "../../../../Library/Developer/Xcode/DerivedData/ADALiOS-ckezcambqztutxakbxsnwblsewcb/Build/Products/Debug-iphoneos/libADALiOS.a"; sourceTree = "<group>"; };
-		8BE96CA91859382000EE0764 /* ADALiOSBundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ADALiOSBundle-Info.plist"; sourceTree = "<group>"; };
-		8BE96CAA1859382000EE0764 /* en */ = {isa = PBXFileReference; lastKnownFileType = file; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		8BE96CAC1859382000EE0764 /* IPAL_iPhone_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = IPAL_iPhone_Storyboard.storyboard; path = ../ADALiOS/IPAL_iPhone_Storyboard.storyboard; sourceTree = "<group>"; };
-		8BE96CAD1859382000EE0764 /* IPAL_iPad_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = IPAL_iPad_Storyboard.storyboard; path = ../ADALiOS/IPAL_iPad_Storyboard.storyboard; sourceTree = "<group>"; };
-		8BE96CAE1859382000EE0764 /* ADALiOSBundle-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ADALiOSBundle-Prefix.pch"; sourceTree = "<group>"; };
+		8BE96CB61859439C00EE0764 /* ADALiOSBundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ADALiOSBundle-Info.plist"; sourceTree = "<group>"; };
+		8BE96CB71859439C00EE0764 /* en */ = {isa = PBXFileReference; lastKnownFileType = file; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		8BE96CB91859439C00EE0764 /* IPAL_iPhone_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = IPAL_iPhone_Storyboard.storyboard; path = ../ADALiOS/IPAL_iPhone_Storyboard.storyboard; sourceTree = "<group>"; };
+		8BE96CBA1859439C00EE0764 /* IPAL_iPad_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = IPAL_iPad_Storyboard.storyboard; path = ../ADALiOS/IPAL_iPad_Storyboard.storyboard; sourceTree = "<group>"; };
+		8BE96CBB1859439C00EE0764 /* ADALiOSBundle-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ADALiOSBundle-Prefix.pch"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -157,7 +157,7 @@
 		8BA42B0217E3C150002D206E /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				8BE96CB01859382000EE0764 /* ADALiOSBundle */,
+				8BE96CBD1859439C00EE0764 /* ADALiOSBundle */,
 				8BA42B0317E3C150002D206E /* MyTestiOSApp-Info.plist */,
 				8BA42B0417E3C150002D206E /* InfoPlist.strings */,
 				8BA42B0717E3C150002D206E /* main.m */,
@@ -184,22 +184,22 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		8BE96CAF1859382000EE0764 /* Supporting Files */ = {
+		8BE96CBC1859439C00EE0764 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				8BE96CA91859382000EE0764 /* ADALiOSBundle-Info.plist */,
-				8BE96CAB1859382000EE0764 /* InfoPlist.strings */,
-				8BE96CAC1859382000EE0764 /* IPAL_iPhone_Storyboard.storyboard */,
-				8BE96CAD1859382000EE0764 /* IPAL_iPad_Storyboard.storyboard */,
-				8BE96CAE1859382000EE0764 /* ADALiOSBundle-Prefix.pch */,
+				8BE96CB61859439C00EE0764 /* ADALiOSBundle-Info.plist */,
+				8BE96CB81859439C00EE0764 /* InfoPlist.strings */,
+				8BE96CB91859439C00EE0764 /* IPAL_iPhone_Storyboard.storyboard */,
+				8BE96CBA1859439C00EE0764 /* IPAL_iPad_Storyboard.storyboard */,
+				8BE96CBB1859439C00EE0764 /* ADALiOSBundle-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		8BE96CB01859382000EE0764 /* ADALiOSBundle */ = {
+		8BE96CBD1859439C00EE0764 /* ADALiOSBundle */ = {
 			isa = PBXGroup;
 			children = (
-				8BE96CAF1859382000EE0764 /* Supporting Files */,
+				8BE96CBC1859439C00EE0764 /* Supporting Files */,
 			);
 			name = ADALiOSBundle;
 			path = ../../../ADALiOS/ADALiOSBundle;
@@ -283,12 +283,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BA42B1217E3C150002D206E /* Main_iPad.storyboard in Resources */,
-				8BE96CB41859382000EE0764 /* IPAL_iPad_Storyboard.storyboard in Resources */,
-				8BE96CB21859382000EE0764 /* InfoPlist.strings in Resources */,
+				8BE96CC11859439C00EE0764 /* IPAL_iPad_Storyboard.storyboard in Resources */,
+				8BE96CBF1859439C00EE0764 /* InfoPlist.strings in Resources */,
 				8BA42B1D17E3C150002D206E /* Images.xcassets in Resources */,
-				8BE96CB31859382000EE0764 /* IPAL_iPhone_Storyboard.storyboard in Resources */,
-				8BE96CB51859382000EE0764 /* ADALiOSBundle-Prefix.pch in Resources */,
-				8BE96CB11859382000EE0764 /* ADALiOSBundle-Info.plist in Resources */,
+				8BE96CC01859439C00EE0764 /* IPAL_iPhone_Storyboard.storyboard in Resources */,
+				8BE96CC21859439C00EE0764 /* ADALiOSBundle-Prefix.pch in Resources */,
+				8BE96CBE1859439C00EE0764 /* ADALiOSBundle-Info.plist in Resources */,
 				8BA42B0F17E3C150002D206E /* Main_iPhone.storyboard in Resources */,
 				8BA42B0617E3C150002D206E /* InfoPlist.strings in Resources */,
 			);
@@ -368,10 +368,10 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		8BE96CAB1859382000EE0764 /* InfoPlist.strings */ = {
+		8BE96CB81859439C00EE0764 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				8BE96CAA1859382000EE0764 /* en */,
+				8BE96CB71859439C00EE0764 /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -462,16 +462,9 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MyTestiOSApp/MyTestiOSApp-Prefix.pch";
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					/Users/borisv/Desktop/MyTestiOSApp,
-				);
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ADALiOS-ckezcambqztutxakbxsnwblsewcb/Build/Products/Debug-iphoneos",
-				);
+				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -484,16 +477,9 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MyTestiOSApp/MyTestiOSApp-Prefix.pch";
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					/Users/borisv/Desktop/MyTestiOSApp,
-				);
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ADALiOS-ckezcambqztutxakbxsnwblsewcb/Build/Products/Debug-iphoneos",
-				);
+				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
