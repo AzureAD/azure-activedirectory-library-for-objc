@@ -23,10 +23,15 @@
 /*! Contains the details about a user that had authorized resource usage*/
 @interface ADUserInformation : NSObject<NSCopying, NSSecureCoding>
 
-/* The only initializer. The default initializer will throw unrecognized selector
+/*! Factory method. The default initializer will throw unrecognized selector
  exception. Please use this one instead */
 +(ADUserInformation*) userInformationWithUserId: (NSString*) userId
                                           error: (ADAuthenticationError* __autoreleasing*) error;
+
+/*! Factory method to extract user information from the AAD id_token parameter.
+ @param: idToken: The contents of the id_token parameter, as passed by the server. */
++(ADUserInformation*) userInformationWithIdToken: (NSString*) idToken
+                                           error: (ADAuthenticationError* __autoreleasing*) error;
 
 /* This is the only readonly property, as it is used in the key generation for the cache.
  A new user information object should be created if userId changes */
@@ -43,5 +48,20 @@
 
 /*! May be null */
 @property NSString* identityProvider;
+
+/*! May be null */
+@property NSString* eMail;
+
+/*! May be null */
+@property NSString* uniqueName;
+
+/*! May be null */
+@property NSString* upn;
+
+/*! May be null */
+@property NSString* tenantId;
+
+/*! May be null */
+@property NSString* subject;
 
 @end

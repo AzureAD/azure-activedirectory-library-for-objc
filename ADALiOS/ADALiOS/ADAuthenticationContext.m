@@ -573,7 +573,7 @@ extraQueryParameters: (NSString*) queryParams
     }
     
     NSString* accessToken = [response objectForKey:OAUTH2_ACCESS_TOKEN];
-    if (accessToken)
+    if (![NSString isStringNilOrBlank:accessToken])
     {
         item.authority = self.authority;
         item.accessToken = accessToken;
@@ -615,6 +615,16 @@ extraQueryParameters: (NSString*) queryParams
         if (![NSString isStringNilOrBlank:resource])
         {
             item.resource = resource;
+        }
+        
+        NSString* idToken = [response objectForKey:OAUTH2_ID_TOKEN];
+        if (idToken)
+        {
+            ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idToken error:nil];
+            if (userInfo)
+            {
+                item.userInformation = userInfo;
+            }
         }
         
         return [ADAuthenticationResult resultFromTokenCacheStoreItem:item];
