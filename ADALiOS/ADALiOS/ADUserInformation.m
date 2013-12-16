@@ -98,7 +98,7 @@ NSString* const ID_TOKEN_IDENTITY_PROVIDER = @"idp";
     
     for (NSString* part in parts)
     {
-        AD_LOG_VERBOSE(@"Id_token", part);
+        AD_LOG_VERBOSE(@"Id_token part", part);
         NSString* decoded = [part adBase64Decode];
         if (![NSString isStringNilOrBlank:decoded])
         {
