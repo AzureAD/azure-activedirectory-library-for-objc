@@ -232,18 +232,18 @@
 -(void) verifyBase64:(NSString*) original
             expected:(NSString*) expected
 {
-    NSString* encoded = [original adBase64Encode];
-    NSString* decoded = [encoded adBase64Decode];
+    NSString* encoded = [original adBase64UrlEncode];
+    NSString* decoded = [encoded adBase64UrlDecode];
     ADAssertStringEquals(encoded, expected);
     ADAssertStringEquals(decoded, original);
 }
 
 -(void) testBase64
 {
-    NSString* encodeEmpty = [@"" adBase64Encode];
+    NSString* encodeEmpty = [@"" adBase64UrlEncode];
     ADAssertStringEquals(encodeEmpty, @"");
     
-    NSString* decodeEmpty = [@"" adBase64Decode];
+    NSString* decodeEmpty = [@"" adBase64UrlDecode];
     ADAssertStringEquals(decodeEmpty, @"");
     
     //15 characters, aka 3k:
@@ -258,10 +258,13 @@
     NSString* test3 = [test2 stringByAppendingString:@"<"];
     [self verifyBase64:test3 expected:@"MSQpPS0gCQ0KZm9vJV4hQDw"];
     
+    //Ensure that URL encoded is in place through encoding correctly the '+' and '/' signs (just in case)
+    [self verifyBase64:@"++++/////" expected:@"KysrKy8vLy8v"];
+    
     //Decode invalid:
-    XCTAssertFalse([@" " adBase64Decode].length, "Contains non-suppurted character < 128");
-    XCTAssertFalse([@"™" adBase64Decode].length, "Contains characters beyond 128");
-    XCTAssertFalse([@"денят" adBase64Decode].length, "Contains unicode characters.");
+    XCTAssertFalse([@" " adBase64UrlDecode].length, "Contains non-suppurted character < 128");
+    XCTAssertFalse([@"™" adBase64UrlDecode].length, "Contains characters beyond 128");
+    XCTAssertFalse([@"денят" adBase64UrlDecode].length, "Contains unicode characters.");
     
 }
 

@@ -64,4 +64,10 @@
 /*! May be null */
 @property NSString* subject;
 
+/*! Unique object id that identifies the user. Internal user representation. May be null. " */
+@property NSString* userObjectId;
+
+/*! Internal representation for guest users to the tenants. May be null. */
+@property NSString* guestId;
+
 @end

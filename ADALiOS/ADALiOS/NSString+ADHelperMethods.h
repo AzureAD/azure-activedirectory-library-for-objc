@@ -22,9 +22,9 @@
 @interface NSString (ADHelperMethods)
 
 /*! Encodes string to the Base64 encoding. */
-- (NSString *) adBase64Encode;
+- (NSString *) adBase64UrlEncode;
 /*! Decodes string from the Base64 encoding. */
-- (NSString *) adBase64Decode;
+- (NSString *) adBase64UrlDecode;
 
 /*! Returns YES if the string is nil, or contains only white space */
 +(BOOL) isStringNilOrBlank: (NSString*)string;

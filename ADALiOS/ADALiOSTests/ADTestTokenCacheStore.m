@@ -68,5 +68,10 @@
     return nil;
 }
 
+-(ADTokenCacheStoreItem*) allItems
+{
+    return nil;
+}
+
 
 @end

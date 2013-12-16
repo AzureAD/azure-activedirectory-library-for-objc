@@ -29,6 +29,10 @@ NSString* const ID_TOKEN_FAMILY_NAME = @"family_name";
 NSString* const ID_TOKEN_UNIQUE_NAME = @"unique_name";
 NSString* const ID_TOKEN_EMAIL = @"email";
 NSString* const ID_TOKEN_IDENTITY_PROVIDER = @"idp";
+NSString* const ID_TOKEN_TYPE = @"typ";
+NSString* const ID_TOKEN_JWT_TYPE = @"JWT";
+NSString* const ID_TOKEN_OBJECT_ID = @"oid";
+NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 
 @implementation ADUserInformation
 
@@ -96,10 +100,11 @@ NSString* const ID_TOKEN_IDENTITY_PROVIDER = @"idp";
         RETURN_ID_TOKEN_ERROR(idToken);
     }
     
+    NSString* type = nil;
     for (NSString* part in parts)
     {
         AD_LOG_VERBOSE(@"Id_token part", part);
-        NSString* decoded = [part adBase64Decode];
+        NSString* decoded = [part adBase64UrlDecode];
         if (![NSString isStringNilOrBlank:decoded])
         {
             NSError* jsonError  = nil;
@@ -123,7 +128,19 @@ NSString* const ID_TOKEN_IDENTITY_PROVIDER = @"idp";
             }
             
             NSDictionary* contents = (NSDictionary*)jsonObject;
-            
+            if (!type)
+            {
+                type = [contents objectForKey:ID_TOKEN_TYPE];
+                if (type)
+                {
+                    //Type argument is passed, check if it is the expected one
+                    if (![ID_TOKEN_JWT_TYPE isEqualToString:type])
+                    {
+                        //Log it, but still try to use it as if it was a JWT token
+                        AD_LOG_WARN(@"Incompatible id_token type.", type);
+                    }
+                }
+            }
             EXTRACT_ID_TOKEN_PROPERTY(GivenName, ID_TOKEN_GIVEN_NAME);
             EXTRACT_ID_TOKEN_PROPERTY(FamilyName, ID_TOKEN_FAMILY_NAME);
             EXTRACT_ID_TOKEN_PROPERTY(Subject, ID_TOKEN_SUBJECT);
@@ -132,11 +149,16 @@ NSString* const ID_TOKEN_IDENTITY_PROVIDER = @"idp";
             EXTRACT_ID_TOKEN_PROPERTY(UniqueName, ID_TOKEN_UNIQUE_NAME);
             EXTRACT_ID_TOKEN_PROPERTY(EMail, ID_TOKEN_EMAIL);
             EXTRACT_ID_TOKEN_PROPERTY(IdentityProvider, ID_TOKEN_IDENTITY_PROVIDER);
+            EXTRACT_ID_TOKEN_PROPERTY(UserObjectId, ID_TOKEN_OBJECT_ID);
+            EXTRACT_ID_TOKEN_PROPERTY(GuestId, ID_TOKEN_GUEST_ID);
         }
+    }
+    if (!type)
+    {
+        AD_LOG_WARN(@"The id_token type is missing.", @"Assuming JWT type.");
     }
     
     //Now attempt to extract an unique user id:
-    
     if (![NSString isStringNilOrBlank:self.uniqueName])
     {
         _userId = self.uniqueName;
@@ -147,9 +169,20 @@ NSString* const ID_TOKEN_IDENTITY_PROVIDER = @"idp";
         _userId = self.eMail;
         self.userIdDisplayable = true;
     }
+    else if (![NSString isStringNilOrBlank:self.upn])
+    {
+        _userId = self.upn;
+        self.userIdDisplayable = true;
+    }
+    else if (![NSString isStringNilOrBlank:self.userObjectId])
+    {
+        _userId = self.userObjectId;
+    }
+    else if (![NSString isStringNilOrBlank:self.guestId])
+    {
+        _userId = self.guestId;
+    }
     else
-    
-    if (!self.userId)
     {
         RETURN_ID_TOKEN_ERROR(idToken);
     }

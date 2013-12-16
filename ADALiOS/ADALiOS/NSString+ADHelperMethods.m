@@ -155,7 +155,7 @@ BOOL validBase64Characters(const byte* data, const int size)
     return result;
 }
 
-- (NSString *) adBase64Decode
+- (NSString *) adBase64UrlDecode
 {
     NSData *decodedData = [self.class Base64DecodeData:self];
     
@@ -251,7 +251,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 }
 
 // Base64 URL encodes a string
-- (NSString *) adBase64Encode
+- (NSString *) adBase64UrlEncode
 {
     NSData *decodedData = [self dataUsingEncoding:NSASCIIStringEncoding];
     

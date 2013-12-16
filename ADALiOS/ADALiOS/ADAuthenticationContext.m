@@ -939,14 +939,14 @@ extraQueryParameters: (NSString*) queryParams
 // Decodes the state parameter from a protocol message
 + (NSDictionary *)decodeProtocolState:(NSString *)encodedState
 {
-    return [NSDictionary URLFormDecode:[encodedState adBase64Decode]];
+    return [NSDictionary URLFormDecode:[encodedState adBase64UrlDecode]];
 }
 
 // Encodes the state parameter for a protocol message
 - (NSString *)encodeProtocolStateWithResource:(NSString *)resource scope:(NSString *)scope
 {
     return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:self.authority, @"a", resource, @"r", scope, @"s", nil]
-             URLFormEncode] adBase64Encode];
+             URLFormEncode] adBase64UrlEncode];
 }
 
 

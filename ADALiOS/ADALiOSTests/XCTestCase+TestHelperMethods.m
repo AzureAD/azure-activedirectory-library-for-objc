@@ -105,7 +105,7 @@ NSString* sTestEnd = @"|||TEST_END|||";
             [sLogLevelsLog appendFormat:@"|%u|", logLevel];
             [sMessagesLog appendFormat:@"|%@|", message];
             [sInformationLog appendFormat:@"|%@|", additionalInformation];
-            [sErrorCodesLog appendFormat:@"|%lu|", errorCode];
+            [sErrorCodesLog appendFormat:@"|%lu|", (long)errorCode];
         }
     };
 
