@@ -52,10 +52,10 @@ static volatile int sDialogInProgress = 0;
 //A wrapper around checkAndHandleBadArgument. Assumes that "completionMethod" is in scope:
 #define HANDLE_ARGUMENT(ARG) \
 if (![self checkAndHandleBadArgument:ARG \
-argumentName:TO_NSSTRING(#ARG) \
-completionBlock:completionBlock]) \
+                        argumentName:TO_NSSTRING(#ARG) \
+                     completionBlock:completionBlock]) \
 { \
-return; \
+     return; \
 }
 
 /*! Verifies that the string parameter is not nil or empty. If it is,
@@ -345,6 +345,8 @@ extraQueryParameters: (NSString*) queryParams
              completionBlock: (ADAuthenticationCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
+    HANDLE_ARGUMENT(resource);
+
     //Check the cache:
     ADAuthenticationError* error;
     //We are explicitly creating a key first to ensure indirectly that all of the required arguments are correct.

@@ -263,10 +263,11 @@
                                     error:error];
 }
 
+#define acquireTokenAsync [self asynchronousAcquireTokenWithLine:__LINE__]
 /* Helper function to fascilitate calling of the asynchronous acquireToken. 
    Uses the ivars of the test class for the arguments.
  */
--(void) callAsynchronousAcquireToken
+-(void) asynchronousAcquireTokenWithLine: (int) line
 {
     //The signal to denote completion:
     __block dispatch_semaphore_t completed = dispatch_semaphore_create(0);
@@ -300,7 +301,8 @@
     //Waits for the callback:
     if (dispatch_semaphore_wait(completed, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)))
     {
-        XCTFail("Timeout while calling the acquireToken");
+        [self recordFailureWithDescription:@"Timeout while calling the acquireToken" inFile:@"" __FILE__ atLine:line expected:NO];
+        return;
     }
     XCTAssertNotNil(mResult, "Result should not be nil.");
     if (mResult && mResult.status != AD_SUCCEEDED)
@@ -326,22 +328,22 @@
 -(void) testAcquireTokenBadResource
 {
     mResource = nil;
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     [self validateForInvalidArgument:@"resource" error:mError];
     
     mResource = @"   ";
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     [self validateForInvalidArgument:@"resource" error:mError];
 }
 
 -(void) testAcquireTokenBadClientId
 {
     mClientId = nil;
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     [self validateForInvalidArgument:@"clientId" error:mError];
     
     mClientId = @"    ";
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     [self validateForInvalidArgument:@"clientId" error:mError];
 }
 
@@ -374,19 +376,19 @@
 {
     NSString* someTokenValue = @"someToken value";
     [self addCacheWithToken:someTokenValue refreshToken:nil userId:mUserId];
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
 
     //Cache a token for nil user:
     NSString* nilUserTokenValue = @"nil user value";
     [self addCacheWithToken:nilUserTokenValue refreshToken:nil userId:nil];
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
     
     //Cache a token for another user:
     NSString* anotherUserTokenValue = @"another user token value";
     [self addCacheWithToken:anotherUserTokenValue refreshToken:nil userId:@"another user"];
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
 }
 
@@ -398,13 +400,13 @@
     //Cache a token for nil user:
     NSString* nilUserTokenValue = @"nil user token";
     [self addCacheWithToken:nilUserTokenValue refreshToken:nil userId:nil];
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, nilUserTokenValue);
     
     //Adds a cache for a real user:
     NSString* someUserTokenValue = @"Some user token";
     [self addCacheWithToken:someUserTokenValue refreshToken:nil userId:@"some user"];
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED);
 }
 
@@ -418,7 +420,7 @@
     NSString* user2TokenValue = @"user2 token";
     [self addCacheWithToken:user2TokenValue refreshToken:nil userId:@"user2"];
     
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED);
     ADAssertLongEquals(mResult.error.code, AD_ERROR_MULTIPLE_USERS);
 }
@@ -428,14 +430,14 @@
     mPromptBehavior = AD_PROMPT_NEVER;
     
     //Nothing in the cache, as we cannot prompt for credentials, this should fail:
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED);
     ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
     
     //Something in the cache, should work even with AD_PROMPT_NEVER:
     NSString* someTokenValue = @"someToken value";
     [self addCacheWithToken:someTokenValue refreshToken:nil userId:mUserId];
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
     
     //Expire the cache item:
@@ -447,7 +449,7 @@
     [mDefaultTokenCache addOrUpdateItem:item error:&error];//Udpate the cache.
     ADAssertNoError;
     //The access token is expired and the refresh token is nil, so it should fail:
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     ADAssertLongEquals(mResult.status, AD_FAILED);
     ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
     
@@ -461,7 +463,7 @@
     [mDefaultTokenCache addOrUpdateItem:item error:&error];//Udpate the cache.
     ADAssertNoError;
     //The access token is expired and the refresh token is nil, so it should fail:
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED);
     ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
     /**** The test breaks here because of the main thread being used for both
@@ -471,7 +473,7 @@
     XCTAssertTrue(mDefaultTokenCache.allItems.count == 0, "Expired items should be removed from the cache");
     [self addCacheWithToken:someTokenValue refreshToken:@"some refresh token" userId:mUserId];
     mContext.tokenCacheStore = nil;
-    [self callAsynchronousAcquireToken];
+    acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED, "AcquireToken should fail, as the credentials are needed without cache.");
     ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
 }
