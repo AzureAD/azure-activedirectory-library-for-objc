@@ -41,7 +41,7 @@
 /*! The authority that issues access tokens */
 @property (readonly) NSString* authority;
 
-/*! The resouce to which the access tokens are issued */
+/*! The resouce to which the access tokens are issued. May be nil in case of multi-resource refresh token. */
 @property (readonly) NSString* resource;
 
 /*! The application client identifier */

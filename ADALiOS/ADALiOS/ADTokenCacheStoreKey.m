@@ -61,7 +61,6 @@
     resource = resource.trimmedString.lowercaseString;
     clientId = clientId.trimmedString.lowercaseString;
     RETURN_NIL_ON_NIL_ARGUMENT(authority);//Canonicalization will return nil on empty or bad URL.
-    RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(resource);
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(clientId);
     
     ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey alloc];
