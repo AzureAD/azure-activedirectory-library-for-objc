@@ -101,11 +101,6 @@
     ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy]];
     [self verifyResult:resultFromValidItem item:item];
     
-    //Turn into bad item:
-    item.resource = nil;
-    ADAuthenticationResult* resultFromBadKeyItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy]];
-    [self verifyErrorResult:resultFromBadKeyItem errorCode:AD_ERROR_INVALID_ARGUMENT];
-    
     //Nil access token:
     item.resource = @"resource";//Restore
     item.accessToken = nil;

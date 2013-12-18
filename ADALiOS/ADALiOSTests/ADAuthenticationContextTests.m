@@ -452,6 +452,9 @@
     acquireTokenAsync;
     ADAssertLongEquals(mResult.status, AD_FAILED);
     ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
+
+    /**** The test breaks here because of the main thread being used for both
+     callbacks and unit test execution. This will be fixed, once we move away from the main thread*/
     
     //Now add an item with a fake refresh token:
     XCTAssertTrue(mDefaultTokenCache.allItems.count == 0, "Expired items should be removed from the cache");
@@ -466,8 +469,6 @@
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED);
     ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
-    /**** The test breaks here because of the main thread being used for both
-     callbacks and unit test execution. This will be fixed, once we move away from the main thread*/
      
     //Put a valid token in the cache, but set context token cache to nil:
     XCTAssertTrue(mDefaultTokenCache.allItems.count == 0, "Expired items should be removed from the cache");
