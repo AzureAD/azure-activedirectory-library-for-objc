@@ -30,6 +30,7 @@
 		8B0965C217F25770002BDFB8 /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AA17F25770002BDFB8 /* libADALiOS.a */; };
 		8B0965C817F25770002BDFB8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8B0965C617F25770002BDFB8 /* InfoPlist.strings */; };
 		8B0DA7DE182AD01100CF5E1E /* ADAuthenticationResult+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B0DA7DD182AD01100CF5E1E /* ADAuthenticationResult+Internal.m */; };
+		8B3032231861347B00C61E7F /* ADTokenCacheStoreKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B3032221861347B00C61E7F /* ADTokenCacheStoreKeyTests.m */; };
 		8B34343718330474002DE1DC /* NSDictionaryExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34343618330474002DE1DC /* NSDictionaryExtensions.m */; };
 		8B34343A1833049B002DE1DC /* NSStringExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B3434391833049B002DE1DC /* NSStringExtensions.m */; };
 		8B34343D183304B1002DE1DC /* NSURLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34343C183304B1002DE1DC /* NSURLExtensions.m */; };
@@ -151,6 +152,7 @@
 		8B0965C717F25770002BDFB8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8B0DA7DC182AD01100CF5E1E /* ADAuthenticationResult+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationResult+Internal.h"; sourceTree = "<group>"; };
 		8B0DA7DD182AD01100CF5E1E /* ADAuthenticationResult+Internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADAuthenticationResult+Internal.m"; sourceTree = "<group>"; };
+		8B3032221861347B00C61E7F /* ADTokenCacheStoreKeyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheStoreKeyTests.m; sourceTree = "<group>"; };
 		8B34343518330474002DE1DC /* NSDictionaryExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSDictionaryExtensions.h; sourceTree = "<group>"; };
 		8B34343618330474002DE1DC /* NSDictionaryExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSDictionaryExtensions.m; sourceTree = "<group>"; };
 		8B3434381833049B002DE1DC /* NSStringExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSStringExtensions.h; sourceTree = "<group>"; };
@@ -363,6 +365,7 @@
 				8B6613B418346080008BDD3F /* ADAuthenticationResultTests.m */,
 				8BBF678518358544004E0F4D /* ADUserInformationTests.m */,
 				8BBF6787183588EC004E0F4D /* ADTokenCacheStoreItemTest.m */,
+				8B3032221861347B00C61E7F /* ADTokenCacheStoreKeyTests.m */,
 			);
 			path = ADALiOSTests;
 			sourceTree = "<group>";
@@ -594,6 +597,7 @@
 				8BB8346B1807BE3F007F9F0D /* ADAuthenticationContextTests.m in Sources */,
 				8BBF6788183588EC004E0F4D /* ADTokenCacheStoreItemTest.m in Sources */,
 				8B6613B518346080008BDD3F /* ADAuthenticationResultTests.m in Sources */,
+				8B3032231861347B00C61E7F /* ADTokenCacheStoreKeyTests.m in Sources */,
 				8B81CE3418188728005CFD65 /* ADTestTokenCacheStore.m in Sources */,
 				8B92DB671819FA61004AAB0E /* ADTestNSStringHelperMethods.m in Sources */,
 			);

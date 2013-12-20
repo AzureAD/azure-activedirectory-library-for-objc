@@ -23,6 +23,12 @@
 
 @implementation ADTokenCacheStoreItem
 
+@synthesize multiResourceRefreshToken;
+-(BOOL) isMultiResourceRefreshToken
+{
+    return !self.resource && !self.accessToken && ![NSString isStringNilOrBlank:self.refreshToken];
+}
+
 -(id) copyWithZone:(NSZone*) zone
 {
     ADTokenCacheStoreItem* item = [[self.class allocWithZone:zone] init];

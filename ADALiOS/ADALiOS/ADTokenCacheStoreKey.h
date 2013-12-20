@@ -30,7 +30,7 @@
 
 /*! Creates a key
  @param authority: Required. The authentication authority used.
- @param resource: Required. The resource used for the token.
+ @param resource: Optional. The resource used for the token. Multi-resource refresh token items can be extracted by specifying nil.
  @param scope: Optional, can be nil. The OAuth2 scope.
  */
 +(ADTokenCacheStoreKey*) keyWithAuthority: (NSString*) authority

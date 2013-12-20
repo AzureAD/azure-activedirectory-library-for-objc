@@ -77,9 +77,16 @@
     ADTokenCacheStoreKey* key = object;
     if (!key)
         return NO;
-    return [self.authority isEqualToString:key.authority]
-        && [self.resource isEqualToString:key.resource]
-        && [self.clientId isEqualToString:key.clientId];
+    //First check the fields which cannot be nil:
+    if (![self.authority isEqualToString:key.authority] ||
+        ![self.clientId isEqualToString:key.clientId])
+        return NO;
+    
+    //Now handle the case of nil resource:
+    if (!self.resource)
+        return !key.resource;//Both should be nil to be equal
+    else
+        return [self.resource isEqualToString:key.resource];
 }
 
 -(id) copyWithZone:(NSZone*) zone

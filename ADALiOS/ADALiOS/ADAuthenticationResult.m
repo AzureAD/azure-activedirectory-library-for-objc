@@ -27,6 +27,7 @@
 @synthesize tokenCacheStoreItem = _tokenCacheStoreItem;
 @synthesize status = _status;
 @synthesize error = _error;
+@synthesize multiResourceRefreshToken = _multiResourceRefreshToken;
 
 -(id) init
 {
