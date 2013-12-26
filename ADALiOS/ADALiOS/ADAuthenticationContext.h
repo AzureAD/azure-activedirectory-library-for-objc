@@ -61,6 +61,20 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  */
 @interface ADAuthenticationContext : NSObject
 
+/*! The method allows subclassing of ADAuthenticationContext. For direct class usage, the static factory methods
+ are recommended due to their simplicity.
+ @param authority: The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+ @param validateAuthority: Specifies if the authority should be validated.
+ @param tokenCacheStore: Allows the user to specify a dictionary object that will implement the token caching. If this
+ parameter is null, tokens will not be cached.
+@param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
+ be nil.
+ */
+-(id) initWithAuthority: (NSString*) authority
+      validateAuthority: (BOOL) validateAuthority
+        tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
+                  error: (ADAuthenticationError* __autoreleasing *) error;
+
 /*! Creates the object, setting the authority, default cache and enables the authority validation. In case of an error
  the function will return nil and if the error parameter is supplied, it will be filled with error details.
  @param authority: The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"

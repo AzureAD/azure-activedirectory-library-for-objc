@@ -46,8 +46,9 @@ extern NSString *const OAUTH2_TOKEN_TYPE;
 extern NSString *const OAUTH2_LOGIN_HINT;
 extern NSString *const OAUTH2_ID_TOKEN;
 
-extern NSString *const AUTH_FAILED;
+extern NSString *const AUTH_FAILED; //Generic error.
 extern NSString *const AUTH_FAILED_ERROR_CODE;
+extern NSString *const AUTH_NON_PROTOCOL_ERROR; //A special error to denote that the error was not part of the protocol. E.g. a connection error.
 
 extern NSString *const AUTH_FAILED_SERVER_ERROR;
 extern NSString *const AUTH_FAILED_NO_STATE;
