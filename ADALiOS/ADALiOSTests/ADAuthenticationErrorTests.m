@@ -113,4 +113,15 @@
     ADAssertLogsContainValue(TEST_LOG_INFO, details);
 }
 
+-(void) testErrorFromOAuthError
+{
+    NSString* details = @"Some details";
+    NSString* protocolCode = @"procol code";
+    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:protocolCode errorDetails:details];
+    ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
+    XCTAssertEqual(error.code, AD_ERROR_AUTHENTICATION);
+    ADAssertStringEquals(error.protocolCode, protocolCode);
+    ADAssertStringEquals(error.errorDetails, details);
+}
+
 @end

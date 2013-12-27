@@ -71,6 +71,7 @@ NSString* const ADInvalidArgumentMessage = @"The argument '%@' is invalid. Value
     if (self)
     {
         _errorDetails = details;
+        _protocolCode = protocolCode;
     }
     return self;
 }

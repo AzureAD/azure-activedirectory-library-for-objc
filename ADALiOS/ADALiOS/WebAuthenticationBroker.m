@@ -22,6 +22,7 @@
 #import "WebAuthenticationWebViewController.h"
 #import "WebAuthenticationViewController.h"
 #import "WebAuthenticationBroker.h"
+#import "ADAuthenticationSettings.h"
 
 
 static NSString *const WAB_FAILED_ERROR         = @"Authorization Failed";
@@ -217,7 +218,7 @@ static NSString *_resourcePath = nil;
             {
                 // Dispatch the completion block
                 ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_APPLICATION protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
-                dispatch_async( dispatch_get_main_queue(), ^{
+                dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
                     _completionBlock( error, nil );
                 });
             }
@@ -226,7 +227,7 @@ static NSString *_resourcePath = nil;
         {
             // Dispatch the completion block
             ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_APPLICATION protocolCode:nil errorDetails:WAB_FAILED_NO_CONTROLLER];
-            dispatch_async( dispatch_get_main_queue(), ^{
+            dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
                 _completionBlock( error, nil );
             });
         }
@@ -246,7 +247,7 @@ static NSString *_resourcePath = nil;
         {
             // Dispatch the completion block
             ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_APPLICATION protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
-            dispatch_async( dispatch_get_main_queue(), ^{
+            dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
                 _completionBlock( error, nil );
             });
         }
@@ -275,7 +276,7 @@ static NSString *_resourcePath = nil;
         void (^completionBlock)( ADAuthenticationError *, NSURL *) = _completionBlock;
         _completionBlock = nil;
         
-        dispatch_async( dispatch_get_main_queue(), ^{
+        dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
             completionBlock( error, url );
         });
     }
