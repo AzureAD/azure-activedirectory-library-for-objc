@@ -240,8 +240,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     if ([NSString isStringNilOrBlank:storedUserId])
     {
         //The userId should be valid:
-        NSString* message = [NSString stringWithFormat:@"Invalid userId: %@", storedUserId];
-        AD_LOG_ERROR(@"Invalid user information", message, AD_ERROR_BAD_CACHE_FORMAT);
+        AD_LOG_ERROR_F(@"Invalid user information", AD_ERROR_BAD_CACHE_FORMAT, @"Invalid userId: %@", storedUserId);
         
         return nil;
     }

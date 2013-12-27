@@ -64,7 +64,7 @@ NSString* const ADInvalidArgumentMessage = @"The argument '%@' is invalid. Value
     {
         NSString* message = [NSString stringWithFormat:@"Error raised: %lu", (long)code];
         NSString* info = [NSString stringWithFormat:@"Domain: %@ ProtocolCode:%@ Details:%@", domain, protocolCode, details];
-        AD_LOG_ERROR(message, info, code);
+        AD_LOG_ERROR(message, code, info);
     }
     
     self = [super initWithDomain:domain code:code userInfo:userInfo];

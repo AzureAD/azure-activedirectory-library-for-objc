@@ -100,8 +100,7 @@ const int16_t LOWER_VERSION = 0;
     if (![filePath isEqualToString:mLastArchiveFile])
     {
         //Archiving requested to a new file, always archive there:
-        NSString* message = [NSString stringWithFormat:@"The perisistence file has been changed from :'%@' to '%@'", mLastArchiveFile, filePath];
-        AD_LOG_VERBOSE(@"Cache persistence file changed.", message);
+        AD_LOG_VERBOSE_F(@"Cache persistence file changed.", @"The perisistence file has been changed from :'%@' to '%@'", mLastArchiveFile, filePath);
         mArchivedRevision = 0;//New file, persist unless the cache was never touched or loaded.
     }
     int64_t currentRevision = mCurrenRevision;//The revision that will be used
@@ -180,13 +179,7 @@ const int16_t LOWER_VERSION = 0;
             mArchivedRevision = snapShotRevision;//The revision that we just read
             mLastArchiveFile = filePath;
             double archivingTime = -[startWriting timeIntervalSinceNow];//timeIntervalSinceNow returns negative value
-            NSString* message = [NSString stringWithFormat:@"The cache was successfully persisted to: '%@', revision: %lld, took: %f seconds.", filePath, mArchivedRevision, archivingTime];
-            AD_LOG_VERBOSE(@"Cache persisted.", message);
-            
-            NSFileManager* fileManager = [NSFileManager defaultManager];
-            NSError* attributesError;
-            BOOL encrypted = [fileManager setAttributes:<#(NSDictionary *)#> ofItemAtPath:filePath error:&attributesError];
-            
+            AD_LOG_VERBOSE_F(@"Cache persisted.", @"The cache was successfully persisted to: '%@', revision: %lld, took: %f seconds.", filePath, mArchivedRevision, archivingTime);
             
             return YES;
         }
@@ -352,7 +345,7 @@ const int16_t LOWER_VERSION = 0;
     API_ENTRY;
     if (!key)
     {
-        AD_LOG_WARN(@"getItemWithKey called passing nil key", @"At ADDefaultTokenCacheStore::removeItemWithKey");
+        AD_LOG_WARN(@"getItemWithKey called passing nil key", @"At ADDefaultTokenCacheStore::removeItemWithKey:userId");
         return nil;
     }
     @synchronized(mCache)
@@ -395,7 +388,7 @@ const int16_t LOWER_VERSION = 0;
     
     if (!key)
     {
-        AD_LOG_WARN(@"removeItemWithKey called passing nil key", @"At ADDefaultTokenCacheStore::removeItemWithKey");
+        AD_LOG_WARN(@"removeItemWithKey called passing nil key", @"At ADDefaultTokenCacheStore::removeItemWithKey:userId");
         return;
     }
     
@@ -512,9 +505,8 @@ const int16_t LOWER_VERSION = 0;
         }
     }
     double readingTime = -[startReading timeIntervalSinceNow];//timeIntervalSinceNow returns negative value-[
-    NSString* log = [NSString stringWithFormat:@"Finished reading of the persisted cache. Version: (%d.%d); Took: %f seconds; File: %@",
-                     serialization->upperVersion, serialization->lowerVersion, readingTime, fileName];
-    AD_LOG_VERBOSE(@"Token Cache Store Persistence", log);
+    AD_LOG_VERBOSE_F(@"Token Cache Store Persistence", @"Finished reading of the persisted cache. Version: (%d.%d); Took: %f seconds; File: %@",
+                   serialization->upperVersion, serialization->lowerVersion, readingTime, fileName);
 
     return numAdded > 0;
 }

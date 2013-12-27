@@ -196,12 +196,12 @@
     // Tell our delegate that we are done after an error.
     if (_delegate)
     {
-        AD_LOG_ERROR(@"authorization error", [error localizedDescription], error.code);
+        AD_LOG_ERROR(@"authorization error", error.code, [error localizedDescription]);
         dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidFailWithError:error]; } );
     }
     else
     {
-        AD_LOG_ERROR(@"Delegate object is lost", @"The delegate object was lost, potentially due to another concurrent request.", AD_ERROR_APPLICATION);
+        AD_LOG_ERROR(@"Delegate object is lost", AD_ERROR_APPLICATION, @"The delegate object was lost, potentially due to another concurrent request.");
     }
 }
 
