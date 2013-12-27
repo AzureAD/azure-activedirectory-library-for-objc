@@ -34,13 +34,14 @@ NSString* const cancelError = @"The user has cancelled the authorization.";
     return [self initWithError:error status:AD_USER_CANCELLED];
 }
 
--(id) initWithItem: (ADTokenCacheStoreItem*) item
+-(id) initWithItem: (ADTokenCacheStoreItem*) item multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 {
     self = [super init];
     if (self)
     {
         _status = AD_SUCCEEDED;
         _tokenCacheStoreItem = item;
+        _multiResourceRefreshToken = multiResourceRefreshToken;
     }
     return self;
 }
@@ -61,6 +62,7 @@ NSString* const cancelError = @"The user has cancelled the authorization.";
 
 /*! Creates an instance of the result from the cache store. */
 +(ADAuthenticationResult*) resultFromTokenCacheStoreItem: (ADTokenCacheStoreItem*) item
+                               multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 {
     if (item)
     {
@@ -79,7 +81,7 @@ NSString* const cancelError = @"The user has cancelled the authorization.";
             return [ADAuthenticationResult resultFromError:error];
         }
         //The item can be used, just use it:
-        return [[ADAuthenticationResult alloc] initWithItem:item];
+        return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:multiResourceRefreshToken];
     }
     else
     {

@@ -81,7 +81,7 @@
 
 -(void) testResultFromTokenCacheStoreItem
 {
-    ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil];
+    ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil multiResourceRefreshToken:NO];
     [self verifyErrorResult:nilItemResult errorCode:AD_ERROR_UNEXPECTED];
     
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
@@ -98,24 +98,19 @@
     item.tenantId = @"tenantId";
     
     //Copy the item to ensure that it is not modified withing the method call below:
-    ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy]];
+    ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
     [self verifyResult:resultFromValidItem item:item];
-    
-    //Turn into bad item:
-    item.resource = nil;
-    ADAuthenticationResult* resultFromBadKeyItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy]];
-    [self verifyErrorResult:resultFromBadKeyItem errorCode:AD_ERROR_INVALID_ARGUMENT];
     
     //Nil access token:
     item.resource = @"resource";//Restore
     item.accessToken = nil;
-    ADAuthenticationResult* resultFromNilAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy]];
+    ADAuthenticationResult* resultFromNilAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
     [self verifyErrorResult:resultFromNilAccessToken errorCode:AD_ERROR_UNEXPECTED];
 
     //Empty access token:
     item.resource = @"resource";//Restore
     item.accessToken = @"   ";
-    ADAuthenticationResult* resultFromEmptyAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy]];
+    ADAuthenticationResult* resultFromEmptyAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
     [self verifyErrorResult:resultFromEmptyAccessToken errorCode:AD_ERROR_UNEXPECTED];
 }
 

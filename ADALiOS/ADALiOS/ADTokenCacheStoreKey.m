@@ -61,7 +61,6 @@
     resource = resource.trimmedString.lowercaseString;
     clientId = clientId.trimmedString.lowercaseString;
     RETURN_NIL_ON_NIL_ARGUMENT(authority);//Canonicalization will return nil on empty or bad URL.
-    RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(resource);
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(clientId);
     
     ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey alloc];
@@ -78,9 +77,16 @@
     ADTokenCacheStoreKey* key = object;
     if (!key)
         return NO;
-    return [self.authority isEqualToString:key.authority]
-        && [self.resource isEqualToString:key.resource]
-        && [self.clientId isEqualToString:key.clientId];
+    //First check the fields which cannot be nil:
+    if (![self.authority isEqualToString:key.authority] ||
+        ![self.clientId isEqualToString:key.clientId])
+        return NO;
+    
+    //Now handle the case of nil resource:
+    if (!self.resource)
+        return !key.resource;//Both should be nil to be equal
+    else
+        return [self.resource isEqualToString:key.resource];
 }
 
 -(id) copyWithZone:(NSZone*) zone

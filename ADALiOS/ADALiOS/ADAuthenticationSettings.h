@@ -74,4 +74,7 @@ typedef enum
 /*! Used for the webView. Default is YES.*/
 @property BOOL enableFullScreen;
 
+/*! The dispatch queue to be used for the asynchronous calls. */
+@property dispatch_queue_t dispatchQueue;
+
 @end

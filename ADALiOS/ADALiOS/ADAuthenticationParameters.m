@@ -136,7 +136,7 @@
     ADAuthenticationParameters* toReturn =
         [[ADAuthenticationParameters alloc] initInternalWithChallenge:authenticateHeader start:start];
     
-    if (!toReturn || [NSString isStringNilOrBlank:toReturn.authority])
+    if (!toReturn || [NSString isStringNilOrBlank:toReturn.authority] || ![NSURL URLWithString:toReturn.authority])
     {
         //Failed to extract authority. Return error:
         NSString* details = [NSString stringWithFormat:MissingAuthority, OAuth2_Authenticate_Header, OAuth2_Authorization_Uri];

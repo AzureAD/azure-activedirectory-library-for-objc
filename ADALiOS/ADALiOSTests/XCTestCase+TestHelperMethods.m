@@ -19,6 +19,7 @@
 
 #import "XCTestCase+TestHelperMethods.h"
 #import <ADALiOS/ADTokenCacheStoreItem.h>
+#import <ADALioS/ADAuthenticationSettings.h>
 
 
 @implementation XCTestCase (TestHelperMethods)
@@ -113,6 +114,9 @@ NSString* sTestEnd = @"|||TEST_END|||";
     [ADLogger setLogCallBack:logCallback];
     [ADLogger setLevel:ADAL_LOG_LAST];//Log everything by default. Tests can change this.
     XCTAssertEqual(logCallback, [ADLogger getLogCallBack], "Setting of logCallBack failed.");
+    //Tests are executed in the main thread and as such, they will fail, if the asynchronous methods dispatch to the same thread,
+    //so we redirect dispatching to the background asynchronous queue:
+    [ADAuthenticationSettings sharedInstance].dispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 }
 
 /*! Clears logging and other infrastructure after a test */

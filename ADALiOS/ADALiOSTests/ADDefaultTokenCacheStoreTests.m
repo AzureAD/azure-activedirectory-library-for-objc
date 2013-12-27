@@ -553,10 +553,13 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 //Waits and checks that the cache was persisted.
 //The logs should be cleared before performing the operation that leads to persistence.
--(void) validateAsynchronousPersistence
+-(void) validateAsynchronousPersistenceWithLine: (int) line
 {
     [self waitForPersistence];
-    ADAssertLogsContainValue(TEST_LOG_INFO, sPersisted);
+    [self assertLogsContain:sPersisted
+                    logPart:TEST_LOG_INFO
+                       file:__FILE__
+                       line:line];
 }
 
 //Ensures that the cache is eventually persisted when modified:
@@ -571,20 +574,20 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAuthenticationError* error;
     [mStore addOrUpdateItem:item error:&error];
     ADAssertNoError;
-    [self validateAsynchronousPersistence];
+    [self validateAsynchronousPersistenceWithLine:__LINE__];
     
     //Remove an item:
     [self clearLogs];
     [mStore removeItem:item error:&error];
     ADAssertNoError;
-    [self validateAsynchronousPersistence];
+    [self validateAsynchronousPersistenceWithLine:__LINE__];
     
     [mStore addOrUpdateItem:item error:&error];
     ADAssertNoError;
     
     [self clearLogs];
     [mStore removeAll];
-    [self validateAsynchronousPersistence];
+    [self validateAsynchronousPersistenceWithLine:__LINE__];
 }
 
 //Add large number of items to the cache and makes. Acts as a mini-stress test too

@@ -47,8 +47,10 @@ NSString *const OAUTH2_TOKEN_TYPE         = @"token_type";
 NSString *const OAUTH2_LOGIN_HINT         = @"login_hint";
 NSString *const OAUTH2_ID_TOKEN           = @"id_token";
 
-NSString *const AUTH_FAILED               = @"Authorization Failed";
-NSString *const AUTH_FAILED_ERROR_CODE    = @"Authorization Failed: %d";
+//Internal constants:
+NSString *const AUTH_FAILED               = @"Authentication Failed";
+NSString *const AUTH_FAILED_ERROR_CODE    = @"Authentication Failed: %d";
+NSString *const AUTH_NON_PROTOCOL_ERROR   = @"non_protocol_error";
 
 NSString *const AUTH_FAILED_SERVER_ERROR   = @"The Authorization Server returned an unrecognized response";
 NSString *const AUTH_FAILED_NO_STATE       = @"The Authorization Server response has incorrectly encoded state";
