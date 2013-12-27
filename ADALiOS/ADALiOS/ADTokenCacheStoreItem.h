@@ -27,13 +27,14 @@
     See the key extraction function for details on how the keys are constructed. */
 @interface ADTokenCacheStoreItem : NSObject<NSCopying , NSSecureCoding>
 
-/*! Applicable resource */
+/*! Applicable resource. Should be nil, in case the item stores multi-resource refresh token. */
 @property NSString* resource;
 
 @property NSString* authority;
 
 @property NSString* clientId;
 
+/*! The access token received. Should be nil, in case the item stores multi-resource refresh token. */
 @property NSString* accessToken;
 
 @property NSString* accessTokenType;

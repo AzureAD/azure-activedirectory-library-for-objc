@@ -24,7 +24,6 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
 #import "HTTPWebRequest.h"
-#import "MockHTTPWebRequest.h"
 #import "ADTestAuthenticationContext.h"
 #import "ADOAuth2Constants.h"
 
@@ -492,7 +491,12 @@
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED);
     ADAssertLongEquals(mResult.error.code, AD_ERROR_MULTIPLE_USERS);
+    mUserId = user1;
+    acquireTokenAsync;
+    XCTAssertEqual(mResult.status, AD_SUCCEEDED);
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, user1TokenValue);
     
+    mUserId = nil;
     //Try the same, but with refresh tokens only:
     [self addCacheWithToken:nil refreshToken:@"refresh1" userId:user1];
     [self addCacheWithToken:nil refreshToken:@"refresh2" userId:user2];

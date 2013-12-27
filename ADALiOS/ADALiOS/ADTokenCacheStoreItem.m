@@ -24,9 +24,14 @@
 @implementation ADTokenCacheStoreItem
 
 @synthesize multiResourceRefreshToken;
+
+//Multi-resource refresh tokens are stored separately, as they apply to all resources. As such,
+//we create a special, "broad" cache item, with nil resource and access token:
 -(BOOL) isMultiResourceRefreshToken
 {
-    return !self.resource && !self.accessToken && ![NSString isStringNilOrBlank:self.refreshToken];
+    return [NSString isStringNilOrBlank:self.resource]
+        && [NSString isStringNilOrBlank:self.accessToken]
+       && ![NSString isStringNilOrBlank:self.refreshToken];
 }
 
 -(id) copyWithZone:(NSZone*) zone
