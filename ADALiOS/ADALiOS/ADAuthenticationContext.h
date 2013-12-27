@@ -132,6 +132,10 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
 /*! Provides access to the token cache used in this context. If null, tokens will not be cached. */
 @property id<ADTokenCacheStoring> tokenCacheStore;
 
+/*! Unique identifier passed to the server and returned back with errors. Useful during investigations to correlate the
+ requests and the responses from the server. */
+@property uuid_t correlationId;
+
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
  the function will use the refresh token automatically.

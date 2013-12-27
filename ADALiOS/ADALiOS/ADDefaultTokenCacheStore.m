@@ -182,6 +182,12 @@ const int16_t LOWER_VERSION = 0;
             double archivingTime = -[startWriting timeIntervalSinceNow];//timeIntervalSinceNow returns negative value
             NSString* message = [NSString stringWithFormat:@"The cache was successfully persisted to: '%@', revision: %lld, took: %f seconds.", filePath, mArchivedRevision, archivingTime];
             AD_LOG_VERBOSE(@"Cache persisted.", message);
+            
+            NSFileManager* fileManager = [NSFileManager defaultManager];
+            NSError* attributesError;
+            BOOL encrypted = [fileManager setAttributes:<#(NSDictionary *)#> ofItemAtPath:filePath error:&attributesError];
+            
+            
             return YES;
         }
         else
