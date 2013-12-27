@@ -28,10 +28,12 @@
 +(ADAuthenticationResult*) resultFromCancellation;
 
 /*! Creates an authentication result from an error condition. */
-+(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error;
++(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error
+                             correlationId: (NSUUID*) correlationId;
 
 /*! Creates an instance of the result from a pre-setup token cache store item. */
 +(ADAuthenticationResult*) resultFromTokenCacheStoreItem: (ADTokenCacheStoreItem*) item
-                               multiResourceRefreshToken: (BOOL) multiResourceRefreshToken;
+                               multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
+                                           correlationId: (NSUUID*) correlationId;
 
 @end

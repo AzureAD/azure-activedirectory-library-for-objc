@@ -113,6 +113,7 @@ NSString* sTestEnd = @"|||TEST_END|||";
     
     [ADLogger setLogCallBack:logCallback];
     [ADLogger setLevel:ADAL_LOG_LAST];//Log everything by default. Tests can change this.
+    [ADLogger setNSLogging:NO];//Disables the NS logging to avoid generating huge amount of system logs.
     XCTAssertEqual(logCallback, [ADLogger getLogCallBack], "Setting of logCallBack failed.");
     //Tests are executed in the main thread and as such, they will fail, if the asynchronous methods dispatch to the same thread,
     //so we redirect dispatching to the background asynchronous queue:

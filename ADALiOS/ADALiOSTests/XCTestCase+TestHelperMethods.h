@@ -120,7 +120,8 @@ typedef enum
 #define ADAssertDateEquals(actualParam, expectedParam) XCTAssertTrue([expectedParam compare:actualParam] == NSOrderedSame)
 
 //Usage: ADAssertLogsContain(TEST_LOG_MESSAGE, "acquireToken");
-//  ADAssertLogsContainValue(TEST_LOG_MESSAGE, parameterValue);
+//       ADAssertLogsContainValue(TEST_LOG_MESSAGE, parameterValue);
+// Use ADAssertLogsContain for constant texts and ADAssertLogsContainValue, when passing a string object.
 #define ADAssertLogsContain(LOGPART, TEXT) \
 { \
     [self assertLogsContain:TO_NSSTRING(TEXT) \
@@ -129,6 +130,7 @@ typedef enum
                       line:__LINE__]; \
 }
 
+//"TEXT" should be string object:
 #define ADAssertLogsContainValue(LOGPART, TEXT) \
 { \
     [self assertLogsContain:TEXT \
