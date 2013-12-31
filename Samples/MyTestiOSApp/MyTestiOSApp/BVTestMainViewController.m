@@ -24,6 +24,7 @@
 #import <ADALiOS/ADDefaultTokenCacheStore.h>
 #import <ADALiOS/ADAuthenticationSettings.h>
 #import <ADALiOS/ADLogger.h>
+#import <ADALiOS/ADInstanceDiscovery.h>
 
 @interface BVTestMainViewController ()
 @property (weak, nonatomic) IBOutlet UILabel *resultLabel;
@@ -99,8 +100,9 @@
 
 - (IBAction)pressMeAction:(id)sender
 {
-    [self.resultLabel setText:@"Starting 401 challenge."];
     BVTestMainViewController* __weak weakSelf = self;
+    [self.resultLabel setText:@"Starting 401 challenge."];
+
     NSString* __block resourceString = @"http://testapi007.azurewebsites.net/api/WorkItem";
     NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters * params, ADAuthenticationError * error)
@@ -197,7 +199,8 @@
         [self setStatus:error.errorDetails];
         return;
     }
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:authority resource:resourceString clientId:clientId error:&error];
+    //We will leverage a multi-resource refresh token:
+    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:authority resource:nil clientId:clientId error:&error];
     if (!key)
     {
         [self setStatus:error.errorDetails];

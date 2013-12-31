@@ -29,6 +29,7 @@
 #import "NSDictionaryExtensions.h"
 #import "HTTPWebRequest.h"
 #import "HTTPWebResponse.h"
+#import "ADInstanceDiscovery.h"
 
 NSString* const multiUserError = @"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used.";
 NSString* const unknownError = @"Uknown error.";
@@ -122,6 +123,14 @@ if (![self checkAndHandleBadArgument:ARG \
         trimmedAuthority = [trimmedAuthority substringToIndex:trimmedAuthority.length - OAUTH2_TOKEN_SUFFIX.length];
     }
     
+    //Ensure that the authority contains the OAuth2 protocol suffix, as required by Azure Active Directory.
+    //See the ADAuthenticationSettings class for details
+    NSString* protocolSuffix = [ADAuthenticationSettings sharedInstance].OAuth2ProtocolSuffux;
+    if (![NSString isStringNilOrBlank:protocolSuffix] && ![trimmedAuthority hasSuffix:protocolSuffix])
+    {
+        trimmedAuthority = [trimmedAuthority stringByAppendingString:protocolSuffix];
+    }
+    
     return trimmedAuthority;
 }
 
@@ -189,9 +198,9 @@ if (![self checkAndHandleBadArgument:ARG \
     if (context)
     {
         return [context initWithAuthority: authority
-                                validateAuthority: bValidate
-                                  tokenCacheStore: tokenCache
-                                            error: error];
+                        validateAuthority: bValidate
+                          tokenCacheStore: tokenCache
+                                    error: error];
     }
     return context;
 }
@@ -211,6 +220,7 @@ if (![self checkAndHandleBadArgument:ARG \
                                 scope:nil
                  extraQueryParameters:nil
                              tryCache:YES
+                    validateAuthority:self.validateAuthority
                       completionBlock:completionBlock];
 }
 
@@ -229,6 +239,7 @@ if (![self checkAndHandleBadArgument:ARG \
                          scope:nil
           extraQueryParameters:nil
                       tryCache:YES
+             validateAuthority:self.validateAuthority
                completionBlock:completionBlock];
 }
 
@@ -249,6 +260,7 @@ extraQueryParameters: (NSString*) queryParams
                          scope:nil
           extraQueryParameters:queryParams
                       tryCache:YES
+             validateAuthority:self.validateAuthority
                completionBlock:completionBlock];
 }
 
@@ -299,6 +311,7 @@ extraQueryParameters: (NSString*) queryParams
                                     resource:resource
                                       userId:item.userInformation.userId
                                    cacheItem:item
+                           validateAuthority:NO /* Done by the caller. */
                              completionBlock:^(ADAuthenticationResult *result)
      {
          //Asynchronous block:
@@ -357,7 +370,8 @@ extraQueryParameters: (NSString*) queryParams
                              userId: userId
                               scope: nil
                extraQueryParameters: queryParams
-                           tryCache:NO
+                           tryCache: NO
+                  validateAuthority: NO
                     completionBlock: completionBlock];
     }];//End of the refreshing token completion block, executed asynchronously.
 }
@@ -380,6 +394,7 @@ extraQueryParameters: (NSString*) queryParams
                          scope:nil
           extraQueryParameters:queryParams
                       tryCache:YES
+             validateAuthority:self.validateAuthority
                completionBlock:completionBlock];
 }
 
@@ -498,10 +513,36 @@ extraQueryParameters: (NSString*) queryParams
                        scope: (NSString*) scope
         extraQueryParameters: (NSString*) queryParams
                     tryCache: (BOOL) tryCache /* set internally to avoid infinite recursion */
+           validateAuthority: (BOOL) validateAuthority
              completionBlock: (ADAuthenticationCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
     HANDLE_ARGUMENT(resource);
+    
+    if (validateAuthority)
+    {
+        [[ADInstanceDiscovery sharedInstance] validateAuthority:self.authority completionBlock:^(BOOL validated, ADAuthenticationError *error)
+        {
+            if (error)
+            {
+                completionBlock([ADAuthenticationResult resultFromError:error]);
+            }
+            else
+            {
+                [self internalAcquireToken:resource
+                                  clientId:clientId
+                               redirectUri:redirectUri
+                            promptBehavior:promptBehavior
+                                    userId:userId
+                                     scope:scope
+                      extraQueryParameters:queryParams
+                                  tryCache:tryCache
+                         validateAuthority:NO /* Already validated in this block. */
+                           completionBlock:completionBlock];
+            }
+        }];
+        return;//The asynchronous handler above will do the work.
+    }
 
     //Check the cache:
     ADAuthenticationError* error;
@@ -604,6 +645,7 @@ extraQueryParameters: (NSString*) queryParams
                                     resource:nil
                                       userId:nil
                                    cacheItem:nil
+                           validateAuthority:self.validateAuthority
                              completionBlock:completionBlock];
 }
 
@@ -618,6 +660,7 @@ extraQueryParameters: (NSString*) queryParams
                                     resource:resource
                                       userId:nil
                                    cacheItem:nil
+                           validateAuthority:self.validateAuthority
                              completionBlock:completionBlock];
 }
 
@@ -718,6 +761,7 @@ extraQueryParameters: (NSString*) queryParams
                                   resource: (NSString*) resource
                                     userId: (NSString*) userId
                                  cacheItem: (ADTokenCacheStoreItem*) cacheItem
+                         validateAuthority: (BOOL) validateAuthority
                            completionBlock: (ADAuthenticationCallback)completionBlock
 {
     HANDLE_ARGUMENT(refreshToken);
@@ -726,6 +770,28 @@ extraQueryParameters: (NSString*) queryParams
         NSString* logMessage = [NSString stringWithFormat:@"Resource: %@", resource];
         AD_LOG_VERBOSE(@"Attempting to acquire an access token from refresh token.", logMessage);
     }
+    if (validateAuthority)
+    {
+        [[ADInstanceDiscovery sharedInstance] validateAuthority:self.authority completionBlock:^(BOOL validated, ADAuthenticationError *error)
+         {
+             if (error)
+             {
+                 completionBlock([ADAuthenticationResult resultFromError:error]);
+             }
+             else
+             {
+                 [self internalAcquireTokenByRefreshToken:refreshToken
+                                                 clientId:clientId
+                                                 resource:resource
+                                                   userId:userId
+                                                cacheItem:cacheItem
+                                        validateAuthority:NO /*Already validated in this block. */
+                                          completionBlock:completionBlock];
+             }
+         }];
+         return;//The asynchronous block above will handle everything;
+    }
+    
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                          OAUTH2_REFRESH_TOKEN, OAUTH2_GRANT_TYPE,
@@ -1124,10 +1190,19 @@ extraQueryParameters: (NSString*) queryParams
                         }
                         else
                         {
-                            // Unrecognized JSON response
-                            AD_LOG_WARN(@"JSON deserialization", jsonError.localizedDescription);
+                            ADAuthenticationError* adError;
+                            if (jsonError)
+                            {
+                                // Unrecognized JSON response
+                                AD_LOG_WARN(@"JSON deserialization", jsonError.localizedDescription);
+                                adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
+                            }
+                            else
+                            {
+                                adError = [ADAuthenticationError unexpectedInternalError:[NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]]];
+                            }
                             NSMutableDictionary *mutableResponse = [[NSMutableDictionary alloc] initWithCapacity:1];
-                            [mutableResponse setObject:[ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription]
+                            [mutableResponse setObject:adError
                                                 forKey:AUTH_NON_PROTOCOL_ERROR];
                             response = mutableResponse;
                         }

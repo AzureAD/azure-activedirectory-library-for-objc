@@ -36,10 +36,13 @@
         self.expirationBuffer = 300;//in seconds, ensures catching of clock differences between the server and the device
         self.singleSignOn = YES;
         self.enableFullScreen = YES;
+        self.OAuth2ProtocolSuffux = @"/oauth2";
+        
         //The current HTTPWebRequest implementation uses NSURLConnection, which calls its delegate on the same thread
         //that created the object. Unfortunately with Grand Central Dispatch, it is not guaranteed that the thread
         //exists. Hence for now, we create the connection on the main thread by default:
         self.dispatchQueue = dispatch_get_main_queue();
+        
         // Search for the path
         NSArray  *paths = NSSearchPathForDirectoriesInDomains( NSCachesDirectory, NSUserDomainMask, YES );
         if (paths.count < 1)

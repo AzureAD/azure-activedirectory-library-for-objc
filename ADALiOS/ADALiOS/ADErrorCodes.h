@@ -81,6 +81,10 @@ typedef enum
     
     /*! A generic error code for all of the authentication errors. */
     AD_ERROR_AUTHENTICATION,
+    
+    /*! An error was raised during the process of validating the authorization authority. */
+    AD_ERROR_AUTHORITY_VALIDATION,
+    
 } ADErrorCode;
 
 /* HTTP status codes used by the library */
