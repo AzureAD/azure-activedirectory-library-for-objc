@@ -26,6 +26,7 @@
 #import "HTTPWebRequest.h"
 #import "ADTestAuthenticationContext.h"
 #import "ADOAuth2Constants.h"
+#import "ADAuthenticationSettings.h"
 
 @interface ADAuthenticationContextTests : XCTestCase
 {
@@ -198,7 +199,7 @@
 -(void) testProperties
 {
     ADAuthenticationError* error;
-    NSString* authority = @"https://authority.com";
+    NSString* authority = @"https://authority.com/oauth2";
     ADTestTokenCacheStore* testStore = [ADTestTokenCacheStore new];
     XCTAssertNotNil(testStore, "Failed to create a test cache store");
     //Minimal creator:
@@ -278,6 +279,49 @@
                                  validate:YES
                           tokenCacheStore:testStore
                                     error:error];
+}
+
+-(void) testProtocolSuffix
+{
+    ADAuthenticationError* error;
+    NSString* authority = @"https://authority.com/";
+    NSString* expected = @"https://authority.com/oauth2";
+
+    //With ending slash:
+    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
+    ADAssertStringEquals(mContext.authority, expected);
+    
+    //No ending slash:
+    authority = @"https://authority.com";
+    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
+    ADAssertStringEquals(mContext.authority, expected);
+    
+    //With /token:
+    authority = @"https://authority.com/token";
+    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
+    ADAssertStringEquals(mContext.authority, expected);
+    authority = @"https://authority.com/oauth2/token";
+    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
+    ADAssertStringEquals(mContext.authority, expected);
+    
+    //With /authorize
+    authority = @"https://authority.com/authorize";
+    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
+    ADAssertStringEquals(mContext.authority, expected);
+    authority = @"https://authority.com/oauth2/authorize";
+    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
+    ADAssertStringEquals(mContext.authority, expected);
+    
+    //Clear the suffix from the settings, make sure that everything still works:
+    [ADAuthenticationSettings sharedInstance].OAuth2ProtocolSuffux = nil;
+    authority = @"https://authority.com/token";
+    expected = @"https://authority.com";
+    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
+    ADAssertStringEquals(mContext.authority, expected);
+    
+    [ADAuthenticationSettings sharedInstance].OAuth2ProtocolSuffux = @"";
+    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
+    ADAssertStringEquals(mContext.authority, expected);
 }
 
 #define acquireTokenAsync [self asynchronousAcquireTokenWithLine:__LINE__]

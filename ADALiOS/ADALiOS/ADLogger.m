@@ -104,11 +104,17 @@ additionalInformation: (NSString*) additionalInformation
     {
         if (sNSLogging)
         {
+            //NSLog is documented as thread-safe:
             NSLog([self formatStringPerLevel:logLevel], message, additionalInformation, errorCode);
         }
         if (sLogCallback)
         {
-            sLogCallback(logLevel, message, additionalInformation, errorCode);
+            //We cannot guarantee that the callback is implemented in a thread-safe manner, so do our best effort to
+            //synchronize it:
+            @synchronized(self)
+            {
+                sLogCallback(logLevel, message, additionalInformation, errorCode);
+            }
         }
     }
 }
