@@ -314,13 +314,13 @@
     ADAssertStringEquals(mContext.authority, expected);
     
     //Clear the suffix from the settings, make sure that everything still works:
-    [ADAuthenticationSettings sharedInstance].OAuth2ProtocolSuffux = nil;
+    [ADAuthenticationSettings sharedInstance].OAuth2ProtocolSuffix = nil;
     authority = @"https://authority.com/token";
     expected = @"https://authority.com";
     mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
     ADAssertStringEquals(mContext.authority, expected);
     
-    [ADAuthenticationSettings sharedInstance].OAuth2ProtocolSuffux = @"";
+    [ADAuthenticationSettings sharedInstance].OAuth2ProtocolSuffix = @"";
     mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
     ADAssertStringEquals(mContext.authority, expected);
 }

@@ -125,7 +125,7 @@ if (![self checkAndHandleBadArgument:ARG \
     
     //Ensure that the authority contains the OAuth2 protocol suffix, as required by Azure Active Directory.
     //See the ADAuthenticationSettings class for details
-    NSString* protocolSuffix = [ADAuthenticationSettings sharedInstance].OAuth2ProtocolSuffux;
+    NSString* protocolSuffix = [ADAuthenticationSettings sharedInstance].OAuth2ProtocolSuffix;
     if (![NSString isStringNilOrBlank:protocolSuffix] && ![trimmedAuthority hasSuffix:protocolSuffix])
     {
         trimmedAuthority = [trimmedAuthority stringByAppendingString:protocolSuffix];

@@ -81,6 +81,6 @@ typedef enum
  https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2. 
  The implementation will add this suffix to the authority, if not present.
  For testing and other purposes, the library allows this suffix to be changed. */
-@property NSString* OAuth2ProtocolSuffux;
+@property NSString* OAuth2ProtocolSuffix;
 
 @end
