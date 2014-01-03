@@ -107,13 +107,15 @@ additionalInformation: (NSString*) additionalInformation
             //NSLog is documented as thread-safe:
             NSLog([self formatStringPerLevel:logLevel], message, additionalInformation, errorCode);
         }
-        if (sLogCallback)
+        //Atomically copy, as the value may be changed in another thread after the check
+        //and we end up calling null pointer, crashing the app. Another approach is to use lock,
+        //which will slow down the application, even if callback is not set
+        LogCallback callback = sLogCallback;
+        if (callback)
         {
-            //We cannot guarantee that the callback is implemented in a thread-safe manner, so do our best effort to
-            //synchronize it:
-            @synchronized(self)
+            @synchronized(self)//Guard against thread-unsafe callback.
             {
-                sLogCallback(logLevel, message, additionalInformation, errorCode);
+                callback(logLevel, message, additionalInformation, errorCode);
             }
         }
     }
