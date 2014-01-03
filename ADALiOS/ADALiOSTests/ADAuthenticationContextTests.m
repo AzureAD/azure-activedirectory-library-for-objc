@@ -24,7 +24,6 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
 #import "HTTPWebRequest.h"
-#import "MockHTTPWebRequest.h"
 #import "ADTestAuthenticationContext.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
@@ -493,7 +492,12 @@
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED);
     ADAssertLongEquals(mResult.error.code, AD_ERROR_MULTIPLE_USERS);
+    mUserId = user1;
+    acquireTokenAsync;
+    XCTAssertEqual(mResult.status, AD_SUCCEEDED);
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, user1TokenValue);
     
+    mUserId = nil;
     //Try the same, but with refresh tokens only:
     [self addCacheWithToken:nil refreshToken:@"refresh1" userId:user1];
     [self addCacheWithToken:nil refreshToken:@"refresh2" userId:user2];
@@ -741,21 +745,75 @@
     [self verifyCacheWithResource:oldResource accessToken:accessToken2 refreshToken:nil line:__LINE__];
 }
 
-
--(void) testBroadRefreshTokenMultiUser
+-(void) testCorrelationIdProperty
 {
-    //#2: Single user in the cache, exact refresh token available:
-//    mUserId = oldUserId;
-//    [self addCacheWithToken:nil refreshToken:exactRefreshToken];
-//    [self.testContext->mExpectedRequest1 setObject:exactRefreshToken forKey:OAUTH2_REFRESH_TOKEN];
-//    //Add both access and refresh token:
-//    NSString* accessToken2 = @"another access token";
-//    [self.testContext->mResponse1 setObject:accessToken2 forKey:OAUTH2_ACCESS_TOKEN];
-//    acquireTokenAsync;
-//    XCTAssertEqual(mResult.status, AD_SUCCEEDED);
-//    XCTAssertFalse(mResult.multiResourceRefreshToken);
-//    ADAssertLongEquals(1, mDefaultTokenCache.allItems.count);
-//    [self verifyCacheWithResource:mResource accessToken:accessToken2 refreshToken:nil line:__LINE__];
+    XCTAssertNil(mContext.correlationId, "default should be nil");
+    
+    NSUUID* first = [NSUUID UUID];
+    mContext.correlationId = first;
+    XCTAssertEqual(mContext.correlationId, first);
+    
+    NSUUID* second = [NSUUID UUID];
+    mContext.correlationId = second;
+    XCTAssertEqual(mContext.correlationId, second);
+    
+    mContext.correlationId = nil;
+    XCTAssertNil(mContext.correlationId);
+}
+
+-(void) testCorrelationIdRefreshToken
+{
+    [self addCacheWithToken:nil refreshToken:@"some refresh token"];
+    
+    //First make sure it is passed:
+    NSUUID* correlationId = [NSUUID UUID];
+    mContext.correlationId = correlationId;
+    [self.testContext->mResponse1 setObject:@"accessToken" forKey:OAUTH2_ACCESS_TOKEN];
+    [self.testContext->mResponse1 setObject:[correlationId UUIDString] forKey:OAUTH2_CORRELATION_ID];
+    acquireTokenAsync;
+    ADAssertLongEquals(mResult.status, AD_SUCCEEDED);
+    XCTAssertEqualObjects(self.testContext->mCorrelationId1, correlationId);
+    XCTAssertEqualObjects(mResult.correlationId, correlationId);
+}
+
+-(void) testCorrelationIdBroadToken
+{
+    NSUUID* correlationId = [NSUUID UUID];
+    mContext.correlationId = correlationId;
+    
+    //Enforce two requests to the server. Make sure that the correlationId is preserved:
+    [self addCacheWithToken:nil refreshToken:@"some refresh token"];
+    [self addCacheWithToken:nil refreshToken:@"broad token" userId:mUserId resource:nil];
+    
+    self.testContext->mAllowTwoRequests = YES;
+    //Pass different UUID to the first (error) response:
+    [self.testContext->mResponse1 setObject:[[NSUUID UUID] UUIDString] forKey:OAUTH2_CORRELATION_ID];
+    [self.testContext->mResponse1 setObject:@"bad_refresh_token" forKey:OAUTH2_ERROR];
+    
+    //Pass invalid UUID to the second (access token) response:
+    [self.testContext->mResponse2 setObject:@"invalid UUID" forKey:OAUTH2_CORRELATION_ID];
+    [self.testContext->mResponse2 setObject:@"accessToken" forKey:OAUTH2_ACCESS_TOKEN];
+
+    acquireTokenAsync;
+    
+    ADAssertLongEquals(mResult.status, AD_SUCCEEDED);
+    XCTAssertEqualObjects(self.testContext->mCorrelationId1, correlationId);
+    XCTAssertEqualObjects(self.testContext->mCorrelationId2, correlationId);
+    XCTAssertNil(mResult.correlationId, "Invalid UUID returned by the server");
+    ADAssertLogsContain(TEST_LOG_MESSAGE, @"Bad correlation id");
+    ADAssertLogsContain(TEST_LOG_MESSAGE, @"Correlation id mismatch");
+    
+    //Now do the same, but this time return a valid (but different) correlation id:
+    NSUUID* anotherOne = [NSUUID UUID];
+    [self addCacheWithToken:nil refreshToken:@"some refresh token"];//Force using of refresh token
+    [self.testContext->mResponse2 setObject:[anotherOne UUIDString] forKey:OAUTH2_CORRELATION_ID];
+    acquireTokenAsync;
+    
+    ADAssertLongEquals(mResult.status, AD_SUCCEEDED);
+    XCTAssertEqualObjects(self.testContext->mCorrelationId1, correlationId);
+    XCTAssertEqualObjects(self.testContext->mCorrelationId2, correlationId);
+    XCTAssertEqualObjects(mResult.correlationId, anotherOne);
+    ADAssertLogsContainValue(TEST_LOG_INFO, [anotherOne UUIDString]);
 }
 
 @end

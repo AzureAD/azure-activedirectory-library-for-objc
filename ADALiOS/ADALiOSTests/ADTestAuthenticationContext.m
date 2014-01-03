@@ -54,12 +54,21 @@
 
 
 //Override of the parent's request to allow testing of the class behavior.
--(void)request:(NSString *)authorizationServer requestData:(NSDictionary *)request_data completion:( void (^)(NSDictionary *) )completionBlock
+-(void)request:(NSString *)authorizationServer
+   requestData:(NSDictionary *)request_data
+requestCorrelationId: (NSUUID*) requestCorrelationId
+    completion:( void (^)(NSDictionary *) )completionBlock
 {
     ++mNumRequests;
     if (mNumRequests > 2 || (!mAllowTwoRequests && mNumRequests > 1))
     {
         mErrorMessage = @"Too many server requests per single acquireToken.";
+    }
+    if (!requestCorrelationId)
+    {
+        mErrorMessage = @"Missing request correlation id.";
+        completionBlock([self getResponse]);
+        return;
     }
     if (!request_data || !request_data.count)
     {
@@ -67,6 +76,16 @@
         completionBlock([self getResponse]);
         return;
     }
+    
+    if (1 == mNumRequests)
+    {
+        mCorrelationId1 = requestCorrelationId;
+    }
+    else
+    {
+        mCorrelationId2 = requestCorrelationId;
+    }
+    
     
     //Verify the data sent to the server:
     NSMutableDictionary* expectedRequest = [self getExpectedRequest];

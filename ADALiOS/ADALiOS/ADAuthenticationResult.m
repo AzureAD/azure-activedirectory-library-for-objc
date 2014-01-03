@@ -28,6 +28,7 @@
 @synthesize status = _status;
 @synthesize error = _error;
 @synthesize multiResourceRefreshToken = _multiResourceRefreshToken;
+@synthesize correlationId = _correlationId;
 
 -(id) init
 {

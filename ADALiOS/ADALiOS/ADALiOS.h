@@ -28,14 +28,14 @@ NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u"
 //General macro for throwing exception named NSInvalidArgumentException
 #define THROW_ON_CONDITION_ARGUMENT(CONDITION, ARG) \
 { \
-if (CONDITION) \
-{ \
-WHERE; \
-AD_LOG_ERROR(@"InvalidArgumentException: " #ARG, __where, AD_ERROR_INVALID_ARGUMENT); \
-@throw [NSException exceptionWithName: NSInvalidArgumentException \
-reason:@"Please provide a valid '" #ARG "' parameter." \
-userInfo:nil];  \
-} \
+    if (CONDITION) \
+    { \
+        WHERE; \
+        AD_LOG_ERROR(@"InvalidArgumentException: " #ARG, AD_ERROR_INVALID_ARGUMENT, __where); \
+        @throw [NSException exceptionWithName: NSInvalidArgumentException \
+                                       reason:@"Please provide a valid '" #ARG "' parameter." \
+                                     userInfo:nil];  \
+    } \
 }
 
 // Checks a selector NSString argument to a method for being null or empty. Throws NSException with name
@@ -62,13 +62,13 @@ argumentName:@#ARG]; \
 
 #define RETURN_ON_INVALID_ARGUMENT(CONDITION, ARG, RET) \
 { \
-if (CONDITION) \
-{ \
-WHERE; \
-AD_LOG_ERROR(@"InvalidArgumentError: " #ARG, __where, AD_ERROR_INVALID_ARGUMENT); \
-FILL_PARAMETER_ERROR(ARG); \
-return RET; \
-} \
+    if (CONDITION) \
+    { \
+        WHERE; \
+        AD_LOG_ERROR(@"InvalidArgumentError: " #ARG, AD_ERROR_INVALID_ARGUMENT, __where); \
+        FILL_PARAMETER_ERROR(ARG); \
+        return RET; \
+    } \
 }
 
 //Used for methods that have (ADAuthenticationError * __autoreleasing *) error parameter to be
