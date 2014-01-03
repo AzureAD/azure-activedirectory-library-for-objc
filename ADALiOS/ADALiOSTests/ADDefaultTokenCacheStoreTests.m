@@ -531,7 +531,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     {
         //This test tends to create random failures of the tests that follow. Adding these in attempt to stabilize:
         usleep(500);//0.5 seconds
-        [self waitForPersistence];//Ensure clean exit. Else,
+        [self waitForPersistence];//Ensure clean exit. 
     }
 }
 
