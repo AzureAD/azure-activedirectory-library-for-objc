@@ -95,6 +95,9 @@
 
 - (void)testNew
 {
+    //This is a test change, submitted just to see how Travis CI handles test failures
+    //in pull requests. Please do not merge this pull request:
+    XCTFail("Intentional Failure");
     XCTAssertThrows([ADAuthenticationContext new], @"The new selector should not work due to requirement to use the parameterless init. At: '%s'", __PRETTY_FUNCTION__);
 }
 
