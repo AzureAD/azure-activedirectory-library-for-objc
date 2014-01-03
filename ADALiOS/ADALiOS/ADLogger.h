@@ -48,8 +48,9 @@ typedef enum
  */
 +(void) log: (ADAL_LOG_LEVEL)logLevel
     message: (NSString*) message
-additionalInformation: (NSString*) additionalInformation
-  errorCode: (NSInteger) errorCode;
+  errorCode: (NSInteger) errorCode
+additionalInformation: (NSString*) additionalInformation;
+
 
 //The block declaration. Needs to be weak to ensure that the pointer does not hold static reference
 //to the parent class of the callback.
@@ -76,16 +77,34 @@ typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
 
 @end
 
-#define AD_LOG(level, msg, info, code) \
+//A simple macro for single-line logging:
+#define AD_LOG(level, msg, code, info) \
 { \
             [ADLogger log: level \
                   message: msg \
-    additionalInformation: info \
-                errorCode: code]; \
+                errorCode: code \
+    additionalInformation: info]; \
 }
 
-#define AD_LOG_ERROR(message, info, code) AD_LOG(ADAL_LOG_LEVEL_ERROR, message, info, code);
+//Allows formatting, e.g. AD_LOG_FORMAT(ADAL_LOG_LEVEL_INFO, "Something", "Check this: %@ and this: %@", this1, this2)
+#define AD_LOG_FORMAT(level, msg, code, info...) \
+{ \
+    NSString* logInfo = [NSString stringWithFormat:info]; \
+    [ADLogger log: level \
+          message: msg \
+        errorCode: code \
+additionalInformation: logInfo]; \
+}
 
-#define AD_LOG_WARN(message, info) AD_LOG(ADAL_LOG_LEVEL_WARN, message, info, AD_ERROR_SUCCEEDED);
-#define AD_LOG_INFO(message, info) AD_LOG(ADAL_LOG_LEVEL_INFO, message, info, AD_ERROR_SUCCEEDED);
-#define AD_LOG_VERBOSE(message, info) AD_LOG(ADAL_LOG_LEVEL_VERBOSE, message, info, AD_ERROR_SUCCEEDED);
+#define AD_LOG_ERROR(message, code, info) AD_LOG(ADAL_LOG_LEVEL_ERROR, message, code, info)
+#define AD_LOG_WARN(message, info) AD_LOG(ADAL_LOG_LEVEL_WARN, message, AD_ERROR_SUCCEEDED, info)
+#define AD_LOG_INFO(message, info) AD_LOG(ADAL_LOG_LEVEL_INFO, message, AD_ERROR_SUCCEEDED, info)
+#define AD_LOG_VERBOSE(message, info) AD_LOG(ADAL_LOG_LEVEL_VERBOSE, message, AD_ERROR_SUCCEEDED, info)
+
+#define AD_LOG_ERROR_F(message, code, info...) AD_LOG_FORMAT(ADAL_LOG_LEVEL_ERROR, message, code, info)
+#define AD_LOG_WARN_F(message, info...) AD_LOG_FORMAT(ADAL_LOG_LEVEL_WARN, message, AD_ERROR_SUCCEEDED, info)
+#define AD_LOG_INFO_F(message, info...) AD_LOG_FORMAT(ADAL_LOG_LEVEL_INFO, message, AD_ERROR_SUCCEEDED, info)
+#define AD_LOG_VERBOSE_F(message, info...) AD_LOG_FORMAT(ADAL_LOG_LEVEL_VERBOSE, message, AD_ERROR_SUCCEEDED, info)
+
+
+

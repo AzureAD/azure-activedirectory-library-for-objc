@@ -61,7 +61,7 @@
 -(void) testResultFromError
 {
     ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"something"];
-    ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error];
+    ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:nil];
     [self verifyErrorResult:result errorCode:AD_ERROR_UNEXPECTED];
     XCTAssertEqualObjects(result.error, error, "Different error object in the result.");
 }
@@ -81,7 +81,7 @@
 
 -(void) testResultFromTokenCacheStoreItem
 {
-    ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil multiResourceRefreshToken:NO];
+    ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil multiResourceRefreshToken:NO  correlationId:nil];
     [self verifyErrorResult:nilItemResult errorCode:AD_ERROR_UNEXPECTED];
     
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
@@ -98,19 +98,19 @@
     item.tenantId = @"tenantId";
     
     //Copy the item to ensure that it is not modified withing the method call below:
-    ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
+    ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO  correlationId:nil];
     [self verifyResult:resultFromValidItem item:item];
     
     //Nil access token:
     item.resource = @"resource";//Restore
     item.accessToken = nil;
-    ADAuthenticationResult* resultFromNilAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
+    ADAuthenticationResult* resultFromNilAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO  correlationId:nil];
     [self verifyErrorResult:resultFromNilAccessToken errorCode:AD_ERROR_UNEXPECTED];
 
     //Empty access token:
     item.resource = @"resource";//Restore
     item.accessToken = @"   ";
-    ADAuthenticationResult* resultFromEmptyAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
+    ADAuthenticationResult* resultFromEmptyAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO  correlationId:nil];
     [self verifyErrorResult:resultFromEmptyAccessToken errorCode:AD_ERROR_UNEXPECTED];
 }
 

@@ -527,6 +527,12 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     {
         XCTFail("Timeout. Most likely one or more of the threads have crashed or hanged.");
     }
+    else
+    {
+        //This test tends to create random failures of the tests that follow. Adding these in attempt to stabilize:
+        usleep(500);//0.5 seconds
+        [self waitForPersistence];//Ensure clean exit. Else,
+    }
 }
 
 //Waits for persistence

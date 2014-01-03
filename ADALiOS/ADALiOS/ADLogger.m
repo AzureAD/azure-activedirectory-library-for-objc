@@ -89,8 +89,8 @@ BOOL sNSLogging = YES;
 
 +(void) log: (ADAL_LOG_LEVEL)logLevel
     message: (NSString*) message
-additionalInformation: (NSString*) additionalInformation
   errorCode: (NSInteger) errorCode
+additionalInformation: (NSString*) additionalInformation
 {
     //Note that the logging should not throw, as logging is heavily used in error conditions.
     //Hence, the checks below would rather swallow the error instead of throwing and changing the

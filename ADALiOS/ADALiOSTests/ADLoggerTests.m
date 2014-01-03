@@ -50,7 +50,7 @@
         {
             NSString* message = [NSString stringWithFormat:@"Test%dMessage%d %s", i, j, __PRETTY_FUNCTION__];
             NSString* info = [NSString stringWithFormat:@"Test%dnfo%d %s", i, j, __PRETTY_FUNCTION__];
-            [ADLogger log:j message:message additionalInformation:info errorCode:1];
+            [ADLogger log:j message:message errorCode:1 additionalInformation:info];
             if (j <= i)//Meets the error bar
             {
                 ADAssertLogsContainValue(TEST_LOG_MESSAGE, message);
@@ -68,9 +68,9 @@
 -(void) testMessageNoThrowing
 {
     //Neither of these calls should throw. See the method body for details:
-    [ADLogger log:ADAL_LOG_LEVEL_NO_LOG message:@"Message" additionalInformation:@"info" errorCode:AD_ERROR_SUCCEEDED];
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR message:nil additionalInformation:@"info" errorCode:AD_ERROR_SUCCEEDED];
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR message:@"message" additionalInformation:nil errorCode:AD_ERROR_SUCCEEDED];
+    [ADLogger log:ADAL_LOG_LEVEL_NO_LOG message:@"Message" errorCode:AD_ERROR_SUCCEEDED additionalInformation:@"info" ];
+    [ADLogger log:ADAL_LOG_LEVEL_ERROR message:nil errorCode:AD_ERROR_SUCCEEDED additionalInformation:@"info" ];
+    [ADLogger log:ADAL_LOG_LEVEL_ERROR message:@"message" errorCode:AD_ERROR_SUCCEEDED additionalInformation:nil];
 }
 
 @end

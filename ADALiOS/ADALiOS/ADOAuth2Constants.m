@@ -46,6 +46,7 @@ NSString *const OAUTH2_TOKEN_SUFFIX       = @"/token";
 NSString *const OAUTH2_TOKEN_TYPE         = @"token_type";
 NSString *const OAUTH2_LOGIN_HINT         = @"login_hint";
 NSString *const OAUTH2_ID_TOKEN           = @"id_token";
+NSString *const OAUTH2_CORRELATION_ID     = @"correlation_id";
 
 //Internal constants:
 NSString *const AUTH_FAILED               = @"Authentication Failed";

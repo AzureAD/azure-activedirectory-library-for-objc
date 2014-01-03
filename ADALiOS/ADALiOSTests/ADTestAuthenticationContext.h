@@ -23,6 +23,9 @@
     NSMutableDictionary* mExpectedRequest2;
     NSMutableDictionary* mResponse2;
     
+    NSUUID* mCorrelationId1;
+    NSUUID* mCorrelationId2;
+    
     /* If any error occurs during the verification, it will be stored in this string. */
     NSString* mErrorMessage;
     
@@ -37,7 +40,10 @@
                                             error: (ADAuthenticationError* __autoreleasing *) error;
 
 //Override of the parent's request to allow testing of the class behavior.
--(void)request:(NSString *)authorizationServer requestData:(NSDictionary *)request_data completion:( void (^)(NSDictionary *) )completionBlock;
+-(void)request:(NSString *)authorizationServer
+   requestData:(NSDictionary *)request_data
+requestCorrelationId: (NSUUID*) requestCorrelationId
+    completion:( void (^)(NSDictionary *) )completionBlock;
 
 @end
 
