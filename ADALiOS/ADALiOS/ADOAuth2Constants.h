@@ -20,7 +20,6 @@
 
 extern NSString *const OAUTH2_ACCESS_TOKEN;
 extern NSString *const OAUTH2_AUTHORIZATION;
-extern NSString *const OAUTH2_AUTHORIZATION_SUFFIX;
 extern NSString *const OAUTH2_AUTHORIZATION_CODE;
 extern NSString *const OAUTH2_AUTHORIZATION_URI;
 extern NSString *const OAUTH2_AUTHORIZE_SUFFIX;

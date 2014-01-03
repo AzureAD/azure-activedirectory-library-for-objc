@@ -282,49 +282,6 @@
                                     error:error];
 }
 
--(void) testProtocolSuffix
-{
-    ADAuthenticationError* error;
-    NSString* authority = @"https://authority.com/";
-    NSString* expected = @"https://authority.com/oauth2";
-
-    //With ending slash:
-    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
-    ADAssertStringEquals(mContext.authority, expected);
-    
-    //No ending slash:
-    authority = @"https://authority.com";
-    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
-    ADAssertStringEquals(mContext.authority, expected);
-    
-    //With /token:
-    authority = @"https://authority.com/token";
-    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
-    ADAssertStringEquals(mContext.authority, expected);
-    authority = @"https://authority.com/oauth2/token";
-    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
-    ADAssertStringEquals(mContext.authority, expected);
-    
-    //With /authorize
-    authority = @"https://authority.com/authorize";
-    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
-    ADAssertStringEquals(mContext.authority, expected);
-    authority = @"https://authority.com/oauth2/authorize";
-    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
-    ADAssertStringEquals(mContext.authority, expected);
-    
-    //Clear the suffix from the settings, make sure that everything still works:
-    [ADAuthenticationSettings sharedInstance].OAuth2ProtocolSuffix = nil;
-    authority = @"https://authority.com/token";
-    expected = @"https://authority.com";
-    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
-    ADAssertStringEquals(mContext.authority, expected);
-    
-    [ADAuthenticationSettings sharedInstance].OAuth2ProtocolSuffix = @"";
-    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
-    ADAssertStringEquals(mContext.authority, expected);
-}
-
 #define acquireTokenAsync [self asynchronousAcquireTokenWithLine:__LINE__]
 /* Helper function to fascilitate calling of the asynchronous acquireToken. 
    Uses the ivars of the test class for the arguments.

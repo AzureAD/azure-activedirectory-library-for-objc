@@ -574,14 +574,19 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [self validateAsynchronousPersistence];
     
     //Remove an item:
+    error = nil;
     [self clearLogs];
     [mStore removeItem:item error:&error];
     ADAssertNoError;
     [self validateAsynchronousPersistence];
     
+    error = nil;
+    [self clearLogs];
     [mStore addOrUpdateItem:item error:&error];
     ADAssertNoError;
+    [self validateAsynchronousPersistence];
     
+    error = nil;
     [self clearLogs];
     [mStore removeAll];
     [self validateAsynchronousPersistence];
@@ -650,7 +655,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAssertNoError;
     XCTAssertTrue([mStore getArchivedRevision] == [mStore getCurrenRevision]);
     ADAssertStringEquals(originalFile, [mStore getLastArchiveFile]);
-    ADAssertLogsDoNotContainValue(TEST_LOG_MESSAGE, sNoNeedForPersistence);
     ADAssertLogsContainValue(TEST_LOG_INFO, sPersisted);
     ADAssertLogsContainValue(TEST_LOG_INFO, originalFile);
     

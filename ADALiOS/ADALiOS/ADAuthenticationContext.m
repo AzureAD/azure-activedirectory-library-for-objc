@@ -81,66 +81,13 @@ if (![self checkAndHandleBadArgument:ARG \
     }
 }
 
-+(NSString*) canonicalizeAuthority: (NSString*) authority
-{
-    if ([NSString isStringNilOrBlank:authority])
-    {
-        return nil;
-    }
-    
-    NSString* trimmedAuthority = [[authority trimmedString] lowercaseString];
-    //Start with the trailing slash to ensure that the function covers "<authority>/authorize/" case.
-    if ( [trimmedAuthority hasSuffix:@"/" ] )//Remove trailing slash
-    {
-        trimmedAuthority = [trimmedAuthority substringToIndex:trimmedAuthority.length - 1];
-    }
-    
-    NSURL* url = [NSURL URLWithString:trimmedAuthority];
-    if (!url)
-    {
-        NSString* message = [NSString stringWithFormat:@"Authority %@", authority];
-        AD_LOG_WARN(@"The authority is not a valid URL", message);
-        return nil;
-    }
-    NSString* scheme = url.scheme;
-    if (![scheme isEqualToString:@"https"])
-    {
-        NSString* message = [NSString stringWithFormat:@"Authority %@", authority];
-        AD_LOG_WARN(@"Non HTTPS protocol for the authority", message);
-        return nil;
-    }
-    
-    // Final step is trimming any trailing /authorize or /token from the URL
-    // to get to the base URL for the authorization server. After that, we
-    // append either /authorize or /token dependent on the request that
-    // is being made to the server.
-    if ( [trimmedAuthority hasSuffix:OAUTH2_AUTHORIZE_SUFFIX] )
-    {
-        trimmedAuthority = [trimmedAuthority substringToIndex:trimmedAuthority.length - OAUTH2_AUTHORIZE_SUFFIX.length];
-    }
-    else if ( [trimmedAuthority hasSuffix:OAUTH2_TOKEN_SUFFIX] )
-    {
-        trimmedAuthority = [trimmedAuthority substringToIndex:trimmedAuthority.length - OAUTH2_TOKEN_SUFFIX.length];
-    }
-    
-    //Ensure that the authority contains the OAuth2 protocol suffix, as required by Azure Active Directory.
-    //See the ADAuthenticationSettings class for details
-    NSString* protocolSuffix = [ADAuthenticationSettings sharedInstance].OAuth2ProtocolSuffix;
-    if (![NSString isStringNilOrBlank:protocolSuffix] && ![trimmedAuthority hasSuffix:protocolSuffix])
-    {
-        trimmedAuthority = [trimmedAuthority stringByAppendingString:protocolSuffix];
-    }
-    
-    return trimmedAuthority;
-}
-
 -(id) initWithAuthority: (NSString*) authority
       validateAuthority: (BOOL)bValidate
         tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
                   error: (ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY;
-    NSString* extractedAuthority = [self.class canonicalizeAuthority:authority];
+    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
     RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
     
     self = [super init];

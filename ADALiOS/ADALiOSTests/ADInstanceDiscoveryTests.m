@@ -19,15 +19,18 @@ volatile int32_t sNumThreadsDone;//Number of threads that have exited.
 const int sMaxTestThreads = 10;//How many threads to spawn
 const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
 
+//Test protocol for easier calling of private methods
+@protocol TestInstanceDiscovery <NSObject>
 
-//Test category to expose internal methods.
-@interface ADInstanceDiscovery(Test)
-
-//Existing private methods:
--(NSString*) extractBase: (NSString*) authority
+-(NSString*) extractHost: (NSString*) authority
                    error: (ADAuthenticationError* __autoreleasing *) error;
 -(BOOL) isAuthorityValidated: (NSString*) authorityHost;
 -(void) setAuthorityValidation: (NSString*) authorityHost;
+
+@end
+
+//Test category to expose internal methods.
+@interface ADInstanceDiscovery(Test)
 
 //Additional methods to extract instance data:
 -(NSMutableSet*) getInternalValidatedAuthorities;
@@ -35,7 +38,6 @@ const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
 @end
 
 //Avoid warnings for incomplete implementation, as the methods are actually implemented, just not in the category:
-#pragma clang diagnostic ignored "-Wincomplete-implementation"
 @implementation ADInstanceDiscovery(Test)
 
 
@@ -51,10 +53,12 @@ const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
 @interface ADInstanceDiscoveryTests : XCTestCase
 {
     ADInstanceDiscovery* mInstanceDiscovery;
+    __weak id<TestInstanceDiscovery> mTestInstanceDiscovery;//Same as above, just casted to the protocol
     NSMutableSet* mValidatedAuthorities;
     //Used for asynchronous calls:
     BOOL mValidated;
     ADAuthenticationError* mError;
+    NSSet* mValidatedAuthoritiesCopy;
 }
 
 @end
@@ -66,7 +70,10 @@ const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
     [super setUp];
     [self adTestBegin];
     mInstanceDiscovery = [ADInstanceDiscovery sharedInstance];
+    mTestInstanceDiscovery = (id<TestInstanceDiscovery>)mInstanceDiscovery;
     mValidatedAuthorities = [mInstanceDiscovery getInternalValidatedAuthorities];
+    mValidatedAuthoritiesCopy = mInstanceDiscovery.validatedAuthorities;//Save the state
+    XCTAssertNotEqual(mValidatedAuthorities, mValidatedAuthoritiesCopy, "The validatedAuthorities property should return a copy.");
     //Initialized correctly
     XCTAssertNotNil(mValidatedAuthorities);
     XCTAssertTrue([mValidatedAuthorities containsObject:sAlwaysTrusted]);
@@ -81,6 +88,7 @@ const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
 
 - (void)tearDown
 {
+    [mValidatedAuthorities addObjectsFromArray:[mValidatedAuthoritiesCopy allObjects]];//Restore the state
     mInstanceDiscovery = nil;
     mValidatedAuthorities = nil;
     [self adTestEnd];
@@ -120,45 +128,45 @@ const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
 {
     //Nil:
     ADAuthenticationError* error;
-    NSString* result = [mInstanceDiscovery extractBase:nil error:&error];
+    NSString* result = [mTestInstanceDiscovery extractHost:nil error:&error];
     XCTAssertNil(result);
     [self validateForInvalidArgument:@"authority" error:error];
     error = nil;//Cleanup
     
     //Do not pass error object. Make sure error is logged.
     [self clearLogs];
-    result = [mInstanceDiscovery extractBase:nil error:nil];
+    result = [mTestInstanceDiscovery extractHost:nil error:nil];
     XCTAssertNil(result);
     ADAssertLogsContain(TEST_LOG_MESSAGE, "Error");
     ADAssertLogsContain(TEST_LOG_INFO, "authority");
     error = nil;
     
     //White space string:
-    result = [mInstanceDiscovery extractBase:@"   " error:&error];
+    result = [mTestInstanceDiscovery extractHost:@"   " error:&error];
     XCTAssertNil(result);
     [self validateForInvalidArgument:@"authority" error:error];
     error = nil;
     
     //Invalid URL:
-    result = [mInstanceDiscovery extractBase:@"a sdfasdfasas;djfasd jfaosjd fasj;" error:&error];
+    result = [mTestInstanceDiscovery extractHost:@"a sdfasdfasas;djfasd jfaosjd fasj;" error:&error];
     XCTAssertNil(result);
     [self validateForInvalidArgument:@"authority" error:error];
     error = nil;
     
     //Invalid URL scheme (not using SSL):
-    result = [mInstanceDiscovery extractBase:@"http://login.windows.net" error:&error];
+    result = [mTestInstanceDiscovery extractHost:@"http://login.windows.net" error:&error];
     XCTAssertNil(result);
     [self validateForInvalidArgument:@"authority" error:error];
     error = nil;
     
     //Path
-    result = [mInstanceDiscovery extractBase:@"././login.windows.net" error:&error];
+    result = [mTestInstanceDiscovery extractHost:@"././login.windows.net" error:&error];
     XCTAssertNil(result);
     [self validateForInvalidArgument:@"authority" error:error];
     error = nil;
     
     //Relative URL
-    result = [mInstanceDiscovery extractBase:@"login" error:&error];
+    result = [mTestInstanceDiscovery extractHost:@"login" error:&error];
     XCTAssertNil(result);
     [self validateForInvalidArgument:@"authority" error:error];
     error = nil;
@@ -168,21 +176,21 @@ const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
 {
     ADAuthenticationError* error;
     NSString* authority = @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize";
-    NSString* result = [mInstanceDiscovery extractBase:authority error:&error];
+    NSString* result = [mTestInstanceDiscovery extractHost:authority error:&error];
     ADAssertNoError;
     ADAssertStringEquals(result, @"https://login.windows.net");
     error = nil;//Cleanup
     
     //End with "/"
     authority = @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize/";
-    result = [mInstanceDiscovery extractBase:authority error:&error];
+    result = [mTestInstanceDiscovery extractHost:authority error:&error];
     ADAssertNoError;
     ADAssertStringEquals(result, @"https://login.windows.net");
     error = nil;
     
     //End with "/" and base only:
     authority = @"httpS://Login.Windows.Net/";
-    result = [mInstanceDiscovery extractBase:authority error:&error];
+    result = [mTestInstanceDiscovery extractHost:authority error:&error];
     ADAssertNoError;
     ADAssertStringEquals(result, @"https://login.windows.net");
     error = nil;
@@ -190,24 +198,24 @@ const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
 
 -(void) testIsAuthorityValidated
 {
-    XCTAssertThrows([mInstanceDiscovery isAuthorityValidated:nil]);
-    XCTAssertThrows([mInstanceDiscovery isAuthorityValidated:@"  "]);
+    XCTAssertThrows([mTestInstanceDiscovery isAuthorityValidated:nil]);
+    XCTAssertThrows([mTestInstanceDiscovery isAuthorityValidated:@"  "]);
     NSString* anotherHost = @"https://somedomain.com";
-    XCTAssertFalse([mInstanceDiscovery isAuthorityValidated:anotherHost]);
-    XCTAssertTrue([mInstanceDiscovery isAuthorityValidated:sAlwaysTrusted]);
+    XCTAssertFalse([mTestInstanceDiscovery isAuthorityValidated:anotherHost]);
+    XCTAssertTrue([mTestInstanceDiscovery isAuthorityValidated:sAlwaysTrusted]);
     [mValidatedAuthorities addObject:anotherHost];
-    XCTAssertTrue([mInstanceDiscovery isAuthorityValidated:anotherHost]);
+    XCTAssertTrue([mTestInstanceDiscovery isAuthorityValidated:anotherHost]);
 }
 
 -(void) testSetAuthorityValidation
 {
-    XCTAssertThrows([mInstanceDiscovery setAuthorityValidation:nil]);
-    XCTAssertThrows([mInstanceDiscovery setAuthorityValidation:@"  "]);
+    XCTAssertThrows([mTestInstanceDiscovery setAuthorityValidation:nil]);
+    XCTAssertThrows([mTestInstanceDiscovery setAuthorityValidation:@"  "]);
     //Test that re-adding is ok. This can happen in multi-threaded scenarios:
-    [mInstanceDiscovery setAuthorityValidation:sAlwaysTrusted];
+    [mTestInstanceDiscovery setAuthorityValidation:sAlwaysTrusted];
     
     NSString* anotherHost = @"https://another.host.com";
-    [mInstanceDiscovery setAuthorityValidation:anotherHost];
+    [mTestInstanceDiscovery setAuthorityValidation:anotherHost];
     XCTAssertTrue([mValidatedAuthorities containsObject:anotherHost]);
 }
 
@@ -236,8 +244,8 @@ const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
                 {
                     //Just add a check objects. Note that the result is not guaranteed due to multiple
                     //threads:
-                    [mInstanceDiscovery setAuthorityValidation:[array objectAtIndex:i]];
-                    [mInstanceDiscovery isAuthorityValidated:[array objectAtIndex:i]];
+                    [mTestInstanceDiscovery setAuthorityValidation:[array objectAtIndex:i]];
+                    [mTestInstanceDiscovery isAuthorityValidated:[array objectAtIndex:i]];
                 }
                 
                 now = [NSDate dateWithTimeIntervalSinceNow:0];

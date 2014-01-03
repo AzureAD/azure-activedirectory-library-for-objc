@@ -20,6 +20,7 @@
 
 #import "ADALiOS.h"
 #import "ADAuthenticationContext.h"
+#import "ADInstanceDiscovery.h"
 
 @implementation ADTokenCacheStoreKey
 
@@ -57,7 +58,7 @@
     //Trimm first for faster nil or empty checks. Also lowercase and trimming is
     //needed to ensure that the cache handles correctly same items with different
     //character case:
-    authority = [ADAuthenticationContext canonicalizeAuthority:authority];
+    authority = [ADInstanceDiscovery canonicalizeAuthority:authority];
     resource = resource.trimmedString.lowercaseString;
     clientId = clientId.trimmedString.lowercaseString;
     RETURN_NIL_ON_NIL_ARGUMENT(authority);//Canonicalization will return nil on empty or bad URL.

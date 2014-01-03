@@ -39,4 +39,9 @@ typedef void(^ADDiscoveryCallback)(BOOL validated, ADAuthenticationError* error)
 -(void) validateAuthority: (NSString*) authority
           completionBlock: (ADDiscoveryCallback) completionBlock;
 
+/*! Takes the string and makes it canonical URL, e.g. lowercase with
+ ending trailing "/". If the authority is not a valid URL, the method
+ will return nil. */
++(NSString*) canonicalizeAuthority: (NSString*) authority;
+
 @end

@@ -77,10 +77,4 @@ typedef enum
 /*! The dispatch queue to be used for the asynchronous calls. */
 @property dispatch_queue_t dispatchQueue;
 
-/*! Azure Active Directory authorities use /oauth2 suffix. E.g.
- https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2. 
- The implementation will add this suffix to the authority, if not present.
- For testing and other purposes, the library allows this suffix to be changed. */
-@property NSString* OAuth2ProtocolSuffix;
-
 @end
