@@ -76,7 +76,7 @@ const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
     XCTAssertNotEqual(mValidatedAuthorities, mValidatedAuthoritiesCopy, "The validatedAuthorities property should return a copy.");
     //Initialized correctly
     XCTAssertNotNil(mValidatedAuthorities);
-    XCTAssertFalse([mValidatedAuthorities containsObject:sAlwaysTrusted]);
+    XCTAssertTrue([mValidatedAuthorities containsObject:sAlwaysTrusted]);
     //Start clean: remove all validated authorities:
     if (mValidatedAuthorities.count > 1)
     {
