@@ -602,32 +602,6 @@
     ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
 }
 
--(void) testCanonicalizeAuthority
-{
-    //Nil or empty:
-    XCTAssertNil([ADAuthenticationContext canonicalizeAuthority:nil]);
-    XCTAssertNil([ADAuthenticationContext canonicalizeAuthority:@""]);
-    XCTAssertNil([ADAuthenticationContext canonicalizeAuthority:@"    "]);
-    
-    //Invalid URL
-    XCTAssertNil([ADAuthenticationContext canonicalizeAuthority:@"&-23425 5345g"]);
-    
-    //Non-ssl:
-    XCTAssertNil([ADAuthenticationContext canonicalizeAuthority:@"foo"]);
-    XCTAssertNil([ADAuthenticationContext canonicalizeAuthority:@"http://foo"]);
-    XCTAssertNil([ADAuthenticationContext canonicalizeAuthority:@"http://www.microsoft.com"]);
-
-    //Canonicalization to the supported extent:
-    NSString* authority = @"    https://www.microsoft.com/foo.com/";
-    authority = [ADAuthenticationContext canonicalizeAuthority:authority];
-    XCTAssertTrue(![NSString isStringNilOrBlank:authority]);
-    //Without the trailing "/":
-    ADAssertStringEquals([ADAuthenticationContext canonicalizeAuthority:@"https://www.microsoft.com/foo.com"], authority);
-    //Ending with non-white characters:
-    ADAssertStringEquals([ADAuthenticationContext canonicalizeAuthority:@"https://www.microsoft.com/foo.com   "], authority);
-
-}
-
 -(void) testGenericErrors
 {
     //Refresh token in the cache, but there is no connection to the server. We should not try to open a credentials web view:

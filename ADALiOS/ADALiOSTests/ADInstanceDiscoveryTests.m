@@ -329,5 +329,31 @@ const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
     XCTAssertNil(mError);
 }
 
+-(void) testCanonicalizeAuthority
+{
+    //Nil or empty:
+    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:nil]);
+    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@""]);
+    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"    "]);
+    
+    //Invalid URL
+    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"&-23425 5345g"]);
+    
+    //Non-ssl:
+    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"foo"]);
+    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"http://foo"]);
+    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"http://www.microsoft.com"]);
+    
+    //Canonicalization to the supported extent:
+    NSString* authority = @"    https://www.microsoft.com/foo.com/";
+    authority = [ADInstanceDiscovery canonicalizeAuthority:authority];
+    XCTAssertTrue(![NSString isStringNilOrBlank:authority]);
+    //Without the trailing "/":
+    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://www.microsoft.com/foo.com"], authority);
+    //Ending with non-white characters:
+    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://www.microsoft.com/foo.com   "], authority);
+    
+}
+
 
 @end

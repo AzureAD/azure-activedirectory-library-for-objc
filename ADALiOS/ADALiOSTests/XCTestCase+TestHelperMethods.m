@@ -79,15 +79,17 @@ NSString* sTestEnd = @"|||TEST_END|||";
 /*! Sets logging and other infrastructure for a new test */
 -(void) adTestBegin
 {
-    static dispatch_once_t once;
-    dispatch_once(&once, ^{
-        sLogLevelsLog = [NSMutableString new];
-        sMessagesLog = [NSMutableString new];
-        sInformationLog = [NSMutableString new];
-        sErrorCodesLog = [NSMutableString new];
-    });
     @synchronized(self.class)
     {
+        static dispatch_once_t once;
+
+        dispatch_once(&once, ^{
+            sLogLevelsLog = [NSMutableString new];
+            sMessagesLog = [NSMutableString new];
+            sInformationLog = [NSMutableString new];
+            sErrorCodesLog = [NSMutableString new];
+        });
+
         //Write begging of the test:
         [sLogLevelsLog appendString:sTestBegin];
         [sMessagesLog appendString:sTestBegin];

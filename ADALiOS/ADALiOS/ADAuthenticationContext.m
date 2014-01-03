@@ -81,6 +81,49 @@ if (![self checkAndHandleBadArgument:ARG \
     }
 }
 
++(NSString*) canonicalizeAuthority: (NSString*) authority
+{
+    if ([NSString isStringNilOrBlank:authority])
+    {
+        return nil;
+    }
+    
+    NSString* trimmedAuthority = [[authority trimmedString] lowercaseString];
+    //Start with the trailing slash to ensure that the function covers "<authority>/authorize/" case.
+    if ( [trimmedAuthority hasSuffix:@"/" ] )//Remove trailing slash
+    {
+        trimmedAuthority = [trimmedAuthority substringToIndex:trimmedAuthority.length - 1];
+    }
+    
+    NSURL* url = [NSURL URLWithString:trimmedAuthority];
+    if (!url)
+    {
+        AD_LOG_WARN_F(@"The authority is not a valid URL", @"Authority %@", authority);
+        return nil;
+    }
+    NSString* scheme = url.scheme;
+    if (![scheme isEqualToString:@"https"])
+    {
+        AD_LOG_WARN_F(@"Non HTTPS protocol for the authority", @"Authority %@", authority);
+        return nil;
+    }
+    
+    // Final step is trimming any trailing /authorize or /token from the URL
+    // to get to the base URL for the authorization server. After that, we
+    // append either /authorize or /token dependent on the request that
+    // is being made to the server.
+    if ( [trimmedAuthority hasSuffix:OAUTH2_AUTHORIZE_SUFFIX] )
+    {
+        trimmedAuthority = [trimmedAuthority substringToIndex:trimmedAuthority.length - OAUTH2_AUTHORIZE_SUFFIX.length];
+    }
+    else if ( [trimmedAuthority hasSuffix:OAUTH2_TOKEN_SUFFIX] )
+    {
+        trimmedAuthority = [trimmedAuthority substringToIndex:trimmedAuthority.length - OAUTH2_TOKEN_SUFFIX.length];
+    }
+    
+    return trimmedAuthority;
+}
+
 -(id) initWithAuthority: (NSString*) authority
       validateAuthority: (BOOL)bValidate
         tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
@@ -473,7 +516,7 @@ extraQueryParameters: (NSString*) queryParams
         {
             if (error)
             {
-                completionBlock([ADAuthenticationResult resultFromError:error]);
+                completionBlock([ADAuthenticationResult resultFromError:error correlationId:self.correlationId]);
             }
             else
             {
@@ -704,17 +747,16 @@ extraQueryParameters: (NSString*) queryParams
 {
     HANDLE_ARGUMENT(refreshToken);
     HANDLE_ARGUMENT(clientId);
-    {
-        NSString* logMessage = [NSString stringWithFormat:@"Resource: %@", resource];
-        AD_LOG_VERBOSE(@"Attempting to acquire an access token from refresh token.", logMessage);
-    }
+
+    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", @"Resource: %@", resource);
+
     if (validateAuthority)
     {
         [[ADInstanceDiscovery sharedInstance] validateAuthority:self.authority completionBlock:^(BOOL validated, ADAuthenticationError *error)
          {
              if (error)
              {
-                 completionBlock([ADAuthenticationResult resultFromError:error]);
+                 completionBlock([ADAuthenticationResult resultFromError:error correlationId:self.correlationId]);
              }
              else
              {

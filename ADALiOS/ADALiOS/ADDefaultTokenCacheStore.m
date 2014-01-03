@@ -179,8 +179,7 @@ const int16_t LOWER_VERSION = 0;
 
             mLastArchiveFile = filePath;
             double archivingTime = -[startWriting timeIntervalSinceNow];//timeIntervalSinceNow returns negative value
-            NSString* message = [NSString stringWithFormat:@"The cache was successfully persisted to: '%@', revision: %lld, took: %f seconds.", filePath, snapShotRevision, archivingTime];
-            AD_LOG_VERBOSE(@"Cache persisted.", message);
+            AD_LOG_VERBOSE_F(@"Cache persisted.", @"The cache was successfully persisted to: '%@', revision: %lld, took: %f seconds.", filePath, snapShotRevision, archivingTime);
             
             mArchivedRevision = snapShotRevision;//The revision that we just read
             return YES;
