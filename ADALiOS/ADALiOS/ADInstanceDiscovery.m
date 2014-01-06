@@ -281,15 +281,13 @@ NSString* const sValidationServerError = @"The authority validation server retur
     NSURL* url = [NSURL URLWithString:trimmedAuthority];
     if (!url)
     {
-        NSString* message = [NSString stringWithFormat:@"Authority %@", authority];
-        AD_LOG_WARN(@"The authority is not a valid URL", message);
+        AD_LOG_WARN_F(@"The authority is not a valid URL", @"Authority %@", authority);
         return nil;
     }
     NSString* scheme = url.scheme;
     if (![scheme isEqualToString:@"https"])
     {
-        NSString* message = [NSString stringWithFormat:@"Authority %@", authority];
-        AD_LOG_WARN(@"Non HTTPS protocol for the authority", message);
+        AD_LOG_WARN_F(@"Non HTTPS protocol for the authority", @"Authority %@", authority);
         return nil;
     }
     

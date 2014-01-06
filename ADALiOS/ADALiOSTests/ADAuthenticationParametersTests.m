@@ -36,6 +36,7 @@
 - (void)setUp
 {
     [super setUp];
+    [self adTestBegin];
     // Runs before each test case. Just in case, set them to nil.
     mParameters = nil;
     mError = nil;
@@ -46,6 +47,7 @@
     //Runs after each test case. Clean up to ensure that the memory is freed before the other test:
     mParameters = nil;
     mError = nil;
+    [self adTestEnd];
     [super tearDown];
 }
 

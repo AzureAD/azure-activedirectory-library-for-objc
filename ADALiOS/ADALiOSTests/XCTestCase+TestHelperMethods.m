@@ -122,6 +122,13 @@ NSString* sTestEnd = @"|||TEST_END|||";
     [ADAuthenticationSettings sharedInstance].dispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 }
 
+extern void __gcov_flush(void);
+-(void) flushCodeCoverage
+{
+    //TODO: check if executed within a code coverage build!
+    __gcov_flush();
+}
+
 /*! Clears logging and other infrastructure after a test */
 -(void) adTestEnd
 {
@@ -135,6 +142,7 @@ NSString* sTestEnd = @"|||TEST_END|||";
         [sErrorCodesLog appendString:sTestEnd];
     }
     XCTAssertNil([ADLogger getLogCallBack], "Clearing of logCallBack failed.");
+    [self flushCodeCoverage];
 }
 
 //Parses backwards the log to find the test begin prefix. Returns the beginning

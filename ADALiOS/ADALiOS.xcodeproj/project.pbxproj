@@ -32,7 +32,6 @@
 		8B0DA7DE182AD01100CF5E1E /* ADAuthenticationResult+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B0DA7DD182AD01100CF5E1E /* ADAuthenticationResult+Internal.m */; };
 		8B3032231861347B00C61E7F /* ADTokenCacheStoreKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B3032221861347B00C61E7F /* ADTokenCacheStoreKeyTests.m */; };
 		8B34343718330474002DE1DC /* NSDictionaryExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34343618330474002DE1DC /* NSDictionaryExtensions.m */; };
-		8B34343A1833049B002DE1DC /* NSStringExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B3434391833049B002DE1DC /* NSStringExtensions.m */; };
 		8B34343D183304B1002DE1DC /* NSURLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34343C183304B1002DE1DC /* NSURLExtensions.m */; };
 		8B343443183304FE002DE1DC /* HTTPWebRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B343440183304FE002DE1DC /* HTTPWebRequest.m */; };
 		8B343444183304FE002DE1DC /* HTTPWebResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B343442183304FE002DE1DC /* HTTPWebResponse.m */; };
@@ -62,6 +61,7 @@
 		8B6114041872347E007759C2 /* ADInstanceDiscovery.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B6113FF186E517D007759C2 /* ADInstanceDiscovery.h */; };
 		8B6613B518346080008BDD3F /* ADAuthenticationResultTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B6613B418346080008BDD3F /* ADAuthenticationResultTests.m */; };
 		8B7E6FC81856A1E8000DC3C8 /* ADOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B7E6FC71856A1E8000DC3C8 /* ADOAuth2Constants.m */; };
+		8B7F1ED0187B580B00EC8844 /* ADTestCoverageEnabler.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B7F1ECF187B580B00EC8844 /* ADTestCoverageEnabler.m */; };
 		8B81CE3418188728005CFD65 /* ADTestTokenCacheStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B81CE3318188728005CFD65 /* ADTestTokenCacheStore.m */; };
 		8B92DB5F1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB5E1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m */; };
 		8B92DB671819FA61004AAB0E /* ADTestNSStringHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB661819FA61004AAB0E /* ADTestNSStringHelperMethods.m */; };
@@ -160,8 +160,6 @@
 		8B3032221861347B00C61E7F /* ADTokenCacheStoreKeyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheStoreKeyTests.m; sourceTree = "<group>"; };
 		8B34343518330474002DE1DC /* NSDictionaryExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSDictionaryExtensions.h; sourceTree = "<group>"; };
 		8B34343618330474002DE1DC /* NSDictionaryExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSDictionaryExtensions.m; sourceTree = "<group>"; };
-		8B3434381833049B002DE1DC /* NSStringExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSStringExtensions.h; sourceTree = "<group>"; };
-		8B3434391833049B002DE1DC /* NSStringExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringExtensions.m; sourceTree = "<group>"; };
 		8B34343B183304B1002DE1DC /* NSURLExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSURLExtensions.h; sourceTree = "<group>"; };
 		8B34343C183304B1002DE1DC /* NSURLExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSURLExtensions.m; sourceTree = "<group>"; };
 		8B34343E183304C9002DE1DC /* WebAuthenticationDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebAuthenticationDelegate.h; sourceTree = "<group>"; };
@@ -201,6 +199,8 @@
 		8B6613B418346080008BDD3F /* ADAuthenticationResultTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationResultTests.m; sourceTree = "<group>"; };
 		8B7E6FC61856A1E8000DC3C8 /* ADOAuth2Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADOAuth2Constants.h; sourceTree = "<group>"; };
 		8B7E6FC71856A1E8000DC3C8 /* ADOAuth2Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADOAuth2Constants.m; sourceTree = "<group>"; };
+		8B7F1ECE187B580B00EC8844 /* ADTestCoverageEnabler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestCoverageEnabler.h; sourceTree = "<group>"; };
+		8B7F1ECF187B580B00EC8844 /* ADTestCoverageEnabler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestCoverageEnabler.m; sourceTree = "<group>"; };
 		8B81CE3218188728005CFD65 /* ADTestTokenCacheStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestTokenCacheStore.h; sourceTree = "<group>"; };
 		8B81CE3318188728005CFD65 /* ADTestTokenCacheStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestTokenCacheStore.m; sourceTree = "<group>"; };
 		8B92DB5D1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCTestCase+TestHelperMethods.h"; sourceTree = "<group>"; };
@@ -381,6 +381,8 @@
 				8BBF6787183588EC004E0F4D /* ADTokenCacheStoreItemTest.m */,
 				8B3032221861347B00C61E7F /* ADTokenCacheStoreKeyTests.m */,
 				8B6114021872127C007759C2 /* ADInstanceDiscoveryTests.m */,
+				8B7F1ECE187B580B00EC8844 /* ADTestCoverageEnabler.h */,
+				8B7F1ECF187B580B00EC8844 /* ADTestCoverageEnabler.m */,
 			);
 			path = ADALiOSTests;
 			sourceTree = "<group>";
@@ -400,8 +402,6 @@
 				8B2E422D182C0A2600A38559 /* iOS */,
 				8B34343518330474002DE1DC /* NSDictionaryExtensions.h */,
 				8B34343618330474002DE1DC /* NSDictionaryExtensions.m */,
-				8B3434381833049B002DE1DC /* NSStringExtensions.h */,
-				8B3434391833049B002DE1DC /* NSStringExtensions.m */,
 				8B34343B183304B1002DE1DC /* NSURLExtensions.h */,
 				8B34343C183304B1002DE1DC /* NSURLExtensions.m */,
 				8B34343E183304C9002DE1DC /* WebAuthenticationDelegate.h */,
@@ -573,7 +573,6 @@
 				8B343450183305A6002DE1DC /* WebAuthenticationWebViewController.m in Sources */,
 				8B59895E1811C72400744AEE /* ADDefaultTokenCacheStore.m in Sources */,
 				8B7E6FC81856A1E8000DC3C8 /* ADOAuth2Constants.m in Sources */,
-				8B34343A1833049B002DE1DC /* NSStringExtensions.m in Sources */,
 				8B343444183304FE002DE1DC /* HTTPWebResponse.m in Sources */,
 				8B34344F183305A6002DE1DC /* WebAuthenticationViewController.m in Sources */,
 				8B611401186E517D007759C2 /* ADInstanceDiscovery.m in Sources */,
@@ -613,6 +612,7 @@
 				8BB8346B1807BE3F007F9F0D /* ADAuthenticationContextTests.m in Sources */,
 				8BBF6788183588EC004E0F4D /* ADTokenCacheStoreItemTest.m in Sources */,
 				8B6613B518346080008BDD3F /* ADAuthenticationResultTests.m in Sources */,
+				8B7F1ED0187B580B00EC8844 /* ADTestCoverageEnabler.m in Sources */,
 				8B6113FE1868C59E007759C2 /* ADTestAuthenticationContext.m in Sources */,
 				8B3032231861347B00C61E7F /* ADTokenCacheStoreKeyTests.m in Sources */,
 				8B81CE3418188728005CFD65 /* ADTestTokenCacheStore.m in Sources */,
@@ -743,6 +743,7 @@
 			buildSettings = {
 				DSTROOT = /usr/local/lib;
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ADALiOS/ADALiOS-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -762,6 +763,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DSTROOT = /usr/local/lib;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ADALiOS/ADALiOS-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -786,6 +788,8 @@
 					"$(inherited)",
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ADALiOS/ADALiOS-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (

@@ -66,7 +66,7 @@
     mPromptBehavior = AD_PROMPT_AUTO;
     ADAuthenticationError* error;
     ADTestAuthenticationContext* testContext = [[ADTestAuthenticationContext alloc] initWithAuthority:mAuthority
-                                                                                    validateAuthority:NO
+                                                                                    validateAuthority:YES
                                                                                       tokenCacheStore:mDefaultTokenCache
                                                                                                 error:&error];
     ADAssertNoError;

@@ -95,6 +95,9 @@ typedef enum
 -(int) adCountOfLogOccurrencesIn: (ADLogPart) logPart
                         ofString: (NSString*) contained;
 
+//Checks if the test coverage is enabled and stores the test coverage, if yes.
+-(void) flushCodeCoverage;
+
 @end
 
 //Fixes the issue with XCTAssertEqual not comparing int and long values
