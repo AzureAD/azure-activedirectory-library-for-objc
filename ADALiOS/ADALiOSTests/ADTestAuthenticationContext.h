@@ -29,20 +29,21 @@
     NSMutableDictionary* mExpectedRequest1;
     /* Responds with this dictionary, if the communication is intercepted. */
     NSMutableDictionary* mResponse1;
+    NSString* mRequestedState1;
     
     /* We have cases, when we do two requests to the server. This object is used for the second request. */
     NSMutableDictionary* mExpectedRequest2;
     NSMutableDictionary* mResponse2;
+    NSString* mRequestedState2;
     
     NSUUID* mCorrelationId1;
     NSUUID* mCorrelationId2;
     
     /* If any error occurs during the verification, it will be stored in this string. */
     NSString* mErrorMessage;
-    
     BOOL mAllowTwoRequests;
-    
     int mNumRequests;
+    BOOL mReturnState;//If set returns the state, exactly as requested.
 }
 
 -(ADTestAuthenticationContext*) initWithAuthority: (NSString*) authority
@@ -55,6 +56,7 @@
    requestData:(NSDictionary *)request_data
 requestCorrelationId: (NSUUID*) requestCorrelationId
     completion:( void (^)(NSDictionary *) )completionBlock;
+
 
 @end
 

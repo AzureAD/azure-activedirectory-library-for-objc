@@ -972,7 +972,7 @@ extraQueryParameters: (NSString*) queryParams
 //Ensures that the state comes back in the response:
 -(BOOL) verifyStateFromDictionary: (NSDictionary*) dictionary
 {
-    NSDictionary *state = [self.class decodeProtocolState:[dictionary objectForKey:OAUTH2_STATE]];
+    NSDictionary *state = [NSDictionary URLFormDecode:[[dictionary objectForKey:OAUTH2_STATE] adBase64UrlDecode]];
     if (state.count != 0)
     {
         NSString *authorizationServer = [state objectForKey:@"a"];
@@ -1195,22 +1195,6 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
         
         completionBlock( response );
     }];
-}
-
-// Verify we are running on the main thread and abort with a message otherwise
-+ (void)assertMainThread:(NSString *)message
-{
-    if (![[NSThread currentThread] isEqual:[NSThread mainThread]])
-    {
-        NSAssert(false, message);
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:message userInfo:nil];
-    }
-}
-
-// Decodes the state parameter from a protocol message
-+ (NSDictionary *)decodeProtocolState:(NSString *)encodedState
-{
-    return [NSDictionary URLFormDecode:[encodedState adBase64UrlDecode]];
 }
 
 // Encodes the state parameter for a protocol message

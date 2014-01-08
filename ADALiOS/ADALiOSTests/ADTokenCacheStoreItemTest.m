@@ -148,4 +148,9 @@
     XCTAssertTrue(item.multiResourceRefreshToken);
 }
 
+-(void) testSupportsSecureCoding
+{
+    XCTAssertTrue([ADTokenCacheStoreItem supportsSecureCoding], "Ensure that the unarchiving is secure.");
+}
+
 @end

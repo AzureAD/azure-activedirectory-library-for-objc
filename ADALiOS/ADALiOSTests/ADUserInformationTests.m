@@ -143,4 +143,9 @@
     XCTAssertNil(userInfo);
 }
 
+-(void) testSupportSecureCoding
+{
+    XCTAssertTrue([ADUserInformation supportsSecureCoding], "Unarchiving should be secure.");
+}
+
 @end

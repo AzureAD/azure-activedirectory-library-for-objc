@@ -38,7 +38,10 @@ BOOL sNSLogging = YES;
 
 +(void) setLogCallBack: (LogCallback) callback
 {
-    sLogCallback = callback;
+    @synchronized(self)//Avoid changing to null while attempting to call it.
+    {
+        sLogCallback = callback;
+    }
 }
 
 +(LogCallback) getLogCallBack
@@ -107,15 +110,12 @@ additionalInformation: (NSString*) additionalInformation
             //NSLog is documented as thread-safe:
             NSLog([self formatStringPerLevel:logLevel], message, additionalInformation, errorCode);
         }
-        //Atomically copy, as the value may be changed in another thread after the check
-        //and we end up calling null pointer, crashing the app. Another approach is to use lock,
-        //which will slow down the application, even if callback is not set
-        LogCallback callback = sLogCallback;
-        if (callback)
+        
+        @synchronized(self)//Guard against thread-unsafe callback and modification of sLogCallback after the check
         {
-            @synchronized(self)//Guard against thread-unsafe callback.
+            if (sLogCallback)
             {
-                callback(logLevel, message, additionalInformation, errorCode);
+                sLogCallback(logLevel, message, additionalInformation, errorCode);
             }
         }
     }

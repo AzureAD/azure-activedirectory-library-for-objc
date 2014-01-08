@@ -153,6 +153,7 @@
     XCTAssertTrue([@" Prefix word" rangeHasPrefixWord:prefix range:range]);
     XCTAssertTrue([@"PPrefix word" rangeHasPrefixWord:prefix range:range]);
     XCTAssertTrue([@"PPrefix word another thing" rangeHasPrefixWord:prefix range:range]);
+    XCTAssertTrue([@"Any string" rangeHasPrefixWord:@"" range:range]);
 }
 
 -(void) testSubstringHasPrefixWord
@@ -266,6 +267,15 @@
     XCTAssertFalse([@"™" adBase64UrlDecode].length, "Contains characters beyond 128");
     XCTAssertFalse([@"денят" adBase64UrlDecode].length, "Contains unicode characters.");
     
+}
+
+-(void) testAdUrlFormDecode
+{
+    NSString* testString = @"Some interesting test/+-)(*&^%$#@!~|";
+    NSString* encoded = [testString adUrlFormEncode];
+
+    ADAssertStringEquals(encoded, @"Some+interesting+test%2F%2B-%29%28%2A%26%5E%25%24%23%40%21~%7C");
+    ADAssertStringEquals([encoded adUrlFormDecode], testString);
 }
 
 @end

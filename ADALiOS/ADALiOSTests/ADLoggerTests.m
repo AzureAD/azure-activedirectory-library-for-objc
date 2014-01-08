@@ -19,6 +19,12 @@
 
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
+#import <libkern/OSAtomic.h>
+
+const int sMaxLoggerThreadsDuration = 5;//In seconds
+const int sMaxLoggerTestThreads = 100;
+volatile int32_t sLoggerTestThreadsCompleted = 0;
+dispatch_semaphore_t sLoggerTestCompletedSignal;
 
 @interface ADLoggerTests : XCTestCase
 
@@ -31,6 +37,8 @@
     [super setUp];
     // Put setup code here; it will be run once, before the first test case.
     [self adTestBegin];
+    [ADLogger setNSLogging:YES];//We disable it by default in the rest of the tests to limit the log files
+    XCTAssertTrue([ADLogger getNSLogging]);
 }
 
 - (void)tearDown
@@ -46,7 +54,7 @@
     {
         [ADLogger setLevel:i];
         XCTAssertEqual(i, [ADLogger getLevel], "Level not set");
-        for(int j = ADAL_LOG_LEVEL_ERROR; j < ADAL_LOG_LAST; ++j)
+        for(int j = ADAL_LOG_LEVEL_ERROR; j <= ADAL_LOG_LAST; ++j)
         {
             NSString* message = [NSString stringWithFormat:@"Test%dMessage%d %s", i, j, __PRETTY_FUNCTION__];
             NSString* info = [NSString stringWithFormat:@"Test%dnfo%d %s", i, j, __PRETTY_FUNCTION__];
@@ -71,6 +79,53 @@
     [ADLogger log:ADAL_LOG_LEVEL_NO_LOG message:@"Message" errorCode:AD_ERROR_SUCCEEDED additionalInformation:@"info" ];
     [ADLogger log:ADAL_LOG_LEVEL_ERROR message:nil errorCode:AD_ERROR_SUCCEEDED additionalInformation:@"info" ];
     [ADLogger log:ADAL_LOG_LEVEL_ERROR message:@"message" errorCode:AD_ERROR_SUCCEEDED additionalInformation:nil];
+}
+
+-(void) threadProc
+{
+    @autoreleasepool
+    {
+        __block NSMutableString* log = [NSMutableString new];
+        NSDate* end = [NSDate dateWithTimeIntervalSinceNow:sMaxLoggerThreadsDuration];
+        while([[NSDate dateWithTimeIntervalSinceNow:0] compare:end] != NSOrderedDescending)//Runs for sMaxLoggerThreadsDuration seconds
+        {
+            @autoreleasepool//Needed, as the code inside the loop creates objects:
+            {
+                [ADLogger setLogCallBack:nil];
+                [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"test" errorCode:1 additionalInformation:@"info"];
+                [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInformation, NSInteger errorCode)
+                 {
+                     [log appendFormat:@"%d; %@; %@; %d;", logLevel, message, additionalInformation, errorCode];
+                 }];
+                [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"test1" errorCode:1 additionalInformation:@"info1"];
+                [ADLogger setLogCallBack:nil];
+                NSRange all = {0, log.length};
+                [log deleteCharactersInRange:all];//Clear to avoid memory spike
+            }
+        }
+    }
+    if (OSAtomicIncrement32(&sLoggerTestThreadsCompleted) == sMaxLoggerTestThreads)
+    {
+        dispatch_semaphore_signal(sLoggerTestCompletedSignal);
+    }
+}
+
+//Runs multiple thread setting, clearing the log callback and logging simultaneously
+//The logging should be as reliable as possible.
+-(void) testSetCallbackMutlithreaded
+{
+    [ADLogger setNSLogging:NO];//Limit the system logs, as we will be printing tons of messsages here.
+    sLoggerTestCompletedSignal = dispatch_semaphore_create(0);
+    XCTAssertNotNil(sLoggerTestCompletedSignal);
+    sLoggerTestThreadsCompleted = 0;
+    for(int i = 0; i < sMaxLoggerTestThreads; ++i)
+    {
+        [self performSelectorInBackground:@selector(threadProc) withObject:self];
+    }
+    if (dispatch_semaphore_wait(sLoggerTestCompletedSignal, dispatch_time(DISPATCH_TIME_NOW, (sMaxLoggerThreadsDuration + 5)*NSEC_PER_SEC)))
+    {
+        XCTFail("Timed out. The threads did not complete smoothly. If the applicaiton has not crashed, this is an indication of a deadlock.");
+    }
 }
 
 @end

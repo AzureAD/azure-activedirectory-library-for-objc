@@ -18,6 +18,7 @@ dispatch_semaphore_t sThreadsCompletedSemaphore;//Signals the completion of all 
 volatile int32_t sNumThreadsDone;//Number of threads that have exited.
 const int sMaxTestThreads = 10;//How many threads to spawn
 const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
+const int sAsyncTimeout = 10;//in seconds
 
 //Test protocol for easier calling of private methods
 @protocol TestInstanceDiscovery <NSObject>
@@ -26,6 +27,11 @@ const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
                    error: (ADAuthenticationError* __autoreleasing *) error;
 -(BOOL) isAuthorityValidated: (NSString*) authorityHost;
 -(void) setAuthorityValidation: (NSString*) authorityHost;
+
+-(void) requestValidationOfAuthority: (NSString*) authority
+                                host: (NSString*) authorityHost
+                    trustedAuthority: (NSString*) trustedAuthority
+                     completionBlock: (ADDiscoveryCallback) completionBlock;
 
 @end
 
@@ -69,6 +75,7 @@ const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
 {
     [super setUp];
     [self adTestBegin];
+    mValidated = NO;
     mInstanceDiscovery = [ADInstanceDiscovery sharedInstance];
     mTestInstanceDiscovery = (id<TestInstanceDiscovery>)mInstanceDiscovery;
     mValidatedAuthorities = [mInstanceDiscovery getInternalValidatedAuthorities];
@@ -276,38 +283,28 @@ const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
 }
 
 //Calls the asynchronous "validateAuthority" method and waits for completion.
-//Sets the iVars of the test class according to the response
+//Sets the iVars of the test class according to the response. note t
 -(void) validateAuthority: (NSString*) authority
                      line: (int) line
 {
-    __block dispatch_semaphore_t completed = dispatch_semaphore_create(0);
-    __block volatile int executed = 0;
     mError = nil;//Reset
-    [mInstanceDiscovery validateAuthority:authority completionBlock:^(BOOL validated, ADAuthenticationError *error)
-    {
-        if (OSAtomicCompareAndSwapInt(0, 1, &executed))
-        {
-            //Executed once, all ok:
-            mValidated = validated;
-            mError = error;
-            dispatch_semaphore_signal(completed);
-        }
-        else
-        {
-            //Intentionally crash the test execution. As this happens on another thread,
-            //there is no reliable to ensure that a second call is not made, without just throwing.
-            //Note that the test will succeed, but the test run will fail:
-            @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:@"Double calls of acquire token." userInfo:nil];
-        }
-    }];
-    if (dispatch_semaphore_wait(completed, dispatch_time(DISPATCH_TIME_NOW, 1000*NSEC_PER_SEC)))
-    {
-        [self recordFailureWithDescription:@"Timeout while calling validateAuthority method." inFile:@"" __FILE__ atLine:line expected:NO];
-        return;
-    }
+    static volatile int completion = 0;//Set to 1 at the end of the callback
+    [self callAndWaitWithFile:@"" __FILE__ line:line completionSignal:&completion block:^
+     {
+         [mInstanceDiscovery validateAuthority:authority completionBlock:^(BOOL validated, ADAuthenticationError *error)
+          {
+              mValidated = validated;
+              mError = error;
+              ASYNC_BLOCK_COMPLETE(completion)
+          }];
+     }];
+    
     if (mError)
     {
-        XCTAssertFalse(mValidated);
+        if (mValidated)
+        {
+            [self recordFailureWithDescription:@"'validated' parameter set to true in an error condition." inFile:@"" __FILE__ atLine:line expected:NO];
+        }
     }
 }
 
@@ -346,14 +343,57 @@ const int sThreadsRunDuration = 3;//The number of seconds to run the threads.
     
     //Canonicalization to the supported extent:
     NSString* authority = @"    https://www.microsoft.com/foo.com/";
-    authority = [ADInstanceDiscovery canonicalizeAuthority:authority];
-    XCTAssertTrue(![NSString isStringNilOrBlank:authority]);
+    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:authority], @"https://www.microsoft.com/foo.com");
+
+    authority = @"https://www.microsoft.com/foo.com";
     //Without the trailing "/":
     ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://www.microsoft.com/foo.com"], authority);
     //Ending with non-white characters:
     ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://www.microsoft.com/foo.com   "], authority);
     
+    authority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
+    //Test canonicalizing the endpoints:
+    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/MSOpenTechBV.onmicrosoft.com/OAuth2/Token"], authority);
+    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/MSOpenTechBV.onmicrosoft.com/OAuth2/Authorize"], authority);
 }
 
+//Tests a real authority
+-(void) testNormalFlow
+{
+    [mValidatedAuthorities removeAllObjects];//Clear, as "login.windows.net" is already cached.
+    [self validateAuthority:@"https://Login.Windows.Net/MSOpenTechBV.onmicrosoft.com" line:__LINE__];
+    XCTAssertTrue(mValidated);
+    XCTAssertNil(mError);
+    XCTAssertTrue([mValidatedAuthorities containsObject:@"https://login.windows.net"]);
+}
+
+//Ensures that an invalid authority is not approved
+-(void) testNonValidatedAuthority
+{
+    [self validateAuthority:@"https://MyFakeAuthority.com/MSOpenTechBV.onmicrosoft.com" line:__LINE__];
+    XCTAssertFalse(mValidated);
+    XCTAssertNotNil(mError);
+    ADAssertLongEquals(AD_ERROR_AUTHORITY_VALIDATION, mError.code);
+}
+
+-(void) testUnreachableServer
+{
+    static volatile int completion = 0;//Set to 1 at the end of the callback
+    [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal:&completion block:^
+    {
+        [mTestInstanceDiscovery requestValidationOfAuthority:@"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com"
+                                                        host:@"https://login.windows.cn"
+                                            trustedAuthority:@"https://SomeValidURLButNotExistentInTheNet.com"
+                                             completionBlock:^(BOOL validated, ADAuthenticationError *error)
+         {
+             mValidated = validated;
+             mError = error;
+             ASYNC_BLOCK_COMPLETE(completion);
+         }];
+    }];
+    
+    XCTAssertFalse(mValidated);
+    XCTAssertNotNil(mError);
+}
 
 @end

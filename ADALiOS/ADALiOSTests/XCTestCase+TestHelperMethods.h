@@ -81,6 +81,10 @@ typedef enum
 //Creates an new item with all of the properties having correct values
 -(ADTokenCacheStoreItem*) createCacheItem;
 
+//Ensures that two cache items are the same:
+-(void) verifySameWithItem: (ADTokenCacheStoreItem*) item1
+                     item2: (ADTokenCacheStoreItem*) item2;
+
 -(NSString*) adLogLevelLogs;
 -(NSString*) adMessagesLogs;
 -(NSString*) adInformationLogs;
@@ -97,6 +101,37 @@ typedef enum
 
 //Checks if the test coverage is enabled and stores the test coverage, if yes.
 -(void) flushCodeCoverage;
+
+/* A special helper, which invokes the 'block' parameter in the UI thread and waits for its internal
+ callback block to complete.
+ IMPORTANT: The internal callback block should end with ASYNCH_COMPLETE macro to signal its completion. Example:
+ static volatile int comletion  = 0;
+ [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
+ {
+    [mAuthenticationContext acquireToken:mResource
+                         completionBlock:^(ADAuthenticationResult* result)
+    {
+        //Inner block:
+        mResult = result;
+        ASYNC_BLOCK_COMPLETE(completion);//Signals the completion
+    }];
+ }];
+ The method executes the block in the UI thread, but runs an internal run loop and thus allows methods which enqueue their
+ completion callbacks on the UI thread.
+ */
+-(void) callAndWaitWithFile: (NSString*) file
+                       line: (int) line
+           completionSignal: (volatile int*) signal
+                      block: (void (^)(void)) block;
+
+/* Called by the ASYNC_BLOCK_COMPLETE macro to signal the completion of the block
+ and handle multiple calls of the callback. See the method above for details.*/
+-(void) asynchInnerBlockCompleteWithFile: (NSString*) file
+                                    line: (int) line
+                        completionSignal: (volatile int*) signal;
+
+#define ASYNC_BLOCK_COMPLETE(SIGNAL) \
+    [self asynchInnerBlockCompleteWithFile:@"" __FILE__ line:__LINE__ completionSignal: &SIGNAL];
 
 @end
 

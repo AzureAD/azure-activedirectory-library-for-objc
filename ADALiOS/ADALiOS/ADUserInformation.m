@@ -186,6 +186,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     {
         RETURN_ID_TOKEN_ERROR(idToken);
     }
+    _userId = _userId.lowercaseString;//Normalize
     
     return self;
 }

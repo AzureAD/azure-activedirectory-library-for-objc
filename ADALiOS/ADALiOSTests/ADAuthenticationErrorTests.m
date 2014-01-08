@@ -124,4 +124,13 @@
     ADAssertStringEquals(error.errorDetails, details);
 }
 
+-(void) testDescription
+{
+    NSString* details = @"Some details";
+    NSString* protocolCode = @"some-protocol-code";
+    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:42 protocolCode:protocolCode errorDetails:details];
+    XCTAssertTrue([error.description containsString:details]);
+    XCTAssertTrue([error.description containsString:protocolCode]);
+}
+
 @end

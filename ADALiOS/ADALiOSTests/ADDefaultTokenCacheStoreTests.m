@@ -159,25 +159,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqualObjects(store, mStore, "Different objects returned");
 }
 
-//Ensures that two items are the same:
--(void) verifySameWithItem: (ADTokenCacheStoreItem*) item1
-                     item2: (ADTokenCacheStoreItem*) item2
-{
-    XCTAssertNotNil(item1);
-    XCTAssertNotNil(item2);
-    ADAssertStringEquals(item1.resource, item2.resource);
-    ADAssertStringEquals(item1.authority, item2.authority);
-    ADAssertStringEquals(item1.clientId, item2.clientId);
-    ADAssertStringEquals(item1.accessToken, item2.accessToken);
-    ADAssertStringEquals(item1.refreshToken, item2.refreshToken);
-    ADAssertDateEquals(item1.expiresOn, item2.expiresOn);
-    ADAssertStringEquals(item1.userInformation.userId, item2.userInformation.userId);
-    ADAssertStringEquals(item1.userInformation.givenName, item2.userInformation.givenName);
-    ADAssertStringEquals(item1.userInformation.familyName, item2.userInformation.familyName);
-    XCTAssertEqual(item1.userInformation.userIdDisplayable, item2.userInformation.userIdDisplayable);
-    ADAssertStringEquals(item1.tenantId, item2.tenantId);
-}
-
 //Esnures that two keys are the same:
 -(void) verifySameWithKey: (ADTokenCacheStoreKey*) key1
                      key2: (ADTokenCacheStoreKey*) key2

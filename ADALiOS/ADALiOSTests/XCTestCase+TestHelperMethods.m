@@ -20,7 +20,7 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import <ADALiOS/ADTokenCacheStoreItem.h>
 #import <ADALioS/ADAuthenticationSettings.h>
-
+#import <libkern/OSAtomic.h>
 
 @implementation XCTestCase (TestHelperMethods)
 
@@ -32,6 +32,8 @@ NSMutableString* sErrorCodesLog;
 
 NSString* sTestBegin = @"|||TEST_BEGIN|||";
 NSString* sTestEnd = @"|||TEST_END|||";
+
+volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 /*! See header for comments */
 -(void) assertValidText: (NSString*) text
@@ -117,9 +119,6 @@ NSString* sTestEnd = @"|||TEST_END|||";
     [ADLogger setLevel:ADAL_LOG_LAST];//Log everything by default. Tests can change this.
     [ADLogger setNSLogging:NO];//Disables the NS logging to avoid generating huge amount of system logs.
     XCTAssertEqual(logCallback, [ADLogger getLogCallBack], "Setting of logCallBack failed.");
-    //Tests are executed in the main thread and as such, they will fail, if the asynchronous methods dispatch to the same thread,
-    //so we redirect dispatching to the background asynchronous queue:
-    [ADAuthenticationSettings sharedInstance].dispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 }
 
 extern void __gcov_flush(void);
@@ -325,5 +324,83 @@ extern void __gcov_flush(void);
     
     return item;
 }
+
+//Ensures that two items are the same:
+-(void) verifySameWithItem: (ADTokenCacheStoreItem*) item1
+                     item2: (ADTokenCacheStoreItem*) item2
+{
+    XCTAssertNotNil(item1);
+    XCTAssertNotNil(item2);
+    ADAssertStringEquals(item1.resource, item2.resource);
+    ADAssertStringEquals(item1.authority, item2.authority);
+    ADAssertStringEquals(item1.clientId, item2.clientId);
+    ADAssertStringEquals(item1.accessToken, item2.accessToken);
+    ADAssertStringEquals(item1.refreshToken, item2.refreshToken);
+    ADAssertDateEquals(item1.expiresOn, item2.expiresOn);
+    ADAssertStringEquals(item1.userInformation.userId, item2.userInformation.userId);
+    ADAssertStringEquals(item1.userInformation.givenName, item2.userInformation.givenName);
+    ADAssertStringEquals(item1.userInformation.familyName, item2.userInformation.familyName);
+    XCTAssertEqual(item1.userInformation.userIdDisplayable, item2.userInformation.userIdDisplayable);
+    ADAssertStringEquals(item1.tenantId, item2.tenantId);
+}
+
+-(void) callAndWaitWithFile: (NSString*) file
+                       line: (int) line
+           completionSignal: (volatile int*) signal
+                      block: (void (^)(void)) block
+{
+    THROW_ON_NIL_ARGUMENT(signal);
+    THROW_ON_NIL_EMPTY_ARGUMENT(file);
+    THROW_ON_NIL_ARGUMENT(block);
+    
+    if (*signal)
+    {
+        [self recordFailureWithDescription:@"The signal should be 0 before asynchronous execution."
+                                    inFile:file
+                                    atLine:line
+                                  expected:NO];
+        return;
+    }
+    
+    block();//Run the intended asynchronous method
+    
+    //Set up and excuted the run loop until completion:
+    NSDate* timeOut = [NSDate dateWithTimeIntervalSinceNow:10];//Waits for 10 seconds.
+    while (!(*signal) && [[NSDate dateWithTimeIntervalSinceNow:0] compare:timeOut] != NSOrderedDescending)
+    {
+        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeOut];
+    }
+    if (!*signal)
+    {
+        [self recordFailureWithDescription:@"Timeout while waiting for validateAuthority callback."
+         "This can also happen if the inner callback does not end with ASYNC_BLOCK_COMPLETE"
+                                    inFile:file
+                                    atLine:line
+                                  expected:NO];
+    }
+    else
+    {
+        //Completed as expected, reset for the next execuion.
+        *signal = 0;
+    }
+}
+
+/* Called by the ASYNC_BLOCK_COMPLETE macro to signal the completion of the block
+ and handle multiple calls of the callback. See the method above for details.*/
+-(void) asynchInnerBlockCompleteWithFile: (NSString*) file
+                                    line: (int) line
+                        completionSignal: (volatile int*) signal
+{
+    if (!OSAtomicCompareAndSwapInt(0, 1, signal))//Signal completion
+    {
+        //The inner callback is called more than once.
+        //Intentionally crash the test execution. As this may happen on another thread,
+        //there is no reliable to ensure that a second call is not made, without just throwing.
+        //Note that the test will succeed, but the test run will fail:
+        NSString* message = [NSString stringWithFormat:@"Duplicate calling of the complition callback at %@(%d)", file, line];
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:message userInfo:nil];
+    }
+}
+
 
 @end
