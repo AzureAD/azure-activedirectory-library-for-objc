@@ -36,6 +36,7 @@
 - (void)setUp
 {
     [super setUp];
+    [self adTestBegin];
     // Runs before each test case. Just in case, set them to nil.
     mParameters = nil;
     mError = nil;
@@ -46,6 +47,7 @@
     //Runs after each test case. Clean up to ensure that the memory is freed before the other test:
     mParameters = nil;
     mError = nil;
+    [self adTestEnd];
     [super tearDown];
 }
 
@@ -238,7 +240,7 @@
     [self extractChallengeWithInvalidHeader:@""];//Empty string
     [self extractChallengeWithInvalidHeader:@"   "];//Blank string:
     [self extractChallengeWithInvalidHeader:@"BearerBlahblah"];//Starts with Bearer, but it is not
-    [self extractChallengeWithInvalidHeader:@"Bearer,,"];
+    [self extractChallengeWithInvalidHeader:@"Bearer,, "];
 }
 
 -(void)testExtractChallengeValid
@@ -259,7 +261,8 @@
     if (params)
     {
         ADAssertStringEquals(params.authority, expectedAuthority);
-        ADAssertStringEquals(params.resource, expectedResource);    }
+        ADAssertStringEquals(params.resource, expectedResource);
+    }
     else
     {
         //init will return nil if the bearer format is incorrect:
@@ -276,6 +279,7 @@
     [self testInitializationWithChallenge:@"foo" authority:nil resource:nil];
     [self testInitializationWithChallenge:@"foo=bar" authority:nil resource:nil];
     [self testInitializationWithChallenge:@"foo=\"bar\"" authority:nil resource:nil];
+    [self testInitializationWithChallenge:@"foo=\"bar" authority:nil resource:nil];//Missing second quote
     [self testInitializationWithChallenge:@"foo=\"bar\"," authority:nil resource:nil];
     [self testInitializationWithChallenge:@"  authorization_uri=\"https://login.windows.net\""
                                 authority:@"https://login.windows.net" resource:nil];
@@ -306,19 +310,23 @@
 -(void) testParametersFromResponseAuthenticateHeaderInvalid
 {
     [self validateFactoryForBadHeader:@"Bearer foo=bar"];
-    [self validateFactoryForBadHeader:@"Bearer =,=,"];
+    [self validateFactoryForBadHeader:@"Bearer = , = , "];
     [self validateFactoryForBadHeader:@"Bearer =,=,="];
 }
 
 -(void) testParametersFromResponseAuthenticateHeaderValid
 {
     ADAuthenticationError* error;
-    ADAuthenticationParameters* params = params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\"https://login.windows.net\", resource_uri=\"foo.com\" "
+    ADAuthenticationParameters* params = params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\"https://login.windows.net\", resource_uri=\"foo.com\", anotherParam=\"Indeed, another param=5\" "
                                                                             error:&error];
     XCTAssertNotNil(params);
     XCTAssertNil(error);
     XCTAssertNil(params.resource);
     ADAssertStringEquals(params.authority, @"https://login.windows.net");
+    
+    NSDictionary* extractedParameters = [params getExtractedParameters];
+    XCTAssertNotNil(extractedParameters);
+    ADAssertStringEquals([extractedParameters objectForKey:@"anotherParam"], @"Indeed, another param=5");
 }
 
 -(void) testParametersFromResponseAuthenticateHeaderBadUrl

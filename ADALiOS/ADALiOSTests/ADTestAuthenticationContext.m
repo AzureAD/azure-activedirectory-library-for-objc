@@ -37,6 +37,7 @@
         mExpectedRequest2 = [NSMutableDictionary new];
         mAllowTwoRequests = NO;
         mNumRequests = 0;
+        mReturnState = YES;
     }
     return self;
 }
@@ -77,13 +78,16 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
         return;
     }
     
+    NSString* state;
     if (1 == mNumRequests)
     {
         mCorrelationId1 = requestCorrelationId;
+        state = mRequestedState1 = [request_data objectForKey:OAUTH2_STATE];
     }
     else
     {
         mCorrelationId2 = requestCorrelationId;
+        state = mRequestedState2 = [request_data objectForKey:OAUTH2_STATE];
     }
     
     
@@ -95,20 +99,26 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
         NSString* result = [request_data objectForKey:key];
         if (![result isKindOfClass:[NSString class]])
         {
-            mErrorMessage = [NSString stringWithFormat:@"Unexpected type for the key (%@): %@", key, result];
+            mErrorMessage = [NSString stringWithFormat:@"Requested data: Unexpected type for the key (%@): %@", key, result];
             completionBlock([self getResponse]);
             return;
         }
         if (![expected isEqualToString:result])
         {
-            mErrorMessage = [NSString stringWithFormat:@"Unexpected value for the key (%@): Expected: '%@'; Actual: '%@'", key, expected, result];
+            mErrorMessage = [NSString stringWithFormat:@"Requested data: Unexpected value for the key (%@): Expected: '%@'; Actual: '%@'", key, expected, result];
             completionBlock([self getResponse]);
             return;
         }
     }
     
+    NSMutableDictionary* responce = [self getResponse];
+    if (mReturnState && state)
+    {
+        [responce setObject:state forKey:OAUTH2_STATE];
+    }
+
     //If everything is ok, pass over the desired response:
-    completionBlock([self getResponse]);
+    completionBlock(responce);
 }
 
 @end

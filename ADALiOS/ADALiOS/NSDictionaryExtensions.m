@@ -19,7 +19,6 @@
 #import <Foundation/Foundation.h>
 
 #import "NSDictionaryExtensions.h"
-#import "NSStringExtensions.h"
 #import "NSString+ADHelperMethods.h"
 
 @implementation NSDictionary ( IPAL )
@@ -40,9 +39,8 @@
             
             if ( elements != nil && elements.count == 2 )
             {
-                NSString *key     = [[[elements objectAtIndex:0] trimmedString] URLFormDecode]; //stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                NSString *value   = [[[elements objectAtIndex:1] trimmedString] URLFormDecode]; //stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                
+                NSString *key     = [[[elements objectAtIndex:0] trimmedString] adUrlFormDecode];
+                NSString *value   = [[[elements objectAtIndex:1] trimmedString] adUrlFormDecode];                 
                 if ( nil != key && key.length != 0 )
                     [parameters setObject:value forKey:key];
             }
@@ -65,15 +63,15 @@
         if ( parameters == nil )
         {
             parameters = [NSString stringWithFormat:@"%@=%@",
-                           [[((NSString *)key) trimmedString] URLFormEncode], // stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-                           [[((NSString *)value) trimmedString] URLFormEncode]]; //stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+                           [[((NSString *)key) trimmedString] adUrlFormEncode],
+                           [[((NSString *)value) trimmedString] adUrlFormEncode]];
         }
         else
         {
             parameters = [NSString stringWithFormat:@"%@&%@=%@",
                           parameters,
-                          [[((NSString *)key) trimmedString] URLFormEncode], // stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-                          [[((NSString *)value) trimmedString] URLFormEncode]]; //stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+                          [[((NSString *)key) trimmedString] adUrlFormEncode],
+                          [[((NSString *)value) trimmedString] adUrlFormEncode]];
         }
     }];
     
