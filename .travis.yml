@@ -5,5 +5,6 @@ script:
   - xcodebuild -workspace ADALiOS.xcworkspace -scheme ADALiOS -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
   - xcodebuild test -workspace ADALiOS.xcworkspace -scheme ADALiOS -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
 after_success:
+  - find ~/Library/Developer/Xcode/DerivedData/ -name "*.gcda" -exec cp -v '{}' . \;
   - coveralls -e ADALiOS/ADALiOSTests
 
