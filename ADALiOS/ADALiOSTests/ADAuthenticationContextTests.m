@@ -873,6 +873,7 @@ const int sAsyncContextTimeout = 10;
     acquireTokenAsync;
     XCTAssertNotNil(mError);
     ADAssertLongEquals(AD_ERROR_APPLICATION, mError.code);
+    XCTAssertTrue([mError.errorDetails containsString:@"ViewController"]);
 }
 
 -(void) testUIError
@@ -1003,7 +1004,9 @@ const int sAsyncContextTimeout = 10;
 }
 
 //Tests the shorter overload of acquireTokenByRefreshToken
--(void) testAcquireTokenByRefreshTokenSimple
+//as the method ultimately calls the other overload, which is also used by acquireToken,
+//this test is not very deep.
+-(void) testAcquireTokenByRefreshTokenSimple_Negative
 {
     //There is no resource for this call:
     [self.testContext->mExpectedRequest1 removeObjectForKey:OAUTH2_RESOURCE];
