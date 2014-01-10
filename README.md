@@ -1,7 +1,7 @@
 Active Directory Authentication Library (ADAL)
 =====================================
 
-[![Build Status](https://travis-ci.org/MSOpenTech/azure-activedirectory-library-for-ios.png?branch=master)](https://travis-ci.org/MSOpenTech/azure-activedirectory-library-for-ios)
+[![Build Status](https://travis-ci.org/MSOpenTech/azure-activedirectory-library-for-ios.png)](https://travis-ci.org/MSOpenTech/azure-activedirectory-library-for-ios)
 [![Coverage Status](https://coveralls.io/repos/MSOpenTech/azure-activedirectory-library-for-ios/badge.png)](https://coveralls.io/r/MSOpenTech/azure-activedirectory-library-for-ios) 
 
 The library wraps OAuth2 protocols implementation, needed for a native iOS app to authenticate with the Azure Active Directory. 
