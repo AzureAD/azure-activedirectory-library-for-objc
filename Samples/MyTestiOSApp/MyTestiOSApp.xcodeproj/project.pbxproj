@@ -70,11 +70,11 @@
 		8BA42B2E17E3C150002D206E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyTestiOSAppTests.m; sourceTree = "<group>"; };
 		8BAB18B3184576B700FDD4DD /* libADALiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADALiOS.a; path = "../../../../Library/Developer/Xcode/DerivedData/ADALiOS-ckezcambqztutxakbxsnwblsewcb/Build/Products/Debug-iphoneos/libADALiOS.a"; sourceTree = "<group>"; };
-		8BE96CB61859439C00EE0764 /* ADALiOSBundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ADALiOSBundle-Info.plist"; sourceTree = "<group>"; };
-		8BE96CB71859439C00EE0764 /* en */ = {isa = PBXFileReference; lastKnownFileType = file; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		8BE96CB91859439C00EE0764 /* IPAL_iPhone_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = IPAL_iPhone_Storyboard.storyboard; path = ../ADALiOS/IPAL_iPhone_Storyboard.storyboard; sourceTree = "<group>"; };
-		8BE96CBA1859439C00EE0764 /* IPAL_iPad_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = IPAL_iPad_Storyboard.storyboard; path = ../ADALiOS/IPAL_iPad_Storyboard.storyboard; sourceTree = "<group>"; };
-		8BE96CBB1859439C00EE0764 /* ADALiOSBundle-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ADALiOSBundle-Prefix.pch"; sourceTree = "<group>"; };
+		8BE96CB61859439C00EE0764 /* ADALiOSBundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ADALiOSBundle-Info.plist"; sourceTree = "<group>"; };
+		8BE96CB71859439C00EE0764 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		8BE96CB91859439C00EE0764 /* IPAL_iPhone_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = IPAL_iPhone_Storyboard.storyboard; path = ../ADALiOS/IPAL_iPhone_Storyboard.storyboard; sourceTree = "<group>"; };
+		8BE96CBA1859439C00EE0764 /* IPAL_iPad_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = IPAL_iPad_Storyboard.storyboard; path = ../ADALiOS/IPAL_iPad_Storyboard.storyboard; sourceTree = "<group>"; };
+		8BE96CBB1859439C00EE0764 /* ADALiOSBundle-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADALiOSBundle-Prefix.pch"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -460,6 +460,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MyTestiOSApp/MyTestiOSApp-Prefix.pch";
 				HEADER_SEARCH_PATHS = "";
@@ -495,6 +497,8 @@
 					"$(inherited)",
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MyTestiOSApp/MyTestiOSApp-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
