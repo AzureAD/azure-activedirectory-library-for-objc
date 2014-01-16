@@ -65,6 +65,8 @@ const int16_t LOWER_VERSION = 0;
         else
         {
             AD_LOG_INFO(@"No persisted cache found.", logMessage);
+            //Create an empty file to ensure that the encryption attribute is set:
+            [self persistWithItems:[NSArray new] error:nil];
         }
     }
     return self;
