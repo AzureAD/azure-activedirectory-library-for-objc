@@ -24,8 +24,11 @@
 /*! The default implementation of ADTokenCacheStoring. The implementation
  is thread-safe and implemented with @synchronized on the internal storage.
  A faster implementation would be to use read-write locks, but these are
- restricted to POSIX threads only. */
-@interface ADDefaultTokenCacheStore : NSObject<ADTokenCacheStoring>
+ restricted to POSIX threads only. 
+ The class scheduleds an asynchronous serialization upon modification.
+ The actual persistence is implemented by the derived classes.
+ */
+@interface ADPersistentTokenCacheStore : NSObject<ADTokenCacheStoring>
 {
     @protected
     /*The internal implementation is a dictionary of dictionaries
@@ -34,22 +37,25 @@
      the token cache store items. */
     NSMutableDictionary* mCache;
     
-    //The next variables are used for cache persistence
-    NSString* mLastArchiveFile;//The last file, where the cache was successfully persisted.
-    //Alignment below is needed for the atomic operations:
+    //Storage information, e.g. the file loction on keychain tag
+    NSString* mCacheLocation;
+    
+    //The next variables are used for cache persistence. Alignment below is needed for the atomic operations:
     __declspec(align(8)) volatile int64_t mCurrenRevision;//The current revision of the cache. Incremented each time the cache is modified.
     __declspec(align(8)) volatile int64_t mArchivedRevision;//The last persisted version of the cache. Set to MAX_LONG_LONG during initialization of the object.
     __declspec(align(8)) volatile int mPersistingQueued;//Set to 1 if the persisting task is already in the queue.
 }
+
+/*! Standard initializer. Returns nil, if the cacheLocation is nil or empty. */
+-(id) initWithLocation: (NSString*) cacheLocation;
 
 /*! Extracts the key from the item properties. If the item for the key exists, the method removes it. If the item is not in the cache, the method won't do anything. The error (if specified) is filled
  when the passed item doesn't have valid key elements. */
 -(void) removeItem: (ADTokenCacheStoreItem*) item
              error: (ADAuthenticationError* __autoreleasing*) error;
 
-/*! Returns the static instance of the token cache store. This instance should be used, instead
- of creating a new one. The initializer of this object will throw an exception */
-+(ADDefaultTokenCacheStore*) sharedInstance;
+/*! Location of the storage. */
+@property (readonly) NSString* cacheLocation;
 
 /*! The method checks if the cache has been modified since the last archiving operation and archives
  it synchronously if not. The method is useful to ensure that the cache is persisted when the application
@@ -60,6 +66,10 @@
  @result The method returns YES if the cache persistence is up to date or successfully updated.
  */
 -(BOOL) ensureArchived: (ADAuthenticationError* __autoreleasing *) error;
+
+/*! Should be called by the initializer of the derived classes. Loads the contents of the storage and
+ adds them to the cache. */
+-(BOOL) addInitialCacheItems;
 
 @end
 

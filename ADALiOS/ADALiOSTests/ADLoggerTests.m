@@ -95,7 +95,7 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
                 [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"test" errorCode:1 additionalInformation:@"info"];
                 [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInformation, NSInteger errorCode)
                  {
-                     [log appendFormat:@"%d; %@; %@; %d;", logLevel, message, additionalInformation, errorCode];
+                     [log appendFormat:@"%d; %@; %@; %ld;", logLevel, message, additionalInformation, (long)errorCode];
                  }];
                 [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"test1" errorCode:1 additionalInformation:@"info1"];
                 [ADLogger setLogCallBack:nil];

@@ -16,8 +16,9 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
-
 #import "ADAuthenticationSettings.h"
+#import "ADKeychainTokenCacheStore.h"
+#import "ADEncryptedFileTokenCacheStore.h"
 
 @implementation ADAuthenticationSettings
 
@@ -32,7 +33,7 @@
     {
         //Initialize the defaults here:
         self.credentialsType = AD_CREDENTIALS_AUTO;
-        self.requestTimeOut = 10;//in seconds.
+        self.requestTimeOut = 30;//in seconds.
         self.expirationBuffer = 300;//in seconds, ensures catching of clock differences between the server and the device
         self.singleSignOn = YES;
         self.enableFullScreen = YES;
@@ -41,20 +42,7 @@
         //that created the object. Unfortunately with Grand Central Dispatch, it is not guaranteed that the thread
         //exists. Hence for now, we create the connection on the main thread by default:
         self.dispatchQueue = dispatch_get_main_queue();
-        
-        // Search for the path
-        NSArray  *paths = NSSearchPathForDirectoriesInDomains( NSCachesDirectory, NSUserDomainMask, YES );
-        if (paths.count < 1)
-        {
-            AD_LOG_WARN(@"Default cache file error", @"The caches directory cannot be obtained");
-            self.defaultTokenCacheStoreLocation = @".ADALTokenCacheStore";
-        }
-        else
-        {
-            NSString* filePath = [[paths objectAtIndex:0] stringByAppendingPathComponent:@".ADALTokenCacheStore"];
-            self.defaultTokenCacheStoreLocation = filePath;
-        }
-        
+        self.defaultTokenCacheStore = [[ADKeychainTokenCacheStore alloc] initWithLocation:@"MSOpenTech.ADAL.1.0"];
     }
     return self;
 }
