@@ -352,13 +352,13 @@ const int sAsyncContextTimeout = 10;
     static volatile int completion = 0;
     [self callAndWaitWithFile:@"" __FILE__ line:line completionSignal: &completion block:^
      {
-         [mContext acquireToken:mResource
-                       clientId:mClientId
-                    redirectUri:mRedirectURL
-                 promptBehavior:mPromptBehavior
-                         userId:mUserId
-           extraQueryParameters:nil
-                completionBlock:^(ADAuthenticationResult *result)
+         [mContext acquireTokenWithResource:mResource
+                                   clientId:mClientId
+                                redirectUri:mRedirectURL
+                             promptBehavior:mPromptBehavior
+                                     userId:mUserId
+                       extraQueryParameters:nil
+                            completionBlock:^(ADAuthenticationResult *result)
           {
               //Fill in the iVars with the result:
               mResult = result;
@@ -384,7 +384,7 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testAcquireTokenBadCompletionBlock
 {
-    ADAssertThrowsArgument([mContext acquireToken:mResource clientId:mClientId redirectUri:mRedirectURL completionBlock:nil]);
+    ADAssertThrowsArgument([mContext acquireTokenWithResource:mResource clientId:mClientId redirectUri:mRedirectURL completionBlock:nil]);
 }
 
 
@@ -971,33 +971,33 @@ const int sAsyncContextTimeout = 10;
     };
     [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
-         [mContext acquireToken:mResource
-                       clientId:mClientId
-                    redirectUri:mRedirectURL
-                completionBlock:innerCallback];
+         [mContext acquireTokenWithResource:mResource
+                                   clientId:mClientId
+                                redirectUri:mRedirectURL
+                            completionBlock:innerCallback];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
     
     [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
-         [mContext acquireToken:mResource
-                       clientId:mClientId
-                    redirectUri:mRedirectURL
-                         userId:mUserId
-                completionBlock:innerCallback];
+         [mContext acquireTokenWithResource:mResource
+                                   clientId:mClientId
+                                redirectUri:mRedirectURL
+                                     userId:mUserId
+                            completionBlock:innerCallback];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
 
     [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
-         [mContext acquireToken:mResource
-                       clientId:mClientId
-                    redirectUri:mRedirectURL
-                         userId:mUserId
-           extraQueryParameters:@"extraQueryParams=somevalue"
-                completionBlock:innerCallback];
+         [mContext acquireTokenWithResource:mResource
+                                   clientId:mClientId
+                                redirectUri:mRedirectURL
+                                     userId:mUserId
+                       extraQueryParameters:@"extraQueryParams=somevalue"
+                            completionBlock:innerCallback];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);

@@ -127,7 +127,7 @@
              return;
          }
          
-         [context acquireToken:resourceString clientId:clientId
+         [context acquireTokenWithResource:resourceString clientId:clientId
                    redirectUri:[NSURL URLWithString:redirectUri]
                         userId:@"boris@msopentechbv.onmicrosoft.com"
                completionBlock:^(ADAuthenticationResult *result) {

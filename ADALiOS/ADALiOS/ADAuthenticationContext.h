@@ -144,10 +144,10 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param redirectUri: The redirect URI according to OAuth2 protocol.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
--(void) acquireToken: (NSString*) resource
-            clientId: (NSString*) clientId
-         redirectUri: (NSURL*) redirectUri
-     completionBlock: (ADAuthenticationCallback) completionBlock;
+-(void) acquireTokenWithResource: (NSString*) resource
+                        clientId: (NSString*) clientId
+                     redirectUri: (NSURL*) redirectUri
+                 completionBlock: (ADAuthenticationCallback) completionBlock;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
@@ -159,11 +159,11 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  it may not be used if it belongs to different token. This parameter can be nil.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
--(void) acquireToken: (NSString*) resource
-            clientId: (NSString*) clientId
-         redirectUri: (NSURL*) redirectUri
-              userId: (NSString*) userId
-     completionBlock: (ADAuthenticationCallback) completionBlock;
+-(void) acquireTokenWithResource: (NSString*) resource
+                        clientId: (NSString*) clientId
+                     redirectUri: (NSURL*) redirectUri
+                          userId: (NSString*) userId
+                 completionBlock: (ADAuthenticationCallback) completionBlock;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
@@ -176,12 +176,12 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param extraQueryParameters: will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
--(void)  acquireToken: (NSString*) resource
-             clientId: (NSString*) clientId
-          redirectUri: (NSURL*) redirectUri
-               userId: (NSString*) userId
- extraQueryParameters: (NSString*) queryParams
-      completionBlock: (ADAuthenticationCallback) completionBlock;
+-(void)  acquireTokenWithResource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                      redirectUri: (NSURL*) redirectUri
+                           userId: (NSString*) userId
+             extraQueryParameters: (NSString*) queryParams
+                  completionBlock: (ADAuthenticationCallback) completionBlock;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
@@ -196,13 +196,13 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param promptBehavior: controls if any credentials UI will be shownt.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
--(void)  acquireToken: (NSString*) resource
-             clientId: (NSString*) clientId
-          redirectUri: (NSURL*) redirectUri
-       promptBehavior: (ADPromptBehavior) promptBehavior
-               userId: (NSString*) userId
- extraQueryParameters: (NSString*) queryParams
-      completionBlock: (ADAuthenticationCallback) completionBlock;
+-(void)  acquireTokenWithResource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                      redirectUri: (NSURL*) redirectUri
+                   promptBehavior: (ADPromptBehavior) promptBehavior
+                           userId: (NSString*) userId
+             extraQueryParameters: (NSString*) queryParams
+                  completionBlock: (ADAuthenticationCallback) completionBlock;
 
 /*! Follows the OAuth2 protocol (RFC 6749). Uses the refresh token to obtain an access token (and another refresh token). The method
  is superceded by acquireToken, which will implicitly use the refresh token if needed. Please use acquireTokenByRefreshToken
