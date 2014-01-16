@@ -1086,7 +1086,7 @@ const int sAsyncContextTimeout = 10;
     [self clearLogs];
     [self addCacheWithToken:@"cacheAccessToken" refreshToken:@"cacheExactRefreshToken"];
     [self addCacheWithToken:nil refreshToken:@"broadCacheRefreshToken" userId:mUserId resource:nil];
-    ADAssertLogsContain(TEST_LOG_INFO, @"[ADDefaultTokenCacheStore addOrUpdateItem:error:]");//Double check that the logging is in place
+    ADAssertLogsContain(TEST_LOG_INFO, @" addOrUpdateItem:error:]");//Double check that the logging is in place
     
     [self clearLogs];
     [self asyncAcquireTokenByRefreshToken:refreshToken];
@@ -1094,7 +1094,7 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, accessToken2);
     ADAssertStringEquals(mResult.tokenCacheStoreItem.refreshToken, broadRefreshToken);
-    ADAssertLogsDoNotContain(TEST_LOG_INFO, @"[ADDefaultTokenCacheStore addOrUpdateItem:error:]");//Cache should not be touched
+    ADAssertLogsDoNotContain(TEST_LOG_INFO, @" addOrUpdateItem:error:]");//Cache should not be touched
     ADAssertLongEquals(2, mDefaultTokenCache.allItems.count);
     
     //Put the same refresh token in the cache, return an error and ensure again that the cache is not touched:
@@ -1107,7 +1107,7 @@ const int sAsyncContextTimeout = 10;
     [self asyncAcquireTokenByRefreshToken:refreshToken];
     
     ADAssertLongEquals(AD_FAILED, mResult.status);
-    ADAssertLogsDoNotContain(TEST_LOG_INFO, @"[ADDefaultTokenCacheStore addOrUpdateItem:error:]");//Cache should not be touched
+    ADAssertLogsDoNotContain(TEST_LOG_INFO, @" addOrUpdateItem:error:]");//Cache should not be touched
     ADAssertLongEquals(2, mDefaultTokenCache.allItems.count);
     
     //Test some parameters cases:
