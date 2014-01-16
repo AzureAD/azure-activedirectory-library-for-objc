@@ -81,7 +81,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
 +(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                                           error: (ADAuthenticationError* __autoreleasing *) error;
+                                                         error: (ADAuthenticationError* __autoreleasing *) error;
 
 /*! Creates the object, setting the authority, default cache and desired authority validation flag. In case of an error
  the function will return nil and if the error parameter is supplied, it will be filled with error details.
@@ -90,8 +90,8 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
 +(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                               validateAuthority: (BOOL) validate
-                                           error: (ADAuthenticationError* __autoreleasing *) error;
+                                             validateAuthority: (BOOL) validate
+                                                         error: (ADAuthenticationError* __autoreleasing *) error;
 
 /*! Creates the object, setting the authority, desired cache and enables the authority validation. In case of an error
  the function will return nil and if the error parameter is supplied, it will be filled with error details.
@@ -102,8 +102,8 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
 +(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                                 tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
-                                           error: (ADAuthenticationError* __autoreleasing *) error;
+                                               tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
+                                                         error: (ADAuthenticationError* __autoreleasing *) error;
 
 /*! Creates the object, setting the authority, desired cache and desired authority validation flag. In case of an error
  the function will return nil and if the error parameter is supplied, it will be filled with error details.
@@ -114,9 +114,9 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
 +(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                               validateAuthority: (BOOL) validate
-                                 tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
-                                           error: (ADAuthenticationError* __autoreleasing *) error;
+                                             validateAuthority: (BOOL) validate
+                                               tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
+                                                         error: (ADAuthenticationError* __autoreleasing *) error;
 
 
 /*! Represents the authority used by the context. */

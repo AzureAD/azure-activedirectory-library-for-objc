@@ -103,29 +103,29 @@ if (![self checkAndHandleBadArgument:ARG \
 
 
 +(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                                           error: (ADAuthenticationError* __autoreleasing *) error
+                                                         error: (ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY;
     return [self authenticationContextWithAuthority: authority
-                    validateAuthority: YES
-                      tokenCacheStore: [ADDefaultTokenCacheStore sharedInstance]
-                                error: error];
+                                  validateAuthority: YES
+                                    tokenCacheStore: [ADDefaultTokenCacheStore sharedInstance]
+                                              error: error];
 }
 
 +(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                               validateAuthority: (BOOL) bValidate
-                                           error: (ADAuthenticationError* __autoreleasing *) error
+                                             validateAuthority: (BOOL) bValidate
+                                                         error: (ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY
     return [self authenticationContextWithAuthority: authority
-                    validateAuthority: bValidate
-                      tokenCacheStore: [ADDefaultTokenCacheStore sharedInstance]
-                                error: error];
+                                  validateAuthority: bValidate
+                                    tokenCacheStore: [ADDefaultTokenCacheStore sharedInstance]
+                                              error: error];
 }
 
 +(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                                 tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
-                                           error: (ADAuthenticationError* __autoreleasing *) error
+                                               tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
+                                                         error: (ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY;
     return [self authenticationContextWithAuthority:authority
@@ -135,9 +135,9 @@ if (![self checkAndHandleBadArgument:ARG \
 }
 
 +(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                               validateAuthority: (BOOL)bValidate
-                                 tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
-                                           error: (ADAuthenticationError* __autoreleasing *) error
+                                             validateAuthority: (BOOL)bValidate
+                                               tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
+                                                         error: (ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY;
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(authority);
