@@ -80,7 +80,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param authority: The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
-+(ADAuthenticationContext*) contextWithAuthority: (NSString*) authority
++(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
                                            error: (ADAuthenticationError* __autoreleasing *) error;
 
 /*! Creates the object, setting the authority, default cache and desired authority validation flag. In case of an error
@@ -89,7 +89,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param validateAuthority: Specifies if the authority should be validated.
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
-+(ADAuthenticationContext*) contextWithAuthority: (NSString*) authority
++(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
                                validateAuthority: (BOOL) validate
                                            error: (ADAuthenticationError* __autoreleasing *) error;
 
@@ -101,7 +101,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  parameter is null, tokens will not be cached.
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
-+(ADAuthenticationContext*) contextWithAuthority: (NSString*) authority
++(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
                                  tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
                                            error: (ADAuthenticationError* __autoreleasing *) error;
 
@@ -113,7 +113,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  parameter is null, the library will use a shared, internally implemented static instance instead.
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
-+(ADAuthenticationContext*) contextWithAuthority: (NSString*) authority
++(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
                                validateAuthority: (BOOL) validate
                                  tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
                                            error: (ADAuthenticationError* __autoreleasing *) error;
