@@ -128,9 +128,9 @@
          }
          
          [context acquireTokenWithResource:resourceString clientId:clientId
-                   redirectUri:[NSURL URLWithString:redirectUri]
-                        userId:@"boris@msopentechbv.onmicrosoft.com"
-               completionBlock:^(ADAuthenticationResult *result) {
+                               redirectUri:[NSURL URLWithString:redirectUri]
+                                    userId:@"boris@msopentechbv.onmicrosoft.com"
+                           completionBlock:^(ADAuthenticationResult *result) {
                    if (result.status != AD_SUCCEEDED)
                    {
                        [weakSelf setStatus:result.error.errorDetails];
