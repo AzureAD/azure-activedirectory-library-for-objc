@@ -41,15 +41,15 @@
 //    NSString* redirectUri = @"http://todolistclient/";//OmerCan: @"https://omercantest.onmicrosoft.adal/hello"
 ////    [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
 //    ADAuthenticationError* error;
-//    ADAuthenticationContext* context = [ADAuthenticationContext contextWithAuthority:authority error:&error];
+//    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
 //    XCTAssertNotNil(context);
 //    [context.tokenCacheStore removeAll];//Clear the cache12
 //    __block ADAuthenticationResult* localResult;
 //    
-//    [context acquireToken:resourceString clientId:clientId
-//              redirectUri:[NSURL URLWithString:redirectUri]
-//                   userId:@"boris@msopentechbv.onmicrosoft.com"
-//          completionBlock:^(ADAuthenticationResult *result)
+//    [context acquireTokenWithResource:resourceString clientId:clientId
+//                          redirectUri:[NSURL URLWithString:redirectUri]
+//                               userId:@"boris@msopentechbv.onmicrosoft.com"
+//                      completionBlock:^(ADAuthenticationResult *result)
 //    {
 //        localResult = result;
 //    }];

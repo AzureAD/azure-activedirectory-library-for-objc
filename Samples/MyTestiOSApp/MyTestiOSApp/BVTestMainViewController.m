@@ -120,17 +120,17 @@
          resourceString = @"http://localhost/TodoListService";
          NSString* redirectUri = @"http://todolistclient/";//OmerCan: @"https://omercantest.onmicrosoft.adal/hello"
          [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
-         ADAuthenticationContext* context = [ADAuthenticationContext contextWithAuthority:authority error:&error];
+         ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
          if (!context)
          {
              [weakSelf setStatus:error.errorDetails];
              return;
          }
          
-         [context acquireToken:resourceString clientId:clientId
-                   redirectUri:[NSURL URLWithString:redirectUri]
-                        userId:@"boris@msopentechbv.onmicrosoft.com"
-               completionBlock:^(ADAuthenticationResult *result) {
+         [context acquireTokenWithResource:resourceString clientId:clientId
+                               redirectUri:[NSURL URLWithString:redirectUri]
+                                    userId:@"boris@msopentechbv.onmicrosoft.com"
+                           completionBlock:^(ADAuthenticationResult *result) {
                    if (result.status != AD_SUCCEEDED)
                    {
                        [weakSelf setStatus:result.error.errorDetails];
@@ -193,7 +193,7 @@
     //    NSString* redirectUri = @"http://todolistclient/";//OmerCan: @"https://omercantest.onmicrosoft.adal/hello"
     [self setStatus:@"Attemp to refresh..."];
     ADAuthenticationError* error;
-    ADAuthenticationContext* context = [ADAuthenticationContext contextWithAuthority:authority error:&error];
+    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
     if (!context)
     {
         [self setStatus:error.errorDetails];
