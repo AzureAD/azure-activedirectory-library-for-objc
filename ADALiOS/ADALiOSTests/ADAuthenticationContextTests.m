@@ -149,39 +149,39 @@ const int sAsyncContextTimeout = 10;
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
-                                             tokenCacheStore:[ADDefaultTokenCacheStore sharedInstance]
-                                                       error:&error];
+                                                           tokenCacheStore:[ADDefaultTokenCacheStore sharedInstance]
+                                                                     error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     //Authority, validate and cache store:
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
-                                           validateAuthority:NO //Non-default value.
-                                             tokenCacheStore:[ADDefaultTokenCacheStore sharedInstance]
-                                                       error:&error];
+                                                         validateAuthority:NO //Non-default value.
+                                                           tokenCacheStore:[ADDefaultTokenCacheStore sharedInstance]
+                                                                     error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
-                                           validateAuthority:NO
-                                             tokenCacheStore:nil
-                                                       error:&error];
+                                                         validateAuthority:NO
+                                                           tokenCacheStore:nil
+                                                                     error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
-                                           validateAuthority:YES //Non-default value.
-                                             tokenCacheStore:[ADDefaultTokenCacheStore sharedInstance]
-                                                       error:&error];
+                                                         validateAuthority:YES //Non-default value.
+                                                           tokenCacheStore:[ADDefaultTokenCacheStore sharedInstance]
+                                                                     error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
-                                           validateAuthority:YES
-                                             tokenCacheStore:nil
-                                                       error:&error];
+                                                         validateAuthority:YES
+                                                           tokenCacheStore:nil
+                                                                     error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
-                                           validateAuthority:YES
-                                             tokenCacheStore:nil
-                                                       error:&error];
+                                                         validateAuthority:YES
+                                                           tokenCacheStore:nil
+                                                                     error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
 }
 
@@ -228,16 +228,16 @@ const int sAsyncContextTimeout = 10;
     
     //Authority and validation:
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                           validateAuthority:NO
-                                                       error:&error];
+                                                         validateAuthority:NO
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:NO
                           tokenCacheStore:[ADDefaultTokenCacheStore sharedInstance]
                                     error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                           validateAuthority:YES
-                                                       error:&error];
+                                                         validateAuthority:YES
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
                           tokenCacheStore:[ADDefaultTokenCacheStore sharedInstance]
@@ -245,16 +245,16 @@ const int sAsyncContextTimeout = 10;
 
     //Authority and token cache store:
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                             tokenCacheStore:nil
-                                                       error:&error];
+                                                           tokenCacheStore:nil
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
                           tokenCacheStore:nil
                                     error:error];
 
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                             tokenCacheStore:testStore
-                                                       error:&error];
+                                                           tokenCacheStore:testStore
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
                           tokenCacheStore:testStore
@@ -262,36 +262,36 @@ const int sAsyncContextTimeout = 10;
     
     //Authority, validate and token cache store:
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                           validateAuthority:NO
-                                             tokenCacheStore:nil
-                                                       error:&error];
+                                                         validateAuthority:NO
+                                                           tokenCacheStore:nil
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:NO
                           tokenCacheStore:nil
                                     error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                           validateAuthority:NO
-                                             tokenCacheStore:testStore
-                                                       error:&error];
+                                                         validateAuthority:NO
+                                                           tokenCacheStore:testStore
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:NO
                           tokenCacheStore:testStore
                                     error:error];
 
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                           validateAuthority:YES
-                                             tokenCacheStore:nil
-                                                       error:&error];
+                                                         validateAuthority:YES
+                                                           tokenCacheStore:nil
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
                           tokenCacheStore:nil
                                     error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                           validateAuthority:YES
-                                             tokenCacheStore:testStore
-                                                       error:&error];
+                                                         validateAuthority:YES
+                                                           tokenCacheStore:testStore
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
                           tokenCacheStore:testStore
@@ -352,13 +352,13 @@ const int sAsyncContextTimeout = 10;
     static volatile int completion = 0;
     [self callAndWaitWithFile:@"" __FILE__ line:line completionSignal: &completion block:^
      {
-         [mContext acquireToken:mResource
-                       clientId:mClientId
-                    redirectUri:mRedirectURL
-                 promptBehavior:mPromptBehavior
-                         userId:mUserId
-           extraQueryParameters:nil
-                completionBlock:^(ADAuthenticationResult *result)
+         [mContext acquireTokenWithResource:mResource
+                                   clientId:mClientId
+                                redirectUri:mRedirectURL
+                             promptBehavior:mPromptBehavior
+                                     userId:mUserId
+                       extraQueryParameters:nil
+                            completionBlock:^(ADAuthenticationResult *result)
           {
               //Fill in the iVars with the result:
               mResult = result;
@@ -384,7 +384,7 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testAcquireTokenBadCompletionBlock
 {
-    ADAssertThrowsArgument([mContext acquireToken:mResource clientId:mClientId redirectUri:mRedirectURL completionBlock:nil]);
+    ADAssertThrowsArgument([mContext acquireTokenWithResource:mResource clientId:mClientId redirectUri:mRedirectURL completionBlock:nil]);
 }
 
 
@@ -971,33 +971,33 @@ const int sAsyncContextTimeout = 10;
     };
     [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
-         [mContext acquireToken:mResource
-                       clientId:mClientId
-                    redirectUri:mRedirectURL
-                completionBlock:innerCallback];
+         [mContext acquireTokenWithResource:mResource
+                                   clientId:mClientId
+                                redirectUri:mRedirectURL
+                            completionBlock:innerCallback];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
     
     [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
-         [mContext acquireToken:mResource
-                       clientId:mClientId
-                    redirectUri:mRedirectURL
-                         userId:mUserId
-                completionBlock:innerCallback];
+         [mContext acquireTokenWithResource:mResource
+                                   clientId:mClientId
+                                redirectUri:mRedirectURL
+                                     userId:mUserId
+                            completionBlock:innerCallback];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
 
     [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
-         [mContext acquireToken:mResource
-                       clientId:mClientId
-                    redirectUri:mRedirectURL
-                         userId:mUserId
-           extraQueryParameters:@"extraQueryParams=somevalue"
-                completionBlock:innerCallback];
+         [mContext acquireTokenWithResource:mResource
+                                   clientId:mClientId
+                                redirectUri:mRedirectURL
+                                     userId:mUserId
+                       extraQueryParameters:@"extraQueryParams=somevalue"
+                            completionBlock:innerCallback];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);

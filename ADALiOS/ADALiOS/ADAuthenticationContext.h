@@ -81,7 +81,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
 +(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                                           error: (ADAuthenticationError* __autoreleasing *) error;
+                                                         error: (ADAuthenticationError* __autoreleasing *) error;
 
 /*! Creates the object, setting the authority, default cache and desired authority validation flag. In case of an error
  the function will return nil and if the error parameter is supplied, it will be filled with error details.
@@ -90,8 +90,8 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
 +(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                               validateAuthority: (BOOL) validate
-                                           error: (ADAuthenticationError* __autoreleasing *) error;
+                                             validateAuthority: (BOOL) validate
+                                                         error: (ADAuthenticationError* __autoreleasing *) error;
 
 /*! Creates the object, setting the authority, desired cache and enables the authority validation. In case of an error
  the function will return nil and if the error parameter is supplied, it will be filled with error details.
@@ -102,8 +102,8 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
 +(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                                 tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
-                                           error: (ADAuthenticationError* __autoreleasing *) error;
+                                               tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
+                                                         error: (ADAuthenticationError* __autoreleasing *) error;
 
 /*! Creates the object, setting the authority, desired cache and desired authority validation flag. In case of an error
  the function will return nil and if the error parameter is supplied, it will be filled with error details.
@@ -114,9 +114,9 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
 +(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                               validateAuthority: (BOOL) validate
-                                 tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
-                                           error: (ADAuthenticationError* __autoreleasing *) error;
+                                             validateAuthority: (BOOL) validate
+                                               tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
+                                                         error: (ADAuthenticationError* __autoreleasing *) error;
 
 
 /*! Represents the authority used by the context. */
@@ -144,10 +144,10 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param redirectUri: The redirect URI according to OAuth2 protocol.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
--(void) acquireToken: (NSString*) resource
-            clientId: (NSString*) clientId
-         redirectUri: (NSURL*) redirectUri
-     completionBlock: (ADAuthenticationCallback) completionBlock;
+-(void) acquireTokenWithResource: (NSString*) resource
+                        clientId: (NSString*) clientId
+                     redirectUri: (NSURL*) redirectUri
+                 completionBlock: (ADAuthenticationCallback) completionBlock;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
@@ -159,11 +159,11 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  it may not be used if it belongs to different token. This parameter can be nil.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
--(void) acquireToken: (NSString*) resource
-            clientId: (NSString*) clientId
-         redirectUri: (NSURL*) redirectUri
-              userId: (NSString*) userId
-     completionBlock: (ADAuthenticationCallback) completionBlock;
+-(void) acquireTokenWithResource: (NSString*) resource
+                        clientId: (NSString*) clientId
+                     redirectUri: (NSURL*) redirectUri
+                          userId: (NSString*) userId
+                 completionBlock: (ADAuthenticationCallback) completionBlock;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
@@ -176,12 +176,12 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param extraQueryParameters: will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
--(void)  acquireToken: (NSString*) resource
-             clientId: (NSString*) clientId
-          redirectUri: (NSURL*) redirectUri
-               userId: (NSString*) userId
- extraQueryParameters: (NSString*) queryParams
-      completionBlock: (ADAuthenticationCallback) completionBlock;
+-(void)  acquireTokenWithResource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                      redirectUri: (NSURL*) redirectUri
+                           userId: (NSString*) userId
+             extraQueryParameters: (NSString*) queryParams
+                  completionBlock: (ADAuthenticationCallback) completionBlock;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
@@ -196,13 +196,13 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  @param promptBehavior: controls if any credentials UI will be shownt.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
--(void)  acquireToken: (NSString*) resource
-             clientId: (NSString*) clientId
-          redirectUri: (NSURL*) redirectUri
-       promptBehavior: (ADPromptBehavior) promptBehavior
-               userId: (NSString*) userId
- extraQueryParameters: (NSString*) queryParams
-      completionBlock: (ADAuthenticationCallback) completionBlock;
+-(void)  acquireTokenWithResource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                      redirectUri: (NSURL*) redirectUri
+                   promptBehavior: (ADPromptBehavior) promptBehavior
+                           userId: (NSString*) userId
+             extraQueryParameters: (NSString*) queryParams
+                  completionBlock: (ADAuthenticationCallback) completionBlock;
 
 /*! Follows the OAuth2 protocol (RFC 6749). Uses the refresh token to obtain an access token (and another refresh token). The method
  is superceded by acquireToken, which will implicitly use the refresh token if needed. Please use acquireTokenByRefreshToken
