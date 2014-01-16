@@ -19,7 +19,7 @@
 
 #import <XCTest/XCTest.h>
 #import <ADaLiOS/ADAuthenticationContext.h>
-#import <ADALiOS/ADDefaultTokenCacheStore.h>
+#import <ADALiOS/ADPersistentTokenCacheStore.h>
 #import "ADTestTokenCacheStore.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
@@ -49,7 +49,7 @@ const int sAsyncContextTimeout = 10;
     //The source:
     ADAuthenticationContext* mContext;
     id<ADAuthenticationContextProtocol> mProtocolContext; //Originally set same as above, provided for simplicity.
-    ADDefaultTokenCacheStore* mDefaultTokenCache;
+    ADPersistentTokenCacheStore* mDefaultTokenCache;
     NSString* mAuthority;
     NSString* mResource;
     NSString* mClientId;
@@ -74,7 +74,9 @@ const int sAsyncContextTimeout = 10;
     [super setUp];
     [self adTestBegin];
     mAuthority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
-    mDefaultTokenCache = [ADDefaultTokenCacheStore sharedInstance];
+    mDefaultTokenCache = (ADPersistentTokenCacheStore*)([ADAuthenticationSettings sharedInstance].defaultTokenCacheStore);
+    XCTAssertNotNil(mDefaultTokenCache);
+    XCTAssertTrue([mDefaultTokenCache isKindOfClass:[ADPersistentTokenCacheStore class]]);
     mRedirectURL = [NSURL URLWithString:@"http://todolistclient/"];
     mClientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
     mResource = @"http://localhost/TodoListService";
@@ -149,14 +151,14 @@ const int sAsyncContextTimeout = 10;
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext contextWithAuthority:nil
-                                             tokenCacheStore:[ADDefaultTokenCacheStore sharedInstance]
+                                             tokenCacheStore:mDefaultTokenCache
                                                        error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     //Authority, validate and cache store:
     mContext = [ADAuthenticationContext contextWithAuthority:nil
                                            validateAuthority:NO //Non-default value.
-                                             tokenCacheStore:[ADDefaultTokenCacheStore sharedInstance]
+                                             tokenCacheStore:mDefaultTokenCache
                                                        error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
@@ -168,7 +170,7 @@ const int sAsyncContextTimeout = 10;
     
     mContext = [ADAuthenticationContext contextWithAuthority:nil
                                            validateAuthority:YES //Non-default value.
-                                             tokenCacheStore:[ADDefaultTokenCacheStore sharedInstance]
+                                             tokenCacheStore:mDefaultTokenCache
                                                        error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
@@ -223,7 +225,7 @@ const int sAsyncContextTimeout = 10;
     mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
-                          tokenCacheStore:[ADDefaultTokenCacheStore sharedInstance]
+                          tokenCacheStore:mDefaultTokenCache
                                     error:error];
     
     //Authority and validation:
@@ -232,7 +234,7 @@ const int sAsyncContextTimeout = 10;
                                                        error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:NO
-                          tokenCacheStore:[ADDefaultTokenCacheStore sharedInstance]
+                          tokenCacheStore:mDefaultTokenCache
                                     error:error];
     
     mContext = [ADAuthenticationContext contextWithAuthority:authority
@@ -240,7 +242,7 @@ const int sAsyncContextTimeout = 10;
                                                        error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
-                          tokenCacheStore:[ADDefaultTokenCacheStore sharedInstance]
+                          tokenCacheStore:mDefaultTokenCache
                                     error:error];
 
     //Authority and token cache store:
@@ -1066,7 +1068,7 @@ const int sAsyncContextTimeout = 10;
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, accessToken1);
     ADAssertStringEquals(mResult.tokenCacheStoreItem.refreshToken, exactRefreshToken);
     ADAssertLongEquals(0, mDefaultTokenCache.allItems.count);//This method should not write to the cache
-    
+
     //Return access and broad refresh tokens:
     NSString* accessToken2 = @"accessToken2";
     NSString* broadRefreshToken = @"exactRefreshToken";
