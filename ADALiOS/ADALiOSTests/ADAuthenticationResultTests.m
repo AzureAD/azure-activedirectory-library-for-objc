@@ -97,7 +97,7 @@
     
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
     item.resource = @"resource";
-    item.authority = @"https://login.windows.net";
+    item.authority = @"https://login.windows.net/mytennant.com";
     item.clientId = @"clientId";
     item.accessToken = @"accessToken";
     item.accessTokenType = @"tokenType";

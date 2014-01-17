@@ -936,7 +936,7 @@ const int sAsyncContextTimeout = 10;
 {
     //Create a normal authority (not a test one):
     ADAuthenticationError* error;
-    mAuthority = @"https://SomeValidURLButNonExistentDomain.com";
+    mAuthority = @"https://SomeValidURLButNonExistentDomain.com/sometenant.com";
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority validateAuthority:NO error:&error];
     XCTAssertNotNil(mContext);
     ADAssertNoError;

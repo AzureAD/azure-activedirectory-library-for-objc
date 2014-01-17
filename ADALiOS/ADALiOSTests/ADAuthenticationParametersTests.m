@@ -281,20 +281,20 @@
     [self testInitializationWithChallenge:@"foo=\"bar\"" authority:nil resource:nil];
     [self testInitializationWithChallenge:@"foo=\"bar" authority:nil resource:nil];//Missing second quote
     [self testInitializationWithChallenge:@"foo=\"bar\"," authority:nil resource:nil];
-    [self testInitializationWithChallenge:@"  authorization_uri=\"https://login.windows.net\""
-                                authority:@"https://login.windows.net" resource:nil];
+    [self testInitializationWithChallenge:@"  authorization_uri=\"https://login.windows.net/common\""
+                                authority:@"https://login.windows.net/common" resource:nil];
     //More commas:
-    [self testInitializationWithChallenge:@",authorization_uri=\"https://login.windows.net\","
-                                authority:@"https://login.windows.net"
+    [self testInitializationWithChallenge:@",authorization_uri=\"https://login.windows.net/common\","
+                                authority:@"https://login.windows.net/common"
                                  resource:nil];
-    [self testInitializationWithChallenge:@",authorization_uri=\"https://login.windows.net\",resource_id=\"foo\""
-                                authority:@"https://login.windows.net"
+    [self testInitializationWithChallenge:@",authorization_uri=\"https://login.windows.net/common\",resource_id=\"foo\""
+                                authority:@"https://login.windows.net/common"
                                  resource:@"foo"];
     [self testInitializationWithChallenge:@",authorization_uri=\"\",resource_id=\"foo\"" authority:nil resource:@"foo"];
 
     //Pass an attribute, whose value contains commas:
-    [self testInitializationWithChallenge:@" error_descritpion=\"Make sure, that you handle commas, inside the text\",authorization_uri=\"https://login.windows.net\",resource_id=\"foo\""
-                                authority:@"https://login.windows.net"
+    [self testInitializationWithChallenge:@" error_descritpion=\"Make sure, that you handle commas, inside the text\",authorization_uri=\"https://login.windows.net/common\",resource_id=\"foo\""
+                                authority:@"https://login.windows.net/common"
                                  resource:@"foo"];
 }
 
@@ -317,12 +317,12 @@
 -(void) testParametersFromResponseAuthenticateHeaderValid
 {
     ADAuthenticationError* error;
-    ADAuthenticationParameters* params = params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\"https://login.windows.net\", resource_uri=\"foo.com\", anotherParam=\"Indeed, another param=5\" "
+    ADAuthenticationParameters* params = params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\"https://login.windows.net/common\", resource_uri=\"foo.com\", anotherParam=\"Indeed, another param=5\" "
                                                                             error:&error];
     XCTAssertNotNil(params);
     XCTAssertNil(error);
     XCTAssertNil(params.resource);
-    ADAssertStringEquals(params.authority, @"https://login.windows.net");
+    ADAssertStringEquals(params.authority, @"https://login.windows.net/common");
     
     NSDictionary* extractedParameters = [params getExtractedParameters];
     XCTAssertNotNil(extractedParameters);

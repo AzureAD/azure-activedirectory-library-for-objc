@@ -48,7 +48,12 @@ NSString* const sValidationServerError = @"The authority validation server retur
     self = [super init];
     if (self)
     {
-        mValidatedAuthorities = [NSMutableSet setWithObject:sTrustedAuthority];
+        mValidatedAuthorities = [NSMutableSet new];
+        //List of prevalidated authorities (Azure Active Directory cloud instances).
+        //Only the sThrustedAuthority is used for validation of new authorities.
+        [mValidatedAuthorities addObject:sTrustedAuthority];
+        [mValidatedAuthorities addObject:@"https://login.chinacloudapi.cn"];
+        [mValidatedAuthorities addObject:@"https://login.cloudgovapi.us"];
     }
     
     return self;
@@ -88,16 +93,40 @@ NSString* const sValidationServerError = @"The authority validation server retur
                    error: (ADAuthenticationError* __autoreleasing *) error
 {
     NSURL* fullUrl = [NSURL URLWithString:authority.lowercaseString];
+    
+    ADAuthenticationError* adError;
     if (!fullUrl || ![fullUrl.scheme isEqualToString:@"https"])
     {
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromArgument:authority argumentName:@"authority"];
+        adError = [ADAuthenticationError errorFromArgument:authority argumentName:@"authority"];
+    }
+    else
+    {
+        NSArray* paths = fullUrl.pathComponents;
+        if (paths.count < 2)
+        {
+            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT protocolCode:nil errorDetails:@"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com"];
+        }
+        else
+        {
+            NSString* tenant = [paths objectAtIndex:1];
+            if ([@"adfs" isEqualToString:tenant])
+            {
+                adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
+                                                                 protocolCode:nil
+                                                                 errorDetails:@"Authority validation is not supported for ADFS instances. Consider disabling the authority validation in the authentication context."];
+            }
+        }
+    }
+    
+    if (adError)
+    {
         if (error)
         {
             *error = adError;
         }
-        return nil;//Invalid URL
+        return nil;
     }
-
+    
     return [NSString stringWithFormat:@"https://%@", fullUrl.host];
 }
 
@@ -291,18 +320,23 @@ NSString* const sValidationServerError = @"The authority validation server retur
         return nil;
     }
     
-    // Final step is trimming any trailing /authorize or /token from the URL
-    // to get to the base URL for the authorization server. After that, we
-    // append either /authorize or /token dependent on the request that
-    // is being made to the server.
-    if ( [trimmedAuthority hasSuffix:OAUTH2_AUTHORIZE_SUFFIX] )
+    url = url.absoluteURL;//Resolve any relative paths.
+    NSArray* paths = url.pathComponents;//Returns '/' as the first and the tenant as the second element.
+    if (paths.count < 2)
+        return nil;//No path component: invalid URL
+
+    NSString* tenant = [paths objectAtIndex:1];
+    if ([NSString isStringNilOrBlank:tenant])
     {
-        trimmedAuthority = [trimmedAuthority substringToIndex:trimmedAuthority.length - OAUTH2_AUTHORIZE_SUFFIX.length];
+        return nil;
     }
-    else if ( [trimmedAuthority hasSuffix:OAUTH2_TOKEN_SUFFIX] )
+    
+    NSString* host = url.host;
+    if ([NSString isStringNilOrBlank:host])
     {
-        trimmedAuthority = [trimmedAuthority substringToIndex:trimmedAuthority.length - OAUTH2_TOKEN_SUFFIX.length];
+        return nil;
     }
+    trimmedAuthority = [NSString stringWithFormat:@"%@://%@/%@", scheme, host, tenant];
     
     return trimmedAuthority;
 }
