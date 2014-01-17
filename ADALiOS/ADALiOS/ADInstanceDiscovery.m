@@ -301,12 +301,6 @@ NSString* const sValidationServerError = @"The authority validation server retur
     }
     
     NSString* trimmedAuthority = [[authority trimmedString] lowercaseString];
-    //Start with the trailing slash to ensure that the function covers "<authority>/authorize/" case.
-    if ( [trimmedAuthority hasSuffix:@"/" ] )//Remove trailing slash
-    {
-        trimmedAuthority = [trimmedAuthority substringToIndex:trimmedAuthority.length - 1];
-    }
-    
     NSURL* url = [NSURL URLWithString:trimmedAuthority];
     if (!url)
     {
