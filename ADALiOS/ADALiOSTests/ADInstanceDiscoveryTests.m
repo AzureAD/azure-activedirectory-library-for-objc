@@ -336,10 +336,13 @@ const int sAsyncTimeout = 10;//in seconds
     //Invalid URL
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"&-23425 5345g"]);
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"https:///login.windows.Net/foo"], "Bad URL. Three slashes");
+    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"https:////"]);
+    
     //Non-ssl:
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"foo"]);
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"http://foo"]);
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"http://www.microsoft.com"]);
+    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"abcde://login.windows.net/common"]);
     
     //Canonicalization to the supported extent:
     NSString* authority = @"    https://www.microsoft.com/foo.com/";
@@ -365,6 +368,8 @@ const int sAsyncTimeout = 10;//in seconds
     ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com"], authority);
     ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com/"], authority);
     ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com#bar"], authority);
+    authority = @"https://login.windows.net/common";//Use "common" for a change
+    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.net/common?abc=123&vc=3"], authority);
 }
 
 //Tests a real authority
