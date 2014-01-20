@@ -144,7 +144,7 @@
 
 - (IBAction)clearCachePressed:(id)sender
 {
-    ADDefaultTokenCacheStore* cache = [ADDefaultTokenCacheStore sharedInstance];
+    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     if (cache.allItems.count > 0)
     {
         [cache removeAll];
@@ -158,7 +158,7 @@
 
 - (IBAction)getUsersPressed:(id)sender
 {
-    ADDefaultTokenCacheStore* cache = [ADDefaultTokenCacheStore sharedInstance];
+    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     NSArray* array = cache.allItems;
     NSMutableSet* users = [NSMutableSet new];
     NSMutableString* usersStr = [NSMutableString new];
@@ -233,7 +233,7 @@
 - (IBAction)expireAllPressed:(id)sender
 {
     [self setStatus:@"Attempt to expire..."];
-    ADDefaultTokenCacheStore* cache = [ADDefaultTokenCacheStore sharedInstance];
+    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     NSArray* array = cache.allItems;
     ADAuthenticationError* error;
     for(ADTokenCacheStoreItem* item in array)

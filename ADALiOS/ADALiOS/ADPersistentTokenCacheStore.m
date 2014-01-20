@@ -18,17 +18,18 @@
 // governing permissions and limitations under the License.
 
 #import "ADALiOS.h"
-#import "ADDefaultTokenCacheStore.h"
+#import "ADPersistentTokenCacheStore.h"
 #import "ADAuthenticationSettings.h"
 #import "ADDefaultTokenCacheStorePersistance.h"
 #import <libkern/OSAtomic.h>
 
-static NSString* const missingUserSubstitute = @"9A1BE88B-F078-4559-A442-35111DFA61F0";
-const uint64_t MAX_REVISION = LONG_LONG_MAX;
-const int16_t UPPER_VERSION = 1;
-const int16_t LOWER_VERSION = 0;
+NSString* const missingUserSubstitute = @"9A1BE88B-F078-4559-A442-35111DFA61F0";
 
-@implementation ADDefaultTokenCacheStore
+static const uint64_t MAX_REVISION = LONG_LONG_MAX;
+
+@implementation ADPersistentTokenCacheStore
+
+@synthesize cacheLocation = mCacheLocation;
 
 -(id) init
 {
@@ -37,72 +38,28 @@ const int16_t LOWER_VERSION = 0;
     return self;
 }
 
--(id) initInternal
+-(id) initWithLocation:(NSString*) cacheLocation
 {
+    if ([NSString isStringNilOrBlank:cacheLocation])
+    {
+        AD_LOG_ERROR_F(@"Bad token cache store location.", AD_ERROR_CACHE_PERSISTENCE, @"Empty or nil cache location specified.");
+        return nil;
+    }
+    
     self = [super init];
     if (self)
     {
         mCache = [NSMutableDictionary new];
+        mCacheLocation = cacheLocation;
+        mArchivedRevision = mCurrenRevision = 0;
     }
     return self;
 }
 
-+(ADDefaultTokenCacheStore*) sharedInstance
-{
-    API_ENTRY;
-    static ADDefaultTokenCacheStore* defaultTokenCacheStore;
-    static dispatch_once_t once;
-    @synchronized(self)//Without this one thread may get a nil instance.
-    {
-        _dispatch_once(&once, ^()
-        {
-            //The code in this block will execute only upon the first request of the instance:
-            defaultTokenCacheStore = [[ADDefaultTokenCacheStore alloc] initInternal];
-            
-            NSString* filePath = [[ADAuthenticationSettings sharedInstance] defaultTokenCacheStoreLocation];
-            NSFileManager* fileManager = [NSFileManager defaultManager];
-            NSString* logMessage = [NSString stringWithFormat:@"File: %@", filePath];
-            if (![NSString isStringNilOrBlank:filePath])
-            {
-                BOOL isDirectory;
-                if ([fileManager fileExistsAtPath:filePath isDirectory:&isDirectory] && !isDirectory)
-                {
-                    defaultTokenCacheStore->mArchivedRevision = MAX_REVISION;//Avoid resaving while loading
-                    if ([defaultTokenCacheStore addInitialCacheItemsFromFile:filePath])
-                    {
-                        defaultTokenCacheStore->mLastArchiveFile = filePath;
-                        //Initialize to >0, so that the contents will be stored if the developer
-                        //changes the file location (in which case mArchivedRevision is set to 0);
-                        defaultTokenCacheStore->mCurrenRevision = 1;
-                    }
-                    defaultTokenCacheStore->mArchivedRevision = defaultTokenCacheStore->mCurrenRevision;//Synchronize the two.
-                    AD_LOG_INFO(@"Successfully loaded the cache.", logMessage);
-                }
-                else
-                {
-                    AD_LOG_INFO(@"No persisted cache found.", logMessage);
-                }
-            }
-            else
-            {
-                AD_LOG_VERBOSE(@"Nil or empty token cache file set.", logMessage);
-            }
-        });
-    }
-    return defaultTokenCacheStore;
-}
-
 //Returns YES, if the cache needs to be persisted or false, if the file already contains the latest version:
--(BOOL) needsPersistenceWithFile: (NSString*) filePath
-                           error: (ADAuthenticationError *__autoreleasing *) error
+-(BOOL) needsPersistenceWithError: (ADAuthenticationError *__autoreleasing *) error
 {
     BOOL modified = NO;
-    if (![filePath isEqualToString:mLastArchiveFile])
-    {
-        //Archiving requested to a new file, always archive there:
-        AD_LOG_VERBOSE_F(@"Cache persistence file changed.", @"The perisistence file has been changed from :'%@' to '%@'", mLastArchiveFile, filePath);
-        mArchivedRevision = 0;//New file, persist unless the cache was never touched or loaded.
-    }
     int64_t currentRevision = mCurrenRevision;//The revision that will be used
     if (currentRevision > mArchivedRevision)
         modified = YES;
@@ -128,39 +85,40 @@ const int16_t LOWER_VERSION = 0;
     return modified;
 }
 
+//The actual method that persists the items in the cache. It is not intended to be thread-safe
+//and thread-safety measures should be applied by the caller. This method may be overriden by
+//derived classes to implement different means of asymchronous persistence (file system, keychain, some shared storage, etc.)
+-(BOOL) persistWithItems: (NSArray*) flatItemsList
+                   error: (ADAuthenticationError *__autoreleasing *) error
+{
+    [self doesNotRecognizeSelector:_cmd];//Should be overridden by derived classes
+    return NO;
+}
+
 -(BOOL) ensureArchived: (ADAuthenticationError *__autoreleasing *) error
 {
     API_ENTRY;
 
     //The lock below guards only the file read/write operations. In general,
-    //all of the normal cache storing/reading should be working while serialization
-    //the only exception is the short time when this method extracts a flat list
+    //all of the normal cache storing/reading should be working while serialization.
+    //The only exception is the short time when this method extracts a flat list
     //of the cache contents.
     @synchronized (self)
     {
-        NSString* filePath = [[ADAuthenticationSettings sharedInstance] defaultTokenCacheStoreLocation];
-        if ([NSString isStringNilOrBlank:filePath])
+        if ([NSString isStringNilOrBlank:self.cacheLocation])
         {
-            //Nil or blank file.
+            //Nil or blank file. The initializer does not allow it:
+            ADAuthenticationError* toReport = [ADAuthenticationError unexpectedInternalError:@"The token cache store is attempting to store to a nil or empty file name."];
             //We want to log the error only the first time we attempt the file or if the developer explicitly asked for it:
-            if (error || ![filePath isEqualToString:mLastArchiveFile])
+            if (error)
             {
-                NSString* errorMessage = [NSString stringWithFormat:@"Invalid or empty file name supplied for the token cache store persistence: %@", filePath];
-                //Note that this will also log the error:
-                ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                                                         protocolCode:nil
-                                                                                         errorDetails:errorMessage];
-                mLastArchiveFile = filePath;//Avoid reporting this error again.
-                if (error)
-                {
-                    *error = toReport;
-                }
+                *error = toReport;
             }
 
             return NO;//Bad path
         }
         
-        if (![self needsPersistenceWithFile:filePath error:error])
+        if (![self needsPersistenceWithError:error])
         {
             AD_LOG_VERBOSE(@"No need for cache persistence.", @"The cache has not been updated since the last persistence.");
             return YES;
@@ -169,34 +127,16 @@ const int16_t LOWER_VERSION = 0;
         int64_t snapShotRevision = 0;
         //This is the only operation that locks the cache (internally in the call below).
         NSArray* allItems = [self allItemsWithRevision:&snapShotRevision];
-        ADDefaultTokenCacheStorePersistance* serialization =
-            [[ADDefaultTokenCacheStorePersistance alloc] initWithUpperVersion:UPPER_VERSION
-                                                                 lowerVersion:LOWER_VERSION
-                                                                   cacheItems:allItems];
         NSDate* startWriting = [NSDate dateWithTimeIntervalSinceNow:0];
-        if ([NSKeyedArchiver archiveRootObject:serialization toFile:filePath])
+        BOOL succeded  = [self persistWithItems:allItems error:error];
+        if (succeded)
         {
-
-            mLastArchiveFile = filePath;
             double archivingTime = -[startWriting timeIntervalSinceNow];//timeIntervalSinceNow returns negative value
-            AD_LOG_VERBOSE_F(@"Cache persisted.", @"The cache was successfully persisted to: '%@', revision: %lld, took: %f seconds.", filePath, snapShotRevision, archivingTime);
+            AD_LOG_VERBOSE_F(@"Cache persisted.", @"The cache was successfully persisted to: '%@', revision: %lld, took: %f seconds.", self.cacheLocation, snapShotRevision, archivingTime);
             
             mArchivedRevision = snapShotRevision;//The revision that we just read
-            return YES;
         }
-        else
-        {
-            NSString* errorMessage = [NSString stringWithFormat:@"Failed to persist to file: %@", filePath];
-            //Note that this will also log the error:
-            ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                                                     protocolCode:nil
-                                                                                     errorDetails:errorMessage];
-            if (error)
-            {
-                *error = toReport;
-            }
-            return NO;
-        }
+        return succeded;
     }
 }
 
@@ -213,7 +153,7 @@ const int16_t LOWER_VERSION = 0;
     
     //Note that the ensureArchived will check the revisions and if the previous taks already saved the latest, it won't
     //do anything:
-    [self ensureArchived:nil];//Ignore the errors
+    [self ensureArchived:nil];//Ignore the errors 
 }
 
 //This internal method should be called each time the cache is modified.
@@ -452,63 +392,62 @@ const int16_t LOWER_VERSION = 0;
     return array;
 }
 
+-(NSArray*) unpersist
+{
+    [self doesNotRecognizeSelector:_cmd];//Should be overridden by the derived classes
+    return nil;
+}
+
 //Reads the passed file and adds its contents to the cache. Returns YES if any items have been added.
 //Important: suspends serialization for the added items, as this function is expected to be called form
 //the initializer of the cache.
--(BOOL) addInitialCacheItemsFromFile: (NSString*) fileName
+-(BOOL) addInitialCacheItems
 {
-    ADDefaultTokenCacheStorePersistance* serialization;
     NSDate* startReading = [NSDate dateWithTimeIntervalSinceNow:0];
+    NSArray* loadedItems;
+    uint numAdded = 0;
+    
     @synchronized (self)//File lock, just in case
     {
-        serialization = [NSKeyedUnarchiver unarchiveObjectWithFile:fileName];
-    }
-    if (!serialization || ![serialization isKindOfClass:[ADDefaultTokenCacheStorePersistance class]])
-    {
-        //The userId should be valid:
-        NSString* message = [NSString stringWithFormat:@"Cannot read the file: %@", fileName];
-        //This will also log the error:
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BAD_CACHE_FORMAT protocolCode:nil errorDetails:message];
-        return NO;
-    }
-    
-    if (serialization->upperVersion > UPPER_VERSION)
-    {
-        //A new, incompatible version of the cache is stored, ignore the cache:
-        //The userId should be valid:
-        NSString* message = [NSString stringWithFormat:@"The version (%d.%d) of the cache file is not supported. File: %@",
-                             serialization->upperVersion, serialization->lowerVersion, fileName];
-        //This will also log the error:
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BAD_CACHE_FORMAT protocolCode:nil errorDetails:message];
-        return NO;
-    }
-    
-    uint numAdded = 0;
-
-    @synchronized (mCache)//Just in case, avoid other operations on the cache while loading
-    {
-        for(ADTokenCacheStoreItem* item in serialization->cacheItems)
+        mArchivedRevision = MAX_REVISION;//Avoid resaving while loading
+        loadedItems = [self unpersist];
+        if (!loadedItems)
         {
-            if (![item isKindOfClass:[ADTokenCacheStoreItem class]])
+            mArchivedRevision = mCurrenRevision = 0;
+            return NO;
+        }
+        
+        @synchronized (mCache)//Just in case, avoid other operations on the cache while loading
+        {
+            for(ADTokenCacheStoreItem* item in loadedItems)
             {
-                //The userId should be valid:
-                NSString* message = [NSString stringWithFormat:@"Bad inner objects. Cannot read the file: %@", fileName];
-                //This will also log the error:
-                [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BAD_CACHE_FORMAT protocolCode:nil errorDetails:message];
-            }
-            ADAuthenticationError* error;
-            [self addOrUpdateItem:item error:&error];//Logs any error internally
-            if (!error)
-            {
-                //Successfully added
-                ++numAdded;
+                if (![item isKindOfClass:[ADTokenCacheStoreItem class]])
+                {
+                    //The userId should be valid:
+                    NSString* message = [NSString stringWithFormat:@"Bad inner objects, when reading the location: %@",
+                                         self.cacheLocation];
+                    //This will also log the error:
+                    [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BAD_CACHE_FORMAT protocolCode:nil errorDetails:message];
+                }
+                ADAuthenticationError* error;
+                [self addOrUpdateItem:item error:&error];//Logs any error internally
+                if (!error)
+                {
+                    //Successfully added
+                    ++numAdded;
+                }
             }
         }
+        double readingTime = -[startReading timeIntervalSinceNow];//timeIntervalSinceNow returns negative value-[
+        AD_LOG_VERBOSE_F(@"Token Cache Store Persistence", @"Finished reading of the persisted cache. Took: %f seconds; File: %@",
+                         readingTime, self.cacheLocation);
+        
+        if (numAdded > 0)
+        {
+            mCurrenRevision = 1;//Used to ensure that some read operation has occurred.
+        }
+        mArchivedRevision = mCurrenRevision;//Synchronize the two.
     }
-    double readingTime = -[startReading timeIntervalSinceNow];//timeIntervalSinceNow returns negative value-[
-    AD_LOG_VERBOSE_F(@"Token Cache Store Persistence", @"Finished reading of the persisted cache. Version: (%d.%d); Took: %f seconds; File: %@",
-                   serialization->upperVersion, serialization->lowerVersion, readingTime, fileName);
-
     return numAdded > 0;
 }
 

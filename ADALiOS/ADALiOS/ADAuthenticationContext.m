@@ -19,7 +19,6 @@
 
 #import "ADALiOS.h"
 #import "ADAuthenticationContext.h"
-#import "ADDefaultTokenCacheStore.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADOAuth2Constants.h"
 #import "WebAuthenticationBroker.h"
@@ -108,7 +107,7 @@ if (![self checkAndHandleBadArgument:ARG \
     API_ENTRY;
     return [self authenticationContextWithAuthority: authority
                                   validateAuthority: YES
-                                    tokenCacheStore: [ADDefaultTokenCacheStore sharedInstance]
+                                    tokenCacheStore: [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
                                               error: error];
 }
 
@@ -119,7 +118,7 @@ if (![self checkAndHandleBadArgument:ARG \
     API_ENTRY
     return [self authenticationContextWithAuthority: authority
                                   validateAuthority: bValidate
-                                    tokenCacheStore: [ADDefaultTokenCacheStore sharedInstance]
+                                    tokenCacheStore: [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
                                               error: error];
 }
 
@@ -141,7 +140,6 @@ if (![self checkAndHandleBadArgument:ARG \
 {
     API_ENTRY;
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(authority);
-    
 
     return [[self alloc] initWithAuthority: authority
                          validateAuthority: bValidate
