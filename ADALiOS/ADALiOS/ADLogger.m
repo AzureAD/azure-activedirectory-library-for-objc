@@ -121,4 +121,9 @@ additionalInformation: (NSString*) additionalInformation
     }
 }
 
++(NSString*) clientTrace: (BOOL) minimal
+{
+    NOT_IMPLEMENTED;
+}
+
 @end

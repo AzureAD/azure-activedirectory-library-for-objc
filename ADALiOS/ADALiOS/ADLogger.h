@@ -75,6 +75,8 @@ typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
 /*! YES if the messages are logged through NSLog.*/
 +(BOOL) getNSLogging;
 
++(NSString*) clientTrace: (BOOL) minimal;
+
 @end
 
 //A simple macro for single-line logging:
