@@ -21,9 +21,10 @@
 #import "ADALiOS.h"
 #import "ADKeyChainTokenCacheStore.h"
 #import <ADALiOS/ADTokenCacheStoreItem.h>
+#import <ADALiOS/NSString+ADHelperMethods.h>
 
 NSString* const sNilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";//A special attribute to write, instead of nil/empty one.
-NSString* const sDelimiter = @"||";
+NSString* const sDelimiter = @"|";
 NSString* const sKeyChainlog = @"Keychain token cache store";
 
 @implementation ADKeychainTokenCacheStore
@@ -92,29 +93,6 @@ NSString* const sKeyChainlog = @"Keychain token cache store";
             ];
 }
 
-//Ensures that the string does not include delimiter. If it does, the cache may confuse this entry,
-//as the delimiter text is used to construct the key. Returns YES, if the string used to generate key
-//is valid. Nil string is a valid one.
--(BOOL) validateKeyString:(NSString*)keyString
-                     name:(NSString*)name
-                    error:(ADAuthenticationError* __autoreleasing*) error
-{
-    THROW_ON_NIL_ARGUMENT(name);
-    
-    if ([keyString containsString:sDelimiter])
-    {
-        NSString* message = [NSString stringWithFormat:@"The key chain cannot persist the cache item with %@='%@'. The %@ cannot contain '%@'",
-                             name, keyString, name, sDelimiter];
-        ADAuthenticationError* toReturn = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE protocolCode:nil errorDetails:message];
-        if (error)
-        {
-            *error = toReturn;
-        }
-        return NO;
-    }
-    
-    return YES;
-}
 
 //Extracts the key text to be used to search explicitly for this item:
 -(NSString*) extractKeyWithItem:(ADTokenCacheStoreItem*)item
@@ -122,18 +100,15 @@ NSString* const sKeyChainlog = @"Keychain token cache store";
 {
     THROW_ON_NIL_ARGUMENT(item);
     ADTokenCacheStoreKey* key = [item extractKeyWithError:error];
-    if (!key ||
-        ![self validateKeyString:key.authority name:@"authority" error:error] ||
-        ![self validateKeyString:key.resource name:@"resource" error:error] ||
-        ![self validateKeyString:key.clientId name:@"clientId" error:error])
+    if (!key)
     {
         return nil;
     }
     
     return [NSString stringWithFormat:@"%@%@%@%@%@",
-            key.authority, sDelimiter,
+            [key.authority adBase64UrlEncode], sDelimiter,
             [self.class getAttributeName:key.resource], sDelimiter,
-            key.clientId
+            [key.clientId adBase64UrlEncode]
             ];
 }
 
@@ -143,7 +118,7 @@ NSString* const sKeyChainlog = @"Keychain token cache store";
     THROW_ON_NIL_ARGUMENT(item);
     
     NSString* keyText = [self extractKeyWithItem:item error:error];
-    if (!keyText || ![self validateKeyString:item.userInformation.userId name:@"userId" error:error])
+    if (!keyText)
     {
         return nil;
     }
@@ -387,7 +362,7 @@ NSString* const sKeyChainlog = @"Keychain token cache store";
 //We should not put nil keys in the keychain. The method substitutes nil with a special GUID:
 +(NSString*) getAttributeName: (NSString*)original
 {
-    return ([NSString isStringNilOrBlank:original]) ? sNilKey : original;
+    return ([NSString isStringNilOrBlank:original]) ? sNilKey : [original adBase64UrlEncode];
 }
 
 //Overrides the parent class method, ensures that the keychain contains the same value as the memory cache:
