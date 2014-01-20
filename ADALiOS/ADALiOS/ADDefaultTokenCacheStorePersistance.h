@@ -29,8 +29,6 @@
     NSArray* cacheItems;
 }
 
--(id) initWithUpperVersion: (int16_t) upperVersion
-              lowerVersion: (int16_t) lowerVersion
-                cacheItems: (NSArray*) cacheItems;
+-(id) initWithCacheItems: (NSArray*) cacheItems;
 
 @end

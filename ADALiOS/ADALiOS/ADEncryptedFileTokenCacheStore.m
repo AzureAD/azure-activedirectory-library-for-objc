@@ -22,9 +22,6 @@
 
 static const uint64_t MAX_REVISION;
 
-const int16_t UPPER_VERSION = 1;
-const int16_t LOWER_VERSION = 0;
-
 @implementation ADEncryptedFileTokenCacheStore
 
 -(id) initWithLocation:(NSString *)cacheLocation
@@ -65,8 +62,6 @@ const int16_t LOWER_VERSION = 0;
         else
         {
             AD_LOG_INFO(@"No persisted cache found.", logMessage);
-            //Create an empty file to ensure that the encryption attribute is set:
-            [self persistWithItems:[NSArray new] error:nil];
         }
     }
     return self;
@@ -77,39 +72,34 @@ const int16_t LOWER_VERSION = 0;
                    error: (ADAuthenticationError *__autoreleasing *) error
 {
     ADDefaultTokenCacheStorePersistance* serialization =
-        [[ADDefaultTokenCacheStorePersistance alloc] initWithUpperVersion:UPPER_VERSION
-                                                             lowerVersion:LOWER_VERSION
-                                                               cacheItems:flatItemsList];
-    BOOL succeeded = [NSKeyedArchiver archiveRootObject:serialization toFile:self.cacheLocation];
-    if (succeeded)
+        [[ADDefaultTokenCacheStorePersistance alloc] initWithCacheItems:flatItemsList];
+    ADAuthenticationError* toReport = nil;
+    //First archive to data, then store the data, ensuring that the file is encrypted while storing:
+    NSData* buffer = [NSKeyedArchiver archivedDataWithRootObject:serialization];
+    if (buffer)
     {
-        //Always ensure that the file is encrypted after saving:
-        NSError* encryptionError;
-        [[NSFileManager defaultManager] setAttributes:@{NSFileProtectionKey:NSFileProtectionComplete} ofItemAtPath:self.cacheLocation error:&encryptionError];
-        if (encryptionError)
+        BOOL succeeded = [[NSFileManager defaultManager] createFileAtPath:self.cacheLocation
+                                                                 contents:buffer
+                                                               attributes:@{NSFileProtectionKey:NSFileProtectionComplete}];
+        if (!succeeded)
         {
-            NSString* details = [NSString stringWithFormat:@"Unable to set encryption on the token cache store file: %@", encryptionError.description];
-            ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:encryptionError errorDetails:details];
-            if (error)
-            {
-                *error = adError;
-            }
+            NSString* errorMessage = [NSString stringWithFormat:@"Failed to persist to file: %@", self.cacheLocation];
+            //Note that this will also log the error:
+            toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
+                                                              protocolCode:nil
+                                                              errorDetails:errorMessage];
         }
     }
     else
     {
-        NSString* errorMessage = [NSString stringWithFormat:@"Failed to persist to file: %@", self.cacheLocation];
-        //Note that this will also log the error:
-        ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                                                 protocolCode:nil
-                                                                                 errorDetails:errorMessage];
-        if (error)
-        {
-            *error = toReport;
-        }
+        toReport = [ADAuthenticationError unexpectedInternalError:@"Cannot archive the cache."];
     }
     
-    return succeeded;
+    if (error && toReport)
+    {
+        *error = toReport;
+    }
+    return !toReport;
 }
 
 //Overrides the parent class
@@ -125,21 +115,8 @@ const int16_t LOWER_VERSION = 0;
         return nil;
     }
     
-    if (serialization->upperVersion > UPPER_VERSION)
-    {
-        //A new, incompatible version of the cache is stored, ignore the cache:
-        //The userId should be valid:
-        NSString* message = [NSString stringWithFormat:@"The version (%d.%d) of the cache file is not supported. File: %@",
-                             serialization->upperVersion, serialization->lowerVersion, self.cacheLocation];
-        //This will also log the error:
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BAD_CACHE_FORMAT protocolCode:nil errorDetails:message];
-        return nil;
-    }
-    else
-    {
-        AD_LOG_VERBOSE_F(@"Token Cache Store Persistence", @"Finished reading of the persisted cache. Version: (%d.%d);  File: %@",
-                         serialization->upperVersion, serialization->lowerVersion, self.cacheLocation);
-    }
+    AD_LOG_VERBOSE_F(@"Token Cache Store Persistence", @"Finished reading of the persisted cache. Version: (%d.%d);  File: %@",
+                serialization->upperVersion, serialization->lowerVersion, self.cacheLocation);
     return serialization->cacheItems;
 }
 
