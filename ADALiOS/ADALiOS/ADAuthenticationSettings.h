@@ -19,6 +19,7 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol ADTokenCacheStoring;
 /*!
  Controls where would the credentials dialog reside
  */
@@ -60,11 +61,6 @@ typedef enum
  about to expire. */
 @property uint expirationBuffer;
 
-/*! Contains the location of the file storage for the default token cache store.
- Allows modification of this location. If this property is explicitly set to nil
- or empty string, the cache will not be persisted and will be stored only in memory.*/
-@property NSString* defaultTokenCacheStoreLocation;
-
 /*! Additional information to append to the requests with the platform_id URL parameter.*/
 @property NSString *platformId;
 
@@ -76,5 +72,8 @@ typedef enum
 
 /*! The dispatch queue to be used for the asynchronous calls. */
 @property dispatch_queue_t dispatchQueue;
+
+/*! The default token cache store to be used by the ADAuthenticationContext instances. */
+@property id<ADTokenCacheStoring> defaultTokenCacheStore;
 
 @end

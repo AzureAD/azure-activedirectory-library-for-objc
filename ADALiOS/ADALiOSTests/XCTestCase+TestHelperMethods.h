@@ -108,8 +108,8 @@ typedef enum
  static volatile int comletion  = 0;
  [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
  {
-    [mAuthenticationContext acquireToken:mResource
-                         completionBlock:^(ADAuthenticationResult* result)
+    [mAuthenticationContext acquireTokenWithResource:mResource
+                                     completionBlock:^(ADAuthenticationResult* result)
     {
         //Inner block:
         mResult = result;

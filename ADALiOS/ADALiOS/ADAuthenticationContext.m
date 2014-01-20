@@ -19,7 +19,6 @@
 
 #import "ADALiOS.h"
 #import "ADAuthenticationContext.h"
-#import "ADDefaultTokenCacheStore.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADOAuth2Constants.h"
 #import "WebAuthenticationBroker.h"
@@ -102,110 +101,109 @@ if (![self checkAndHandleBadArgument:ARG \
 }
 
 
-+(ADAuthenticationContext*) contextWithAuthority: (NSString*) authority
-                                           error: (ADAuthenticationError* __autoreleasing *) error
++(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
+                                                         error: (ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY;
-    return [self contextWithAuthority: authority
-                    validateAuthority: YES
-                      tokenCacheStore: [ADDefaultTokenCacheStore sharedInstance]
-                                error: error];
+    return [self authenticationContextWithAuthority: authority
+                                  validateAuthority: YES
+                                    tokenCacheStore: [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
+                                              error: error];
 }
 
-+(ADAuthenticationContext*) contextWithAuthority: (NSString*) authority
-                               validateAuthority: (BOOL) bValidate
-                                           error: (ADAuthenticationError* __autoreleasing *) error
++(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
+                                             validateAuthority: (BOOL) bValidate
+                                                         error: (ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY
-    return [self contextWithAuthority: authority
-                    validateAuthority: bValidate
-                      tokenCacheStore: [ADDefaultTokenCacheStore sharedInstance]
-                                error: error];
+    return [self authenticationContextWithAuthority: authority
+                                  validateAuthority: bValidate
+                                    tokenCacheStore: [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
+                                              error: error];
 }
 
-+(ADAuthenticationContext*) contextWithAuthority: (NSString*) authority
-                                 tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
-                                           error: (ADAuthenticationError* __autoreleasing *) error
++(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
+                                               tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
+                                                         error: (ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY;
-    return [self contextWithAuthority:authority
-                    validateAuthority:YES
-                      tokenCacheStore:tokenCache
-                                error:error];
+    return [self authenticationContextWithAuthority:authority
+                                  validateAuthority:YES
+                                    tokenCacheStore:tokenCache
+                                              error:error];
 }
 
-+(ADAuthenticationContext*) contextWithAuthority: (NSString*) authority
-                               validateAuthority: (BOOL)bValidate
-                                 tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
-                                           error: (ADAuthenticationError* __autoreleasing *) error
++(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
+                                             validateAuthority: (BOOL)bValidate
+                                               tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
+                                                         error: (ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY;
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(authority);
-    
 
     return [[self alloc] initWithAuthority: authority
-                       validateAuthority: bValidate
-                         tokenCacheStore: tokenCache
-                                   error: error];
+                         validateAuthority: bValidate
+                           tokenCacheStore: tokenCache
+                                     error: error];
 }
 
 
--(void) acquireToken: (NSString*) resource
-            clientId: (NSString*) clientId
-         redirectUri: (NSURL*) redirectUri
-     completionBlock: (ADAuthenticationCallback) completionBlock
+-(void) acquireTokenWithResource: (NSString*) resource
+                        clientId: (NSString*) clientId
+                     redirectUri: (NSURL*) redirectUri
+                 completionBlock: (ADAuthenticationCallback) completionBlock
 {
     API_ENTRY;
-    return [self internalAcquireToken:resource
-                             clientId:clientId
-                          redirectUri:redirectUri
-                       promptBehavior:AD_PROMPT_AUTO
-                               userId:nil
-                                scope:nil
-                 extraQueryParameters:nil
-                             tryCache:YES
-                    validateAuthority:self.validateAuthority
-                      completionBlock:completionBlock];
+    return [self internalAcquireTokenWithResource:resource
+                                         clientId:clientId
+                                      redirectUri:redirectUri
+                                   promptBehavior:AD_PROMPT_AUTO
+                                           userId:nil
+                                            scope:nil
+                             extraQueryParameters:nil
+                                         tryCache:YES
+                                validateAuthority:self.validateAuthority
+                                  completionBlock:completionBlock];
 }
 
--(void) acquireToken: (NSString*) resource
-            clientId: (NSString*) clientId
-         redirectUri: (NSURL*) redirectUri
-              userId: (NSString*) userId
-     completionBlock: (ADAuthenticationCallback) completionBlock
+-(void) acquireTokenWithResource: (NSString*) resource
+                        clientId: (NSString*) clientId
+                     redirectUri: (NSURL*) redirectUri
+                          userId: (NSString*) userId
+                 completionBlock: (ADAuthenticationCallback) completionBlock
 {
     API_ENTRY;
-    [self internalAcquireToken:resource
-                      clientId:clientId
-                   redirectUri:redirectUri
-                promptBehavior:AD_PROMPT_AUTO
-                        userId:userId
-                         scope:nil
-          extraQueryParameters:nil
-                      tryCache:YES
-             validateAuthority:self.validateAuthority
-               completionBlock:completionBlock];
+    [self internalAcquireTokenWithResource:resource
+                                  clientId:clientId
+                               redirectUri:redirectUri
+                            promptBehavior:AD_PROMPT_AUTO
+                                    userId:userId
+                                     scope:nil
+                      extraQueryParameters:nil
+                                  tryCache:YES
+                         validateAuthority:self.validateAuthority
+                           completionBlock:completionBlock];
 }
 
 
--(void) acquireToken: (NSString*) resource
-            clientId: (NSString*)clientId
-         redirectUri: (NSURL*) redirectUri
-              userId: (NSString*) userId
-extraQueryParameters: (NSString*) queryParams
-     completionBlock: (ADAuthenticationCallback) completionBlock
+-(void) acquireTokenWithResource: (NSString*) resource
+                        clientId: (NSString*)clientId
+                     redirectUri: (NSURL*) redirectUri
+                          userId: (NSString*) userId
+            extraQueryParameters: (NSString*) queryParams
+                 completionBlock: (ADAuthenticationCallback) completionBlock
 {
     API_ENTRY;
-    [self internalAcquireToken:resource
-                      clientId:clientId
-                   redirectUri:redirectUri
-                promptBehavior:AD_PROMPT_AUTO
-                        userId:userId
-                         scope:nil
-          extraQueryParameters:queryParams
-                      tryCache:YES
-             validateAuthority:self.validateAuthority
-               completionBlock:completionBlock];
+    [self internalAcquireTokenWithResource:resource
+                                  clientId:clientId
+                               redirectUri:redirectUri
+                            promptBehavior:AD_PROMPT_AUTO
+                                    userId:userId
+                                     scope:nil
+                      extraQueryParameters:queryParams
+                                  tryCache:YES
+                         validateAuthority:self.validateAuthority
+                           completionBlock:completionBlock];
 }
 
 //Returns YES if we shouldn't attempt other means to get access token.
@@ -308,39 +306,39 @@ extraQueryParameters: (NSString*) queryParams
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
-         [self internalAcquireToken: resource
-                           clientId: clientId
-                        redirectUri: redirectUri
-                     promptBehavior: promptBehavior
-                             userId: userId
-                              scope: nil
-               extraQueryParameters: queryParams
-                           tryCache: NO
-                  validateAuthority: NO
-                    completionBlock: completionBlock];
+         [self internalAcquireTokenWithResource: resource
+                                       clientId: clientId
+                                    redirectUri: redirectUri
+                                 promptBehavior: promptBehavior
+                                         userId: userId
+                                          scope: nil
+                           extraQueryParameters: queryParams
+                                       tryCache: NO
+                              validateAuthority: NO
+                                completionBlock: completionBlock];
     }];//End of the refreshing token completion block, executed asynchronously.
 }
 
--(void) acquireToken: (NSString*) resource
-            clientId: (NSString*) clientId
-         redirectUri: (NSURL*) redirectUri
-      promptBehavior: (ADPromptBehavior) promptBehavior
-              userId: (NSString*) userId
-extraQueryParameters: (NSString*) queryParams
-     completionBlock: (ADAuthenticationCallback)completionBlock
+-(void) acquireTokenWithResource: (NSString*) resource
+                        clientId: (NSString*) clientId
+                     redirectUri: (NSURL*) redirectUri
+                  promptBehavior: (ADPromptBehavior) promptBehavior
+                          userId: (NSString*) userId
+            extraQueryParameters: (NSString*) queryParams
+                 completionBlock: (ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
     THROW_ON_NIL_ARGUMENT(completionBlock);//The only argument that throws
-    [self internalAcquireToken:resource
-                      clientId:clientId
-                   redirectUri:redirectUri
-                promptBehavior:promptBehavior
-                        userId:userId
-                         scope:nil
-          extraQueryParameters:queryParams
-                      tryCache:YES
-             validateAuthority:self.validateAuthority
-               completionBlock:completionBlock];
+    [self internalAcquireTokenWithResource:resource
+                                  clientId:clientId
+                               redirectUri:redirectUri
+                            promptBehavior:promptBehavior
+                                    userId:userId
+                                     scope:nil
+                      extraQueryParameters:queryParams
+                                  tryCache:YES
+                         validateAuthority:self.validateAuthority
+                           completionBlock:completionBlock];
 }
 
 //Gets an item from the cache, where userId may be nil. Raises error, if items for multiple users are present
@@ -450,16 +448,16 @@ extraQueryParameters: (NSString*) queryParams
     return nil;//Nothing suitable
 }
 
--(void) internalAcquireToken: (NSString*) resource
-                    clientId: (NSString*) clientId
-                 redirectUri: (NSURL*) redirectUri
-              promptBehavior: (ADPromptBehavior) promptBehavior
-                      userId: (NSString*) userId
-                       scope: (NSString*) scope
-        extraQueryParameters: (NSString*) queryParams
-                    tryCache: (BOOL) tryCache /* set internally to avoid infinite recursion */
-           validateAuthority: (BOOL) validateAuthority
-             completionBlock: (ADAuthenticationCallback)completionBlock
+-(void) internalAcquireTokenWithResource: (NSString*) resource
+                                clientId: (NSString*) clientId
+                             redirectUri: (NSURL*) redirectUri
+                          promptBehavior: (ADPromptBehavior) promptBehavior
+                                  userId: (NSString*) userId
+                                   scope: (NSString*) scope
+                    extraQueryParameters: (NSString*) queryParams
+                                tryCache: (BOOL) tryCache /* set internally to avoid infinite recursion */
+                       validateAuthority: (BOOL) validateAuthority
+                         completionBlock: (ADAuthenticationCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
     HANDLE_ARGUMENT(resource);
@@ -474,16 +472,16 @@ extraQueryParameters: (NSString*) queryParams
             }
             else
             {
-                [self internalAcquireToken:resource
-                                  clientId:clientId
-                               redirectUri:redirectUri
-                            promptBehavior:promptBehavior
-                                    userId:userId
-                                     scope:scope
-                      extraQueryParameters:queryParams
-                                  tryCache:tryCache
-                         validateAuthority:NO /* Already validated in this block. */
-                           completionBlock:completionBlock];
+                [self internalAcquireTokenWithResource:resource
+                                              clientId:clientId
+                                           redirectUri:redirectUri
+                                        promptBehavior:promptBehavior
+                                                userId:userId
+                                                 scope:scope
+                                  extraQueryParameters:queryParams
+                                              tryCache:tryCache
+                                     validateAuthority:NO /* Already validated in this block. */
+                                       completionBlock:completionBlock];
             }
         }];
         return;//The asynchronous handler above will do the work.

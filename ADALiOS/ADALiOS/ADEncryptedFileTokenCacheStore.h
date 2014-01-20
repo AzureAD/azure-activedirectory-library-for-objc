@@ -1,4 +1,4 @@
-// Created by Boris Vidolov on 11/19/13.
+// Created by Boris Vidolov on 1/14/14.
 // Copyright © Microsoft Open Technologies, Inc.
 //
 // All Rights Reserved
@@ -17,18 +17,14 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
+#import <ADALiOS/ADPersistentTokenCacheStore.h>
 
-/*! This is an internal class that contains the basic data
- that the default token cache store persists. */
-@interface ADDefaultTokenCacheStorePersistance : NSObject<NSSecureCoding>
-{
-@public
-    int16_t upperVersion;
-    int16_t lowerVersion;
-    NSArray* cacheItems;
-}
+@interface ADEncryptedFileTokenCacheStore : ADPersistentTokenCacheStore
 
--(id) initWithCacheItems: (NSArray*) cacheItems;
+/*! Initializes the token cache store.
+ @param: cacheLocation: The file location. If a relative path is specified,
+ the class will put the file in the local cache folder. 
+ The initializer returns nil, if cacheLocation is invalid path.*/
+-(id) initWithLocation: (NSString *)cacheLocation;
 
 @end
