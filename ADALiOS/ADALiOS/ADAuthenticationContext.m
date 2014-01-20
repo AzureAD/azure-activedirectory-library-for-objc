@@ -105,10 +105,10 @@ if (![self checkAndHandleBadArgument:ARG \
                                                          error: (ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY;
-    return [self contextWithAuthority: authority
-                    validateAuthority: YES
-                      tokenCacheStore: [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
-                                error: error];
+    return [self authenticationContextWithAuthority: authority
+                                  validateAuthority: YES
+                                    tokenCacheStore: [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
+                                              error: error];
 }
 
 +(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
@@ -116,10 +116,10 @@ if (![self checkAndHandleBadArgument:ARG \
                                                          error: (ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY
-    return [self contextWithAuthority: authority
-                    validateAuthority: bValidate
-                      tokenCacheStore: [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
-                                error: error];
+    return [self authenticationContextWithAuthority: authority
+                                  validateAuthority: bValidate
+                                    tokenCacheStore: [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
+                                              error: error];
 }
 
 +(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
@@ -140,12 +140,11 @@ if (![self checkAndHandleBadArgument:ARG \
 {
     API_ENTRY;
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(authority);
-    
 
-    return [[self alloc] initWithAuthority:authority
-                         validateAuthority:bValidate
-                           tokenCacheStore:tokenCache
-                                     error:error];
+    return [[self alloc] initWithAuthority: authority
+                         validateAuthority: bValidate
+                           tokenCacheStore: tokenCache
+                                     error: error];
 }
 
 

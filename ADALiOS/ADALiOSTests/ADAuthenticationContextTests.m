@@ -150,16 +150,16 @@ const int sAsyncContextTimeout = 10;
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil tokenCacheStore:nil error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
-    mContext = [ADAuthenticationContext contextWithAuthority:nil
-                                             tokenCacheStore:mDefaultTokenCache
-                                                       error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
+                                                           tokenCacheStore:mDefaultTokenCache
+                                                                     error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     //Authority, validate and cache store:
-    mContext = [ADAuthenticationContext contextWithAuthority:nil
-                                           validateAuthority:NO //Non-default value.
-                                             tokenCacheStore:mDefaultTokenCache
-                                                       error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
+                                                         validateAuthority:NO //Non-default value.
+                                                           tokenCacheStore:mDefaultTokenCache
+                                                                     error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
@@ -168,10 +168,10 @@ const int sAsyncContextTimeout = 10;
                                                                      error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
-    mContext = [ADAuthenticationContext contextWithAuthority:nil
-                                           validateAuthority:YES //Non-default value.
-                                             tokenCacheStore:mDefaultTokenCache
-                                                       error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
+                                                         validateAuthority:YES //Non-default value.
+                                                           tokenCacheStore:mDefaultTokenCache
+                                                                     error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil

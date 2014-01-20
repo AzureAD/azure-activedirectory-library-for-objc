@@ -689,7 +689,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     //Different key:
     ADTokenCacheStoreItem* authority2 = [self copyItem:original withNewUser:@"1"];
-    authority2.authority = @"https://www.anotherauthority.com";
+    authority2.authority = @"https://www.anotherauthority.com/tenant.com";
     ADTokenCacheStoreItem* clientId2 = [self copyItem:original withNewUser:@"1"];
     clientId2.clientId = @"clientId2";
 
