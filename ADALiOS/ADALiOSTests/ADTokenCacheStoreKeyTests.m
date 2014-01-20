@@ -36,7 +36,7 @@
 {
     [super setUp];
     [self adTestBegin];
-    mAuthority = @"https://login.windows.net";;
+    mAuthority = @"https://login.windows.net/common";;
     mResource = @"http://mywebApi.com";
     mClientId = @"myclientid";
 }
@@ -124,7 +124,7 @@
     
     {
         error = nil;
-        ADTokenCacheStoreKey* differentAuth = [ADTokenCacheStoreKey keyWithAuthority:@"https://login.windows.com" resource:mResource clientId:mClientId error:&error];
+        ADTokenCacheStoreKey* differentAuth = [ADTokenCacheStoreKey keyWithAuthority:@"https://login.windows.com/common" resource:mResource clientId:mClientId error:&error];
         ADAssertNoError;
         XCTAssertNotNil(differentAuth);
         [self assertKey:normal notEqualsTo:differentAuth];
@@ -163,7 +163,7 @@
 
     {
         error = nil;
-        ADTokenCacheStoreKey* differentAuthBroad = [ADTokenCacheStoreKey keyWithAuthority:@"https://login.windows.com" resource:nil clientId:mClientId error:&error];
+        ADTokenCacheStoreKey* differentAuthBroad = [ADTokenCacheStoreKey keyWithAuthority:@"https://login.windows.com/common" resource:nil clientId:mClientId error:&error];
         ADAssertNoError;
         XCTAssertNotNil(differentAuthBroad);
         [self assertKey:broad notEqualsTo:differentAuthBroad];

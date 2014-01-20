@@ -121,11 +121,15 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     XCTAssertEqual(logCallback, [ADLogger getLogCallBack], "Setting of logCallBack failed.");
 }
 
+#ifdef AD_CODE_COVERAGE
 extern void __gcov_flush(void);
+#endif
 -(void) flushCodeCoverage
 {
     //TODO: check if executed within a code coverage build!
+#ifdef AD_CODE_COVERAGE
     __gcov_flush();
+#endif
 }
 
 /*! Clears logging and other infrastructure after a test */
@@ -309,7 +313,7 @@ extern void __gcov_flush(void);
 {
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
     item.resource = @"resource";
-    item.authority = @"https://login.windows.net";
+    item.authority = @"https://login.windows.net/sometenant.com";
     item.clientId = @"client id";
     item.accessToken = @"access token";
     item.refreshToken = @"refresh token";

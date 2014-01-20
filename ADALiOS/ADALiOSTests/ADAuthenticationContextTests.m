@@ -136,18 +136,18 @@ const int sAsyncContextTimeout = 10;
 {
     //Authority only:
     ADAuthenticationError* error;
-    mContext = [ADAuthenticationContext contextWithAuthority:nil error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     //Authority & validate:
-    mContext = [ADAuthenticationContext contextWithAuthority:nil validateAuthority:YES error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:YES error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
-    mContext = [ADAuthenticationContext contextWithAuthority:nil validateAuthority:NO error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:NO error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     //Authority and cache store:
-    mContext = [ADAuthenticationContext contextWithAuthority:nil tokenCacheStore:nil error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil tokenCacheStore:nil error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext contextWithAuthority:nil
@@ -162,10 +162,10 @@ const int sAsyncContextTimeout = 10;
                                                        error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
-    mContext = [ADAuthenticationContext contextWithAuthority:nil
-                                           validateAuthority:NO
-                                             tokenCacheStore:nil
-                                                       error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
+                                                         validateAuthority:NO
+                                                           tokenCacheStore:nil
+                                                                     error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext contextWithAuthority:nil
@@ -174,16 +174,16 @@ const int sAsyncContextTimeout = 10;
                                                        error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
-    mContext = [ADAuthenticationContext contextWithAuthority:nil
-                                           validateAuthority:YES
-                                             tokenCacheStore:nil
-                                                       error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
+                                                         validateAuthority:YES
+                                                           tokenCacheStore:nil
+                                                                     error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
     
-    mContext = [ADAuthenticationContext contextWithAuthority:nil
-                                           validateAuthority:YES
-                                             tokenCacheStore:nil
-                                                       error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
+                                                         validateAuthority:YES
+                                                           tokenCacheStore:nil
+                                                                     error:&error];
     [self validateFactoryForInvalidArgument:@"authority" error:error];
 }
 
@@ -222,78 +222,78 @@ const int sAsyncContextTimeout = 10;
     ADTestTokenCacheStore* testStore = [ADTestTokenCacheStore new];
     XCTAssertNotNil(testStore, "Failed to create a test cache store");
     //Minimal creator:
-    mContext = [ADAuthenticationContext contextWithAuthority:authority error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
                           tokenCacheStore:mDefaultTokenCache
                                     error:error];
     
     //Authority and validation:
-    mContext = [ADAuthenticationContext contextWithAuthority:authority
-                                           validateAuthority:NO
-                                                       error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
+                                                         validateAuthority:NO
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:NO
                           tokenCacheStore:mDefaultTokenCache
                                     error:error];
     
-    mContext = [ADAuthenticationContext contextWithAuthority:authority
-                                           validateAuthority:YES
-                                                       error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
+                                                         validateAuthority:YES
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
                           tokenCacheStore:mDefaultTokenCache
                                     error:error];
 
     //Authority and token cache store:
-    mContext = [ADAuthenticationContext contextWithAuthority:authority
-                                             tokenCacheStore:nil
-                                                       error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
+                                                           tokenCacheStore:nil
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
                           tokenCacheStore:nil
                                     error:error];
 
-    mContext = [ADAuthenticationContext contextWithAuthority:authority
-                                             tokenCacheStore:testStore
-                                                       error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
+                                                           tokenCacheStore:testStore
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
                           tokenCacheStore:testStore
                                     error:error];
     
     //Authority, validate and token cache store:
-    mContext = [ADAuthenticationContext contextWithAuthority:authority
-                                           validateAuthority:NO
-                                             tokenCacheStore:nil
-                                                       error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
+                                                         validateAuthority:NO
+                                                           tokenCacheStore:nil
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:NO
                           tokenCacheStore:nil
                                     error:error];
     
-    mContext = [ADAuthenticationContext contextWithAuthority:authority
-                                           validateAuthority:NO
-                                             tokenCacheStore:testStore
-                                                       error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
+                                                         validateAuthority:NO
+                                                           tokenCacheStore:testStore
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:NO
                           tokenCacheStore:testStore
                                     error:error];
 
-    mContext = [ADAuthenticationContext contextWithAuthority:authority
-                                           validateAuthority:YES
-                                             tokenCacheStore:nil
-                                                       error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
+                                                         validateAuthority:YES
+                                                           tokenCacheStore:nil
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
                           tokenCacheStore:nil
                                     error:error];
     
-    mContext = [ADAuthenticationContext contextWithAuthority:authority
-                                           validateAuthority:YES
-                                             tokenCacheStore:testStore
-                                                       error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
+                                                         validateAuthority:YES
+                                                           tokenCacheStore:testStore
+                                                                     error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
                           tokenCacheStore:testStore
@@ -354,13 +354,13 @@ const int sAsyncContextTimeout = 10;
     static volatile int completion = 0;
     [self callAndWaitWithFile:@"" __FILE__ line:line completionSignal: &completion block:^
      {
-         [mContext acquireToken:mResource
-                       clientId:mClientId
-                    redirectUri:mRedirectURL
-                 promptBehavior:mPromptBehavior
-                         userId:mUserId
-           extraQueryParameters:nil
-                completionBlock:^(ADAuthenticationResult *result)
+         [mContext acquireTokenWithResource:mResource
+                                   clientId:mClientId
+                                redirectUri:mRedirectURL
+                             promptBehavior:mPromptBehavior
+                                     userId:mUserId
+                       extraQueryParameters:nil
+                            completionBlock:^(ADAuthenticationResult *result)
           {
               //Fill in the iVars with the result:
               mResult = result;
@@ -386,7 +386,7 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testAcquireTokenBadCompletionBlock
 {
-    ADAssertThrowsArgument([mContext acquireToken:mResource clientId:mClientId redirectUri:mRedirectURL completionBlock:nil]);
+    ADAssertThrowsArgument([mContext acquireTokenWithResource:mResource clientId:mClientId redirectUri:mRedirectURL completionBlock:nil]);
 }
 
 
@@ -855,7 +855,7 @@ const int sAsyncContextTimeout = 10;
 {
     mAuthority = @"https://MyFakeAuthority.com/MSOpenTechBV.OnMicrosoft.com";
     ADAuthenticationError* error;
-    mContext = [ADAuthenticationContext contextWithAuthority:mAuthority error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority error:&error];
     XCTAssertNotNil(mContext);
     ADAssertNoError;
     
@@ -883,19 +883,19 @@ const int sAsyncContextTimeout = 10;
     //Nothing in the cache, UI is needed:
     [mDefaultTokenCache removeAll];
     ADAuthenticationError* error;
-    mContext = [ADAuthenticationContext contextWithAuthority:mAuthority error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority error:&error];
     ADAssertNoError;
     [self validateUIError];
 
     //Cache disabled, should always try to open UI for credentials
     error = nil;
-    mContext = [ADAuthenticationContext contextWithAuthority:mAuthority tokenCacheStore:nil error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority tokenCacheStore:nil error:&error];
     ADAssertNoError;
     [self validateUIError];
 
     //Cache item present, but force prompt:
     error = nil;
-    mContext = [ADAuthenticationContext contextWithAuthority:mAuthority error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority error:&error];
     ADAssertNoError;
     [self addCacheWithToken:@"access" refreshToken:nil];
     mPromptBehavior = AD_PROMPT_ALWAYS;
@@ -906,7 +906,7 @@ const int sAsyncContextTimeout = 10;
 {
     //Create a normal authority (not a test one):
     ADAuthenticationError* error;
-    mContext = [ADAuthenticationContext contextWithAuthority:mAuthority error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority error:&error];
     XCTAssertNotNil(mContext);
     ADAssertNoError;
     
@@ -938,8 +938,8 @@ const int sAsyncContextTimeout = 10;
 {
     //Create a normal authority (not a test one):
     ADAuthenticationError* error;
-    mAuthority = @"https://SomeValidURLButNonExistentDomain.com";
-    mContext = [ADAuthenticationContext contextWithAuthority:mAuthority validateAuthority:NO error:&error];
+    mAuthority = @"https://SomeValidURLButNonExistentDomain.com/sometenant.com";
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority validateAuthority:NO error:&error];
     XCTAssertNotNil(mContext);
     ADAssertNoError;
     
@@ -973,33 +973,33 @@ const int sAsyncContextTimeout = 10;
     };
     [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
-         [mContext acquireToken:mResource
-                       clientId:mClientId
-                    redirectUri:mRedirectURL
-                completionBlock:innerCallback];
+         [mContext acquireTokenWithResource:mResource
+                                   clientId:mClientId
+                                redirectUri:mRedirectURL
+                            completionBlock:innerCallback];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
     
     [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
-         [mContext acquireToken:mResource
-                       clientId:mClientId
-                    redirectUri:mRedirectURL
-                         userId:mUserId
-                completionBlock:innerCallback];
+         [mContext acquireTokenWithResource:mResource
+                                   clientId:mClientId
+                                redirectUri:mRedirectURL
+                                     userId:mUserId
+                            completionBlock:innerCallback];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
 
     [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
-         [mContext acquireToken:mResource
-                       clientId:mClientId
-                    redirectUri:mRedirectURL
-                         userId:mUserId
-           extraQueryParameters:@"extraQueryParams=somevalue"
-                completionBlock:innerCallback];
+         [mContext acquireTokenWithResource:mResource
+                                   clientId:mClientId
+                                redirectUri:mRedirectURL
+                                     userId:mUserId
+                       extraQueryParameters:@"extraQueryParams=somevalue"
+                            completionBlock:innerCallback];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);

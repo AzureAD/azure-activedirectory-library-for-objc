@@ -434,7 +434,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
         ADAssertNoError;
 
         ADTokenCacheStoreItem* item4 = [self createCacheItem];
-        item4.authority = @"https://www.authority.com";
+        item4.authority = @"https://www.authority.com/tenant.com";
         ADTokenCacheStoreKey* key4 = [item3 extractKeyWithError:&error];
         ADAssertNoError;
         

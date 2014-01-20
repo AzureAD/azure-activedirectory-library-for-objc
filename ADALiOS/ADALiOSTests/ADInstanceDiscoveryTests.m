@@ -207,7 +207,7 @@ const int sAsyncTimeout = 10;//in seconds
     error = nil;
     
     //End with "/" and base only:
-    authority = @"httpS://Login.Windows.Net/";
+    authority = @"httpS://Login.Windows.Net/stuff";
     result = [mTestInstanceDiscovery extractHost:authority error:&error];
     ADAssertNoError;
     ADAssertStringEquals(result, @"https://login.windows.net");
@@ -332,7 +332,7 @@ const int sAsyncTimeout = 10;//in seconds
 //Does not call the server, just leverages the cache:
 -(void) testValidateAuthorityCache
 {
-    [self validateAuthority:sAlwaysTrusted line:__LINE__];
+    [self validateAuthority:[NSString stringWithFormat:@"%@/common", sAlwaysTrusted] line:__LINE__];
     XCTAssertTrue(mValidated);
     XCTAssertNil(mError);
 }
@@ -346,11 +346,14 @@ const int sAsyncTimeout = 10;//in seconds
     
     //Invalid URL
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"&-23425 5345g"]);
+    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"https:///login.windows.Net/foo"], "Bad URL. Three slashes");
+    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"https:////"]);
     
     //Non-ssl:
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"foo"]);
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"http://foo"]);
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"http://www.microsoft.com"]);
+    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"abcde://login.windows.net/common"]);
     
     //Canonicalization to the supported extent:
     NSString* authority = @"    https://www.microsoft.com/foo.com/";
@@ -366,6 +369,18 @@ const int sAsyncTimeout = 10;//in seconds
     //Test canonicalizing the endpoints:
     ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/MSOpenTechBV.onmicrosoft.com/OAuth2/Token"], authority);
     ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/MSOpenTechBV.onmicrosoft.com/OAuth2/Authorize"], authority);
+    
+    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net"], "No tenant");
+    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/"], "No tenant");
+
+    //Trimming beyond the tenant:
+    authority = @"https://login.windows.net/foo.com";
+    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com/bar"], authority);
+    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com"], authority);
+    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com/"], authority);
+    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com#bar"], authority);
+    authority = @"https://login.windows.net/common";//Use "common" for a change
+    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.net/common?abc=123&vc=3"], authority);
 }
 
 //Tests a real authority
