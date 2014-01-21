@@ -24,6 +24,7 @@
 #import "NSDictionaryExtensions.h"
 #import "HTTPWebResponse.h"
 #import "ADOAuth2Constants.h"
+#import "ADAuthenticationSettings.h"
 
 NSString* const sTrustedAuthority = @"https://login.windows.net";
 NSString* const sInstanceDiscoverySuffix = @"common/discovery/instance";
@@ -154,11 +155,15 @@ NSString* const sValidationServerError = @"The authority validation server retur
         return;
     }
 
-    //Nothing in the cache, ask the server:
-    [self requestValidationOfAuthority:authority
-                                  host:authorityHost
-                      trustedAuthority:sTrustedAuthority
-                       completionBlock:completionBlock];
+
+    dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
+    {
+        //Nothing in the cache, ask the server:
+        [self requestValidationOfAuthority:authority
+                                      host:authorityHost
+                          trustedAuthority:sTrustedAuthority
+                           completionBlock:completionBlock];
+    });
 }
 
 //Checks the cache for previously validated authority.
@@ -194,6 +199,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
 
 //Sends authority validation to the trustedAuthority by leveraging the instance discovery endpoint
 //If the authority is known, the server will set the "tenant_discovery_endpoint" parameter in the response.
+//The method should be executed on a thread that is guarranteed to exist upon completion, e.g. the UI thread.
 -(void) requestValidationOfAuthority: (NSString*) authority
                                 host: (NSString*) authorityHost
                     trustedAuthority: (NSString*) trustedAuthority
