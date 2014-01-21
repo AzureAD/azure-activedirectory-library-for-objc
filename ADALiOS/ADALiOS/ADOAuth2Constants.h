@@ -46,6 +46,14 @@ extern NSString *const OAUTH2_LOGIN_HINT;
 extern NSString *const OAUTH2_ID_TOKEN;
 extern NSString *const OAUTH2_CORRELATION_ID;
 
+//Diagnostic traces sent to the Azure Active Directory servers:
+extern NSString *const ADAL_ID_PLATFORM;//The ADAL platform. iOS or OSX
+extern NSString *const ADAL_ID_VERSION;
+extern NSString *const ADAL_ID_CPU;//E.g. ARM64
+extern NSString *const ADAL_ID_OS_VER;//iOS/OSX version
+extern NSString *const ADAL_ID_DEVICE_MODEL;//E.g. iPhone 5S
+
+
 extern NSString *const AUTH_FAILED; //Generic error.
 extern NSString *const AUTH_FAILED_ERROR_CODE;
 extern NSString *const AUTH_NON_PROTOCOL_ERROR; //A special error to denote that the error was not part of the protocol. E.g. a connection error.

@@ -19,6 +19,10 @@
 
 #import "ADALiOS.h"
 #import "ADLogger.h"
+#import "ADOAuth2Constants.h"
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include <mach/machine.h>
 
 ADAL_LOG_LEVEL sLogLevel = ADAL_LOG_LEVEL_ERROR;
 LogCallback sLogCallback;
@@ -121,9 +125,55 @@ additionalInformation: (NSString*) additionalInformation
     }
 }
 
-+(NSString*) clientTrace: (BOOL) minimal
+//Extracts the CPU information according to the constants defined in
+//machine.h file. E.g. CPU_TYPE_X86. The method does not attempt to print
+//user-friendly name, as these will be outdated as soon as the code ships.
++(NSString*) getCPUInfo
 {
-    NOT_IMPLEMENTED;
+    size_t structSize;
+    cpu_type_t cpuType;
+    cpu_subtype_t cpuSubType;
+    structSize = sizeof(cpuType);
+    NSMutableString* toReturn = [NSMutableString new];
+    
+    //Extract the CPU type. E.g. x86. See CPU_TYPE_* constants for details.
+    //See sysctl.h for details.
+    int result = sysctlbyname("hw.cputype", &cpuType, &structSize, NULL, 0);
+    if (result)
+    {
+        AD_LOG_WARN_F(@"Logging", @"Cannot extract cpu type. Error: %d", result);
+        return toReturn;//Return empty string.
+    }
+    [toReturn appendFormat:@"%d", cpuType];
+    
+    //Now attemp to extract the subtype. E.g. ARM v7. See CPU_SUBTYPE_* for details.
+    structSize = sizeof(cpuSubType);
+    result = sysctlbyname("hw.cpusubtype", &cpuSubType, &structSize, NULL, 0);
+    if (result)
+    {
+        AD_LOG_WARN_F(@"Logging", @"Cannot extract cpu subtype. Error: %d", result);
+        return toReturn;//Return the CPU type only
+    }
+    [toReturn appendFormat:@".%d", cpuSubType];
+    return toReturn;
+}
+
++(NSDictionary*) adalId
+{
+    UIDevice* device = [UIDevice currentDevice];
+    NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
+    @{
+      ADAL_ID_PLATFORM:@"iOS",
+      ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW],
+      ADAL_ID_OS_VER:device.systemVersion,
+      ADAL_ID_DEVICE_MODEL:device.model,
+      }];
+    NSString* CPUVer = [self getCPUInfo];
+    if (![NSString isStringNilOrBlank:CPUVer])
+    {
+        [result setObject:CPUVer forKey:ADAL_ID_CPU];
+    }
+    return result;
 }
 
 @end

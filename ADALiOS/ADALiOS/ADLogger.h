@@ -75,7 +75,8 @@ typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
 /*! YES if the messages are logged through NSLog.*/
 +(BOOL) getNSLogging;
 
-+(NSString*) clientTrace: (BOOL) minimal;
+/*! Returns diagnostic trace data to be sent to the Auzure Active Directory servers. */
++(NSDictionary*) adalId;
 
 @end
 
