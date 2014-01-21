@@ -20,6 +20,7 @@
 
 #import "HTTPWebRequest.h"
 #import "HTTPWebResponse.h"
+#import "ADLogger.h"
 
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
@@ -133,6 +134,7 @@ NSString *const HTTPPost = @"POST";
 {
     // Add default HTTP Headers to the request: Host
     [_requestHeaders setValue:[_requestURL authority] forKey:@"Host"];
+    [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
 
     // If there is request data, then set the Content-Length header
     if ( _requestData != nil )

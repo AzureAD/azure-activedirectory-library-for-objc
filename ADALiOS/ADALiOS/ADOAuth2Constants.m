@@ -47,6 +47,13 @@ NSString *const OAUTH2_LOGIN_HINT         = @"login_hint";
 NSString *const OAUTH2_ID_TOKEN           = @"id_token";
 NSString *const OAUTH2_CORRELATION_ID     = @"correlation_id";
 
+//Diagnostic traces sent to the Azure Active Directory servers:
+NSString *const ADAL_ID_PLATFORM          = @"x-client-SKU";//The ADAL platform. iOS or OSX
+NSString *const ADAL_ID_VERSION           = @"x-client-Ver";
+NSString *const ADAL_ID_CPU               = @"x-client-CPU";//E.g. ARM64
+NSString *const ADAL_ID_OS_VER            = @"x-client-OS";//iOS/OSX version
+NSString *const ADAL_ID_DEVICE_MODEL      = @"x-client-DM";//E.g. iPhone
+
 //Internal constants:
 NSString *const AUTH_FAILED               = @"Authentication Failed";
 NSString *const AUTH_FAILED_ERROR_CODE    = @"Authentication Failed: %d";

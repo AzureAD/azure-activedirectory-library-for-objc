@@ -61,9 +61,6 @@ typedef enum
  about to expire. */
 @property uint expirationBuffer;
 
-/*! Additional information to append to the requests with the platform_id URL parameter.*/
-@property NSString *platformId;
-
 /*! Enables or desables single sign on. Default is YES. */
 @property BOOL singleSignOn;
 
