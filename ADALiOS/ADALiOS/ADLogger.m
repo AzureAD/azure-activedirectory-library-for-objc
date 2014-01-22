@@ -126,36 +126,24 @@ additionalInformation: (NSString*) additionalInformation
 }
 
 //Extracts the CPU information according to the constants defined in
-//machine.h file. E.g. CPU_TYPE_X86. The method does not attempt to print
-//user-friendly name, as these will be outdated as soon as the code ships.
+//machine.h file. The method prints minimal information - only if 32 or
+//64 bit CPU architecture is being used.
 +(NSString*) getCPUInfo
 {
     size_t structSize;
     cpu_type_t cpuType;
-    cpu_subtype_t cpuSubType;
     structSize = sizeof(cpuType);
-    NSMutableString* toReturn = [NSMutableString new];
     
-    //Extract the CPU type. E.g. x86. See CPU_TYPE_* constants for details.
+    //Extract the CPU type. E.g. x86. See machine.h for details
     //See sysctl.h for details.
     int result = sysctlbyname("hw.cputype", &cpuType, &structSize, NULL, 0);
     if (result)
     {
         AD_LOG_WARN_F(@"Logging", @"Cannot extract cpu type. Error: %d", result);
-        return toReturn;//Return empty string.
+        return nil;
     }
-    [toReturn appendFormat:@"%d", cpuType];
     
-    //Now attemp to extract the subtype. E.g. ARM v7. See CPU_SUBTYPE_* for details.
-    structSize = sizeof(cpuSubType);
-    result = sysctlbyname("hw.cpusubtype", &cpuSubType, &structSize, NULL, 0);
-    if (result)
-    {
-        AD_LOG_WARN_F(@"Logging", @"Cannot extract cpu subtype. Error: %d", result);
-        return toReturn;//Return the CPU type only
-    }
-    [toReturn appendFormat:@".%d", cpuSubType];
-    return toReturn;
+    return (CPU_ARCH_ABI64 & cpuType) ? @"64" : @"32";
 }
 
 +(NSDictionary*) adalId
@@ -166,7 +154,7 @@ additionalInformation: (NSString*) additionalInformation
       ADAL_ID_PLATFORM:@"iOS",
       ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW],
       ADAL_ID_OS_VER:device.systemVersion,
-      ADAL_ID_DEVICE_MODEL:device.model,
+      ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
       }];
     NSString* CPUVer = [self getCPUInfo];
     if (![NSString isStringNilOrBlank:CPUVer])
