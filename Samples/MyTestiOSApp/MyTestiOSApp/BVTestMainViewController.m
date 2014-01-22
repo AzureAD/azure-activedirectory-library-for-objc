@@ -33,10 +33,16 @@
 - (IBAction)getUsersPressed:(id)sender;
 - (IBAction)refreshTokenPressed:(id)sender;
 - (IBAction)expireAllPressed:(id)sender;
+- (IBAction)promptAlways:(id)sender;
 
 @end
 
 @implementation BVTestMainViewController
+
+NSString *const AUTHORITY =@"https://login.windows.net/msopentechbv.onmicrosoft.com";
+NSString *const CLIENTID = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
+NSString *const REDIRECT_URI = @"http://todolistclient/";
+NSString *const RESOURCEID = @"http://localhost/TodoListService";
 
 - (void)viewDidLoad
 {
@@ -102,7 +108,7 @@
 {
     BVTestMainViewController* __weak weakSelf = self;
     [self.resultLabel setText:@"Starting 401 challenge."];
-
+    
     NSString* __block resourceString = @"http://testapi007.azurewebsites.net/api/WorkItem";
     NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters * params, ADAuthenticationError * error)
@@ -115,30 +121,27 @@
          
          //401 worked, now try to acquire the token:
          //There is a temporary issue with the OmerCan account above, so currently, I am using another one:
-         NSString* authority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";//OmerCan: params.authority
-         NSString* clientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";//OmerCan: @"c4acbce5-b2ed-4dc5-a1b9-c95af96c0277"
-         resourceString = @"http://localhost/TodoListService";
-         NSString* redirectUri = @"http://todolistclient/";//OmerCan: @"https://omercantest.onmicrosoft.adal/hello"
+         
          [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
-         ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
+         ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:AUTHORITY error:&error];
          if (!context)
          {
              [weakSelf setStatus:error.errorDetails];
              return;
          }
          
-         [context acquireTokenWithResource:resourceString clientId:clientId
-                               redirectUri:[NSURL URLWithString:redirectUri]
+         [context acquireTokenWithResource:RESOURCEID clientId:CLIENTID
+                               redirectUri:[NSURL URLWithString:REDIRECT_URI]
                                     userId:@"boris@msopentechbv.onmicrosoft.com"
                            completionBlock:^(ADAuthenticationResult *result) {
-                   if (result.status != AD_SUCCEEDED)
-                   {
-                       [weakSelf setStatus:result.error.errorDetails];
-                       return;
-                   }
-                   
-                   [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
-               }];
+                               if (result.status != AD_SUCCEEDED)
+                               {
+                                   [weakSelf setStatus:result.error.errorDetails];
+                                   return;
+                               }
+                               
+                               [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+                           }];
      }];
 }
 
@@ -250,5 +253,37 @@
         [self setStatus:@"Done."];
     }
 }
+
+- (IBAction)promptAlways:(id)sender
+{
+    [self setStatus:@"Setting prompt always..."];
+    ADAuthenticationError* error;
+    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:AUTHORITY error:&error];
+    if (!context)
+    {
+        [self setStatus:error.errorDetails];
+        return;
+    }
+    
+    BVTestMainViewController* __weak weakSelf = self;
+    [context acquireTokenWithResource:RESOURCEID
+                             clientId:CLIENTID
+                          redirectUri:[NSURL URLWithString:REDIRECT_URI]
+                       promptBehavior:AD_PROMPT_ALWAYS
+                               userId:@"boris@msopentechbv.onmicrosoft.com"
+                 extraQueryParameters:@""
+                      completionBlock:^(ADAuthenticationResult *result) {
+                          if (result.status != AD_SUCCEEDED)
+                          {
+                              [weakSelf setStatus:result.error.errorDetails];
+                              return;
+                          }
+                          
+                          [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+                      }];
+    
+    
+}
+
 
 @end
