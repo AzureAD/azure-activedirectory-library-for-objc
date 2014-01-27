@@ -184,6 +184,12 @@
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
 #pragma unused(webView)
+    if (NSURLErrorCancelled == error.code)
+    {
+        //This is a common error that webview generates and could be ignored.
+        //See this thread for details: https://discussions.apple.com/thread/1727260
+        return;
+    }
 
     // Ignore failures that are triggered after we have found the end URL
     if ( _complete == YES )
