@@ -21,6 +21,7 @@
 #import <ADALiOS/ADAuthenticationContext.h>
 #import "BVTestAppDelegate.h"
 #import <ADAliOS/ADAuthenticationSettings.h>
+#import <ADALiOS/ADLogger.h>
 
 @interface MyTestiOSAppTests : XCTestCase
 {
@@ -41,6 +42,7 @@
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
     // The values below use a sample Azure Active Directory tenant and a sample user there:
+    [ADLogger setLevel:ADAL_LOG_LEVEL_ERROR];//Limit the log files to ensure that the build logs are readable
     mAuthority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
     mClientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
     mResource = @"http://localhost/TodoListService";
