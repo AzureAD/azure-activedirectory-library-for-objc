@@ -8,6 +8,10 @@ The ADAL SDK for iOS gives you the ability to add Windows Azure Active Directory
 
 [Refer to our Wiki](https://github.com/MSOpenTech/azure-activedirectory-library-for-ios/wiki) for detailed walkthroughs on how to use this package including accessing a node.js REST API interface secured by Windows Azure Active Directory using the ADAL for iOS.
 
+## Latest Preview Release
+
+We have released a Preview of the ADAL for iOS! [You can grab the release here] (https://github.com/MSOpenTech/azure-activedirectory-library-for-ios/releases/tag/0.5-alpha)
+
 ## Quick Start
 
 1. Clone the repository to your machine
