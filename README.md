@@ -29,6 +29,7 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
 
 #### How to quickly get a token from the SDK:
 
+```Objective-C
 	ADAuthenticationContext* authContext;
 
 	+(void) getToken : (BOOL) clearCache completionHandler:(void (^) (NSString*))completionBlock;
@@ -55,10 +56,11 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
         }
     } 
     ]; }
+```
 
 #### Adding the Token to the authHeader to acess APIs:
 
-
+```Objective-C
 
 	+(NSArray*) getTodoList:(id)delegate
 	{
@@ -107,7 +109,7 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
         }];
         
     }];
-    return nil; }
+    return nil; } ```
 
 ## License
 
