@@ -29,31 +29,36 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
 
 ```Objective-C
 	ADAuthenticationContext* authContext;
+	NSString* authority;
+	NSString* redirectUriString;
+	NSString* resourceId;
+	NSString* clientId;
 
-	+(void) getToken : (BOOL) clearCache completionHandler:(void (^) (NSString*))completionBlock;
-	{
-    ADAuthenticationError *error __autoreleasing;
-    authContext = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
++(void) getToken : (BOOL) clearCache completionHandler:(void (^) (NSString*))completionBlock;
+{
+    ADAuthenticationError *error;
+    authContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
+                                                                        error:&error];
     
-    NSURL *redirectUri = [[NSURL alloc]initWithString:redirectUriString];
+    NSURL *redirectUri = [NSURL URLWithString:redirectUriString];
     
-    if(clearCache)
-    {
+    if(clearCache){
         [authContext.tokenCacheStore removeAll];
     }
-    authContext.validateAuthority = NO;
-    [authContext acquireTokenWithResource:resourceId clientId:clientId redirectUri:redirectUri completionBlock:^(ADAuthenticationResult *result) {
-        
-        if (result == nil)
-        {
+    
+    [authContext acquireTokenWithResource:resourceId
+                                 clientId:clientId
+                              redirectUri:redirectUri
+                          completionBlock:^(ADAuthenticationResult *result) {
+        if (AD_SUCCEEDED != result.status){
             // display error on the screen
+            [self showError:result.error.errorDetails];
         }
-        else
-        {
+        else{
             completionBlock(result.tokenCacheStoreItem.accessToken);
         }
-    } 
-    ]; }
+    }];
+}
 ```
 
 #### Adding the Token to the authHeader to acess APIs:
