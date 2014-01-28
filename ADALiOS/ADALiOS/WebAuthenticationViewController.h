@@ -26,6 +26,6 @@
 
 - (IBAction)onCancel:(id)sender;
 
-- (BOOL)startWithURL:(NSURL *)startURL endAtURL:(NSURL *)endURL ssoMode:(BOOL)ssoMode;
+- (BOOL)startWithURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
 
 @end

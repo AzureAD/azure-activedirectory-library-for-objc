@@ -19,27 +19,18 @@
 #import "WebAuthenticationDelegate.h"
 #import "WebAuthenticationWebViewController.h"
 
-@interface WebAuthenticationWebViewController () <UIWebViewDelegate>
-- (void)flushCookies;
-@end
-
 @implementation WebAuthenticationWebViewController
 {
     __weak UIWebView *_webView;
     
-    BOOL      _enableSSO;
-    
     NSURL    *_startURL;
     NSString *_endURL;
     BOOL      _complete;
-
-    NSMutableArray *_visited;
-    
 }
 
 #pragma mark - Initialization
 
-- (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL ssoMode:(BOOL)ssoMode
+- (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
     if ( nil == startURL || nil == endURL )
         return nil;
@@ -49,13 +40,10 @@
     
     if ( ( self = [super init] ) != nil )
     {
-        _enableSSO = ssoMode;
-        
         _startURL  = [startURL copy];
         _endURL    = [[endURL absoluteString] lowercaseString];
         
         _complete  = NO;
-        _visited   = [[NSMutableArray alloc] init];
         
         _webView          = webView;
         _webView.delegate = self;
@@ -78,62 +66,11 @@
 
 - (void)start
 {
-    [self flushCookies];
     [_webView loadRequest:[NSURLRequest requestWithURL:_startURL]];
 }
 
 - (void)stop
 {
-    [self flushCookies];
-}
-
-#pragma mark - Private Methods
-
-// Flushes session and persistent cookies according to SSO Mode
-// TODO: Refine this to be more selective regarding the cookies that are deleted
-- (void)flushCookies
-{
-    NSHTTPCookieStorage *sharedCookies = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    NSArray             *sentCookies   = nil;
-    
-    if ( _enableSSO == YES )
-    {
-        // SSO Mode: delete all session cookies for the URL's that we have visited.
-        for ( NSURL *url in _visited )
-        {
-            sentCookies = [sharedCookies cookiesForURL:url];
-            
-            if ( sentCookies != nil )
-            {
-                for ( NSHTTPCookie *cookie in sentCookies )
-                {
-                    if ( cookie.isSessionOnly )
-                    {
-                        [sharedCookies deleteCookie:cookie];
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        // Non-SSO Mode: delete all cookies for the URL's that we have visited.
-        for ( NSURL *url in _visited )
-        {
-            sentCookies = [sharedCookies cookiesForURL:url];
-            
-            if ( sentCookies != nil )
-            {
-                for ( NSHTTPCookie *cookie in sentCookies )
-                {
-                    [sharedCookies deleteCookie:cookie];
-                }
-            }
-        }
-    }
-
-    // Clear the list of visited URLs
-    [_visited removeAllObjects];
 }
 
 #pragma mark - UIWebViewDelegate Protocol
@@ -164,9 +101,6 @@
         // Tell the web view that this URL should not be loaded.
         return NO;
     }
-    
-    // Remember visited URL
-    [_visited addObject:request.URL];
     
     return YES;
 }

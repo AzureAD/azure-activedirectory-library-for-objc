@@ -33,7 +33,7 @@ typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 
 + (WebAuthenticationBroker *)sharedInstance;
 
-- (void)start:(NSURL *)startURL end:(NSURL *)endURL ssoMode:(BOOL)ssoMode webView:(WebViewType *)webView fullScreen:(BOOL)fullScreen completion: (ADBrokerCallback) completionBlock;
+- (void)start:(NSURL *)startURL end:(NSURL *)endURL webView:(WebViewType *)webView fullScreen:(BOOL)fullScreen completion: (ADBrokerCallback) completionBlock;
 - (void)cancel;
 
 @end

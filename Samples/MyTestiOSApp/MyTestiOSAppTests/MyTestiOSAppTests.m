@@ -23,56 +23,101 @@
 #import <ADAliOS/ADAuthenticationSettings.h>
 #import <ADALiOS/ADLogger.h>
 
-@interface MyTestiOSAppTests : XCTestCase
+//Timeouts in seconds. They are inflated to accumulate cloud-based
+//builds on slow VMs:
+
+//May include authority validation:
+const int sWebViewDisplayTimeout    = 20;
+//The time from loading the webview through multiple redirects until the login page is displayed:
+const int sLoginPageDisplayTimeout  = 30;
+//Calling the token endpoint and processing the response to extract the token:
+const int sTokenWorkflowTimeout     = 20;
+
+//Identifies one testable instance, e.g.
+//an AAD tenant with suitable user name password
+//and a client accessing a resource
+@interface TestableInstance : NSObject
 {
+    @public
     NSString* mAuthority;
+    BOOL      mValidateAuthority;
     NSString* mClientId;
     NSString* mResource;
     NSString* mRedirectUri;
     NSString* mUserId;
-    ADAuthenticationContext* mContext;
+    NSString* mPassword;
 }
+
+@end
+
+@implementation TestableInstance
+
+@end
+
+@interface MyTestiOSAppTests : XCTestCase
 
 @end
 
 @implementation MyTestiOSAppTests
 
+-(ADAuthenticationContext*) createContextWithInstance: (TestableInstance*) instance
+                                                 line: (int) line;
+{
+    XCTAssertNotNil(instance, "Test error");
+    ADAuthenticationError* error;
+    ADAuthenticationContext* context =
+        [ADAuthenticationContext authenticationContextWithAuthority:instance->mAuthority
+                                                  validateAuthority:instance->mValidateAuthority
+                                                              error:&error];
+    if (!context || error)
+    {
+        [self recordFailureWithDescription:error.errorDetails inFile:@"" __FILE__ atLine:line expected:NO];
+    }
+    return context;
+}
+
 //Code coverage logic:
 #ifdef AD_CODE_COVERAGE
-extern void __gcov_flush(void);
+    extern void __gcov_flush(void);
+    -(void) flushCodeCoverage
+    {
+        __gcov_flush();
+    }
+#else
+//No-op:
+    -(void) flushCodeCoverage{}
 #endif
--(void) flushCodeCoverage
+
+//Obtains a test AAD instance and credentials:
+-(TestableInstance*) getAADInstance
 {
-#ifdef AD_CODE_COVERAGE
-    __gcov_flush();
-#endif
+    TestableInstance* toReturn = [TestableInstance new];
+    toReturn->mAuthority            = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
+    toReturn->mClientId             = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
+    toReturn->mResource             = @"http://localhost/TodoListService";
+    toReturn->mRedirectUri          = @"http://todolistclient/";
+    toReturn->mUserId               = @"boris@msopentechbv.onmicrosoft.com";
+    toReturn->mPassword             = @"~test123";
+    toReturn->mValidateAuthority    = YES;//Supported for AAD instances
+    
+    return toReturn;
 }
+
 - (void)setUp
 {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-    // The values below use a sample Azure Active Directory tenant and a sample user there:
-    [ADLogger setLevel:ADAL_LOG_LEVEL_ERROR];//Limit the log files to ensure that the build logs are readable
-    mAuthority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
-    mClientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
-    mResource = @"http://localhost/TodoListService";
-    mRedirectUri = @"http://todolistclient/";
-    mUserId = @"boris@msopentechbv.onmicrosoft.com";
+    // Put setup code here. This method is called before the invocation of each test method in the class:
     
-    ADAuthenticationError* error;
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority error:&error];
-    XCTAssertNotNil(mContext);
-    XCTAssertNil(error);
+    [ADLogger setLevel:ADAL_LOG_LEVEL_ERROR];//Meaningful log size
     
     //Start clean:
-    [self deleteCookies];
-    [mContext.tokenCacheStore removeAll];//Clear the cache
+    [self clearCookies];
+    [self clearCache];
 }
 
 - (void)tearDown
 {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
-    mContext = nil;//Free the memory
     [self flushCodeCoverage];
     [super tearDown];
 }
@@ -100,7 +145,7 @@ extern void __gcov_flush(void);
 }
 
 //Clears all cookies:
--(void) deleteCookies
+-(void) clearCookies
 {
     NSHTTPCookieStorage* cookiesStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     NSMutableArray* allCookies = [NSMutableArray arrayWithArray:cookiesStorage.cookies];
@@ -108,6 +153,11 @@ extern void __gcov_flush(void);
     {
         [cookiesStorage deleteCookie:cookie];
     }
+}
+
+-(void) clearCache
+{
+    [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore removeAll];
 }
 
 //Runs the run loop in the current thread until the passed condition
@@ -141,16 +191,21 @@ extern void __gcov_flush(void);
 //Calls the asynchronous acquireTokenWithResource method.
 //"interactive" parameter indicates whether the call will display
 //UI which user will interact with
--(ADAuthenticationResult*) callAcquireToken: (BOOL) interactive
-                               keepSignedIn: (BOOL) keepSignedIn
-                                       line: (int) sourceLine
+-(ADAuthenticationResult*) callAcquireTokenWithInstance: (TestableInstance*) instance
+                                            interactive: (BOOL) interactive
+                                           keepSignedIn: (BOOL) keepSignedIn
+                                                   line: (int) sourceLine
 {
+    XCTAssertNotNil(instance, "Internal test failure.");
+    
     __block ADAuthenticationResult* localResult;
-    [mContext acquireTokenWithResource:mResource
-                              clientId:mClientId
-                           redirectUri:[NSURL URLWithString:mRedirectUri]
-                                userId:mUserId
-                       completionBlock:^(ADAuthenticationResult *result)
+    ADAuthenticationContext* context = [self createContextWithInstance:instance line:sourceLine];
+    
+    [context acquireTokenWithResource:instance->mResource
+                             clientId:instance->mClientId
+                          redirectUri:[NSURL URLWithString:instance->mRedirectUri]
+                               userId:instance->mUserId
+                      completionBlock:^(ADAuthenticationResult *result)
      {
          localResult = result;
      }];
@@ -159,7 +214,7 @@ extern void __gcov_flush(void);
     {
         //Automated the webview:
         __block UIWebView* webView;
-        [self runLoopWithTimeOut:5 operation:@"Wait for web view" line:sourceLine condition:^{
+        [self runLoopWithTimeOut:sWebViewDisplayTimeout operation:@"Wait for web view" line:sourceLine condition:^{
             webView = [self findWebView:nil];
             return (BOOL)(webView != nil);
         }];
@@ -168,7 +223,7 @@ extern void __gcov_flush(void);
             return nil;
         }
         
-        [self runLoopWithTimeOut:5 operation:@"Wait for the login page" line:sourceLine condition:^{
+        [self runLoopWithTimeOut:sLoginPageDisplayTimeout operation:@"Wait for the login page" line:sourceLine condition:^{
             if (webView.loading)
             {
                 return NO;
@@ -183,11 +238,12 @@ extern void __gcov_flush(void);
         //Check the username:
         NSString* formUserId = [webView stringByEvaluatingJavaScriptFromString:
                                 @"document.getElementById('cred_userid_inputtext').value"];
-        XCTAssertTrue([formUserId isEqualToString:mUserId]);
+        XCTAssertTrue([formUserId isEqualToString:instance->mUserId]);
         
         //Add the password:
         [webView stringByEvaluatingJavaScriptFromString:
-                @"document.getElementById('cred_password_inputtext').value = '~test123'"];
+                [NSString stringWithFormat:@"document.getElementById('cred_password_inputtext').value = '%@'",
+                 instance->mPassword]];
         if (keepSignedIn)
         {
             [webView stringByEvaluatingJavaScriptFromString:
@@ -199,7 +255,7 @@ extern void __gcov_flush(void);
     
     }
     
-    [self runLoopWithTimeOut:30 operation:@"Wait for the post-webview calls" line:sourceLine condition:^{
+    [self runLoopWithTimeOut:sTokenWorkflowTimeout operation:@"Wait for the post-webview calls" line:sourceLine condition:^{
         return (BOOL)(!!localResult);
     }];
 
@@ -224,36 +280,54 @@ extern void __gcov_flush(void);
 
 - (void)testInitialAcquireToken
 {
-    [self callAcquireToken:YES keepSignedIn:NO line:__LINE__];
+    TestableInstance* instance = [self getAADInstance];
+    [self callAcquireTokenWithInstance:instance
+                           interactive:YES
+                          keepSignedIn:NO
+                                  line:__LINE__];
 }
 
 -(void) testCache
 {
-    [self callAcquireToken:YES keepSignedIn:NO line:__LINE__];
+    TestableInstance* instance = [self getAADInstance];
+    [self callAcquireTokenWithInstance:instance
+                           interactive:YES
+                          keepSignedIn:NO
+                                  line:__LINE__];
     
     //Now ensure that the cache is used:
-    [self deleteCookies];//No cookies, force cache use:
-    ADAuthenticationResult* result = [self callAcquireToken:NO keepSignedIn:YES line:__LINE__];
+    [self clearCookies];//No cookies, force cache use:
+    ADAuthenticationResult* result = [self callAcquireTokenWithInstance:instance
+                                                            interactive:NO
+                                                           keepSignedIn:YES
+                                                                   line:__LINE__];
     
     //Now remove the access token and ensure that the refresh token is leveraged:
     result.tokenCacheStoreItem.accessToken = nil;
     ADAuthenticationError* error;
-    [mContext.tokenCacheStore addOrUpdateItem:result.tokenCacheStoreItem error:&error];
+    [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore addOrUpdateItem:result.tokenCacheStoreItem error:&error];
     XCTAssertNil(error);
-    [self callAcquireToken:NO keepSignedIn:YES line:__LINE__];
+    [self clearCookies];//Just in case
+    [self callAcquireTokenWithInstance:instance
+                           interactive:NO
+                          keepSignedIn:YES
+                                  line:__LINE__];
 }
 
-//TODO: Enable this test. The issue is that the automation
-//fails to set the persistent cookies. The issue cannot be reproduced
-//outside of the UI automation tests.
-//-(void) testCookies
-//{
-//    [self callAcquireToken:YES keepSignedIn:YES line:__LINE__];
-//    
-//    //Clear the cache, so that cookies are used:
-//    [mContext.tokenCacheStore removeAll];
-//    [self callAcquireToken:NO keepSignedIn:YES line:__LINE__];
-//}
-//
-//
+-(void) testCookies
+{
+    TestableInstance* instance = [self getAADInstance];
+    [self callAcquireTokenWithInstance:instance
+                           interactive:YES
+                          keepSignedIn:YES
+                                  line:__LINE__];
+    
+    //Clear the cache, so that cookies are used:
+    [self clearCache];
+    [self callAcquireTokenWithInstance:instance
+                           interactive:NO
+                          keepSignedIn:YES
+                                  line:__LINE__];
+}
+
 @end

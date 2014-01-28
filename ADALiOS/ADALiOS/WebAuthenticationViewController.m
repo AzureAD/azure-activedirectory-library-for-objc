@@ -81,9 +81,9 @@
 
 // Launches the UIWebView with a start URL. The UIWebView is halted when a
 // prefix of the end URL is reached.
-- (BOOL)startWithURL:(NSURL *)startURL endAtURL:(NSURL *)endURL ssoMode:(BOOL)ssoMode
+- (BOOL)startWithURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
-    _webAuthenticationWebViewController = [[WebAuthenticationWebViewController alloc] initWithWebView:_webView startAtURL:startURL endAtURL:endURL ssoMode:ssoMode];
+    _webAuthenticationWebViewController = [[WebAuthenticationWebViewController alloc] initWithWebView:_webView startAtURL:startURL endAtURL:endURL];
     
     if ( _webAuthenticationWebViewController )
     {

@@ -61,9 +61,6 @@ typedef enum
  about to expire. */
 @property uint expirationBuffer;
 
-/*! Enables or desables single sign on. Default is YES. */
-@property BOOL singleSignOn;
-
 /*! Used for the webView. Default is YES.*/
 @property BOOL enableFullScreen;
 
