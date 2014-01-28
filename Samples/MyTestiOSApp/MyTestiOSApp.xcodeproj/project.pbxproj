@@ -457,6 +457,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					"AD_CODE_COVERAGE=1",
 				);
 				INFOPLIST_FILE = "MyTestiOSAppTests/MyTestiOSAppTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";

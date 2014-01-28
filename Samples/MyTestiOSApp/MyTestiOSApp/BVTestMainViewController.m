@@ -117,7 +117,8 @@
          NSString* authority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
          NSString* clientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
          resourceString = @"http://localhost/TodoListService";
-         NSString* redirectUri = @"http://todolistclient/";//OmerCan: @"https://omercantest.onmicrosoft.adal/hello"
+         NSString* redirectUri = @"http://todolistclient/";
+         NSString* userId = @"boris@msopentechbv.onmicrosoft.com";
          [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
          ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
          if (!context)
@@ -126,9 +127,10 @@
              return;
          }
          
-         [context acquireTokenWithResource:resourceString clientId:clientId
+         [context acquireTokenWithResource:resourceString
+                                  clientId:clientId
                                redirectUri:[NSURL URLWithString:redirectUri]
-                                    userId:@"boris@msopentechbv.onmicrosoft.com"
+                                    userId:userId
                            completionBlock:^(ADAuthenticationResult *result) {
                    if (result.status != AD_SUCCEEDED)
                    {

@@ -37,6 +37,16 @@
 
 @implementation MyTestiOSAppTests
 
+//Code coverage logic:
+#ifdef AD_CODE_COVERAGE
+extern void __gcov_flush(void);
+#endif
+-(void) flushCodeCoverage
+{
+#ifdef AD_CODE_COVERAGE
+    __gcov_flush();
+#endif
+}
 - (void)setUp
 {
     [super setUp];
@@ -63,6 +73,7 @@
 {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     mContext = nil;//Free the memory
+    [self flushCodeCoverage];
     [super tearDown];
 }
 
