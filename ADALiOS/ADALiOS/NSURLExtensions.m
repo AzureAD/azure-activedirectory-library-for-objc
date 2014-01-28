@@ -18,6 +18,10 @@
 
 #import "NSURLExtensions.h"
 #import "NSDictionaryExtensions.h"
+#import "NSString+ADHelperMethods.h"
+
+NSString* const fragmentSeparator = @"#";
+NSString* const queryStringSeparator = @"?";
 
 @implementation NSURL ( IPAL )
 
@@ -40,16 +44,36 @@
     return [NSString stringWithFormat:@"%@:%ld", self.host, (long)port];
 }
 
+//Used for getting the parameters from either the fragment or the query
+//string. This internal helper method attempts to extract the parameters
+//for the substring of the URL succeeding the separator. Also, if the
+//separator is present more than once, the method returns null.
+//Unlike standard NSURL implementation, the method handles well URNs.
+-(NSDictionary*) getParametersAfter: (NSString*) separator
+{
+    NSArray* parts = [[self absoluteString] componentsSeparatedByString:separator];
+    if (parts.count != 2)
+    {
+        return nil;
+    }
+    NSString* last = [parts lastObject];
+    if ([NSString isStringNilOrBlank:last])
+    {
+        return nil;
+    }
+    return [NSDictionary URLFormDecode:last];
+}
+
 // Decodes parameters contained in a URL fragment
 - (NSDictionary *)fragmentParameters
 {
-    return [NSDictionary URLFormDecode:self.fragment];
+    return [self getParametersAfter:fragmentSeparator];
 }
 
 // Decodes parameters contains in a URL query
 - (NSDictionary *)queryParameters
 {
-    return [NSDictionary URLFormDecode:self.query];
+    return [self getParametersAfter:queryStringSeparator];
 }
 
 @end
