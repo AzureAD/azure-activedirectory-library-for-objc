@@ -37,11 +37,6 @@
     [super tearDown];
 }
 
-- (void)testExample
-{
-    XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
 //tests the fragment extraction. Does not test any other URL logic,
 //which should have been handled by the NSURL class
 -(void) testFragmentParameters

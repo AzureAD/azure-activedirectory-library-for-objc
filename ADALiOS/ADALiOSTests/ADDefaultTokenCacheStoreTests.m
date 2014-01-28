@@ -572,7 +572,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [self validateAsynchronousPersistenceWithLine:__LINE__];
 }
 
-//Add large number of items to the cache and makes. Acts as a mini-stress test too
+//Add large number of items to the cache. Acts as a mini-stress test too
 //Checks that the persistence catches up and that the number of persistence operations is
 //disproportionately smaller than the cache updates:
 -(void) testBulkPersistence
