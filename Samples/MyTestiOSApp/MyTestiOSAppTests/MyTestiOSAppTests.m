@@ -22,6 +22,8 @@
 #import "BVTestAppDelegate.h"
 #import <ADAliOS/ADAuthenticationSettings.h>
 #import <ADALiOS/ADLogger.h>
+#import "BVTestInstance.h"
+#import "BVSettings.h"
 
 //Timeouts in seconds. They are inflated to accumulate cloud-based
 //builds on slow VMs:
@@ -33,41 +35,23 @@ const int sLoginPageDisplayTimeout  = 30;
 //Calling the token endpoint and processing the response to extract the token:
 const int sTokenWorkflowTimeout     = 20;
 
-//Identifies one testable instance, e.g.
-//an AAD tenant with suitable user name password
-//and a client accessing a resource
-@interface TestableInstance : NSObject
-{
-    @public
-    NSString* mAuthority;
-    BOOL      mValidateAuthority;
-    NSString* mClientId;
-    NSString* mResource;
-    NSString* mRedirectUri;
-    NSString* mUserId;
-    NSString* mPassword;
-}
-
-@end
-
-@implementation TestableInstance
-
-@end
-
 @interface MyTestiOSAppTests : XCTestCase
+{
+    BVSettings* mTestSettings;
+}
 
 @end
 
 @implementation MyTestiOSAppTests
 
--(ADAuthenticationContext*) createContextWithInstance: (TestableInstance*) instance
+-(ADAuthenticationContext*) createContextWithInstance: (BVTestInstance*) instance
                                                  line: (int) line;
 {
     XCTAssertNotNil(instance, "Test error");
     ADAuthenticationError* error;
     ADAuthenticationContext* context =
-        [ADAuthenticationContext authenticationContextWithAuthority:instance->mAuthority
-                                                  validateAuthority:instance->mValidateAuthority
+        [ADAuthenticationContext authenticationContextWithAuthority:instance.authority
+                                                  validateAuthority:instance.validateAuthority
                                                               error:&error];
     if (!context || error)
     {
@@ -89,18 +73,9 @@ const int sTokenWorkflowTimeout     = 20;
 #endif
 
 //Obtains a test AAD instance and credentials:
--(TestableInstance*) getAADInstance
+-(BVTestInstance*) getAADInstance
 {
-    TestableInstance* toReturn = [TestableInstance new];
-    toReturn->mAuthority            = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
-    toReturn->mClientId             = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
-    toReturn->mResource             = @"http://localhost/TodoListService";
-    toReturn->mRedirectUri          = @"http://todolistclient/";
-    toReturn->mUserId               = @"boris@msopentechbv.onmicrosoft.com";
-    toReturn->mPassword             = @"~test123";
-    toReturn->mValidateAuthority    = YES;//Supported for AAD instances
-    
-    return toReturn;
+    return mTestSettings.testAuthorities[sAADTestInstance];
 }
 
 - (void)setUp
@@ -113,6 +88,9 @@ const int sTokenWorkflowTimeout     = 20;
     //Start clean:
     [self clearCookies];
     [self clearCache];
+    
+    //Load test data:
+    mTestSettings = [BVSettings new];
 }
 
 - (void)tearDown
@@ -138,7 +116,9 @@ const int sTokenWorkflowTimeout     = 20;
         {
             UIWebView* result = [self findWebView:window];
             if (result)
+            {
                 return result;
+            }
         }
     }
     return nil;
@@ -191,7 +171,7 @@ const int sTokenWorkflowTimeout     = 20;
 //Calls the asynchronous acquireTokenWithResource method.
 //"interactive" parameter indicates whether the call will display
 //UI which user will interact with
--(ADAuthenticationResult*) callAcquireTokenWithInstance: (TestableInstance*) instance
+-(ADAuthenticationResult*) callAcquireTokenWithInstance: (BVTestInstance*) instance
                                             interactive: (BOOL) interactive
                                            keepSignedIn: (BOOL) keepSignedIn
                                                    line: (int) sourceLine
@@ -201,10 +181,10 @@ const int sTokenWorkflowTimeout     = 20;
     __block ADAuthenticationResult* localResult;
     ADAuthenticationContext* context = [self createContextWithInstance:instance line:sourceLine];
     
-    [context acquireTokenWithResource:instance->mResource
-                             clientId:instance->mClientId
-                          redirectUri:[NSURL URLWithString:instance->mRedirectUri]
-                               userId:instance->mUserId
+    [context acquireTokenWithResource:instance.resource
+                             clientId:instance.clientId
+                          redirectUri:[NSURL URLWithString:instance.redirectUri]
+                               userId:instance.userId
                       completionBlock:^(ADAuthenticationResult *result)
      {
          localResult = result;
@@ -238,12 +218,12 @@ const int sTokenWorkflowTimeout     = 20;
         //Check the username:
         NSString* formUserId = [webView stringByEvaluatingJavaScriptFromString:
                                 @"document.getElementById('cred_userid_inputtext').value"];
-        XCTAssertTrue([formUserId isEqualToString:instance->mUserId]);
+        XCTAssertTrue([formUserId isEqualToString:instance.userId]);
         
         //Add the password:
         [webView stringByEvaluatingJavaScriptFromString:
                 [NSString stringWithFormat:@"document.getElementById('cred_password_inputtext').value = '%@'",
-                 instance->mPassword]];
+                 instance.password]];
         if (keepSignedIn)
         {
             [webView stringByEvaluatingJavaScriptFromString:
@@ -280,7 +260,7 @@ const int sTokenWorkflowTimeout     = 20;
 
 - (void)testInitialAcquireToken
 {
-    TestableInstance* instance = [self getAADInstance];
+    BVTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
                            interactive:YES
                           keepSignedIn:NO
@@ -289,7 +269,7 @@ const int sTokenWorkflowTimeout     = 20;
 
 -(void) testCache
 {
-    TestableInstance* instance = [self getAADInstance];
+    BVTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
                            interactive:YES
                           keepSignedIn:NO
@@ -316,7 +296,7 @@ const int sTokenWorkflowTimeout     = 20;
 
 -(void) testCookies
 {
-    TestableInstance* instance = [self getAADInstance];
+    BVTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
                            interactive:YES
                           keepSignedIn:YES

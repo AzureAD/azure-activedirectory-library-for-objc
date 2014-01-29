@@ -1,4 +1,4 @@
-// Created by Boris Vidolov on 9/13/13.
+// Created by Boris Vidolov on 1/29/14.
 // Copyright © Microsoft Open Technologies, Inc.
 //
 // All Rights Reserved
@@ -17,21 +17,16 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import <Foundation/Foundation.h>
 
-#import "BVTestFlipsideViewController.h"
+extern NSString* const sAADTestInstance;
 
-@class BVSettings;
-@class BVTestInstance;
+//A helper class for reading the test authorities, usernames, etc.
+//Reads the authorities from the TestData.plist file.
+@interface BVSettings : NSObject
 
-@interface BVTestMainViewController : UIViewController <BVTestFlipsideViewControllerDelegate, UIPopoverControllerDelegate>
-{
-    @protected
-    BVSettings* mTestData;
-    BVTestInstance* mAADInstance;
-}
-
-@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
-
-@property (strong, nonatomic) UIPopoverController *flipsidePopoverController;
+//Returns a dictionary with the name of the test instances as keys.
+//The values are instances of BVTestInstance class.
+@property (readonly) NSDictionary* testAuthorities;
 
 @end

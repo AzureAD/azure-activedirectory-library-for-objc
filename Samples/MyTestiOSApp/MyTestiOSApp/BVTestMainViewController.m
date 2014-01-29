@@ -24,6 +24,8 @@
 #import <ADALiOS/ADAuthenticationSettings.h>
 #import <ADALiOS/ADLogger.h>
 #import <ADALiOS/ADInstanceDiscovery.h>
+#import "BVSettings.h"
+#import "BVTestInstance.h"
 
 @interface BVTestMainViewController ()
 @property (weak, nonatomic) IBOutlet UILabel *resultLabel;
@@ -42,6 +44,9 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];//Log everything
+
+    mTestData = [BVSettings new];
+    mAADInstance = mTestData.testAuthorities[sAADTestInstance];
 }
 
 - (void)didReceiveMemoryWarning
@@ -96,12 +101,12 @@
     });
 }
 
-
 - (IBAction)pressMeAction:(id)sender
 {
     BVTestMainViewController* __weak weakSelf = self;
     [self.resultLabel setText:@"Starting 401 challenge."];
 
+    //TODO: implement the 401 challenge response in the test Azure app. Temporarily using another one:
     NSString* __block resourceString = @"http://testapi007.azurewebsites.net/api/WorkItem";
     NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters * params, ADAuthenticationError * error)
@@ -113,12 +118,12 @@
          }
          
          //401 worked, now try to acquire the token:
-         //There is a temporary issue with the OmerCan account above, so currently, I am using another one:
-         NSString* authority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
-         NSString* clientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
-         resourceString = @"http://localhost/TodoListService";
-         NSString* redirectUri = @"http://todolistclient/";
-         NSString* userId = @"boris@msopentechbv.onmicrosoft.com";
+         //TODO: replace the authority here with the one that comes back from 'params'
+         NSString* authority = mAADInstance.authority;//params.authority;
+         NSString* clientId = mAADInstance.clientId;
+         resourceString = mAADInstance.resource;
+         NSString* redirectUri = mAADInstance.redirectUri;
+         NSString* userId = mAADInstance.userId;
          [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
          ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
          if (!context)
@@ -188,10 +193,9 @@
 
 - (IBAction)refreshTokenPressed:(id)sender
 {
-    NSString* authority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";//OmerCan: params.authority
-    NSString* clientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";//OmerCan: @"c4acbce5-b2ed-4dc5-a1b9-c95af96c0277"
-    NSString* resourceString = @"http://localhost/TodoListService";
-    //    NSString* redirectUri = @"http://todolistclient/";//OmerCan: @"https://omercantest.onmicrosoft.adal/hello"
+    NSString* authority = mAADInstance.authority;
+    NSString* clientId = mAADInstance.clientId;
+    NSString* resourceString =mAADInstance.resource;
     [self setStatus:@"Attemp to refresh..."];
     ADAuthenticationError* error;
     ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];

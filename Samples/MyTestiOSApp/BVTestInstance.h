@@ -1,4 +1,4 @@
-// Created by Boris Vidolov on 9/13/13.
+// Created by Boris Vidolov on 1/29/14.
 // Copyright © Microsoft Open Technologies, Inc.
 //
 // All Rights Reserved
@@ -17,21 +17,21 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import <Foundation/Foundation.h>
 
-#import "BVTestFlipsideViewController.h"
+//Identifies one testable instance, e.g.
+//an AAD tenant with suitable user name password
+//and a client accessing a resource
+@interface BVTestInstance : NSObject
 
-@class BVSettings;
-@class BVTestInstance;
+-(id) initWithDictionary: (NSDictionary*) contents;
 
-@interface BVTestMainViewController : UIViewController <BVTestFlipsideViewControllerDelegate, UIPopoverControllerDelegate>
-{
-    @protected
-    BVSettings* mTestData;
-    BVTestInstance* mAADInstance;
-}
-
-@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
-
-@property (strong, nonatomic) UIPopoverController *flipsidePopoverController;
+@property NSString* authority;
+@property BOOL      validateAuthority;
+@property NSString* clientId;
+@property NSString* resource;
+@property NSString* redirectUri;
+@property NSString* userId;
+@property NSString* password;//used for automation in the tests
 
 @end
