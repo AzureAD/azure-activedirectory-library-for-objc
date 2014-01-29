@@ -463,7 +463,7 @@ if (![self checkAndHandleBadArgument:ARG \
     HANDLE_ARGUMENT(resource);
     
     if (validateAuthority)
-    {
+    { 
         [[ADInstanceDiscovery sharedInstance] validateAuthority:self.authority completionBlock:^(BOOL validated, ADAuthenticationError *error)
         {
             if (error)
