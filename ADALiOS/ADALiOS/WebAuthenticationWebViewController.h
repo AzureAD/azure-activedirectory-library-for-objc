@@ -20,7 +20,7 @@
 
 @property (weak, nonatomic) id<WebAuthenticationDelegate> delegate;
 
-- (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL ssoMode:(BOOL)ssoMode;
+- (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
 - (void)start;
 - (void)stop;
 

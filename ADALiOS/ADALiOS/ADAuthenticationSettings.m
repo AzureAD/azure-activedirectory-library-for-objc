@@ -35,7 +35,6 @@
         self.credentialsType = AD_CREDENTIALS_AUTO;
         self.requestTimeOut = 30;//in seconds.
         self.expirationBuffer = 300;//in seconds, ensures catching of clock differences between the server and the device
-        self.singleSignOn = YES;
         self.enableFullScreen = YES;
         
         //The current HTTPWebRequest implementation uses NSURLConnection, which calls its delegate on the same thread

@@ -175,7 +175,7 @@ static NSString *_resourcePath = nil;
 // Start the authentication process. Note that there are two different behaviours here dependent on whether the caller has provided
 // a WebView to host the browser interface. If no WebView is provided, then a full window is launched that hosts a WebView to run
 // the authentication process. If a WebView is provided, then that is used instead of launching a complete window.
-- (void)start:(NSURL *)startURL end:(NSURL *)endURL ssoMode:(BOOL)ssoMode webView:(UIWebView *)webView fullScreen:(BOOL)fullScreen completion:(ADBrokerCallback)completionBlock
+- (void)start:(NSURL *)startURL end:(NSURL *)endURL webView:(UIWebView *)webView fullScreen:(BOOL)fullScreen completion:(ADBrokerCallback)completionBlock
 {
     NSAssert( startURL != nil, @"startURL is nil" );
     NSAssert( endURL != nil, @"endURL is nil" );
@@ -210,7 +210,7 @@ static NSString *_resourcePath = nil;
                     // Instead of loading the URL immediately on completion, get the UI on the screen
                     // and then dispatch the call to load the authorization URL
                     dispatch_async( dispatch_get_main_queue(), ^{
-                        [_authenticationViewController startWithURL:startURL endAtURL:endURL ssoMode:ssoMode];
+                        [_authenticationViewController startWithURL:startURL endAtURL:endURL];
                     });
                 }];
             }
@@ -235,7 +235,7 @@ static NSString *_resourcePath = nil;
     else
     {
         // Use the application provided WebView
-        _authenticationWebViewController = [[WebAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL ssoMode:ssoMode];
+        _authenticationWebViewController = [[WebAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL];
         
         if ( _authenticationWebViewController )
         {

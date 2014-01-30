@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8B87548818988C4B0061999F /* TestData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8B87548718988C4B0061999F /* TestData.plist */; };
+		8B87548918988C4B0061999F /* TestData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8B87548718988C4B0061999F /* TestData.plist */; };
+		8B87548C189978350061999F /* BVSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B87548B189978350061999F /* BVSettings.m */; };
+		8B87548F18997DB70061999F /* BVTestInstance.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B87548E18997DB70061999F /* BVTestInstance.m */; };
 		8BA42AFA17E3C150002D206E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA42AF917E3C150002D206E /* Foundation.framework */; };
 		8BA42AFC17E3C150002D206E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA42AFB17E3C150002D206E /* CoreGraphics.framework */; };
 		8BA42AFE17E3C150002D206E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA42AFD17E3C150002D206E /* UIKit.framework */; };
@@ -45,6 +49,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8B87548718988C4B0061999F /* TestData.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = TestData.plist; sourceTree = "<group>"; };
+		8B87548A189978350061999F /* BVSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BVSettings.h; sourceTree = "<group>"; };
+		8B87548B189978350061999F /* BVSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BVSettings.m; sourceTree = "<group>"; };
+		8B87548D18997DB70061999F /* BVTestInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BVTestInstance.h; path = ../BVTestInstance.h; sourceTree = "<group>"; };
+		8B87548E18997DB70061999F /* BVTestInstance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BVTestInstance.m; path = ../BVTestInstance.m; sourceTree = "<group>"; };
 		8BA42AF617E3C150002D206E /* MyTestiOSApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyTestiOSApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BA42AF917E3C150002D206E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8BA42AFB17E3C150002D206E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -140,6 +149,10 @@
 		8BA42B0117E3C150002D206E /* MyTestiOSApp */ = {
 			isa = PBXGroup;
 			children = (
+				8B87548D18997DB70061999F /* BVTestInstance.h */,
+				8B87548E18997DB70061999F /* BVTestInstance.m */,
+				8B87548A189978350061999F /* BVSettings.h */,
+				8B87548B189978350061999F /* BVSettings.m */,
 				8BA42B0A17E3C150002D206E /* BVTestAppDelegate.h */,
 				8BA42B0B17E3C150002D206E /* BVTestAppDelegate.m */,
 				8BA42B0D17E3C150002D206E /* Main_iPhone.storyboard */,
@@ -162,6 +175,7 @@
 				8BA42B0417E3C150002D206E /* InfoPlist.strings */,
 				8BA42B0717E3C150002D206E /* main.m */,
 				8BA42B0917E3C150002D206E /* MyTestiOSApp-Prefix.pch */,
+				8B87548718988C4B0061999F /* TestData.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -293,6 +307,7 @@
 				8BE96CC21859439C00EE0764 /* ADALiOSBundle-Prefix.pch in Resources */,
 				8BE96CBE1859439C00EE0764 /* ADALiOSBundle-Info.plist in Resources */,
 				8BA42B0F17E3C150002D206E /* Main_iPhone.storyboard in Resources */,
+				8B87548818988C4B0061999F /* TestData.plist in Resources */,
 				8BA42B0617E3C150002D206E /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -301,6 +316,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B87548918988C4B0061999F /* TestData.plist in Resources */,
 				8BA42B2F17E3C150002D206E /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -312,10 +328,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B87548F18997DB70061999F /* BVTestInstance.m in Sources */,
 				8BA42B0C17E3C150002D206E /* BVTestAppDelegate.m in Sources */,
 				8BA42B1817E3C150002D206E /* BVTestMainViewController.m in Sources */,
 				8BA42B1B17E3C150002D206E /* BVTestFlipsideViewController.m in Sources */,
 				8BA42B1517E3C150002D206E /* MyTestiOSApp.xcdatamodeld in Sources */,
+				8B87548C189978350061999F /* BVSettings.m in Sources */,
 				8BA42B0817E3C150002D206E /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -457,6 +475,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					"AD_CODE_COVERAGE=1",
 				);
 				INFOPLIST_FILE = "MyTestiOSAppTests/MyTestiOSAppTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
