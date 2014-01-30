@@ -1,3 +1,4 @@
+// Created by Boris Vidolov on 1/29/14.
 // Copyright © Microsoft Open Technologies, Inc.
 //
 // All Rights Reserved
@@ -16,24 +17,21 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-enum WebAuthenticationStatus
-{
-    WebAuthenticationFailed    = 0,
-    WebAuthenticationSucceeded = 1,
-    WebAuthenticationCancelled = 2,
-};
+#import <Foundation/Foundation.h>
 
-@class ADAuthenticationError;
+//Identifies one testable instance, e.g.
+//an AAD tenant with suitable user name password
+//and a client accessing a resource
+@interface BVTestInstance : NSObject
 
-typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
-@interface WebAuthenticationBroker : NSObject
+-(id) initWithDictionary: (NSDictionary*) contents;
 
-+ (NSString *)resourcePath;
-+ (void)setResourcePath:(NSString *)resourcePath;
-
-+ (WebAuthenticationBroker *)sharedInstance;
-
-- (void)start:(NSURL *)startURL end:(NSURL *)endURL webView:(WebViewType *)webView fullScreen:(BOOL)fullScreen completion: (ADBrokerCallback) completionBlock;
-- (void)cancel;
+@property NSString* authority;
+@property BOOL      validateAuthority;
+@property NSString* clientId;
+@property NSString* resource;
+@property NSString* redirectUri;
+@property NSString* userId;
+@property NSString* password;//used for automation in the tests
 
 @end

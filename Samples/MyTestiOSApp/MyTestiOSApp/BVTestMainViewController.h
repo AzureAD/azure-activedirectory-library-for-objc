@@ -20,7 +20,15 @@
 
 #import "BVTestFlipsideViewController.h"
 
+@class BVSettings;
+@class BVTestInstance;
+
 @interface BVTestMainViewController : UIViewController <BVTestFlipsideViewControllerDelegate, UIPopoverControllerDelegate>
+{
+    @protected
+    BVSettings* mTestData;
+    BVTestInstance* mAADInstance;
+}
 
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 

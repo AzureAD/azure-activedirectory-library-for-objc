@@ -126,7 +126,6 @@ extern void __gcov_flush(void);
 #endif
 -(void) flushCodeCoverage
 {
-    //TODO: check if executed within a code coverage build!
 #ifdef AD_CODE_COVERAGE
     __gcov_flush();
 #endif

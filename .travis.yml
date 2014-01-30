@@ -4,10 +4,14 @@ before_install:
 script: 
   - xcodebuild -workspace ADALiOS.xcworkspace -scheme ADALiOS -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
   - xcodebuild test -workspace ADALiOS.xcworkspace -scheme ADALiOS -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
-  - xcodebuild -workspace ADALiOS.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
-  - xcodebuild test -workspace ADALiOS.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
-after_success:
   - find ~/Library/Developer/Xcode/DerivedData/ -not -path "*x86_64*" -not -path "ADALiOSTests" -name "*.gcno" -exec cp -v '{}' . \;
   - find ~/Library/Developer/Xcode/DerivedData/ -not -path "*x86_64*" -not -path "ADALiOSTests" -name "*.gcda" -exec cp -v '{}' . \;
   - coveralls -e ADALiOS/ADALiOSTests
+  - xcodebuild -workspace ADALiOS.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
+  - xcodebuild test -workspace ADALiOS.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
+  - find ~/Library/Developer/Xcode/DerivedData/ -not -path "*x86_64*" -not -path "ADALiOSTests" -name "*.gcno" -exec cp -v '{}' . \;
+  - find ~/Library/Developer/Xcode/DerivedData/ -not -path "*x86_64*" -not -path "ADALiOSTests" -name "*.gcda" -exec cp -v '{}' . \;
+  - coveralls -e ADALiOS/ADALiOSTests
+after_success:
+
 

@@ -1014,7 +1014,6 @@ if (![self checkAndHandleBadArgument:ARG \
     
     [[WebAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
                                                 end:[NSURL URLWithString:[redirectUri absoluteString]]
-                                            ssoMode:settings.singleSignOn
                                             webView:webView
                                          fullScreen:settings.enableFullScreen
                                          completion:^( ADAuthenticationError *error, NSURL *end )
