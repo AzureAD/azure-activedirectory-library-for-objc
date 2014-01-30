@@ -34,10 +34,16 @@
 - (IBAction)getUsersPressed:(id)sender;
 - (IBAction)refreshTokenPressed:(id)sender;
 - (IBAction)expireAllPressed:(id)sender;
+- (IBAction)promptAlways:(id)sender;
 
 @end
 
 @implementation BVTestMainViewController
+
+NSString *const AUTHORITY =@"https://login.windows.net/msopentechbv.onmicrosoft.com";
+NSString *const CLIENTID = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
+NSString *const REDIRECT_URI = @"http://todolistclient/";
+NSString *const RESOURCEID = @"http://localhost/TodoListService";
 
 - (void)viewDidLoad
 {
@@ -125,7 +131,7 @@
          NSString* redirectUri = mAADInstance.redirectUri;
          NSString* userId = mAADInstance.userId;
          [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
-         ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
+         ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:AUTHORITY error:&error];
          if (!context)
          {
              [weakSelf setStatus:error.errorDetails];
@@ -137,14 +143,14 @@
                                redirectUri:[NSURL URLWithString:redirectUri]
                                     userId:userId
                            completionBlock:^(ADAuthenticationResult *result) {
-                   if (result.status != AD_SUCCEEDED)
-                   {
-                       [weakSelf setStatus:result.error.errorDetails];
-                       return;
-                   }
-                   
-                   [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
-               }];
+                               if (result.status != AD_SUCCEEDED)
+                               {
+                                   [weakSelf setStatus:result.error.errorDetails];
+                                   return;
+                               }
+                               
+                               [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+                           }];
      }];
 }
 
@@ -255,5 +261,37 @@
         [self setStatus:@"Done."];
     }
 }
+
+- (IBAction)promptAlways:(id)sender
+{
+    [self setStatus:@"Setting prompt always..."];
+    ADAuthenticationError* error;
+    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:AUTHORITY error:&error];
+    if (!context)
+    {
+        [self setStatus:error.errorDetails];
+        return;
+    }
+    
+    BVTestMainViewController* __weak weakSelf = self;
+    [context acquireTokenWithResource:RESOURCEID
+                             clientId:CLIENTID
+                          redirectUri:[NSURL URLWithString:REDIRECT_URI]
+                       promptBehavior:AD_PROMPT_ALWAYS
+                               userId:@"boris@msopentechbv.onmicrosoft.com"
+                 extraQueryParameters:@""
+                      completionBlock:^(ADAuthenticationResult *result) {
+                          if (result.status != AD_SUCCEEDED)
+                          {
+                              [weakSelf setStatus:result.error.errorDetails];
+                              return;
+                          }
+                          
+                          [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+                      }];
+    
+    
+}
+
 
 @end
