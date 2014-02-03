@@ -66,24 +66,30 @@
 /* Helper function to fascilitate calling of the asynchronous creator, waiting for the response
  and setting the test class members according to the result. */
 -(void) callAsynchronousCreator: (NSURL*) resource
+                           line: (int) sourceLine
 {
-    //The signal to denote completion:
-    __block dispatch_semaphore_t completed = dispatch_semaphore_create(0);
-    XCTAssertTrue(completed, "Failed to create a semaphore");
-    
-    [ADAuthenticationParameters parametersFromResourceUrl:resource
-                                          completionBlock:^(ADAuthenticationParameters * par, ADAuthenticationError* err)
-     {
-         //Fill in the class members with the result:
-         mParameters = par;
-         mError = err;
-         dispatch_semaphore_signal(completed);//Tell the test to move on
-     }];
-    
-    //Waits for the callback:
-    if (dispatch_semaphore_wait(completed, dispatch_time(DISPATCH_TIME_NOW, 10*NSEC_PER_SEC)))
+    //Reset
+    mParameters = nil;
+    mError = nil;
+    static volatile int completion = 0;
+    [self callAndWaitWithFile:@"" __FILE__ line:sourceLine completionSignal:&completion block:^
     {
-        XCTFail("Timeout while getting the 401 request.");
+        //The asynchronous call:
+        [ADAuthenticationParameters parametersFromResourceUrl:resource
+                                              completionBlock:^(ADAuthenticationParameters * par, ADAuthenticationError* err)
+         {
+             //Fill in the class members with the result:
+             mParameters = par;
+             mError = err;
+             ASYNC_BLOCK_COMPLETE(completion);
+         }];
+    }];
+    if (!!mParameters == !!mError)//Exactly one of these two should be set
+    {
+        [self recordFailureWithDescription:@"Incorrect values of parameters and error."
+                                    inFile:@"" __FILE__
+                                    atLine:sourceLine
+                                  expected:NO];
     }
 }
 
@@ -106,7 +112,7 @@
 
 - (void) testParametersFromResourceURLParametersNil
 {
-    [self callAsynchronousCreator:nil];
+    [self callAsynchronousCreator:nil line:__LINE__];
     [self validateFactoryForInvalidArgument:@"resourceUrl"];
 
     //Pass nil for the completionBlock:
@@ -129,7 +135,7 @@
 {
     NSURL* resource = [[NSURL alloc] initWithString:@"https://noneistingurl12345676789.com"];
     
-    [self callAsynchronousCreator:resource];
+    [self callAsynchronousCreator:resource line:__LINE__];
     XCTAssertNil(mParameters, "No parameters should be extracted from non-existing resource.");
     XCTAssertNotNil(mError, "Error should be set.");
     [self assertValidText:mError.errorDetails message:@"The error should have details."];
@@ -140,12 +146,12 @@
 {
     //HTTP
     NSURL* resourceUrl = [[NSURL alloc] initWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
-    [self callAsynchronousCreator:resourceUrl];
+    [self callAsynchronousCreator:resourceUrl line:__LINE__];
     [self verifyWithAuthority:@"https://login.windows.net/omercantest.onmicrosoft.com"];
 
     //HTTPS
     resourceUrl = [[NSURL alloc] initWithString:@"https://testapi007.azurewebsites.net/api/WorkItem"];
-    [self callAsynchronousCreator:resourceUrl];
+    [self callAsynchronousCreator:resourceUrl line:__LINE__];
     [self verifyWithAuthority:@"https://login.windows.net/omercantest.onmicrosoft.com"];
 }
 

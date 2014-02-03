@@ -20,7 +20,8 @@
 #import "ADALiOS.h"
 #import "ADAuthenticationParameters+Internal.h"
 #import "ADAuthenticationSettings.h"
-
+#import "HTTPWebRequest.h"
+#import "HTTPWebResponse.h"
 
 @implementation ADAuthenticationParameters
 
@@ -65,39 +66,52 @@
         completion(nil, error);
         return;
     }
-    
-    NSURLSessionConfiguration* config = [NSURLSessionConfiguration defaultSessionConfiguration];
-    config.timeoutIntervalForRequest = [ADAuthenticationSettings sharedInstance].requestTimeOut;
-    config.timeoutIntervalForResource = [ADAuthenticationSettings sharedInstance].requestTimeOut;
 
-    NSURLSession* session = [NSURLSession sessionWithConfiguration:config];
-    NSURLSessionDataTask* task = [session dataTaskWithURL:resourceUrl completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        if (error)
-        {
-            completion(nil, [ADAuthenticationError errorFromNSError:error
-                                                       errorDetails:[NSString stringWithFormat:ConnectionError, error.description]]);
-            return;
-        }
-        if (!response || ![response isKindOfClass:[NSHTTPURLResponse class]])
-        {
-            completion(nil, [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_CONNECTION_MISSING_RESPONSE
-                                                                    errorDetails:InvalidResponse]);
-            return;
-        }
-        NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
-        long code = [urlResponse statusCode];
-        if (HTTP_UNAUTHORIZED != code)
-        {
-            completion(nil, [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_UNAUTHORIZED_CODE_EXPECTED
-                                                                    errorDetails:[NSString stringWithFormat:UnauthorizedHTTStatusExpected, code]]);
-            return;
-        }
+    dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue,^
+    {
+        HTTPWebRequest* request = [[HTTPWebRequest alloc] initWithURL:resourceUrl];
+        request.method = HTTPGet;
+        AD_LOG_VERBOSE_F(@"Starting authorization challenge request", @"Resource: %@", resourceUrl);
         
-        ADAuthenticationError* authenticationError;
-        ADAuthenticationParameters* parameters = [self parametersFromResponse:urlResponse error:&authenticationError];
-        completion(parameters, authenticationError);
-    }];
-    [task resume];
+        [request send:^(NSError * error, HTTPWebResponse *response) {
+            ADAuthenticationError* adError;
+            ADAuthenticationParameters* parameters;
+            if (error)
+            {
+                adError = [ADAuthenticationError errorFromNSError:error
+                                                     errorDetails:[NSString stringWithFormat:ConnectionError, error.description]];
+            }
+            else if (HTTP_UNAUTHORIZED != response.statusCode)
+            {
+                adError = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_UNAUTHORIZED_CODE_EXPECTED
+                                                                  errorDetails:[NSString stringWithFormat:UnauthorizedHTTStatusExpected,
+                                                                                response.statusCode]];
+            }
+            else
+            {
+                //Request coming, attempt to process it:
+                parameters = [self parametersFromResponseHeaders:response.headers error:&adError];
+            }
+            completion(parameters, adError);
+        }];
+    });
+}
+
++(ADAuthenticationParameters*) parametersFromResponseHeaders:(NSDictionary*)headers
+                                                       error:(ADAuthenticationError *__autoreleasing *)error
+{
+    // Handle 401 Unauthorized using the OAuth2 Implicit Profile
+    NSString  *authenticateHeader = [headers valueForKey:OAuth2_Authenticate_Header];
+    if ([NSString isStringNilOrBlank:authenticateHeader])
+    {
+        NSString* details = [NSString stringWithFormat:MissingHeader, OAuth2_Authenticate_Header];
+        [self raiseErrorWithCode:AD_ERROR_MISSING_AUTHENTICATE_HEADER details:details error:error];
+        
+        return nil;
+    }
+    
+    AD_LOG_INFO(@"Retrieved authenticate header", authenticateHeader);
+    return [self parametersFromResponseAuthenticateHeader:authenticateHeader error:error];
 }
 
 +(ADAuthenticationParameters*) parametersFromResponse:(NSHTTPURLResponse*)response
@@ -105,19 +119,8 @@
 {
     API_ENTRY;
     RETURN_NIL_ON_NIL_ARGUMENT(response);
-
-    // Handle 401 Unauthorized using the OAuth2 Implicit Profile
-    NSString  *authenticateHeader = [response.allHeaderFields valueForKey:OAuth2_Authenticate_Header];
-    if ([NSString isStringNilOrBlank:authenticateHeader])
-    {
-        NSString* details = [NSString stringWithFormat:MissingHeader, OAuth2_Authenticate_Header];
-        [self raiseErrorWithCode:AD_ERROR_MISSING_AUTHENTICATE_HEADER details:details error:error];
-
-        return nil;
-    }
     
-    AD_LOG_INFO(@"Retrieved authenticate header", authenticateHeader);
-    return [self parametersFromResponseAuthenticateHeader:authenticateHeader error:error];
+    return [self parametersFromResponseHeaders:response.allHeaderFields error:error];
 }
 
 +(ADAuthenticationParameters*) parametersFromResponseAuthenticateHeader:(NSString*)authenticateHeader
