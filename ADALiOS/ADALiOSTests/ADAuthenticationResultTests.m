@@ -31,7 +31,7 @@
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin];
+    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
 }
 
 - (void)tearDown
@@ -59,18 +59,19 @@
     XCTAssertNil(result.tokenCacheStoreItem.accessTokenType);
     XCTAssertNil(result.tokenCacheStoreItem.refreshToken);
     XCTAssertNil(result.tokenCacheStoreItem.expiresOn);
-    XCTAssertNil(result.tokenCacheStoreItem.tenantId);
     XCTAssertNil(result.tokenCacheStoreItem.userInformation);
 }
 
 -(void) testResultFromCancellation
 {
+    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromCancellation];
     [self verifyErrorResult:result errorCode:AD_ERROR_USER_CANCEL];
 }
 
 -(void) testResultFromError
 {
+    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"something"];
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:nil];
     [self verifyErrorResult:result errorCode:AD_ERROR_UNEXPECTED];
@@ -86,15 +87,17 @@
     XCTAssertEqual(item.accessTokenType, resultFromItem.tokenCacheStoreItem.accessTokenType);
     XCTAssertEqual(item.accessToken, resultFromItem.tokenCacheStoreItem.accessToken);
     XCTAssertEqual(item.expiresOn, resultFromItem.tokenCacheStoreItem.expiresOn);
-    XCTAssertEqual(item.tenantId, resultFromItem.tokenCacheStoreItem.tenantId);
+    XCTAssertEqual(item.userInformation.tenantId, resultFromItem.tokenCacheStoreItem.userInformation.tenantId);
     ADAssertStringEquals(item.userInformation.userId, resultFromItem.tokenCacheStoreItem.userInformation.userId);
 }
 
 -(void) testResultFromTokenCacheStoreItem
 {
+    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil multiResourceRefreshToken:NO  correlationId:nil];
     [self verifyErrorResult:nilItemResult errorCode:AD_ERROR_UNEXPECTED];
     
+    [self setLogTollerance:ADAL_LOG_LEVEL_INFO];
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
     item.resource = @"resource";
     item.authority = @"https://login.windows.net/mytennant.com";
@@ -106,12 +109,13 @@
     ADAuthenticationError* error;
     item.userInformation = [ADUserInformation userInformationWithUserId:@"user" error:&error];
     ADAssertNoError;
-    item.tenantId = @"tenantId";
+    item.userInformation.tenantId = @"tenantId";
     
     //Copy the item to ensure that it is not modified withing the method call below:
     ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO  correlationId:nil];
     [self verifyResult:resultFromValidItem item:item];
     
+    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
     //Nil access token:
     item.resource = @"resource";//Restore
     item.accessToken = nil;

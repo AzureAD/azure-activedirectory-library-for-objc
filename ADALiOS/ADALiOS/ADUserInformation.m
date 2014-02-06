@@ -211,10 +211,17 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 {
     //Deep copy. Note that the user may have passed NSMutableString objects, so all of the objects should be copied:
     ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithUserId:[self.userId copyWithZone:zone]];
-    info.userIdDisplayable = self.userIdDisplayable;
-    info.givenName = [self.givenName copyWithZone:zone];
-    info.familyName = [self.familyName copyWithZone:zone];
-    info.identityProvider = [self.identityProvider copyWithZone:zone];
+    info.userIdDisplayable  = self.userIdDisplayable;
+    info.givenName          = [self.givenName copyWithZone:zone];
+    info.familyName         = [self.familyName copyWithZone:zone];
+    info.identityProvider   = [self.identityProvider copyWithZone:zone];
+    info.tenantId           = [self.tenantId copyWithZone:zone];
+    info.eMail              = [self.eMail copyWithZone:zone];
+    info.uniqueName         = [self.uniqueName copyWithZone:zone];
+    info.upn                = [self.upn copyWithZone:zone];
+    info.subject            = [self.subject copyWithZone:zone];
+    info.userObjectId       = [self.userObjectId copyWithZone:zone];
+    info.guestId            = [self.guestId copyWithZone:zone];
     
     return info;
 }
@@ -232,6 +239,13 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     [aCoder encodeObject:self.givenName forKey:@"givenName"];
     [aCoder encodeObject:self.familyName forKey:@"familyName"];
     [aCoder encodeObject:self.identityProvider forKey:@"identityProvider"];
+    [aCoder encodeObject:self.tenantId forKey:@"tenantId"];
+    [aCoder encodeObject:self.eMail forKey:@"eMail"];
+    [aCoder encodeObject:self.uniqueName forKey:@"uniqueName"];
+    [aCoder encodeObject:self.upn forKey:@"upn"];
+    [aCoder encodeObject:self.subject forKey:@"subject"];
+    [aCoder encodeObject:self.userObjectId forKey:@"userObjectId"];
+    [aCoder encodeObject:self.guestId forKey:@"guestId"];
 }
 
 //Deserialize:
@@ -252,6 +266,13 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
         self.givenName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"givenName"];
         self.familyName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"familyName"];
         self.identityProvider = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"identityProvider"];
+        self.tenantId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"tenantId"];
+        self.eMail = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"eMail"];
+        self.uniqueName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"uniqueName"];
+        self.upn = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"upn"];
+        self.subject = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"subject"];
+        self.userObjectId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userObjectId"];
+        self.guestId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"guestId"];
     }
     
     return self;

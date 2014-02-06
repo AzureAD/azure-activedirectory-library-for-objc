@@ -26,7 +26,7 @@
 @interface ADAuthenticationParameters : NSObject
 {
     @protected
-    NSMutableDictionary* _extractedParameters;
+    NSDictionary* _extractedParameters;
     NSString* _authority;
     NSString* _resource;
 }

@@ -36,7 +36,7 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
 {
     [super setUp];
     // Put setup code here; it will be run once, before the first test case.
-    [self adTestBegin];
+    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     [ADLogger setNSLogging:YES];//We disable it by default in the rest of the tests to limit the log files
     XCTAssertTrue([ADLogger getNSLogging]);
 }
@@ -50,6 +50,7 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
 
 - (void)testLevel
 {
+    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
     for(int i = ADAL_LOG_LEVEL_NO_LOG; i < ADAL_LOG_LAST; ++i)
     {
         [ADLogger setLevel:i];
@@ -75,6 +76,7 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
 
 -(void) testMessageNoThrowing
 {
+    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
     //Neither of these calls should throw. See the method body for details:
     [ADLogger log:ADAL_LOG_LEVEL_NO_LOG message:@"Message" errorCode:AD_ERROR_SUCCEEDED additionalInformation:@"info" ];
     [ADLogger log:ADAL_LOG_LEVEL_ERROR message:nil errorCode:AD_ERROR_SUCCEEDED additionalInformation:@"info" ];

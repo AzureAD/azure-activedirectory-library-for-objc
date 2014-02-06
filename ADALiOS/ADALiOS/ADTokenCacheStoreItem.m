@@ -46,7 +46,6 @@
     item.refreshToken = [self.refreshToken copyWithZone:zone];
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.userInformation = [self.userInformation copyWithZone:zone];
-    item.tenantId = [self.tenantId copyWithZone:zone];
     
     return item;
 }
@@ -103,7 +102,6 @@
     [aCoder encodeObject:self.refreshToken forKey:@"refreshToken"];
     [aCoder encodeObject:self.expiresOn forKey:@"expiresOn"];
     [aCoder encodeObject:self.userInformation forKey:@"userInformation"];
-    [aCoder encodeObject:self.tenantId forKey:@"tenantId"];
 }
 
 //Deserializer:
@@ -120,7 +118,6 @@
         self.refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
         self.expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
         self.userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
-        self.tenantId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"tenantId"];
     }
     return self;
 }

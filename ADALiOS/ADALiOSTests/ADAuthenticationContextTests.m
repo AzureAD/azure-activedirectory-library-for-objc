@@ -72,7 +72,7 @@ const int sAsyncContextTimeout = 10;
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin];
+    [self adTestBegin:ADAL_LOG_LEVEL_ERROR];//Majority of the tests rely on errors
     mAuthority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
     mDefaultTokenCache = (ADPersistentTokenCacheStore*)([ADAuthenticationSettings sharedInstance].defaultTokenCacheStore);
     XCTAssertNotNil(mDefaultTokenCache);
@@ -114,6 +114,7 @@ const int sAsyncContextTimeout = 10;
 
 - (void)testNew
 {
+    [self setLogTollerance:ADAL_LOG_LEVEL_INFO];
     XCTAssertThrows([ADAuthenticationContext new], @"The new selector should not work due to requirement to use the parameterless init. At: '%s'", __PRETTY_FUNCTION__);
 }
 
@@ -217,6 +218,7 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testProperties
 {
+    [self setLogTollerance:ADAL_LOG_LEVEL_INFO];
     ADAuthenticationError* error;
     NSString* authority = @"https://authority.com/oauth2";
     ADTestTokenCacheStore* testStore = [ADTestTokenCacheStore new];
@@ -431,8 +433,8 @@ const int sAsyncContextTimeout = 10;
         ADAssertNoError;
         XCTAssertNotNil(info, "Nil user info returned.");
         item.userInformation = info;
+        item.userInformation.tenantId = @"msopentech.com";
     }
-    item.tenantId = @"msopentech.com";
     
     [mDefaultTokenCache addOrUpdateItem:item error:&error];
     ADAssertNoError;}
@@ -458,6 +460,7 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testAcquireTokenWithUserCache
 {
+    [self setLogTollerance:ADAL_LOG_LEVEL_INFO];
     NSString* someTokenValue = @"someToken value";
     [self addCacheWithToken:someTokenValue refreshToken:nil];
     acquireTokenAsync;
@@ -745,6 +748,7 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testCorrelationIdProperty
 {
+    [self setLogTollerance:ADAL_LOG_LEVEL_INFO];
     XCTAssertNil(mContext.correlationId, "default should be nil");
     
     NSUUID* first = [NSUUID UUID];
@@ -820,6 +824,7 @@ const int sAsyncContextTimeout = 10;
 //Additional tests for the cases that are not covered by the broader scenario tests.
 -(void) testExtractCacheItemWithKeyEdgeCases
 {
+    [self setLogTollerance:ADAL_LOG_LEVEL_INFO];
     //Nil key
     XCTAssertNil([mProtocolContext extractCacheItemWithKey:nil userId:nil error:nil]);
     BOOL useAccessToken;
@@ -961,6 +966,7 @@ const int sAsyncContextTimeout = 10;
 //overloads call the same one, just tests that the entry point.
 -(void) testAcquireTokenOverloads
 {
+    [self setLogTollerance:ADAL_LOG_LEVEL_INFO];
     [self addCacheWithToken:@"cacheToken" refreshToken:nil];
 
     static volatile int completion = 0;

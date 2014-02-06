@@ -56,8 +56,14 @@ typedef enum
 -(void) validateForInvalidArgument: (NSString*) argument
                              error: (ADAuthenticationError*) error;
 
-/*! Sets logging and other infrastructure for a new test */
--(void) adTestBegin;
+/*! Sets logging and other infrastructure for a new test.
+ The method sets the callback and fails the tests if a the logs contains higher level
+ item than the maxLogTollerance. E.g. strict test may set this parameter to ADAL_LOG_LEVEL_INFO,
+ so that all warnings and errors will be cause the test to fail.*/
+-(void) adTestBegin: (ADAL_LOG_LEVEL) maxLogTollerance;
+
+/*! See description of adTestBegin. */
+-(void) setLogTollerance: (ADAL_LOG_LEVEL) maxLogTollerance;
 
 /*! Clears logging and other infrastructure after a test */
 -(void) adTestEnd;
@@ -84,6 +90,14 @@ typedef enum
 //Ensures that two cache items are the same:
 -(void) verifySameWithItem: (ADTokenCacheStoreItem*) item1
                      item2: (ADTokenCacheStoreItem*) item2;
+//Ensures that all properties return non-default values. Useful to ensure that
+//the tests cover all properties of the tested objects:
+-(void) verifyPropertiesAreSet: (NSObject*) object;
+
+//Ensures that all properties of the first object are the same as the ones in the
+//second. Useful to ensure that copying/unpersisting operates on all object data:
+-(void) verifyPropertiesAreSame: (NSObject*) object1
+                         second: (NSObject*) object2;
 
 -(NSString*) adLogLevelLogs;
 -(NSString*) adMessagesLogs;
