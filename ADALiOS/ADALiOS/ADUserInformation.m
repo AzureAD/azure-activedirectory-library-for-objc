@@ -251,7 +251,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 //Deserialize:
 -(id) initWithCoder:(NSCoder *) aDecoder
 {
-    NSString* storedUserId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userId"];
+    NSString* storedUserId      = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userId"];
     if ([NSString isStringNilOrBlank:storedUserId])
     {
         //The userId should be valid:
@@ -262,17 +262,17 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     self = [self initWithUserId:storedUserId];
     if (self)
     {
-        self.userIdDisplayable = [aDecoder decodeBoolForKey:@"userIdDisplayable"];
-        self.givenName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"givenName"];
-        self.familyName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"familyName"];
-        self.identityProvider = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"identityProvider"];
-        self.tenantId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"tenantId"];
-        self.eMail = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"eMail"];
-        self.uniqueName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"uniqueName"];
-        self.upn = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"upn"];
-        self.subject = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"subject"];
-        self.userObjectId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userObjectId"];
-        self.guestId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"guestId"];
+        self.userIdDisplayable  = [aDecoder decodeBoolForKey:@"userIdDisplayable"];
+        self.givenName          = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"givenName"];
+        self.familyName         = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"familyName"];
+        self.identityProvider   = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"identityProvider"];
+        self.tenantId           = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"tenantId"];
+        self.eMail              = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"eMail"];
+        self.uniqueName         = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"uniqueName"];
+        self.upn                = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"upn"];
+        self.subject            = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"subject"];
+        self.userObjectId       = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userObjectId"];
+        self.guestId            = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"guestId"];
     }
     
     return self;
