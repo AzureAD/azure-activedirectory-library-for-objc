@@ -21,6 +21,8 @@
 #import <ADALiOS/ADTokenCacheStoreItem.h>
 #import <ADALioS/ADAuthenticationSettings.h>
 #import <libkern/OSAtomic.h>
+#import <Foundation/NSObjCRuntime.h>
+#import <objc/runtime.h>
 
 @implementation XCTestCase (TestHelperMethods)
 
@@ -29,6 +31,7 @@ NSMutableString* sLogLevelsLog;
 NSMutableString* sMessagesLog;
 NSMutableString* sInformationLog;
 NSMutableString* sErrorCodesLog;
+ADAL_LOG_LEVEL sMaxAcceptedLogLevel;//If a message is logged above it, the test will fail.
 
 NSString* sTestBegin = @"|||TEST_BEGIN|||";
 NSString* sTestEnd = @"|||TEST_END|||";
@@ -78,9 +81,16 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     [self validateForInvalidArgument:argument error:error];
 }
 
-/*! Sets logging and other infrastructure for a new test */
--(void) adTestBegin
+-(void) setLogTolerance: (ADAL_LOG_LEVEL) maxLogTolerance
 {
+    sMaxAcceptedLogLevel = maxLogTolerance;
+}
+
+/*! Sets logging and other infrastructure for a new test */
+-(void) adTestBegin: (ADAL_LOG_LEVEL) maxLogTolerance;
+{
+    [self setLogTolerance:maxLogTolerance];
+    
     @synchronized(self.class)
     {
         static dispatch_once_t once;
@@ -99,6 +109,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
         [sErrorCodesLog appendString:sTestBegin];
     }
 
+    __block __weak  XCTestCase* weakSelf = self;
     LogCallback logCallback = ^(ADAL_LOG_LEVEL logLevel,
                                 NSString* message,
                                 NSString* additionalInformation,
@@ -111,6 +122,13 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
             [sMessagesLog appendFormat:@"|%@|", message];
             [sInformationLog appendFormat:@"|%@|", additionalInformation];
             [sErrorCodesLog appendFormat:@"|%lu|", (long)errorCode];
+            
+            if (logLevel < sMaxAcceptedLogLevel)
+            {
+                NSString* fail = [NSString stringWithFormat:@"Level: %u; Message: %@; Info: %@; Code: %lu",
+                                  logLevel, message, additionalInformation, (long)errorCode];
+                [weakSelf recordFailureWithDescription:fail inFile:@"" __FILE__ atLine:__LINE__ expected:NO];
+            }
         }
     };
 
@@ -318,14 +336,143 @@ extern void __gcov_flush(void);
     item.refreshToken = @"refresh token";
     //1hr into the future:
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
-    ADAuthenticationError* error;
-    ADUserInformation* info = [ADUserInformation userInformationWithUserId:@"userId" error:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(info, "Nil user info returned.");
-    item.userInformation = info;
-    item.tenantId = @"msopentech.com";
+    item.userInformation = [self createUserInformation];
+    item.accessTokenType = @"access token type";
+    
+    [self verifyPropertiesAreSet:item];
     
     return item;
+}
+
+-(ADUserInformation*) createUserInformation
+{
+    ADAuthenticationError* error;
+    //This one sets the "userId" property:
+    ADUserInformation* userInfo = [ADUserInformation userInformationWithUserId:@"userId"
+                                                                         error:&error];
+    ADAssertNoError;
+    XCTAssertNotNil(userInfo, "Nil user info returned.");
+    
+    //Set all properties to non-default values to ensure that copying and unpersisting works:
+    userInfo.userIdDisplayable = TRUE;
+    
+    userInfo.givenName = @"given name";
+    userInfo.familyName = @"family name";
+    userInfo.identityProvider = @"identity provider";
+    userInfo.eMail = @"email@msopentech.bv";
+    userInfo.uniqueName = @"unique name";
+    userInfo.upn = @"upn value";
+    userInfo.tenantId = @"msopentech.com";    /*! May be null */
+    userInfo.subject = @"the subject";
+    userInfo.userObjectId = @"user object id";
+    userInfo.guestId = @"the guest id";
+    
+    [self verifyPropertiesAreSet:userInfo];
+    
+    return userInfo;
+}
+
+-(void) verifyPropertiesAreSet: (NSObject*) object
+{
+    if (!object)
+    {
+        XCTFail("object must be set.");
+        return;//Return to avoid crashing below
+    }
+    
+    //Add here calculated properties that cannot be initialized and shouldn't be checked for initialization:
+    NSDictionary* const exceptionProperties = @{
+        NSStringFromClass([ADTokenCacheStoreItem class]):[NSSet setWithObjects:@"multiResourceRefreshToken", nil],
+    };
+    
+    //Enumerate all properties and ensure that they are set to non-default values:
+    unsigned int propertyCount;
+    objc_property_t* properties = class_copyPropertyList([object class], &propertyCount);
+
+    for (int i = 0; i < propertyCount; ++i)
+    {
+        NSString* propertyName = [NSString stringWithCString:property_getName(properties[i])
+                                                    encoding:NSUTF8StringEncoding];
+        NSSet* exceptions = [exceptionProperties valueForKey:NSStringFromClass([object class])];//May be nil
+        if ([exceptions containsObject:propertyName])
+        {
+            continue;//Respect the exception
+        }
+        
+        id value = [object valueForKey:propertyName];
+        if ([value isKindOfClass:[NSNumber class]])
+        {
+            //Cast to the scalar to double and ensure it is far from 0 (default)
+            
+            double dValue = [(NSNumber*)value doubleValue];
+            if (abs(dValue) < 0.0001)
+            {
+                XCTFail("The value of the property %@ is 0. Please update the initialization method to set it.", propertyName);
+            }
+        }
+        else //Not a scalar type, we can compare to nil:
+        {
+            XCTAssertNotNil(value, "The value of the property %@ is nil. Please update the initialization method to set it.", propertyName);
+        }
+    }
+}
+
+-(void) verifyPropertiesAreSame: (NSObject*) object1
+                         second: (NSObject*) object2
+{
+    if ((nil == object1) != (nil == object1))
+    {
+        XCTFail("Objects are different.");
+        return;//One is nil, avoid crashing below
+    }
+    if (!object1)
+    {
+        return;//Both nil, return to avoid crashing below
+    }
+    
+    if ([object1 class] != [object2 class])
+    {
+        XCTFail("Objects are instances of different classes.");
+        return;//Different classes
+    }
+    
+    //Enumerate all properties and ensure that they are set to non-default values:
+    unsigned int propertyCount;
+    objc_property_t* properties = class_copyPropertyList([object1 class], &propertyCount);
+    
+    for (int i = 0; i < propertyCount; ++i)
+    {
+        NSString* propertyName = [NSString stringWithCString:property_getName(properties[i])
+                                                    encoding:NSUTF8StringEncoding];
+        
+        id value1 = [object1 valueForKey:propertyName];
+        id value2 = [object2 valueForKey:propertyName];
+        //Special case the types of interest. We do not want to test every single type of property,
+        //as we may get a circular or runtime types:
+        if (!value1)
+        {
+            XCTAssertNil(value2, "The value of the property %@ is not the same.", propertyName);
+        }
+        else if ([value1 isKindOfClass:[NSNumber class]])
+        {
+            //Scalar type, simply cast to double:
+            double dValue1 = [(NSNumber*)value1 doubleValue];
+            double dValue2 = [(NSNumber*)value2 doubleValue];
+            XCTAssertTrue(abs(dValue1 - dValue2) < 0.0001, "The value of the property %@ is different.", propertyName);
+        }
+        else if ([value1 isKindOfClass:[NSString class]] || [value1 isKindOfClass:[NSDate class]])
+        {
+            XCTAssertEqualObjects(value1, value2, "The value of the property %@ is not the same.", propertyName);
+        }
+        else if ([value1 isKindOfClass:[ADUserInformation class]])
+        {
+            [self verifyPropertiesAreSame:value1 second:value2];
+        }
+        else
+        {
+            XCTFail("Unsupported property. Please fix this test code accordingly. ");
+        }
+    }
 }
 
 //Ensures that two items are the same:
@@ -334,17 +481,8 @@ extern void __gcov_flush(void);
 {
     XCTAssertNotNil(item1);
     XCTAssertNotNil(item2);
-    ADAssertStringEquals(item1.resource, item2.resource);
-    ADAssertStringEquals(item1.authority, item2.authority);
-    ADAssertStringEquals(item1.clientId, item2.clientId);
-    ADAssertStringEquals(item1.accessToken, item2.accessToken);
-    ADAssertStringEquals(item1.refreshToken, item2.refreshToken);
-    ADAssertDateEquals(item1.expiresOn, item2.expiresOn);
-    ADAssertStringEquals(item1.userInformation.userId, item2.userInformation.userId);
-    ADAssertStringEquals(item1.userInformation.givenName, item2.userInformation.givenName);
-    ADAssertStringEquals(item1.userInformation.familyName, item2.userInformation.familyName);
-    XCTAssertEqual(item1.userInformation.userIdDisplayable, item2.userInformation.userIdDisplayable);
-    ADAssertStringEquals(item1.tenantId, item2.tenantId);
+    
+    [self verifyPropertiesAreSame:item1 second:item2];
 }
 
 -(void) callAndWaitWithFile: (NSString*) file

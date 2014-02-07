@@ -127,30 +127,10 @@
                                                                   error:(ADAuthenticationError *__autoreleasing *)error
 {
     API_ENTRY;
-    RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(authenticateHeader);
     
-    long start = [self extractChallenge:authenticateHeader error:error];//Method will set detected errors and return nil in that case
-    if (start < 0)
-    {
-        //An error occurred:
-        return nil;
-    }
-    
-    ADAuthenticationParameters* toReturn =
-        [[ADAuthenticationParameters alloc] initInternalWithChallenge:authenticateHeader start:start];
-    
-    if (!toReturn || [NSString isStringNilOrBlank:toReturn.authority] || ![NSURL URLWithString:toReturn.authority])
-    {
-        //Failed to extract authority. Return error:
-        NSString* details = [NSString stringWithFormat:MissingAuthority, OAuth2_Authenticate_Header, OAuth2_Authorization_Uri];
-        [self raiseErrorWithCode:AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT details:details error:error];
-        
-        return nil;
-    }
-    
-    if (error)
-        *error = nil;
-    return toReturn;
+    NSDictionary* params = [self extractChallengeParameters:authenticateHeader error:error];
+    return params ? [[ADAuthenticationParameters alloc] initInternalWithParameters:params error:error]
+                  : nil;
 }
 
 

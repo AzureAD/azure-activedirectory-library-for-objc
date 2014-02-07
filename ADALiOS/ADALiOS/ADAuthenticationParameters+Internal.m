@@ -26,130 +26,130 @@ NSString* const OAuth2_Authorization_Uri  = @"authorization_uri";
 NSString* const OAuth2_Resource_Id = @"resource_id";
 
 NSString* const MissingHeader = @"The authentication header '%@' is missing in the Unauthorized (401) response. Make sure that the resouce server supports OAuth2 protocol.";
-NSString* const MissingAuthority = @"The authentication header '%@' in the Unauthorized (401) response does not contain valid '%@' parameter. Make sure that the resouce server supports OAuth2 protocol.";
-NSString* const InvalidHeader_NoBearer = @"The authentication header '%@' for the Unauthorized (401) response does not start with '%@' word. Header value: %@";
+NSString* const MissingOrInvalidAuthority = @"The authentication header '%@' in the Unauthorized (401) response does not contain valid '%@' parameter. Make sure that the resouce server supports OAuth2 protocol.";
+NSString* const InvalidHeader = @"The authentication header '%@' for the Unauthorized (401) response does cannot be parsed. Header value: %@";
 NSString* const ConnectionError = @"Connection error: %@";
 NSString* const InvalidResponse = @"Missing or invalid Url response.";
 NSString* const UnauthorizedHTTStatusExpected = @"Expected Unauthorized (401) HTTP status code. Actual status code %d";
 const unichar Quote = '\"';
-const unichar Equals = '=';
-const unichar Comma = ',';
+//The regular expression that matches the Bearer contents:
+NSString* const RegularExpression = @"^Bearer\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*(?:,\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*)*$";
+NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
 
 @implementation ADAuthenticationParameters (Internal)
 
--(id) initInternalWithChallenge: (NSString*) challengeHeaderContents
-                          start: (long)start;
+
+-(id) initInternalWithParameters: (NSDictionary *) extractedParameters
+                           error: (ADAuthenticationError* __autoreleasing*) error;
+
 {
+    THROW_ON_NIL_ARGUMENT(extractedParameters);
+    
     self = [super init];
     if (self)
     {
-        if (![self extractChallengeItems:challengeHeaderContents start:start])
+        self->_extractedParameters = extractedParameters;
+        self->_authority = [_extractedParameters objectForKey:OAuth2_Authorization_Uri];
+        NSURL* testUrl = [NSURL URLWithString:_authority];//Nil argument returns nil
+        if (!testUrl)
         {
-            //Clear if an error occurred:
-            self = nil;
+            NSString* errorDetails = [NSString stringWithFormat:MissingOrInvalidAuthority,
+                                      OAuth2_Authenticate_Header, OAuth2_Authorization_Uri];
+            ADAuthenticationError* adError = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT
+                                                              errorDetails:errorDetails];
+            if (error)
+            {
+                *error = adError;
+            }
+            return nil;
         }
+        
+        self->_resource = [_extractedParameters objectForKey:OAuth2_Resource_Id];
     }
     return self;
 }
 
-/* Challenge validation and extraction. Returns null if the challenge prefix is not present.
- Expects a valid string to be passed. */
-+ (long) extractChallenge: (NSString*) headerContents
-                    error: (ADAuthenticationError* __autoreleasing*) error;
+//Generates and returns an error
++(ADAuthenticationError*) invalidHeader:(NSString*) headerContents
 {
-    THROW_ON_NIL_ARGUMENT(headerContents);//We shouldn't be here in this case
-    
-    long start = [headerContents findNonWhiteCharacterAfter:0];
-
-    //Requirement to have at least "Bearer ":
-    if (![headerContents substringHasPrefixWord:OAuth2_Bearer start:start])
-    {
-        //This will log the error:
-        ADAuthenticationError* bearerError =
-        [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT
-                                                errorDetails:[NSString stringWithFormat:InvalidHeader_NoBearer, OAuth2_Authenticate_Header, OAuth2_Bearer, headerContents]];
-        if (error)
-        {
-            *error = bearerError;
-        }
-        return -1;
-    }
-    start += OAuth2_Bearer.length;
-    
-    return [headerContents findNonWhiteCharacterAfter:start];//Skip any additional white space
+    NSString* errorDetails = [NSString stringWithFormat:InvalidHeader,
+     OAuth2_Authenticate_Header, headerContents];
+    return [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT
+                                                   errorDetails:errorDetails];
 }
 
-- (BOOL) extractChallengeItems:(NSString *)headerContents start:(long)start
++ (NSDictionary*) extractChallengeParameters: (NSString*) headerContents
+                                       error: (ADAuthenticationError* __autoreleasing*) error;
 {
-    THROW_ON_NIL_ARGUMENT(headerContents);//The function should not be called with nil.
+    NSError* rgError;
+    __block ADAuthenticationError* adError;
     
-    _extractedParameters = [NSMutableDictionary new];
-    long end = headerContents.length;
-    
-    while (start < end)
+    if ([NSString isStringNilOrBlank:headerContents])
     {
-        start = [headerContents findNonWhiteCharacterAfter:start];
-        if (start >= end)
+        adError = [self invalidHeader:headerContents];
+    }
+    else
+    {
+        //First check that the header conforms to the protocol:
+        NSRegularExpression* overAllRegEx = [NSRegularExpression regularExpressionWithPattern:RegularExpression
+                                                                                      options:0
+                                                                                        error:&rgError];
+        if (overAllRegEx)
         {
-            break;
+            int matched = [overAllRegEx numberOfMatchesInString:headerContents options:0 range:NSMakeRange(0, headerContents.length)];
+            if (!matched)
+            {
+                adError = [self invalidHeader:headerContents];
+            }
+            else
+            {
+                //Once we know that the header is in the right format, the regex below will extract individual
+                //name-value pairs. This regex is not as exclusive, so it relies on the previous check
+                //to guarantee correctness:
+                NSRegularExpression* extractionRegEx = [NSRegularExpression regularExpressionWithPattern:ExtractionExpression
+                                                                                                 options:0
+                                                                                                   error:&rgError];
+                if (extractionRegEx)
+                {
+                    NSMutableDictionary* parameters = [NSMutableDictionary new];
+                    [extractionRegEx enumerateMatchesInString:headerContents
+                                                      options:0
+                                                        range:NSMakeRange(0, headerContents.length)
+                                                   usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
+                     {//Block executed for each name-value match:
+                         if (result.numberOfRanges != 3)//0: whole match, 1 - name group, 2 - value group
+                         {
+                             //Shouldn't happen given the explicit expressions and matches, but just in case:
+                             adError = [self invalidHeader:headerContents];
+                         }
+                         else
+                         {
+                             NSRange key = [result rangeAtIndex:1];
+                             NSRange value = [result rangeAtIndex:2];
+                             if (key.length && value.length)
+                             {
+                                 [parameters setObject:[headerContents substringWithRange:value]
+                                                forKey:[headerContents substringWithRange:key]];
+                             }
+                         }
+                     }];
+                    return parameters;
+                }
+            }
         }
-        if ([headerContents characterAtIndex:start] == Comma)
-        {
-            ++start;//Move beyond it to avoid infinite loop
-            continue;//Handle cases of skipped parameters: ",, resourceUri = \"<..>\";
-        }
-        
-        //The next few lines parse @"<key1>="<value1>" , <key2>="<value2>", <...> ".
-        //According to the Bearer protocol, keys are non-quoted; there is no white
-        //space around the equals sign and the values are quoted. Values can contain
-        //commas and equals sign, but cannot contain embedded quotes.
-        long equalsIndex = [headerContents findCharacter:Equals start:start];
-        if (equalsIndex >= end)
-        {
-            break;//Reached the end
-        }
-        if (start >= equalsIndex - 1)
-        {
-            return NO;//Example @"=\"asdfa\"". Missing key.
-        }
-        if (equalsIndex + 1 >= end || [headerContents characterAtIndex:equalsIndex + 1] != Quote)
-        {
-            return NO;//Example @"foo=" or @"foo=bar; Empty value provided or missing quotes.
-        }
-        
-        long valueStart = equalsIndex + 2;//Can be == headerContext.length.
-        long secondQuote = [headerContents findCharacter:Quote start:valueStart];
-        if (secondQuote >= end)
-        {
-            return NO;// No closing quote: Example: @"foo = \"bar"
-        }
-        
-        if (secondQuote > valueStart)//Add only if not empty
-        {
-            //Ranges of the key and the value:
-            NSRange key = {.location = start, .length = (equalsIndex - start)};
-            NSRange value = {.location = valueStart, .length = (secondQuote - valueStart)};
-            //Add the key-value pair:
-            NSString* keyString = [headerContents substringWithRange:key];
-            NSString* valueString = [headerContents substringWithRange:value];
-            [_extractedParameters setObject: valueString
-                                     forKey: keyString];
-        }
-        //Move to the next pair:
-        start = [headerContents findNonWhiteCharacterAfter:secondQuote + 1];
-        if (start < end && [headerContents characterAtIndex:start] != Comma)
-        {
-            return NO;// Additional values, e.g. @"foo="bar" baasdfasdf, ...";
-        }
-        ++start;//Beyond the comma
     }
     
-    //Format is valid, extracting explictly the needed parameters:
-    _authority = [_extractedParameters objectForKey:OAuth2_Authorization_Uri];
-    _resource = [_extractedParameters objectForKey:OAuth2_Resource_Id];
+    if (rgError)
+    {
+        //The method below will log internally the error:
+        adError =[ADAuthenticationError errorFromNSError:rgError errorDetails:rgError.description];
+    }
     
-    return YES;
+    if (error)
+    {
+        *error = adError;
+    }
+    return nil;
 }
-
 
 @end

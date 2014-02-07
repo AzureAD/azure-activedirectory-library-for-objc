@@ -32,7 +32,7 @@
     [super setUp];
     
     // Put setup code here; it will be run once, before the first test case.
-    [self adTestBegin];
+    [self adTestBegin:ADAL_LOG_LEVEL_ERROR];
 }
 
 - (void)tearDown
@@ -45,6 +45,7 @@
 
 - (void)testNew
 {
+    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
     XCTAssertThrows([ADAuthenticationError new], @"The new selector should not work due to requirement to use the parameterless init. At: '%s'", __PRETTY_FUNCTION__);
 }
 

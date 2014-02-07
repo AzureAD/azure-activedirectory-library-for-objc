@@ -18,6 +18,7 @@
 // governing permissions and limitations under the License.
 #import <XCTest/XCTest.h>
 #import "../ADALiOS/NSURLExtensions.h"
+#import "XCTestCase+TestHelperMethods.h"
 
 @interface NSURLExtensionsTests : XCTestCase
 
@@ -29,11 +30,13 @@
 {
     [super setUp];
     // Put setup code here; it will be run once, before the first test case.
+    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
 }
 
 - (void)tearDown
 {
     // Put teardown code here; it will be run once, after the last test case.
+    [self adTestEnd];
     [super tearDown];
 }
 

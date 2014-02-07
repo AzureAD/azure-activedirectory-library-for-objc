@@ -45,8 +45,6 @@
 
 @property ADUserInformation* userInformation;
 
-@property NSString* tenantId;
-
 /*! If true, the cache store item does not store actual access token, but instead a refresh token that can be
  used to obtain access token for any resource within the same user, authority and client id. This property is calculated
  from the value of other properties: it is true if: resource is nil, accessToken is nil and refresh token is not nil or empty.*/

@@ -35,7 +35,7 @@
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin];
+    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     mAuthority = @"https://login.windows.net/common";;
     mResource = @"http://mywebApi.com";
     mClientId = @"myclientid";
@@ -54,6 +54,7 @@
     ADAssertNoError;
     XCTAssertNotNil(key);
     
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Bad authority:
     error = nil;
     ADTokenCacheStoreKey* badKey = [ADTokenCacheStoreKey keyWithAuthority:nil resource:mResource clientId:mClientId error:&error];
