@@ -41,7 +41,7 @@
 
 - (void) testCreator
 {
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationError* error;
     ADUserInformation* userInfo = [ADUserInformation userInformationWithUserId:nil error:&error];
     [self validateFactoryForInvalidArgument:@"userId" returnedObject:userInfo error:error];
@@ -54,7 +54,7 @@
     userInfo = [ADUserInformation userInformationWithUserId:@"  " error:&error];
     [self validateFactoryForInvalidArgument:@"userId" returnedObject:userInfo error:error];
 
-    [self setLogTollerance:ADAL_LOG_LEVEL_INFO];
+    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
     error = nil;
     userInfo = [ADUserInformation userInformationWithUserId:@"valid user" error:&error];
     XCTAssertNotNil(userInfo);
@@ -95,7 +95,7 @@
 
 -(void) testIdTokenBad
 {
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationError* error;
     ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:@"" error:&error];
     XCTAssertNotNil(error);
@@ -111,7 +111,7 @@
     XCTAssertNotNil(error);
     XCTAssertNil(userInfo);
     
-    [self setLogTollerance:ADAL_LOG_LEVEL_WARN];
+    [self setLogTolerance:ADAL_LOG_LEVEL_WARN];
     //Skip the header. Ensure that the method recovers and still reads the contents:
     error = nil;//Reset it, as it was set in the previous calls
     NSString* missingHeader = @"eyJhdWQiOiJjM2M3ZjVlNS03MTUzLTQ0ZDQtOTBlNi0zMjk2ODZkNDhkNzYiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82ZmQxZjVjZC1hOTRjLTQzMzUtODg5Yi02YzU5OGU2ZDgwNDgvIiwiaWF0IjoxMzg3MjI0MTY5LCJuYmYiOjEzODcyMjQxNjksImV4cCI6MTM4NzIyNzc2OSwidmVyIjoiMS4wIiwidGlkIjoiNmZkMWY1Y2QtYTk0Yy00MzM1LTg4OWItNmM1OThlNmQ4MDQ4Iiwib2lkIjoiNTNjNmFjZjItMjc0Mi00NTM4LTkxOGQtZTc4MjU3ZWM4NTE2IiwidXBuIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInVuaXF1ZV9uYW1lIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IjBEeG5BbExpMTJJdkdMX2RHM2RETWszenA2QVFIbmpnb2d5aW01QVdwU2MiLCJmYW1pbHlfbmFtZSI6IlZpZG9sb3Z2IiwiZ2l2ZW5fbmFtZSI6IkJvcmlzcyJ9";
@@ -122,7 +122,7 @@
     ADAssertStringEquals(userInfo.givenName, @"Boriss");
 
     
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Pass nil for error:
     userInfo = [ADUserInformation userInformationWithIdToken:@"....." error:nil];
     XCTAssertNil(userInfo);

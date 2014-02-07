@@ -657,7 +657,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 -(void) testInitializer
 {
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:nil]);
     XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:@"   "]);
     

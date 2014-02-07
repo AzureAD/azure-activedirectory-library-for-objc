@@ -21,6 +21,7 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADInstanceDiscovery.h"
 #import <libkern/OSAtomic.h>
+#import <ADALiOS/ADAuthenticationSettings.h>
 
 NSString* const sAlwaysTrusted = @"https://login.windows.net";
 
@@ -144,7 +145,7 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testExtractBaseBadAuthority
 {
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
 
     //Nil:
     ADAuthenticationError* error;
@@ -218,7 +219,7 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testIsAuthorityValidated
 {
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     XCTAssertThrows([mTestInstanceDiscovery isAuthorityValidated:nil]);
     XCTAssertThrows([mTestInstanceDiscovery isAuthorityValidated:@"  "]);
     NSString* anotherHost = @"https://somedomain.com";
@@ -230,7 +231,7 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testSetAuthorityValidation
 {
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     XCTAssertThrows([mTestInstanceDiscovery setAuthorityValidation:nil]);
     XCTAssertThrows([mTestInstanceDiscovery setAuthorityValidation:@"  "]);
     //Test that re-adding is ok. This can happen in multi-threaded scenarios:
@@ -326,7 +327,7 @@ const int sAsyncTimeout = 10;//in seconds
 //Does not call the server, just passes invalid authority
 -(void) testValidateAuthorityError
 {
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     [self validateAuthority:@"http://invalidscheme.com" line:__LINE__];
     XCTAssertNotNil(mError);
     
@@ -344,7 +345,7 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testCanonicalizeAuthority
 {
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Nil or empty:
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:nil]);
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@""]);
@@ -397,12 +398,28 @@ const int sAsyncTimeout = 10;//in seconds
     XCTAssertTrue(mValidated);
     XCTAssertNil(mError);
     XCTAssertTrue([mValidatedAuthorities containsObject:@"https://login.windows.net"]);
+    
+    //Now hit explicitly non-cached:
+    [self validateAuthority:@"https://login.windows-ppe.net/common" line:__LINE__];
+    XCTAssertTrue(mValidated);
+    XCTAssertNil(mError);
+    XCTAssertTrue([mValidatedAuthorities containsObject:@"https://login.windows-ppe.net"]);
+
+    //Hit the one that was just cached and ensure that no server-side call is attempted:
+    ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
+    dispatch_queue_t savedQueue = settings.dispatchQueue;
+    settings.dispatchQueue = nil;//point nowhere, so that any attempt to a server call will crash.
+    [self validateAuthority:@"https://login.windows-ppe.net/common" line:__LINE__];
+    XCTAssertTrue(mValidated);
+    XCTAssertNil(mError);
+    XCTAssertTrue([mValidatedAuthorities containsObject:@"https://login.windows-ppe.net"]);
+    settings.dispatchQueue = savedQueue;//Restore for the rest of the tests
 }
 
 //Ensures that an invalid authority is not approved
 -(void) testNonValidatedAuthority
 {
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     [self validateAuthority:@"https://MyFakeAuthority.com/MSOpenTechBV.onmicrosoft.com" line:__LINE__];
     XCTAssertFalse(mValidated);
     XCTAssertNotNil(mError);
@@ -411,7 +428,7 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testUnreachableServer
 {
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     static volatile int completion = 0;//Set to 1 at the end of the callback
     [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal:&completion block:^
     {

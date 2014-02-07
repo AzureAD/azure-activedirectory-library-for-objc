@@ -81,15 +81,15 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     [self validateForInvalidArgument:argument error:error];
 }
 
--(void) setLogTollerance: (ADAL_LOG_LEVEL) maxLogTollerance
+-(void) setLogTolerance: (ADAL_LOG_LEVEL) maxLogTolerance
 {
-    sMaxAcceptedLogLevel = maxLogTollerance;
+    sMaxAcceptedLogLevel = maxLogTolerance;
 }
 
 /*! Sets logging and other infrastructure for a new test */
--(void) adTestBegin: (ADAL_LOG_LEVEL) maxLogTollerance;
+-(void) adTestBegin: (ADAL_LOG_LEVEL) maxLogTolerance;
 {
-    [self setLogTollerance:maxLogTollerance];
+    [self setLogTolerance:maxLogTolerance];
     
     @synchronized(self.class)
     {

@@ -50,7 +50,7 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
 
 - (void)testLevel
 {
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     for(int i = ADAL_LOG_LEVEL_NO_LOG; i < ADAL_LOG_LAST; ++i)
     {
         [ADLogger setLevel:i];
@@ -76,7 +76,7 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
 
 -(void) testMessageNoThrowing
 {
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Neither of these calls should throw. See the method body for details:
     [ADLogger log:ADAL_LOG_LEVEL_NO_LOG message:@"Message" errorCode:AD_ERROR_SUCCEEDED additionalInformation:@"info" ];
     [ADLogger log:ADAL_LOG_LEVEL_ERROR message:nil errorCode:AD_ERROR_SUCCEEDED additionalInformation:@"info" ];

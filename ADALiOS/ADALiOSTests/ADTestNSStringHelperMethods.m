@@ -100,7 +100,7 @@
 
 -(void) testContainsStringNil
 {
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     NSString* someString = @"someString";
     XCTAssertThrowsSpecificNamed([someString containsString:nil],
                                  NSException, NSInvalidArgumentException, "Nil argument name should throw.");

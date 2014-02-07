@@ -90,6 +90,7 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
     }
     else
     {
+        //First check that the header conforms to the protocol:
         NSRegularExpression* overAllRegEx = [NSRegularExpression regularExpressionWithPattern:RegularExpression
                                                                                       options:0
                                                                                         error:&rgError];
@@ -102,7 +103,9 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
             }
             else
             {
-                
+                //Once we know that the header is in the right format, the regex below will extract individual
+                //name-value pairs. This regex is not as exclusive, so it relies on the previous check
+                //to guarantee correctness:
                 NSRegularExpression* extractionRegEx = [NSRegularExpression regularExpressionWithPattern:ExtractionExpression
                                                                                                  options:0
                                                                                                    error:&rgError];
@@ -113,9 +116,10 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
                                                       options:0
                                                         range:NSMakeRange(0, headerContents.length)
                                                    usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
-                     {
+                     {//Block executed for each name-value match:
                          if (result.numberOfRanges != 3)//0: whole match, 1 - name group, 2 - value group
                          {
+                             //Shouldn't happen given the explicit expressions and matches, but just in case:
                              adError = [self invalidHeader:headerContents];
                          }
                          else

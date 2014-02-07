@@ -58,12 +58,12 @@ typedef enum
 
 /*! Sets logging and other infrastructure for a new test.
  The method sets the callback and fails the tests if a the logs contains higher level
- item than the maxLogTollerance. E.g. strict test may set this parameter to ADAL_LOG_LEVEL_INFO,
+ item than the maxLogTolerance. E.g. strict test may set this parameter to ADAL_LOG_LEVEL_INFO,
  so that all warnings and errors will be cause the test to fail.*/
--(void) adTestBegin: (ADAL_LOG_LEVEL) maxLogTollerance;
+-(void) adTestBegin: (ADAL_LOG_LEVEL) maxLogTolerance;
 
 /*! See description of adTestBegin. */
--(void) setLogTollerance: (ADAL_LOG_LEVEL) maxLogTollerance;
+-(void) setLogTolerance: (ADAL_LOG_LEVEL) maxLogTolerance;
 
 /*! Clears logging and other infrastructure after a test */
 -(void) adTestEnd;

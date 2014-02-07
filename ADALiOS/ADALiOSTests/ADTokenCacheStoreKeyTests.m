@@ -54,7 +54,7 @@
     ADAssertNoError;
     XCTAssertNotNil(key);
     
-    [self setLogTollerance:ADAL_LOG_LEVEL_ERROR];
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Bad authority:
     error = nil;
     ADTokenCacheStoreKey* badKey = [ADTokenCacheStoreKey keyWithAuthority:nil resource:mResource clientId:mClientId error:&error];

@@ -45,7 +45,7 @@
 
 - (void)testNew
 {
-    [self setLogTollerance:ADAL_LOG_LEVEL_INFO];
+    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
     XCTAssertThrows([ADAuthenticationError new], @"The new selector should not work due to requirement to use the parameterless init. At: '%s'", __PRETTY_FUNCTION__);
 }
 
