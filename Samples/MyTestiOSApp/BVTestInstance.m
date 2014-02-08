@@ -35,6 +35,7 @@
     self->_userId               = [contents objectForKey:@"UserId"];
     self->_password             = [contents objectForKey:@"Password"];
     self->_validateAuthority    = (BOOL)[contents objectForKey:@"SupportsValidation"];
+    self->_extraQueryParameters = [contents objectForKey:@"extraQueryParameters"];
     
     return self;
 }

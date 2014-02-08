@@ -19,8 +19,8 @@
 
 
 #import "BVTestAppDelegate.h"
-
 #import "BVTestMainViewController.h"
+#import "BVSettings.h"
 
 @implementation BVTestAppDelegate
 
@@ -62,6 +62,7 @@
 {
     // Saves changes in the application's managed object context before the application terminates.
     [self saveContext];
+    [[BVSettings new] flushCodeCoverage];
 }
 
 - (void)saveContext
