@@ -60,17 +60,10 @@ const int sTokenWorkflowTimeout     = 20;
     return context;
 }
 
-//Code coverage logic:
-#ifdef AD_CODE_COVERAGE
-    extern void __gcov_flush(void);
-    -(void) flushCodeCoverage
-    {
-        __gcov_flush();
-    }
-#else
-//No-op:
-    -(void) flushCodeCoverage{}
-#endif
+-(void) flushCodeCoverage
+{
+    [mTestSettings flushCodeCoverage];
+}
 
 //Obtains a test AAD instance and credentials:
 -(BVTestInstance*) getAADInstance

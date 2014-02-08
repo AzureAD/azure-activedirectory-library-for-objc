@@ -29,4 +29,8 @@ extern NSString* const sAADTestInstance;
 //The values are instances of BVTestInstance class.
 @property (readonly) NSDictionary* testAuthorities;
 
+//In case of code coverage build, stores the code coverage data.
+//The method does nothing in the other configurations.
+-(void) flushCodeCoverage;
+
 @end
