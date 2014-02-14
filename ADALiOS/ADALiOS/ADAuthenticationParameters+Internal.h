@@ -25,6 +25,7 @@ extern NSString* const OAuth2_Bearer;
 extern NSString* const OAuth2_Authenticate_Header;
 extern NSString* const OAuth2_Authorization;
 extern NSString* const OAuth2_Authorization_Uri;
+extern NSString* const OAuth2_Resource_Id;
 
 //Error messages:
 extern NSString* const InvalidHeader_NoBearer;
@@ -39,25 +40,13 @@ extern NSString* const UnauthorizedHTTStatusExpected;
 @interface ADAuthenticationParameters (Internal)
 
 /*! Internal initializer, should be called only from within the class definitions
- or derived classes. 
- @param challengeHeaderContents: the contents of the authenticate challenge response header. 
- @param start: the starting point of the key-value pairs, containing the parameters of the challenge.*/
--(id) initInternalWithChallenge: (NSString*)challengeHeaderContents
-                          start: (long) start;
+ or derived classes. */
+-(id) initInternalWithParameters: (NSDictionary*) extractedParameters
+                           error: (ADAuthenticationError* __autoreleasing*) error;
 
-/*! Finds the beginning of the  Bearer challenge in the "WWW-Authenticate" header contents. 
- Returns negative value (-1) and sets the error if Bearer challenge cannot be found. */
-+ (long) extractChallenge: (NSString*) headerContents
-                    error: (ADAuthenticationError* __autoreleasing*) error;
-
-/*! Given a challenge, extracts the key-value pairs, containing the parameters and
-puts them in the extractedParamters field. Additionally, sets the object properties,
-if the header is in the correct format.
-Returns false if it encounters incorrect format.
- @param: headerContents: the original header contents to be parsed.
- @param: start: The first character to start extracting the parameters from. Should be
- beyond the "Bearer " part*/
-- (BOOL) extractChallengeItems: (NSString*) headerContents
-                         start: (long) start;
+/*! Internal method. Extracts the challenge parameters from the Bearer contents in the authorize header. 
+ Returns nil in case of error and if "error" parameter is not nil, adds the error details to this parameter. */
++ (NSDictionary*) extractChallengeParameters: (NSString*) headerContents
+                                       error: (ADAuthenticationError* __autoreleasing*) error;
 
 @end

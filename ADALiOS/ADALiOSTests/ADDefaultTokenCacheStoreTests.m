@@ -93,7 +93,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin];
+    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     
     mStore = (ADPersistentTokenCacheStore*)[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     XCTAssertNotNil(mStore, "Default store cannot be nil.");
@@ -657,6 +657,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 -(void) testInitializer
 {
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:nil]);
     XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:@"   "]);
     

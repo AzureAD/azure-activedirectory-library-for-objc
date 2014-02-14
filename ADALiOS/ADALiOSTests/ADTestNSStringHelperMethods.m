@@ -29,7 +29,7 @@
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin];
+    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
 }
 
 - (void)tearDown
@@ -100,6 +100,7 @@
 
 -(void) testContainsStringNil
 {
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     NSString* someString = @"someString";
     XCTAssertThrowsSpecificNamed([someString containsString:nil],
                                  NSException, NSInvalidArgumentException, "Nil argument name should throw.");

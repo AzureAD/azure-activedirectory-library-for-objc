@@ -33,5 +33,6 @@
 @property NSString* redirectUri;
 @property NSString* userId;
 @property NSString* password;//used for automation in the tests
+@property NSString* extraQueryParameters;//Typically null and set by tests when needed
 
 @end

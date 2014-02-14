@@ -72,7 +72,7 @@ const int sAsyncContextTimeout = 10;
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin];
+    [self adTestBegin:ADAL_LOG_LEVEL_ERROR];//Majority of the tests rely on errors
     mAuthority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
     mDefaultTokenCache = (ADPersistentTokenCacheStore*)([ADAuthenticationSettings sharedInstance].defaultTokenCacheStore);
     XCTAssertNotNil(mDefaultTokenCache);
@@ -114,6 +114,7 @@ const int sAsyncContextTimeout = 10;
 
 - (void)testNew
 {
+    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
     XCTAssertThrows([ADAuthenticationContext new], @"The new selector should not work due to requirement to use the parameterless init. At: '%s'", __PRETTY_FUNCTION__);
 }
 
@@ -217,6 +218,7 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testProperties
 {
+    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
     ADAuthenticationError* error;
     NSString* authority = @"https://authority.com/oauth2";
     ADTestTokenCacheStore* testStore = [ADTestTokenCacheStore new];
@@ -431,8 +433,8 @@ const int sAsyncContextTimeout = 10;
         ADAssertNoError;
         XCTAssertNotNil(info, "Nil user info returned.");
         item.userInformation = info;
+        item.userInformation.tenantId = @"msopentech.com";
     }
-    item.tenantId = @"msopentech.com";
     
     [mDefaultTokenCache addOrUpdateItem:item error:&error];
     ADAssertNoError;}
@@ -458,6 +460,7 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testAcquireTokenWithUserCache
 {
+    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
     NSString* someTokenValue = @"someToken value";
     [self addCacheWithToken:someTokenValue refreshToken:nil];
     acquireTokenAsync;
@@ -745,6 +748,7 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testCorrelationIdProperty
 {
+    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
     XCTAssertNil(mContext.correlationId, "default should be nil");
     
     NSUUID* first = [NSUUID UUID];
@@ -820,6 +824,7 @@ const int sAsyncContextTimeout = 10;
 //Additional tests for the cases that are not covered by the broader scenario tests.
 -(void) testExtractCacheItemWithKeyEdgeCases
 {
+    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
     //Nil key
     XCTAssertNil([mProtocolContext extractCacheItemWithKey:nil userId:nil error:nil]);
     BOOL useAccessToken;
@@ -961,6 +966,7 @@ const int sAsyncContextTimeout = 10;
 //overloads call the same one, just tests that the entry point.
 -(void) testAcquireTokenOverloads
 {
+    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
     [self addCacheWithToken:@"cacheToken" refreshToken:nil];
 
     static volatile int completion = 0;
@@ -1006,8 +1012,8 @@ const int sAsyncContextTimeout = 10;
 }
 
 //Tests the shorter overload of acquireTokenByRefreshToken
-//as the method ultimately calls the other overload, which is also used by acquireToken,
-//this test is not very deep.
+//as the method ultimately calls the other overload, which is also used by acquireToken.
+//As such, the test is not very deep.
 -(void) testAcquireTokenByRefreshTokenSimple_Negative
 {
     //There is no resource for this call:
@@ -1132,6 +1138,33 @@ const int sAsyncContextTimeout = 10;
     [self asyncAcquireTokenByRefreshToken:@"refreshToken"];
     ADAssertLongEquals(AD_FAILED, mResult.status);
     [self validateForInvalidArgument:@"clientId" error:mResult.error];
+}
+
+//Hits a the cloud with either a bad server or a bad refresh token:
+-(void) testRefreshingTokenWithServerErrors
+{
+    //Authority cannot be validated or reached:
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:@"https://example.com/common" error:nil];
+    XCTAssertNotNil(mContext);
+
+    [self asyncAcquireTokenByRefreshToken:@"doesn't matter"];
+    ADAssertLongEquals(AD_FAILED, mResult.status);
+    ADAssertLongEquals(AD_ERROR_AUTHORITY_VALIDATION, mResult.error.code);
+    
+    mContext.validateAuthority = NO;
+    [self asyncAcquireTokenByRefreshToken:@"doesn't matter"];
+    ADAssertLongEquals(AD_FAILED, mResult.status);
+    ADAssertStringEquals(mResult.error.domain, NSURLErrorDomain);
+    
+    //Valid authority, but invalid refresh token:
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority error:nil];
+    XCTAssertNotNil(mContext);
+    
+    [self asyncAcquireTokenByRefreshToken:@"invalid_refresh_token"];
+    ADAssertLongEquals(AD_FAILED, mResult.status);
+    ADAssertLongEquals(AD_ERROR_INVALID_REFRESH_TOKEN, mResult.error.code);
+    ADAssertStringEquals(mResult.error.protocolCode, @"invalid_grant");
+    XCTAssertTrue([mResult.error.errorDetails.lowercaseString containsString:@"refresh token"]);
 }
 
 @end

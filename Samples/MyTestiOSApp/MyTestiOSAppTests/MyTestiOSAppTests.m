@@ -60,17 +60,10 @@ const int sTokenWorkflowTimeout     = 20;
     return context;
 }
 
-//Code coverage logic:
-#ifdef AD_CODE_COVERAGE
-    extern void __gcov_flush(void);
-    -(void) flushCodeCoverage
-    {
-        __gcov_flush();
-    }
-#else
-//No-op:
-    -(void) flushCodeCoverage{}
-#endif
+-(void) flushCodeCoverage
+{
+    [mTestSettings flushCodeCoverage];
+}
 
 //Obtains a test AAD instance and credentials:
 -(BVTestInstance*) getAADInstance
@@ -174,6 +167,7 @@ const int sTokenWorkflowTimeout     = 20;
 -(ADAuthenticationResult*) callAcquireTokenWithInstance: (BVTestInstance*) instance
                                             interactive: (BOOL) interactive
                                            keepSignedIn: (BOOL) keepSignedIn
+                                          expectSuccess: (BOOL) expectSuccess
                                                    line: (int) sourceLine
 {
     XCTAssertNotNil(instance, "Internal test failure.");
@@ -185,6 +179,7 @@ const int sTokenWorkflowTimeout     = 20;
                              clientId:instance.clientId
                           redirectUri:[NSURL URLWithString:instance.redirectUri]
                                userId:instance.userId
+                 extraQueryParameters:instance.extraQueryParameters
                       completionBlock:^(ADAuthenticationResult *result)
      {
          localResult = result;
@@ -241,18 +236,30 @@ const int sTokenWorkflowTimeout     = 20;
 
     if (AD_SUCCEEDED != localResult.status || localResult.error)
     {
-        [self recordFailureWithDescription:localResult.error.errorDetails
-                                    inFile:@"" __FILE__
-                                    atLine:sourceLine
-                                  expected:NO];
+        if (expectSuccess)
+        {
+            [self recordFailureWithDescription:localResult.error.errorDetails
+                                        inFile:@"" __FILE__
+                                        atLine:sourceLine
+                                      expected:NO];
+        }
     }
-    
-    if ([NSString isStringNilOrBlank:localResult.tokenCacheStoreItem.accessToken])
+    else
     {
-        [self recordFailureWithDescription:@"Nil or empty access token."
-                                    inFile:@"" __FILE__
-                                    atLine:sourceLine
-                                  expected:NO];
+        if (!expectSuccess)
+        {
+            [self recordFailureWithDescription:@"acquireTokenWithResource did not fail."
+                                        inFile:@"" __FILE__
+                                        atLine:sourceLine
+                                      expected:NO];
+        }
+        if ([NSString isStringNilOrBlank:localResult.tokenCacheStoreItem.accessToken])
+        {
+            [self recordFailureWithDescription:@"Nil or empty access token."
+                                        inFile:@"" __FILE__
+                                        atLine:sourceLine
+                                      expected:NO];
+        }
     }
     
     return localResult;
@@ -264,8 +271,28 @@ const int sTokenWorkflowTimeout     = 20;
     [self callAcquireTokenWithInstance:instance
                            interactive:YES
                           keepSignedIn:NO
+                         expectSuccess:YES
                                   line:__LINE__];
-}
+    
+    //Force authorization for the next calls:
+    [self clearCache];
+    [self clearCookies];
+    //Add query parameters:
+    instance.extraQueryParameters = @"&foo=bar&bar=foo";//With "&"
+    [self callAcquireTokenWithInstance:instance
+                           interactive:YES
+                          keepSignedIn:NO
+                         expectSuccess:YES
+                                  line:__LINE__];
+
+    [self clearCache];
+    [self clearCookies];
+    instance.extraQueryParameters = @"foo=bar&bar=foo";//Without "&"
+    [self callAcquireTokenWithInstance:instance
+                           interactive:YES
+                          keepSignedIn:NO
+                         expectSuccess:YES
+                                  line:__LINE__];}
 
 -(void) testCache
 {
@@ -273,6 +300,7 @@ const int sTokenWorkflowTimeout     = 20;
     [self callAcquireTokenWithInstance:instance
                            interactive:YES
                           keepSignedIn:NO
+                         expectSuccess:YES
                                   line:__LINE__];
     
     //Now ensure that the cache is used:
@@ -280,6 +308,7 @@ const int sTokenWorkflowTimeout     = 20;
     ADAuthenticationResult* result = [self callAcquireTokenWithInstance:instance
                                                             interactive:NO
                                                            keepSignedIn:YES
+                                                          expectSuccess:YES
                                                                    line:__LINE__];
     
     //Now remove the access token and ensure that the refresh token is leveraged:
@@ -291,6 +320,7 @@ const int sTokenWorkflowTimeout     = 20;
     [self callAcquireTokenWithInstance:instance
                            interactive:NO
                           keepSignedIn:YES
+                         expectSuccess:YES
                                   line:__LINE__];
 }
 
@@ -300,6 +330,7 @@ const int sTokenWorkflowTimeout     = 20;
     [self callAcquireTokenWithInstance:instance
                            interactive:YES
                           keepSignedIn:YES
+                         expectSuccess:YES
                                   line:__LINE__];
     
     //Clear the cache, so that cookies are used:
@@ -307,7 +338,41 @@ const int sTokenWorkflowTimeout     = 20;
     [self callAcquireTokenWithInstance:instance
                            interactive:NO
                           keepSignedIn:YES
+                         expectSuccess:YES
                                   line:__LINE__];
+}
+
+-(void) testNegative
+{
+    //Bad SSL certificate:
+    BVTestInstance* instance = [self getAADInstance];
+    instance.authority = @"https://example.com/common";
+    instance.validateAuthority = NO;
+    ADAuthenticationResult* result = [self callAcquireTokenWithInstance:instance
+                                                            interactive:NO
+                                                           keepSignedIn:YES
+                                                          expectSuccess:NO
+                                                                   line:__LINE__];
+    XCTAssertTrue([result.error.errorDetails containsString:@"certificate"]);
+    
+    //Unreachable authority:
+    instance.authority = @"https://SomeReallyNonExistingDomain.com/SomeTenant";
+    instance.validateAuthority = NO;
+    [self callAcquireTokenWithInstance:instance
+                           interactive:NO
+                          keepSignedIn:YES
+                         expectSuccess:NO
+                                  line:__LINE__];
+    
+    //Cannot be validated:
+    instance.authority = @"https://microsoft.com/SomeTenant";
+    instance.validateAuthority = YES;
+    result = [self callAcquireTokenWithInstance:instance
+                                    interactive:NO
+                                   keepSignedIn:YES
+                                  expectSuccess:NO
+                                           line:__LINE__];
+    XCTAssertEqual((long)result.error.code, (long)AD_ERROR_AUTHORITY_VALIDATION);
 }
 
 @end
