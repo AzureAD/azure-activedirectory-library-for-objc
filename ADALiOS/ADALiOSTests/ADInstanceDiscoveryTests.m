@@ -330,6 +330,7 @@ const int sAsyncTimeout = 10;//in seconds
 //Does not call the server, just passes invalid authority
 -(void) testValidateAuthorityError
 {
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     [self validateAuthority:@"http://invalidscheme.com" correlationId:[NSUUID UUID] line:__LINE__];
     XCTAssertNotNil(mError);
     
@@ -402,7 +403,7 @@ const int sAsyncTimeout = 10;//in seconds
     XCTAssertTrue([mValidatedAuthorities containsObject:@"https://login.windows.net"]);
     
     //Now hit explicitly non-cached:
-    [self validateAuthority:@"https://login.windows-ppe.net/common" line:__LINE__];
+    [self validateAuthority:@"https://login.windows-ppe.net/common" correlationId:nil line:__LINE__];
     XCTAssertTrue(mValidated);
     XCTAssertNil(mError);
     XCTAssertTrue([mValidatedAuthorities containsObject:@"https://login.windows-ppe.net"]);
@@ -411,7 +412,7 @@ const int sAsyncTimeout = 10;//in seconds
     ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
     dispatch_queue_t savedQueue = settings.dispatchQueue;
     settings.dispatchQueue = nil;//point nowhere, so that any attempt to a server call will crash.
-    [self validateAuthority:@"https://login.windows-ppe.net/common" line:__LINE__];
+    [self validateAuthority:@"https://login.windows-ppe.net/common" correlationId:[NSUUID UUID] line:__LINE__];
     XCTAssertTrue(mValidated);
     XCTAssertNil(mError);
     XCTAssertTrue([mValidatedAuthorities containsObject:@"https://login.windows-ppe.net"]);
@@ -421,6 +422,7 @@ const int sAsyncTimeout = 10;//in seconds
 //Ensures that an invalid authority is not approved
 -(void) testNonValidatedAuthority
 {
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     NSUUID* correlationId = [NSUUID UUID];
     [self validateAuthority:@"https://MyFakeAuthority.com/MSOpenTechBV.onmicrosoft.com" correlationId:correlationId line:__LINE__];
     XCTAssertFalse(mValidated);

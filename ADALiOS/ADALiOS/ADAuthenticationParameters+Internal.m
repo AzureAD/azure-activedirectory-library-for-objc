@@ -96,7 +96,7 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
                                                                                         error:&rgError];
         if (overAllRegEx)
         {
-            int matched = [overAllRegEx numberOfMatchesInString:headerContents options:0 range:NSMakeRange(0, headerContents.length)];
+            long matched = [overAllRegEx numberOfMatchesInString:headerContents options:0 range:NSMakeRange(0, headerContents.length)];
             if (!matched)
             {
                 adError = [self invalidHeader:headerContents];

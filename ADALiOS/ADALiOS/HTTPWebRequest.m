@@ -79,7 +79,6 @@ NSString *const HTTPPost = @"POST";
     correlationId: (NSUUID*) correlationId
 {
     THROW_ON_CONDITION_ARGUMENT(![self verifyRequestURL:requestURL], requestURL);//Should have been checked by the caller
-    THROW_ON_NIL_ARGUMENT(correlationId);
     
     self = [super init];
 
@@ -141,12 +140,14 @@ NSString *const HTTPPost = @"POST";
     [_requestHeaders setValue:[_requestURL authority] forKey:@"Host"];
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
     //Correlation id:
-    [_requestHeaders addEntriesFromDictionary:
-     @{
-       OAUTH2_CORRELATION_ID_REQUEST:@"true",
-       OAUTH2_CORRELATION_ID_REQUEST_VALUE:[_correlationId UUIDString]
-       }];
-
+    if (_correlationId)
+    {
+        [_requestHeaders addEntriesFromDictionary:
+         @{
+           OAUTH2_CORRELATION_ID_REQUEST:@"true",
+           OAUTH2_CORRELATION_ID_REQUEST_VALUE:[_correlationId UUIDString]
+           }];
+    }
     // If there is request data, then set the Content-Length header
     if ( _requestData != nil )
     {
