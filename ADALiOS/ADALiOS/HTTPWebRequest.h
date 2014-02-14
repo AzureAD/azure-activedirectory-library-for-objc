@@ -30,7 +30,8 @@ extern NSString *const HTTPPost;
 @property (strong)                      NSData              *body;
 @property (nonatomic)           NSUInteger           timeout;
 
-- (id)initWithURL:(NSURL*)url;
+- (id)initWithURL: (NSURL*)url
+    correlationId: (NSUUID*) correlationId;
 
 - (void)send:( void (^)( NSError *, HTTPWebResponse *) )completionHandler;
 

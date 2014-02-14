@@ -45,7 +45,9 @@ NSString *const OAUTH2_TOKEN_SUFFIX       = @"/oauth2/token";
 NSString *const OAUTH2_TOKEN_TYPE         = @"token_type";
 NSString *const OAUTH2_LOGIN_HINT         = @"login_hint";
 NSString *const OAUTH2_ID_TOKEN           = @"id_token";
-NSString *const OAUTH2_CORRELATION_ID     = @"correlation_id";
+NSString *const OAUTH2_CORRELATION_ID_RESPONSE  = @"correlation_id";
+NSString *const OAUTH2_CORRELATION_ID_REQUEST   = @"return-client-request-id";
+NSString *const OAUTH2_CORRELATION_ID_REQUEST_VALUE = @"client-request-id";
 
 //Diagnostic traces sent to the Azure Active Directory servers:
 NSString *const ADAL_ID_PLATFORM          = @"x-client-SKU";//The ADAL platform. iOS or OSX

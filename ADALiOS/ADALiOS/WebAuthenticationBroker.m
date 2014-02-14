@@ -16,6 +16,8 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import "ADALiOS.h"
+#import "ADOAuth2Constants.h"
 #import "UIApplicationExtensions.h"
 #import "ADAuthenticationContext.h"
 #import "WebAuthenticationDelegate.h"
@@ -170,16 +172,28 @@ static NSString *_resourcePath = nil;
     }
 }
 
+-(NSURL*) addToURL: (NSURL*) url
+     correlationId: (NSUUID*) correlationId
+{
+    return [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@",
+                                 [url absoluteString], OAUTH2_CORRELATION_ID_REQUEST_VALUE, [correlationId UUIDString]]];
+}
+
 #pragma mark - Public Methods
 
-// Start the authentication process. Note that there are two different behaviours here dependent on whether the caller has provided
-// a WebView to host the browser interface. If no WebView is provided, then a full window is launched that hosts a WebView to run
-// the authentication process. If a WebView is provided, then that is used instead of launching a complete window.
-- (void)start:(NSURL *)startURL end:(NSURL *)endURL webView:(UIWebView *)webView fullScreen:(BOOL)fullScreen completion:(ADBrokerCallback)completionBlock
+- (void)start:(NSURL *)startURL
+          end:(NSURL *)endURL
+      webView:(UIWebView *)webView
+   fullScreen:(BOOL)fullScreen
+correlationId:(NSUUID *)correlationId
+   completion:(ADBrokerCallback)completionBlock
 {
-    NSAssert( startURL != nil, @"startURL is nil" );
-    NSAssert( endURL != nil, @"endURL is nil" );
-    NSAssert( completionBlock != nil, @"completionBlock is nil" );
+    THROW_ON_NIL_ARGUMENT(startURL);
+    THROW_ON_NIL_ARGUMENT(endURL);
+    THROW_ON_NIL_ARGUMENT(correlationId);
+    THROW_ON_NIL_ARGUMENT(completionBlock)
+    
+    startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
     
     // Save the completion block
     _completionBlock = [completionBlock copy];

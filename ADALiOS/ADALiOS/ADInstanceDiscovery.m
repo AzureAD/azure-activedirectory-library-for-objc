@@ -91,6 +91,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
  "https://login.windows.net". Returns nil and reaises an error if the protocol
  is not https or the authority is not a valid URL.*/
 -(NSString*) extractHost: (NSString*) authority
+           correlationId: (NSUUID*) correlationId
                    error: (ADAuthenticationError* __autoreleasing *) error
 {
     NSURL* fullUrl = [NSURL URLWithString:authority.lowercaseString];
@@ -105,7 +106,8 @@ NSString* const sValidationServerError = @"The authority validation server retur
         NSArray* paths = fullUrl.pathComponents;
         if (paths.count < 2)
         {
-            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT protocolCode:nil errorDetails:@"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com"];
+            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT protocolCode:nil errorDetails:
+                       [NSString stringWithFormat:@"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com. CorrelationId: %@", correlationId]];
         }
         else
         {
@@ -114,7 +116,8 @@ NSString* const sValidationServerError = @"The authority validation server retur
             {
                 adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
                                                                  protocolCode:nil
-                                                                 errorDetails:@"Authority validation is not supported for ADFS instances. Consider disabling the authority validation in the authentication context."];
+                                                                 errorDetails:
+                           [NSString stringWithFormat:@"Authority validation is not supported for ADFS instances. Consider disabling the authority validation in the authentication context. CorrelationId: %@", correlationId]];
             }
         }
     }
@@ -132,16 +135,21 @@ NSString* const sValidationServerError = @"The authority validation server retur
 }
 
 -(void) validateAuthority: (NSString*) authority
-          completionBlock: (ADDiscoveryCallback) completionBlock
+            correlationId: (NSUUID*) correlationId
+          completionBlock: (ADDiscoveryCallback) completionBlock;
 {
     API_ENTRY;
     THROW_ON_NIL_ARGUMENT(completionBlock);
+    if (!correlationId)
+    {
+        correlationId = [NSUUID UUID];//Create one if not passed.
+    }
     
-    NSString* message = [NSString stringWithFormat:@"Attempting to validate the authority: %@", authority];
+    NSString* message = [NSString stringWithFormat:@"Attempting to validate the authority: %@; CorrelationId: %@", authority, correlationId];
     AD_LOG_VERBOSE(@"Instance discovery", message);
     
     ADAuthenticationError* error;
-    NSString* authorityHost = [self extractHost:authority error:&error];
+    NSString* authorityHost = [self extractHost:authority correlationId:correlationId error:&error];
     if (error)
     {
         completionBlock(NO, error);
@@ -162,6 +170,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
         [self requestValidationOfAuthority:authority
                                       host:authorityHost
                           trustedAuthority:sTrustedAuthority
+                             correlationId:correlationId
                            completionBlock:completionBlock];
     });
 }
@@ -203,9 +212,11 @@ NSString* const sValidationServerError = @"The authority validation server retur
 -(void) requestValidationOfAuthority: (NSString*) authority
                                 host: (NSString*) authorityHost
                     trustedAuthority: (NSString*) trustedAuthority
+                       correlationId: (NSUUID*) correlationId
                      completionBlock: (ADDiscoveryCallback) completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
+    THROW_ON_NIL_ARGUMENT(correlationId);//Should be set by the caller
     
     //All attempts to complete are done. Now try to validate the authorization ednpoint:
     NSString* authorizationEndpoint = [authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX];
@@ -218,7 +229,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
     NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, sInstanceDiscoverySuffix, [request_data URLFormEncode]];
 
     AD_LOG_VERBOSE(@"Authority Validation Request", endPoint);
-    HTTPWebRequest *webRequest = [[HTTPWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]];
+    HTTPWebRequest *webRequest = [[HTTPWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint] correlationId:correlationId];
     
     webRequest.method = HTTPGet;
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];

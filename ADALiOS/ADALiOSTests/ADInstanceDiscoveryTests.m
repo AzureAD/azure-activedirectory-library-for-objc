@@ -35,6 +35,7 @@ const int sAsyncTimeout = 10;//in seconds
 @protocol TestInstanceDiscovery <NSObject>
 
 -(NSString*) extractHost: (NSString*) authority
+           correlationId: (NSUUID*) correlationId
                    error: (ADAuthenticationError* __autoreleasing *) error;
 -(BOOL) isAuthorityValidated: (NSString*) authorityHost;
 -(void) setAuthorityValidation: (NSString*) authorityHost;
@@ -42,6 +43,7 @@ const int sAsyncTimeout = 10;//in seconds
 -(void) requestValidationOfAuthority: (NSString*) authority
                                 host: (NSString*) authorityHost
                     trustedAuthority: (NSString*) trustedAuthority
+                       correlationId: (NSUUID*) correlationId
                      completionBlock: (ADDiscoveryCallback) completionBlock;
 
 @end
@@ -146,45 +148,45 @@ const int sAsyncTimeout = 10;//in seconds
 {
     //Nil:
     ADAuthenticationError* error;
-    NSString* result = [mTestInstanceDiscovery extractHost:nil error:&error];
+    NSString* result = [mTestInstanceDiscovery extractHost:nil correlationId:nil error:&error];
     XCTAssertNil(result);
     [self validateForInvalidArgument:@"authority" error:error];
     error = nil;//Cleanup
     
     //Do not pass error object. Make sure error is logged.
     [self clearLogs];
-    result = [mTestInstanceDiscovery extractHost:nil error:nil];
+    result = [mTestInstanceDiscovery extractHost:nil correlationId:nil error:nil];
     XCTAssertNil(result);
     ADAssertLogsContain(TEST_LOG_MESSAGE, "Error");
     ADAssertLogsContain(TEST_LOG_INFO, "authority");
     error = nil;
     
     //White space string:
-    result = [mTestInstanceDiscovery extractHost:@"   " error:&error];
+    result = [mTestInstanceDiscovery extractHost:@"   " correlationId:nil error:&error];
     XCTAssertNil(result);
     [self validateForInvalidArgument:@"authority" error:error];
     error = nil;
     
     //Invalid URL:
-    result = [mTestInstanceDiscovery extractHost:@"a sdfasdfasas;djfasd jfaosjd fasj;" error:&error];
+    result = [mTestInstanceDiscovery extractHost:@"a sdfasdfasas;djfasd jfaosjd fasj;" correlationId:nil error:&error];
     XCTAssertNil(result);
     [self validateForInvalidArgument:@"authority" error:error];
     error = nil;
     
     //Invalid URL scheme (not using SSL):
-    result = [mTestInstanceDiscovery extractHost:@"http://login.windows.net" error:&error];
+    result = [mTestInstanceDiscovery extractHost:@"http://login.windows.net" correlationId:nil error:&error];
     XCTAssertNil(result);
     [self validateForInvalidArgument:@"authority" error:error];
     error = nil;
     
     //Path
-    result = [mTestInstanceDiscovery extractHost:@"././login.windows.net" error:&error];
+    result = [mTestInstanceDiscovery extractHost:@"././login.windows.net" correlationId:nil error:&error];
     XCTAssertNil(result);
     [self validateForInvalidArgument:@"authority" error:error];
     error = nil;
     
     //Relative URL
-    result = [mTestInstanceDiscovery extractHost:@"login" error:&error];
+    result = [mTestInstanceDiscovery extractHost:@"login" correlationId:nil error:&error];
     XCTAssertNil(result);
     [self validateForInvalidArgument:@"authority" error:error];
     error = nil;
@@ -194,21 +196,21 @@ const int sAsyncTimeout = 10;//in seconds
 {
     ADAuthenticationError* error;
     NSString* authority = @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize";
-    NSString* result = [mTestInstanceDiscovery extractHost:authority error:&error];
+    NSString* result = [mTestInstanceDiscovery extractHost:authority correlationId:nil error:&error];
     ADAssertNoError;
     ADAssertStringEquals(result, @"https://login.windows.net");
     error = nil;//Cleanup
     
     //End with "/"
     authority = @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize/";
-    result = [mTestInstanceDiscovery extractHost:authority error:&error];
+    result = [mTestInstanceDiscovery extractHost:authority correlationId:nil error:&error];
     ADAssertNoError;
     ADAssertStringEquals(result, @"https://login.windows.net");
     error = nil;
     
     //End with "/" and base only:
     authority = @"httpS://Login.Windows.Net/stuff";
-    result = [mTestInstanceDiscovery extractHost:authority error:&error];
+    result = [mTestInstanceDiscovery extractHost:authority correlationId:[NSUUID UUID] error:&error];
     ADAssertNoError;
     ADAssertStringEquals(result, @"https://login.windows.net");
     error = nil;
@@ -296,13 +298,14 @@ const int sAsyncTimeout = 10;//in seconds
 //Calls the asynchronous "validateAuthority" method and waits for completion.
 //Sets the iVars of the test class according to the response. note t
 -(void) validateAuthority: (NSString*) authority
+            correlationId: (NSUUID*)correlationId
                      line: (int) line
 {
     mError = nil;//Reset
     static volatile int completion = 0;//Set to 1 at the end of the callback
     [self callAndWaitWithFile:@"" __FILE__ line:line completionSignal:&completion block:^
      {
-         [mInstanceDiscovery validateAuthority:authority completionBlock:^(BOOL validated, ADAuthenticationError *error)
+         [mInstanceDiscovery validateAuthority:authority correlationId:correlationId completionBlock:^(BOOL validated, ADAuthenticationError *error)
           {
               mValidated = validated;
               mError = error;
@@ -322,17 +325,17 @@ const int sAsyncTimeout = 10;//in seconds
 //Does not call the server, just passes invalid authority
 -(void) testValidateAuthorityError
 {
-    [self validateAuthority:@"http://invalidscheme.com" line:__LINE__];
+    [self validateAuthority:@"http://invalidscheme.com" correlationId:[NSUUID UUID] line:__LINE__];
     XCTAssertNotNil(mError);
     
-    [self validateAuthority:@"https://Invalid URL 2305 8 -0238460-820-386" line:__LINE__];
+    [self validateAuthority:@"https://Invalid URL 2305 8 -0238460-820-386" correlationId:nil line:__LINE__];
     XCTAssertNotNil(mError);
 }
 
 //Does not call the server, just leverages the cache:
 -(void) testValidateAuthorityCache
 {
-    [self validateAuthority:[NSString stringWithFormat:@"%@/common", sAlwaysTrusted] line:__LINE__];
+    [self validateAuthority:[NSString stringWithFormat:@"%@/common", sAlwaysTrusted] correlationId:nil line:__LINE__];
     XCTAssertTrue(mValidated);
     XCTAssertNil(mError);
 }
@@ -387,7 +390,7 @@ const int sAsyncTimeout = 10;//in seconds
 -(void) testNormalFlow
 {
     [mValidatedAuthorities removeAllObjects];//Clear, as "login.windows.net" is already cached.
-    [self validateAuthority:@"https://Login.Windows.Net/MSOpenTechBV.onmicrosoft.com" line:__LINE__];
+    [self validateAuthority:@"https://Login.Windows.Net/MSOpenTechBV.onmicrosoft.com" correlationId:nil line:__LINE__];
     XCTAssertTrue(mValidated);
     XCTAssertNil(mError);
     XCTAssertTrue([mValidatedAuthorities containsObject:@"https://login.windows.net"]);
@@ -396,10 +399,12 @@ const int sAsyncTimeout = 10;//in seconds
 //Ensures that an invalid authority is not approved
 -(void) testNonValidatedAuthority
 {
-    [self validateAuthority:@"https://MyFakeAuthority.com/MSOpenTechBV.onmicrosoft.com" line:__LINE__];
+    NSUUID* correlationId = [NSUUID UUID];
+    [self validateAuthority:@"https://MyFakeAuthority.com/MSOpenTechBV.onmicrosoft.com" correlationId:correlationId line:__LINE__];
     XCTAssertFalse(mValidated);
     XCTAssertNotNil(mError);
     ADAssertLongEquals(AD_ERROR_AUTHORITY_VALIDATION, mError.code);
+    XCTAssertTrue([mError.errorDetails containsString:[correlationId UUIDString].lowercaseString]);
 }
 
 -(void) testUnreachableServer
@@ -410,6 +415,7 @@ const int sAsyncTimeout = 10;//in seconds
         [mTestInstanceDiscovery requestValidationOfAuthority:@"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com"
                                                         host:@"https://login.windows.cn"
                                             trustedAuthority:@"https://SomeValidURLButNotExistentInTheNet.com"
+                                               correlationId:[NSUUID UUID]
                                              completionBlock:^(BOOL validated, ADAuthenticationError *error)
          {
              mValidated = validated;

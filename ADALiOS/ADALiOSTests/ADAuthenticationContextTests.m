@@ -769,7 +769,7 @@ const int sAsyncContextTimeout = 10;
     [self.testContext->mResponse1 setObject:@"accessToken" forKey:OAUTH2_ACCESS_TOKEN];
     NSString* idToken = @"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiJjM2M3ZjVlNS03MTUzLTQ0ZDQtOTBlNi0zMjk2ODZkNDhkNzYiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82ZmQxZjVjZC1hOTRjLTQzMzUtODg5Yi02YzU5OGU2ZDgwNDgvIiwiaWF0IjoxMzg3MjI0MTY5LCJuYmYiOjEzODcyMjQxNjksImV4cCI6MTM4NzIyNzc2OSwidmVyIjoiMS4wIiwidGlkIjoiNmZkMWY1Y2QtYTk0Yy00MzM1LTg4OWItNmM1OThlNmQ4MDQ4Iiwib2lkIjoiNTNjNmFjZjItMjc0Mi00NTM4LTkxOGQtZTc4MjU3ZWM4NTE2IiwidXBuIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInVuaXF1ZV9uYW1lIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IjBEeG5BbExpMTJJdkdMX2RHM2RETWszenA2QVFIbmpnb2d5aW01QVdwU2MiLCJmYW1pbHlfbmFtZSI6IlZpZG9sb3Z2IiwiZ2l2ZW5fbmFtZSI6IkJvcmlzcyJ9.";
     [self.testContext->mResponse1 setObject:idToken forKey:OAUTH2_ID_TOKEN];
-    [self.testContext->mResponse1 setObject:[correlationId UUIDString] forKey:OAUTH2_CORRELATION_ID];
+    [self.testContext->mResponse1 setObject:[correlationId UUIDString] forKey:OAUTH2_CORRELATION_ID_RESPONSE];
     acquireTokenAsync;
     ADAssertLongEquals(mResult.status, AD_SUCCEEDED);
     XCTAssertEqualObjects(self.testContext->mCorrelationId1, correlationId);
@@ -788,11 +788,11 @@ const int sAsyncContextTimeout = 10;
     
     self.testContext->mAllowTwoRequests = YES;
     //Pass different UUID to the first (error) response:
-    [self.testContext->mResponse1 setObject:[[NSUUID UUID] UUIDString] forKey:OAUTH2_CORRELATION_ID];
+    [self.testContext->mResponse1 setObject:[[NSUUID UUID] UUIDString] forKey:OAUTH2_CORRELATION_ID_RESPONSE];
     [self.testContext->mResponse1 setObject:@"bad_refresh_token" forKey:OAUTH2_ERROR];
     
     //Pass invalid UUID to the second (access token) response:
-    [self.testContext->mResponse2 setObject:@"invalid UUID" forKey:OAUTH2_CORRELATION_ID];
+    [self.testContext->mResponse2 setObject:@"invalid UUID" forKey:OAUTH2_CORRELATION_ID_RESPONSE];
     [self.testContext->mResponse2 setObject:@"accessToken" forKey:OAUTH2_ACCESS_TOKEN];
 
     acquireTokenAsync;
@@ -807,7 +807,7 @@ const int sAsyncContextTimeout = 10;
     //Now do the same, but this time return a valid (but different) correlation id:
     NSUUID* anotherOne = [NSUUID UUID];
     [self addCacheWithToken:nil refreshToken:@"some refresh token"];//Force using of refresh token
-    [self.testContext->mResponse2 setObject:[anotherOne UUIDString] forKey:OAUTH2_CORRELATION_ID];
+    [self.testContext->mResponse2 setObject:[anotherOne UUIDString] forKey:OAUTH2_CORRELATION_ID_RESPONSE];
     acquireTokenAsync;
     
     ADAssertLongEquals(mResult.status, AD_SUCCEEDED);
