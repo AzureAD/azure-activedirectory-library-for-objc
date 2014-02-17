@@ -70,7 +70,7 @@ if (![self checkAndHandleBadArgument:ARG \
     if ([NSString isStringNilOrBlank:argumentValue])
     {
         ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:argumentError correlationId:self.correlationId];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:argumentError];
         completionBlock(result);//Call the callback to tell about the result
         return NO;
     }
@@ -240,7 +240,8 @@ if (![self checkAndHandleBadArgument:ARG \
     if (useAccessToken)
     {
         //Access token is good, just use it:
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:NO correlationId:correlationId];
+        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:nil];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:NO];
         completionBlock(result);
         return;
     }
@@ -248,8 +249,7 @@ if (![self checkAndHandleBadArgument:ARG \
     if ([NSString isStringNilOrBlank:item.refreshToken])
     {
         completionBlock([ADAuthenticationResult resultFromError:
-                         [ADAuthenticationError unexpectedInternalError:@"Attempting to use an item without refresh token."]
-                                                  correlationId:self.correlationId]);
+                         [ADAuthenticationError unexpectedInternalError:@"Attempting to use an item without refresh token."]]);
         return;
     }
     
@@ -281,7 +281,7 @@ if (![self checkAndHandleBadArgument:ARG \
                  ADTokenCacheStoreItem* broadItem = [self findCacheItemWithKey:broadKey userId:userId useAccessToken:&useAccessToken error:&error];
                  if (error)
                  {
-                     completionBlock([ADAuthenticationResult resultFromError:error correlationId:self.correlationId]);
+                     completionBlock([ADAuthenticationResult resultFromError:error]);
                      return;
                  }
                  
@@ -492,7 +492,7 @@ if (![self checkAndHandleBadArgument:ARG \
         {
             if (error)
             {
-                completionBlock([ADAuthenticationResult resultFromError:error correlationId:self.correlationId]);
+                completionBlock([ADAuthenticationResult resultFromError:error]);
             }
             else
             {
@@ -520,7 +520,7 @@ if (![self checkAndHandleBadArgument:ARG \
     if (!key)
     {
         //If the key cannot be extracted, call the callback with the information:
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:self.correlationId];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error];
         completionBlock(result);
         return;
     }
@@ -532,7 +532,7 @@ if (![self checkAndHandleBadArgument:ARG \
         ADTokenCacheStoreItem* cacheItem = [self findCacheItemWithKey:key userId:userId useAccessToken:&accessTokenUsable error:&error];
         if (error)
         {
-            completionBlock([ADAuthenticationResult resultFromError:error correlationId:self.correlationId]);
+            completionBlock([ADAuthenticationResult resultFromError:error]);
             return;
         }
         
@@ -561,7 +561,7 @@ if (![self checkAndHandleBadArgument:ARG \
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_INPUT_NEEDED
                                                protocolCode:nil
                                                errorDetails:credentialsNeeded];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:self.correlationId];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error];
         completionBlock(result);
         return;
     }
@@ -583,7 +583,7 @@ if (![self checkAndHandleBadArgument:ARG \
                             if (error)
                             {
                                 ADAuthenticationResult* result = (AD_ERROR_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation]
-                                : [ADAuthenticationResult resultFromError:error correlationId:self.correlationId];
+                                : [ADAuthenticationResult resultFromError:error];
                                 completionBlock(result);
                             }
                             else
@@ -593,6 +593,7 @@ if (![self checkAndHandleBadArgument:ARG \
                                                 clientId:clientId
                                              redirectUri:redirectUri
                                                    scope:scope
+                                           correlationId:correlationId
                                               completion:^(ADAuthenticationResult *result)
                                  {
                                      if (AD_SUCCEEDED == result.status)
@@ -739,7 +740,7 @@ if (![self checkAndHandleBadArgument:ARG \
          {
              if (error)
              {
-                 completionBlock([ADAuthenticationResult resultFromError:error correlationId:self.correlationId]);
+                 completionBlock([ADAuthenticationResult resultFromError:error]);
              }
              else
              {
@@ -756,6 +757,7 @@ if (![self checkAndHandleBadArgument:ARG \
          return;//The asynchronous block above will handle everything;
     }
     
+    [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:nil];
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                          OAUTH2_REFRESH_TOKEN, OAUTH2_GRANT_TYPE,
@@ -776,10 +778,9 @@ if (![self checkAndHandleBadArgument:ARG \
     dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
                    {
                        AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@'; user:'%@'", clientId, resource, userId);
-                       NSUUID* requestId = [self getRequestCorrelationId];
                        [self request:self.authority
                          requestData:request_data
-                        requestCorrelationId:requestId
+                        requestCorrelationId:correlationId
                           completion:^(NSDictionary *response)
                         {
                             ADTokenCacheStoreItem* resultItem = (cacheItem) ? cacheItem : [ADTokenCacheStoreItem new];
@@ -791,7 +792,7 @@ if (![self checkAndHandleBadArgument:ARG \
                             resultItem.authority = self.authority;
                             
                             
-                            ADAuthenticationResult *result = [self processTokenResponse:response forItem:resultItem fromRefresh:YES requestCorrelationId:requestId];
+                            ADAuthenticationResult *result = [self processTokenResponse:response forItem:resultItem fromRefresh:YES requestCorrelationId:correlationId];
                             if (cacheItem)//The request came from the cache item, update it:
                             {
                                 [self updateCacheToResult:result
@@ -821,18 +822,22 @@ if (![self checkAndHandleBadArgument:ARG \
         responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
         if (!responseUUID)
         {
-            AD_LOG_WARN_F(@"Bad correlation id", @"The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, responseId);
+            AD_LOG_INFO_F(@"Bad correlation id", @"The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, responseId);
         }
         else if (![requestCorrelationId isEqual:responseUUID])
         {
-            AD_LOG_WARN_F(@"Correlation id mismatch", @"Mismatch between the sent correlation id and the received one. Sent: %@; Received: %@", requestCorrelationId, responseId);
+            AD_LOG_INFO_F(@"Correlation id mismatch", @"Mismatch between the sent correlation id and the received one. Sent: %@; Received: %@", requestCorrelationId, responseId);
         }
+    }
+    else
+    {
+        AD_LOG_INFO_F(@"Missing correlation id", @"No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
     }
     
     ADAuthenticationError* error = [self errorFromDictionary:response errorCode:(fromRefreshTokenWorkflow) ? AD_ERROR_INVALID_REFRESH_TOKEN : AD_ERROR_AUTHENTICATION];
     if (error)
     {
-        return [ADAuthenticationResult resultFromError:error correlationId:responseUUID];
+        return [ADAuthenticationResult resultFromError:error];
     }
     
     NSString* accessToken = [response objectForKey:OAUTH2_ACCESS_TOKEN];
@@ -872,6 +877,8 @@ if (![self checkAndHandleBadArgument:ARG \
         
         item.accessTokenType = [response objectForKey:OAUTH2_TOKEN_TYPE];
         item.expiresOn       = expires;
+        [ADLogger logToken:accessToken tokenType:@"access token" expiresOn:expires correlationId:responseUUID];
+        
         item.refreshToken    = [response objectForKey:OAUTH2_REFRESH_TOKEN];
         NSString* resource   = [response objectForKey:OAUTH2_RESOURCE];
         BOOL multiResourceRefreshToken = NO;
@@ -885,6 +892,10 @@ if (![self checkAndHandleBadArgument:ARG \
             //this token is a multi-resource refresh token:
             multiResourceRefreshToken = ![NSString isStringNilOrBlank:item.refreshToken];
         }
+        [ADLogger logToken:item.refreshToken
+                 tokenType:multiResourceRefreshToken ? @"multi-resource refresh token": @"refresh token"
+                 expiresOn:nil
+             correlationId:responseUUID];
         
         NSString* idToken = [response objectForKey:OAUTH2_ID_TOKEN];
         if (idToken)
@@ -896,7 +907,7 @@ if (![self checkAndHandleBadArgument:ARG \
             }
         }
         
-        return [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:multiResourceRefreshToken correlationId:responseUUID];
+        return [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:multiResourceRefreshToken];
     }
     
     //No access token and no error, we assume that there was another kind of error (connection, server down, etc.).
@@ -905,7 +916,7 @@ if (![self checkAndHandleBadArgument:ARG \
     error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
                                                    protocolCode:nil
                                                    errorDetails:errorMessage];
-    return [ADAuthenticationResult resultFromError:error correlationId:responseUUID];
+    return [ADAuthenticationResult resultFromError:error];
 }
 
 //Ensures that a single UI login dialog can be requested at a time.
@@ -1091,21 +1102,17 @@ if (![self checkAndHandleBadArgument:ARG \
      }];
 }
 
-//Returns a suitable correlation ID:
--(NSUUID*) getRequestCorrelationId
-{
-    return self.correlationId ? self.correlationId : [NSUUID UUID];
-}
-
 // Generic OAuth2 Authorization Request, obtains a token from an authorization code.
 - (void)requestTokenByCode: (NSString *) code
                   resource: (NSString *) resource
                   clientId: (NSString*) clientId
                redirectUri: (NSURL*) redirectUri
                      scope: (NSString*) scope
+             correlationId: (NSUUID*) correlationId
                 completion: (ADAuthenticationCallback) completionBlock
 {
     THROW_ON_NIL_EMPTY_ARGUMENT(code);
+    THROW_ON_NIL_ARGUMENT(correlationId);//Should be set by the caller
     AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code for resource: %@", resource);
     
     //Fill the data for the token refreshing:
@@ -1116,17 +1123,16 @@ if (![self checkAndHandleBadArgument:ARG \
                                          [redirectUri absoluteString], OAUTH2_REDIRECT_URI,
                                          nil];
     
-    NSUUID* requestId = [self getRequestCorrelationId];
     [self request:self.authority
       requestData:request_data
-requestCorrelationId:requestId
+requestCorrelationId:correlationId
        completion:^(NSDictionary *response)
     {
         //Prefill the known elements in the item. These can be overridden by the response:
         ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
         item.resource = resource;
         item.clientId = clientId;
-        completionBlock([self processTokenResponse:response forItem:item fromRefresh:NO requestCorrelationId:requestId]);
+        completionBlock([self processTokenResponse:response forItem:item fromRefresh:NO requestCorrelationId:correlationId]);
     }];
 }
 
@@ -1153,10 +1159,18 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
     
     [webRequest send:^( NSError *error, HTTPWebResponse *webResponse ) {
         // Request completion callback
-        NSDictionary *response = nil;
+        NSMutableDictionary *response = [NSMutableDictionary new];
         
         if ( error == nil )
         {
+            NSDictionary* headers = webResponse.headers;
+            //In most cases the correlation id is returned as a separate header
+            NSString* responseCorrelationId = [headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE];
+            if (![NSString isStringNilOrBlank:responseCorrelationId])
+            {
+                [response setObject:responseCorrelationId forKey:OAUTH2_CORRELATION_ID_RESPONSE];//Add it to the dictionary to be logged and checked later.
+            }
+            
             switch (webResponse.statusCode)
             {
                 case 200:
@@ -1169,7 +1183,7 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
                         if ( nil != jsonObject && [jsonObject isKindOfClass:[NSDictionary class]] )
                         {
                             // Load the response
-                            response = (NSDictionary *)jsonObject;
+                            [response addEntriesFromDictionary:(NSDictionary*)jsonObject];
                         }
                         else
                         {
@@ -1184,10 +1198,7 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
                             {
                                 adError = [ADAuthenticationError unexpectedInternalError:[NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]]];
                             }
-                            NSMutableDictionary *mutableResponse = [[NSMutableDictionary alloc] initWithCapacity:1];
-                            [mutableResponse setObject:adError
-                                                forKey:AUTH_NON_PROTOCOL_ERROR];
-                            response = mutableResponse;
+                            [response setObject:adError forKey:AUTH_NON_PROTOCOL_ERROR];
                         }
                     }
                     break;
@@ -1199,11 +1210,8 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
                         AD_LOG_WARN(@"HTTP Error", errorData);
                         
                         //Now add the information to the dictionary, so that the parser can extract it:
-                        NSMutableDictionary *mutableResponse = [[NSMutableDictionary alloc] initWithCapacity:1];
-                        [mutableResponse setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:nil errorDetails:errorData]
-                                            forKey:AUTH_NON_PROTOCOL_ERROR];
-                        
-                        response = mutableResponse;
+                        [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:nil errorDetails:errorData]
+                                     forKey:AUTH_NON_PROTOCOL_ERROR];
                     }
             }
         }
@@ -1211,14 +1219,9 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
         {
             AD_LOG_WARN(@"System error while making request.", error.description);
             // System error
-            NSMutableDictionary *mutableResponse = [[NSMutableDictionary alloc] initWithCapacity:1];
-            [mutableResponse setObject:[ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription]
+            [response setObject:[ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription]
                                 forKey:AUTH_NON_PROTOCOL_ERROR];
-
-            
-            response = mutableResponse;
         }
-        
         completionBlock( response );
     }];
 }

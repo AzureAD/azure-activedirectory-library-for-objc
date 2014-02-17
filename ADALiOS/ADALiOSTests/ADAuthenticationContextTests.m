@@ -777,7 +777,6 @@ const int sAsyncContextTimeout = 10;
     acquireTokenAsync;
     ADAssertLongEquals(mResult.status, AD_SUCCEEDED);
     XCTAssertEqualObjects(self.testContext->mCorrelationId1, correlationId);
-    XCTAssertEqualObjects(mResult.correlationId, correlationId);
     ADAssertStringEquals(mResult.tokenCacheStoreItem.userInformation.userId, @"boris@msopentechbv.onmicrosoft.com");
 }
 
@@ -804,7 +803,6 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(mResult.status, AD_SUCCEEDED);
     XCTAssertEqualObjects(self.testContext->mCorrelationId1, correlationId);
     XCTAssertEqualObjects(self.testContext->mCorrelationId2, correlationId);
-    XCTAssertNil(mResult.correlationId, "Invalid UUID returned by the server");
     ADAssertLogsContain(TEST_LOG_MESSAGE, @"Bad correlation id");
     ADAssertLogsContain(TEST_LOG_MESSAGE, @"Correlation id mismatch");
     
@@ -817,7 +815,6 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(mResult.status, AD_SUCCEEDED);
     XCTAssertEqualObjects(self.testContext->mCorrelationId1, correlationId);
     XCTAssertEqualObjects(self.testContext->mCorrelationId2, correlationId);
-    XCTAssertEqualObjects(mResult.correlationId, anotherOne);
     ADAssertLogsContainValue(TEST_LOG_INFO, [anotherOne UUIDString]);
 }
 

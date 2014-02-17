@@ -47,7 +47,6 @@ typedef enum
     ADAuthenticationResultStatus    _status;
     ADAuthenticationError*          _error;
     BOOL                            _multiResourceRefreshToken;
-    NSUUID*                         _correlationId;
 }
 
 /*! See the ADAuthenticationResultStatus details */
@@ -61,10 +60,6 @@ typedef enum
 /*! Set to YES, if part of the result contains a refresh token, which is a multi-resource
  refresh token. */
 @property (readonly) BOOL multiResourceRefreshToken;
-
-/*! The correlation id, returned by the server. Used for diagnostic purposes. Can be nil, if
- the server did not return one, or the item was extracted from the cache. */
-@property (readonly) NSUUID* correlationId;
 
 @end
 

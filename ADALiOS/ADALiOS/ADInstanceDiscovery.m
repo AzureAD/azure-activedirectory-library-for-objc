@@ -107,7 +107,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
         if (paths.count < 2)
         {
             adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT protocolCode:nil errorDetails:
-                       [NSString stringWithFormat:@"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com. CorrelationId: %@", correlationId]];
+                       [NSString stringWithFormat:@"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com. CorrelationId: %@", [correlationId UUIDString]]];
         }
         else
         {
@@ -117,7 +117,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
                 adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
                                                                  protocolCode:nil
                                                                  errorDetails:
-                           [NSString stringWithFormat:@"Authority validation is not supported for ADFS instances. Consider disabling the authority validation in the authentication context. CorrelationId: %@", correlationId]];
+                           [NSString stringWithFormat:@"Authority validation is not supported for ADFS instances. Consider disabling the authority validation in the authentication context. CorrelationId: %@", [correlationId UUIDString]]];
             }
         }
     }
@@ -145,7 +145,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
         correlationId = [NSUUID UUID];//Create one if not passed.
     }
     
-    NSString* message = [NSString stringWithFormat:@"Attempting to validate the authority: %@; CorrelationId: %@", authority, correlationId];
+    NSString* message = [NSString stringWithFormat:@"Attempting to validate the authority: %@; CorrelationId: %@", authority, [correlationId UUIDString]];
     AD_LOG_VERBOSE(@"Instance discovery", message);
     
     ADAuthenticationError* error;

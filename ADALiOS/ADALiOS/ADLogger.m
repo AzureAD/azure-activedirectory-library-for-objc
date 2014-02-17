@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <mach/machine.h>
+#include <CommonCrypto/CommonDigest.h>
 
 ADAL_LOG_LEVEL sLogLevel = ADAL_LOG_LEVEL_ERROR;
 LogCallback sLogCallback;
@@ -162,6 +163,30 @@ additionalInformation: (NSString*) additionalInformation
         [result setObject:CPUVer forKey:ADAL_ID_CPU];
     }
     return result;
+}
++(NSString*) getHash: (NSString*) input
+{
+    if (!input)
+    {
+        return nil;//Handle gracefully
+    }
+    const char* inputStr = [input UTF8String];
+    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256(inputStr, (int)strlen(inputStr), hash);
+    NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
+    for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
+    {
+        [toReturn appendFormat:@"%02x", hash[i]];
+    }
+    return toReturn;
+}
+
++(void) logToken: (NSString*) token
+       tokenType: (NSString*) tokenType
+       expiresOn: (NSDate*) expiresOn
+   correlationId: (NSUUID*) correlationId
+{
+    AD_LOG_VERBOSE_F(@"Token returned", @"Obtained %@ with hash %@, expiring on %@ and correlationId: %@", tokenType, [self getHash:token], expiresOn, [correlationId UUIDString]);
 }
 
 @end

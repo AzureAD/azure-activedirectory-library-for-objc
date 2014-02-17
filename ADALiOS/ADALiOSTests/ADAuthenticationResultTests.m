@@ -73,7 +73,7 @@
 {
     [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"something"];
-    ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:nil];
+    ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error];
     [self verifyErrorResult:result errorCode:AD_ERROR_UNEXPECTED];
     XCTAssertEqualObjects(result.error, error, "Different error object in the result.");
 }
@@ -94,7 +94,7 @@
 -(void) testResultFromTokenCacheStoreItem
 {
     [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil multiResourceRefreshToken:NO  correlationId:nil];
+    ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil multiResourceRefreshToken:NO];
     [self verifyErrorResult:nilItemResult errorCode:AD_ERROR_UNEXPECTED];
     
     [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
@@ -112,20 +112,20 @@
     item.userInformation.tenantId = @"tenantId";
     
     //Copy the item to ensure that it is not modified withing the method call below:
-    ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO  correlationId:nil];
+    ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
     [self verifyResult:resultFromValidItem item:item];
     
     [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Nil access token:
     item.resource = @"resource";//Restore
     item.accessToken = nil;
-    ADAuthenticationResult* resultFromNilAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO  correlationId:nil];
+    ADAuthenticationResult* resultFromNilAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
     [self verifyErrorResult:resultFromNilAccessToken errorCode:AD_ERROR_UNEXPECTED];
 
     //Empty access token:
     item.resource = @"resource";//Restore
     item.accessToken = @"   ";
-    ADAuthenticationResult* resultFromEmptyAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO  correlationId:nil];
+    ADAuthenticationResult* resultFromEmptyAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
     [self verifyErrorResult:resultFromEmptyAccessToken errorCode:AD_ERROR_UNEXPECTED];
 }
 
