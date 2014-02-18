@@ -55,7 +55,7 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
             [self showError:result.error.errorDetails];
         }
         else{
-            completionBlock(result.tokenCacheStoreItem.accessToken);
+            completionBlock(result.accessToken);
         }
     }];
 }
