@@ -52,8 +52,6 @@
     return (mNumRequests == 1) ? mResponse1 : mResponse2;
 }
 
-
-
 //Override of the parent's request to allow testing of the class behavior.
 -(void)request:(NSString *)authorizationServer
    requestData:(NSDictionary *)request_data
@@ -92,7 +90,8 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
     
     
     //Verify the data sent to the server:
-    NSMutableDictionary* expectedRequest = [self getExpectedRequest];
+    //The expected list will be modified in the loop below
+    NSMutableDictionary* expectedRequest = [NSMutableDictionary dictionaryWithDictionary:[self getExpectedRequest]];
     for(NSString* key in [expectedRequest allKeys])
     {
         NSString* expected = [expectedRequest objectForKey:key];
@@ -103,12 +102,22 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
             completionBlock([self getResponse]);
             return;
         }
-        if (![expected isEqualToString:result])
+        if (expected.length && ![expected isEqualToString:result])//We pass empty string, when the value is not known, but the key is expected
         {
             mErrorMessage = [NSString stringWithFormat:@"Requested data: Unexpected value for the key (%@): Expected: '%@'; Actual: '%@'", key, expected, result];
             completionBlock([self getResponse]);
             return;
         }
+        else if (expected)
+        {
+            //The expected value was found; remove it from the expected list
+            [expectedRequest removeObjectForKey:key];
+        }
+    }
+    if (expectedRequest.count)
+    {
+        //Some of the expected value were not present in the request:
+        mErrorMessage = [NSString stringWithFormat:@"Request data: Missing expected headers: %@", expectedRequest];
     }
     
     NSMutableDictionary* responce = [self getResponse];

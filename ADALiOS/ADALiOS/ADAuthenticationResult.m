@@ -19,6 +19,7 @@
 
 
 #import "ADAuthenticationResult.h"
+#import "ADTokenCacheStoreItem.h"
 #import "ADALiOS.h"
 
 @implementation ADAuthenticationResult
@@ -28,7 +29,6 @@
 @synthesize status = _status;
 @synthesize error = _error;
 @synthesize multiResourceRefreshToken = _multiResourceRefreshToken;
-@synthesize correlationId = _correlationId;
 
 -(id) init
 {
@@ -37,5 +37,10 @@
     return nil;
 }
 
+/* Implements the accessToken property */
+-(NSString*) accessToken
+{
+    return self.tokenCacheStoreItem.accessToken;
+}
 
 @end

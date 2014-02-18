@@ -31,12 +31,11 @@ NSString* const cancelError = @"The user has cancelled the authorization.";
     ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_CANCEL
                                                                           protocolCode:nil
                                                                           errorDetails:cancelError];
-    return [self initWithError:error status:AD_USER_CANCELLED correlationId:nil];
+    return [self initWithError:error status:AD_USER_CANCELLED];
 }
 
 -(id) initWithItem: (ADTokenCacheStoreItem*) item
 multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
-     correlationId: (NSUUID*) correlationId
 {
     self = [super init];
     if (self)
@@ -44,14 +43,12 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         _status = AD_SUCCEEDED;
         _tokenCacheStoreItem = item;
         _multiResourceRefreshToken = multiResourceRefreshToken;
-        _correlationId = correlationId;
     }
     return self;
 }
 
 -(id) initWithError: (ADAuthenticationError*)error
              status: (ADAuthenticationResultStatus) status
-      correlationId: (NSUUID*) correlationId
 {
     THROW_ON_NIL_ARGUMENT(error);
     
@@ -60,7 +57,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     {
         _status = status;
         _error = error;
-        _correlationId = correlationId;
     }
     return self;
 }
@@ -68,7 +64,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 /*! Creates an instance of the result from the cache store. */
 +(ADAuthenticationResult*) resultFromTokenCacheStoreItem: (ADTokenCacheStoreItem*) item
                                multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
-                                           correlationId: (NSUUID*) correlationId
 {
     if (item)
     {
@@ -77,30 +72,29 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         if (error)
         {
             //Bad item, return error:
-            return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
+            return [ADAuthenticationResult resultFromError:error];
         }
         if ([NSString isStringNilOrBlank:item.accessToken])
         {
             //Bad item, the access token should be accurate, else an error should be
             //reported instead of this creator:
             ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult created from item with no access token."];
-            return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
+            return [ADAuthenticationResult resultFromError:error];
         }
         //The item can be used, just use it:
-        return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:multiResourceRefreshToken correlationId:correlationId];
+        return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:multiResourceRefreshToken];
     }
     else
     {
         ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult created from nil token item."];
-        return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
+        return [ADAuthenticationResult resultFromError:error];
     }
 }
 
 +(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error
-                             correlationId: (NSUUID*) correlationId;
 {
     ADAuthenticationResult* result = [ADAuthenticationResult alloc];
-    return [result initWithError:error status:AD_FAILED correlationId:correlationId];
+    return [result initWithError:error status:AD_FAILED];
 }
 
 +(ADAuthenticationResult*) resultFromCancellation

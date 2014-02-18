@@ -47,11 +47,15 @@ typedef enum
     ADAuthenticationResultStatus    _status;
     ADAuthenticationError*          _error;
     BOOL                            _multiResourceRefreshToken;
-    NSUUID*                         _correlationId;
 }
 
 /*! See the ADAuthenticationResultStatus details */
 @property (readonly) ADAuthenticationResultStatus status;
+
+/*! A valid access token, if the results indicates success. The property is 
+ calculated from the tokenCacheStoreItem one. The property is nil, in 
+ case of error.*/
+@property (readonly) NSString* accessToken;
 
 @property (readonly) ADTokenCacheStoreItem* tokenCacheStoreItem;
 
@@ -61,10 +65,6 @@ typedef enum
 /*! Set to YES, if part of the result contains a refresh token, which is a multi-resource
  refresh token. */
 @property (readonly) BOOL multiResourceRefreshToken;
-
-/*! The correlation id, returned by the server. Used for diagnostic purposes. Can be nil, if
- the server did not return one, or the item was extracted from the cache. */
-@property (readonly) NSUUID* correlationId;
 
 @end
 

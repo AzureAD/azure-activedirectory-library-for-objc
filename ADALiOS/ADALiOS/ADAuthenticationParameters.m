@@ -69,7 +69,7 @@
 
     dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue,^
     {
-        HTTPWebRequest* request = [[HTTPWebRequest alloc] initWithURL:resourceUrl];
+        HTTPWebRequest* request = [[HTTPWebRequest alloc] initWithURL:resourceUrl correlationId:nil];
         request.method = HTTPGet;
         AD_LOG_VERBOSE_F(@"Starting authorization challenge request", @"Resource: %@", resourceUrl);
         

@@ -174,7 +174,8 @@ const int sTokenWorkflowTimeout     = 20;
     
     __block ADAuthenticationResult* localResult;
     ADAuthenticationContext* context = [self createContextWithInstance:instance line:sourceLine];
-    
+    NSUUID* correlationId = [NSUUID UUID];
+    context.correlationId = correlationId;
     [context acquireTokenWithResource:instance.resource
                              clientId:instance.clientId
                           redirectUri:[NSURL URLWithString:instance.redirectUri]

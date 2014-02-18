@@ -51,6 +51,18 @@ typedef enum
   errorCode: (NSInteger) errorCode
 additionalInformation: (NSString*) additionalInformation;
 
+/*! Logs obtaining of a token. The method does not log the actual token, only its hash.
+ @param token: the token to log.
+ @param tokenType: "access token", "refresh token", "multi-resource refresh token"
+ @param expiresOn: the time when an access token will stop to be valid. Nil for refresh token types.
+ @param correlationId: In case the token was just obtained from the server, the correlation id of the call.
+ This parameter can be nil.
+*/
++(void) logToken: (NSString*) token
+       tokenType: (NSString*) tokenType
+       expiresOn: (NSDate*) expiresOn
+   correlationId: (NSUUID*) correlationId;
+
 
 //The block declaration. Needs to be weak to ensure that the pointer does not hold static reference
 //to the parent class of the callback.

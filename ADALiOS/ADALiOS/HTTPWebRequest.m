@@ -16,11 +16,13 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import "ADALiOS.h"
+#import "ADOAuth2Constants.h"
 #import "NSURLExtensions.h"
 
 #import "HTTPWebRequest.h"
 #import "HTTPWebResponse.h"
-#import "ADLogger.h"
+
 
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
@@ -41,6 +43,7 @@ NSString *const HTTPPost = @"POST";
     
     NSHTTPURLResponse   *_response;
     NSMutableData       *_responseData;
+    NSUUID              *_correlationId;
 
     void (^_completionHandler)( NSError *, HTTPWebResponse *);
 }
@@ -72,13 +75,13 @@ NSString *const HTTPPost = @"POST";
 
 #pragma mark - Initialization
 
-- (id)initWithURL:(NSURL*)requestURL
+- (id)initWithURL: (NSURL*) requestURL
+    correlationId: (NSUUID*) correlationId
 {
-    if ( ![self verifyRequestURL:requestURL] )
-        return nil;
+    THROW_ON_CONDITION_ARGUMENT(![self verifyRequestURL:requestURL], requestURL);//Should have been checked by the caller
     
     self = [super init];
-    
+
     if ( nil != self )
     {
         _connection     = nil;
@@ -95,6 +98,7 @@ NSString *const HTTPPost = @"POST";
         _timeout           = 30;
         
         _completionHandler = nil;
+        _correlationId     = correlationId;
     }
     
     return self;
@@ -135,7 +139,15 @@ NSString *const HTTPPost = @"POST";
     // Add default HTTP Headers to the request: Host
     [_requestHeaders setValue:[_requestURL authority] forKey:@"Host"];
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
-
+    //Correlation id:
+    if (_correlationId)
+    {
+        [_requestHeaders addEntriesFromDictionary:
+         @{
+           OAUTH2_CORRELATION_ID_REQUEST:@"true",
+           OAUTH2_CORRELATION_ID_REQUEST_VALUE:[_correlationId UUIDString]
+           }];
+    }
     // If there is request data, then set the Content-Length header
     if ( _requestData != nil )
     {

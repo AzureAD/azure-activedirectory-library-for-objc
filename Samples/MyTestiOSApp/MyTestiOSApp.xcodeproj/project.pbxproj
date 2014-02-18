@@ -70,7 +70,7 @@
 		8BA42B1417E3C150002D206E /* MyTestiOSApp.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MyTestiOSApp.xcdatamodel; sourceTree = "<group>"; };
 		8BA42B1617E3C150002D206E /* BVTestMainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BVTestMainViewController.h; sourceTree = "<group>"; };
 		8BA42B1717E3C150002D206E /* BVTestMainViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BVTestMainViewController.m; sourceTree = "<group>"; };
-		8BA42B1917E3C150002D206E /* BVTestFlipsideViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BVTestFlipsideViewController.h; path = MyTestiOSApp/BVTestFlipsideViewController.h; sourceTree = "<group>"; };
+		8BA42B1917E3C150002D206E /* BVTestFlipsideViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BVTestFlipsideViewController.h; sourceTree = "<group>"; };
 		8BA42B1A17E3C150002D206E /* BVTestFlipsideViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BVTestFlipsideViewController.m; sourceTree = "<group>"; };
 		8BA42B1C17E3C150002D206E /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		8BA42B2217E3C150002D206E /* MyTestiOSAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyTestiOSAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -135,7 +135,6 @@
 		8BA42AF817E3C150002D206E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				8BA42B1917E3C150002D206E /* BVTestFlipsideViewController.h */,
 				8BAB18B3184576B700FDD4DD /* libADALiOS.a */,
 				8BA42AF917E3C150002D206E /* Foundation.framework */,
 				8BA42AFB17E3C150002D206E /* CoreGraphics.framework */,
@@ -158,6 +157,7 @@
 				8BA42B0D17E3C150002D206E /* Main_iPhone.storyboard */,
 				8BA42B1017E3C150002D206E /* Main_iPad.storyboard */,
 				8BA42B1617E3C150002D206E /* BVTestMainViewController.h */,
+				8BA42B1917E3C150002D206E /* BVTestFlipsideViewController.h */,
 				8BA42B1717E3C150002D206E /* BVTestMainViewController.m */,
 				8BA42B1A17E3C150002D206E /* BVTestFlipsideViewController.m */,
 				8BA42B1C17E3C150002D206E /* Images.xcassets */,

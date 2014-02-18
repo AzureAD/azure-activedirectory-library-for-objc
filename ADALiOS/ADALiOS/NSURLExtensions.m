@@ -60,7 +60,7 @@ const unichar queryStringSeparator = '?';
     NSString* last = [parts lastObject];
     if (endSeparator)
     {
-        int index = [last findCharacter:endSeparator start:0];
+        long index = [last findCharacter:endSeparator start:0];
         last = [last substringWithRange:(NSRange){0, index}];
     }
     if ([NSString isStringNilOrBlank:last])
