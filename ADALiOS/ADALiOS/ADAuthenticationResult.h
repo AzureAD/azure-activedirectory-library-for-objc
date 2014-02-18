@@ -52,6 +52,11 @@ typedef enum
 /*! See the ADAuthenticationResultStatus details */
 @property (readonly) ADAuthenticationResultStatus status;
 
+/*! A valid access token, if the results indicates success. The property is 
+ calculated from the tokenCacheStoreItem one. The property is nil, in 
+ case of error.*/
+@property (readonly) NSString* accessToken;
+
 @property (readonly) ADTokenCacheStoreItem* tokenCacheStoreItem;
 
 /*! The error that occurred or nil, if the operation was successful */

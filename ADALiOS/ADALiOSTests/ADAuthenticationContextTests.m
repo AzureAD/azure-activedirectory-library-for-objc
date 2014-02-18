@@ -337,12 +337,15 @@ const int sAsyncContextTimeout = 10;
         //set in case of failure:
         XCTAssertNil(mResult.tokenCacheStoreItem.accessToken);
         XCTAssertNil(mResult.tokenCacheStoreItem.refreshToken);
+        XCTAssertNil(mResult.accessToken);
     }
     if (mResult && mResult.status == AD_SUCCEEDED)
     {
         XCTAssertNil(mError, "Error should be nil on success. Error: %@", mError.errorDetails);
+        XCTAssertNotNil(mResult.accessToken);
+        XCTAssertNotNil(mResult.tokenCacheStoreItem.accessToken);
+        ADAssertStringEquals(mResult.accessToken, mResult.tokenCacheStoreItem.accessToken);
     }
-
 }
 
 #define acquireTokenAsync [self asynchronousAcquireTokenWithLine:__LINE__]
