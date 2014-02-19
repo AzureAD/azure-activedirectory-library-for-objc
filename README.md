@@ -17,7 +17,7 @@ We have released a Preview of the ADAL for iOS! [You can grab the release here] 
 3. Add the ADALiOS library to your project
 4. Add ADALiOSFramework to “Target Dependences” build phase of your application
 5. Add ADALiOSBundle.bundle to “Copy Bundle Resources” build phase of your application
-6. Add libADALiOS to “Link With Libraries” phase.
+6. Add libADALiOS to “Link With Libraries” phase. 
 
 ## Usage
 
