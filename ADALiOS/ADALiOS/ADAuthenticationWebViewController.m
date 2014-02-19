@@ -16,10 +16,10 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "WebAuthenticationDelegate.h"
-#import "WebAuthenticationWebViewController.h"
+#import "ADAuthenticationDelegate.h"
+#import "ADAuthenticationWebViewController.h"
 
-@implementation WebAuthenticationWebViewController
+@implementation ADAuthenticationWebViewController
 {
     __weak UIWebView *_webView;
     
@@ -54,7 +54,7 @@
 
 - (void)dealloc
 {
-    // The WebAuthenticationWebViewController can be released before the
+    // The ADAuthenticationWebViewController can be released before the
     // UIWebView that it is managing is released in the hosted case and
     // so it is important that to stop listening for events from the
     // UIWebView when we are released.

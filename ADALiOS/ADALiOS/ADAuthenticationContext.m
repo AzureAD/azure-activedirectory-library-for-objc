@@ -21,7 +21,7 @@
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADOAuth2Constants.h"
-#import "WebAuthenticationBroker.h"
+#import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
 #import <libkern/OSAtomic.h>
 #import "NSURLExtensions.h"
@@ -574,7 +574,6 @@ if (![self checkAndHandleBadArgument:ARG \
                                        redirectUri:redirectUri
                                              scope:scope
                                             userId:userId
-                                           webView:self.webView
                                     promptBehavior:promptBehavior
                               extraQueryParameters:queryParams
                                      correlationId:correlationId
@@ -1038,7 +1037,6 @@ if (![self checkAndHandleBadArgument:ARG \
                   redirectUri: (NSURL*) redirectUri
                         scope: (NSString*) scope /*for future use */
                        userId: (NSString*) userId
-                      webView: (WebViewType *) webView
                promptBehavior: (ADPromptBehavior) promptBehavior
          extraQueryParameters: (NSString*) queryParams
                 correlationId: (NSUUID*) correlationId
@@ -1063,9 +1061,9 @@ if (![self checkAndHandleBadArgument:ARG \
                                         promptBehavior:promptBehavior
                                   extraQueryParameters:queryParams];
     
-    [[WebAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
+    [[ADAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
                                                 end:[NSURL URLWithString:[redirectUri absoluteString]]
-                                            webView:webView
+                                            webView:nil
                                          fullScreen:settings.enableFullScreen
                                       correlationId:correlationId
                                          completion:^( ADAuthenticationError *error, NSURL *end )

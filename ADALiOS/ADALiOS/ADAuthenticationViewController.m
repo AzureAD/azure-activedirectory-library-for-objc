@@ -16,16 +16,16 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "WebAuthenticationDelegate.h"
-#import "WebAuthenticationWebViewController.h"
-#import "WebAuthenticationViewController.h"
+#import "ADAuthenticationDelegate.h"
+#import "ADAuthenticationWebViewController.h"
+#import "ADAuthenticationViewController.h"
 
-@interface WebAuthenticationViewController ( ) <WebAuthenticationDelegate, UIWebViewDelegate>
+@interface ADAuthenticationViewController ( ) <ADAuthenticationDelegate, UIWebViewDelegate>
 @end
 
-@implementation WebAuthenticationViewController
+@implementation ADAuthenticationViewController
 {
-    WebAuthenticationWebViewController *_webAuthenticationWebViewController;
+    ADAuthenticationWebViewController *_webAuthenticationWebViewController;
 
     BOOL      _loading;
 }
@@ -83,11 +83,11 @@
 // prefix of the end URL is reached.
 - (BOOL)startWithURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
-    _webAuthenticationWebViewController = [[WebAuthenticationWebViewController alloc] initWithWebView:_webView startAtURL:startURL endAtURL:endURL];
+    _webAuthenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:_webView startAtURL:startURL endAtURL:endURL];
     
     if ( _webAuthenticationWebViewController )
     {
-        // Delegate set up: this object is the delegate for the WebAuthenticationWebViewController,
+        // Delegate set up: this object is the delegate for the ADAuthenticationWebViewController,
         // and the controller will have established itself as the delegate for the UIWebView. However,
         // this object also wants events from the UIWebView to control the activity indicator so we
         // hijack the delegate here and forward events as they are seen in this object.
@@ -103,7 +103,7 @@
     }
 }
 
-#pragma mark - WebAuthenticationDelegate
+#pragma mark - ADAuthenticationDelegate
 
 - (void)webAuthenticationDidCancel
 {

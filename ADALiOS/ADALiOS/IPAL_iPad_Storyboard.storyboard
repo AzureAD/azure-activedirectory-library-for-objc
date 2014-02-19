@@ -8,7 +8,7 @@
         <!--Web Authentication View Controller - Login-->
         <scene sceneID="VnW-m2-oXs">
             <objects>
-                <viewController modalPresentationStyle="formSheet" id="leH-LM-mXg" customClass="WebAuthenticationViewController" sceneMemberID="viewController">
+                <viewController modalPresentationStyle="formSheet" id="leH-LM-mXg" customClass="ADAuthenticationViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="nBc-go-Asd">
                         <rect key="frame" x="0.0" y="0.0" width="540" height="620"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>

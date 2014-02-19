@@ -25,66 +25,73 @@ typedef enum
 {
     /*! No error occurred. The value is added to make easier usage of functions that take error code,
      but no error condition occurred.*/
-    AD_ERROR_SUCCEEDED,
+    AD_ERROR_SUCCEEDED = 0,
     
     /*! The user has cancelled the applicable UI prompts */
-    AD_ERROR_USER_CANCEL,
+    AD_ERROR_USER_CANCEL = 1,
     
     /*! The method call contains one or more invalid arguments */
-    AD_ERROR_INVALID_ARGUMENT,
+    AD_ERROR_INVALID_ARGUMENT = 2,
     
     /*! HTTP 401 (Unauthorized) response does not contain the OAUTH2 required header */
-    AD_ERROR_MISSING_AUTHENTICATE_HEADER,
+    AD_ERROR_MISSING_AUTHENTICATE_HEADER = 3,
     
     /*! HTTP 401 (Unauthorized) response's authentication header is in invalid format
      or does not contain expected values. */
-    AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT,
+    AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT = 4,
     
     /*! An internal error occurs when the library did not receive
      a response from the server */
-    AD_ERROR_CONNECTION_MISSING_RESPONSE,
+    AD_ERROR_CONNECTION_MISSING_RESPONSE = 5,
     
     /*! The logic expects the server to return HTTP_UNAUTHORIZED */
-    AD_ERROR_UNAUTHORIZED_CODE_EXPECTED,
+    AD_ERROR_UNAUTHORIZED_CODE_EXPECTED = 6,
     
     /*! The refresh token cannot be used for extracting an access token. */
-    AD_ERROR_INVALID_REFRESH_TOKEN,
+    AD_ERROR_INVALID_REFRESH_TOKEN = 7,
     
     /*! An unexpected internal error occurred. */
-    AD_ERROR_UNEXPECTED,
+    AD_ERROR_UNEXPECTED = 8,
     
     /*! Access tokens for multiple users exist in the token cache. Please specify the userId. */
-    AD_ERROR_MULTIPLE_USERS,
+    AD_ERROR_MULTIPLE_USERS = 9,
     
     /*! User needs to authenticate. This error is raised when access token cannot be obtained
      without user explicitly authenticating, but the acquireToken is called with AD_PROMPT_NEVER
      parameter. To obtain the token, the calling application can retry the call with AD_PROMPT_AUTO
      or AD_PROMPT_ALWAYS at appropriate time/thread. */
-    AD_ERROR_USER_INPUT_NEEDED,
+    AD_ERROR_USER_INPUT_NEEDED = 10,
     
     /*! The cache store cannot be persisted to the specified location. This error is raised only if
      the application called explicitly to persist the cache. Else, the errors are only logged
      as warnings. */
-    AD_ERROR_CACHE_PERSISTENCE,
+    AD_ERROR_CACHE_PERSISTENCE = 11,
     
     /*! An issue occurred while attempting to read the persisted token cache store. */
-    AD_ERROR_BAD_CACHE_FORMAT,
+    AD_ERROR_BAD_CACHE_FORMAT = 12,
     
     /*! The user is currently prompted for another authentication. The library chose to raise this
      error instead of waiting to avoid multiple sequential prompts. It is up to the application
      developer to chose to retry later. */
-    AD_ERROR_USER_PROMPTED,
+    AD_ERROR_USER_PROMPTED = 13,
     
     /*! This type of error occurs when something went wrong with the application stack, e.g.
      the resource bundle cannot be loaded. */
-    AD_ERROR_APPLICATION,
+    AD_ERROR_APPLICATION = 14,
     
     /*! A generic error code for all of the authentication errors. */
-    AD_ERROR_AUTHENTICATION,
+    AD_ERROR_AUTHENTICATION = 15,
     
     /*! An error was raised during the process of validating the authorization authority. */
-    AD_ERROR_AUTHORITY_VALIDATION,
+    AD_ERROR_AUTHORITY_VALIDATION = 16,
     
+    /*! Failed to extract the main view controller of the application. Make sure that the application
+     has UI elements.*/
+    AD_ERROR_NO_MAIN_VIEW_CONTROLLER = 17,
+    
+    /*! Failed to extract the framework resources (e.g. storyboards). Please read the readme and documentation
+     for the library on how to link the ADAL library with its resources to your project.*/
+    AD_ERROR_MISSING_RESOURCES = 18,
 } ADErrorCode;
 
 /* HTTP status codes used by the library */

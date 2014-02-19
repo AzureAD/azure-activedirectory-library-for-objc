@@ -15,23 +15,15 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
-
-enum WebAuthenticationStatus
-{
-    WebAuthenticationFailed    = 0,
-    WebAuthenticationSucceeded = 1,
-    WebAuthenticationCancelled = 2,
-};
-
 @class ADAuthenticationError;
 
 typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
-@interface WebAuthenticationBroker : NSObject
+@interface ADAuthenticationBroker : NSObject
 
 + (NSString *)resourcePath;
 + (void)setResourcePath:(NSString *)resourcePath;
 
-+ (WebAuthenticationBroker *)sharedInstance;
++ (ADAuthenticationBroker *)sharedInstance;
 
 // Start the authentication process. Note that there are two different behaviours here dependent on whether the caller has provided
 // a WebView to host the browser interface. If no WebView is provided, then a full window is launched that hosts a WebView to run

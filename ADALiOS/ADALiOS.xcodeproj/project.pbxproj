@@ -36,9 +36,9 @@
 		8B343443183304FE002DE1DC /* HTTPWebRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B343440183304FE002DE1DC /* HTTPWebRequest.m */; };
 		8B343444183304FE002DE1DC /* HTTPWebResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B343442183304FE002DE1DC /* HTTPWebResponse.m */; };
 		8B3434471833057F002DE1DC /* UIApplicationExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B3434461833057F002DE1DC /* UIApplicationExtensions.m */; };
-		8B34344A18330591002DE1DC /* WebAuthenticationBroker.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34344918330591002DE1DC /* WebAuthenticationBroker.m */; };
-		8B34344F183305A6002DE1DC /* WebAuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34344C183305A6002DE1DC /* WebAuthenticationViewController.m */; };
-		8B343450183305A6002DE1DC /* WebAuthenticationWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34344E183305A6002DE1DC /* WebAuthenticationWebViewController.m */; };
+		8B34344A18330591002DE1DC /* ADAuthenticationBroker.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34344918330591002DE1DC /* ADAuthenticationBroker.m */; };
+		8B34344F183305A6002DE1DC /* ADAuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34344C183305A6002DE1DC /* ADAuthenticationViewController.m */; };
+		8B343450183305A6002DE1DC /* ADAuthenticationWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34344E183305A6002DE1DC /* ADAuthenticationWebViewController.m */; };
 		8B59893A180DE00300744AEE /* ADAuthenticationOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B598939180DE00300744AEE /* ADAuthenticationOperation.m */; };
 		8B59893B180DE0B000744AEE /* ADAuthenticationOperation.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B598938180DE00300744AEE /* ADAuthenticationOperation.h */; };
 		8B59893E180DE8A100744AEE /* ADUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B59893D180DE8A100744AEE /* ADUserInformation.m */; };
@@ -164,19 +164,19 @@
 		8B34343618330474002DE1DC /* NSDictionaryExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSDictionaryExtensions.m; sourceTree = "<group>"; };
 		8B34343B183304B1002DE1DC /* NSURLExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSURLExtensions.h; sourceTree = "<group>"; };
 		8B34343C183304B1002DE1DC /* NSURLExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSURLExtensions.m; sourceTree = "<group>"; };
-		8B34343E183304C9002DE1DC /* WebAuthenticationDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebAuthenticationDelegate.h; sourceTree = "<group>"; };
+		8B34343E183304C9002DE1DC /* ADAuthenticationDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationDelegate.h; sourceTree = "<group>"; };
 		8B34343F183304FE002DE1DC /* HTTPWebRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPWebRequest.h; sourceTree = "<group>"; };
 		8B343440183304FE002DE1DC /* HTTPWebRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPWebRequest.m; sourceTree = "<group>"; };
 		8B343441183304FE002DE1DC /* HTTPWebResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPWebResponse.h; sourceTree = "<group>"; };
 		8B343442183304FE002DE1DC /* HTTPWebResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPWebResponse.m; sourceTree = "<group>"; };
 		8B3434451833057F002DE1DC /* UIApplicationExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIApplicationExtensions.h; sourceTree = "<group>"; };
 		8B3434461833057F002DE1DC /* UIApplicationExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIApplicationExtensions.m; sourceTree = "<group>"; };
-		8B34344818330591002DE1DC /* WebAuthenticationBroker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebAuthenticationBroker.h; sourceTree = "<group>"; };
-		8B34344918330591002DE1DC /* WebAuthenticationBroker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebAuthenticationBroker.m; sourceTree = "<group>"; };
-		8B34344B183305A6002DE1DC /* WebAuthenticationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebAuthenticationViewController.h; sourceTree = "<group>"; };
-		8B34344C183305A6002DE1DC /* WebAuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebAuthenticationViewController.m; sourceTree = "<group>"; };
-		8B34344D183305A6002DE1DC /* WebAuthenticationWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebAuthenticationWebViewController.h; sourceTree = "<group>"; };
-		8B34344E183305A6002DE1DC /* WebAuthenticationWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebAuthenticationWebViewController.m; sourceTree = "<group>"; };
+		8B34344818330591002DE1DC /* ADAuthenticationBroker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationBroker.h; sourceTree = "<group>"; };
+		8B34344918330591002DE1DC /* ADAuthenticationBroker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationBroker.m; sourceTree = "<group>"; };
+		8B34344B183305A6002DE1DC /* ADAuthenticationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationViewController.h; sourceTree = "<group>"; };
+		8B34344C183305A6002DE1DC /* ADAuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationViewController.m; sourceTree = "<group>"; };
+		8B34344D183305A6002DE1DC /* ADAuthenticationWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationWebViewController.h; sourceTree = "<group>"; };
+		8B34344E183305A6002DE1DC /* ADAuthenticationWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationWebViewController.m; sourceTree = "<group>"; };
 		8B598938180DE00300744AEE /* ADAuthenticationOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationOperation.h; sourceTree = "<group>"; };
 		8B598939180DE00300744AEE /* ADAuthenticationOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationOperation.m; sourceTree = "<group>"; };
 		8B59893C180DE8A100744AEE /* ADUserInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADUserInformation.h; sourceTree = "<group>"; };
@@ -412,7 +412,7 @@
 				8B34343618330474002DE1DC /* NSDictionaryExtensions.m */,
 				8B34343B183304B1002DE1DC /* NSURLExtensions.h */,
 				8B34343C183304B1002DE1DC /* NSURLExtensions.m */,
-				8B34343E183304C9002DE1DC /* WebAuthenticationDelegate.h */,
+				8B34343E183304C9002DE1DC /* ADAuthenticationDelegate.h */,
 				8B34343F183304FE002DE1DC /* HTTPWebRequest.h */,
 				8B343440183304FE002DE1DC /* HTTPWebRequest.m */,
 				8B343441183304FE002DE1DC /* HTTPWebResponse.h */,
@@ -426,12 +426,12 @@
 			children = (
 				8B3434451833057F002DE1DC /* UIApplicationExtensions.h */,
 				8B3434461833057F002DE1DC /* UIApplicationExtensions.m */,
-				8B34344818330591002DE1DC /* WebAuthenticationBroker.h */,
-				8B34344918330591002DE1DC /* WebAuthenticationBroker.m */,
-				8B34344B183305A6002DE1DC /* WebAuthenticationViewController.h */,
-				8B34344C183305A6002DE1DC /* WebAuthenticationViewController.m */,
-				8B34344D183305A6002DE1DC /* WebAuthenticationWebViewController.h */,
-				8B34344E183305A6002DE1DC /* WebAuthenticationWebViewController.m */,
+				8B34344818330591002DE1DC /* ADAuthenticationBroker.h */,
+				8B34344918330591002DE1DC /* ADAuthenticationBroker.m */,
+				8B34344B183305A6002DE1DC /* ADAuthenticationViewController.h */,
+				8B34344C183305A6002DE1DC /* ADAuthenticationViewController.m */,
+				8B34344D183305A6002DE1DC /* ADAuthenticationWebViewController.h */,
+				8B34344E183305A6002DE1DC /* ADAuthenticationWebViewController.m */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
@@ -578,11 +578,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B343450183305A6002DE1DC /* WebAuthenticationWebViewController.m in Sources */,
+				8B343450183305A6002DE1DC /* ADAuthenticationWebViewController.m in Sources */,
 				8B59895E1811C72400744AEE /* ADPersistentTokenCacheStore.m in Sources */,
 				8B7E6FC81856A1E8000DC3C8 /* ADOAuth2Constants.m in Sources */,
 				8B343444183304FE002DE1DC /* HTTPWebResponse.m in Sources */,
-				8B34344F183305A6002DE1DC /* WebAuthenticationViewController.m in Sources */,
+				8B34344F183305A6002DE1DC /* ADAuthenticationViewController.m in Sources */,
 				8B611401186E517D007759C2 /* ADInstanceDiscovery.m in Sources */,
 				8B34343718330474002DE1DC /* NSDictionaryExtensions.m in Sources */,
 				8B34343D183304B1002DE1DC /* NSURLExtensions.m in Sources */,
@@ -600,7 +600,7 @@
 				8B5989511811A3DB00744AEE /* ADAuthenticationError.m in Sources */,
 				8B92DB6C181ADE44004AAB0E /* NSString+ADHelperMethods.m in Sources */,
 				8B59894E1810BEAC00744AEE /* ADTokenCacheStoreItem.m in Sources */,
-				8B34344A18330591002DE1DC /* WebAuthenticationBroker.m in Sources */,
+				8B34344A18330591002DE1DC /* ADAuthenticationBroker.m in Sources */,
 				8B59893A180DE00300744AEE /* ADAuthenticationOperation.m in Sources */,
 				8B9F1FB81886530800EC3204 /* ADEncryptedFileTokenCacheStore.m in Sources */,
 				8BD14619182189C800796E79 /* ADAuthenticationParameters+Internal.m in Sources */,
