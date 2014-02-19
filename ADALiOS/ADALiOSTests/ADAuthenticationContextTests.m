@@ -879,7 +879,7 @@ const int sAsyncContextTimeout = 10;
     //scenarios when we cannot invoke the web view:
     acquireTokenAsync;
     XCTAssertNotNil(mError);
-    ADAssertLongEquals(AD_ERROR_APPLICATION, mError.code);
+    ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, mError.code);
     XCTAssertTrue([mError.errorDetails containsString:@"ViewController"]);
 }
 

@@ -16,11 +16,11 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@protocol WebAuthenticationDelegate;
+@protocol ADAuthenticationDelegate;
 
-@interface WebAuthenticationViewController : UIViewController
+@interface ADAuthenticationViewController : UIViewController
 
-@property (weak, nonatomic)   id<WebAuthenticationDelegate>     delegate;
+@property (weak, nonatomic)   id<ADAuthenticationDelegate>     delegate;
 @property (weak, nonatomic)   IBOutlet UIWebView               *webView;
 @property (weak, nonatomic)   IBOutlet UIActivityIndicatorView *activityIndicator;
 

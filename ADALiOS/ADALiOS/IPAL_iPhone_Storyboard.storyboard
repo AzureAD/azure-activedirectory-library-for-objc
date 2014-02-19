@@ -23,7 +23,7 @@
         <!--Web Authentication View Controller - Login-->
         <scene sceneID="0yt-pg-Fvf">
             <objects>
-                <viewController id="GcB-iz-KCM" customClass="WebAuthenticationViewController" sceneMemberID="viewController">
+                <viewController id="GcB-iz-KCM" customClass="ADAuthenticationViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="UxT-im-uCY">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>

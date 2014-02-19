@@ -125,10 +125,6 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
 /*! Controls authority validation in acquire token calls. */
 @property BOOL validateAuthority;
 
-/*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
- when needed. */
-@property (weak) WebViewType* webView;
-
 /*! Provides access to the token cache used in this context. If null, tokens will not be cached. */
 @property id<ADTokenCacheStoring> tokenCacheStore;
 

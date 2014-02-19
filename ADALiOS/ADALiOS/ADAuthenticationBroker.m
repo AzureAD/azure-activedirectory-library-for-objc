@@ -20,10 +20,10 @@
 #import "ADOAuth2Constants.h"
 #import "UIApplicationExtensions.h"
 #import "ADAuthenticationContext.h"
-#import "WebAuthenticationDelegate.h"
-#import "WebAuthenticationWebViewController.h"
-#import "WebAuthenticationViewController.h"
-#import "WebAuthenticationBroker.h"
+#import "ADAuthenticationDelegate.h"
+#import "ADAuthenticationWebViewController.h"
+#import "ADAuthenticationViewController.h"
+#import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
 
 
@@ -35,14 +35,14 @@ static NSString *const WAB_FAILED_NO_CONTROLLER = @"The Application does not hav
 static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded";
 
 // Private interface declaration
-@interface WebAuthenticationBroker () <WebAuthenticationDelegate>
+@interface ADAuthenticationBroker () <ADAuthenticationDelegate>
 @end
 
 // Implementation
-@implementation WebAuthenticationBroker
+@implementation ADAuthenticationBroker
 {
-    WebAuthenticationViewController    *_authenticationViewController;
-    WebAuthenticationWebViewController *_authenticationWebViewController;
+    ADAuthenticationViewController    *_authenticationViewController;
+    ADAuthenticationWebViewController *_authenticationWebViewController;
     
     NSLock                             *_completionLock;
     
@@ -51,9 +51,9 @@ static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle
 
 #pragma mark Shared Instance Methods
 
-+ (WebAuthenticationBroker *)sharedInstance
++ (ADAuthenticationBroker *)sharedInstance
 {
-    static WebAuthenticationBroker *broker     = nil;
+    static ADAuthenticationBroker *broker     = nil;
     static dispatch_once_t          predicate;
     
     dispatch_once( &predicate, ^{
@@ -208,7 +208,7 @@ correlationId:(NSUUID *)correlationId
             // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
             UINavigationController *navigationController = [[self.class storyboard] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
             
-            _authenticationViewController = (WebAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
+            _authenticationViewController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
             
             if ( _authenticationViewController )
             {
@@ -231,7 +231,7 @@ correlationId:(NSUUID *)correlationId
             else
             {
                 // Dispatch the completion block
-                ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_APPLICATION protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
+                ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
                 dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
                     _completionBlock( error, nil );
                 });
@@ -240,7 +240,7 @@ correlationId:(NSUUID *)correlationId
         else
         {
             // Dispatch the completion block
-            ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_APPLICATION protocolCode:nil errorDetails:WAB_FAILED_NO_CONTROLLER];
+            ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER protocolCode:nil errorDetails:WAB_FAILED_NO_CONTROLLER];
             dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
                 _completionBlock( error, nil );
             });
@@ -249,7 +249,7 @@ correlationId:(NSUUID *)correlationId
     else
     {
         // Use the application provided WebView
-        _authenticationWebViewController = [[WebAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL];
+        _authenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL];
         
         if ( _authenticationWebViewController )
         {
@@ -260,7 +260,7 @@ correlationId:(NSUUID *)correlationId
         else
         {
             // Dispatch the completion block
-            ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_APPLICATION protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
+            ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
             dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
                 _completionBlock( error, nil );
             });
@@ -298,7 +298,7 @@ correlationId:(NSUUID *)correlationId
     [_completionLock unlock];
 }
 
-#pragma mark - WebAuthenticationDelegate
+#pragma mark - ADAuthenticationDelegate
 
 // The user cancelled authentication
 - (void)webAuthenticationDidCancel
