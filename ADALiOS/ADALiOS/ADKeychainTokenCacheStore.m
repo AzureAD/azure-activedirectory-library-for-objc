@@ -287,7 +287,7 @@ NSString* const sKeyChainlog = @"Keychain token cache store";
         mClassKey:mClassValue,//Encryption
         mLibraryKey:mLibraryValue,//ADAL key
         (__bridge id)kSecAttrIsInvisible:(__bridge id)kCFBooleanTrue, // do not show in the keychain UI
-        (__bridge id)kSecAttrAccessible:(__bridge id)kSecAttrAccessibleAlwaysThisDeviceOnly, // do not roam or migrate to other devices
+        (__bridge id)kSecAttrAccessible:(__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly, // do not roam or migrate to other devices
         //Item key:
         mItemKeyAttributeKey: keyText,
         mUserIdKey:[self.class getAttributeName:item.userInformation.userId],
