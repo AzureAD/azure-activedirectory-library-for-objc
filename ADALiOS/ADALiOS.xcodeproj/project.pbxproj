@@ -123,7 +123,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
 			dstPath = "include/$(PRODUCT_NAME)";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 16;
 			files = (
 				8B6114041872347E007759C2 /* ADInstanceDiscovery.h in Copy Files */,
 				8BFA9B37183C4A0300B82B36 /* ADLogger.h in Copy Files */,
