@@ -123,7 +123,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
 			dstPath = "include/$(PRODUCT_NAME)";
-			dstSubfolderSpec = 16;
+			dstSubfolderSpec = 10;
 			files = (
 				8B6114041872347E007759C2 /* ADInstanceDiscovery.h in Copy Files */,
 				8BFA9B37183C4A0300B82B36 /* ADLogger.h in Copy Files */,
@@ -476,6 +476,7 @@
 				8B0965A817F25770002BDFB8 /* Copy Files */,
 				8B0965A617F25770002BDFB8 /* Sources */,
 				8B0965A717F25770002BDFB8 /* Frameworks */,
+				8B19339718BAEDE4008FD93A /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -572,6 +573,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		8B19339718BAEDE4008FD93A /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/${FRAMEWORK_VERSION}/Headers\"\n\n# Link the \"Current\" version to \"${FRAMEWORK_VERSION}\"\nln -sfh ${FRAMEWORK_VERSION} \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/Current\"\nln -sfh Versions/Current/Headers \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Headers\"\nln -sfh \"Versions/Current/${PRODUCT_NAME}\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/${PRODUCT_NAME}\"\n\n# The -a ensures that the headers maintain the source modification date so that we don't constantly\n# cause propagating rebuilds of files that import these headers.\ncp -a \"${BUILT_PRODUCTS_DIR}/${PUBLIC_HEADERS_FOLDER_PATH}/\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/${FRAMEWORK_VERSION}/Headers\"";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8B0965A617F25770002BDFB8 /* Sources */ = {
@@ -755,6 +772,7 @@
 		8B0965CE17F25770002BDFB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEAD_CODE_STRIPPING = NO;
 				DSTROOT = /usr/local/lib;
 				GCC_GENERATE_TEST_COVERAGE_FILES = NO;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
@@ -766,6 +784,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)Headers";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -776,6 +795,7 @@
 		8B0965CF17F25770002BDFB8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEAD_CODE_STRIPPING = NO;
 				DSTROOT = /usr/local/lib;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -787,6 +807,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)Headers";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -888,6 +909,7 @@
 		8B41A1E91888C6350027EE1E /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEAD_CODE_STRIPPING = NO;
 				DSTROOT = /usr/local/lib;
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
@@ -899,6 +921,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)Headers";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
