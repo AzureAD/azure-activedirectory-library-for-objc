@@ -122,7 +122,7 @@
 		8B0965A817F25770002BDFB8 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
-			dstPath = "include/$(PRODUCT_NAME)";
+			dstPath = "Headers/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
 				8B6114041872347E007759C2 /* ADInstanceDiscovery.h in Copy Files */,
@@ -784,7 +784,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)Headers";
+				PUBLIC_HEADERS_FOLDER_PATH = "Headers/$(PROJECT_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -807,9 +807,10 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)Headers";
+				PUBLIC_HEADERS_FOLDER_PATH = "Headers/$(PROJECT_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SKIP_INSTALL = NO;
+				STRIP_INSTALLED_PRODUCT = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -921,7 +922,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)Headers";
+				PUBLIC_HEADERS_FOLDER_PATH = "Headers/$(PROJECT_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
