@@ -18,6 +18,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADALiOS.h"
+#import "ADAuthenticationParameters.h"
 #import "ADAuthenticationParameters+Internal.h"
 
 NSString* const OAuth2_Bearer  = @"Bearer";

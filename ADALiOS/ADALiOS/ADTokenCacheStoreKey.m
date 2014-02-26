@@ -21,6 +21,7 @@
 #import "ADALiOS.h"
 #import "ADAuthenticationContext.h"
 #import "ADInstanceDiscovery.h"
+#import "ADTokenCacheStoreKey.h"
 
 @implementation ADTokenCacheStoreKey
 

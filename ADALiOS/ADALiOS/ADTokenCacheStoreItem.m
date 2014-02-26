@@ -19,7 +19,9 @@
 
 #import "ADALiOS.h"
 #import "ADTokenCacheStoreItem.h"
+#import "ADUserInformation.h"
 #import "ADAuthenticationSettings.h"
+#import "ADTokenCacheStoreKey.h"
 
 @implementation ADTokenCacheStoreItem
 

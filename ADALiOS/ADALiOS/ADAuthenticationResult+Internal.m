@@ -19,6 +19,7 @@
 
 
 #import "ADALiOS.h"
+#import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADTokenCacheStoreItem.h"
 

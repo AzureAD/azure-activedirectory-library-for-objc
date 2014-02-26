@@ -17,12 +17,6 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import <ADALiOS/ADAuthenticationResult.h>
-#import <ADALiOS/ADAuthenticationError.h>
-#import <ADALiOS/ADTokenCacheStoring.h>
-#import <ADALiOS/NSString+ADHelperMethods.h>
-
 #if TARGET_OS_IPHONE
 //iOS:
 #   include <UIKit/UIKit.h>
@@ -32,6 +26,13 @@ typedef UIWebView WebViewType;
 #   include <WebKit/WebKit.h>
 typedef WebView   WebViewType;
 #endif
+
+#import "ADTokenCacheStoring.h"
+#import "ADAuthenticationError.h"
+#import "ADAUthenticationResult.h"
+#import "ADTokenCacheStoreItem.h"
+#import "ADUserInformation.h"
+#import "ADTokenCacheStoreKey.h"
 
 typedef enum
 {
@@ -50,6 +51,8 @@ typedef enum
      user */
     AD_PROMPT_ALWAYS,
 } ADPromptBehavior;
+
+@class ADAuthenticationResult;
 
 /*! The completion block declaration */
 typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);

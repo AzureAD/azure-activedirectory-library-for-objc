@@ -17,10 +17,6 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import <ADALiOS/NSString+ADHelperMethods.h>
-#import "ADLogger.h"
-
 //iOS does not support resources in client libraries. Hence putting the
 //version in static define until we identify a better place:
 #define ADAL_VER_HIGH   0

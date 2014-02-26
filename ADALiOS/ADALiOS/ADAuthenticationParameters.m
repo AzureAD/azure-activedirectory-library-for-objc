@@ -18,6 +18,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADALiOS.h"
+#import "ADAuthenticationParameters.h"
 #import "ADAuthenticationParameters+Internal.h"
 #import "ADAuthenticationSettings.h"
 #import "HTTPWebRequest.h"

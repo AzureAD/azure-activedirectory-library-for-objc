@@ -17,8 +17,6 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
-
 /* The class provides information about the status of an asynchronous task. Additionally, the class provides ability 
  for attempting to cancel the operation. */
 @interface ADAuthenticationOperation : NSBlockOperation
