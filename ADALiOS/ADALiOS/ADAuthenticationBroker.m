@@ -195,8 +195,6 @@ correlationId:(NSUUID *)correlationId
 
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
     
-    
-    
     // Save the completion block
     _completionBlock = [completionBlock copy];
     

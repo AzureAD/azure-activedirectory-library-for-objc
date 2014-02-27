@@ -17,7 +17,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <ADALiOS/ADAuthenticationContext.h>
+#import "../ADALiOS/ADAuthenticationContext.h"
 
 //Test class that intercepts the server communication. The iVars are all public
 //and intended to be directly manipulated by the tests.
