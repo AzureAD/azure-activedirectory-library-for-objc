@@ -39,7 +39,7 @@ const int sTokenWorkflowTimeout     = 20;
 @interface MyTestiOSAppTests : XCTestCase
 {
     BVSettings* mTestSettings;
-}
+} 
 
 @end
 
