@@ -192,8 +192,10 @@ correlationId:(NSUUID *)correlationId
     THROW_ON_NIL_ARGUMENT(endURL);
     THROW_ON_NIL_ARGUMENT(correlationId);
     THROW_ON_NIL_ARGUMENT(completionBlock)
-    
+
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
+    
+    
     
     // Save the completion block
     _completionBlock = [completionBlock copy];
