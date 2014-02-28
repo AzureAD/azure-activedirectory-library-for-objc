@@ -125,7 +125,7 @@ static NSString *_resourcePath = nil;
 }
 
 // Retrive the bundle containing the resources for the library
-+ (NSBundle *)frameworkBundle
++ (NSBundle *)frameworkBundle: (ADAuthenticationError* __autoreleasing* ) error
 {
     static NSBundle       *bundle     = nil;
     static dispatch_once_t predicate;
@@ -134,42 +134,48 @@ static NSString *_resourcePath = nil;
     {
         dispatch_once( &predicate,
                       ^{
+
                           NSString* mainBundlePath      = [[NSBundle mainBundle] resourcePath];
+                          AD_LOG_VERBOSE_F(@"Resources Loading", @"Attempting to load resources from: %@", mainBundlePath);
                           NSString* frameworkBundlePath = nil;
                           
                           if ( _resourcePath != nil )
                           {
-                              frameworkBundlePath = [[mainBundlePath stringByAppendingPathComponent:_resourcePath] stringByAppendingPathComponent:@"ADALiOSBundle.bundle"];
+                              frameworkBundlePath = [[mainBundlePath stringByAppendingPathComponent:_resourcePath] stringByAppendingPathComponent:@"ADALiOS.bundle"];
                           }
                           else
                           {
-                              frameworkBundlePath = [mainBundlePath stringByAppendingPathComponent:@"ADALiOSBundle.bundle"];
+                              frameworkBundlePath = [mainBundlePath stringByAppendingPathComponent:@"ADALiOS.bundle"];
                           }
                           
                           bundle = [NSBundle bundleWithPath:frameworkBundlePath];
-                          if (!bundle)
-                          {
-                              AD_LOG_WARN(@"Cannot load ADALiOS bundle", frameworkBundlePath);
-                          }
                       });
     }
     
+    if (!bundle)
+    {
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
+        if (error)
+        {
+            *error = adError;
+        }
+    }
     return bundle;
 }
 
 // Retrieve the current storyboard from the resources for the library
-+ (UIStoryboard *)storyboard
++ (UIStoryboard *)storyboard: (ADAuthenticationError* __autoreleasing*) error
 {
-    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad )
+    NSBundle* bundle = [self frameworkBundle:error];
+    if (!bundle)
     {
-        // The device is an iPad running iPhone 3.2 or later.
-        return [UIStoryboard storyboardWithName:@"IPAL_iPad_Storyboard" bundle:[self frameworkBundle]];
+        //Storyboard with name throws an exception if bundle is nil.
+        return nil;
     }
-    else
-    {
-        // The device is an iPhone or iPod touch.
-        return [UIStoryboard storyboardWithName:@"IPAL_iPhone_Storyboard" bundle:[self frameworkBundle]];
-    }
+    
+    return ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ) ?
+                [UIStoryboard storyboardWithName:@"IPAL_iPad_Storyboard" bundle:bundle]
+              : [UIStoryboard storyboardWithName:@"IPAL_iPhone_Storyboard" bundle:bundle];
 }
 
 -(NSURL*) addToURL: (NSURL*) url
@@ -198,6 +204,8 @@ correlationId:(NSUUID *)correlationId
     // Save the completion block
     _completionBlock = [completionBlock copy];
     
+    ADAuthenticationError* error;
+    
     if ( nil == webView )
     {
         // Must have a parent view controller to start the authentication view
@@ -206,12 +214,12 @@ correlationId:(NSUUID *)correlationId
         if ( parent )
         {
             // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
-            UINavigationController *navigationController = [[self.class storyboard] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
+            UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
             
-            _authenticationViewController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
-            
-            if ( _authenticationViewController )
+            if (navigationController)
             {
+                _authenticationViewController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
+            
                 _authenticationViewController.delegate = self;
                 
                 if ( fullScreen == YES )
@@ -230,20 +238,17 @@ correlationId:(NSUUID *)correlationId
             }
             else
             {
-                // Dispatch the completion block
-                ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
-                dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-                    _completionBlock( error, nil );
-                });
+                error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
+                                                               protocolCode:nil
+                                                               errorDetails:WAB_FAILED_NO_RESOURCES];
             }
         }
         else
         {
-            // Dispatch the completion block
-            ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER protocolCode:nil errorDetails:WAB_FAILED_NO_CONTROLLER];
-            dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-                _completionBlock( error, nil );
-            });
+            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
+                                                           protocolCode:nil
+                                                           errorDetails:WAB_FAILED_NO_CONTROLLER];
+
         }
     }
     else
@@ -259,12 +264,17 @@ correlationId:(NSUUID *)correlationId
         }
         else
         {
-            // Dispatch the completion block
-            ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
-            dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-                _completionBlock( error, nil );
-            });
+            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
+                                                           protocolCode:nil
+                                                           errorDetails:WAB_FAILED_NO_RESOURCES];
         }
+    }
+    //Error occurred above. Dispatch the callback to the caller:
+    if (error)
+    {
+        dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
+            _completionBlock( error, nil );
+        });
     }
 }
 
