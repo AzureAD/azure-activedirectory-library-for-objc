@@ -2,9 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:ADALMac/ADALMac.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "container:ADALiOS/ADALiOS.xcodeproj">
    </FileRef>
    <FileRef
