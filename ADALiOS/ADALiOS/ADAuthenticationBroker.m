@@ -32,7 +32,7 @@ static NSString *const WAB_FAILED_ERROR_CODE    = @"Authorization Failed: %ld";
 
 static NSString *const WAB_FAILED_CANCELLED     = @"The user cancelled the authorization request";
 static NSString *const WAB_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
-static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded";
+static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
 
 // Private interface declaration
 @interface ADAuthenticationBroker () <ADAuthenticationDelegate>
@@ -124,8 +124,9 @@ static NSString *_resourcePath = nil;
     _resourcePath = resourcePath;
 }
 
-// Retrive the bundle containing the resources for the library
-+ (NSBundle *)frameworkBundle: (ADAuthenticationError* __autoreleasing* ) error
+// Retrive the bundle containing the resources for the library. May return nil, if the bundle
+// cannot be loaded.
++ (NSBundle *)frameworkBundle
 {
     static NSBundle       *bundle     = nil;
     static dispatch_once_t predicate;
@@ -152,7 +153,21 @@ static NSString *_resourcePath = nil;
                       });
     }
     
-    if (!bundle)
+    return bundle;
+}
+
+// Retrieve the current storyboard from the resources for the library. Attempts to use ADALiOS bundle first
+// and if the bundle is not present, assumes that the resources are build with the application itself.
+// Raises an error if both the library resources bundle and the application fail to locate resources.
++ (UIStoryboard *)storyboard: (ADAuthenticationError* __autoreleasing*) error
+{
+    NSBundle* bundle = [self frameworkBundle];//May be nil.
+    
+    UIStoryboard* storeBoard = ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ) ?
+                [UIStoryboard storyboardWithName:@"IPAL_iPad_Storyboard" bundle:bundle]
+              : [UIStoryboard storyboardWithName:@"IPAL_iPhone_Storyboard" bundle:bundle];
+    
+    if (!storeBoard)
     {
         ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
         if (error)
@@ -160,22 +175,7 @@ static NSString *_resourcePath = nil;
             *error = adError;
         }
     }
-    return bundle;
-}
-
-// Retrieve the current storyboard from the resources for the library
-+ (UIStoryboard *)storyboard: (ADAuthenticationError* __autoreleasing*) error
-{
-    NSBundle* bundle = [self frameworkBundle:error];
-    if (!bundle)
-    {
-        //Storyboard with name throws an exception if bundle is nil.
-        return nil;
-    }
-    
-    return ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ) ?
-                [UIStoryboard storyboardWithName:@"IPAL_iPad_Storyboard" bundle:bundle]
-              : [UIStoryboard storyboardWithName:@"IPAL_iPhone_Storyboard" bundle:bundle];
+    return storeBoard;
 }
 
 -(NSURL*) addToURL: (NSURL*) url
