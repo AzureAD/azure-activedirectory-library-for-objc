@@ -18,7 +18,6 @@
 // governing permissions and limitations under the License.
 
 #import <Security/Security.h>
-#import "ADALiOS.h"
 #import "ADKeyChainTokenCacheStore.h"
 #import "ADTokenCacheStoreItem.h"
 #import "NSString+ADHelperMethods.h"

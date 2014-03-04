@@ -18,7 +18,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADTestAuthenticationContext.h"
-#import "../ADALiOS/ADALiOS.h"
+#import "../ADALiOS/ADAL.h"
 #import "../ADALiOS/ADOAuth2Constants.h"
 
 @implementation ADTestAuthenticationContext
