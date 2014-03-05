@@ -1,0 +1,25 @@
+//
+//  Prefix header
+//
+//  The contents of this file are implicitly included at the beginning of every source file.
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+    #import <Cocoa/Cocoa.h>
+#import "ADAL.h"
+#import "ADLogger.h"
+#import "ADErrorCodes.h"
+#import "NSString+ADHelperMethods.h"
+#import "ADAuthenticationError.h"
+
+//From IPAL library:
+#ifndef DebugLog
+#ifdef DEBUG
+#   define DebugLog(fmt, ...) NSLog((@"%s[%d][%@] " fmt), __PRETTY_FUNCTION__, __LINE__, [[NSThread currentThread] isEqual:[NSThread mainThread]] ? @"main" : @"work", ##__VA_ARGS__);
+#else
+#   define DebugLog(...)
+#endif
+#endif
+
+#endif

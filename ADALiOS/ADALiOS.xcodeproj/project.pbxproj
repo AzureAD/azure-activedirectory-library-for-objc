@@ -356,6 +356,7 @@
 				8B92DB6A181ADE44004AAB0E /* NSString+ADHelperMethods.h */,
 				8B92DB6B181ADE44004AAB0E /* NSString+ADHelperMethods.m */,
 				8B0965B017F25770002BDFB8 /* Supporting Files */,
+				8B0965B117F25770002BDFB8 /* ADALiOS-Prefix.pch */,
 				8B9F1FB61886530800EC3204 /* ADEncryptedFileTokenCacheStore.h */,
 				8B9F1FB71886530800EC3204 /* ADEncryptedFileTokenCacheStore.m */,
 			);
@@ -365,7 +366,6 @@
 		8B0965B017F25770002BDFB8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				8B0965B117F25770002BDFB8 /* ADALiOS-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
