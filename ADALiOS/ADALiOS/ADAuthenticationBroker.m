@@ -26,6 +26,7 @@
 #import "ADAuthenticationViewController.h"
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
+#import "ADAuthenticationWindowController.h"
 
 
 static NSString *const WAB_FAILED_ERROR         = @"Authorization Failed";
@@ -42,7 +43,12 @@ static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle
 // Implementation
 @implementation ADAuthenticationBroker
 {
-    ADAuthenticationViewController    *_authenticationViewController;
+#if TARGET_OS_IPHONE
+    ADAuthenticationViewController    *_authenticationPageController;
+#else
+    ADAuthenticationWindowController  *_authenticationPageController;
+    NSModalSession                      _authenticationSession;
+#endif
     ADAuthenticationWebViewController *_authenticationWebViewController;
     
     NSLock                             *_completionLock;
@@ -195,9 +201,9 @@ correlationId:(NSUUID *)correlationId
             
             if (navigationController)
             {
-                _authenticationViewController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
+                _authenticationPageController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
             
-                _authenticationViewController.delegate = self;
+                _authenticationPageController.delegate = self;
                 
                 if ( fullScreen == YES )
                     [navigationController setModalPresentationStyle:UIModalPresentationFullScreen];
@@ -209,7 +215,7 @@ correlationId:(NSUUID *)correlationId
                     // Instead of loading the URL immediately on completion, get the UI on the screen
                     // and then dispatch the call to load the authorization URL
                     dispatch_async( dispatch_get_main_queue(), ^{
-                        [_authenticationViewController startWithURL:startURL endAtURL:endURL];
+                        [_authenticationPageController startWithURL:startURL endAtURL:endURL];
                     });
                 }];
             }
@@ -229,7 +235,7 @@ correlationId:(NSUUID *)correlationId
         }
 #else
         // Load the authentication view
-        _authenticationWindowController = [[ADAuthenticationWindowController alloc] initAtURL:startURL endAtURL:endURL ssoMode:ssoMode];
+        _authenticationPageController = [[ADAuthenticationWindowController alloc] initAtURL:startURL endAtURL:endURL];
 #endif
 
     }
@@ -275,19 +281,18 @@ correlationId:(NSUUID *)correlationId
     //       cannot be blocked at its root, and so this method must
     //       be resilient to this condition and should not generate
     //       two callbacks.
-    [_completionLock lock];
-    
-    if ( _completionBlock )
+    @synchronized(self)
     {
-        void (^completionBlock)( ADAuthenticationError *, NSURL *) = _completionBlock;
-        _completionBlock = nil;
-        
-        dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-            completionBlock( error, url );
-        });
+        if ( _completionBlock )
+        {
+            void (^completionBlock)( ADAuthenticationError *, NSURL *) = _completionBlock;
+            _completionBlock = nil;
+            
+            dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
+                completionBlock( error, url );
+            });
+        }
     }
-    
-    [_completionLock unlock];
 }
 
 #pragma mark - ADAuthenticationDelegate
@@ -295,27 +300,47 @@ correlationId:(NSUUID *)correlationId
 // The user cancelled authentication
 - (void)webAuthenticationDidCancel
 {
-    DebugLog();
-    
-    // Dispatch the completion block
-
-    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_CANCEL protocolCode:nil errorDetails:WAB_FAILED_CANCELLED];
-    
-    if ( nil != _authenticationViewController)
+    @synchronized(self)//Prevent running between cancellation and navigation
     {
-        // Dismiss the authentication view and dispatch the completion block
-        [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+        DebugLog();
+        
+        // Dispatch the completion block
+        
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_CANCEL protocolCode:nil errorDetails:WAB_FAILED_CANCELLED];
+        
+#if TARGET_OS_IPHONE
+        if ( nil != _authenticationPageController)
+        {
+            // Dismiss the authentication view and dispatch the completion block
+            [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+                [self dispatchCompletionBlock:error URL:nil];
+            }];
+        }
+        else
+        {
+            [_authenticationWebViewController stop];
             [self dispatchCompletionBlock:error URL:nil];
-        }];
-    }
-    else
-    {
+        }
+        
+        _authenticationPageController    = nil;
+        _authenticationWebViewController = nil;
+#else
+        // Dismiss the authentication view if active
+        if ( _authenticationSession )
+        {
+            [NSApp stopModal];
+        }
+        
+        [_authenticationPageController close];
+        _authenticationPageController = nil;
+        
         [_authenticationWebViewController stop];
+        _authenticationWebViewController = nil;
+        
+        // Dispatch the completion block
         [self dispatchCompletionBlock:error URL:nil];
+#endif
     }
-    
-    _authenticationViewController    = nil;
-    _authenticationWebViewController = nil;
 }
 
 // Authentication completed at the end URL
@@ -323,7 +348,7 @@ correlationId:(NSUUID *)correlationId
 {
     DebugLog();
     
-    if ( nil != _authenticationViewController)
+    if ( nil != _authenticationPageController)
     {
         // Dismiss the authentication view and dispatch the completion block
         [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
@@ -336,7 +361,7 @@ correlationId:(NSUUID *)correlationId
         [self dispatchCompletionBlock:nil URL:endURL];
     }
     
-    _authenticationViewController    = nil;
+    _authenticationPageController    = nil;
     _authenticationWebViewController = nil;
 }
 
@@ -346,7 +371,7 @@ correlationId:(NSUUID *)correlationId
     // Dispatch the completion block
     ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription];
     
-    if ( nil != _authenticationViewController)
+    if ( nil != _authenticationPageController)
     {
         // Dismiss the authentication view and dispatch the completion block
         [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
@@ -359,7 +384,7 @@ correlationId:(NSUUID *)correlationId
         [self dispatchCompletionBlock:adError URL:nil];
     }
     
-    _authenticationViewController    = nil;
+    _authenticationPageController    = nil;
     _authenticationWebViewController = nil;
 }
 

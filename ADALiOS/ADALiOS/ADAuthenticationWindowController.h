@@ -24,6 +24,6 @@
 
 @property (weak_delegate, nonatomic) id<ADAuthenticationDelegate> delegate;
 
-- (id)initAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL ssoMode:(BOOL)ssoMode;
+- (id)initAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
 - (void)start;
 @end

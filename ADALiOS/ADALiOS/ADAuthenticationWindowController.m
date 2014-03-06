@@ -36,8 +36,6 @@
     BOOL      _complete;
     BOOL      _closed;
     
-    BOOL      _ssoMode;
-    
     NSURL    *_startURL;
     NSURL    *_endURL;
 
@@ -50,7 +48,7 @@
 #pragma mark - Initialization
 
 // Initialization
-- (id)initAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL ssoMode:(BOOL)ssoMode
+- (id)initAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
     self = [super initWithWindowNibName:@"WebAuthenticationWindowController"];
     
@@ -58,8 +56,6 @@
     {
         _startURL    = [startURL copy];
         _endURL      = [endURL copy];
-        
-        _ssoMode     = ssoMode;
         
         _complete    = NO; // Not complete
         _closed      = NO; // Not closed
@@ -120,7 +116,7 @@
     [_progressIndicator setHidden:YES];
     
     // Create the WebView Controller
-    _webViewController = [[WebAuthenticationWebViewController alloc] initWithWebView:_webView startAtURL:_startURL endAtURL:_endURL ssoMode:_ssoMode];
+    _webViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:_webView startAtURL:_startURL endAtURL:_endURL];
     _webViewController.delegate         = self;
     
     // Now we steal the FrameLoadDelegate from the WebView but will forward events to the old delegate.
