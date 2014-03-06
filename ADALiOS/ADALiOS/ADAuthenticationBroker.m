@@ -346,46 +346,85 @@ correlationId:(NSUUID *)correlationId
 // Authentication completed at the end URL
 - (void)webAuthenticationDidCompleteWithURL:(NSURL *)endURL
 {
-    DebugLog();
-    
-    if ( nil != _authenticationPageController)
+    @synchronized(self)//Prevent running between navigation and cancellation
     {
-        // Dismiss the authentication view and dispatch the completion block
-        [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+        DebugLog();
+
+#if TARGET_OS_IPHONE
+        if ( nil != _authenticationPageController)
+        {
+            // Dismiss the authentication view and dispatch the completion block
+            [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+                [self dispatchCompletionBlock:nil URL:endURL];
+            }];
+        }
+        else
+        {
+            [_authenticationWebViewController stop];
             [self dispatchCompletionBlock:nil URL:endURL];
-        }];
-    }
-    else
-    {
+        }
+        
+        _authenticationPageController    = nil;
+        _authenticationWebViewController = nil;
+#else
+        // Dismiss the authentication view if active
+        if ( _authenticationSession )
+        {
+            [NSApp stopModal];
+        }
+        
+        [_authenticationPageController close];
+        _authenticationPageController = nil;
+        
         [_authenticationWebViewController stop];
+        _authenticationWebViewController = nil;
+        
         [self dispatchCompletionBlock:nil URL:endURL];
+#endif
     }
-    
-    _authenticationPageController    = nil;
-    _authenticationWebViewController = nil;
 }
 
 // Authentication failed somewhere
 - (void)webAuthenticationDidFailWithError:(NSError *)error
 {
-    // Dispatch the completion block
-    ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription];
-    
-    if ( nil != _authenticationPageController)
+    @synchronized(self)//Prevent running between navigation and cancellation
     {
-        // Dismiss the authentication view and dispatch the completion block
-        [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+        // Dispatch the completion block
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription];
+        
+#if TARGET_OS_IPHONE
+        if ( nil != _authenticationPageController)
+        {
+            // Dismiss the authentication view and dispatch the completion block
+            [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+                [self dispatchCompletionBlock:adError URL:nil];
+            }];
+        }
+        else
+        {
+            [_authenticationWebViewController stop];
             [self dispatchCompletionBlock:adError URL:nil];
-        }];
-    }
-    else
-    {
+        }
+        
+        _authenticationPageController    = nil;
+        _authenticationWebViewController = nil;
+#else
+        // Dismiss the authentication view if active
+        if ( _authenticationSession )
+        {
+            [NSApp stopModal];
+        }
+        
+        [_authenticationPageController close];
+        _authenticationPageController = nil;
+        
         [_authenticationWebViewController stop];
+        _authenticationWebViewController = nil;
+        
+        // Dispatch the completion block
         [self dispatchCompletionBlock:adError URL:nil];
+#endif
     }
-    
-    _authenticationPageController    = nil;
-    _authenticationWebViewController = nil;
 }
 
 @end
