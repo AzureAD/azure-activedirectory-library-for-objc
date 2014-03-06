@@ -158,13 +158,13 @@ additionalInformation: (NSString*) additionalInformation
       ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
       }];
 #else
-#error Fix me
+    NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:
+                                             @"/System/Library/CoreServices/SystemVersion.plist"];
     NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
                                    @{
                                      ADAL_ID_PLATFORM:@"OSX",
                                      ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW],
-                                     ADAL_ID_OS_VER:device.systemVersion,
-                                     ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
+                                     ADAL_ID_OS_VER:systemVersionDictionary[@"ProductVersion"],
                                      }];
 #endif
     NSString* CPUVer = [self getCPUInfo];

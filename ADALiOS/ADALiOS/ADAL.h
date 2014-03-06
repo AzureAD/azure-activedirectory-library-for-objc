@@ -22,6 +22,17 @@
 #define ADAL_VER_HIGH   0
 #define ADAL_VER_LOW    5
 
+#if TARGET_OS_IPHONE
+//iOS:
+#   include <UIKit/UIKit.h>
+typedef UIWebView WebViewType;
+#else
+//OS X:
+#   include <WebKit/WebKit.h>
+typedef WebView   WebViewType;
+#endif
+
+
 
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \

@@ -17,7 +17,9 @@
 // governing permissions and limitations under the License.
 
 #import "ADOAuth2Constants.h"
-#import "UIApplicationExtensions.h"
+#if TARGET_OS_IPHONE
+    #import "UIApplicationExtensions.h"
+#endif
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationDelegate.h"
 #import "ADAuthenticationWebViewController.h"
@@ -64,35 +66,25 @@ static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle
 
 + (id)alloc
 {
-    NSAssert( false, @"Cannot create instances of %@", NSStringFromClass( self ) );
-    @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:[NSString stringWithFormat:@"Cannot create instances of %@", NSStringFromClass( self )] userInfo:nil];
-    
+    [self doesNotRecognizeSelector:_cmd];
     return nil;
 }
 
 + (id)allocPrivate
 {
-    // [super alloc] calls to NSObject, and that calls [class allocWithZone:]
     return [super alloc];
-}
-
-+ (id)new
-{
-    return [self alloc];
 }
 
 - (id)copy
 {
-    NSAssert( false, @"Cannot copy instances of %@", NSStringFromClass( [self class] ) );
-    
-    return [[self class] sharedInstance];
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
 
 - (id)mutableCopy
 {
-    NSAssert( false, @"Cannot copy instances of %@", NSStringFromClass( [self class] ) );
-    
-    return [[self class] sharedInstance];
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
 
 #pragma mark - Initialization
@@ -111,18 +103,7 @@ static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle
 
 #pragma mark - Private Methods
 
-static NSString *_resourcePath = nil;
-
-+ (NSString *)resourcePath
-{
-    return _resourcePath;
-}
-
-+ (void)setResourcePath:(NSString *)resourcePath
-{
-    _resourcePath = resourcePath;
-}
-
+#if TARGET_OS_IPHONE
 // Retrive the bundle containing the resources for the library
 + (NSBundle *)frameworkBundle: (ADAuthenticationError* __autoreleasing* ) error
 {
@@ -133,20 +114,10 @@ static NSString *_resourcePath = nil;
     {
         dispatch_once( &predicate,
                       ^{
-
                           NSString* mainBundlePath      = [[NSBundle mainBundle] resourcePath];
                           AD_LOG_VERBOSE_F(@"Resources Loading", @"Attempting to load resources from: %@", mainBundlePath);
-                          NSString* frameworkBundlePath = nil;
                           
-                          if ( _resourcePath != nil )
-                          {
-                              frameworkBundlePath = [[mainBundlePath stringByAppendingPathComponent:_resourcePath] stringByAppendingPathComponent:@"ADALiOS.bundle"];
-                          }
-                          else
-                          {
-                              frameworkBundlePath = [mainBundlePath stringByAppendingPathComponent:@"ADALiOS.bundle"];
-                          }
-                          
+                          NSString* frameworkBundlePath = [mainBundlePath stringByAppendingPathComponent:@"ADALiOS.bundle"];
                           bundle = [NSBundle bundleWithPath:frameworkBundlePath];
                       });
     }
@@ -161,7 +132,10 @@ static NSString *_resourcePath = nil;
     }
     return bundle;
 }
+#endif
 
+
+#if TARGET_OS_IPHONE
 // Retrieve the current storyboard from the resources for the library
 + (UIStoryboard *)storyboard: (ADAuthenticationError* __autoreleasing*) error
 {
@@ -176,6 +150,7 @@ static NSString *_resourcePath = nil;
                 [UIStoryboard storyboardWithName:@"IPAL_iPad_Storyboard" bundle:bundle]
               : [UIStoryboard storyboardWithName:@"IPAL_iPhone_Storyboard" bundle:bundle];
 }
+#endif
 
 -(NSURL*) addToURL: (NSURL*) url
      correlationId: (NSUUID*) correlationId
@@ -186,13 +161,15 @@ static NSString *_resourcePath = nil;
 
 #pragma mark - Public Methods
 
+// On OSX, the fullscreen parameter is ignored.
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
-      webView:(UIWebView *)webView
+      webView:(WebViewType *)webView
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID *)correlationId
    completion:(ADBrokerCallback)completionBlock
 {
+#pragma unused(fullScreen)
     THROW_ON_NIL_ARGUMENT(startURL);
     THROW_ON_NIL_ARGUMENT(endURL);
     THROW_ON_NIL_ARGUMENT(correlationId);
@@ -207,8 +184,10 @@ correlationId:(NSUUID *)correlationId
     
     if ( nil == webView )
     {
+#if TARGET_OS_IPHONE
         // Must have a parent view controller to start the authentication view
         UIViewController *parent = [UIApplication currentViewController];
+#endif
         
         if ( parent )
         {
