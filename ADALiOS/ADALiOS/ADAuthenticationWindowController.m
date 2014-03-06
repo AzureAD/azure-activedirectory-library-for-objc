@@ -47,9 +47,6 @@
 
 @synthesize delegate = _delegate;
 
-
-@synthesize delegate = _delegate;
-
 #pragma mark - Initialization
 
 // Initialization

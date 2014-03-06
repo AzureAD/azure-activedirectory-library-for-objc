@@ -22,7 +22,7 @@
 
 @property (weak) IBOutlet NSProgressIndicator *progressIndicator;
 
-@property (weak_delegate, nonatomic) id<WebAuthenticationDelegate> delegate;
+@property (weak_delegate, nonatomic) id<ADAuthenticationDelegate> delegate;
 
 - (id)initAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL ssoMode:(BOOL)ssoMode;
 - (void)start;

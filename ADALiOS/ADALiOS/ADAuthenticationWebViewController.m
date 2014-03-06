@@ -223,50 +223,87 @@
 }
 #endif //TARGET_OS_IPHONE
 
+//TODO: Determine if this is even needed. The current logic is in place due to the cookie manipulation
+//#if !(TARGET_OS_IPHONE)
+//- (NSURLRequest *)webView:(WebView *)sender resource:(id)identifier willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse fromDataSource:(WebDataSource *)dataSource
+//{
+//#pragma unused(sender)
+//#pragma unused(identifier)
+//#pragma unused(dataSource)
+//    
+//    DebugLog( @"URL: %@", request.URL.absoluteString );
+//    
+//    if ( redirectResponse )
+//    {
+//        [self.class.cookieJar setCookiesFromResponse:redirectResponse];
+//    }
+//    
+//    // Rebuild the request to use our cookie jar
+//    NSMutableURLRequest *newRequest = [NSMutableURLRequest requestWithURL:request.URL cachePolicy:request.cachePolicy timeoutInterval:request.timeoutInterval];
+//    
+//    newRequest.HTTPMethod = request.HTTPMethod;
+//    
+//    if ( request.HTTPBodyStream )
+//        newRequest.HTTPBodyStream = request.HTTPBodyStream;
+//    else
+//        newRequest.HTTPBody = request.HTTPBody;
+//    
+//    newRequest.HTTPShouldHandleCookies = NO; // Set this to NO to tell the request to not look for and send cookies
+//    newRequest.HTTPShouldUsePipelining = request.HTTPShouldUsePipelining;
+//    
+//    // Get the cookies for the request
+//    NSArray             *cookies       = [self.class.cookieJar getCookiesForRequest:newRequest];
+//    NSDictionary        *cookieHeaders = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
+//    NSMutableDictionary *headers       = [NSMutableDictionary dictionaryWithDictionary:request.allHTTPHeaderFields];
+//    
+//    // Place all the cookie headers onto the request
+//    [cookieHeaders enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
+//        if ( stop ) *stop = NO;
+//        [headers setObject:value forKey:key];
+//    }];
+//    
+//    newRequest.allHTTPHeaderFields = headers;
+//    
+//    return newRequest;
+//}
+//#endif //!(TARGET_OS_IPHONE)
+
+//TODO: Consider if this is needed. Again only used for cookies:
+//#if !(TARGET_OS_IPHONE)
+//- (void)webView:(WebView *)sender resource:(id)identifier didReceiveResponse:(NSURLResponse *)response fromDataSource:(WebDataSource *)dataSource
+//{
+//#pragma unused(sender)
+//#pragma unused(identifier)
+//#pragma unused(dataSource)
+//    
+//    [self.class.cookieJar setCookiesFromResponse:response];
+//}
+//#endif //!(TARGET_OS_IPHONE)
+
 #if !(TARGET_OS_IPHONE)
-- (NSURLRequest *)webView:(WebView *)sender resource:(id)identifier willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse fromDataSource:(WebDataSource *)dataSource
+- (void)webView:(WebView *)sender decidePolicyForNavigationAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request frame:(WebFrame *)frame decisionListener:(id)listener
 {
 #pragma unused(sender)
-#pragma unused(identifier)
-#pragma unused(dataSource)
+#pragma unused(actionInformation)
     
-    DebugLog( @"URL: %@", request.URL.absoluteString );
+    NSString *currentURL = [[request.URL absoluteString] lowercaseString];
     
-    if ( redirectResponse )
+    if ( [currentURL hasPrefix:_endURL] )
     {
-        [self.class.cookieJar setCookiesFromResponse:redirectResponse];
+        _complete = YES;
+        
+        [listener ignore];
+        [frame stopLoading];
+        
+        // NOTE: Synchronous invocation
+        NSAssert( nil != _delegate, @"Delegate has been lost" );
+        [self.delegate webAuthenticationDidCompleteWithURL:request.URL];
     }
-    
-    // Rebuild the request to use our cookie jar
-    NSMutableURLRequest *newRequest = [NSMutableURLRequest requestWithURL:request.URL cachePolicy:request.cachePolicy timeoutInterval:request.timeoutInterval];
-    
-    newRequest.HTTPMethod = request.HTTPMethod;
-    
-    if ( request.HTTPBodyStream )
-        newRequest.HTTPBodyStream = request.HTTPBodyStream;
     else
-        newRequest.HTTPBody = request.HTTPBody;
-    
-    newRequest.HTTPShouldHandleCookies = NO; // Set this to NO to tell the request to not look for and send cookies
-    newRequest.HTTPShouldUsePipelining = request.HTTPShouldUsePipelining;
-    
-    // Get the cookies for the request
-    NSArray             *cookies       = [self.class.cookieJar getCookiesForRequest:newRequest];
-    NSDictionary        *cookieHeaders = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
-    NSMutableDictionary *headers       = [NSMutableDictionary dictionaryWithDictionary:request.allHTTPHeaderFields];
-    
-    // Place all the cookie headers onto the request
-    [cookieHeaders enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
-        if ( stop ) *stop = NO;
-        [headers setObject:value forKey:key];
-    }];
-    
-    newRequest.allHTTPHeaderFields = headers;
-    
-    return newRequest;
+    {
+        [listener use];
+    }
 }
 #endif //!(TARGET_OS_IPHONE)
 
-
-#error Add the rest of the handlers
 @end
