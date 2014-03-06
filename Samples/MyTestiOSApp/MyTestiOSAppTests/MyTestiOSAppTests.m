@@ -412,7 +412,7 @@ const int sTokenWorkflowTimeout     = 20;
 {
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     //Clean, request one user, enter another
-    XCTAssertEqual([cache allItems].count, 0);//Access token and MRRT
+    XCTAssertEqual((long)[cache allItems].count, (long)0);//Access token and MRRT
     ADAuthenticationResult* result = [self callAcquireTokenWithInstance:[self getAADInstance]
                                                             interactive:YES
                                                            keepSignedIn:YES
@@ -429,6 +429,7 @@ const int sTokenWorkflowTimeout     = 20;
                                          userId:@"Nonexistent"
                                            line:__LINE__];
     XCTAssertNil(result.tokenCacheStoreItem);
+    XCTAssertEqual((long)result.error.code, (long)AD_ERROR_WRONG_USER);
     XCTAssertEqual((long)[cache allItems].count, (long)2);//Access token and MRRT
 }
 

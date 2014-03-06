@@ -80,7 +80,7 @@ const int sAsyncContextTimeout = 10;
     mRedirectURL = [NSURL URLWithString:@"http://todolistclient/"];
     mClientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
     mResource = @"http://localhost/TodoListService";
-    mUserId = @"boris@mmsopentechbv.onmicrosoft.com";
+    mUserId = @"boris@msopentechbv.onmicrosoft.com";
     mPromptBehavior = AD_PROMPT_AUTO;
     ADAuthenticationError* error;
     ADTestAuthenticationContext* testContext = [[ADTestAuthenticationContext alloc] initWithAuthority:mAuthority

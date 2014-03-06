@@ -43,6 +43,12 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     return nil;
 }
 
++(NSString*) normalizeUserId: (NSString*) userId
+{
+    NSString* normalized = [userId trimmedString].lowercaseString;
+    return normalized.length ? normalized : nil;
+}
+
 -(id) initWithUserId: (NSString*) userId
 {
     THROW_ON_NIL_EMPTY_ARGUMENT(userId);//Shouldn't be called with nil.
@@ -50,7 +56,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     if (self)
     {
         //Minor canonicalization of the userId:
-        _userId = [userId trimmedString].lowercaseString;
+        _userId = [self.class normalizeUserId:userId];
     }
     return self;
 }
@@ -186,7 +192,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     {
         RETURN_ID_TOKEN_ERROR(idToken);
     }
-    _userId = _userId.lowercaseString;//Normalize
+    _userId = [self.class normalizeUserId:_userId];
     
     return self;
 }
