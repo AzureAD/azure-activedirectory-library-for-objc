@@ -16,17 +16,14 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@interface ADAuthenticationWebViewController
-#if TARGET_OS_IPHONE
-    : NSObject <UIWebViewDelegate>
-#else
-    : NSObject
-#endif
+@protocol ADAuthenticationDelegate;
 
-@property (weak_delegate, nonatomic) id<ADAuthenticationDelegate> delegate;
+@interface ADAuthenticationWindowController : NSWindowController <NSWindowDelegate>
 
-- (id)initWithWebView:(WebViewType *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
+@property (weak) IBOutlet NSProgressIndicator *progressIndicator;
+
+@property (weak_delegate, nonatomic) id<WebAuthenticationDelegate> delegate;
+
+- (id)initAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL ssoMode:(BOOL)ssoMode;
 - (void)start;
-- (void)stop;
-
 @end

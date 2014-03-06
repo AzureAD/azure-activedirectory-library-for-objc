@@ -187,7 +187,6 @@ correlationId:(NSUUID *)correlationId
 #if TARGET_OS_IPHONE
         // Must have a parent view controller to start the authentication view
         UIViewController *parent = [UIApplication currentViewController];
-#endif
         
         if ( parent )
         {
@@ -228,6 +227,11 @@ correlationId:(NSUUID *)correlationId
                                                            errorDetails:WAB_FAILED_NO_CONTROLLER];
 
         }
+#else
+        // Load the authentication view
+        _authenticationWindowController = [[ADAuthenticationWindowController alloc] initAtURL:startURL endAtURL:endURL ssoMode:ssoMode];
+#endif
+
     }
     else
     {
