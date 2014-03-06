@@ -103,27 +103,10 @@ static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle
 
 #pragma mark - Private Methods
 
-<<<<<<< HEAD
 #if TARGET_OS_IPHONE
-// Retrive the bundle containing the resources for the library
-+ (NSBundle *)frameworkBundle: (ADAuthenticationError* __autoreleasing* ) error
-=======
-static NSString *_resourcePath = nil;
-
-+ (NSString *)resourcePath
-{
-    return _resourcePath;
-}
-
-+ (void)setResourcePath:(NSString *)resourcePath
-{
-    _resourcePath = resourcePath;
-}
-
 // Retrive the bundle containing the resources for the library. May return nil, if the bundle
 // cannot be loaded.
 + (NSBundle *)frameworkBundle
->>>>>>> Framework
 {
     static NSBundle       *bundle     = nil;
     static dispatch_once_t predicate;
