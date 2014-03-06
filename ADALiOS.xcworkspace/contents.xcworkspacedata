@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:MyTestMacOSApp/MyTestMacOSApp.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:ADAL-OSX/ADAL-OSX.xcodeproj">
    </FileRef>
    <FileRef

@@ -23,42 +23,42 @@
 		4C60D5E318C697E500F9EAAE /* ADALiOS-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A318C697E500F9EAAE /* ADALiOS-Prefix.pch */; };
 		4C60D5E418C697E500F9EAAE /* ADAuthenticationBroker.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A418C697E500F9EAAE /* ADAuthenticationBroker.h */; };
 		4C60D5E518C697E500F9EAAE /* ADAuthenticationBroker.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5A518C697E500F9EAAE /* ADAuthenticationBroker.m */; };
-		4C60D5E618C697E500F9EAAE /* ADAuthenticationContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A618C697E500F9EAAE /* ADAuthenticationContext.h */; };
+		4C60D5E618C697E500F9EAAE /* ADAuthenticationContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A618C697E500F9EAAE /* ADAuthenticationContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D5E718C697E500F9EAAE /* ADAuthenticationContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5A718C697E500F9EAAE /* ADAuthenticationContext.m */; };
 		4C60D5E818C697E500F9EAAE /* ADAuthenticationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A818C697E500F9EAAE /* ADAuthenticationDelegate.h */; };
-		4C60D5E918C697E500F9EAAE /* ADAuthenticationError.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A918C697E500F9EAAE /* ADAuthenticationError.h */; };
+		4C60D5E918C697E500F9EAAE /* ADAuthenticationError.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A918C697E500F9EAAE /* ADAuthenticationError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D5EA18C697E500F9EAAE /* ADAuthenticationError.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5AA18C697E500F9EAAE /* ADAuthenticationError.m */; };
 		4C60D5EB18C697E500F9EAAE /* ADAuthenticationOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5AB18C697E500F9EAAE /* ADAuthenticationOperation.h */; };
 		4C60D5EC18C697E500F9EAAE /* ADAuthenticationOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5AC18C697E500F9EAAE /* ADAuthenticationOperation.m */; };
-		4C60D5ED18C697E500F9EAAE /* ADAuthenticationParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5AD18C697E500F9EAAE /* ADAuthenticationParameters.h */; };
+		4C60D5ED18C697E500F9EAAE /* ADAuthenticationParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5AD18C697E500F9EAAE /* ADAuthenticationParameters.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D5EE18C697E500F9EAAE /* ADAuthenticationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5AE18C697E500F9EAAE /* ADAuthenticationParameters.m */; };
 		4C60D5EF18C697E500F9EAAE /* ADAuthenticationParameters+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5AF18C697E500F9EAAE /* ADAuthenticationParameters+Internal.h */; };
 		4C60D5F018C697E500F9EAAE /* ADAuthenticationParameters+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5B018C697E500F9EAAE /* ADAuthenticationParameters+Internal.m */; };
-		4C60D5F118C697E500F9EAAE /* ADAuthenticationResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5B118C697E500F9EAAE /* ADAuthenticationResult.h */; };
+		4C60D5F118C697E500F9EAAE /* ADAuthenticationResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5B118C697E500F9EAAE /* ADAuthenticationResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D5F218C697E500F9EAAE /* ADAuthenticationResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5B218C697E500F9EAAE /* ADAuthenticationResult.m */; };
 		4C60D5F318C697E500F9EAAE /* ADAuthenticationResult+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5B318C697E500F9EAAE /* ADAuthenticationResult+Internal.h */; };
 		4C60D5F418C697E500F9EAAE /* ADAuthenticationResult+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5B418C697E500F9EAAE /* ADAuthenticationResult+Internal.m */; };
-		4C60D5F518C697E500F9EAAE /* ADAuthenticationSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5B518C697E500F9EAAE /* ADAuthenticationSettings.h */; };
+		4C60D5F518C697E500F9EAAE /* ADAuthenticationSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5B518C697E500F9EAAE /* ADAuthenticationSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D5F618C697E500F9EAAE /* ADAuthenticationSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5B618C697E500F9EAAE /* ADAuthenticationSettings.m */; };
 		4C60D5FB18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5BB18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.h */; };
 		4C60D5FC18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5BC18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.m */; };
 		4C60D5FF18C697E500F9EAAE /* ADErrorCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5BF18C697E500F9EAAE /* ADErrorCodes.h */; };
 		4C60D60018C697E500F9EAAE /* ADInstanceDiscovery.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5C018C697E500F9EAAE /* ADInstanceDiscovery.h */; };
 		4C60D60118C697E500F9EAAE /* ADInstanceDiscovery.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5C118C697E500F9EAAE /* ADInstanceDiscovery.m */; };
-		4C60D60418C697E500F9EAAE /* ADLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5C418C697E500F9EAAE /* ADLogger.h */; };
+		4C60D60418C697E500F9EAAE /* ADLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5C418C697E500F9EAAE /* ADLogger.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D60518C697E500F9EAAE /* ADLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5C518C697E500F9EAAE /* ADLogger.m */; };
 		4C60D60618C697E500F9EAAE /* ADOAuth2Constants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5C618C697E500F9EAAE /* ADOAuth2Constants.h */; };
 		4C60D60718C697E500F9EAAE /* ADOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5C718C697E500F9EAAE /* ADOAuth2Constants.m */; };
-		4C60D60818C697E500F9EAAE /* ADPersistentTokenCacheStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5C818C697E500F9EAAE /* ADPersistentTokenCacheStore.h */; };
+		4C60D60818C697E500F9EAAE /* ADPersistentTokenCacheStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5C818C697E500F9EAAE /* ADPersistentTokenCacheStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D60918C697E500F9EAAE /* ADPersistentTokenCacheStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5C918C697E500F9EAAE /* ADPersistentTokenCacheStore.m */; };
-		4C60D60A18C697E500F9EAAE /* ADTokenCacheStoreItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5CA18C697E500F9EAAE /* ADTokenCacheStoreItem.h */; };
+		4C60D60A18C697E500F9EAAE /* ADTokenCacheStoreItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5CA18C697E500F9EAAE /* ADTokenCacheStoreItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D60B18C697E500F9EAAE /* ADTokenCacheStoreItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5CB18C697E500F9EAAE /* ADTokenCacheStoreItem.m */; };
-		4C60D60C18C697E500F9EAAE /* ADTokenCacheStoreKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5CC18C697E500F9EAAE /* ADTokenCacheStoreKey.h */; };
+		4C60D60C18C697E500F9EAAE /* ADTokenCacheStoreKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5CC18C697E500F9EAAE /* ADTokenCacheStoreKey.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D60D18C697E500F9EAAE /* ADTokenCacheStoreKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5CD18C697E500F9EAAE /* ADTokenCacheStoreKey.m */; };
-		4C60D60E18C697E500F9EAAE /* ADTokenCacheStoring.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5CE18C697E500F9EAAE /* ADTokenCacheStoring.h */; };
+		4C60D60E18C697E500F9EAAE /* ADTokenCacheStoring.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5CE18C697E500F9EAAE /* ADTokenCacheStoring.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D60F18C697E500F9EAAE /* ADTokenCacheValue.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5CF18C697E500F9EAAE /* ADTokenCacheValue.h */; };
 		4C60D61018C697E500F9EAAE /* ADTokenCacheValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5D018C697E500F9EAAE /* ADTokenCacheValue.m */; };
-		4C60D61118C697E500F9EAAE /* ADUserInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5D118C697E500F9EAAE /* ADUserInformation.h */; };
+		4C60D61118C697E500F9EAAE /* ADUserInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5D118C697E500F9EAAE /* ADUserInformation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D61218C697E500F9EAAE /* ADUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5D218C697E500F9EAAE /* ADUserInformation.m */; };
 		4C60D61318C697E500F9EAAE /* HTTPWebRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5D318C697E500F9EAAE /* HTTPWebRequest.h */; };
 		4C60D61418C697E500F9EAAE /* HTTPWebRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5D418C697E500F9EAAE /* HTTPWebRequest.m */; };
@@ -314,35 +314,35 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C60D5F118C697E500F9EAAE /* ADAuthenticationResult.h in Headers */,
+				4C60D60A18C697E500F9EAAE /* ADTokenCacheStoreItem.h in Headers */,
+				4C60D5E618C697E500F9EAAE /* ADAuthenticationContext.h in Headers */,
+				4C60D60E18C697E500F9EAAE /* ADTokenCacheStoring.h in Headers */,
+				4C60D5ED18C697E500F9EAAE /* ADAuthenticationParameters.h in Headers */,
+				4C60D60418C697E500F9EAAE /* ADLogger.h in Headers */,
+				4C60D5E918C697E500F9EAAE /* ADAuthenticationError.h in Headers */,
+				4C60D61118C697E500F9EAAE /* ADUserInformation.h in Headers */,
+				4C60D5F518C697E500F9EAAE /* ADAuthenticationSettings.h in Headers */,
+				4C60D60C18C697E500F9EAAE /* ADTokenCacheStoreKey.h in Headers */,
+				4C60D60818C697E500F9EAAE /* ADPersistentTokenCacheStore.h in Headers */,
 				4C60D5EF18C697E500F9EAAE /* ADAuthenticationParameters+Internal.h in Headers */,
 				4C60D5E118C697E500F9EAAE /* ADAL.h in Headers */,
 				4C60D5FB18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.h in Headers */,
 				4C60D61918C697E500F9EAAE /* NSDictionaryExtensions.h in Headers */,
-				4C60D5F118C697E500F9EAAE /* ADAuthenticationResult.h in Headers */,
 				4C60D60618C697E500F9EAAE /* ADOAuth2Constants.h in Headers */,
 				4C60D5EB18C697E500F9EAAE /* ADAuthenticationOperation.h in Headers */,
-				4C60D60A18C697E500F9EAAE /* ADTokenCacheStoreItem.h in Headers */,
 				4C60D61D18C697E500F9EAAE /* NSURLExtensions.h in Headers */,
 				4C60D5FF18C697E500F9EAAE /* ADErrorCodes.h in Headers */,
-				4C60D60E18C697E500F9EAAE /* ADTokenCacheStoring.h in Headers */,
-				4C60D60418C697E500F9EAAE /* ADLogger.h in Headers */,
-				4C60D60C18C697E500F9EAAE /* ADTokenCacheStoreKey.h in Headers */,
-				4C60D5E618C697E500F9EAAE /* ADAuthenticationContext.h in Headers */,
-				4C60D5ED18C697E500F9EAAE /* ADAuthenticationParameters.h in Headers */,
 				4C60D60F18C697E500F9EAAE /* ADTokenCacheValue.h in Headers */,
 				4C60D5E818C697E500F9EAAE /* ADAuthenticationDelegate.h in Headers */,
 				4C60D5E318C697E500F9EAAE /* ADALiOS-Prefix.pch in Headers */,
 				4C60D61B18C697E500F9EAAE /* NSString+ADHelperMethods.h in Headers */,
-				4C60D5E918C697E500F9EAAE /* ADAuthenticationError.h in Headers */,
 				4C60D5E418C697E500F9EAAE /* ADAuthenticationBroker.h in Headers */,
 				4C60D60018C697E500F9EAAE /* ADInstanceDiscovery.h in Headers */,
-				4C60D61118C697E500F9EAAE /* ADUserInformation.h in Headers */,
 				4C42481718C83DBA00B2E350 /* ADAuthenticationWindowController.h in Headers */,
-				4C60D5F518C697E500F9EAAE /* ADAuthenticationSettings.h in Headers */,
 				4C60D61518C697E500F9EAAE /* HTTPWebResponse.h in Headers */,
 				4C60D61318C697E500F9EAAE /* HTTPWebRequest.h in Headers */,
 				4C60D5F318C697E500F9EAAE /* ADAuthenticationResult+Internal.h in Headers */,
-				4C60D60818C697E500F9EAAE /* ADPersistentTokenCacheStore.h in Headers */,
 				4C42482818C84D4A00B2E350 /* ADAuthenticationWebViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -542,7 +542,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx;
+				SDKROOT = macosx10.8;
 			};
 			name = Debug;
 		};
@@ -573,7 +573,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				SDKROOT = macosx;
+				SDKROOT = macosx10.8;
 			};
 			name = Release;
 		};
@@ -589,6 +589,7 @@
 				INFOPLIST_FILE = "ADAL-OSX/ADAL-OSX-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -605,6 +606,7 @@
 				INFOPLIST_FILE = "ADAL-OSX/ADAL-OSX-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
@@ -627,6 +629,7 @@
 				INFOPLIST_FILE = "ADAL-OSXTests/ADAL-OSXTests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.8;
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -646,6 +649,7 @@
 				INFOPLIST_FILE = "ADAL-OSXTests/ADAL-OSXTests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.8;
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};

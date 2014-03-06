@@ -45,7 +45,7 @@ typedef enum
 @class ADAuthenticationResult;
 
 /*! The completion block declaration */
-typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
+typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 
 /*! The central class for managing multiple tokens. Usage: create one per AAD or ADFS authority.
  As authority is required, the class cannot be used with "new" or the parameterless "init" selectors.
