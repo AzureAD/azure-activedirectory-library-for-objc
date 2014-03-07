@@ -49,6 +49,9 @@
 #if TARGET_OS_IPHONE
         _webView.delegate = self;
 #else
+        [_webView setFrameLoadDelegate:self];
+        [_webView setResourceLoadDelegate:self];
+        [_webView setPolicyDelegate:self];
         _delegate = nil;
 #endif
     }
@@ -281,9 +284,12 @@
 //#endif //!(TARGET_OS_IPHONE)
 
 #if !(TARGET_OS_IPHONE)
-- (void)webView:(WebView *)sender decidePolicyForNavigationAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request frame:(WebFrame *)frame decisionListener:(id)listener
+- (void)webView:(WebView *)webView decidePolicyForNavigationAction:(NSDictionary *)actionInformation
+        request:(NSURLRequest *)request
+          frame:(WebFrame *)frame
+decisionListener:(id<WebPolicyDecisionListener>)listener;
 {
-#pragma unused(sender)
+#pragma unused(webView)
 #pragma unused(actionInformation)
     
     NSString *currentURL = [[request.URL absoluteString] lowercaseString];
