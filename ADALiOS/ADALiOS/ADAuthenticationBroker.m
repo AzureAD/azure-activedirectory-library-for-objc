@@ -19,6 +19,8 @@
 #import "ADOAuth2Constants.h"
 #if TARGET_OS_IPHONE
     #import "UIApplicationExtensions.h"
+#else
+    #import "ADAuthenticationWindowController.h"
 #endif
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationDelegate.h"
@@ -26,7 +28,6 @@
 #import "ADAuthenticationViewController.h"
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
-#import "ADAuthenticationWindowController.h"
 
 
 static NSString *const WAB_FAILED_ERROR         = @"Authorization Failed";

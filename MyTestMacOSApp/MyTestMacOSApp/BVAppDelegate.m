@@ -8,6 +8,9 @@
 
 #import "BVAppDelegate.h"
 #import <ADAL-OSX/ADAuthenticationContext.h>
+#import <ADAL-OSX/ADLogger.h>
+#import "BVSettings.h"
+#import "BVTestInstance.h"
 
 @implementation BVAppDelegate
 
@@ -17,11 +20,28 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    // Do any additional setup after loading the view, typically from a nib.
+    [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];//Log everything
+    
+    BVSettings* testData = [BVSettings new];
+    BVTestInstance* aadInstance = testData.testAuthorities[sAADTestInstance];
+    
     // Insert code here to initialize your application
     ADAuthenticationError* error;
-    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:@"https://login.windows.net/MSOpenTechBV.OnMicrosoft.com" error:error];
-    [context acquireTokenWithResource:@"" clientId:@"" redirectUri:@"" completionBlock:^(ADAuthenticationResult *result) {
-        //if (AD_SUCCEEDED == )
+    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:aadInstance.authority error:&error];
+    [context acquireTokenWithResource:aadInstance.resource
+                             clientId:aadInstance.clientId
+                          redirectUri:[NSURL URLWithString:aadInstance.redirectUri]
+                      completionBlock:^(ADAuthenticationResult *result)
+    {
+        if (AD_SUCCEEDED == result.status)
+        {
+            NSLog(@"AcquireToken succeeded with access token: %@", result.accessToken);
+        }
+        else
+        {
+            NSLog(@"AcqurieToken failed with access token: %@", result.error.errorDetails);
+        }
     }];
 }
 

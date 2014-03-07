@@ -20,6 +20,9 @@
 		8BD92F0D18C93BE70026A014 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BD92F0B18C93BE70026A014 /* InfoPlist.strings */; };
 		8BD92F0F18C93BE70026A014 /* MyTestMacOSAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BD92F0E18C93BE70026A014 /* MyTestMacOSAppTests.m */; };
 		8BD92F1918C93C800026A014 /* ADAL-OSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD92F1818C93C800026A014 /* ADAL-OSX.framework */; };
+		8BD92F1C18C943580026A014 /* BVTestInstance.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BD92F1B18C943580026A014 /* BVTestInstance.m */; };
+		8BD92F1E18C943F50026A014 /* TestData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8BD92F1D18C943F50026A014 /* TestData.plist */; };
+		8BD92F2118C944190026A014 /* BVSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BD92F2018C944190026A014 /* BVSettings.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +57,11 @@
 		8BD92F0C18C93BE70026A014 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BD92F0E18C93BE70026A014 /* MyTestMacOSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyTestMacOSAppTests.m; sourceTree = "<group>"; };
 		8BD92F1818C93C800026A014 /* ADAL-OSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "ADAL-OSX.framework"; path = "../../../Library/Developer/Xcode/DerivedData/ADALiOS-djevopakwptcnvdftjinyinftwsm/Build/Products/Debug/ADAL-OSX.framework"; sourceTree = "<group>"; };
+		8BD92F1A18C943580026A014 /* BVTestInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BVTestInstance.h; path = ../../Samples/MyTestiOSApp/BVTestInstance.h; sourceTree = "<group>"; };
+		8BD92F1B18C943580026A014 /* BVTestInstance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BVTestInstance.m; path = ../../Samples/MyTestiOSApp/BVTestInstance.m; sourceTree = "<group>"; };
+		8BD92F1D18C943F50026A014 /* TestData.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = TestData.plist; path = ../../Samples/MyTestiOSApp/MyTestiOSApp/TestData.plist; sourceTree = "<group>"; };
+		8BD92F1F18C944190026A014 /* BVSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BVSettings.h; path = ../../Samples/MyTestiOSApp/MyTestiOSApp/BVSettings.h; sourceTree = "<group>"; };
+		8BD92F2018C944190026A014 /* BVSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BVSettings.m; path = ../../Samples/MyTestiOSApp/MyTestiOSApp/BVSettings.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,6 +129,10 @@
 		8BD92EE718C93BE70026A014 /* MyTestMacOSApp */ = {
 			isa = PBXGroup;
 			children = (
+				8BD92F1F18C944190026A014 /* BVSettings.h */,
+				8BD92F2018C944190026A014 /* BVSettings.m */,
+				8BD92F1A18C943580026A014 /* BVTestInstance.h */,
+				8BD92F1B18C943580026A014 /* BVTestInstance.m */,
 				8BD92EF318C93BE70026A014 /* BVAppDelegate.h */,
 				8BD92EF418C93BE70026A014 /* BVAppDelegate.m */,
 				8BD92EF618C93BE70026A014 /* MainMenu.xib */,
@@ -134,6 +146,7 @@
 		8BD92EE818C93BE70026A014 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				8BD92F1D18C943F50026A014 /* TestData.plist */,
 				8BD92EE918C93BE70026A014 /* MyTestMacOSApp-Info.plist */,
 				8BD92EEA18C93BE70026A014 /* InfoPlist.strings */,
 				8BD92EED18C93BE70026A014 /* main.m */,
@@ -241,6 +254,7 @@
 				8BD92EEC18C93BE70026A014 /* InfoPlist.strings in Resources */,
 				8BD92EFD18C93BE70026A014 /* Images.xcassets in Resources */,
 				8BD92EF218C93BE70026A014 /* Credits.rtf in Resources */,
+				8BD92F1E18C943F50026A014 /* TestData.plist in Resources */,
 				8BD92EF818C93BE70026A014 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -260,6 +274,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BD92F2118C944190026A014 /* BVSettings.m in Sources */,
+				8BD92F1C18C943580026A014 /* BVTestInstance.m in Sources */,
 				8BD92EF518C93BE70026A014 /* BVAppDelegate.m in Sources */,
 				8BD92EEE18C93BE70026A014 /* main.m in Sources */,
 				8BD92EFB18C93BE70026A014 /* MyTestMacOSApp.xcdatamodeld in Sources */,
