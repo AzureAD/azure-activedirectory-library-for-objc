@@ -17,13 +17,11 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+@class ADTokenCacheStoreKey;
+@class ADTokenCacheStoreItem;
+@class ADAuthenticationError;
 
-#import <Foundation/Foundation.h>
-#import <ADALiOS/ADTOkenCacheStoreKey.h>
-#import <ADALiOS/ADTokenCacheStoreItem.h>
-#import <ADALiOS/ADAuthenticationError.h>
-
-/*! This protocol needs to be implemented by any token cache store. 
+/*! This protocol needs to be implemented by any token cache store.
  It is a key-based store, which stores 'AdTokenCacheStoreItem elements. */
 @protocol ADTokenCacheStoring
 

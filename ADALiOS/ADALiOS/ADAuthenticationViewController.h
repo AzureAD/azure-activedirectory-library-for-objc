@@ -18,13 +18,20 @@
 
 @protocol ADAuthenticationDelegate;
 
-@interface ADAuthenticationViewController : UIViewController
+@interface ADAuthenticationViewController
+#if TARGET_OS_IPHONE
+    : UIViewController
+#else
+    : NSObject
+#endif
 
+#if TARGET_OS_IPHONE
 @property (weak, nonatomic)   id<ADAuthenticationDelegate>     delegate;
 @property (weak, nonatomic)   IBOutlet UIWebView               *webView;
 @property (weak, nonatomic)   IBOutlet UIActivityIndicatorView *activityIndicator;
 
 - (IBAction)onCancel:(id)sender;
+#endif
 
 - (BOOL)startWithURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
 

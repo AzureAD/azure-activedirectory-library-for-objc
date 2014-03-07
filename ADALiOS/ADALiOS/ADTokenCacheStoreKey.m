@@ -17,10 +17,9 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-
-#import "ADALiOS.h"
 #import "ADAuthenticationContext.h"
 #import "ADInstanceDiscovery.h"
+#import "ADTokenCacheStoreKey.h"
 
 @implementation ADTokenCacheStoreKey
 

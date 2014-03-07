@@ -17,8 +17,8 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADALiOS.h"
 #import "ADAuthenticationContext.h"
+#import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationBroker.h"
@@ -29,6 +29,9 @@
 #import "HTTPWebRequest.h"
 #import "HTTPWebResponse.h"
 #import "ADInstanceDiscovery.h"
+#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheStoreKey.h"
+#import "ADUserInformation.h"
 
 NSString* const multiUserError = @"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used.";
 NSString* const unknownError = @"Uknown error.";

@@ -17,8 +17,6 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADALiOS.h"
-#import "ADLogger.h"
 #import "ADOAuth2Constants.h"
 #include <sys/types.h>
 #include <sys/sysctl.h>
@@ -149,6 +147,8 @@ additionalInformation: (NSString*) additionalInformation
 
 +(NSDictionary*) adalId
 {
+#if TARGET_OS_IPHONE
+    //iOS:
     UIDevice* device = [UIDevice currentDevice];
     NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
     @{
@@ -157,6 +157,16 @@ additionalInformation: (NSString*) additionalInformation
       ADAL_ID_OS_VER:device.systemVersion,
       ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
       }];
+#else
+    NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:
+                                             @"/System/Library/CoreServices/SystemVersion.plist"];
+    NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
+                                   @{
+                                     ADAL_ID_PLATFORM:@"OSX",
+                                     ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW],
+                                     ADAL_ID_OS_VER:systemVersionDictionary[@"ProductVersion"],
+                                     }];
+#endif
     NSString* CPUVer = [self getCPUInfo];
     if (![NSString isStringNilOrBlank:CPUVer])
     {

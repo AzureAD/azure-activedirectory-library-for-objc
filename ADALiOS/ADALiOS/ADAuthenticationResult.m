@@ -20,7 +20,6 @@
 
 #import "ADAuthenticationResult.h"
 #import "ADTokenCacheStoreItem.h"
-#import "ADALiOS.h"
 
 @implementation ADAuthenticationResult
 

@@ -41,7 +41,7 @@
         //that created the object. Unfortunately with Grand Central Dispatch, it is not guaranteed that the thread
         //exists. Hence for now, we create the connection on the main thread by default:
         self.dispatchQueue = dispatch_get_main_queue();
-        self.defaultTokenCacheStore = [[ADKeychainTokenCacheStore alloc] initWithLocation:@"MSOpenTech.ADAL.1.0"];
+        self.defaultTokenCacheStore = [[ADPersistentTokenCacheStore alloc] initWithLocation:nil];
     }
     return self;
 }

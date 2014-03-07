@@ -17,9 +17,6 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-
-#import <ADALiOS/ADAuthenticationParameters.h>
-
 //Protocol constants:
 extern NSString* const OAuth2_Bearer;
 extern NSString* const OAuth2_Authenticate_Header;

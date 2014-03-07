@@ -18,11 +18,12 @@
 // governing permissions and limitations under the License.
 
 #import "XCTestCase+TestHelperMethods.h"
-#import <ADALiOS/ADTokenCacheStoreItem.h>
-#import <ADALioS/ADAuthenticationSettings.h>
+#import "../ADALiOS/ADAuthenticationContext.h"
+#import "../ADALioS/ADAuthenticationSettings.h"
 #import <libkern/OSAtomic.h>
 #import <Foundation/NSObjCRuntime.h>
 #import <objc/runtime.h>
+
 
 @implementation XCTestCase (TestHelperMethods)
 

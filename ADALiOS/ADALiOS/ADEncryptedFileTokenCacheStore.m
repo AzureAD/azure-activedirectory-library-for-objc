@@ -20,8 +20,6 @@
 #import "NSString+ADHelperMethods.h"
 #import "ADDefaultTokenCacheStorePersistance.h"
 
-static const uint64_t MAX_REVISION;
-
 @implementation ADEncryptedFileTokenCacheStore
 
 -(id) initWithLocation:(NSString *)cacheLocation

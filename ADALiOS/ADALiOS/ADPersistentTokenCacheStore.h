@@ -17,9 +17,10 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import <ADALiOS/ADTokenCacheStoreItem.h>
-#import <ADALiOS/ADTokenCacheStoring.h>
+#import "ADTokenCacheStoring.h"
+
+@class ADTokenCacheStoreItem;
+@class ADAuthenticationError;
 
 /*! The default implementation of ADTokenCacheStoring. The implementation
  is thread-safe and implemented with @synchronized on the internal storage.

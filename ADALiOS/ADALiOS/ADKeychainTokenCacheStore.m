@@ -18,10 +18,11 @@
 // governing permissions and limitations under the License.
 
 #import <Security/Security.h>
-#import "ADALiOS.h"
 #import "ADKeyChainTokenCacheStore.h"
-#import <ADALiOS/ADTokenCacheStoreItem.h>
-#import <ADALiOS/NSString+ADHelperMethods.h>
+#import "ADTokenCacheStoreItem.h"
+#import "NSString+ADHelperMethods.h"
+#import "ADTokenCacheStoreKey.h"
+#import "ADUserInformation.h"
 
 NSString* const sNilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";//A special attribute to write, instead of nil/empty one.
 NSString* const sDelimiter = @"|";

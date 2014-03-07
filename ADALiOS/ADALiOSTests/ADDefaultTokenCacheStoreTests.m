@@ -19,9 +19,10 @@
 
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
-#import <ADALiOS/ADPersistentTokenCacheStore.h>
+#import "../ADALiOS/ADPersistentTokenCacheStore.h"
 #import <libkern/OSAtomic.h>
-#import <ADALiOS/ADAuthenticationSettings.h>
+#import "../ADALiOS/ADAuthenticationSettings.h"
+#import "../ADALiOS/ADAuthenticationContext.h"
 
 dispatch_semaphore_t sThreadsSemaphore;//Will be signalled when the last thread is done. Should be initialized and cleared in the test.
 volatile int32_t sThreadsFinished;//The number of threads that are done. Should be set to 0 at the beginning of the test.
