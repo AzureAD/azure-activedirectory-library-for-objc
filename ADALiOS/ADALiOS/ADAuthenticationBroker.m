@@ -247,7 +247,7 @@ correlationId:(NSUUID *)correlationId
         if ( _authenticationPageController )
         {
             _authenticationPageController.delegate = self;
-            
+
             // Start the modal session
             _authenticationSession = [NSApp beginModalSessionForWindow:[_authenticationPageController window]];
             

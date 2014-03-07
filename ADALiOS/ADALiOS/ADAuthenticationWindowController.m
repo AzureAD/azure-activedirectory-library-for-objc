@@ -50,8 +50,7 @@
 // Initialization
 - (id)initAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
-    self = [super initWithWindowNibName:@"WebAuthenticationWindowController"];
-    
+    self = [super initWithWindowNibName:@"ADAuthenticationWindowController"];
     if ( self )
     {
         _startURL    = [startURL copy];
