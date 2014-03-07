@@ -181,7 +181,13 @@ correlationId:(NSUUID *)correlationId
     THROW_ON_NIL_ARGUMENT(endURL);
     THROW_ON_NIL_ARGUMENT(correlationId);
     THROW_ON_NIL_ARGUMENT(completionBlock)
-
+    
+#if !(TARGET_OS_IPHONE)
+    _authenticationWebViewController = nil;
+    _authenticationPageController  = nil;
+    _authenticationSession           = NULL;
+#endif
+    
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
     
     // Save the completion block
@@ -237,8 +243,41 @@ correlationId:(NSUUID *)correlationId
 #else
         // Load the authentication view
         _authenticationPageController = [[ADAuthenticationWindowController alloc] initAtURL:startURL endAtURL:endURL];
-#endif
 
+        if ( _authenticationPageController )
+        {
+            _authenticationPageController.delegate = self;
+            
+            // Start the modal session
+            _authenticationSession = [NSApp beginModalSessionForWindow:[_authenticationPageController window]];
+            
+            // Initialize the web view controller
+            [_authenticationPageController start];
+            
+            NSDate   *beforeDate = [NSDate date];
+            NSInteger result = NSRunContinuesResponse;
+            
+            // Loop until window is endModal is called
+            while ( result == NSRunContinuesResponse )
+            {
+                result = [NSApp runModalSession:_authenticationSession];
+                
+                beforeDate = [beforeDate dateByAddingTimeInterval:300];
+                [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:beforeDate];
+            }
+            
+            // End the modal session
+            [NSApp endModalSession:_authenticationSession];
+            
+            _authenticationSession = NULL;
+        }
+        else
+        {
+            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
+                                                           protocolCode:nil
+                                                           errorDetails:WAB_FAILED_NO_RESOURCES];
+        }
+#endif
     }
     else
     {

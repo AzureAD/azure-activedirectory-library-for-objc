@@ -16,7 +16,6 @@
 		4C60D4DE18C6960500F9EAAE /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C60D4DD18C6960500F9EAAE /* XCTest.framework */; };
 		4C60D4DF18C6960500F9EAAE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C60D4C818C6960400F9EAAE /* Cocoa.framework */; };
 		4C60D4E218C6960500F9EAAE /* ADAL-OSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C60D4C518C6960400F9EAAE /* ADAL-OSX.framework */; };
-		4C60D4E818C6960500F9EAAE /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4C60D4E618C6960500F9EAAE /* InfoPlist.strings */; };
 		4C60D4EA18C6960500F9EAAE /* ADAL_OSXTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D4E918C6960500F9EAAE /* ADAL_OSXTests.m */; };
 		4C60D5E118C697E500F9EAAE /* ADAL.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A118C697E500F9EAAE /* ADAL.h */; };
 		4C60D5E218C697E500F9EAAE /* ADAL.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5A218C697E500F9EAAE /* ADAL.m */; };
@@ -70,6 +69,9 @@
 		4C60D61C18C697E500F9EAAE /* NSString+ADHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5DC18C697E500F9EAAE /* NSString+ADHelperMethods.m */; };
 		4C60D61D18C697E500F9EAAE /* NSURLExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5DD18C697E500F9EAAE /* NSURLExtensions.h */; };
 		4C60D61E18C697E500F9EAAE /* NSURLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5DE18C697E500F9EAAE /* NSURLExtensions.m */; };
+		8BD92F2718C94E130026A014 /* ADAuthenticationWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8BD92F2618C94E130026A014 /* ADAuthenticationWindowController.xib */; };
+		8BD92F2818C950820026A014 /* ADAuthenticationWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8BD92F2618C94E130026A014 /* ADAuthenticationWindowController.xib */; };
+		8BD92F2918C950950026A014 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4C60D4D118C6960400F9EAAE /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -152,6 +154,7 @@
 		4C60D5DC18C697E500F9EAAE /* NSString+ADHelperMethods.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+ADHelperMethods.m"; path = "../../ADALiOS/ADALiOS/NSString+ADHelperMethods.m"; sourceTree = "<group>"; };
 		4C60D5DD18C697E500F9EAAE /* NSURLExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSURLExtensions.h; path = ../../ADALiOS/ADALiOS/NSURLExtensions.h; sourceTree = "<group>"; };
 		4C60D5DE18C697E500F9EAAE /* NSURLExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSURLExtensions.m; path = ../../ADALiOS/ADALiOS/NSURLExtensions.m; sourceTree = "<group>"; };
+		8BD92F2618C94E130026A014 /* ADAuthenticationWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ADAuthenticationWindowController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -282,6 +285,7 @@
 		4C60D4CF18C6960400F9EAAE /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				8BD92F2618C94E130026A014 /* ADAuthenticationWindowController.xib */,
 				4C60D4D018C6960400F9EAAE /* ADAL-OSX-Info.plist */,
 				4C60D4D118C6960400F9EAAE /* InfoPlist.strings */,
 				4C60D4D418C6960400F9EAAE /* ADAL-OSX-Prefix.pch */,
@@ -423,6 +427,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BD92F2718C94E130026A014 /* ADAuthenticationWindowController.xib in Resources */,
 				4C60D4D318C6960400F9EAAE /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -432,6 +437,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4C60D4E818C6960500F9EAAE /* InfoPlist.strings in Resources */,
+				8BD92F2818C950820026A014 /* ADAuthenticationWindowController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
