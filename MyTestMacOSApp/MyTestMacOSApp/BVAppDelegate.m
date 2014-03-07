@@ -32,6 +32,7 @@
     [context acquireTokenWithResource:aadInstance.resource
                              clientId:aadInstance.clientId
                           redirectUri:[NSURL URLWithString:aadInstance.redirectUri]
+                               userId:aadInstance.userId
                       completionBlock:^(ADAuthenticationResult *result)
     {
         if (AD_SUCCEEDED == result.status)

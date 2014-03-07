@@ -28,7 +28,7 @@
 
 @implementation ADAuthenticationWindowController
 {
-    IBOutlet WebViewType *_webView;
+    IBOutlet WebView *_webView;
     
     ADAuthenticationWebViewController*  _webViewController;
     id                                  _webViewResourceLoadDelegate;

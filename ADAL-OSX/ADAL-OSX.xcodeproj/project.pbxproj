@@ -71,7 +71,7 @@
 		4C60D61E18C697E500F9EAAE /* NSURLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5DE18C697E500F9EAAE /* NSURLExtensions.m */; };
 		8BD92F2718C94E130026A014 /* ADAuthenticationWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8BD92F2618C94E130026A014 /* ADAuthenticationWindowController.xib */; };
 		8BD92F2818C950820026A014 /* ADAuthenticationWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8BD92F2618C94E130026A014 /* ADAuthenticationWindowController.xib */; };
-		8BD92F2918C950950026A014 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4C60D4D118C6960400F9EAAE /* InfoPlist.strings */; };
+		8BD92F2B18C9611D0026A014 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD92F2A18C9611D0026A014 /* WebKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -155,6 +155,7 @@
 		4C60D5DD18C697E500F9EAAE /* NSURLExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSURLExtensions.h; path = ../../ADALiOS/ADALiOS/NSURLExtensions.h; sourceTree = "<group>"; };
 		4C60D5DE18C697E500F9EAAE /* NSURLExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSURLExtensions.m; path = ../../ADALiOS/ADALiOS/NSURLExtensions.m; sourceTree = "<group>"; };
 		8BD92F2618C94E130026A014 /* ADAuthenticationWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ADAuthenticationWindowController.xib; sourceTree = "<group>"; };
+		8BD92F2A18C9611D0026A014 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,6 +163,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BD92F2B18C9611D0026A014 /* WebKit.framework in Frameworks */,
 				4C60D4C918C6960400F9EAAE /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -201,6 +203,7 @@
 		4C60D4C718C6960400F9EAAE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8BD92F2A18C9611D0026A014 /* WebKit.framework */,
 				4C60D4C818C6960400F9EAAE /* Cocoa.framework */,
 				4C60D4DD18C6960500F9EAAE /* XCTest.framework */,
 				4C60D4CA18C6960400F9EAAE /* Other Frameworks */,
@@ -436,7 +439,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4C60D4E818C6960500F9EAAE /* InfoPlist.strings in Resources */,
 				8BD92F2818C950820026A014 /* ADAuthenticationWindowController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
