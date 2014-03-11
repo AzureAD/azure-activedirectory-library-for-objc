@@ -55,8 +55,6 @@
 		4C60D60C18C697E500F9EAAE /* ADTokenCacheStoreKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5CC18C697E500F9EAAE /* ADTokenCacheStoreKey.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D60D18C697E500F9EAAE /* ADTokenCacheStoreKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5CD18C697E500F9EAAE /* ADTokenCacheStoreKey.m */; };
 		4C60D60E18C697E500F9EAAE /* ADTokenCacheStoring.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5CE18C697E500F9EAAE /* ADTokenCacheStoring.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4C60D60F18C697E500F9EAAE /* ADTokenCacheValue.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5CF18C697E500F9EAAE /* ADTokenCacheValue.h */; };
-		4C60D61018C697E500F9EAAE /* ADTokenCacheValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5D018C697E500F9EAAE /* ADTokenCacheValue.m */; };
 		4C60D61118C697E500F9EAAE /* ADUserInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5D118C697E500F9EAAE /* ADUserInformation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D61218C697E500F9EAAE /* ADUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5D218C697E500F9EAAE /* ADUserInformation.m */; };
 		4C60D61318C697E500F9EAAE /* HTTPWebRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5D318C697E500F9EAAE /* HTTPWebRequest.h */; };
@@ -140,8 +138,6 @@
 		4C60D5CC18C697E500F9EAAE /* ADTokenCacheStoreKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADTokenCacheStoreKey.h; path = ../../ADALiOS/ADALiOS/ADTokenCacheStoreKey.h; sourceTree = "<group>"; };
 		4C60D5CD18C697E500F9EAAE /* ADTokenCacheStoreKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADTokenCacheStoreKey.m; path = ../../ADALiOS/ADALiOS/ADTokenCacheStoreKey.m; sourceTree = "<group>"; };
 		4C60D5CE18C697E500F9EAAE /* ADTokenCacheStoring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADTokenCacheStoring.h; path = ../../ADALiOS/ADALiOS/ADTokenCacheStoring.h; sourceTree = "<group>"; };
-		4C60D5CF18C697E500F9EAAE /* ADTokenCacheValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADTokenCacheValue.h; path = ../../ADALiOS/ADALiOS/ADTokenCacheValue.h; sourceTree = "<group>"; };
-		4C60D5D018C697E500F9EAAE /* ADTokenCacheValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADTokenCacheValue.m; path = ../../ADALiOS/ADALiOS/ADTokenCacheValue.m; sourceTree = "<group>"; };
 		4C60D5D118C697E500F9EAAE /* ADUserInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADUserInformation.h; path = ../../ADALiOS/ADALiOS/ADUserInformation.h; sourceTree = "<group>"; };
 		4C60D5D218C697E500F9EAAE /* ADUserInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADUserInformation.m; path = ../../ADALiOS/ADALiOS/ADUserInformation.m; sourceTree = "<group>"; };
 		4C60D5D318C697E500F9EAAE /* HTTPWebRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPWebRequest.h; path = ../../ADALiOS/ADALiOS/HTTPWebRequest.h; sourceTree = "<group>"; };
@@ -266,8 +262,6 @@
 				4C60D5CC18C697E500F9EAAE /* ADTokenCacheStoreKey.h */,
 				4C60D5CD18C697E500F9EAAE /* ADTokenCacheStoreKey.m */,
 				4C60D5CE18C697E500F9EAAE /* ADTokenCacheStoring.h */,
-				4C60D5CF18C697E500F9EAAE /* ADTokenCacheValue.h */,
-				4C60D5D018C697E500F9EAAE /* ADTokenCacheValue.m */,
 				4C60D5D118C697E500F9EAAE /* ADUserInformation.h */,
 				4C60D5D218C697E500F9EAAE /* ADUserInformation.m */,
 				4C60D5D318C697E500F9EAAE /* HTTPWebRequest.h */,
@@ -340,7 +334,6 @@
 				4C60D5EB18C697E500F9EAAE /* ADAuthenticationOperation.h in Headers */,
 				4C60D61D18C697E500F9EAAE /* NSURLExtensions.h in Headers */,
 				4C60D5FF18C697E500F9EAAE /* ADErrorCodes.h in Headers */,
-				4C60D60F18C697E500F9EAAE /* ADTokenCacheValue.h in Headers */,
 				4C60D5E818C697E500F9EAAE /* ADAuthenticationDelegate.h in Headers */,
 				4C60D5E318C697E500F9EAAE /* ADALiOS-Prefix.pch in Headers */,
 				4C60D61B18C697E500F9EAAE /* NSString+ADHelperMethods.h in Headers */,
@@ -458,7 +451,6 @@
 				4C60D5E518C697E500F9EAAE /* ADAuthenticationBroker.m in Sources */,
 				4C42482918C84D4A00B2E350 /* ADAuthenticationWebViewController.m in Sources */,
 				4C60D5EA18C697E500F9EAAE /* ADAuthenticationError.m in Sources */,
-				4C60D61018C697E500F9EAAE /* ADTokenCacheValue.m in Sources */,
 				4C60D61218C697E500F9EAAE /* ADUserInformation.m in Sources */,
 				4C60D60D18C697E500F9EAAE /* ADTokenCacheStoreKey.m in Sources */,
 				4C60D60B18C697E500F9EAAE /* ADTokenCacheStoreItem.m in Sources */,

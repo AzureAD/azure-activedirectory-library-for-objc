@@ -2,8 +2,6 @@
 //  ADAL_OSXTests.m
 //  ADAL-OSXTests
 //
-//  Created by Boris Vidolov on 3/4/14.
-//  Copyright (c) 2014 Boris Vidolov. All rights reserved.
 //
 
 #import <XCTest/XCTest.h>
