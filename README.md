@@ -17,7 +17,7 @@ We have released a Preview of the ADAL for iOS! [You can grab the release here] 
 3. Add the ADALiOS library to your project
 4. Add ADALiOSFramework to “Target Dependences” build phase of your application
 5. Add ADALiOSBundle.bundle to “Copy Bundle Resources” build phase of your application
-6. Add libADALiOS to “Link With Libraries” phase.
+6. Add libADALiOS to “Link With Libraries” phase. 
 
 ## Usage
 
@@ -55,7 +55,7 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
             [self showError:result.error.errorDetails];
         }
         else{
-            completionBlock(result.tokenCacheStoreItem.accessToken);
+            completionBlock(result.accessToken);
         }
     }];
 }
@@ -115,6 +115,10 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
     return nil; } 
     
 ```
+##Common problems
+
+Application, using the ADAL library crashes with the following exception: *** Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: '+[NSString isStringNilOrBlank:]: unrecognized selector sent to class 0x13dc800'
+Solution: Make sure that you add the -ObjC flag to "Other Linker Flags" build setting of the application. For more information, see Apple documentation for using static libraries:  https://developer.apple.com/library/ios/technotes/iOSStaticLibraries/Articles/configuration.html#//apple_ref/doc/uid/TP40012554-CH3-SW1.
 
 ## License
 
