@@ -1,2 +1,3 @@
 #Contains files that the source control should ignore
 xcuserdata
+*.xccheckout
