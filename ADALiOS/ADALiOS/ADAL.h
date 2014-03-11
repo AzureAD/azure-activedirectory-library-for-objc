@@ -1,4 +1,3 @@
-// Created by Boris Vidolov on 9/24/13.
 // Copyright © Microsoft Open Technologies, Inc.
 //
 // All Rights Reserved
