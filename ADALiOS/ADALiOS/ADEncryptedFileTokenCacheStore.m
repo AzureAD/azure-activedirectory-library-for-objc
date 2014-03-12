@@ -1,4 +1,3 @@
-// Created by Boris Vidolov on 1/14/14.
 // Copyright © Microsoft Open Technologies, Inc.
 //
 // All Rights Reserved
@@ -19,8 +18,6 @@
 #import "ADEncryptedFileTokenCacheStore.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADDefaultTokenCacheStorePersistance.h"
-
-static const uint64_t MAX_REVISION;
 
 @implementation ADEncryptedFileTokenCacheStore
 
