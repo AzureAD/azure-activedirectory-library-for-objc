@@ -1114,7 +1114,10 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(AD_FAILED, mResult.status);
     ADAssertLogsDoNotContain(TEST_LOG_INFO, @" addOrUpdateItem:error:]");//Cache should not be touched
     ADAssertLongEquals(2, mDefaultTokenCache.allItems.count);
-    
+}
+
+-(void) testAcquireTokenWithRefreshTokenParameters
+{
     //Test some parameters cases:
     //RefreshToken nil:
     [self asyncAcquireTokenByRefreshToken:nil];
