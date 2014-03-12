@@ -165,24 +165,28 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     
     //Now attempt to extract an unique user id:
-    if (![NSString isStringNilOrBlank:self.uniqueName])
+    if (![NSString isStringNilOrBlank:self.upn])
     {
-        _userId = self.uniqueName;
-        self.userIdDisplayable = true;//This is what the server provided
+        _userId = self.upn;
+        self.userIdDisplayable = YES;
     }
     else if (![NSString isStringNilOrBlank:self.eMail])
     {
         _userId = self.eMail;
-        self.userIdDisplayable = true;
+        self.userIdDisplayable = YES;
     }
-    else if (![NSString isStringNilOrBlank:self.upn])
+    else if (![NSString isStringNilOrBlank:self.subject])
     {
-        _userId = self.upn;
-        self.userIdDisplayable = true;
+        _userId = self.subject;
     }
     else if (![NSString isStringNilOrBlank:self.userObjectId])
     {
         _userId = self.userObjectId;
+    }
+    else if (![NSString isStringNilOrBlank:self.uniqueName])
+    {
+        _userId = self.uniqueName;
+        self.userIdDisplayable = YES;//This is what the server provided
     }
     else if (![NSString isStringNilOrBlank:self.guestId])
     {
