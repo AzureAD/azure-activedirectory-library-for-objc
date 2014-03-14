@@ -69,4 +69,8 @@
 /*! Internal representation for guest users to the tenants. May be null. */
 @property NSString* guestId;
 
+/* A helper method to normalize userId, e.g. remove white spaces, lowercase. 
+ Returns nil if userId is nil or empty. */
++(NSString*) normalizeUserId: (NSString*) userId;
+
 @end

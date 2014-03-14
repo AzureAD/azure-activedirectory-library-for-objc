@@ -79,7 +79,7 @@ const int sAsyncContextTimeout = 10;
     mRedirectURL = [NSURL URLWithString:@"http://todolistclient/"];
     mClientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
     mResource = @"http://localhost/TodoListService";
-    mUserId = @"boris@mmsopentechbv.onmicrosoft.com";
+    mUserId = @"boris@msopentechbv.onmicrosoft.com";
     mPromptBehavior = AD_PROMPT_AUTO;
     ADAuthenticationError* error;
     ADTestAuthenticationContext* testContext = [[ADTestAuthenticationContext alloc] initWithAuthority:mAuthority
@@ -748,6 +748,38 @@ const int sAsyncContextTimeout = 10;
     [self verifyCacheWithResource:oldResource accessToken:accessToken2 refreshToken:nil line:__LINE__];
 }
 
+-(void) testWrongUser
+{
+    NSString* idToken = @"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiJjM2M3ZjVlNS03MTUzLTQ0ZDQtOTBlNi0zMjk2ODZkNDhkNzYiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82ZmQxZjVjZC1hOTRjLTQzMzUtODg5Yi02YzU5OGU2ZDgwNDgvIiwiaWF0IjoxMzg3MjI0MTY5LCJuYmYiOjEzODcyMjQxNjksImV4cCI6MTM4NzIyNzc2OSwidmVyIjoiMS4wIiwidGlkIjoiNmZkMWY1Y2QtYTk0Yy00MzM1LTg4OWItNmM1OThlNmQ4MDQ4Iiwib2lkIjoiNTNjNmFjZjItMjc0Mi00NTM4LTkxOGQtZTc4MjU3ZWM4NTE2IiwidXBuIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInVuaXF1ZV9uYW1lIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IjBEeG5BbExpMTJJdkdMX2RHM2RETWszenA2QVFIbmpnb2d5aW01QVdwU2MiLCJmYW1pbHlfbmFtZSI6IlZpZG9sb3Z2IiwiZ2l2ZW5fbmFtZSI6IkJvcmlzcyJ9.";
+
+    NSString* broadToken = @"testWrongUser some broad token";
+    NSString* accessToken = @"testWrongUser some access token";
+    NSString* exactRefreshToken = @"testWrongUser exact refresh token";
+    NSString* requestUser = @"testWrongUser requestUser";
+    
+    //#1: access token exists in the cache for different user, make sure that the library attempts to use UI
+    [self addCacheWithToken:accessToken refreshToken:nil userId:mUserId resource:mResource];
+    mUserId = requestUser;
+    acquireTokenAsync;
+    ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, mResult.error.code);
+    
+    //#2: Only exact refresh token
+    [mDefaultTokenCache removeAll];
+    [self addCacheWithToken:nil refreshToken:exactRefreshToken userId:requestUser resource:mResource];
+    [self.testContext->mResponse1 setObject:idToken forKey:OAUTH2_ID_TOKEN];
+    [self.testContext->mResponse1 setObject:accessToken forKey:OAUTH2_ACCESS_TOKEN];
+    acquireTokenAsync;
+    ADAssertLongEquals(AD_ERROR_WRONG_USER, mResult.error.code);
+    ADAssertLongEquals(2, mDefaultTokenCache.allItems.count);//The new token should be added to the cache
+
+    //#3: Broad refresh token
+    [mDefaultTokenCache removeAll];
+    [self addCacheWithToken:nil refreshToken:broadToken userId:requestUser resource:nil];
+    acquireTokenAsync;
+    ADAssertLongEquals(AD_ERROR_WRONG_USER, mResult.error.code);
+    ADAssertLongEquals(2, mDefaultTokenCache.allItems.count);//The new token should be added to the cache
+}
+
 -(void) testCorrelationIdProperty
 {
     [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
@@ -1114,7 +1146,10 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(AD_FAILED, mResult.status);
     ADAssertLogsDoNotContain(TEST_LOG_INFO, @" addOrUpdateItem:error:]");//Cache should not be touched
     ADAssertLongEquals(2, mDefaultTokenCache.allItems.count);
-    
+}
+
+-(void) testAcquireTokenWithRefreshTokenParameters
+{
     //Test some parameters cases:
     //RefreshToken nil:
     [self asyncAcquireTokenByRefreshToken:nil];

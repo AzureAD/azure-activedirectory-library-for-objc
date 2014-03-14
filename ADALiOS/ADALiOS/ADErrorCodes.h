@@ -91,6 +91,10 @@ typedef enum
     /*! Failed to extract the framework resources (e.g. storyboards). Please read the readme and documentation
      for the library on how to link the ADAL library with its resources to your project.*/
     AD_ERROR_MISSING_RESOURCES = 18,
+    
+    /*! Token requested for user A, but obtained for user B. This can happen if the user explicitly authenticated
+     as user B in the login UI, or if cookies for user B are already present.*/
+    AD_ERROR_WRONG_USER = 19,
 } ADErrorCode;
 
 /* HTTP status codes used by the library */
