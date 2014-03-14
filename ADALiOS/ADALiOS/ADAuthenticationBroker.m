@@ -164,8 +164,8 @@ static NSString *_resourcePath = nil;
     NSBundle* bundle = [self frameworkBundle];//May be nil.
     
     UIStoryboard* storeBoard = ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ) ?
-                [UIStoryboard storyboardWithName:@"IPAL_iPad_Storyboard" bundle:bundle]
-              : [UIStoryboard storyboardWithName:@"IPAL_iPhone_Storyboard" bundle:bundle];
+                [UIStoryboard storyboardWithName:@"ADAL_iPad_Storyboard" bundle:bundle]
+              : [UIStoryboard storyboardWithName:@"ADAL_iPhone_Storyboard" bundle:bundle];
     
     if (!storeBoard)
     {

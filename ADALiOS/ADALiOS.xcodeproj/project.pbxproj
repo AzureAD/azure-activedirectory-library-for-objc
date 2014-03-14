@@ -88,11 +88,11 @@
 		8BD14619182189C800796E79 /* ADAuthenticationParameters+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BD14618182189C800796E79 /* ADAuthenticationParameters+Internal.m */; };
 		8BFA9B36183C174800B82B36 /* ADDefaultTokenCacheStorePersistance.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BFA9B35183C174800B82B36 /* ADDefaultTokenCacheStorePersistance.m */; };
 		8BFA9B37183C4A0300B82B36 /* ADLogger.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B92DB6E181B2335004AAB0E /* ADLogger.h */; };
-		8BFEF050182D906700122C0C /* IPAL_iPhone_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04B182D906700122C0C /* IPAL_iPhone_Storyboard.storyboard */; };
-		8BFEF051182D906700122C0C /* IPAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04C182D906700122C0C /* IPAL_iPad_Storyboard.storyboard */; };
+		8BFEF050182D906700122C0C /* ADAL_iPhone_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04B182D906700122C0C /* ADAL_iPhone_Storyboard.storyboard */; };
+		8BFEF051182D906700122C0C /* ADAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04C182D906700122C0C /* ADAL_iPad_Storyboard.storyboard */; };
 		8BFEF07B182DB15E00122C0C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF066182DA57800122C0C /* InfoPlist.strings */; };
-		8BFEF07C182DB15E00122C0C /* IPAL_iPhone_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04B182D906700122C0C /* IPAL_iPhone_Storyboard.storyboard */; };
-		8BFEF07D182DB15E00122C0C /* IPAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04C182D906700122C0C /* IPAL_iPad_Storyboard.storyboard */; };
+		8BFEF07C182DB15E00122C0C /* ADAL_iPhone_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04B182D906700122C0C /* ADAL_iPhone_Storyboard.storyboard */; };
+		8BFEF07D182DB15E00122C0C /* ADAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04C182D906700122C0C /* ADAL_iPad_Storyboard.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -234,8 +234,8 @@
 		8BD14618182189C800796E79 /* ADAuthenticationParameters+Internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADAuthenticationParameters+Internal.m"; sourceTree = "<group>"; };
 		8BFA9B34183C174800B82B36 /* ADDefaultTokenCacheStorePersistance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADDefaultTokenCacheStorePersistance.h; sourceTree = "<group>"; };
 		8BFA9B35183C174800B82B36 /* ADDefaultTokenCacheStorePersistance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADDefaultTokenCacheStorePersistance.m; sourceTree = "<group>"; };
-		8BFEF04B182D906700122C0C /* IPAL_iPhone_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = IPAL_iPhone_Storyboard.storyboard; path = ../ADALiOS/IPAL_iPhone_Storyboard.storyboard; sourceTree = "<group>"; };
-		8BFEF04C182D906700122C0C /* IPAL_iPad_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = IPAL_iPad_Storyboard.storyboard; path = ../ADALiOS/IPAL_iPad_Storyboard.storyboard; sourceTree = "<group>"; };
+		8BFEF04B182D906700122C0C /* ADAL_iPhone_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = ADAL_iPhone_Storyboard.storyboard; path = ../ADALiOS/ADAL_iPhone_Storyboard.storyboard; sourceTree = "<group>"; };
+		8BFEF04C182D906700122C0C /* ADAL_iPad_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = ADAL_iPad_Storyboard.storyboard; path = ../ADALiOS/ADAL_iPad_Storyboard.storyboard; sourceTree = "<group>"; };
 		8BFEF05C182DA57800122C0C /* ADALiOS.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADALiOS.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BFEF05D182DA57800122C0C /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		8BFEF060182DA57800122C0C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -460,8 +460,8 @@
 			children = (
 				8BFEF065182DA57800122C0C /* ADALiOSBundle-Info.plist */,
 				8BFEF066182DA57800122C0C /* InfoPlist.strings */,
-				8BFEF04B182D906700122C0C /* IPAL_iPhone_Storyboard.storyboard */,
-				8BFEF04C182D906700122C0C /* IPAL_iPad_Storyboard.storyboard */,
+				8BFEF04B182D906700122C0C /* ADAL_iPhone_Storyboard.storyboard */,
+				8BFEF04C182D906700122C0C /* ADAL_iPad_Storyboard.storyboard */,
 				8BFEF069182DA57800122C0C /* ADALiOSBundle-Prefix.pch */,
 			);
 			name = "Supporting Files";
@@ -557,9 +557,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8BFEF050182D906700122C0C /* IPAL_iPhone_Storyboard.storyboard in Resources */,
+				8BFEF050182D906700122C0C /* ADAL_iPhone_Storyboard.storyboard in Resources */,
 				8B0965C817F25770002BDFB8 /* InfoPlist.strings in Resources */,
-				8BFEF051182D906700122C0C /* IPAL_iPad_Storyboard.storyboard in Resources */,
+				8BFEF051182D906700122C0C /* ADAL_iPad_Storyboard.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -568,8 +568,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BFEF07B182DB15E00122C0C /* InfoPlist.strings in Resources */,
-				8BFEF07C182DB15E00122C0C /* IPAL_iPhone_Storyboard.storyboard in Resources */,
-				8BFEF07D182DB15E00122C0C /* IPAL_iPad_Storyboard.storyboard in Resources */,
+				8BFEF07C182DB15E00122C0C /* ADAL_iPhone_Storyboard.storyboard in Resources */,
+				8BFEF07D182DB15E00122C0C /* ADAL_iPad_Storyboard.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
