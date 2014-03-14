@@ -18,7 +18,6 @@
 		4C60D4E218C6960500F9EAAE /* ADAL-OSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C60D4C518C6960400F9EAAE /* ADAL-OSX.framework */; };
 		4C60D4EA18C6960500F9EAAE /* ADAL_OSXTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D4E918C6960500F9EAAE /* ADAL_OSXTests.m */; };
 		4C60D5E118C697E500F9EAAE /* ADAL.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A118C697E500F9EAAE /* ADAL.h */; };
-		4C60D5E218C697E500F9EAAE /* ADAL.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5A218C697E500F9EAAE /* ADAL.m */; };
 		4C60D5E318C697E500F9EAAE /* ADALiOS-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A318C697E500F9EAAE /* ADALiOS-Prefix.pch */; };
 		4C60D5E418C697E500F9EAAE /* ADAuthenticationBroker.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A418C697E500F9EAAE /* ADAuthenticationBroker.h */; };
 		4C60D5E518C697E500F9EAAE /* ADAuthenticationBroker.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5A518C697E500F9EAAE /* ADAuthenticationBroker.m */; };
@@ -101,7 +100,6 @@
 		4C60D4E718C6960500F9EAAE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		4C60D4E918C6960500F9EAAE /* ADAL_OSXTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAL_OSXTests.m; sourceTree = "<group>"; };
 		4C60D5A118C697E500F9EAAE /* ADAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADAL.h; path = ../../ADALiOS/ADALiOS/ADAL.h; sourceTree = "<group>"; };
-		4C60D5A218C697E500F9EAAE /* ADAL.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADAL.m; path = ../../ADALiOS/ADALiOS/ADAL.m; sourceTree = "<group>"; };
 		4C60D5A318C697E500F9EAAE /* ADALiOS-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "ADALiOS-Prefix.pch"; path = "../../ADALiOS/ADALiOS/ADALiOS-Prefix.pch"; sourceTree = "<group>"; };
 		4C60D5A418C697E500F9EAAE /* ADAuthenticationBroker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADAuthenticationBroker.h; path = ../../ADALiOS/ADALiOS/ADAuthenticationBroker.h; sourceTree = "<group>"; };
 		4C60D5A518C697E500F9EAAE /* ADAuthenticationBroker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADAuthenticationBroker.m; path = ../../ADALiOS/ADALiOS/ADAuthenticationBroker.m; sourceTree = "<group>"; };
@@ -225,7 +223,6 @@
 				4C42481518C83DBA00B2E350 /* ADAuthenticationWindowController.h */,
 				4C42481618C83DBA00B2E350 /* ADAuthenticationWindowController.m */,
 				4C60D5A118C697E500F9EAAE /* ADAL.h */,
-				4C60D5A218C697E500F9EAAE /* ADAL.m */,
 				4C60D5A318C697E500F9EAAE /* ADALiOS-Prefix.pch */,
 				4C60D5A418C697E500F9EAAE /* ADAuthenticationBroker.h */,
 				4C60D5A518C697E500F9EAAE /* ADAuthenticationBroker.m */,
@@ -464,7 +461,6 @@
 				4C60D60718C697E500F9EAAE /* ADOAuth2Constants.m in Sources */,
 				4C60D61E18C697E500F9EAAE /* NSURLExtensions.m in Sources */,
 				4C60D5F218C697E500F9EAAE /* ADAuthenticationResult.m in Sources */,
-				4C60D5E218C697E500F9EAAE /* ADAL.m in Sources */,
 				4C60D60918C697E500F9EAAE /* ADPersistentTokenCacheStore.m in Sources */,
 				4C60D5EE18C697E500F9EAAE /* ADAuthenticationParameters.m in Sources */,
 				4C60D60518C697E500F9EAAE /* ADLogger.m in Sources */,

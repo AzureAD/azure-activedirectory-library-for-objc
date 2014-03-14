@@ -135,13 +135,26 @@ additionalInformation: (NSString*) additionalInformation
     //Extract the CPU type. E.g. x86. See machine.h for details
     //See sysctl.h for details.
     int result = sysctlbyname("hw.cputype", &cpuType, &structSize, NULL, 0);
+    
     if (result)
     {
         AD_LOG_WARN_F(@"Logging", @"Cannot extract cpu type. Error: %d", result);
         return nil;
     }
     
-    return (CPU_ARCH_ABI64 & cpuType) ? @"64" : @"32";
+    if (cpuType == CPU_TYPE_X86)
+    {
+        //The x86 architecture is typically 64 bit. Confirm here:
+        cpu_type_t optionalValue;
+        result = sysctlbyname("hw.optional.x86_64", &optionalValue, &structSize, NULL, 0);
+        if (result == 0)
+            return @"x86_64";
+        else
+            return @"x86";
+    }
+
+    
+    return (CPU_ARCH_ABI64 & cpuType) ? @"arm64" : @"arm32";
 }
 
 +(NSDictionary*) adalId
