@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4C51530B18D3CC83003AAA86 /* NSURLExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C51530918D3CC83003AAA86 /* NSURLExtensionsTests.m */; };
+		4C51530D18D3CC9A003AAA86 /* XCTestCase+TestHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C51530C18D3CC9A003AAA86 /* XCTestCase+TestHelperMethods.m */; };
 		8BD92EE218C93BE70026A014 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD92EE118C93BE70026A014 /* Cocoa.framework */; };
 		8BD92EEC18C93BE70026A014 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BD92EEA18C93BE70026A014 /* InfoPlist.strings */; };
 		8BD92EEE18C93BE70026A014 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BD92EED18C93BE70026A014 /* main.m */; };
@@ -18,7 +20,6 @@
 		8BD92F0418C93BE70026A014 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD92F0318C93BE70026A014 /* XCTest.framework */; };
 		8BD92F0518C93BE70026A014 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD92EE118C93BE70026A014 /* Cocoa.framework */; };
 		8BD92F0D18C93BE70026A014 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BD92F0B18C93BE70026A014 /* InfoPlist.strings */; };
-		8BD92F0F18C93BE70026A014 /* MyTestMacOSAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BD92F0E18C93BE70026A014 /* MyTestMacOSAppTests.m */; };
 		8BD92F1918C93C800026A014 /* ADAL-OSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD92F1818C93C800026A014 /* ADAL-OSX.framework */; };
 		8BD92F1C18C943580026A014 /* BVTestInstance.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BD92F1B18C943580026A014 /* BVTestInstance.m */; };
 		8BD92F1E18C943F50026A014 /* TestData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8BD92F1D18C943F50026A014 /* TestData.plist */; };
@@ -36,6 +37,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4C51530918D3CC83003AAA86 /* NSURLExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSURLExtensionsTests.m; path = ../../ADALiOS/ADALiOSTests/NSURLExtensionsTests.m; sourceTree = "<group>"; };
+		4C51530A18D3CC83003AAA86 /* XCTestCase+TestHelperMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "XCTestCase+TestHelperMethods.h"; path = "../../ADALiOS/ADALiOSTests/XCTestCase+TestHelperMethods.h"; sourceTree = "<group>"; };
+		4C51530C18D3CC9A003AAA86 /* XCTestCase+TestHelperMethods.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "XCTestCase+TestHelperMethods.m"; path = "../../ADALiOS/ADALiOSTests/XCTestCase+TestHelperMethods.m"; sourceTree = "<group>"; };
 		8BD92EDE18C93BE70026A014 /* MyTestMacOSApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyTestMacOSApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BD92EE118C93BE70026A014 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		8BD92EE418C93BE70026A014 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -55,7 +59,6 @@
 		8BD92F0318C93BE70026A014 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		8BD92F0A18C93BE70026A014 /* MyTestMacOSAppTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MyTestMacOSAppTests-Info.plist"; sourceTree = "<group>"; };
 		8BD92F0C18C93BE70026A014 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		8BD92F0E18C93BE70026A014 /* MyTestMacOSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyTestMacOSAppTests.m; sourceTree = "<group>"; };
 		8BD92F1818C93C800026A014 /* ADAL-OSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "ADAL-OSX.framework"; path = "../../../Library/Developer/Xcode/DerivedData/ADALiOS-djevopakwptcnvdftjinyinftwsm/Build/Products/Debug/ADAL-OSX.framework"; sourceTree = "<group>"; };
 		8BD92F1A18C943580026A014 /* BVTestInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BVTestInstance.h; path = ../../Samples/MyTestiOSApp/BVTestInstance.h; sourceTree = "<group>"; };
 		8BD92F1B18C943580026A014 /* BVTestInstance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BVTestInstance.m; path = ../../Samples/MyTestiOSApp/BVTestInstance.m; sourceTree = "<group>"; };
@@ -159,7 +162,9 @@
 		8BD92F0818C93BE70026A014 /* MyTestMacOSAppTests */ = {
 			isa = PBXGroup;
 			children = (
-				8BD92F0E18C93BE70026A014 /* MyTestMacOSAppTests.m */,
+				4C51530C18D3CC9A003AAA86 /* XCTestCase+TestHelperMethods.m */,
+				4C51530918D3CC83003AAA86 /* NSURLExtensionsTests.m */,
+				4C51530A18D3CC83003AAA86 /* XCTestCase+TestHelperMethods.h */,
 				8BD92F0918C93BE70026A014 /* Supporting Files */,
 			);
 			path = MyTestMacOSAppTests;
@@ -286,7 +291,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8BD92F0F18C93BE70026A014 /* MyTestMacOSAppTests.m in Sources */,
+				4C51530B18D3CC83003AAA86 /* NSURLExtensionsTests.m in Sources */,
+				4C51530D18D3CC9A003AAA86 /* XCTestCase+TestHelperMethods.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -497,6 +503,7 @@
 				8BD92F1418C93BE70026A014 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8BD92F1518C93BE70026A014 /* Build configuration list for PBXNativeTarget "MyTestMacOSAppTests" */ = {
 			isa = XCConfigurationList;
@@ -505,6 +512,7 @@
 				8BD92F1718C93BE70026A014 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
