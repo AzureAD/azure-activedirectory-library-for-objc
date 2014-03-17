@@ -16,11 +16,16 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@interface ADAuthenticationWebViewController : NSObject <UIWebViewDelegate>
+@interface ADAuthenticationWebViewController
+#if TARGET_OS_IPHONE
+    : NSObject <UIWebViewDelegate>
+#else
+    : NSObject
+#endif
 
-@property (weak, nonatomic) id<ADAuthenticationDelegate> delegate;
+@property (weak_delegate, nonatomic) id<ADAuthenticationDelegate> delegate;
 
-- (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
+- (id)initWithWebView:(WebViewType *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
 - (void)start;
 - (void)stop;
 

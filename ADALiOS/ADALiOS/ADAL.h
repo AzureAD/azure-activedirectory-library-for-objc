@@ -16,14 +16,21 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import <ADALiOS/NSString+ADHelperMethods.h>
-#import "ADLogger.h"
-
 //iOS does not support resources in client libraries. Hence putting the
 //version in static define until we identify a better place:
 #define ADAL_VER_HIGH   0
 #define ADAL_VER_LOW    5
+
+#if TARGET_OS_IPHONE
+//iOS:
+#   include <UIKit/UIKit.h>
+typedef UIWebView WebViewType;
+#else
+//OS X:
+#   include <WebKit/WebKit.h>
+typedef WebView   WebViewType;
+#endif
+
 
 
 //Helper macro to initialize a variable named __where string with place in file details:

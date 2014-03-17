@@ -17,8 +17,8 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
-#import <ADALiOS/ADAuthenticationError.h>
-#import "../ADALiOS/ADALiOS.h"
+#import "../ADALiOS/ADAuthenticationError.h"
+#import "../ADALiOS/ADAL.h"
 
 typedef enum
 {

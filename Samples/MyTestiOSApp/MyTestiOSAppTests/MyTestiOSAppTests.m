@@ -23,6 +23,7 @@
 #import <ADALiOS/ADLogger.h>
 #import "BVTestInstance.h"
 #import "BVSettings.h"
+#import <ADALiOS/ADErrorCodes.h>
 
 //Timeouts in seconds. They are inflated to accumulate cloud-based
 //builds on slow VMs:
@@ -284,7 +285,7 @@ const int sTokenWorkflowTimeout     = 20;
                                         atLine:sourceLine
                                       expected:NO];
         }
-        if ([NSString isStringNilOrBlank:localResult.tokenCacheStoreItem.accessToken])
+        if (!localResult.tokenCacheStoreItem.accessToken.length)
         {
             [self recordFailureWithDescription:@"Nil or empty access token."
                                         inFile:@"" __FILE__
@@ -384,7 +385,7 @@ const int sTokenWorkflowTimeout     = 20;
                                                            keepSignedIn:YES
                                                           expectSuccess:NO
                                                                    line:__LINE__];
-    XCTAssertTrue([result.error.errorDetails containsString:@"certificate"]);
+    XCTAssertTrue([result.error.errorDetails rangeOfString:@"certificate"].location != NSNotFound);
     
     //Unreachable authority:
     instance.authority = @"https://SomeReallyNonExistingDomain.com/SomeTenant";

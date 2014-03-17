@@ -16,13 +16,11 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADALiOS.h"
 #import "ADOAuth2Constants.h"
 #import "NSURLExtensions.h"
 
 #import "HTTPWebRequest.h"
 #import "HTTPWebResponse.h"
-
 
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";

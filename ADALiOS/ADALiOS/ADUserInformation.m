@@ -17,7 +17,6 @@
 // governing permissions and limitations under the License.
 
 #import "ADUserInformation.h"
-#import "ADALiOS.h"
 #import "ADOAuth2Constants.h"
 
 NSString* const ID_TOKEN_SUBJECT = @"sub";

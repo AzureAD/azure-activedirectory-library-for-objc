@@ -16,7 +16,14 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADALiOS.h"
+@protocol ADAuthenticationDelegate;
 
+@interface ADAuthenticationWindowController : NSWindowController <NSWindowDelegate>
 
+@property (weak) IBOutlet NSProgressIndicator *progressIndicator;
 
+@property (weak_delegate, nonatomic) id<ADAuthenticationDelegate> delegate;
+
+- (id)initAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
+- (void)start;
+@end

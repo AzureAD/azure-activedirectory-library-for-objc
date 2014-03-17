@@ -16,11 +16,13 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADALiOS.h"
 #import "ADPersistentTokenCacheStore.h"
 #import "ADAuthenticationSettings.h"
 #import "ADDefaultTokenCacheStorePersistance.h"
 #import <libkern/OSAtomic.h>
+#import "ADUserInformation.h"
+#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheStoreKey.h"
 
 NSString* const missingUserSubstitute = @"9A1BE88B-F078-4559-A442-35111DFA61F0";
 
@@ -39,11 +41,15 @@ static const uint64_t MAX_REVISION = LONG_LONG_MAX;
 
 -(id) initWithLocation:(NSString*) cacheLocation
 {
+#if TARGET_OS_IPHONE
+    //Persistence and hence its location is required on mobile platforms (iOS)
+    //due to the nature of application lifetime there:
     if ([NSString isStringNilOrBlank:cacheLocation])
     {
         AD_LOG_ERROR_F(@"Bad token cache store location.", AD_ERROR_CACHE_PERSISTENCE, @"Empty or nil cache location specified.");
         return nil;
     }
+#endif
     
     self = [super init];
     if (self)
@@ -393,7 +399,12 @@ static const uint64_t MAX_REVISION = LONG_LONG_MAX;
 
 -(NSArray*) unpersist
 {
+#if TARGET_OS_IPHONE
+    //On the mobile platforms, we need to enforce persistentence, due to the nature of
+    //the application lifetimes. We give the option of in-memory, non-persisted cache on the OS X
+    //implementations.
     [self doesNotRecognizeSelector:_cmd];//Should be overridden by the derived classes
+#endif
     return nil;
 }
 

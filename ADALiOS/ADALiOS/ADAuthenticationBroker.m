@@ -16,9 +16,12 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADALiOS.h"
 #import "ADOAuth2Constants.h"
-#import "UIApplicationExtensions.h"
+#if TARGET_OS_IPHONE
+    #import "UIApplicationExtensions.h"
+#else
+    #import "ADAuthenticationWindowController.h"
+#endif
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationDelegate.h"
 #import "ADAuthenticationWebViewController.h"
@@ -32,7 +35,7 @@ static NSString *const WAB_FAILED_ERROR_CODE    = @"Authorization Failed: %ld";
 
 static NSString *const WAB_FAILED_CANCELLED     = @"The user cancelled the authorization request";
 static NSString *const WAB_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
-static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded";
+static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
 
 // Private interface declaration
 @interface ADAuthenticationBroker () <ADAuthenticationDelegate>
@@ -41,7 +44,12 @@ static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle
 // Implementation
 @implementation ADAuthenticationBroker
 {
-    ADAuthenticationViewController    *_authenticationViewController;
+#if TARGET_OS_IPHONE
+    ADAuthenticationViewController    *_authenticationPageController;
+#else
+    ADAuthenticationWindowController  *_authenticationPageController;
+    NSModalSession                      _authenticationSession;
+#endif
     ADAuthenticationWebViewController *_authenticationWebViewController;
     
     NSLock                             *_completionLock;
@@ -65,35 +73,25 @@ static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle
 
 + (id)alloc
 {
-    NSAssert( false, @"Cannot create instances of %@", NSStringFromClass( self ) );
-    @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:[NSString stringWithFormat:@"Cannot create instances of %@", NSStringFromClass( self )] userInfo:nil];
-    
+    [self doesNotRecognizeSelector:_cmd];
     return nil;
 }
 
 + (id)allocPrivate
 {
-    // [super alloc] calls to NSObject, and that calls [class allocWithZone:]
     return [super alloc];
-}
-
-+ (id)new
-{
-    return [self alloc];
 }
 
 - (id)copy
 {
-    NSAssert( false, @"Cannot copy instances of %@", NSStringFromClass( [self class] ) );
-    
-    return [[self class] sharedInstance];
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
 
 - (id)mutableCopy
 {
-    NSAssert( false, @"Cannot copy instances of %@", NSStringFromClass( [self class] ) );
-    
-    return [[self class] sharedInstance];
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
 
 #pragma mark - Initialization
@@ -112,19 +110,9 @@ static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle
 
 #pragma mark - Private Methods
 
-static NSString *_resourcePath = nil;
-
-+ (NSString *)resourcePath
-{
-    return _resourcePath;
-}
-
-+ (void)setResourcePath:(NSString *)resourcePath
-{
-    _resourcePath = resourcePath;
-}
-
-// Retrive the bundle containing the resources for the library
+#if TARGET_OS_IPHONE
+// Retrive the bundle containing the resources for the library. May return nil, if the bundle
+// cannot be loaded.
 + (NSBundle *)frameworkBundle
 {
     static NSBundle       *bundle     = nil;
@@ -135,42 +123,41 @@ static NSString *_resourcePath = nil;
         dispatch_once( &predicate,
                       ^{
                           NSString* mainBundlePath      = [[NSBundle mainBundle] resourcePath];
-                          NSString* frameworkBundlePath = nil;
+                          AD_LOG_VERBOSE_F(@"Resources Loading", @"Attempting to load resources from: %@", mainBundlePath);
                           
-                          if ( _resourcePath != nil )
-                          {
-                              frameworkBundlePath = [[mainBundlePath stringByAppendingPathComponent:_resourcePath] stringByAppendingPathComponent:@"ADALiOSBundle.bundle"];
-                          }
-                          else
-                          {
-                              frameworkBundlePath = [mainBundlePath stringByAppendingPathComponent:@"ADALiOSBundle.bundle"];
-                          }
-                          
+                          NSString* frameworkBundlePath = [mainBundlePath stringByAppendingPathComponent:@"ADALiOS.bundle"];
                           bundle = [NSBundle bundleWithPath:frameworkBundlePath];
-                          if (!bundle)
-                          {
-                              AD_LOG_WARN(@"Cannot load ADALiOS bundle", frameworkBundlePath);
-                          }
                       });
     }
     
     return bundle;
 }
+#endif
 
-// Retrieve the current storyboard from the resources for the library
-+ (UIStoryboard *)storyboard
+
+#if TARGET_OS_IPHONE
+// Retrieve the current storyboard from the resources for the library. Attempts to use ADALiOS bundle first
+// and if the bundle is not present, assumes that the resources are build with the application itself.
+// Raises an error if both the library resources bundle and the application fail to locate resources.
++ (UIStoryboard *)storyboard: (ADAuthenticationError* __autoreleasing*) error
 {
-    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad )
+    NSBundle* bundle = [self frameworkBundle];//May be nil.
+    
+    UIStoryboard* storeBoard = ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ) ?
+                [UIStoryboard storyboardWithName:@"IPAL_iPad_Storyboard" bundle:bundle]
+              : [UIStoryboard storyboardWithName:@"IPAL_iPhone_Storyboard" bundle:bundle];
+    
+    if (!storeBoard)
     {
-        // The device is an iPad running iPhone 3.2 or later.
-        return [UIStoryboard storyboardWithName:@"IPAL_iPad_Storyboard" bundle:[self frameworkBundle]];
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
+        if (error)
+        {
+            *error = adError;
+        }
     }
-    else
-    {
-        // The device is an iPhone or iPod touch.
-        return [UIStoryboard storyboardWithName:@"IPAL_iPhone_Storyboard" bundle:[self frameworkBundle]];
-    }
+    return storeBoard;
 }
+#endif
 
 -(NSURL*) addToURL: (NSURL*) url
      correlationId: (NSUUID*) correlationId
@@ -181,38 +168,49 @@ static NSString *_resourcePath = nil;
 
 #pragma mark - Public Methods
 
+// On OSX, the fullscreen parameter is ignored.
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
-      webView:(UIWebView *)webView
+      webView:(WebViewType *)webView
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID *)correlationId
    completion:(ADBrokerCallback)completionBlock
 {
+#pragma unused(fullScreen)
     THROW_ON_NIL_ARGUMENT(startURL);
     THROW_ON_NIL_ARGUMENT(endURL);
     THROW_ON_NIL_ARGUMENT(correlationId);
     THROW_ON_NIL_ARGUMENT(completionBlock)
+    
+#if !(TARGET_OS_IPHONE)
+    _authenticationWebViewController = nil;
+    _authenticationPageController  = nil;
+    _authenticationSession           = NULL;
+#endif
     
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
     
     // Save the completion block
     _completionBlock = [completionBlock copy];
     
+    ADAuthenticationError* error;
+    
     if ( nil == webView )
     {
+#if TARGET_OS_IPHONE
         // Must have a parent view controller to start the authentication view
         UIViewController *parent = [UIApplication currentViewController];
         
         if ( parent )
         {
             // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
-            UINavigationController *navigationController = [[self.class storyboard] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
+            UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
             
-            _authenticationViewController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
-            
-            if ( _authenticationViewController )
+            if (navigationController)
             {
-                _authenticationViewController.delegate = self;
+                _authenticationPageController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
+            
+                _authenticationPageController.delegate = self;
                 
                 if ( fullScreen == YES )
                     [navigationController setModalPresentationStyle:UIModalPresentationFullScreen];
@@ -224,27 +222,62 @@ correlationId:(NSUUID *)correlationId
                     // Instead of loading the URL immediately on completion, get the UI on the screen
                     // and then dispatch the call to load the authorization URL
                     dispatch_async( dispatch_get_main_queue(), ^{
-                        [_authenticationViewController startWithURL:startURL endAtURL:endURL];
+                        [_authenticationPageController startWithURL:startURL endAtURL:endURL];
                     });
                 }];
             }
             else
             {
-                // Dispatch the completion block
-                ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
-                dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-                    _completionBlock( error, nil );
-                });
+                error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
+                                                               protocolCode:nil
+                                                               errorDetails:WAB_FAILED_NO_RESOURCES];
             }
         }
         else
         {
-            // Dispatch the completion block
-            ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER protocolCode:nil errorDetails:WAB_FAILED_NO_CONTROLLER];
-            dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-                _completionBlock( error, nil );
-            });
+            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
+                                                           protocolCode:nil
+                                                           errorDetails:WAB_FAILED_NO_CONTROLLER];
+
         }
+#else
+        // Load the authentication view
+        _authenticationPageController = [[ADAuthenticationWindowController alloc] initAtURL:startURL endAtURL:endURL];
+
+        if ( _authenticationPageController )
+        {
+            _authenticationPageController.delegate = self;
+
+            // Start the modal session
+            _authenticationSession = [NSApp beginModalSessionForWindow:[_authenticationPageController window]];
+            
+            // Initialize the web view controller
+            [_authenticationPageController start];
+            
+            NSDate   *beforeDate = [NSDate date];
+            NSInteger result = NSRunContinuesResponse;
+            
+            // Loop until window is endModal is called
+            while ( result == NSRunContinuesResponse )
+            {
+                result = [NSApp runModalSession:_authenticationSession];
+                
+                beforeDate = [beforeDate dateByAddingTimeInterval:300];
+                [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:beforeDate];
+            }
+            
+            // End the modal session
+            [NSApp endModalSession:_authenticationSession];
+            
+            _authenticationSession = NULL;
+        }
+        else
+        {
+            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
+                                                           protocolCode:nil
+                                                           errorDetails:WAB_FAILED_NO_RESOURCES];
+        }
+#endif
     }
     else
     {
@@ -259,12 +292,17 @@ correlationId:(NSUUID *)correlationId
         }
         else
         {
-            // Dispatch the completion block
-            ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
-            dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-                _completionBlock( error, nil );
-            });
+            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
+                                                           protocolCode:nil
+                                                           errorDetails:WAB_FAILED_NO_RESOURCES];
         }
+    }
+    //Error occurred above. Dispatch the callback to the caller:
+    if (error)
+    {
+        dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
+            _completionBlock( error, nil );
+        });
     }
 }
 
@@ -283,19 +321,18 @@ correlationId:(NSUUID *)correlationId
     //       cannot be blocked at its root, and so this method must
     //       be resilient to this condition and should not generate
     //       two callbacks.
-    [_completionLock lock];
-    
-    if ( _completionBlock )
+    @synchronized(self)
     {
-        void (^completionBlock)( ADAuthenticationError *, NSURL *) = _completionBlock;
-        _completionBlock = nil;
-        
-        dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-            completionBlock( error, url );
-        });
+        if ( _completionBlock )
+        {
+            void (^completionBlock)( ADAuthenticationError *, NSURL *) = _completionBlock;
+            _completionBlock = nil;
+            
+            dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
+                completionBlock( error, url );
+            });
+        }
     }
-    
-    [_completionLock unlock];
 }
 
 #pragma mark - ADAuthenticationDelegate
@@ -303,72 +340,131 @@ correlationId:(NSUUID *)correlationId
 // The user cancelled authentication
 - (void)webAuthenticationDidCancel
 {
-    DebugLog();
-    
-    // Dispatch the completion block
-
-    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_CANCEL protocolCode:nil errorDetails:WAB_FAILED_CANCELLED];
-    
-    if ( nil != _authenticationViewController)
+    @synchronized(self)//Prevent running between cancellation and navigation
     {
-        // Dismiss the authentication view and dispatch the completion block
-        [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+        DebugLog();
+        
+        // Dispatch the completion block
+        
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_CANCEL protocolCode:nil errorDetails:WAB_FAILED_CANCELLED];
+        
+#if TARGET_OS_IPHONE
+        if ( nil != _authenticationPageController)
+        {
+            // Dismiss the authentication view and dispatch the completion block
+            [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+                [self dispatchCompletionBlock:error URL:nil];
+            }];
+        }
+        else
+        {
+            [_authenticationWebViewController stop];
             [self dispatchCompletionBlock:error URL:nil];
-        }];
-    }
-    else
-    {
+        }
+        
+        _authenticationPageController    = nil;
+        _authenticationWebViewController = nil;
+#else
+        // Dismiss the authentication view if active
+        if ( _authenticationSession )
+        {
+            [NSApp stopModal];
+        }
+        
+        [_authenticationPageController close];
+        _authenticationPageController = nil;
+        
         [_authenticationWebViewController stop];
+        _authenticationWebViewController = nil;
+        
+        // Dispatch the completion block
         [self dispatchCompletionBlock:error URL:nil];
+#endif
     }
-    
-    _authenticationViewController    = nil;
-    _authenticationWebViewController = nil;
 }
 
 // Authentication completed at the end URL
 - (void)webAuthenticationDidCompleteWithURL:(NSURL *)endURL
 {
-    DebugLog();
-    
-    if ( nil != _authenticationViewController)
+    @synchronized(self)//Prevent running between navigation and cancellation
     {
-        // Dismiss the authentication view and dispatch the completion block
-        [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+        DebugLog();
+
+#if TARGET_OS_IPHONE
+        if ( nil != _authenticationPageController)
+        {
+            // Dismiss the authentication view and dispatch the completion block
+            [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+                [self dispatchCompletionBlock:nil URL:endURL];
+            }];
+        }
+        else
+        {
+            [_authenticationWebViewController stop];
             [self dispatchCompletionBlock:nil URL:endURL];
-        }];
-    }
-    else
-    {
+        }
+        
+        _authenticationPageController    = nil;
+        _authenticationWebViewController = nil;
+#else
+        // Dismiss the authentication view if active
+        if ( _authenticationSession )
+        {
+            [NSApp stopModal];
+        }
+        
+        [_authenticationPageController close];
+        _authenticationPageController = nil;
+        
         [_authenticationWebViewController stop];
+        _authenticationWebViewController = nil;
+        
         [self dispatchCompletionBlock:nil URL:endURL];
+#endif
     }
-    
-    _authenticationViewController    = nil;
-    _authenticationWebViewController = nil;
 }
 
 // Authentication failed somewhere
 - (void)webAuthenticationDidFailWithError:(NSError *)error
 {
-    // Dispatch the completion block
-    ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription];
-    
-    if ( nil != _authenticationViewController)
+    @synchronized(self)//Prevent running between navigation and cancellation
     {
-        // Dismiss the authentication view and dispatch the completion block
-        [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+        // Dispatch the completion block
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription];
+        
+#if TARGET_OS_IPHONE
+        if ( nil != _authenticationPageController)
+        {
+            // Dismiss the authentication view and dispatch the completion block
+            [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+                [self dispatchCompletionBlock:adError URL:nil];
+            }];
+        }
+        else
+        {
+            [_authenticationWebViewController stop];
             [self dispatchCompletionBlock:adError URL:nil];
-        }];
-    }
-    else
-    {
+        }
+        
+        _authenticationPageController    = nil;
+        _authenticationWebViewController = nil;
+#else
+        // Dismiss the authentication view if active
+        if ( _authenticationSession )
+        {
+            [NSApp stopModal];
+        }
+        
+        [_authenticationPageController close];
+        _authenticationPageController = nil;
+        
         [_authenticationWebViewController stop];
+        _authenticationWebViewController = nil;
+        
+        // Dispatch the completion block
         [self dispatchCompletionBlock:adError URL:nil];
+#endif
     }
-    
-    _authenticationViewController    = nil;
-    _authenticationWebViewController = nil;
 }
 
 @end

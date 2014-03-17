@@ -16,8 +16,6 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADALiOS.h"
-#import "ADLogger.h"
 #import "ADOAuth2Constants.h"
 #include <sys/types.h>
 #include <sys/sysctl.h>
@@ -137,17 +135,32 @@ additionalInformation: (NSString*) additionalInformation
     //Extract the CPU type. E.g. x86. See machine.h for details
     //See sysctl.h for details.
     int result = sysctlbyname("hw.cputype", &cpuType, &structSize, NULL, 0);
+    
     if (result)
     {
         AD_LOG_WARN_F(@"Logging", @"Cannot extract cpu type. Error: %d", result);
         return nil;
     }
     
-    return (CPU_ARCH_ABI64 & cpuType) ? @"64" : @"32";
+    if (cpuType == CPU_TYPE_X86)
+    {
+        //The x86 architecture is typically 64 bit. Confirm here:
+        cpu_type_t optionalValue;
+        result = sysctlbyname("hw.optional.x86_64", &optionalValue, &structSize, NULL, 0);
+        if (result == 0)
+            return @"x86_64";
+        else
+            return @"x86";
+    }
+
+    
+    return (CPU_ARCH_ABI64 & cpuType) ? @"arm64" : @"arm32";
 }
 
 +(NSDictionary*) adalId
 {
+#if TARGET_OS_IPHONE
+    //iOS:
     UIDevice* device = [UIDevice currentDevice];
     NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
     @{
@@ -156,6 +169,16 @@ additionalInformation: (NSString*) additionalInformation
       ADAL_ID_OS_VER:device.systemVersion,
       ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
       }];
+#else
+    NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:
+                                             @"/System/Library/CoreServices/SystemVersion.plist"];
+    NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
+                                   @{
+                                     ADAL_ID_PLATFORM:@"OSX",
+                                     ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW],
+                                     ADAL_ID_OS_VER:systemVersionDictionary[@"ProductVersion"],
+                                     }];
+#endif
     NSString* CPUVer = [self getCPUInfo];
     if (![NSString isStringNilOrBlank:CPUVer])
     {
