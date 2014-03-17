@@ -18,7 +18,7 @@
 
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
-#import <ADALiOS/ADUserInformation.h>
+#import "ADUserInformation.h"
 
 @interface ADUserInformationTests : XCTestCase
 

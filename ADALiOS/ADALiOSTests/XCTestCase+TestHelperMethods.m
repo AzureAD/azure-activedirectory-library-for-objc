@@ -507,7 +507,7 @@ extern void __gcov_flush(void);
     
     //Set up and excuted the run loop until completion:
     NSDate* timeOut = [NSDate dateWithTimeIntervalSinceNow:10];//Waits for 10 seconds.
-    while (!(*signal) && [[NSDate dateWithTimeIntervalSinceNow:0] compare:timeOut] != NSOrderedDescending)
+    while (!(*signal) && [(NSDate*)[NSDate dateWithTimeIntervalSinceNow:0] compare:timeOut] != NSOrderedDescending)
     {
         [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeOut];
     }
