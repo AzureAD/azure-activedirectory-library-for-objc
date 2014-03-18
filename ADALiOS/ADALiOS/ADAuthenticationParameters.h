@@ -16,10 +16,6 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import <ADALiOS/ADAuthenticationResult.h>
-#import <ADALiOS/ADAuthenticationError.h>
-
 /*! Contains authentication parameters based on unauthorized
  response from resource server */
 @interface ADAuthenticationParameters : NSObject
