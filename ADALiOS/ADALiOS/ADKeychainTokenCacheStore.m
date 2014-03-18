@@ -38,9 +38,33 @@ NSString* const sKeyChainlog = @"Keychain token cache store";
     id mValueDataKey;
     id mMatchLimitKey;
     
+    NSString* mSharedGroup;//Shared keychain group
     //Cache store values:
     id mClassValue;
     NSData* mLibraryValue;
+}
+
+//Returns the name of the shared group. Generates the name and caches it.
+-(NSString*) getGroupName
+{
+    @synchronized(self)
+    {
+        if (!mSharedGroup)
+        {
+            //Bundle name is expected to be in the form "com.microsoft.OneNote"
+            //We remove the last piece to make a shared group across the same vendor:
+            //"com.microsoft.ADAL":
+            NSString* prefix = [[NSBundle mainBundle] bundleIdentifier];
+            NSCharacterSet* dot = [NSCharacterSet characterSetWithRange:NSMakeRange('.', 1)];
+            NSRange lastDot = [prefix rangeOfCharacterFromSet:dot options:NSBackwardsSearch];
+            if (lastDot.location != NSNotFound)
+            {
+                prefix = [prefix substringWithRange:NSMakeRange(0, lastDot.location)];
+            }
+            mSharedGroup = [prefix stringByAppendingString:@".ADAL"];
+        }
+    }
+    return mSharedGroup;
 }
 
 //Shouldn't be called.

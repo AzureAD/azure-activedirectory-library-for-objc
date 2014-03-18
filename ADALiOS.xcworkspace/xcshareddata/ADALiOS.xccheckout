@@ -5,7 +5,7 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>767A942C-B791-4DF8-9E06-1DE5FAF37A9C</string>
+	<string>F6C300AC-0E67-40F3-A1A4-EF28999300E3</string>
 	<key>IDESourceControlProjectName</key>
 	<string>ADALiOS</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
@@ -14,11 +14,11 @@
 		<string>https://github.com/MSOpenTech/azure-activedirectory-library-for-ios.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>ADALiOS/ADALiOS.xcodeproj/project.xcworkspace</string>
+	<string>ADALiOS.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>C7CB7A55-F27E-4620-AC43-09E138D9C442</key>
-		<string>../../..</string>
+		<string>..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/MSOpenTech/azure-activedirectory-library-for-ios.git</string>
