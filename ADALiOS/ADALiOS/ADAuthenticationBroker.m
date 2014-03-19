@@ -250,26 +250,34 @@ correlationId:(NSUUID *)correlationId
 
             // Start the modal session
             _authenticationSession = [NSApp beginModalSessionForWindow:[_authenticationPageController window]];
-            
-            // Initialize the web view controller
-            [_authenticationPageController start];
-            
-            NSDate   *beforeDate = [NSDate date];
-            NSInteger result = NSRunContinuesResponse;
-            
-            // Loop until window is endModal is called
-            while ( result == NSRunContinuesResponse )
+            if (_authenticationSession)
             {
-                result = [NSApp runModalSession:_authenticationSession];
+                // Initialize the web view controller
+                [_authenticationPageController start];
                 
-                beforeDate = [beforeDate dateByAddingTimeInterval:300];
-                [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:beforeDate];
+                NSDate   *beforeDate = [NSDate date];
+                NSInteger result = NSRunContinuesResponse;
+                
+                // Loop until window is endModal is called
+                while ( result == NSRunContinuesResponse )
+                {
+                    result = [NSApp runModalSession:_authenticationSession];
+                    
+                    beforeDate = [beforeDate dateByAddingTimeInterval:300];
+                    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:beforeDate];
+                }
+                
+                // End the modal session
+                [NSApp endModalSession:_authenticationSession];
+                
+                _authenticationSession = NULL;
             }
-            
-            // End the modal session
-            [NSApp endModalSession:_authenticationSession];
-            
-            _authenticationSession = NULL;
+            else
+            {
+                error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
+                                                               protocolCode:nil
+                                                               errorDetails:WAB_FAILED_NO_RESOURCES];
+            }
         }
         else
         {

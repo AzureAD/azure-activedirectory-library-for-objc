@@ -112,14 +112,15 @@ static const uint64_t MAX_REVISION = LONG_LONG_MAX;
     {
         if ([NSString isStringNilOrBlank:self.cacheLocation])
         {
-            //Nil or blank file. The initializer does not allow it:
+#if TARGET_OS_IPHONE
+            //Nil or blank file. We report it as an error on the mobile platforms:
             ADAuthenticationError* toReport = [ADAuthenticationError unexpectedInternalError:@"The token cache store is attempting to store to a nil or empty file name."];
             //We want to log the error only the first time we attempt the file or if the developer explicitly asked for it:
             if (error)
             {
                 *error = toReport;
             }
-
+#endif
             return NO;//Bad path
         }
         

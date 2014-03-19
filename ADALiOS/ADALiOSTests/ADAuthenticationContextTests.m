@@ -80,7 +80,6 @@ const int sAsyncContextTimeout = 10;
     mClientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
     mResource = @"http://localhost/TodoListService";
     mUserId = @"boris@mmsopentechbv.onmicrosoft.com";
-    mPromptBehavior = AD_PROMPT_AUTO;
     ADAuthenticationError* error;
     ADTestAuthenticationContext* testContext = [[ADTestAuthenticationContext alloc] initWithAuthority:mAuthority
                                                                                     validateAuthority:YES
@@ -90,6 +89,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNotNil(testContext, "Cannot create the context in setUp.");
     mContext = testContext;
     mProtocolContext = (id<ADAuthenticationContextProtocol>)mContext;
+    mPromptBehavior = AD_PROMPT_NEVER;
     [testContext->mExpectedRequest1 setObject:OAUTH2_REFRESH_TOKEN forKey:OAUTH2_GRANT_TYPE];
     [testContext->mExpectedRequest1 setObject:mResource forKey:OAUTH2_RESOURCE];
     [testContext->mExpectedRequest1 setObject:mClientId forKey:OAUTH2_CLIENT_ID];
@@ -573,8 +573,6 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testAcquireTokenWithNoPrompt
 {
-    mPromptBehavior = AD_PROMPT_NEVER;
-    
     //Nothing in the cache, as we cannot prompt for credentials, this should fail:
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED);
@@ -641,7 +639,6 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(mDefaultTokenCache.allItems.count == 1, "Nothing should be removed from the cache.");
     
     //Now simulate restoring of the connection and server error, ensure that attempt was made to prompt for credentials:
-    mPromptBehavior = AD_PROMPT_NEVER;
     [self.testContext->mResponse1 setObject:@"bad_refresh_token" forKey:OAUTH2_ERROR];
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED, "AcquireToken should fail, as the credentials are needed without cache.");
@@ -729,7 +726,6 @@ const int sAsyncContextTimeout = 10;
     //#4: Now try failing from both the exact and the broad refresh token to ensure that this code path
     //works. Both items should be removed from the cache. Also ensures that the credentials ask is attempted in this case.
     self.testContext->mAllowTwoRequests = YES;
-    mPromptBehavior = AD_PROMPT_NEVER;
     newItem.refreshToken = @"new non-working refresh token";
     newItem.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
     [mDefaultTokenCache addOrUpdateItem:newItem error:&error];
@@ -878,8 +874,7 @@ const int sAsyncContextTimeout = 10;
     //scenarios when we cannot invoke the web view:
     acquireTokenAsync;
     XCTAssertNotNil(mError);
-    ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, mError.code);
-    XCTAssertTrue([mError.errorDetails containsString:@"ViewController"]);
+    ADAssertLongEquals(AD_ERROR_USER_INPUT_NEEDED, mError.code);
 }
 
 -(void) testUIError
@@ -897,13 +892,18 @@ const int sAsyncContextTimeout = 10;
     ADAssertNoError;
     [self validateUIError];
 
+#if TARGET_OS_IPHONE
+    //This cannot be tested on OS X, as currently the unit tests do not fail when attempting to show UI
     //Cache item present, but force prompt:
     error = nil;
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority error:&error];
     ADAssertNoError;
     [self addCacheWithToken:@"access" refreshToken:nil];
     mPromptBehavior = AD_PROMPT_ALWAYS;
-    [self validateUIError];
+    acquireTokenAsync;
+    ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, mError.code);
+     XCTAssertTrue([mError.errorDetails containsString:@"ViewController"]);
+#endif
 }
 
 -(void) testBadRefreshToken

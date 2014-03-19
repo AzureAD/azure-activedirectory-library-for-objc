@@ -508,6 +508,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 //Waits for persistence
 -(void) waitForPersistenceWithLine:(int)line
 {
+    if (!mStore.cacheLocation)
+        return;//There is no persistence on this platform
     NSDate* start = [NSDate dateWithTimeIntervalSinceNow:0];
 
     NSTimeInterval elapsed = 0;
@@ -533,10 +535,14 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 -(void) validateAsynchronousPersistenceWithLine: (int) line
 {
     [self waitForPersistenceWithLine:__LINE__];
-    [self assertLogsContain:sPersisted
-                    logPart:TEST_LOG_INFO
-                       file:__FILE__
-                       line:line];
+    if (mStore.cacheLocation)
+    {
+        //If persistence is supported:
+        [self assertLogsContain:sPersisted
+                        logPart:TEST_LOG_INFO
+                           file:__FILE__
+                           line:line];
+    }
 }
 
 //Ensures that the cache is eventually persisted when modified:
@@ -577,6 +583,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 //disproportionately smaller than the cache updates:
 -(void) testBulkPersistence
 {
+    if (!mStore.cacheLocation)
+        return;//There is no persistence on this platform, cannot verify the assumptions below
     long numItems = 500;//Keychain is relatively slow
     ADTokenCacheStoreItem* original = [self createCacheItem];
     NSMutableArray* allItems = [NSMutableArray new];
@@ -616,6 +624,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 //Plays with the persistence conditions:
 -(void) testEnsureArchived
 {
+    if (!mStore.cacheLocation)
+        return;//There is no persistence on this platform. Ensure archived won't work
     [self waitForPersistenceWithLine:__LINE__];
     
     ADAuthenticationError* error;
@@ -657,20 +667,26 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 -(void) testInitializer
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:nil]);
-    XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:@"   "]);
-    
-    //Abstract methods
-    NSString* location = @"location";
-    ADPersistentTokenCacheStore* instance = [[ADPersistentTokenCacheStore alloc] initWithLocation:location];
-    ADAssertStringEquals(instance.cacheLocation, location);
-    XCTAssertThrows([instance addInitialCacheItems], "This method should call non-implmented unpersistence.");
+    if (mStore.cacheLocation)
+    {
+        //The assumptions below apply to platforms where persistence is required:
+        [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+        XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:nil]);
+        XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:@"   "]);
+        
+        //Abstract methods
+        NSString* location = @"location";
+        ADPersistentTokenCacheStore* instance = [[ADPersistentTokenCacheStore alloc] initWithLocation:location];
+        ADAssertStringEquals(instance.cacheLocation, location);
+        XCTAssertThrows([instance addInitialCacheItems], "This method should call non-implmented unpersistence.");
+    }
 }
 
 //Tests the persistence:
 -(void) testaddInitialElements
 {
+    if (!mStore.cacheLocation)
+        return;//No persistence on the current platform
     ADAuthenticationError* error;
 
     //Start clean, add, remove items to ensure serialization of empty array:
