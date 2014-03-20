@@ -145,6 +145,10 @@ static NSString *_resourcePath = nil;
                           }
                           
                           bundle = [NSBundle bundleWithPath:frameworkBundlePath];
+                          if (!bundle)
+                          {
+                              AD_LOG_INFO_F(@"Resource Loading", @"Failed to load framework bundle. Application main bundle will be attempted.");
+                          }
                       });
     }
     
@@ -157,20 +161,29 @@ static NSString *_resourcePath = nil;
 + (UIStoryboard *)storyboard: (ADAuthenticationError* __autoreleasing*) error
 {
     NSBundle* bundle = [self frameworkBundle];//May be nil.
-    
-    UIStoryboard* storeBoard = ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ) ?
-                [UIStoryboard storyboardWithName:@"ADAL_iPad_Storyboard" bundle:bundle]
-              : [UIStoryboard storyboardWithName:@"ADAL_iPhone_Storyboard" bundle:bundle];
-    
-    if (!storeBoard)
+    if (!bundle)
     {
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:AD_FAILED_NO_RESOURCES];
-        if (error)
-        {
-            *error = adError;
-        }
+        //The user did not use ADALiOS.bundle. The resources may be manually linked
+        //to the app by referencing the storyboards directly.
+        bundle = [NSBundle mainBundle];
     }
-    return storeBoard;
+    if ([bundle pathForResource:@"ADAL_iPhone_Storyboard" ofType:@"storyboard"])
+    {
+        //Despite Apple's documentation, storyboard with name actually throws, crashing
+        //the app if the story board is not present, hence the if above.
+        UIStoryboard* storyBoard = ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ) ?
+        [UIStoryboard storyboardWithName:@"ADAL_iPad_Storyboard" bundle:bundle]
+        : [UIStoryboard storyboardWithName:@"ADAL_iPhone_Storyboard" bundle:bundle];
+        if (storyBoard)
+            return storyBoard;
+    }
+    
+    ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:AD_FAILED_NO_RESOURCES];
+    if (error)
+    {
+        *error = adError;
+    }
+    return nil;
 }
 
 -(NSURL*) addToURL: (NSURL*) url
