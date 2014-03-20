@@ -26,13 +26,8 @@
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
 
-
-static NSString *const WAB_FAILED_ERROR         = @"Authorization Failed";
-static NSString *const WAB_FAILED_ERROR_CODE    = @"Authorization Failed: %ld";
-
-static NSString *const WAB_FAILED_CANCELLED     = @"The user cancelled the authorization request";
-static NSString *const WAB_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
-static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded";
+static NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
+static NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
 
 // Private interface declaration
 @interface ADAuthenticationBroker () <ADAuthenticationDelegate>
@@ -124,7 +119,8 @@ static NSString *_resourcePath = nil;
     _resourcePath = resourcePath;
 }
 
-// Retrive the bundle containing the resources for the library
+// Retrive the bundle containing the resources for the library. May return nil, if the bundle
+// cannot be loaded.
 + (NSBundle *)frameworkBundle
 {
     static NSBundle       *bundle     = nil;
@@ -134,42 +130,47 @@ static NSString *_resourcePath = nil;
     {
         dispatch_once( &predicate,
                       ^{
+
                           NSString* mainBundlePath      = [[NSBundle mainBundle] resourcePath];
+                          AD_LOG_VERBOSE_F(@"Resources Loading", @"Attempting to load resources from: %@", mainBundlePath);
                           NSString* frameworkBundlePath = nil;
                           
                           if ( _resourcePath != nil )
                           {
-                              frameworkBundlePath = [[mainBundlePath stringByAppendingPathComponent:_resourcePath] stringByAppendingPathComponent:@"ADALiOSBundle.bundle"];
+                              frameworkBundlePath = [[mainBundlePath stringByAppendingPathComponent:_resourcePath] stringByAppendingPathComponent:@"ADALiOS.bundle"];
                           }
                           else
                           {
-                              frameworkBundlePath = [mainBundlePath stringByAppendingPathComponent:@"ADALiOSBundle.bundle"];
+                              frameworkBundlePath = [mainBundlePath stringByAppendingPathComponent:@"ADALiOS.bundle"];
                           }
                           
                           bundle = [NSBundle bundleWithPath:frameworkBundlePath];
-                          if (!bundle)
-                          {
-                              AD_LOG_WARN(@"Cannot load ADALiOS bundle", frameworkBundlePath);
-                          }
                       });
     }
     
     return bundle;
 }
 
-// Retrieve the current storyboard from the resources for the library
-+ (UIStoryboard *)storyboard
+// Retrieve the current storyboard from the resources for the library. Attempts to use ADALiOS bundle first
+// and if the bundle is not present, assumes that the resources are build with the application itself.
+// Raises an error if both the library resources bundle and the application fail to locate resources.
++ (UIStoryboard *)storyboard: (ADAuthenticationError* __autoreleasing*) error
 {
-    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad )
+    NSBundle* bundle = [self frameworkBundle];//May be nil.
+    
+    UIStoryboard* storeBoard = ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ) ?
+                [UIStoryboard storyboardWithName:@"ADAL_iPad_Storyboard" bundle:bundle]
+              : [UIStoryboard storyboardWithName:@"ADAL_iPhone_Storyboard" bundle:bundle];
+    
+    if (!storeBoard)
     {
-        // The device is an iPad running iPhone 3.2 or later.
-        return [UIStoryboard storyboardWithName:@"IPAL_iPad_Storyboard" bundle:[self frameworkBundle]];
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:AD_FAILED_NO_RESOURCES];
+        if (error)
+        {
+            *error = adError;
+        }
     }
-    else
-    {
-        // The device is an iPhone or iPod touch.
-        return [UIStoryboard storyboardWithName:@"IPAL_iPhone_Storyboard" bundle:[self frameworkBundle]];
-    }
+    return storeBoard;
 }
 
 -(NSURL*) addToURL: (NSURL*) url
@@ -192,7 +193,7 @@ correlationId:(NSUUID *)correlationId
     THROW_ON_NIL_ARGUMENT(endURL);
     THROW_ON_NIL_ARGUMENT(correlationId);
     THROW_ON_NIL_ARGUMENT(completionBlock)
-    
+
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
     
     // Save the completion block
@@ -245,6 +246,13 @@ correlationId:(NSUUID *)correlationId
             _completionBlock( error, nil );
         });
     }
+    //Error occurred above. Dispatch the callback to the caller:
+    if (error)
+    {
+        dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
+            _completionBlock( error, nil );
+        });
+    }
 }
 
 - (void)cancel
@@ -286,7 +294,7 @@ correlationId:(NSUUID *)correlationId
     
     // Dispatch the completion block
 
-    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_CANCEL protocolCode:nil errorDetails:WAB_FAILED_CANCELLED];
+    ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation];
     
     if ( nil != _authenticationViewController)
     {

@@ -23,6 +23,7 @@
 #import <ADALiOS/ADLogger.h>
 #import "BVTestInstance.h"
 #import "BVSettings.h"
+#import <ADALiOS/ADErrorCodes.h>
 
 //Timeouts in seconds. They are inflated to accumulate cloud-based
 //builds on slow VMs:
@@ -160,6 +161,36 @@ const int sTokenWorkflowTimeout     = 20;
     }
 }
 
+-(ADAuthenticationResult*) callAcquireTokenWithInstance: (BVTestInstance*) instance
+                                           interactive: (BOOL) interactive
+                                          keepSignedIn: (BOOL) keepSignedIn
+                                         expectSuccess: (BOOL) expectSuccess
+                                                  line: (int) sourceLine
+{
+    return [self callAcquireTokenWithInstance:instance
+                                  interactive:interactive
+                                 keepSignedIn:keepSignedIn
+                                expectSuccess:expectSuccess
+                                       userId:instance.userId
+                                         line:sourceLine];
+}
+
+-(void) setElementWithWebView: (UIWebView*) webView
+                      element: (NSString*) elementName
+                        value: (NSString*) value
+{
+    [webView stringByEvaluatingJavaScriptFromString:
+     [NSString stringWithFormat:@"document.getElementById('%@').value = '%@'",
+      elementName, value]];
+}
+
+-(NSString*) getElementWithWebView: (UIWebView*) webView
+                           element: (NSString*) elementName
+{
+    return [webView stringByEvaluatingJavaScriptFromString:
+            [NSString stringWithFormat:@"document.getElementById('%@').value", elementName]];
+}
+
 //Calls the asynchronous acquireTokenWithResource method.
 //"interactive" parameter indicates whether the call will display
 //UI which user will interact with
@@ -167,6 +198,7 @@ const int sTokenWorkflowTimeout     = 20;
                                             interactive: (BOOL) interactive
                                            keepSignedIn: (BOOL) keepSignedIn
                                           expectSuccess: (BOOL) expectSuccess
+                                                 userId: (NSString*) userId /*requested userid, may be different from entered*/
                                                    line: (int) sourceLine
 {
     XCTAssertNotNil(instance, "Internal test failure.");
@@ -178,7 +210,7 @@ const int sTokenWorkflowTimeout     = 20;
     [context acquireTokenWithResource:instance.resource
                              clientId:instance.clientId
                           redirectUri:[NSURL URLWithString:instance.redirectUri]
-                               userId:instance.userId
+                               userId:userId
                  extraQueryParameters:instance.extraQueryParameters
                       completionBlock:^(ADAuthenticationResult *result)
      {
@@ -210,15 +242,15 @@ const int sTokenWorkflowTimeout     = 20;
             return [formLoaded isEqualToString:@"1"];
         }];
         
-        //Check the username:
-        NSString* formUserId = [webView stringByEvaluatingJavaScriptFromString:
-                                @"document.getElementById('cred_userid_inputtext').value"];
-        XCTAssertTrue([formUserId isEqualToString:instance.userId]);
+        //Check the username is prepopulated to requested:
+        NSString* formUserId = [self getElementWithWebView:webView element:@"cred_userid_inputtext"];
+        XCTAssertTrue([formUserId isEqualToString:userId]);
+        
+        //Now set the userId to the one passed in the instance (may be different):
+        [self setElementWithWebView:webView element:@"cred_userid_inputtext" value:instance.userId];
         
         //Add the password:
-        [webView stringByEvaluatingJavaScriptFromString:
-                [NSString stringWithFormat:@"document.getElementById('cred_password_inputtext').value = '%@'",
-                 instance.password]];
+        [self setElementWithWebView:webView element:@"cred_password_inputtext" value:instance.password];
         if (keepSignedIn)
         {
             [webView stringByEvaluatingJavaScriptFromString:
@@ -253,7 +285,7 @@ const int sTokenWorkflowTimeout     = 20;
                                         atLine:sourceLine
                                       expected:NO];
         }
-        if ([NSString isStringNilOrBlank:localResult.tokenCacheStoreItem.accessToken])
+        if (!localResult.tokenCacheStoreItem.accessToken.length)
         {
             [self recordFailureWithDescription:@"Nil or empty access token."
                                         inFile:@"" __FILE__
@@ -353,7 +385,7 @@ const int sTokenWorkflowTimeout     = 20;
                                                            keepSignedIn:YES
                                                           expectSuccess:NO
                                                                    line:__LINE__];
-    XCTAssertTrue([result.error.errorDetails containsString:@"certificate"]);
+    XCTAssertTrue([result.error.errorDetails rangeOfString:@"certificate"].location != NSNotFound);
     
     //Unreachable authority:
     instance.authority = @"https://SomeReallyNonExistingDomain.com/SomeTenant";
@@ -373,6 +405,32 @@ const int sTokenWorkflowTimeout     = 20;
                                   expectSuccess:NO
                                            line:__LINE__];
     XCTAssertEqual((long)result.error.code, (long)AD_ERROR_AUTHORITY_VALIDATION);
+}
+
+//Verifies that error is generated in case of wrong user authentication
+-(void) testWrongUser
+{
+    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    //Clean, request one user, enter another
+    XCTAssertEqual((long)[cache allItems].count, (long)0);//Access token and MRRT
+    ADAuthenticationResult* result = [self callAcquireTokenWithInstance:[self getAADInstance]
+                                                            interactive:YES
+                                                           keepSignedIn:YES
+                                                          expectSuccess:NO
+                                                                 userId:@"Nonexistent"
+                                                                   line:__LINE__];
+    XCTAssertNil(result.tokenCacheStoreItem);
+    XCTAssertEqual((long)[cache allItems].count, (long)2);//Access token and MRRT
+    //Cache present, same:
+    result = [self callAcquireTokenWithInstance:[self getAADInstance]
+                                    interactive:NO
+                                   keepSignedIn:NO
+                                  expectSuccess:NO
+                                         userId:@"Nonexistent"
+                                           line:__LINE__];
+    XCTAssertNil(result.tokenCacheStoreItem);
+    XCTAssertEqual((long)result.error.code, (long)AD_ERROR_WRONG_USER);
+    XCTAssertEqual((long)[cache allItems].count, (long)2);//Access token and MRRT
 }
 
 @end

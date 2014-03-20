@@ -16,9 +16,6 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import <ADALiOS/ADErrorCodes.h>
-
 /*! Levels of logging. Defines the priority of the logged message */
 typedef enum
 {

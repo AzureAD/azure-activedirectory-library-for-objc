@@ -42,6 +42,12 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     return nil;
 }
 
++(NSString*) normalizeUserId: (NSString*) userId
+{
+    NSString* normalized = [userId trimmedString].lowercaseString;
+    return normalized.length ? normalized : nil;
+}
+
 -(id) initWithUserId: (NSString*) userId
 {
     THROW_ON_NIL_EMPTY_ARGUMENT(userId);//Shouldn't be called with nil.
@@ -49,7 +55,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     if (self)
     {
         //Minor canonicalization of the userId:
-        _userId = [userId trimmedString].lowercaseString;
+        _userId = [self.class normalizeUserId:userId];
     }
     return self;
 }
@@ -158,24 +164,28 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     
     //Now attempt to extract an unique user id:
-    if (![NSString isStringNilOrBlank:self.uniqueName])
+    if (![NSString isStringNilOrBlank:self.upn])
     {
-        _userId = self.uniqueName;
-        self.userIdDisplayable = true;//This is what the server provided
+        _userId = self.upn;
+        self.userIdDisplayable = YES;
     }
     else if (![NSString isStringNilOrBlank:self.eMail])
     {
         _userId = self.eMail;
-        self.userIdDisplayable = true;
+        self.userIdDisplayable = YES;
     }
-    else if (![NSString isStringNilOrBlank:self.upn])
+    else if (![NSString isStringNilOrBlank:self.subject])
     {
-        _userId = self.upn;
-        self.userIdDisplayable = true;
+        _userId = self.subject;
     }
     else if (![NSString isStringNilOrBlank:self.userObjectId])
     {
         _userId = self.userObjectId;
+    }
+    else if (![NSString isStringNilOrBlank:self.uniqueName])
+    {
+        _userId = self.uniqueName;
+        self.userIdDisplayable = YES;//This is what the server provided
     }
     else if (![NSString isStringNilOrBlank:self.guestId])
     {
@@ -185,7 +195,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     {
         RETURN_ID_TOKEN_ERROR(idToken);
     }
-    _userId = _userId.lowercaseString;//Normalize
+    _userId = [self.class normalizeUserId:_userId];
     
     return self;
 }

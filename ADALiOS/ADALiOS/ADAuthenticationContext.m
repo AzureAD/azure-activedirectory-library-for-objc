@@ -16,8 +16,8 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADALiOS.h"
 #import "ADAuthenticationContext.h"
+#import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationBroker.h"
@@ -28,6 +28,9 @@
 #import "HTTPWebRequest.h"
 #import "HTTPWebResponse.h"
 #import "ADInstanceDiscovery.h"
+#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheStoreKey.h"
+#import "ADUserInformation.h"
 
 NSString* const multiUserError = @"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used.";
 NSString* const unknownError = @"Uknown error.";
@@ -597,6 +600,7 @@ if (![self checkAndHandleBadArgument:ARG \
                                      if (AD_SUCCEEDED == result.status)
                                      {
                                          [self updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
+                                         result = [self updateResult:result toUser:userId];
                                      }
                                      completionBlock(result);
                                  }];
@@ -797,10 +801,42 @@ if (![self checkAndHandleBadArgument:ARG \
                                                 cacheItem:resultItem
                                          withRefreshToken:refreshToken];
                             }
+                            result = [self updateResult:result toUser:userId];//Verify the user (just in case)
                             
                             completionBlock(result);
                         }];
                    });
+}
+
+//Used in the flows, where developer requested an explicit user. The method compares
+//the user for the obtained tokens (if provided by the server). If the user is different,
+//an error result is returned. Returns the same result, if no issues are found.
+-(ADAuthenticationResult*) updateResult: (ADAuthenticationResult*) result
+                                 toUser: (NSString*) userId
+{
+    THROW_ON_NIL_ARGUMENT(result);
+    userId = [ADUserInformation normalizeUserId:userId];
+    NSString* actualUser = result.tokenCacheStoreItem.userInformation.userId;
+    if (!userId || AD_SUCCEEDED != result.status || !actualUser)
+    {
+        //No user to compare - either no specific user id requested, or no specific userId obtained:
+        return result;
+    }
+ 
+    
+    if (![userId isEqualToString:actualUser])
+    {
+        NSString* errorText = [NSString stringWithFormat:@"Different user was authenticated. Expected: '%@'; Actual: '%@'. Either the user entered credentials for different user, or cookie for different logged user is present. Consider calling acquireToken with AD_PROMPT_ALWAYS to ignore the cookie.",
+                               userId, actualUser];
+        
+        ADAuthenticationError* error =
+            [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_WRONG_USER
+                                                   protocolCode:nil
+                                                   errorDetails:errorText];
+        return [ADAuthenticationResult resultFromError:error];
+    }
+    
+    return result;
 }
 
 //Understands and processes the access token response:

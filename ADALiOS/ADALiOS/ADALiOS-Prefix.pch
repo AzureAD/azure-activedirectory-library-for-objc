@@ -26,7 +26,11 @@
 #ifdef __OBJC__
     #import <Foundation/Foundation.h>
     #import <UIKit/UIKit.h>
+    #import "ADALiOS.h"
     #import "ADLogger.h"
+    #import "ADErrorCodes.h"
+    #import "NSString+ADHelperMethods.h"
+    #import "ADAuthenticationError.h"
 
 //From IPAL library:
 #ifndef DebugLog
