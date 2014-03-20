@@ -193,11 +193,12 @@ correlationId:(NSUUID *)correlationId
     THROW_ON_NIL_ARGUMENT(endURL);
     THROW_ON_NIL_ARGUMENT(correlationId);
     THROW_ON_NIL_ARGUMENT(completionBlock)
-
+    
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
     
     // Save the completion block
     _completionBlock = [completionBlock copy];
+    ADAuthenticationError* error;
     
     if (!parent)
     {
@@ -207,12 +208,12 @@ correlationId:(NSUUID *)correlationId
     if ( parent )
     {
         // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
-        UINavigationController *navigationController = [[self.class storyboard] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
+        UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
         
-        _authenticationViewController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
-        
-        if ( _authenticationViewController )
+        if (navigationController)
         {
+            _authenticationViewController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
+            
             _authenticationViewController.delegate = self;
             
             if ( fullScreen == YES )
@@ -229,23 +230,21 @@ correlationId:(NSUUID *)correlationId
                 });
             }];
         }
-        else
+        else //Navigation controller
         {
-            // Dispatch the completion block
-            ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
-            dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-                _completionBlock( error, nil );
-            });
+            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
+                                                           protocolCode:nil
+                                                           errorDetails:AD_FAILED_NO_RESOURCES];
         }
     }
-    else
+    else //Parent
     {
-        // Dispatch the completion block
-        ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER protocolCode:nil errorDetails:WAB_FAILED_NO_CONTROLLER];
-        dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-            _completionBlock( error, nil );
-        });
+        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
+                                                       protocolCode:nil
+                                                       errorDetails:AD_FAILED_NO_CONTROLLER];
+        
     }
+    
     //Error occurred above. Dispatch the callback to the caller:
     if (error)
     {
