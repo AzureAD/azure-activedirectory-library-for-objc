@@ -422,7 +422,7 @@ static const uint64_t MAX_REVISION = LONG_LONG_MAX;
             {
                 if (![item isKindOfClass:[ADTokenCacheStoreItem class]])
                 {
-                    //The userId should be valid:
+                    //Verifies that the correct object is deserialized:
                     NSString* message = [NSString stringWithFormat:@"Bad inner objects, when reading the location: %@",
                                          self.cacheLocation];
                     //This will also log the error:
