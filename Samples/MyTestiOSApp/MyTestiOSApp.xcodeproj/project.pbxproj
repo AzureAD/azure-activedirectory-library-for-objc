@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4C51530718D3C1D8003AAA86 /* ADAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4C51530518D3C1D8003AAA86 /* ADAL_iPad_Storyboard.storyboard */; };
+		4C51530818D3C1D8003AAA86 /* ADAL_iPhone_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4C51530618D3C1D8003AAA86 /* ADAL_iPhone_Storyboard.storyboard */; };
 		8B87548818988C4B0061999F /* TestData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8B87548718988C4B0061999F /* TestData.plist */; };
 		8B87548918988C4B0061999F /* TestData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8B87548718988C4B0061999F /* TestData.plist */; };
 		8B87548C189978350061999F /* BVSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B87548B189978350061999F /* BVSettings.m */; };
@@ -31,11 +33,6 @@
 		8BA42B2F17E3C150002D206E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B2D17E3C150002D206E /* InfoPlist.strings */; };
 		8BA42B3117E3C150002D206E /* MyTestiOSAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */; };
 		8BAB18B4184576B700FDD4DD /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BAB18B3184576B700FDD4DD /* libADALiOS.a */; };
-		8BE96CBE1859439C00EE0764 /* ADALiOSBundle-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CB61859439C00EE0764 /* ADALiOSBundle-Info.plist */; };
-		8BE96CBF1859439C00EE0764 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CB81859439C00EE0764 /* InfoPlist.strings */; };
-		8BE96CC01859439C00EE0764 /* IPAL_iPhone_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CB91859439C00EE0764 /* IPAL_iPhone_Storyboard.storyboard */; };
-		8BE96CC11859439C00EE0764 /* IPAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CBA1859439C00EE0764 /* IPAL_iPad_Storyboard.storyboard */; };
-		8BE96CC21859439C00EE0764 /* ADALiOSBundle-Prefix.pch in Resources */ = {isa = PBXBuildFile; fileRef = 8BE96CBB1859439C00EE0764 /* ADALiOSBundle-Prefix.pch */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +46,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4C51530518D3C1D8003AAA86 /* ADAL_iPad_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = ADAL_iPad_Storyboard.storyboard; path = ../../../ADALiOS/ADALiOS/ADAL_iPad_Storyboard.storyboard; sourceTree = "<group>"; };
+		4C51530618D3C1D8003AAA86 /* ADAL_iPhone_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = ADAL_iPhone_Storyboard.storyboard; path = ../../../ADALiOS/ADALiOS/ADAL_iPhone_Storyboard.storyboard; sourceTree = "<group>"; };
 		8B87548718988C4B0061999F /* TestData.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = TestData.plist; sourceTree = "<group>"; };
 		8B87548A189978350061999F /* BVSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BVSettings.h; sourceTree = "<group>"; };
 		8B87548B189978350061999F /* BVSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BVSettings.m; sourceTree = "<group>"; };
@@ -79,11 +78,6 @@
 		8BA42B2E17E3C150002D206E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyTestiOSAppTests.m; sourceTree = "<group>"; };
 		8BAB18B3184576B700FDD4DD /* libADALiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADALiOS.a; path = "../../../../Library/Developer/Xcode/DerivedData/ADALiOS-ckezcambqztutxakbxsnwblsewcb/Build/Products/Debug-iphoneos/libADALiOS.a"; sourceTree = "<group>"; };
-		8BE96CB61859439C00EE0764 /* ADALiOSBundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ADALiOSBundle-Info.plist"; sourceTree = "<group>"; };
-		8BE96CB71859439C00EE0764 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		8BE96CB91859439C00EE0764 /* IPAL_iPhone_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = IPAL_iPhone_Storyboard.storyboard; path = ../ADALiOS/IPAL_iPhone_Storyboard.storyboard; sourceTree = "<group>"; };
-		8BE96CBA1859439C00EE0764 /* IPAL_iPad_Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = IPAL_iPad_Storyboard.storyboard; path = ../ADALiOS/IPAL_iPad_Storyboard.storyboard; sourceTree = "<group>"; };
-		8BE96CBB1859439C00EE0764 /* ADALiOSBundle-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADALiOSBundle-Prefix.pch"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,7 +164,8 @@
 		8BA42B0217E3C150002D206E /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				8BE96CBD1859439C00EE0764 /* ADALiOSBundle */,
+				4C51530518D3C1D8003AAA86 /* ADAL_iPad_Storyboard.storyboard */,
+				4C51530618D3C1D8003AAA86 /* ADAL_iPhone_Storyboard.storyboard */,
 				8BA42B0317E3C150002D206E /* MyTestiOSApp-Info.plist */,
 				8BA42B0417E3C150002D206E /* InfoPlist.strings */,
 				8BA42B0717E3C150002D206E /* main.m */,
@@ -196,27 +191,6 @@
 				8BA42B2D17E3C150002D206E /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		8BE96CBC1859439C00EE0764 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				8BE96CB61859439C00EE0764 /* ADALiOSBundle-Info.plist */,
-				8BE96CB81859439C00EE0764 /* InfoPlist.strings */,
-				8BE96CB91859439C00EE0764 /* IPAL_iPhone_Storyboard.storyboard */,
-				8BE96CBA1859439C00EE0764 /* IPAL_iPad_Storyboard.storyboard */,
-				8BE96CBB1859439C00EE0764 /* ADALiOSBundle-Prefix.pch */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		8BE96CBD1859439C00EE0764 /* ADALiOSBundle */ = {
-			isa = PBXGroup;
-			children = (
-				8BE96CBC1859439C00EE0764 /* Supporting Files */,
-			);
-			name = ADALiOSBundle;
-			path = ../../../ADALiOS/ADALiOSBundle;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -264,7 +238,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = BVTest;
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = MS;
 				TargetAttributes = {
 					8BA42AF517E3C150002D206E = {
@@ -300,15 +274,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BA42B1217E3C150002D206E /* Main_iPad.storyboard in Resources */,
-				8BE96CC11859439C00EE0764 /* IPAL_iPad_Storyboard.storyboard in Resources */,
-				8BE96CBF1859439C00EE0764 /* InfoPlist.strings in Resources */,
 				8BA42B1D17E3C150002D206E /* Images.xcassets in Resources */,
-				8BE96CC01859439C00EE0764 /* IPAL_iPhone_Storyboard.storyboard in Resources */,
-				8BE96CC21859439C00EE0764 /* ADALiOSBundle-Prefix.pch in Resources */,
-				8BE96CBE1859439C00EE0764 /* ADALiOSBundle-Info.plist in Resources */,
 				8BA42B0F17E3C150002D206E /* Main_iPhone.storyboard in Resources */,
+				4C51530718D3C1D8003AAA86 /* ADAL_iPad_Storyboard.storyboard in Resources */,
 				8B87548818988C4B0061999F /* TestData.plist in Resources */,
 				8BA42B0617E3C150002D206E /* InfoPlist.strings in Resources */,
+				4C51530818D3C1D8003AAA86 /* ADAL_iPhone_Storyboard.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -389,14 +360,6 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		8BE96CB81859439C00EE0764 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8BE96CB71859439C00EE0764 /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
@@ -404,7 +367,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -466,7 +428,6 @@
 		8B41A1E71888C61B0027EE1E /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/MyTestiOSApp.app/MyTestiOSApp";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -493,7 +454,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -534,7 +494,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -604,7 +563,6 @@
 		8BA42B3817E3C150002D206E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/MyTestiOSApp.app/MyTestiOSApp";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -629,7 +587,6 @@
 		8BA42B3917E3C150002D206E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/MyTestiOSApp.app/MyTestiOSApp";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",

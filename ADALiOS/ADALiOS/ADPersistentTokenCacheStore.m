@@ -16,11 +16,13 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADALiOS.h"
 #import "ADPersistentTokenCacheStore.h"
 #import "ADAuthenticationSettings.h"
 #import "ADDefaultTokenCacheStorePersistance.h"
 #import <libkern/OSAtomic.h>
+#import "ADUserInformation.h"
+#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheStoreKey.h"
 
 NSString* const missingUserSubstitute = @"9A1BE88B-F078-4559-A442-35111DFA61F0";
 
