@@ -131,6 +131,9 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  requests and the responses from the server. If nil, a new UUID is generated on every request. */
 @property NSUUID* correlationId;
 
+/*! The parent view controller for the authentication view controller UI. */
+@property UIViewController* parentController;
+
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
  the function will use the refresh token automatically.

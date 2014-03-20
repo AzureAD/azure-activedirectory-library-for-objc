@@ -183,7 +183,7 @@ static NSString *_resourcePath = nil;
 
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
-      webView:(UIWebView *)webView
+parentController:(UIViewController *)parent
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID *)correlationId
    completion:(ADBrokerCallback)completionBlock
@@ -198,64 +198,35 @@ correlationId:(NSUUID *)correlationId
     // Save the completion block
     _completionBlock = [completionBlock copy];
     
-    if ( nil == webView )
+    if (!parent)
     {
         // Must have a parent view controller to start the authentication view
-        UIViewController *parent = [UIApplication currentViewController];
-        
-        if ( parent )
-        {
-            // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
-            UINavigationController *navigationController = [[self.class storyboard] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
-            
-            _authenticationViewController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
-            
-            if ( _authenticationViewController )
-            {
-                _authenticationViewController.delegate = self;
-                
-                if ( fullScreen == YES )
-                    [navigationController setModalPresentationStyle:UIModalPresentationFullScreen];
-                else
-                    [navigationController setModalPresentationStyle:UIModalPresentationFormSheet];
-                
-                // Show the authentication view
-                [parent presentViewController:navigationController animated:YES completion:^{
-                    // Instead of loading the URL immediately on completion, get the UI on the screen
-                    // and then dispatch the call to load the authorization URL
-                    dispatch_async( dispatch_get_main_queue(), ^{
-                        [_authenticationViewController startWithURL:startURL endAtURL:endURL];
-                    });
-                }];
-            }
-            else
-            {
-                // Dispatch the completion block
-                ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
-                dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-                    _completionBlock( error, nil );
-                });
-            }
-        }
-        else
-        {
-            // Dispatch the completion block
-            ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER protocolCode:nil errorDetails:WAB_FAILED_NO_CONTROLLER];
-            dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-                _completionBlock( error, nil );
-            });
-        }
+        parent = [UIApplication currentViewController];
     }
-    else
+    if ( parent )
     {
-        // Use the application provided WebView
-        _authenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL];
+        // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
+        UINavigationController *navigationController = [[self.class storyboard] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
         
-        if ( _authenticationWebViewController )
+        _authenticationViewController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
+        
+        if ( _authenticationViewController )
         {
+            _authenticationViewController.delegate = self;
+            
+            if ( fullScreen == YES )
+                [navigationController setModalPresentationStyle:UIModalPresentationFullScreen];
+            else
+                [navigationController setModalPresentationStyle:UIModalPresentationFormSheet];
+            
             // Show the authentication view
-            _authenticationWebViewController.delegate = self;
-            [_authenticationWebViewController start];
+            [parent presentViewController:navigationController animated:YES completion:^{
+                // Instead of loading the URL immediately on completion, get the UI on the screen
+                // and then dispatch the call to load the authorization URL
+                dispatch_async( dispatch_get_main_queue(), ^{
+                    [_authenticationViewController startWithURL:startURL endAtURL:endURL];
+                });
+            }];
         }
         else
         {
@@ -265,6 +236,14 @@ correlationId:(NSUUID *)correlationId
                 _completionBlock( error, nil );
             });
         }
+    }
+    else
+    {
+        // Dispatch the completion block
+        ADAuthenticationError   *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER protocolCode:nil errorDetails:WAB_FAILED_NO_CONTROLLER];
+        dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
+            _completionBlock( error, nil );
+        });
     }
 }
 

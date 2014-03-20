@@ -27,10 +27,10 @@ typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 
 // Start the authentication process. Note that there are two different behaviours here dependent on whether the caller has provided
 // a WebView to host the browser interface. If no WebView is provided, then a full window is launched that hosts a WebView to run
-// the authentication process. If a WebView is provided, then that is used instead of launching a complete window.
+// the authentication process. 
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
-      webView:(WebViewType *)webView
+parentController:(UIViewController *)parent
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID*)correlationId
    completion: (ADBrokerCallback) completionBlock;
