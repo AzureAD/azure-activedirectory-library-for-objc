@@ -54,7 +54,7 @@
 -(void) removeItem: (ADTokenCacheStoreItem*) item
              error: (ADAuthenticationError* __autoreleasing*) error;
 
-/*! Location of the storage. */
+/*! Location of the storage. Keychain cache (default on iOS) uses this parameter to differentiate ADAL entities from other keychain items. */
 @property (readonly) NSString* cacheLocation;
 
 /*! The method checks if the cache has been modified since the last archiving operation and archives
