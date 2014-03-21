@@ -1098,8 +1098,8 @@ if (![self checkAndHandleBadArgument:ARG \
     
     [[ADAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
                                                 end:[NSURL URLWithString:[redirectUri absoluteString]]
-                                            webView:nil
-                                         fullScreen:settings.enableFullScreen
+                                  parentController:self.parentController
+                                        fullScreen:settings.enableFullScreen
                                       correlationId:correlationId
                                          completion:^( ADAuthenticationError *error, NSURL *end )
      {
