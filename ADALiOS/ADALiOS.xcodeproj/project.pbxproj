@@ -68,7 +68,6 @@
 		8B92DB5F1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB5E1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m */; };
 		8B92DB671819FA61004AAB0E /* ADTestNSStringHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB661819FA61004AAB0E /* ADTestNSStringHelperMethods.m */; };
 		8B92DB6C181ADE44004AAB0E /* NSString+ADHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB6B181ADE44004AAB0E /* NSString+ADHelperMethods.m */; };
-		8B92DB6D181ADEF4004AAB0E /* NSString+ADHelperMethods.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B92DB6A181ADE44004AAB0E /* NSString+ADHelperMethods.h */; };
 		8B92DB70181B2335004AAB0E /* ADLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB6F181B2335004AAB0E /* ADLogger.m */; };
 		8B92DB74181C9196004AAB0E /* ADLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB73181C9196004AAB0E /* ADLoggerTests.m */; };
 		8B9F1FB81886530800EC3204 /* ADEncryptedFileTokenCacheStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B9F1FB71886530800EC3204 /* ADEncryptedFileTokenCacheStore.m */; };
@@ -128,7 +127,6 @@
 			files = (
 				8B6114041872347E007759C2 /* ADInstanceDiscovery.h in Copy Files */,
 				8BFA9B37183C4A0300B82B36 /* ADLogger.h in Copy Files */,
-				8B92DB6D181ADEF4004AAB0E /* NSString+ADHelperMethods.h in Copy Files */,
 				8B59895F1811F35800744AEE /* ADPersistentTokenCacheStore.h in Copy Files */,
 				8B59895B1811BFD700744AEE /* ADTokenCacheStoring.h in Copy Files */,
 				8B59895A1811BFCB00744AEE /* ADTokenCacheStoreItem.h in Copy Files */,

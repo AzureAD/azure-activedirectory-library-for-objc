@@ -17,6 +17,8 @@
 // governing permissions and limitations under the License.
 
 /*! Levels of logging. Defines the priority of the logged message */
+#import <Foundation/Foundation.h>
+
 typedef enum
 {
     ADAL_LOG_LEVEL_NO_LOG,//Available to fully disable logging
