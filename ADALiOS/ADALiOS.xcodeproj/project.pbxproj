@@ -41,7 +41,6 @@
 		8B34344F183305A6002DE1DC /* ADAuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34344C183305A6002DE1DC /* ADAuthenticationViewController.m */; };
 		8B343450183305A6002DE1DC /* ADAuthenticationWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34344E183305A6002DE1DC /* ADAuthenticationWebViewController.m */; };
 		8B59893A180DE00300744AEE /* ADAuthenticationOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B598939180DE00300744AEE /* ADAuthenticationOperation.m */; };
-		8B59893B180DE0B000744AEE /* ADAuthenticationOperation.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B598938180DE00300744AEE /* ADAuthenticationOperation.h */; };
 		8B59893E180DE8A100744AEE /* ADUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B59893D180DE8A100744AEE /* ADUserInformation.m */; };
 		8B59894A180DF7A900744AEE /* ADUserInformation.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B59893C180DE8A100744AEE /* ADUserInformation.h */; };
 		8B59894B180DF7AF00744AEE /* ADErrorCodes.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B598946180DF6F000744AEE /* ADErrorCodes.h */; };
@@ -134,7 +133,6 @@
 				8B5989521811AF7E00744AEE /* ADAuthenticationError.h in Copy Files */,
 				8B59894B180DF7AF00744AEE /* ADErrorCodes.h in Copy Files */,
 				8B59894A180DF7A900744AEE /* ADUserInformation.h in Copy Files */,
-				8B59893B180DE0B000744AEE /* ADAuthenticationOperation.h in Copy Files */,
 				8BB8346918077F1B007F9F0D /* ADAuthenticationSettings.h in Copy Files */,
 				8BB8346818077F15007F9F0D /* ADAuthenticationParameters.h in Copy Files */,
 				8BB8346718077F0D007F9F0D /* ADAuthenticationResult.h in Copy Files */,
