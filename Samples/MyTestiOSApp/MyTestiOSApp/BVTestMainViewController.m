@@ -131,6 +131,7 @@
              [weakSelf setStatus:error.errorDetails];
              return;
          }
+         context.parentController = self;
          
          [context acquireTokenWithResource:resourceString
                                   clientId:clientId

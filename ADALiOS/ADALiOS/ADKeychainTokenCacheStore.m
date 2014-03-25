@@ -26,6 +26,7 @@
 NSString* const sNilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";//A special attribute to write, instead of nil/empty one.
 NSString* const sDelimiter = @"|";
 NSString* const sKeyChainlog = @"Keychain token cache store";
+const long sKeychainVersion = 1;//will need to increase when we break the forward compatibility
 
 @implementation ADKeychainTokenCacheStore
 {
@@ -51,8 +52,25 @@ NSString* const sKeyChainlog = @"Keychain token cache store";
     return nil;
 }
 
--(id) initWithLocation:(NSString *)cacheLocation
+//Generates a name for the library items in the keychain (versioned).
+//The goal is to ensure that the ADAL reads only its own items with its own version.
+-(NSString*) getLibraryPrefix
 {
+    return [NSString stringWithFormat:@"MSOpenTech.ADAL.%ld", sKeychainVersion];
+}
+
+-(id) initWithLocation: (NSString*) cacheLocation
+{
+    return [self initWithLocation:cacheLocation sharedGroup:nil];
+}
+
+-(id) initWithLocation:(NSString *)cacheLocation
+           sharedGroup:(NSString *)sharedGroup
+{
+    if ([NSString isStringNilOrBlank:cacheLocation])
+    {
+        cacheLocation = [self getLibraryPrefix];
+    }
     if (self = [super initWithLocation:cacheLocation])
     {
         //Full key:
@@ -73,6 +91,9 @@ NSString* const sKeyChainlog = @"Keychain token cache store";
         //Generic setup values:
         mClassValue     = (__bridge id)kSecClassGenericPassword;
         mLibraryValue   = [cacheLocation dataUsingEncoding:NSUTF8StringEncoding];
+        
+        //Data sharing:
+        _sharedGroup    = sharedGroup;
         
         //Initialize:
         [self addInitialCacheItems];
@@ -282,7 +303,7 @@ NSString* const sKeyChainlog = @"Keychain token cache store";
         return;
     }
     
-    NSDictionary* keychainItem = @{
+    NSMutableDictionary* keychainItem = [NSMutableDictionary dictionaryWithDictionary:@{
         //Generic setup:
         mClassKey:mClassValue,//Encryption
         mLibraryKey:mLibraryValue,//ADAL key
@@ -293,7 +314,11 @@ NSString* const sKeyChainlog = @"Keychain token cache store";
         mUserIdKey:[self.class getAttributeName:item.userInformation.userId],
         //Item data:
         mValueDataKey:[NSKeyedArchiver archivedDataWithRootObject:item],
-        };
+        }];
+    if (![NSString isStringNilOrBlank:self.sharedGroup])
+    {
+        [keychainItem setObject:self.sharedGroup forKey:(__bridge id)kSecAttrAccessGroup];
+    }
 
     OSStatus res = SecItemAdd((__bridge CFMutableDictionaryRef)keychainItem, NULL);
     if (errSecSuccess != res)

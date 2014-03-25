@@ -187,19 +187,22 @@ correlationId:(NSUUID *)correlationId
     
     // Save the completion block
     _completionBlock = [completionBlock copy];
-    
     ADAuthenticationError* error;
     
-    if ( nil == webView )
+    if (!parent)
     {
 #if TARGET_OS_IPHONE
         // Must have a parent view controller to start the authentication view
-        UIViewController *parent = [UIApplication currentViewController];
+        parent = [UIApplication currentViewController];
+    }
+    if ( parent )
+    {
+        // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
+        UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
         
-        if ( parent )
+        if (navigationController)
         {
-            // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
-            UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
+            _authenticationViewController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
             
             if (navigationController)
             {
@@ -289,16 +292,29 @@ correlationId:(NSUUID *)correlationId
         if ( _authenticationWebViewController )
         {
             // Show the authentication view
-            _authenticationWebViewController.delegate = self;
-            [_authenticationWebViewController start];
+            [parent presentViewController:navigationController animated:YES completion:^{
+                // Instead of loading the URL immediately on completion, get the UI on the screen
+                // and then dispatch the call to load the authorization URL
+                dispatch_async( dispatch_get_main_queue(), ^{
+                    [_authenticationViewController startWithURL:startURL endAtURL:endURL];
+                });
+            }];
         }
-        else
+        else //Navigation controller
         {
             error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
                                                            protocolCode:nil
                                                            errorDetails:AD_FAILED_NO_RESOURCES];
         }
     }
+    else //Parent
+    {
+        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
+                                                       protocolCode:nil
+                                                       errorDetails:AD_FAILED_NO_CONTROLLER];
+        
+    }
+    
     //Error occurred above. Dispatch the callback to the caller:
     if (error)
     {
