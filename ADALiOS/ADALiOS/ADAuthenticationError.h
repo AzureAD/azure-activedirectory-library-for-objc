@@ -42,7 +42,6 @@ extern NSString* const ADUnauthorizedResponseErrorDomain;
  code and domain of the original error and adds the custom details in the "errorDetails" property. */
 +(ADAuthenticationError*) errorFromNSError: (NSError*) error errorDetails: (NSString*) errorDetails;
 
-
 /*! Genearates an error from the code and details of an authentication error */
 +(ADAuthenticationError*) errorFromAuthenticationError: (NSInteger) code
                                           protocolCode: (NSString*) protocolCode
@@ -50,5 +49,9 @@ extern NSString* const ADUnauthorizedResponseErrorDomain;
 
 /*! Generates an error when an unexpected internal library conditions occurs. */
 +(ADAuthenticationError*) unexpectedInternalError: (NSString*) errorDetails;
+
+/*! Generates an error from cancel operations. E.g. the user pressed "Cancel" button
+ on the authorization UI page. */
++(ADAuthenticationError*) errorFromCancellation;
 
 @end

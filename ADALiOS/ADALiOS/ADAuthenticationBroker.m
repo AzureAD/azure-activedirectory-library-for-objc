@@ -29,13 +29,8 @@
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
 
-
-static NSString *const WAB_FAILED_ERROR         = @"Authorization Failed";
-static NSString *const WAB_FAILED_ERROR_CODE    = @"Authorization Failed: %ld";
-
-static NSString *const WAB_FAILED_CANCELLED     = @"The user cancelled the authorization request";
-static NSString *const WAB_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
-static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
+static NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
+static NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
 
 // Private interface declaration
 @interface ADAuthenticationBroker () <ADAuthenticationDelegate>
@@ -144,12 +139,12 @@ static NSString *const WAB_FAILED_NO_RESOURCES  = @"The required resource bundle
     NSBundle* bundle = [self frameworkBundle];//May be nil.
     
     UIStoryboard* storeBoard = ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ) ?
-                [UIStoryboard storyboardWithName:@"IPAL_iPad_Storyboard" bundle:bundle]
-              : [UIStoryboard storyboardWithName:@"IPAL_iPhone_Storyboard" bundle:bundle];
+                [UIStoryboard storyboardWithName:@"ADAL_iPad_Storyboard" bundle:bundle]
+              : [UIStoryboard storyboardWithName:@"ADAL_iPhone_Storyboard" bundle:bundle];
     
     if (!storeBoard)
     {
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:WAB_FAILED_NO_RESOURCES];
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:AD_FAILED_NO_RESOURCES];
         if (error)
         {
             *error = adError;
@@ -230,14 +225,14 @@ correlationId:(NSUUID *)correlationId
             {
                 error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
                                                                protocolCode:nil
-                                                               errorDetails:WAB_FAILED_NO_RESOURCES];
+                                                               errorDetails:AD_FAILED_NO_RESOURCES];
             }
         }
         else
         {
             error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
                                                            protocolCode:nil
-                                                           errorDetails:WAB_FAILED_NO_CONTROLLER];
+                                                           errorDetails:AD_FAILED_NO_CONTROLLER];
 
         }
 #else
@@ -302,7 +297,7 @@ correlationId:(NSUUID *)correlationId
         {
             error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
                                                            protocolCode:nil
-                                                           errorDetails:WAB_FAILED_NO_RESOURCES];
+                                                           errorDetails:AD_FAILED_NO_RESOURCES];
         }
     }
     //Error occurred above. Dispatch the callback to the caller:
