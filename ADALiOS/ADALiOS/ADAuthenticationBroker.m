@@ -26,8 +26,10 @@
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
 
-static NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
-static NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
+NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
+NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
+NSString *const AD_IPAD_STORYBOARD = @"ADAL_iPad_Storyboard";
+NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 
 // Private interface declaration
 @interface ADAuthenticationBroker () <ADAuthenticationDelegate>
@@ -145,10 +147,21 @@ static NSString *_resourcePath = nil;
                           }
                           
                           bundle = [NSBundle bundleWithPath:frameworkBundlePath];
+                          if (!bundle)
+                          {
+                              AD_LOG_INFO_F(@"Resource Loading", @"Failed to load framework bundle. Application main bundle will be attempted.");
+                          }
                       });
     }
     
     return bundle;
+}
+
++(NSString*) getStoryboardName
+{
+    return (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    ? AD_IPAD_STORYBOARD
+    : AD_IPHONE_STORYBOARD;
 }
 
 // Retrieve the current storyboard from the resources for the library. Attempts to use ADALiOS bundle first
@@ -157,20 +170,28 @@ static NSString *_resourcePath = nil;
 + (UIStoryboard *)storyboard: (ADAuthenticationError* __autoreleasing*) error
 {
     NSBundle* bundle = [self frameworkBundle];//May be nil.
-    
-    UIStoryboard* storeBoard = ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ) ?
-                [UIStoryboard storyboardWithName:@"ADAL_iPad_Storyboard" bundle:bundle]
-              : [UIStoryboard storyboardWithName:@"ADAL_iPhone_Storyboard" bundle:bundle];
-    
-    if (!storeBoard)
+    if (!bundle)
     {
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:AD_FAILED_NO_RESOURCES];
-        if (error)
-        {
-            *error = adError;
-        }
+        //The user did not use ADALiOS.bundle. The resources may be manually linked
+        //to the app by referencing the storyboards directly.
+        bundle = [NSBundle mainBundle];
     }
-    return storeBoard;
+    NSString* storyboardName = [self getStoryboardName];
+    if ([bundle pathForResource:storyboardName ofType:@"storyboardc"])
+    {
+        //Despite Apple's documentation, storyboard with name actually throws, crashing
+        //the app if the story board is not present, hence the if above.
+        UIStoryboard* storyBoard = [UIStoryboard storyboardWithName:storyboardName bundle:bundle];
+        if (storyBoard)
+            return storyBoard;
+    }
+    
+    ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:AD_FAILED_NO_RESOURCES];
+    if (error)
+    {
+        *error = adError;
+    }
+    return nil;
 }
 
 -(NSURL*) addToURL: (NSURL*) url
