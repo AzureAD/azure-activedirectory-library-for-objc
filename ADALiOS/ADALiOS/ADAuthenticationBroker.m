@@ -271,14 +271,13 @@ correlationId:(NSUUID *)correlationId
             {
                 error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
                                                                protocolCode:nil
-                                                               errorDetails:WAB_FAILED_NO_RESOURCES];
+                                                               errorDetails:AD_FAILED_NO_RESOURCES];
             }
         }
         else
         {
             error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
-                                                           protocolCode:nil
-                                                           errorDetails:WAB_FAILED_NO_RESOURCES];
+                                                           protocolCode:nil                                                           errorDetails:AD_FAILED_NO_RESOURCES];
         }
 #endif
     }
@@ -349,7 +348,7 @@ correlationId:(NSUUID *)correlationId
         
         // Dispatch the completion block
         
-        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_CANCEL protocolCode:nil errorDetails:WAB_FAILED_CANCELLED];
+        ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation];
         
 #if TARGET_OS_IPHONE
         if ( nil != _authenticationPageController)
