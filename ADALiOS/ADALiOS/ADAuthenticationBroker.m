@@ -26,8 +26,10 @@
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
 
-static NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
-static NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
+NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
+NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
+NSString *const AD_IPAD_STORYBOARD = @"ADAL_iPad_Storyboard";
+NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 
 // Private interface declaration
 @interface ADAuthenticationBroker () <ADAuthenticationDelegate>
@@ -155,6 +157,13 @@ static NSString *_resourcePath = nil;
     return bundle;
 }
 
++(NSString*) getStoryboardName
+{
+    return (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    ? AD_IPAD_STORYBOARD
+    : AD_IPHONE_STORYBOARD;
+}
+
 // Retrieve the current storyboard from the resources for the library. Attempts to use ADALiOS bundle first
 // and if the bundle is not present, assumes that the resources are build with the application itself.
 // Raises an error if both the library resources bundle and the application fail to locate resources.
@@ -167,13 +176,12 @@ static NSString *_resourcePath = nil;
         //to the app by referencing the storyboards directly.
         bundle = [NSBundle mainBundle];
     }
-    if ([bundle pathForResource:@"ADAL_iPhone_Storyboard" ofType:@"storyboard"])
+    NSString* storyboardName = [self getStoryboardName];
+    if ([bundle pathForResource:storyboardName ofType:@"storyboardc"])
     {
         //Despite Apple's documentation, storyboard with name actually throws, crashing
         //the app if the story board is not present, hence the if above.
-        UIStoryboard* storyBoard = ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ) ?
-        [UIStoryboard storyboardWithName:@"ADAL_iPad_Storyboard" bundle:bundle]
-        : [UIStoryboard storyboardWithName:@"ADAL_iPhone_Storyboard" bundle:bundle];
+        UIStoryboard* storyBoard = [UIStoryboard storyboardWithName:storyboardName bundle:bundle];
         if (storyBoard)
             return storyBoard;
     }
