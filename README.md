@@ -15,9 +15,8 @@ We have released a Preview of the ADAL for iOS! [You can grab the release here] 
 1. Clone the repository to your machine
 2. Build the library
 3. Add the ADALiOS library to your project
-4. Add ADALiOSFramework to “Target Dependences” build phase of your application
-5. Add ADALiOSBundle.bundle to “Copy Bundle Resources” build phase of your application
-6. Add libADALiOS to “Link With Libraries” phase. 
+4. Add the storyboards from the ADALiOSBundle to your project resources
+5. Add libADALiOS to “Link With Libraries” phase. 
 
 ## Usage
 
@@ -113,7 +112,6 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
         
     }];
     return nil; } 
-    
 ```
 ##Common problems
 
