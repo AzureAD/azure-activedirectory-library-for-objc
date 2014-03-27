@@ -27,7 +27,7 @@ typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 // the authentication process. 
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
-parentController:(UIViewController *)parent
+parentController:(ViewController *)parent
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID*)correlationId
    completion: (ADBrokerCallback) completionBlock;

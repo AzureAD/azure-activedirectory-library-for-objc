@@ -41,7 +41,7 @@
         //exists. Hence for now, we create the connection on the main thread by default:
         self.dispatchQueue = dispatch_get_main_queue();
 #if TARGET_OS_IPHONE
-        self.defaultTokenCacheStore = [[ADKeychainTokenCacheStore alloc] initWithLocation:@"MSOpenTech.ADAL.1.0"];
+        self.defaultTokenCacheStore = [[ADKeychainTokenCacheStore alloc] initWithLocation:nil];
 #else
         self.defaultTokenCacheStore = [[ADPersistentTokenCacheStore alloc] initWithLocation:nil];
 #endif

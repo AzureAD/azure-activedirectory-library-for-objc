@@ -23,6 +23,16 @@
 #import "ADUserInformation.h"
 #import "ADTokenCacheStoreKey.h"
 
+#if TARGET_OS_IPHONE
+//iOS:
+#   include <UIKit/UIKit.h>
+typedef UIViewController ViewController;
+#else
+//OS X:
+#   include <WebKit/WebKit.h>
+typedef NSViewController   ViewController;
+#endif
+
 typedef enum
 {
     /*! Users will be prompted only if their attention is needed. Default option. */
@@ -125,7 +135,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 @property NSUUID* correlationId;
 
 /*! The parent view controller for the authentication view controller UI. */
-@property UIViewController* parentController;
+@property ViewController* parentController;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
