@@ -60,7 +60,7 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
 }
 ```
 
-#### Adding the Token to the authHeader to acess APIs:
+#### Adding the Token to the authHeader to access APIs:
 
 ```Objective-C
 
