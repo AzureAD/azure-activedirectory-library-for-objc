@@ -21,16 +21,6 @@
 #define ADAL_VER_HIGH   0
 #define ADAL_VER_LOW    5
 
-#if TARGET_OS_IPHONE
-//iOS:
-#   include <UIKit/UIKit.h>
-typedef UIViewController ViewController;
-#else
-//OS X:
-#   include <WebKit/WebKit.h>
-typedef NSViewController   ViewController;
-#endif
-
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \
 NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u", __PRETTY_FUNCTION__, __LINE__]

@@ -15,6 +15,7 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
+#include "ADAuthenticationContext.h"
 @class ADAuthenticationError;
 
 typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
@@ -27,7 +28,7 @@ typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 // the authentication process. 
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
-parentController:(ViewController *)parent
+parentController:(ViewController*) parent
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID*)correlationId
    completion: (ADBrokerCallback) completionBlock;

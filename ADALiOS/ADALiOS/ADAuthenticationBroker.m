@@ -35,7 +35,7 @@ static NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle 
 // Implementation
 @implementation ADAuthenticationBroker
 {
-   ADAuthenticationViewController    *_authenticationPageController;
+    ADAuthenticationViewController    *_authenticationPageController;
     ADAuthenticationWebViewController *_authenticationWebViewController;
     
     void (^_completionBlock)( ADAuthenticationError *, NSURL *);
@@ -46,7 +46,7 @@ static NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle 
 + (ADAuthenticationBroker *)sharedInstance
 {
     static ADAuthenticationBroker *broker     = nil;
-    static dispatch_once_t          predicate;
+    static dispatch_once_t predicate;
     
     dispatch_once( &predicate, ^{
         broker = [[self allocPrivate] init];
@@ -150,7 +150,7 @@ correlationId:(NSUUID *)correlationId
     
     // Save the completion block
     _completionBlock = [completionBlock copy];
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     
     if (!parent)
     {
@@ -161,75 +161,38 @@ correlationId:(NSUUID *)correlationId
     {
         // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
         UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
-        
         if (navigationController)
         {
-            _authenticationViewController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
+            _authenticationPageController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
             
-            if (navigationController)
-            {
-                _authenticationPageController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
+            _authenticationPageController.delegate = self;
             
-                _authenticationPageController.delegate = self;
-                
-                if ( fullScreen == YES )
-                    [navigationController setModalPresentationStyle:UIModalPresentationFullScreen];
-                else
-                    [navigationController setModalPresentationStyle:UIModalPresentationFormSheet];
-                
-                // Show the authentication view
-                [parent presentViewController:navigationController animated:YES completion:^{
-                    // Instead of loading the URL immediately on completion, get the UI on the screen
-                    // and then dispatch the call to load the authorization URL
-                    dispatch_async( dispatch_get_main_queue(), ^{
-                        [_authenticationPageController startWithURL:startURL endAtURL:endURL];
-                    });
-                }];
-            }
+            if ( fullScreen == YES )
+                [navigationController setModalPresentationStyle:UIModalPresentationFullScreen];
             else
-            {
-                error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
-                                                               protocolCode:nil
-                                                               errorDetails:AD_FAILED_NO_RESOURCES];
-            }
-        }
-        else
-        {
-            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
-                                                           protocolCode:nil
-                                                           errorDetails:AD_FAILED_NO_CONTROLLER];
-
-        }
-    }
-    else
-    {
-        // Use the application provided WebView
-        _authenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL];
-        
-        if ( _authenticationWebViewController )
-        {
+                [navigationController setModalPresentationStyle:UIModalPresentationFormSheet];
+            
             // Show the authentication view
             [parent presentViewController:navigationController animated:YES completion:^{
                 // Instead of loading the URL immediately on completion, get the UI on the screen
                 // and then dispatch the call to load the authorization URL
                 dispatch_async( dispatch_get_main_queue(), ^{
-                    [_authenticationViewController startWithURL:startURL endAtURL:endURL];
+                    [_authenticationPageController startWithURL:startURL endAtURL:endURL];
                 });
             }];
         }
-        else //Navigation controller
+        else
         {
             error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
                                                            protocolCode:nil
                                                            errorDetails:AD_FAILED_NO_RESOURCES];
         }
     }
-    else //Parent
+    else
     {
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
                                                        protocolCode:nil
                                                        errorDetails:AD_FAILED_NO_CONTROLLER];
-        
     }
     
     //Error occurred above. Dispatch the callback to the caller:

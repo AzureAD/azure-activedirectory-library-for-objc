@@ -95,9 +95,9 @@ correlationId:(NSUUID *)correlationId
     THROW_ON_NIL_ARGUMENT(correlationId);
     THROW_ON_NIL_ARGUMENT(completionBlock)
     
-    _authenticationWebViewController = nil;
-    _authenticationPageController  = nil;
-    _authenticationSession           = NULL;
+    _authenticationWebViewController    = nil;
+    _authenticationPageController       = nil;
+    _authenticationSession              = NULL;
     
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
     
@@ -106,7 +106,8 @@ correlationId:(NSUUID *)correlationId
     ADAuthenticationError* error;
     
     // Load the authentication view
-    _authenticationPageController = [[ADAuthenticationWindowController alloc] initAtURL:startURL endAtURL:endURL];
+    _authenticationPageController = [[ADAuthenticationWindowController alloc] initAtURL:startURL
+                                                                               endAtURL:endURL];
     
     if ( _authenticationPageController )
     {
