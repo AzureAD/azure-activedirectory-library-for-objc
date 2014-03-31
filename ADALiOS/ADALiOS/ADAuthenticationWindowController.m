@@ -20,9 +20,6 @@
 #import "ADAuthenticationWebViewController.h"
 #import "ADAuthenticationWindowController.h"
 
-// OS Headers
-#include <libkern/OSAtomic.h>
-
 @interface ADAuthenticationWindowController () <ADAuthenticationDelegate>
 @end
 

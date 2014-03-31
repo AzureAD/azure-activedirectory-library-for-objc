@@ -46,14 +46,7 @@
         _complete  = NO;
         
         _webView          = webView;
-#if TARGET_OS_IPHONE
         _webView.delegate = self;
-#else
-        [_webView setFrameLoadDelegate:self];
-        [_webView setResourceLoadDelegate:self];
-        [_webView setPolicyDelegate:self];
-        _delegate = nil;
-#endif
     }
     
     return self;
@@ -67,13 +60,7 @@
     // UIWebView that it is managing is released in the hosted case and
     // so it is important that to stop listening for events from the
     // UIWebView when we are released.
-#if TARGET_OS_IPHONE
     _webView.delegate = nil;
-#else
-    _webView.frameLoadDelegate    = nil;
-    _webView.resourceLoadDelegate = nil;
-    _webView.policyDelegate       = nil;
-#endif
     _webView          = nil;
 }
 
@@ -83,12 +70,7 @@
 {
     NSURLRequest *request = [NSURLRequest requestWithURL:_startURL];
 
-#if TARGET_OS_IPHONE
     [_webView loadRequest:request];
-#else
-    // Start the authentication process
-    [_webView.mainFrame loadRequest:request];
-#endif
 }
 
 - (void)stop
@@ -98,7 +80,6 @@
 
 #pragma mark - UIWebViewDelegate Protocol
 
-#if TARGET_OS_IPHONE
 - (BOOL)webView:(WebViewType *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
 #pragma unused(webView)
@@ -128,21 +109,16 @@
     
     return YES;
 }
-#endif //TARGET_OS_IPHONE
 
-#if TARGET_OS_IPHONE
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
 }
-#endif//TARGET_OS_IPHONE
 
-#if TARGET_OS_IPHONE
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
 }
-#endif//TARGET_OS_IPHONE
 
 -(void) dispatchError: (NSError*) error
 {
@@ -151,12 +127,8 @@
     // Tell our delegate that we are done after an error.
     if (_delegate)
     {
-#if TARGET_OS_IPHONE
         //On iOS, enque on the main thread:
         dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidFailWithError:error]; } );
-#else
-        [self.delegate webAuthenticationDidFailWithError:error];
-#endif
     }
     else
     {
@@ -164,7 +136,6 @@
     }
 }
 
-#if (TARGET_OS_IPHONE)
 - (void)webView:(WebViewType *)webView didFailLoadWithError:(NSError *)error
 {
 #pragma unused(webView)
@@ -186,130 +157,5 @@
     
     [self dispatchError:error];
 }
-#endif
-
-#if !(TARGET_OS_IPHONE)
-
--(void) handleOSXError: (NSError*) error
-            toFrame: (WebFrame*) frame
-{
-    // TODO: This method can be called after wake from sleep when the network connection is not yet available
-    if ( !_complete )
-    {//In OS X we mark completion on error:
-        _complete = YES;
-        
-        [frame stopLoading];
-        
-        [self dispatchError:error];
-    }
-    else
-    {
-        //Still log the error, but it is not critical:
-        AD_LOG_WARN(@"WebView Error", error.description);
-    }
-}
-#endif //!(TARGET_OS_IPHONE)
-
-#if !(TARGET_OS_IPHONE)
-- (void)webView:(WebView *)sender didFailProvisionalLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
-{
-#pragma unused(sender)
-    [self handleOSXError:error toFrame:frame];
-}
-#endif //TARGET_OS_IPHONE
-
-#if !(TARGET_OS_IPHONE)
-- (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
-{
-#pragma unused(sender)
-    [self handleOSXError:error toFrame:frame];
-}
-#endif //TARGET_OS_IPHONE
-
-//TODO: Determine if this is even needed. The current logic is in place due to the cookie manipulation
-//#if !(TARGET_OS_IPHONE)
-//- (NSURLRequest *)webView:(WebView *)sender resource:(id)identifier willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse fromDataSource:(WebDataSource *)dataSource
-//{
-//#pragma unused(sender)
-//#pragma unused(identifier)
-//#pragma unused(dataSource)
-//    
-//    DebugLog( @"URL: %@", request.URL.absoluteString );
-//    
-//    if ( redirectResponse )
-//    {
-//        [self.class.cookieJar setCookiesFromResponse:redirectResponse];
-//    }
-//    
-//    // Rebuild the request to use our cookie jar
-//    NSMutableURLRequest *newRequest = [NSMutableURLRequest requestWithURL:request.URL cachePolicy:request.cachePolicy timeoutInterval:request.timeoutInterval];
-//    
-//    newRequest.HTTPMethod = request.HTTPMethod;
-//    
-//    if ( request.HTTPBodyStream )
-//        newRequest.HTTPBodyStream = request.HTTPBodyStream;
-//    else
-//        newRequest.HTTPBody = request.HTTPBody;
-//    
-//    newRequest.HTTPShouldHandleCookies = NO; // Set this to NO to tell the request to not look for and send cookies
-//    newRequest.HTTPShouldUsePipelining = request.HTTPShouldUsePipelining;
-//    
-//    // Get the cookies for the request
-//    NSArray             *cookies       = [self.class.cookieJar getCookiesForRequest:newRequest];
-//    NSDictionary        *cookieHeaders = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
-//    NSMutableDictionary *headers       = [NSMutableDictionary dictionaryWithDictionary:request.allHTTPHeaderFields];
-//    
-//    // Place all the cookie headers onto the request
-//    [cookieHeaders enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
-//        if ( stop ) *stop = NO;
-//        [headers setObject:value forKey:key];
-//    }];
-//    
-//    newRequest.allHTTPHeaderFields = headers;
-//    
-//    return newRequest;
-//}
-//#endif //!(TARGET_OS_IPHONE)
-
-//TODO: Consider if this is needed. Again only used for cookies:
-//#if !(TARGET_OS_IPHONE)
-//- (void)webView:(WebView *)sender resource:(id)identifier didReceiveResponse:(NSURLResponse *)response fromDataSource:(WebDataSource *)dataSource
-//{
-//#pragma unused(sender)
-//#pragma unused(identifier)
-//#pragma unused(dataSource)
-//    
-//    [self.class.cookieJar setCookiesFromResponse:response];
-//}
-//#endif //!(TARGET_OS_IPHONE)
-
-#if !(TARGET_OS_IPHONE)
-- (void)webView:(WebView *)webView decidePolicyForNavigationAction:(NSDictionary *)actionInformation
-        request:(NSURLRequest *)request
-          frame:(WebFrame *)frame
-decisionListener:(id<WebPolicyDecisionListener>)listener;
-{
-#pragma unused(webView)
-#pragma unused(actionInformation)
-    
-    NSString *currentURL = [[request.URL absoluteString] lowercaseString];
-    
-    if ( [currentURL hasPrefix:_endURL] )
-    {
-        _complete = YES;
-        
-        [listener ignore];
-        [frame stopLoading];
-        
-        // NOTE: Synchronous invocation
-        NSAssert( nil != _delegate, @"Delegate has been lost" );
-        [self.delegate webAuthenticationDidCompleteWithURL:request.URL];
-    }
-    else
-    {
-        [listener use];
-    }
-}
-#endif //!(TARGET_OS_IPHONE)
 
 @end

@@ -25,6 +25,7 @@ typedef UIWebView WebViewType;
 typedef WebView   WebViewType;
 #endif
 
+@protocol ADAuthenticationDelegate;
 
 @interface ADAuthenticationWebViewController
 #if TARGET_OS_IPHONE

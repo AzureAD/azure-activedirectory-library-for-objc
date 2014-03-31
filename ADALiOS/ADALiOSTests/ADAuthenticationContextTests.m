@@ -757,7 +757,7 @@ const int sAsyncContextTimeout = 10;
     [self addCacheWithToken:accessToken refreshToken:nil userId:mUserId resource:mResource];
     mUserId = requestUser;
     acquireTokenAsync;
-    ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, mResult.error.code);
+    ADAssertLongEquals(AD_ERROR_USER_INPUT_NEEDED, mResult.error.code);
     
     //#2: Only exact refresh token
     [mDefaultTokenCache removeAll];
@@ -934,7 +934,7 @@ const int sAsyncContextTimeout = 10;
     mPromptBehavior = AD_PROMPT_ALWAYS;
     acquireTokenAsync;
     ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, mError.code);
-     XCTAssertTrue([mError.errorDetails containsString:@"ViewController"]);
+     XCTAssertTrue([mError.errorDetails containsString:@"view controller"]);
 #endif
 }
 

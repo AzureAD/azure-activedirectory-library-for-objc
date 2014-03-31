@@ -10,7 +10,6 @@
 		4C42481718C83DBA00B2E350 /* ADAuthenticationWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C42481518C83DBA00B2E350 /* ADAuthenticationWindowController.h */; };
 		4C42481818C83DBA00B2E350 /* ADAuthenticationWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C42481618C83DBA00B2E350 /* ADAuthenticationWindowController.m */; };
 		4C42482818C84D4A00B2E350 /* ADAuthenticationWebViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C42482618C84D4A00B2E350 /* ADAuthenticationWebViewController.h */; };
-		4C42482918C84D4A00B2E350 /* ADAuthenticationWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C42482718C84D4A00B2E350 /* ADAuthenticationWebViewController.m */; };
 		4C60D4C918C6960400F9EAAE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C60D4C818C6960400F9EAAE /* Cocoa.framework */; };
 		4C60D4D318C6960400F9EAAE /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4C60D4D118C6960400F9EAAE /* InfoPlist.strings */; };
 		4C60D4DE18C6960500F9EAAE /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C60D4DD18C6960500F9EAAE /* XCTest.framework */; };
@@ -65,6 +64,7 @@
 		4C60D61D18C697E500F9EAAE /* NSURLExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5DD18C697E500F9EAAE /* NSURLExtensions.h */; };
 		4C60D61E18C697E500F9EAAE /* NSURLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5DE18C697E500F9EAAE /* NSURLExtensions.m */; };
 		4C8AB1C518E2336B005F241A /* ADAuthenticationBrokerOSX.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C8AB1C318E2336B005F241A /* ADAuthenticationBrokerOSX.m */; };
+		4C8AB26218E9F18C005F241A /* ADAuthenticationWebViewControllerOSX.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C8AB26018E9F18C005F241A /* ADAuthenticationWebViewControllerOSX.m */; };
 		8BD92F2718C94E130026A014 /* ADAuthenticationWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8BD92F2618C94E130026A014 /* ADAuthenticationWindowController.xib */; };
 		8BD92F2818C950820026A014 /* ADAuthenticationWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8BD92F2618C94E130026A014 /* ADAuthenticationWindowController.xib */; };
 		8BD92F2B18C9611D0026A014 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD92F2A18C9611D0026A014 /* WebKit.framework */; };
@@ -99,7 +99,6 @@
 		4C42481518C83DBA00B2E350 /* ADAuthenticationWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADAuthenticationWindowController.h; path = ../../ADALiOS/ADALiOS/ADAuthenticationWindowController.h; sourceTree = "<group>"; };
 		4C42481618C83DBA00B2E350 /* ADAuthenticationWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADAuthenticationWindowController.m; path = ../../ADALiOS/ADALiOS/ADAuthenticationWindowController.m; sourceTree = "<group>"; };
 		4C42482618C84D4A00B2E350 /* ADAuthenticationWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADAuthenticationWebViewController.h; path = ../../ADALiOS/ADALiOS/ADAuthenticationWebViewController.h; sourceTree = "<group>"; };
-		4C42482718C84D4A00B2E350 /* ADAuthenticationWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADAuthenticationWebViewController.m; path = ../../ADALiOS/ADALiOS/ADAuthenticationWebViewController.m; sourceTree = "<group>"; };
 		4C60D4C518C6960400F9EAAE /* ADAL-OSX.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "ADAL-OSX.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C60D4C818C6960400F9EAAE /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		4C60D4CB18C6960400F9EAAE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -161,6 +160,7 @@
 		4C60D5DD18C697E500F9EAAE /* NSURLExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSURLExtensions.h; path = ../../ADALiOS/ADALiOS/NSURLExtensions.h; sourceTree = "<group>"; };
 		4C60D5DE18C697E500F9EAAE /* NSURLExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSURLExtensions.m; path = ../../ADALiOS/ADALiOS/NSURLExtensions.m; sourceTree = "<group>"; };
 		4C8AB1C318E2336B005F241A /* ADAuthenticationBrokerOSX.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationBrokerOSX.m; sourceTree = "<group>"; };
+		4C8AB26018E9F18C005F241A /* ADAuthenticationWebViewControllerOSX.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationWebViewControllerOSX.m; sourceTree = "<group>"; };
 		8BD92F2618C94E130026A014 /* ADAuthenticationWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ADAuthenticationWindowController.xib; sourceTree = "<group>"; };
 		8BD92F2A18C9611D0026A014 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		8BE8680E18D7B60C00D95ABB /* NSURLExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSURLExtensionsTests.m; path = ../../ADALiOS/ADALiOSTests/NSURLExtensionsTests.m; sourceTree = "<group>"; };
@@ -250,7 +250,6 @@
 			isa = PBXGroup;
 			children = (
 				4C42482618C84D4A00B2E350 /* ADAuthenticationWebViewController.h */,
-				4C42482718C84D4A00B2E350 /* ADAuthenticationWebViewController.m */,
 				4C42481518C83DBA00B2E350 /* ADAuthenticationWindowController.h */,
 				4C42481618C83DBA00B2E350 /* ADAuthenticationWindowController.m */,
 				4C60D5A118C697E500F9EAAE /* ADAL.h */,
@@ -303,6 +302,7 @@
 				4C60D5DE18C697E500F9EAAE /* NSURLExtensions.m */,
 				4C60D4CF18C6960400F9EAAE /* Supporting Files */,
 				4C8AB1C318E2336B005F241A /* ADAuthenticationBrokerOSX.m */,
+				4C8AB26018E9F18C005F241A /* ADAuthenticationWebViewControllerOSX.m */,
 			);
 			path = "ADAL-OSX";
 			sourceTree = "<group>";
@@ -493,7 +493,6 @@
 				4C60D61A18C697E500F9EAAE /* NSDictionaryExtensions.m in Sources */,
 				4C60D5F018C697E500F9EAAE /* ADAuthenticationParameters+Internal.m in Sources */,
 				4C60D60118C697E500F9EAAE /* ADInstanceDiscovery.m in Sources */,
-				4C42482918C84D4A00B2E350 /* ADAuthenticationWebViewController.m in Sources */,
 				4C60D5EA18C697E500F9EAAE /* ADAuthenticationError.m in Sources */,
 				4C60D61218C697E500F9EAAE /* ADUserInformation.m in Sources */,
 				4C60D60D18C697E500F9EAAE /* ADTokenCacheStoreKey.m in Sources */,
@@ -504,6 +503,7 @@
 				4C60D61618C697E500F9EAAE /* HTTPWebResponse.m in Sources */,
 				4C60D5E718C697E500F9EAAE /* ADAuthenticationContext.m in Sources */,
 				4C60D5F618C697E500F9EAAE /* ADAuthenticationSettings.m in Sources */,
+				4C8AB26218E9F18C005F241A /* ADAuthenticationWebViewControllerOSX.m in Sources */,
 				4C60D5F418C697E500F9EAAE /* ADAuthenticationResult+Internal.m in Sources */,
 				4C60D60718C697E500F9EAAE /* ADOAuth2Constants.m in Sources */,
 				4C8AB1C518E2336B005F241A /* ADAuthenticationBrokerOSX.m in Sources */,
