@@ -44,6 +44,8 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     //Cache store values:
     id mClassValue;
     NSData* mLibraryValue;
+    
+    NSString* _sharedGroup;
 }
 
 //Shouldn't be called.
@@ -461,6 +463,20 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         }
     }
     return toReturn;
+}
+
+-(NSString*) getSharedGroup
+{
+    return _sharedGroup;
+}
+
+-(void) setSharedGroup:(NSString *)sharedGroup
+{
+    if (![NSString adSame:_sharedGroup toString:sharedGroup])
+    {
+        _sharedGroup = sharedGroup;
+        [self unpersist];//Merge with the content of the new group
+    }
 }
 
 @end

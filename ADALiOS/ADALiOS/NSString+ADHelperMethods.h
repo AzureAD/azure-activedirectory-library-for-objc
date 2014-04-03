@@ -68,4 +68,8 @@
 /*! Encodes the string to pass it as a URL agrument. */
 - (NSString *)adUrlFormEncode;
 
+/*! Compares two strings, returning YES, if they are both nil. */
++ (BOOL) adSame: (NSString*) string1
+       toString: (NSString*) string2;
+
 @end
