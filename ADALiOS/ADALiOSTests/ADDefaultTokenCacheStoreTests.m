@@ -22,6 +22,7 @@
 #import <libkern/OSAtomic.h>
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADAuthenticationContext.h"
+#import "../ADALiOS/ADKeychainTokenCacheStore.h"
 
 dispatch_semaphore_t sThreadsSemaphore;//Will be signalled when the last thread is done. Should be initialized and cleared in the test.
 volatile int32_t sThreadsFinished;//The number of threads that are done. Should be set to 0 at the beginning of the test.
@@ -722,6 +723,43 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [mStore removeAll];
     ADAssertNoError;
     [self waitForPersistenceWithLine:__LINE__];
+}
+
+-(void) testsharedKeychainGroupProperty
+{
+    //Put an item in the cache:
+    ADAssertLongEquals(0, mStore.allItems.count);
+    ADTokenCacheStoreItem* item = [self createCacheItem];
+    ADAuthenticationError* error = nil;
+    [mStore addOrUpdateItem:item error:&error];
+    ADAssertNoError;
+    ADAssertLongEquals(1, mStore.allItems.count);
+    
+    //Test the property:
+    ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
+    ADKeychainTokenCacheStore* keychainStore = (ADKeychainTokenCacheStore*)mStore;
+    XCTAssertNil(settings.sharedKeychainGroup);
+    XCTAssertNil(keychainStore.sharedGroup);
+    NSString* groupName = @"com.microsoft.ADAL";
+    settings.sharedKeychainGroup = groupName;
+    ADAssertStringEquals(settings.sharedKeychainGroup, groupName);
+    XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
+    ADAssertStringEquals(keychainStore.sharedGroup, groupName);
+    
+    //Ensure that changing of the group forced writing of the cache:
+    ADKeychainTokenCacheStore* newStore = [[ADKeychainTokenCacheStore alloc] initWithLocation:nil
+                                                                                  sharedGroup:groupName];
+    ADAssertLongEquals(1, newStore.allItems.count);
+    
+    //Restore back to default
+    keychainStore.sharedGroup = nil;
+    XCTAssertNil(keychainStore.sharedGroup);
+    XCTAssertNil(settings.sharedKeychainGroup);
+    [mStore removeAll];
+    ADAssertLongEquals(0, mStore.allItems.count);
+    
+    //Ensure that the change is not propagated to the keychain group cache:
+    ADAssertLongEquals(1, newStore.allItems.count);
 }
 
 @end
