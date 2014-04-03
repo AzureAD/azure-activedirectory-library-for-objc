@@ -152,15 +152,27 @@
 - (IBAction)clearCachePressed:(id)sender
 {
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    NSString* status;
     if (cache.allItems.count > 0)
     {
         [cache removeAll];
-        [self setStatus:@"Items removed."];
+        status = @"Items removed.";
     }
     else
     {
-        [self setStatus:@"Nothing in the cache"];
+        status = @"Nothing in the cache.";
     }
+    NSHTTPCookieStorage* cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSArray* cookies = cookieStorage.cookies;
+    if (cookies.count)
+    {
+        for(NSHTTPCookie* cookie in cookies)
+        {
+            [cookieStorage deleteCookie:cookie];
+        }
+        status = [status stringByAppendingString:@" Cookies cleared."];
+    }
+    [self setStatus:status];
 }
 
 - (IBAction)getUsersPressed:(id)sender
