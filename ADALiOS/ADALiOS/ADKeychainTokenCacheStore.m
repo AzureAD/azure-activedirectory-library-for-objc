@@ -40,6 +40,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     
     id mValueDataKey;
     id mMatchLimitKey;
+    id mGroupKey;
     
     //Cache store values:
     id mClassValue;
@@ -74,7 +75,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     {
         cacheLocation = [self getLibraryPrefix];
     }
-    if (self = [super initWithLocation:cacheLocation])
+    if (self = [super init])
     {
         //Full key:
         /* The keychain does allow searching for a limited set of attributes only,
@@ -96,12 +97,23 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         mLibraryValue   = [cacheLocation dataUsingEncoding:NSUTF8StringEncoding];
         
         //Data sharing:
+        mGroupKey       = (__bridge id)kSecAttrAccessGroup;
         _sharedGroup    = sharedGroup;
-        
-        //Initialize:
-        [self addInitialCacheItems];
+
     }
     return self;
+}
+
+//Adds the shared group to the attributes dictionary. The method is not thread-safe
+-(void) addGroupToDicitonary: (NSMutableDictionary*) dictionary
+{
+    if (![NSString isStringNilOrBlank:_sharedGroup])
+    {
+        //Apps are not signed on the simulator, so the shared group doesn't apply there.
+#if !(TARGET_IPHONE_SIMULATOR)
+        [dictionary setObject:_sharedGroup forKey:mGroupKey];
+#endif
+    }
 }
 
 //Extracts all of the key and user data fields into a single string.
@@ -118,7 +130,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 }
 
 
-//Extracts the key text to be used to search explicitly for this item:
+//Extracts the key text to be used to search explicitly for this item (without the user):
 -(NSString*) extractKeyWithItem:(ADTokenCacheStoreItem*)item
                           error:(ADAuthenticationError* __autoreleasing*) error
 {
@@ -136,6 +148,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
             ];
 }
 
+//Same as extractKeyWithItem, but this time user is included
 -(NSString*) extractFullKeyWithItem:(ADTokenCacheStoreItem*)item
                               error:(ADAuthenticationError* __autoreleasing*) error
 {
@@ -160,6 +173,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:attributes];
     [query setObject:mClassValue forKey:mClassKey];
     [query setObject:mLibraryValue forKey:mLibraryKey];
+    [self addGroupToDicitonary:query];
     
     OSStatus res = SecItemDelete((__bridge CFDictionaryRef)query);
     switch (res)
@@ -176,8 +190,8 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                 NSString* errorDetails = [NSString stringWithFormat:@"Cannot the the items in the keychain. Error code: %ld. Items attempted: %@",
                                           (long)res, attributes];
                 ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                                                     protocolCode:nil
-                                                                                     errorDetails:errorDetails];
+                                                                                         protocolCode:nil
+                                                                                         errorDetails:errorDetails];
                 if (error)
                 {
                     *error = toReport;
@@ -189,9 +203,17 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 
 //Returns a dictionary with a string cache representing the full key (key & userid)
 //The objects of the dictionary are dictionary of keychain attributes that can be used directly to update or delete the item.
--(NSMutableDictionary*) getAllStoredKeys:(ADAuthenticationError* __autoreleasing*)error
+//Parameter query can be nil. If specified, it adds additional query attributes to filter on.
+-(NSMutableDictionary*) getKeysWithQuery: (NSMutableDictionary*) query
+                                   error: (ADAuthenticationError* __autoreleasing*)error
 {
-    NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:
+    if (!query)
+    {
+        query = [NSMutableDictionary new];
+    }
+    
+    //Add the standard library values:
+    [query addEntriesFromDictionary:
     @{
         mClassKey:mClassValue,
         mLibraryKey:mLibraryValue,
@@ -200,6 +222,9 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         mMatchLimitKey:(__bridge id)kSecMatchLimitAll,
         (__bridge id)kSecReturnAttributes:(__bridge id)kCFBooleanTrue,
     }];
+    
+    [self addGroupToDicitonary:query];
+    
     CFArrayRef all;
     OSStatus res = SecItemCopyMatching((__bridge CFMutableDictionaryRef)query, (CFTypeRef*)&all);
     switch(res)
@@ -228,7 +253,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
             break;
         case errSecItemNotFound:
             {
-                AD_LOG_VERBOSE_F(sKeyChainlog, @"No cache items found for the key %@", self.cacheLocation);
+                AD_LOG_VERBOSE_F(sKeyChainlog, @"No cache items found.");
                 return [NSMutableDictionary new];//Empty one
             }
             break;
@@ -318,10 +343,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         //Item data:
         mValueDataKey:[NSKeyedArchiver archivedDataWithRootObject:item],
         }];
-    if (![NSString isStringNilOrBlank:self.sharedGroup])
-    {
-        [keychainItem setObject:self.sharedGroup forKey:(__bridge id)kSecAttrAccessGroup];
-    }
+    [self addGroupToDicitonary:keychainItem];
 
     OSStatus res = SecItemAdd((__bridge CFMutableDictionaryRef)keychainItem, NULL);
     if (errSecSuccess != res)
@@ -397,8 +419,6 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 -(BOOL) persistWithItems: (NSArray*) flatItemsList
                    error: (ADAuthenticationError *__autoreleasing *) error
 {
-    //NSAssert(flatItemsList);
-    
     ADAuthenticationError* toReport;
     //Get all items which are already in the cache:
     NSMutableDictionary* stored = [self getAllStoredKeys:&toReport];
@@ -430,15 +450,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
             [self addItem:item error:&toReport];
         }
     }
-    
-    return false;
-    
-    //Now remove all items that are not present in the new set:
-    for(NSDictionary* attributes in stored.allValues)
-    {
-        [self deleteByAttributes:attributes error:&toReport];
-    }
-    
+  
     if (error)
     {
         *error = toReport;
@@ -449,22 +461,126 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 //Overrides the parent class method, reads all cache items.
 -(NSArray*) allItems
 {
-    //Read all stored keys, then extract the data (full cache item) for each key:
-    NSMutableDictionary* all = [self getAllStoredKeys:nil];
-    if (!all)
+    API_ENTRY;
+    @synchronized(self)
     {
-        return nil;//the error is already logged.
-    }
-    NSMutableArray* toReturn = [[NSMutableArray alloc] initWithCapacity:all.count];
-    for(NSDictionary* attributes in all.allValues)
-    {
-        ADTokenCacheStoreItem* item = [self readItemWithAttributes:attributes error:nil];//The error is always logged internally.
-        if (item)
+        //Read all stored keys, then extract the data (full cache item) for each key:
+        NSMutableDictionary* all = [self getAllStoredKeys:nil];
+        if (!all)
         {
-            [toReturn addObject:item];
+            return nil;//the error is already logged.
+        }
+        NSMutableArray* toReturn = [[NSMutableArray alloc] initWithCapacity:all.count];
+        for(NSDictionary* attributes in all.allValues)
+        {
+            ADTokenCacheStoreItem* item = [self readItemWithAttributes:attributes error:nil];//The error is always logged internally.
+            if (item)
+            {
+                [toReturn addObject:item];
+            }
+        }
+        
+        return toReturn;
+    }
+}
+
+/*! May return nil, if no cache item corresponds to the requested key
+ @param key: The key of the item.
+ @param user: The specific user whose item is needed. May be nil, in which
+ case the item for the first user in the cache will be returned. */
+-(ADTokenCacheStoreItem*) getItemWithKey: (ADTokenCacheStoreKey*)key
+                                  userId: (NSString*) userId
+{
+#error fix this one
+    API_ENTRY;
+    if (!key)
+    {
+        AD_LOG_WARN(@"getItemWithKey called passing nil key", @"At ADDefaultTokenCacheStore::removeItemWithKey:userId");
+        return nil;
+    }
+    @synchronized(self)
+    {
+        if ([NSString isStringNilOrBlank:userId])
+        {
+            //No user specified, optimize for single user scenario:
+            
+        }
+        
+        NSDictionary* dictionary = [mCache objectForKey:key];
+        
+        if (nil == dictionary)
+        {
+            return nil;//Nothing in the cache.
+        }
+        
+        if (userId == nil)
+        {
+            //First try to find an item with empty user info:
+            ADTokenCacheStoreItem* item = [dictionary objectForKey:missingUserSubstitute];
+            if (nil != item)
+            {
+                return [item copy];
+            }
+            
+            //If we have only items with userId, just return the first:
+            for(ADTokenCacheStoreItem* innerItem in dictionary.allValues)
+            {
+                return [innerItem copy];
+            }
+            return nil;//Just in case
+        }
+        else
+        {
+            ADTokenCacheStoreItem* item = [dictionary objectForKey:[[userId trimmedString] lowercaseString]];
+            return [item copy];//May return nil, if item is nil
+        }
+    }//@synchronized
+}
+
+/*! Returns all of the items for a given key. Multiple items may present,
+ if the same resource was accessed by more than one user. The returned
+ array should contain only ADTokenCacheStoreItem objects. */
+-(NSArray*) getItemsWithKey: (ADTokenCacheStoreKey*)key;
+
+/*! Extracts the key from the item and uses it to set the cache details. If another item with the
+ same key exists, it will be overriden by the new one. 'getItemWithKey' method can be used to determine
+ if an item already exists for the same key.
+ @param error: in case of an error, if this parameter is not nil, it will be filled with
+ the error details. */
+-(void) addOrUpdateItem: (ADTokenCacheStoreItem*) item
+                  error: (ADAuthenticationError* __autoreleasing*) error
+{
+    API_ENTRY;
+#error use the bulk one
+}
+
+/*! Clears token cache details for specific keys.
+ @param key: the key of the cache item. Key can be extracted from the ADTokenCacheStoreItem using
+ the method 'extractKeyWithError'
+ @param userId: The user for which the item will be removed. Can be nil, in which case items for all users with
+ the specified key will be removed.
+ */
+-(void) removeItemWithKey: (ADTokenCacheStoreKey*) key
+                   userId: (NSString*) userId;
+
+-(void) removeAll
+{
+    API_ENTRY;
+    @synchronized(self)
+    {
+        //Get all items which are already in the cache:
+        NSMutableDictionary* stored = [self getAllStoredKeys:nil];
+        if (!stored)//stored could be nil too
+        {
+            return;//Nothing in the cache
+        }
+    
+        //Now remove all items that are not present in the new set:
+        for(NSDictionary* attributes in stored.allValues)
+        {
+            [self deleteByAttributes:attributes error:nil];//Errors are logged only
         }
     }
-    return toReturn;
 }
 
 -(NSString*) getSharedGroup
@@ -474,53 +590,19 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 
 -(void) setSharedGroup:(NSString *)sharedGroup
 {
-    if (![NSString adSame:_sharedGroup toString:sharedGroup])
+    API_ENTRY;
+    @synchronized(self)
     {
-        //Make sure that the state is merged with the group:
-        NSArray* allObjects = [self allItems];
-        _sharedGroup = sharedGroup;
-        [self persistWithItems:allObjects error:nil];
+        if (![NSString adSame:_sharedGroup toString:sharedGroup])
+        {
+            //Make sure that the state is merged with the group:
+            NSArray* allObjects = [self allItems];
+            _sharedGroup = sharedGroup;
+            [self persistWithItems:allObjects error:nil];
+        }
     }
 }
 
--(NSArray*) unpersist
-{
-    return self.allItems;
-}
-
-///*! May return nil, if no cache item corresponds to the requested key
-// @param key: The key of the item.
-// @param user: The specific user whose item is needed. May be nil, in which
-// case the item for the first user in the cache will be returned. */
-//-(ADTokenCacheStoreItem*) getItemWithKey: (ADTokenCacheStoreKey*)key
-//                                  userId: (NSString*) userId;
-//
-///*! Returns all of the items for a given key. Multiple items may present,
-// if the same resource was accessed by more than one user. The returned
-// array should contain only ADTokenCacheStoreItem objects. */
-//-(NSArray*) getItemsWithKey: (ADTokenCacheStoreKey*)key;
-//
-///*! Extracts the key from the item and uses it to set the cache details. If another item with the
-// same key exists, it will be overriden by the new one. 'getItemWithKey' method can be used to determine
-// if an item already exists for the same key.
-// @param error: in case of an error, if this parameter is not nil, it will be filled with
-// the error details. */
-//-(void) addOrUpdateItem: (ADTokenCacheStoreItem*) item
-//                  error: (ADAuthenticationError* __autoreleasing*) error;
-//
-///*! Clears token cache details for specific keys.
-// @param key: the key of the cache item. Key can be extracted from the ADTokenCacheStoreItem using
-// the method 'extractKeyWithError'
-// @param userId: The user for which the item will be removed. Can be nil, in which case items for all users with
-// the specified key will be removed.
-// */
-//-(void) removeItemWithKey: (ADTokenCacheStoreKey*) key
-//                   userId: (NSString*) userId;
-//
-//-(void) removeAll
-//{
-//}
-//
 
 
 @end

@@ -17,8 +17,9 @@
 // governing permissions and limitations under the License.
 
 #import "ADPersistentTokenCacheStore.h"
+#import "ADTokenCacheStoring.h"
 
-@interface ADKeychainTokenCacheStore : ADPersistentTokenCacheStore
+@interface ADKeychainTokenCacheStore : NSObject<ADTokenCacheStoring>
 
 /*! Initializes the token cache store.
  @param: cacheLocation: Optional. The library specific key to use for identifying token
