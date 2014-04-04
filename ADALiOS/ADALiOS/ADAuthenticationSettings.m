@@ -17,7 +17,6 @@
 // governing permissions and limitations under the License.
 #import "ADAuthenticationSettings.h"
 #import "ADKeychainTokenCacheStore.h"
-#import "ADEncryptedFileTokenCacheStore.h"
 
 @implementation ADAuthenticationSettings
 
