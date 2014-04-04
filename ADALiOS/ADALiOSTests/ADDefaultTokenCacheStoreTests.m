@@ -393,7 +393,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAssertNoError;
     
     //Now few getters:
-    ADTokenCacheStoreItem* itemReturn5 = [mStore getItemWithKey:key userId:nil];
+    ADTokenCacheStoreItem* itemReturn5 = [mStore getItemWithKey:key userId:nil error:&error];
+    ADAssertNoError;
     [self verifySameWithItem:item5 item2:itemReturn5];
     NSArray* array = [mStore getItemsWithKey:key];
     XCTAssertNotNil(array);

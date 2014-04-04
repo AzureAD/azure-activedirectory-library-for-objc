@@ -351,8 +351,8 @@ if (![self checkAndHandleBadArgument:ARG \
                            completionBlock:completionBlock];
 }
 
-//Gets an item from the cache, where userId may be nil. Raises error, if items for multiple users are present
-//and user id is not specified.
+//Gets an item from the cache, where userId may be nil. Raises error, if items for multiple users
+//are present and user id is not specified.
 -(ADTokenCacheStoreItem*) extractCacheItemWithKey: (ADTokenCacheStoreKey*) key
                                            userId: (NSString*) userId
                                             error: (ADAuthenticationError* __autoreleasing*) error
@@ -362,33 +362,7 @@ if (![self checkAndHandleBadArgument:ARG \
         return nil;//Nothing to return
     }
     
-    ADTokenCacheStoreItem* extractedItem = nil;
-    if (![NSString isStringNilOrBlank:userId])
-    {
-        extractedItem = [self.tokenCacheStore getItemWithKey:key userId:userId];
-    }
-    else
-    {
-        //No userId, check the cache for tokens for all users:
-        NSArray* items = [self.tokenCacheStore getItemsWithKey:key];
-        if (items.count > 1)
-        {
-            //More than one user token available in the cache, raise error to tell the developer to denote the desired user:
-            ADAuthenticationError* adError  = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
-                                                                                     protocolCode:nil
-                                                                                     errorDetails:multiUserError];
-            if (error)
-            {
-                *error = adError;
-            }
-            return nil;
-        }
-        else if (items.count == 1)
-        {
-            extractedItem = [items objectAtIndex:0];//Exactly one - just use it.
-        }
-    }
-    return extractedItem;
+    return [self.tokenCacheStore getItemWithKey:key userId:userId error:error];
 }
 
 //Checks the cache for item that can be used to get directly or indirectly an access token.
@@ -691,8 +665,8 @@ if (![self checkAndHandleBadArgument:ARG \
             ADTokenCacheStoreKey* exactKey = [cacheItem extractKeyWithError:nil];
             if (exactKey)
             {
-                ADTokenCacheStoreItem* existing = [self.tokenCacheStore getItemWithKey:exactKey userId:cacheItem.userInformation.userId];
-                if ([refreshToken isEqualToString:existing.refreshToken])
+                ADTokenCacheStoreItem* existing = [self.tokenCacheStore getItemWithKey:exactKey userId:cacheItem.userInformation.userId error:nil];
+                if ([refreshToken isEqualToString:existing.refreshToken])//If still there, attempt to remove
                 {
                     AD_LOG_VERBOSE_F(@"Token cache store", @"Removing cache for resource: %@", cacheItem.resource);
                     [self.tokenCacheStore removeItemWithKey:exactKey userId:existing.userInformation.userId];
@@ -706,8 +680,8 @@ if (![self checkAndHandleBadArgument:ARG \
                 ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:self.authority resource:nil clientId:cacheItem.clientId error:nil];
                 if (broadKey)
                 {
-                    ADTokenCacheStoreItem* broadItem = [self.tokenCacheStore getItemWithKey:broadKey userId:cacheItem.userInformation.userId];
-                    if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])
+                    ADTokenCacheStoreItem* broadItem = [self.tokenCacheStore getItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
+                    if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
                     {
                         AD_LOG_VERBOSE_F(@"Token cache store", @"Removing multi-resource refresh token for authority: %@", self.authority);
                         [self.tokenCacheStore removeItemWithKey:broadKey userId:cacheItem.userInformation.userId];
