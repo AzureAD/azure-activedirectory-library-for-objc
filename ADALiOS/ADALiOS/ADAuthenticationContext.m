@@ -32,7 +32,6 @@
 #import "ADTokenCacheStoreKey.h"
 #import "ADUserInformation.h"
 
-NSString* const multiUserError = @"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used.";
 NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call acquireToken with 'promptBehavior' not set to AD_PROMPT_NEVER";
 NSString* const serverError = @"The authentication server returned an error: %@.";

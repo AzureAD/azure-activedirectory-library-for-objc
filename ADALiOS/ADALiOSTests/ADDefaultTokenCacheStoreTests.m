@@ -334,6 +334,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 -(void) testComplex
 {
     XCTAssertTrue(mCache.count == 0);
+    XCTAssertNotNil([mStore allItems]);
+    ADAssertLongEquals(0, mStore.allItems.count);
     ADTokenCacheStoreItem* item1 = [self createCacheItem];
     ADAuthenticationError* error;
     

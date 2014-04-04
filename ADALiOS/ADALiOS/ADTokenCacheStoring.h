@@ -31,9 +31,13 @@
 /*! May return nil, if no cache item corresponds to the requested key
  @param key: The key of the item.
  @param user: The specific user whose item is needed. May be nil, in which
- case the item for the first user in the cache will be returned. */
+ case the item for the first user in the cache will be returned. 
+ @param error: Will be set only in case of ambiguity. E.g. if userId is nil
+ and we have tokens from multiple users. If the cache item is not present,
+ the error will not be set. */
 -(ADTokenCacheStoreItem*) getItemWithKey: (ADTokenCacheStoreKey*)key
-                                  userId: (NSString*) userId;
+                                  userId: (NSString*) userId
+                                   error: (ADAuthenticationError* __autoreleasing*) error;
 
 /*! Returns all of the items for a given key. Multiple items may present,
  if the same resource was accessed by more than one user. The returned
