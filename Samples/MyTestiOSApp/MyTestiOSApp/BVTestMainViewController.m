@@ -213,7 +213,7 @@
         return;
     }
     id<ADTokenCacheStoring> cache = context.tokenCacheStore;
-    ADTokenCacheStoreItem* item = [cache getItemWithKey:key userId:nil];
+    ADTokenCacheStoreItem* item = [cache getItemWithKey:key userId:nil error:nil];
     if (!item)
     {
         [self setStatus:@"Missing cache item."];

@@ -52,8 +52,6 @@
 		8B5989591811BFBA00744AEE /* ADTokenCacheStoreKey.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B5989531811B89800744AEE /* ADTokenCacheStoreKey.h */; };
 		8B59895A1811BFCB00744AEE /* ADTokenCacheStoreItem.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B59894C1810BEAC00744AEE /* ADTokenCacheStoreItem.h */; };
 		8B59895B1811BFD700744AEE /* ADTokenCacheStoring.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B5989561811BEC500744AEE /* ADTokenCacheStoring.h */; };
-		8B59895E1811C72400744AEE /* ADPersistentTokenCacheStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B59895D1811C72400744AEE /* ADPersistentTokenCacheStore.m */; };
-		8B59895F1811F35800744AEE /* ADPersistentTokenCacheStore.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B59895C1811C72400744AEE /* ADPersistentTokenCacheStore.h */; };
 		8B598961181710FD00744AEE /* ADDefaultTokenCacheStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B598960181710FD00744AEE /* ADDefaultTokenCacheStoreTests.m */; };
 		8B598963181739AA00744AEE /* ADAuthenticationErrorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B598962181739AA00744AEE /* ADAuthenticationErrorTests.m */; };
 		8B6113FE1868C59E007759C2 /* ADTestAuthenticationContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B6113FD1868C59E007759C2 /* ADTestAuthenticationContext.m */; };
@@ -127,7 +125,6 @@
 				8B6114041872347E007759C2 /* ADInstanceDiscovery.h in Copy Files */,
 				8BFA9B37183C4A0300B82B36 /* ADLogger.h in Copy Files */,
 				8B92DB6D181ADEF4004AAB0E /* NSString+ADHelperMethods.h in Copy Files */,
-				8B59895F1811F35800744AEE /* ADPersistentTokenCacheStore.h in Copy Files */,
 				8B59895B1811BFD700744AEE /* ADTokenCacheStoring.h in Copy Files */,
 				8B59895A1811BFCB00744AEE /* ADTokenCacheStoreItem.h in Copy Files */,
 				8B5989591811BFBA00744AEE /* ADTokenCacheStoreKey.h in Copy Files */,
@@ -188,8 +185,6 @@
 		8B5989531811B89800744AEE /* ADTokenCacheStoreKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTokenCacheStoreKey.h; sourceTree = "<group>"; };
 		8B5989541811B89800744AEE /* ADTokenCacheStoreKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheStoreKey.m; sourceTree = "<group>"; };
 		8B5989561811BEC500744AEE /* ADTokenCacheStoring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTokenCacheStoring.h; sourceTree = "<group>"; };
-		8B59895C1811C72400744AEE /* ADPersistentTokenCacheStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADPersistentTokenCacheStore.h; sourceTree = "<group>"; };
-		8B59895D1811C72400744AEE /* ADPersistentTokenCacheStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADPersistentTokenCacheStore.m; sourceTree = "<group>"; };
 		8B598960181710FD00744AEE /* ADDefaultTokenCacheStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADDefaultTokenCacheStoreTests.m; sourceTree = "<group>"; };
 		8B598962181739AA00744AEE /* ADAuthenticationErrorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationErrorTests.m; sourceTree = "<group>"; };
 		8B6113FC1868C59E007759C2 /* ADTestAuthenticationContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAuthenticationContext.h; sourceTree = "<group>"; };
@@ -326,8 +321,6 @@
 				8BB8345E18074B74007F9F0D /* ADAuthenticationResult.m */,
 				8BB83463180764B6007F9F0D /* ADAuthenticationSettings.h */,
 				8BB83464180764B6007F9F0D /* ADAuthenticationSettings.m */,
-				8B59895C1811C72400744AEE /* ADPersistentTokenCacheStore.h */,
-				8B59895D1811C72400744AEE /* ADPersistentTokenCacheStore.m */,
 				8B598946180DF6F000744AEE /* ADErrorCodes.h */,
 				8B6113FF186E517D007759C2 /* ADInstanceDiscovery.h */,
 				8B611400186E517D007759C2 /* ADInstanceDiscovery.m */,
@@ -601,7 +594,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8B343450183305A6002DE1DC /* ADAuthenticationWebViewController.m in Sources */,
-				8B59895E1811C72400744AEE /* ADPersistentTokenCacheStore.m in Sources */,
 				8B7E6FC81856A1E8000DC3C8 /* ADOAuth2Constants.m in Sources */,
 				8B343444183304FE002DE1DC /* HTTPWebResponse.m in Sources */,
 				8B34344F183305A6002DE1DC /* ADAuthenticationViewController.m in Sources */,
