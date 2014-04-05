@@ -21,20 +21,14 @@
 @interface ADKeychainTokenCacheStore : NSObject<ADTokenCacheStoring>
 
 /*! Initializes the token cache store.
- @param: cacheLocation: Optional. The library specific key to use for identifying token
- cache items among the keychain items. If nil, the library generates "MSOpenTech.ADAL.<ver>.0".
  @param: sharedGroup: Optional. If the application needs to share the cached tokens
  with other applications from the same vendor, the app will need to specify the 
  shared group here and add the necessary entitlements to the application.
  See Apple's keychain services documentation for details. */
--(id) initWithLocation: (NSString*) cacheLocation
-           sharedGroup: (NSString*) sharedGroup;
-
-/*! Calls the other overload, passing nil for sharedgroup. */
--(id) initWithLocation: (NSString*) cacheLocation;
+-(id) initWithGroup: (NSString*) sharedGroup;
 
 /* The shared keychain group, where the ADAL library will keep the tokens.
- May be nil.*/
+ May be nil. When set, any cache items are transferred to the new group. */
 @property (getter = getSharedGroup, setter = setSharedGroup:) NSString* sharedGroup;
 
 @end

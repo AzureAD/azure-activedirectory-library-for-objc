@@ -58,6 +58,7 @@
 
 -(ADTokenCacheStoreItem*) getItemWithKey: (ADTokenCacheStoreKey*) key
                                    userId: (NSString *)userId
+                                   error:(ADAuthenticationError *__autoreleasing *)error
 {
     return nil;
 }

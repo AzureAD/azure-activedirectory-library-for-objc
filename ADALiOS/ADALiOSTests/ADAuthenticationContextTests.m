@@ -18,7 +18,6 @@
 
 #import <XCTest/XCTest.h>
 #import "../ADALiOS/ADAuthenticationContext.h"
-#import "../ADALiOS/ADPersistentTokenCacheStore.h"
 #import "ADTestTokenCacheStore.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
@@ -26,6 +25,7 @@
 #import "ADTestAuthenticationContext.h"
 #import "../ADALiOS/ADOAuth2Constants.h"
 #import "../ADALiOS/ADAuthenticationSettings.h"
+#import "../ADALiOS/ADKeychainTokenCacheStore.h"
 
 const int sAsyncContextTimeout = 10;
 
@@ -48,7 +48,7 @@ const int sAsyncContextTimeout = 10;
     //The source:
     ADAuthenticationContext* mContext;
     id<ADAuthenticationContextProtocol> mProtocolContext; //Originally set same as above, provided for simplicity.
-    ADPersistentTokenCacheStore* mDefaultTokenCache;
+    ADKeychainTokenCacheStore* mDefaultTokenCache;
     NSString* mAuthority;
     NSString* mResource;
     NSString* mClientId;
@@ -73,9 +73,9 @@ const int sAsyncContextTimeout = 10;
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_ERROR];//Majority of the tests rely on errors
     mAuthority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
-    mDefaultTokenCache = (ADPersistentTokenCacheStore*)([ADAuthenticationSettings sharedInstance].defaultTokenCacheStore);
+    mDefaultTokenCache = (ADKeychainTokenCacheStore*)([ADAuthenticationSettings sharedInstance].defaultTokenCacheStore);
     XCTAssertNotNil(mDefaultTokenCache);
-    XCTAssertTrue([mDefaultTokenCache isKindOfClass:[ADPersistentTokenCacheStore class]]);
+    XCTAssertTrue([mDefaultTokenCache isKindOfClass:[ADKeychainTokenCacheStore class]]);
     mRedirectURL = [NSURL URLWithString:@"http://todolistclient/"];
     mClientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
     mResource = @"http://localhost/TodoListService";
@@ -559,7 +559,12 @@ const int sAsyncContextTimeout = 10;
     ADAssertNoError;
     XCTAssertNotNil(key);
     
-    ADTokenCacheStoreItem* item = [mDefaultTokenCache getItemWithKey:key userId:mUserId];
+    ADTokenCacheStoreItem* item = [mDefaultTokenCache getItemWithKey:key userId:mUserId error:&error];
+    if (error)
+    {
+        [self recordFailureWithDescription:error.errorDetails inFile:@"" __FILE__ atLine:line expected:NO];
+        return nil;
+    }
     if (!item)
     {
         [self recordFailureWithDescription:@"Item not present." inFile:@"" __FILE__ atLine:line expected:NO];
@@ -778,6 +783,36 @@ const int sAsyncContextTimeout = 10;
     acquireTokenAsync;
     ADAssertLongEquals(AD_ERROR_WRONG_USER, mResult.error.code);
     ADAssertLongEquals(2, mDefaultTokenCache.allItems.count);//The new token should be added to the cache
+}
+
+-(void) testWrongUserADFS
+{
+    NSString* broadToken = @"testWrongUserADFS some broad token";
+    NSString* accessToken = @"testWrongUserADFS some access token";
+    NSString* exactRefreshToken = @"testWrongUserADFS exact refresh token";
+    NSString* requestUser = @"testWrongUserADFS requestUser";
+    
+    //#1: access token exists in the cache, no user information available:
+    [self addCacheWithToken:accessToken refreshToken:nil userId:nil resource:mResource];
+    mUserId = requestUser;
+    acquireTokenAsync;
+    ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
+    ADAssertStringEquals(mResult.accessToken, accessToken);
+    
+    //#2: Only exact refresh token, again, no user information:
+    [mDefaultTokenCache removeAll];
+    [self addCacheWithToken:nil refreshToken:exactRefreshToken userId:nil resource:mResource];
+    [self.testContext->mResponse1 setObject:accessToken forKey:OAUTH2_ACCESS_TOKEN];
+    acquireTokenAsync;
+    ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
+    ADAssertStringEquals(mResult.accessToken, accessToken);
+    
+    //#3: Broad refresh token
+    [mDefaultTokenCache removeAll];
+    [self addCacheWithToken:nil refreshToken:broadToken userId:nil resource:nil];
+    acquireTokenAsync;
+    ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
+    ADAssertStringEquals(mResult.accessToken, accessToken);
 }
 
 -(void) testCorrelationIdProperty
