@@ -264,6 +264,13 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     }
 }
 
+//Log operations that result in storing or reading cache item:
+-(void) LogItem: (ADTokenCacheStoreItem*) item
+        message: (NSString*) additionalMessage
+{
+    AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. Resource: %@ Access token hash: %@; Refresh token hash: %@", item.resource,additionalMessage, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
+}
+
 //Updates the keychain item. "attributes" parameter should ALWAYS come from previous
 //SecItemCopyMatching else the function will fail.
 -(void) updateKeychainItem: (ADTokenCacheStoreItem*) item
@@ -272,7 +279,8 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 {
     THROW_ON_NIL_ARGUMENT(item);
     THROW_ON_NIL_ARGUMENT(attributes);
-    
+
+    [self LogItem:item message:@"Attempting to update an item"];
     NSMutableDictionary* updatedAttributes = [NSMutableDictionary dictionaryWithDictionary:attributes];
     //Required update, as it does not come back from the SecItemCopyMatching:
     [updatedAttributes setObject:mClassValue forKey:mClassKey];//Udpate the class, as it doesn't come explicitly from the previous SecItemMatching call
@@ -284,6 +292,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     {
         case errSecSuccess:
             //All good
+            [self LogItem:item message:@"Item successfully updated"];
             break;
         case errSecItemNotFound:
             {
@@ -314,7 +323,9 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                   error: (ADAuthenticationError* __autoreleasing*) error
 {
     THROW_ON_NIL_ARGUMENT(item);
-    
+
+    [self LogItem:item message:@"Attempting to add an item"];
+
     NSString* keyText = [self keychainKeyFromCacheItem:item error:error];
     if (!keyText)
     {
@@ -348,6 +359,10 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
             *error = toReport;
         }
     }
+    else
+    {
+        [self LogItem:item message:@"Item successfully added"];
+    }
 }
 
 //Extracts the item data from the keychain, based on the "attributes".
@@ -380,7 +395,11 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         {
             //Verify that the item is valid:
             ADTokenCacheStoreKey* key = [item extractKeyWithError:error];
-            return key ? item : nil;
+            if (!key)
+                return nil;
+            
+            [self LogItem:item message:@"Item successfully read"];
+            return item;
         }
         else
         {
@@ -419,8 +438,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     NSMutableDictionary* stored = [self keychainAttributesWithQuery:nil error:&toReport];
     if (!stored)
     {
-        //Create an empty one in attempt to recover. The side effect is that we may
-        //not delete some items in the cache, but this should not be critical:
+        //Recover:
         stored = [NSMutableDictionary new];
     }
 
@@ -482,9 +500,9 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 //The method is thread-safe and always returns a valid object (empty if error
 //or no records).
 -(NSArray*) readCacheItemsWithKey: (ADTokenCacheStoreKey*) key
-                     userId: (NSString*) userId
-                  allowMany: (BOOL) allowMany
-                      error: (ADAuthenticationError *__autoreleasing *)error
+                           userId: (NSString*) userId
+                        allowMany: (BOOL) allowMany
+                            error: (ADAuthenticationError *__autoreleasing *)error
 {
     ADAuthenticationError* adError = nil;
     
@@ -580,6 +598,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 {
     API_ENTRY;
 
+    userId = [ADUserInformation normalizeUserId:userId];
     NSArray* items = [self readCacheItemsWithKey:key userId:userId allowMany:NO error:error];
     
     return items.count ? items.firstObject : nil;
@@ -628,10 +647,14 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                    userId: (NSString*) userId
 {
     API_ENTRY;
+    
+    if (!key)
+        return;
+    
+    userId = [ADUserInformation normalizeUserId:userId];
+    
     @synchronized(self)
     {
-        if (!key)
-            return;
         NSDictionary* allAttributes = [self keychainAttributesWithKey:key userId:userId error:nil];
         [self removeWithAttributesDictionaries:allAttributes];
     }

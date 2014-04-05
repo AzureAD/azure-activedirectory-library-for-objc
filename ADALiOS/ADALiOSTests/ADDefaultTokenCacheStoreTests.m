@@ -75,7 +75,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     }
     else
     {
-        ADAssertLongEquals(count + 1, mStore.allItems.count);
+        ADAssertLongEquals(count, mStore.allItems.count);
     }
     [self verifyCacheContainsItem:item];
 }
@@ -249,7 +249,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADTokenCacheStoreItem* item3 = [self createCacheItem];
     item3.accessToken = @"another token";
     [self addOrUpdateItem:item3 expectAdd:NO];
-    
+
     //Add an item with the same key, but different user:
     ADTokenCacheStoreItem* item4 = [self copyItem:item1 withNewUser:@"   another user   "];
     [self addOrUpdateItem:item4 expectAdd:YES];
@@ -306,7 +306,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
         ADTokenCacheStoreItem* item4 = [self createCacheItem];
         item4.authority = @"https://www.authority.com/tenant.com";
-        ADTokenCacheStoreKey* key4 = [item3 extractKeyWithError:&error];
+        ADTokenCacheStoreKey* key4 = [item4 extractKeyWithError:&error];
         ADAssertNoError;
         
         NSDate* end = [NSDate dateWithTimeIntervalSinceNow:sThreadsRunTime];//few seconds into the future
@@ -378,6 +378,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 -(void) testMultipleThreads
 {
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];//Multi-user errors
     //The signal to denote completion:
     sThreadsSemaphore = dispatch_semaphore_create(0);
     sThreadsFinished = 0;
@@ -426,7 +427,26 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
     ADAssertNoError;
     
-    ADTokenCacheStoreItem* read = [mStore getItemWithKey:key userId:item.userInformation.userId error:&error];
+    ADTokenCacheStoreItem* read = nil;
+    if (item.userInformation)
+    {
+        read = [mStore getItemWithKey:key userId:item.userInformation.userId error:&error];
+    }
+    else
+    {
+        //Find the one (if any) that has userId equal to nil:
+        NSArray* all = [mStore getItemsWithKey:key];
+        XCTAssertNotNil(all);
+        for(ADTokenCacheStoreItem* i in all)
+        {
+            XCTAssertNotNil(i);
+            if (!i.userInformation)
+            {
+                XCTAssertNil(read);
+                read = i;
+            }
+        }
+    }
     ADAssertNoError;
     [self verifySameWithItem:item item2:read];
 }
@@ -464,19 +484,12 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
     ADAssertStringEquals(keychainStore.sharedGroup, groupName);
     
-    //Ensure that changing of the group forced writing of the cache:
-    ADKeychainTokenCacheStore* newStore = [[ADKeychainTokenCacheStore alloc] initWithGroup:groupName];
-    ADAssertLongEquals(1, newStore.allItems.count);
-    
     //Restore back to default
     keychainStore.sharedGroup = nil;
     XCTAssertNil(keychainStore.sharedGroup);
     XCTAssertNil(settings.sharedKeychainGroup);
     [mStore removeAll];
     ADAssertLongEquals(0, mStore.allItems.count);
-    
-    //Ensure that the change is not propagated to the keychain group cache:
-    ADAssertLongEquals(1, newStore.allItems.count);
 }
 
 @end
