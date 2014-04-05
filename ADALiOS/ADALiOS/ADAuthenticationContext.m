@@ -361,8 +361,23 @@ if (![self checkAndHandleBadArgument:ARG \
     {
         return nil;//Nothing to return
     }
-    
-    return [self.tokenCacheStore getItemWithKey:key userId:userId error:error];
+
+    ADAuthenticationError* localError;
+    ADTokenCacheStoreItem* item = [self.tokenCacheStore getItemWithKey:key userId:userId error:&localError];
+    if (!item && !localError && userId)
+    {//ADFS fix, where the userId is not received by the server, but can be passed to the API:
+        //We didn't find element with the userId, try finding an item with nil userId:
+        item = [self.tokenCacheStore getItemWithKey:key userId:nil error:&localError];
+        if (item && item.userInformation)
+        {
+            item = nil;//Different user id, just clear.
+        }
+    }
+    if (error && localError)
+    {
+        *error = localError;
+    }
+    return item;
 }
 
 //Checks the cache for item that can be used to get directly or indirectly an access token.
