@@ -66,7 +66,9 @@
         return ((ADKeychainTokenCacheStore*)store).sharedGroup;
     }
     else
+    {
         return nil;
+    }
 }
 
 -(void) setSharedKeychainGroup:(NSString *)sharedKeychainGroup

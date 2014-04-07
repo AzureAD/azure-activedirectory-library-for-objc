@@ -403,7 +403,9 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
             //Verify that the item is valid:
             ADTokenCacheStoreKey* key = [item extractKeyWithError:error];
             if (!key)
+            {
                 return nil;
+            }
             
             [self LogItem:item message:@"Item successfully read"];
             return item;
@@ -564,7 +566,9 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 -(void) removeWithAttributesDictionaries: (NSDictionary*) keysAndAttributes
 {
     if (!keysAndAttributes.count)
+    {
         return;
+    }
     for(NSDictionary* attributes in keysAndAttributes.allValues)
     {
         [self deleteByAttributes:attributes error:nil];
@@ -632,11 +636,15 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     {
         ADTokenCacheStoreKey* key = [item extractKeyWithError:error];
         if (!key)
+        {
             return;
+        }
         NSDictionary* allAttributes = [self keychainAttributesWithKey:key userId:item.userInformation.userId error:error];
         NSString* keychainKey = [self fullKeychainKeyFromCacheItem:item error:error];
         if (!keychainKey)
+        {
             return;
+        }
         NSDictionary* attributes = [allAttributes objectForKey:keychainKey];
         if (attributes)
         {
@@ -656,7 +664,9 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     API_ENTRY;
     
     if (!key)
+    {
         return;
+    }
     
     userId = [ADUserInformation normalizeUserId:userId];
     
