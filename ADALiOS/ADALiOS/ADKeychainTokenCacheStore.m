@@ -46,7 +46,9 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     
     //Cache store values:
     id mClassValue;
-    NSData* mLibraryValue;
+    NSString* mLibraryString;
+    NSData* mLibraryValue;//Data representation of the library string.
+
     
     //Properties:
     NSString* _sharedGroup;
@@ -79,7 +81,8 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         
         //Generic setup values:
         mClassValue     = (__bridge id)kSecClassGenericPassword;
-        mLibraryValue   = [[NSString stringWithFormat:@"MSOpenTech.ADAL.%ld", sKeychainVersion] dataUsingEncoding:NSUTF8StringEncoding];
+        mLibraryString  = [NSString stringWithFormat:@"MSOpenTech.ADAL.%ld", sKeychainVersion];
+        mLibraryValue   = [mLibraryString dataUsingEncoding:NSUTF8StringEncoding];
         
         //Data sharing:
         mGroupKey       = (__bridge id)kSecAttrAccessGroup;
@@ -116,7 +119,11 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 //Given an item key, generates the string key used in the keychain:
 -(NSString*) keychainKeyFromCacheKey: (ADTokenCacheStoreKey*) itemKey
 {
-    return [NSString stringWithFormat:@"%@%@%@%@%@",
+    //The key contains all of the ADAL cache key elements plus the version of the
+    //library. The latter is required to ensure that SecItemAdd won't break on collisions
+    //with items left over from the previous versions of the library.
+    return [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
+            mLibraryString, sDelimiter,
             [itemKey.authority adBase64UrlEncode], sDelimiter,
             [self.class getAttributeName:itemKey.resource], sDelimiter,
             [itemKey.clientId adBase64UrlEncode]

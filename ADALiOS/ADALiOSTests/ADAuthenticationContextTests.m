@@ -439,7 +439,8 @@ const int sAsyncContextTimeout = 10;
     }
     
     [mDefaultTokenCache addOrUpdateItem:item error:&error];
-    ADAssertNoError;}
+    ADAssertNoError;
+}
 
 -(void) addCacheWithToken: (NSString*) accessToken
              refreshToken: (NSString*) refreshToken
