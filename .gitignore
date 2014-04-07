@@ -1,3 +1,5 @@
 #Contains files that the source control should ignore
+.DS_Store
+deriveddata
 xcuserdata
 *.xccheckout

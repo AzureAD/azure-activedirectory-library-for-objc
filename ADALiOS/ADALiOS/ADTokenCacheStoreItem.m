@@ -23,7 +23,31 @@
 
 @implementation ADTokenCacheStoreItem
 
-@synthesize multiResourceRefreshToken;
+@synthesize accessToken               = _accessToken;
+@synthesize accessTokenType           = _accessTokenType;
+@synthesize authority                 = _authority;
+@synthesize clientId                  = _clientId;
+@synthesize expiresOn                 = _expiresOn;
+@synthesize multiResourceRefreshToken = _multiResourceRefreshToken;
+@synthesize refreshToken              = _refreshToken;
+@synthesize resource                  = _resource;
+@synthesize userInformation           = _userInformation;
+
+- (void)dealloc
+{
+    DebugLog( @"dealloc" );
+    
+    SAFE_ARC_RELEASE(_accessToken);
+    SAFE_ARC_RELEASE(_accessTokenType);
+    SAFE_ARC_RELEASE(_authority);
+    SAFE_ARC_RELEASE(_clientId);
+    SAFE_ARC_RELEASE(_expiresOn);
+    SAFE_ARC_RELEASE(_refreshToken);
+    SAFE_ARC_RELEASE(_resource);
+    SAFE_ARC_RELEASE(_userInformation);
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
 
 //Multi-resource refresh tokens are stored separately, as they apply to all resources. As such,
 //we create a special, "broad" cache item, with nil resource and access token:
@@ -38,14 +62,14 @@
 {
     ADTokenCacheStoreItem* item = [[self.class allocWithZone:zone] init];
     
-    item.resource = [self.resource copyWithZone:zone];
-    item.authority = [self.authority copyWithZone:zone];
-    item.clientId = [self.clientId copyWithZone:zone];
-    item.accessToken = [self.accessToken copyWithZone:zone];
-    item.accessTokenType = [self.accessTokenType copyWithZone:zone];
-    item.refreshToken = [self.refreshToken copyWithZone:zone];
-    item.expiresOn = [self.expiresOn copyWithZone:zone];
-    item.userInformation = [self.userInformation copyWithZone:zone];
+    item->_resource = [self.resource copyWithZone:zone];
+    item->_authority = [self.authority copyWithZone:zone];
+    item->_clientId = [self.clientId copyWithZone:zone];
+    item->_accessToken = [self.accessToken copyWithZone:zone];
+    item->_accessTokenType = [self.accessTokenType copyWithZone:zone];
+    item->_refreshToken = [self.refreshToken copyWithZone:zone];
+    item->_expiresOn = [self.expiresOn copyWithZone:zone];
+    item->_userInformation = [self.userInformation copyWithZone:zone];
     
     return item;
 }

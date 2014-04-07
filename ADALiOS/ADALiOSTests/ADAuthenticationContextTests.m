@@ -43,8 +43,14 @@ const int sAsyncContextTimeout = 10;
 @end
 
 @interface ADAuthenticationContextTests : XCTestCase
+
+@property (readonly, getter = getTestContext) ADTestAuthenticationContext* testContext;
+
+@end
+
+
+@implementation ADAuthenticationContextTests
 {
-@private
     //The source:
     ADAuthenticationContext* mContext;
     id<ADAuthenticationContextProtocol> mProtocolContext; //Originally set same as above, provided for simplicity.
@@ -61,35 +67,42 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationResult* mResult;//Result of asynchronous operation;
 }
 
-@property (readonly, getter = getTestContext) ADTestAuthenticationContext* testContext;
-
-@end
-
-
-@implementation ADAuthenticationContextTests
-
 - (void)setUp
 {
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_ERROR];//Majority of the tests rely on errors
-    mAuthority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
-    mDefaultTokenCache = (ADPersistentTokenCacheStore*)([ADAuthenticationSettings sharedInstance].defaultTokenCacheStore);
+    
+    mAuthority         = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
+    
+    ADAuthenticationSettings *settings = [ADAuthenticationSettings sharedInstance];
+    id<ADTokenCacheStoring>   cache    = settings.defaultTokenCacheStore;
+    XCTAssertNotNil( cache, @"defaultTokenCache is nil" );
+    XCTAssertTrue( [((id)cache) isKindOfClass:[ADPersistentTokenCacheStore class]], @"Bad type for cache" );
+                    
+    mDefaultTokenCache = (ADPersistentTokenCacheStore*)cache;
     XCTAssertNotNil(mDefaultTokenCache);
     XCTAssertTrue([mDefaultTokenCache isKindOfClass:[ADPersistentTokenCacheStore class]]);
+    
+    cache = nil;
+    
     mRedirectURL = [NSURL URLWithString:@"http://todolistclient/"];
-    mClientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
-    mResource = @"http://localhost/TodoListService";
-    mUserId = @"boris@msopentechbv.onmicrosoft.com";
-    ADAuthenticationError* error;
+    mClientId    = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
+    mResource    = @"http://localhost/TodoListService";
+    mUserId      = @"boris@msopentechbv.onmicrosoft.com";
+    mError       = nil;
+    
+    ADAuthenticationError* error = nil;
     ADTestAuthenticationContext* testContext = [[ADTestAuthenticationContext alloc] initWithAuthority:mAuthority
                                                                                     validateAuthority:YES
                                                                                       tokenCacheStore:mDefaultTokenCache
                                                                                                 error:&error];
     ADAssertNoError;
     XCTAssertNotNil(testContext, "Cannot create the context in setUp.");
+    
     mContext = testContext;
     mProtocolContext = (id<ADAuthenticationContextProtocol>)mContext;
-    mPromptBehavior = AD_PROMPT_NEVER;
+    mPromptBehavior  = AD_PROMPT_NEVER;
+    
     [testContext->mExpectedRequest1 setObject:OAUTH2_REFRESH_TOKEN forKey:OAUTH2_GRANT_TYPE];
     [testContext->mExpectedRequest1 setObject:mResource forKey:OAUTH2_RESOURCE];
     [testContext->mExpectedRequest1 setObject:mClientId forKey:OAUTH2_CLIENT_ID];
@@ -218,8 +231,8 @@ const int sAsyncContextTimeout = 10;
 -(void) testProperties
 {
     [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
-    ADAuthenticationError* error;
-    NSString* authority = @"https://authority.com/oauth2";
+    ADAuthenticationError* error     = nil;
+    NSString*              authority = @"https://authority.com/oauth2";
     ADTestTokenCacheStore* testStore = [ADTestTokenCacheStore new];
     XCTAssertNotNil(testStore, "Failed to create a test cache store");
     //Minimal creator:
@@ -305,8 +318,8 @@ const int sAsyncContextTimeout = 10;
 -(void) prepareForAsynchronousCall
 {
     //Reset the iVars, as they will be set by the callback
-    mResult = nil;
-    mError = nil;
+    SAFE_ARC_RELEASE( mResult ); mResult = nil;
+    SAFE_ARC_RELEASE( mError ); mError = nil;
     
     if ([mContext isKindOfClass:[ADTestAuthenticationContext class]])
     {
@@ -358,17 +371,17 @@ const int sAsyncContextTimeout = 10;
     static volatile int completion = 0;
     [self callAndWaitWithFile:@"" __FILE__ line:line completionSignal: &completion block:^
      {
-         [mContext acquireTokenWithResource:mResource
-                                   clientId:mClientId
-                                redirectUri:mRedirectURL
-                             promptBehavior:mPromptBehavior
-                                     userId:mUserId
+         [self->mContext acquireTokenWithResource:self->mResource
+                                   clientId:self->mClientId
+                                redirectUri:self->mRedirectURL
+                             promptBehavior:self->mPromptBehavior
+                                     userId:self->mUserId
                        extraQueryParameters:nil
                             completionBlock:^(ADAuthenticationResult *result)
           {
               //Fill in the iVars with the result:
-              mResult = result;
-              mError = mResult.error;
+              self->mResult = SAFE_ARC_RETAIN( result );
+              self->mError = ( self->mResult.error );
               ASYNC_BLOCK_COMPLETE(completion);
           }];
      }];
@@ -428,7 +441,7 @@ const int sAsyncContextTimeout = 10;
     item.accessToken = accessToken;
     item.refreshToken = refreshToken;
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     if (userId)
     {
         ADUserInformation* info = [ADUserInformation userInformationWithUserId:userId error:&error];
@@ -589,7 +602,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(allItems.count == 1);
     ADTokenCacheStoreItem* item = [allItems objectAtIndex:0];
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];//Expire it.
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     [mDefaultTokenCache addOrUpdateItem:item error:&error];//Udpate the cache.
     ADAssertNoError;
     //The access token is expired and the refresh token is nil, so it should fail:
@@ -1005,7 +1018,7 @@ const int sAsyncContextTimeout = 10;
     {
         //Fill in the iVars with the result:
         mResult = result;
-        mError = mResult.error;
+        mError = self->mResult.error;
         ASYNC_BLOCK_COMPLETE(completion);
     };
     [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
@@ -1020,10 +1033,10 @@ const int sAsyncContextTimeout = 10;
     
     [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
-         [mContext acquireTokenWithResource:mResource
-                                   clientId:mClientId
-                                redirectUri:mRedirectURL
-                                     userId:mUserId
+         [self->mContext acquireTokenWithResource:self->mResource
+                                   clientId:self->mClientId
+                                redirectUri:self->mRedirectURL
+                                     userId:self->mUserId
                             completionBlock:innerCallback];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];

@@ -36,11 +36,11 @@ typedef enum
  */
 @interface ADAuthenticationResult : NSObject
 {
-@protected
-    //See the corresponding properties for details.
-    ADTokenCacheStoreItem*          _tokenCacheStoreItem;
-    ADAuthenticationResultStatus    _status;
+// OSX Universal Compatibility
+@private
     ADAuthenticationError*          _error;
+    ADAuthenticationResultStatus    _status;
+    ADTokenCacheStoreItem*          _tokenCacheStoreItem;
     BOOL                            _multiResourceRefreshToken;
 }
 
@@ -50,12 +50,12 @@ typedef enum
 /*! A valid access token, if the results indicates success. The property is 
  calculated from the tokenCacheStoreItem one. The property is nil, in 
  case of error.*/
-@property (readonly) NSString* accessToken;
+@property (retain, readonly) NSString* accessToken;
 
-@property (readonly) ADTokenCacheStoreItem* tokenCacheStoreItem;
+@property (retain, readonly) ADTokenCacheStoreItem* tokenCacheStoreItem;
 
 /*! The error that occurred or nil, if the operation was successful */
-@property (readonly) ADAuthenticationError* error;
+@property (retain, readonly) ADAuthenticationError* error;
 
 /*! Set to YES, if part of the result contains a refresh token, which is a multi-resource
  refresh token. */

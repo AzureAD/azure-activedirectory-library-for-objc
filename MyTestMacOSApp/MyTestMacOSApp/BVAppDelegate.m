@@ -14,21 +14,24 @@
 
 @implementation BVAppDelegate
 
+@synthesize window = _window;
+
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
-@synthesize managedObjectModel = _managedObjectModel;
-@synthesize managedObjectContext = _managedObjectContext;
+@synthesize managedObjectModel         = _managedObjectModel;
+@synthesize managedObjectContext       = _managedObjectContext;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     // Do any additional setup after loading the view, typically from a nib.
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];//Log everything
     
-    BVSettings* testData = [BVSettings new];
-    BVTestInstance* aadInstance = testData.testAuthorities[sAADTestInstance];
+    BVSettings     *testData    = [BVSettings new];
+    BVTestInstance *aadInstance = [[testData.testAuthorities objectForKey:sAADTestInstance] retain];
     
-    // Insert code here to initialize your application
-    ADAuthenticationError* error;
-    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:aadInstance.authority error:&error];
+    ADAuthenticationError   *error = nil;
+    
+    __block ADAuthenticationContext *context = [[ADAuthenticationContext authenticationContextWithAuthority:aadInstance.authority error:&error] retain];
+    
     [context acquireTokenWithResource:aadInstance.resource
                              clientId:aadInstance.clientId
                           redirectUri:[NSURL URLWithString:aadInstance.redirectUri]
@@ -43,14 +46,20 @@
         {
             NSLog(@"AcqurieToken failed with access token: %@", result.error.errorDetails);
         }
+        
+        [context release];
     }];
+    
+    [aadInstance release];
+    [testData release];
 }
 
 // Returns the directory the application uses to store the Core Data store file. This code uses a directory named "MSOpenTech.MyTestMacOSApp" in the user's Application Support directory.
 - (NSURL *)applicationFilesDirectory
 {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSURL *appSupportURL = [[fileManager URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask] lastObject];
+    NSFileManager *fileManager   = [NSFileManager defaultManager];
+    NSURL         *appSupportURL = [[fileManager URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask] lastObject];
+    
     return [appSupportURL URLByAppendingPathComponent:@"MSOpenTech.MyTestMacOSApp"];
 }
 
@@ -95,7 +104,7 @@
             return nil;
         }
     } else {
-        if (![properties[NSURLIsDirectoryKey] boolValue]) {
+        if (![[properties objectForKey:NSURLIsDirectoryKey] boolValue]) {
             // Customize and localize this error.
             NSString *failureDescription = [NSString stringWithFormat:@"Expected a folder to store application data, found a file (%@).", [applicationFilesDirectory path]];
             

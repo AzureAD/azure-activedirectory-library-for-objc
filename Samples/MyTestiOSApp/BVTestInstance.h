@@ -22,16 +22,27 @@
 //an AAD tenant with suitable user name password
 //and a client accessing a resource
 @interface BVTestInstance : NSObject
+{
+//@private:
+    NSString *_authority;
+    NSString *_clientId;
+    NSString *_resource;
+    NSString *_redirectUri;
+    NSString *_userId;
+    NSString *_password;
+    NSString *_extraQueryParameters;
+    BOOL      _validateAuthority;
+}
 
 -(id) initWithDictionary: (NSDictionary*) contents;
 
-@property NSString* authority;
+@property (retain) NSString* authority;
 @property BOOL      validateAuthority;
-@property NSString* clientId;
-@property NSString* resource;
-@property NSString* redirectUri;
-@property NSString* userId;
-@property NSString* password;//used for automation in the tests
-@property NSString* extraQueryParameters;//Typically null and set by tests when needed
+@property (retain) NSString* clientId;
+@property (retain) NSString* resource;
+@property (retain) NSString* redirectUri;
+@property (retain) NSString* userId;
+@property (retain) NSString* password;//used for automation in the tests
+@property (retain) NSString* extraQueryParameters;//Typically null and set by tests when needed
 
 @end

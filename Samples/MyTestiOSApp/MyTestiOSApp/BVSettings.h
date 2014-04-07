@@ -23,6 +23,10 @@ extern NSString* const sAADTestInstance;
 //A helper class for reading the test authorities, usernames, etc.
 //Reads the authorities from the TestData.plist file.
 @interface BVSettings : NSObject
+{
+    NSMutableDictionary *_testAuthorities;
+}
+
 
 //Returns a dictionary with the name of the test instances as keys.
 //The values are instances of BVTestInstance class.

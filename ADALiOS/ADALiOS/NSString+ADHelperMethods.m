@@ -156,7 +156,7 @@ BOOL validBase64Characters(const byte* data, const int size)
 {
     NSData *decodedData = [self.class Base64DecodeData:self];
     
-    return [[NSString alloc] initWithData:decodedData encoding:NSUTF8StringEncoding];
+    return SAFE_ARC_AUTORELEASE( [[NSString alloc] initWithData:decodedData encoding:NSUTF8StringEncoding] );
 }
 
 //Helper method to encode 3 bytes into a sequence of 4 bytes:
@@ -258,13 +258,13 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 /* Caches statically the non-white characterset */
 +(NSCharacterSet*) nonWhiteCharSet
 {
-    static NSCharacterSet* nonWhiteCharSet;//Cached instance
-    static dispatch_once_t once;
+    static NSCharacterSet* nonWhiteCharSet = nil;//Cached instance
+    static dispatch_once_t once            = 0;
     @synchronized(self)
     {
         dispatch_once(&once, ^{
             //Instance initialization (only once):
-            nonWhiteCharSet = [[NSCharacterSet whitespaceAndNewlineCharacterSet] invertedSet];
+            nonWhiteCharSet = SAFE_ARC_RETAIN( [[NSCharacterSet whitespaceAndNewlineCharacterSet] invertedSet] );
         });
     }
     return nonWhiteCharSet;
@@ -304,7 +304,12 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 
 -(long) findNonWhiteCharacterAfter: (long) startIndex
 {
-    return [self findCharactersFromSet:[NSString nonWhiteCharSet] start:startIndex];
+    NSCharacterSet *nonWhiteCharSet = SAFE_ARC_RETAIN( [NSString nonWhiteCharSet] );
+    long            result          = [self findCharactersFromSet:nonWhiteCharSet start:startIndex];
+    
+    SAFE_ARC_RELEASE( nonWhiteCharSet );
+    
+    return result;
 }
 
 -(long) findCharacter:(unichar)toFind start: (long) startIndex

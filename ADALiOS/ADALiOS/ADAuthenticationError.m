@@ -28,6 +28,19 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
 
 @implementation ADAuthenticationError
 
+@synthesize errorDetails = _errorDetails;
+@synthesize protocolCode = _protocolCode;
+
+- (void)dealloc
+{
+    DebugLog( @"dealloc" );
+    
+    SAFE_ARC_RELEASE( _errorDetails );
+    SAFE_ARC_RELEASE( _protocolCode );
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 -(id) init
 {
     //Should not be called.
@@ -70,8 +83,8 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
     self = [super initWithDomain:domain code:code userInfo:userInfo];
     if (self)
     {
-        _errorDetails = details;
-        _protocolCode = protocolCode;
+        _errorDetails = SAFE_ARC_RETAIN( details );
+        _protocolCode = SAFE_ARC_RETAIN( protocolCode );
     }
     return self;
 }
@@ -82,11 +95,13 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                      errorDetails: (NSString*) details
                                          userInfo: (NSDictionary*) userInfo;
 {
-    return [[self alloc] initInternalWithDomain:domain
-                                           code:code
-                                   protocolCode:protocolCode
-                                   errorDetails:details
-                                       userInfo:userInfo];
+    ADAuthenticationError *error = [[self alloc] initInternalWithDomain:domain
+                                                                   code:code
+                                                           protocolCode:protocolCode
+                                                           errorDetails:details
+                                                               userInfo:userInfo];
+    
+    return SAFE_ARC_AUTORELEASE(error);
 }
 
 +(ADAuthenticationError*) errorFromArgument: (id) argumentValue

@@ -19,11 +19,6 @@
 #import "HTTPWebResponse.h"
 
 @implementation HTTPWebResponse
-{
-    NSHTTPURLResponse *_response;
-    NSData            *_body;
-    NSString          *_bodyText;
-}
 
 @synthesize body = _body;
 
@@ -42,13 +37,25 @@
     
     if ( ( self = [super init] ) != nil )
     {
-        _response = response;
-        _body     = data;
+        _response = SAFE_ARC_RETAIN( response );
+        _body     = SAFE_ARC_RETAIN( data );
         _bodyText = nil;
     }
     
     return self;
 }
+
+- (void)dealloc
+{
+    DebugLog( @"dealloc" );
+    
+    SAFE_ARC_RELEASE( _response );
+    SAFE_ARC_RELEASE( _body );
+    SAFE_ARC_RELEASE( _bodyText );
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 
 - (NSDictionary *)headers
 {

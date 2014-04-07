@@ -21,9 +21,70 @@
 #define ADAL_VER_HIGH   0
 #define ADAL_VER_LOW    5
 
+#pragma mark - OSX Universal ARC compatibility macros
+
+#if !defined(__clang__) || __clang_major__ < 3
+#ifndef __bridge
+#define __bridge
+#endif
+
+#ifndef __bridge_retain
+#define __bridge_retain
+#endif
+
+#ifndef __bridge_retained
+#define __bridge_retained
+#endif
+
+#ifndef __bridge_transfer
+#define __bridge_transfer
+#endif
+
+#ifndef __autoreleasing
+#define __autoreleasing
+#endif
+
+#ifndef __strong
+#define __strong
+#endif
+
+#ifndef __unsafe_unretained
+#define __unsafe_unretained
+#endif
+
+#ifndef __weak
+#define __weak
+#endif
+#endif
+
+#if __has_feature(objc_arc)
+#define SAFE_ARC_PROP_RETAIN strong
+#define SAFE_ARC_RETAIN(x) (x)
+#define SAFE_ARC_RELEASE(x)
+#define SAFE_ARC_AUTORELEASE(x) (x)
+#define SAFE_ARC_BLOCK_COPY(x) (x)
+#define SAFE_ARC_BLOCK_RELEASE(x)
+#define SAFE_ARC_SUPER_DEALLOC()
+#define SAFE_ARC_AUTORELEASE_POOL_START() @autoreleasepool {
+    #define SAFE_ARC_AUTORELEASE_POOL_END() }
+#else
+#define SAFE_ARC_PROP_RETAIN retain
+#define SAFE_ARC_RETAIN(x) ([(x) retain])
+#define SAFE_ARC_RELEASE(x) ([(x) release])
+#define SAFE_ARC_AUTORELEASE(x) ([(x) autorelease])
+#define SAFE_ARC_BLOCK_COPY(x) (Block_copy(x))
+#define SAFE_ARC_BLOCK_RELEASE(x) (Block_release(x))
+#define SAFE_ARC_SUPER_DEALLOC() ([super dealloc])
+#define SAFE_ARC_AUTORELEASE_POOL_START() NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+#define SAFE_ARC_AUTORELEASE_POOL_END() [pool release];
+#endif
+
+#pragma mark - Other macros
+
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \
-NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u", __PRETTY_FUNCTION__, __LINE__]
+NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u", __PRETTY_FUNCTION__, __LINE__]; SAFE_ARC_RETAIN( __where )
+
 //General macro for throwing exception named NSInvalidArgumentException
 #define THROW_ON_CONDITION_ARGUMENT(CONDITION, ARG) \
 { \
@@ -31,6 +92,7 @@ NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u"
     { \
         WHERE; \
         AD_LOG_ERROR(@"InvalidArgumentException: " #ARG, AD_ERROR_INVALID_ARGUMENT, __where); \
+        SAFE_ARC_RELEASE( __where ); \
         @throw [NSException exceptionWithName: NSInvalidArgumentException \
                                        reason:@"Please provide a valid '" #ARG "' parameter." \
                                      userInfo:nil];  \
@@ -66,6 +128,7 @@ argumentName:@#ARG]; \
         WHERE; \
         AD_LOG_ERROR(@"InvalidArgumentError: " #ARG, AD_ERROR_INVALID_ARGUMENT, __where); \
         FILL_PARAMETER_ERROR(ARG); \
+        SAFE_ARC_RELEASE( __where ); \
         return RET; \
     } \
 }
@@ -94,6 +157,7 @@ argumentName:@#ARG]; \
 { \
 WHERE; \
 AD_LOG_VERBOSE(@"ADAL API call", __where); \
+SAFE_ARC_RELEASE( __where ); \
 }
 
 

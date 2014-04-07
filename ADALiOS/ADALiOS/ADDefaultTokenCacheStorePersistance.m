@@ -23,16 +23,25 @@ const int16_t LOWER_VERSION = 0;
 
 @implementation ADDefaultTokenCacheStorePersistance
 
--(id) initWithCacheItems: (NSArray*) _cacheItems
+-(id) initWithCacheItems:(NSArray*)cacheItems
 {
     self = [super init];
     if (self)
     {
-        upperVersion = UPPER_VERSION;
-        lowerVersion = LOWER_VERSION;
-        cacheItems = _cacheItems;
+        _upperVersion = UPPER_VERSION;
+        _lowerVersion = LOWER_VERSION;
+        _cacheItems   = SAFE_ARC_RETAIN(cacheItems);
     }
     return self;
+}
+
+- (void)dealloc
+{
+    DebugLog( @"dealloc" );
+    
+    SAFE_ARC_RELEASE(_cacheItems);
+    
+    SAFE_ARC_SUPER_DEALLOC();
 }
 
 +(BOOL) supportsSecureCoding
@@ -42,9 +51,9 @@ const int16_t LOWER_VERSION = 0;
 
 -(void) encodeWithCoder:(NSCoder *)aCoder
 {
-    [aCoder encodeInt32:upperVersion forKey:@"upperVersion"];
-    [aCoder encodeInt32:lowerVersion forKey:@"lowerVersion"];
-    [aCoder encodeObject:cacheItems forKey:@"cacheItems"];
+    [aCoder encodeInt32:_upperVersion forKey:@"upperVersion"];
+    [aCoder encodeInt32:_lowerVersion forKey:@"lowerVersion"];
+    [aCoder encodeObject:_cacheItems forKey:@"cacheItems"];
 }
 
 -(id) initWithCoder:(NSCoder *)aDecoder
@@ -52,20 +61,21 @@ const int16_t LOWER_VERSION = 0;
     self = [super self];
     if (self)
     {
-        upperVersion = [aDecoder decodeInt32ForKey:@"upperVersion"];
-        lowerVersion = [aDecoder decodeInt32ForKey:@"lowerVersion"];
+        _upperVersion = [aDecoder decodeInt32ForKey:@"upperVersion"];
+        _lowerVersion = [aDecoder decodeInt32ForKey:@"lowerVersion"];
         
-        if (upperVersion > UPPER_VERSION)
+        if (_upperVersion > UPPER_VERSION)
         {
             //A new, incompatible version of the cache is stored, ignore the cache:
             AD_LOG_ERROR_F(@"Future file format", AD_ERROR_CACHE_PERSISTENCE,
                            @"The version (%d.%d) of the cache file is not supported.",
-                           upperVersion, lowerVersion)
+                           _upperVersion, _lowerVersion)
             return nil;
         }
         
         //The future deserialization logic may have different versions read:
-        cacheItems = [aDecoder decodeObjectOfClass:[NSArray class] forKey:@"cacheItems"];
+        _cacheItems = [aDecoder decodeObjectOfClass:[NSArray class] forKey:@"cacheItems"];
+        SAFE_ARC_RETAIN(_cacheItems);
     }
     return self;
 }

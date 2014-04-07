@@ -20,17 +20,12 @@
 #import "ADAuthenticationDelegate.h"
 
 @interface ADAuthenticationWebViewController ()
-{
-    __weak WebViewType *_webView;
-    
-    NSURL    *_startURL;
-    NSString *_endURL;
-    BOOL      _complete;
-}
 
 @end
 
 @implementation ADAuthenticationWebViewController
+
+@synthesize delegate = _delegate;
 
 - (id)initWithWebView:(WebViewType *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
@@ -43,11 +38,11 @@
     if ( ( self = [super init] ) != nil )
     {
         _startURL  = [startURL copy];
-        _endURL    = [[endURL absoluteString] lowercaseString];
+        _endURL    = SAFE_ARC_RETAIN([[endURL absoluteString] lowercaseString]);
         
         _complete  = NO;
         
-        _webView          = webView;
+        _webView   = webView;
         [_webView setFrameLoadDelegate:self];
         [_webView setResourceLoadDelegate:self];
         [_webView setPolicyDelegate:self];
@@ -59,6 +54,8 @@
 
 - (void)dealloc
 {
+    DebugLog( @"dealloc" );
+    
     // The ADAuthenticationWebViewController can be released before the
     // UIWebView that it is managing is released in the hosted case and
     // so it is important that to stop listening for events from the
@@ -66,7 +63,12 @@
     _webView.frameLoadDelegate    = nil;
     _webView.resourceLoadDelegate = nil;
     _webView.policyDelegate       = nil;
-    _webView          = nil;
+    _webView                      = nil;
+    
+    SAFE_ARC_RELEASE(_startURL);
+    SAFE_ARC_RELEASE(_endURL);
+    
+    SAFE_ARC_SUPER_DEALLOC();
 }
 
 - (void)start

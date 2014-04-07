@@ -24,23 +24,9 @@
 @end
 
 @implementation ADAuthenticationWindowController
-{
-    IBOutlet WebView *_webView;
-    
-    ADAuthenticationWebViewController*  _webViewController;
-    id                                  _webViewResourceLoadDelegate;
-    
-    BOOL      _complete;
-    BOOL      _closed;
-    
-    NSURL    *_startURL;
-    NSURL    *_endURL;
-
-    // Counter for load/finish of webview requests
-    __volatile int32_t _loadCounter;
-}
 
 @synthesize delegate = _delegate;
+@synthesize progressIndicator = _progressIndicator;
 
 #pragma mark - Initialization
 
@@ -48,6 +34,7 @@
 - (id)initAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
     self = [super initWithWindowNibName:@"ADAuthenticationWindowController"];
+    
     if ( self )
     {
         _startURL    = [startURL copy];
@@ -67,8 +54,19 @@
 // Debug logging only
 - (void)dealloc
 {
-    _webViewController           = nil;
-    _webViewResourceLoadDelegate = nil;
+    DebugLog( @"dealloc" );
+    
+    _delegate                    = nil;
+    
+    _webViewController.delegate   = nil;
+    _webView.resourceLoadDelegate = _webViewResourceLoadDelegate;
+    
+    SAFE_ARC_RELEASE(_webViewResourceLoadDelegate);
+    SAFE_ARC_RELEASE(_webViewController);
+    SAFE_ARC_RELEASE(_startURL);
+    SAFE_ARC_RELEASE(_endURL);
+    
+    SAFE_ARC_SUPER_DEALLOC();
 }
 
 #pragma mark - Public Methods
@@ -113,12 +111,12 @@
     
     // Create the WebView Controller
     _webViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:_webView startAtURL:_startURL endAtURL:_endURL];
-    _webViewController.delegate         = self;
+    _webViewController.delegate    = self;
     
     // Now we steal the FrameLoadDelegate from the WebView but will forward events to the old delegate.
     // Forwarding has to be cautious since the FrameLoadDelegate is an informal protocol and the old
     // delegate may not have implemented all the methods.
-    _webViewResourceLoadDelegate  = _webView.resourceLoadDelegate;
+    _webViewResourceLoadDelegate  = SAFE_ARC_RETAIN(_webView.resourceLoadDelegate);
     _webView.resourceLoadDelegate = self;
 }
 

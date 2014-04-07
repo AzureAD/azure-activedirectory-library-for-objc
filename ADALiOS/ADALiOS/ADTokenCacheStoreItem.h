@@ -23,24 +23,38 @@
     Objects of this class are used in the key-based token cache store.
     See the key extraction function for details on how the keys are constructed. */
 @interface ADTokenCacheStoreItem : NSObject<NSCopying , NSSecureCoding>
+{
+// OSX Universal Compatibility
+@private
+    NSString *_accessToken;
+    NSString *_accessTokenType;
+    NSString *_authority;
+    NSString *_clientId;
+    NSDate   *_expiresOn;
+    NSString *_refreshToken;
+    NSString *_resource;
+    
+    ADUserInformation *_userInformation;
+    BOOL               _multiResourceRefreshToken;
+}
 
 /*! Applicable resource. Should be nil, in case the item stores multi-resource refresh token. */
-@property NSString* resource;
+@property (retain) NSString* resource;
 
-@property NSString* authority;
+@property (retain) NSString* authority;
 
-@property NSString* clientId;
+@property (retain) NSString* clientId;
 
 /*! The access token received. Should be nil, in case the item stores multi-resource refresh token. */
-@property NSString* accessToken;
+@property (retain) NSString* accessToken;
 
-@property NSString* accessTokenType;
+@property (retain) NSString* accessTokenType;
 
-@property NSString* refreshToken;
+@property (retain) NSString* refreshToken;
 
-@property NSDate* expiresOn;
+@property (retain) NSDate* expiresOn;
 
-@property ADUserInformation* userInformation;
+@property (retain) ADUserInformation* userInformation;
 
 /*! If true, the cache store item does not store actual access token, but instead a refresh token that can be
  used to obtain access token for any resource within the same user, authority and client id. This property is calculated

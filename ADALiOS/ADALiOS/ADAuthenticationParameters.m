@@ -26,7 +26,18 @@
 
 //These two are needed, as the instance variables will be accessed by the class category.
 @synthesize authority = _authority;
-@synthesize resource = _resource;
+@synthesize resource  = _resource;
+
+- (void)dealloc
+{
+    DebugLog( @"dealloc" );
+    
+    SAFE_ARC_RELEASE(_authority);
+    SAFE_ARC_RELEASE(_extractedParameters);
+    SAFE_ARC_RELEASE(_resource);
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
 
 -(id) init
 {
@@ -68,13 +79,13 @@
 
     dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue,^
     {
-        HTTPWebRequest* request = [[HTTPWebRequest alloc] initWithURL:resourceUrl correlationId:nil];
+        __block HTTPWebRequest* request = [[HTTPWebRequest alloc] initWithURL:resourceUrl correlationId:nil];
         request.method = HTTPGet;
         AD_LOG_VERBOSE_F(@"Starting authorization challenge request", @"Resource: %@", resourceUrl);
         
         [request send:^(NSError * error, HTTPWebResponse *response) {
-            ADAuthenticationError* adError;
-            ADAuthenticationParameters* parameters;
+            ADAuthenticationError* adError = nil;
+            ADAuthenticationParameters* parameters = nil;
             if (error)
             {
                 adError = [ADAuthenticationError errorFromNSError:error
@@ -92,6 +103,8 @@
                 parameters = [self parametersFromResponseHeaders:response.headers error:&adError];
             }
             completion(parameters, adError);
+            
+            SAFE_ARC_RELEASE(request);
         }];
     });
 }
@@ -128,7 +141,7 @@
     API_ENTRY;
     
     NSDictionary* params = [self extractChallengeParameters:authenticateHeader error:error];
-    return params ? [[ADAuthenticationParameters alloc] initInternalWithParameters:params error:error]
+    return params ? SAFE_ARC_AUTORELEASE([[ADAuthenticationParameters alloc] initInternalWithParameters:params error:error])
                   : nil;
 }
 

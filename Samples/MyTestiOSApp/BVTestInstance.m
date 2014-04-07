@@ -20,6 +20,16 @@
 
 @implementation BVTestInstance
 
+@synthesize authority = _authority;
+@synthesize clientId  = _clientId;
+@synthesize resource  = _resource;
+@synthesize redirectUri = _redirectUri;
+@synthesize userId = _userId;
+@synthesize validateAuthority = _validateAuthority;
+@synthesize extraQueryParameters = _extraQueryParameters;
+@synthesize password = _password;
+
+
 -(id) initWithDictionary: (NSDictionary*) contents
 {
     self = [super init];

@@ -36,8 +36,9 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     self = [super init];
     if (self)
     {
-        _status = AD_SUCCEEDED;
-        _tokenCacheStoreItem = item;
+        _status                    = AD_SUCCEEDED;
+        _error                     = nil;
+        _tokenCacheStoreItem       = SAFE_ARC_RETAIN(item);
         _multiResourceRefreshToken = multiResourceRefreshToken;
     }
     return self;
@@ -52,7 +53,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     if (self)
     {
         _status = status;
-        _error = error;
+        _error  = SAFE_ARC_RETAIN(error);
     }
     return self;
 }
@@ -63,7 +64,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 {
     if (item)
     {
-        ADAuthenticationError* error;
+        ADAuthenticationError* error = nil;
         [item extractKeyWithError:&error];
         if (error)
         {
@@ -78,7 +79,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
             return [ADAuthenticationResult resultFromError:error];
         }
         //The item can be used, just use it:
-        return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:multiResourceRefreshToken];
+        return SAFE_ARC_AUTORELEASE([[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:multiResourceRefreshToken]);
     }
     else
     {
@@ -89,14 +90,14 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 
 +(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error
 {
-    ADAuthenticationResult* result = [ADAuthenticationResult alloc];
-    return [result initWithError:error status:AD_FAILED];
+    ADAuthenticationResult* result = [[ADAuthenticationResult alloc]initWithError:error status:AD_FAILED] ;
+    return SAFE_ARC_AUTORELEASE(result);
 }
 
 +(ADAuthenticationResult*) resultFromCancellation
 {
-    ADAuthenticationResult* result = [ADAuthenticationResult alloc];
-    return [result initWithCancellation];
+    ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithCancellation];
+    return SAFE_ARC_AUTORELEASE(result);
 }
 
 @end

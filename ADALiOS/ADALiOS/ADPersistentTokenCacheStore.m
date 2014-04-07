@@ -26,7 +26,7 @@
 
 NSString* const missingUserSubstitute = @"9A1BE88B-F078-4559-A442-35111DFA61F0";
 
-static const uint64_t MAX_REVISION = LONG_LONG_MAX;
+static const uint64_t MAX_REVISION = UINT64_MAX;
 
 @implementation ADPersistentTokenCacheStore
 
@@ -54,11 +54,19 @@ static const uint64_t MAX_REVISION = LONG_LONG_MAX;
     self = [super init];
     if (self)
     {
-        mCache = [NSMutableDictionary new];
-        mCacheLocation = cacheLocation;
+        mCache = [[NSMutableDictionary alloc] init];
+        mCacheLocation = SAFE_ARC_RETAIN( cacheLocation );
         mArchivedRevision = mCurrenRevision = 0;
     }
     return self;
+}
+
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE( mCache );
+    SAFE_ARC_RELEASE( mCacheLocation );
+    
+    SAFE_ARC_SUPER_DEALLOC();
 }
 
 //Returns YES, if the cache needs to be persisted or false, if the file already contains the latest version:
@@ -210,7 +218,7 @@ static const uint64_t MAX_REVISION = LONG_LONG_MAX;
         {
             for (ADTokenCacheStoreItem* item in innerDict.allValues)
             {
-                [items addObject:[item copy]];//Copy to prevent modification
+                [items addObject:SAFE_ARC_AUTORELEASE([item copy])];//Copy to prevent modification
             }
         }
         if (revision)
@@ -219,7 +227,7 @@ static const uint64_t MAX_REVISION = LONG_LONG_MAX;
             *revision = mCurrenRevision;
         }
     }
-    return items;
+    return SAFE_ARC_AUTORELEASE( items );
 }
 
 -(NSArray*) allItems
@@ -244,11 +252,11 @@ static const uint64_t MAX_REVISION = LONG_LONG_MAX;
             if (nil == dictionary)
             {
                 //No items for this key, just add the inner dictionary:
-                dictionary = [NSMutableDictionary new];
+                dictionary = SAFE_ARC_AUTORELEASE([NSMutableDictionary new]);
                 [mCache setObject:dictionary forKey:key];
             }
             //Now set the object in the inner dictionary, indexed by user:
-            [dictionary setObject:[item copy]
+            [dictionary setObject:SAFE_ARC_AUTORELEASE([item copy])
                            forKey:[self.class getValidUserFromItem:item]];
             [self processModification];
         }//@synchronized
@@ -310,20 +318,20 @@ static const uint64_t MAX_REVISION = LONG_LONG_MAX;
             ADTokenCacheStoreItem* item = [dictionary objectForKey:missingUserSubstitute];
             if (nil != item)
             {
-                return [item copy];
+                return SAFE_ARC_AUTORELEASE([item copy]);
             }
             
             //If we have only items with userId, just return the first:
             for(ADTokenCacheStoreItem* innerItem in dictionary.allValues)
             {
-                return [innerItem copy];
+                return SAFE_ARC_AUTORELEASE([innerItem copy]);
             }
             return nil;//Just in case
         }
         else
         {
             ADTokenCacheStoreItem* item = [dictionary objectForKey:[[userId trimmedString] lowercaseString]];
-            return [item copy];//May return nil, if item is nil
+            return SAFE_ARC_AUTORELEASE([item copy]);//May return nil, if item is nil
         }
     }//@synchronized
 }
@@ -384,7 +392,7 @@ static const uint64_t MAX_REVISION = LONG_LONG_MAX;
     if (!key)
     {
         AD_LOG_WARN(@"getItemsWithKey called passing nil key", @"At ADDefaultTokenCacheStore::removeItemWithKey");
-        return array;
+        return SAFE_ARC_AUTORELEASE(array);
     }
     
     @synchronized(mCache)
@@ -392,10 +400,10 @@ static const uint64_t MAX_REVISION = LONG_LONG_MAX;
         NSDictionary* dictionary = [mCache objectForKey:key];
         for (ADTokenCacheStoreItem* item in dictionary.allValues)
         {
-            [array addObject:[item copy]];
+            [array addObject:SAFE_ARC_AUTORELEASE([item copy])];
         }
     }
-    return array;
+    return SAFE_ARC_AUTORELEASE(array);
 }
 
 -(NSArray*) unpersist

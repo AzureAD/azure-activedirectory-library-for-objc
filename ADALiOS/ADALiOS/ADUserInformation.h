@@ -18,6 +18,23 @@
 
 /*! Contains the details about a user that had authorized resource usage*/
 @interface ADUserInformation : NSObject<NSCopying, NSSecureCoding>
+{
+// OSX Universal Compatibility
+@private
+    NSString *_userId;
+    NSString *_givenName;
+    NSString *_familyName;
+    NSString *_identityProvider;
+    NSString *_eMail;
+    NSString *_uniqueName;
+    NSString *_upn;
+    NSString *_tenantId;
+    NSString *_subject;
+    NSString *_guestId;
+    NSString *_userObjectId;
+    
+    BOOL      _userIdDisplayable;
+}
 
 /*! Factory method. The default initializer will throw unrecognized selector
  exception. Please use this one instead */
@@ -31,40 +48,40 @@
 
 /* This is the only readonly property, as it is used in the key generation for the cache.
  A new user information object should be created if userId changes */
-@property (readonly) NSString* userId;
+@property (retain, readonly) NSString* userId;
 
 /*! Determines whether userId is displayable */
 @property BOOL userIdDisplayable;
 
 /*! May be null */
-@property NSString* givenName;
+@property (retain, atomic) NSString* givenName;
 
 /*! May be null */
-@property NSString* familyName;
+@property (retain, atomic) NSString* familyName;
 
 /*! May be null */
-@property NSString* identityProvider;
+@property (retain, atomic) NSString* identityProvider;
 
 /*! May be null */
-@property NSString* eMail;
+@property (retain, atomic) NSString* eMail;
 
 /*! May be null */
-@property NSString* uniqueName;
+@property (retain, atomic) NSString* uniqueName;
 
 /*! May be null */
-@property NSString* upn;
+@property (retain, atomic) NSString* upn;
 
 /*! May be null */
-@property NSString* tenantId;
+@property (retain, atomic) NSString* tenantId;
 
 /*! May be null */
-@property NSString* subject;
+@property (retain, atomic) NSString* subject;
 
 /*! Unique object id that identifies the user. Internal user representation. May be null. " */
-@property NSString* userObjectId;
+@property (retain, atomic) NSString* userObjectId;
 
 /*! Internal representation for guest users to the tenants. May be null. */
-@property NSString* guestId;
+@property (retain, atomic) NSString* guestId;
 
 /* A helper method to normalize userId, e.g. remove white spaces, lowercase. 
  Returns nil if userId is nil or empty. */

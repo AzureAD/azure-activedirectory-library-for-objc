@@ -23,12 +23,19 @@ extern NSString* const ADInvalidArgumentDomain;
 extern NSString* const ADUnauthorizedResponseErrorDomain;
 
 @interface ADAuthenticationError : NSError
+{
+// OSX Universal Compatibility
+@private
+    NSString *_errorDetails;
+    NSString *_protocolCode;
+}
+
 
 /*! The error code, returned by the server. Can be null. */
-@property (readonly) NSString* protocolCode;
+@property (retain, atomic, readonly) NSString* protocolCode;
 
 /*! The full details of the error. Can contain details from an inner error. */
-@property (readonly) NSString* errorDetails;
+@property (retain, atomic, readonly) NSString* errorDetails;
 
 /*! Generates an error for invalid method argument. */
 +(ADAuthenticationError*) errorFromArgument: (id) argument

@@ -9,6 +9,13 @@
 #import <Cocoa/Cocoa.h>
 
 @interface BVAppDelegate : NSObject <NSApplicationDelegate>
+{
+//@private:
+    IBOutlet NSWindow *_window;
+    NSPersistentStoreCoordinator *_persistentStoreCoordinator;
+    NSManagedObjectModel         *_managedObjectModel;
+    NSManagedObjectContext       *_managedObjectContext;
+}
 
 @property (assign) IBOutlet NSWindow *window;
 

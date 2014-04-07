@@ -23,12 +23,30 @@ extern NSString *const HTTPGet;
 extern NSString *const HTTPPost;
 
 @interface HTTPWebRequest : NSObject <NSURLConnectionDelegate>
+{
+// OSX Universal Compatibility
+@private
+    NSURLConnection     *_connection;
+    
+    NSURL               *_requestURL;
+    NSString            *_requestMethod;
+    NSMutableDictionary *_requestHeaders;
+    NSData              *_requestData;
+    
+    NSHTTPURLResponse   *_response;
+    NSMutableData       *_responseData;
+    NSUUID              *_correlationId;
+    
+    NSUInteger           _timeout;
+    
+    void (^_completionHandler)( NSError *, HTTPWebResponse *);
+}
 
 @property (strong, readonly, nonatomic) NSURL               *URL;
 @property (strong)                      NSString            *method;
 @property (strong, readonly, nonatomic) NSMutableDictionary *headers;
 @property (strong)                      NSData              *body;
-@property (nonatomic)           NSUInteger           timeout;
+@property (nonatomic)                   NSUInteger           timeout;
 
 - (id)initWithURL: (NSURL*)url
     correlationId: (NSUUID*) correlationId;

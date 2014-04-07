@@ -21,9 +21,9 @@
 @interface ADDefaultTokenCacheStorePersistance : NSObject<NSSecureCoding>
 {
 @public
-    int16_t upperVersion;
-    int16_t lowerVersion;
-    NSArray* cacheItems;
+    int16_t  _upperVersion;
+    int16_t  _lowerVersion;
+    NSArray* _cacheItems;
 }
 
 -(id) initWithCacheItems: (NSArray*) cacheItems;

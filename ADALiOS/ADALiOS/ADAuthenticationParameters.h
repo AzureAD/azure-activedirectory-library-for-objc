@@ -20,7 +20,8 @@
  response from resource server */
 @interface ADAuthenticationParameters : NSObject
 {
-    @protected
+// OSX Universal Compatibility
+@private
     NSDictionary* _extractedParameters;
     NSString* _authority;
     NSString* _resource;

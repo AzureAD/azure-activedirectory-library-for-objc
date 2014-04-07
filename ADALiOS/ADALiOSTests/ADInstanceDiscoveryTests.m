@@ -309,10 +309,10 @@ const int sAsyncTimeout = 10;//in seconds
     static volatile int completion = 0;//Set to 1 at the end of the callback
     [self callAndWaitWithFile:@"" __FILE__ line:line completionSignal:&completion block:^
      {
-         [mInstanceDiscovery validateAuthority:authority correlationId:correlationId completionBlock:^(BOOL validated, ADAuthenticationError *error)
+         [self->mInstanceDiscovery validateAuthority:authority correlationId:correlationId completionBlock:^(BOOL validated, ADAuthenticationError *error)
           {
-              mValidated = validated;
-              mError = error;
+              self->mValidated = validated;
+              self->mError = error;
               ASYNC_BLOCK_COMPLETE(completion)
           }];
      }];

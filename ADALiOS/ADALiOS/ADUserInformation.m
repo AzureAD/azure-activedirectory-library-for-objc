@@ -34,6 +34,38 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 
 @implementation ADUserInformation
 
+@synthesize eMail             = _eMail;
+@synthesize familyName        = _familyName;
+@synthesize givenName         = _givenName;
+@synthesize guestId           = _guestId;
+@synthesize identityProvider  = _identityProvider;
+@synthesize subject           = _subject;
+@synthesize tenantId          = _tenantId;
+@synthesize uniqueName        = _uniqueName;
+@synthesize upn               = _upn;
+@synthesize userId            = _userId;
+@synthesize userIdDisplayable = _userIdDisplayable;
+@synthesize userObjectId      = _userObjectId;
+
+- (void)dealloc
+{
+    DebugLog( @"dealloc" );
+    
+    SAFE_ARC_RELEASE(_eMail);
+    SAFE_ARC_RELEASE(_familyName);
+    SAFE_ARC_RELEASE(_givenName);
+    SAFE_ARC_RELEASE(_guestId);
+    SAFE_ARC_RELEASE(_identityProvider);
+    SAFE_ARC_RELEASE(_subject);
+    SAFE_ARC_RELEASE(_tenantId);
+    SAFE_ARC_RELEASE(_uniqueName);
+    SAFE_ARC_RELEASE(_upn);
+    SAFE_ARC_RELEASE(_userId);
+    SAFE_ARC_RELEASE(_userObjectId);
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 -(id) init
 {
     //Throws, as this init function should not be used
@@ -54,7 +86,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     if (self)
     {
         //Minor canonicalization of the userId:
-        _userId = [self.class normalizeUserId:userId];
+        _userId = SAFE_ARC_RETAIN( [self.class normalizeUserId:userId] );
     }
     return self;
 }
@@ -194,7 +226,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     {
         RETURN_ID_TOKEN_ERROR(idToken);
     }
-    _userId = [self.class normalizeUserId:_userId];
+    _userId = SAFE_ARC_RETAIN( [self.class normalizeUserId:_userId] );
     
     return self;
 }
@@ -203,8 +235,8 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
                                           error: (ADAuthenticationError* __autoreleasing*) error
 {
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(userId);
-    ADUserInformation* userInfo = [[ADUserInformation alloc] initWithUserId:userId];
-    return userInfo;
+
+    return SAFE_ARC_AUTORELEASE([[ADUserInformation alloc] initWithUserId:userId]);
 }
 
 +(ADUserInformation*) userInformationWithIdToken: (NSString*) idToken
@@ -212,24 +244,25 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 {
     RETURN_NIL_ON_NIL_ARGUMENT(idToken);
     
-    return [[ADUserInformation alloc] initWithIdToken:idToken error:error];
+    return SAFE_ARC_AUTORELEASE( [[ADUserInformation alloc] initWithIdToken:idToken error:error] );
 }
 
 -(id) copyWithZone:(NSZone*) zone
 {
     //Deep copy. Note that the user may have passed NSMutableString objects, so all of the objects should be copied:
-    ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithUserId:[self.userId copyWithZone:zone]];
-    info.userIdDisplayable  = self.userIdDisplayable;
-    info.givenName          = [self.givenName copyWithZone:zone];
-    info.familyName         = [self.familyName copyWithZone:zone];
-    info.identityProvider   = [self.identityProvider copyWithZone:zone];
-    info.tenantId           = [self.tenantId copyWithZone:zone];
-    info.eMail              = [self.eMail copyWithZone:zone];
-    info.uniqueName         = [self.uniqueName copyWithZone:zone];
-    info.upn                = [self.upn copyWithZone:zone];
-    info.subject            = [self.subject copyWithZone:zone];
-    info.userObjectId       = [self.userObjectId copyWithZone:zone];
-    info.guestId            = [self.guestId copyWithZone:zone];
+    ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithUserId:SAFE_ARC_AUTORELEASE([self.userId copyWithZone:zone])];
+    
+    info->_userIdDisplayable  = self.userIdDisplayable;
+    info->_givenName          = [self.givenName copyWithZone:zone];
+    info->_familyName         = [self.familyName copyWithZone:zone];
+    info->_identityProvider   = [self.identityProvider copyWithZone:zone];
+    info->_tenantId           = [self.tenantId copyWithZone:zone];
+    info->_eMail              = [self.eMail copyWithZone:zone];
+    info->_uniqueName         = [self.uniqueName copyWithZone:zone];
+    info->_upn                = [self.upn copyWithZone:zone];
+    info->_subject            = [self.subject copyWithZone:zone];
+    info->_userObjectId       = [self.userObjectId copyWithZone:zone];
+    info->_guestId            = [self.guestId copyWithZone:zone];
     
     return info;
 }

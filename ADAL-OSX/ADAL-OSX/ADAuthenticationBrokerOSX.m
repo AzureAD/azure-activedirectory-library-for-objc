@@ -32,18 +32,11 @@ static NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle 
 @end
 
 @implementation ADAuthenticationBroker
-{
-    ADAuthenticationWindowController  *_authenticationPageController;
-    NSModalSession                      _authenticationSession;
-    ADAuthenticationWebViewController *_authenticationWebViewController;
-    
-    void (^_completionBlock)( ADAuthenticationError *, NSURL *);
-}
 
 + (ADAuthenticationBroker *)sharedInstance
 {
-    static ADAuthenticationBroker *broker     = nil;
-    static dispatch_once_t          predicate;
+    static ADAuthenticationBroker *broker    = nil;
+    static dispatch_once_t         predicate = 0;
     
     dispatch_once( &predicate, ^{
         broker = [[self allocPrivate] init];
@@ -102,8 +95,8 @@ correlationId:(NSUUID *)correlationId
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
     
     // Save the completion block
-    _completionBlock = [completionBlock copy];
-    ADAuthenticationError* error;
+    _completionBlock = SAFE_ARC_BLOCK_COPY(completionBlock);
+    ADAuthenticationError* error = nil;
     
     // Load the authentication view
     _authenticationPageController = [[ADAuthenticationWindowController alloc] initAtURL:startURL
@@ -147,15 +140,16 @@ correlationId:(NSUUID *)correlationId
     else
     {
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
-                                                       protocolCode:nil                                                           errorDetails:AD_FAILED_NO_RESOURCES];
+                                                       protocolCode:nil
+                                                       errorDetails:AD_FAILED_NO_RESOURCES];
     }
     //Error occurred above. Dispatch the callback to the caller:
     if (error)
     {
-        dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-            _completionBlock( error, nil );
-        });
+        [self dispatchCompletionBlock:error URL:nil];
     }
+    
+    SAFE_ARC_RELEASE(_authenticationPageController);
 }
 
 - (void)cancel
@@ -175,12 +169,13 @@ correlationId:(NSUUID *)correlationId
     {
         if ( _completionBlock )
         {
-            void (^completionBlock)( ADAuthenticationError *, NSURL *) = _completionBlock;
-            _completionBlock = nil;
+            void (^completionBlock)( ADAuthenticationError *, NSURL *) = _completionBlock; _completionBlock = nil;
             
             dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
                 completionBlock( error, url );
             });
+            
+            SAFE_ARC_BLOCK_RELEASE(completionBlock);
         }
     }
 }
@@ -203,7 +198,7 @@ correlationId:(NSUUID *)correlationId
         }
         
         [_authenticationPageController close];
-        _authenticationPageController = nil;
+        SAFE_ARC_RELEASE(_authenticationPageController); _authenticationPageController = nil;
         
         [_authenticationWebViewController stop];
         _authenticationWebViewController = nil;
@@ -227,7 +222,7 @@ correlationId:(NSUUID *)correlationId
         }
         
         [_authenticationPageController close];
-        _authenticationPageController = nil;
+        SAFE_ARC_RELEASE(_authenticationPageController); _authenticationPageController = nil;
         
         [_authenticationWebViewController stop];
         _authenticationWebViewController = nil;
@@ -251,7 +246,7 @@ correlationId:(NSUUID *)correlationId
         }
         
         [_authenticationPageController close];
-        _authenticationPageController = nil;
+        SAFE_ARC_RELEASE(_authenticationPageController); _authenticationPageController = nil;
         
         [_authenticationWebViewController stop];
         _authenticationWebViewController = nil;

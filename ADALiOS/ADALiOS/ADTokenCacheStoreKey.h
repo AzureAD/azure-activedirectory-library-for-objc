@@ -24,6 +24,12 @@
 @interface ADTokenCacheStoreKey : NSObject<NSCopying>
 {
     NSUInteger hash;
+    
+// OSX Universal Compatibility
+@private
+    NSString  *_authority;
+    NSString  *_resource;
+    NSString  *_clientId;
 }
 
 /*! Creates a key
@@ -37,13 +43,13 @@
                                     error: (ADAuthenticationError* __autoreleasing*) error;
 
 /*! The authority that issues access tokens */
-@property (readonly) NSString* authority;
+@property (retain, readonly) NSString* authority;
 
 /*! The resouce to which the access tokens are issued. May be nil in case of multi-resource refresh token. */
-@property (readonly) NSString* resource;
+@property (retain, readonly) NSString* resource;
 
 /*! The application client identifier */
-@property (readonly) NSString* clientId;
+@property (retain, readonly) NSString* clientId;
 
 
 @end

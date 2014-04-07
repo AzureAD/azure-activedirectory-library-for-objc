@@ -16,11 +16,30 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+@class ADAuthenticationWebViewController;
+
 @protocol ADAuthenticationDelegate;
 
 @interface ADAuthenticationWindowController : NSWindowController <NSWindowDelegate>
+{
+    IBOutlet WebView *_webView;
+    __weak NSProgressIndicator *_progressIndicator;
+    
+    ADAuthenticationWebViewController*  _webViewController;
+    id                                  _webViewResourceLoadDelegate;
+    id<ADAuthenticationDelegate>        _delegate;
+    
+    BOOL      _complete;
+    BOOL      _closed;
+    
+    NSURL    *_startURL;
+    NSURL    *_endURL;
+    
+    // Counter for load/finish of webview requests
+    __volatile int32_t _loadCounter;
+}
 
-@property (weak) IBOutlet NSProgressIndicator *progressIndicator;
+@property (assign) IBOutlet NSProgressIndicator *progressIndicator;
 
 @property (weak_delegate, nonatomic) id<ADAuthenticationDelegate> delegate;
 

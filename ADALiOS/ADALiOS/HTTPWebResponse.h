@@ -17,6 +17,13 @@
 // governing permissions and limitations under the License.
 
 @interface HTTPWebResponse : NSObject
+{
+// OSX Universal Compatibility
+@private
+    NSHTTPURLResponse *_response;
+    NSData            *_body;
+    NSString          *_bodyText;
+}
 
 @property (strong, readonly) NSDictionary *headers;
 @property (strong, readonly) NSData       *body;

@@ -22,6 +22,10 @@
 
 @implementation ADTokenCacheStoreKey
 
+@synthesize authority = _authority;
+@synthesize clientId  = _clientId;
+@synthesize resource  = _resource;
+
 -(id) init
 {
     //Use the custom init instead. This one will throw.
@@ -37,14 +41,24 @@
     if (self)
     {
         //As the object is immutable we precalculate the hash:
-        hash = [[NSString stringWithFormat:@"##%@##%@##%@##", authority, resource, clientId]
-                    hash];
-        _authority = authority;
-        _resource = resource;
-        _clientId = clientId;
+        hash       = [[NSString stringWithFormat:@"##%@##%@##%@##", authority, resource, clientId] hash];
+        _authority = SAFE_ARC_RETAIN( authority );
+        _resource  = SAFE_ARC_RETAIN( resource );
+        _clientId  = SAFE_ARC_RETAIN( clientId );
     }
     
     return self;
+}
+
+- (void)dealloc
+{
+    DebugLog( @"dealloc" );
+    
+    SAFE_ARC_RELEASE( _authority );
+    SAFE_ARC_RELEASE( _resource );
+    SAFE_ARC_RELEASE( _clientId );
+    
+    SAFE_ARC_SUPER_DEALLOC();
 }
 
 +(id) keyWithAuthority: (NSString*) authority
@@ -62,8 +76,7 @@
     RETURN_NIL_ON_NIL_ARGUMENT(authority);//Canonicalization will return nil on empty or bad URL.
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(clientId);
     
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey alloc];
-    return [key initWithAuthority:authority resource:resource clientId:clientId];
+    return SAFE_ARC_AUTORELEASE( [[ADTokenCacheStoreKey alloc] initWithAuthority:authority resource:resource clientId:clientId] );
 }
 
 -(NSUInteger) hash
@@ -90,9 +103,13 @@
 
 -(id) copyWithZone:(NSZone*) zone
 {
-    return [[self.class allocWithZone:zone] initWithAuthority:[self.authority copyWithZone:zone]
-                                                     resource:[self.resource copyWithZone:zone]
-                                                     clientId:[self.clientId copyWithZone:zone]];
+    id authority = SAFE_ARC_AUTORELEASE([self.authority copyWithZone:zone]);
+    id resource  = SAFE_ARC_AUTORELEASE([self.resource copyWithZone:zone]);
+    id clientId  = SAFE_ARC_AUTORELEASE([self.clientId copyWithZone:zone]);
+    
+    return [[self.class allocWithZone:zone] initWithAuthority:authority
+                                                     resource:resource
+                                                     clientId:clientId];
 }
 
 @end

@@ -15,11 +15,25 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
+
 #include "ADAuthenticationContext.h"
+
 @class ADAuthenticationError;
+@class ADAuthenticationWindowController;
+@class ADAuthenticationWebViewController;
 
 typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
+
 @interface ADAuthenticationBroker : NSObject
+{
+// OSX Universal Compatibility
+@private
+    ADAuthenticationWindowController  *_authenticationPageController;
+    NSModalSession                     _authenticationSession;
+    ADAuthenticationWebViewController *_authenticationWebViewController;
+    
+    void (^_completionBlock)( ADAuthenticationError *, NSURL *);
+}
 
 + (ADAuthenticationBroker *)sharedInstance;
 

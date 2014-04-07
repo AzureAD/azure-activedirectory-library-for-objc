@@ -16,6 +16,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+
 #import "NSURLExtensions.h"
 #import "NSDictionaryExtensions.h"
 #import "NSString+ADHelperMethods.h"
@@ -53,6 +54,7 @@ const unichar queryStringSeparator = '?';
                               until: (unichar) endSeparator
 {
     NSArray* parts = [[self absoluteString] componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithRange:(NSRange){startSeparator, 1}]];
+    
     if (parts.count != 2)
     {
         return nil;
@@ -67,6 +69,7 @@ const unichar queryStringSeparator = '?';
     {
         return nil;
     }
+    
     return [NSDictionary URLFormDecode:last];
 }
 

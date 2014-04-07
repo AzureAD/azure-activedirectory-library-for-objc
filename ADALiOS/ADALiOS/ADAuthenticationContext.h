@@ -62,6 +62,15 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  @class ADAuthenticationContext
  */
 @interface ADAuthenticationContext : NSObject
+{
+// OSX Universal Compatibility
+@private
+    NSString *_authority;
+    NSUUID   *_correlationId;
+    id<ADTokenCacheStoring> _tokenCacheStore;
+    ViewController *_parentController;
+    BOOL _validateAuthority;
+}
 
 /*! The method allows subclassing of ADAuthenticationContext. For direct class usage, the static factory methods
  are recommended due to their simplicity.
@@ -128,14 +137,14 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 @property BOOL validateAuthority;
 
 /*! Provides access to the token cache used in this context. If null, tokens will not be cached. */
-@property id<ADTokenCacheStoring> tokenCacheStore;
+@property (retain, atomic) id<ADTokenCacheStoring> tokenCacheStore;
 
 /*! Unique identifier passed to the server and returned back with errors. Useful during investigations to correlate the
  requests and the responses from the server. If nil, a new UUID is generated on every request. */
-@property NSUUID* correlationId;
+@property (retain, atomic) NSUUID* correlationId;
 
 /*! The parent view controller for the authentication view controller UI. */
-@property ViewController* parentController;
+@property (retain, atomic) ViewController* parentController;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,

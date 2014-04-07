@@ -37,7 +37,6 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
 
 @implementation ADAuthenticationParameters (Internal)
 
-
 -(id) initInternalWithParameters: (NSDictionary *) extractedParameters
                            error: (ADAuthenticationError* __autoreleasing*) error;
 
@@ -47,23 +46,24 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
     self = [super init];
     if (self)
     {
-        self->_extractedParameters = extractedParameters;
-        self->_authority = [_extractedParameters objectForKey:OAuth2_Authorization_Uri];
+        self->_extractedParameters = SAFE_ARC_RETAIN(extractedParameters);
+        self->_authority           = SAFE_ARC_RETAIN([_extractedParameters objectForKey:OAuth2_Authorization_Uri]);
+        
         NSURL* testUrl = [NSURL URLWithString:_authority];//Nil argument returns nil
         if (!testUrl)
         {
-            NSString* errorDetails = [NSString stringWithFormat:MissingOrInvalidAuthority,
-                                      OAuth2_Authenticate_Header, OAuth2_Authorization_Uri];
-            ADAuthenticationError* adError = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT
-                                                              errorDetails:errorDetails];
             if (error)
             {
+                NSString* errorDetails = [NSString stringWithFormat:MissingOrInvalidAuthority,
+                                          OAuth2_Authenticate_Header, OAuth2_Authorization_Uri];
+                ADAuthenticationError* adError = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT
+                                                                                         errorDetails:errorDetails];
                 *error = adError;
             }
             return nil;
         }
         
-        self->_resource = [_extractedParameters objectForKey:OAuth2_Resource_Id];
+        self->_resource = SAFE_ARC_RETAIN([_extractedParameters objectForKey:OAuth2_Resource_Id]);
     }
     return self;
 }
@@ -80,8 +80,8 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
 + (NSDictionary*) extractChallengeParameters: (NSString*) headerContents
                                        error: (ADAuthenticationError* __autoreleasing*) error;
 {
-    NSError* rgError;
-    __block ADAuthenticationError* adError;
+    NSError* rgError = nil;
+    __block ADAuthenticationError* adError = nil;
     
     if ([NSString isStringNilOrBlank:headerContents])
     {
@@ -115,24 +115,26 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
                                                       options:0
                                                         range:NSMakeRange(0, headerContents.length)
                                                    usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
-                     {//Block executed for each name-value match:
-                         if (result.numberOfRanges != 3)//0: whole match, 1 - name group, 2 - value group
-                         {
-                             //Shouldn't happen given the explicit expressions and matches, but just in case:
-                             adError = [self invalidHeader:headerContents];
-                         }
-                         else
-                         {
-                             NSRange key = [result rangeAtIndex:1];
-                             NSRange value = [result rangeAtIndex:2];
-                             if (key.length && value.length)
-                             {
-                                 [parameters setObject:[headerContents substringWithRange:value]
-                                                forKey:[headerContents substringWithRange:key]];
-                             }
-                         }
-                     }];
-                    return parameters;
+                    {
+#pragma unused( flags, stop )
+                        //Block executed for each name-value match:
+                        if (result.numberOfRanges != 3)//0: whole match, 1 - name group, 2 - value group
+                        {
+                            //Shouldn't happen given the explicit expressions and matches, but just in case:
+                            adError = [self invalidHeader:headerContents];
+                        }
+                        else
+                        {
+                            NSRange key = [result rangeAtIndex:1];
+                            NSRange value = [result rangeAtIndex:2];
+                            if (key.length && value.length)
+                            {
+                                [parameters setObject:[headerContents substringWithRange:value]
+                                               forKey:[headerContents substringWithRange:key]];
+                            }
+                        }
+                    }];
+                    return SAFE_ARC_AUTORELEASE(parameters);
                 }
             }
         }

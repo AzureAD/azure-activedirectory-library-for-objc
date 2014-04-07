@@ -42,6 +42,17 @@ typedef enum
  should be used instead to provide the settings instance.
  */
 @interface ADAuthenticationSettings : NSObject
+{
+// OSX Universal Compatibility
+@private
+    id<ADTokenCacheStoring> _defaultTokenCacheStore;
+    int _requestTimeOut;
+    uint _expirationBuffer;
+    BOOL _enableFullScreen;
+    
+    ADCredentialsType       _credentialsType;
+    dispatch_queue_t _dispatchQueue;
+}
 
 /*! The static instance of the singleton settings class*/
 +(ADAuthenticationSettings*) sharedInstance;
@@ -62,9 +73,9 @@ typedef enum
 @property BOOL enableFullScreen;
 
 /*! The dispatch queue to be used for the asynchronous calls. */
-@property dispatch_queue_t dispatchQueue;
+@property (assign) dispatch_queue_t dispatchQueue;
 
 /*! The default token cache store to be used by the ADAuthenticationContext instances. */
-@property id<ADTokenCacheStoring> defaultTokenCacheStore;
+@property (retain) id<ADTokenCacheStoring> defaultTokenCacheStore;
 
 @end

@@ -33,6 +33,18 @@ typedef WebView   WebViewType;
 #else
     : NSObject
 #endif
+{
+// OSX Universal Compatibility
+@private
+    __weak WebViewType *_webView;
+    
+    NSURL    *_startURL;
+    NSString *_endURL;
+    BOOL      _complete;
+    
+    id<ADAuthenticationDelegate> _delegate;
+}
+
 
 @property (weak_delegate, nonatomic) id<ADAuthenticationDelegate> delegate;
 

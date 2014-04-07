@@ -245,11 +245,12 @@
                                     line: (int) sourceLine
 {
     //Empty string:
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     NSDictionary* result = [ADAuthenticationParameters extractChallengeParameters:text error:&error];
     if (result)
     {
         [self recordFailureWithDescription:@"Parsed invalid header" inFile:@"" __FILE__ atLine:sourceLine expected:NO];
+        result = nil;
     }
     [self expectedError:error line:sourceLine];
     if (AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT != error.code)
@@ -260,7 +261,7 @@
 
 -(void)testExtractChallengeParametersInvalidBearer
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     XCTAssertNil([ADAuthenticationParameters extractChallengeParameters:nil error:&error]);
     XCTAssertNotNil(error);
 
@@ -291,6 +292,7 @@
                         expected:expectedResource
                             file:__FILE__
                             line:sourceLine];
+        params = nil;
     }
     else
     {
@@ -380,6 +382,8 @@
                                                                        error:&error];
     XCTAssertNil(params);
     XCTAssertNotNil(error);
+    
+    params = nil;
 }
 
 

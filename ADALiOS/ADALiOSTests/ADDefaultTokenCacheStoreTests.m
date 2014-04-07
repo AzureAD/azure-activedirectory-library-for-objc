@@ -722,7 +722,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     //Stop serialization clear the cache and read it from the file,
     //make sure that the file has the same values:
-    [mStore setArchivedRevision:LONG_LONG_MAX];//Temporarily disable serialization
+    [mStore setArchivedRevision:UINT64_MAX];//Temporarily disable serialization
     [mStore removeAll];
     XCTAssertTrue(mCache.count == 0);
     result = [mStore addInitialCacheItems];//Load manually

@@ -44,11 +44,29 @@ static volatile int sDialogInProgress = 0;
 
 @implementation ADAuthenticationContext
 
+@synthesize authority         = _authority;
+@synthesize correlationId     = _correlationId;
+@synthesize parentController  = _parentController;
+@synthesize tokenCacheStore   = _tokenCacheStore;
+@synthesize validateAuthority = _validateAuthority;
+
 -(id) init
 {
     //Ensure that the appropriate init function is called. This will cause the runtime to throw.
     [super doesNotRecognizeSelector:_cmd];
     return nil;
+}
+
+- (void)dealloc
+{
+    DebugLog( @"dealloc" );
+    
+    SAFE_ARC_RELEASE(_authority);
+    SAFE_ARC_RELEASE(_correlationId);
+    SAFE_ARC_RELEASE(_parentController);
+    SAFE_ARC_RELEASE((id)_tokenCacheStore);
+    
+    SAFE_ARC_SUPER_DEALLOC();
 }
 
 //A wrapper around checkAndHandleBadArgument. Assumes that "completionMethod" is in scope:
@@ -95,9 +113,9 @@ if (![self checkAndHandleBadArgument:ARG \
     self = [super init];
     if (self)
     {
-        _authority = extractedAuthority;
+        _authority         = SAFE_ARC_RETAIN(extractedAuthority);
         _validateAuthority = bValidate;
-        _tokenCacheStore = tokenCache;
+        _tokenCacheStore   = SAFE_ARC_RETAIN((id)tokenCache);
     }
     return self;
 }
@@ -143,10 +161,12 @@ if (![self checkAndHandleBadArgument:ARG \
     API_ENTRY;
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(authority);
 
-    return [[self alloc] initWithAuthority: authority
-                         validateAuthority: bValidate
-                           tokenCacheStore: tokenCache
-                                     error: error];
+    ADAuthenticationContext *context = [[self alloc] initWithAuthority: authority
+                                                     validateAuthority: bValidate
+                                                       tokenCacheStore: tokenCache
+                                                                 error: error];
+    
+    return SAFE_ARC_AUTORELEASE(context);
 }
 
 
@@ -279,7 +299,7 @@ if (![self checkAndHandleBadArgument:ARG \
              if (broadKey)
              {
                  BOOL useAccessToken;
-                 ADAuthenticationError* error;
+                 ADAuthenticationError* error = nil;
                  ADTokenCacheStoreItem* broadItem = [self findCacheItemWithKey:broadKey userId:userId useAccessToken:&useAccessToken error:&error];
                  if (error)
                  {
@@ -403,7 +423,7 @@ if (![self checkAndHandleBadArgument:ARG \
     {
         return nil;//Nothing to return
     }
-    ADAuthenticationError* localError;
+    ADAuthenticationError* localError = nil;
     ADTokenCacheStoreItem* item = [self extractCacheItemWithKey:key userId:userId error:&localError];
     if (localError)
     {
@@ -490,11 +510,12 @@ if (![self checkAndHandleBadArgument:ARG \
     
     if (validateAuthority)
     {
+        __block ADAuthenticationCallback localCompletionBlock = SAFE_ARC_BLOCK_COPY( completionBlock );
         [[ADInstanceDiscovery sharedInstance] validateAuthority:self.authority correlationId:correlationId completionBlock:^(BOOL validated, ADAuthenticationError *error)
         {
             if (error)
             {
-                completionBlock([ADAuthenticationResult resultFromError:error]);
+                localCompletionBlock([ADAuthenticationResult resultFromError:error]);
             }
             else
             {
@@ -508,14 +529,15 @@ if (![self checkAndHandleBadArgument:ARG \
                                               tryCache:tryCache
                                      validateAuthority:NO /* Already validated in this block. */
                                          correlationId:correlationId
-                                       completionBlock:completionBlock];
+                                       completionBlock:localCompletionBlock];
             }
+            SAFE_ARC_BLOCK_RELEASE( localCompletionBlock );
         }];
         return;//The asynchronous handler above will do the work.
     }
 
     //Check the cache:
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     //We are explicitly creating a key first to ensure indirectly that all of the required arguments are correct.
     //This is the safest way to guarantee it, it will raise an error, if the the any argument is not correct:
     ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:self.authority resource:resource clientId:clientId error:&error];
@@ -674,6 +696,8 @@ if (![self checkAndHandleBadArgument:ARG \
             multiRefreshTokenItem.resource = nil;
             multiRefreshTokenItem.expiresOn = nil;
             [self.tokenCacheStore addOrUpdateItem:multiRefreshTokenItem error:nil];
+            
+            SAFE_ARC_RELEASE(multiRefreshTokenItem);
         }
         
         AD_LOG_VERBOSE_F(@"Token cache store", @"Storing access token for resource: %@", cacheItem.resource);
@@ -738,11 +762,13 @@ if (![self checkAndHandleBadArgument:ARG \
     [self updateCorrelationId:&correlationId];
     if (validateAuthority)
     {
+        __block ADAuthenticationCallback localCompletionBlock = SAFE_ARC_BLOCK_COPY( completionBlock );
+        
         [[ADInstanceDiscovery sharedInstance] validateAuthority:self.authority correlationId:correlationId completionBlock:^(BOOL validated, ADAuthenticationError *error)
          {
              if (error)
              {
-                 completionBlock([ADAuthenticationResult resultFromError:error]);
+                 localCompletionBlock([ADAuthenticationResult resultFromError:error]);
              }
              else
              {
@@ -753,8 +779,10 @@ if (![self checkAndHandleBadArgument:ARG \
                                                 cacheItem:cacheItem
                                         validateAuthority:NO /*Already validated in this block. */
                                             correlationId:correlationId
-                                          completionBlock:completionBlock];
+                                          completionBlock:localCompletionBlock];
              }
+             
+             SAFE_ARC_BLOCK_RELEASE( localCompletionBlock );
          }];
          return;//The asynchronous block above will handle everything;
     }
@@ -785,7 +813,7 @@ if (![self checkAndHandleBadArgument:ARG \
                         requestCorrelationId:correlationId
                           completion:^(NSDictionary *response)
                         {
-                            ADTokenCacheStoreItem* resultItem = (cacheItem) ? cacheItem : [ADTokenCacheStoreItem new];
+                            ADTokenCacheStoreItem* resultItem = (cacheItem) ? SAFE_ARC_RETAIN(cacheItem) : [ADTokenCacheStoreItem new];
                             
                             //Always ensure that the cache item has all of these set, especially in the broad token case, where the passed item
                             //may have empty "resource" property:
@@ -802,6 +830,8 @@ if (![self checkAndHandleBadArgument:ARG \
                                          withRefreshToken:refreshToken];
                             }
                             result = [self updateResult:result toUser:userId];//Verify the user (just in case)
+                            
+                            SAFE_ARC_RELEASE(resultItem);
                             
                             completionBlock(result);
                         }];
@@ -849,8 +879,8 @@ if (![self checkAndHandleBadArgument:ARG \
     THROW_ON_NIL_ARGUMENT(item);
     AD_LOG_VERBOSE(@"Token extraction", @"Attempt to extract the data from the server response.");
     
-    NSString* responseId = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
-    NSUUID* responseUUID;
+    NSString *responseId   = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
+    NSUUID   *responseUUID = nil;
     if (![NSString isStringNilOrBlank:responseId])
     {
         responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
@@ -871,6 +901,7 @@ if (![self checkAndHandleBadArgument:ARG \
     ADAuthenticationError* error = [self errorFromDictionary:response errorCode:(fromRefreshTokenWorkflow) ? AD_ERROR_INVALID_REFRESH_TOKEN : AD_ERROR_AUTHENTICATION];
     if (error)
     {
+        SAFE_ARC_RELEASE(responseUUID);
         return [ADAuthenticationResult resultFromError:error];
     }
     
@@ -891,6 +922,8 @@ if (![self checkAndHandleBadArgument:ARG \
                 NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
                 
                 expires = [NSDate dateWithTimeIntervalSinceNow:[formatter numberFromString:expires_in].longValue];
+                
+                SAFE_ARC_RELEASE(formatter);
             }
             else if ( [expires_in isKindOfClass:[NSNumber class]] )
             {
@@ -941,15 +974,19 @@ if (![self checkAndHandleBadArgument:ARG \
             }
         }
         
+        SAFE_ARC_RELEASE(responseUUID);
         return [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:multiResourceRefreshToken];
     }
     
-    //No access token and no error, we assume that there was another kind of error (connection, server down, etc.).
+        //No access token and no error, we assume that there was another kind of error (connection, server down, etc.).
     //Note that for security reasons we log only the keys, not the values returned by the user:
     NSString* errorMessage = [NSString stringWithFormat:@"The server returned without providing an error. Keys returned: %@", [response allKeys]];
     error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
                                                    protocolCode:nil
                                                    errorDetails:errorMessage];
+    
+    SAFE_ARC_RELEASE(responseUUID);
+    
     return [ADAuthenticationResult resultFromError:error];
 }
 
@@ -1166,6 +1203,7 @@ requestCorrelationId:correlationId
         item.resource = resource;
         item.clientId = clientId;
         completionBlock([self processTokenResponse:response forItem:item fromRefresh:NO requestCorrelationId:correlationId]);
+        SAFE_ARC_RELEASE(item);
     }];
 }
 
@@ -1179,7 +1217,7 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
     NSString* endPoint = [authorizationServer stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
 
     
-    HTTPWebRequest *webRequest = [[HTTPWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
+    __block HTTPWebRequest *webRequest = [[HTTPWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
                                                        correlationId:requestCorrelationId];
     
     webRequest.method = HTTPPost;
@@ -1220,7 +1258,7 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
                         }
                         else
                         {
-                            ADAuthenticationError* adError;
+                            ADAuthenticationError* adError = nil;
                             if (jsonError)
                             {
                                 // Unrecognized JSON response
@@ -1245,6 +1283,8 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
                         //Now add the information to the dictionary, so that the parser can extract it:
                         [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:nil errorDetails:errorData]
                                      forKey:AUTH_NON_PROTOCOL_ERROR];
+                        
+                        SAFE_ARC_RELEASE(body);
                     }
             }
         }
@@ -1255,7 +1295,11 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
             [response setObject:[ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription]
                                 forKey:AUTH_NON_PROTOCOL_ERROR];
         }
+        
         completionBlock( response );
+        
+        SAFE_ARC_RELEASE(webRequest);
+        SAFE_ARC_RELEASE(response);
     }];
 }
 

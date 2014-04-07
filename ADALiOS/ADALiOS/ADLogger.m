@@ -42,7 +42,8 @@ BOOL sNSLogging = YES;
 {
     @synchronized(self)//Avoid changing to null while attempting to call it.
     {
-        sLogCallback = callback;
+        if ( sLogCallback ) SAFE_ARC_BLOCK_RELEASE( sLogCallback );
+        sLogCallback = SAFE_ARC_BLOCK_COPY( callback );
     }
 }
 
@@ -176,7 +177,7 @@ additionalInformation: (NSString*) additionalInformation
                                    @{
                                      ADAL_ID_PLATFORM:@"OSX",
                                      ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW],
-                                     ADAL_ID_OS_VER:systemVersionDictionary[@"ProductVersion"],
+                                     ADAL_ID_OS_VER:[systemVersionDictionary objectForKey:@"ProductVersion"],
                                      }];
 #endif
     NSString* CPUVer = [self getCPUInfo];
@@ -200,7 +201,7 @@ additionalInformation: (NSString*) additionalInformation
     {
         [toReturn appendFormat:@"%02x", hash[i]];
     }
-    return toReturn;
+    return SAFE_ARC_AUTORELEASE(toReturn);
 }
 
 +(void) logToken: (NSString*) token

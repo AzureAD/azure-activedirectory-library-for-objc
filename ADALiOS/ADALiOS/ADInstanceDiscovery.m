@@ -37,6 +37,15 @@ NSString* const sValidationServerError = @"The authority validation server retur
 
 @implementation ADInstanceDiscovery
 
+- (void)dealloc
+{
+    DebugLog( @"dealloc" );
+    
+    SAFE_ARC_RELEASE(mValidatedAuthorities);
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 -(id) init
 {
     [super doesNotRecognizeSelector:_cmd];//Throws an exception.
@@ -63,7 +72,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
 - (NSSet*) getValidatedAuthorities
 {
     API_ENTRY;
-    NSSet* copy;
+    NSSet* copy = nil;
     @synchronized (self)
     {
         copy = [NSSet setWithSet:mValidatedAuthorities];
@@ -91,11 +100,11 @@ NSString* const sValidationServerError = @"The authority validation server retur
  is not https or the authority is not a valid URL.*/
 -(NSString*) extractHost: (NSString*) authority
            correlationId: (NSUUID*) correlationId
-                   error: (ADAuthenticationError* __autoreleasing *) error
+                   error: (ADAuthenticationError * __autoreleasing *) error
 {
     NSURL* fullUrl = [NSURL URLWithString:authority.lowercaseString];
     
-    ADAuthenticationError* adError;
+    ADAuthenticationError* adError = nil;
     if (!fullUrl || ![fullUrl.scheme isEqualToString:@"https"])
     {
         adError = [ADAuthenticationError errorFromArgument:authority argumentName:@"authority"];
@@ -147,7 +156,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
     NSString* message = [NSString stringWithFormat:@"Attempting to validate the authority: %@; CorrelationId: %@", authority, [correlationId UUIDString]];
     AD_LOG_VERBOSE(@"Instance discovery", message);
     
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     NSString* authorityHost = [self extractHost:authority correlationId:correlationId error:&error];
     if (error)
     {
@@ -228,7 +237,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
     NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, sInstanceDiscoverySuffix, [request_data URLFormEncode]];
 
     AD_LOG_VERBOSE(@"Authority Validation Request", endPoint);
-    HTTPWebRequest *webRequest = [[HTTPWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint] correlationId:correlationId];
+    __block HTTPWebRequest *webRequest = [[HTTPWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint] correlationId:correlationId];
     
     webRequest.method = HTTPGet;
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
@@ -292,7 +301,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
                 {
                     // Request failure
                     NSString* logMessage = [NSString stringWithFormat:@"Server HTTP Status %ld", (long)webResponse.statusCode];
-                    NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding]];
+                    NSString* errorData  = [NSString stringWithFormat:@"Server HTTP Response %@", SAFE_ARC_AUTORELEASE([[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding])];
                     AD_LOG_WARN(logMessage, errorData);
                     adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData];
                 }
@@ -306,6 +315,8 @@ NSString* const sValidationServerError = @"The authority validation server retur
         }
         
         completionBlock( verified, adError );
+        
+        SAFE_ARC_RELEASE(webRequest);
     }];
 }
 

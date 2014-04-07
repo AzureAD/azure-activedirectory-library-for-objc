@@ -21,6 +21,12 @@
 
 @implementation ADAuthenticationSettings
 
+@synthesize defaultTokenCacheStore = _defaultTokenCacheStore;
+@synthesize expirationBuffer       = _expirationBuffer;
+@synthesize credentialsType        = _credentialsType;
+@synthesize requestTimeOut         = _requestTimeOut;
+@synthesize enableFullScreen       = _enableFullScreen;
+
 
 /*!
  An internal initializer used from the static creation function.
@@ -39,28 +45,59 @@
         //The current HTTPWebRequest implementation uses NSURLConnection, which calls its delegate on the same thread
         //that created the object. Unfortunately with Grand Central Dispatch, it is not guaranteed that the thread
         //exists. Hence for now, we create the connection on the main thread by default:
-        self.dispatchQueue = dispatch_get_main_queue();
+        _dispatchQueue              = dispatch_get_main_queue();
+        dispatch_retain( _dispatchQueue );
 #if TARGET_OS_IPHONE
         self.defaultTokenCacheStore = [[ADKeychainTokenCacheStore alloc] initWithLocation:nil];
 #else
-        self.defaultTokenCacheStore = [[ADPersistentTokenCacheStore alloc] initWithLocation:nil];
+        _defaultTokenCacheStore     = [[ADPersistentTokenCacheStore alloc] initWithLocation:nil];
 #endif
     }
     return self;
 }
 
+- (void)dealloc
+{
+    DebugLog( @"dealloc" );
+    
+    NSAssert( false, @"Cannot dealloc ADAuthenticationSettings object" );
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 +(ADAuthenticationSettings*)sharedInstance
 {
     /* Below is a standard objective C singleton pattern*/
-    static ADAuthenticationSettings* instance;
-    static dispatch_once_t onceToken;
+    static ADAuthenticationSettings* instance = nil;
+    static dispatch_once_t onceToken = 0;
     @synchronized(self)
     {
         dispatch_once(&onceToken, ^{
             instance = [[ADAuthenticationSettings alloc] initInternal];
         });
     }
+#if !__has_feature(objc_arc)
+    if ( [instance retainCount] > 1 )
+    {
+        DebugLog( @"ADAuthenticationSettings retainCount = %lu", (unsigned long)[instance retainCount] );
+    }
+    NSAssert( [instance retainCount] >= 1, @"Bad retain count on shared instance" );
+#endif
     return instance;
+}
+
+- (dispatch_queue_t)dispatchQueue
+{
+    return _dispatchQueue;
+}
+
+- (void)setDispatchQueue:(dispatch_queue_t)dispatchQueue
+{
+    // TODO: Optimize this if no value change
+    dispatch_queue_t oldQueue = _dispatchQueue;
+    _dispatchQueue = dispatchQueue;
+    if ( _dispatchQueue ) dispatch_retain( _dispatchQueue );
+    if ( oldQueue ) dispatch_release( oldQueue );
 }
 
 @end

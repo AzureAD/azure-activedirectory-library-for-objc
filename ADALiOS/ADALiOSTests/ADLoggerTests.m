@@ -117,7 +117,7 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
 {
     [ADLogger setNSLogging:NO];//Limit the system logs, as we will be printing tons of messsages here.
     sLoggerTestCompletedSignal = dispatch_semaphore_create(0);
-    XCTAssertNotNil(sLoggerTestCompletedSignal);
+    XCTAssert( sLoggerTestCompletedSignal != NULL, @"Semaphore note created" );
     sLoggerTestThreadsCompleted = 0;
     for(int i = 0; i < sMaxLoggerTestThreads; ++i)
     {

@@ -47,7 +47,7 @@
         }
     }
     
-    return parameters;
+    return SAFE_ARC_AUTORELEASE(parameters);
 }
 
 // Encodes a dictionary consisting of a set of name/values pairs that are strings to www-form-urlencoded
@@ -65,17 +65,22 @@
             parameters = [NSString stringWithFormat:@"%@=%@",
                            [[((NSString *)key) trimmedString] adUrlFormEncode],
                            [[((NSString *)value) trimmedString] adUrlFormEncode]];
+            
+            SAFE_ARC_RETAIN( parameters );
         }
         else
         {
-            parameters = [NSString stringWithFormat:@"%@&%@=%@",
-                          parameters,
-                          [[((NSString *)key) trimmedString] adUrlFormEncode],
-                          [[((NSString *)value) trimmedString] adUrlFormEncode]];
+            NSString *newParameters = [NSString stringWithFormat:@"%@&%@=%@",
+                                       parameters,
+                                       [[((NSString *)key) trimmedString] adUrlFormEncode],
+                                       [[((NSString *)value) trimmedString] adUrlFormEncode]];
+            
+            SAFE_ARC_RELEASE( parameters );
+            parameters = SAFE_ARC_RETAIN( newParameters );
         }
     }];
     
-    return parameters;
+    return SAFE_ARC_AUTORELEASE( parameters );
 }
 
 @end

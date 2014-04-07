@@ -34,17 +34,6 @@ NSString *const HTTPPost = @"POST";
 @end
 
 @implementation HTTPWebRequest
-{
-    NSURLConnection     *_connection;
-
-    NSData              *_requestData;
-    
-    NSHTTPURLResponse   *_response;
-    NSMutableData       *_responseData;
-    NSUUID              *_correlationId;
-
-    void (^_completionHandler)( NSError *, HTTPWebResponse *);
-}
 
 #pragma mark - Properties
 
@@ -63,7 +52,7 @@ NSString *const HTTPPost = @"POST";
     if ( body != nil )
     {
         _requestMethod = HTTPPost;
-        _requestData   = body;
+        _requestData   = SAFE_ARC_RETAIN(body);
         
         // Add default HTTP Headers to the request: Expect
         // Note that we don't bother with Expect because iOS does not support it
@@ -72,6 +61,27 @@ NSString *const HTTPPost = @"POST";
 }
 
 #pragma mark - Initialization
+
+- (void)dealloc
+{
+    DebugLog( @"dealloc" );
+    
+    SAFE_ARC_RELEASE(_correlationId);
+    
+    SAFE_ARC_RELEASE(_requestData);
+    SAFE_ARC_RELEASE(_requestHeaders);
+    SAFE_ARC_RELEASE(_requestMethod);
+    SAFE_ARC_RELEASE(_requestURL);
+    
+    SAFE_ARC_RELEASE(_response);
+    SAFE_ARC_RELEASE(_responseData);
+    
+    SAFE_ARC_BLOCK_RELEASE(_completionHandler);
+    
+    SAFE_ARC_RELEASE(_connection);
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
 
 - (id)initWithURL: (NSURL*) requestURL
     correlationId: (NSUUID*) correlationId
@@ -82,7 +92,7 @@ NSString *const HTTPPost = @"POST";
 
     if ( nil != self )
     {
-        _connection     = nil;
+        _connection        = nil;
         
         _requestURL        = [requestURL copy];
         _requestMethod     = HTTPGet;
@@ -96,7 +106,7 @@ NSString *const HTTPPost = @"POST";
         _timeout           = 30;
         
         _completionHandler = nil;
-        _correlationId     = correlationId;
+        _correlationId     = SAFE_ARC_RETAIN(correlationId);
     }
     
     return self;
@@ -105,17 +115,6 @@ NSString *const HTTPPost = @"POST";
 // Cleans up and then calls the completion handler
 - (void)completeWithError:(NSError *)error andResponse:(HTTPWebResponse *)response
 {
-    // Cleanup
-    _requestURL     = nil;
-    _requestMethod  = nil;
-    _requestHeaders = nil;
-    _requestData    = nil;
-    
-    _response       = nil;
-    _responseData   = nil;
-    
-    _connection     = nil;
-    
     if ( _completionHandler != nil )
     {
         _completionHandler( error, response );
@@ -124,7 +123,7 @@ NSString *const HTTPPost = @"POST";
 
 - (void)send:(void (^)(NSError *, HTTPWebResponse *))completionHandler
 {
-    _completionHandler = [completionHandler copy];
+    _completionHandler = SAFE_ARC_BLOCK_COPY(completionHandler);
     
     _response          = nil;
     _responseData      = [[NSMutableData alloc] init];
@@ -161,6 +160,8 @@ NSString *const HTTPPost = @"POST";
     request.HTTPBody            = _requestData;
     
     _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:YES];
+    
+    SAFE_ARC_RELEASE(request);
 }
 
 - (BOOL)verifyRequestURL:(NSURL *)requestURL
@@ -212,7 +213,7 @@ NSString *const HTTPPost = @"POST";
 {
 #pragma unused(connection)
     
-    _response = (NSHTTPURLResponse *)response;
+    _response = (NSHTTPURLResponse *)SAFE_ARC_RETAIN( response );
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
@@ -240,8 +241,12 @@ NSString *const HTTPPost = @"POST";
     //       dependent on the the challenge processing that the application performs.
     //
     NSAssert( _response != nil, @"No HTTP Response available" );
+    
+    HTTPWebResponse *response = [[HTTPWebResponse alloc] initWithResponse:_response data:_responseData];
 
-    [self completeWithError:nil andResponse:[[HTTPWebResponse alloc] initWithResponse:_response data:_responseData]];
+    [self completeWithError:nil andResponse:response];
+    
+    SAFE_ARC_RELEASE(response);
 }
 
 //required method Available in OS X v10.6 through OS X v10.7, then deprecated

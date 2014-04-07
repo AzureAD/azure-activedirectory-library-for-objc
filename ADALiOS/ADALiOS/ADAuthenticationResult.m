@@ -23,10 +23,20 @@
 @implementation ADAuthenticationResult
 
 //Explicit @synthesize is needed for the internal category to work:
-@synthesize tokenCacheStoreItem = _tokenCacheStoreItem;
-@synthesize status = _status;
-@synthesize error = _error;
+@synthesize error                     = _error;
 @synthesize multiResourceRefreshToken = _multiResourceRefreshToken;
+@synthesize status                    = _status;
+@synthesize tokenCacheStoreItem       = _tokenCacheStoreItem;
+
+- (void)dealloc
+{
+    DebugLog( @"dealloc" );
+    
+    SAFE_ARC_RELEASE(_error);
+    SAFE_ARC_RELEASE(_tokenCacheStoreItem);
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
 
 -(id) init
 {

@@ -23,6 +23,8 @@ NSString* const sAADTestInstance = @"AAD Instance";
 
 @implementation BVSettings
 
+@synthesize testAuthorities = _testAuthorities;
+
 -(id) init
 {
     self = [super init];
@@ -39,6 +41,7 @@ NSString* const sAADTestInstance = @"AAD Instance";
     
     NSDictionary* all = [NSDictionary dictionaryWithContentsOfFile:path];
     NSMutableDictionary* testAuthorities = [[NSMutableDictionary alloc] initWithCapacity:all.count];
+    
     for(NSDictionary* instanceName in all.allKeys)
     {
         NSDictionary* instanceData = [all objectForKey:instanceName];
@@ -49,8 +52,10 @@ NSString* const sAADTestInstance = @"AAD Instance";
         }
         BVTestInstance* instance = [[BVTestInstance alloc] initWithDictionary:instanceData];
         [testAuthorities setObject:instance forKey:instanceName];
+        [instance release];
     }
     self->_testAuthorities = testAuthorities;
+    
     return self;
 }
 
