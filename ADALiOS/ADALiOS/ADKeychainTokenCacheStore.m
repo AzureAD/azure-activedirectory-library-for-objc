@@ -171,6 +171,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     [query setObject:mClassValue forKey:mClassKey];
     [query setObject:mLibraryValue forKey:mLibraryKey];
     [self adGroupToAttributes:query];
+    AD_LOG_VERBOSE_F(sKeyChainlog, @"Attempting to remove items that match attributes: %@", attributes);
     
     OSStatus res = SecItemDelete((__bridge CFDictionaryRef)query);
     switch (res)
