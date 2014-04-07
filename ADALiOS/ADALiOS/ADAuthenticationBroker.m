@@ -27,7 +27,7 @@
 #import "ADAuthenticationSettings.h"
 
 NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
-NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
+NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
 NSString *const AD_IPAD_STORYBOARD = @"ADAL_iPad_Storyboard";
 NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 
