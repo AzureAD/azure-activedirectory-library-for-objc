@@ -38,7 +38,7 @@
  is a valid pointer. If an error occurs, ADAuthenticationParameters will be nil and the NSException parameter
  contains all of the details.
 */
-typedef void (^ADParametersCompletion)(ADAuthenticationParameters*, ADAuthenticationError*);
+typedef void (^ADParametersCompletion)(ADAuthenticationParameters* parameters, ADAuthenticationError* error);
 
 /*! Creates authentication parameters from the response received from the resource. The method 
  creates an HTTP GET request and expects the resource to have unauthorized status (401) and "WWW-Authenticate" 

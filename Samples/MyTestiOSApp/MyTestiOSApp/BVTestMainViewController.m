@@ -173,8 +173,19 @@
     }
     else
     {
-        [self setStatus:@"Nothing in the cache"];
+        status = @"Nothing in the cache.";
     }
+    NSHTTPCookieStorage* cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSArray* cookies = cookieStorage.cookies;
+    if (cookies.count)
+    {
+        for(NSHTTPCookie* cookie in cookies)
+        {
+            [cookieStorage deleteCookie:cookie];
+        }
+        status = [status stringByAppendingString:@" Cookies cleared."];
+    }
+    [self setStatus:status];
 }
 
 - (IBAction)getUsersPressed:(id)sender
