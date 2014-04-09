@@ -458,11 +458,27 @@ extern void __gcov_flush(void);
             //Scalar type, simply cast to double:
             double dValue1 = [(NSNumber*)value1 doubleValue];
             double dValue2 = [(NSNumber*)value2 doubleValue];
-            XCTAssertTrue(abs(dValue1 - dValue2) < 0.0001, "The value of the property %@ is different.", propertyName);
+            if (abs(dValue1 - dValue2) > 0.0001)
+            {
+                XCTFail("The value of the property %@ is different. Value1: %@; Value2: %@", propertyName, value1, value2);
+            }
         }
-        else if ([value1 isKindOfClass:[NSString class]] || [value1 isKindOfClass:[NSDate class]])
+        else if ([value1 isKindOfClass:[NSDate class]])
         {
-            XCTAssertEqualObjects(value1, value2, "The value of the property %@ is not the same.", propertyName);
+            //The framework is flaky with deserialization of NSDate classes:
+            NSTimeInterval delta = [(NSDate*)value1 timeIntervalSinceDate:(NSDate*)value2];
+            if (abs(delta) >= 1)//Sub-second tollerance
+            {
+                XCTFail("The value of the property %@ is not the same. Value1: %@; Value2: %@", propertyName, value1, value2);
+            }
+        }
+        else if ([value1 isKindOfClass:[NSString class]])
+        {
+            if (![value1 isEqual:value2])
+            {
+                //Convenient to put breakpoint here:
+                XCTFail("The value of the property %@ is not the same. Value1: %@; Value2: %@", propertyName, value1, value2);
+            }
         }
         else if ([value1 isKindOfClass:[ADUserInformation class]])
         {

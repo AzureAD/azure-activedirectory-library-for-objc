@@ -382,4 +382,13 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return CFBridgingRelease( encodedString );
 }
 
++ (BOOL) adSame: (NSString*) string1
+       toString: (NSString*) string2
+{
+    if (!string1)
+        return !string2; //if both are nil, they are equal
+    else
+        return [string1 isEqualToString:string2];
+}
+
 @end

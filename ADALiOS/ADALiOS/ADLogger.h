@@ -88,6 +88,10 @@ typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
 /*! Returns diagnostic trace data to be sent to the Auzure Active Directory servers. */
 +(NSDictionary*) adalId;
 
+/*! Calculates a hash of the passed string. Useful for logging tokens, where we do not log
+ the actual contents, but still want to log something that can be correlated. */
++(NSString*) getHash: (NSString*) input;
+
 @end
 
 //A simple macro for single-line logging:

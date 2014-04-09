@@ -161,6 +161,7 @@ additionalInformation: (NSString*) additionalInformation
     }
     return result;
 }
+
 +(NSString*) getHash: (NSString*) input
 {
     if (!input)
