@@ -44,7 +44,12 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 
 +(NSString*) normalizeUserId: (NSString*) userId
 {
+    if (!userId)
+    {
+        return nil;//Quick exit;
+    }
     NSString* normalized = [userId trimmedString].lowercaseString;
+        
     return normalized.length ? normalized : nil;
 }
 
@@ -92,7 +97,9 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     THROW_ON_NIL_ARGUMENT(idToken);
     self = [super init];
     if (!self)
+    {
         return nil;
+    }
 
     if ([NSString isStringNilOrBlank:idToken])
     {

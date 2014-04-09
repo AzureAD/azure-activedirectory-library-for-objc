@@ -151,12 +151,25 @@
 
 - (IBAction)clearCachePressed:(id)sender
 {
+    ADAuthenticationError* error;
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
-    NSString* status;
-    if (cache.allItems.count > 0)
+    NSArray* allItems = [cache allItemsWithError:&error];
+    if (error)
     {
-        [cache removeAll];
-        status = @"Items removed.";
+        [self setStatus:error.errorDetails];
+        return;
+    }
+    if (allItems.count > 0)
+    {
+        [cache removeAllWithError:&error];
+        if (error)
+        {
+            [self setStatus:error.errorDetails];
+        }
+        else
+        {
+            [self setStatus:@"Items removed."];
+        }
     }
     else
     {
@@ -177,8 +190,14 @@
 
 - (IBAction)getUsersPressed:(id)sender
 {
+    ADAuthenticationError* error;
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
-    NSArray* array = cache.allItems;
+    NSArray* array = [cache allItemsWithError:&error];
+    if (error)
+    {
+        [self setStatus:error.errorDetails];
+        return;
+    }
     NSMutableSet* users = [NSMutableSet new];
     NSMutableString* usersStr = [NSMutableString new];
     for(ADTokenCacheStoreItem* item in array)
@@ -225,7 +244,7 @@
         return;
     }
     id<ADTokenCacheStoring> cache = context.tokenCacheStore;
-    ADTokenCacheStoreItem* item = [cache getItemWithKey:key userId:nil];
+    ADTokenCacheStoreItem* item = [cache getItemWithKey:key userId:nil error:nil];
     if (!item)
     {
         [self setStatus:@"Missing cache item."];
@@ -250,10 +269,15 @@
 
 - (IBAction)expireAllPressed:(id)sender
 {
+    ADAuthenticationError* error;
     [self setStatus:@"Attempt to expire..."];
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
-    NSArray* array = cache.allItems;
-    ADAuthenticationError* error;
+    NSArray* array = [cache allItemsWithError:&error];
+    if (error)
+    {
+        [self setStatus:error.errorDetails];
+        return;
+    }
     for(ADTokenCacheStoreItem* item in array)
     {
         item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];

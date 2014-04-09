@@ -130,7 +130,9 @@ const int sTokenWorkflowTimeout     = 20;
 
 -(void) clearCache
 {
-    [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore removeAll];
+    ADAuthenticationError* error;
+    [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore removeAllWithError:&error];
+    XCTAssertNil(error.errorDetails);
 }
 
 //Runs the run loop in the current thread until the passed condition
@@ -407,12 +409,21 @@ const int sTokenWorkflowTimeout     = 20;
     XCTAssertEqual((long)result.error.code, (long)AD_ERROR_AUTHORITY_VALIDATION);
 }
 
+-(long) cacheCount
+{
+    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    ADAuthenticationError* error;
+    NSArray* all = [cache allItemsWithError:&error];
+    XCTAssertNotNil(all);
+    XCTAssertNil(error.errorDetails);
+    return all.count;
+}
+
 //Verifies that error is generated in case of wrong user authentication
 -(void) testWrongUser
 {
-    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     //Clean, request one user, enter another
-    XCTAssertEqual((long)[cache allItems].count, (long)0);//Access token and MRRT
+    XCTAssertEqual([self cacheCount], (long)0);//Access token and MRRT
     ADAuthenticationResult* result = [self callAcquireTokenWithInstance:[self getAADInstance]
                                                             interactive:YES
                                                            keepSignedIn:YES
@@ -420,7 +431,7 @@ const int sTokenWorkflowTimeout     = 20;
                                                                  userId:@"Nonexistent"
                                                                    line:__LINE__];
     XCTAssertNil(result.tokenCacheStoreItem);
-    XCTAssertEqual((long)[cache allItems].count, (long)2);//Access token and MRRT
+    XCTAssertEqual([self cacheCount], (long)2);//Access token and MRRT
     //Cache present, same:
     result = [self callAcquireTokenWithInstance:[self getAADInstance]
                                     interactive:NO
@@ -430,7 +441,7 @@ const int sTokenWorkflowTimeout     = 20;
                                            line:__LINE__];
     XCTAssertNil(result.tokenCacheStoreItem);
     XCTAssertEqual((long)result.error.code, (long)AD_ERROR_WRONG_USER);
-    XCTAssertEqual((long)[cache allItems].count, (long)2);//Access token and MRRT
+    XCTAssertEqual([self cacheCount], (long)2);//Access token and MRRT
 }
 
 @end
