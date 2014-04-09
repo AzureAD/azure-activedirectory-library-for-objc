@@ -159,16 +159,17 @@
         [self setStatus:error.errorDetails];
         return;
     }
+    NSString* status = nil;
     if (allItems.count > 0)
     {
         [cache removeAllWithError:&error];
         if (error)
         {
-            [self setStatus:error.errorDetails];
+            status = error.errorDetails;
         }
         else
         {
-            [self setStatus:@"Items removed."];
+            status = @"Items removed.";
         }
     }
     else
