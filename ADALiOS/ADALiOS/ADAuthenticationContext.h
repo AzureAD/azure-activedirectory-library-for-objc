@@ -15,16 +15,7 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
-
-#if TARGET_OS_IPHONE
-//iOS:
-#   include <UIKit/UIKit.h>
-typedef UIWebView WebViewType;
-#else
-//OS X:
-#   include <WebKit/WebKit.h>
-typedef WebView   WebViewType;
-#endif
+#import <Foundation/Foundation.h>
 
 #import "ADTokenCacheStoring.h"
 #import "ADAuthenticationError.h"
@@ -32,6 +23,8 @@ typedef WebView   WebViewType;
 #import "ADTokenCacheStoreItem.h"
 #import "ADUserInformation.h"
 #import "ADTokenCacheStoreKey.h"
+
+@class UIViewController;
 
 typedef enum
 {
