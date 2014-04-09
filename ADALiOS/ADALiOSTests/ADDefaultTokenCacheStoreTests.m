@@ -49,16 +49,25 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     mStore = (ADKeychainTokenCacheStore*)[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     XCTAssertNotNil(mStore, "Default store cannot be nil.");
     XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
-    [mStore removeAll];//Start clean before each test
+    [mStore removeAllWithError:nil];//Start clean before each test
 }
 
 - (void)tearDown
 {
-    [mStore removeAll];//Clear the junk from the keychain
+    [mStore removeAllWithError:nil];//Attempt to clear the junk from the keychain
     mStore = nil;
     
     [self adTestEnd];
     [super tearDown];
+}
+
+-(long) count
+{
+    ADAuthenticationError* error;
+    NSArray* all = [mStore allItemsWithError:&error];
+    ADAssertNoError;
+    XCTAssertNotNil(all);
+    return all.count;
 }
 
 //A wrapper around addOrUpdateItem, checks automatically for errors.
@@ -66,16 +75,16 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 -(void) addOrUpdateItem: (ADTokenCacheStoreItem*) item expectAdd: (BOOL) expectAdd
 {
     ADAuthenticationError* error;
-    long count = mStore.allItems.count;
+    long count = [self count];
     [mStore addOrUpdateItem:item error:&error];
     ADAssertNoError;
     if (expectAdd)
     {
-        ADAssertLongEquals(count + 1, mStore.allItems.count);
+        ADAssertLongEquals(count + 1, [self count]);
     }
     else
     {
-        ADAssertLongEquals(count, mStore.allItems.count);
+        ADAssertLongEquals(count, [self count]);
     }
     [self verifyCacheContainsItem:item];
 }
@@ -128,7 +137,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 //cannot accidentally modify them. The method tests the getters too.
 -(void) testCopySingleObject
 {
-    XCTAssertTrue(mStore.allItems.count == 0, "Start empty.");
+    XCTAssertTrue([self count] == 0, "Start empty.");
     
     ADTokenCacheStoreItem* item = [self createCacheItem];
     ADAuthenticationError* error;
@@ -150,7 +159,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [self verifyCopyingWithItem:exact copy:returnedItemForNil];
 
     //getItemsWithKey:
-    NSArray* items = [mStore getItemsWithKey:key];
+    NSArray* items = [mStore getItemsWithKey:key error:&error];
+    ADAssertNoError;
     XCTAssertTrue(items.count == 1);
     ADTokenCacheStoreItem* returnedFromArray = [items objectAtIndex:0];
     XCTAssertNotNil(returnedFromArray);
@@ -158,7 +168,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [self verifyCopyingWithItem:returnedItemForNil copy:returnedFromArray];
     
     //allItems:
-    NSArray* allItems = [mStore allItems];
+    NSArray* allItems = [mStore allItemsWithError:&error];
+    ADAssertNoError;
     XCTAssertTrue(items.count == 1);
     ADTokenCacheStoreItem* returnedFromAll = [allItems objectAtIndex:0];
     XCTAssertNotNil(returnedFromAll);
@@ -192,7 +203,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 //Tests al of the getters:
 -(void) testCopyMultipleObjects
 {
-    XCTAssertTrue(mStore.allItems.count == 0, "Start empty.");
+    XCTAssertTrue([self count] == 0, "Start empty.");
     
     ADTokenCacheStoreItem* item1 = [self createCacheItem];
     ADAuthenticationError* error;
@@ -208,7 +219,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [self addOrUpdateItem:item2 expectAdd:YES];
     
     //getItemsWithKey
-    NSArray* allWithKey = [mStore getItemsWithKey:otherKey];
+    NSArray* allWithKey = [mStore getItemsWithKey:otherKey error:&error];
+    ADAssertNoError;
     [self verifyTwoItems:item1 item2:item2 array:allWithKey];
 
     //Individual items with the userId:
@@ -228,11 +240,12 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 -(void) testComplex
 {
-    XCTAssertTrue(mStore.allItems.count == 0, "Start empty.");
+    XCTAssertTrue([self count] == 0, "Start empty.");
     
-    XCTAssertNotNil([mStore allItems]);
-    ADTokenCacheStoreItem* item1 = [self createCacheItem];
     ADAuthenticationError* error;
+    XCTAssertNotNil([mStore allItemsWithError:&error]);
+    ADAssertNoError;
+    ADTokenCacheStoreItem* item1 = [self createCacheItem];
     
     //one item:
     [self addOrUpdateItem:item1 expectAdd:YES];
@@ -269,19 +282,24 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     error = nil;//Clear
     [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
     
-    NSArray* array = [mStore getItemsWithKey:key];
+    NSArray* array = [mStore getItemsWithKey:key error:&error];
+    ADAssertNoError;
     XCTAssertTrue(array.count == 3);
     
     //Now test the removers:
-    [mStore removeItemWithKey:key userId:item4.userInformation.userId];//Specific user
+    [mStore removeItemWithKey:key userId:item4.userInformation.userId error:&error];//Specific user
+    ADAssertNoError;
     XCTAssertTrue(array.count == 3);
     
     //This will remove two elements, as the userId is not specified:
-    [mStore removeItemWithKey:key userId:nil];
-    XCTAssertTrue(mStore.allItems.count  == 1);
+    [mStore removeItemWithKey:key userId:nil error:&error];
+    ADAssertNoError;
+    XCTAssertTrue([self count]  == 1);
     
-    [mStore removeAll];
-    array = mStore.allItems;
+    [mStore removeAllWithError:&error];
+    ADAssertNoError;
+    array = [mStore allItemsWithError:&error];
+    ADAssertNoError;
     XCTAssertNotNil(array);
     XCTAssertTrue(array.count == 0);
 }
@@ -315,7 +333,9 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
         {
             @autoreleasepool//The cycle will create constantly objects, so it needs its own autorelease pool
             {
-                [mStore removeAll];
+                ADAuthenticationError* error;//Keep it local
+                [mStore removeAllWithError:&error];
+                ADAssertNoError;
                 [mStore addOrUpdateItem:item1 error:&error];
                 ADAssertNoError;
                 [mStore addOrUpdateItem:item2 error:&error];
@@ -328,11 +348,14 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
                 //is to have as many writes as reads in the dictionary for higher chance of thread collisions
                 //Implementing
                 //all possible get combinations will skew the test towards reads:
-                NSArray* array = [mStore getItemsWithKey:key123];
+                NSArray* array = [mStore getItemsWithKey:key123 error:&error];
+                ADAssertNoError;
                 XCTAssertNotNil(array);
-                array = [mStore allItems];
+                array = [mStore allItemsWithError:&error];
+                ADAssertNoError;
                 XCTAssertNotNil(array);
-                array = [mStore getItemsWithKey:key4];
+                array = [mStore getItemsWithKey:key4 error:&error];
+                ADAssertNoError;
                 XCTAssertNotNil(array);
                 [mStore getItemWithKey:key123 userId:nil error:&error];
                 if (error)//can error or not, depending on the state of deletions
@@ -359,10 +382,14 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
                 badUser = [mStore getItemWithKey:key4 userId:@"not real" error:&error];
                 ADAssertNoError;
                 XCTAssertNil(badUser);
-                [mStore removeItemWithKey:key123 userId:item1.userInformation.userId];
-                [mStore removeItemWithKey:key123 userId:item2.userInformation.userId];
-                [mStore removeItemWithKey:key123 userId:nil];
-                [mStore removeItemWithKey:key4 userId:nil];
+                [mStore removeItemWithKey:key123 userId:item1.userInformation.userId error:&error];
+                ADAssertNoError;
+                [mStore removeItemWithKey:key123 userId:item2.userInformation.userId error:&error];
+                ADAssertNoError;
+                [mStore removeItemWithKey:key123 userId:nil error:&error];
+                ADAssertNoError;
+                [mStore removeItemWithKey:key4 userId:nil error:&error];
+                ADAssertNoError;
                 
                 now = [NSDate dateWithTimeIntervalSinceNow:0];
             }//Inner authorelease pool
@@ -409,7 +436,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
         [allItems addObject:item];
     }
 
-    ADAuthenticationError* error = 0;
+    ADAuthenticationError* error = nil;
     for(ADTokenCacheStoreItem* item in allItems)
     {
         [mStore addOrUpdateItem:item error:&error];
@@ -417,7 +444,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     }
 
     //Restore:
-    [mStore removeAll];
+    [mStore removeAllWithError:&error];
+    ADAssertNoError;
 }
 
 -(void) verifyCacheContainsItem: (ADTokenCacheStoreItem*) item
@@ -435,7 +463,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     else
     {
         //Find the one (if any) that has userId equal to nil:
-        NSArray* all = [mStore getItemsWithKey:key];
+        NSArray* all = [mStore getItemsWithKey:key error:&error];
+        ADAssertNoError;
         XCTAssertNotNil(all);
         for(ADTokenCacheStoreItem* i in all)
         {
@@ -466,12 +495,12 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 -(void) testsharedKeychainGroupProperty
 {
     //Put an item in the cache:
-    ADAssertLongEquals(0, mStore.allItems.count);
+    ADAssertLongEquals(0, [self count]);
     ADTokenCacheStoreItem* item = [self createCacheItem];
     ADAuthenticationError* error = nil;
     [mStore addOrUpdateItem:item error:&error];
     ADAssertNoError;
-    ADAssertLongEquals(1, mStore.allItems.count);
+    ADAssertLongEquals(1, [self count]);
     
     //Test the property:
     ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
@@ -488,8 +517,9 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     keychainStore.sharedGroup = nil;
     XCTAssertNil(keychainStore.sharedGroup);
     XCTAssertNil(settings.sharedKeychainGroup);
-    [mStore removeAll];
-    ADAssertLongEquals(0, mStore.allItems.count);
+    [mStore removeAllWithError:&error];
+    ADAssertNoError;
+    ADAssertLongEquals(0, [self count]);
 }
 
 @end

@@ -20,7 +20,7 @@
 
 @implementation ADTestTokenCacheStore
 
--(ADTokenCacheStoreItem*) getItemWithKey:(ADTokenCacheStoreKey*)key
+-(ADTokenCacheStoreItem*) getItemWithKey:(ADTokenCacheStoreKey*)key error: (ADAuthenticationError* __autoreleasing*) error
 {
     return nil;
 }
@@ -30,12 +30,12 @@
 {
 }
 
--(void) removeItemWithKey: (ADTokenCacheStoreKey*) key userId:(NSString *)userId
+-(void) removeItemWithKey: (ADTokenCacheStoreKey*) key userId:(NSString *)userId error:(ADAuthenticationError *__autoreleasing *)error
 {
     return;
 }
 
--(void) removeAll
+-(void) removeAllWithError:(ADAuthenticationError *__autoreleasing *)error
 {
     return;
 }
@@ -63,12 +63,12 @@
     return nil;
 }
 
--(ADTokenCacheStoreItem*) getItemsWithKey: (ADTokenCacheStoreKey*) key
+-(ADTokenCacheStoreItem*) getItemsWithKey: (ADTokenCacheStoreKey*) key error: (ADAuthenticationError* __autoreleasing*) error
 {
     return nil;
 }
 
--(ADTokenCacheStoreItem*) allItems
+-(ADTokenCacheStoreItem*) allItemsWithError: (ADAuthenticationError* __autoreleasing*) error;
 {
     return nil;
 }

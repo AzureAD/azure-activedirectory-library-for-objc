@@ -25,8 +25,9 @@
 @protocol ADTokenCacheStoring
 
 /*! Return a copy of all items. The array will contain ADTokenCacheStoreItem objects,
- containing all of the cached information.*/
--(NSArray*) allItems;
+ containing all of the cached information. Returns an empty array, if no items are found.
+ Returns nil in case of error. */
+-(NSArray*) allItemsWithError:(ADAuthenticationError* __autoreleasing*) error;
 
 /*! May return nil, if no cache item corresponds to the requested key
  @param key: The key of the item.
@@ -41,8 +42,10 @@
 
 /*! Returns all of the items for a given key. Multiple items may present,
  if the same resource was accessed by more than one user. The returned
- array should contain only ADTokenCacheStoreItem objects. */
--(NSArray*) getItemsWithKey: (ADTokenCacheStoreKey*)key;
+ array should contain only ADTokenCacheStoreItem objects. Returns an empty array,
+ if no items are found. Returns nil (and sets the error parameter) in case of error.*/
+-(NSArray*) getItemsWithKey: (ADTokenCacheStoreKey*)key
+                      error: (ADAuthenticationError* __autoreleasing*) error;
 
 /*! Extracts the key from the item and uses it to set the cache details. If another item with the
  same key exists, it will be overriden by the new one. 'getItemWithKey' method can be used to determine
@@ -57,11 +60,13 @@
  the method 'extractKeyWithError'
  @param userId: The user for which the item will be removed. Can be nil, in which case items for all users with
  the specified key will be removed.
+ The method does not raise an error, if the item is not found.
 */
 -(void) removeItemWithKey: (ADTokenCacheStoreKey*) key
-                   userId: (NSString*) userId;
+                   userId: (NSString*) userId
+                    error: (ADAuthenticationError* __autoreleasing*) error;
 
-/*! Clears the whole cache store. */
--(void) removeAll;
+/*! Clears the whole cache store. The method does not raise an error if there are no items in the cache. */
+-(void) removeAllWithError: (ADAuthenticationError* __autoreleasing*) error;
 
 @end

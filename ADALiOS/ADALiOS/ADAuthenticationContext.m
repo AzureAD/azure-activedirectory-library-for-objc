@@ -416,7 +416,7 @@ if (![self checkAndHandleBadArgument:ARG \
         else
         {
             //We have a cache item that cannot be used anymore, remove it from the cache:
-            [self.tokenCacheStore removeItemWithKey:key userId:userId];
+            [self.tokenCacheStore removeItemWithKey:key userId:userId error:nil];
         }
     }
     *useAccessToken = false;//No item with suitable access token exists
@@ -684,7 +684,7 @@ if (![self checkAndHandleBadArgument:ARG \
                 if ([refreshToken isEqualToString:existing.refreshToken])//If still there, attempt to remove
                 {
                     AD_LOG_VERBOSE_F(@"Token cache store", @"Removing cache for resource: %@", cacheItem.resource);
-                    [self.tokenCacheStore removeItemWithKey:exactKey userId:existing.userInformation.userId];
+                    [self.tokenCacheStore removeItemWithKey:exactKey userId:existing.userInformation.userId error:nil];
                     removed = YES;
                 }
             }
@@ -699,7 +699,7 @@ if (![self checkAndHandleBadArgument:ARG \
                     if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
                     {
                         AD_LOG_VERBOSE_F(@"Token cache store", @"Removing multi-resource refresh token for authority: %@", self.authority);
-                        [self.tokenCacheStore removeItemWithKey:broadKey userId:cacheItem.userInformation.userId];
+                        [self.tokenCacheStore removeItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
                     }
                 }
             }
