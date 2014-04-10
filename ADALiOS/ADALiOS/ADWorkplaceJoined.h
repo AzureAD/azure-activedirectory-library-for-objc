@@ -27,7 +27,9 @@
 /* Starts intercepting HTTPS connections to enable client TLS authentication over webview. 
  Should be paired with endTLSSession. The interception should be as short as possible, as this
  is a very specific fix to overcome the webview limitations. */
-+(BOOL) startTLSSessionWithCertificate: (SecIdentityRef) cert error:(ADAuthenticationError*) error;
++(BOOL) startTLSSessionWithCertificate: (SecIdentityRef) cert
+                                   url: (NSURL*) url
+                                 error: (ADAuthenticationError*) error;
 /* Stops the HTTPS interception. */
 +(void) endTLSSession;
 
