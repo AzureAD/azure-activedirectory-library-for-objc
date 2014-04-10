@@ -24,7 +24,7 @@
 /* Extracts the certificate, verifying that the authority, which requested it is correct. */
 +(SecIdentityRef) getCertificateWithHost: (NSString*) host
 {
-    SecCertificateCreateWithData
+    
 }
 
 - (OSStatus)extractIdentity:(SecIdentityRef *)outIdentity fromPKCS12Data:(NSData *)inPKCS12Data
