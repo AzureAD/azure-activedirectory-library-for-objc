@@ -107,11 +107,12 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 {
     AD_LOG_VERBOSE_F(sLog, @"connection:willSendRequestForAuthenticationChallenge: %@", challenge.protectionSpace.authenticationMethod);
 
-    if ( [challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodClientCertificate] == NSOrderedSame )
+    if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodClientCertificate] == NSOrderedSame )
     {
         // This is the client TLS challenge: use the identity to authenticate:
         if ( sIdentity)
         {
+            AD_LOG_VERBOSE(sLog, @"Attempting to handle client TLS challenge...");
             SecCertificateRef cert = NULL;
             OSStatus res = SecIdentityCopyCertificate(sIdentity, &cert);
             if (errSecSuccess == res)
@@ -122,8 +123,17 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
                                                                    certificates:certs
                                                                     persistence:NSURLCredentialPersistenceNone];
                 [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
+                AD_LOG_VERBOSE(sLog, @"Client TLS challenge responded.");
                 return;
             }
+            else
+            {
+                AD_LOG_WARN_F(sLog, 0, @"Failed to load certificate. Error: %ld", (long)res);
+            }
+        }
+        else
+        {
+            AD_LOG_WARN(sLog, @"Cannot respond to client TLS request. Identity is not set.");
         }
     }
     
@@ -142,6 +152,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 //- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response;
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
+#error fix the rest
     DebugLog( @"%@", response.MIMEType );
     
     [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
