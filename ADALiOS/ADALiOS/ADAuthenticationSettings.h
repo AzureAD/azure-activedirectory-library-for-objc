@@ -74,6 +74,10 @@ typedef enum
  is only given to the applications from the same vendor.
  If this property is not set, on iOS only the current application can read the stored tokens.
  The property has no effect if other cache mechanisms are used (non-keychain). */
-@property (getter = getSharedKeychainGroup, setter = setSharedKeychainGroup:) NSString* sharedKeychainGroup;
+@property (getter = getSharedCacheKeychainGroup, setter = setSharedCacheKeychainGroup:) NSString* sharedCacheKeychainGroup;
+
+/*! Some servers may require client authentication over TLS. The certificate will be stored in the
+ shared keychain group, pointed by this property. */
+@property NSString* clientTLSKeychainGroup;
 
 @end

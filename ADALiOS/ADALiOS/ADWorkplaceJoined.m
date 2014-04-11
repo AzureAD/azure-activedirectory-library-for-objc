@@ -17,14 +17,23 @@
 // governing permissions and limitations under the License.
 
 #import "ADWorkplaceJoined.h"
+#import "ADAuthenticationSettings.h"
+#import "NSString+ADHelperMethods.h"
+#import "ADErrorCodes.h"
 
 @implementation ADWorkplaceJoined
 
 
 /* Extracts the certificate, verifying that the authority, which requested it is correct. */
 +(SecIdentityRef) getCertificateWithHost: (NSString*) host
+                                   error: (ADAuthenticationError *__autoreleasing *) error
 {
+    SecIdentityRef result = NULL;
+    ADAuthenticationError* error = nil;
+    NSString* sharedGroup = [ADAuthenticationSettings sharedInstance].clientTLSKeychainGroup;
     
+    
+
 }
 
 - (OSStatus)extractIdentity:(SecIdentityRef *)outIdentity fromPKCS12Data:(NSData *)inPKCS12Data

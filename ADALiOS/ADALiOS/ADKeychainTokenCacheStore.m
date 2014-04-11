@@ -42,7 +42,6 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     
     id mValueDataKey;
     id mMatchLimitKey;
-    id mGroupKey;
     
     //Cache store values:
     id mClassValue;
@@ -85,22 +84,9 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         mLibraryValue   = [mLibraryString dataUsingEncoding:NSUTF8StringEncoding];
         
         //Data sharing:
-        mGroupKey       = (__bridge id)kSecAttrAccessGroup;
         _sharedGroup    = sharedGroup;
     }
     return self;
-}
-
-//Adds the shared group to the attributes dictionary. The method is not thread-safe.
--(void) adGroupToAttributes: (NSMutableDictionary*) attributes
-{
-    if (![NSString isStringNilOrBlank:_sharedGroup])
-    {
-        //Apps are not signed on the simulator, so the shared group doesn't apply there.
-#if !(TARGET_IPHONE_SIMULATOR)
-        [attributes setObject:_sharedGroup forKey:mGroupKey];
-#endif
-    }
 }
 
 //Extracts all of the key and user data fields into a single string.
@@ -159,44 +145,6 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 
     return [NSString stringWithFormat:@"%@%@%@",
                        keyText, sDelimiter, [self.class getAttributeName:item.userInformation.userId]];
-}
-
-//Given a set of attributes, deletes the matching keychain keys:
--(void) deleteByAttributes: (NSDictionary*) attributes
-                     error: (ADAuthenticationError* __autoreleasing*) error
-{
-    THROW_ON_NIL_ARGUMENT(attributes);
-    
-    NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:attributes];
-    [query setObject:mClassValue forKey:mClassKey];
-    [query setObject:mLibraryValue forKey:mLibraryKey];
-    [self adGroupToAttributes:query];
-    AD_LOG_VERBOSE_F(sKeyChainlog, @"Attempting to remove items that match attributes: %@", attributes);
-    
-    OSStatus res = SecItemDelete((__bridge CFDictionaryRef)query);
-    switch (res)
-    {
-        case errSecSuccess:
-            AD_LOG_VERBOSE_F(sKeyChainlog, @"Successfully removed any items that match: %@", attributes);
-            break;
-        case errSecItemNotFound:
-            AD_LOG_VERBOSE_F(sKeyChainlog, @"No items to remove. Searched for: %@", attributes);
-            break;
-        default:
-            {
-                //Couldn't extract the elements:
-                NSString* errorDetails = [NSString stringWithFormat:@"Cannot the the items in the keychain. Error code: %ld. Items attempted: %@",
-                                          (long)res, attributes];
-                ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                                                         protocolCode:nil
-                                                                                         errorDetails:errorDetails];
-                if (error)
-                {
-                    *error = toReport;
-                }
-            }
-            break;
-    }
 }
 
 //Returns the keychain elements, specified in the query, or all cache keychain
