@@ -17,50 +17,75 @@
 // governing permissions and limitations under the License.
 
 #import "HTTPProtocol.h"
+#import "ADLogger.h"
+
+static SecIdentityRef sIdentity;
+NSString* const sLog = @"HTTP Protocol";
 
 @implementation HTTPProtocol
 {
     NSURLConnection *_connection;
 }
 
++(void) setCertificate:(SecIdentityRef) cert
+{
+    CFRetain(cert);
+    sIdentity = cert;
+}
+
++(void) clearCertificate
+{
+    CFRelease(sIdentity);
+    sIdentity = NULL;
+}
+
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
     if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"] )
     {
+        //This class needs to handle only TLS.
         if ( [NSURLProtocol propertyForKey:@"HTTPProtocol" inRequest:request] == nil )
         {
-            DebugLog( @"YES: %@", [request.URL absoluteString] );
+            AD_LOG_VERBOSE_F(sLog, @"Requested handling of URL: %@", [request.URL absoluteString]);
 
             return YES;
         }
     }
     
-    DebugLog( @"NO: %@", [request.URL absoluteString] );
+    AD_LOG_VERBOSE_F(sLog, @"Ignoring handling of URL: %@", [request.URL absoluteString]);
     
     return NO;
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
-    DebugLog( @"%@", [request.URL absoluteString] );
+    AD_LOG_VERBOSE_F(sLog, @"canonicalRequestForRequest: %@", [request.URL absoluteString] );
     
     return request;
 }
 
 - (void)startLoading
 {
-    DebugLog( @"startLoading" );
+    if (!self.request)
+    {
+        AD_LOG_WARN(sLog, @"startLoading called without specifying the request.");
+        return;
+    }
+    
+    AD_LOG_VERBOSE_F(sLog, @"startLoading: %@", [self.request.URL absoluteString] );
     
     NSMutableURLRequest *mutableRequest = [self.request mutableCopy];
 
     [NSURLProtocol setProperty:@"YES" forKey:@"HTTPProtocol" inRequest:mutableRequest];
     
-    _connection = [[NSURLConnection alloc] initWithRequest:mutableRequest delegate:self startImmediately:YES];
+    _connection = [[NSURLConnection alloc] initWithRequest:mutableRequest
+                                                  delegate:self
+                                          startImmediately:YES];
 }
 
 - (void)stopLoading
 {
-    DebugLog( @"stopLoading" );
+    AD_LOG_VERBOSE_F(sLog, @"Stop loading");
 }
 
 #pragma mark - Private Methods
@@ -71,57 +96,40 @@
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
-    DebugLog( @"stopLoading" );
+    AD_LOG_VERBOSE_F(sLog, @"connection:didFaileWithError: %@", error);
     
     [self.client URLProtocol:self didFailWithError:error];
 }
 
 //- (BOOL)connectionShouldUseCredentialStorage:(NSURLConnection *)connection
-- (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+- (void)connection:(NSURLConnection *)connection
+willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    DebugLog( @"%@", challenge.protectionSpace.authenticationMethod );
-/*
+    AD_LOG_VERBOSE_F(sLog, @"connection:willSendRequestForAuthenticationChallenge: %@", challenge.protectionSpace.authenticationMethod);
+
     if ( [challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodClientCertificate] == NSOrderedSame )
     {
-        NSArray* arr = challenge.protectionSpace.distinguishedNames;
-        NSString* str = challenge.protectionSpace.host;
-        NSString* realm = challenge.protectionSpace.realm;
-        // This is the client TLS challenge: Load our PFX/P12 and extract the client certificate
-        NSData *certificateData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"TestCert" ofType:@"p12"]];
-        
-        if ( certificateData )
+        // This is the client TLS challenge: use the identity to authenticate:
+        if ( sIdentity)
         {
-            SecIdentityRef identity = NULL;
-            
-            if ( [self extractIdentity:&identity fromPKCS12Data:certificateData] == 0 )
+            SecCertificateRef cert = NULL;
+            OSStatus res = SecIdentityCopyCertificate(sIdentity, &cert);
+            if (errSecSuccess == res)
             {
-                SecCertificateRef clientCertificate = NULL;
-                OSStatus          status            = SecIdentityCopyCertificate( identity, &clientCertificate );
-                
-                if ( status == 0 )
-                {
-                    CFMutableArrayRef clientCertificates = CFArrayCreateMutable( NULL, 1, NULL );
-                    
-                    CFArrayAppendValue( clientCertificates, clientCertificate );
-                    
-                    [challenge.sender useCredential:[NSURLCredential credentialWithIdentity:identity certificates:(__bridge NSArray *)clientCertificates persistence:NSURLCredentialPersistenceNone] forAuthenticationChallenge:challenge];
-                    
-                    CFRelease( clientCertificates );
-                    CFRelease( clientCertificate );
-                    CFRelease( identity );
-                    
-                    return;
-                }
-                
-                CFRelease( clientCertificate );
-                CFRelease( identity );
+                id certId = (__bridge_transfer id)cert;
+                NSArray* certs = [NSArray arrayWithObjects:certId, nil];
+                NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
+                                                                   certificates:certs
+                                                                    persistence:NSURLCredentialPersistenceNone];
+                [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
+                return;
             }
         }
     }
     
     // Do default handling
     [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
-*/}
+}
 
 
 // Deprecated authentication delegates.

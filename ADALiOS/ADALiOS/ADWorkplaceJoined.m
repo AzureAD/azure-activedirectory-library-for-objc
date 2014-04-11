@@ -49,7 +49,7 @@
         return NULL;
     }
     NSDictionary* attributes = [allCerts firstObject];
-    NSData*
+    
     return result;
 }
 

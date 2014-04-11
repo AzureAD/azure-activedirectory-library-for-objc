@@ -231,35 +231,41 @@ extern NSString* const sKeyChainlog;
     return YES;
 }
 
--(NSData*) getItemDataWithAttributes: (NSDictionary*) attributes
-                               error: (ADAuthenticationError* __autoreleasing*) error
+-(BOOL) getItemWithAttributes: (NSDictionary*) attributes
+                   returnData: (BOOL) returnData
+                         item: (CFTypeRef*) item
+                        error: (ADAuthenticationError* __autoreleasing*) error
 {
     RETURN_NIL_ON_NIL_ARGUMENT(attributes);
+    
     
     //Set up the extraction query:
     NSMutableDictionary* updatedAttributes = [NSMutableDictionary dictionaryWithDictionary:attributes];
     [self addStandardAttributes:updatedAttributes];
-    [updatedAttributes addEntriesFromDictionary:
-     @{
-       (__bridge id)kSecReturnData:(__bridge id)kCFBooleanTrue, //Return the data
-       (__bridge id)kSecMatchLimit:(__bridge id)kSecMatchLimitOne,//Match exactly one
-    }];
+    [updatedAttributes setObject:(__bridge id)kSecMatchLimitOne forKey:(__bridge id)kSecMatchLimit];
+    if (returnData)
+    {
+        [updatedAttributes setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)kSecReturnData];
+    }
+    else
+    {
+        [updatedAttributes setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)kSecReturnRef];
+    }
     
-    CFDataRef data;
-    OSStatus res = SecItemCopyMatching((__bridge CFMutableDictionaryRef)updatedAttributes, (CFTypeRef*)&data);
+    OSStatus res = SecItemCopyMatching((__bridge CFMutableDictionaryRef)updatedAttributes, item);
     switch (res)
     {
         case errSecSuccess:
-            return (__bridge_transfer NSData*)data;
+            return YES;
         case errSecItemNotFound:
             //This can happen in the case of shared keychain groups, where the item can be deleted by another app
             //while this application is working on accessing it:
             AD_LOG_WARN_F(sKeyChainlog, @"Cannot find item with attributes: %@", attributes);
-            return nil;
+            return NO;
         default:
         {
             NSString* errorDetails = [NSString stringWithFormat:@"Cannot read the data from the keychain. Error code: %ld. Attributes: %@",
-                            (long)res, attributes];
+                                      (long)res, attributes];
             ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
                                                                                      protocolCode:nil
                                                                                      errorDetails:errorDetails];
@@ -267,9 +273,35 @@ extern NSString* const sKeyChainlog;
             {
                 *error = toReport;
             }
-            return nil;
+            return NO;
         }
     }
+}
+
+-(NSData*) getItemDataWithAttributes: (NSDictionary*) attributes
+                               error: (ADAuthenticationError* __autoreleasing*) error
+{
+    RETURN_NIL_ON_NIL_ARGUMENT(attributes);
+    
+    CFTypeRef data;
+    if (![self getItemWithAttributes:attributes returnData:YES item:&data error:error])
+    {
+        return nil;
+    }
+    
+    return (__bridge_transfer NSData*)data;
+}
+
+-(SecIdentityRef) getItemIdentityWithAttributes: (NSDictionary*) attributes
+                                          error: (ADAuthenticationError* __autoreleasing*) error
+{
+    RETURN_NIL_ON_NIL_ARGUMENT(attributes);
+    SecIdentityRef result;
+    if (![self getItemWithAttributes:attributes returnData:NO item:(CFTypeRef*)&result error:error])
+    {
+        return NULL;
+    }
+    return result;
 }
 
 @end
