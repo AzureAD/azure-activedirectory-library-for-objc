@@ -38,12 +38,6 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     id mItemKeyAttributeKey;
     id mUserIdKey;
     
-    id mLibraryKey;
-    id mClassKey;
-    
-    id mValueDataKey;
-    id mMatchLimitKey;
-    
     //Cache store values:
     id mClassValue;
     NSString* mLibraryString;
@@ -71,15 +65,6 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
          so we need to combine all of the ADTokenCacheStoreKey fields in a single string.*/
         mItemKeyAttributeKey   = (__bridge id)kSecAttrService;
         mUserIdKey             = (__bridge id)kSecAttrAccount;
-        
-        //Generic setup keys:
-        mLibraryKey     = (__bridge id)kSecAttrGeneric;
-        mClassKey       = (__bridge id)kSecClass;
-        
-        mMatchLimitKey  = (__bridge id)kSecMatchLimit;
-        
-        //Data:
-        mValueDataKey   =(__bridge id)kSecValueData;
         
         //Generic setup values:
         mClassValue     = (__bridge id)kSecClassGenericPassword;
@@ -242,64 +227,40 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 -(ADTokenCacheStoreItem*) readCacheItemWithAttributes: (NSDictionary*)attributes
                                                 error: (ADAuthenticationError* __autoreleasing*)error
 {
-    THROW_ON_NIL_ARGUMENT(attributes);
+    RETURN_NIL_ON_NIL_ARGUMENT(attributes);
     
-    //Set up the extraction query:
-    NSMutableDictionary* readQuery = [NSMutableDictionary dictionaryWithDictionary:attributes];
-    [readQuery addEntriesFromDictionary:@{
-    (__bridge id)kSecReturnData:(__bridge id)kCFBooleanTrue, //Return the data
-                 mMatchLimitKey:(__bridge id)kSecMatchLimitOne,//Match exactly one
-                      mClassKey:mClassValue,//Specify explicitly the class (doesn't come back from previous calls)
-    }];
-    [self adGroupToAttributes:readQuery];
-    
-    CFDataRef data;
-    OSStatus res = SecItemCopyMatching((__bridge CFMutableDictionaryRef)readQuery, (CFTypeRef*)&data);
-    
-    //Process the result
-    NSString* errorDetails;
-    switch (res)
+    NSData* data = [mHelper getItemDataWithAttributes:attributes error:error];
+    if (!data)
     {
-        case errSecSuccess:
-            {
-                NSData* extracted = (__bridge_transfer NSData*)data;
-                ADTokenCacheStoreItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:extracted];
-                if ([item isKindOfClass:[ADTokenCacheStoreItem class]])
-                {
-                    //Verify that the item is valid:
-                    ADTokenCacheStoreKey* key = [item extractKeyWithError:error];
-                    if (!key)
-                    {
-                        return nil;
-                    }
-                    
-                    [self LogItem:item message:@"Item successfully read"];
-                    return item;
-                }
-                else
-                {
-                    errorDetails = [NSString stringWithFormat:@"The key chain item data does not contain cache item. Attributes: %@",
-                                    attributes];
-                }
-            }
-            break;
-        case errSecItemNotFound:
-            //This can happen in the case of shared keychain groups, where the item can be deleted by another app
-            //while this application is working on accessing it:
-            AD_LOG_WARN_F(sKeyChainlog, @"Cannot find item with attributes: %@", attributes);
+        return nil;
+    }
+
+    ADTokenCacheStoreItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    if ([item isKindOfClass:[ADTokenCacheStoreItem class]])
+    {
+        //Verify that the item is valid:
+        ADTokenCacheStoreKey* key = [item extractKeyWithError:error];
+        if (!key)
+        {
             return nil;
-        default:
-            errorDetails = [NSString stringWithFormat:@"Cannot read the data from the keychain. Error code: %ld. Attributes: %@",
-                            (long)res, attributes];
+        }
+        
+        [self LogItem:item message:@"Item successfully read"];
+        return item;
     }
-    ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                                             protocolCode:nil
-                                                                             errorDetails:errorDetails];
-    if (error)
+    else
     {
-        *error = toReport;
+        NSString* errorDetails = [NSString stringWithFormat:@"The key chain item data does not contain cache item. Attributes: %@",
+                        attributes];
+        ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
+                                                                                 protocolCode:nil
+                                                                                 errorDetails:errorDetails];
+        if (error)
+        {
+            *error = toReport;
+        }
+        return nil;
     }
-    return nil;
 }
 
 //We should not put nil keys in the keychain. The method substitutes nil with a special GUID:
@@ -597,6 +558,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
             //Attempt to merge the current objects with the group:
             NSArray* allObjects = [self allItemsWithError:nil];
             _sharedGroup = sharedGroup;
+            mHelper.sharedGroup = _sharedGroup;
             [self persistWithItems:allObjects error:nil];
         }
     }

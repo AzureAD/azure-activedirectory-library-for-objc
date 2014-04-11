@@ -45,6 +45,10 @@
 -(NSArray*) getItemsAttributes: (NSDictionary*) query
                          error: (ADAuthenticationError* __autoreleasing*) error;
 
+/*! Extracts the data stored for the item, using the passed attributes to identify the item. */
+-(NSData*) getItemDataWithAttributes: (NSDictionary*) attributes
+                               error: (ADAuthenticationError* __autoreleasing*) error;
+
 /*! Deletes an item, specified by the passed attributes. Returns YES, if a real
  deletion occurred. Does not raise an error if the keychain item is not present anymore. 
  @param attributes: The attributes, as returned by SecItemCopyMatching (wrapped by getItemsWithAttributes). */

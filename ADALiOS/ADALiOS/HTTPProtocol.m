@@ -80,7 +80,7 @@
 - (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
     DebugLog( @"%@", challenge.protectionSpace.authenticationMethod );
-
+/*
     if ( [challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodClientCertificate] == NSOrderedSame )
     {
         NSArray* arr = challenge.protectionSpace.distinguishedNames;
@@ -121,7 +121,7 @@
     
     // Do default handling
     [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
-}
+*/}
 
 
 // Deprecated authentication delegates.

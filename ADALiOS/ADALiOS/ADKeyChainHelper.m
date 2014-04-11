@@ -135,6 +135,7 @@ extern NSString* const sKeyChainlog;
             toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
                                                               protocolCode:nil
                                                               errorDetails:errorDetails];
+            break;
         }
         default:
         {
@@ -207,7 +208,7 @@ extern NSString* const sKeyChainlog;
     [self addStandardAttributes:updatedAttributes];
     
     [updatedAttributes addEntriesFromDictionary:
-  @{
+     @{
         (__bridge id)kSecAttrIsInvisible:(__bridge id)kCFBooleanTrue, // do not show in the keychain UI
         (__bridge id)kSecAttrAccessible:(__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly, // do not roam or migrate to other devices
         mValueDataKey:value,//Item data
@@ -228,6 +229,47 @@ extern NSString* const sKeyChainlog;
     }
     
     return YES;
+}
+
+-(NSData*) getItemDataWithAttributes: (NSDictionary*) attributes
+                               error: (ADAuthenticationError* __autoreleasing*) error
+{
+    RETURN_NIL_ON_NIL_ARGUMENT(attributes);
+    
+    //Set up the extraction query:
+    NSMutableDictionary* updatedAttributes = [NSMutableDictionary dictionaryWithDictionary:attributes];
+    [self addStandardAttributes:updatedAttributes];
+    [updatedAttributes addEntriesFromDictionary:
+     @{
+       (__bridge id)kSecReturnData:(__bridge id)kCFBooleanTrue, //Return the data
+       (__bridge id)kSecMatchLimit:(__bridge id)kSecMatchLimitOne,//Match exactly one
+    }];
+    
+    CFDataRef data;
+    OSStatus res = SecItemCopyMatching((__bridge CFMutableDictionaryRef)updatedAttributes, (CFTypeRef*)&data);
+    switch (res)
+    {
+        case errSecSuccess:
+            return (__bridge_transfer NSData*)data;
+        case errSecItemNotFound:
+            //This can happen in the case of shared keychain groups, where the item can be deleted by another app
+            //while this application is working on accessing it:
+            AD_LOG_WARN_F(sKeyChainlog, @"Cannot find item with attributes: %@", attributes);
+            return nil;
+        default:
+        {
+            NSString* errorDetails = [NSString stringWithFormat:@"Cannot read the data from the keychain. Error code: %ld. Attributes: %@",
+                            (long)res, attributes];
+            ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
+                                                                                     protocolCode:nil
+                                                                                     errorDetails:errorDetails];
+            if (error)
+            {
+                *error = toReport;
+            }
+            return nil;
+        }
+    }
 }
 
 @end

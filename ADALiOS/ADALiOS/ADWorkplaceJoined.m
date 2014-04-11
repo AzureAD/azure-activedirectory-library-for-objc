@@ -20,23 +20,40 @@
 #import "ADAuthenticationSettings.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADErrorCodes.h"
+#import "ADKeyChainHelper.h"
 
 @implementation ADWorkplaceJoined
 
-
 /* Extracts the certificate, verifying that the authority, which requested it is correct. */
-+(SecIdentityRef) getCertificateWithHost: (NSString*) host
-                                   error: (ADAuthenticationError *__autoreleasing *) error
++(SecIdentityRef) getCertificateWithError: (ADAuthenticationError* __autoreleasing*) error
 {
     SecIdentityRef result = NULL;
-    ADAuthenticationError* error = nil;
-    NSString* sharedGroup = [ADAuthenticationSettings sharedInstance].clientTLSKeychainGroup;
-    
-    
-
+    NSString* keychainGroup = [ADAuthenticationSettings sharedInstance].clientTLSKeychainGroup;
+    ADKeyChainHelper* helper = [[ADKeyChainHelper alloc] initWithClass:(__bridge id)kSecClassIdentity
+                                                               generic:nil
+                                                           sharedGroup:keychainGroup];
+    AD_LOG_VERBOSE_F(@"Workkplace join", @"Attempting to extract the client authentication TLS certificate from the keychain group: %@", keychainGroup);
+    NSArray* allCerts = [helper getItemsAttributes:nil error:error];
+    if (!allCerts.count)
+    {
+        return NULL;
+    }
+    if (allCerts.count > 1)
+    {
+        //Multiple device join certificates found.
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_TLS_CERTIFICATES protocolCode:0 errorDetails:@"Cannot extract a client authentication certificate: more than one certificate exists in the keychain."];
+        if (error)
+        {
+            *error = adError;
+        }
+        return NULL;
+    }
+    NSDictionary* attributes = [allCerts firstObject];
+    NSData*
+    return result;
 }
 
-- (OSStatus)extractIdentity:(SecIdentityRef *)outIdentity fromPKCS12Data:(NSData *)inPKCS12Data
+- (OSStatus)extractIdentity:(SecIdentityRef *)outIdentity fromPKCS12Data:(NSData *) data
 {
     OSStatus      error   = errSecSuccess;
     NSDictionary *options = [NSDictionary dictionaryWithObject:@"~test123" forKey:(__bridge id)kSecImportExportPassphrase];
