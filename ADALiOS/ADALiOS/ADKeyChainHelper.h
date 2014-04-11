@@ -17,11 +17,47 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
+#import "ADAuthenticationError.h"
 
-/*! Internal helper class for keychain operations. */
+/*! Internal helper class for keychain operations. 
+ The class is not thread-safe. */
 @interface ADKeyChainHelper : NSObject
 
-+(void) deleteByAttributes: (NSDictionary*) attributes
+/*! Initializes the object. The default initializer is not supported. 
+ Only classValue is required as it identifies the item type. */
+-(id) initWithClass: (id) classValue
+            generic: (NSData*) generic
+        sharedGroup: (NSString*) sharedGroup;
+
+//The type of the keychain item. Should not be nil:
+@property (readonly) id   classValue;
+
+//Some generic data to identify the items. Can be nil.
+@property NSData*         genericValue;
+
+//Shared keychain group. Can be nil.
+@property NSString*       sharedGroup;
+
+
+/*! Returns the attributes (as dictionary values in the array) of the items that match the query.
+ If query is nil or empty dictionary, all items in the keychain of the specifed type, with the
+ expected generic value and key chain group are returned. */
+-(NSArray*) getItemsAttributes: (NSDictionary*) query
+                         error: (ADAuthenticationError* __autoreleasing*) error;
+
+/*! Deletes an item, specified by the passed attributes. Returns YES, if a real
+ deletion occurred. Does not raise an error if the keychain item is not present anymore. 
+ @param attributes: The attributes, as returned by SecItemCopyMatching (wrapped by getItemsWithAttributes). */
+-(BOOL) deleteByAttributes: (NSDictionary*) attributes
                      error: (ADAuthenticationError* __autoreleasing*) error;
+
+-(BOOL) updateItemByAttributes: (NSDictionary*) attributes
+                         value: (NSData*) value
+                         error: (ADAuthenticationError* __autoreleasing*) error;
+
+
+-(BOOL) addItemWithAttributes: (NSDictionary*) attributes
+                        value: (NSData*) value
+                        error: (ADAuthenticationError* __autoreleasing*) error;
 
 @end

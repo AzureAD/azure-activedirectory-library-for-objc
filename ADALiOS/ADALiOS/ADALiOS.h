@@ -83,6 +83,9 @@ argumentName:@#ARG]; \
 //Same as the macros above, but used for non-string parameters for nil checking.
 #define RETURN_NIL_ON_NIL_ARGUMENT(ARG) RETURN_ON_INVALID_ARGUMENT(NIL_CONDITION(ARG), ARG, nil)
 
+//Same as the macros above, but returns BOOL (NO), instead of nil.
+#define RETURN_NO_ON_NIL_ARGUMENT(ARG) RETURN_ON_INVALID_ARGUMENT(NIL_CONDITION(ARG), ARG, NO)
+
 //Same as the macros above, but used for non-string parameters for nil checking.
 #define RETURN_ON_NIL_ARGUMENT(ARG) RETURN_ON_INVALID_ARGUMENT(NIL_CONDITION(ARG), ARG, )
 

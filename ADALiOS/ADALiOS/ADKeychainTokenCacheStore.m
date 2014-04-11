@@ -23,6 +23,7 @@
 #import "NSString+ADHelperMethods.h"
 #import "ADTokenCacheStoreKey.h"
 #import "ADUserInformation.h"
+#import "ADKeyChainHelper.h"
 
 NSString* const sNilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";//A special attribute to write, instead of nil/empty one.
 NSString* const sDelimiter = @"|";
@@ -51,6 +52,8 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     
     //Properties:
     NSString* _sharedGroup;
+    
+    ADKeyChainHelper* mHelper;
 }
 
 //Shouldn't be called.
@@ -85,6 +88,10 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         
         //Data sharing:
         _sharedGroup    = sharedGroup;
+        
+        mHelper = [[ADKeyChainHelper alloc] initWithClass:mClassValue
+                                                  generic:mLibraryValue
+                                              sharedGroup:_sharedGroup];
     }
     return self;
 }
@@ -154,70 +161,29 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 -(NSMutableDictionary*) keychainAttributesWithQuery: (NSMutableDictionary*) query
                                               error: (ADAuthenticationError* __autoreleasing*)error
 {
-    if (!query)
+    NSArray* allAttributes = [mHelper getItemsAttributes:query error:error];
+    if (!allAttributes)
     {
-        query = [NSMutableDictionary new];
+        return nil;
     }
-    
-    //Add the standard library values:
-    [query addEntriesFromDictionary:
-    @{
-        mClassKey:mClassValue,
-        mLibraryKey:mLibraryValue,
-          
-        //Matching-specific keys
-        mMatchLimitKey:(__bridge id)kSecMatchLimitAll,
-        (__bridge id)kSecReturnAttributes:(__bridge id)kCFBooleanTrue,
-    }];
-    
-    [self adGroupToAttributes:query];
-    
-    CFArrayRef all;
-    OSStatus res = SecItemCopyMatching((__bridge CFMutableDictionaryRef)query, (CFTypeRef*)&all);
-    switch(res)
+
+    NSMutableDictionary* toReturn = [[NSMutableDictionary alloc] initWithCapacity:allAttributes.count];
+    for(NSDictionary* dictionary in allAttributes)
     {
-        case errSecSuccess:
-            {
-                NSArray* allAttributes = (__bridge_transfer NSArray*)all;
-                NSMutableDictionary* toReturn = [[NSMutableDictionary alloc] initWithCapacity:allAttributes.count];
-                for(NSDictionary* dictionary in allAttributes)
-                {
-                    NSString* key = [self fullKeychainKeyFromAttributes:dictionary];
-                    if ([toReturn objectForKey:key] != nil)
-                    {
-                        AD_LOG_ERROR_F(sKeyChainlog, 0, @"Duplicated keychain cache entry: %@. Attempt to remove them...", key);
-                        //Recover by deleting both entries:
-                        [toReturn removeObjectForKey:key];
-                        [self deleteByAttributes:dictionary error:error];
-                    }
-                    else
-                    {
-                        [toReturn setObject:dictionary forKey:key];
-                    }
-                }
-                return toReturn;
-            }
-            break;
-        case errSecItemNotFound:
-            {
-                AD_LOG_VERBOSE_F(sKeyChainlog, @"No cache items found.");
-                return [NSMutableDictionary new];//Empty one
-            }
-            break;
-        default:
-            {
-                //Couldn't extract the elements:
-                NSString* errorDetails = [NSString stringWithFormat:@"Cannot read the items in the keychain. Error code: %ld", (long)res];
-                ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                                                         protocolCode:nil
-                                                                                         errorDetails:errorDetails];
-                if (error)
-                {
-                    *error = toReport;
-                }
-                return nil;
-            }
+        NSString* key = [self fullKeychainKeyFromAttributes:dictionary];
+        if ([toReturn objectForKey:key] != nil)
+        {
+            AD_LOG_ERROR_F(sKeyChainlog, 0, @"Duplicated keychain cache entry: %@. Attempt to remove them...", key);
+            //Recover by deleting both entries:
+            [toReturn removeObjectForKey:key];
+            [mHelper deleteByAttributes:dictionary error:error];
+        }
+        else
+        {
+            [toReturn setObject:dictionary forKey:key];
+        }
     }
+    return toReturn;
 }
 
 //Log operations that result in storing or reading cache item:
@@ -233,52 +199,22 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
             withAttributes: (NSDictionary*) attributes /* The specific dictionary returned by previous SecItemCopyMatching call */
                      error: (ADAuthenticationError* __autoreleasing*) error
 {
-    THROW_ON_NIL_ARGUMENT(item);
-    THROW_ON_NIL_ARGUMENT(attributes);
+    RETURN_ON_NIL_ARGUMENT(item);
+    RETURN_ON_NIL_ARGUMENT(attributes);
 
     [self LogItem:item message:@"Attempting to update an item"];
-    NSMutableDictionary* updatedAttributes = [NSMutableDictionary dictionaryWithDictionary:attributes];
-    //Required update, as it does not come back from the SecItemCopyMatching:
-    [updatedAttributes setObject:mClassValue forKey:mClassKey];//Udpate the class, as it doesn't come explicitly from the previous SecItemMatching call
-    [self adGroupToAttributes:updatedAttributes];
-    OSStatus res = SecItemUpdate((__bridge CFMutableDictionaryRef)updatedAttributes,
-                                 (__bridge CFDictionaryRef)@{ mValueDataKey:[NSKeyedArchiver archivedDataWithRootObject:item] });
-    ADAuthenticationError* toReport = nil;
-    switch(res)
+    if ([mHelper updateItemByAttributes:attributes
+                                  value:[NSKeyedArchiver archivedDataWithRootObject:item]
+                                  error:error])
     {
-        case errSecSuccess:
-            //All good
-            [self LogItem:item message:@"Item successfully updated"];
-            break;
-        case errSecItemNotFound:
-            {
-                NSString* errorDetails = [NSString stringWithFormat:@"Cannot update the keychain for the item with authority: %@; resource: %@; clientId: %@",
-                                         item.authority, item.resource, item.clientId];
-                toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                                  protocolCode:nil
-                                                                  errorDetails:errorDetails];
-            }
-            break;
-        default:
-        {
-            NSString* errorDetails = [NSString stringWithFormat:@"Cannot update the item in the keychain. Error code: %ld. Item with authority: %@; resource: %@; clientId: %@", (long)res,
-                                      item.authority, item.resource, item.clientId];
-            toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                              protocolCode:nil
-                                                              errorDetails:errorDetails];
-        }
-    }
-    
-    if (error && toReport)
-    {
-        *error = toReport;
+        [self LogItem:item message:@"Item successfully updated"];
     }
 }
 
 -(void) addKeychainItem: (ADTokenCacheStoreItem*) item
                   error: (ADAuthenticationError* __autoreleasing*) error
 {
-    THROW_ON_NIL_ARGUMENT(item);
+    RETURN_ON_NIL_ARGUMENT(item);
 
     [self LogItem:item message:@"Attempting to add an item"];
 
@@ -289,33 +225,12 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     }
     
     NSMutableDictionary* keychainItem = [NSMutableDictionary dictionaryWithDictionary:@{
-        //Generic setup:
-        mClassKey:mClassValue,//Encryption
-        mLibraryKey:mLibraryValue,//ADAL key
-        (__bridge id)kSecAttrIsInvisible:(__bridge id)kCFBooleanTrue, // do not show in the keychain UI
-        (__bridge id)kSecAttrAccessible:(__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly, // do not roam or migrate to other devices
-        //Item key:
-        mItemKeyAttributeKey: keyText,
+        mItemKeyAttributeKey: keyText,//Item key
         mUserIdKey:[self.class getAttributeName:item.userInformation.userId],
-        //Item data:
-        mValueDataKey:[NSKeyedArchiver archivedDataWithRootObject:item],
         }];
-    [self adGroupToAttributes:keychainItem];
-
-    OSStatus res = SecItemAdd((__bridge CFMutableDictionaryRef)keychainItem, NULL);
-    if (errSecSuccess != res)
-    {
-        NSString* errorDetails = [NSString stringWithFormat:@"Cannot add a new item in the keychain. Error code: %ld. Item with authority: %@; resource: %@; clientId: %@", (long)res,
-                                  item.authority, item.resource, item.clientId];
-        ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                                                 protocolCode:nil
-                                                                                 errorDetails:errorDetails];
-        if (error)
-        {
-            *error = toReport;
-        }
-    }
-    else
+    if ([mHelper addItemWithAttributes:keychainItem
+                                 value:[NSKeyedArchiver archivedDataWithRootObject:item]
+                                 error:error])
     {
         [self LogItem:item message:@"Item successfully added"];
     }
@@ -531,7 +446,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     }
     for(NSDictionary* attributes in keysAndAttributes.allValues)
     {
-        [self deleteByAttributes:attributes error:error];
+        [mHelper deleteByAttributes:attributes error:error];
     }
 }
 

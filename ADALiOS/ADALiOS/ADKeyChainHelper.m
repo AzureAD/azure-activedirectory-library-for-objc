@@ -20,33 +20,67 @@
 extern NSString* const sKeyChainlog;
 
 @implementation ADKeyChainHelper
-
-
-//Adds the shared group to the attributes dictionary. The method is not thread-safe.
--(void) adGroupToAttributes: (NSMutableDictionary*) attributes
-                      group: (NSString*) group
 {
-    if (attributes && ![NSString isStringNilOrBlank:group])
+    id mValueDataKey;
+}
+
+-(id) init
+{
+    [super doesNotRecognizeSelector:_cmd];
+    return nil;
+}
+
+-(id) initWithClass: (id) classValue
+            generic: (NSData*) generic
+        sharedGroup: (NSString *)sharedGroup
+{
+    THROW_ON_NIL_ARGUMENT(classValue);
+    
+    self = [super init];
+    if (!self)
+    {
+        return nil;
+    }
+    
+    mValueDataKey = (__bridge id)kSecValueData;
+    _classValue = classValue;
+    _genericValue = generic;
+    _sharedGroup = sharedGroup;
+    
+    return self;
+}
+
+//Adds the attributes which need to be set before each operation:
+-(void) addStandardAttributes: (NSMutableDictionary*) attributes
+{
+    if (!attributes)
+    {
+        return;
+    }
+    
+    [attributes setObject:_classValue forKey:(__bridge id)kSecClass];
+    if (_genericValue)
+    {
+        [attributes setObject:_genericValue forKey:(__bridge id)kSecAttrGeneric];
+    }
+    if (![NSString isStringNilOrBlank:_sharedGroup])
     {
         //Apps are not signed on the simulator, so the shared group doesn't apply there.
 #if !(TARGET_IPHONE_SIMULATOR)
-        [attributes setObject:group forKey:(__bridge id)kSecAttrAccessGroup];
+        [attributes setObject:_sharedGroup forKey:(__bridge id)kSecAttrAccessGroup];
 #endif
     }
 }
 
 //Given a set of attributes, deletes the matching keychain keys:
--(void) deleteByAttributes: (NSDictionary*) attributes
-                     class: (
-                     group: (NSString*) group
+-(BOOL) deleteByAttributes: (NSDictionary*) attributes
                      error: (ADAuthenticationError* __autoreleasing*) error
 {
-    RETURN_ON_NIL_ARGUMENT(attributes);
-    
+    RETURN_NO_ON_NIL_ARGUMENT(attributes);
+
     NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:attributes];
-    [query setObject:mClassValue forKey:mClassKey];
-    [query setObject:mLibraryValue forKey:mLibraryKey];
-    [self adGroupToAttributes:query group:group];
+    [self addStandardAttributes:query];
+    
     AD_LOG_VERBOSE_F(sKeyChainlog, @"Attempting to remove items that match attributes: %@", attributes);
     
     OSStatus res = SecItemDelete((__bridge CFDictionaryRef)query);
@@ -54,8 +88,9 @@ extern NSString* const sKeyChainlog;
     {
         case errSecSuccess:
             AD_LOG_VERBOSE_F(sKeyChainlog, @"Successfully removed any items that match: %@", attributes);
-            break;
+            return YES;
         case errSecItemNotFound:
+            //It is expected: the item may be removed in parallel by another app, so no raising of error.
             AD_LOG_VERBOSE_F(sKeyChainlog, @"No items to remove. Searched for: %@", attributes);
             break;
         default:
@@ -71,10 +106,128 @@ extern NSString* const sKeyChainlog;
                 *error = toReport;
             }
         }
-        break;
+    }
+    return NO;
+}
+
+-(BOOL) updateItemByAttributes: (NSDictionary*) attributes
+                         value: (NSData*) value
+                         error: (ADAuthenticationError* __autoreleasing*) error
+{
+    RETURN_NO_ON_NIL_ARGUMENT(attributes);
+    RETURN_NO_ON_NIL_ARGUMENT(value);
+    
+    NSMutableDictionary* updatedAttributes = [NSMutableDictionary dictionaryWithDictionary:attributes];
+    [self addStandardAttributes:updatedAttributes];
+    
+    OSStatus res = SecItemUpdate((__bridge CFMutableDictionaryRef)updatedAttributes,
+                                 (__bridge CFDictionaryRef)@{ mValueDataKey:value });
+    ADAuthenticationError* toReport = nil;
+    switch(res)
+    {
+        case errSecSuccess:
+            //All good
+            return YES;
+        case errSecItemNotFound:
+        {
+            NSString* errorDetails = [NSString stringWithFormat:@"Cannot update a keychain item, as it is not present anymore. Attributes: %@",
+                                    attributes];
+            toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
+                                                              protocolCode:nil
+                                                              errorDetails:errorDetails];
+        }
+        default:
+        {
+            NSString* errorDetails = [NSString stringWithFormat:@"Cannot update the item in the keychain. Error code: %ld. Attributes: %@", (long)res,
+                                      attributes];
+            toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
+                                                              protocolCode:nil
+                                                              errorDetails:errorDetails];
+        }
+    }
+    
+    if (error && toReport)
+    {
+        *error = toReport;
+    }
+    return NO;
+}
+
+-(NSArray*) getItemsAttributes: (NSDictionary*) query
+                         error: (ADAuthenticationError* __autoreleasing*) error
+{
+    NSMutableDictionary* updatedQuery = [NSMutableDictionary new];
+    if (query.count)//Query can be nil or empty
+    {
+        [updatedQuery addEntriesFromDictionary:query];
+    }
+    
+    [self addStandardAttributes:updatedQuery];
+    //Add the standard library values:
+    [updatedQuery addEntriesFromDictionary:
+     @{
+       (__bridge id)kSecMatchLimit:(__bridge id)kSecMatchLimitAll,
+       (__bridge id)kSecReturnAttributes:(__bridge id)kCFBooleanTrue,
+       }];
+    
+    CFArrayRef all;
+    OSStatus res = SecItemCopyMatching((__bridge CFMutableDictionaryRef)updatedQuery, (CFTypeRef*)&all);
+    switch(res)
+    {
+        case errSecSuccess:
+            //Success:
+            return (__bridge_transfer NSArray*)all;
+        case errSecItemNotFound:
+            AD_LOG_VERBOSE_F(sKeyChainlog, @"No cache items found.");
+            return [NSArray new];//Empty one
+        default:
+        {
+            //Couldn't extract the elements:
+            NSString* errorDetails = [NSString stringWithFormat:@"Cannot read the items in the keychain. Error code: %ld. Query: %@", (long)res, query];
+            ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
+                                                                                     protocolCode:nil
+                                                                                     errorDetails:errorDetails];
+            if (error)
+            {
+                *error = toReport;
+            }
+            return nil;
+        }
     }
 }
 
-
+-(BOOL) addItemWithAttributes: (NSDictionary*) attributes
+                        value: (NSData*) value
+                        error: (ADAuthenticationError* __autoreleasing*) error
+{
+    RETURN_NO_ON_NIL_ARGUMENT(attributes);
+    RETURN_NO_ON_NIL_ARGUMENT(value);
+    
+    NSMutableDictionary* updatedAttributes = [NSMutableDictionary dictionaryWithDictionary:attributes];
+    [self addStandardAttributes:updatedAttributes];
+    
+    [updatedAttributes addEntriesFromDictionary:
+  @{
+        (__bridge id)kSecAttrIsInvisible:(__bridge id)kCFBooleanTrue, // do not show in the keychain UI
+        (__bridge id)kSecAttrAccessible:(__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly, // do not roam or migrate to other devices
+        mValueDataKey:value,//Item data
+    }];
+    
+    OSStatus res = SecItemAdd((__bridge CFMutableDictionaryRef)updatedAttributes, NULL);
+    if (errSecSuccess != res)
+    {
+        NSString* errorDetails = [NSString stringWithFormat:@"Cannot add a new item in the keychain. Error code: %ld. Attributes: %@", (long)res, attributes];
+        ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
+                                                                                 protocolCode:nil
+                                                                                 errorDetails:errorDetails];
+        if (error)
+        {
+            *error = toReport;
+        }
+        return NO;
+    }
+    
+    return YES;
+}
 
 @end
