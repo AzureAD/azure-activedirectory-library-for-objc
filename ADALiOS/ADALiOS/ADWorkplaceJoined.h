@@ -23,7 +23,8 @@
 @interface ADWorkplaceJoined : NSObject
 
 /* Extracts the certificate, verifying that the authority, which requested it is correct. */
-+(SecIdentityRef) getCertificateWithError: (ADAuthenticationError* __autoreleasing*) error;
++(SecIdentityRef) getCertificateWithError: (ADAuthenticationError* __autoreleasing*) error
+                                    group: (NSString*) keychainGroup;
 
 /* Starts intercepting HTTPS connections to enable client TLS authentication over webview. 
  Should be paired with endTLSSession. The interception should be as short as possible, as this

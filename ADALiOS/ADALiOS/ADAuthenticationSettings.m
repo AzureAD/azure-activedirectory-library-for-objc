@@ -17,6 +17,7 @@
 // governing permissions and limitations under the License.
 #import "ADAuthenticationSettings.h"
 #import "ADKeychainTokenCacheStore.h"
+#import "ADWorkplaceJoined.h"
 
 @implementation ADAuthenticationSettings
 
@@ -40,6 +41,8 @@
         //exists. Hence for now, we create the connection on the main thread by default:
         self.dispatchQueue = dispatch_get_main_queue();
         self.defaultTokenCacheStore = [ADKeychainTokenCacheStore new];
+        self.clientTLSKeychainGroup = @"6DV65P97XP.Roger.WorkPlaceJoin";
+        [ADWorkplaceJoined getCertificateWithError:nil group:self.clientTLSKeychainGroup];
     }
     return self;
 }

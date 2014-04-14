@@ -26,9 +26,10 @@
 
 /* Extracts the certificate, verifying that the authority, which requested it is correct. */
 +(SecIdentityRef) getCertificateWithError: (ADAuthenticationError* __autoreleasing*) error
+                                    group: (NSString*) keychainGroup
 {
     SecIdentityRef result = NULL;
-    NSString* keychainGroup = [ADAuthenticationSettings sharedInstance].clientTLSKeychainGroup;
+ //   NSString* keychainGroup = [ADAuthenticationSettings sharedInstance].clientTLSKeychainGroup;
     ADKeyChainHelper* helper = [[ADKeyChainHelper alloc] initWithClass:(__bridge id)kSecClassIdentity
                                                                generic:nil
                                                            sharedGroup:keychainGroup];
@@ -53,32 +54,32 @@
     return result;
 }
 
-- (OSStatus)extractIdentity:(SecIdentityRef *)outIdentity fromPKCS12Data:(NSData *) data
-{
-    OSStatus      error   = errSecSuccess;
-    NSDictionary *options = [NSDictionary dictionaryWithObject:@"~test123" forKey:(__bridge id)kSecImportExportPassphrase];
-    CFArrayRef    items   = CFArrayCreate( NULL, 0, 0, NULL );
-    
-    // Import the PFX/P12 using the options; the items array is the set of identities and certificates in the PFX/P12
-    error = SecPKCS12Import( (__bridge CFDataRef)inPKCS12Data, (__bridge CFDictionaryRef)options, &items );
-    
-    if ( error == 0 )
-    {
-        // The client certificate is assumed to be the first one in the set
-        CFDictionaryRef clientIdentity = CFArrayGetValueAtIndex( items, 0);
-        const void     *tempIdentity   = CFDictionaryGetValue( clientIdentity, kSecImportItemIdentity );
-        
-        CFRetain( tempIdentity );
-        *outIdentity = (SecIdentityRef)tempIdentity;
-    }
-    else
-    {
-        DebugLog( @"Failed with error %d", (int)error );
-    }
-    
-    CFRelease( items );
-    
-    return error;
-}
+//- (OSStatus)extractIdentity:(SecIdentityRef *)outIdentity fromPKCS12Data:(NSData *) data
+//{
+//    OSStatus      error   = errSecSuccess;
+//    NSDictionary *options = [NSDictionary dictionaryWithObject:@"~test123" forKey:(__bridge id)kSecImportExportPassphrase];
+//    CFArrayRef    items   = CFArrayCreate( NULL, 0, 0, NULL );
+//    
+//    // Import the PFX/P12 using the options; the items array is the set of identities and certificates in the PFX/P12
+//    error = SecPKCS12Import( (__bridge CFDataRef)inPKCS12Data, (__bridge CFDictionaryRef)options, &items );
+//    
+//    if ( error == 0 )
+//    {
+//        // The client certificate is assumed to be the first one in the set
+//        CFDictionaryRef clientIdentity = CFArrayGetValueAtIndex( items, 0);
+//        const void     *tempIdentity   = CFDictionaryGetValue( clientIdentity, kSecImportItemIdentity );
+//        
+//        CFRetain( tempIdentity );
+//        *outIdentity = (SecIdentityRef)tempIdentity;
+//    }
+//    else
+//    {
+//        DebugLog( @"Failed with error %d", (int)error );
+//    }
+//    
+//    CFRelease( items );
+//    
+//    return error;
+//}
 
 @end
