@@ -236,8 +236,7 @@ extern NSString* const sKeyChainlog;
                          item: (CFTypeRef*) item
                         error: (ADAuthenticationError* __autoreleasing*) error
 {
-    RETURN_NIL_ON_NIL_ARGUMENT(attributes);
-    
+    RETURN_NO_ON_NIL_ARGUMENT(attributes);
     
     //Set up the extraction query:
     NSMutableDictionary* updatedAttributes = [NSMutableDictionary dictionaryWithDictionary:attributes];

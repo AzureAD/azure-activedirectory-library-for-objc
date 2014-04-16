@@ -128,7 +128,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
             }
             else
             {
-                AD_LOG_WARN_F(sLog, 0, @"Failed to load certificate. Error: %ld", (long)res);
+                AD_LOG_WARN_F(sLog, @"Failed to load certificate. Error: %ld", (long)res);
             }
         }
         else

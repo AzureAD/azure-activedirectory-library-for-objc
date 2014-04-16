@@ -156,12 +156,19 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     for(NSDictionary* dictionary in allAttributes)
     {
         NSString* key = [self fullKeychainKeyFromAttributes:dictionary];
-        if ([toReturn objectForKey:key] != nil)
+        NSDictionary* first = [toReturn objectForKey:key];
+        if (first != nil)
         {
-            AD_LOG_ERROR_F(sKeyChainlog, 0, @"Duplicated keychain cache entry: %@. Attempt to remove them...", key);
-            //Recover by deleting both entries:
-            [toReturn removeObjectForKey:key];
-            [mHelper deleteByAttributes:dictionary error:error];
+            AD_LOG_INFO_F(sKeyChainlog, @"Duplicated keychain cache entry: %@. Picking the newest...", key);
+            //Note that this can happen if the application has multiple keychain groups and the keychain group is
+            //not specified explicitly:
+            //Recover by picking the newest (based on modification date):
+            NSDate* firstMod = [first objectForKey:(__bridge id)kSecAttrModificationDate];
+            NSDate* secondMod = [dictionary objectForKey:(__bridge id)kSecAttrModificationDate];
+            if (!firstMod || [secondMod compare:firstMod] == NSOrderedDescending)
+            {
+                [toReturn setObject:dictionary forKey:key];
+            }
         }
         else
         {
@@ -555,11 +562,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     {
         if (![NSString adSame:_sharedGroup toString:sharedGroup])
         {
-            //Attempt to merge the current objects with the group:
-            NSArray* allObjects = [self allItemsWithError:nil];
-            _sharedGroup = sharedGroup;
             mHelper.sharedGroup = _sharedGroup;
-            [self persistWithItems:allObjects error:nil];
         }
     }
 }
