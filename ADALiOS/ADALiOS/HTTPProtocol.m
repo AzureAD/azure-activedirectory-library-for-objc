@@ -147,12 +147,10 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodClientCertificate] == NSOrderedSame )
     {
         // This is the client TLS challenge: use the identity to authenticate:
-        if ( sIdentity && sCertificate)
+        if (sIdentity && sCertificate)
         {
             AD_LOG_VERBOSE(sLog, @"Attempting to handle client TLS challenge...");
-            SecCertificateRef cert = NULL;
-            id certId = (__bridge_transfer id)sCertificate;
-            NSArray* certs = [NSArray arrayWithObjects:certId, nil];
+            NSArray* certs = [NSArray arrayWithObjects: (__bridge_transfer id)sCertificate, nil];
             NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
                                                                certificates:certs
                                                                 persistence:NSURLCredentialPersistenceNone];
@@ -180,16 +178,11 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 //- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response;
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
-
-    DebugLog( @"%@", response.MIMEType );
-    
     [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    DebugLog( @"" );
-    
     [self.client URLProtocol:self didLoadData:data];
 }
 
@@ -199,8 +192,6 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    DebugLog( @"connectionDidFinishLoading" );
-    
     [self.client URLProtocolDidFinishLoading:self];
 }
 

@@ -26,56 +26,43 @@
 
 @implementation ADWorkplaceJoined
 
-/* Extracts the certificate, verifying that the authority, which requested it is correct. */
-+(SecIdentityRef) getCertificateWithError: (ADAuthenticationError* __autoreleasing*) error
-                                    group: (NSString*) keychainGroup
-{
-    SecIdentityRef result = NULL;
- //   NSString* keychainGroup = [ADAuthenticationSettings sharedInstance].clientTLSKeychainGroup;
-    ADKeyChainHelper* helper = [[ADKeyChainHelper alloc] initWithClass:(__bridge id)kSecClassCertificate
-                                                               generic:nil
-                                                           sharedGroup:keychainGroup];
-    AD_LOG_VERBOSE_F(@"Workkplace join", @"Attempting to extract the client authentication TLS certificate from the keychain group: %@", keychainGroup);
-    NSArray* allCerts = [helper getItemsAttributes:nil error:error];
-    if (!allCerts.count)
-    {
-        return NULL;
-    }
-    if (allCerts.count > 1)
-    {
-        //Multiple device join certificates found.
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_TLS_CERTIFICATES protocolCode:0 errorDetails:@"Cannot extract a client authentication certificate: more than one certificate exists in the keychain."];
-        if (error)
-        {
-            *error = adError;
-        }
-        return NULL;
-    }
-    NSDictionary* attributes = [allCerts firstObject];
-    NSData* data = [helper getItemDataWithAttributes:attributes error:error];
-    SecIdentityRef foo;
- //   OSStatus err1 = [self extractIdentity:&foo fromPKCS12Data:data];
-    
-    return foo;
-}
-
 +(BOOL) startTLSSessionWithError: (ADAuthenticationError *__autoreleasing *) error
 {
-#error implement me.
-    RETURN_ON_INVALID_ARGUMENT(NIL_CONDITION(cert), @"cert", NO);
-    RETURN_NO_ON_NIL_ARGUMENT(url);
-    [HTTPProtocol setCertificate:cert];
-    if (![NSURLProtocol registerClass:[HTTPProtocol class]])
+    NSString* keychainGroup = [ADAuthenticationSettings sharedInstance].clientTLSKeychainGroup;
+    ADKeyChainHelper* certHelper = [[ADKeyChainHelper alloc] initWithClass:(__bridge id)kSecClassCertificate
+                                                                   generic:nil
+                                                               sharedGroup:keychainGroup];
+    SecCertificateRef certificate = (SecCertificateRef)[certHelper getItemTypeRefWithAttributes:[NSDictionary new] error:error];
+    if (!certificate)
     {
-        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Failed to register NSURLProtocol."];
-        if (error)
-        {
-            *error = adError;
-        }
-        return NO;
+        return NO;//Quick exit, no resources to cleanup
     }
     
-    return YES;
+    ADKeyChainHelper* identityHelper = [[ADKeyChainHelper alloc] initWithClass:(__bridge id)kSecClassIdentity
+                                                                       generic:nil
+                                                                   sharedGroup:keychainGroup];
+    SecIdentityRef identity = (SecIdentityRef)[identityHelper getItemTypeRefWithAttributes:[NSDictionary new] error:error];
+    BOOL succeeded = NO;
+    if (identity)
+    {
+        [HTTPProtocol setIdentity:identity];
+        [HTTPProtocol setCertificate:certificate];
+        if ([NSURLProtocol registerClass:[HTTPProtocol class]])
+        {
+            succeeded = YES;
+        }
+        else
+        {
+            ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Failed to register NSURLProtocol."];
+            if (error)
+            {
+                *error = adError;
+            }
+        }
+        //CFRelease(identity);
+    }
+    //CFRelease(certificate);
+    return succeeded;
 }
 
 /* Stops the HTTPS interception. */

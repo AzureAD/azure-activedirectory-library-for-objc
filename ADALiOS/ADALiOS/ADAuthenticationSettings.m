@@ -41,8 +41,7 @@
         //exists. Hence for now, we create the connection on the main thread by default:
         self.dispatchQueue = dispatch_get_main_queue();
         self.defaultTokenCacheStore = [ADKeychainTokenCacheStore new];
-        self.clientTLSKeychainGroup = @"6DV65P97XP.Roger.WorkPlaceJoin";
-        [ADWorkplaceJoined getCertificateWithError:nil group:self.clientTLSKeychainGroup];
+        self.clientTLSKeychainGroup = @"6DV65P97XP.com.workplacejoin.shared";
     }
     return self;
 }

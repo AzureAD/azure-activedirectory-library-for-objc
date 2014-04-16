@@ -50,16 +50,11 @@
         
         _webView          = webView;
         _webView.delegate = self;
-        SecIdentityRef wpj = [ADWorkplaceJoined getCertificateWithError:nil
-                                                                  group:[ADAuthenticationSettings sharedInstance].clientTLSKeychainGroup];
-        if (wpj)
+        
+        _clientTLSSession = [ADWorkplaceJoined startTLSSessionWithError:nil];
+        if (_clientTLSSession)
         {
-            AD_LOG_INFO(@"Authorization UI", @"The device is workplace joined. Client TLS Session starting");
-            _clientTLSSession = [ADWorkplaceJoined startTLSSessionWithCertificate:wpj error:nil];
-        }
-        else
-        {
-            _clientTLSSession = NO;
+            AD_LOG_INFO(@"Authorization UI", @"The device is workplace joined. Client TLS Session started.");
         }
     }
     
