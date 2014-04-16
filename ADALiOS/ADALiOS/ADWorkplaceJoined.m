@@ -21,6 +21,8 @@
 #import "NSString+ADHelperMethods.h"
 #import "ADErrorCodes.h"
 #import "ADKeyChainHelper.h"
+#import "ADALiOS.h"
+#import "HTTPProtocol.h"
 
 @implementation ADWorkplaceJoined
 
@@ -52,37 +54,63 @@
     NSDictionary* attributes = [allCerts firstObject];
     NSData* data = [helper getItemDataWithAttributes:attributes error:error];
     SecIdentityRef foo;
-    OSStatus err1 = [self extractIdentity:&foo fromPKCS12Data:data];
+ //   OSStatus err1 = [self extractIdentity:&foo fromPKCS12Data:data];
     
     return foo;
 }
 
-+ (OSStatus)extractIdentity:(SecIdentityRef *)outIdentity fromPKCS12Data:(NSData *) data
++(BOOL) startTLSSessionWithError: (ADAuthenticationError *__autoreleasing *) error
 {
-    OSStatus      error   = errSecSuccess;
-    NSDictionary *options = [NSDictionary new];
-    CFArrayRef    items   = CFArrayCreate( NULL, 0, 0, NULL );
-    
-    // Import the PFX/P12 using the options; the items array is the set of identities and certificates in the PFX/P12
-    error = SecPKCS12Import( (__bridge CFDataRef)data, (__bridge CFDictionaryRef)options, &items );
-    
-    if ( error == 0 )
+#error implement me.
+    RETURN_ON_INVALID_ARGUMENT(NIL_CONDITION(cert), @"cert", NO);
+    RETURN_NO_ON_NIL_ARGUMENT(url);
+    [HTTPProtocol setCertificate:cert];
+    if (![NSURLProtocol registerClass:[HTTPProtocol class]])
     {
-        // The client certificate is assumed to be the first one in the set
-        CFDictionaryRef clientIdentity = CFArrayGetValueAtIndex( items, 0);
-        const void     *tempIdentity   = CFDictionaryGetValue( clientIdentity, kSecImportItemIdentity );
-        
-        CFRetain( tempIdentity );
-        *outIdentity = (SecIdentityRef)tempIdentity;
-    }
-    else
-    {
-        DebugLog( @"Failed with error %d", (int)error );
+        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Failed to register NSURLProtocol."];
+        if (error)
+        {
+            *error = adError;
+        }
+        return NO;
     }
     
-    CFRelease( items );
-    
-    return error;
+    return YES;
 }
+
+/* Stops the HTTPS interception. */
++(void) endTLSSession
+{
+    [NSURLProtocol unregisterClass:[HTTPProtocol class]];
+}
+
+//+ (OSStatus)extractIdentity:(SecIdentityRef *)outIdentity fromPKCS12Data:(NSData *) data
+//{
+//    OSStatus      error   = errSecSuccess;
+//    NSDictionary *options = [NSDictionary new];
+//    CFArrayRef    items   = CFArrayCreate( NULL, 0, 0, NULL );
+//    
+//    // Import the PFX/P12 using the options; the items array is the set of identities and certificates in the PFX/P12
+//    error = SecPKCS12Import( (__bridge CFDataRef)data, (__bridge CFDictionaryRef)options, &items );
+//    
+//    if ( error == 0 )
+//    {
+//        // The client certificate is assumed to be the first one in the set
+//        CFDictionaryRef clientIdentity = CFArrayGetValueAtIndex( items, 0);
+//        const void     *tempIdentity   = CFDictionaryGetValue( clientIdentity, kSecImportItemIdentity );
+//        
+//        CFRetain( tempIdentity );
+//        *outIdentity = (SecIdentityRef)tempIdentity;
+//    }
+//    else
+//    {
+//        DebugLog( @"Failed with error %d", (int)error );
+//    }
+//    
+//    CFRelease( items );
+//    
+//    return error;
+//}
+
 
 @end

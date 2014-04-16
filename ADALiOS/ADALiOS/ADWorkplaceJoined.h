@@ -27,11 +27,10 @@
                                     group: (NSString*) keychainGroup;
 
 /* Starts intercepting HTTPS connections to enable client TLS authentication over webview. 
- Should be paired with endTLSSession. The interception should be as short as possible, as this
- is a very specific fix to overcome the webview limitations. */
-+(BOOL) startTLSSessionWithCertificate: (SecIdentityRef) cert
-                                   url: (NSURL*) url
-                                 error: (ADAuthenticationError*) error;
+ If this method succeeds, it should be paired with endTLSSession. The method attempts 
+ to retrieve the workplace join identity and certificate. The interception should be as 
+ short as possible, as this is a very specific fix to overcome the webview limitations. */
++(BOOL) startTLSSessionWithError: (ADAuthenticationError* __autoreleasing*) error;
 /* Stops the HTTPS interception. */
 +(void) endTLSSession;
 

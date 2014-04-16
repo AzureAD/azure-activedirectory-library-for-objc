@@ -18,6 +18,8 @@
 
 #import "ADAuthenticationDelegate.h"
 #import "ADAuthenticationWebViewController.h"
+#import "ADWorkplaceJoined.h"
+#import "ADAuthenticationSettings.h"
 
 @implementation ADAuthenticationWebViewController
 {
@@ -26,6 +28,7 @@
     NSURL    *_startURL;
     NSString *_endURL;
     BOOL      _complete;
+    BOOL     _clientTLSSession;
 }
 
 #pragma mark - Initialization
@@ -47,6 +50,17 @@
         
         _webView          = webView;
         _webView.delegate = self;
+        SecIdentityRef wpj = [ADWorkplaceJoined getCertificateWithError:nil
+                                                                  group:[ADAuthenticationSettings sharedInstance].clientTLSKeychainGroup];
+        if (wpj)
+        {
+            AD_LOG_INFO(@"Authorization UI", @"The device is workplace joined. Client TLS Session starting");
+            _clientTLSSession = [ADWorkplaceJoined startTLSSessionWithCertificate:wpj error:nil];
+        }
+        else
+        {
+            _clientTLSSession = NO;
+        }
     }
     
     return self;
@@ -71,6 +85,10 @@
 
 - (void)stop
 {
+    if (_clientTLSSession)
+    {
+        [ADWorkplaceJoined endTLSSession];
+    }
 }
 
 #pragma mark - UIWebViewDelegate Protocol

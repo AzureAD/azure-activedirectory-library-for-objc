@@ -20,6 +20,8 @@
 #import "ADLogger.h"
 
 static SecIdentityRef sIdentity;
+static SecCertificateRef sCertificate;
+
 NSString* const sLog = @"HTTP Protocol";
 
 @implementation HTTPProtocol
@@ -27,16 +29,51 @@ NSString* const sLog = @"HTTP Protocol";
     NSURLConnection *_connection;
 }
 
-+(void) setCertificate:(SecIdentityRef) cert
++(void) setIdentity:(SecIdentityRef)identity
 {
-    CFRetain(cert);
-    sIdentity = cert;
+    if (identity)
+    {
+        AD_LOG_INFO(sLog, @"Identity set.");
+        CFRetain(identity);
+        sIdentity = identity;
+    }
+    else
+    {
+        AD_LOG_WARN(sLog, @"HTTPProtocol::setIdentity called with NULL parameter");
+    }
 }
 
++(void) clearIdentity
+{
+    if (sIdentity)
+    {
+        CFRelease(sIdentity);
+        sIdentity = NULL;
+    }
+}
+
+/* Sets the certificate to be used for the client TLS authentication (required with workplace join). */
++(void) setCertificate:(SecCertificateRef) certificate
+{
+    if (certificate)
+    {
+        CFRetain(certificate);
+        sCertificate = certificate;
+    }
+    else
+    {
+        AD_LOG_WARN(sLog, @"HTTPProtocol::setCertificate called with NULL parameter");
+    }
+};
+
+/* Releases the identity data. Typically called at the end of the client TLS session. */
 +(void) clearCertificate
 {
-    CFRelease(sIdentity);
-    sIdentity = NULL;
+    if (sCertificate)
+    {
+        CFRelease(sCertificate);
+        sCertificate = NULL;
+    }
 }
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
@@ -110,27 +147,18 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodClientCertificate] == NSOrderedSame )
     {
         // This is the client TLS challenge: use the identity to authenticate:
-        if ( sIdentity)
+        if ( sIdentity && sCertificate)
         {
             AD_LOG_VERBOSE(sLog, @"Attempting to handle client TLS challenge...");
             SecCertificateRef cert = NULL;
-            OSStatus res = SecIdentityCopyCertificate(sIdentity, &cert);
-            if (errSecSuccess == res)
-            {
-                id certId = (__bridge_transfer id)cert;
-                NSArray* certs = [NSArray arrayWithObjects:certId, nil];
-                NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
-                                                                   certificates:certs
-                                                                    persistence:NSURLCredentialPersistenceNone];
-                [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
-                AD_LOG_VERBOSE(sLog, @"Client TLS challenge responded.");
-                return;
+            id certId = (__bridge_transfer id)sCertificate;
+            NSArray* certs = [NSArray arrayWithObjects:certId, nil];
+            NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
+                                                               certificates:certs
+                                                                persistence:NSURLCredentialPersistenceNone];
+            [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
+            AD_LOG_VERBOSE(sLog, @"Client TLS challenge responded.");
             }
-            else
-            {
-                AD_LOG_WARN_F(sLog, @"Failed to load certificate. Error: %ld", (long)res);
-            }
-        }
         else
         {
             AD_LOG_WARN(sLog, @"Cannot respond to client TLS request. Identity is not set.");
