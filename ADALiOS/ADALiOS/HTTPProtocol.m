@@ -147,13 +147,22 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodClientCertificate] == NSOrderedSame )
     {
         // This is the client TLS challenge: use the identity to authenticate:
-        if (sIdentity && sCertificate)
+        if (/*sIdentity &&*/ sCertificate)
         {
             AD_LOG_VERBOSE(sLog, @"Attempting to handle client TLS challenge...");
-            NSArray* certs = [NSArray arrayWithObjects: (__bridge_transfer id)sCertificate, nil];
-            NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
-                                                               certificates:certs
-                                                                persistence:NSURLCredentialPersistenceNone];
+            
+            CFArrayRef certs = CFArrayCreate(kCFAllocatorDefault, (const void **) &sCertificate, 1, NULL);
+            SecPolicyRef policy = SecPolicyCreateBasicX509();
+            SecTrustRef trust;
+            OSStatus res = SecTrustCreateWithCertificates(certs, policy, &trust);
+            SecTrustResultType trustResult;
+            res = SecTrustEvaluate(trust, &trustResult);
+            NSURLCredential* cred = [NSURLCredential credentialForTrust:trust];
+            CFRelease(certs);
+//            NSArray* certs = [NSArray arrayWithObjects: (__bridge_transfer id)sCertificate, nil];
+//            NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
+//                                                               certificates:certs
+//                                                                persistence:NSURLCredentialPersistenceNone];
             [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
             AD_LOG_VERBOSE(sLog, @"Client TLS challenge responded.");
             }
