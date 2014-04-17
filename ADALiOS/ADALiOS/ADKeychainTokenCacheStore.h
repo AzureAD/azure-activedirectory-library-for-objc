@@ -28,7 +28,8 @@
 -(id) initWithGroup: (NSString*) sharedGroup;
 
 /* The shared keychain group, where the ADAL library will keep the tokens.
- May be nil. When set, any cache items are transferred to the new group. */
+ May be nil. The cache items from the previous keychain group are not transferred
+ automatically. */
 @property (getter = getSharedGroup, setter = setSharedGroup:) NSString* sharedGroup;
 
 @end
