@@ -1164,7 +1164,7 @@ const int sAsyncContextTimeout = 10;
 
     //Return access and broad refresh tokens:
     NSString* accessToken2 = @"accessToken2";
-    NSString* broadRefreshToken = @"exactRefreshToken";
+    NSString* broadRefreshToken = @"broadRefreshToken";
     [self.testContext->mResponse1 setObject:accessToken2 forKey:OAUTH2_ACCESS_TOKEN];
     [self.testContext->mResponse1 setObject:broadRefreshToken forKey:OAUTH2_REFRESH_TOKEN];
     //Presence of "resource" denotes multi-resource refresh token:
