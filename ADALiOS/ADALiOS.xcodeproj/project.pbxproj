@@ -23,6 +23,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		4C54F73E18FF88B90005FBFC /* ADKeyChainHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C54F73D18FF88B90005FBFC /* ADKeyChainHelper.m */; };
 		8B0965AE17F25770002BDFB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
 		8B0965B517F25770002BDFB8 /* ADALiOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B0965B417F25770002BDFB8 /* ADALiOS.m */; };
 		8B0965BC17F25770002BDFB8 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965BB17F25770002BDFB8 /* XCTest.framework */; };
@@ -139,6 +140,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4C54F73C18FF88B90005FBFC /* ADKeyChainHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADKeyChainHelper.h; sourceTree = "<group>"; };
+		4C54F73D18FF88B90005FBFC /* ADKeyChainHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeyChainHelper.m; sourceTree = "<group>"; };
 		8B0965AA17F25770002BDFB8 /* libADALiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libADALiOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B0965AD17F25770002BDFB8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8B0965B117F25770002BDFB8 /* ADALiOS-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADALiOS-Prefix.pch"; sourceTree = "<group>"; };
@@ -299,6 +302,8 @@
 		8B0965AF17F25770002BDFB8 /* ADALiOS */ = {
 			isa = PBXGroup;
 			children = (
+				4C54F73C18FF88B90005FBFC /* ADKeyChainHelper.h */,
+				4C54F73D18FF88B90005FBFC /* ADKeyChainHelper.m */,
 				8B0965B217F25770002BDFB8 /* ADALiOS.h */,
 				8B0965B417F25770002BDFB8 /* ADALiOS.m */,
 				8BB8345A18074A58007F9F0D /* ADAuthenticationContext.h */,
@@ -607,6 +612,7 @@
 				8B5989551811B89800744AEE /* ADTokenCacheStoreKey.m in Sources */,
 				8B0DA7DE182AD01100CF5E1E /* ADAuthenticationResult+Internal.m in Sources */,
 				8B5989511811A3DB00744AEE /* ADAuthenticationError.m in Sources */,
+				4C54F73E18FF88B90005FBFC /* ADKeyChainHelper.m in Sources */,
 				8B92DB6C181ADE44004AAB0E /* NSString+ADHelperMethods.m in Sources */,
 				8B59894E1810BEAC00744AEE /* ADTokenCacheStoreItem.m in Sources */,
 				8B34344A18330591002DE1DC /* ADAuthenticationBroker.m in Sources */,
