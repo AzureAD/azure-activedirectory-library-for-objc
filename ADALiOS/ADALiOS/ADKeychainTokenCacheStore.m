@@ -562,7 +562,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     {
         if (![NSString adSame:_sharedGroup toString:sharedGroup])
         {
-            mHelper.sharedGroup = _sharedGroup;
+            mHelper.sharedGroup = _sharedGroup = sharedGroup;
         }
     }
 }
