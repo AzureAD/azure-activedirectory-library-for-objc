@@ -992,7 +992,7 @@ const int sAsyncContextTimeout = 10;
     mPromptBehavior = AD_PROMPT_ALWAYS;
     [self validateUIError];
 }
-
+ 
 -(void) testBadRefreshToken
 {
     //Create a normal authority (not a test one):
