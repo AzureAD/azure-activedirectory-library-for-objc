@@ -298,7 +298,7 @@
 {
     [self setStatus:@"Setting prompt always..."];
     ADAuthenticationError* error;
-    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:mAADInstance.authority error:&error];
+    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:mAADInstance.authority validateAuthority:NO error:&error];
     if (!context)
     {
         [self setStatus:error.errorDetails];
@@ -310,7 +310,7 @@
                              clientId:mAADInstance.clientId
                           redirectUri:[NSURL URLWithString:mAADInstance.redirectUri]
                        promptBehavior:AD_PROMPT_ALWAYS
-                               userId:@"boris@msopentechbv.onmicrosoft.com"
+                               userId:mAADInstance.userId
                  extraQueryParameters:@""
                       completionBlock:^(ADAuthenticationResult *result)
     {
