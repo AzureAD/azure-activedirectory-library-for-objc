@@ -103,14 +103,27 @@ typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
     additionalInformation: info]; \
 }
 
+#define FIRST_ARG(ARG,...) ARG
+
 //Allows formatting, e.g. AD_LOG_FORMAT(ADAL_LOG_LEVEL_INFO, "Something", "Check this: %@ and this: %@", this1, this2)
+//If we make this a method, we will lose the warning when the string formatting parameters do not match the actual parameters.
 #define AD_LOG_FORMAT(level, msg, code, info...) \
 { \
-    NSString* logInfo = [NSString stringWithFormat:info]; \
-    [ADLogger log: level \
-          message: msg \
-        errorCode: code \
+    if (FIRST_ARG(info))/*Avoid crash in logging*/ \
+    { \
+        NSString* logInfo = [NSString stringWithFormat:info]; \
+        [ADLogger log: level \
+              message: msg \
+            errorCode: code \
 additionalInformation: logInfo]; \
+    } \
+    else \
+    { \
+        [ADLogger log: level \
+              message: msg \
+            errorCode: code \
+additionalInformation: @"Bad logging: nil info specified."]; \
+    } \
 }
 
 #define AD_LOG_ERROR(message, code, info) AD_LOG(ADAL_LOG_LEVEL_ERROR, message, code, info)
