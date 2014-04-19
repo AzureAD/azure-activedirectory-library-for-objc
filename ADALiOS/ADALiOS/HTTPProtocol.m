@@ -78,9 +78,11 @@ NSString* const sLog = @"HTTP Protocol";
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
+    NSString* str = request.URL;
     if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"] )
     {
-        //This class needs to handle only TLS.
+        //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checkin
+        //for initialization
         if ( [NSURLProtocol propertyForKey:@"HTTPProtocol" inRequest:request] == nil )
         {
             AD_LOG_VERBOSE_F(sLog, @"Requested handling of URL: %@", [request.URL absoluteString]);
@@ -142,12 +144,12 @@ NSString* const sLog = @"HTTP Protocol";
 - (void)connection:(NSURLConnection *)connection
 willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    AD_LOG_VERBOSE_F(sLog, @"connection:willSendRequestForAuthenticationChallenge: %@", challenge.protectionSpace.authenticationMethod);
+    AD_LOG_VERBOSE_F(sLog, @"connection:willSendRequestForAuthenticationChallenge: %@. Previous challenge failure count: %ld", challenge.protectionSpace.authenticationMethod, (long)challenge.previousFailureCount);
 
     if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodClientCertificate] == NSOrderedSame )
     {
         // This is the client TLS challenge: use the identity to authenticate:
-        if (/*sIdentity &&*/ sCertificate)
+        if (sIdentity && sCertificate)
         {
             AD_LOG_VERBOSE(sLog, @"Attempting to handle client TLS challenge...");
             
@@ -159,11 +161,18 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
             res = SecTrustEvaluate(trust, &trustResult);
             NSURLCredential* cred = [NSURLCredential credentialForTrust:trust];
             CFRelease(certs);
-//            NSArray* certs = [NSArray arrayWithObjects: (__bridge_transfer id)sCertificate, nil];
+            
+            
+//            SecCertificateRef clientCertificate = NULL;
+//            OSStatus          status            = SecIdentityCopyCertificate( sIdentity, &clientCertificate );
+//            
+//            NSArray* certs = [NSArray arrayWithObjects: (__bridge_transfer id)clientCertificate, sCertificate, nil];
 //            NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
 //                                                               certificates:certs
 //                                                                persistence:NSURLCredentialPersistenceNone];
+            
             [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
+            
             AD_LOG_VERBOSE(sLog, @"Client TLS challenge responded.");
             }
         else
@@ -184,7 +193,12 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 
 #pragma mark - NSURLConnectionDataDelegate Methods
 
-//- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response;
+- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response
+{
+    AD_LOG_VERBOSE_F(sLog, @"HTTPProtocol::connection:willSendRequest:. Redirect response: %@. New request:%@", response.URL, request.URL);
+    return request;
+}
+
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
     [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];

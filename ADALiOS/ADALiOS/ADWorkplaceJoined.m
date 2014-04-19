@@ -38,14 +38,14 @@
         return NO;//Quick exit, no resources to cleanup
     }
     
-//    ADKeyChainHelper* identityHelper = [[ADKeyChainHelper alloc] initWithClass:(__bridge id)kSecClassIdentity
-//                                                                       generic:nil
-//                                                                   sharedGroup:keychainGroup];
-//    SecIdentityRef identity = (SecIdentityRef)[identityHelper getItemTypeRefWithAttributes:[NSDictionary new] error:error];
+    ADKeyChainHelper* identityHelper = [[ADKeyChainHelper alloc] initWithClass:(__bridge id)kSecClassIdentity
+                                                                       generic:nil
+                                                                   sharedGroup:keychainGroup];
+    SecIdentityRef identity = (SecIdentityRef)[identityHelper getItemTypeRefWithAttributes:[NSDictionary new] error:error];
     BOOL succeeded = NO;
-//    if (identity)
+    if (identity)
     {
-//        [HTTPProtocol setIdentity:identity];
+        [HTTPProtocol setIdentity:identity];
         [HTTPProtocol setCertificate:certificate];
         if ([NSURLProtocol registerClass:[HTTPProtocol class]])
         {
