@@ -153,23 +153,13 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
         {
             AD_LOG_VERBOSE(sLog, @"Attempting to handle client TLS challenge...");
             
-            CFArrayRef certs = CFArrayCreate(kCFAllocatorDefault, (const void **) &sCertificate, 1, NULL);
-            SecPolicyRef policy = SecPolicyCreateBasicX509();
-            SecTrustRef trust;
-            OSStatus res = SecTrustCreateWithCertificates(certs, policy, &trust);
-            SecTrustResultType trustResult;
-            res = SecTrustEvaluate(trust, &trustResult);
-            NSURLCredential* cred = [NSURLCredential credentialForTrust:trust];
-            CFRelease(certs);
+            SecCertificateRef clientCertificate = NULL;
+            OSStatus          status            = SecIdentityCopyCertificate( sIdentity, &clientCertificate );
             
-            
-//            SecCertificateRef clientCertificate = NULL;
-//            OSStatus          status            = SecIdentityCopyCertificate( sIdentity, &clientCertificate );
-//            
-//            NSArray* certs = [NSArray arrayWithObjects: (__bridge_transfer id)clientCertificate, sCertificate, nil];
-//            NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
-//                                                               certificates:certs
-//                                                                persistence:NSURLCredentialPersistenceNone];
+            NSArray* certs = [NSArray arrayWithObjects: (__bridge id)clientCertificate, (__bridge id)sCertificate, nil];
+            NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
+                                                               certificates:certs
+                                                                persistence:NSURLCredentialPersistenceNone];
             
             [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
             
@@ -179,6 +169,20 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
         {
             AD_LOG_WARN(sLog, @"Cannot respond to client TLS request. Identity is not set.");
         }
+    }
+    else if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodServerTrust] == NSOrderedSame)
+    {
+        CFArrayRef certs = CFArrayCreate(kCFAllocatorDefault, (const void **) &sCertificate, 1, NULL);
+        SecPolicyRef policy = SecPolicyCreateBasicX509();
+        SecTrustRef trust;
+        OSStatus res = SecTrustCreateWithCertificates(certs, policy, &trust);
+        SecTrustResultType trustResult;
+        res = SecTrustEvaluate(trust, &trustResult);
+        NSURLCredential* cred = [NSURLCredential credentialForTrust:trust];
+        CFRelease(certs);
+        
+        
+        [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
     }
     
     // Do default handling
