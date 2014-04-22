@@ -1214,7 +1214,8 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
                             if (jsonError)
                             {
                                 // Unrecognized JSON response
-                                AD_LOG_WARN(@"JSON deserialization", jsonError.localizedDescription);
+                                NSString* bodyStr = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
+                                AD_LOG_ERROR_F(@"JSON deserialization", jsonError.code, @"Error: %@. Body text: '%@'. HTTPS Code: %ld. Response correlation id: %@", jsonError.description, bodyStr, (long)webResponse.statusCode, responseCorrelationId);
                                 adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
                             }
                             else
