@@ -636,6 +636,20 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
     XCTAssertTrue([self cacheCount] == 0, "Bad refresh tokens should be removed from the cache");
     
+    //Now put a refresh token, but return a broad refresh token:
+    [self addCacheWithToken:nil refreshToken:refreshToken];
+    [self.testContext->mResponse1 removeObjectForKey:OAUTH2_ERROR];//Restore
+    NSString* broadRefreshToken = @"broad refresh token testAcquireTokenWithNoPrompt";
+    NSString* anotherAccessToken = @"another access token testAcquireTokenWithNoPrompt";
+    [self.testContext->mResponse1 setObject:anotherAccessToken forKey:OAUTH2_ACCESS_TOKEN];
+    [self.testContext->mResponse1 setObject:broadRefreshToken forKey:OAUTH2_REFRESH_TOKEN];
+    //Next line makes it a broad token:
+    [self.testContext->mResponse1 setObject:@"anything" forKey:OAUTH2_RESOURCE];
+    acquireTokenAsync;
+    XCTAssertEqual(mResult.status, AD_SUCCEEDED);
+    ADAssertStringEquals(mResult.accessToken, anotherAccessToken);
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.refreshToken, broadRefreshToken);
+    
     //Put a valid token in the cache, but set context token cache to nil:
     [self addCacheWithToken:someTokenValue refreshToken:@"some refresh token"];
     mContext.tokenCacheStore = nil;
@@ -992,7 +1006,7 @@ const int sAsyncContextTimeout = 10;
     mPromptBehavior = AD_PROMPT_ALWAYS;
     [self validateUIError];
 }
-
+ 
 -(void) testBadRefreshToken
 {
     //Create a normal authority (not a test one):
@@ -1164,11 +1178,11 @@ const int sAsyncContextTimeout = 10;
 
     //Return access and broad refresh tokens:
     NSString* accessToken2 = @"accessToken2";
-    NSString* broadRefreshToken = @"exactRefreshToken";
+    NSString* broadRefreshToken = @"broadRefreshToken";
     [self.testContext->mResponse1 setObject:accessToken2 forKey:OAUTH2_ACCESS_TOKEN];
     [self.testContext->mResponse1 setObject:broadRefreshToken forKey:OAUTH2_REFRESH_TOKEN];
     //Presence of "resource" denotes multi-resource refresh token:
-    [self.testContext->mResponse2 setObject:@"someresource" forKey:OAUTH2_RESOURCE];
+    [self.testContext->mResponse1 setObject:@"someresource" forKey:OAUTH2_RESOURCE];
     [self asyncAcquireTokenByRefreshToken:refreshToken];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, accessToken2);

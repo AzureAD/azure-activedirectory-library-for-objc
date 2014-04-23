@@ -647,6 +647,7 @@ if (![self checkAndHandleBadArgument:ARG \
 
         //In case of success we use explicitly the item that comes back in the result:
         cacheItem = result.tokenCacheStoreItem;
+        NSString* savedRefreshToken = cacheItem.refreshToken;
         if (result.multiResourceRefreshToken)
         {
             AD_LOG_VERBOSE_F(@"Token cache store", @"Storing multi-resource refresh token for authority: %@", self.authority);
@@ -666,6 +667,7 @@ if (![self checkAndHandleBadArgument:ARG \
         
         AD_LOG_VERBOSE_F(@"Token cache store", @"Storing access token for resource: %@", cacheItem.resource);
         [self.tokenCacheStore addOrUpdateItem:cacheItem error:nil];
+        cacheItem.refreshToken = savedRefreshToken;//Restore for the result
     }
     else
     {
@@ -1212,7 +1214,8 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
                             if (jsonError)
                             {
                                 // Unrecognized JSON response
-                                AD_LOG_WARN(@"JSON deserialization", jsonError.localizedDescription);
+                                NSString* bodyStr = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
+                                AD_LOG_ERROR_F(@"JSON deserialization", jsonError.code, @"Error: %@. Body text: '%@'. HTTPS Code: %ld. Response correlation id: %@", jsonError.description, bodyStr, (long)webResponse.statusCode, responseCorrelationId);
                                 adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
                             }
                             else

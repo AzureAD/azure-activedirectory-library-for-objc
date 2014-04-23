@@ -35,7 +35,7 @@
                resource: (NSString*) resource
                clientId: (NSString*) clientId
 {
-    self = [super self];
+    self = [super init];
     if (self)
     {
         //As the object is immutable we precalculate the hash:
