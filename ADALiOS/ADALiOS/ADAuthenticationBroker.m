@@ -215,6 +215,8 @@ correlationId:(NSUUID *)correlationId
     THROW_ON_NIL_ARGUMENT(correlationId);
     THROW_ON_NIL_ARGUMENT(completionBlock)
     
+    [self clearCookies];
+    
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
     
     // Save the completion block
@@ -376,6 +378,19 @@ correlationId:(NSUUID *)correlationId
     
     _authenticationViewController    = nil;
     _authenticationWebViewController = nil;
+}
+
+// Clear cookies
+-(void) clearCookies
+{
+    //Every time before the UI is loaded. Clearing the cookies here to avoid the case
+    //when a user login with different user accounts first time to AAD. The 2nd login UI will be
+    //redirected to the first account UI because of the cookie
+    NSHTTPCookieStorage * cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+	for (NSHTTPCookie * cookie in [cookieStorage cookies])
+	{
+		[cookieStorage deleteCookie:cookie];
+	}
 }
 
 @end
