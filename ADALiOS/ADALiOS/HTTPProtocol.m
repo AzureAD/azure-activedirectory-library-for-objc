@@ -78,7 +78,6 @@ NSString* const sLog = @"HTTP Protocol";
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
-    NSString* str = request.URL;
     if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"] )
     {
         //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checkin
@@ -155,16 +154,23 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
             
             SecCertificateRef clientCertificate = NULL;
             OSStatus          status            = SecIdentityCopyCertificate( sIdentity, &clientCertificate );
-            
-            NSArray* certs = [NSArray arrayWithObjects: (__bridge id)clientCertificate, (__bridge id)sCertificate, nil];
-            NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
-                                                               certificates:certs
-                                                                persistence:NSURLCredentialPersistenceNone];
-            
-            [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
-            
-            AD_LOG_VERBOSE(sLog, @"Client TLS challenge responded.");
+            if (errSecSuccess == status)
+            {
+                //TODO: Figure out if the sCertificate should be leveraged at all.
+                NSArray* certs = [NSArray arrayWithObjects: (__bridge id)clientCertificate /*, (__bridge id)sCertificate*/, nil];
+                NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
+                                                                   certificates:certs
+                                                                    persistence:NSURLCredentialPersistenceNone];
+                [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
+                AD_LOG_VERBOSE(sLog, @"Client TLS challenge responded.");
+
+                return;
             }
+            else
+            {
+                AD_LOG_WARN_F(sLog, @"SecIdentityCopyCertificate failed with error: %ld", (long)status);
+            }
+        }
         else
         {
             AD_LOG_WARN(sLog, @"Cannot respond to client TLS request. Identity is not set.");
@@ -172,17 +178,18 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     }
     else if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodServerTrust] == NSOrderedSame)
     {
-        CFArrayRef certs = CFArrayCreate(kCFAllocatorDefault, (const void **) &sCertificate, 1, NULL);
-        SecPolicyRef policy = SecPolicyCreateBasicX509();
-        SecTrustRef trust;
-        OSStatus res = SecTrustCreateWithCertificates(certs, policy, &trust);
-        SecTrustResultType trustResult;
-        res = SecTrustEvaluate(trust, &trustResult);
-        NSURLCredential* cred = [NSURLCredential credentialForTrust:trust];
-        CFRelease(certs);
-        
-        
-        [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
+        //TODO: Figure out if this is even needed:
+//        CFArrayRef certs = CFArrayCreate(kCFAllocatorDefault, (const void **) &sCertificate, 1, NULL);
+//        SecPolicyRef policy = SecPolicyCreateBasicX509();
+//        SecTrustRef trust;
+//        OSStatus res = SecTrustCreateWithCertificates(certs, policy, &trust);
+//        SecTrustResultType trustResult;
+//        res = SecTrustEvaluate(trust, &trustResult);
+//        NSURLCredential* cred = [NSURLCredential credentialForTrust:trust];
+//        CFRelease(certs);
+//        
+//        
+//        [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
     }
     
     // Do default handling
