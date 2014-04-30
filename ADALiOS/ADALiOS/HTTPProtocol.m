@@ -78,10 +78,9 @@ NSString* const sLog = @"HTTP Protocol";
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
-    NSString* str = request.URL;
     if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"] )
     {
-        //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checkin
+        //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checking
         //for initialization
         if ( [NSURLProtocol propertyForKey:@"HTTPProtocol" inRequest:request] == nil )
         {
@@ -125,6 +124,7 @@ NSString* const sLog = @"HTTP Protocol";
 - (void)stopLoading
 {
     AD_LOG_VERBOSE_F(sLog, @"Stop loading");
+    [_connection cancel];
 }
 
 #pragma mark - Private Methods
@@ -141,7 +141,8 @@ NSString* const sLog = @"HTTP Protocol";
 }
 
 //- (BOOL)connectionShouldUseCredentialStorage:(NSURLConnection *)connection
-- (void)connection:(NSURLConnection *)connection
+//- (void) connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+-(void) connection:(NSURLConnection *)connection
 willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
     AD_LOG_VERBOSE_F(sLog, @"connection:willSendRequestForAuthenticationChallenge: %@. Previous challenge failure count: %ld", challenge.protectionSpace.authenticationMethod, (long)challenge.previousFailureCount);
@@ -151,20 +152,21 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
         // This is the client TLS challenge: use the identity to authenticate:
         if (sIdentity && sCertificate)
         {
-            AD_LOG_VERBOSE(sLog, @"Attempting to handle client TLS challenge...");
+            AD_LOG_VERBOSE_F(sLog, @"Attempting to handle client TLS challenge for host: %@", challenge.protectionSpace.host);
             
             SecCertificateRef clientCertificate = NULL;
             OSStatus          status            = SecIdentityCopyCertificate( sIdentity, &clientCertificate );
-            
-            NSArray* certs = [NSArray arrayWithObjects: (__bridge id)clientCertificate, (__bridge id)sCertificate, nil];
+            NSAssert(!status, @"Bad status");
+            NSArray* certs = [NSArray arrayWithObjects: (__bridge id)clientCertificate, /*(__bridge id)sCertificate,*/ nil];
             NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
                                                                certificates:certs
                                                                 persistence:NSURLCredentialPersistenceNone];
             
             [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
-            
-            AD_LOG_VERBOSE(sLog, @"Client TLS challenge responded.");
-            }
+            CFRelease(clientCertificate);
+
+            return;
+        }
         else
         {
             AD_LOG_WARN(sLog, @"Cannot respond to client TLS request. Identity is not set.");
@@ -172,21 +174,45 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     }
     else if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodServerTrust] == NSOrderedSame)
     {
-        CFArrayRef certs = CFArrayCreate(kCFAllocatorDefault, (const void **) &sCertificate, 1, NULL);
-        SecPolicyRef policy = SecPolicyCreateBasicX509();
-        SecTrustRef trust;
-        OSStatus res = SecTrustCreateWithCertificates(certs, policy, &trust);
-        SecTrustResultType trustResult;
-        res = SecTrustEvaluate(trust, &trustResult);
-        NSURLCredential* cred = [NSURLCredential credentialForTrust:trust];
-        CFRelease(certs);
+        //Temporarily trust any server:
+        [challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust] forAuthenticationChallenge:challenge];
+        return;
+//        SecCertificateRef clientCertificate = NULL;
+//        OSStatus          status            = SecIdentityCopyCertificate( sIdentity, &clientCertificate );
+//        
+//        if ( status == 0 )
+//        {
+//            CFArrayRef certs = CFArrayCreate(kCFAllocatorDefault, (const void **) &clientCertificate, 1, NULL);
+//            SecPolicyRef policy = SecPolicyCreateBasicX509();
+//            SecTrustRef trust;
+//            OSStatus res = SecTrustCreateWithCertificates(certs, policy, &trust);
+//            SecTrustResultType trustResult;
+//            res = SecTrustEvaluate(trust, &trustResult);
+//            NSURLCredential* cred = [NSURLCredential credentialForTrust:trust];
+//            CFRelease(certs);
+//            
+//            [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
+//            return;
+//        }
         
-        
-        [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
+//        CFArrayRef certs = CFArrayCreate(kCFAllocatorDefault, (const void **) &sCertificate, 1, NULL);
+//        
+//        SecPolicyRef policy = SecPolicyCreateSSL(YES, (__bridge CFStringRef)connection.currentRequest.URL.host); // SecPolicyCreateBasicX509();
+//        SecTrustRef trust;
+//        
+//        OSStatus res = SecTrustCreateWithCertificates(certs, policy, &trust);
+//        SecTrustResultType trustResult;
+//        res = SecTrustEvaluate(trust, &trustResult);
+//        
+//        NSURLCredential* cred = [NSURLCredential credentialForTrust:trust];
+//        CFRelease(certs);
+//        
+
     }
     
     // Do default handling
     [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
+    //[challenge.sender continueWithoutCredentialForAuthenticationChallenge:challenge];
 }
 
 
@@ -200,6 +226,9 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 - (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response
 {
     AD_LOG_VERBOSE_F(sLog, @"HTTPProtocol::connection:willSendRequest:. Redirect response: %@. New request:%@", response.URL, request.URL);
+    //Ensure that the webview gets the redirect notifications:
+    if (response)
+        [self.client URLProtocol:self wasRedirectedToRequest:request redirectResponse:response];
     return request;
 }
 
@@ -220,6 +249,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
     [self.client URLProtocolDidFinishLoading:self];
+    _connection = nil;
 }
 
 

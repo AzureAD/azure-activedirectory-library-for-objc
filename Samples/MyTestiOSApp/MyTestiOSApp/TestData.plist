@@ -5,7 +5,7 @@
 	<key>AAD Instance</key>
 	<dict>
 		<key>Authority</key>
-		<string>https://fs.contoso2014.com/adfs</string>
+		<string>https://CoIT.D4AJVRJX3-5.adtestlab.nttest.microsoft.com/adfs</string>
 		<key>ClientId</key>
 		<string>533F0CC3-4230-4100-89FE-44607C66C0A8</string>
 		<key>Resource</key>
@@ -13,9 +13,9 @@
 		<key>RedirectUri</key>
 		<string>https://adaltest</string>
 		<key>UserId</key>
-		<string>boris@contoso2014.com</string>
+		<string>testusr001@d4ajvrjx3-5.adtestlab.nttest.microsoft.com</string>
 		<key>Password</key>
-		<string>~test123</string>
+		<string>Adrumble@6</string>
 		<key>SupportsValidation</key>
 		<false/>
 	</dict>

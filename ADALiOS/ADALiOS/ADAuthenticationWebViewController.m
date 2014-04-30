@@ -18,7 +18,6 @@
 
 #import "ADAuthenticationDelegate.h"
 #import "ADAuthenticationWebViewController.h"
-#import "ADWorkplaceJoined.h"
 #import "ADAuthenticationSettings.h"
 
 @implementation ADAuthenticationWebViewController
@@ -28,7 +27,6 @@
     NSURL    *_startURL;
     NSString *_endURL;
     BOOL      _complete;
-    BOOL     _clientTLSSession;
 }
 
 #pragma mark - Initialization
@@ -44,18 +42,13 @@
     if ( ( self = [super init] ) != nil )
     {
         _startURL  = [startURL copy];
+        //[NSURL URLWithString:@"https://rp.contoso2014.com/simplewindowswebapp"];
         _endURL    = [[endURL absoluteString] lowercaseString];
         
         _complete  = NO;
         
         _webView          = webView;
         _webView.delegate = self;
-        
-        _clientTLSSession = [ADWorkplaceJoined startTLSSessionWithError:nil];
-        if (_clientTLSSession)
-        {
-            AD_LOG_INFO(@"Authorization UI", @"The device is workplace joined. Client TLS Session started.");
-        }
     }
     
     return self;
@@ -80,10 +73,6 @@
 
 - (void)stop
 {
-    if (_clientTLSSession)
-    {
-        [ADWorkplaceJoined endTLSSession];
-    }
 }
 
 #pragma mark - UIWebViewDelegate Protocol
