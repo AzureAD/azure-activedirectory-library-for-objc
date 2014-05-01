@@ -19,6 +19,7 @@
 #import "ADAuthenticationDelegate.h"
 #import "ADAuthenticationWebViewController.h"
 #import "ADAuthenticationViewController.h"
+#import "ADLogger.h"
 
 @interface ADAuthenticationViewController ( ) <ADAuthenticationDelegate, UIWebViewDelegate>
 @end

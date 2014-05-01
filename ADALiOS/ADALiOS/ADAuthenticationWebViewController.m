@@ -18,6 +18,7 @@
 
 #import "ADAuthenticationDelegate.h"
 #import "ADAuthenticationWebViewController.h"
+#import "ADLogger.h"
 
 @implementation ADAuthenticationWebViewController
 {
