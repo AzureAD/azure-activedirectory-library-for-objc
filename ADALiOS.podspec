@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "ADALiOS"
-  s.version      = "0.5-alpha"
+  s.version      = "0.5.1-alpha"
   s.summary      = "The ADAL SDK for iOS gives you the ability to add Windows Azure Active Directory authentication to your application"
 
   s.description  = <<-DESC
@@ -11,19 +11,15 @@ Pod::Spec.new do |s|
     :type => "Apache License, Version 2.0", 
     :file => "LICENSE.txt" 
   }
-  s.author             = { "Damien Pontifex" => "damien.pontifex@gmail.com" }
-  # Or just: s.author    = "Damien Pontifex"
-  # s.authors            = { "Damien Pontifex" => "damien.pontifex@gmail.com" }
-  # s.social_media_url   = "http://twitter.com/Damien Pontifex"
+  s.authors      = { "Boris Vidolov" => "borisv@microsoft.com" }
+  s.social_media_url   = "https://twitter.com/MSOpenTech"
   s.platform     = :ios, "6.0"
   s.source       = { 
     :git => "https://github.com/damienpontifex/azure-activedirectory-library-for-ios.git", 
-    #:tag => :head #s.version.to_s
+    :tag => s.version.to_s
   }
-  s.source_files  = "ADALiOS/ADALiOS/**/*.{h,m}"
-  s.resources = "ADALiOS/ADALiOS/*.storyboard"
+  s.source_files = "ADALiOS/ADALiOS/**/*.{h,m}"
+  s.resources    = "ADALiOS/ADALiOS/*.storyboard"
   s.preserve_paths = "ADALiOS/ADALiOS/**/*.{h,m}"
-  # s.framework  = "SomeFramework"
-  # s.frameworks = "SomeFramework", "AnotherFramework"
   s.requires_arc = true
 end
