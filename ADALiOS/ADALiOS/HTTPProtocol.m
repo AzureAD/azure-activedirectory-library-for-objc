@@ -125,6 +125,7 @@ NSString* const sLog = @"HTTP Protocol";
 {
     AD_LOG_VERBOSE_F(sLog, @"Stop loading");
     [_connection cancel];
+    [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
 }
 
 #pragma mark - Private Methods
