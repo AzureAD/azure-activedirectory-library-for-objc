@@ -164,8 +164,9 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
                                                                    certificates:certs
                                                                     persistence:NSURLCredentialPersistenceNone];
                 [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
+                
                 AD_LOG_VERBOSE(sLog, @"Client TLS challenge responded.");
-
+                CFRelease(clientCertificate);
                 return;
             }
             else
