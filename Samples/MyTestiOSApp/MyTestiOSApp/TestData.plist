@@ -5,7 +5,7 @@
 	<key>AAD Instance</key>
 	<dict>
 		<key>Authority</key>
-		<string>https://www.contoso2014.com/adfs</string>
+		<string>https://fs.contoso2014.com/adfs</string>
 		<key>ClientId</key>
 		<string>533F0CC3-4230-4100-89FE-44607C66C0A8</string>
 		<key>Resource</key>
