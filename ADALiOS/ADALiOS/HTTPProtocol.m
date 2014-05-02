@@ -156,16 +156,22 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
             
             SecCertificateRef clientCertificate = NULL;
             OSStatus          status            = SecIdentityCopyCertificate( sIdentity, &clientCertificate );
-            NSAssert(!status, @"Bad status");
-            NSArray* certs = [NSArray arrayWithObjects: (__bridge id)clientCertificate, /*(__bridge id)sCertificate,*/ nil];
-            NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
-                                                               certificates:certs
-                                                                persistence:NSURLCredentialPersistenceNone];
-            
-            [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
-            CFRelease(clientCertificate);
+            if (errSecSuccess == status)
+            {
+                //TODO: Figure out if the sCertificate should be leveraged at all.
+                NSArray* certs = [NSArray arrayWithObjects: (__bridge id)clientCertificate /*, (__bridge id)sCertificate*/, nil];
+                NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
+                                                                   certificates:certs
+                                                                    persistence:NSURLCredentialPersistenceNone];
+                [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
+                AD_LOG_VERBOSE(sLog, @"Client TLS challenge responded.");
 
-            return;
+                return;
+            }
+            else
+            {
+                AD_LOG_WARN_F(sLog, @"SecIdentityCopyCertificate failed with error: %ld", (long)status);
+            }
         }
         else
         {
@@ -174,30 +180,9 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     }
     else if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodServerTrust] == NSOrderedSame)
     {
-        //Temporarily trust any server:
-        [challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust] forAuthenticationChallenge:challenge];
-        return;
-//        SecCertificateRef clientCertificate = NULL;
-//        OSStatus          status            = SecIdentityCopyCertificate( sIdentity, &clientCertificate );
-//        
-//        if ( status == 0 )
-//        {
-//            CFArrayRef certs = CFArrayCreate(kCFAllocatorDefault, (const void **) &clientCertificate, 1, NULL);
-//            SecPolicyRef policy = SecPolicyCreateBasicX509();
-//            SecTrustRef trust;
-//            OSStatus res = SecTrustCreateWithCertificates(certs, policy, &trust);
-//            SecTrustResultType trustResult;
-//            res = SecTrustEvaluate(trust, &trustResult);
-//            NSURLCredential* cred = [NSURLCredential credentialForTrust:trust];
-//            CFRelease(certs);
-//            
-//            [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
-//            return;
-//        }
-        
+        //TODO: Figure out if this is even needed:
 //        CFArrayRef certs = CFArrayCreate(kCFAllocatorDefault, (const void **) &sCertificate, 1, NULL);
-//        
-//        SecPolicyRef policy = SecPolicyCreateSSL(YES, (__bridge CFStringRef)connection.currentRequest.URL.host); // SecPolicyCreateBasicX509();
+//        SecPolicyRef policy = SecPolicyCreateBasicX509();
 //        SecTrustRef trust;
 //        
 //        OSStatus res = SecTrustCreateWithCertificates(certs, policy, &trust);
@@ -207,7 +192,8 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 //        NSURLCredential* cred = [NSURLCredential credentialForTrust:trust];
 //        CFRelease(certs);
 //        
-
+//        
+//        [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
     }
     
     // Do default handling
@@ -217,7 +203,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 
 
 // Deprecated authentication delegates.
-//- (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace;
+//- (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
 //- (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
 //- (void)connection:(NSURLConnection *)connection didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
 
