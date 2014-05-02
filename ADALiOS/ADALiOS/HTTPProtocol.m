@@ -150,7 +150,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
         // This is the client TLS challenge: use the identity to authenticate:
         if (sIdentity && sCertificate)
         {
-            AD_LOG_VERBOSE(sLog, @"Attempting to handle client TLS challenge...");
+            AD_LOG_VERBOSE_F(sLog, @"Attempting to handle client TLS challenge for: %@", challenge.protectionSpace.host);
             
             SecCertificateRef clientCertificate = NULL;
             OSStatus          status            = SecIdentityCopyCertificate( sIdentity, &clientCertificate );
@@ -162,8 +162,9 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
                                                                    certificates:certs
                                                                     persistence:NSURLCredentialPersistenceNone];
                 [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
+                
                 AD_LOG_VERBOSE(sLog, @"Client TLS challenge responded.");
-
+                CFRelease(clientCertificate);
                 return;
             }
             else
@@ -207,6 +208,18 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 - (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response
 {
     AD_LOG_VERBOSE_F(sLog, @"HTTPProtocol::connection:willSendRequest:. Redirect response: %@. New request:%@", response.URL, request.URL);
+    if (response)
+    {
+        NSMutableURLRequest* mutableRequest = [request mutableCopy];
+        
+        [[self class] removePropertyForKey:@"HTTPProtocol" inRequest:mutableRequest];
+        [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
+        
+        [_connection cancel];
+        [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
+        
+        return mutableRequest;
+    }
     return request;
 }
 
