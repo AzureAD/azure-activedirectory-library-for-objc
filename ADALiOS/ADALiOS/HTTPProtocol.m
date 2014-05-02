@@ -215,7 +215,17 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     AD_LOG_VERBOSE_F(sLog, @"HTTPProtocol::connection:willSendRequest:. Redirect response: %@. New request:%@", response.URL, request.URL);
     //Ensure that the webview gets the redirect notifications:
     if (response)
-        [self.client URLProtocol:self wasRedirectedToRequest:request redirectResponse:response];
+    {
+        NSMutableURLRequest* mutableRequest = [request mutableCopy];
+        
+        [[self class] removePropertyForKey:@"HTTPProtocol" inRequest:mutableRequest];
+        [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
+        
+        [_connection cancel];
+        [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
+        
+        return mutableRequest;
+    }
     return request;
 }
 
