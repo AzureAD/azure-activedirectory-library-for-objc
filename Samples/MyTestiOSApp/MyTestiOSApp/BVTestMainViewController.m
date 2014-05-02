@@ -299,6 +299,7 @@
     [self setStatus:@"Setting prompt always..."];
     ADAuthenticationError* error;
     ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:mAADInstance.authority validateAuthority:NO error:&error];
+    [ADAuthenticationSettings sharedInstance].sharedCacheKeychainGroup = @"6DV65P97XP.rogertoma.shared";
     if (!context)
     {
         [self setStatus:error.errorDetails];
