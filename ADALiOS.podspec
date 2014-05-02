@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.social_media_url   = "https://twitter.com/MSOpenTech"
   s.platform     = :ios, "6.0"
   s.source       = { 
-    :git => "https://github.com/damienpontifex/azure-activedirectory-library-for-ios.git", 
+    :git => "https://github.com/MSOpenTech/azure-activedirectory-library-for-ios.git", 
     :tag => s.version.to_s
   }
   s.source_files = "ADALiOS/ADALiOS/**/*.{h,m}"
