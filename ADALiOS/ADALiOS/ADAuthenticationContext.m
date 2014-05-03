@@ -15,7 +15,7 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
-
+#import "ADALiOS.h"
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
@@ -23,10 +23,10 @@
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
 #import <libkern/OSAtomic.h>
-#import "NSURLExtensions.h"
-#import "NSDictionaryExtensions.h"
-#import "HTTPWebRequest.h"
-#import "HTTPWebResponse.h"
+#import "NSURL+ADExtensions.h"
+#import "NSDictionary+ADExtensions.h"
+#import "ADWebRequest.h"
+#import "ADWebResponse.h"
 #import "ADInstanceDiscovery.h"
 #import "ADTokenCacheStoreItem.h"
 #import "ADTokenCacheStoreKey.h"

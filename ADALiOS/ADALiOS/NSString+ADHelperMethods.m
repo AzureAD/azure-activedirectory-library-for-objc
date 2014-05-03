@@ -15,6 +15,7 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
+#import "ADALiOS.h"
 
 typedef unsigned char byte;
 

@@ -18,10 +18,11 @@
 
 #import "ADALiOS.h"
 #import "ADOAuth2Constants.h"
-#import "NSURLExtensions.h"
+#import "NSURL+ADExtensions.h"
+#import "ADErrorCodes.h"
 
-#import "HTTPWebRequest.h"
-#import "HTTPWebResponse.h"
+#import "ADWebRequest.h"
+#import "ADWebResponse.h"
 
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";

@@ -20,8 +20,9 @@
 #import "ADAuthenticationParameters.h"
 #import "ADAuthenticationParameters+Internal.h"
 #import "ADAuthenticationSettings.h"
-#import "HTTPWebRequest.h"
-#import "HTTPWebResponse.h"
+#import "ADWebRequest.h"
+#import "ADWebResponse.h"
+#import "NSString+ADHelperMethods.h"
 
 @implementation ADAuthenticationParameters
 

@@ -21,6 +21,10 @@
 #define ADAL_VER_HIGH   0
 #define ADAL_VER_LOW    5
 
+#import "ADLogger.h"
+#import "ADErrorCodes.h"
+#import "ADAuthenticationError.h"
+#import "NSString+ADHelperMethods.h"
 
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \
@@ -99,7 +103,6 @@ argumentName:@#ARG]; \
 WHERE; \
 AD_LOG_VERBOSE(@"ADAL API call", __where); \
 }
-
 
 
 

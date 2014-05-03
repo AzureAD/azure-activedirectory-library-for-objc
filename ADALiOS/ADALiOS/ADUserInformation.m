@@ -19,6 +19,7 @@
 #import "ADUserInformation.h"
 #import "ADALiOS.h"
 #import "ADOAuth2Constants.h"
+#import "NSString+ADHelperMethods.h"
 
 NSString* const ID_TOKEN_SUBJECT = @"sub";
 NSString* const ID_TOKEN_TENANTID = @"tid";

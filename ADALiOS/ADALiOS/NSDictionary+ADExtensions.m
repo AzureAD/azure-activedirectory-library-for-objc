@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "NSDictionaryExtensions.h"
+#import "NSDictionary+ADExtensions.h"
 #import "NSString+ADHelperMethods.h"
 
 @implementation NSDictionary ( IPAL )

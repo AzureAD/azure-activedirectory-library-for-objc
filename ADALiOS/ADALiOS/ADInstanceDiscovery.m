@@ -18,12 +18,13 @@
 #import "ADALiOS.h"
 #import "ADInstanceDiscovery.h"
 #import "ADAuthenticationError.h"
-#import "HTTPWebRequest.h"
+#import "ADWebRequest.h"
 #import "ADAuthenticationError.h"
-#import "NSDictionaryExtensions.h"
-#import "HTTPWebResponse.h"
+#import "NSDictionary+ADExtensions.h"
+#import "ADWebResponse.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
+#import "NSString+ADHelperMethods.h"
 
 NSString* const sTrustedAuthority = @"https://login.windows.net";
 NSString* const sInstanceDiscoverySuffix = @"common/discovery/instance";

@@ -21,7 +21,7 @@
 #import "ADTestTokenCacheStore.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
-#import "HTTPWebRequest.h"
+#import "ADWebRequest.h"
 #import "ADTestAuthenticationContext.h"
 #import "../ADALiOS/ADOAuth2Constants.h"
 #import "../ADALiOS/ADAuthenticationSettings.h"

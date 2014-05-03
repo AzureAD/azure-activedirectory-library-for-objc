@@ -18,7 +18,7 @@
 
 #import "ADALiOS.h"
 #import "ADOAuth2Constants.h"
-#import "UIApplicationExtensions.h"
+#import "UIApplication+ADExtensions.h"
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationDelegate.h"
 #import "ADAuthenticationWebViewController.h"
