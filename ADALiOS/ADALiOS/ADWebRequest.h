@@ -16,13 +16,13 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@class HTTPWebRequest;
-@class HTTPWebResponse;
+@class ADWebRequest;
+@class ADWebResponse;
 
 extern NSString *const HTTPGet;
 extern NSString *const HTTPPost;
 
-@interface HTTPWebRequest : NSObject <NSURLConnectionDelegate>
+@interface ADWebRequest : NSObject <NSURLConnectionDelegate>
 
 @property (strong, readonly, nonatomic) NSURL               *URL;
 @property (strong)                      NSString            *method;
@@ -33,7 +33,7 @@ extern NSString *const HTTPPost;
 - (id)initWithURL: (NSURL*)url
     correlationId: (NSUUID*) correlationId;
 
-- (void)send:( void (^)( NSError *, HTTPWebResponse *) )completionHandler;
+- (void)send:( void (^)( NSError *, ADWebResponse *) )completionHandler;
 
 @end
 

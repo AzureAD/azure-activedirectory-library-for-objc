@@ -1169,7 +1169,7 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
     NSString* endPoint = [authorizationServer stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
 
     
-    HTTPWebRequest *webRequest = [[HTTPWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
+    ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
                                                        correlationId:requestCorrelationId];
     
     webRequest.method = HTTPPost;
@@ -1180,7 +1180,7 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
     
     webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
     
-    [webRequest send:^( NSError *error, HTTPWebResponse *webResponse ) {
+    [webRequest send:^( NSError *error, ADWebResponse *webResponse ) {
         // Request completion callback
         NSMutableDictionary *response = [NSMutableDictionary new];
         

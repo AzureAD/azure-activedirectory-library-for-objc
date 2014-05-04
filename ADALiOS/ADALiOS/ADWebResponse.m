@@ -18,7 +18,7 @@
 
 #import "ADWebResponse.h"
 
-@implementation HTTPWebResponse
+@implementation ADWebResponse
 {
     NSHTTPURLResponse *_response;
     NSData            *_body;

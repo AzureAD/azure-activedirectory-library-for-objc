@@ -229,13 +229,13 @@ NSString* const sValidationServerError = @"The authority validation server retur
     NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, sInstanceDiscoverySuffix, [request_data adURLFormEncode]];
 
     AD_LOG_VERBOSE(@"Authority Validation Request", endPoint);
-    HTTPWebRequest *webRequest = [[HTTPWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint] correlationId:correlationId];
+    ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint] correlationId:correlationId];
     
     webRequest.method = HTTPGet;
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     
-    [webRequest send:^( NSError *error, HTTPWebResponse *webResponse )
+    [webRequest send:^( NSError *error, ADWebResponse *webResponse )
     {
         // Request completion callback
         NSDictionary *response = nil;

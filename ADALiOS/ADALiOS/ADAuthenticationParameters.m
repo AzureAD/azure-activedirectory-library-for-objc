@@ -70,11 +70,11 @@
 
     dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue,^
     {
-        HTTPWebRequest* request = [[HTTPWebRequest alloc] initWithURL:resourceUrl correlationId:nil];
+        ADWebRequest* request = [[ADWebRequest alloc] initWithURL:resourceUrl correlationId:nil];
         request.method = HTTPGet;
         AD_LOG_VERBOSE_F(@"Starting authorization challenge request", @"Resource: %@", resourceUrl);
         
-        [request send:^(NSError * error, HTTPWebResponse *response) {
+        [request send:^(NSError * error, ADWebResponse *response) {
             ADAuthenticationError* adError;
             ADAuthenticationParameters* parameters;
             if (error)
