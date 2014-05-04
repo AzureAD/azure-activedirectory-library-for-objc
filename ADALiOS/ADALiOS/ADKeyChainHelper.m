@@ -64,7 +64,7 @@ extern NSString* const sKeyChainlog;
     {
         [attributes setObject:_genericValue forKey:(__bridge id)kSecAttrGeneric];
     }
-    if (![NSString isStringNilOrBlank:_sharedGroup])
+    if (![NSString adIsStringNilOrBlank:_sharedGroup])
     {
         //Apps are not signed on the simulator, so the shared group doesn't apply there.
 #if !(TARGET_IPHONE_SIMULATOR)

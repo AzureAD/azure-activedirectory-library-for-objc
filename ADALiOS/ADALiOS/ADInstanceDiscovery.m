@@ -226,7 +226,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
                                          authorizationEndpoint, sAuthorizationEndPointKey,
                                          nil];
     
-    NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, sInstanceDiscoverySuffix, [request_data URLFormEncode]];
+    NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, sInstanceDiscoverySuffix, [request_data adURLFormEncode]];
 
     AD_LOG_VERBOSE(@"Authority Validation Request", endPoint);
     HTTPWebRequest *webRequest = [[HTTPWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint] correlationId:correlationId];
@@ -258,7 +258,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
                         // Load the response
                         response = (NSDictionary *)jsonObject;
                         AD_LOG_VERBOSE(@"Discovery response", response.description);
-                        verified = ![NSString isStringNilOrBlank:[response objectForKey:sTenantDiscoveryEndpoint]];
+                        verified = ![NSString adIsStringNilOrBlank:[response objectForKey:sTenantDiscoveryEndpoint]];
                         if (verified)
                         {
                             [self setAuthorityValidation:authorityHost];
@@ -312,12 +312,12 @@ NSString* const sValidationServerError = @"The authority validation server retur
 
 +(NSString*) canonicalizeAuthority: (NSString*) authority
 {
-    if ([NSString isStringNilOrBlank:authority])
+    if ([NSString adIsStringNilOrBlank:authority])
     {
         return nil;
     }
     
-    NSString* trimmedAuthority = [[authority trimmedString] lowercaseString];
+    NSString* trimmedAuthority = [[authority adTrimmedString] lowercaseString];
     NSURL* url = [NSURL URLWithString:trimmedAuthority];
     if (!url)
     {
@@ -337,13 +337,13 @@ NSString* const sValidationServerError = @"The authority validation server retur
         return nil;//No path component: invalid URL
 
     NSString* tenant = [paths objectAtIndex:1];
-    if ([NSString isStringNilOrBlank:tenant])
+    if ([NSString adIsStringNilOrBlank:tenant])
     {
         return nil;
     }
     
     NSString* host = url.host;
-    if ([NSString isStringNilOrBlank:host])
+    if ([NSString adIsStringNilOrBlank:host])
     {
         return nil;
     }

@@ -22,7 +22,7 @@
 
 @implementation UIApplication ( internal )
 
-+ (UIViewController *)currentViewController
++ (UIViewController *) adCurrentViewController
 {
     return [[[UIApplication sharedApplication] keyWindow] rootViewController];
 }

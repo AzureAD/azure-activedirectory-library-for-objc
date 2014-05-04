@@ -33,10 +33,10 @@ typedef enum
 @interface XCTestCase (HelperMethods)
 
 /*! Verifies that the text is not nil, empty or containing only spaces */
--(void) assertValidText: (NSString*) text
+-(void) adAssertValidText: (NSString*) text
                 message: (NSString*) message;
 
--(void) assertStringEquals: (NSString*) actual
+-(void) adAssertStringEquals: (NSString*) actual
           stringExpression: (NSString*) expression
                   expected: (NSString*) expected
                       file: (const char*) file
@@ -46,13 +46,13 @@ typedef enum
  the expectations when the passed argument is invalid:
  - The creator should return nil.
  - The error should be set accordingly, containing the argument in the description.*/
--(void) validateFactoryForInvalidArgument: (NSString*) argument
+-(void) adValidateFactoryForInvalidArgument: (NSString*) argument
                            returnedObject: (id) returnedObject
                                     error: (ADAuthenticationError*) error;
 
 /*! Verifies that the correct error is returned when any method was passed invalid arguments.
  */
--(void) validateForInvalidArgument: (NSString*) argument
+-(void) adValidateForInvalidArgument: (NSString*) argument
                              error: (ADAuthenticationError*) error;
 
 /*! Sets logging and other infrastructure for a new test.
@@ -62,7 +62,7 @@ typedef enum
 -(void) adTestBegin: (ADAL_LOG_LEVEL) maxLogTolerance;
 
 /*! See description of adTestBegin. */
--(void) setLogTolerance: (ADAL_LOG_LEVEL) maxLogTolerance;
+-(void) adSetLogTolerance: (ADAL_LOG_LEVEL) maxLogTolerance;
 
 /*! Clears logging and other infrastructure after a test */
 -(void) adTestEnd;
@@ -71,32 +71,32 @@ typedef enum
 -(NSString*) adGetLogs:(ADLogPart)logPart;
 
 //Clears all of the test logs. Useful for repeating operations.
--(void) clearLogs;
+-(void) adClearLogs;
 
--(void) assertLogsContain: (NSString*) text
-                  logPart: (ADLogPart) logPart
-                     file: (const char*) file
-                     line: (int) line;
+-(void) adAssertLogsContain: (NSString*) text
+                    logPart: (ADLogPart) logPart
+                       file: (const char*) file
+                       line: (int) line;
 
--(void) assertLogsDoNotContain:  (NSString*) text
-                       logPart: (ADLogPart) logPart
-                          file: (const char*) file
-                          line: (int) line;
+-(void) adAssertLogsDoNotContain:  (NSString*) text
+                         logPart: (ADLogPart) logPart
+                            file: (const char*) file
+                            line: (int) line;
 
 //Creates an new item with all of the properties having correct values
--(ADTokenCacheStoreItem*) createCacheItem;
+-(ADTokenCacheStoreItem*) adCreateCacheItem;
 
 //Ensures that two cache items are the same:
--(void) verifySameWithItem: (ADTokenCacheStoreItem*) item1
+-(void) adVerifySameWithItem: (ADTokenCacheStoreItem*) item1
                      item2: (ADTokenCacheStoreItem*) item2;
 //Ensures that all properties return non-default values. Useful to ensure that
 //the tests cover all properties of the tested objects:
--(void) verifyPropertiesAreSet: (NSObject*) object;
+-(void) adVerifyPropertiesAreSet: (NSObject*) object;
 
 //Ensures that all properties of the first object are the same as the ones in the
 //second. Useful to ensure that copying/unpersisting operates on all object data:
--(void) verifyPropertiesAreSame: (NSObject*) object1
-                         second: (NSObject*) object2;
+-(void) adVerifyPropertiesAreSame: (NSObject*) object1
+                           second: (NSObject*) object2;
 
 -(NSString*) adLogLevelLogs;
 -(NSString*) adMessagesLogs;
@@ -113,13 +113,13 @@ typedef enum
                         ofString: (NSString*) contained;
 
 //Checks if the test coverage is enabled and stores the test coverage, if yes.
--(void) flushCodeCoverage;
+-(void) adFlushCodeCoverage;
 
 /* A special helper, which invokes the 'block' parameter in the UI thread and waits for its internal
  callback block to complete.
  IMPORTANT: The internal callback block should end with ASYNCH_COMPLETE macro to signal its completion. Example:
  static volatile int comletion  = 0;
- [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
+ [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
  {
     [mAuthenticationContext acquireTokenWithResource:mResource
                                      completionBlock:^(ADAuthenticationResult* result)
@@ -132,19 +132,19 @@ typedef enum
  The method executes the block in the UI thread, but runs an internal run loop and thus allows methods which enqueue their
  completion callbacks on the UI thread.
  */
--(void) callAndWaitWithFile: (NSString*) file
-                       line: (int) line
-           completionSignal: (volatile int*) signal
-                      block: (void (^)(void)) block;
+-(void) adCallAndWaitWithFile: (NSString*) file
+                         line: (int) line
+             completionSignal: (volatile int*) signal
+                        block: (void (^)(void)) block;
 
 /* Called by the ASYNC_BLOCK_COMPLETE macro to signal the completion of the block
  and handle multiple calls of the callback. See the method above for details.*/
--(void) asynchInnerBlockCompleteWithFile: (NSString*) file
+-(void) adAsynchInnerBlockCompleteWithFile: (NSString*) file
                                     line: (int) line
                         completionSignal: (volatile int*) signal;
 
 #define ASYNC_BLOCK_COMPLETE(SIGNAL) \
-    [self asynchInnerBlockCompleteWithFile:@"" __FILE__ line:__LINE__ completionSignal: &SIGNAL];
+    [self adAsynchInnerBlockCompleteWithFile:@"" __FILE__ line:__LINE__ completionSignal: &SIGNAL];
 
 @end
 
@@ -160,11 +160,11 @@ typedef enum
 //Usage: ADAssertStringEquals(resultString, "Blah");
 #define ADAssertStringEquals(actualParam, expectedParam) \
 { \
-    [self assertStringEquals:actualParam \
-        stringExpression:@"" #actualParam \
-                expected:expectedParam \
-                    file:__FILE__ \
-                    line:__LINE__]; \
+    [self adAssertStringEquals:actualParam \
+              stringExpression:@"" #actualParam \
+                      expected:expectedParam \
+                           file:__FILE__ \
+                           line:__LINE__]; \
 }
 
 //Fixes the problem with the test framework not able to compare dates:
@@ -175,35 +175,35 @@ typedef enum
 // Use ADAssertLogsContain for constant texts and ADAssertLogsContainValue, when passing a string object.
 #define ADAssertLogsContain(LOGPART, TEXT) \
 { \
-    [self assertLogsContain:TO_NSSTRING(TEXT) \
-                    logPart:LOGPART \
-                      file:__FILE__ \
-                      line:__LINE__]; \
+    [self adAssertLogsContain:TO_NSSTRING(TEXT) \
+                      logPart:LOGPART \
+                         file:__FILE__ \
+                         line:__LINE__]; \
 }
 
 //"TEXT" should be string object:
 #define ADAssertLogsContainValue(LOGPART, TEXT) \
 { \
-    [self assertLogsContain:TEXT \
-                    logPart:LOGPART \
-                       file:__FILE__ \
-                       line:__LINE__]; \
+    [self adAssertLogsContain:TEXT \
+                      logPart:LOGPART \
+                         file:__FILE__ \
+                         line:__LINE__]; \
 }
 
 #define ADAssertLogsDoNotContain(LOGPART, TEXT) \
 { \
-    [self assertLogsDoNotContain:TO_NSSTRING(TEXT) \
-                         logPart:LOGPART \
-                            file:__FILE__ \
-                            line:__LINE__]; \
+    [self adAssertLogsDoNotContain:TO_NSSTRING(TEXT) \
+                           logPart:LOGPART \
+                              file:__FILE__ \
+                              line:__LINE__]; \
 }
 
 #define ADAssertLogsDoNotContainValue(LOGPART, TEXT) \
 { \
-    [self assertLogsDoNotContain:TEXT \
-                         logPart:LOGPART \
-                            file:__FILE__ \
-                            line:__LINE__];\
+    [self adAssertLogsDoNotContain:TEXT \
+                           logPart:LOGPART \
+                              file:__FILE__ \
+                              line:__LINE__];\
 }
 
 //Verifes that "error" local variable is nil. If not prints the error

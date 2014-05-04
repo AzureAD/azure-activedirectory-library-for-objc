@@ -39,13 +39,13 @@ NSString* sTestEnd = @"|||TEST_END|||";
 volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 /*! See header for comments */
--(void) assertValidText: (NSString*) text
+-(void) adAssertValidText: (NSString*) text
                 message: (NSString*) message
 {
     //The pragmas here are copied directly from the XCTAssertNotNil:
     _Pragma("clang diagnostic push")
     _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"")//Temporarily remove the compiler warning
-    if ([NSString isStringNilOrBlank:text])
+    if ([NSString adIsStringNilOrBlank:text])
     {
         _XCTFailureHandler(self, YES, __FILE__, __LINE__, text, message);
     }
@@ -53,7 +53,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 }
 
 /* See header for details. */
--(void) validateForInvalidArgument: (NSString*) argument
+-(void) adValidateForInvalidArgument: (NSString*) argument
                              error: (ADAuthenticationError*) error
 {
     XCTAssertNotNil(argument, "Internal test error: please specify the expected parameter.");
@@ -64,24 +64,24 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     XCTAssertEqual(error.domain, ADInvalidArgumentDomain, "Incorrect error domain.");
     XCTAssertNil(error.protocolCode, "The protocol code should not be set. Instead protocolCode ='%@'.", error.protocolCode);
     
-    [self assertValidText:error.errorDetails message:@"The error should have details."];
+    [self adAssertValidText:error.errorDetails message:@"The error should have details."];
     NSString* argumentString = [NSString stringWithFormat:@"'%@'", argument];
-    BOOL found = [error.errorDetails containsString:argumentString];
+    BOOL found = [error.errorDetails adContainsString:argumentString];
     XCTAssertTrue(found, "The parameter is not specified in the error details. Error details:%@", error.errorDetails);
 }
 
 
 /* See header for details.*/
--(void) validateFactoryForInvalidArgument: (NSString*) argument
+-(void) adValidateFactoryForInvalidArgument: (NSString*) argument
                            returnedObject: (id) returnedObject
                                     error: (ADAuthenticationError*) error
 {
     XCTAssertNil(returnedObject, "Creator should have returned nil. Object: %@", returnedObject);
     
-    [self validateForInvalidArgument:argument error:error];
+    [self adValidateForInvalidArgument:argument error:error];
 }
 
--(void) setLogTolerance: (ADAL_LOG_LEVEL) maxLogTolerance
+-(void) adSetLogTolerance: (ADAL_LOG_LEVEL) maxLogTolerance
 {
     sMaxAcceptedLogLevel = maxLogTolerance;
 }
@@ -89,7 +89,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 /*! Sets logging and other infrastructure for a new test */
 -(void) adTestBegin: (ADAL_LOG_LEVEL) maxLogTolerance;
 {
-    [self setLogTolerance:maxLogTolerance];
+    [self adSetLogTolerance:maxLogTolerance];
     
     @synchronized(self.class)
     {
@@ -142,7 +142,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 #ifdef AD_CODE_COVERAGE
 extern void __gcov_flush(void);
 #endif
--(void) flushCodeCoverage
+-(void) adFlushCodeCoverage
 {
 #ifdef AD_CODE_COVERAGE
     __gcov_flush();
@@ -162,7 +162,7 @@ extern void __gcov_flush(void);
         [sErrorCodesLog appendString:sTestEnd];
     }
     XCTAssertNil([ADLogger getLogCallBack], "Clearing of logCallBack failed.");
-    [self flushCodeCoverage];
+    [self adFlushCodeCoverage];
 }
 
 //Parses backwards the log to find the test begin prefix. Returns the beginning
@@ -255,7 +255,7 @@ extern void __gcov_flush(void);
     [string deleteCharactersInRange:all];
 }
 
--(void) clearLogs
+-(void) adClearLogs
 {
     @synchronized(self.class)
     {
@@ -284,37 +284,37 @@ extern void __gcov_flush(void);
     }
 }
 
--(void) assertLogsContain: (NSString*) text
-                  logPart: (ADLogPart) logPart
-                     file: (const char*) file
-                     line: (int) line
+-(void) adAssertLogsContain: (NSString*) text
+                    logPart: (ADLogPart) logPart
+                       file: (const char*) file
+                       line: (int) line
 {
     NSString* logs = [self adGetLogs:logPart];
     
-    if (![logs containsString:text])
+    if (![logs adContainsString:text])
     {
         _XCTFailureHandler(self, YES, file, line, @"Logs.", @"" "Logs for the test do not contain '%@'. Part of the log examined: %u", text, logPart);
     }
 }
 
--(void) assertLogsDoNotContain: (NSString*) text
-                       logPart: (ADLogPart) logPart
-                          file: (const char*) file
-                          line: (int) line
+-(void) adAssertLogsDoNotContain: (NSString*) text
+                         logPart: (ADLogPart) logPart
+                            file: (const char*) file
+                            line: (int) line
 {
     NSString* logs = [self adGetLogs:logPart];
     
-    if ([logs containsString:text])
+    if ([logs adContainsString:text])
     {
         _XCTFailureHandler(self, YES, file, line, @"Logs.", @"" "Logs for the test contain '%@'. Part of the log examined: %u", text, logPart);
     }
 }
 
--(void) assertStringEquals: (NSString*) actual
-          stringExpression: (NSString*) expression
-                  expected: (NSString*) expected
-                      file: (const char*) file
-                      line: (int) line
+-(void) adAssertStringEquals: (NSString*) actual
+            stringExpression: (NSString*) expression
+                    expected: (NSString*) expected
+                        file: (const char*) file
+                        line: (int) line
 {
     if (!actual && !expected)//Both nil, so they are equal
         return;
@@ -326,7 +326,7 @@ extern void __gcov_flush(void);
 
 //Creates an new item with all of the properties having correct
 //values
--(ADTokenCacheStoreItem*) createCacheItem
+-(ADTokenCacheStoreItem*) adCreateCacheItem
 {
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
     item.resource = @"resource";
@@ -339,7 +339,7 @@ extern void __gcov_flush(void);
     item.userInformation = [self createUserInformation];
     item.accessTokenType = @"access token type";
     
-    [self verifyPropertiesAreSet:item];
+    [self adVerifyPropertiesAreSet:item];
     
     return item;
 }
@@ -367,12 +367,12 @@ extern void __gcov_flush(void);
     userInfo.userObjectId = @"user object id";
     userInfo.guestId = @"the guest id";
     
-    [self verifyPropertiesAreSet:userInfo];
+    [self adVerifyPropertiesAreSet:userInfo];
     
     return userInfo;
 }
 
--(void) verifyPropertiesAreSet: (NSObject*) object
+-(void) adVerifyPropertiesAreSet: (NSObject*) object
 {
     if (!object)
     {
@@ -417,7 +417,7 @@ extern void __gcov_flush(void);
     }
 }
 
--(void) verifyPropertiesAreSame: (NSObject*) object1
+-(void) adVerifyPropertiesAreSame: (NSObject*) object1
                          second: (NSObject*) object2
 {
     if ((nil == object1) != (nil == object1))
@@ -482,7 +482,7 @@ extern void __gcov_flush(void);
         }
         else if ([value1 isKindOfClass:[ADUserInformation class]])
         {
-            [self verifyPropertiesAreSame:value1 second:value2];
+            [self adVerifyPropertiesAreSame:value1 second:value2];
         }
         else
         {
@@ -492,19 +492,19 @@ extern void __gcov_flush(void);
 }
 
 //Ensures that two items are the same:
--(void) verifySameWithItem: (ADTokenCacheStoreItem*) item1
-                     item2: (ADTokenCacheStoreItem*) item2
+-(void) adVerifySameWithItem: (ADTokenCacheStoreItem*) item1
+                       item2: (ADTokenCacheStoreItem*) item2
 {
     XCTAssertNotNil(item1);
     XCTAssertNotNil(item2);
     
-    [self verifyPropertiesAreSame:item1 second:item2];
+    [self adVerifyPropertiesAreSame:item1 second:item2];
 }
 
--(void) callAndWaitWithFile: (NSString*) file
-                       line: (int) line
-           completionSignal: (volatile int*) signal
-                      block: (void (^)(void)) block
+-(void) adCallAndWaitWithFile: (NSString*) file
+                         line: (int) line
+             completionSignal: (volatile int*) signal
+                        block: (void (^)(void)) block
 {
     THROW_ON_NIL_ARGUMENT(signal);
     THROW_ON_NIL_EMPTY_ARGUMENT(file);
@@ -544,9 +544,9 @@ extern void __gcov_flush(void);
 
 /* Called by the ASYNC_BLOCK_COMPLETE macro to signal the completion of the block
  and handle multiple calls of the callback. See the method above for details.*/
--(void) asynchInnerBlockCompleteWithFile: (NSString*) file
-                                    line: (int) line
-                        completionSignal: (volatile int*) signal
+-(void) adAsynchInnerBlockCompleteWithFile: (NSString*) file
+                                      line: (int) line
+                          completionSignal: (volatile int*) signal
 {
     if (!OSAtomicCompareAndSwapInt(0, 1, signal))//Signal completion
     {

@@ -18,6 +18,6 @@
 
 @interface UIApplication ( internal )
 
-+ (UIViewController *)currentViewController;
++ (UIViewController *)adCurrentViewController;
 
 @end

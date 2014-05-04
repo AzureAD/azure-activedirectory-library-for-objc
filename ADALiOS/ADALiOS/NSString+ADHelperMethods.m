@@ -271,18 +271,18 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return nonWhiteCharSet;
 }
 
-+(BOOL) isStringNilOrBlank: (NSString*)string
++(BOOL) adIsStringNilOrBlank: (NSString*)string
 {
     if (!string || !string.length)
         return YES;
     else
     {
-        long nonWhite = [string findNonWhiteCharacterAfter:0];
+        long nonWhite = [string adFindNonWhiteCharacterAfter:0];
         return nonWhite >= string.length;
     }
 }
 
--(BOOL) containsString: (NSString*) contained
+-(BOOL) adContainsString: (NSString*) contained
 {
     THROW_ON_NIL_ARGUMENT(contained);
     if (!contained.length)
@@ -290,7 +290,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return [self rangeOfString:contained].location != NSNotFound;
 }
 
--(long) findCharactersFromSet: (NSCharacterSet*) set
+-(long) adFindCharactersFromSet: (NSCharacterSet*) set
                         start: (long) startIndex
 {
     THROW_ON_NIL_ARGUMENT(set);
@@ -303,26 +303,26 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return (found == NSNotFound) ? end : found;
 }
 
--(long) findNonWhiteCharacterAfter: (long) startIndex
+-(long) adFindNonWhiteCharacterAfter: (long) startIndex
 {
-    return [self findCharactersFromSet:[NSString nonWhiteCharSet] start:startIndex];
+    return [self adFindCharactersFromSet:[NSString nonWhiteCharSet] start:startIndex];
 }
 
--(long) findCharacter:(unichar)toFind start: (long) startIndex
+-(long) adFindCharacter:(unichar)toFind start: (long) startIndex
 {
     NSRange chars = {.location = toFind, .length = 1};
     NSCharacterSet* set = [NSCharacterSet characterSetWithRange:chars];
-    return [self findCharactersFromSet:set start:startIndex];
+    return [self adFindCharactersFromSet:set start:startIndex];
 }
 
--(NSString*) trimmedString
+-(NSString*) adTrimmedString
 {
     //The white characters set is cached by the system:
     NSCharacterSet* set = [NSCharacterSet whitespaceAndNewlineCharacterSet];
     return [self stringByTrimmingCharactersInSet:set];
 }
 
--(BOOL) rangeHasPrefixWord: (NSString*) prefixWord range: (NSRange) range
+-(BOOL) adRangeHasPrefixWord: (NSString*) prefixWord range: (NSRange) range
 {
     THROW_ON_NIL_ARGUMENT(prefixWord);
     if (!prefixWord.length)
@@ -344,10 +344,10 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return ([[NSCharacterSet whitespaceAndNewlineCharacterSet] characterIsMember:[self characterAtIndex:after]]);
 }
 
--(BOOL) substringHasPrefixWord: (NSString*) prefixWord start: (long) substringStart
+-(BOOL) adSubstringHasPrefixWord: (NSString*) prefixWord start: (long) substringStart
 {
     NSRange range = {.location = substringStart, .length = (self.length - substringStart)};
-    return [self rangeHasPrefixWord:prefixWord range:range];
+    return [self adRangeHasPrefixWord:prefixWord range:range];
 }
 
 - (NSString *)adUrlFormDecode

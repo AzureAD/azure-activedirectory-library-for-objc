@@ -60,8 +60,8 @@
     //needed to ensure that the cache handles correctly same items with different
     //character case:
     authority = [ADInstanceDiscovery canonicalizeAuthority:authority];
-    resource = resource.trimmedString.lowercaseString;
-    clientId = clientId.trimmedString.lowercaseString;
+    resource = resource.adTrimmedString.lowercaseString;
+    clientId = clientId.adTrimmedString.lowercaseString;
     RETURN_NIL_ON_NIL_ARGUMENT(authority);//Canonicalization will return nil on empty or bad URL.
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(clientId);
     

@@ -156,7 +156,7 @@ additionalInformation: (NSString*) additionalInformation
       ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
       }];
     NSString* CPUVer = [self getCPUInfo];
-    if (![NSString isStringNilOrBlank:CPUVer])
+    if (![NSString adIsStringNilOrBlank:CPUVer])
     {
         [result setObject:CPUVer forKey:ADAL_ID_CPU];
     }

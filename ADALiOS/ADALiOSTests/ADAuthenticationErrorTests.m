@@ -43,7 +43,7 @@
 
 - (void)testNew
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     XCTAssertThrows([ADAuthenticationError new], @"The new selector should not work due to requirement to use the parameterless init. At: '%s'", __PRETTY_FUNCTION__);
 }
 
@@ -73,8 +73,8 @@
     //nil value:
     ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:nil argumentName:parameter];
     XCTAssertNotNil(error, "No error for nil prameter");
-    [self validateForInvalidArgument:parameter error:error];
-    XCTAssertTrue([error.errorDetails containsString:@"(null)"], "'null' should be part of the text");
+    [self adValidateForInvalidArgument:parameter error:error];
+    XCTAssertTrue([error.errorDetails adContainsString:@"(null)"], "'null' should be part of the text");
     ADAssertLogsContain(TEST_LOG_INFO, "argument");
     ADAssertLogsContainValue(TEST_LOG_INFO, parameter);
 }
@@ -86,8 +86,8 @@
     ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:parameterValue argumentName:parameter];
     XCTAssertNotNil(error, "No error for valid prameter");
     
-    [self validateForInvalidArgument:parameter error:error];
-    XCTAssertTrue([error.errorDetails containsString:parameterValue], "Value should be part of the text");
+    [self adValidateForInvalidArgument:parameter error:error];
+    XCTAssertTrue([error.errorDetails adContainsString:parameterValue], "Value should be part of the text");
     ADAssertLogsContain(TEST_LOG_INFO, "argument");
     ADAssertLogsContainValue(TEST_LOG_INFO, parameter);
     ADAssertLogsContainValue(TEST_LOG_INFO, parameterValue);
@@ -128,8 +128,8 @@
     NSString* details = @"Some details";
     NSString* protocolCode = @"some-protocol-code";
     ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:42 protocolCode:protocolCode errorDetails:details];
-    XCTAssertTrue([error.description containsString:details]);
-    XCTAssertTrue([error.description containsString:protocolCode]);
+    XCTAssertTrue([error.description adContainsString:details]);
+    XCTAssertTrue([error.description adContainsString:protocolCode]);
 }
 
 @end

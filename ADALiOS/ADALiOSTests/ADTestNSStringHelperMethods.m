@@ -39,95 +39,95 @@
 
 - (void)testIsStringNilOrBlankNil
 {
-    XCTAssertTrue([NSString isStringNilOrBlank:nil], "Should return true for nil.");
+    XCTAssertTrue([NSString adIsStringNilOrBlank:nil], "Should return true for nil.");
 }
 
 - (void) testIsStringNilOrBlankSpace
 {
-    XCTAssertTrue([NSString isStringNilOrBlank:@" "], "Should return true for nil.");
+    XCTAssertTrue([NSString adIsStringNilOrBlank:@" "], "Should return true for nil.");
 }
 
 - (void) testIsStringNilOrBlankTab
 {
-    XCTAssertTrue([NSString isStringNilOrBlank:@"\t"], "Should return true for nil.");
+    XCTAssertTrue([NSString adIsStringNilOrBlank:@"\t"], "Should return true for nil.");
 }
 
 - (void) testIsStringNilOrBlankEnter
 {
-    XCTAssertTrue([NSString isStringNilOrBlank:@"\r"], "Should return true for nil.");
-    XCTAssertTrue([NSString isStringNilOrBlank:@"\n"], "Should return true for nil.");
+    XCTAssertTrue([NSString adIsStringNilOrBlank:@"\r"], "Should return true for nil.");
+    XCTAssertTrue([NSString adIsStringNilOrBlank:@"\n"], "Should return true for nil.");
 }
 
 - (void) testIsStringNilOrBlankMixed
 {
-    XCTAssertTrue([NSString isStringNilOrBlank:@" \r\n\t  \t\r\n"], "Should return true for nil.");
+    XCTAssertTrue([NSString adIsStringNilOrBlank:@" \r\n\t  \t\r\n"], "Should return true for nil.");
 }
 
 - (void) testIsStringNilOrBlankNonEmpty
 {
     //Prefix by white space:
     NSString* str = @"  text";
-    XCTAssertFalse([NSString isStringNilOrBlank:str], "Not an empty string %@", str);
+    XCTAssertFalse([NSString adIsStringNilOrBlank:str], "Not an empty string %@", str);
     str = @" \r\n\t  \t\r\n text";
-    XCTAssertFalse([NSString isStringNilOrBlank:str], "Not an empty string %@", str);
+    XCTAssertFalse([NSString adIsStringNilOrBlank:str], "Not an empty string %@", str);
 
     //Suffix with white space:
     str = @"text  ";
-    XCTAssertFalse([NSString isStringNilOrBlank:str], "Not an empty string %@", str);
+    XCTAssertFalse([NSString adIsStringNilOrBlank:str], "Not an empty string %@", str);
     str = @"text \r\n\t  \t\r\n";
-    XCTAssertFalse([NSString isStringNilOrBlank:str], "Not an empty string %@", str);
+    XCTAssertFalse([NSString adIsStringNilOrBlank:str], "Not an empty string %@", str);
     
     //Surrounded by white space:
     str = @"text  ";
-    XCTAssertFalse([NSString isStringNilOrBlank:str], "Not an empty string %@", str);
+    XCTAssertFalse([NSString adIsStringNilOrBlank:str], "Not an empty string %@", str);
     str = @" \r\n\t text  \t\r\n";
-    XCTAssertFalse([NSString isStringNilOrBlank:str], "Not an empty string %@", str);
+    XCTAssertFalse([NSString adIsStringNilOrBlank:str], "Not an empty string %@", str);
 
     //No white space:
     str = @"t";
-    XCTAssertFalse([NSString isStringNilOrBlank:str], "Not an empty string %@", str);
+    XCTAssertFalse([NSString adIsStringNilOrBlank:str], "Not an empty string %@", str);
 }
 
 -(void) testTrimmedString
 {
-    ADAssertStringEquals([@" \t\r\n  test" trimmedString], @"test");
-    ADAssertStringEquals([@"test  \t\r\n  " trimmedString], @"test");
-    ADAssertStringEquals([@"test  \t\r\n  test" trimmedString], @"test  \t\r\n  test");
-    ADAssertStringEquals([@"  \t\r\n  test  \t\r\n  test  \t\r\n  " trimmedString], @"test  \t\r\n  test");
+    ADAssertStringEquals([@" \t\r\n  test" adTrimmedString], @"test");
+    ADAssertStringEquals([@"test  \t\r\n  " adTrimmedString], @"test");
+    ADAssertStringEquals([@"test  \t\r\n  test" adTrimmedString], @"test  \t\r\n  test");
+    ADAssertStringEquals([@"  \t\r\n  test  \t\r\n  test  \t\r\n  " adTrimmedString], @"test  \t\r\n  test");
 }
 
 
 -(void) testContainsStringNil
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     NSString* someString = @"someString";
-    XCTAssertThrowsSpecificNamed([someString containsString:nil],
+    XCTAssertThrowsSpecificNamed([someString adContainsString:nil],
                                  NSException, NSInvalidArgumentException, "Nil argument name should throw.");
     someString = nil;
-    XCTAssertFalse([someString containsString:@"test"], "Should work on nil self.");
+    XCTAssertFalse([someString adContainsString:@"test"], "Should work on nil self.");
 }
 
 -(void) testContainsStringEmpty
 {
     NSString* someString = @"someString";
-    XCTAssertTrue([someString containsString:@""], "Empty string is always contained.");
+    XCTAssertTrue([someString adContainsString:@""], "Empty string is always contained.");
     someString = @"";
-    XCTAssertTrue([someString containsString:@""], "Empty string is always contained.");
-    XCTAssertFalse([someString containsString:@"text"], "Empty string does not contain a real string.");
+    XCTAssertTrue([someString adContainsString:@""], "Empty string is always contained.");
+    XCTAssertFalse([someString adContainsString:@"text"], "Empty string does not contain a real string.");
 }
 
 -(void) testContainsStringNormal
 {
     NSString* someString = @"text1 text2 text3";
-    XCTAssertTrue([someString containsString:@"text1"]);
-    XCTAssertTrue([someString containsString:@"text2"]);
-    XCTAssertTrue([someString containsString:@"text3"]);
-    XCTAssertTrue([someString containsString:@"text1 text2"]);
-    XCTAssertTrue([someString containsString:@"text2 text3"]);
-    XCTAssertTrue([someString containsString:someString]);
+    XCTAssertTrue([someString adContainsString:@"text1"]);
+    XCTAssertTrue([someString adContainsString:@"text2"]);
+    XCTAssertTrue([someString adContainsString:@"text3"]);
+    XCTAssertTrue([someString adContainsString:@"text1 text2"]);
+    XCTAssertTrue([someString adContainsString:@"text2 text3"]);
+    XCTAssertTrue([someString adContainsString:someString]);
  
-    XCTAssertFalse([someString containsString:@"text4"]);
-    XCTAssertFalse([someString containsString:@"text1 text3"]);
+    XCTAssertFalse([someString adContainsString:@"text4"]);
+    XCTAssertFalse([someString adContainsString:@"text1 text3"]);
 }
 
 -(void) testRangeHasPrefix
@@ -135,98 +135,98 @@
     NSString* prefix = @"Prefix word";
     //Negative
     NSRange range = {0, prefix.length};
-    XCTAssertFalse([@" Prefix word" rangeHasPrefixWord:prefix range:range], "Starts with another character");
+    XCTAssertFalse([@" Prefix word" adRangeHasPrefixWord:prefix range:range], "Starts with another character");
     --range.length;
     range.location = 1;
-    XCTAssertFalse([@" Prefix word" rangeHasPrefixWord:prefix range:range], "Shorter range");
+    XCTAssertFalse([@" Prefix word" adRangeHasPrefixWord:prefix range:range], "Shorter range");
     range.length = prefix.length;//Restore
     range.location = 1;
-    XCTAssertFalse([@" Prefix wor" rangeHasPrefixWord:prefix range:range], "Incomplete prefix");
+    XCTAssertFalse([@" Prefix wor" adRangeHasPrefixWord:prefix range:range], "Incomplete prefix");
     range.length = 100;
-    XCTAssertFalse([@" Prefix word1" rangeHasPrefixWord:prefix range:range], "Additional characters at the end");
+    XCTAssertFalse([@" Prefix word1" adRangeHasPrefixWord:prefix range:range], "Additional characters at the end");
     range.location = 100;
-    XCTAssertFalse([@" Prefix word" rangeHasPrefixWord:prefix range:range], "Range beyond the end.");
+    XCTAssertFalse([@" Prefix word" adRangeHasPrefixWord:prefix range:range], "Range beyond the end.");
     
     //Positive
     range.length = 100;//Big enough
     range.location = 1;
-    XCTAssertTrue([@" Prefix word" rangeHasPrefixWord:prefix range:range]);
-    XCTAssertTrue([@"PPrefix word" rangeHasPrefixWord:prefix range:range]);
-    XCTAssertTrue([@"PPrefix word another thing" rangeHasPrefixWord:prefix range:range]);
-    XCTAssertTrue([@"Any string" rangeHasPrefixWord:@"" range:range]);
+    XCTAssertTrue([@" Prefix word" adRangeHasPrefixWord:prefix range:range]);
+    XCTAssertTrue([@"PPrefix word" adRangeHasPrefixWord:prefix range:range]);
+    XCTAssertTrue([@"PPrefix word another thing" adRangeHasPrefixWord:prefix range:range]);
+    XCTAssertTrue([@"Any string" adRangeHasPrefixWord:@"" range:range]);
 }
 
 -(void) testSubstringHasPrefixWord
 {
     NSString* prefix = @"Prefix word";
     //Negative
-    XCTAssertFalse([@" Prefix word" substringHasPrefixWord:prefix start:0], "Starts with another character");
-    XCTAssertFalse([@" Prefix wor" substringHasPrefixWord:prefix start:1], "Incomplete prefix");
-    XCTAssertFalse([@" Prefix word1" substringHasPrefixWord:prefix start:1], "Additional characters at the end");
-    XCTAssertFalse([@" Prefix word" substringHasPrefixWord:prefix start:2], "Range beyond the end.");
-    XCTAssertFalse([@" Prefix word" substringHasPrefixWord:prefix start:100], "Range beyond the end.");
+    XCTAssertFalse([@" Prefix word" adSubstringHasPrefixWord:prefix start:0], "Starts with another character");
+    XCTAssertFalse([@" Prefix wor" adSubstringHasPrefixWord:prefix start:1], "Incomplete prefix");
+    XCTAssertFalse([@" Prefix word1" adSubstringHasPrefixWord:prefix start:1], "Additional characters at the end");
+    XCTAssertFalse([@" Prefix word" adSubstringHasPrefixWord:prefix start:2], "Range beyond the end.");
+    XCTAssertFalse([@" Prefix word" adSubstringHasPrefixWord:prefix start:100], "Range beyond the end.");
     
     //Positive
-    XCTAssertTrue([@" Prefix word" substringHasPrefixWord:prefix start: 1]);
-    XCTAssertTrue([@"PPrefix word" substringHasPrefixWord:prefix start: 1]);
-    XCTAssertTrue([@"PPrefix word another thing" substringHasPrefixWord:prefix start: 1]);
+    XCTAssertTrue([@" Prefix word" adSubstringHasPrefixWord:prefix start: 1]);
+    XCTAssertTrue([@"PPrefix word" adSubstringHasPrefixWord:prefix start: 1]);
+    XCTAssertTrue([@"PPrefix word another thing" adSubstringHasPrefixWord:prefix start: 1]);
 }
 
 -(void) testFindNonWhiteCharacterAfter
 {
     //Starting at 0:
-    ADAssertLongEquals(0, [@"" findNonWhiteCharacterAfter:0]);
-    ADAssertLongEquals(1, [@" " findNonWhiteCharacterAfter:0]);
-    ADAssertLongEquals(1, [@"\t" findNonWhiteCharacterAfter:0]);
-    ADAssertLongEquals(2, [@" \t" findNonWhiteCharacterAfter:0]);
-    ADAssertLongEquals(2, [@"\t " findNonWhiteCharacterAfter:0]);
-    ADAssertLongEquals(2, [@" \tasdba" findNonWhiteCharacterAfter:0]);
-    ADAssertLongEquals(3, [@"\t  asdfa  \t" findNonWhiteCharacterAfter:0]);
+    ADAssertLongEquals(0, [@"" adFindNonWhiteCharacterAfter:0]);
+    ADAssertLongEquals(1, [@" " adFindNonWhiteCharacterAfter:0]);
+    ADAssertLongEquals(1, [@"\t" adFindNonWhiteCharacterAfter:0]);
+    ADAssertLongEquals(2, [@" \t" adFindNonWhiteCharacterAfter:0]);
+    ADAssertLongEquals(2, [@"\t " adFindNonWhiteCharacterAfter:0]);
+    ADAssertLongEquals(2, [@" \tasdba" adFindNonWhiteCharacterAfter:0]);
+    ADAssertLongEquals(3, [@"\t  asdfa  \t" adFindNonWhiteCharacterAfter:0]);
     
     //Starting beyond or at the string length:
-    ADAssertLongEquals(0, [@"" findNonWhiteCharacterAfter:0]);
-    ADAssertLongEquals(1, [@" " findNonWhiteCharacterAfter:1]);
-    ADAssertLongEquals(1, [@"\t" findNonWhiteCharacterAfter:3]);
-    ADAssertLongEquals(2, [@" \t" findNonWhiteCharacterAfter:5]);
-    ADAssertLongEquals(2, [@"\t " findNonWhiteCharacterAfter:2]);
-    ADAssertLongEquals(7, [@" \tasdba" findNonWhiteCharacterAfter:12]);
-    ADAssertLongEquals(11, [@"\t  asdfa  \t" findNonWhiteCharacterAfter:11]);
+    ADAssertLongEquals(0, [@"" adFindNonWhiteCharacterAfter:0]);
+    ADAssertLongEquals(1, [@" " adFindNonWhiteCharacterAfter:1]);
+    ADAssertLongEquals(1, [@"\t" adFindNonWhiteCharacterAfter:3]);
+    ADAssertLongEquals(2, [@" \t" adFindNonWhiteCharacterAfter:5]);
+    ADAssertLongEquals(2, [@"\t " adFindNonWhiteCharacterAfter:2]);
+    ADAssertLongEquals(7, [@" \tasdba" adFindNonWhiteCharacterAfter:12]);
+    ADAssertLongEquals(11, [@"\t  asdfa  \t" adFindNonWhiteCharacterAfter:11]);
     
     //Skip some characters
-    ADAssertLongEquals(2, [@"ab" findNonWhiteCharacterAfter:2]);
-    ADAssertLongEquals(3, [@"12 " findNonWhiteCharacterAfter:2]);
-    ADAssertLongEquals(2, [@"1\t" findNonWhiteCharacterAfter:2]);
-    ADAssertLongEquals(4, [@"12 \t" findNonWhiteCharacterAfter:2]);
-    ADAssertLongEquals(2, [@"123\t " findNonWhiteCharacterAfter:2]);
-    ADAssertLongEquals(4, [@"12 \tasdba" findNonWhiteCharacterAfter:2]);
-    ADAssertLongEquals(5, [@"12\t  asdfa  \t" findNonWhiteCharacterAfter:2]);
-    ADAssertLongEquals(2, [@" \ta\t " findNonWhiteCharacterAfter:2]);
+    ADAssertLongEquals(2, [@"ab" adFindNonWhiteCharacterAfter:2]);
+    ADAssertLongEquals(3, [@"12 " adFindNonWhiteCharacterAfter:2]);
+    ADAssertLongEquals(2, [@"1\t" adFindNonWhiteCharacterAfter:2]);
+    ADAssertLongEquals(4, [@"12 \t" adFindNonWhiteCharacterAfter:2]);
+    ADAssertLongEquals(2, [@"123\t " adFindNonWhiteCharacterAfter:2]);
+    ADAssertLongEquals(4, [@"12 \tasdba" adFindNonWhiteCharacterAfter:2]);
+    ADAssertLongEquals(5, [@"12\t  asdfa  \t" adFindNonWhiteCharacterAfter:2]);
+    ADAssertLongEquals(2, [@" \ta\t " adFindNonWhiteCharacterAfter:2]);
 }
 
 -(void) testFindCharacter
 {
     //Starting at 0:
-    ADAssertLongEquals(0, [@"" findCharacter:'#' start: 0]);
-    ADAssertLongEquals(1, [@" " findCharacter:'#' start: 0]);
-    ADAssertLongEquals(1, [@" ##" findCharacter:'#' start: 0]);
-    ADAssertLongEquals(1, [@" ##  " findCharacter:'#' start: 0]);
-    ADAssertLongEquals(0, [@"# #" findCharacter:'#' start: 0]);
-    ADAssertLongEquals(0, [@"#" findCharacter:'#' start: 0]);
+    ADAssertLongEquals(0, [@"" adFindCharacter:'#' start: 0]);
+    ADAssertLongEquals(1, [@" " adFindCharacter:'#' start: 0]);
+    ADAssertLongEquals(1, [@" ##" adFindCharacter:'#' start: 0]);
+    ADAssertLongEquals(1, [@" ##  " adFindCharacter:'#' start: 0]);
+    ADAssertLongEquals(0, [@"# #" adFindCharacter:'#' start: 0]);
+    ADAssertLongEquals(0, [@"#" adFindCharacter:'#' start: 0]);
 
     //Start beyond the end
-    ADAssertLongEquals(0, [@"" findCharacter:'#' start:0]);
-    ADAssertLongEquals(0, [@"" findCharacter:'#' start:1]);
-    ADAssertLongEquals(1, [@"#" findCharacter:'#' start:1]);
-    ADAssertLongEquals(2, [@"##" findCharacter:'#' start:2]);
-    ADAssertLongEquals(2, [@"a#" findCharacter:'#' start:5]);
-    ADAssertLongEquals(2, [@"#a" findCharacter:'#' start:5]);
+    ADAssertLongEquals(0, [@"" adFindCharacter:'#' start:0]);
+    ADAssertLongEquals(0, [@"" adFindCharacter:'#' start:1]);
+    ADAssertLongEquals(1, [@"#" adFindCharacter:'#' start:1]);
+    ADAssertLongEquals(2, [@"##" adFindCharacter:'#' start:2]);
+    ADAssertLongEquals(2, [@"a#" adFindCharacter:'#' start:5]);
+    ADAssertLongEquals(2, [@"#a" adFindCharacter:'#' start:5]);
 
     //Skip leading characters:
-    ADAssertLongEquals(1, [@"#" findCharacter:'#' start:1]);
-    ADAssertLongEquals(1, [@"#" findCharacter:'#' start:1]);
-    ADAssertLongEquals(1, [@"##" findCharacter:'#' start:1]);
-    ADAssertLongEquals(6, [@"aadfas#" findCharacter:'#' start:1]);
-    ADAssertLongEquals(2, [@"#a#" findCharacter:'#' start:1]);
+    ADAssertLongEquals(1, [@"#" adFindCharacter:'#' start:1]);
+    ADAssertLongEquals(1, [@"#" adFindCharacter:'#' start:1]);
+    ADAssertLongEquals(1, [@"##" adFindCharacter:'#' start:1]);
+    ADAssertLongEquals(6, [@"aadfas#" adFindCharacter:'#' start:1]);
+    ADAssertLongEquals(2, [@"#a#" adFindCharacter:'#' start:1]);
 }
 
 //Checks base64 URL encoding and decoding:
