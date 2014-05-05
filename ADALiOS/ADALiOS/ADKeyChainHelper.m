@@ -15,7 +15,7 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
-
+#import "ADALiOS.h"
 #import "ADKeyChainHelper.h"
 
 extern NSString* const sKeyChainlog;
@@ -64,7 +64,7 @@ extern NSString* const sKeyChainlog;
     {
         [attributes setObject:_genericValue forKey:(__bridge id)kSecAttrGeneric];
     }
-    if (![NSString isStringNilOrBlank:_sharedGroup])
+    if (![NSString adIsStringNilOrBlank:_sharedGroup])
     {
         //Apps are not signed on the simulator, so the shared group doesn't apply there.
 #if !(TARGET_IPHONE_SIMULATOR)

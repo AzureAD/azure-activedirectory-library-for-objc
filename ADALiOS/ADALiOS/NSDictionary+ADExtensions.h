@@ -16,12 +16,11 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@interface HTTPWebResponse : NSObject
+#pragma once
 
-@property (strong, readonly) NSDictionary *headers;
-@property (strong, readonly) NSData       *body;
-@property (readonly) NSInteger     statusCode;
+@interface NSDictionary ( ADAL )
 
-- (id)initWithResponse:(NSHTTPURLResponse *)response data:(NSData *)data;
++ (NSDictionary *)adURLFormDecode:(NSString *)string;
+- (NSString *)adURLFormEncode;
 
 @end

@@ -266,7 +266,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 //We should not put nil keys in the keychain. The method substitutes nil with a special GUID:
 +(NSString*) getAttributeName: (NSString*)original
 {
-    return ([NSString isStringNilOrBlank:original]) ? sNilKey : [original adBase64UrlEncode];
+    return ([NSString adIsStringNilOrBlank:original]) ? sNilKey : [original adBase64UrlEncode];
 }
 
 //Stores the passed items in the group. Does not explicitly remove items that are not there.
@@ -325,7 +325,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                                     mItemKeyAttributeKey:[self keychainKeyFromCacheKey:key],
                                     }];
     
-    if (![NSString isStringNilOrBlank:userId])
+    if (![NSString adIsStringNilOrBlank:userId])
     {
         [query setObject:[userId adBase64UrlEncode] forKey:mUserIdKey];
     }

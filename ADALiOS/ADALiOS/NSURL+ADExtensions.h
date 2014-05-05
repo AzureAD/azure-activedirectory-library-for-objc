@@ -18,10 +18,10 @@
 
 #pragma once
 
-@interface NSURL ( IPAL )
+@interface NSURL ( ADAL )
 
-@property (readonly, nonatomic) NSString     *authority;
-@property (readonly, nonatomic) NSDictionary *fragmentParameters;
-@property (readonly, nonatomic) NSDictionary *queryParameters;
+@property (readonly, nonatomic) NSString     *adAuthority;
+@property (readonly, nonatomic) NSDictionary *adFragmentParameters;
+@property (readonly, nonatomic) NSDictionary *adQueryParameters;
 
 @end

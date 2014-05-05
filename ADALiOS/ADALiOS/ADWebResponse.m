@@ -16,8 +16,48 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@interface UIApplication ( internal )
+#import "ADWebResponse.h"
 
-+ (UIViewController *)currentViewController;
+@implementation ADWebResponse
+{
+    NSHTTPURLResponse *_response;
+    NSData            *_body;
+    NSString          *_bodyText;
+}
+
+@synthesize body = _body;
+
+- (id)init
+{
+    return nil;
+}
+
+- (id)initWithResponse:(NSHTTPURLResponse *)response data:(NSData *)data
+{
+    if ( response == nil )
+    {
+        NSAssert( false, @"Invalid Parameters" );
+        return nil;
+    }
+    
+    if ( ( self = [super init] ) != nil )
+    {
+        _response = response;
+        _body     = data;
+        _bodyText = nil;
+    }
+    
+    return self;
+}
+
+- (NSDictionary *)headers
+{
+    return _response.allHeaderFields;
+}
+
+- (NSInteger)statusCode
+{
+    return _response.statusCode;
+}
 
 @end
