@@ -21,16 +21,10 @@
 //Intercepts HTTPS protocol for the application in order to allow
 //TLS with client-authentication. Such authentication is the base
 //of workplace joined devices. The class is not thread-safe.
-@interface HTTPProtocol : NSURLProtocol <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
+@interface ADURLProtocol : NSURLProtocol <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 
 /* Sets the identity to be used for the client TLS authentication (required with workplace join). */
 +(void) setIdentity:(SecIdentityRef) identity;
-
-/* Sets the certificate to be used for the client TLS authentication (required with workplace join). */
-+(void) setCertificate:(SecCertificateRef) certificate;
-
-/* Releases the identity data. Typically called at the end of the client TLS session. */
-+(void) clearCertificate;
 
 /* Releases the certificate data. Typically called at the end of the client TLS session. */
 +(void) clearIdentity;

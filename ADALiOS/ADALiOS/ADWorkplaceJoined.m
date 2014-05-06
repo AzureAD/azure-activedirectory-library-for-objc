@@ -22,32 +22,26 @@
 #import "ADErrorCodes.h"
 #import "ADKeyChainHelper.h"
 #import "ADALiOS.h"
-#import "HTTPProtocol.h"
+#import "ADURLProtocol.h"
 
 @implementation ADWorkplaceJoined
 
 +(BOOL) startTLSSessionWithError: (ADAuthenticationError *__autoreleasing *) error
 {
     NSString* keychainGroup = [ADAuthenticationSettings sharedInstance].clientTLSKeychainGroup;
-    ADKeyChainHelper* certHelper = [[ADKeyChainHelper alloc] initWithClass:(__bridge id)kSecClassCertificate
-                                                                   generic:nil
-                                                               sharedGroup:keychainGroup];
-    SecCertificateRef certificate = (SecCertificateRef)[certHelper getItemTypeRefWithAttributes:[NSDictionary new] error:error];
-    if (!certificate)
-    {
-        return NO;//Quick exit, no resources to cleanup
-    }
-    
     ADKeyChainHelper* identityHelper = [[ADKeyChainHelper alloc] initWithClass:(__bridge id)kSecClassIdentity
                                                                        generic:nil
                                                                    sharedGroup:keychainGroup];
-    SecIdentityRef identity = (SecIdentityRef)[identityHelper getItemTypeRefWithAttributes:[NSDictionary new] error:error];
+    SecIdentityRef identity =
+    (SecIdentityRef)[identityHelper getItemTypeRefWithAttributes:@{(__bridge id)kSecAttrKeyClass:(__bridge id)kSecAttrKeyClassPrivate}
+  //@{(__bridge id)kSecAttrApplicationTag:[@"com.microsoft.workplacejoin.privatekey" dataUsingEncoding:NSUTF8StringEncoding]}
+                                                           error:error];
+    
     BOOL succeeded = NO;
     if (identity)
     {
-        [HTTPProtocol setIdentity:identity];
-        [HTTPProtocol setCertificate:certificate];
-        if ([NSURLProtocol registerClass:[HTTPProtocol class]])
+        [ADURLProtocol setIdentity:identity];
+        if ([NSURLProtocol registerClass:[ADURLProtocol class]])
         {
             succeeded = YES;
         }
@@ -59,16 +53,16 @@
                 *error = adError;
             }
         }
-        //CFRelease(identity);
+        CFRelease(identity);
     }
-    //CFRelease(certificate);
     return succeeded;
 }
 
 /* Stops the HTTPS interception. */
 +(void) endTLSSession
 {
-    [NSURLProtocol unregisterClass:[HTTPProtocol class]];
+    [NSURLProtocol unregisterClass:[ADURLProtocol class]];
+    [ADURLProtocol clearIdentity];
 }
 
 //+ (OSStatus)extractIdentity:(SecIdentityRef *)outIdentity fromPKCS12Data:(NSData *) data

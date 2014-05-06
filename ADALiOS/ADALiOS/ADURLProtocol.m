@@ -1,4 +1,4 @@
-// Copyright © Microsoft Open Technologies, Inc.
+  // Copyright © Microsoft Open Technologies, Inc.
 //
 // All Rights Reserved
 //
@@ -16,15 +16,14 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "HTTPProtocol.h"
+#import "ADURLProtocol.h"
 #import "ADLogger.h"
 
 static SecIdentityRef sIdentity;
-static SecCertificateRef sCertificate;
 
 NSString* const sLog = @"HTTP Protocol";
 
-@implementation HTTPProtocol
+@implementation ADURLProtocol
 {
     NSURLConnection *_connection;
 }
@@ -52,37 +51,13 @@ NSString* const sLog = @"HTTP Protocol";
     }
 }
 
-/* Sets the certificate to be used for the client TLS authentication (required with workplace join). */
-+(void) setCertificate:(SecCertificateRef) certificate
-{
-    if (certificate)
-    {
-        CFRetain(certificate);
-        sCertificate = certificate;
-    }
-    else
-    {
-        AD_LOG_WARN(sLog, @"HTTPProtocol::setCertificate called with NULL parameter");
-    }
-};
-
-/* Releases the identity data. Typically called at the end of the client TLS session. */
-+(void) clearCertificate
-{
-    if (sCertificate)
-    {
-        CFRelease(sCertificate);
-        sCertificate = NULL;
-    }
-}
-
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
     if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"] )
     {
         //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checking
         //for initialization
-        if ( [NSURLProtocol propertyForKey:@"HTTPProtocol" inRequest:request] == nil )
+        if ( [NSURLProtocol propertyForKey:@"ADURLProtocol" inRequest:request] == nil )
         {
             AD_LOG_VERBOSE_F(sLog, @"Requested handling of URL: %@", [request.URL absoluteString]);
 
@@ -114,7 +89,7 @@ NSString* const sLog = @"HTTP Protocol";
     
     NSMutableURLRequest *mutableRequest = [self.request mutableCopy];
 
-    [NSURLProtocol setProperty:@"YES" forKey:@"HTTPProtocol" inRequest:mutableRequest];
+    [NSURLProtocol setProperty:@"YES" forKey:@"ADURLProtocol" inRequest:mutableRequest];
     
     _connection = [[NSURLConnection alloc] initWithRequest:mutableRequest
                                                   delegate:self
@@ -151,7 +126,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodClientCertificate] == NSOrderedSame )
     {
         // This is the client TLS challenge: use the identity to authenticate:
-        if (sIdentity && sCertificate)
+        if (sIdentity)
         {
             AD_LOG_VERBOSE_F(sLog, @"Attempting to handle client TLS challenge for host: %@", challenge.protectionSpace.host);
             
@@ -160,7 +135,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
             if (errSecSuccess == status)
             {
                 //TODO: Figure out if the sCertificate should be leveraged at all.
-                NSArray* certs = [NSArray arrayWithObjects: (__bridge id)clientCertificate /*, (__bridge id)sCertificate*/, nil];
+                NSArray* certs = [NSArray arrayWithObjects: (__bridge id)clientCertificate, nil];
                 NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
                                                                    certificates:certs
                                                                     persistence:NSURLCredentialPersistenceNone];
@@ -180,27 +155,9 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
             AD_LOG_WARN(sLog, @"Cannot respond to client TLS request. Identity is not set.");
         }
     }
-    else if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodServerTrust] == NSOrderedSame)
-    {
-        //TODO: Figure out if this is even needed:
-//        CFArrayRef certs = CFArrayCreate(kCFAllocatorDefault, (const void **) &sCertificate, 1, NULL);
-//        SecPolicyRef policy = SecPolicyCreateBasicX509();
-//        SecTrustRef trust;
-//        
-//        OSStatus res = SecTrustCreateWithCertificates(certs, policy, &trust);
-//        SecTrustResultType trustResult;
-//        res = SecTrustEvaluate(trust, &trustResult);
-//        
-//        NSURLCredential* cred = [NSURLCredential credentialForTrust:trust];
-//        CFRelease(certs);
-//        
-//        
-//        [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
-    }
     
     // Do default handling
     [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
-    //[challenge.sender continueWithoutCredentialForAuthenticationChallenge:challenge];
 }
 
 
@@ -219,7 +176,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     {
         NSMutableURLRequest* mutableRequest = [request mutableCopy];
         
-        [[self class] removePropertyForKey:@"HTTPProtocol" inRequest:mutableRequest];
+        [[self class] removePropertyForKey:@"ADURLProtocol" inRequest:mutableRequest];
         [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
         
         [_connection cancel];

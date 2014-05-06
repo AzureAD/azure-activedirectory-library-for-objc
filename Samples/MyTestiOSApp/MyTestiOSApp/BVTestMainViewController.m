@@ -322,6 +322,7 @@
         }
         
         [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+        NSLog(@"Access token: %@", result.accessToken);
     }];
     
     

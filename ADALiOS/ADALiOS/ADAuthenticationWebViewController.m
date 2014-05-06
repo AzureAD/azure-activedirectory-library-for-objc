@@ -42,7 +42,6 @@
     if ( ( self = [super init] ) != nil )
     {
         _startURL  = [startURL copy];
-        //[NSURL URLWithString:@"https://rp.contoso2014.com/simplewindowswebapp"];
         _endURL    = [[endURL absoluteString] lowercaseString];
         
         _complete  = NO;
