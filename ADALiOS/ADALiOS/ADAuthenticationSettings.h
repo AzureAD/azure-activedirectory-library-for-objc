@@ -15,6 +15,7 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
+#import <Foundation/Foundation.h>
 
 @protocol ADTokenCacheStoring;
 /*!
@@ -77,5 +78,15 @@ typedef enum
 
 /*! The default token cache store to be used by the ADAuthenticationContext instances. */
 @property (retain) id<ADTokenCacheStoring> defaultTokenCacheStore;
+
+#if TARGET_OS_IPHONE
+/*! The name of the keychain group to be used if sharing of cache between applications
+ is desired. Can be nil. See apple's documentation for keychain groups: such groups 
+ require certain entitlements to be set by the applications. Also, access to the items in this group
+ is only given to the applications from the same vendor.
+ If this property is not set, on iOS only the current application can read the stored tokens.
+ The property has no effect if other cache mechanisms are used (non-keychain). */
+@property (assign, getter = getSharedKeychainGroup, setter = setSharedKeychainGroup:) NSString* sharedKeychainGroup;
+#endif
 
 @end

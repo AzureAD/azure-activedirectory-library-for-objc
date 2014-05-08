@@ -16,8 +16,11 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 #import "ADAuthenticationSettings.h"
-#import "ADKeychainTokenCacheStore.h"
-#import "ADEncryptedFileTokenCacheStore.h"
+#if TARGET_OS_IPHONE
+#   import "ADKeychainTokenCacheStore.h"
+#else
+#   import "ADPersistentTokenCacheStore.h"
+#endif
 
 @implementation ADAuthenticationSettings
 
@@ -46,9 +49,9 @@
         //that created the object. Unfortunately with Grand Central Dispatch, it is not guaranteed that the thread
         //exists. Hence for now, we create the connection on the main thread by default:
         _dispatchQueue              = dispatch_get_main_queue();
-        dispatch_retain( _dispatchQueue );
+        SAFE_ARC_DISPATCH_RETAIN(_dispatchQueue);
 #if TARGET_OS_IPHONE
-        self.defaultTokenCacheStore = [[ADKeychainTokenCacheStore alloc] initWithLocation:nil];
+        self.defaultTokenCacheStore = [ADKeychainTokenCacheStore new];
 #else
         _defaultTokenCacheStore     = [[ADPersistentTokenCacheStore alloc] initWithLocation:nil];
 #endif
@@ -85,7 +88,6 @@
 #endif
     return instance;
 }
-
 - (dispatch_queue_t)dispatchQueue
 {
     return _dispatchQueue;
@@ -93,12 +95,38 @@
 
 - (void)setDispatchQueue:(dispatch_queue_t)dispatchQueue
 {
-    // TODO: Optimize this if no value change
     dispatch_queue_t oldQueue = _dispatchQueue;
     _dispatchQueue = dispatchQueue;
-    if ( _dispatchQueue ) dispatch_retain( _dispatchQueue );
-    if ( oldQueue ) dispatch_release( oldQueue );
+    if ( _dispatchQueue ) SAFE_ARC_DISPATCH_RETAIN( _dispatchQueue );
+    if ( oldQueue ) SAFE_ARC_DISPATCH_RELEASE( oldQueue );
 }
+
+
+#if TARGET_OS_IPHONE
+-(NSString*) getSharedKeychainGroup
+{
+    id store = self.defaultTokenCacheStore;
+    if ([store isKindOfClass:[ADKeychainTokenCacheStore class]])
+    {
+        return ((ADKeychainTokenCacheStore*)store).sharedGroup;
+    }
+    else
+    {
+        return nil;
+    }
+}
+#endif//TARGET_OS_IPHONE
+
+#if TARGET_OS_IPHONE
+-(void) setSharedKeychainGroup:(NSString *)sharedKeychainGroup
+{
+    id store = self.defaultTokenCacheStore;
+    if ([store isKindOfClass:[ADKeychainTokenCacheStore class]])
+    {
+        ((ADKeychainTokenCacheStore*)store).sharedGroup = sharedKeychainGroup;
+    }
+}
+#endif//TARGET_OS_IPHONEf
 
 @end
 

@@ -278,4 +278,18 @@
     ADAssertStringEquals([encoded adUrlFormDecode], testString);
 }
 
+-(void) testAdSame
+{
+    NSString* text = @"a b";
+    NSString* same = [NSString stringWithFormat:@"a %@", @"b"];//Generate it, just in case
+    NSString* different = @"A B";
+    
+    XCTAssertTrue([NSString adSame:text toString:text]);
+    XCTAssertTrue([NSString adSame:nil toString:nil]);
+    XCTAssertTrue([NSString adSame:text toString:same]);
+    XCTAssertFalse([NSString adSame:text toString:different]);
+    XCTAssertFalse([NSString adSame:text toString:nil]);
+    XCTAssertFalse([NSString adSame:nil toString:text]);
+}
+
 @end

@@ -44,8 +44,10 @@
     #if __has_feature(objc_arc_weak) && (!(defined __MAC_OS_X_VERSION_MIN_REQUIRED) || __MAC_OS_X_VERSION_MIN_REQUIRED > __MAC_10_7)
         #define weak_delegate   weak
         #define __weak_delegate __weak
+        #define weak_property   weak
     #else
         #define weak_delegate   unsafe_unretained
         #define __weak_delegate __unsafe_unretained
+        #define weak_property   unsafe_unretained
     #endif
 #endif

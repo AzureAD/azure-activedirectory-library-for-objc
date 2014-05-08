@@ -15,6 +15,7 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
+#import <Foundation/Foundation.h>
 
 #import "ADTokenCacheStoring.h"
 #import "ADAuthenticationError.h"
@@ -31,6 +32,12 @@ typedef UIViewController ViewController;
 //OS X:
 #   include <WebKit/WebKit.h>
 typedef NSViewController   ViewController;
+#endif
+
+#if __has_feature(objc_arc_weak)
+#   define weak_property   weak
+#else
+#   define weak_property   unsafe_unretained
 #endif
 
 typedef enum
@@ -144,7 +151,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 @property (retain, atomic) NSUUID* correlationId;
 
 /*! The parent view controller for the authentication view controller UI. */
-@property (retain, atomic) ViewController* parentController;
+@property (weak_property, atomic) ViewController* parentController;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,

@@ -17,6 +17,8 @@
 // governing permissions and limitations under the License.
 
 /*! Levels of logging. Defines the priority of the logged message */
+#import <Foundation/Foundation.h>
+
 typedef enum
 {
     ADAL_LOG_LEVEL_NO_LOG,//Available to fully disable logging
@@ -85,6 +87,10 @@ typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
 
 /*! Returns diagnostic trace data to be sent to the Auzure Active Directory servers. */
 +(NSDictionary*) adalId;
+
+/*! Calculates a hash of the passed string. Useful for logging tokens, where we do not log
+ the actual contents, but still want to log something that can be correlated. */
++(NSString*) getHash: (NSString*) input;
 
 @end
 

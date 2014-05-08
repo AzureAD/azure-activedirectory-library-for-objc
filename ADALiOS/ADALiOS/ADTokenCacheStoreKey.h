@@ -19,6 +19,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class ADAuthenticationError;
+
 /*! Defines the cache store key. The object is immutable and new one should be created each time
  a new key is required. Keys can be created or extracted from existing ADTokenCacheStoreItem objects. */
 @interface ADTokenCacheStoreKey : NSObject<NSCopying>
