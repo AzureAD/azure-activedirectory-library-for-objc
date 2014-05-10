@@ -17,17 +17,18 @@
 // governing permissions and limitations under the License.
 
 #import "ADOAuth2Constants.h"
-#import "NSURLExtensions.h"
+#import "NSURL+ADExtensions.h"
+#import "ADErrorCodes.h"
 
-#import "HTTPWebRequest.h"
-#import "HTTPWebResponse.h"
+#import "ADWebRequest.h"
+#import "ADWebResponse.h"
 
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
 
-@interface HTTPWebRequest () <NSURLConnectionDelegate>
+@interface ADWebRequest () <NSURLConnectionDelegate>
 
-- (void)completeWithError:(NSError *)error andResponse:(HTTPWebResponse *)response;
+- (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response;
 - (void)send;
 - (BOOL)verifyRequestURL:(NSURL *)requestURL;
 
@@ -102,7 +103,7 @@ NSString *const HTTPPost = @"POST";
         _response          = nil;
         _responseData      = nil;
         
-        // Default timeout for HTTPWebRequest is 30 seconds 
+        // Default timeout for ADWebRequest is 30 seconds 
         _timeout           = 30;
         
         _completionHandler = nil;
@@ -113,7 +114,7 @@ NSString *const HTTPPost = @"POST";
 }
 
 // Cleans up and then calls the completion handler
-- (void)completeWithError:(NSError *)error andResponse:(HTTPWebResponse *)response
+- (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response
 {
     if ( _completionHandler != nil )
     {
@@ -121,7 +122,7 @@ NSString *const HTTPPost = @"POST";
     }
 }
 
-- (void)send:(void (^)(NSError *, HTTPWebResponse *))completionHandler
+- (void)send:(void (^)(NSError *, ADWebResponse *))completionHandler
 {
     _completionHandler = SAFE_ARC_BLOCK_COPY(completionHandler);
     
@@ -134,7 +135,7 @@ NSString *const HTTPPost = @"POST";
 - (void)send
 {
     // Add default HTTP Headers to the request: Host
-    [_requestHeaders setValue:[_requestURL authority] forKey:@"Host"];
+    [_requestHeaders setValue:[_requestURL adAuthority] forKey:@"Host"];
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
     //Correlation id:
     if (_correlationId)

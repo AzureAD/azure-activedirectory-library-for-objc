@@ -123,7 +123,7 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testSharedInstance
 {
-    [self clearLogs];
+    [self adClearLogs];
     XCTAssertEqualObjects(mInstanceDiscovery, [ADInstanceDiscovery sharedInstance]);
     ADAssertLogsContain(TEST_LOG_INFO, @"sharedInstance");
 }
@@ -146,17 +146,17 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testExtractBaseBadAuthority
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
 
     //Nil:
     ADAuthenticationError* error;
     NSString* result = [mTestInstanceDiscovery extractHost:nil correlationId:nil error:&error];
     XCTAssertNil(result);
-    [self validateForInvalidArgument:@"authority" error:error];
+    [self adValidateForInvalidArgument:@"authority" error:error];
     error = nil;//Cleanup
     
     //Do not pass error object. Make sure error is logged.
-    [self clearLogs];
+    [self adClearLogs];
     result = [mTestInstanceDiscovery extractHost:nil correlationId:nil error:nil];
     XCTAssertNil(result);
     ADAssertLogsContain(TEST_LOG_MESSAGE, "Error");
@@ -166,31 +166,31 @@ const int sAsyncTimeout = 10;//in seconds
     //White space string:
     result = [mTestInstanceDiscovery extractHost:@"   " correlationId:nil error:&error];
     XCTAssertNil(result);
-    [self validateForInvalidArgument:@"authority" error:error];
+    [self adValidateForInvalidArgument:@"authority" error:error];
     error = nil;
     
     //Invalid URL:
     result = [mTestInstanceDiscovery extractHost:@"a sdfasdfasas;djfasd jfaosjd fasj;" correlationId:nil error:&error];
     XCTAssertNil(result);
-    [self validateForInvalidArgument:@"authority" error:error];
+    [self adValidateForInvalidArgument:@"authority" error:error];
     error = nil;
     
     //Invalid URL scheme (not using SSL):
     result = [mTestInstanceDiscovery extractHost:@"http://login.windows.net" correlationId:nil error:&error];
     XCTAssertNil(result);
-    [self validateForInvalidArgument:@"authority" error:error];
+    [self adValidateForInvalidArgument:@"authority" error:error];
     error = nil;
     
     //Path
     result = [mTestInstanceDiscovery extractHost:@"././login.windows.net" correlationId:nil error:&error];
     XCTAssertNil(result);
-    [self validateForInvalidArgument:@"authority" error:error];
+    [self adValidateForInvalidArgument:@"authority" error:error];
     error = nil;
     
     //Relative URL
     result = [mTestInstanceDiscovery extractHost:@"login" correlationId:nil error:&error];
     XCTAssertNil(result);
-    [self validateForInvalidArgument:@"authority" error:error];
+    [self adValidateForInvalidArgument:@"authority" error:error];
     error = nil;
 }
 
@@ -220,7 +220,7 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testIsAuthorityValidated
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     XCTAssertThrows([mTestInstanceDiscovery isAuthorityValidated:nil]);
     XCTAssertThrows([mTestInstanceDiscovery isAuthorityValidated:@"  "]);
     NSString* anotherHost = @"https://somedomain.com";
@@ -232,7 +232,7 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testSetAuthorityValidation
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     XCTAssertThrows([mTestInstanceDiscovery setAuthorityValidation:nil]);
     XCTAssertThrows([mTestInstanceDiscovery setAuthorityValidation:@"  "]);
     //Test that re-adding is ok. This can happen in multi-threaded scenarios:
@@ -307,7 +307,7 @@ const int sAsyncTimeout = 10;//in seconds
 {
     mError = nil;//Reset
     static volatile int completion = 0;//Set to 1 at the end of the callback
-    [self callAndWaitWithFile:@"" __FILE__ line:line completionSignal:&completion block:^
+    [self adCallAndWaitWithFile:@"" __FILE__ line:line completionSignal:&completion block:^
      {
          [self->mInstanceDiscovery validateAuthority:authority correlationId:correlationId completionBlock:^(BOOL validated, ADAuthenticationError *error)
           {
@@ -329,7 +329,7 @@ const int sAsyncTimeout = 10;//in seconds
 //Does not call the server, just passes invalid authority
 -(void) testValidateAuthorityError
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     [self validateAuthority:@"http://invalidscheme.com" correlationId:[NSUUID UUID] line:__LINE__];
     XCTAssertNotNil(mError);
     
@@ -347,7 +347,7 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testCanonicalizeAuthority
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Nil or empty:
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:nil]);
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@""]);
@@ -421,20 +421,20 @@ const int sAsyncTimeout = 10;//in seconds
 //Ensures that an invalid authority is not approved
 -(void) testNonValidatedAuthority
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     NSUUID* correlationId = [NSUUID UUID];
     [self validateAuthority:@"https://MyFakeAuthority.com/MSOpenTechBV.onmicrosoft.com" correlationId:correlationId line:__LINE__];
     XCTAssertFalse(mValidated);
     XCTAssertNotNil(mError);
     ADAssertLongEquals(AD_ERROR_AUTHORITY_VALIDATION, mError.code);
-    XCTAssertTrue([mError.errorDetails containsString:[correlationId UUIDString].lowercaseString]);
+    XCTAssertTrue([mError.errorDetails adContainsString:[correlationId UUIDString].lowercaseString]);
 }
 
 -(void) testUnreachableServer
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     static volatile int completion = 0;//Set to 1 at the end of the callback
-    [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal:&completion block:^
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal:&completion block:^
     {
         [mTestInstanceDiscovery requestValidationOfAuthority:@"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com"
                                                         host:@"https://login.windows.cn"

@@ -18,14 +18,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import "NSDictionaryExtensions.h"
+#import "NSDictionary+ADExtensions.h"
 #import "NSString+ADHelperMethods.h"
 
-@implementation NSDictionary ( IPAL )
+@implementation NSDictionary ( ADAL )
 
 // Decodes a www-form-urlencoded string into a dictionary of key/value pairs.
 // Always returns a dictionary, even if the string is nil, empty or contains no pairs
-+ (NSDictionary *)URLFormDecode:(NSString *)string
++ (NSDictionary *)adURLFormDecode:(NSString *)string
 {
     NSMutableDictionary *parameters = [[NSMutableDictionary alloc] initWithCapacity:6];
     
@@ -39,8 +39,8 @@
             
             if ( elements != nil && elements.count == 2 )
             {
-                NSString *key     = [[[elements objectAtIndex:0] trimmedString] adUrlFormDecode];
-                NSString *value   = [[[elements objectAtIndex:1] trimmedString] adUrlFormDecode];                 
+                NSString *key     = [[[elements objectAtIndex:0] adTrimmedString] adUrlFormDecode];
+                NSString *value   = [[[elements objectAtIndex:1] adTrimmedString] adUrlFormDecode];
                 if ( nil != key && key.length != 0 )
                     [parameters setObject:value forKey:key];
             }
@@ -52,7 +52,7 @@
 
 // Encodes a dictionary consisting of a set of name/values pairs that are strings to www-form-urlencoded
 // Returns nil if the dictionary is empty, otherwise the encoded value
-- (NSString *)URLFormEncode
+- (NSString *)adURLFormEncode
 {
     __block NSString *parameters = nil;
     

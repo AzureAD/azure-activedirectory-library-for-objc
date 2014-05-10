@@ -114,7 +114,7 @@ NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u"
 
 // Checks a selector NSString argument to a method for being null or empty. Throws NSException with name
 // NSInvalidArgumentException if the argument is invalid:
-#define THROW_ON_NIL_EMPTY_ARGUMENT(ARG) THROW_ON_CONDITION_ARGUMENT([NSString isStringNilOrBlank:ARG], ARG);
+#define THROW_ON_NIL_EMPTY_ARGUMENT(ARG) THROW_ON_CONDITION_ARGUMENT([NSString adIsStringNilOrBlank:ARG], ARG);
 
 //Checks a selector argument for being null. Throws NSException with name NSInvalidArgumentException if
 //the argument is invalid
@@ -131,7 +131,7 @@ if (error) \
 argumentName:@#ARG]; \
 }
 
-#define STRING_NIL_OR_EMPTY_CONDITION(ARG) [NSString isStringNilOrBlank:ARG]
+#define STRING_NIL_OR_EMPTY_CONDITION(ARG) [NSString adIsStringNilOrBlank:ARG]
 #define NIL_CONDITION(ARG) (!ARG)
 
 #define RETURN_ON_INVALID_ARGUMENT(CONDITION, ARG, RET) \
@@ -158,6 +158,9 @@ argumentName:@#ARG]; \
 //Same as the macros above, but used for non-string parameters for nil checking.
 #define RETURN_NIL_ON_NIL_ARGUMENT(ARG) RETURN_ON_INVALID_ARGUMENT(NIL_CONDITION(ARG), ARG, nil)
 
+//Same as the macros above, but returns BOOL (NO), instead of nil.
+#define RETURN_NO_ON_NIL_ARGUMENT(ARG) RETURN_ON_INVALID_ARGUMENT(NIL_CONDITION(ARG), ARG, NO)
+
 //Same as the macros above, but used for non-string parameters for nil checking.
 #define RETURN_ON_NIL_ARGUMENT(ARG) RETURN_ON_INVALID_ARGUMENT(NIL_CONDITION(ARG), ARG, )
 
@@ -172,7 +175,6 @@ WHERE; \
 AD_LOG_VERBOSE(@"ADAL API call", __where); \
 SAFE_ARC_RELEASE( __where ); \
 }
-
 
 
 

@@ -18,6 +18,7 @@
 
 #import "ADUserInformation.h"
 #import "ADOAuth2Constants.h"
+#import "NSString+ADHelperMethods.h"
 
 NSString* const ID_TOKEN_SUBJECT = @"sub";
 NSString* const ID_TOKEN_TENANTID = @"tid";
@@ -79,7 +80,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     {
         return nil;//Quick exit;
     }
-    NSString* normalized = [userId trimmedString].lowercaseString;
+    NSString* normalized = [userId adTrimmedString].lowercaseString;
         
     return normalized.length ? normalized : nil;
 }
@@ -116,7 +117,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 #define EXTRACT_ID_TOKEN_PROPERTY(property, name) \
 { \
     NSString* read = [contents objectForKey:name]; \
-    if (![NSString isStringNilOrBlank:read]) \
+    if (![NSString adIsStringNilOrBlank:read]) \
     { \
         [self set##property:read]; \
     } \
@@ -132,7 +133,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
         return nil;
     }
 
-    if ([NSString isStringNilOrBlank:idToken])
+    if ([NSString adIsStringNilOrBlank:idToken])
     {
         RETURN_ID_TOKEN_ERROR(idToken);
     }
@@ -148,7 +149,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     {
         AD_LOG_VERBOSE(@"Id_token part", part);
         NSString* decoded = [part adBase64UrlDecode];
-        if (![NSString isStringNilOrBlank:decoded])
+        if (![NSString adIsStringNilOrBlank:decoded])
         {
             NSError* jsonError  = nil;
             id jsonObject = [NSJSONSerialization JSONObjectWithData:[decoded dataUsingEncoding:NSUTF8StringEncoding]
@@ -202,30 +203,30 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     
     //Now attempt to extract an unique user id:
-    if (![NSString isStringNilOrBlank:self.upn])
+    if (![NSString adIsStringNilOrBlank:self.upn])
     {
         _userId = self.upn;
         self.userIdDisplayable = YES;
     }
-    else if (![NSString isStringNilOrBlank:self.eMail])
+    else if (![NSString adIsStringNilOrBlank:self.eMail])
     {
         _userId = self.eMail;
         self.userIdDisplayable = YES;
     }
-    else if (![NSString isStringNilOrBlank:self.subject])
+    else if (![NSString adIsStringNilOrBlank:self.subject])
     {
         _userId = self.subject;
     }
-    else if (![NSString isStringNilOrBlank:self.userObjectId])
+    else if (![NSString adIsStringNilOrBlank:self.userObjectId])
     {
         _userId = self.userObjectId;
     }
-    else if (![NSString isStringNilOrBlank:self.uniqueName])
+    else if (![NSString adIsStringNilOrBlank:self.uniqueName])
     {
         _userId = self.uniqueName;
         self.userIdDisplayable = YES;//This is what the server provided
     }
-    else if (![NSString isStringNilOrBlank:self.guestId])
+    else if (![NSString adIsStringNilOrBlank:self.guestId])
     {
         _userId = self.guestId;
     }
@@ -300,7 +301,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 -(id) initWithCoder:(NSCoder *) aDecoder
 {
     NSString* storedUserId      = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userId"];
-    if ([NSString isStringNilOrBlank:storedUserId])
+    if ([NSString adIsStringNilOrBlank:storedUserId])
     {
         //The userId should be valid:
         AD_LOG_ERROR_F(@"Invalid user information", AD_ERROR_BAD_CACHE_FORMAT, @"Invalid userId: %@", storedUserId);

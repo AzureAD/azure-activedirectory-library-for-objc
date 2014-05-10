@@ -18,11 +18,11 @@
 
 #import <UIKit/UIKit.h>
 
-#import "UIApplicationExtensions.h"
+#import "UIApplication+ADExtensions.h"
 
 @implementation UIApplication ( internal )
 
-+ (UIViewController *)currentViewController
++ (UIViewController *) adCurrentViewController
 {
     return [[[UIApplication sharedApplication] keyWindow] rootViewController];
 }

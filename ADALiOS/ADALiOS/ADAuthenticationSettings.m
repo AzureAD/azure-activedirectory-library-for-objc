@@ -45,7 +45,7 @@
         self.expirationBuffer = 300;//in seconds, ensures catching of clock differences between the server and the device
         self.enableFullScreen = YES;
         
-        //The current HTTPWebRequest implementation uses NSURLConnection, which calls its delegate on the same thread
+        //The current ADWebRequest implementation uses NSURLConnection, which calls its delegate on the same thread
         //that created the object. Unfortunately with Grand Central Dispatch, it is not guaranteed that the thread
         //exists. Hence for now, we create the connection on the main thread by default:
         _dispatchQueue              = dispatch_get_main_queue();

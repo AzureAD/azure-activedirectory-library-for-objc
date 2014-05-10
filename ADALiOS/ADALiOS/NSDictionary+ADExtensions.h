@@ -18,9 +18,9 @@
 
 #pragma once
 
-@interface NSDictionary ( IPAL )
+@interface NSDictionary ( ADAL )
 
-+ (NSDictionary *)URLFormDecode:(NSString *)string;
-- (NSString *)URLFormEncode;
++ (NSDictionary *)adURLFormDecode:(NSString *)string;
+- (NSString *)adURLFormEncode;
 
 @end

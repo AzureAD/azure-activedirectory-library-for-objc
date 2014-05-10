@@ -19,8 +19,9 @@
 #import "ADAuthenticationParameters.h"
 #import "ADAuthenticationParameters+Internal.h"
 #import "ADAuthenticationSettings.h"
-#import "HTTPWebRequest.h"
-#import "HTTPWebResponse.h"
+#import "ADWebRequest.h"
+#import "ADWebResponse.h"
+#import "NSString+ADHelperMethods.h"
 
 @implementation ADAuthenticationParameters
 
@@ -114,7 +115,7 @@
 {
     // Handle 401 Unauthorized using the OAuth2 Implicit Profile
     NSString  *authenticateHeader = [headers valueForKey:OAuth2_Authenticate_Header];
-    if ([NSString isStringNilOrBlank:authenticateHeader])
+    if ([NSString adIsStringNilOrBlank:authenticateHeader])
     {
         NSString* details = [NSString stringWithFormat:MissingHeader, OAuth2_Authenticate_Header];
         [self raiseErrorWithCode:AD_ERROR_MISSING_AUTHENTICATE_HEADER details:details error:error];

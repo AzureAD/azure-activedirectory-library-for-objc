@@ -18,12 +18,13 @@
 #import "ADAL.h"
 #import "ADInstanceDiscovery.h"
 #import "ADAuthenticationError.h"
-#import "HTTPWebRequest.h"
+#import "ADWebRequest.h"
 #import "ADAuthenticationError.h"
-#import "NSDictionaryExtensions.h"
-#import "HTTPWebResponse.h"
+#import "NSDictionary+ADExtensions.h"
+#import "ADWebResponse.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
+#import "NSString+ADHelperMethods.h"
 
 NSString* const sTrustedAuthority = @"https://login.windows.net";
 NSString* const sInstanceDiscoverySuffix = @"common/discovery/instance";
@@ -234,7 +235,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
                                          authorizationEndpoint, sAuthorizationEndPointKey,
                                          nil];
     
-    NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, sInstanceDiscoverySuffix, [request_data URLFormEncode]];
+    NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, sInstanceDiscoverySuffix, [request_data adURLFormEncode]];
 
     AD_LOG_VERBOSE(@"Authority Validation Request", endPoint);
     __block HTTPWebRequest *webRequest = [[HTTPWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint] correlationId:correlationId];
@@ -243,7 +244,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     
-    [webRequest send:^( NSError *error, HTTPWebResponse *webResponse )
+    [webRequest send:^( NSError *error, ADWebResponse *webResponse )
     {
         // Request completion callback
         NSDictionary *response = nil;
@@ -266,7 +267,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
                         // Load the response
                         response = (NSDictionary *)jsonObject;
                         AD_LOG_VERBOSE(@"Discovery response", response.description);
-                        verified = ![NSString isStringNilOrBlank:[response objectForKey:sTenantDiscoveryEndpoint]];
+                        verified = ![NSString adIsStringNilOrBlank:[response objectForKey:sTenantDiscoveryEndpoint]];
                         if (verified)
                         {
                             [self setAuthorityValidation:authorityHost];
@@ -322,12 +323,12 @@ NSString* const sValidationServerError = @"The authority validation server retur
 
 +(NSString*) canonicalizeAuthority: (NSString*) authority
 {
-    if ([NSString isStringNilOrBlank:authority])
+    if ([NSString adIsStringNilOrBlank:authority])
     {
         return nil;
     }
     
-    NSString* trimmedAuthority = [[authority trimmedString] lowercaseString];
+    NSString* trimmedAuthority = [[authority adTrimmedString] lowercaseString];
     NSURL* url = [NSURL URLWithString:trimmedAuthority];
     if (!url)
     {
@@ -347,13 +348,13 @@ NSString* const sValidationServerError = @"The authority validation server retur
         return nil;//No path component: invalid URL
 
     NSString* tenant = [paths objectAtIndex:1];
-    if ([NSString isStringNilOrBlank:tenant])
+    if ([NSString adIsStringNilOrBlank:tenant])
     {
         return nil;
     }
     
     NSString* host = url.host;
-    if ([NSString isStringNilOrBlank:host])
+    if ([NSString adIsStringNilOrBlank:host])
     {
         return nil;
     }

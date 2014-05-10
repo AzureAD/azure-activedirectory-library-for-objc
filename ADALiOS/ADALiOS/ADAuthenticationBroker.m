@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADOAuth2Constants.h"
-#import "UIApplicationExtensions.h"
+#import "UIApplication+ADExtensions.h"
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationDelegate.h"
 #import "ADAuthenticationWebViewController.h"
@@ -170,7 +170,7 @@ correlationId:(NSUUID *)correlationId
     if (!parent)
     {
         // Must have a parent view controller to start the authentication view
-        parent = [UIApplication currentViewController];
+        parent = [UIApplication adCurrentViewController];
     }
     if ( parent )
     {

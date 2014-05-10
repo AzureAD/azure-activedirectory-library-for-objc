@@ -71,7 +71,7 @@
     mParameters = nil;
     mError = nil;
     static volatile int completion = 0;
-    [self callAndWaitWithFile:@"" __FILE__ line:sourceLine completionSignal:&completion block:^
+    [self adCallAndWaitWithFile:@"" __FILE__ line:sourceLine completionSignal:&completion block:^
     {
         //The asynchronous call:
         [ADAuthenticationParameters parametersFromResourceUrl:resource
@@ -94,25 +94,25 @@
 
 
 /* A wrapper around ADTestHelper::validateCreatorForInvalidArgument, passing the test class members*/
--(void) validateFactoryForInvalidArgument: (NSString*) argument
+-(void) adValidateFactoryForInvalidArgument: (NSString*) argument
                                     error: (ADAuthenticationError*) error
 {
-    [self validateFactoryForInvalidArgument:argument
+    [self adValidateFactoryForInvalidArgument:argument
                              returnedObject:mParameters
                                       error:error];
 }
 
 /* A wrapper around ADTestHelper::validateCreatorForInvalidArgument, passing the test class members*/
--(void) validateFactoryForInvalidArgument: (NSString*) argument
+-(void) adValidateFactoryForInvalidArgument: (NSString*) argument
 {
-    [self validateFactoryForInvalidArgument:argument
+    [self adValidateFactoryForInvalidArgument:argument
                                       error:mError];
 }
 
 - (void) testParametersFromResourceURLParametersNil
 {
     [self callAsynchronousCreator:nil line:__LINE__];
-    [self validateFactoryForInvalidArgument:@"resourceUrl"];
+    [self adValidateFactoryForInvalidArgument:@"resourceUrl"];
 
     //Pass nil for the completionBlock:
     NSURL* resource = [[NSURL alloc] initWithString:@"https://mytodolist.com"];
@@ -137,13 +137,13 @@
     [self callAsynchronousCreator:resource line:__LINE__];
     XCTAssertNil(mParameters, "No parameters should be extracted from non-existing resource.");
     XCTAssertNotNil(mError, "Error should be set.");
-    [self assertValidText:mError.errorDetails message:@"The error should have details."];
+    [self adAssertValidText:mError.errorDetails message:@"The error should have details."];
 }
 
 
 - (void) testParametersFromResourceURLParametersPositiveCase
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     //HTTP
     NSURL* resourceUrl = [[NSURL alloc] initWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     [self callAsynchronousCreator:resourceUrl line:__LINE__];
@@ -159,7 +159,7 @@
 {
     ADAuthenticationError* error;//A local variable is needed for __autoreleasing reference pointers.
     mParameters = [ADAuthenticationParameters parametersFromResponse:nil error:&error];
-    [self validateFactoryForInvalidArgument:@"response" error:error];
+    [self adValidateFactoryForInvalidArgument:@"response" error:error];
     
     //Now test that the method can handle passing nil for error:
     mParameters = [ADAuthenticationParameters parametersFromResponse:nil error:nil];
@@ -189,11 +189,11 @@
     {
         [self recordFailureWithDescription:@"Wrong domain" inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
-    if ([NSString isStringNilOrBlank:error.errorDetails])
+    if ([NSString adIsStringNilOrBlank:error.errorDetails])
     {
         [self recordFailureWithDescription:@"Empty error details." inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
-    if (![error.errorDetails containsString:@"Unauthorized"])
+    if (![error.errorDetails adContainsString:@"Unauthorized"])
     {
         [self recordFailureWithDescription:@"Wrong error details." inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
@@ -214,7 +214,7 @@
 
 -(void)testParametersFromResponseDifferentHeaderCase
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     //HTTP headers are case-insensitive. This test validates that the underlying code is aware:
     NSURL *url = [NSURL URLWithString:@"http://www.example.com"];
     NSDictionary* headerFields1 = [NSDictionary dictionaryWithObject:@"Bearer authorization_uri=\"https://www.example.com\""
@@ -358,7 +358,7 @@
 
 -(void) testParametersFromResponseAuthenticateHeaderValid
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     ADAuthenticationError* error;
     ADAuthenticationParameters* params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\"https://login.windows.net/common\", resource_uri=\"foo.com\", anotherParam=\"Indeed, another param=5\" "
                                                                             error:&error];

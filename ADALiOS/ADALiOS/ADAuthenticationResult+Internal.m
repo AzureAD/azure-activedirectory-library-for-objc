@@ -71,7 +71,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
             //Bad item, return error:
             return [ADAuthenticationResult resultFromError:error];
         }
-        if ([NSString isStringNilOrBlank:item.accessToken])
+        if ([NSString adIsStringNilOrBlank:item.accessToken])
         {
             //Bad item, the access token should be accurate, else an error should be
             //reported instead of this creator:

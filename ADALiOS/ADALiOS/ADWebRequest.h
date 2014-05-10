@@ -16,8 +16,8 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@class HTTPWebRequest;
-@class HTTPWebResponse;
+@class ADWebRequest;
+@class ADWebResponse;
 
 extern NSString *const HTTPGet;
 extern NSString *const HTTPPost;
@@ -51,7 +51,7 @@ extern NSString *const HTTPPost;
 - (id)initWithURL: (NSURL*)url
     correlationId: (NSUUID*) correlationId;
 
-- (void)send:( void (^)( NSError *, HTTPWebResponse *) )completionHandler;
+- (void)send:( void (^)( NSError *, ADWebResponse *) )completionHandler;
 
 @end
 

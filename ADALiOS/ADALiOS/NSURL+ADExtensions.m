@@ -24,9 +24,9 @@
 const unichar fragmentSeparator = '#';
 const unichar queryStringSeparator = '?';
 
-@implementation NSURL ( IPAL )
+@implementation NSURL ( ADAL )
 
-- (NSString *)authority
+- (NSString *) adAuthority
 {
     NSInteger port = self.port.integerValue;
     
@@ -62,10 +62,10 @@ const unichar queryStringSeparator = '?';
     NSString* last = [parts lastObject];
     if (endSeparator)
     {
-        long index = [last findCharacter:endSeparator start:0];
+        long index = [last adFindCharacter:endSeparator start:0];
         last = [last substringWithRange:(NSRange){0, index}];
     }
-    if ([NSString isStringNilOrBlank:last])
+    if ([NSString adIsStringNilOrBlank:last])
     {
         return nil;
     }
@@ -74,13 +74,13 @@ const unichar queryStringSeparator = '?';
 }
 
 // Decodes parameters contained in a URL fragment
-- (NSDictionary *)fragmentParameters
+- (NSDictionary *) adFragmentParameters
 {
     return [self getParametersAfter:fragmentSeparator until:0];
 }
 
 // Decodes parameters contains in a URL query
-- (NSDictionary *)queryParameters
+- (NSDictionary *) adQueryParameters
 {
     return [self getParametersAfter:queryStringSeparator until:fragmentSeparator];
 }

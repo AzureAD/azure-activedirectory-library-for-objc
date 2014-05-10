@@ -15,7 +15,7 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
-
+#import "ADALiOS.h"
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
@@ -23,10 +23,10 @@
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
 #import <libkern/OSAtomic.h>
-#import "NSURLExtensions.h"
-#import "NSDictionaryExtensions.h"
-#import "HTTPWebRequest.h"
-#import "HTTPWebResponse.h"
+#import "NSURL+ADExtensions.h"
+#import "NSDictionary+ADExtensions.h"
+#import "ADWebRequest.h"
+#import "ADWebResponse.h"
 #import "ADInstanceDiscovery.h"
 #import "ADTokenCacheStoreItem.h"
 #import "ADTokenCacheStoreKey.h"
@@ -86,7 +86,7 @@ if (![self checkAndHandleBadArgument:ARG \
                      argumentName: (NSString*) argumentName
                   completionBlock: (ADAuthenticationCallback)completionBlock
 {
-    if ([NSString isStringNilOrBlank:argumentValue])
+    if ([NSString adIsStringNilOrBlank:argumentValue])
     {
         ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:argumentError];
@@ -267,7 +267,7 @@ if (![self checkAndHandleBadArgument:ARG \
         return;
     }
     
-    if ([NSString isStringNilOrBlank:item.refreshToken])
+    if ([NSString adIsStringNilOrBlank:item.refreshToken])
     {
         completionBlock([ADAuthenticationResult resultFromError:
                          [ADAuthenticationError unexpectedInternalError:@"Attempting to use an item without refresh token."]]);
@@ -429,7 +429,7 @@ if (![self checkAndHandleBadArgument:ARG \
         {
             return item;
         }
-        else if (![NSString isStringNilOrBlank:item.refreshToken])
+        else if (![NSString adIsStringNilOrBlank:item.refreshToken])
         {
             return item;//Suitable direct refresh token found.
         }
@@ -441,7 +441,7 @@ if (![self checkAndHandleBadArgument:ARG \
     }
     *useAccessToken = false;//No item with suitable access token exists
     
-    if (![NSString isStringNilOrBlank:key.resource])
+    if (![NSString adIsStringNilOrBlank:key.resource])
     {
         //The request came for specific resource. Try returning a multi-resource refresh token:
         ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:self.authority
@@ -671,6 +671,7 @@ if (![self checkAndHandleBadArgument:ARG \
 
         //In case of success we use explicitly the item that comes back in the result:
         cacheItem = result.tokenCacheStoreItem;
+        NSString* savedRefreshToken = cacheItem.refreshToken;
         if (result.multiResourceRefreshToken)
         {
             AD_LOG_VERBOSE_F(@"Token cache store", @"Storing multi-resource refresh token for authority: %@", self.authority);
@@ -692,6 +693,7 @@ if (![self checkAndHandleBadArgument:ARG \
         
         AD_LOG_VERBOSE_F(@"Token cache store", @"Storing access token for resource: %@", cacheItem.resource);
         [self.tokenCacheStore addOrUpdateItem:cacheItem error:nil];
+        cacheItem.refreshToken = savedRefreshToken;//Restore for the result
     }
     else
     {
@@ -787,11 +789,11 @@ if (![self checkAndHandleBadArgument:ARG \
                                          clientId, OAUTH2_CLIENT_ID,
                                          nil];
 
-//The clang analyzer has some issues with the logic inside isStringNilOrBlank, as it is defined in a category.
+//The clang analyzer has some issues with the logic inside adIsStringNilOrBlank, as it is defined in a category.
 #ifndef __clang_analyzer__
-    if (![NSString isStringNilOrBlank:resource])
+    if (![NSString adIsStringNilOrBlank:resource])
 #else
-    if (resource && ![NSString isStringNilOrBlank:resource])
+    if (resource && ![NSString adIsStringNilOrBlank:resource])
 #endif
     {
         [request_data setObject:resource forKey:OAUTH2_RESOURCE];
@@ -898,7 +900,7 @@ if (![self checkAndHandleBadArgument:ARG \
     }
     
     NSString* accessToken = [response objectForKey:OAUTH2_ACCESS_TOKEN];
-    if (![NSString isStringNilOrBlank:accessToken])
+    if (![NSString adIsStringNilOrBlank:accessToken])
     {
         item.authority = self.authority;
         item.accessToken = accessToken;
@@ -941,7 +943,7 @@ if (![self checkAndHandleBadArgument:ARG \
         item.refreshToken    = [response objectForKey:OAUTH2_REFRESH_TOKEN];
         NSString* resource   = [response objectForKey:OAUTH2_RESOURCE];
         BOOL multiResourceRefreshToken = NO;
-        if (![NSString isStringNilOrBlank:resource])
+        if (![NSString adIsStringNilOrBlank:resource])
         {
             if (item.resource && ![item.resource isEqualToString:resource])
             {
@@ -949,7 +951,7 @@ if (![self checkAndHandleBadArgument:ARG \
             }
             //Currently, if the server has returned a "resource" parameter and we have a refresh token,
             //this token is a multi-resource refresh token:
-            multiResourceRefreshToken = ![NSString isStringNilOrBlank:item.refreshToken];
+            multiResourceRefreshToken = ![NSString adIsStringNilOrBlank:item.refreshToken];
         }
         [ADLogger logToken:item.refreshToken
                  tokenType:multiResourceRefreshToken ? @"multi-resource refresh token": @"refresh token"
@@ -1029,9 +1031,9 @@ if (![self checkAndHandleBadArgument:ARG \
                                  OAUTH2_REDIRECT_URI, [[redirectUri absoluteString] adUrlFormEncode],
                                  OAUTH2_STATE, state];
     
-    [startUrl appendFormat:@"&%@", [[ADLogger adalId] URLFormEncode]];
+    [startUrl appendFormat:@"&%@", [[ADLogger adalId] adURLFormEncode]];
 
-    if (![NSString isStringNilOrBlank:userId])
+    if (![NSString adIsStringNilOrBlank:userId])
     {
         [startUrl appendFormat:@"&%@=%@", OAUTH2_LOGIN_HINT, [userId adUrlFormEncode]];
     }
@@ -1040,9 +1042,9 @@ if (![self checkAndHandleBadArgument:ARG \
         //Force the server to ignore cookies, by specifying explicitly the prompt behavior:
         [startUrl appendString:@"&prompt=login"];
     }
-    if (![NSString isStringNilOrBlank:queryParams])
+    if (![NSString adIsStringNilOrBlank:queryParams])
     {//Append the additional query parameters if specified:
-        queryParams = queryParams.trimmedString;
+        queryParams = queryParams.adTrimmedString;
         
         //Add the '&' for the additional params if not there already:
         if ([queryParams hasPrefix:@"&"])
@@ -1064,7 +1066,7 @@ if (![self checkAndHandleBadArgument:ARG \
 {
     //First check for explicit OAuth2 protocol error:
     NSString* serverOAuth2Error = [dictionary objectForKey:OAUTH2_ERROR];
-    if (![NSString isStringNilOrBlank:serverOAuth2Error])
+    if (![NSString adIsStringNilOrBlank:serverOAuth2Error])
     {
         NSString* errorDetails = [dictionary objectForKey:OAUTH2_ERROR_DESCRIPTION];
         // Error response from the server
@@ -1079,13 +1081,13 @@ if (![self checkAndHandleBadArgument:ARG \
 //Ensures that the state comes back in the response:
 -(BOOL) verifyStateFromDictionary: (NSDictionary*) dictionary
 {
-    NSDictionary *state = [NSDictionary URLFormDecode:[[dictionary objectForKey:OAUTH2_STATE] adBase64UrlDecode]];
+    NSDictionary *state = [NSDictionary adURLFormDecode:[[dictionary objectForKey:OAUTH2_STATE] adBase64UrlDecode]];
     if (state.count != 0)
     {
         NSString *authorizationServer = [state objectForKey:@"a"];
         NSString *resource            = [state objectForKey:@"r"];
         
-        if (![NSString isStringNilOrBlank:authorizationServer] && ![NSString isStringNilOrBlank:resource])
+        if (![NSString adIsStringNilOrBlank:authorizationServer] && ![NSString adIsStringNilOrBlank:resource])
         {
             AD_LOG_VERBOSE_F(@"State", @"The authorization server returned the following state: %@", state);
             return YES;
@@ -1138,10 +1140,10 @@ if (![self checkAndHandleBadArgument:ARG \
          if (!error)
          {
              //Try both the URL and the fragment parameters:
-             NSDictionary *parameters = [end fragmentParameters];
+             NSDictionary *parameters = [end adFragmentParameters];
              if ( parameters.count == 0 )
              {
-                 parameters = [end queryParameters];
+                 parameters = [end adQueryParameters];
              }
              
              //OAuth2 error may be passed by the server:
@@ -1151,7 +1153,7 @@ if (![self checkAndHandleBadArgument:ARG \
                  //Note that we do not enforce the state, just log it:
                  [self verifyStateFromDictionary:parameters];
                  code = [parameters objectForKey:OAUTH2_CODE];
-                 if ([NSString isStringNilOrBlank:code])
+                 if ([NSString adIsStringNilOrBlank:code])
                  {
                      error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
                                                                     protocolCode:nil
@@ -1219,9 +1221,9 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
 
     AD_LOG_VERBOSE_F(@"Post request", @"Sending POST request to %@ with client-request-id %@", endPoint, [requestCorrelationId UUIDString]);
     
-    webRequest.body = [[request_data URLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
+    webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
     
-    [webRequest send:^( NSError *error, HTTPWebResponse *webResponse ) {
+    [webRequest send:^( NSError *error, ADWebResponse *webResponse ) {
         // Request completion callback
         NSMutableDictionary *response = [NSMutableDictionary new];
         
@@ -1230,7 +1232,7 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
             NSDictionary* headers = webResponse.headers;
             //In most cases the correlation id is returned as a separate header
             NSString* responseCorrelationId = [headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE];
-            if (![NSString isStringNilOrBlank:responseCorrelationId])
+            if (![NSString adIsStringNilOrBlank:responseCorrelationId])
             {
                 [response setObject:responseCorrelationId forKey:OAUTH2_CORRELATION_ID_RESPONSE];//Add it to the dictionary to be logged and checked later.
             }
@@ -1255,7 +1257,8 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
                             if (jsonError)
                             {
                                 // Unrecognized JSON response
-                                AD_LOG_WARN(@"JSON deserialization", jsonError.localizedDescription);
+                                NSString* bodyStr = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
+                                AD_LOG_ERROR_F(@"JSON deserialization", jsonError.code, @"Error: %@. Body text: '%@'. HTTPS Code: %ld. Response correlation id: %@", jsonError.description, bodyStr, (long)webResponse.statusCode, responseCorrelationId);
                                 adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
                             }
                             else
@@ -1300,7 +1303,7 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
 - (NSString *)encodeProtocolStateWithResource:(NSString *)resource scope:(NSString *)scope
 {
     return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:self.authority, @"a", resource, @"r", scope, @"s", nil]
-             URLFormEncode] adBase64UrlEncode];
+             adURLFormEncode] adBase64UrlEncode];
 }
 
 

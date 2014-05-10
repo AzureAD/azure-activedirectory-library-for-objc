@@ -83,7 +83,7 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
     NSError* rgError = nil;
     __block ADAuthenticationError* adError = nil;
     
-    if ([NSString isStringNilOrBlank:headerContents])
+    if ([NSString adIsStringNilOrBlank:headerContents])
     {
         adError = [self invalidHeader:headerContents];
     }
