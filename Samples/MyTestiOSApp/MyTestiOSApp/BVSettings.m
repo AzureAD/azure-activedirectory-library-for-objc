@@ -52,7 +52,9 @@ NSString* const sAADTestInstance = @"AAD Instance";
         }
         BVTestInstance* instance = [[BVTestInstance alloc] initWithDictionary:instanceData];
         [testAuthorities setObject:instance forKey:instanceName];
+#if !__has_feature(objc_arc)
         [instance release];
+#endif
     }
     self->_testAuthorities = testAuthorities;
     

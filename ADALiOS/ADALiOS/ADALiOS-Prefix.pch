@@ -32,6 +32,16 @@
     #import "NSString+ADHelperMethods.h"
     #import "ADAuthenticationError.h"
 
+#if __has_feature(objc_arc_weak)
+#   define weak_delegate   weak
+#   define __weak_delegate __weak
+#   define weak_property   weak
+#else
+#   define weak_delegate   unsafe_unretained
+#   define __weak_delegate __unsafe_unretained
+#   define weak_property   unsafe_unretained
+#endif
+
 //From IPAL library:
 #ifndef DebugLog
 #ifdef DEBUG

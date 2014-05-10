@@ -613,7 +613,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(allItems.count == 1);
     ADTokenCacheStoreItem* item = [allItems objectAtIndex:0];
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];//Expire it.
-    ADAuthenticationError* error = nil;
+    error = nil;
     [mDefaultTokenCache addOrUpdateItem:item error:&error];//Udpate the cache.
     ADAssertNoError;
     //The access token is expired and the refresh token is nil, so it should fail:

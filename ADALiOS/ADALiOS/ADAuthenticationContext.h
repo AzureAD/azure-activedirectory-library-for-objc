@@ -36,8 +36,10 @@ typedef NSViewController   ViewController;
 
 #if __has_feature(objc_arc_weak)
 #   define weak_property   weak
+#   define __weak_delegate __weak
 #else
 #   define weak_property   unsafe_unretained
+#   define __weak_delegate __unsafe_unretained
 #endif
 
 typedef enum
@@ -75,7 +77,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     NSString *_authority;
     NSUUID   *_correlationId;
     id<ADTokenCacheStoring> _tokenCacheStore;
-    ViewController *_parentController;
+    __weak_delegate ViewController *_parentController;
     BOOL _validateAuthority;
 }
 

@@ -22,6 +22,9 @@
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADAuthenticationContext.h"
 #import "../ADALiOS/ADKeychainTokenCacheStore.h"
+#if !(TARGET_OS_IPHONE)
+#import "../ADALiOS/ADDefaultTokenCacheStorePersistance.h"
+#endif
 
 dispatch_semaphore_t sThreadsSemaphore;//Will be signalled when the last thread is done. Should be initialized and cleared in the test.
 volatile int32_t sThreadsFinished;//The number of threads that are done. Should be set to 0 at the beginning of the test.
@@ -421,86 +424,11 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     }
 }
 
-//Waits for persistence
--(void) waitForPersistenceWithLine:(int)line
-{
-    if (!mStore.cacheLocation)
-        return;//There is no persistence on this platform
-    NSDate* start = [NSDate dateWithTimeIntervalSinceNow:0];
-
-    NSTimeInterval elapsed = 0;
-    while (elapsed < sPersistenceTimeout && [mStore getArchivedRevision] < [mStore getCurrenRevision])
-    {
-        usleep(1000);//In microseconds, so sleep 1 milisecond at a time.
-        elapsed = -[start timeIntervalSinceNow];//The method returns negative value
-    }
-    
-    NSLog(@"Waiting for persistence to catch up took: %f", elapsed);
-    if ([mStore getArchivedRevision] < [mStore getCurrenRevision])
-    {
-        [self recordFailureWithDescription:@"Timeout while waiting for the persistence to catch up." inFile:@"" __FILE__ atLine:line expected:NO];
-    }
-    if ([mStore getArchivedRevision] > [mStore getCurrenRevision])
-    {
-        [self recordFailureWithDescription:@"Misaligned archived and current revisions." inFile:@"" __FILE__ atLine:line expected:NO];
-    }
-}
-
-//Waits and checks that the cache was persisted.
-//The logs should be cleared before performing the operation that leads to persistence.
--(void) validateAsynchronousPersistenceWithLine: (int) line
-{
-    [self waitForPersistenceWithLine:__LINE__];
-    if (mStore.cacheLocation)
-    {
-        //If persistence is supported:
-        [self assertLogsContain:sPersisted
-                        logPart:TEST_LOG_INFO
-                           file:__FILE__
-                           line:line];
-    }
-}
-
-//Ensures that the cache is eventually persisted when modified:
--(void) testAsynchronousPersistence
-{
-    //Start clean:
-    [self waitForPersistenceWithLine:__LINE__];
-    [self clearLogs];
-
-    //Add an item:
-    ADTokenCacheStoreItem* item = [self createCacheItem];
-    ADAuthenticationError* error;
-    [mStore addOrUpdateItem:item error:&error];
-    ADAssertNoError;
-    [self validateAsynchronousPersistenceWithLine:__LINE__];
-    
-    //Remove an item:
-    error = nil;
-    [self clearLogs];
-    [mStore removeItem:item error:&error];
-    ADAssertNoError;
-    [self validateAsynchronousPersistenceWithLine:__LINE__];
-    
-    error = nil;
-    [self clearLogs];
-    [mStore addOrUpdateItem:item error:&error];
-    ADAssertNoError;
-    [self validateAsynchronousPersistenceWithLine:__LINE__];
-    
-    error = nil;
-    [self clearLogs];
-    [mStore removeAll];
-    [self validateAsynchronousPersistenceWithLine:__LINE__];
-}
-
 //Add large number of items to the cache. Acts as a mini-stress test too
 //Checks that the persistence catches up and that the number of persistence operations is
 //disproportionately smaller than the cache updates:
 -(void) testBulkPersistence
 {
-    if (!mStore.cacheLocation)
-        return;//There is no persistence on this platform, cannot verify the assumptions below
     long numItems = 500;//Keychain is relatively slow
     ADTokenCacheStoreItem* original = [self createCacheItem];
     NSMutableArray* allItems = [NSMutableArray new];
@@ -517,20 +445,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
         [mStore addOrUpdateItem:item error:&error];
         ADAssertNoError;
     }
-
-
-//Plays with the persistence conditions:
--(void) testEnsureArchived
-{
-    if (!mStore.cacheLocation)
-        return;//There is no persistence on this platform. Ensure archived won't work
-    [self waitForPersistenceWithLine:__LINE__];
-    
-    ADAuthenticationError* error;
-    [self clearLogs];
-    
-    //All up to date, attempt persistance:
-    XCTAssertTrue([mStore ensureArchived:&error]);
     //Restore:
     [mStore removeAllWithError:&error];
     ADAssertNoError;
@@ -570,10 +484,21 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 -(void) testInitializer
 {
-    if (mStore.cacheLocation)
+    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+#if TARGET_OS_IPHONE
+    {
+        ADKeychainTokenCacheStore* simple = [ADKeychainTokenCacheStore new];
+        XCTAssertNotNil(simple);
+        XCTAssertNil(simple.sharedGroup);
+        NSString* group = @"test";
+        ADKeychainTokenCacheStore* withGroup = [[ADKeychainTokenCacheStore alloc] initWithGroup:group];
+        XCTAssertNotNil(withGroup);
+        ADAssertStringEquals(withGroup.sharedGroup, group);
+    }
+#else
     {
         //The assumptions below apply to platforms where persistence is required:
-        [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+        
         XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:nil]);
         XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:@"   "]);
         
@@ -583,28 +508,15 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
         ADAssertStringEquals(instance.cacheLocation, location);
         XCTAssertThrows([instance addInitialCacheItems], "This method should call non-implmented unpersistence.");
     }
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    ADKeychainTokenCacheStore* simple = [ADKeychainTokenCacheStore new];
-    XCTAssertNotNil(simple);
-    XCTAssertNil(simple.sharedGroup);
-    NSString* group = @"test";
-    ADKeychainTokenCacheStore* withGroup = [[ADKeychainTokenCacheStore alloc] initWithGroup:group];
-    XCTAssertNotNil(withGroup);
-    ADAssertStringEquals(withGroup.sharedGroup, group);
+#endif
 }
 
+#if TARGET_OS_IPHONE
 -(void) testsharedKeychainGroupProperty
 {
-    if (!mStore.cacheLocation)
-        return;//No persistence on the current platform
-    ADAuthenticationError* error;
-
-    //Start clean, add, remove items to ensure serialization of empty array:
-    ADTokenCacheStoreItem* original = [self createCacheItem];
-    [mStore addOrUpdateItem:original error:&error];
     //Put an item in the cache:
     ADAssertLongEquals(0, [self count]);
-    ADTokenCacheStoreItem* item = [self createCacheItem];
+    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
     ADAuthenticationError* error = nil;
     [mStore addOrUpdateItem:item error:&error];
     ADAssertNoError;
@@ -613,43 +525,23 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     //Test the property:
     ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
     ADKeychainTokenCacheStore* keychainStore = (ADKeychainTokenCacheStore*)mStore;
-    XCTAssertNil(settings.sharedKeychainGroup);
+    XCTAssertNil(settings.sharedCacheKeychainGroup);
     XCTAssertNil(keychainStore.sharedGroup);
     NSString* groupName = @"com.microsoft.ADAL";
-    settings.sharedKeychainGroup = groupName;
-    ADAssertStringEquals(settings.sharedKeychainGroup, groupName);
+    settings.sharedCacheKeychainGroup = groupName;
+    ADAssertStringEquals(settings.sharedCacheKeychainGroup, groupName);
     XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
     ADAssertStringEquals(keychainStore.sharedGroup, groupName);
     
     //Restore back to default
     keychainStore.sharedGroup = nil;
     XCTAssertNil(keychainStore.sharedGroup);
-    XCTAssertNil(settings.sharedKeychainGroup);
+    XCTAssertNil(settings.sharedCacheKeychainGroup);
     [mStore removeAllWithError:&error];
     ADAssertNoError;
-    [self waitForPersistenceWithLine:__LINE__];
-    XCTAssertTrue(mStore.allItems.count == 4);
-
-    
-    //Stop serialization clear the cache and read it from the file,
-    //make sure that the file has the same values:
-    [mStore setArchivedRevision:UINT64_MAX];//Temporarily disable serialization
-    [mStore removeAll];
-    XCTAssertTrue(mCache.count == 0);
-    result = [mStore addInitialCacheItems];//Load manually
-    XCTAssertTrue(result);
-    XCTAssertTrue(mStore.allItems.count == 4);
-    [self verifyCacheContainsItem:authority1one];
-    [self verifyCacheContainsItem:authority1two];
-    [self verifyCacheContainsItem:authority2];
-    [self verifyCacheContainsItem:clientId2];
-    [mStore setArchivedRevision:[mStore getCurrenRevision]];//Restore the serialization
-    
-    //Clean up:
-    [mStore removeAll];
-    ADAssertNoError;
-    [self waitForPersistenceWithLine:__LINE__];
     ADAssertLongEquals(0, [self count]);
 }
+#endif//TARGET_OS_IPHONE
+
 
 @end

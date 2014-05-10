@@ -142,7 +142,6 @@
 		8BA42B0117E3C150002D206E /* MyTestiOSApp */ = {
 			isa = PBXGroup;
 			children = (
-				8BB74C5018F33A97002AE21C /* MyTestiOSApp.entitlements */,
 				8B87548D18997DB70061999F /* BVTestInstance.h */,
 				8B87548E18997DB70061999F /* BVTestInstance.m */,
 				8B87548A189978350061999F /* BVSettings.h */,

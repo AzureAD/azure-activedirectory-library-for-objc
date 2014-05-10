@@ -40,7 +40,7 @@ static byte rgbDecodeTable[128] = {                         // character code
 };
 
 //Checks that all bytes inside the format are valid base64 characters:
-BOOL validBase64Characters(const byte* data, const int size)
+static BOOL validBase64Characters(const byte* data, const int size)
 {
     for (int i = 0; i < size; ++i)
     {

@@ -23,12 +23,13 @@
 #import "ADAuthenticationSettings.h"
 
 
-static NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current view controller";
-static NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
+NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current view controller";
+NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
 
 
 // Private interface declaration
 @interface ADAuthenticationBroker () <ADAuthenticationDelegate>
+
 @end
 
 @implementation ADAuthenticationBroker
@@ -83,6 +84,7 @@ correlationId:(NSUUID *)correlationId
    completion:(ADBrokerCallback)completionBlock
 {
 #pragma unused(fullScreen)
+#pragma unused(parent)
     THROW_ON_NIL_ARGUMENT(startURL);
     THROW_ON_NIL_ARGUMENT(endURL);
     THROW_ON_NIL_ARGUMENT(correlationId);

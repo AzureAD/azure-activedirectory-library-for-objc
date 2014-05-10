@@ -501,6 +501,8 @@ if (![self checkAndHandleBadArgument:ARG \
         __block ADAuthenticationCallback localCompletionBlock = SAFE_ARC_BLOCK_COPY( completionBlock );
         [[ADInstanceDiscovery sharedInstance] validateAuthority:self.authority correlationId:correlationId completionBlock:^(BOOL validated, ADAuthenticationError *error)
         {
+            //Error should always be raised if the authority cannot be validated
+#pragma unused(validated)
             if (error)
             {
                 localCompletionBlock([ADAuthenticationResult resultFromError:error]);
@@ -754,6 +756,8 @@ if (![self checkAndHandleBadArgument:ARG \
         
         [[ADInstanceDiscovery sharedInstance] validateAuthority:self.authority correlationId:correlationId completionBlock:^(BOOL validated, ADAuthenticationError *error)
          {
+             //Error should always be set if the authority cannot be validated
+#pragma unused(validated)
              if (error)
              {
                  localCompletionBlock([ADAuthenticationResult resultFromError:error]);
@@ -1165,10 +1169,11 @@ if (![self checkAndHandleBadArgument:ARG \
                   resource: (NSString *) resource
                   clientId: (NSString*) clientId
                redirectUri: (NSURL*) redirectUri
-                     scope: (NSString*) scope
+                     scope: (NSString*) scope //For future use
              correlationId: (NSUUID*) correlationId
                 completion: (ADAuthenticationCallback) completionBlock
 {
+#pragma unused(scope)
     THROW_ON_NIL_EMPTY_ARGUMENT(code);
     THROW_ON_NIL_ARGUMENT(correlationId);//Should be set by the caller
     AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code for resource: %@", resource);

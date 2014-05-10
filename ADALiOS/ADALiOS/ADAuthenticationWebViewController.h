@@ -42,7 +42,7 @@ typedef WebView   WebViewType;
     NSString *_endURL;
     BOOL      _complete;
     
-    id<ADAuthenticationDelegate> _delegate;
+    __weak id<ADAuthenticationDelegate> _delegate;
 }
 
 

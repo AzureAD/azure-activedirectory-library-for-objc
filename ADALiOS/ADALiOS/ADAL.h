@@ -60,7 +60,7 @@
 #if __has_feature(objc_arc)
 #   define SAFE_ARC_PROP_RETAIN strong
 #   define SAFE_ARC_RETAIN(x) (x)
-#   define _SAFE_ARC_RELEASE(x)
+#   define SAFE_ARC_RELEASE(x)
 #   define SAFE_ARC_AUTORELEASE(x) (x)
 #   define SAFE_ARC_BLOCK_COPY(x) (x)
 #   define SAFE_ARC_BLOCK_RELEASE(x)
@@ -81,15 +81,16 @@
 #   define SAFE_ARC_AUTORELEASE_POOL_END() [pool release];
 #   define SAFE_ARC_DISPATCH_RETAIN(x) dispatch_retain((x))
 #   define SAFE_ARC_DISPATCH_RELEASE(x) dispatch_release((x))
-#endif
-
-#ifdef DEBUG
+# ifdef DEBUG
 //Crash the application if messages are sent to the released variable, but only in DEBUG mode
 #   define SAFE_ARC_RELEASE(x) { _SAFE_ARC_RELEASE(x); (x) = (id)0x21; }
-#else
+# else
 //Set the variable to nil in release mode to avoid crashing, as obj-c allows sending messages to nil pointers:
 #   define SAFE_ARC_RELEASE(x) { _SAFE_ARC_RELEASE(x); (x) = nil; }
+# endif
 #endif
+
+
 
 #pragma mark - Other macros
 

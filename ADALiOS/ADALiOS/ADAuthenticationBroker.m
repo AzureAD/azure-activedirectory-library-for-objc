@@ -25,8 +25,10 @@
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
 
-static NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current view controller";
-static NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
+NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current view controller";
+NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
+NSString *const AD_IPAD_STORYBOARD = @"ADAL_iPad_Storyboard";
+NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 
 // Private interface declaration
 @interface ADAuthenticationBroker () <ADAuthenticationDelegate>
@@ -34,12 +36,6 @@ static NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle 
 
 // Implementation
 @implementation ADAuthenticationBroker
-{
-    ADAuthenticationViewController    *_authenticationPageController;
-    ADAuthenticationWebViewController *_authenticationWebViewController;
-    
-    void (^_completionBlock)( ADAuthenticationError *, NSURL *);
-}
 
 #pragma mark Shared Instance Methods
 

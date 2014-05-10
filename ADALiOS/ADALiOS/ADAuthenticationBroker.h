@@ -20,6 +20,7 @@
 
 @class ADAuthenticationError;
 @class ADAuthenticationWindowController;
+@class ADAuthenticationViewController;
 @class ADAuthenticationWebViewController;
 
 typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
@@ -28,8 +29,12 @@ typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 {
 // OSX Universal Compatibility
 @private
+#if TARGET_OS_IPHONE
+    ADAuthenticationViewController  *_authenticationPageController;
+#else
     ADAuthenticationWindowController  *_authenticationPageController;
     NSModalSession                     _authenticationSession;
+#endif
     ADAuthenticationWebViewController *_authenticationWebViewController;
     
     void (^_completionBlock)( ADAuthenticationError *, NSURL *);

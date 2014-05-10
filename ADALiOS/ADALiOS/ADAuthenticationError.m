@@ -52,6 +52,9 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                 code:(NSInteger)code
             userInfo:(NSDictionary*)dict
 {
+#pragma unused(domain)
+#pragma unused(code)
+#pragma unused(dict)
     //Overrides the parent class and ensures that it throws. This one should not be called.
     [super doesNotRecognizeSelector:_cmd];
     return nil;

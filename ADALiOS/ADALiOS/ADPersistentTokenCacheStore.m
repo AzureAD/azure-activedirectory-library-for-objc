@@ -104,6 +104,8 @@ static const uint64_t MAX_REVISION = UINT64_MAX;
 -(BOOL) persistWithItems: (NSArray*) flatItemsList
                    error: (ADAuthenticationError *__autoreleasing *) error
 {
+#pragma unused(flatItemsList)
+#pragma unused(error)
     [self doesNotRecognizeSelector:_cmd];//Should be overridden by derived classes
     return NO;
 }
@@ -230,8 +232,9 @@ static const uint64_t MAX_REVISION = UINT64_MAX;
     return SAFE_ARC_AUTORELEASE( items );
 }
 
--(NSArray*) allItems
+-(NSArray*) allItemsWithError:(ADAuthenticationError **)error
 {
+#pragma unused(error)
     API_ENTRY;
     
     return [self allItemsWithRevision:nil];
@@ -275,12 +278,14 @@ static const uint64_t MAX_REVISION = UINT64_MAX;
         //Note that the userId argument can be nil here, if userInformation or userId
         //is nil. In this case, the userId of the matching items will be ignored:
         [self removeItemWithKey:key
-                         userId:item.userInformation.userId];
+                         userId:item.userInformation.userId
+                          error:error];
     }
 }
 
--(void) removeAll
+-(void) removeAllWithError:(ADAuthenticationError **)error
 {
+#pragma unused(error)
     API_ENTRY;
     
     @synchronized(mCache)
@@ -296,7 +301,9 @@ static const uint64_t MAX_REVISION = UINT64_MAX;
 
 -(ADTokenCacheStoreItem*) getItemWithKey: (ADTokenCacheStoreKey*) key
                                   userId: (NSString *)userId
+                                   error: (ADAuthenticationError**) error
 {
+#pragma unused(error)
     API_ENTRY;
     if (!key)
     {
@@ -338,7 +345,9 @@ static const uint64_t MAX_REVISION = UINT64_MAX;
 
 -(void) removeItemWithKey: (ADTokenCacheStoreKey*) key
                    userId: (NSString*) userId
+                    error:(ADAuthenticationError **)error
 {
+#pragma unused(error)
     API_ENTRY;
     
     if (!key)
@@ -386,7 +395,9 @@ static const uint64_t MAX_REVISION = UINT64_MAX;
 }
 
 -(NSArray*) getItemsWithKey: (ADTokenCacheStoreKey*)key
+                      error:(ADAuthenticationError **)error
 {
+#pragma unused(error)
     API_ENTRY;
     NSMutableArray* array = [NSMutableArray new];
     if (!key)

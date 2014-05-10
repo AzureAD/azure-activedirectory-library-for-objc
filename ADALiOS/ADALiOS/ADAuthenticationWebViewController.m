@@ -20,13 +20,6 @@
 #import "ADAuthenticationWebViewController.h"
 
 @implementation ADAuthenticationWebViewController
-{
-    __weak WebViewType *_webView;
-    
-    NSURL    *_startURL;
-    NSString *_endURL;
-    BOOL      _complete;
-}
 
 #pragma mark - Initialization
 
