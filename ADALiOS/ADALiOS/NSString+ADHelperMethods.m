@@ -306,7 +306,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 -(long) adFindNonWhiteCharacterAfter: (long) startIndex
 {
     NSCharacterSet *nonWhiteCharSet = SAFE_ARC_RETAIN( [NSString nonWhiteCharSet] );
-    long            result          = [self findCharactersFromSet:nonWhiteCharSet start:startIndex];
+    long            result          = [self adFindCharactersFromSet:nonWhiteCharSet start:startIndex];
     
     SAFE_ARC_RELEASE( nonWhiteCharSet );
     

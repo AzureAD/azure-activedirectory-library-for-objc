@@ -337,7 +337,7 @@ static const uint64_t MAX_REVISION = UINT64_MAX;
         }
         else
         {
-            ADTokenCacheStoreItem* item = [dictionary objectForKey:[[userId trimmedString] lowercaseString]];
+            ADTokenCacheStoreItem* item = [dictionary objectForKey:[[userId adTrimmedString] lowercaseString]];
             return SAFE_ARC_AUTORELEASE([item copy]);//May return nil, if item is nil
         }
     }//@synchronized
@@ -379,7 +379,7 @@ static const uint64_t MAX_REVISION = UINT64_MAX;
             return;
         }
         
-        NSString* userKey = [[userId trimmedString] lowercaseString];
+        NSString* userKey = [[userId adTrimmedString] lowercaseString];
         if ([dictionary objectForKey:userKey] != nil)
         {
             //The item is present, just remove it:
