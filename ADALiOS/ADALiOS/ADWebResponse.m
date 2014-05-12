@@ -18,7 +18,7 @@
 
 #import "ADWebResponse.h"
 
-@implementation HTTPWebResponse
+@implementation ADWebResponse
 
 @synthesize body = _body;
 
