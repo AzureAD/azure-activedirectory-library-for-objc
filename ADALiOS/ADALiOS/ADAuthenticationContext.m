@@ -15,7 +15,7 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
-#import "ADALiOS.h"
+#import "ADAL.h"
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
@@ -875,7 +875,7 @@ if (![self checkAndHandleBadArgument:ARG \
     
     NSString *responseId   = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
     NSUUID   *responseUUID = nil;
-    if (![NSString isStringNilOrBlank:responseId])
+    if (![NSString adIsStringNilOrBlank:responseId])
     {
         responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
         if (!responseUUID)
