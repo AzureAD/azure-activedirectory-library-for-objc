@@ -81,12 +81,13 @@ typedef enum
 
 #if TARGET_OS_IPHONE
 /*! The name of the keychain group to be used if sharing of cache between applications
- is desired. Can be nil. See apple's documentation for keychain groups: such groups 
- require certain entitlements to be set by the applications. Also, access to the items in this group
- is only given to the applications from the same vendor.
- If this property is not set, on iOS only the current application can read the stored tokens.
- The property has no effect if other cache mechanisms are used (non-keychain). */
+ is desired. Can be nil. The property sets the appropriate value of defaultTokenCacheStore
+ object. See apple's documentation for keychain groups: such groups require certain
+ entitlements to be set by the applications. Additionally, access to the items in this group
+ is only given to the applications from the same vendor. If this property is not set, the behavior
+ will depend on the values in the entitlements file (if such exists) and may not result in token
+ sharing. The property has no effect if other cache mechanisms are used (non-keychain). */
 @property (assign, getter = getSharedKeychainGroup, setter = setSharedKeychainGroup:) NSString* sharedKeychainGroup;
-#endif
+#endif //TARGET_OS_IPHONE
 
 @end

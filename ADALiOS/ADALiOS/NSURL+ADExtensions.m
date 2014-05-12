@@ -17,8 +17,8 @@
 // governing permissions and limitations under the License.
 
 
-#import "NSURLExtensions.h"
-#import "NSDictionaryExtensions.h"
+#import "NSURL+ADExtensions.h"
+#import "NSDictionary+ADExtensions.h"
 #import "NSString+ADHelperMethods.h"
 
 const unichar fragmentSeparator = '#';
@@ -70,7 +70,7 @@ const unichar queryStringSeparator = '?';
         return nil;
     }
     
-    return [NSDictionary URLFormDecode:last];
+    return [NSDictionary adURLFormDecode:last];
 }
 
 // Decodes parameters contained in a URL fragment

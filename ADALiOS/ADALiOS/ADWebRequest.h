@@ -39,7 +39,7 @@ extern NSString *const HTTPPost;
     
     NSUInteger           _timeout;
     
-    void (^_completionHandler)( NSError *, HTTPWebResponse *);
+    void (^_completionHandler)( NSError *, ADWebResponse *);
 }
 
 @property (strong, readonly, nonatomic) NSURL               *URL;

@@ -27,7 +27,7 @@
 
 @property (strong, readonly) NSDictionary *headers;
 @property (strong, readonly) NSData       *body;
-@property (readonly) NSInteger     statusCode;
+@property (readonly) NSInteger            statusCode;
 
 - (id)initWithResponse:(NSHTTPURLResponse *)response data:(NSData *)data;
 

@@ -63,8 +63,8 @@
         if ( parameters == nil )
         {
             parameters = [NSString stringWithFormat:@"%@=%@",
-                           [[((NSString *)key) trimmedString] adUrlFormEncode],
-                           [[((NSString *)value) trimmedString] adUrlFormEncode]];
+                           [[((NSString *)key) adTrimmedString] adUrlFormEncode],
+                           [[((NSString *)value) adTrimmedString] adUrlFormEncode]];
             
             SAFE_ARC_RETAIN( parameters );
         }
@@ -72,8 +72,8 @@
         {
             NSString *newParameters = [NSString stringWithFormat:@"%@&%@=%@",
                                        parameters,
-                                       [[((NSString *)key) trimmedString] adUrlFormEncode],
-                                       [[((NSString *)value) trimmedString] adUrlFormEncode]];
+                                       [[((NSString *)key) adTrimmedString] adUrlFormEncode],
+                                       [[((NSString *)value) adTrimmedString] adUrlFormEncode]];
             
             SAFE_ARC_RELEASE( parameters );
             parameters = SAFE_ARC_RETAIN( newParameters );
