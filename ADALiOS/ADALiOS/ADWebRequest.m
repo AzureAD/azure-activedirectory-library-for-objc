@@ -34,7 +34,7 @@ NSString *const HTTPPost = @"POST";
 
 @end
 
-@implementation HTTPWebRequest
+@implementation ADWebRequest
 
 #pragma mark - Properties
 
@@ -243,7 +243,7 @@ NSString *const HTTPPost = @"POST";
     //
     NSAssert( _response != nil, @"No HTTP Response available" );
     
-    HTTPWebResponse *response = [[HTTPWebResponse alloc] initWithResponse:_response data:_responseData];
+    ADWebResponse *response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
 
     [self completeWithError:nil andResponse:response];
     

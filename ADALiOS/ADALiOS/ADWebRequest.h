@@ -22,7 +22,7 @@
 extern NSString *const HTTPGet;
 extern NSString *const HTTPPost;
 
-@interface HTTPWebRequest : NSObject <NSURLConnectionDelegate>
+@interface ADWebRequest : NSObject <NSURLConnectionDelegate>
 {
 // OSX Universal Compatibility
 @private

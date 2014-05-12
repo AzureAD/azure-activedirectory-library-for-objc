@@ -53,18 +53,18 @@
 		4C60D60E18C697E500F9EAAE /* ADTokenCacheStoring.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5CE18C697E500F9EAAE /* ADTokenCacheStoring.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D61118C697E500F9EAAE /* ADUserInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5D118C697E500F9EAAE /* ADUserInformation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D61218C697E500F9EAAE /* ADUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5D218C697E500F9EAAE /* ADUserInformation.m */; };
-		4C60D61318C697E500F9EAAE /* HTTPWebRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5D318C697E500F9EAAE /* HTTPWebRequest.h */; };
-		4C60D61418C697E500F9EAAE /* HTTPWebRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5D418C697E500F9EAAE /* HTTPWebRequest.m */; };
-		4C60D61518C697E500F9EAAE /* HTTPWebResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5D518C697E500F9EAAE /* HTTPWebResponse.h */; };
-		4C60D61618C697E500F9EAAE /* HTTPWebResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5D618C697E500F9EAAE /* HTTPWebResponse.m */; };
-		4C60D61918C697E500F9EAAE /* NSDictionaryExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5D918C697E500F9EAAE /* NSDictionaryExtensions.h */; };
-		4C60D61A18C697E500F9EAAE /* NSDictionaryExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5DA18C697E500F9EAAE /* NSDictionaryExtensions.m */; };
 		4C60D61B18C697E500F9EAAE /* NSString+ADHelperMethods.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5DB18C697E500F9EAAE /* NSString+ADHelperMethods.h */; };
 		4C60D61C18C697E500F9EAAE /* NSString+ADHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5DC18C697E500F9EAAE /* NSString+ADHelperMethods.m */; };
-		4C60D61D18C697E500F9EAAE /* NSURLExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5DD18C697E500F9EAAE /* NSURLExtensions.h */; };
-		4C60D61E18C697E500F9EAAE /* NSURLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C60D5DE18C697E500F9EAAE /* NSURLExtensions.m */; };
 		4C8AB1C518E2336B005F241A /* ADAuthenticationBrokerOSX.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C8AB1C318E2336B005F241A /* ADAuthenticationBrokerOSX.m */; };
 		4C8AB26218E9F18C005F241A /* ADAuthenticationWebViewControllerOSX.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C8AB26018E9F18C005F241A /* ADAuthenticationWebViewControllerOSX.m */; };
+		8BB1E6961921476300A71479 /* ADWebResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BB1E68E1921476300A71479 /* ADWebResponse.h */; };
+		8BB1E6971921476300A71479 /* ADWebResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB1E68F1921476300A71479 /* ADWebResponse.m */; };
+		8BB1E6981921476300A71479 /* ADWebRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BB1E6901921476300A71479 /* ADWebRequest.h */; };
+		8BB1E6991921476300A71479 /* ADWebRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB1E6911921476300A71479 /* ADWebRequest.m */; };
+		8BB1E69A1921476300A71479 /* NSDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB1E6921921476300A71479 /* NSDictionary+ADExtensions.m */; };
+		8BB1E69B1921476300A71479 /* NSURL+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB1E6931921476300A71479 /* NSURL+ADExtensions.m */; };
+		8BB1E69C1921476300A71479 /* NSDictionary+ADExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BB1E6941921476300A71479 /* NSDictionary+ADExtensions.h */; };
+		8BB1E69D1921476300A71479 /* NSURL+ADExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BB1E6951921476300A71479 /* NSURL+ADExtensions.h */; };
 		8BD92F2718C94E130026A014 /* ADAuthenticationWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8BD92F2618C94E130026A014 /* ADAuthenticationWindowController.xib */; };
 		8BD92F2818C950820026A014 /* ADAuthenticationWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8BD92F2618C94E130026A014 /* ADAuthenticationWindowController.xib */; };
 		8BD92F2B18C9611D0026A014 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD92F2A18C9611D0026A014 /* WebKit.framework */; };
@@ -149,18 +149,18 @@
 		4C60D5CE18C697E500F9EAAE /* ADTokenCacheStoring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADTokenCacheStoring.h; path = ../../ADALiOS/ADALiOS/ADTokenCacheStoring.h; sourceTree = "<group>"; };
 		4C60D5D118C697E500F9EAAE /* ADUserInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADUserInformation.h; path = ../../ADALiOS/ADALiOS/ADUserInformation.h; sourceTree = "<group>"; };
 		4C60D5D218C697E500F9EAAE /* ADUserInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADUserInformation.m; path = ../../ADALiOS/ADALiOS/ADUserInformation.m; sourceTree = "<group>"; };
-		4C60D5D318C697E500F9EAAE /* HTTPWebRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPWebRequest.h; path = ../../ADALiOS/ADALiOS/HTTPWebRequest.h; sourceTree = "<group>"; };
-		4C60D5D418C697E500F9EAAE /* HTTPWebRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HTTPWebRequest.m; path = ../../ADALiOS/ADALiOS/HTTPWebRequest.m; sourceTree = "<group>"; };
-		4C60D5D518C697E500F9EAAE /* HTTPWebResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPWebResponse.h; path = ../../ADALiOS/ADALiOS/HTTPWebResponse.h; sourceTree = "<group>"; };
-		4C60D5D618C697E500F9EAAE /* HTTPWebResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HTTPWebResponse.m; path = ../../ADALiOS/ADALiOS/HTTPWebResponse.m; sourceTree = "<group>"; };
-		4C60D5D918C697E500F9EAAE /* NSDictionaryExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSDictionaryExtensions.h; path = ../../ADALiOS/ADALiOS/NSDictionaryExtensions.h; sourceTree = "<group>"; };
-		4C60D5DA18C697E500F9EAAE /* NSDictionaryExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSDictionaryExtensions.m; path = ../../ADALiOS/ADALiOS/NSDictionaryExtensions.m; sourceTree = "<group>"; };
 		4C60D5DB18C697E500F9EAAE /* NSString+ADHelperMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+ADHelperMethods.h"; path = "../../ADALiOS/ADALiOS/NSString+ADHelperMethods.h"; sourceTree = "<group>"; };
 		4C60D5DC18C697E500F9EAAE /* NSString+ADHelperMethods.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+ADHelperMethods.m"; path = "../../ADALiOS/ADALiOS/NSString+ADHelperMethods.m"; sourceTree = "<group>"; };
-		4C60D5DD18C697E500F9EAAE /* NSURLExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSURLExtensions.h; path = ../../ADALiOS/ADALiOS/NSURLExtensions.h; sourceTree = "<group>"; };
-		4C60D5DE18C697E500F9EAAE /* NSURLExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSURLExtensions.m; path = ../../ADALiOS/ADALiOS/NSURLExtensions.m; sourceTree = "<group>"; };
 		4C8AB1C318E2336B005F241A /* ADAuthenticationBrokerOSX.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationBrokerOSX.m; sourceTree = "<group>"; };
 		4C8AB26018E9F18C005F241A /* ADAuthenticationWebViewControllerOSX.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationWebViewControllerOSX.m; sourceTree = "<group>"; };
+		8BB1E68E1921476300A71479 /* ADWebResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADWebResponse.h; path = ../../ADALiOS/ADALiOS/ADWebResponse.h; sourceTree = "<group>"; };
+		8BB1E68F1921476300A71479 /* ADWebResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADWebResponse.m; path = ../../ADALiOS/ADALiOS/ADWebResponse.m; sourceTree = "<group>"; };
+		8BB1E6901921476300A71479 /* ADWebRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADWebRequest.h; path = ../../ADALiOS/ADALiOS/ADWebRequest.h; sourceTree = "<group>"; };
+		8BB1E6911921476300A71479 /* ADWebRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADWebRequest.m; path = ../../ADALiOS/ADALiOS/ADWebRequest.m; sourceTree = "<group>"; };
+		8BB1E6921921476300A71479 /* NSDictionary+ADExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSDictionary+ADExtensions.m"; path = "../../ADALiOS/ADALiOS/NSDictionary+ADExtensions.m"; sourceTree = "<group>"; };
+		8BB1E6931921476300A71479 /* NSURL+ADExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSURL+ADExtensions.m"; path = "../../ADALiOS/ADALiOS/NSURL+ADExtensions.m"; sourceTree = "<group>"; };
+		8BB1E6941921476300A71479 /* NSDictionary+ADExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSDictionary+ADExtensions.h"; path = "../../ADALiOS/ADALiOS/NSDictionary+ADExtensions.h"; sourceTree = "<group>"; };
+		8BB1E6951921476300A71479 /* NSURL+ADExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSURL+ADExtensions.h"; path = "../../ADALiOS/ADALiOS/NSURL+ADExtensions.h"; sourceTree = "<group>"; };
 		8BD92F2618C94E130026A014 /* ADAuthenticationWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ADAuthenticationWindowController.xib; sourceTree = "<group>"; };
 		8BD92F2A18C9611D0026A014 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		8BE8680E18D7B60C00D95ABB /* NSURLExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSURLExtensionsTests.m; path = ../../ADALiOS/ADALiOSTests/NSURLExtensionsTests.m; sourceTree = "<group>"; };
@@ -249,6 +249,14 @@
 		4C60D4CE18C6960400F9EAAE /* ADAL-OSX */ = {
 			isa = PBXGroup;
 			children = (
+				8BB1E68E1921476300A71479 /* ADWebResponse.h */,
+				8BB1E68F1921476300A71479 /* ADWebResponse.m */,
+				8BB1E6901921476300A71479 /* ADWebRequest.h */,
+				8BB1E6911921476300A71479 /* ADWebRequest.m */,
+				8BB1E6921921476300A71479 /* NSDictionary+ADExtensions.m */,
+				8BB1E6931921476300A71479 /* NSURL+ADExtensions.m */,
+				8BB1E6941921476300A71479 /* NSDictionary+ADExtensions.h */,
+				8BB1E6951921476300A71479 /* NSURL+ADExtensions.h */,
 				4C60D5A118C697E500F9EAAE /* ADAL.h */,
 				4C60D5A318C697E500F9EAAE /* ADALiOS-Prefix.pch */,
 				4C60D5A418C697E500F9EAAE /* ADAuthenticationBroker.h */,
@@ -293,16 +301,8 @@
 				4C60D5CE18C697E500F9EAAE /* ADTokenCacheStoring.h */,
 				4C60D5D118C697E500F9EAAE /* ADUserInformation.h */,
 				4C60D5D218C697E500F9EAAE /* ADUserInformation.m */,
-				4C60D5D318C697E500F9EAAE /* HTTPWebRequest.h */,
-				4C60D5D418C697E500F9EAAE /* HTTPWebRequest.m */,
-				4C60D5D518C697E500F9EAAE /* HTTPWebResponse.h */,
-				4C60D5D618C697E500F9EAAE /* HTTPWebResponse.m */,
-				4C60D5D918C697E500F9EAAE /* NSDictionaryExtensions.h */,
-				4C60D5DA18C697E500F9EAAE /* NSDictionaryExtensions.m */,
 				4C60D5DB18C697E500F9EAAE /* NSString+ADHelperMethods.h */,
 				4C60D5DC18C697E500F9EAAE /* NSString+ADHelperMethods.m */,
-				4C60D5DD18C697E500F9EAAE /* NSURLExtensions.h */,
-				4C60D5DE18C697E500F9EAAE /* NSURLExtensions.m */,
 				4C60D4CF18C6960400F9EAAE /* Supporting Files */,
 				4C42481518C83DBA00B2E350 /* ADAuthenticationWindowController.h */,
 				4C42481618C83DBA00B2E350 /* ADAuthenticationWindowController.m */,
@@ -374,22 +374,22 @@
 				4C60D5F518C697E500F9EAAE /* ADAuthenticationSettings.h in Headers */,
 				4C60D60C18C697E500F9EAAE /* ADTokenCacheStoreKey.h in Headers */,
 				4C60D60818C697E500F9EAAE /* ADPersistentTokenCacheStore.h in Headers */,
+				8BB1E6981921476300A71479 /* ADWebRequest.h in Headers */,
+				8BB1E6961921476300A71479 /* ADWebResponse.h in Headers */,
 				4C60D5EF18C697E500F9EAAE /* ADAuthenticationParameters+Internal.h in Headers */,
 				4C60D5E118C697E500F9EAAE /* ADAL.h in Headers */,
 				4C60D5FB18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.h in Headers */,
-				4C60D61918C697E500F9EAAE /* NSDictionaryExtensions.h in Headers */,
+				8BB1E69C1921476300A71479 /* NSDictionary+ADExtensions.h in Headers */,
 				4C60D60618C697E500F9EAAE /* ADOAuth2Constants.h in Headers */,
 				4C60D5EB18C697E500F9EAAE /* ADAuthenticationOperation.h in Headers */,
-				4C60D61D18C697E500F9EAAE /* NSURLExtensions.h in Headers */,
 				4C60D5FF18C697E500F9EAAE /* ADErrorCodes.h in Headers */,
 				4C60D5E818C697E500F9EAAE /* ADAuthenticationDelegate.h in Headers */,
 				4C60D5E318C697E500F9EAAE /* ADALiOS-Prefix.pch in Headers */,
 				4C60D61B18C697E500F9EAAE /* NSString+ADHelperMethods.h in Headers */,
+				8BB1E69D1921476300A71479 /* NSURL+ADExtensions.h in Headers */,
 				4C60D5E418C697E500F9EAAE /* ADAuthenticationBroker.h in Headers */,
 				4C60D60018C697E500F9EAAE /* ADInstanceDiscovery.h in Headers */,
 				4C42481718C83DBA00B2E350 /* ADAuthenticationWindowController.h in Headers */,
-				4C60D61518C697E500F9EAAE /* HTTPWebResponse.h in Headers */,
-				4C60D61318C697E500F9EAAE /* HTTPWebRequest.h in Headers */,
 				4C60D5F318C697E500F9EAAE /* ADAuthenticationResult+Internal.h in Headers */,
 				4C42482818C84D4A00B2E350 /* ADAuthenticationWebViewController.h in Headers */,
 			);
@@ -492,25 +492,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				4C60D5EC18C697E500F9EAAE /* ADAuthenticationOperation.m in Sources */,
+				8BB1E6991921476300A71479 /* ADWebRequest.m in Sources */,
+				8BB1E6971921476300A71479 /* ADWebResponse.m in Sources */,
 				4C60D61C18C697E500F9EAAE /* NSString+ADHelperMethods.m in Sources */,
-				4C60D61A18C697E500F9EAAE /* NSDictionaryExtensions.m in Sources */,
+				8BB1E69A1921476300A71479 /* NSDictionary+ADExtensions.m in Sources */,
 				4C60D5F018C697E500F9EAAE /* ADAuthenticationParameters+Internal.m in Sources */,
 				4C60D60118C697E500F9EAAE /* ADInstanceDiscovery.m in Sources */,
 				4C60D5EA18C697E500F9EAAE /* ADAuthenticationError.m in Sources */,
 				4C60D61218C697E500F9EAAE /* ADUserInformation.m in Sources */,
 				4C60D60D18C697E500F9EAAE /* ADTokenCacheStoreKey.m in Sources */,
 				4C60D60B18C697E500F9EAAE /* ADTokenCacheStoreItem.m in Sources */,
-				4C60D61418C697E500F9EAAE /* HTTPWebRequest.m in Sources */,
+				8BB1E69B1921476300A71479 /* NSURL+ADExtensions.m in Sources */,
 				4C60D5FC18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.m in Sources */,
 				4C42481818C83DBA00B2E350 /* ADAuthenticationWindowController.m in Sources */,
-				4C60D61618C697E500F9EAAE /* HTTPWebResponse.m in Sources */,
 				4C60D5E718C697E500F9EAAE /* ADAuthenticationContext.m in Sources */,
 				4C60D5F618C697E500F9EAAE /* ADAuthenticationSettings.m in Sources */,
 				4C8AB26218E9F18C005F241A /* ADAuthenticationWebViewControllerOSX.m in Sources */,
 				4C60D5F418C697E500F9EAAE /* ADAuthenticationResult+Internal.m in Sources */,
 				4C60D60718C697E500F9EAAE /* ADOAuth2Constants.m in Sources */,
 				4C8AB1C518E2336B005F241A /* ADAuthenticationBrokerOSX.m in Sources */,
-				4C60D61E18C697E500F9EAAE /* NSURLExtensions.m in Sources */,
 				4C60D5F218C697E500F9EAAE /* ADAuthenticationResult.m in Sources */,
 				4C60D60918C697E500F9EAAE /* ADPersistentTokenCacheStore.m in Sources */,
 				4C60D5EE18C697E500F9EAAE /* ADAuthenticationParameters.m in Sources */,

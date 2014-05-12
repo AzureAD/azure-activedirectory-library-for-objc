@@ -1212,7 +1212,7 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
     NSString* endPoint = [authorizationServer stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
 
     
-    __block HTTPWebRequest *webRequest = [[HTTPWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
+    __block ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
                                                        correlationId:requestCorrelationId];
     
     webRequest.method = HTTPPost;

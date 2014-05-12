@@ -16,7 +16,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADALiOS.h"
+#import "ADAL.h"
 #import "ADOAuth2Constants.h"
 #include <sys/types.h>
 #include <sys/sysctl.h>

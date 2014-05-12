@@ -120,7 +120,7 @@ static const uint64_t MAX_REVISION = UINT64_MAX;
     //of the cache contents.
     @synchronized (self)
     {
-        if ([NSString isStringNilOrBlank:self.cacheLocation])
+        if ([NSString adIsStringNilOrBlank:self.cacheLocation])
         {
 #if TARGET_OS_IPHONE
             //Nil or blank file. We report it as an error on the mobile platforms:
@@ -198,14 +198,14 @@ static const uint64_t MAX_REVISION = UINT64_MAX;
 {
     THROW_ON_NIL_ARGUMENT(item);
     
-    if (!item.userInformation || [NSString isStringNilOrBlank:item.userInformation.userId])
+    if (!item.userInformation || [NSString adIsStringNilOrBlank:item.userInformation.userId])
     {
         return missingUserSubstitute;
     }
     else
     {
         //If the userId is present, just trim the white space and make it lowercase:
-        return [item.userInformation.userId trimmedString].lowercaseString;
+        return [item.userInformation.userId adTrimmedString].lowercaseString;
     }
 }
 
