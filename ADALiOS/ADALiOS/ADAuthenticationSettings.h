@@ -87,7 +87,7 @@ typedef enum
  is only given to the applications from the same vendor. If this property is not set, the behavior
  will depend on the values in the entitlements file (if such exists) and may not result in token
  sharing. The property has no effect if other cache mechanisms are used (non-keychain). */
-@property (assign, getter = getSharedKeychainGroup, setter = setSharedKeychainGroup:) NSString* sharedKeychainGroup;
+@property (assign, getter = getSharedCacheKeychainGroup, setter = setSharedCacheKeychainGroup:) NSString* sharedCacheKeychainGroup;
 #endif //TARGET_OS_IPHONE
 
 @end

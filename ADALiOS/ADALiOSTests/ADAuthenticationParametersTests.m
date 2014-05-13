@@ -78,8 +78,8 @@
                                               completionBlock:^(ADAuthenticationParameters * par, ADAuthenticationError* err)
          {
              //Fill in the class members with the result:
-             mParameters = par;
-             mError = err;
+             self->mParameters = par;
+             self->mError = err;
              ASYNC_BLOCK_COMPLETE(completion);
          }];
     }];
@@ -282,12 +282,12 @@
     NSDictionary* params = [ADAuthenticationParameters extractChallengeParameters:challenge error:&error];
     if (params)
     {
-        [self assertStringEquals:[params objectForKey:OAuth2_Authorization_Uri]
+        [self adAssertStringEquals:[params objectForKey:OAuth2_Authorization_Uri]
                 stringExpression:@"extracted authority"
                         expected:expectedAuthority
                             file:__FILE__
                             line:sourceLine];
-        [self assertStringEquals:[params objectForKey:OAuth2_Resource_Id]
+        [self adAssertStringEquals:[params objectForKey:OAuth2_Resource_Id]
                 stringExpression:@"extracted resource"
                         expected:expectedResource
                             file:__FILE__

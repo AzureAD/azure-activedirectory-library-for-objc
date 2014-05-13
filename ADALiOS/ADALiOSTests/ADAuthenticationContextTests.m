@@ -25,7 +25,7 @@
 #import "ADTestAuthenticationContext.h"
 #import "../ADALiOS/ADOAuth2Constants.h"
 #import "../ADALiOS/ADAuthenticationSettings.h"
-#import "../ADALiOS/ADKeychainTokenCacheStore.h"
+//#import "../ADALiOS/ADKeychainTokenCacheStore.h"
 
 const int sAsyncContextTimeout = 10;
 
@@ -54,7 +54,7 @@ const int sAsyncContextTimeout = 10;
     //The source:
     ADAuthenticationContext* mContext;
     id<ADAuthenticationContextProtocol> mProtocolContext; //Originally set same as above, provided for simplicity.
-    ADKeychainTokenCacheStore* mDefaultTokenCache;
+    id<ADTokenCacheStoring> mDefaultTokenCache;
     NSString* mAuthority;
     NSString* mResource;
     NSString* mClientId;
@@ -72,9 +72,8 @@ const int sAsyncContextTimeout = 10;
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_ERROR];//Majority of the tests rely on errors
     mAuthority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
-    mDefaultTokenCache = (ADKeychainTokenCacheStore*)([ADAuthenticationSettings sharedInstance].defaultTokenCacheStore);
+    mDefaultTokenCache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     XCTAssertNotNil(mDefaultTokenCache);
-    XCTAssertTrue([mDefaultTokenCache isKindOfClass:[ADKeychainTokenCacheStore class]]);
     mRedirectURL = [NSURL URLWithString:@"http://todolistclient/"];
     mClientId    = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
     mResource    = @"http://localhost/TodoListService";
@@ -231,7 +230,7 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testProperties
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     ADAuthenticationError* error     = nil;
     NSString*              authority = @"https://authority.com/oauth2";
     ADTestTokenCacheStore* testStore = [ADTestTokenCacheStore new];
@@ -1009,7 +1008,7 @@ const int sAsyncContextTimeout = 10;
     mPromptBehavior = AD_PROMPT_ALWAYS;
     acquireTokenAsync;
     ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, mError.code);
-     XCTAssertTrue([mError.errorDetails containsString:@"view controller"]);
+    XCTAssertTrue([mError.errorDetails adContainsString:@"view controller"]);
 #endif
 }
  

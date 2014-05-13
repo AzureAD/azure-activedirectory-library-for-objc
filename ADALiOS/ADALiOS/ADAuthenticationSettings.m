@@ -103,7 +103,7 @@
 
 
 #if TARGET_OS_IPHONE
--(NSString*) getSharedKeychainGroup
+-(NSString*) getSharedCacheKeychainGroup
 {
     id store = self.defaultTokenCacheStore;
     if ([store isKindOfClass:[ADKeychainTokenCacheStore class]])
@@ -118,7 +118,7 @@
 #endif//TARGET_OS_IPHONE
 
 #if TARGET_OS_IPHONE
--(void) setSharedKeychainGroup:(NSString *)sharedKeychainGroup
+-(void) setSharedCacheKeychainGroup:(NSString *)sharedKeychainGroup
 {
     id store = self.defaultTokenCacheStore;
     if ([store isKindOfClass:[ADKeychainTokenCacheStore class]])

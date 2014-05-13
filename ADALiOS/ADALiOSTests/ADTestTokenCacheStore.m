@@ -22,21 +22,29 @@
 
 -(ADTokenCacheStoreItem*) getItemWithKey:(ADTokenCacheStoreKey*)key error: (ADAuthenticationError* __autoreleasing*) error
 {
+#pragma unused(key)
+#pragma unused(error)
     return nil;
 }
 
 -(void) addOrUpdateItem: (ADTokenCacheStoreItem*) item
                   error: (ADAuthenticationError* __autoreleasing*) error
 {
+#pragma unused(item)
+#pragma unused(error)
 }
 
 -(void) removeItemWithKey: (ADTokenCacheStoreKey*) key userId:(NSString *)userId error:(ADAuthenticationError *__autoreleasing *)error
 {
+#pragma unused(key)
+#pragma unused(userId)
+#pragma unused(error)
     return;
 }
 
 -(void) removeAllWithError:(ADAuthenticationError *__autoreleasing *)error
 {
+#pragma unused(error)
     return;
 }
 
@@ -47,29 +55,38 @@
 
 -(id) initWithCoder:(NSCoder*) aDecoder
 {
+#pragma unused(aDecoder)
     self = [super init];
     return self;
 }
 
 -(void) encodeWithCoder:(NSCoder*) aCoder
 {
+#pragma unused(aCoder)
     //Nothing to store.
 }
 
 -(ADTokenCacheStoreItem*) getItemWithKey: (ADTokenCacheStoreKey*) key
-                                   userId: (NSString *)userId
+                                  userId: (NSString *)userId
                                    error:(ADAuthenticationError *__autoreleasing *)error
 {
+#pragma unused(key)
+#pragma unused(userId)
+#pragma unused(error)
     return nil;
 }
 
--(ADTokenCacheStoreItem*) getItemsWithKey: (ADTokenCacheStoreKey*) key error: (ADAuthenticationError* __autoreleasing*) error
+-(ADTokenCacheStoreItem*) getItemsWithKey: (ADTokenCacheStoreKey*) key
+                                    error: (ADAuthenticationError* __autoreleasing*) error
 {
+#pragma unused(key)
+#pragma unused(error)
     return nil;
 }
 
 -(ADTokenCacheStoreItem*) allItemsWithError: (ADAuthenticationError* __autoreleasing*) error;
 {
+#pragma unused(error)
     return nil;
 }
 

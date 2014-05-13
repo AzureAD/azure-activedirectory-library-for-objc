@@ -21,9 +21,11 @@
 #import <libkern/OSAtomic.h>
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADAuthenticationContext.h"
-#import "../ADALiOS/ADKeychainTokenCacheStore.h"
-#if !(TARGET_OS_IPHONE)
-#import "../ADALiOS/ADDefaultTokenCacheStorePersistance.h"
+#if TARGET_OS_IPHONE
+#   import "../ADALiOS/ADKeychainTokenCacheStore.h"
+#else
+#   import "../ADALiOS/ADDefaultTokenCacheStorePersistance.h"
+#   import "../ADALiOS/ADPersistentTokenCacheStore.h"
 #endif
 
 dispatch_semaphore_t sThreadsSemaphore;//Will be signalled when the last thread is done. Should be initialized and cleared in the test.
@@ -38,7 +40,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 @interface ADDefaultTokenCacheStoreTests : XCTestCase
 {
-    ADKeychainTokenCacheStore* mStore;
+    id<ADTokenCacheStoring> mStore;
 }
 @end
 
@@ -48,16 +50,17 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 {
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_INFO];
-    
-    mStore = (ADKeychainTokenCacheStore*)[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    mStore = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     XCTAssertNotNil(mStore, "Default store cannot be nil.");
+#if TARGET_OS_IPHONE
     XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
+#endif
     [mStore removeAllWithError:nil];//Start clean before each test
 }
 
 - (void)tearDown
 {
-    [mStore removeAllWithError:nil];//Attempt to clear the junk from the keychain
+    [mStore removeAllWithError:nil];//Attempt to clear the junk from the cache
     mStore = nil;
     
     [self adTestEnd];
@@ -484,7 +487,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 -(void) testInitializer
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
 #if TARGET_OS_IPHONE
     {
         ADKeychainTokenCacheStore* simple = [ADKeychainTokenCacheStore new];
