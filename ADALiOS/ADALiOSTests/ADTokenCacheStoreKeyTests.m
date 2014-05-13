@@ -48,7 +48,7 @@
 
 - (void)testCreate
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:mResource clientId:mClientId error:&error];
     ADAssertNoError;
     XCTAssertNotNil(key);
@@ -107,7 +107,7 @@
 
 - (void)testCompare
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADTokenCacheStoreKey* normal = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:mResource clientId:mClientId error:&error];
     ADAssertNoError;
     XCTAssertNotNil(normal);

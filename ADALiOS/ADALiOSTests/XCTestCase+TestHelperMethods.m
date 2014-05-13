@@ -109,7 +109,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
         [sErrorCodesLog appendString:sTestBegin];
     }
 
-    __block __weak  XCTestCase* weakSelf = self;
     LogCallback logCallback = ^(ADAL_LOG_LEVEL logLevel,
                                 NSString* message,
                                 NSString* additionalInformation,
@@ -127,7 +126,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
             {
                 NSString* fail = [NSString stringWithFormat:@"Level: %u; Message: %@; Info: %@; Code: %lu",
                                   logLevel, message, additionalInformation, (long)errorCode];
-                [weakSelf recordFailureWithDescription:fail inFile:@"" __FILE__ atLine:__LINE__ expected:NO];
+                
+                [self recordFailureWithDescription:fail inFile:@"" __FILE__ atLine:__LINE__ expected:NO];
             }
         }
     };

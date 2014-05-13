@@ -72,7 +72,7 @@ const int sAsyncTimeout = 10;//in seconds
 @interface ADInstanceDiscoveryTests : XCTestCase
 {
     ADInstanceDiscovery* mInstanceDiscovery;
-    __weak id<TestInstanceDiscovery> mTestInstanceDiscovery;//Same as above, just casted to the protocol
+    id<TestInstanceDiscovery> mTestInstanceDiscovery;//Same as above, just casted to the protocol
     NSMutableSet* mValidatedAuthorities;
     //Used for asynchronous calls:
     BOOL mValidated;
@@ -89,6 +89,7 @@ const int sAsyncTimeout = 10;//in seconds
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     mValidated = NO;
+    mError = nil;
     mInstanceDiscovery = [ADInstanceDiscovery sharedInstance];
     mTestInstanceDiscovery = (id<TestInstanceDiscovery>)mInstanceDiscovery;
     mValidatedAuthorities = [mInstanceDiscovery getInternalValidatedAuthorities];
@@ -149,7 +150,7 @@ const int sAsyncTimeout = 10;//in seconds
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
 
     //Nil:
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     NSString* result = [mTestInstanceDiscovery extractHost:nil correlationId:nil error:&error];
     XCTAssertNil(result);
     [self adValidateForInvalidArgument:@"authority" error:error];
@@ -196,7 +197,7 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testExtractBaseNormal
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     NSString* authority = @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize";
     NSString* result = [mTestInstanceDiscovery extractHost:authority correlationId:nil error:&error];
     ADAssertNoError;
@@ -436,14 +437,14 @@ const int sAsyncTimeout = 10;//in seconds
     static volatile int completion = 0;//Set to 1 at the end of the callback
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal:&completion block:^
     {
-        [mTestInstanceDiscovery requestValidationOfAuthority:@"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com"
+        [self->mTestInstanceDiscovery requestValidationOfAuthority:@"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com"
                                                         host:@"https://login.windows.cn"
                                             trustedAuthority:@"https://SomeValidURLButNotExistentInTheNet.com"
                                                correlationId:[NSUUID UUID]
                                              completionBlock:^(BOOL validated, ADAuthenticationError *error)
          {
-             mValidated = validated;
-             mError = error;
+             self->mValidated = validated;
+             self->mError = error;
              ASYNC_BLOCK_COMPLETE(completion);
          }];
     }];

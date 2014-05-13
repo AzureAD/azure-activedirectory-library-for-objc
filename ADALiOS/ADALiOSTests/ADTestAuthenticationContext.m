@@ -57,6 +57,7 @@
 requestCorrelationId: (NSUUID*) requestCorrelationId
     completion:( void (^)(NSDictionary *) )completionBlock
 {
+#pragma unused(authorizationServer)
     ++mNumRequests;
     if (mNumRequests > 2 || (!mAllowTwoRequests && mNumRequests > 1))
     {

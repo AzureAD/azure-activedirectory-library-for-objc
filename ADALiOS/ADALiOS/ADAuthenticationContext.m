@@ -382,7 +382,7 @@ if (![self checkAndHandleBadArgument:ARG \
         return nil;//Nothing to return
     }
 
-    ADAuthenticationError* localError;
+    ADAuthenticationError* localError = nil;
     ADTokenCacheStoreItem* item = [self.tokenCacheStore getItemWithKey:key userId:userId error:&localError];
     if (!item && !localError && userId)
     {//ADFS fix, where the userId is not received by the server, but can be passed to the API:

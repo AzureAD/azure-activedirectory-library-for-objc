@@ -459,7 +459,7 @@ static const uint64_t MAX_REVISION = UINT64_MAX;
                     //This will also log the error:
                     [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BAD_CACHE_FORMAT protocolCode:nil errorDetails:message];
                 }
-                ADAuthenticationError* error;
+                ADAuthenticationError* error = nil;
                 [self addOrUpdateItem:item error:&error];//Logs any error internally
                 if (!error)
                 {

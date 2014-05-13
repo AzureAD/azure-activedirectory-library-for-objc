@@ -151,7 +151,7 @@
 
 - (IBAction)clearCachePressed:(id)sender
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     NSArray* allItems = [cache allItemsWithError:&error];
     if (error)
@@ -191,7 +191,7 @@
 
 - (IBAction)getUsersPressed:(id)sender
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     NSArray* array = [cache allItemsWithError:&error];
     if (error)
@@ -230,7 +230,7 @@
     NSString* clientId = mAADInstance.clientId;
     NSString* resourceString =mAADInstance.resource;
     [self setStatus:@"Attemp to refresh..."];
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
     if (!context)
     {
@@ -270,7 +270,7 @@
 
 - (IBAction)expireAllPressed:(id)sender
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     [self setStatus:@"Attempt to expire..."];
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     NSArray* array = [cache allItemsWithError:&error];
@@ -297,7 +297,7 @@
 - (IBAction)promptAlways:(id)sender
 {
     [self setStatus:@"Setting prompt always..."];
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:mAADInstance.authority error:&error];
     if (!context)
     {

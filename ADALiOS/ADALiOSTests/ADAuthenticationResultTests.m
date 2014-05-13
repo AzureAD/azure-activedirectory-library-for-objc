@@ -106,7 +106,7 @@
     item.accessTokenType = @"tokenType";
     item.refreshToken = @"refreshToken";
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:30];
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     item.userInformation = [ADUserInformation userInformationWithUserId:@"user" error:&error];
     ADAssertNoError;
     item.userInformation.tenantId = @"tenantId";

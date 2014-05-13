@@ -68,7 +68,7 @@
 -(void) verifySameUser: (NSString*) userId1
                userId2: (NSString*) userId2
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     
     ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
     if (userId1)
@@ -107,7 +107,7 @@
     XCTAssertTrue([item isSameUser:copy]);
     XCTAssertTrue([copy isSameUser:item]);
     
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     item.userInformation = [ADUserInformation userInformationWithUserId:@"Another user   " error:&error];
     ADAssertNoError;
     XCTAssertNotNil(item.userInformation);

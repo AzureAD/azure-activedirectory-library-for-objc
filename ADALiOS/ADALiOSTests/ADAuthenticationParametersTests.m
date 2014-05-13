@@ -278,7 +278,7 @@
                         resource: (NSString*) expectedResource
                             line: (int) sourceLine
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     NSDictionary* params = [ADAuthenticationParameters extractChallengeParameters:challenge error:&error];
     if (params)
     {
@@ -359,7 +359,7 @@
 -(void) testParametersFromResponseAuthenticateHeaderValid
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADAuthenticationParameters* params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\"https://login.windows.net/common\", resource_uri=\"foo.com\", anotherParam=\"Indeed, another param=5\" "
                                                                             error:&error];
     XCTAssertNotNil(params);
@@ -375,7 +375,7 @@
 -(void) testParametersFromResponseAuthenticateHeaderBadUrl
 {
     NSString* badUrl = @".\\..\\windows\\system32\\drivers\\etc\\host";
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADAuthenticationParameters* params =
         [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:
             [NSString stringWithFormat:@"Bearer authorization_uri=\"%@\"", badUrl]

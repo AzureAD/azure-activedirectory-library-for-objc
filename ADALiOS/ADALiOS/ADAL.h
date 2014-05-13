@@ -127,8 +127,8 @@ NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u"
 #define FILL_PARAMETER_ERROR(ARG) \
 if (error) \
 { \
-*error = [ADAuthenticationError errorFromArgument:ARG \
-argumentName:@#ARG]; \
+    *error = [ADAuthenticationError errorFromArgument:ARG \
+    argumentName:@#ARG]; \
 }
 
 #define STRING_NIL_OR_EMPTY_CONDITION(ARG) [NSString adIsStringNilOrBlank:ARG]

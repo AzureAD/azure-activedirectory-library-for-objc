@@ -69,7 +69,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 -(long) count
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     NSArray* all = [mStore allItemsWithError:&error];
     ADAssertNoError;
     XCTAssertNotNil(all);
@@ -80,7 +80,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 //Works on single threaded environment only, as it checks the counts:
 -(void) addOrUpdateItem: (ADTokenCacheStoreItem*) item expectAdd: (BOOL) expectAdd
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     long count = [self count];
     [mStore addOrUpdateItem:item error:&error];
     ADAssertNoError;
@@ -118,7 +118,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertNotEqualObjects(item.userInformation, newItem.userInformation, "Not a deep copy");
     if (newUser)
     {
-        ADAuthenticationError* error;
+        ADAuthenticationError* error = nil;
         newItem.userInformation = [ADUserInformation userInformationWithUserId:newUser error:&error];
         ADAssertNoError;
     }
@@ -146,7 +146,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertTrue([self count] == 0, "Start empty.");
     
     ADTokenCacheStoreItem* item = [self adCreateCacheItem];
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     [self addOrUpdateItem:item expectAdd:YES];
 
     //getItemWithKey:userId
@@ -212,7 +212,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertTrue([self count] == 0, "Start empty.");
     
     ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADTokenCacheStoreKey* key = [item1 extractKeyWithError:&error];
     ADAssertNoError;
     [self addOrUpdateItem:item1 expectAdd:YES];
@@ -248,7 +248,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 {
     XCTAssertTrue([self count] == 0, "Start empty.");
     
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     XCTAssertNotNil([mStore allItemsWithError:&error]);
     ADAssertNoError;
     ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
@@ -317,7 +317,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
         //Create as much date as possible outside of the run loop to cause the most
         //thread contentions in the loop:
         ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
-        ADAuthenticationError* error;
+        ADAuthenticationError* error = nil;
         item1.userInformation = [ADUserInformation userInformationWithUserId:@"foo" error:nil];
         ADAssertNoError;
         ADTokenCacheStoreItem* item2 = [self adCreateCacheItem];
@@ -339,7 +339,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
         {
             @autoreleasepool//The cycle will create constantly objects, so it needs its own autorelease pool
             {
-                ADAuthenticationError* error;//Keep it local
+                ADAuthenticationError* error = nil;//Keep it local
                 [mStore removeAllWithError:&error];
                 ADAssertNoError;
                 [mStore addOrUpdateItem:item1 error:&error];
@@ -456,7 +456,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 -(void) verifyCacheContainsItem: (ADTokenCacheStoreItem*) item
 {
     XCTAssertNotNil(item);
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
     ADAssertNoError;
     
