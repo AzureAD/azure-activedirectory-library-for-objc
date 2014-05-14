@@ -17,6 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADDefaultTokenCacheStorePersistance.h"
+#import "ADLogger.h"
 
 const int16_t UPPER_VERSION = 1;
 const int16_t LOWER_VERSION = 0;

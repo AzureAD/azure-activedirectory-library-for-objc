@@ -120,5 +120,11 @@ additionalInformation: logInfo]; \
 #define AD_LOG_INFO_F(message, info...) AD_LOG_FORMAT(ADAL_LOG_LEVEL_INFO, message, AD_ERROR_SUCCEEDED, info)
 #define AD_LOG_VERBOSE_F(message, info...) AD_LOG_FORMAT(ADAL_LOG_LEVEL_VERBOSE, message, AD_ERROR_SUCCEEDED, info)
 
-
+#ifndef DebugLog
+#ifdef DEBUG
+#   define DebugLog(fmt, ...) NSLog((@"%s[%d][%@] " fmt), __PRETTY_FUNCTION__, __LINE__, [[NSThread currentThread] isEqual:[NSThread mainThread]] ? @"main" : @"work", ##__VA_ARGS__);
+#else
+#   define DebugLog(...)
+#endif
+#endif
 

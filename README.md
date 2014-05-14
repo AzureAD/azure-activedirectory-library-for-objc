@@ -18,6 +18,9 @@ We have released a Preview of the ADAL for iOS! [You can grab the release here] 
 4. Add the storyboards from the ADALiOSBundle to your project resources
 5. Add libADALiOS to “Link With Libraries” phase. 
 
+### With Cocoapods
+    pod 'ADALiOS', '~> 0.5.1-alpha'
+
 ## Usage
 
 ### ADAuthenticationContext

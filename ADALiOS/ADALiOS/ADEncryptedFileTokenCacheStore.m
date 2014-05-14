@@ -18,6 +18,7 @@
 #import "ADEncryptedFileTokenCacheStore.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADDefaultTokenCacheStorePersistance.h"
+#import "ADLogger.h"
 
 @implementation ADEncryptedFileTokenCacheStore
 
