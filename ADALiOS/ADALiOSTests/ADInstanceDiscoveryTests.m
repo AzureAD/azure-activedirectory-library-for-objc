@@ -17,6 +17,9 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
+#import "../ADALiOS/ADErrorCodes.h"
+#import "../ADALiOS/ADLogger.h"
+#import "../ADALiOS/NSString+ADHelperMethods.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADInstanceDiscovery.h"
 #import <libkern/OSAtomic.h>
@@ -255,7 +258,7 @@ const int sAsyncTimeout = 10;//in seconds
             [array addObject:[NSString stringWithFormat:@"%d", i]];
         }
         NSDate* end = [NSDate dateWithTimeIntervalSinceNow:sThreadsRunDuration];
-        NSDate* now;
+        NSDate* now = nil;
         do
         {
             @autoreleasepool//The cycle will create constantly objects, so it needs its own autorelease pool
@@ -269,13 +272,17 @@ const int sAsyncTimeout = 10;//in seconds
                 {
                     //Just add a check objects. Note that the result is not guaranteed due to multiple
                     //threads:
-                    [mTestInstanceDiscovery setAuthorityValidation:[array objectAtIndex:i]];
-                    [mTestInstanceDiscovery isAuthorityValidated:[array objectAtIndex:i]];
+                    NSString* authority = [array objectAtIndex:i];
+                    [mTestInstanceDiscovery setAuthorityValidation:authority];
+                    [mTestInstanceDiscovery isAuthorityValidated:authority];
                 }
                 
+                SAFE_ARC_RELEASE(now);
                 now = [NSDate dateWithTimeIntervalSinceNow:0];
+                SAFE_ARC_RETAIN(now);
             }
         } while ([end compare:now] == NSOrderedDescending);
+        SAFE_ARC_RETAIN(now);
         if (OSAtomicIncrement32(&sNumThreadsDone) == sMaxTestThreads)
         {
             dispatch_semaphore_signal(sThreadsCompletedSemaphore);
@@ -306,14 +313,14 @@ const int sAsyncTimeout = 10;//in seconds
             correlationId: (NSUUID*)correlationId
                      line: (int) line
 {
-    mError = nil;//Reset
+    SAFE_ARC_RELEASE(mError); mError = nil;//Reset
     static volatile int completion = 0;//Set to 1 at the end of the callback
     [self adCallAndWaitWithFile:@"" __FILE__ line:line completionSignal:&completion block:^
      {
          [self->mInstanceDiscovery validateAuthority:authority correlationId:correlationId completionBlock:^(BOOL validated, ADAuthenticationError *error)
           {
               self->mValidated = validated;
-              self->mError = error;
+              self->mError = SAFE_ARC_RETAIN(error);
               ASYNC_BLOCK_COMPLETE(completion)
           }];
      }];

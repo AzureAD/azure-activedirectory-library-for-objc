@@ -33,7 +33,7 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
 
 - (void)dealloc
 {
-    DebugLog( @"dealloc" );
+    AD_LOG_VERBOSE(@"ADAuthenticationError", @"dealloc");
     
     SAFE_ARC_RELEASE( _errorDetails );
     SAFE_ARC_RELEASE( _protocolCode );

@@ -50,7 +50,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 
 - (void)dealloc
 {
-    DebugLog( @"dealloc" );
+    AD_LOG_VERBOSE(@"ADUserInformation", @"dealloc");
     
     SAFE_ARC_RELEASE(_eMail);
     SAFE_ARC_RELEASE(_familyName);
@@ -97,6 +97,8 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     return self;
 }
 
+//IMPORTANT: this macro should be used only in the initializer, as it releases "self"
+//in case of error
 #define RETURN_ID_TOKEN_ERROR(text) \
 { \
     ADAuthenticationError* idTokenError = [self errorFromIdToken:text]; \
@@ -104,6 +106,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     { \
         *error = idTokenError; \
     } \
+    SAFE_ARC_AUTORELEASE(self); \
     return nil; \
 }
 

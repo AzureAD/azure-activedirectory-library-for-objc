@@ -54,8 +54,7 @@
 // Debug logging only
 - (void)dealloc
 {
-    DebugLog( @"dealloc" );
-    
+    AD_LOG_VERBOSE(@"ADAuthenticationWindowController", @"dealloc");
     _delegate                    = nil;
     
     _webViewController.delegate   = nil;

@@ -58,7 +58,7 @@ static volatile int sDialogInProgress = 0;
 
 - (void)dealloc
 {
-    DebugLog( @"dealloc" );
+    AD_LOG_VERBOSE(@"ADAuthenticationContext", @"dealloc");
     
     SAFE_ARC_RELEASE(_authority);
     SAFE_ARC_RELEASE(_correlationId);
@@ -107,7 +107,12 @@ if (![self checkAndHandleBadArgument:ARG \
 {
     API_ENTRY;
     NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
-    RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
+    if (!extractedAuthority)
+    {
+        FILL_OR_LOG_PARAMETER_ERROR(authority);
+        SAFE_ARC_AUTORELEASE(self);
+        return nil;
+    }
     
     self = [super init];
     if (self)
@@ -1260,6 +1265,7 @@ requestCorrelationId: (NSUUID*) requestCorrelationId
                                 NSString* bodyStr = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
                                 AD_LOG_ERROR_F(@"JSON deserialization", jsonError.code, @"Error: %@. Body text: '%@'. HTTPS Code: %ld. Response correlation id: %@", jsonError.description, bodyStr, (long)webResponse.statusCode, responseCorrelationId);
                                 adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
+                                SAFE_ARC_RELEASE(bodyStr);
                             }
                             else
                             {

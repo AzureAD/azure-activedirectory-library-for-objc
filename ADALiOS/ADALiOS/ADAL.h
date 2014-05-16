@@ -96,7 +96,7 @@
 
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \
-NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u", __PRETTY_FUNCTION__, __LINE__]; SAFE_ARC_RETAIN( __where )
+NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u", __PRETTY_FUNCTION__, __LINE__];
 
 //General macro for throwing exception named NSInvalidArgumentException
 #define THROW_ON_CONDITION_ARGUMENT(CONDITION, ARG) \
@@ -105,7 +105,6 @@ NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u"
     { \
         WHERE; \
         AD_LOG_ERROR(@"InvalidArgumentException: " #ARG, AD_ERROR_INVALID_ARGUMENT, __where); \
-        SAFE_ARC_RELEASE( __where ); \
         @throw [NSException exceptionWithName: NSInvalidArgumentException \
                                        reason:@"Please provide a valid '" #ARG "' parameter." \
                                      userInfo:nil];  \
@@ -124,11 +123,16 @@ NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u"
 #define NOT_IMPLEMENTED @throw [NSException exceptionWithName:@"NotImplementedException" reason:@"Not Implemented" userInfo:nil];
 
 //Fills the 'error' parameter
-#define FILL_PARAMETER_ERROR(ARG) \
+#define FILL_OR_LOG_PARAMETER_ERROR(ARG) \
 if (error) \
 { \
     *error = [ADAuthenticationError errorFromArgument:ARG \
-    argumentName:@#ARG]; \
+                                         argumentName:@#ARG]; \
+} \
+else \
+{   \
+    WHERE; \
+    AD_LOG_ERROR(@"InvalidArgumentError: " #ARG, AD_ERROR_INVALID_ARGUMENT, __where); \
 }
 
 #define STRING_NIL_OR_EMPTY_CONDITION(ARG) [NSString adIsStringNilOrBlank:ARG]
@@ -138,10 +142,7 @@ if (error) \
 { \
     if (CONDITION) \
     { \
-        WHERE; \
-        AD_LOG_ERROR(@"InvalidArgumentError: " #ARG, AD_ERROR_INVALID_ARGUMENT, __where); \
-        FILL_PARAMETER_ERROR(ARG); \
-        SAFE_ARC_RELEASE( __where ); \
+        FILL_OR_LOG_PARAMETER_ERROR(ARG); \
         return RET; \
     } \
 }
@@ -173,7 +174,6 @@ if (error) \
 { \
 WHERE; \
 AD_LOG_VERBOSE(@"ADAL API call", __where); \
-SAFE_ARC_RELEASE( __where ); \
 }
 
 

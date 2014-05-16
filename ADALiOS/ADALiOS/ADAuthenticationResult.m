@@ -30,7 +30,7 @@
 
 - (void)dealloc
 {
-    DebugLog( @"dealloc" );
+    AD_LOG_VERBOSE(@"ADAuthenticationResult", @"dealloc");
     
     SAFE_ARC_RELEASE(_error);
     SAFE_ARC_RELEASE(_tokenCacheStoreItem);

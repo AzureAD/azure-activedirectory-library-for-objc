@@ -17,7 +17,10 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
-#import "ADAuthenticationParameters.h"
+#import "../ADALiOS/ADErrorCodes.h"
+#import "../ADALiOS/NSString+ADHelperMethods.h"
+#import "../ADALiOS/ADLogger.h"
+#import "../ADALiOS/ADAuthenticationParameters.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "../ADALiOS/ADAuthenticationParameters+Internal.h"
 
@@ -68,8 +71,8 @@
                            line: (int) sourceLine
 {
     //Reset
-    mParameters = nil;
-    mError = nil;
+    SAFE_ARC_RELEASE(mParameters); mParameters = nil;
+    SAFE_ARC_RELEASE(mError); mError = nil;
     static volatile int completion = 0;
     [self adCallAndWaitWithFile:@"" __FILE__ line:sourceLine completionSignal:&completion block:^
     {
@@ -78,8 +81,8 @@
                                               completionBlock:^(ADAuthenticationParameters * par, ADAuthenticationError* err)
          {
              //Fill in the class members with the result:
-             self->mParameters = par;
-             self->mError = err;
+             self->mParameters = SAFE_ARC_RETAIN(par);
+             self->mError = SAFE_ARC_RETAIN(err);
              ASYNC_BLOCK_COMPLETE(completion);
          }];
     }];
@@ -168,7 +171,7 @@
 
 -(void)testParametersFromResponseAuthenticateHeaderNilParameter
 {
-    ADAuthenticationError* error;//A local variable is needed for __autoreleasing reference pointers.
+    ADAuthenticationError* error = nil;//A local variable is needed for __autoreleasing reference pointers.
     mParameters = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:nil error:&error];
     XCTAssertNil(mParameters);
     XCTAssertNotNil(error);
@@ -223,7 +226,7 @@
                                                                statusCode:401
                                                               HTTPVersion:@"1.1"
                                                              headerFields:headerFields1];
-    ADAuthenticationError* error;//A local variable is needed for __autoreleasing reference pointers.
+    ADAuthenticationError* error = nil;//A local variable is needed for __autoreleasing reference pointers.
     mParameters = [ADAuthenticationParameters parametersFromResponse:response1 error:&error];
     XCTAssertNil(error);
     [self verifyWithAuthority:@"https://www.example.com"];
@@ -342,7 +345,7 @@
 -(void) validateFactoryForBadHeader: (NSString *) header
                                line: (int) sourceLine
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADAuthenticationParameters* params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:header error:&error];
     XCTAssertNil(params);
     [self expectedError:error line:sourceLine];

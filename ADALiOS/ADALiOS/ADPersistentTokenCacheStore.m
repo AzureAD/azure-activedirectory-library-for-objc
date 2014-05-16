@@ -25,6 +25,7 @@
 #import "ADTokenCacheStoreKey.h"
 
 NSString* const missingUserSubstitute = @"9A1BE88B-F078-4559-A442-35111DFA61F0";
+NSString* const sMultiUserError = @"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used.";
 
 static const uint64_t MAX_REVISION = UINT64_MAX;
 
@@ -321,19 +322,25 @@ static const uint64_t MAX_REVISION = UINT64_MAX;
         
         if (userId == nil)
         {
-            //First try to find an item with empty user info:
-            ADTokenCacheStoreItem* item = [dictionary objectForKey:missingUserSubstitute];
-            if (nil != item)
+            NSArray* allValues = dictionary.allValues;
+            if (allValues.count > 1)
             {
-                return SAFE_ARC_AUTORELEASE([item copy]);
+                ADAuthenticationError* adError =
+                    [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
+                                                           protocolCode:nil
+                                                           errorDetails:sMultiUserError];
+                if (error)
+                {
+                    *error = adError;
+                }
+                return nil;
             }
-            
-            //If we have only items with userId, just return the first:
-            for(ADTokenCacheStoreItem* innerItem in dictionary.allValues)
+            else if (allValues.count == 1)
             {
-                return SAFE_ARC_AUTORELEASE([innerItem copy]);
+                return SAFE_ARC_AUTORELEASE([[allValues objectAtIndex:0] copy]);
             }
-            return nil;//Just in case
+
+            return nil;
         }
         else
         {

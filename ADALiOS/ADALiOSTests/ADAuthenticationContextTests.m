@@ -17,6 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
+#import "../ADALiOS/ADLogger.h"
 #import "../ADALiOS/ADAuthenticationContext.h"
 #import "ADTestTokenCacheStore.h"
 #import "XCTestCase+TestHelperMethods.h"
@@ -25,6 +26,8 @@
 #import "ADTestAuthenticationContext.h"
 #import "../ADALiOS/ADOAuth2Constants.h"
 #import "../ADALiOS/ADAuthenticationSettings.h"
+#import "../ADALiOS/ADErrorCodes.h"
+#import "../ADALiOS/NSString+ADHelperMethods.h"
 //#import "../ADALiOS/ADKeychainTokenCacheStore.h"
 
 const int sAsyncContextTimeout = 10;
@@ -43,13 +46,6 @@ const int sAsyncContextTimeout = 10;
 @end
 
 @interface ADAuthenticationContextTests : XCTestCase
-
-@property (readonly, getter = getTestContext) ADTestAuthenticationContext* testContext;
-
-@end
-
-
-@implementation ADAuthenticationContextTests
 {
     //The source:
     ADAuthenticationContext* mContext;
@@ -66,6 +62,13 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError* mError;//The error filled by the result;
     ADAuthenticationResult* mResult;//Result of asynchronous operation;
 }
+
+@property (readonly, getter = getTestContext) ADTestAuthenticationContext* testContext;
+
+@end
+
+
+@implementation ADAuthenticationContextTests
 
 - (void)setUp
 {
@@ -381,7 +384,7 @@ const int sAsyncContextTimeout = 10;
           {
               //Fill in the iVars with the result:
               self->mResult = SAFE_ARC_RETAIN( result );
-              self->mError = ( self->mResult.error );
+              self->mError = SAFE_ARC_RETAIN(self->mResult.error);
               ASYNC_BLOCK_COMPLETE(completion);
           }];
      }];
@@ -423,7 +426,7 @@ const int sAsyncContextTimeout = 10;
     mClientId = nil;
     acquireTokenAsync;
     [self adValidateForInvalidArgument:@"clientId" error:mError];
-    
+
     mClientId = @"    ";
     acquireTokenAsync;
     [self adValidateForInvalidArgument:@"clientId" error:mError];
@@ -1133,8 +1136,8 @@ const int sAsyncContextTimeout = 10;
                               completionBlock:^(ADAuthenticationResult *result)
           {
               //Fill in the iVars with the result:
-              self->mResult = result;
-              self->mError = self->mResult.error;
+              self->mResult = SAFE_ARC_RETAIN(result);
+              self->mError = SAFE_ARC_RETAIN(self->mResult.error);
               ASYNC_BLOCK_COMPLETE(completion);
           }];
      }];
@@ -1156,8 +1159,8 @@ const int sAsyncContextTimeout = 10;
                               completionBlock:^(ADAuthenticationResult *result)
           {
               //Fill in the iVars with the result:
-              self->mResult = result;
-              self->mError = self->mResult.error;
+              self->mResult = SAFE_ARC_RETAIN(result);
+              self->mError = SAFE_ARC_RETAIN(self->mResult.error);
               ASYNC_BLOCK_COMPLETE(completion);
           }];
      }];

@@ -17,6 +17,8 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
+#import "../ADALiOS/ADErrorCodes.h"
+#import "../ADALiOS/ADLogger.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
 #import "../ADALiOS/ADAuthenticationSettings.h"
@@ -31,7 +33,7 @@
 dispatch_semaphore_t sThreadsSemaphore;//Will be signalled when the last thread is done. Should be initialized and cleared in the test.
 volatile int32_t sThreadsFinished;//The number of threads that are done. Should be set to 0 at the beginning of the test.
 const int sMaxThreads = 10;//The number of threads to spawn
-int sThreadsRunTime = 5;//How long the bacground threads would run
+int sThreadsRunTime = 30;//How long the bacground threads would run
 
 //Some logging constant to help with testing the persistence:
 NSString* const sPersisted = @"successfully persisted";
@@ -334,7 +336,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
         ADAssertNoError;
         
         NSDate* end = [NSDate dateWithTimeIntervalSinceNow:sThreadsRunTime];//few seconds into the future
-        NSDate* now;
+        NSDate* now = nil;
         do
         {
             @autoreleasepool//The cycle will create constantly objects, so it needs its own autorelease pool
@@ -369,7 +371,10 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
                     ADAssertLongEquals(AD_ERROR_MULTIPLE_USERS, error.code);
                     error = nil;
                 }
-                ADTokenCacheStoreItem* return1 = [mStore getItemWithKey:key123 userId:item1.userInformation.userId error:&error];
+                
+                
+                ADTokenCacheStoreItem* return1 = [mStore getItemWithKey:key123 userId:item1.userInformation.userId
+                                                                  error:&error];
                 ADAssertNoError;
                 if (return1)//may not return if deleted in another thread
                 {
@@ -397,10 +402,13 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
                 [mStore removeItemWithKey:key4 userId:nil error:&error];
                 ADAssertNoError;
                 
+                SAFE_ARC_RELEASE(now);
                 now = [NSDate dateWithTimeIntervalSinceNow:0];
+                SAFE_ARC_RETAIN(now);
             }//Inner authorelease pool
         }
         while ([end compare:now] == NSOrderedDescending);
+        SAFE_ARC_RELEASE(now);
         if (OSAtomicIncrement32(&sThreadsFinished) == sMaxThreads)
         {
             //The last one finished, signal completion:
@@ -412,6 +420,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 -(void) testMultipleThreads
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];//Multi-user errors
+    [ADLogger setLogCallBack:nil];
+    [ADLogger setLevel:ADAL_LOG_LEVEL_NO_LOG];
     //The signal to denote completion:
     sThreadsSemaphore = dispatch_semaphore_create(0);
     sThreadsFinished = 0;
@@ -500,16 +510,16 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     }
 #else
     {
-        //The assumptions below apply to platforms where persistence is required:
-        
-        XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:nil]);
-        XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:@"   "]);
+        //The assumptions below apply to platforms where file persistence is required.
+        //Currently, we do not have file persistence.
+//        XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:nil]);
+//        XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:@"   "]);
         
         //Abstract methods
         NSString* location = @"location";
         ADPersistentTokenCacheStore* instance = [[ADPersistentTokenCacheStore alloc] initWithLocation:location];
         ADAssertStringEquals(instance.cacheLocation, location);
-        XCTAssertThrows([instance addInitialCacheItems], "This method should call non-implmented unpersistence.");
+//        XCTAssertThrows([instance addInitialCacheItems], "This method should call non-implmented unpersistence.");
     }
 #endif
 }

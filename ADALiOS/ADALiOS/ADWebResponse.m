@@ -47,7 +47,7 @@
 
 - (void)dealloc
 {
-    DebugLog( @"dealloc" );
+    AD_LOG_VERBOSE(@"ADWebResponse", @"dealloc");
     
     SAFE_ARC_RELEASE( _response );
     SAFE_ARC_RELEASE( _body );

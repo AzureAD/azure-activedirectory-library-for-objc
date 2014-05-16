@@ -35,7 +35,7 @@
 
 - (void)dealloc
 {
-    DebugLog( @"dealloc" );
+    AD_LOG_VERBOSE(@"ADTokenCacheStoreItem", @"dealloc");
     
     SAFE_ARC_RELEASE(_accessToken);
     SAFE_ARC_RELEASE(_accessTokenType);

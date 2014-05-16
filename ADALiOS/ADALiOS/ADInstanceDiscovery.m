@@ -40,7 +40,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
 
 - (void)dealloc
 {
-    DebugLog( @"dealloc" );
+    AD_LOG_VERBOSE(@"ADInstanceDiscovery", @"dealloc");
     
     SAFE_ARC_RELEASE(mValidatedAuthorities);
     

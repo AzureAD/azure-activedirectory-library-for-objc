@@ -107,7 +107,7 @@
 		4C60D4D018C6960400F9EAAE /* ADAL-OSX-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ADAL-OSX-Info.plist"; sourceTree = "<group>"; };
 		4C60D4D218C6960400F9EAAE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		4C60D4D418C6960400F9EAAE /* ADAL-OSX-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADAL-OSX-Prefix.pch"; sourceTree = "<group>"; };
-		4C60D4DC18C6960500F9EAAE /* ADAL-OSXTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADAL-OSXTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C60D4DC18C6960500F9EAAE /* ADAL_OSXTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADAL_OSXTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C60D4DD18C6960500F9EAAE /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		4C60D4E518C6960500F9EAAE /* ADAL-OSXTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ADAL-OSXTests-Info.plist"; sourceTree = "<group>"; };
 		4C60D4E718C6960500F9EAAE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -220,7 +220,7 @@
 			isa = PBXGroup;
 			children = (
 				4C60D4C518C6960400F9EAAE /* ADAL-OSX.framework */,
-				4C60D4DC18C6960500F9EAAE /* ADAL-OSXTests.xctest */,
+				4C60D4DC18C6960500F9EAAE /* ADAL_OSXTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -416,9 +416,9 @@
 			productReference = 4C60D4C518C6960400F9EAAE /* ADAL-OSX.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		4C60D4DB18C6960500F9EAAE /* ADAL-OSXTests */ = {
+		4C60D4DB18C6960500F9EAAE /* ADAL_OSXTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4C60D4F018C6960500F9EAAE /* Build configuration list for PBXNativeTarget "ADAL-OSXTests" */;
+			buildConfigurationList = 4C60D4F018C6960500F9EAAE /* Build configuration list for PBXNativeTarget "ADAL_OSXTests" */;
 			buildPhases = (
 				4C60D4D818C6960500F9EAAE /* Sources */,
 				4C60D4D918C6960500F9EAAE /* Frameworks */,
@@ -429,9 +429,9 @@
 			dependencies = (
 				4C60D4E118C6960500F9EAAE /* PBXTargetDependency */,
 			);
-			name = "ADAL-OSXTests";
+			name = ADAL_OSXTests;
 			productName = "ADAL-OSXTests";
-			productReference = 4C60D4DC18C6960500F9EAAE /* ADAL-OSXTests.xctest */;
+			productReference = 4C60D4DC18C6960500F9EAAE /* ADAL_OSXTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -461,7 +461,7 @@
 			projectRoot = "";
 			targets = (
 				4C60D4C418C6960400F9EAAE /* ADAL-OSX */,
-				4C60D4DB18C6960500F9EAAE /* ADAL-OSXTests */,
+				4C60D4DB18C6960500F9EAAE /* ADAL_OSXTests */,
 			);
 		};
 /* End PBXProject section */
@@ -676,6 +676,7 @@
 				GCC_PREFIX_HEADER = "ADAL-OSX/ADAL-OSX-Prefix.pch";
 				INFOPLIST_FILE = "ADAL-OSX/ADAL-OSX-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = framework;
 			};
@@ -693,6 +694,7 @@
 				GCC_PREFIX_HEADER = "ADAL-OSX/ADAL-OSX-Prefix.pch";
 				INFOPLIST_FILE = "ADAL-OSX/ADAL-OSX-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = framework;
 			};
@@ -701,9 +703,9 @@
 		4C60D4F118C6960500F9EAAE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/ADAL-OSX.framework/Versions/A/ADAL-OSX";
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
@@ -713,6 +715,7 @@
 				GCC_PREFIX_HEADER = "ADAL-OSX/ADAL-OSX-Prefix.pch";
 				INFOPLIST_FILE = "ADAL-OSXTests/ADAL-OSXTests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -727,9 +730,9 @@
 		4C60D4F218C6960500F9EAAE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/ADAL-OSX.framework/Versions/A/ADAL-OSX";
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
@@ -739,6 +742,7 @@
 				GCC_PREFIX_HEADER = "ADAL-OSX/ADAL-OSX-Prefix.pch";
 				INFOPLIST_FILE = "ADAL-OSXTests/ADAL-OSXTests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -771,7 +775,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4C60D4F018C6960500F9EAAE /* Build configuration list for PBXNativeTarget "ADAL-OSXTests" */ = {
+		4C60D4F018C6960500F9EAAE /* Build configuration list for PBXNativeTarget "ADAL_OSXTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4C60D4F118C6960500F9EAAE /* Debug */,

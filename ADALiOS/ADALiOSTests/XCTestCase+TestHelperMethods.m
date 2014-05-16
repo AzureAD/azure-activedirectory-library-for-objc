@@ -16,6 +16,10 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import "../ADALiOS/ADAL.h"
+#import "../ADALiOS/ADLogger.h"
+#import "../ADALiOS/NSString+ADHelperMethods.h"
+#import "../ADALiOS/ADErrorCodes.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "../ADALiOS/ADAuthenticationContext.h"
 #import "../ADALioS/ADAuthenticationSettings.h"
@@ -348,7 +352,7 @@ extern void __gcov_flush(void);
 
 -(ADUserInformation*) createUserInformation
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     //This one sets the "userId" property:
     ADUserInformation* userInfo = [ADUserInformation userInformationWithUserId:@"userId"
                                                                          error:&error];
@@ -491,6 +495,7 @@ extern void __gcov_flush(void);
             XCTFail("Unsupported property. Please fix this test code accordingly. ");
         }
     }
+    free(properties);
 }
 
 //Ensures that two items are the same:

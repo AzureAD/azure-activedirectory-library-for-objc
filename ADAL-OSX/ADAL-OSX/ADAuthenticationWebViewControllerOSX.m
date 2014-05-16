@@ -54,7 +54,7 @@
 
 - (void)dealloc
 {
-    DebugLog( @"dealloc" );
+    AD_LOG_VERBOSE(@"ADAuthenticationWebViewController", @"dealloc");
     
     // The ADAuthenticationWebViewController can be released before the
     // UIWebView that it is managing is released in the hosted case and

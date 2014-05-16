@@ -37,7 +37,7 @@ const int16_t LOWER_VERSION = 0;
 
 - (void)dealloc
 {
-    DebugLog( @"dealloc" );
+    AD_LOG_VERBOSE(@"ADDefaultTokenCacheStorePersistance", @"dealloc");
     
     SAFE_ARC_RELEASE(_cacheItems);
     

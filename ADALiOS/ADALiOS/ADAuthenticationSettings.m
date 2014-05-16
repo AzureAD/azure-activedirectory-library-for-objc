@@ -61,7 +61,7 @@
 
 - (void)dealloc
 {
-    DebugLog( @"dealloc" );
+    AD_LOG_VERBOSE(@"ADAuthenticationSettings", @"dealloc");
     
     NSAssert( false, @"Cannot dealloc ADAuthenticationSettings object" );
     

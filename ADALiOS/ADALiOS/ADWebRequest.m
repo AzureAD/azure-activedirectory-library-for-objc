@@ -65,7 +65,7 @@ NSString *const HTTPPost = @"POST";
 
 - (void)dealloc
 {
-    DebugLog( @"dealloc" );
+    AD_LOG_VERBOSE(@"ADWebRequest", @"dealloc");
     
     SAFE_ARC_RELEASE(_correlationId);
     

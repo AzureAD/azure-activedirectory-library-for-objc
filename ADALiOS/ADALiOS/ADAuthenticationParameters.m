@@ -31,7 +31,7 @@
 
 - (void)dealloc
 {
-    DebugLog( @"dealloc" );
+    AD_LOG_VERBOSE(@"ADAuthenticationParameters", @"dealloc");
     
     SAFE_ARC_RELEASE(_authority);
     SAFE_ARC_RELEASE(_extractedParameters);
