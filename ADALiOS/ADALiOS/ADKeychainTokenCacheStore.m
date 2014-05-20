@@ -43,10 +43,13 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     NSString* mLibraryString;
     NSData* mLibraryValue;//Data representation of the library string.
 
+<<<<<<< HEAD
     
     //Properties:
     NSString* _sharedGroup;
     
+=======
+>>>>>>> dev
     ADKeyChainHelper* mHelper;
 }
 
@@ -71,12 +74,18 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         mLibraryString  = [NSString stringWithFormat:@"MSOpenTech.ADAL.%ld", sKeychainVersion];
         mLibraryValue   = [mLibraryString dataUsingEncoding:NSUTF8StringEncoding];
         
+<<<<<<< HEAD
         //Data sharing:
         _sharedGroup    = sharedGroup;
         
         mHelper = [[ADKeyChainHelper alloc] initWithClass:mClassValue
                                                   generic:mLibraryValue
                                               sharedGroup:_sharedGroup];
+=======
+        mHelper = [[ADKeyChainHelper alloc] initWithClass:mClassValue
+                                                  generic:mLibraryValue
+                                              sharedGroup:sharedGroup];
+>>>>>>> dev
     }
     return self;
 }
@@ -273,7 +282,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 //We should not put nil keys in the keychain. The method substitutes nil with a special GUID:
 +(NSString*) getAttributeName: (NSString*)original
 {
-    return ([NSString isStringNilOrBlank:original]) ? sNilKey : [original adBase64UrlEncode];
+    return ([NSString adIsStringNilOrBlank:original]) ? sNilKey : [original adBase64UrlEncode];
 }
 
 //Stores the passed items in the group. Does not explicitly remove items that are not there.
@@ -332,7 +341,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                                     mItemKeyAttributeKey:[self keychainKeyFromCacheKey:key],
                                     }];
     
-    if (![NSString isStringNilOrBlank:userId])
+    if (![NSString adIsStringNilOrBlank:userId])
     {
         [query setObject:[userId adBase64UrlEncode] forKey:mUserIdKey];
     }
@@ -552,7 +561,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 
 -(NSString*) getSharedGroup
 {
-    return _sharedGroup;
+    return mHelper.sharedGroup;
 }
 
 -(void) setSharedGroup:(NSString *)sharedGroup
@@ -560,9 +569,13 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     API_ENTRY;
     @synchronized(self)
     {
-        if (![NSString adSame:_sharedGroup toString:sharedGroup])
+        if (![NSString adSame:mHelper.sharedGroup toString:sharedGroup])
         {
+<<<<<<< HEAD
             mHelper.sharedGroup = _sharedGroup = sharedGroup;
+=======
+            mHelper.sharedGroup = sharedGroup;
+>>>>>>> dev
         }
     }
 }

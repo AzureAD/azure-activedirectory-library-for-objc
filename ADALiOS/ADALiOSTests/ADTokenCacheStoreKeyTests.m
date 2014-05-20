@@ -53,28 +53,28 @@
     ADAssertNoError;
     XCTAssertNotNil(key);
     
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Bad authority:
     error = nil;
     ADTokenCacheStoreKey* badKey = [ADTokenCacheStoreKey keyWithAuthority:nil resource:mResource clientId:mClientId error:&error];
-    [self validateFactoryForInvalidArgument:@"authority"
+    [self adValidateFactoryForInvalidArgument:@"authority"
                              returnedObject:badKey
                                       error:error];
     error = nil;
     badKey = [ADTokenCacheStoreKey keyWithAuthority:@"   " resource:mResource clientId:mClientId error:&error];
-    [self validateFactoryForInvalidArgument:@"authority"
+    [self adValidateFactoryForInvalidArgument:@"authority"
                              returnedObject:badKey
                                       error:error];
 
     //Bad clientId
     error = nil;
     badKey = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:mResource clientId:nil error:&error];
-    [self validateFactoryForInvalidArgument:@"clientId"
+    [self adValidateFactoryForInvalidArgument:@"clientId"
                              returnedObject:badKey
                                       error:error];
     error = nil;
     badKey = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:mResource clientId:@"    " error:&error];
-    [self validateFactoryForInvalidArgument:@"clientId"
+    [self adValidateFactoryForInvalidArgument:@"clientId"
                              returnedObject:badKey
                                       error:error];
     

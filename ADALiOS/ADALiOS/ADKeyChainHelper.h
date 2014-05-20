@@ -49,9 +49,15 @@
 -(NSData*) getItemDataWithAttributes: (NSDictionary*) attributes
                                error: (ADAuthenticationError* __autoreleasing*) error;
 
+<<<<<<< HEAD
 /*! Extracts an item as a reference, specified by the "attributes" parameter. */
 -(CFTypeRef) getItemTypeRefWithAttributes: (NSDictionary*) attributes
                                     error: (ADAuthenticationError* __autoreleasing*) error;
+=======
+/*! Extracts the identity, stored in the item, specified by the "attributes" parameter. */
+-(SecIdentityRef) getItemIdentityWithAttributes: (NSDictionary*) attributes
+                                          error: (ADAuthenticationError* __autoreleasing*) error;
+>>>>>>> dev
 
 
 /*! Deletes an item, specified by the passed attributes. Returns YES, if a real

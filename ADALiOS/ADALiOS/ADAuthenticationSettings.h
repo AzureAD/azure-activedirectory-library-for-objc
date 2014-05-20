@@ -70,15 +70,22 @@ typedef enum
 
 /*! The name of the keychain group to be used if sharing of cache between applications
  is desired. Can be nil. The property sets the appropriate value of defaultTokenCacheStore
+<<<<<<< HEAD
  object. See apple's documentation for keychain groups: such groups require certain 
+=======
+ object. See apple's documentation for keychain groups: such groups require certain
+>>>>>>> dev
  entitlements to be set by the applications. Additionally, access to the items in this group
  is only given to the applications from the same vendor. If this property is not set, the behavior
  will depend on the values in the entitlements file (if such exists) and may not result in token
  sharing. The property has no effect if other cache mechanisms are used (non-keychain). */
 @property (getter = getSharedCacheKeychainGroup, setter = setSharedCacheKeychainGroup:) NSString* sharedCacheKeychainGroup;
+<<<<<<< HEAD
 
 /*! Some servers may require client authentication over TLS. The certificate will be stored in the
  shared keychain group, pointed by this property. */
 @property NSString* clientTLSKeychainGroup;
+=======
+>>>>>>> dev
 
 @end

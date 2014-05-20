@@ -18,7 +18,7 @@
 
 #import "ADALiOS.h"
 #import "ADOAuth2Constants.h"
-#import "UIApplicationExtensions.h"
+#import "UIApplication+ADExtensions.h"
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationDelegate.h"
 #import "ADAuthenticationWebViewController.h"
@@ -226,7 +226,7 @@ correlationId:(NSUUID *)correlationId
     if (!parent)
     {
         // Must have a parent view controller to start the authentication view
-        parent = [UIApplication currentViewController];
+        parent = [UIApplication adCurrentViewController];
     }
     if ( parent )
     {
@@ -330,7 +330,7 @@ correlationId:(NSUUID *)correlationId
     if ( nil != _authenticationViewController)
     {
         // Dismiss the authentication view and dispatch the completion block
-        [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+        [[UIApplication adCurrentViewController] dismissViewControllerAnimated:YES completion:^{
             [self dispatchCompletionBlock:error URL:nil];
         }];
     }
@@ -352,7 +352,7 @@ correlationId:(NSUUID *)correlationId
     if ( nil != _authenticationViewController)
     {
         // Dismiss the authentication view and dispatch the completion block
-        [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+        [[UIApplication adCurrentViewController] dismissViewControllerAnimated:YES completion:^{
             [self dispatchCompletionBlock:nil URL:endURL];
         }];
     }
@@ -375,7 +375,7 @@ correlationId:(NSUUID *)correlationId
     if ( nil != _authenticationViewController)
     {
         // Dismiss the authentication view and dispatch the completion block
-        [[UIApplication currentViewController] dismissViewControllerAnimated:YES completion:^{
+        [[UIApplication adCurrentViewController] dismissViewControllerAnimated:YES completion:^{
             [self dispatchCompletionBlock:adError URL:nil];
         }];
     }

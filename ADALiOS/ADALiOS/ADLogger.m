@@ -16,6 +16,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import "ADALiOS.h"
 #import "ADOAuth2Constants.h"
 #include <sys/types.h>
 #include <sys/sysctl.h>
@@ -155,7 +156,7 @@ additionalInformation: (NSString*) additionalInformation
       ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
       }];
     NSString* CPUVer = [self getCPUInfo];
-    if (![NSString isStringNilOrBlank:CPUVer])
+    if (![NSString adIsStringNilOrBlank:CPUVer])
     {
         [result setObject:CPUVer forKey:ADAL_ID_CPU];
     }

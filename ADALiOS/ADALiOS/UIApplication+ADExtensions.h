@@ -16,15 +16,8 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <UIKit/UIKit.h>
+@interface UIApplication ( internal )
 
-#import "UIApplicationExtensions.h"
-
-@implementation UIApplication ( internal )
-
-+ (UIViewController *)currentViewController
-{
-    return [[[UIApplication sharedApplication] keyWindow] rootViewController];
-}
++ (UIViewController *)adCurrentViewController;
 
 @end

@@ -15,8 +15,14 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
+<<<<<<< HEAD
 
 #import "ADKeyChainHelper.h"
+=======
+#import "ADALiOS.h"
+#import "ADKeyChainHelper.h"
+
+>>>>>>> dev
 extern NSString* const sKeyChainlog;
 
 @implementation ADKeyChainHelper
@@ -63,7 +69,11 @@ extern NSString* const sKeyChainlog;
     {
         [attributes setObject:_genericValue forKey:(__bridge id)kSecAttrGeneric];
     }
+<<<<<<< HEAD
     if (![NSString isStringNilOrBlank:_sharedGroup])
+=======
+    if (![NSString adIsStringNilOrBlank:_sharedGroup])
+>>>>>>> dev
     {
         //Apps are not signed on the simulator, so the shared group doesn't apply there.
 #if !(TARGET_IPHONE_SIMULATOR)
@@ -291,12 +301,21 @@ extern NSString* const sKeyChainlog;
     return (__bridge_transfer NSData*)data;
 }
 
+<<<<<<< HEAD
 -(CFTypeRef) getItemTypeRefWithAttributes: (NSDictionary*) attributes
                                     error: (ADAuthenticationError* __autoreleasing*) error
 {
     RETURN_NIL_ON_NIL_ARGUMENT(attributes);
     CFTypeRef result;
     if (![self getItemWithAttributes:attributes returnData:NO item:&result error:error])
+=======
+-(SecIdentityRef) getItemIdentityWithAttributes: (NSDictionary*) attributes
+                                          error: (ADAuthenticationError* __autoreleasing*) error
+{
+    RETURN_NIL_ON_NIL_ARGUMENT(attributes);
+    SecIdentityRef result;
+    if (![self getItemWithAttributes:attributes returnData:NO item:(CFTypeRef*)&result error:error])
+>>>>>>> dev
     {
         return NULL;
     }

@@ -26,16 +26,16 @@
 - (NSString *) adBase64UrlDecode;
 
 /*! Returns YES if the string is nil, or contains only white space */
-+(BOOL) isStringNilOrBlank: (NSString*)string;
++(BOOL) adIsStringNilOrBlank: (NSString*)string;
 
 /*! Returns YES if the passed string is contained. Throws if the passed
  argument is nil or empty string.
  @param cotnained:The string to search
  */
--(BOOL) containsString: (NSString*) contained;
+-(BOOL) adContainsString: (NSString*) contained;
 
 /*! Returns the same string, but without the leading and trailing whitespace */
--(NSString*) trimmedString;
+-(NSString*) adTrimmedString;
 
 /*! Goes over the string starting at "start" index and skips all characters that are
  not in the passed set. Returns the index of the first occurence, or just beyond the end
@@ -43,24 +43,24 @@
  index just beyond the end (self.length).
  @param set: The set of characters to find. E.g. [NSCharacterSet whitespaceAndNewlineCharacterSet]
  @param start: The character index where to start searching. */
--(long) findCharactersFromSet: (NSCharacterSet*) set
+-(long) adFindCharactersFromSet: (NSCharacterSet*) set
                         start: (long) startIndex;
 
-/*! Calls findCharactersFromSet with the non-white character set. */
--(long) findNonWhiteCharacterAfter: (long) startIndex;
+/*! Calls adFindCharactersFromSet with the non-white character set. */
+-(long) adFindNonWhiteCharacterAfter: (long) startIndex;
 
-/*! Calls findCharactersFromSet with a single character set */
--(long) findCharacter:(unichar)toFind start: (long) startIndex;
+/*! Calls adFindCharactersFromSet with a single character set */
+-(long) adFindCharacter:(unichar)toFind start: (long) startIndex;
 
 /*! Ensures that the specified range within the string starts with the prefixWord,
  and the prefixWord is followed by a white space character, or the range terminates
  right after the prefixWord.
  */
--(BOOL) rangeHasPrefixWord: (NSString*) prefixWord range: (NSRange) range;
+-(BOOL) adRangeHasPrefixWord: (NSString*) prefixWord range: (NSRange) range;
 
-/*! Calls rangeHasPrefixWord with the range of the substring from "substringStart"
+/*! Calls adRangeHasPrefixWord with the range of the substring from "substringStart"
  till the end of the string */
--(BOOL) substringHasPrefixWord: (NSString*) prefixWord start: (long) substringStart;
+-(BOOL) adSubstringHasPrefixWord: (NSString*) prefixWord start: (long) substringStart;
 
 /*! Decodes a previously URL encoded string. */
 - (NSString *)adUrlFormDecode;
