@@ -18,11 +18,8 @@
 #import "ADALiOS.h"
 #import "ADAuthenticationDelegate.h"
 #import "ADAuthenticationWebViewController.h"
-<<<<<<< HEAD
 #import "ADAuthenticationSettings.h"
-=======
 #import "ADErrorCodes.h"
->>>>>>> dev
 
 @implementation ADAuthenticationWebViewController
 {

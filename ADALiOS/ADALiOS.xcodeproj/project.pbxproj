@@ -23,11 +23,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-<<<<<<< HEAD
 		4CAE461D18F75F0900659400 /* ADKeyChainHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CAE461C18F75F0900659400 /* ADKeyChainHelper.m */; };
-=======
-		4C54F73E18FF88B90005FBFC /* ADKeyChainHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C54F73D18FF88B90005FBFC /* ADKeyChainHelper.m */; };
->>>>>>> dev
 		8B0965AE17F25770002BDFB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
 		8B0965B517F25770002BDFB8 /* ADALiOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B0965B417F25770002BDFB8 /* ADALiOS.m */; };
 		8B0965BC17F25770002BDFB8 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965BB17F25770002BDFB8 /* XCTest.framework */; };
@@ -146,13 +142,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-<<<<<<< HEAD
 		4CAE461B18F75F0900659400 /* ADKeyChainHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADKeyChainHelper.h; sourceTree = "<group>"; };
 		4CAE461C18F75F0900659400 /* ADKeyChainHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeyChainHelper.m; sourceTree = "<group>"; };
-=======
-		4C54F73C18FF88B90005FBFC /* ADKeyChainHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADKeyChainHelper.h; sourceTree = "<group>"; };
-		4C54F73D18FF88B90005FBFC /* ADKeyChainHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeyChainHelper.m; sourceTree = "<group>"; };
->>>>>>> dev
 		8B0965AA17F25770002BDFB8 /* libADALiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libADALiOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B0965AD17F25770002BDFB8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8B0965B117F25770002BDFB8 /* ADALiOS-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADALiOS-Prefix.pch"; sourceTree = "<group>"; };
@@ -412,19 +403,12 @@
 			isa = PBXGroup;
 			children = (
 				8B2E422D182C0A2600A38559 /* iOS */,
-<<<<<<< HEAD
-				8B34343518330474002DE1DC /* NSDictionaryExtensions.h */,
-				8B34343618330474002DE1DC /* NSDictionaryExtensions.m */,
 				8B51F11018F5F21F0055815E /* ADURLProtocol.h */,
 				8B51F11118F5F21F0055815E /* ADURLProtocol.m */,
-				8B34343B183304B1002DE1DC /* NSURLExtensions.h */,
-				8B34343C183304B1002DE1DC /* NSURLExtensions.m */,
-=======
 				8B34343518330474002DE1DC /* NSDictionary+ADExtensions.h */,
 				8B34343618330474002DE1DC /* NSDictionary+ADExtensions.m */,
 				8B34343B183304B1002DE1DC /* NSURL+ADExtensions.h */,
 				8B34343C183304B1002DE1DC /* NSURL+ADExtensions.m */,
->>>>>>> dev
 				8B34343E183304C9002DE1DC /* ADAuthenticationDelegate.h */,
 				8B34343F183304FE002DE1DC /* ADWebRequest.h */,
 				8B343440183304FE002DE1DC /* ADWebRequest.m */,

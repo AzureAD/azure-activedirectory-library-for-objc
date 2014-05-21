@@ -23,10 +23,4 @@
 //of workplace joined devices. The class is not thread-safe.
 @interface ADURLProtocol : NSURLProtocol <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 
-/* Sets the identity to be used for the client TLS authentication (required with workplace join). */
-+(void) setIdentity:(SecIdentityRef) identity;
-
-/* Releases the certificate data. Typically called at the end of the client TLS session. */
-+(void) clearIdentity;
-
 @end

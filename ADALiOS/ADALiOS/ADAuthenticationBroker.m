@@ -230,7 +230,7 @@ correlationId:(NSUUID *)correlationId
     }
     if ( parent )
     {
-        _clientTLSSession = [ADWorkplaceJoined startTLSSessionWithError:nil];
+        _clientTLSSession = [ADWorkplaceJoined startWebViewTLSSessionWithError:nil];
         if (_clientTLSSession)
         {
             AD_LOG_INFO(@"Authorization UI", @"The device is workplace joined. Client TLS Session started.");
@@ -301,7 +301,7 @@ correlationId:(NSUUID *)correlationId
     
     if (_clientTLSSession)
     {
-        [ADWorkplaceJoined endTLSSession];
+        [ADWorkplaceJoined endWebViewTLSSession];
     }
     if ( _completionBlock )
     {

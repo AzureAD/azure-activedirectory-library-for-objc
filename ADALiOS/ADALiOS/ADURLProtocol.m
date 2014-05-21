@@ -16,39 +16,16 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import "ADALiOS.h"
 #import "ADURLProtocol.h"
 #import "ADLogger.h"
-
-static SecIdentityRef sIdentity;
+#import "ADWorkplaceJoined.h"
 
 NSString* const sLog = @"HTTP Protocol";
 
 @implementation ADURLProtocol
 {
     NSURLConnection *_connection;
-}
-
-+(void) setIdentity:(SecIdentityRef)identity
-{
-    if (identity)
-    {
-        AD_LOG_INFO(sLog, @"Identity set.");
-        CFRetain(identity);
-        sIdentity = identity;
-    }
-    else
-    {
-        AD_LOG_WARN(sLog, @"HTTPProtocol::setIdentity called with NULL parameter");
-    }
-}
-
-+(void) clearIdentity
-{
-    if (sIdentity)
-    {
-        CFRelease(sIdentity);
-        sIdentity = NULL;
-    }
 }
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
@@ -123,41 +100,11 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 {
     AD_LOG_VERBOSE_F(sLog, @"connection:willSendRequestForAuthenticationChallenge: %@. Previous challenge failure count: %ld", challenge.protectionSpace.authenticationMethod, (long)challenge.previousFailureCount);
 
-    if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodClientCertificate] == NSOrderedSame )
+    if (![ADWorkplaceJoined handleClientTLSChallenge:challenge])
     {
-        // This is the client TLS challenge: use the identity to authenticate:
-        if (sIdentity)
-        {
-            AD_LOG_VERBOSE_F(sLog, @"Attempting to handle client TLS challenge for host: %@", challenge.protectionSpace.host);
-            
-            SecCertificateRef clientCertificate = NULL;
-            OSStatus          status            = SecIdentityCopyCertificate( sIdentity, &clientCertificate );
-            if (errSecSuccess == status)
-            {
-                //TODO: Figure out if the sCertificate should be leveraged at all.
-                NSArray* certs = [NSArray arrayWithObjects: (__bridge id)clientCertificate, nil];
-                NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sIdentity
-                                                                   certificates:certs
-                                                                    persistence:NSURLCredentialPersistenceNone];
-                [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
-                
-                AD_LOG_VERBOSE(sLog, @"Client TLS challenge responded.");
-                CFRelease(clientCertificate);
-                return;
-            }
-            else
-            {
-                AD_LOG_WARN_F(sLog, @"SecIdentityCopyCertificate failed with error: %ld", (long)status);
-            }
-        }
-        else
-        {
-            AD_LOG_WARN(sLog, @"Cannot respond to client TLS request. Identity is not set.");
-        }
+        // Do default handling
+        [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
     }
-    
-    // Do default handling
-    [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
 }
 
 

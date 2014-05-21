@@ -24,74 +24,137 @@
 #import "ADALiOS.h"
 #import "ADURLProtocol.h"
 
+NSString* const AD_WPJ_LOG = @"Workplace join";
+
+static SecIdentityRef sAD_Identity_Ref;
+
 @implementation ADWorkplaceJoined
 
-+(BOOL) startTLSSessionWithError: (ADAuthenticationError *__autoreleasing *) error
+//Reads the device identity from the keychain:
++(SecIdentityRef) getIdentityWithError: (ADAuthenticationError *__autoreleasing *) error
 {
     NSString* keychainGroup = [ADAuthenticationSettings sharedInstance].clientTLSKeychainGroup;
     ADKeyChainHelper* identityHelper = [[ADKeyChainHelper alloc] initWithClass:(__bridge id)kSecClassIdentity
                                                                        generic:nil
                                                                    sharedGroup:keychainGroup];
     SecIdentityRef identity =
-    (SecIdentityRef)[identityHelper getItemTypeRefWithAttributes:@{(__bridge id)kSecAttrKeyClass:(__bridge id)kSecAttrKeyClassPrivate}
-  //@{(__bridge id)kSecAttrApplicationTag:[@"com.microsoft.workplacejoin.privatekey" dataUsingEncoding:NSUTF8StringEncoding]}
+        (SecIdentityRef)[identityHelper getItemTypeRefWithAttributes:@{(__bridge id)kSecAttrKeyClass:(__bridge id)kSecAttrKeyClassPrivate}
                                                            error:error];
-    
-    BOOL succeeded = NO;
-    if (identity)
+    return identity;
+}
+
++(BOOL) startWebViewTLSSessionWithError: (ADAuthenticationError *__autoreleasing *) error
+{
+    @synchronized(self)//Protect the sAD_Identity_Ref from being cleared while used.
     {
-        [ADURLProtocol setIdentity:identity];
-        if ([NSURLProtocol registerClass:[ADURLProtocol class]])
+        AD_LOG_VERBOSE(AD_WPJ_LOG, @"Attempting to start the client TLS session for webview.");
+        
+        if (sAD_Identity_Ref)
         {
-            succeeded = YES;
+            AD_LOG_WARN(AD_WPJ_LOG, @"The previous session was not cleared.");
+            CFRelease(sAD_Identity_Ref);
+            sAD_Identity_Ref = NULL;
+        }
+        
+        SecIdentityRef identity = [self getIdentityWithError:error];
+        BOOL succeeded = NO;
+        if (identity)
+        {
+            sAD_Identity_Ref = identity;
+            if ([NSURLProtocol registerClass:[ADURLProtocol class]])
+            {
+                succeeded = YES;
+                AD_LOG_VERBOSE(AD_WPJ_LOG, @"Client TLS session started.");
+            }
+            else
+            {
+                ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Failed to register NSURLProtocol."];
+                if (error)
+                {
+                    *error = adError;
+                }
+                sAD_Identity_Ref = NULL;//Cleanup
+                CFRelease(identity);
+            }
         }
         else
         {
-            ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Failed to register NSURLProtocol."];
-            if (error)
-            {
-                *error = adError;
-            }
+            AD_LOG_VERBOSE(AD_WPJ_LOG, @"No workplace join certificate extracted.");
         }
-        CFRelease(identity);
+        return succeeded;
     }
-    return succeeded;
 }
 
 /* Stops the HTTPS interception. */
-+(void) endTLSSession
++(void) endWebViewTLSSession
 {
-    [NSURLProtocol unregisterClass:[ADURLProtocol class]];
-    [ADURLProtocol clearIdentity];
+    @synchronized(self)//Protect the sAD_Identity_Ref from being cleared while used.
+    {
+        [NSURLProtocol unregisterClass:[ADURLProtocol class]];
+        CFRelease(sAD_Identity_Ref);
+        AD_LOG_VERBOSE(AD_WPJ_LOG, @"Client TLS session ended");
+    }
 }
 
-//+ (OSStatus)extractIdentity:(SecIdentityRef *)outIdentity fromPKCS12Data:(NSData *) data
-//{
-//    OSStatus      error   = errSecSuccess;
-//    NSDictionary *options = [NSDictionary new];
-//    CFArrayRef    items   = CFArrayCreate( NULL, 0, 0, NULL );
-//    
-//    // Import the PFX/P12 using the options; the items array is the set of identities and certificates in the PFX/P12
-//    error = SecPKCS12Import( (__bridge CFDataRef)data, (__bridge CFDictionaryRef)options, &items );
-//    
-//    if ( error == 0 )
-//    {
-//        // The client certificate is assumed to be the first one in the set
-//        CFDictionaryRef clientIdentity = CFArrayGetValueAtIndex( items, 0);
-//        const void     *tempIdentity   = CFDictionaryGetValue( clientIdentity, kSecImportItemIdentity );
-//        
-//        CFRetain( tempIdentity );
-//        *outIdentity = (SecIdentityRef)tempIdentity;
-//    }
-//    else
-//    {
-//        DebugLog( @"Failed with error %d", (int)error );
-//    }
-//    
-//    CFRelease( items );
-//    
-//    return error;
-//}
++(BOOL) handleClientTLSChallenge:(NSURLAuthenticationChallenge *)challenge
+{
+    BOOL succeeded = NO;
+    if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodClientCertificate] == NSOrderedSame )
+    {
+        BOOL ownIdentity = NO;
+        SecIdentityRef identity;
+        
+        @synchronized(self)//Protect the sAD_Identity_Ref from being cleared while used.
+        {
+            //The static member will be set in the case of web view session, but not in more ad-hock
+            //token endpoint requests:
+            identity = sAD_Identity_Ref;
+            if (!identity)
+            {
+                //Try to read it from the keychain again:
+                identity = [self getIdentityWithError:nil];
+                ownIdentity = (identity != NULL);
+            }
+            
+            // This is the client TLS challenge: use the identity to authenticate:
+            if (identity)
+            {
+                AD_LOG_VERBOSE_F(AD_WPJ_LOG, @"Attempting to handle client TLS challenge for host: %@", challenge.protectionSpace.host);
+                
+                SecCertificateRef clientCertificate = NULL;
+                OSStatus          status            = SecIdentityCopyCertificate(identity, &clientCertificate );
+                if (errSecSuccess == status)
+                {
+                    //TODO: Figure out if the sCertificate should be leveraged at all.
+                    NSArray* certs = [NSArray arrayWithObjects: (__bridge id)clientCertificate, nil];
+                    NSURLCredential* cred = [NSURLCredential credentialWithIdentity:sAD_Identity_Ref
+                                                                       certificates:certs
+                                                                        persistence:NSURLCredentialPersistenceNone];
+                    [challenge.sender useCredential:cred forAuthenticationChallenge:challenge];
+                    
+                    AD_LOG_VERBOSE(AD_WPJ_LOG, @"Client TLS challenge responded.");
+                    CFRelease(clientCertificate);
+                    
+                    succeeded = YES;
+                }
+                else
+                {
+                    AD_LOG_WARN_F(AD_WPJ_LOG, @"SecIdentityCopyCertificate failed with error: %ld", (long)status);
+                }
+            }
+            else
+            {
+                AD_LOG_WARN(AD_WPJ_LOG, @"Cannot respond to client TLS request. Identity is not present.");
+            }
+        }//@synchronized
+        
+        if (ownIdentity)
+        {
+            CFRelease(identity);
+        }
+    }//Challenge type
 
+    return succeeded;
+}
 
 @end

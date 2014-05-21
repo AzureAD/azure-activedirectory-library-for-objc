@@ -43,13 +43,6 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     NSString* mLibraryString;
     NSData* mLibraryValue;//Data representation of the library string.
 
-<<<<<<< HEAD
-    
-    //Properties:
-    NSString* _sharedGroup;
-    
-=======
->>>>>>> dev
     ADKeyChainHelper* mHelper;
 }
 
@@ -74,18 +67,9 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         mLibraryString  = [NSString stringWithFormat:@"MSOpenTech.ADAL.%ld", sKeychainVersion];
         mLibraryValue   = [mLibraryString dataUsingEncoding:NSUTF8StringEncoding];
         
-<<<<<<< HEAD
-        //Data sharing:
-        _sharedGroup    = sharedGroup;
-        
-        mHelper = [[ADKeyChainHelper alloc] initWithClass:mClassValue
-                                                  generic:mLibraryValue
-                                              sharedGroup:_sharedGroup];
-=======
         mHelper = [[ADKeyChainHelper alloc] initWithClass:mClassValue
                                                   generic:mLibraryValue
                                               sharedGroup:sharedGroup];
->>>>>>> dev
     }
     return self;
 }
@@ -571,11 +555,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     {
         if (![NSString adSame:mHelper.sharedGroup toString:sharedGroup])
         {
-<<<<<<< HEAD
-            mHelper.sharedGroup = _sharedGroup = sharedGroup;
-=======
             mHelper.sharedGroup = sharedGroup;
->>>>>>> dev
         }
     }
 }

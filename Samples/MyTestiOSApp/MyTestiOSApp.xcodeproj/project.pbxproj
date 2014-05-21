@@ -280,7 +280,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B09E8E019180ECC00B1213C /* TestCert.p12 in Resources */,
 				8BA42B1217E3C150002D206E /* Main_iPad.storyboard in Resources */,
 				8BA42B1D17E3C150002D206E /* Images.xcassets in Resources */,
 				8BA42B0F17E3C150002D206E /* Main_iPhone.storyboard in Resources */,
