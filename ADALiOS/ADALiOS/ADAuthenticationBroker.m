@@ -104,6 +104,7 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
     if ( self )
     {
         _completionLock = [[NSLock alloc] init];
+        _clientTLSSession = NO;
     }
     
     return self;
