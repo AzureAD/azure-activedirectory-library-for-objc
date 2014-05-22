@@ -5,7 +5,6 @@
 	<key>keychain-access-groups</key>
 	<array>
 		<string>$(AppIdentifierPrefix)com.MSOpenTech.MyTestiOSApp</string>
-		<string>$(AppIdentifierPrefix)Roger.WorkPlaceJoin</string>
 		<string>$(AppIdentifierPrefix)com.workplacejoin.shared</string>
 	</array>
 </dict>
