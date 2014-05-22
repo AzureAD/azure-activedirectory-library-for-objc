@@ -58,8 +58,12 @@ static SecIdentityRef sAD_Identity_Ref;
         
         SecIdentityRef identity = [self getIdentityWithError:error];
         BOOL succeeded = NO;
-        if (identity)
+        if (identity)//Start the URL loading hook only if certificate is available
         {
+            //If we have a certificate to supply over the webview, we use the custom URL protocol
+            //hook of Apple's URL loading system to intercept the client TLS challenge and provide
+            //the client certificate. Please note that when the class is registered, all HTTPS traffic
+            //will go through this class. See ADURLProtocol implementation for more details.
             sAD_Identity_Ref = identity;
             if ([NSURLProtocol registerClass:[ADURLProtocol class]])
             {
@@ -91,7 +95,14 @@ static SecIdentityRef sAD_Identity_Ref;
     @synchronized(self)//Protect the sAD_Identity_Ref from being cleared while used.
     {
         [NSURLProtocol unregisterClass:[ADURLProtocol class]];
-        CFRelease(sAD_Identity_Ref);
+        if (sAD_Identity_Ref)
+        {
+            CFRelease(sAD_Identity_Ref);
+        }
+        else
+        {
+            AD_LOG_WARN(AD_WPJ_LOG, @"Calling endWebViewTLSSession without active session.")
+        }
         AD_LOG_VERBOSE(AD_WPJ_LOG, @"Client TLS session ended");
     }
 }

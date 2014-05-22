@@ -30,6 +30,10 @@ NSString* const sLog = @"HTTP Protocol";
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
+    //TODO: Experiment with filtering of the URL to ensure that this class intercepts only
+    //ADAL initiated webview traffic, INCLUDING redirects. This may have issues, if requests are
+    //made from javascript code, instead of full page redirection. As such, I am intercepting
+    //all traffic while authorization webview session is displayed for now.
     if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"] )
     {
         //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checking
@@ -93,8 +97,6 @@ NSString* const sLog = @"HTTP Protocol";
     [self.client URLProtocol:self didFailWithError:error];
 }
 
-//- (BOOL)connectionShouldUseCredentialStorage:(NSURLConnection *)connection
-//- (void) connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 -(void) connection:(NSURLConnection *)connection
 willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
@@ -106,12 +108,6 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
         [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
     }
 }
-
-
-// Deprecated authentication delegates.
-//- (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
-//- (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
-//- (void)connection:(NSURLConnection *)connection didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
 
 #pragma mark - NSURLConnectionDataDelegate Methods
 
@@ -143,10 +139,6 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 {
     [self.client URLProtocol:self didLoadData:data];
 }
-
-//- (NSInputStream *)connection:(NSURLConnection *)connection needNewBodyStream:(NSURLRequest *)request;
-//- (void)connection:(NSURLConnection *)connection   didSendBodyData:(NSInteger)bytesWritten totalBytesWritten:(NSInteger)totalBytesWritten totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite;
-//- (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse;
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {

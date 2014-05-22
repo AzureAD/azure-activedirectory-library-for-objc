@@ -23,7 +23,7 @@
 @interface ADWorkplaceJoined : NSObject
 
 /* Starts intercepting HTTPS connections to enable client TLS authentication over webview. 
- If this method succeeds, it should be paired with endTLSSession. The method attempts 
+ If this method succeeds, it should be paired with endWebViewTLSSession. The method attempts
  to retrieve the workplace join identity and certificate. The interception should be as 
  short as possible, as this is a very specific fix to overcome the webview limitations. */
 +(BOOL) startWebViewTLSSessionWithError: (ADAuthenticationError* __autoreleasing*) error;
