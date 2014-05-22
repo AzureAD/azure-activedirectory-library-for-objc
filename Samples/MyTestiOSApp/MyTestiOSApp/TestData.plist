@@ -5,19 +5,19 @@
 	<key>AAD Instance</key>
 	<dict>
 		<key>Authority</key>
-		<string>https://fs.contoso2014.com/adfs</string>
+		<string>https://login.windows.net/MSOpenTechBV.onMicrosoft.com</string>
 		<key>ClientId</key>
-		<string>533F0CC3-4230-4100-89FE-44607C66C0A8</string>
+		<string>c3c7f5e5-7153-44d4-90e6-329686d48d76</string>
 		<key>Resource</key>
-		<string>urn:dumptoken</string>
+		<string>http://localhost/TodoListService</string>
 		<key>RedirectUri</key>
-		<string>https://adaltest</string>
+		<string>http://todolistclient/</string>
 		<key>UserId</key>
-		<string>boris@contoso2014.com</string>
+		<string>boris@msopentechbv.onmicrosoft.com</string>
 		<key>Password</key>
-		<string></string>
+		<string>~test123</string>
 		<key>SupportsValidation</key>
-		<false/>
+		<true/>
 	</dict>
 </dict>
 </plist>
