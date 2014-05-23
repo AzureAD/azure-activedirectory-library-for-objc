@@ -40,7 +40,7 @@ typedef enum
 
 /*! The class stores global settings for the ADAL library. It is a singleton class
  and the alloc, init and new should not be called directly. The "sharedInstance" selector
- should be used instead to provide the settings instance.
+ should be used instead to provide the settings instance. The class is not thread-safe.
  */
 @interface ADAuthenticationSettings : NSObject
 {
@@ -89,5 +89,9 @@ typedef enum
  sharing. The property has no effect if other cache mechanisms are used (non-keychain). */
 @property (assign, getter = getSharedCacheKeychainGroup, setter = setSharedCacheKeychainGroup:) NSString* sharedCacheKeychainGroup;
 #endif //TARGET_OS_IPHONE
+
+/*! Some servers may require client authentication over TLS. The certificate will be stored in the
+ shared keychain group, pointed by this property. */
+@property NSString* clientTLSKeychainGroup;
 
 @end

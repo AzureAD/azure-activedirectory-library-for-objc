@@ -17,6 +17,7 @@
 // governing permissions and limitations under the License.
 #import "ADAL.h"
 #import "ADKeyChainHelper.h"
+#import "ADKeyChainHelper.h"
 
 extern NSString* const sKeyChainlog;
 
@@ -292,12 +293,12 @@ extern NSString* const sKeyChainlog;
     return (__bridge_transfer NSData*)data;
 }
 
--(SecIdentityRef) getItemIdentityWithAttributes: (NSDictionary*) attributes
-                                          error: (ADAuthenticationError* __autoreleasing*) error
+-(CFTypeRef) getItemTypeRefWithAttributes: (NSDictionary*) attributes
+                                    error: (ADAuthenticationError* __autoreleasing*) error
 {
     RETURN_NIL_ON_NIL_ARGUMENT(attributes);
-    SecIdentityRef result;
-    if (![self getItemWithAttributes:attributes returnData:NO item:(CFTypeRef*)&result error:error])
+    CFTypeRef result;
+    if (![self getItemWithAttributes:attributes returnData:NO item:&result error:error])
     {
         return NULL;
     }

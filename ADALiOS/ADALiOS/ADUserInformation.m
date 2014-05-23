@@ -70,7 +70,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 -(id) init
 {
     //Throws, as this init function should not be used
-    [self doesNotRecognizeSelector:_cmd];
+    [super doesNotRecognizeSelector:_cmd];
     return nil;
 }
 

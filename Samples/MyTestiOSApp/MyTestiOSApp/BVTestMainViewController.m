@@ -310,7 +310,7 @@
                              clientId:mAADInstance.clientId
                           redirectUri:[NSURL URLWithString:mAADInstance.redirectUri]
                        promptBehavior:AD_PROMPT_ALWAYS
-                               userId:@"boris@msopentechbv.onmicrosoft.com"
+                               userId:mAADInstance.userId
                  extraQueryParameters:@""
                       completionBlock:^(ADAuthenticationResult *result)
     {
@@ -321,6 +321,7 @@
         }
         
         [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+        NSLog(@"Access token: %@", result.accessToken);
     }];
     
     

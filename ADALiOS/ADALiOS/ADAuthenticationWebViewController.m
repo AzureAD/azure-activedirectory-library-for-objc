@@ -18,6 +18,7 @@
 #import "ADAL.h"
 #import "ADAuthenticationDelegate.h"
 #import "ADAuthenticationWebViewController.h"
+#import "ADAuthenticationSettings.h"
 #import "ADErrorCodes.h"
 
 @implementation ADAuthenticationWebViewController
