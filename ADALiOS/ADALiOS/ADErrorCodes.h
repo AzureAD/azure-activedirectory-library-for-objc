@@ -92,6 +92,11 @@ typedef enum
     /*! Token requested for user A, but obtained for user B. This can happen if the user explicitly authenticated
      as user B in the login UI, or if cookies for user B are already present.*/
     AD_ERROR_WRONG_USER = 19,
+    
+    /*! When client authentication is requested by TLS, the library attempts to extract the authentication
+     certificate. The error is generated if more than one certificate is found in the keychain. */
+    AD_ERROR_MULTIPLE_TLS_CERTIFICATES = 20,
+    
 } ADErrorCode;
 
 /* HTTP status codes used by the library */
