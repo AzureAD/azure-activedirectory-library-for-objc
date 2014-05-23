@@ -98,6 +98,7 @@ static SecIdentityRef sAD_Identity_Ref;
         if (sAD_Identity_Ref)
         {
             CFRelease(sAD_Identity_Ref);
+            sAD_Identity_Ref = NULL;
         }
         else
         {
