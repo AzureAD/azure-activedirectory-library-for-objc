@@ -53,6 +53,7 @@ typedef enum
     
     ADCredentialsType       _credentialsType;
     dispatch_queue_t _dispatchQueue;
+    NSString* _clientTLSKeychainGroup;
 }
 
 /*! The static instance of the singleton settings class*/
@@ -92,6 +93,6 @@ typedef enum
 
 /*! Some servers may require client authentication over TLS. The certificate will be stored in the
  shared keychain group, pointed by this property. */
-@property NSString* clientTLSKeychainGroup;
+@property (retain) NSString* clientTLSKeychainGroup;
 
 @end

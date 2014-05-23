@@ -346,7 +346,10 @@
 				8B92DB6A181ADE44004AAB0E /* NSString+ADHelperMethods.h */,
 				8B92DB6B181ADE44004AAB0E /* NSString+ADHelperMethods.m */,
 				8B0965B017F25770002BDFB8 /* Supporting Files */,
-				8B0965B117F25770002BDFB8 /* ADALiOS-Prefix.pch */,
+				8B51F11318F5F4840055815E /* ADWorkplaceJoined.h */,
+				8B51F11418F5F4840055815E /* ADWorkplaceJoined.m */,
+				4CAE461B18F75F0900659400 /* ADKeyChainHelper.h */,
+				4CAE461C18F75F0900659400 /* ADKeyChainHelper.m */,
 			);
 			path = ADALiOS;
 			sourceTree = "<group>";
@@ -1007,7 +1010,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = "";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				ONLY_ACTIVE_ARCH = NO;
 			};
 			name = CodeCoverage;
 		};
@@ -1064,7 +1067,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = "";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				ONLY_ACTIVE_ARCH = NO;
 			};
 			name = Debug;
 		};
@@ -1074,7 +1077,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = "";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				ONLY_ACTIVE_ARCH = NO;
 			};
 			name = Release;
 		};

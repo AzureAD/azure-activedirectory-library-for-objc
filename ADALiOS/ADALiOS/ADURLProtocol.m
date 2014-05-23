@@ -16,7 +16,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADALiOS.h"
+#import "ADAL.h"
 #import "ADURLProtocol.h"
 #import "ADLogger.h"
 #import "ADWorkplaceJoined.h"
@@ -143,6 +143,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
     [self.client URLProtocolDidFinishLoading:self];
+    SAFE_ARC_RELEASE(connection);
     _connection = nil;
 }
 

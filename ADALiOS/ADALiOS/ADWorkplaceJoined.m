@@ -15,13 +15,12 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
-
+#import "ADAL.h"
 #import "ADWorkplaceJoined.h"
 #import "ADAuthenticationSettings.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADErrorCodes.h"
 #import "ADKeyChainHelper.h"
-#import "ADALiOS.h"
 #import "ADURLProtocol.h"
 
 NSString* const AD_WPJ_LOG = @"Workplace join";
@@ -40,6 +39,7 @@ static SecIdentityRef sAD_Identity_Ref;
     SecIdentityRef identity =
         (SecIdentityRef)[identityHelper getItemTypeRefWithAttributes:@{(__bridge id)kSecAttrKeyClass:(__bridge id)kSecAttrKeyClassPrivate}
                                                            error:error];
+    SAFE_ARC_RELEASE(identityHelper);
     return identity;
 }
 

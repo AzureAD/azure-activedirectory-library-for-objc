@@ -29,6 +29,7 @@
 @synthesize credentialsType        = _credentialsType;
 @synthesize requestTimeOut         = _requestTimeOut;
 @synthesize enableFullScreen       = _enableFullScreen;
+@synthesize clientTLSKeychainGroup  = _clientTLSKeychainGroup;
 
 
 /*!
@@ -55,6 +56,7 @@
 #else
         _defaultTokenCacheStore     = [[ADPersistentTokenCacheStore alloc] initWithLocation:nil];
 #endif
+        self.clientTLSKeychainGroup = nil;
     }
     return self;
 }

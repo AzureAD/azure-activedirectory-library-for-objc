@@ -37,6 +37,12 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 
 // Implementation
 @implementation ADAuthenticationBroker
+{
+    ADAuthenticationViewController    *_authenticationViewController;
+    
+    NSLock                             *_completionLock;
+    BOOL                               _clientTLSSession;
+}
 
 #pragma mark Shared Instance Methods
 
@@ -73,6 +79,21 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 {
     [self doesNotRecognizeSelector:_cmd];
     return nil;
+}
+
+#pragma mark - Initialization
+
+- (id)init
+{
+    self = [super init];
+    
+    if ( self )
+    {
+        _completionLock = [[NSLock alloc] init];
+        _clientTLSSession = NO;
+    }
+    
+    return self;
 }
 
 #pragma mark - Private Methods
@@ -241,7 +262,13 @@ correlationId:(NSUUID *)correlationId
     //       cannot be blocked at its root, and so this method must
     //       be resilient to this condition and should not generate
     //       two callbacks.
-    @synchronized(self)
+    [_completionLock lock];
+    
+    if (_clientTLSSession)
+    {
+        [ADWorkplaceJoined endWebViewTLSSession];
+    }
+    if ( _completionBlock )
     {
         if ( _completionBlock )
         {
@@ -253,6 +280,8 @@ correlationId:(NSUUID *)correlationId
             });
         }
     }
+    
+    [_completionLock unlock];
 }
 
 #pragma mark - ADAuthenticationDelegate

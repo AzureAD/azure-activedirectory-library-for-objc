@@ -22,7 +22,9 @@
 
 #import "ADWebRequest.h"
 #import "ADWebResponse.h"
+#if TARGET_OS_IPHONE
 #import "ADWorkplaceJoined.h"
+#endif
 
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
@@ -189,11 +191,15 @@ NSString *const HTTPPost = @"POST";
 {
 #pragma unused(connection)
 
+#if TARGET_OS_IPHONE
     if (![ADWorkplaceJoined handleClientTLSChallenge:challenge])
     {
         // Do default handling
         [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
     }
+#else
+    [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
+#endif
 }
 
 // Connection Completion
