@@ -90,6 +90,7 @@
     ADAssertStringEquals(userInfo.userId.lowercaseString, @"boris@msopentechbv.onmicrosoft.com");
     ADAssertStringEquals(userInfo.familyName, @"Vidolovv");
     ADAssertStringEquals(userInfo.givenName, @"Boriss");
+    ADAssertStringEquals(userInfo.rawIdToken, normalToken);
 }
 
 -(void) testIdTokenBad

@@ -366,6 +366,7 @@ extern void __gcov_flush(void);
     userInfo.subject = @"the subject";
     userInfo.userObjectId = @"user object id";
     userInfo.guestId = @"the guest id";
+    userInfo.rawIdToken = @"fake raw id token";
     
     [self adVerifyPropertiesAreSet:userInfo];
     
@@ -483,6 +484,14 @@ extern void __gcov_flush(void);
         else if ([value1 isKindOfClass:[ADUserInformation class]])
         {
             [self adVerifyPropertiesAreSame:value1 second:value2];
+        }
+        else if ([value1 isKindOfClass:[NSDictionary class]])
+        {
+            if (![value1 isEqual:value2])
+            {
+                //Convenient to put breakpoint here:
+                XCTFail("The value of the property %@ is not the same. Value1: %@; Value2: %@", propertyName, value1, value2);
+            }
         }
         else
         {
