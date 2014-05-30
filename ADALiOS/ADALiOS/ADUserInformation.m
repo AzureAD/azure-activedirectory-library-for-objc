@@ -107,6 +107,8 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
         RETURN_ID_TOKEN_ERROR(idToken);
     }
     
+    self.rawIdToken = idToken;
+    
     NSArray* parts = [idToken componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"."]];
     if (parts.count < 1)
     {
@@ -239,6 +241,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     info.subject            = [self.subject copyWithZone:zone];
     info.userObjectId       = [self.userObjectId copyWithZone:zone];
     info.guestId            = [self.guestId copyWithZone:zone];
+    info.rawIdToken         = [self.rawIdToken copyWithZone:zone];
     
     return info;
 }
@@ -263,6 +266,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     [aCoder encodeObject:self.subject forKey:@"subject"];
     [aCoder encodeObject:self.userObjectId forKey:@"userObjectId"];
     [aCoder encodeObject:self.guestId forKey:@"guestId"];
+    [aCoder encodeObject:self.rawIdToken forKey:@"rawIdToken"];
 }
 
 //Deserialize:
@@ -290,6 +294,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
         self.subject            = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"subject"];
         self.userObjectId       = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userObjectId"];
         self.guestId            = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"guestId"];
+        self.rawIdToken         = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
     }
     
     return self;
