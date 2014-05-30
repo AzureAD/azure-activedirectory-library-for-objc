@@ -336,7 +336,7 @@ extern void __gcov_flush(void);
     item.refreshToken = @"refresh token";
     //1hr into the future:
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
-    item.userInformation = [self createUserInformation];
+    item.userInformation = [self adCreateUserInformation];
     item.accessTokenType = @"access token type";
     
     [self adVerifyPropertiesAreSet:item];
@@ -344,29 +344,14 @@ extern void __gcov_flush(void);
     return item;
 }
 
--(ADUserInformation*) createUserInformation
+-(ADUserInformation*) adCreateUserInformation
 {
     ADAuthenticationError* error;
     //This one sets the "userId" property:
-    ADUserInformation* userInfo = [ADUserInformation userInformationWithUserId:@"userId"
-                                                                         error:&error];
+    NSString* id_token = @"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiJjM2M3ZjVlNS03MTUzLTQ0ZDQtOTBlNi0zMjk2ODZkNDhkNzYiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82ZmQxZjVjZC1hOTRjLTQzMzUtODg5Yi02YzU5OGU2ZDgwNDgvIiwiaWF0IjoxMzg3MjI0MTY5LCJuYmYiOjEzODcyMjQxNjksImV4cCI6MTM4NzIyNzc2OSwidmVyIjoiMS4wIiwidGlkIjoiNmZkMWY1Y2QtYTk0Yy00MzM1LTg4OWItNmM1OThlNmQ4MDQ4Iiwib2lkIjoiNTNjNmFjZjItMjc0Mi00NTM4LTkxOGQtZTc4MjU3ZWM4NTE2IiwidXBuIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInVuaXF1ZV9uYW1lIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IjBEeG5BbExpMTJJdkdMX2RHM2RETWszenA2QVFIbmpnb2d5aW01QVdwU2MiLCJmYW1pbHlfbmFtZSI6IlZpZG9sb3Z2IiwiZ2l2ZW5fbmFtZSI6IkJvcmlzcyIsImFsdHNlY2lkIjoiU29tZSBHdXN0IGlkIiwiaWRwIjoiRmFrZSBJRFAiLCJlbWFpbCI6ImZha2UgZS1tYWlsIn0.";
+    ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:id_token error:&error];
     ADAssertNoError;
     XCTAssertNotNil(userInfo, "Nil user info returned.");
-    
-    //Set all properties to non-default values to ensure that copying and unpersisting works:
-    userInfo.userIdDisplayable = TRUE;
-    
-    userInfo.givenName = @"given name";
-    userInfo.familyName = @"family name";
-    userInfo.identityProvider = @"identity provider";
-    userInfo.eMail = @"email@msopentech.bv";
-    userInfo.uniqueName = @"unique name";
-    userInfo.upn = @"upn value";
-    userInfo.tenantId = @"msopentech.com";    /*! May be null */
-    userInfo.subject = @"the subject";
-    userInfo.userObjectId = @"user object id";
-    userInfo.guestId = @"the guest id";
-    userInfo.rawIdToken = @"fake raw id token";
     
     [self adVerifyPropertiesAreSet:userInfo];
     

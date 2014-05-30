@@ -29,6 +29,7 @@ typedef enum
 } ADLogPart;
 
 @class ADTokenCacheStoreItem;
+@class ADUserInformation;
 
 @interface XCTestCase (HelperMethods)
 
@@ -83,8 +84,11 @@ typedef enum
                             file: (const char*) file
                             line: (int) line;
 
-//Creates an new item with all of the properties having correct values
+//Creates a new item with all of the properties having correct values
 -(ADTokenCacheStoreItem*) adCreateCacheItem;
+
+//Creates a sample user information object
+-(ADUserInformation*) adCreateUserInformation;
 
 //Ensures that two cache items are the same:
 -(void) adVerifySameWithItem: (ADTokenCacheStoreItem*) item1
