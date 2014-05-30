@@ -33,8 +33,11 @@ NSMutableString* sInformationLog;
 NSMutableString* sErrorCodesLog;
 ADAL_LOG_LEVEL sMaxAcceptedLogLevel;//If a message is logged above it, the test will fail.
 
-NSString* sTestBegin = @"|||TEST_BEGIN|||";
-NSString* sTestEnd = @"|||TEST_END|||";
+NSString* const sTestBegin = @"|||TEST_BEGIN|||";
+NSString* const sTestEnd = @"|||TEST_END|||";
+
+NSString* const sIdTokenClaims = @"{\"aud\":\"c3c7f5e5-7153-44d4-90e6-329686d48d76\",\"iss\":\"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/\",\"iat\":1387224169,\"nbf\":1387224170,\"exp\":1387227769,\"ver\":\"1.0\",\"tid\":\"6fd1f5cd-a94c-4335-889b-6c598e6d8048\",\"oid\":\"53c6acf2-2742-4538-918d-e78257ec8516\",\"upn\":\"boris@MSOpenTechBV.onmicrosoft.com\",\"unique_name\":\"boris@MSOpenTechBV.onmicrosoft.com\",\"sub\":\"0DxnAlLi12IvGL_dG3dDMk3zp6AQHnjgogyim5AWpSc\",\"family_name\":\"Vidolovv\",\"given_name\":\"Boriss\",\"altsecid\":\"Some Guest id\",\"idp\":\"Fake IDP\",\"email\":\"fake e-mail\"}";
+NSString* const sIDTokenHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
 
 volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
@@ -348,11 +351,36 @@ extern void __gcov_flush(void);
 {
     ADAuthenticationError* error;
     //This one sets the "userId" property:
-    NSString* id_token = @"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiJjM2M3ZjVlNS03MTUzLTQ0ZDQtOTBlNi0zMjk2ODZkNDhkNzYiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82ZmQxZjVjZC1hOTRjLTQzMzUtODg5Yi02YzU5OGU2ZDgwNDgvIiwiaWF0IjoxMzg3MjI0MTY5LCJuYmYiOjEzODcyMjQxNjksImV4cCI6MTM4NzIyNzc2OSwidmVyIjoiMS4wIiwidGlkIjoiNmZkMWY1Y2QtYTk0Yy00MzM1LTg4OWItNmM1OThlNmQ4MDQ4Iiwib2lkIjoiNTNjNmFjZjItMjc0Mi00NTM4LTkxOGQtZTc4MjU3ZWM4NTE2IiwidXBuIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInVuaXF1ZV9uYW1lIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IjBEeG5BbExpMTJJdkdMX2RHM2RETWszenA2QVFIbmpnb2d5aW01QVdwU2MiLCJmYW1pbHlfbmFtZSI6IlZpZG9sb3Z2IiwiZ2l2ZW5fbmFtZSI6IkJvcmlzcyIsImFsdHNlY2lkIjoiU29tZSBHdXN0IGlkIiwiaWRwIjoiRmFrZSBJRFAiLCJlbWFpbCI6ImZha2UgZS1tYWlsIn0.";
+    NSString* id_token = [NSString stringWithFormat:@"%@.%@.",
+                          [sIDTokenHeader adBase64UrlEncode],
+                          [sIdTokenClaims adBase64UrlEncode]];
     ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:id_token error:&error];
     ADAssertNoError;
     XCTAssertNotNil(userInfo, "Nil user info returned.");
+
+    //Check the standard properties:
+    ADAssertStringEquals(userInfo.userId, @"boris@msopentechbv.onmicrosoft.com");
+    ADAssertStringEquals(userInfo.givenName, @"Boriss");
+    ADAssertStringEquals(userInfo.familyName, @"Vidolovv");
+    ADAssertStringEquals(userInfo.subject, @"0DxnAlLi12IvGL_dG3dDMk3zp6AQHnjgogyim5AWpSc");
+    ADAssertStringEquals(userInfo.tenantId, @"6fd1f5cd-a94c-4335-889b-6c598e6d8048");
+    ADAssertStringEquals(userInfo.upn, @"boris@MSOpenTechBV.onmicrosoft.com");
+    ADAssertStringEquals(userInfo.uniqueName, @"boris@MSOpenTechBV.onmicrosoft.com");
+    ADAssertStringEquals(userInfo.eMail, @"fake e-mail");
+    ADAssertStringEquals(userInfo.identityProvider, @"Fake IDP");
+    ADAssertStringEquals(userInfo.userObjectId, @"53c6acf2-2742-4538-918d-e78257ec8516");
+    ADAssertStringEquals(userInfo.guestId, @"Some Guest id");
     
+    //Check unmapped claims:
+    ADAssertStringEquals([userInfo.allClaims objectForKey:@"aud"], @"c3c7f5e5-7153-44d4-90e6-329686d48d76");
+    ADAssertStringEquals([userInfo.allClaims objectForKey:@"iss"], @"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/");
+    XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"iat"], [NSNumber numberWithLong:1387224169]);
+    XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"nbf"], [NSNumber numberWithLong:1387224170]);
+    XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"exp"], [NSNumber numberWithLong:1387227769]);
+    ADAssertStringEquals([userInfo.allClaims objectForKey:@"ver"], @"1.0");
+    
+    //This will check absolutely all properties, so that if we add a new one later
+    //it will fail if it is not set:
     [self adVerifyPropertiesAreSet:userInfo];
     
     return userInfo;
