@@ -36,7 +36,7 @@ typedef enum
      attention is occupied by another activity. A subsequent call with AD_PROMPT_AUTO may be made in more
      appropriate time.
      */
-    AD_PROMPT_NEVER,
+    AD_PROMPT_CACHE_ONLY,
     
     /*! The user will be prompted explicitly for credentials, consent or any other prompts. This option
      is useful in multi-user scenarios. Example is authenticating for the same e-mail service with different

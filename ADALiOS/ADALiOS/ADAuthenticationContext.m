@@ -543,7 +543,7 @@ if (![self checkAndHandleBadArgument:ARG \
         }
     }
     
-    if (promptBehavior == AD_PROMPT_NEVER)
+    if (promptBehavior == AD_PROMPT_CACHE_ONLY)
     {
         //The cache lookup and refresh token attempt have been unsuccessful,
         //so credentials are needed to get an access token:

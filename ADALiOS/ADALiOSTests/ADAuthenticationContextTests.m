@@ -590,7 +590,7 @@ const int sAsyncContextTimeout = 10;
 -(void) testAcquireTokenWithNoPrompt
 {
     ADAuthenticationError* error;
-    mPromptBehavior = AD_PROMPT_NEVER;
+    mPromptBehavior = AD_PROMPT_CACHE_ONLY;
     
     //Nothing in the cache, as we cannot prompt for credentials, this should fail:
     acquireTokenAsync;
@@ -673,7 +673,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([self cacheCount] == 1, "Nothing should be removed from the cache.");
     
     //Now simulate restoring of the connection and server error, ensure that attempt was made to prompt for credentials:
-    mPromptBehavior = AD_PROMPT_NEVER;
+    mPromptBehavior = AD_PROMPT_CACHE_ONLY;
     [self.testContext->mResponse1 setObject:@"bad_refresh_token" forKey:OAUTH2_ERROR];
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED, "AcquireToken should fail, as the credentials are needed without cache.");
@@ -761,7 +761,7 @@ const int sAsyncContextTimeout = 10;
     //#4: Now try failing from both the exact and the broad refresh token to ensure that this code path
     //works. Both items should be removed from the cache. Also ensures that the credentials ask is attempted in this case.
     self.testContext->mAllowTwoRequests = YES;
-    mPromptBehavior = AD_PROMPT_NEVER;
+    mPromptBehavior = AD_PROMPT_CACHE_ONLY;
     newItem.refreshToken = @"new non-working refresh token";
     newItem.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
     [mDefaultTokenCache addOrUpdateItem:newItem error:&error];
