@@ -28,20 +28,27 @@
 
 typedef enum
 {
-    /*! Users will be prompted only if their attention is needed. Default option. */
+    /*! Default option. Users will be prompted only if their attention is needed. First the cache will 
+     be checked for a suitable access token (non-expired). If none is found, the cache will be checked 
+     for a suitable refresh token to be used for obtaining a new access token. If this attempt fails 
+     too, it depends on the acquireToken method being called. 
+     acquireTokenWithResource methods will prompt the user to re-authorize the resource usage by providing
+     credentials. If user login cookies are present from previous authorization, the webview will be 
+     displayed and automatically dismiss itself without asking the user to re-enter credentials.
+     acquireTokenSilentWithResource methods will not show UI in this case, but fail with error code
+     AD_ERROR_USER_INPUT_NEEDED. */
     AD_PROMPT_AUTO,
-    
-    /*! Users will never be prompted. If their attention is needed, the corresponding calls will fail
-     with appropriate error code. This option is useful for background running tasks, while the user
-     attention is occupied by another activity. A subsequent call with AD_PROMPT_AUTO may be made in more
-     appropriate time.
-     */
-    AD_PROMPT_NEVER,
     
     /*! The user will be prompted explicitly for credentials, consent or any other prompts. This option
      is useful in multi-user scenarios. Example is authenticating for the same e-mail service with different
-     user */
+     user. */
     AD_PROMPT_ALWAYS,
+    
+    /*! Re-authorizes (through displaying webview) the resource usage, making sure that the resulting access
+     token contains updated claims. If user logon cookies are available, the user will not be asked for 
+     credentials again and the logon dialog will dismiss automatically. This is equivalent to passing
+     prompt=refresh_session as an extra query parameter during the authorization. */
+    AD_PROMPT_REFRESH_SESSION,
 } ADPromptBehavior;
 
 @class ADAuthenticationResult;
@@ -132,7 +139,10 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
- the function will use the refresh token automatically.
+ the function will use the refresh token automatically. If neither of these attempts succeeds, the method will display
+ credentials web UI for the user to re-authorize the resource usage. Logon cookie from previous authorization may be 
+ leveraged by the web UI, so user may not be actuall prompted. Use the other overloads if a more precise control of the
+ UI displaying is desired.
  @param resource: the resource whose token is needed.
  @param clientId: the client identifier
  @param redirectUri: The redirect URI according to OAuth2 protocol.
@@ -145,7 +155,10 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
- the function will use the refresh token automatically.
+ the function will use the refresh token automatically. If neither of these attempts succeeds, the method will display
+ credentials web UI for the user to re-authorize the resource usage. Logon cookie from previous authorization may be
+ leveraged by the web UI, so user may not be actuall prompted. Use the other overloads if a more precise control of the
+ UI displaying is desired.
  @param resource: the resource whose token is needed.
  @param clientId: the client identifier
  @param redirectUri: The redirect URI according to OAuth2 protocol
@@ -161,7 +174,10 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
- the function will use the refresh token automatically.
+ the function will use the refresh token automatically. If neither of these attempts succeeds, the method will display
+ credentials web UI for the user to re-authorize the resource usage. Logon cookie from previous authorization may be
+ leveraged by the web UI, so user may not be actuall prompted. Use the other overloads if a more precise control of the
+ UI displaying is desired.
  @param resource: the resource whose token is needed.
  @param clientId: the client identifier
  @param redirectUri: The redirect URI according to OAuth2 protocol
@@ -177,9 +193,8 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
              extraQueryParameters: (NSString*) queryParams
                   completionBlock: (ADAuthenticationCallback) completionBlock;
 
-/*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
- expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
- the function will use the refresh token automatically.
+/*! Follows the OAuth2 protocol (RFC 6749). The behavior is controlled by the promptBehavior parameter on whether to re-authorize the
+ resource usage (through webview credentials UI) or attempt to use the cached tokens first.
  @param resource: the resource for whom token is needed.
  @param clientId: the client identifier
  @param redirectUri: The redirect URI according to OAuth2 protocol
@@ -197,6 +212,37 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
                            userId: (NSString*) userId
              extraQueryParameters: (NSString*) queryParams
                   completionBlock: (ADAuthenticationCallback) completionBlock;
+
+/*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+ expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+ the function will use the refresh token automatically. This method will not show UI for the user to reauthorize resource usage.
+ If reauthorization is needed, the method will return an error with code AD_ERROR_USER_INPUT_NEEDED.
+ @param resource: the resource whose token is needed.
+ @param clientId: the client identifier
+ @param redirectUri: The redirect URI according to OAuth2 protocol.
+ @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+-(void) acquireTokenSilentWithResource: (NSString*) resource
+                        clientId: (NSString*) clientId
+                     redirectUri: (NSURL*) redirectUri
+                 completionBlock: (ADAuthenticationCallback) completionBlock;
+
+/*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+ expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+ the function will use the refresh token automatically. This method will not show UI for the user to reauthorize resource usage.
+ If reauthorization is needed, the method will return an error with code AD_ERROR_USER_INPUT_NEEDED.
+ @param resource: the resource whose token is needed.
+ @param clientId: the client identifier
+ @param redirectUri: The redirect URI according to OAuth2 protocol
+ @param userId: The user to be prepopulated in the credentials form. Additionally, if token is found in the cache,
+ it may not be used if it belongs to different token. This parameter can be nil.
+ @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+-(void) acquireTokenSilentWithResource: (NSString*) resource
+                        clientId: (NSString*) clientId
+                     redirectUri: (NSURL*) redirectUri
+                          userId: (NSString*) userId
+                 completionBlock: (ADAuthenticationCallback) completionBlock;
 
 /*! Follows the OAuth2 protocol (RFC 6749). Uses the refresh token to obtain an access token (and another refresh token). The method
  is superceded by acquireToken, which will implicitly use the refresh token if needed. Please use acquireTokenByRefreshToken
