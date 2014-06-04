@@ -164,14 +164,14 @@ const int sTokenWorkflowTimeout     = 20;
 }
 
 -(ADAuthenticationResult*) callAcquireTokenWithInstance: (BVTestInstance*) instance
-                                        refresh_seshion: (BOOL) refresh_seshion
+                                        refresh_session: (BOOL) refresh_session
                                             interactive: (BOOL) interactive
                                            keepSignedIn: (BOOL) keepSignedIn
                                           expectSuccess: (BOOL) expectSuccess
                                                    line: (int) sourceLine
 {
     return [self callAcquireTokenWithInstance:instance
-                              refresh_seshion:refresh_seshion
+                              refresh_session:refresh_session
                                   interactive:interactive
                                  keepSignedIn:keepSignedIn
                                 expectSuccess:expectSuccess
@@ -199,7 +199,7 @@ const int sTokenWorkflowTimeout     = 20;
 //"interactive" parameter indicates whether the call will display
 //UI which user will interact with
 -(ADAuthenticationResult*) callAcquireTokenWithInstance: (BVTestInstance*) instance
-                                        refresh_seshion: (BOOL) refresh_seshion
+                                        refresh_session: (BOOL) refresh_session
                                             interactive: (BOOL) interactive
                                            keepSignedIn: (BOOL) keepSignedIn
                                           expectSuccess: (BOOL) expectSuccess
@@ -215,7 +215,7 @@ const int sTokenWorkflowTimeout     = 20;
     [context acquireTokenWithResource:instance.resource
                              clientId:instance.clientId
                           redirectUri:[NSURL URLWithString:instance.redirectUri]
-                       promptBehavior:refresh_seshion ? AD_PROMPT_REFRESH_SESSION : AD_PROMPT_AUTO
+                       promptBehavior:refresh_session ? AD_PROMPT_REFRESH_SESSION : AD_PROMPT_AUTO
                                userId:userId
                  extraQueryParameters:instance.extraQueryParameters
                       completionBlock:^(ADAuthenticationResult *result)
@@ -307,7 +307,7 @@ const int sTokenWorkflowTimeout     = 20;
 {
     BVTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
-                       refresh_seshion:NO
+                       refresh_session:NO
                            interactive:YES
                           keepSignedIn:NO
                          expectSuccess:YES
@@ -319,7 +319,7 @@ const int sTokenWorkflowTimeout     = 20;
     //Add query parameters:
     instance.extraQueryParameters = @"&foo=bar&bar=foo";//With "&"
     [self callAcquireTokenWithInstance:instance
-                       refresh_seshion:NO
+                       refresh_session:NO
                            interactive:YES
                           keepSignedIn:NO
                          expectSuccess:YES
@@ -329,7 +329,7 @@ const int sTokenWorkflowTimeout     = 20;
     [self clearCookies];
     instance.extraQueryParameters = @"foo=bar&bar=foo";//Without "&"
     [self callAcquireTokenWithInstance:instance
-                       refresh_seshion:NO
+                       refresh_session:NO
                            interactive:YES
                           keepSignedIn:NO
                          expectSuccess:YES
@@ -339,7 +339,7 @@ const int sTokenWorkflowTimeout     = 20;
 {
     BVTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
-                       refresh_seshion:NO
+                       refresh_session:NO
                            interactive:YES
                           keepSignedIn:NO
                          expectSuccess:YES
@@ -348,7 +348,7 @@ const int sTokenWorkflowTimeout     = 20;
     //Now ensure that the cache is used:
     [self clearCookies];//No cookies, force cache use:
     ADAuthenticationResult* result = [self callAcquireTokenWithInstance:instance
-                                                        refresh_seshion:NO
+                                                        refresh_session:NO
                                                             interactive:NO
                                                            keepSignedIn:YES
                                                           expectSuccess:YES
@@ -361,7 +361,7 @@ const int sTokenWorkflowTimeout     = 20;
     XCTAssertNil(error);
     [self clearCookies];//Just in case
     [self callAcquireTokenWithInstance:instance
-                       refresh_seshion:NO
+                       refresh_session:NO
                            interactive:NO
                           keepSignedIn:YES
                          expectSuccess:YES
@@ -372,7 +372,7 @@ const int sTokenWorkflowTimeout     = 20;
 {
     BVTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
-                       refresh_seshion:NO
+                       refresh_session:NO
                            interactive:YES
                           keepSignedIn:YES
                          expectSuccess:YES
@@ -381,7 +381,7 @@ const int sTokenWorkflowTimeout     = 20;
     //Clear the cache, so that cookies are used:
     [self clearCache];
     [self callAcquireTokenWithInstance:instance
-                       refresh_seshion:NO
+                       refresh_session:NO
                            interactive:NO
                           keepSignedIn:YES
                          expectSuccess:YES
@@ -395,7 +395,7 @@ const int sTokenWorkflowTimeout     = 20;
     instance.authority = @"https://example.com/common";
     instance.validateAuthority = NO;
     ADAuthenticationResult* result = [self callAcquireTokenWithInstance:instance
-                                                        refresh_seshion:NO
+                                                        refresh_session:NO
                                                             interactive:NO
                                                            keepSignedIn:YES
                                                           expectSuccess:NO
@@ -406,7 +406,7 @@ const int sTokenWorkflowTimeout     = 20;
     instance.authority = @"https://SomeReallyNonExistingDomain.com/SomeTenant";
     instance.validateAuthority = NO;
     [self callAcquireTokenWithInstance:instance
-                       refresh_seshion:NO
+                       refresh_session:NO
                            interactive:NO
                           keepSignedIn:YES
                          expectSuccess:NO
@@ -416,7 +416,7 @@ const int sTokenWorkflowTimeout     = 20;
     instance.authority = @"https://microsoft.com/SomeTenant";
     instance.validateAuthority = YES;
     result = [self callAcquireTokenWithInstance:instance
-                                refresh_seshion:NO
+                                refresh_session:NO
                                     interactive:NO
                                    keepSignedIn:YES
                                   expectSuccess:NO
@@ -440,7 +440,7 @@ const int sTokenWorkflowTimeout     = 20;
     //Clean, request one user, enter another
     XCTAssertEqual([self cacheCount], (long)0);//Access token and MRRT
     ADAuthenticationResult* result = [self callAcquireTokenWithInstance:[self getAADInstance]
-                                                        refresh_seshion:NO
+                                                        refresh_session:NO
                                                             interactive:YES
                                                            keepSignedIn:YES
                                                           expectSuccess:NO
@@ -450,7 +450,7 @@ const int sTokenWorkflowTimeout     = 20;
     XCTAssertEqual([self cacheCount], (long)2);//Access token and MRRT
     //Cache present, same:
     result = [self callAcquireTokenWithInstance:[self getAADInstance]
-                                refresh_seshion:NO
+                                refresh_session:NO
                                     interactive:NO
                                    keepSignedIn:NO
                                   expectSuccess:NO
@@ -466,15 +466,15 @@ const int sTokenWorkflowTimeout     = 20;
     BVTestInstance* instance = [self getAADInstance];
     //Start with getting a normal token that will be refreshed later:
     ADAuthenticationResult* result1 = [self callAcquireTokenWithInstance:instance
-                                                         refresh_seshion:NO
+                                                         refresh_session:NO
                                                              interactive:YES
                                                             keepSignedIn:YES
                                                            expectSuccess:YES
                                                                     line:__LINE__];
 
-    //This one will use the cookies, but should re-authorize with the refres_seshion parameter:
+    //This one will use the cookies, but should re-authorize with the refres_session parameter:
     ADAuthenticationResult* result2 = [self callAcquireTokenWithInstance:instance
-                                                         refresh_seshion:YES
+                                                         refresh_session:YES
                                                              interactive:NO
                                                             keepSignedIn:YES
                                                            expectSuccess:YES
@@ -484,17 +484,17 @@ const int sTokenWorkflowTimeout     = 20;
     //Retry without the cache, cookies should still be used:
     [self clearCache];
     [self callAcquireTokenWithInstance:instance
-                       refresh_seshion:YES
+                       refresh_session:YES
                            interactive:NO
                           keepSignedIn:YES
                          expectSuccess:YES
                                   line:__LINE__];
     
-    //Now clear both cache and cookies, normal interactive seshion should be invoked:
+    //Now clear both cache and cookies, normal interactive session should be invoked:
     [self clearCache];
     [self clearCookies];
     [self callAcquireTokenWithInstance:instance
-                       refresh_seshion:YES
+                       refresh_session:YES
                            interactive:YES
                           keepSignedIn:YES
                          expectSuccess:YES
