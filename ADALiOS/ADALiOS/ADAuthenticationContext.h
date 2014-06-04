@@ -24,6 +24,16 @@
 #import "ADUserInformation.h"
 #import "ADTokenCacheStoreKey.h"
 
+#if TARGET_OS_IPHONE
+//iOS:
+#   include <UIKit/UIKit.h>
+typedef UIWebView WebViewType;
+#else
+//OS X:
+#   include <WebKit/WebKit.h>
+typedef WebView   WebViewType;
+#endif
+
 @class UIViewController;
 
 typedef enum
@@ -46,8 +56,8 @@ typedef enum
 
 @class ADAuthenticationResult;
 
-/*! The completion block declaration */
-typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
+/*! The completion block declaration. */
+typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 
 /*! The central class for managing multiple tokens. Usage: create one per AAD or ADFS authority.
  As authority is required, the class cannot be used with "new" or the parameterless "init" selectors.
@@ -127,8 +137,14 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult*);
  requests and the responses from the server. If nil, a new UUID is generated on every request. */
 @property NSUUID* correlationId;
 
-/*! The parent view controller for the authentication view controller UI. */
+/*! The parent view controller for the authentication view controller UI. This property will be used only if
+ a custom web view is NOT specified. */
 @property (weak) UIViewController* parentController;
+
+
+/*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
+   when needed, leveraging the parentController property. */
+@property (weak) WebViewType* webView;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,

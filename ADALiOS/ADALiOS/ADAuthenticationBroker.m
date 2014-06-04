@@ -209,6 +209,7 @@ static NSString *_resourcePath = nil;
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
 parentController:(UIViewController *)parent
+      webView:(WebViewType *)webView
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID *)correlationId
    completion:(ADBrokerCallback)completionBlock
@@ -223,56 +224,78 @@ correlationId:(NSUUID *)correlationId
     
     // Save the completion block
     _completionBlock = [completionBlock copy];
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
 
-    if (!parent)
+    if (webView)
     {
-        // Must have a parent view controller to start the authentication view
-        parent = [UIApplication adCurrentViewController];
-    }
-    if ( parent )
-    {
-        _clientTLSSession = [ADWorkplaceJoined startWebViewTLSSessionWithError:nil];
-        if (_clientTLSSession)
-        {
-            AD_LOG_INFO(@"Authorization UI", @"The device is workplace joined. Client TLS Session started.");
-        }
-        // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
-        UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
+        // Use the application provided WebView
+        _authenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL];
         
-        if (navigationController)
+        if ( _authenticationWebViewController )
         {
-            _authenticationViewController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
-            
-            _authenticationViewController.delegate = self;
-            
-            if ( fullScreen == YES )
-                [navigationController setModalPresentationStyle:UIModalPresentationFullScreen];
-            else
-                [navigationController setModalPresentationStyle:UIModalPresentationFormSheet];
-            
             // Show the authentication view
-            [parent presentViewController:navigationController animated:YES completion:^{
-                // Instead of loading the URL immediately on completion, get the UI on the screen
-                // and then dispatch the call to load the authorization URL
-                dispatch_async( dispatch_get_main_queue(), ^{
-                    [_authenticationViewController startWithURL:startURL endAtURL:endURL];
-                });
-            }];
+            _authenticationWebViewController.delegate = self;
+            [_authenticationWebViewController start];
         }
-        else //Navigation controller
+        else
         {
+            // Dispatch the completion block
             error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
                                                            protocolCode:nil
                                                            errorDetails:AD_FAILED_NO_RESOURCES];
         }
     }
-    else //Parent
+    else
     {
-        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
-                                                       protocolCode:nil
-                                                       errorDetails:AD_FAILED_NO_CONTROLLER];
-        
+        if (!parent)
+        {
+            // Must have a parent view controller to start the authentication view
+            parent = [UIApplication adCurrentViewController];
+        }
+        if ( parent )
+        {
+            _clientTLSSession = [ADWorkplaceJoined startWebViewTLSSessionWithError:nil];
+            if (_clientTLSSession)
+            {
+                AD_LOG_INFO(@"Authorization UI", @"The device is workplace joined. Client TLS Session started.");
+            }
+            // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
+            UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
+            
+            if (navigationController)
+            {
+                _authenticationViewController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
+                
+                _authenticationViewController.delegate = self;
+                
+                if ( fullScreen == YES )
+                    [navigationController setModalPresentationStyle:UIModalPresentationFullScreen];
+                else
+                    [navigationController setModalPresentationStyle:UIModalPresentationFormSheet];
+                
+                // Show the authentication view
+                [parent presentViewController:navigationController animated:YES completion:^{
+                    // Instead of loading the URL immediately on completion, get the UI on the screen
+                    // and then dispatch the call to load the authorization URL
+                    dispatch_async( dispatch_get_main_queue(), ^{
+                        [_authenticationViewController startWithURL:startURL endAtURL:endURL];
+                    });
+                }];
+            }
+            else //Navigation controller
+            {
+                error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
+                                                               protocolCode:nil
+                                                               errorDetails:AD_FAILED_NO_RESOURCES];
+            }
+        }
+        else //Parent
+        {
+            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
+                                                           protocolCode:nil
+                                                           errorDetails:AD_FAILED_NO_CONTROLLER];
+            
+        }
     }
     
     //Error occurred above. Dispatch the callback to the caller:
