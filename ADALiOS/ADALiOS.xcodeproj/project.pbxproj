@@ -82,6 +82,7 @@
 		8BB8346918077F1B007F9F0D /* ADAuthenticationSettings.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8BB83463180764B6007F9F0D /* ADAuthenticationSettings.h */; };
 		8BB8346B1807BE3F007F9F0D /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8346A1807BE3F007F9F0D /* ADAuthenticationContextTests.m */; };
 		8BB8346D1807C5F5007F9F0D /* ADAuthenticationParametersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8346C1807C5F5007F9F0D /* ADAuthenticationParametersTests.m */; };
+		8BBE6FAE193EA1C60039C23E /* ADAuthenticationBroker.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B34344818330591002DE1DC /* ADAuthenticationBroker.h */; };
 		8BBF678618358544004E0F4D /* ADUserInformationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BBF678518358544004E0F4D /* ADUserInformationTests.m */; };
 		8BBF6788183588EC004E0F4D /* ADTokenCacheStoreItemTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BBF6787183588EC004E0F4D /* ADTokenCacheStoreItemTest.m */; };
 		8BD14619182189C800796E79 /* ADAuthenticationParameters+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BD14618182189C800796E79 /* ADAuthenticationParameters+Internal.m */; };
@@ -123,6 +124,7 @@
 			dstPath = "Headers/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				8BBE6FAE193EA1C60039C23E /* ADAuthenticationBroker.h in Copy Files */,
 				8B79592118F5ECA700EBF96E /* ADLogger.h in Copy Files */,
 				8B79592018F5E93A00EBF96E /* ADTokenCacheStoring.h in Copy Files */,
 				8B6114041872347E007759C2 /* ADInstanceDiscovery.h in Copy Files */,
@@ -308,8 +310,6 @@
 		8B0965AF17F25770002BDFB8 /* ADALiOS */ = {
 			isa = PBXGroup;
 			children = (
-				4C54F73C18FF88B90005FBFC /* ADKeyChainHelper.h */,
-				4C54F73D18FF88B90005FBFC /* ADKeyChainHelper.m */,
 				8B0965B217F25770002BDFB8 /* ADALiOS.h */,
 				8B0965B417F25770002BDFB8 /* ADALiOS.m */,
 				8BB8345A18074A58007F9F0D /* ADAuthenticationContext.h */,
@@ -626,7 +626,6 @@
 				8B51F11518F5F4840055815E /* ADWorkplaceJoined.m in Sources */,
 				8B0DA7DE182AD01100CF5E1E /* ADAuthenticationResult+Internal.m in Sources */,
 				8B5989511811A3DB00744AEE /* ADAuthenticationError.m in Sources */,
-				4C54F73E18FF88B90005FBFC /* ADKeyChainHelper.m in Sources */,
 				8B92DB6C181ADE44004AAB0E /* NSString+ADHelperMethods.m in Sources */,
 				8B59894E1810BEAC00744AEE /* ADTokenCacheStoreItem.m in Sources */,
 				4CAE461D18F75F0900659400 /* ADKeyChainHelper.m in Sources */,
