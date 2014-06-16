@@ -28,10 +28,12 @@
 //iOS:
 #   include <UIKit/UIKit.h>
 typedef UIViewController ViewController;
+typedef UIWebView WebViewType;
 #else
 //OS X:
 #   include <WebKit/WebKit.h>
 typedef NSViewController   ViewController;
+typedef WebView WebViewType;
 #endif
 
 #if __has_feature(objc_arc_weak)
@@ -154,6 +156,10 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 
 /*! The parent view controller for the authentication view controller UI. */
 @property (weak_property, atomic) ViewController* parentController;
+
+/*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
+ when needed, leveraging the parentController property. */
+@property (weak_property) WebViewType* webView;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,

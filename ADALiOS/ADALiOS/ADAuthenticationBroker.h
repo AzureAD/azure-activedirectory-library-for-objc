@@ -17,6 +17,15 @@
 // governing permissions and limitations under the License.
 
 #include "ADAuthenticationContext.h"
+#if TARGET_OS_IPHONE
+//iOS:
+#   include <UIKit/UIKit.h>
+typedef UIWebView WebViewType;
+#else
+//OS X:
+#   include <WebKit/WebKit.h>
+typedef WebView   WebViewType;
+#endif
 
 @class ADAuthenticationError;
 @class ADAuthenticationWindowController;
@@ -48,6 +57,7 @@ typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
 parentController:(ViewController*) parent
+      webView:(WebViewType*)webView
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID*)correlationId
    completion: (ADBrokerCallback) completionBlock;
