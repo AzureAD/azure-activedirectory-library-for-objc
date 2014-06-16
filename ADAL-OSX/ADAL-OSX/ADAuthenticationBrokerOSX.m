@@ -177,6 +177,7 @@ correlationId:(NSUUID *)correlationId
     if ( _authenticationPageController )
     {
         SAFE_ARC_RELEASE(_authenticationPageController);
+        _authenticationPageController = nil;
     }
 }
 
