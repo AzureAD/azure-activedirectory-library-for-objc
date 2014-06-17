@@ -79,6 +79,7 @@ NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could n
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
 parentController:(ViewController *)parent
+      webView:(WebViewType*)webView
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID *)correlationId
    completion:(ADBrokerCallback)completionBlock
@@ -100,37 +101,65 @@ correlationId:(NSUUID *)correlationId
     _completionBlock = SAFE_ARC_BLOCK_COPY(completionBlock);
     ADAuthenticationError* error = nil;
     
-    // Load the authentication view
-    _authenticationPageController = [[ADAuthenticationWindowController alloc] initAtURL:startURL
-                                                                               endAtURL:endURL];
-    
-    if ( _authenticationPageController )
+    if (webView)
     {
-        _authenticationPageController.delegate = self;
+        // Use the application provided WebView
+        _authenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL];
         
-        // Start the modal session
-        _authenticationSession = [NSApp beginModalSessionForWindow:[_authenticationPageController window]];
-        if (_authenticationSession)
+        if ( _authenticationWebViewController )
         {
-            // Initialize the web view controller
-            [_authenticationPageController start];
+            // Show the authentication view
+            _authenticationWebViewController.delegate = self;
+            [_authenticationWebViewController start];
+        }
+        else
+        {
+            // Dispatch the completion block
+            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
+                                                           protocolCode:nil
+                                                           errorDetails:AD_FAILED_NO_RESOURCES];
+        }
+    }
+    else
+    {
+        // Load the authentication view
+        _authenticationPageController = [[ADAuthenticationWindowController alloc] initAtURL:startURL
+                                                                                   endAtURL:endURL];
+        
+        if ( _authenticationPageController )
+        {
+            _authenticationPageController.delegate = self;
             
-            NSDate   *beforeDate = [NSDate date];
-            NSInteger result = NSRunContinuesResponse;
-            
-            // Loop until window is endModal is called
-            while ( result == NSRunContinuesResponse )
+            // Start the modal session
+            _authenticationSession = [NSApp beginModalSessionForWindow:[_authenticationPageController window]];
+            if (_authenticationSession)
             {
-                result = [NSApp runModalSession:_authenticationSession];
+                // Initialize the web view controller
+                [_authenticationPageController start];
                 
-                beforeDate = [beforeDate dateByAddingTimeInterval:300];
-                [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:beforeDate];
+                NSDate   *beforeDate = [NSDate date];
+                NSInteger result = NSRunContinuesResponse;
+                
+                // Loop until window is endModal is called
+                while ( result == NSRunContinuesResponse )
+                {
+                    result = [NSApp runModalSession:_authenticationSession];
+                    
+                    beforeDate = [beforeDate dateByAddingTimeInterval:300];
+                    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:beforeDate];
+                }
+                
+                // End the modal session
+                [NSApp endModalSession:_authenticationSession];
+                
+                _authenticationSession = NULL;
             }
-            
-            // End the modal session
-            [NSApp endModalSession:_authenticationSession];
-            
-            _authenticationSession = NULL;
+            else
+            {
+                error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
+                                                               protocolCode:nil
+                                                               errorDetails:AD_FAILED_NO_RESOURCES];
+            }
         }
         else
         {
@@ -139,19 +168,17 @@ correlationId:(NSUUID *)correlationId
                                                            errorDetails:AD_FAILED_NO_RESOURCES];
         }
     }
-    else
-    {
-        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
-                                                       protocolCode:nil
-                                                       errorDetails:AD_FAILED_NO_RESOURCES];
-    }
     //Error occurred above. Dispatch the callback to the caller:
     if (error)
     {
         [self dispatchCompletionBlock:error URL:nil];
     }
     
-    SAFE_ARC_RELEASE(_authenticationPageController);
+    if ( _authenticationPageController )
+    {
+        SAFE_ARC_RELEASE(_authenticationPageController);
+        _authenticationPageController = nil;
+    }
 }
 
 - (void)cancel
@@ -199,8 +226,11 @@ correlationId:(NSUUID *)correlationId
             [NSApp stopModal];
         }
         
-        [_authenticationPageController close];
-        SAFE_ARC_RELEASE(_authenticationPageController); _authenticationPageController = nil;
+        if ( _authenticationPageController )
+        {
+            [_authenticationPageController close];
+            SAFE_ARC_RELEASE(_authenticationPageController); _authenticationPageController = nil;
+        }
         
         [_authenticationWebViewController stop];
         _authenticationWebViewController = nil;
@@ -223,8 +253,11 @@ correlationId:(NSUUID *)correlationId
             [NSApp stopModal];
         }
         
-        [_authenticationPageController close];
-        SAFE_ARC_RELEASE(_authenticationPageController); _authenticationPageController = nil;
+        if ( _authenticationPageController )
+        {
+            [_authenticationPageController close];
+            SAFE_ARC_RELEASE(_authenticationPageController); _authenticationPageController = nil;
+        }
         
         [_authenticationWebViewController stop];
         _authenticationWebViewController = nil;
@@ -247,8 +280,11 @@ correlationId:(NSUUID *)correlationId
             [NSApp stopModal];
         }
         
-        [_authenticationPageController close];
-        SAFE_ARC_RELEASE(_authenticationPageController); _authenticationPageController = nil;
+        if ( _authenticationPageController )
+        {
+            [_authenticationPageController close];
+            SAFE_ARC_RELEASE(_authenticationPageController); _authenticationPageController = nil;
+        }
         
         [_authenticationWebViewController stop];
         _authenticationWebViewController = nil;

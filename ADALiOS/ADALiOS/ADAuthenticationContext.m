@@ -1133,11 +1133,12 @@ if (![self checkAndHandleBadArgument:ARG \
                                   extraQueryParameters:queryParams];
     
     [[ADAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
-                                                end:[NSURL URLWithString:[redirectUri absoluteString]]
+                                               end:[NSURL URLWithString:[redirectUri absoluteString]]
                                   parentController:self.parentController
+                                           webView:self.webView
                                         fullScreen:settings.enableFullScreen
-                                      correlationId:correlationId
-                                         completion:^( ADAuthenticationError *error, NSURL *end )
+                                     correlationId:correlationId
+                                        completion:^( ADAuthenticationError *error, NSURL *end )
      {
          [self releaseExclusionLock]; // Allow other operations that use the UI for credentials.
          
