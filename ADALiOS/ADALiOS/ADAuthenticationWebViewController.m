@@ -37,6 +37,7 @@
     {
         _startURL  = [startURL copy];
         _endURL    = [[endURL absoluteString] lowercaseString];
+        _URLs      = [NSMutableArray new];
         
         _complete  = NO;
         
@@ -57,6 +58,25 @@
     // UIWebView when we are released.
     _webView.delegate = nil;
     _webView          = nil;
+}
+
+- (void)deleteCookies
+{
+    __block NSArray* URLs = [_URLs copy]; // Make a copy so we don't have to worry about something changing it
+    dispatch_async( dispatch_get_main_queue(), ^{
+    
+        [URLs enumerateObjectsUsingBlock:^(id obj, NSUInteger i, BOOL* pf) {
+            // The WebView is storing cookies behind our back which makes signing in with multiple accounts
+            // difficult. Remove them from the webview.
+            NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+            NSArray* cookies = [cookieStorage cookiesForURL:[NSURL URLWithString:(NSString*)obj]];
+            [cookies enumerateObjectsUsingBlock:^(id obj, NSUInteger i, BOOL * pf)
+             {
+                 [cookieStorage deleteCookie:obj];
+             }];
+        }];
+    });
+    [_URLs removeAllObjects];
 }
 
 #pragma mark - Public Methods
@@ -85,6 +105,8 @@
     // TODO: We lowercase both URLs, is this the right thing to do?
     NSString *requestURL = [[request.URL absoluteString] lowercaseString];
     
+    [_URLs addObject:requestURL];
+    
     // Stop at the end URL.
     if ( [requestURL hasPrefix:_endURL] )
     {
@@ -97,6 +119,7 @@
         // This event is explicitly scheduled on the main thread as it is UI related.
         NSAssert( nil != _delegate, @"Delegate object was lost" );
         dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCompleteWithURL:request.URL]; } );
+        [self deleteCookies];
         
         // Tell the web view that this URL should not be loaded.
         return NO;
@@ -129,6 +152,8 @@
     {
         AD_LOG_ERROR(@"Delegate object is lost", AD_ERROR_APPLICATION, @"The delegate object was lost, potentially due to another concurrent request.");
     }
+    
+    [self deleteCookies];
 }
 
 - (void)webView:(WebViewType *)webView didFailLoadWithError:(NSError *)error
