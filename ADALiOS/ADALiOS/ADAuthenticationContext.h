@@ -81,6 +81,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     id<ADTokenCacheStoring> _tokenCacheStore;
     __weak_delegate ViewController *_parentController;
     BOOL _validateAuthority;
+    __weak WebViewType *_webView;
 }
 
 /*! The method allows subclassing of ADAuthenticationContext. For direct class usage, the static factory methods
