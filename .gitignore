@@ -3,3 +3,6 @@
 deriveddata
 xcuserdata
 *.xccheckout
+
+*.hmap
+**/build/**
