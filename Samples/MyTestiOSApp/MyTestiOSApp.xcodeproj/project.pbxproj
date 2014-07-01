@@ -427,9 +427,15 @@
 					"$(inherited)",
 					"AD_CODE_COVERAGE=1",
 				);
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					../../ADALiOS,
+				);
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
-				LIBRARY_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = (
+					"../../ADALiOS/build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)",
+					"$(inherited)",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -548,9 +554,15 @@
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MyTestiOSApp/MyTestiOSApp-Prefix.pch";
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					../../ADALiOS,
+				);
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
-				LIBRARY_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = (
+					"../../ADALiOS/build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)",
+					"$(inherited)",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -566,9 +578,15 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MyTestiOSApp/MyTestiOSApp-Prefix.pch";
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					../../ADALiOS,
+				);
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
-				LIBRARY_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = (
+					"../../ADALiOS/build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)",
+					"$(inherited)",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
