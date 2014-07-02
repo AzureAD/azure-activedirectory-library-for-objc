@@ -109,7 +109,6 @@
     ADAuthenticationError* error = nil;
     item.userInformation = [ADUserInformation userInformationWithUserId:@"user" error:&error];
     ADAssertNoError;
-    item.userInformation.tenantId = @"tenantId";
     
     //Copy the item to ensure that it is not modified withing the method call below:
     ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];

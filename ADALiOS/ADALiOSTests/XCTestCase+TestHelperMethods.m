@@ -37,8 +37,11 @@ NSMutableString* sInformationLog;
 NSMutableString* sErrorCodesLog;
 ADAL_LOG_LEVEL sMaxAcceptedLogLevel;//If a message is logged above it, the test will fail.
 
-NSString* sTestBegin = @"|||TEST_BEGIN|||";
-NSString* sTestEnd = @"|||TEST_END|||";
+NSString* const sTestBegin = @"|||TEST_BEGIN|||";
+NSString* const sTestEnd = @"|||TEST_END|||";
+
+NSString* const sIdTokenClaims = @"{\"aud\":\"c3c7f5e5-7153-44d4-90e6-329686d48d76\",\"iss\":\"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/\",\"iat\":1387224169,\"nbf\":1387224170,\"exp\":1387227769,\"ver\":\"1.0\",\"tid\":\"6fd1f5cd-a94c-4335-889b-6c598e6d8048\",\"oid\":\"53c6acf2-2742-4538-918d-e78257ec8516\",\"upn\":\"boris@MSOpenTechBV.onmicrosoft.com\",\"unique_name\":\"boris@MSOpenTechBV.onmicrosoft.com\",\"sub\":\"0DxnAlLi12IvGL_dG3dDMk3zp6AQHnjgogyim5AWpSc\",\"family_name\":\"Vidolovv\",\"given_name\":\"Boriss\",\"altsecid\":\"Some Guest id\",\"idp\":\"Fake IDP\",\"email\":\"fake e-mail\"}";
+NSString* const sIDTokenHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
 
 volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
@@ -342,7 +345,7 @@ extern void __gcov_flush(void);
     item.refreshToken = @"refresh token";
     //1hr into the future:
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
-    item.userInformation = [self createUserInformation];
+    item.userInformation = [self adCreateUserInformation];
     item.accessTokenType = @"access token type";
     
     [self adVerifyPropertiesAreSet:item];
@@ -350,29 +353,40 @@ extern void __gcov_flush(void);
     return item;
 }
 
--(ADUserInformation*) createUserInformation
+-(ADUserInformation*) adCreateUserInformation
 {
     ADAuthenticationError* error = nil;
     //This one sets the "userId" property:
-    ADUserInformation* userInfo = [ADUserInformation userInformationWithUserId:@"userId"
-                                                                         error:&error];
+    NSString* id_token = [NSString stringWithFormat:@"%@.%@.",
+                          [sIDTokenHeader adBase64UrlEncode],
+                          [sIdTokenClaims adBase64UrlEncode]];
+    ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:id_token error:&error];
     ADAssertNoError;
     XCTAssertNotNil(userInfo, "Nil user info returned.");
+
+    //Check the standard properties:
+    ADAssertStringEquals(userInfo.userId, @"boris@msopentechbv.onmicrosoft.com");
+    ADAssertStringEquals(userInfo.givenName, @"Boriss");
+    ADAssertStringEquals(userInfo.familyName, @"Vidolovv");
+    ADAssertStringEquals(userInfo.subject, @"0DxnAlLi12IvGL_dG3dDMk3zp6AQHnjgogyim5AWpSc");
+    ADAssertStringEquals(userInfo.tenantId, @"6fd1f5cd-a94c-4335-889b-6c598e6d8048");
+    ADAssertStringEquals(userInfo.upn, @"boris@MSOpenTechBV.onmicrosoft.com");
+    ADAssertStringEquals(userInfo.uniqueName, @"boris@MSOpenTechBV.onmicrosoft.com");
+    ADAssertStringEquals(userInfo.eMail, @"fake e-mail");
+    ADAssertStringEquals(userInfo.identityProvider, @"Fake IDP");
+    ADAssertStringEquals(userInfo.userObjectId, @"53c6acf2-2742-4538-918d-e78257ec8516");
+    ADAssertStringEquals(userInfo.guestId, @"Some Guest id");
     
-    //Set all properties to non-default values to ensure that copying and unpersisting works:
-    userInfo.userIdDisplayable = TRUE;
+    //Check unmapped claims:
+    ADAssertStringEquals([userInfo.allClaims objectForKey:@"aud"], @"c3c7f5e5-7153-44d4-90e6-329686d48d76");
+    ADAssertStringEquals([userInfo.allClaims objectForKey:@"iss"], @"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/");
+    XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"iat"], [NSNumber numberWithLong:1387224169]);
+    XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"nbf"], [NSNumber numberWithLong:1387224170]);
+    XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"exp"], [NSNumber numberWithLong:1387227769]);
+    ADAssertStringEquals([userInfo.allClaims objectForKey:@"ver"], @"1.0");
     
-    userInfo.givenName = @"given name";
-    userInfo.familyName = @"family name";
-    userInfo.identityProvider = @"identity provider";
-    userInfo.eMail = @"email@msopentech.bv";
-    userInfo.uniqueName = @"unique name";
-    userInfo.upn = @"upn value";
-    userInfo.tenantId = @"msopentech.com";    /*! May be null */
-    userInfo.subject = @"the subject";
-    userInfo.userObjectId = @"user object id";
-    userInfo.guestId = @"the guest id";
-    
+    //This will check absolutely all properties, so that if we add a new one later
+    //it will fail if it is not set:
     [self adVerifyPropertiesAreSet:userInfo];
     
     return userInfo;
@@ -489,6 +503,14 @@ extern void __gcov_flush(void);
         else if ([value1 isKindOfClass:[ADUserInformation class]])
         {
             [self adVerifyPropertiesAreSame:value1 second:value2];
+        }
+        else if ([value1 isKindOfClass:[NSDictionary class]])
+        {
+            if (![value1 isEqual:value2])
+            {
+                //Convenient to put breakpoint here:
+                XCTFail("The value of the property %@ is not the same. Value1: %@; Value2: %@", propertyName, value1, value2);
+            }
         }
         else
         {

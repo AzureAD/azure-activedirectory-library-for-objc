@@ -53,7 +53,7 @@
 @property (retain, readonly) NSString* userId;
 
 /*! Determines whether userId is displayable */
-@property BOOL userIdDisplayable;
+@property (readonly) BOOL userIdDisplayable;
 
 /*! May be null */
 @property (retain, atomic) NSString* givenName;
