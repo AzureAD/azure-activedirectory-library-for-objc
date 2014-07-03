@@ -48,6 +48,7 @@ static volatile int sDialogInProgress = 0;
 @synthesize parentController  = _parentController;
 @synthesize tokenCacheStore   = _tokenCacheStore;
 @synthesize validateAuthority = _validateAuthority;
+@synthesize webView           = _webView;
 
 -(id) init
 {

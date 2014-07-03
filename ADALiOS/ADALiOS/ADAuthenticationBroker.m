@@ -226,6 +226,7 @@ correlationId:(NSUUID *)correlationId
             }
             // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
             UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
+            
             if (navigationController)
             {
                 _authenticationPageController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
@@ -246,7 +247,7 @@ correlationId:(NSUUID *)correlationId
                     });
                 }];
             }
-            else
+            else //Navigation controller
             {
                 error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
                                                                protocolCode:nil
@@ -258,6 +259,7 @@ correlationId:(NSUUID *)correlationId
             error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
                                                            protocolCode:nil
                                                            errorDetails:AD_FAILED_NO_CONTROLLER];
+            
         }
     }
     

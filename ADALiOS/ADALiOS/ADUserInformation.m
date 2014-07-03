@@ -35,34 +35,19 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 
 @implementation ADUserInformation
 
-@synthesize eMail             = _eMail;
-@synthesize familyName        = _familyName;
-@synthesize givenName         = _givenName;
-@synthesize guestId           = _guestId;
-@synthesize identityProvider  = _identityProvider;
-@synthesize subject           = _subject;
-@synthesize tenantId          = _tenantId;
-@synthesize uniqueName        = _uniqueName;
-@synthesize upn               = _upn;
 @synthesize userId            = _userId;
 @synthesize userIdDisplayable = _userIdDisplayable;
-@synthesize userObjectId      = _userObjectId;
+@synthesize rawIdToken = _rawIdToken;
+@synthesize allClaims = _allClaims;
 
 - (void)dealloc
 {
     AD_LOG_VERBOSE(@"ADUserInformation", @"dealloc");
     
-    SAFE_ARC_RELEASE(_eMail);
-    SAFE_ARC_RELEASE(_familyName);
-    SAFE_ARC_RELEASE(_givenName);
-    SAFE_ARC_RELEASE(_guestId);
-    SAFE_ARC_RELEASE(_identityProvider);
-    SAFE_ARC_RELEASE(_subject);
-    SAFE_ARC_RELEASE(_tenantId);
-    SAFE_ARC_RELEASE(_uniqueName);
-    SAFE_ARC_RELEASE(_upn);
+
     SAFE_ARC_RELEASE(_userId);
-    SAFE_ARC_RELEASE(_userObjectId);
+    SAFE_ARC_RELEASE(_allClaims);
+    SAFE_ARC_RELEASE(_rawIdToken);
     
     SAFE_ARC_SUPER_DEALLOC();
 }
@@ -268,19 +253,10 @@ ID_TOKEN_PROPERTY_GETTER(GuestId, ID_TOKEN_GUEST_ID);
 -(id) copyWithZone:(NSZone*) zone
 {
     //Deep copy. Note that the user may have passed NSMutableString objects, so all of the objects should be copied:
-    ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithUserId:SAFE_ARC_AUTORELEASE([self.userId copyWithZone:zone])];
-    
+    ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithUserId:[self.userId copyWithZone:zone]];
     info->_userIdDisplayable  = self.userIdDisplayable;
-    info->_givenName          = [self.givenName copyWithZone:zone];
-    info->_familyName         = [self.familyName copyWithZone:zone];
-    info->_identityProvider   = [self.identityProvider copyWithZone:zone];
-    info->_tenantId           = [self.tenantId copyWithZone:zone];
-    info->_eMail              = [self.eMail copyWithZone:zone];
-    info->_uniqueName         = [self.uniqueName copyWithZone:zone];
-    info->_upn                = [self.upn copyWithZone:zone];
-    info->_subject            = [self.subject copyWithZone:zone];
-    info->_userObjectId       = [self.userObjectId copyWithZone:zone];
-    info->_guestId            = [self.guestId copyWithZone:zone];
+    info->_rawIdToken       = [self.rawIdToken copyWithZone:zone];
+    info->_allClaims        = [self.allClaims copyWithZone:zone];
     
     return info;
 }
@@ -314,8 +290,8 @@ ID_TOKEN_PROPERTY_GETTER(GuestId, ID_TOKEN_GUEST_ID);
     if (self)
     {
         _userIdDisplayable  = [aDecoder decodeBoolForKey:@"userIdDisplayable"];
-        _rawIdToken             = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
-        _allClaims              = [aDecoder decodeObjectOfClass:[NSDictionary class] forKey:@"allClaims"];
+        _rawIdToken         = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
+        _allClaims          = [aDecoder decodeObjectOfClass:[NSDictionary class] forKey:@"allClaims"];
     }
     
     return self;

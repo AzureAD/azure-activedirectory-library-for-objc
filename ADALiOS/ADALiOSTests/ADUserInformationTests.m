@@ -62,9 +62,7 @@
 
 - (void) testCopy
 {
-    ADAuthenticationError* error = nil;
-    ADUserInformation* userInfo = [ADUserInformation userInformationWithUserId:@"valid user" error:&error];
-    ADAssertNoError;
+    ADUserInformation* userInfo = [self adCreateUserInformation];
     XCTAssertNotNil(userInfo);
     
     ADUserInformation* copy = [userInfo copy];
