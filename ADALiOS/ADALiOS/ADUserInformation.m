@@ -78,6 +78,9 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     {
         //Minor canonicalization of the userId:
         _userId = SAFE_ARC_RETAIN( [self.class normalizeUserId:userId] );
+        _allClaims = nil;
+        _rawIdToken = nil;
+        _userIdDisplayable = NO;
     }
     return self;
 }
@@ -111,13 +114,18 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     {
         return nil;
     }
+    
+    //Initialize to nil just in case:
+    _userId = nil;
+    _rawIdToken = nil;
+    _allClaims = nil;
 
     if ([NSString adIsStringNilOrBlank:idToken])
     {
         RETURN_ID_TOKEN_ERROR(idToken);
     }
     
-    _rawIdToken = idToken;
+    _rawIdToken = SAFE_ARC_RETAIN(idToken);
     NSMutableDictionary* allClaims = [NSMutableDictionary new];
     
     NSArray* parts = [idToken componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"."]];
@@ -177,7 +185,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     
     //Create a read-only dictionary object. Note that the properties checked below are calculated off this dictionary:
-    _allClaims = [NSDictionary dictionaryWithDictionary:allClaims];
+    _allClaims = SAFE_ARC_RETAIN([NSDictionary dictionaryWithDictionary:allClaims]);
     
     //Now attempt to extract an unique user id:
     if (![NSString adIsStringNilOrBlank:self.upn])
