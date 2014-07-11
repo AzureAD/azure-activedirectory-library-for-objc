@@ -311,7 +311,7 @@
     ADAuthenticationParameters* params = [ADAuthenticationParameters alloc];
     XCTAssertThrowsSpecificNamed([params initInternalWithParameters:0 error:nil],
                                  NSException, NSInvalidArgumentException, "Exception should be thrown in this case");
-    
+    [self validateExtractChallenge:@"Bearerauthorization_uri=\"abc\", resource_id=\"foo\"" authority:nil resource:nil line:__LINE__];
     [self validateExtractChallenge:@"Bearer foo" authority:nil resource:nil line:__LINE__];
     [self validateExtractChallenge:@"Bearer foo=bar" authority:nil resource:nil line:__LINE__];
     [self validateExtractChallenge:@"Bearer foo=\"bar\"" authority:nil resource:nil line:__LINE__];
