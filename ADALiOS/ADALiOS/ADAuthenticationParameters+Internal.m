@@ -33,7 +33,7 @@ NSString* const InvalidResponse = @"Missing or invalid Url response.";
 NSString* const UnauthorizedHTTStatusExpected = @"Expected Unauthorized (401) HTTP status code. Actual status code %d";
 const unichar Quote = '\"';
 //The regular expression that matches the Bearer contents:
-NSString* const RegularExpression = @"^Bearer\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*(?:,\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*)*$";
+NSString* const RegularExpression = @"^Bearer\\s+([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*(?:,\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*)*$";
 NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
 
 @implementation ADAuthenticationParameters (Internal)
