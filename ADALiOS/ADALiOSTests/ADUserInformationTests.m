@@ -40,20 +40,20 @@
 
 - (void) testCreator
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationError* error;
     ADUserInformation* userInfo = [ADUserInformation userInformationWithUserId:nil error:&error];
-    [self validateFactoryForInvalidArgument:@"userId" returnedObject:userInfo error:error];
+    [self adValidateFactoryForInvalidArgument:@"userId" returnedObject:userInfo error:error];
 
     error = nil;//Clear before next execution
     userInfo = [ADUserInformation userInformationWithUserId:@"" error:&error];
-    [self validateFactoryForInvalidArgument:@"userId" returnedObject:userInfo error:error];
+    [self adValidateFactoryForInvalidArgument:@"userId" returnedObject:userInfo error:error];
 
     error = nil;//Clear before next execution:
     userInfo = [ADUserInformation userInformationWithUserId:@"  " error:&error];
-    [self validateFactoryForInvalidArgument:@"userId" returnedObject:userInfo error:error];
+    [self adValidateFactoryForInvalidArgument:@"userId" returnedObject:userInfo error:error];
 
-    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     error = nil;
     userInfo = [ADUserInformation userInformationWithUserId:@"valid user" error:&error];
     XCTAssertNotNil(userInfo);
@@ -62,14 +62,8 @@
 
 - (void) testCopy
 {
-    ADAuthenticationError* error;
-    ADUserInformation* userInfo = [ADUserInformation userInformationWithUserId:@"valid user" error:&error];
-    ADAssertNoError;
+    ADUserInformation* userInfo = [self adCreateUserInformation];
     XCTAssertNotNil(userInfo);
-    userInfo.givenName = @"given name  ";
-    userInfo.familyName = @"  family name";
-    userInfo.identityProvider = @" asdf afds";
-    userInfo.userIdDisplayable = YES;//Non-default value
     
     ADUserInformation* copy = [userInfo copy];
     XCTAssertNotNil(copy);
@@ -79,6 +73,7 @@
     ADAssertStringEquals(userInfo.familyName, copy.familyName);
     ADAssertStringEquals(userInfo.identityProvider, copy.identityProvider);
     XCTAssertEqual(userInfo.userIdDisplayable, copy.userIdDisplayable);
+    XCTAssertEqual(userInfo.allClaims, copy.allClaims);
 }
 
 - (void) testIdTokenNormal
@@ -90,12 +85,15 @@
     ADAssertStringEquals(userInfo.userId.lowercaseString, @"boris@msopentechbv.onmicrosoft.com");
     ADAssertStringEquals(userInfo.familyName, @"Vidolovv");
     ADAssertStringEquals(userInfo.givenName, @"Boriss");
+    ADAssertStringEquals(userInfo.rawIdToken, normalToken);
+    //Test one random property:
+    ADAssertStringEquals([userInfo.allClaims objectForKey:@"given_name"], userInfo.givenName);
 }
 
 -(void) testIdTokenBad
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    ADAuthenticationError* error;
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    ADAuthenticationError* error = nil;
     ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:@"" error:&error];
     XCTAssertNotNil(error);
     XCTAssertNil(userInfo);
@@ -110,7 +108,7 @@
     XCTAssertNotNil(error);
     XCTAssertNil(userInfo);
     
-    [self setLogTolerance:ADAL_LOG_LEVEL_WARN];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_WARN];
     //Skip the header. Ensure that the method recovers and still reads the contents:
     error = nil;//Reset it, as it was set in the previous calls
     NSString* missingHeader = @"eyJhdWQiOiJjM2M3ZjVlNS03MTUzLTQ0ZDQtOTBlNi0zMjk2ODZkNDhkNzYiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82ZmQxZjVjZC1hOTRjLTQzMzUtODg5Yi02YzU5OGU2ZDgwNDgvIiwiaWF0IjoxMzg3MjI0MTY5LCJuYmYiOjEzODcyMjQxNjksImV4cCI6MTM4NzIyNzc2OSwidmVyIjoiMS4wIiwidGlkIjoiNmZkMWY1Y2QtYTk0Yy00MzM1LTg4OWItNmM1OThlNmQ4MDQ4Iiwib2lkIjoiNTNjNmFjZjItMjc0Mi00NTM4LTkxOGQtZTc4MjU3ZWM4NTE2IiwidXBuIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInVuaXF1ZV9uYW1lIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IjBEeG5BbExpMTJJdkdMX2RHM2RETWszenA2QVFIbmpnb2d5aW01QVdwU2MiLCJmYW1pbHlfbmFtZSI6IlZpZG9sb3Z2IiwiZ2l2ZW5fbmFtZSI6IkJvcmlzcyJ9";
@@ -121,7 +119,7 @@
     ADAssertStringEquals(userInfo.givenName, @"Boriss");
 
     
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Pass nil for error:
     userInfo = [ADUserInformation userInformationWithIdToken:@"....." error:nil];
     XCTAssertNil(userInfo);
@@ -133,7 +131,7 @@
     XCTAssertNil(userInfo);
     
     error = nil;
-    NSString* plainNoUserId = @"{\"aud\":\"c3c7f5e5-7153-44d4-90e6-329686d48d76\",\"iss\":\"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/\",\"iat\":1387224169,\"nbf\":1387224169,\"exp\":1387227769,\"ver\":\"1.0\",\"tid\":\"6fd1f5cd-a94c-4335-889b-6c598e6d8048\",\"sub\":\"0DxnAlLi12IvGL_dG3dDMk3zp6AQHnjgogyim5AWpSc\",\"family_name\":\"Vidolovv\",\"given_name\":\"Boriss\"}";
+    NSString* plainNoUserId = @"{\"aud\":\"c3c7f5e5-7153-44d4-90e6-329686d48d76\",\"iss\":\"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/\",\"iat\":1387224169,\"nbf\":1387224169,\"exp\":1387227769,\"ver\":\"1.0\",\"tid\":\"6fd1f5cd-a94c-4335-889b-6c598e6d8048\",\"family_name\":\"Vidolovv\",\"given_name\":\"Boriss\"}";//Missing meaningful userID field
     NSString* encoded = [plainNoUserId adBase64UrlEncode];
     userInfo = [ADUserInformation userInformationWithIdToken:encoded error:&error];
     XCTAssertNotNil(error);

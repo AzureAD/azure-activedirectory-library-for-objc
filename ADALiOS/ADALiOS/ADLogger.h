@@ -16,10 +16,9 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import <ADALiOS/ADErrorCodes.h>
-
 /*! Levels of logging. Defines the priority of the logged message */
+#import <Foundation/Foundation.h>
+
 typedef enum
 {
     ADAL_LOG_LEVEL_NO_LOG,//Available to fully disable logging
@@ -89,6 +88,10 @@ typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
 /*! Returns diagnostic trace data to be sent to the Auzure Active Directory servers. */
 +(NSDictionary*) adalId;
 
+/*! Calculates a hash of the passed string. Useful for logging tokens, where we do not log
+ the actual contents, but still want to log something that can be correlated. */
++(NSString*) getHash: (NSString*) input;
+
 @end
 
 //A simple macro for single-line logging:
@@ -100,14 +103,27 @@ typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
     additionalInformation: info]; \
 }
 
+#define FIRST_ARG(ARG,...) ARG
+
 //Allows formatting, e.g. AD_LOG_FORMAT(ADAL_LOG_LEVEL_INFO, "Something", "Check this: %@ and this: %@", this1, this2)
+//If we make this a method, we will lose the warning when the string formatting parameters do not match the actual parameters.
 #define AD_LOG_FORMAT(level, msg, code, info...) \
 { \
-    NSString* logInfo = [NSString stringWithFormat:info]; \
-    [ADLogger log: level \
-          message: msg \
-        errorCode: code \
+    if (FIRST_ARG(info))/*Avoid crash in logging*/ \
+    { \
+        NSString* logInfo = [NSString stringWithFormat:info]; \
+        [ADLogger log: level \
+              message: msg \
+            errorCode: code \
 additionalInformation: logInfo]; \
+    } \
+    else \
+    { \
+        [ADLogger log: level \
+              message: msg \
+            errorCode: code \
+additionalInformation: @"Bad logging: nil info specified."]; \
+    } \
 }
 
 #define AD_LOG_ERROR(message, code, info) AD_LOG(ADAL_LOG_LEVEL_ERROR, message, code, info)

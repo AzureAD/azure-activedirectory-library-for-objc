@@ -15,10 +15,11 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
-
 #import <Foundation/Foundation.h>
-#import <ADALiOS/ADTokenCacheStoreItem.h>
-#import <ADALiOS/ADTokenCacheStoring.h>
+#import "ADTokenCacheStoring.h"
+
+@class ADTokenCacheStoreItem;
+@class ADAuthenticationError;
 
 /*! The default implementation of ADTokenCacheStoring. The implementation
  is thread-safe and implemented with @synchronized on the internal storage.
@@ -53,7 +54,7 @@
 -(void) removeItem: (ADTokenCacheStoreItem*) item
              error: (ADAuthenticationError* __autoreleasing*) error;
 
-/*! Location of the storage. */
+/*! Location of the storage. Keychain cache (default on iOS) uses this parameter to differentiate ADAL entities from other keychain items. */
 @property (readonly) NSString* cacheLocation;
 
 /*! The method checks if the cache has been modified since the last archiving operation and archives

@@ -19,6 +19,7 @@
 #import "ADUserInformation.h"
 #import "ADALiOS.h"
 #import "ADOAuth2Constants.h"
+#import "NSString+ADHelperMethods.h"
 
 NSString* const ID_TOKEN_SUBJECT = @"sub";
 NSString* const ID_TOKEN_TENANTID = @"tid";
@@ -38,8 +39,19 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 -(id) init
 {
     //Throws, as this init function should not be used
-    [self doesNotRecognizeSelector:_cmd];
+    [super doesNotRecognizeSelector:_cmd];
     return nil;
+}
+
++(NSString*) normalizeUserId: (NSString*) userId
+{
+    if (!userId)
+    {
+        return nil;//Quick exit;
+    }
+    NSString* normalized = [userId adTrimmedString].lowercaseString;
+        
+    return normalized.length ? normalized : nil;
 }
 
 -(id) initWithUserId: (NSString*) userId
@@ -49,7 +61,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     if (self)
     {
         //Minor canonicalization of the userId:
-        _userId = [userId trimmedString].lowercaseString;
+        _userId = [self.class normalizeUserId:userId];
     }
     return self;
 }
@@ -71,27 +83,23 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:nil errorDetails:[NSString stringWithFormat: @"The id_token contents cannot be parsed: %@", idTokenText]];
 }
 
-#define EXTRACT_ID_TOKEN_PROPERTY(property, name) \
-{ \
-    NSString* read = [contents objectForKey:name]; \
-    if (![NSString isStringNilOrBlank:read]) \
-    { \
-        [self set##property:read]; \
-    } \
-}
-
 -(id) initWithIdToken: (NSString*) idToken
                 error: (ADAuthenticationError* __autoreleasing*) error
 {
     THROW_ON_NIL_ARGUMENT(idToken);
     self = [super init];
     if (!self)
+    {
         return nil;
+    }
 
-    if ([NSString isStringNilOrBlank:idToken])
+    if ([NSString adIsStringNilOrBlank:idToken])
     {
         RETURN_ID_TOKEN_ERROR(idToken);
     }
+    
+    _rawIdToken = idToken;
+    NSMutableDictionary* allClaims = [NSMutableDictionary new];
     
     NSArray* parts = [idToken componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"."]];
     if (parts.count < 1)
@@ -104,7 +112,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     {
         AD_LOG_VERBOSE(@"Id_token part", part);
         NSString* decoded = [part adBase64UrlDecode];
-        if (![NSString isStringNilOrBlank:decoded])
+        if (![NSString adIsStringNilOrBlank:decoded])
         {
             NSError* jsonError  = nil;
             id jsonObject = [NSJSONSerialization JSONObjectWithData:[decoded dataUsingEncoding:NSUTF8StringEncoding]
@@ -140,16 +148,8 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
                     }
                 }
             }
-            EXTRACT_ID_TOKEN_PROPERTY(GivenName, ID_TOKEN_GIVEN_NAME);
-            EXTRACT_ID_TOKEN_PROPERTY(FamilyName, ID_TOKEN_FAMILY_NAME);
-            EXTRACT_ID_TOKEN_PROPERTY(Subject, ID_TOKEN_SUBJECT);
-            EXTRACT_ID_TOKEN_PROPERTY(TenantId, ID_TOKEN_TENANTID);
-            EXTRACT_ID_TOKEN_PROPERTY(Upn, ID_TOKEN_UPN);
-            EXTRACT_ID_TOKEN_PROPERTY(UniqueName, ID_TOKEN_UNIQUE_NAME);
-            EXTRACT_ID_TOKEN_PROPERTY(EMail, ID_TOKEN_EMAIL);
-            EXTRACT_ID_TOKEN_PROPERTY(IdentityProvider, ID_TOKEN_IDENTITY_PROVIDER);
-            EXTRACT_ID_TOKEN_PROPERTY(UserObjectId, ID_TOKEN_OBJECT_ID);
-            EXTRACT_ID_TOKEN_PROPERTY(GuestId, ID_TOKEN_GUEST_ID);
+
+            [allClaims addEntriesFromDictionary:contents];
         }
     }
     if (!type)
@@ -157,27 +157,34 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
         AD_LOG_WARN(@"The id_token type is missing.", @"Assuming JWT type.");
     }
     
+    //Create a read-only dictionary object. Note that the properties checked below are calculated off this dictionary:
+    _allClaims = [NSDictionary dictionaryWithDictionary:allClaims];
+    
     //Now attempt to extract an unique user id:
-    if (![NSString isStringNilOrBlank:self.uniqueName])
-    {
-        _userId = self.uniqueName;
-        self.userIdDisplayable = true;//This is what the server provided
-    }
-    else if (![NSString isStringNilOrBlank:self.eMail])
-    {
-        _userId = self.eMail;
-        self.userIdDisplayable = true;
-    }
-    else if (![NSString isStringNilOrBlank:self.upn])
+    if (![NSString adIsStringNilOrBlank:self.upn])
     {
         _userId = self.upn;
-        self.userIdDisplayable = true;
+        _userIdDisplayable = YES;
     }
-    else if (![NSString isStringNilOrBlank:self.userObjectId])
+    else if (![NSString adIsStringNilOrBlank:self.eMail])
+    {
+        _userId = self.eMail;
+        _userIdDisplayable = YES;
+    }
+    else if (![NSString adIsStringNilOrBlank:self.subject])
+    {
+        _userId = self.subject;
+    }
+    else if (![NSString adIsStringNilOrBlank:self.userObjectId])
     {
         _userId = self.userObjectId;
     }
-    else if (![NSString isStringNilOrBlank:self.guestId])
+    else if (![NSString adIsStringNilOrBlank:self.uniqueName])
+    {
+        _userId = self.uniqueName;
+        _userIdDisplayable = YES;//This is what the server provided
+    }
+    else if (![NSString adIsStringNilOrBlank:self.guestId])
     {
         _userId = self.guestId;
     }
@@ -185,10 +192,28 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     {
         RETURN_ID_TOKEN_ERROR(idToken);
     }
-    _userId = _userId.lowercaseString;//Normalize
+    _userId = [self.class normalizeUserId:_userId];
     
     return self;
 }
+
+//Declares a propperty getter, which extracts the property from the claims dictionary
+#define ID_TOKEN_PROPERTY_GETTER(property, claimName) \
+-(NSString*) get##property \
+{ \
+    return [self.allClaims objectForKey:claimName]; \
+}
+
+ID_TOKEN_PROPERTY_GETTER(GivenName, ID_TOKEN_GIVEN_NAME);
+ID_TOKEN_PROPERTY_GETTER(FamilyName, ID_TOKEN_FAMILY_NAME);
+ID_TOKEN_PROPERTY_GETTER(Subject, ID_TOKEN_SUBJECT);
+ID_TOKEN_PROPERTY_GETTER(TenantId, ID_TOKEN_TENANTID);
+ID_TOKEN_PROPERTY_GETTER(Upn, ID_TOKEN_UPN);
+ID_TOKEN_PROPERTY_GETTER(UniqueName, ID_TOKEN_UNIQUE_NAME);
+ID_TOKEN_PROPERTY_GETTER(EMail, ID_TOKEN_EMAIL);
+ID_TOKEN_PROPERTY_GETTER(IdentityProvider, ID_TOKEN_IDENTITY_PROVIDER);
+ID_TOKEN_PROPERTY_GETTER(UserObjectId, ID_TOKEN_OBJECT_ID);
+ID_TOKEN_PROPERTY_GETTER(GuestId, ID_TOKEN_GUEST_ID);
 
 +(ADUserInformation*) userInformationWithUserId: (NSString*) userId
                                           error: (ADAuthenticationError* __autoreleasing*) error
@@ -210,17 +235,9 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 {
     //Deep copy. Note that the user may have passed NSMutableString objects, so all of the objects should be copied:
     ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithUserId:[self.userId copyWithZone:zone]];
-    info.userIdDisplayable  = self.userIdDisplayable;
-    info.givenName          = [self.givenName copyWithZone:zone];
-    info.familyName         = [self.familyName copyWithZone:zone];
-    info.identityProvider   = [self.identityProvider copyWithZone:zone];
-    info.tenantId           = [self.tenantId copyWithZone:zone];
-    info.eMail              = [self.eMail copyWithZone:zone];
-    info.uniqueName         = [self.uniqueName copyWithZone:zone];
-    info.upn                = [self.upn copyWithZone:zone];
-    info.subject            = [self.subject copyWithZone:zone];
-    info.userObjectId       = [self.userObjectId copyWithZone:zone];
-    info.guestId            = [self.guestId copyWithZone:zone];
+    info->_userIdDisplayable  = self.userIdDisplayable;
+    info->_rawIdToken       = [self.rawIdToken copyWithZone:zone];
+    info->_allClaims        = [self.allClaims copyWithZone:zone];
     
     return info;
 }
@@ -235,23 +252,15 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 {
     [aCoder encodeObject:self.userId forKey:@"userId"];
     [aCoder encodeBool:self.userIdDisplayable forKey:@"userIdDisplayable"];
-    [aCoder encodeObject:self.givenName forKey:@"givenName"];
-    [aCoder encodeObject:self.familyName forKey:@"familyName"];
-    [aCoder encodeObject:self.identityProvider forKey:@"identityProvider"];
-    [aCoder encodeObject:self.tenantId forKey:@"tenantId"];
-    [aCoder encodeObject:self.eMail forKey:@"eMail"];
-    [aCoder encodeObject:self.uniqueName forKey:@"uniqueName"];
-    [aCoder encodeObject:self.upn forKey:@"upn"];
-    [aCoder encodeObject:self.subject forKey:@"subject"];
-    [aCoder encodeObject:self.userObjectId forKey:@"userObjectId"];
-    [aCoder encodeObject:self.guestId forKey:@"guestId"];
+    [aCoder encodeObject:self.rawIdToken forKey:@"rawIdToken"];
+    [aCoder encodeObject:self.allClaims forKey:@"allClaims"];
 }
 
 //Deserialize:
 -(id) initWithCoder:(NSCoder *) aDecoder
 {
     NSString* storedUserId      = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userId"];
-    if ([NSString isStringNilOrBlank:storedUserId])
+    if ([NSString adIsStringNilOrBlank:storedUserId])
     {
         //The userId should be valid:
         AD_LOG_ERROR_F(@"Invalid user information", AD_ERROR_BAD_CACHE_FORMAT, @"Invalid userId: %@", storedUserId);
@@ -261,17 +270,9 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     self = [self initWithUserId:storedUserId];
     if (self)
     {
-        self.userIdDisplayable  = [aDecoder decodeBoolForKey:@"userIdDisplayable"];
-        self.givenName          = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"givenName"];
-        self.familyName         = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"familyName"];
-        self.identityProvider   = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"identityProvider"];
-        self.tenantId           = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"tenantId"];
-        self.eMail              = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"eMail"];
-        self.uniqueName         = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"uniqueName"];
-        self.upn                = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"upn"];
-        self.subject            = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"subject"];
-        self.userObjectId       = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userObjectId"];
-        self.guestId            = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"guestId"];
+        _userIdDisplayable  = [aDecoder decodeBoolForKey:@"userIdDisplayable"];
+        _rawIdToken             = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
+        _allClaims              = [aDecoder decodeObjectOfClass:[NSDictionary class] forKey:@"allClaims"];
     }
     
     return self;

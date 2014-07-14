@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="13A603" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" initialViewController="DaP-pW-mnj">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13C1021" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" initialViewController="DaP-pW-mnj">
     <dependencies>
-        <deployment version="1536" defaultVersion="1536" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
+        <deployment version="1536" defaultVersion="1792" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
     </dependencies>
     <scenes>
-        <!--Web Authentication View Controller - Login-->
+        <!--Authentication View Controller-->
         <scene sceneID="VnW-m2-oXs">
             <objects>
                 <viewController modalPresentationStyle="formSheet" id="leH-LM-mXg" customClass="ADAuthenticationViewController" sceneMemberID="viewController">
@@ -26,7 +26,7 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Login" id="S0O-Kh-zdY">
+                    <navigationItem key="navigationItem" id="S0O-Kh-zdY">
                         <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="hRD-0N-cJA">
                             <connections>
                                 <action selector="onCancel:" destination="leH-LM-mXg" id="uvm-1y-BzT"/>

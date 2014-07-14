@@ -17,6 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADALiOS.h"
+#import "ADAuthenticationParameters.h"
 #import "ADAuthenticationParameters+Internal.h"
 
 NSString* const OAuth2_Bearer  = @"Bearer";
@@ -32,7 +33,7 @@ NSString* const InvalidResponse = @"Missing or invalid Url response.";
 NSString* const UnauthorizedHTTStatusExpected = @"Expected Unauthorized (401) HTTP status code. Actual status code %d";
 const unichar Quote = '\"';
 //The regular expression that matches the Bearer contents:
-NSString* const RegularExpression = @"^Bearer\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*(?:,\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*)*$";
+NSString* const RegularExpression = @"^Bearer\\s+([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*(?:,\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*)*$";
 NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
 
 @implementation ADAuthenticationParameters (Internal)
@@ -83,7 +84,7 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
     NSError* rgError;
     __block ADAuthenticationError* adError;
     
-    if ([NSString isStringNilOrBlank:headerContents])
+    if ([NSString adIsStringNilOrBlank:headerContents])
     {
         adError = [self invalidHeader:headerContents];
     }

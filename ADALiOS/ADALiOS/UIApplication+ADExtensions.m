@@ -16,14 +16,15 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <ADALiOS/ADPersistentTokenCacheStore.h>
+#import <UIKit/UIKit.h>
 
-@interface ADEncryptedFileTokenCacheStore : ADPersistentTokenCacheStore
+#import "UIApplication+ADExtensions.h"
 
-/*! Initializes the token cache store.
- @param: cacheLocation: The file location. If a relative path is specified,
- the class will put the file in the local cache folder. 
- The initializer returns nil, if cacheLocation is invalid path.*/
--(id) initWithLocation: (NSString *)cacheLocation;
+@implementation UIApplication ( internal )
+
++ (UIViewController *) adCurrentViewController
+{
+    return [[[UIApplication sharedApplication] keyWindow] rootViewController];
+}
 
 @end

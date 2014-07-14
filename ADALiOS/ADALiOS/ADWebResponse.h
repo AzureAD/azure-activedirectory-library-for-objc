@@ -16,8 +16,12 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@interface UIApplication ( internal )
+@interface ADWebResponse : NSObject
 
-+ (UIViewController *)currentViewController;
+@property (strong, readonly) NSDictionary *headers;
+@property (strong, readonly) NSData       *body;
+@property (readonly) NSInteger     statusCode;
+
+- (id)initWithResponse:(NSHTTPURLResponse *)response data:(NSData *)data;
 
 @end

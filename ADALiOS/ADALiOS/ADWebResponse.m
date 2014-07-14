@@ -16,12 +16,48 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#pragma once
+#import "ADWebResponse.h"
 
-@interface NSURL ( IPAL )
+@implementation ADWebResponse
+{
+    NSHTTPURLResponse *_response;
+    NSData            *_body;
+    NSString          *_bodyText;
+}
 
-@property (readonly, nonatomic) NSString     *authority;
-@property (readonly, nonatomic) NSDictionary *fragmentParameters;
-@property (readonly, nonatomic) NSDictionary *queryParameters;
+@synthesize body = _body;
+
+- (id)init
+{
+    return nil;
+}
+
+- (id)initWithResponse:(NSHTTPURLResponse *)response data:(NSData *)data
+{
+    if ( response == nil )
+    {
+        NSAssert( false, @"Invalid Parameters" );
+        return nil;
+    }
+    
+    if ( ( self = [super init] ) != nil )
+    {
+        _response = response;
+        _body     = data;
+        _bodyText = nil;
+    }
+    
+    return self;
+}
+
+- (NSDictionary *)headers
+{
+    return _response.allHeaderFields;
+}
+
+- (NSInteger)statusCode
+{
+    return _response.statusCode;
+}
 
 @end

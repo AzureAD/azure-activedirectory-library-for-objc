@@ -18,24 +18,25 @@
 
 #import "ADALiOS.h"
 #import "ADOAuth2Constants.h"
-#import "NSURLExtensions.h"
+#import "NSURL+ADExtensions.h"
+#import "ADErrorCodes.h"
 
-#import "HTTPWebRequest.h"
-#import "HTTPWebResponse.h"
-
+#import "ADWebRequest.h"
+#import "ADWebResponse.h"
+#import "ADWorkplaceJoined.h"
 
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
 
-@interface HTTPWebRequest () <NSURLConnectionDelegate>
+@interface ADWebRequest () <NSURLConnectionDelegate>
 
-- (void)completeWithError:(NSError *)error andResponse:(HTTPWebResponse *)response;
+- (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response;
 - (void)send;
 - (BOOL)verifyRequestURL:(NSURL *)requestURL;
 
 @end
 
-@implementation HTTPWebRequest
+@implementation ADWebRequest
 {
     NSURLConnection     *_connection;
 
@@ -45,7 +46,7 @@ NSString *const HTTPPost = @"POST";
     NSMutableData       *_responseData;
     NSUUID              *_correlationId;
 
-    void (^_completionHandler)( NSError *, HTTPWebResponse *);
+    void (^_completionHandler)( NSError *, ADWebResponse *);
 }
 
 #pragma mark - Properties
@@ -94,7 +95,7 @@ NSString *const HTTPPost = @"POST";
         _response          = nil;
         _responseData      = nil;
         
-        // Default timeout for HTTPWebRequest is 30 seconds 
+        // Default timeout for ADWebRequest is 30 seconds 
         _timeout           = 30;
         
         _completionHandler = nil;
@@ -105,7 +106,7 @@ NSString *const HTTPPost = @"POST";
 }
 
 // Cleans up and then calls the completion handler
-- (void)completeWithError:(NSError *)error andResponse:(HTTPWebResponse *)response
+- (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response
 {
     // Cleanup
     _requestURL     = nil;
@@ -124,7 +125,7 @@ NSString *const HTTPPost = @"POST";
     }
 }
 
-- (void)send:(void (^)(NSError *, HTTPWebResponse *))completionHandler
+- (void)send:(void (^)(NSError *, ADWebResponse *))completionHandler
 {
     _completionHandler = [completionHandler copy];
     
@@ -137,7 +138,7 @@ NSString *const HTTPPost = @"POST";
 - (void)send
 {
     // Add default HTTP Headers to the request: Host
-    [_requestHeaders setValue:[_requestURL authority] forKey:@"Host"];
+    [_requestHeaders setValue:[_requestURL adAuthority] forKey:@"Host"];
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
     //Correlation id:
     if (_correlationId)
@@ -188,8 +189,11 @@ NSString *const HTTPPost = @"POST";
 {
 #pragma unused(connection)
 
-    // Do default handling
-    [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
+    if (![ADWorkplaceJoined handleClientTLSChallenge:challenge])
+    {
+        // Do default handling
+        [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
+    }
 }
 
 // Connection Completion
@@ -243,7 +247,7 @@ NSString *const HTTPPost = @"POST";
     //
     NSAssert( _response != nil, @"No HTTP Response available" );
 
-    [self completeWithError:nil andResponse:[[HTTPWebResponse alloc] initWithResponse:_response data:_responseData]];
+    [self completeWithError:nil andResponse:[[ADWebResponse alloc] initWithResponse:_response data:_responseData]];
 }
 
 //required method Available in OS X v10.6 through OS X v10.7, then deprecated

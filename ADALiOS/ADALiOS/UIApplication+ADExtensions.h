@@ -16,18 +16,8 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
+@interface UIApplication ( internal )
 
-/*! This is an internal class that contains the basic data
- that the default token cache store persists. */
-@interface ADDefaultTokenCacheStorePersistance : NSObject<NSSecureCoding>
-{
-@public
-    int16_t upperVersion;
-    int16_t lowerVersion;
-    NSArray* cacheItems;
-}
-
--(id) initWithCacheItems: (NSArray*) cacheItems;
++ (UIViewController *)adCurrentViewController;
 
 @end

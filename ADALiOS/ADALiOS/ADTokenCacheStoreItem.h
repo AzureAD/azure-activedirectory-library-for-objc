@@ -15,11 +15,11 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
-
 #import <Foundation/Foundation.h>
-#import <ADALiOS/ADUserInformation.h>
-#import <ADALiOS/ADTokenCacheStoreKey.h>
-#import <ADALiOS/ADAuthenticationError.h>
+
+@class ADUserInformation;
+@class ADTokenCacheStoreKey;
+@class ADAuthenticationError;
 
 /*! Contains all cached elements for a given request for a token.
     Objects of this class are used in the key-based token cache store.

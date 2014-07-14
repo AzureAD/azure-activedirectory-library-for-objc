@@ -17,15 +17,15 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
-#import <ADaLiOS/ADAuthenticationContext.h>
-#import <ADALiOS/ADPersistentTokenCacheStore.h>
+#import "../ADALiOS/ADAuthenticationContext.h"
 #import "ADTestTokenCacheStore.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
-#import "HTTPWebRequest.h"
+#import "ADWebRequest.h"
 #import "ADTestAuthenticationContext.h"
-#import "ADOAuth2Constants.h"
-#import "ADAuthenticationSettings.h"
+#import "../ADALiOS/ADOAuth2Constants.h"
+#import "../ADALiOS/ADAuthenticationSettings.h"
+#import "../ADALiOS/ADKeychainTokenCacheStore.h"
 
 const int sAsyncContextTimeout = 10;
 
@@ -48,13 +48,14 @@ const int sAsyncContextTimeout = 10;
     //The source:
     ADAuthenticationContext* mContext;
     id<ADAuthenticationContextProtocol> mProtocolContext; //Originally set same as above, provided for simplicity.
-    ADPersistentTokenCacheStore* mDefaultTokenCache;
+    ADKeychainTokenCacheStore* mDefaultTokenCache;
     NSString* mAuthority;
     NSString* mResource;
     NSString* mClientId;
     NSURL* mRedirectURL;
     NSString* mUserId;
     ADPromptBehavior mPromptBehavior;
+    BOOL mSilent;
     
     //The results:
     ADAuthenticationError* mError;//The error filled by the result;
@@ -73,14 +74,15 @@ const int sAsyncContextTimeout = 10;
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_ERROR];//Majority of the tests rely on errors
     mAuthority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
-    mDefaultTokenCache = (ADPersistentTokenCacheStore*)([ADAuthenticationSettings sharedInstance].defaultTokenCacheStore);
+    mDefaultTokenCache = (ADKeychainTokenCacheStore*)([ADAuthenticationSettings sharedInstance].defaultTokenCacheStore);
     XCTAssertNotNil(mDefaultTokenCache);
-    XCTAssertTrue([mDefaultTokenCache isKindOfClass:[ADPersistentTokenCacheStore class]]);
+    XCTAssertTrue([mDefaultTokenCache isKindOfClass:[ADKeychainTokenCacheStore class]]);
     mRedirectURL = [NSURL URLWithString:@"http://todolistclient/"];
     mClientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
     mResource = @"http://localhost/TodoListService";
-    mUserId = @"boris@mmsopentechbv.onmicrosoft.com";
+    mUserId = @"boris@msopentechbv.onmicrosoft.com";
     mPromptBehavior = AD_PROMPT_AUTO;
+    mSilent = NO;
     ADAuthenticationError* error;
     ADTestAuthenticationContext* testContext = [[ADTestAuthenticationContext alloc] initWithAuthority:mAuthority
                                                                                     validateAuthority:YES
@@ -99,7 +101,8 @@ const int sAsyncContextTimeout = 10;
     [testContext->mExpectedRequest2 setObject:mClientId forKey:OAUTH2_CLIENT_ID];
     
     //Clear the cache between the tests:
-    [mDefaultTokenCache removeAll];
+    [mDefaultTokenCache removeAllWithError:&error];
+    ADAssertNoError;
 }
 
 - (void)tearDown
@@ -111,9 +114,19 @@ const int sAsyncContextTimeout = 10;
     [super tearDown];
 }
 
+-(long) cacheCount
+{
+    XCTAssertNotNil(mDefaultTokenCache);
+    ADAuthenticationError* error;
+    NSArray* all = [mDefaultTokenCache allItemsWithError:&error];
+    ADAssertNoError;
+    XCTAssertNotNil(all);
+    return all.count;
+}
+
 - (void)testNew
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     XCTAssertThrows([ADAuthenticationContext new], @"The new selector should not work due to requirement to use the parameterless init. At: '%s'", __PRETTY_FUNCTION__);
 }
 
@@ -122,11 +135,11 @@ const int sAsyncContextTimeout = 10;
     XCTAssertThrows([[ADAuthenticationContext alloc] init], @"The new selector should not work due to requirement to use the parameterless init. At: '%s'", __PRETTY_FUNCTION__);
 }
 
-/* A wrapper around validateFactoryForInvalidArgument, passing the test class members*/
--(void) validateFactoryForInvalidArgument: (NSString*) argument
+/* A wrapper around adValidateFactoryForInvalidArgument, passing the test class members*/
+-(void) adValidateFactoryForInvalidArgument: (NSString*) argument
                                     error: (ADAuthenticationError*) error
 {
-    [self validateFactoryForInvalidArgument:argument
+    [self adValidateFactoryForInvalidArgument:argument
                              returnedObject:mContext
                                       error:error];
 }
@@ -137,54 +150,54 @@ const int sAsyncContextTimeout = 10;
     //Authority only:
     ADAuthenticationError* error;
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil error:&error];
-    [self validateFactoryForInvalidArgument:@"authority" error:error];
+    [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     //Authority & validate:
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:YES error:&error];
-    [self validateFactoryForInvalidArgument:@"authority" error:error];
+    [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:NO error:&error];
-    [self validateFactoryForInvalidArgument:@"authority" error:error];
+    [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     //Authority and cache store:
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil tokenCacheStore:nil error:&error];
-    [self validateFactoryForInvalidArgument:@"authority" error:error];
+    [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
                                                            tokenCacheStore:mDefaultTokenCache
                                                                      error:&error];
-    [self validateFactoryForInvalidArgument:@"authority" error:error];
+    [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     //Authority, validate and cache store:
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
                                                          validateAuthority:NO //Non-default value.
                                                            tokenCacheStore:mDefaultTokenCache
                                                                      error:&error];
-    [self validateFactoryForInvalidArgument:@"authority" error:error];
+    [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
                                                          validateAuthority:NO
                                                            tokenCacheStore:nil
                                                                      error:&error];
-    [self validateFactoryForInvalidArgument:@"authority" error:error];
+    [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
                                                          validateAuthority:YES //Non-default value.
                                                            tokenCacheStore:mDefaultTokenCache
                                                                      error:&error];
-    [self validateFactoryForInvalidArgument:@"authority" error:error];
+    [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
                                                          validateAuthority:YES
                                                            tokenCacheStore:nil
                                                                      error:&error];
-    [self validateFactoryForInvalidArgument:@"authority" error:error];
+    [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
                                                          validateAuthority:YES
                                                            tokenCacheStore:nil
                                                                      error:&error];
-    [self validateFactoryForInvalidArgument:@"authority" error:error];
+    [self adValidateFactoryForInvalidArgument:@"authority" error:error];
 }
 
 /* Tests all of the static creators by passing authority as nil. Appropriate error should be returned in all cases. */
@@ -217,7 +230,7 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testProperties
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     ADAuthenticationError* error;
     NSString* authority = @"https://authority.com/oauth2";
     ADTestTokenCacheStore* testStore = [ADTestTokenCacheStore new];
@@ -356,29 +369,41 @@ const int sAsyncContextTimeout = 10;
     [self prepareForAsynchronousCall];
 
     static volatile int completion = 0;
-    [self callAndWaitWithFile:@"" __FILE__ line:line completionSignal: &completion block:^
+    [self adCallAndWaitWithFile:@"" __FILE__ line:line completionSignal: &completion block:^
      {
-         [mContext acquireTokenWithResource:mResource
-                                   clientId:mClientId
-                                redirectUri:mRedirectURL
-                             promptBehavior:mPromptBehavior
-                                     userId:mUserId
-                       extraQueryParameters:nil
-                            completionBlock:^(ADAuthenticationResult *result)
-          {
-              //Fill in the iVars with the result:
-              mResult = result;
-              mError = mResult.error;
-              ASYNC_BLOCK_COMPLETE(completion);
-          }];
+         ADAuthenticationCallback callback = ^(ADAuthenticationResult* result){
+             //Fill in the iVars with the result:
+             mResult = result;
+             mError = mResult.error;
+             ASYNC_BLOCK_COMPLETE(completion);
+         };
+         if (mSilent)
+         {
+             [mContext acquireTokenSilentWithResource:mResource
+                                             clientId:mClientId
+                                          redirectUri:mRedirectURL
+                                               userId:mUserId
+                                      completionBlock:callback];
+         }
+         else
+         {
+             [mContext acquireTokenWithResource:mResource
+                                       clientId:mClientId
+                                    redirectUri:mRedirectURL
+                                 promptBehavior:mPromptBehavior
+                                         userId:mUserId
+                           extraQueryParameters:nil
+                                completionBlock:callback];
+         }
+
      }];
     [self validateAsynchronousResultWithLine:line];
 }
 
 //Local override, using class iVars:
--(ADTokenCacheStoreItem*) createCacheItem
+-(ADTokenCacheStoreItem*) adCreateCacheItem
 {
-    ADTokenCacheStoreItem* item = [super createCacheItem];
+    ADTokenCacheStoreItem* item = [super adCreateCacheItem];
     item.resource = mResource;
     item.authority = mAuthority;
     item.clientId = mClientId;
@@ -398,22 +423,22 @@ const int sAsyncContextTimeout = 10;
 {
     mResource = nil;
     acquireTokenAsync;
-    [self validateForInvalidArgument:@"resource" error:mError];
+    [self adValidateForInvalidArgument:@"resource" error:mError];
     
     mResource = @"   ";
     acquireTokenAsync;
-    [self validateForInvalidArgument:@"resource" error:mError];
+    [self adValidateForInvalidArgument:@"resource" error:mError];
 }
 
 -(void) testAcquireTokenBadClientId
 {
     mClientId = nil;
     acquireTokenAsync;
-    [self validateForInvalidArgument:@"clientId" error:mError];
+    [self adValidateForInvalidArgument:@"clientId" error:mError];
     
     mClientId = @"    ";
     acquireTokenAsync;
-    [self validateForInvalidArgument:@"clientId" error:mError];
+    [self adValidateForInvalidArgument:@"clientId" error:mError];
 }
 
 -(void) addCacheWithToken: (NSString*) accessToken
@@ -435,11 +460,11 @@ const int sAsyncContextTimeout = 10;
         ADAssertNoError;
         XCTAssertNotNil(info, "Nil user info returned.");
         item.userInformation = info;
-        item.userInformation.tenantId = @"msopentech.com";
     }
     
     [mDefaultTokenCache addOrUpdateItem:item error:&error];
-    ADAssertNoError;}
+    ADAssertNoError;
+}
 
 -(void) addCacheWithToken: (NSString*) accessToken
              refreshToken: (NSString*) refreshToken
@@ -462,7 +487,7 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testAcquireTokenWithUserCache
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     NSString* someTokenValue = @"someToken value";
     [self addCacheWithToken:someTokenValue refreshToken:nil];
     acquireTokenAsync;
@@ -524,7 +549,7 @@ const int sAsyncContextTimeout = 10;
     //Try the same, but with refresh tokens only:
     [self addCacheWithToken:nil refreshToken:@"refresh1" userId:user1];
     [self addCacheWithToken:nil refreshToken:@"refresh2" userId:user2];
-    ADAssertLongEquals(2, mDefaultTokenCache.allItems.count);
+    ADAssertLongEquals(2, [self cacheCount]);
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED);
     ADAssertLongEquals(mResult.error.code, AD_ERROR_MULTIPLE_USERS);
@@ -536,7 +561,7 @@ const int sAsyncContextTimeout = 10;
     //Try the same, but with refresh tokens only:
     [self addCacheWithToken:nil refreshToken:@"refresh1" userId:@"user1" resource:nil];
     [self addCacheWithToken:nil refreshToken:@"refresh2" userId:@"user2" resource:nil];
-    ADAssertLongEquals(2, mDefaultTokenCache.allItems.count);
+    ADAssertLongEquals(2, [self cacheCount]);
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED);
     ADAssertLongEquals(mResult.error.code, AD_ERROR_MULTIPLE_USERS);
@@ -559,22 +584,28 @@ const int sAsyncContextTimeout = 10;
     ADAssertNoError;
     XCTAssertNotNil(key);
     
-    ADTokenCacheStoreItem* item = [mDefaultTokenCache getItemWithKey:key userId:mUserId];
+    ADTokenCacheStoreItem* item = [mDefaultTokenCache getItemWithKey:key userId:mUserId error:&error];
+    if (error)
+    {
+        [self recordFailureWithDescription:error.errorDetails inFile:@"" __FILE__ atLine:line expected:NO];
+        return nil;
+    }
     if (!item)
     {
         [self recordFailureWithDescription:@"Item not present." inFile:@"" __FILE__ atLine:line expected:NO];
         return nil;
     }
     
-    [self assertStringEquals:item.accessToken stringExpression:@"item.accessToken" expected:accessToken file:__FILE__ line:line];
-    [self assertStringEquals:item.refreshToken stringExpression:@"item.refreshToken" expected:refreshToken file:__FILE__ line:line];
+    [self adAssertStringEquals:item.accessToken stringExpression:@"item.accessToken" expected:accessToken file:__FILE__ line:line];
+    [self adAssertStringEquals:item.refreshToken stringExpression:@"item.refreshToken" expected:refreshToken file:__FILE__ line:line];
     return item;
 }
 
--(void) testAcquireTokenWithNoPrompt
+-(void) testAcquireTokenSilent
 {
-    mPromptBehavior = AD_PROMPT_NEVER;
-    
+    ADAuthenticationError* error;
+    mSilent = YES;
+
     //Nothing in the cache, as we cannot prompt for credentials, this should fail:
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED);
@@ -587,11 +618,11 @@ const int sAsyncContextTimeout = 10;
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
     
     //Expire the cache item:
-    NSArray* allItems = [mDefaultTokenCache allItems];
+    NSArray* allItems = [mDefaultTokenCache allItemsWithError:&error];
+    ADAssertNoError;
     XCTAssertTrue(allItems.count == 1);
     ADTokenCacheStoreItem* item = [allItems objectAtIndex:0];
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];//Expire it.
-    ADAuthenticationError* error;
     [mDefaultTokenCache addOrUpdateItem:item error:&error];//Udpate the cache.
     ADAssertNoError;
     //The access token is expired and the refresh token is nil, so it should fail:
@@ -600,10 +631,11 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
     
     //Now add an item with a fake refresh token:
-    XCTAssertTrue(mDefaultTokenCache.allItems.count == 0, "Expired items should be removed from the cache");
+    XCTAssertTrue([self cacheCount] == 0, "Expired items should be removed from the cache");
     NSString* refreshToken = @"some refresh token";
     [self addCacheWithToken:someTokenValue refreshToken:refreshToken];
-    allItems = [mDefaultTokenCache allItems];
+    allItems = [mDefaultTokenCache allItemsWithError:&error];
+    ADAssertNoError;
     XCTAssertTrue(allItems.count == 1);
     item = [allItems objectAtIndex:0];
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];//Expire it.
@@ -615,7 +647,21 @@ const int sAsyncContextTimeout = 10;
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED);
     ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
-    XCTAssertTrue(mDefaultTokenCache.allItems.count == 0, "Bad refresh tokens should be removed from the cache");
+    XCTAssertTrue([self cacheCount] == 0, "Bad refresh tokens should be removed from the cache");
+    
+    //Now put a refresh token, but return a broad refresh token:
+    [self addCacheWithToken:nil refreshToken:refreshToken];
+    [self.testContext->mResponse1 removeObjectForKey:OAUTH2_ERROR];//Restore
+    NSString* broadRefreshToken = @"broad refresh token testAcquireTokenWithNoPrompt";
+    NSString* anotherAccessToken = @"another access token testAcquireTokenWithNoPrompt";
+    [self.testContext->mResponse1 setObject:anotherAccessToken forKey:OAUTH2_ACCESS_TOKEN];
+    [self.testContext->mResponse1 setObject:broadRefreshToken forKey:OAUTH2_REFRESH_TOKEN];
+    //Next line makes it a broad token:
+    [self.testContext->mResponse1 setObject:@"anything" forKey:OAUTH2_RESOURCE];
+    acquireTokenAsync;
+    XCTAssertEqual(mResult.status, AD_SUCCEEDED);
+    ADAssertStringEquals(mResult.accessToken, anotherAccessToken);
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.refreshToken, broadRefreshToken);
     
     //Put a valid token in the cache, but set context token cache to nil:
     [self addCacheWithToken:someTokenValue refreshToken:@"some refresh token"];
@@ -630,7 +676,7 @@ const int sAsyncContextTimeout = 10;
     //Refresh token in the cache, but there is no connection to the server. We should not try to open a credentials web view:
     NSString* refreshToken = @"testGenericErrors refresh token";
     [self addCacheWithToken:nil refreshToken:refreshToken];
-    XCTAssertTrue(mDefaultTokenCache.allItems.count == 1);
+    XCTAssertTrue([self cacheCount] == 1);
     int errorCode = 42;
     ADAuthenticationError* error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:NSPOSIXErrorDomain code:errorCode userInfo:nil] errorDetails:@"Bad connection"];
     [self.testContext->mExpectedRequest1 setObject:refreshToken forKey:OAUTH2_REFRESH_TOKEN];
@@ -638,15 +684,15 @@ const int sAsyncContextTimeout = 10;
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED, "AcquireToken should fail, as the refresh token cannot be used.");
     ADAssertLongEquals(mResult.error.code, errorCode);
-    XCTAssertTrue(mDefaultTokenCache.allItems.count == 1, "Nothing should be removed from the cache.");
+    XCTAssertTrue([self cacheCount] == 1, "Nothing should be removed from the cache.");
     
     //Now simulate restoring of the connection and server error, ensure that attempt was made to prompt for credentials:
-    mPromptBehavior = AD_PROMPT_NEVER;
+    mSilent = YES;
     [self.testContext->mResponse1 setObject:@"bad_refresh_token" forKey:OAUTH2_ERROR];
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED, "AcquireToken should fail, as the credentials are needed without cache.");
     ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
-    XCTAssertTrue(mDefaultTokenCache.allItems.count == 0, "Bad refresh token should be removed.");
+    XCTAssertTrue([self cacheCount] == 0, "Bad refresh token should be removed.");
 }
 
 -(void) testBroadRefreshTokenSingleUser
@@ -657,7 +703,7 @@ const int sAsyncContextTimeout = 10;
     NSString* accessToken = @"testBroadRefreshToken some access token";
     NSString* exactRefreshToken = @"testBroadRefreshToken exact refresh token";
     [self addCacheWithToken:nil refreshToken:broadToken userId:mUserId resource:nil];
-    XCTAssertTrue(mDefaultTokenCache.allItems.count == 1);
+    XCTAssertTrue([self cacheCount] == 1);
     [self.testContext->mExpectedRequest1 setObject:broadToken forKey:OAUTH2_REFRESH_TOKEN];
     //Add both access and refresh token:
     [self.testContext->mResponse1 setObject:accessToken forKey:OAUTH2_ACCESS_TOKEN];
@@ -667,7 +713,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqual(mResult.status, AD_SUCCEEDED);
     XCTAssertFalse(mResult.multiResourceRefreshToken);
     //Now verify the cache contents for the new broad refresh token and the access token:
-    XCTAssertTrue(mDefaultTokenCache.allItems.count == 2);
+    XCTAssertTrue([self cacheCount] == 2);
     ADTokenCacheStoreItem* exactItem = [self verifyCacheWithResource:mResource accessToken:accessToken refreshToken:exactRefreshToken line:__LINE__];
     NSDate* expiration = exactItem.expiresOn;
     NSDate* minExpiration = [NSDate dateWithTimeIntervalSinceNow:(3500 - 10)];
@@ -702,7 +748,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqual(mResult.status, AD_SUCCEEDED);
     XCTAssertTrue(mResult.multiResourceRefreshToken);
     //Now verify the cache:
-    XCTAssertTrue(mDefaultTokenCache.allItems.count == 2);
+    XCTAssertTrue([self cacheCount] == 2);
     [self verifyCacheWithResource:mResource accessToken:accessToken2 refreshToken:nil line:__LINE__];
     [self verifyCacheWithResource:nil accessToken:nil refreshToken:broadToken2 line:__LINE__];
     
@@ -721,7 +767,7 @@ const int sAsyncContextTimeout = 10;
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_SUCCEEDED);
     XCTAssertFalse(mResult.multiResourceRefreshToken);
-    ADAssertLongEquals(3, mDefaultTokenCache.allItems.count);
+    ADAssertLongEquals(3, [self cacheCount]);
     [self verifyCacheWithResource:oldResource accessToken:accessToken2 refreshToken:nil line:__LINE__];
     [self verifyCacheWithResource:nil accessToken:nil refreshToken:broadToken2 line:__LINE__];
     ADTokenCacheStoreItem* newItem = [self verifyCacheWithResource:mResource accessToken:accessToken3 refreshToken:nil line:__LINE__];
@@ -729,7 +775,7 @@ const int sAsyncContextTimeout = 10;
     //#4: Now try failing from both the exact and the broad refresh token to ensure that this code path
     //works. Both items should be removed from the cache. Also ensures that the credentials ask is attempted in this case.
     self.testContext->mAllowTwoRequests = YES;
-    mPromptBehavior = AD_PROMPT_NEVER;
+    mSilent = YES;
     newItem.refreshToken = @"new non-working refresh token";
     newItem.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
     [mDefaultTokenCache addOrUpdateItem:newItem error:&error];
@@ -744,13 +790,79 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqual(mResult.status, AD_FAILED);
     XCTAssertFalse(mResult.multiResourceRefreshToken);
     ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
-    ADAssertLongEquals(1, mDefaultTokenCache.allItems.count);
+    ADAssertLongEquals(1, [self cacheCount]);
     [self verifyCacheWithResource:oldResource accessToken:accessToken2 refreshToken:nil line:__LINE__];
+}
+
+-(void) testWrongUser
+{
+    ADAuthenticationError* error;
+    NSString* idToken = @"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiJjM2M3ZjVlNS03MTUzLTQ0ZDQtOTBlNi0zMjk2ODZkNDhkNzYiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82ZmQxZjVjZC1hOTRjLTQzMzUtODg5Yi02YzU5OGU2ZDgwNDgvIiwiaWF0IjoxMzg3MjI0MTY5LCJuYmYiOjEzODcyMjQxNjksImV4cCI6MTM4NzIyNzc2OSwidmVyIjoiMS4wIiwidGlkIjoiNmZkMWY1Y2QtYTk0Yy00MzM1LTg4OWItNmM1OThlNmQ4MDQ4Iiwib2lkIjoiNTNjNmFjZjItMjc0Mi00NTM4LTkxOGQtZTc4MjU3ZWM4NTE2IiwidXBuIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInVuaXF1ZV9uYW1lIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IjBEeG5BbExpMTJJdkdMX2RHM2RETWszenA2QVFIbmpnb2d5aW01QVdwU2MiLCJmYW1pbHlfbmFtZSI6IlZpZG9sb3Z2IiwiZ2l2ZW5fbmFtZSI6IkJvcmlzcyJ9.";
+
+    NSString* broadToken = @"testWrongUser some broad token";
+    NSString* accessToken = @"testWrongUser some access token";
+    NSString* exactRefreshToken = @"testWrongUser exact refresh token";
+    NSString* requestUser = @"testWrongUser requestUser";
+    
+    //#1: access token exists in the cache for different user, make sure that the library attempts to use UI
+    [self addCacheWithToken:accessToken refreshToken:nil userId:mUserId resource:mResource];
+    mUserId = requestUser;
+    acquireTokenAsync;
+    ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, mResult.error.code);
+    
+    //#2: Only exact refresh token
+    [mDefaultTokenCache removeAllWithError:&error];
+    ADAssertNoError;
+    [self addCacheWithToken:nil refreshToken:exactRefreshToken userId:requestUser resource:mResource];
+    [self.testContext->mResponse1 setObject:idToken forKey:OAUTH2_ID_TOKEN];
+    [self.testContext->mResponse1 setObject:accessToken forKey:OAUTH2_ACCESS_TOKEN];
+    acquireTokenAsync;
+    ADAssertLongEquals(AD_ERROR_WRONG_USER, mResult.error.code);
+    ADAssertLongEquals(2, [self cacheCount]);//The new token should be added to the cache
+
+    //#3: Broad refresh token
+    [mDefaultTokenCache removeAllWithError:&error];
+    ADAssertNoError;
+    [self addCacheWithToken:nil refreshToken:broadToken userId:requestUser resource:nil];
+    acquireTokenAsync;
+    ADAssertLongEquals(AD_ERROR_WRONG_USER, mResult.error.code);
+    ADAssertLongEquals(2, [self cacheCount]);//The new token should be added to the cache
+}
+
+-(void) testWrongUserADFS
+{
+    ADAuthenticationError* error;
+    NSString* broadToken = @"testWrongUserADFS some broad token";
+    NSString* accessToken = @"testWrongUserADFS some access token";
+    NSString* exactRefreshToken = @"testWrongUserADFS exact refresh token";
+    NSString* requestUser = @"testWrongUserADFS requestUser";
+    
+    //#1: access token exists in the cache, no user information available:
+    [self addCacheWithToken:accessToken refreshToken:nil userId:nil resource:mResource];
+    mUserId = requestUser;
+    acquireTokenAsync;
+    ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
+    ADAssertStringEquals(mResult.accessToken, accessToken);
+    
+    //#2: Only exact refresh token, again, no user information:
+    [mDefaultTokenCache removeAllWithError:&error];
+    [self addCacheWithToken:nil refreshToken:exactRefreshToken userId:nil resource:mResource];
+    [self.testContext->mResponse1 setObject:accessToken forKey:OAUTH2_ACCESS_TOKEN];
+    acquireTokenAsync;
+    ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
+    ADAssertStringEquals(mResult.accessToken, accessToken);
+    
+    //#3: Broad refresh token
+    [mDefaultTokenCache removeAllWithError:&error];
+    [self addCacheWithToken:nil refreshToken:broadToken userId:nil resource:nil];
+    acquireTokenAsync;
+    ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
+    ADAssertStringEquals(mResult.accessToken, accessToken);
 }
 
 -(void) testCorrelationIdProperty
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     XCTAssertNil(mContext.correlationId, "default should be nil");
     
     NSUUID* first = [NSUUID UUID];
@@ -823,13 +935,13 @@ const int sAsyncContextTimeout = 10;
 //Additional tests for the cases that are not covered by the broader scenario tests.
 -(void) testExtractCacheItemWithKeyEdgeCases
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     //Nil key
     XCTAssertNil([mProtocolContext extractCacheItemWithKey:nil userId:nil error:nil]);
     BOOL useAccessToken;
     XCTAssertNil([mProtocolContext findCacheItemWithKey:nil userId:nil useAccessToken:&useAccessToken error:nil]);
     
-    ADTokenCacheStoreItem* item = [self createCacheItem];
+    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
     ADAuthenticationError* error;
     ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
     XCTAssertNotNil(key);
@@ -843,12 +955,12 @@ const int sAsyncContextTimeout = 10;
     error = nil;
     ADTokenCacheStoreItem* extracted = [mProtocolContext extractCacheItemWithKey:key userId:item.userInformation.userId error:&error];
     ADAssertNoError;
-    [self verifySameWithItem:item item2:extracted];
+    [self adVerifySameWithItem:item item2:extracted];
     error = nil;
     ADTokenCacheStoreItem* found = [mProtocolContext findCacheItemWithKey:key userId:item.userInformation.userId useAccessToken:&useAccessToken error:&error];
     ADAssertNoError;
     XCTAssertTrue(useAccessToken);
-    [self verifySameWithItem:item item2:found];
+    [self adVerifySameWithItem:item item2:found];
     
     mContext.tokenCacheStore = nil;//Set the authority to not use the cache:
     XCTAssertNil([mProtocolContext extractCacheItemWithKey:nil userId:nil error:nil]);
@@ -879,14 +991,16 @@ const int sAsyncContextTimeout = 10;
     acquireTokenAsync;
     XCTAssertNotNil(mError);
     ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, mError.code);
-    XCTAssertTrue([mError.errorDetails containsString:@"ViewController"]);
+    XCTAssertTrue([mError.errorDetails adContainsString:@"ViewController"]);
 }
 
 -(void) testUIError
 {
-    //Nothing in the cache, UI is needed:
-    [mDefaultTokenCache removeAll];
     ADAuthenticationError* error;
+    
+    //Nothing in the cache, UI is needed:
+    [mDefaultTokenCache removeAllWithError:&error];
+    ADAssertNoError;
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority error:&error];
     ADAssertNoError;
     [self validateUIError];
@@ -905,7 +1019,7 @@ const int sAsyncContextTimeout = 10;
     mPromptBehavior = AD_PROMPT_ALWAYS;
     [self validateUIError];
 }
-
+ 
 -(void) testBadRefreshToken
 {
     //Create a normal authority (not a test one):
@@ -916,25 +1030,25 @@ const int sAsyncContextTimeout = 10;
     
     //Exact refresh token:
     [self addCacheWithToken:nil refreshToken:@"invalid refresh token"];
-    ADAssertLongEquals(1, mDefaultTokenCache.allItems.count);
+    ADAssertLongEquals(1, [self cacheCount]);
     
     acquireTokenAsync;//Will attempt to use the refresh token and fail.
-    ADAssertLongEquals(0, mDefaultTokenCache.allItems.count);
+    ADAssertLongEquals(0, [self cacheCount]);
     
     //Broad refresh token:
     [self addCacheWithToken:nil refreshToken:@"invalid broad refresh token" userId:mUserId resource:nil];
-    ADAssertLongEquals(1, mDefaultTokenCache.allItems.count);
+    ADAssertLongEquals(1, [self cacheCount]);
     
     acquireTokenAsync;//Will attempt to use the broad refresh token and fail.
-    ADAssertLongEquals(0, mDefaultTokenCache.allItems.count);
+    ADAssertLongEquals(0, [self cacheCount]);
     
     //Both exact and broad refresh token:
     [self addCacheWithToken:nil refreshToken:@"another invalid refresh token"];
     [self addCacheWithToken:nil refreshToken:@"another invalid broad refresh token" userId:mUserId resource:nil];
-    ADAssertLongEquals(2, mDefaultTokenCache.allItems.count);
+    ADAssertLongEquals(2, [self cacheCount]);
     
     acquireTokenAsync;//Will attempt to use the broad refresh token and fail.
-    ADAssertLongEquals(0, mDefaultTokenCache.allItems.count);
+    ADAssertLongEquals(0, [self cacheCount]);
 }
 
 //Creates the context with
@@ -949,23 +1063,24 @@ const int sAsyncContextTimeout = 10;
     
     //Exact refresh token:
     [self addCacheWithToken:nil refreshToken:@"invalid refresh token"];
-    ADAssertLongEquals(1, mDefaultTokenCache.allItems.count);
+    ADAssertLongEquals(1, [self cacheCount]);
     
     acquireTokenAsync;//Will attempt to use the refresh token and fail with system error.
-    ADAssertLongEquals(1, mDefaultTokenCache.allItems.count);//Should not remove anything from cache, assuming that the server is unreachable
+    ADAssertLongEquals(1, [self cacheCount]);//Should not remove anything from cache, assuming that the server is unreachable
     
     //Ensure only broad token and retry the logic:
-    [mDefaultTokenCache removeAll];
+    [mDefaultTokenCache removeAllWithError:&error];
+    ADAssertNoError;
     [self addCacheWithToken:nil refreshToken:@"invalid broad refresh token" userId:mUserId resource:nil];
     acquireTokenAsync;//Will attempt to use the broad refresh token and fail.
-    ADAssertLongEquals(1, mDefaultTokenCache.allItems.count);//Again, shouldn't remove from cache
+    ADAssertLongEquals(1, [self cacheCount]);//Again, shouldn't remove from cache
 }
 
 //Tests the additional overloads. The test doesn't go deep, as eventually all of these
 //overloads call the same one, just tests that the entry point.
 -(void) testAcquireTokenOverloads
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     [self addCacheWithToken:@"cacheToken" refreshToken:nil];
 
     static volatile int completion = 0;
@@ -976,7 +1091,7 @@ const int sAsyncContextTimeout = 10;
         mError = mResult.error;
         ASYNC_BLOCK_COMPLETE(completion);
     };
-    [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
          [mContext acquireTokenWithResource:mResource
                                    clientId:mClientId
@@ -986,7 +1101,7 @@ const int sAsyncContextTimeout = 10;
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
     
-    [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
          [mContext acquireTokenWithResource:mResource
                                    clientId:mClientId
@@ -997,7 +1112,7 @@ const int sAsyncContextTimeout = 10;
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
 
-    [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
          [mContext acquireTokenWithResource:mResource
                                    clientId:mClientId
@@ -1019,7 +1134,7 @@ const int sAsyncContextTimeout = 10;
     [self.testContext->mExpectedRequest1 removeObjectForKey:OAUTH2_RESOURCE];
     //Calls the acquireToken
     static volatile int completion = 0;
-    [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
          [mContext acquireTokenByRefreshToken:@"nonExisting one"
                                      clientId:mClientId
@@ -1041,7 +1156,7 @@ const int sAsyncContextTimeout = 10;
     [self prepareForAsynchronousCall];
     
     static volatile int completion = 0;
-    [self callAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
      {
          [mContext acquireTokenByRefreshToken:refreshToken
                                      clientId:mClientId
@@ -1072,35 +1187,35 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, accessToken1);
     ADAssertStringEquals(mResult.tokenCacheStoreItem.refreshToken, exactRefreshToken);
-    ADAssertLongEquals(0, mDefaultTokenCache.allItems.count);//This method should not write to the cache
+    ADAssertLongEquals(0, [self cacheCount]);//This method should not write to the cache
 
     //Return access and broad refresh tokens:
     NSString* accessToken2 = @"accessToken2";
-    NSString* broadRefreshToken = @"exactRefreshToken";
+    NSString* broadRefreshToken = @"broadRefreshToken";
     [self.testContext->mResponse1 setObject:accessToken2 forKey:OAUTH2_ACCESS_TOKEN];
     [self.testContext->mResponse1 setObject:broadRefreshToken forKey:OAUTH2_REFRESH_TOKEN];
     //Presence of "resource" denotes multi-resource refresh token:
-    [self.testContext->mResponse2 setObject:@"someresource" forKey:OAUTH2_RESOURCE];
+    [self.testContext->mResponse1 setObject:@"someresource" forKey:OAUTH2_RESOURCE];
     [self asyncAcquireTokenByRefreshToken:refreshToken];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, accessToken2);
     ADAssertStringEquals(mResult.tokenCacheStoreItem.refreshToken, broadRefreshToken);
-    ADAssertLongEquals(0, mDefaultTokenCache.allItems.count);//This method should not write to the cache
+    ADAssertLongEquals(0, [self cacheCount]);//This method should not write to the cache
     
     //Put stuff in the cache, make sure it is not used:
-    [self clearLogs];
+    [self adClearLogs];
     [self addCacheWithToken:@"cacheAccessToken" refreshToken:@"cacheExactRefreshToken"];
     [self addCacheWithToken:nil refreshToken:@"broadCacheRefreshToken" userId:mUserId resource:nil];
     ADAssertLogsContain(TEST_LOG_INFO, @" addOrUpdateItem:error:]");//Double check that the logging is in place
     
-    [self clearLogs];
+    [self adClearLogs];
     [self asyncAcquireTokenByRefreshToken:refreshToken];
 
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, accessToken2);
     ADAssertStringEquals(mResult.tokenCacheStoreItem.refreshToken, broadRefreshToken);
     ADAssertLogsDoNotContain(TEST_LOG_INFO, @" addOrUpdateItem:error:]");//Cache should not be touched
-    ADAssertLongEquals(2, mDefaultTokenCache.allItems.count);
+    ADAssertLongEquals(2, [self cacheCount]);
     
     //Put the same refresh token in the cache, return an error and ensure again that the cache is not touched:
     //refresh tokens should not be removed:
@@ -1108,35 +1223,38 @@ const int sAsyncContextTimeout = 10;
     [self addCacheWithToken:nil refreshToken:refreshToken userId:mUserId resource:nil];
     [self.testContext->mResponse1 removeObjectForKey:OAUTH2_ACCESS_TOKEN];
     [self.testContext->mResponse1 setObject:@"bad_refresh_token" forKey:OAUTH2_ERROR];
-    [self clearLogs];
+    [self adClearLogs];
     [self asyncAcquireTokenByRefreshToken:refreshToken];
     
     ADAssertLongEquals(AD_FAILED, mResult.status);
     ADAssertLogsDoNotContain(TEST_LOG_INFO, @" addOrUpdateItem:error:]");//Cache should not be touched
-    ADAssertLongEquals(2, mDefaultTokenCache.allItems.count);
-    
+    ADAssertLongEquals(2, [self cacheCount]);
+}
+
+-(void) testAcquireTokenWithRefreshTokenParameters
+{
     //Test some parameters cases:
     //RefreshToken nil:
     [self asyncAcquireTokenByRefreshToken:nil];
     ADAssertLongEquals(AD_FAILED, mResult.status);
-    [self validateForInvalidArgument:@"refreshToken" error:mResult.error];
+    [self adValidateForInvalidArgument:@"refreshToken" error:mResult.error];
     
     //RefreshToken empty
     [self asyncAcquireTokenByRefreshToken:@"   "];
     ADAssertLongEquals(AD_FAILED, mResult.status);
-    [self validateForInvalidArgument:@"refreshToken" error:mResult.error];
+    [self adValidateForInvalidArgument:@"refreshToken" error:mResult.error];
     
     //ClientId nil:
     mClientId = nil;
     [self asyncAcquireTokenByRefreshToken:@"refreshToken"];
     ADAssertLongEquals(AD_FAILED, mResult.status);
-    [self validateForInvalidArgument:@"clientId" error:mResult.error];
+    [self adValidateForInvalidArgument:@"clientId" error:mResult.error];
     
     //ClientId empty:
     mClientId = @"     ";
     [self asyncAcquireTokenByRefreshToken:@"refreshToken"];
     ADAssertLongEquals(AD_FAILED, mResult.status);
-    [self validateForInvalidArgument:@"clientId" error:mResult.error];
+    [self adValidateForInvalidArgument:@"clientId" error:mResult.error];
 }
 
 //Hits a the cloud with either a bad server or a bad refresh token:
@@ -1163,7 +1281,7 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(AD_FAILED, mResult.status);
     ADAssertLongEquals(AD_ERROR_INVALID_REFRESH_TOKEN, mResult.error.code);
     ADAssertStringEquals(mResult.error.protocolCode, @"invalid_grant");
-    XCTAssertTrue([mResult.error.errorDetails.lowercaseString containsString:@"refresh token"]);
+    XCTAssertTrue([mResult.error.errorDetails.lowercaseString adContainsString:@"refresh token"]);
 }
 
 @end

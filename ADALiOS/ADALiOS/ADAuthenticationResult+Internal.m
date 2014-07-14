@@ -18,18 +18,16 @@
 
 
 #import "ADALiOS.h"
+#import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADTokenCacheStoreItem.h"
-
-NSString* const cancelError = @"The user has cancelled the authorization.";
 
 @implementation ADAuthenticationResult (Internal)
 
 -(id) initWithCancellation
 {
-    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_CANCEL
-                                                                          protocolCode:nil
-                                                                          errorDetails:cancelError];
+    ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation];
+    
     return [self initWithError:error status:AD_USER_CANCELLED];
 }
 
@@ -73,7 +71,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
             //Bad item, return error:
             return [ADAuthenticationResult resultFromError:error];
         }
-        if ([NSString isStringNilOrBlank:item.accessToken])
+        if ([NSString adIsStringNilOrBlank:item.accessToken])
         {
             //Bad item, the access token should be accurate, else an error should be
             //reported instead of this creator:

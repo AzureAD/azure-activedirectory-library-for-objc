@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 #import "ADAuthenticationSettings.h"
 #import "ADKeychainTokenCacheStore.h"
-#import "ADEncryptedFileTokenCacheStore.h"
+#import "ADWorkplaceJoined.h"
 
 @implementation ADAuthenticationSettings
 
@@ -36,11 +36,12 @@
         self.expirationBuffer = 300;//in seconds, ensures catching of clock differences between the server and the device
         self.enableFullScreen = YES;
         
-        //The current HTTPWebRequest implementation uses NSURLConnection, which calls its delegate on the same thread
+        //The current ADWebRequest implementation uses NSURLConnection, which calls its delegate on the same thread
         //that created the object. Unfortunately with Grand Central Dispatch, it is not guaranteed that the thread
         //exists. Hence for now, we create the connection on the main thread by default:
         self.dispatchQueue = dispatch_get_main_queue();
-        self.defaultTokenCacheStore = [[ADKeychainTokenCacheStore alloc] initWithLocation:@"MSOpenTech.ADAL.1.0"];
+        self.defaultTokenCacheStore = [ADKeychainTokenCacheStore new];
+        self.clientTLSKeychainGroup = nil;
     }
     return self;
 }
@@ -57,6 +58,28 @@
         });
     }
     return instance;
+}
+
+-(NSString*) getSharedCacheKeychainGroup
+{
+    id store = self.defaultTokenCacheStore;
+    if ([store isKindOfClass:[ADKeychainTokenCacheStore class]])
+    {
+        return ((ADKeychainTokenCacheStore*)store).sharedGroup;
+    }
+    else
+    {
+        return nil;
+    }
+}
+
+-(void) setSharedCacheKeychainGroup:(NSString *)sharedKeychainGroup
+{
+    id store = self.defaultTokenCacheStore;
+    if ([store isKindOfClass:[ADKeychainTokenCacheStore class]])
+    {
+        ((ADKeychainTokenCacheStore*)store).sharedGroup = sharedKeychainGroup;
+    }
 }
 
 @end

@@ -16,24 +16,12 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@class HTTPWebRequest;
-@class HTTPWebResponse;
+#pragma once
 
-extern NSString *const HTTPGet;
-extern NSString *const HTTPPost;
+@interface NSURL ( ADAL )
 
-@interface HTTPWebRequest : NSObject <NSURLConnectionDelegate>
-
-@property (strong, readonly, nonatomic) NSURL               *URL;
-@property (strong)                      NSString            *method;
-@property (strong, readonly, nonatomic) NSMutableDictionary *headers;
-@property (strong)                      NSData              *body;
-@property (nonatomic)           NSUInteger           timeout;
-
-- (id)initWithURL: (NSURL*)url
-    correlationId: (NSUUID*) correlationId;
-
-- (void)send:( void (^)( NSError *, HTTPWebResponse *) )completionHandler;
+@property (readonly, nonatomic) NSString     *adAuthority;
+@property (readonly, nonatomic) NSDictionary *adFragmentParameters;
+@property (readonly, nonatomic) NSDictionary *adQueryParameters;
 
 @end
-

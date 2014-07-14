@@ -17,8 +17,9 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
-#import "ADAuthenticationResult+Internal.h"
-#import <ADALiOS/ADTokenCacheStoreItem.h>
+#import "../ADALiOS/ADAuthenticationContext.h"
+#import "../ADALiOS/ADAuthenticationResult+Internal.h"
+#import "../ADALiOS/ADTokenCacheStoreItem.h"
 #import "XCTestCase+TestHelperMethods.h"
 
 @interface ADAuthenticationResultTests : XCTestCase
@@ -63,14 +64,14 @@
 
 -(void) testResultFromCancellation
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromCancellation];
     [self verifyErrorResult:result errorCode:AD_ERROR_USER_CANCEL];
 }
 
 -(void) testResultFromError
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"something"];
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error];
     [self verifyErrorResult:result errorCode:AD_ERROR_UNEXPECTED];
@@ -92,11 +93,11 @@
 
 -(void) testResultFromTokenCacheStoreItem
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil multiResourceRefreshToken:NO];
     [self verifyErrorResult:nilItemResult errorCode:AD_ERROR_UNEXPECTED];
     
-    [self setLogTolerance:ADAL_LOG_LEVEL_INFO];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
     item.resource = @"resource";
     item.authority = @"https://login.windows.net/mytennant.com";
@@ -108,13 +109,12 @@
     ADAuthenticationError* error;
     item.userInformation = [ADUserInformation userInformationWithUserId:@"user" error:&error];
     ADAssertNoError;
-    item.userInformation.tenantId = @"tenantId";
     
     //Copy the item to ensure that it is not modified withing the method call below:
     ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
     [self verifyResult:resultFromValidItem item:item];
     
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Nil access token:
     item.resource = @"resource";//Restore
     item.accessToken = nil;

@@ -16,12 +16,11 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@interface HTTPWebResponse : NSObject
+#pragma once
 
-@property (strong, readonly) NSDictionary *headers;
-@property (strong, readonly) NSData       *body;
-@property (readonly) NSInteger     statusCode;
-
-- (id)initWithResponse:(NSHTTPURLResponse *)response data:(NSData *)data;
+//Intercepts HTTPS protocol for the application in order to allow
+//TLS with client-authentication. Such authentication is the base
+//of workplace joined devices. The class is not thread-safe.
+@interface ADURLProtocol : NSURLProtocol <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 
 @end

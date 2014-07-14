@@ -17,10 +17,12 @@
 // governing permissions and limitations under the License.
 
 #import "ADALiOS.h"
+#import "ADAuthenticationParameters.h"
 #import "ADAuthenticationParameters+Internal.h"
 #import "ADAuthenticationSettings.h"
-#import "HTTPWebRequest.h"
-#import "HTTPWebResponse.h"
+#import "ADWebRequest.h"
+#import "ADWebResponse.h"
+#import "NSString+ADHelperMethods.h"
 
 @implementation ADAuthenticationParameters
 
@@ -68,11 +70,11 @@
 
     dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue,^
     {
-        HTTPWebRequest* request = [[HTTPWebRequest alloc] initWithURL:resourceUrl correlationId:nil];
+        ADWebRequest* request = [[ADWebRequest alloc] initWithURL:resourceUrl correlationId:nil];
         request.method = HTTPGet;
         AD_LOG_VERBOSE_F(@"Starting authorization challenge request", @"Resource: %@", resourceUrl);
         
-        [request send:^(NSError * error, HTTPWebResponse *response) {
+        [request send:^(NSError * error, ADWebResponse *response) {
             ADAuthenticationError* adError;
             ADAuthenticationParameters* parameters;
             if (error)
@@ -101,7 +103,7 @@
 {
     // Handle 401 Unauthorized using the OAuth2 Implicit Profile
     NSString  *authenticateHeader = [headers valueForKey:OAuth2_Authenticate_Header];
-    if ([NSString isStringNilOrBlank:authenticateHeader])
+    if ([NSString adIsStringNilOrBlank:authenticateHeader])
     {
         NSString* details = [NSString stringWithFormat:MissingHeader, OAuth2_Authenticate_Header];
         [self raiseErrorWithCode:AD_ERROR_MISSING_AUTHENTICATE_HEADER details:details error:error];

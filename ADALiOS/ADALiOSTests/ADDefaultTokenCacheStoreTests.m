@@ -18,15 +18,15 @@
 
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
-#import <ADALiOS/ADPersistentTokenCacheStore.h>
 #import <libkern/OSAtomic.h>
-#import <ADALiOS/ADAuthenticationSettings.h>
+#import "../ADALiOS/ADAuthenticationSettings.h"
+#import "../ADALiOS/ADAuthenticationContext.h"
+#import "../ADALiOS/ADKeychainTokenCacheStore.h"
 
 dispatch_semaphore_t sThreadsSemaphore;//Will be signalled when the last thread is done. Should be initialized and cleared in the test.
 volatile int32_t sThreadsFinished;//The number of threads that are done. Should be set to 0 at the beginning of the test.
 const int sMaxThreads = 10;//The number of threads to spawn
 int sThreadsRunTime = 5;//How long the bacground threads would run
-static int sPersistenceTimeout = 10;//In seconds
 
 //Some logging constant to help with testing the persistence:
 NSString* const sPersisted = @"successfully persisted";
@@ -35,56 +35,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 @interface ADDefaultTokenCacheStoreTests : XCTestCase
 {
-    ADPersistentTokenCacheStore* mStore;
-    NSMutableDictionary* mCache;
+    ADKeychainTokenCacheStore* mStore;
 }
-@end
-
-@interface ADPersistentTokenCacheStore(Test)
-
--(NSMutableDictionary*) internalCache;
-//The next variables are used for cache persistence
--(NSString*) getLastArchiveFile;
-
--(int64_t) getCurrenRevision;
--(void) setCurrentRevision: (int64_t) newValue;
-
--(int64_t) getArchivedRevision;
--(void) setArchivedRevision: (int64_t) newValue;
-
--(BOOL) addInitialCacheItems;
-
-@end
-
-//Avoid warnings for incomplete implementation, as the methods are actually implemented, just not in the category:
-#pragma clang diagnostic ignored "-Wincomplete-implementation"
-@implementation ADPersistentTokenCacheStore(Test)
-
-
--(NSMutableDictionary*) internalCache
-{
-    return mCache;
-}
-
--(int64_t) getCurrenRevision
-{
-    return mCurrenRevision;
-}
--(void) setCurrentRevision: (int64_t) newValue
-{
-    mCurrenRevision = newValue;
-}
-
--(int64_t) getArchivedRevision
-{
-    return mArchivedRevision;
-}
-
--(void) setArchivedRevision: (int64_t) newValue
-{
-    mArchivedRevision = newValue;
-}
-
 @end
 
 @implementation ADDefaultTokenCacheStoreTests
@@ -94,59 +46,47 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     
-    mStore = (ADPersistentTokenCacheStore*)[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    mStore = (ADKeychainTokenCacheStore*)[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     XCTAssertNotNil(mStore, "Default store cannot be nil.");
-    XCTAssertTrue([mStore isKindOfClass:[ADPersistentTokenCacheStore class]]);
-    mCache = [mStore internalCache];
-    XCTAssertNotNil(mCache, "The internal cache should be set.");
-    [mCache removeAllObjects];//Start clean before each test
+    XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
+    [mStore removeAllWithError:nil];//Start clean before each test
 }
 
 - (void)tearDown
 {
+    [mStore removeAllWithError:nil];//Attempt to clear the junk from the keychain
     mStore = nil;
-    mCache = nil;
     
     [self adTestEnd];
     [super tearDown];
 }
 
-//A wrapper around addOrUpdateItem, when called synchronously from one
-//thread only.
--(void) syncAddOrUpdateItem: (ADTokenCacheStoreItem*) item
+-(long) count
 {
-    int64_t revision = [mStore getCurrenRevision];
-    XCTAssertTrue(revision >= [mStore getArchivedRevision]);
     ADAuthenticationError* error;
-    [mStore addOrUpdateItem:item error:&error];
+    NSArray* all = [mStore allItemsWithError:&error];
     ADAssertNoError;
-    XCTAssertEqual(revision + 1, [mStore getCurrenRevision]);
-    XCTAssertTrue((revision + 1) >= [mStore getArchivedRevision]);
+    XCTAssertNotNil(all);
+    return all.count;
 }
 
--(BOOL) syncRemoveItem: (ADTokenCacheStoreItem*) item
+//A wrapper around addOrUpdateItem, checks automatically for errors.
+//Works on single threaded environment only, as it checks the counts:
+-(void) addOrUpdateItem: (ADTokenCacheStoreItem*) item expectAdd: (BOOL) expectAdd
 {
     ADAuthenticationError* error;
-    int64_t revision = [mStore getCurrenRevision];
-    XCTAssertTrue(revision >= [mStore getArchivedRevision]);
-    ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
+    long count = [self count];
+    [mStore addOrUpdateItem:item error:&error];
     ADAssertNoError;
-    BOOL present = (nil != [mStore getItemWithKey:key userId:item.userInformation.userId]);
-    [mStore removeItem:item error:&error];
-    ADAssertNoError;
-    if (present)
+    if (expectAdd)
     {
-        //Something was removed:
-        XCTAssertEqual(revision + 1, [mStore getCurrenRevision]);
-        XCTAssertTrue((revision + 1) >= [mStore getArchivedRevision]);
+        ADAssertLongEquals(count + 1, [self count]);
     }
     else
     {
-        //Nothing removed:
-        XCTAssertEqual(revision, [mStore getCurrenRevision]);
-        XCTAssertTrue(revision >= [mStore getArchivedRevision]);
+        ADAssertLongEquals(count, [self count]);
     }
-    return present;
+    [self verifyCacheContainsItem:item];
 }
 
 //Esnures that two keys are the same:
@@ -163,12 +103,12 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 //Creates a copy of item changing only the user:
 -(ADTokenCacheStoreItem*) copyItem: (ADTokenCacheStoreItem*) item
-                                  withNewUser: (NSString*) newUser
+                       withNewUser: (NSString*) newUser
 {
     ADTokenCacheStoreItem* newItem = [item copy];
     XCTAssertNotNil(newItem);
     XCTAssertNotEqualObjects(newItem, item, "Not copied.");
-    [self verifySameWithItem:item item2:newItem];
+    [self adVerifySameWithItem:item item2:newItem];
     XCTAssertNotEqualObjects(item.userInformation, newItem.userInformation, "Not a deep copy");
     if (newUser)
     {
@@ -184,80 +124,77 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     return newItem;
 }
 
-//Verifies consistency and copying between what was passed to the cache,
+//Verifies consistency and copying between what was passed from the cache,
 //what is stored and what is returned:
 - (void)verifyCopyingWithItem: (ADTokenCacheStoreItem*) original
-                     internal: (ADTokenCacheStoreItem*) internal
-                     returned: (ADTokenCacheStoreItem*) returned
+                         copy: (ADTokenCacheStoreItem*) copy
 {
-    XCTAssertNotEqualObjects(original, internal, "The object was not copied.");
-    [self verifySameWithItem:original item2:internal];
-    XCTAssertNotEqualObjects(internal, returned, "The internal storage was not copied.");
-    [self verifySameWithItem:internal item2:returned];
-    XCTAssertNotEqualObjects(original, returned, "The returned value was not copied.");
+    XCTAssertNotEqualObjects(original, copy, "The item was not copied.");
+    [self adVerifySameWithItem:original item2:copy];
 }
 
 //Verifies that the items in the cache are copied, so that the developer
-//cannot accidentally modify them. The method tests the geters too.
+//cannot accidentally modify them. The method tests the getters too.
 -(void) testCopySingleObject
 {
-    XCTAssertTrue(mCache.count == 0, "Start empty.");
+    XCTAssertTrue([self count] == 0, "Start empty.");
     
-    ADTokenCacheStoreItem* item = [self createCacheItem];
+    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
     ADAuthenticationError* error;
-    [self syncAddOrUpdateItem:item];
-    XCTAssertTrue(mCache.count == 1);
-    
+    [self addOrUpdateItem:item expectAdd:YES];
+
     //getItemWithKey:userId
     ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
     ADAssertNoError;
     XCTAssertNotNil(key);
-    NSDictionary* dictionary = [mCache objectForKey:key];
-    XCTAssertTrue(dictionary.count == 1);
-    ADTokenCacheStoreItem* internalItem = [dictionary objectForKey:item.userInformation.userId.trimmedString.lowercaseString];
-    ADTokenCacheStoreItem* returnedItem = [mStore getItemWithKey:key userId:item.userInformation.userId];
-    [self verifyCopyingWithItem:item internal:internalItem returned:returnedItem];
-    
+    ADTokenCacheStoreItem* exact = [mStore getItemWithKey:key userId:item.userInformation.userId error:&error];
+    ADAssertNoError;
+    [self verifyCopyingWithItem:item copy:exact];
+
     //getItemsWithKey:userId and nil userId:
-    ADTokenCacheStoreItem* returnedItemForNil = [mStore getItemWithKey:key userId:nil];
-    [self verifyCopyingWithItem:item internal:internalItem returned:returnedItemForNil];
-    
+    ADTokenCacheStoreItem* returnedItemForNil = [mStore getItemWithKey:key userId:nil error:&error];
+    ADAssertNoError;
+    XCTAssertNotNil(returnedItemForNil);
+    [self verifyCopyingWithItem:item copy:returnedItemForNil];
+    [self verifyCopyingWithItem:exact copy:returnedItemForNil];
+
     //getItemsWithKey:
-    NSArray* items = [mStore getItemsWithKey:key];
+    NSArray* items = [mStore getItemsWithKey:key error:&error];
+    ADAssertNoError;
     XCTAssertTrue(items.count == 1);
     ADTokenCacheStoreItem* returnedFromArray = [items objectAtIndex:0];
     XCTAssertNotNil(returnedFromArray);
-    [self verifyCopyingWithItem:item internal:internalItem returned:returnedFromArray];
+    [self verifyCopyingWithItem:item copy:returnedFromArray];
+    [self verifyCopyingWithItem:returnedItemForNil copy:returnedFromArray];
     
     //allItems:
-    NSArray* allItems = [mStore allItems];
+    NSArray* allItems = [mStore allItemsWithError:&error];
+    ADAssertNoError;
     XCTAssertTrue(items.count == 1);
     ADTokenCacheStoreItem* returnedFromAll = [allItems objectAtIndex:0];
-    XCTAssertNotNil(returnedFromArray);
-    [self verifyCopyingWithItem:item internal:internalItem returned:returnedFromAll];
+    XCTAssertNotNil(returnedFromAll);
+    [self verifyCopyingWithItem:item copy:returnedFromAll];
+    [self verifyCopyingWithItem:returnedFromArray copy:returnedFromAll];
 }
 
 - (void)verifyTwoItems: (ADTokenCacheStoreItem*) item1
                  item2: (ADTokenCacheStoreItem*) item2
-             internal1: (ADTokenCacheStoreItem*) internal1
-             internal2: (ADTokenCacheStoreItem*) internal2
                  array: (NSArray*) array
 {
     XCTAssertNotNil(array);
     XCTAssertTrue(array.count == 2);
-    for(ADTokenCacheStoreItem* i in array)
+    for(ADTokenCacheStoreItem* item in array)
     {
-        XCTAssertNotEqualObjects(i, item1);
-        XCTAssertNotEqualObjects(i, item2);
-        XCTAssertNotEqualObjects(i, internal1);
-        XCTAssertNotEqualObjects(i, internal2);
-        if ([i.userInformation.userId isEqualToString:item1.userInformation.userId])
+        XCTAssertNotEqualObjects(item, item1);
+        XCTAssertNotEqualObjects(item, item2);
+        if ([item.userInformation.userId isEqualToString:item1.userInformation.userId])
         {
-            [self verifyCopyingWithItem:item1 internal:internal1 returned:i];
+            [self verifyCopyingWithItem:item1 copy:item];
         }
         else
         {
-            [self verifyCopyingWithItem:item2 internal:internal2 returned:i];
+            ADAssertStringEquals(item2.userInformation.userId, item.userInformation.userId);
+            [self verifyCopyingWithItem:item2 copy:item];
         }
     }
 }
@@ -266,152 +203,105 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 //Tests al of the getters:
 -(void) testCopyMultipleObjects
 {
-    XCTAssertTrue(mCache.count == 0, "Start empty.");
+    XCTAssertTrue([self count] == 0, "Start empty.");
     
-    ADTokenCacheStoreItem* item1 = [self createCacheItem];
+    ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
     ADAuthenticationError* error;
     ADTokenCacheStoreKey* key = [item1 extractKeyWithError:&error];
     ADAssertNoError;
-    [self syncAddOrUpdateItem:item1];
-    XCTAssertTrue(mCache.count == 1);
+    [self addOrUpdateItem:item1 expectAdd:YES];
     
     ADTokenCacheStoreItem* item2 = [self copyItem:item1 withNewUser:@"  another user  "];
     //We will use the otherKey later to ensure that the getters work with any proper key object.
     ADTokenCacheStoreKey* otherKey = [item2 extractKeyWithError:&error];
+    ADAssertNoError;
     [self verifySameWithKey:key key2:otherKey];
-    ADAssertNoError;
-    [self syncAddOrUpdateItem:item2];
-    ADAssertNoError;
-    XCTAssertTrue(mCache.count == 1);//They use the same key
-
-    //Find the internal stored items:
-    ADTokenCacheStoreItem* internal1;
-    ADTokenCacheStoreItem* internal2;
-    NSDictionary* inner = [[mCache allValues] objectAtIndex:0];
-    XCTAssertTrue(inner.count == 2);
-    for(ADTokenCacheStoreItem* i in [inner allValues])
-    {
-        if ([i.userInformation.userId isEqualToString:item1.userInformation.userId])
-        {
-            internal1 = i;
-        }
-        else if ([i.userInformation.userId isEqualToString:item2.userInformation.userId])
-        {
-            internal2 = i;
-        }
-    }
-    XCTAssertNotNil(internal1, "Item1 not stored");
-    XCTAssertNotNil(internal2, "Item2 not stored");
-    
-    //All values:
-    NSArray* allValues = [mStore allItems];
-    [self verifyTwoItems:item1 item2:item2 internal1:internal1 internal2:internal2 array:allValues];
+    [self addOrUpdateItem:item2 expectAdd:YES];
     
     //getItemsWithKey
-    NSArray* allWithKey = [mStore getItemsWithKey:otherKey];
-    [self verifyTwoItems:item1 item2:item2 internal1:internal1 internal2:internal2 array:allWithKey];
-    
+    NSArray* allWithKey = [mStore getItemsWithKey:otherKey error:&error];
+    ADAssertNoError;
+    [self verifyTwoItems:item1 item2:item2 array:allWithKey];
+
     //Individual items with the userId:
-    ADTokenCacheStoreItem* item1Return = [mStore getItemWithKey:key userId:item1.userInformation.userId];
-    [self verifyCopyingWithItem:item1 internal:internal1 returned:item1Return];
-    ADTokenCacheStoreItem* item2Return = [mStore getItemWithKey:otherKey userId:item2.userInformation.userId];
-    [self verifyCopyingWithItem:item2 internal:internal2 returned:item2Return];
-    
+    ADTokenCacheStoreItem* item1Return = [mStore getItemWithKey:key userId:item1.userInformation.userId error:&error];
+    ADAssertNoError;
+    [self verifyCopyingWithItem:item1 copy:item1Return];
+    ADTokenCacheStoreItem* item2Return = [mStore getItemWithKey:otherKey userId:item2.userInformation.userId error:&error];
+    ADAssertNoError;
+    [self verifyCopyingWithItem:item2 copy:item2Return];
+
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //get item with id of nil:
-    ADTokenCacheStoreItem* itemReturn = [mStore getItemWithKey:otherKey userId:nil];
-    if ([itemReturn.userInformation.userId isEqualToString:item1.userInformation.userId])
-    {
-        [self verifyCopyingWithItem:item1 internal:internal1 returned:itemReturn];
-    }
-    else
-    {
-        [self verifyCopyingWithItem:item2 internal:internal2 returned:itemReturn];
-    }
+    ADTokenCacheStoreItem* itemReturn = [mStore getItemWithKey:otherKey userId:nil error:&error];
+    ADAssertLongEquals(AD_ERROR_MULTIPLE_USERS, error.code);
+    XCTAssertNil(itemReturn);
 }
 
 -(void) testComplex
 {
-    XCTAssertTrue(mCache.count == 0);
-    ADTokenCacheStoreItem* item1 = [self createCacheItem];
+    XCTAssertTrue([self count] == 0, "Start empty.");
+    
     ADAuthenticationError* error;
+    XCTAssertNotNil([mStore allItemsWithError:&error]);
+    ADAssertNoError;
+    ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
     
     //one item:
-    [self syncAddOrUpdateItem:item1];
-    XCTAssertTrue(mCache.count == 1);
-    NSDictionary* dict1 = [[mCache allValues] objectAtIndex:0];
-    XCTAssertNotNil(dict1);
-    XCTAssertTrue(dict1.count == 1);
+    [self addOrUpdateItem:item1 expectAdd:YES];
     
     //add the same item and ensure that the counts do not change:
-    [self syncAddOrUpdateItem:item1];
-    XCTAssertTrue(mCache.count == 1);
-    dict1 = [[mCache allValues] objectAtIndex:0];
-    XCTAssertNotNil(dict1);
-    XCTAssertTrue(dict1.count == 1);
+    [self addOrUpdateItem:item1 expectAdd:NO];
     
     //Add an item with different key:
-    ADTokenCacheStoreItem* item2 = [self createCacheItem];
+    ADTokenCacheStoreItem* item2 = [self adCreateCacheItem];
     item2.resource = @"another authority";
-    [self syncAddOrUpdateItem:item2];
-    XCTAssertTrue(mCache.count == 2);
-    dict1 = [[mCache allValues] objectAtIndex:0];
-    XCTAssertNotNil(dict1);
-    XCTAssertTrue(dict1.count == 1);
-    dict1 = [[mCache allValues] objectAtIndex:1];
-    XCTAssertNotNil(dict1);
-    XCTAssertTrue(dict1.count == 1);
+    [self addOrUpdateItem:item2 expectAdd:YES];
     
     //add an item with the same key, but some other change:
-    ADTokenCacheStoreItem* item3 = [self createCacheItem];
+    ADTokenCacheStoreItem* item3 = [self adCreateCacheItem];
     item3.accessToken = @"another token";
-    [self syncAddOrUpdateItem:item3];
-    XCTAssertTrue(mCache.count == 2);
-    dict1 = [[mCache allValues] objectAtIndex:0];
-    XCTAssertNotNil(dict1);
-    XCTAssertTrue(dict1.count == 1);
-    dict1 = [[mCache allValues] objectAtIndex:1];
-    XCTAssertNotNil(dict1);
-    XCTAssertTrue(dict1.count == 1);
-    
+    [self addOrUpdateItem:item3 expectAdd:NO];
+
     //Add an item with the same key, but different user:
     ADTokenCacheStoreItem* item4 = [self copyItem:item1 withNewUser:@"   another user   "];
-    [self syncAddOrUpdateItem:item4];
-    XCTAssertTrue(mCache.count == 2);
-    XCTAssertTrue(mStore.allItems.count == 3);
+    [self addOrUpdateItem:item4 expectAdd:YES];
     
     //Add an item with nil user:
     ADTokenCacheStoreItem* item5 = [self copyItem:item1 withNewUser:nil];
-    [self syncAddOrUpdateItem:item5];
-    XCTAssertTrue(mCache.count == 2);
-    XCTAssertTrue(mStore.allItems.count == 4);
+    [self addOrUpdateItem:item5 expectAdd:YES];
     
     ADTokenCacheStoreKey* key = [item1 extractKeyWithError:&error];
     ADAssertNoError;
     
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Now few getters:
-    ADTokenCacheStoreItem* itemReturn5 = [mStore getItemWithKey:key userId:nil];
-    [self verifySameWithItem:item5 item2:itemReturn5];
-    NSArray* array = [mStore getItemsWithKey:key];
-    XCTAssertNotNil(array);
+    ADTokenCacheStoreItem* itemReturn5 = [mStore getItemWithKey:key userId:nil error:&error];
+    ADAssertLongEquals(AD_ERROR_MULTIPLE_USERS, error.code);
+    XCTAssertNil(itemReturn5);
+    error = nil;//Clear
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
+    
+    NSArray* array = [mStore getItemsWithKey:key error:&error];
+    ADAssertNoError;
     XCTAssertTrue(array.count == 3);
     
     //Now test the removers:
-    BOOL removed = [self syncRemoveItem:item1];
-    XCTAssertTrue(removed);
-    XCTAssertTrue(mCache.count == 2);
-    array = mStore.allItems;
+    [mStore removeItemWithKey:key userId:item4.userInformation.userId error:&error];//Specific user
+    ADAssertNoError;
     XCTAssertTrue(array.count == 3);
     
     //This will remove two elements, as the userId is not specified:
-    [mStore removeItemWithKey:key userId:nil];
-    XCTAssertTrue(mStore.allItems.count  == 1);
-    XCTAssertTrue(mCache.count == 1);
+    [mStore removeItemWithKey:key userId:nil error:&error];
+    ADAssertNoError;
+    XCTAssertTrue([self count]  == 1);
     
-    [mStore removeAll];
-    array = mStore.allItems;
+    [mStore removeAllWithError:&error];
+    ADAssertNoError;
+    array = [mStore allItemsWithError:&error];
+    ADAssertNoError;
     XCTAssertNotNil(array);
     XCTAssertTrue(array.count == 0);
-    XCTAssertTrue(mCache.count == 0);
 }
 
 -(void) threadProc
@@ -420,21 +310,21 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     {
         //Create as much date as possible outside of the run loop to cause the most
         //thread contentions in the loop:
-        ADTokenCacheStoreItem* item1 = [self createCacheItem];
+        ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
         ADAuthenticationError* error;
         item1.userInformation = [ADUserInformation userInformationWithUserId:@"foo" error:nil];
         ADAssertNoError;
-        ADTokenCacheStoreItem* item2 = [self createCacheItem];
+        ADTokenCacheStoreItem* item2 = [self adCreateCacheItem];
         item2.userInformation = [ADUserInformation userInformationWithUserId:@"bar" error:nil];
         ADAssertNoError;
-        ADTokenCacheStoreItem* item3 = [self createCacheItem];
+        ADTokenCacheStoreItem* item3 = [self adCreateCacheItem];
         item3.userInformation = nil;
         ADTokenCacheStoreKey* key123 = [item3 extractKeyWithError:&error];
         ADAssertNoError;
 
-        ADTokenCacheStoreItem* item4 = [self createCacheItem];
+        ADTokenCacheStoreItem* item4 = [self adCreateCacheItem];
         item4.authority = @"https://www.authority.com/tenant.com";
-        ADTokenCacheStoreKey* key4 = [item3 extractKeyWithError:&error];
+        ADTokenCacheStoreKey* key4 = [item4 extractKeyWithError:&error];
         ADAssertNoError;
         
         NSDate* end = [NSDate dateWithTimeIntervalSinceNow:sThreadsRunTime];//few seconds into the future
@@ -443,7 +333,9 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
         {
             @autoreleasepool//The cycle will create constantly objects, so it needs its own autorelease pool
             {
-                [mStore removeAll];
+                ADAuthenticationError* error;//Keep it local
+                [mStore removeAllWithError:&error];
+                ADAssertNoError;
                 [mStore addOrUpdateItem:item1 error:&error];
                 ADAssertNoError;
                 [mStore addOrUpdateItem:item2 error:&error];
@@ -456,20 +348,48 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
                 //is to have as many writes as reads in the dictionary for higher chance of thread collisions
                 //Implementing
                 //all possible get combinations will skew the test towards reads:
-                NSArray* array = [mStore getItemsWithKey:key123];
+                NSArray* array = [mStore getItemsWithKey:key123 error:&error];
+                ADAssertNoError;
                 XCTAssertNotNil(array);
-                array = [mStore allItems];
-                array = [mStore getItemsWithKey:key4];
-                [mStore getItemWithKey:key123 userId:nil];
-                [mStore getItemWithKey:key123 userId:item1.userInformation.userId];
-                [mStore getItemWithKey:key123 userId:@"not real"];
-                [mStore getItemWithKey:key4 userId:nil];
-                [mStore getItemWithKey:key4 userId:@"not real"];
-                
-                [mStore removeItemWithKey:key123 userId:item1.userInformation.userId];
-                [mStore removeItemWithKey:key123 userId:item2.userInformation.userId];
-                [mStore removeItemWithKey:key123 userId:nil];
-                [mStore removeItemWithKey:key4 userId:nil];
+                array = [mStore allItemsWithError:&error];
+                ADAssertNoError;
+                XCTAssertNotNil(array);
+                array = [mStore getItemsWithKey:key4 error:&error];
+                ADAssertNoError;
+                XCTAssertNotNil(array);
+                [mStore getItemWithKey:key123 userId:nil error:&error];
+                if (error)//can error or not, depending on the state of deletions
+                {
+                    ADAssertLongEquals(AD_ERROR_MULTIPLE_USERS, error.code);
+                    error = nil;
+                }
+                ADTokenCacheStoreItem* return1 = [mStore getItemWithKey:key123 userId:item1.userInformation.userId error:&error];
+                ADAssertNoError;
+                if (return1)//may not return if deleted in another thread
+                {
+                    [self adVerifySameWithItem:item1 item2:return1];
+                }
+                ADTokenCacheStoreItem* badUser = [mStore getItemWithKey:key123 userId:@"not real" error:&error];
+                ADAssertNoError;
+                XCTAssertNil(badUser);
+                ADTokenCacheStoreItem* return4 = [mStore getItemWithKey:key4 userId:nil error:&error];//Always exactly 1 or 0 elements for this key
+                ADAssertNoError;
+                if (return4)
+                {
+                    [self adVerifySameWithItem:item4 item2:return4];
+                }
+
+                badUser = [mStore getItemWithKey:key4 userId:@"not real" error:&error];
+                ADAssertNoError;
+                XCTAssertNil(badUser);
+                [mStore removeItemWithKey:key123 userId:item1.userInformation.userId error:&error];
+                ADAssertNoError;
+                [mStore removeItemWithKey:key123 userId:item2.userInformation.userId error:&error];
+                ADAssertNoError;
+                [mStore removeItemWithKey:key123 userId:nil error:&error];
+                ADAssertNoError;
+                [mStore removeItemWithKey:key4 userId:nil error:&error];
+                ADAssertNoError;
                 
                 now = [NSDate dateWithTimeIntervalSinceNow:0];
             }//Inner authorelease pool
@@ -485,6 +405,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 -(void) testMultipleThreads
 {
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];//Multi-user errors
     //The signal to denote completion:
     sThreadsSemaphore = dispatch_semaphore_create(0);
     sThreadsFinished = 0;
@@ -498,77 +419,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     {
         XCTFail("Timeout. Most likely one or more of the threads have crashed or hanged.");
     }
-    else
-    {
-        [self waitForPersistenceWithLine:__LINE__];//Ensure clean exit.
-    }
-}
-
-//Waits for persistence
--(void) waitForPersistenceWithLine:(int)line
-{
-    NSDate* start = [NSDate dateWithTimeIntervalSinceNow:0];
-
-    NSTimeInterval elapsed = 0;
-    while (elapsed < sPersistenceTimeout && [mStore getArchivedRevision] < [mStore getCurrenRevision])
-    {
-        usleep(1000);//In microseconds, so sleep 1 milisecond at a time.
-        elapsed = -[start timeIntervalSinceNow];//The method returns negative value
-    }
-    
-    NSLog(@"Waiting for persistence to catch up took: %f", elapsed);
-    if ([mStore getArchivedRevision] < [mStore getCurrenRevision])
-    {
-        [self recordFailureWithDescription:@"Timeout while waiting for the persistence to catch up." inFile:@"" __FILE__ atLine:line expected:NO];
-    }
-    if ([mStore getArchivedRevision] > [mStore getCurrenRevision])
-    {
-        [self recordFailureWithDescription:@"Misaligned archived and current revisions." inFile:@"" __FILE__ atLine:line expected:NO];
-    }
-}
-
-//Waits and checks that the cache was persisted.
-//The logs should be cleared before performing the operation that leads to persistence.
--(void) validateAsynchronousPersistenceWithLine: (int) line
-{
-    [self waitForPersistenceWithLine:__LINE__];
-    [self assertLogsContain:sPersisted
-                    logPart:TEST_LOG_INFO
-                       file:__FILE__
-                       line:line];
-}
-
-//Ensures that the cache is eventually persisted when modified:
--(void) testAsynchronousPersistence
-{
-    //Start clean:
-    [self waitForPersistenceWithLine:__LINE__];
-    [self clearLogs];
-
-    //Add an item:
-    ADTokenCacheStoreItem* item = [self createCacheItem];
-    ADAuthenticationError* error;
-    [mStore addOrUpdateItem:item error:&error];
-    ADAssertNoError;
-    [self validateAsynchronousPersistenceWithLine:__LINE__];
-    
-    //Remove an item:
-    error = nil;
-    [self clearLogs];
-    [mStore removeItem:item error:&error];
-    ADAssertNoError;
-    [self validateAsynchronousPersistenceWithLine:__LINE__];
-    
-    error = nil;
-    [self clearLogs];
-    [mStore addOrUpdateItem:item error:&error];
-    ADAssertNoError;
-    [self validateAsynchronousPersistenceWithLine:__LINE__];
-    
-    error = nil;
-    [self clearLogs];
-    [mStore removeAll];
-    [self validateAsynchronousPersistenceWithLine:__LINE__];
 }
 
 //Add large number of items to the cache. Acts as a mini-stress test too
@@ -577,7 +427,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 -(void) testBulkPersistence
 {
     long numItems = 500;//Keychain is relatively slow
-    ADTokenCacheStoreItem* original = [self createCacheItem];
+    ADTokenCacheStoreItem* original = [self adCreateCacheItem];
     NSMutableArray* allItems = [NSMutableArray new];
     for (long i = 0; i < numItems; ++i)
     {
@@ -586,61 +436,16 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
         [allItems addObject:item];
     }
 
-    [self waitForPersistenceWithLine:__LINE__];//Just in case.
-    [self clearLogs];
-    ADAuthenticationError* error;
-
+    ADAuthenticationError* error = nil;
     for(ADTokenCacheStoreItem* item in allItems)
     {
         [mStore addOrUpdateItem:item error:&error];
+        ADAssertNoError;
     }
-    ADAssertNoError;//The error accumulates.
-    [self waitForPersistenceWithLine:__LINE__];
-    //Now count persistence tasks and ensure that they are << numItems:
-    int numPersisted = [self adCountOfLogOccurrencesIn:TEST_LOG_INFO ofString:sPersisted];
-    int numAttempted = [self adCountOfLogOccurrencesIn:TEST_LOG_MESSAGE ofString:sNoNeedForPersistence];
-    
-    XCTAssertTrue(numPersisted > 0);
-    XCTAssertTrue(numPersisted < numItems/10, "Too many persistence requests, the bulk processing does not work.");
-    //The simulator is able to dequeue very fast, so effectively, the atempted requests will be
-    //relatively high there. The test importance is to ensure that we are not attempting as much as we update:
-    XCTAssertTrue(numAttempted < numItems/2, "Too many attempts to persist, the checking if persistence is queued does not work.");
-    
+
     //Restore:
-    [mStore removeAll];
-    [self waitForPersistenceWithLine:__LINE__];
-}
-
-
-//Plays with the persistence conditions:
--(void) testEnsureArchived
-{
-    [self waitForPersistenceWithLine:__LINE__];
-    
-    ADAuthenticationError* error;
-    [self clearLogs];
-    
-    //All up to date, attempt persistance:
-    XCTAssertTrue([mStore ensureArchived:&error]);
+    [mStore removeAllWithError:&error];
     ADAssertNoError;
-    ADAssertLogsContainValue(TEST_LOG_MESSAGE, sNoNeedForPersistence);
-    
-    //Fake modification and ensure storing:
-    [self clearLogs];
-    [mStore setCurrentRevision:5];
-    [mStore setArchivedRevision:([mStore getCurrenRevision] - 2)];
-    XCTAssertTrue([mStore ensureArchived:&error]);
-    ADAssertNoError;
-    XCTAssertTrue([mStore getArchivedRevision] == [mStore getCurrenRevision]);
-    ADAssertLogsContainValue(TEST_LOG_INFO, sPersisted);
-    ADAssertLogsContainValue(TEST_LOG_INFO, mStore.cacheLocation);
-    
-    //Ensure no storing, as the persistence caught up:
-    [self clearLogs];
-    XCTAssertTrue([mStore ensureArchived:&error]);
-    ADAssertNoError;
-    ADAssertLogsContainValue(TEST_LOG_MESSAGE, sNoNeedForPersistence);
-    ADAssertLogsDoNotContainValue(TEST_LOG_INFO, sPersisted);
 }
 
 -(void) verifyCacheContainsItem: (ADTokenCacheStoreItem*) item
@@ -650,77 +455,71 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
     ADAssertNoError;
     
-    ADTokenCacheStoreItem* read = [mStore getItemWithKey:key userId:item.userInformation.userId];
-    [self verifySameWithItem:item item2:read];
+    ADTokenCacheStoreItem* read = nil;
+    if (item.userInformation)
+    {
+        read = [mStore getItemWithKey:key userId:item.userInformation.userId error:&error];
+    }
+    else
+    {
+        //Find the one (if any) that has userId equal to nil:
+        NSArray* all = [mStore getItemsWithKey:key error:&error];
+        ADAssertNoError;
+        XCTAssertNotNil(all);
+        for(ADTokenCacheStoreItem* i in all)
+        {
+            XCTAssertNotNil(i);
+            if (!i.userInformation)
+            {
+                XCTAssertNil(read);
+                read = i;
+            }
+        }
+    }
+    ADAssertNoError;
+    [self adVerifySameWithItem:item item2:read];
 }
 
 -(void) testInitializer
 {
-    [self setLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:nil]);
-    XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:@"   "]);
-    
-    //Abstract methods
-    NSString* location = @"location";
-    ADPersistentTokenCacheStore* instance = [[ADPersistentTokenCacheStore alloc] initWithLocation:location];
-    ADAssertStringEquals(instance.cacheLocation, location);
-    XCTAssertThrows([instance addInitialCacheItems], "This method should call non-implmented unpersistence.");
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    ADKeychainTokenCacheStore* simple = [ADKeychainTokenCacheStore new];
+    XCTAssertNotNil(simple);
+    XCTAssertNil(simple.sharedGroup);
+    NSString* group = @"test";
+    ADKeychainTokenCacheStore* withGroup = [[ADKeychainTokenCacheStore alloc] initWithGroup:group];
+    XCTAssertNotNil(withGroup);
+    ADAssertStringEquals(withGroup.sharedGroup, group);
 }
 
-//Tests the persistence:
--(void) testaddInitialElements
+-(void) testsharedKeychainGroupProperty
 {
-    ADAuthenticationError* error;
-
-    //Start clean, add, remove items to ensure serialization of empty array:
-    ADTokenCacheStoreItem* original = [self createCacheItem];
-    [mStore addOrUpdateItem:original error:&error];
+    //Put an item in the cache:
+    ADAssertLongEquals(0, [self count]);
+    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    ADAuthenticationError* error = nil;
+    [mStore addOrUpdateItem:item error:&error];
     ADAssertNoError;
-    [mStore removeAll];
-    [self waitForPersistenceWithLine:__LINE__];
-    BOOL result = [mStore addInitialCacheItems];
-    XCTAssertFalse(result, "There shouldn't be any elements.");
-    XCTAssertTrue(mCache.count == 0);
+    ADAssertLongEquals(1, [self count]);
     
-    //Add some items, read them back:
-    //These two share the same key:
-    ADTokenCacheStoreItem* authority1one = [self copyItem:original withNewUser:@"1"];
-    ADTokenCacheStoreItem* authority1two = [self copyItem:original withNewUser:@"2"];
+    //Test the property:
+    ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
+    ADKeychainTokenCacheStore* keychainStore = (ADKeychainTokenCacheStore*)mStore;
+    XCTAssertNil(settings.sharedCacheKeychainGroup);
+    XCTAssertNil(keychainStore.sharedGroup);
+    NSString* groupName = @"com.microsoft.ADAL";
+    settings.sharedCacheKeychainGroup = groupName;
+    ADAssertStringEquals(settings.sharedCacheKeychainGroup, groupName);
+    XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
+    ADAssertStringEquals(keychainStore.sharedGroup, groupName);
     
-    //Different key:
-    ADTokenCacheStoreItem* authority2 = [self copyItem:original withNewUser:@"1"];
-    authority2.authority = @"https://www.anotherauthority.com/tenant.com";
-    ADTokenCacheStoreItem* clientId2 = [self copyItem:original withNewUser:@"1"];
-    clientId2.clientId = @"clientId2";
-
-    //Add the items:
-    [mStore addOrUpdateItem:authority1one error:&error];
-    [mStore addOrUpdateItem:authority1two error:&error];
-    [mStore addOrUpdateItem:authority2 error:&error];
-    [mStore addOrUpdateItem:clientId2 error:&error];
+    //Restore back to default
+    keychainStore.sharedGroup = nil;
+    XCTAssertNil(keychainStore.sharedGroup);
+    XCTAssertNil(settings.sharedCacheKeychainGroup);
+    [mStore removeAllWithError:&error];
     ADAssertNoError;
-    [self waitForPersistenceWithLine:__LINE__];
-    XCTAssertTrue(mStore.allItems.count == 4);
-
-    
-    //Stop serialization clear the cache and read it from the file,
-    //make sure that the file has the same values:
-    [mStore setArchivedRevision:LONG_LONG_MAX];//Temporarily disable serialization
-    [mStore removeAll];
-    XCTAssertTrue(mCache.count == 0);
-    result = [mStore addInitialCacheItems];//Load manually
-    XCTAssertTrue(result);
-    XCTAssertTrue(mStore.allItems.count == 4);
-    [self verifyCacheContainsItem:authority1one];
-    [self verifyCacheContainsItem:authority1two];
-    [self verifyCacheContainsItem:authority2];
-    [self verifyCacheContainsItem:clientId2];
-    [mStore setArchivedRevision:[mStore getCurrenRevision]];//Restore the serialization
-    
-    //Clean up:
-    [mStore removeAll];
-    ADAssertNoError;
-    [self waitForPersistenceWithLine:__LINE__];
+    ADAssertLongEquals(0, [self count]);
 }
 
 @end

@@ -15,7 +15,6 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
-
 #import <Foundation/Foundation.h>
 
 @protocol ADTokenCacheStoring;
@@ -41,7 +40,7 @@ typedef enum
 
 /*! The class stores global settings for the ADAL library. It is a singleton class
  and the alloc, init and new should not be called directly. The "sharedInstance" selector
- should be used instead to provide the settings instance.
+ should be used instead to provide the settings instance. The class is not thread-safe.
  */
 @interface ADAuthenticationSettings : NSObject
 
@@ -68,5 +67,18 @@ typedef enum
 
 /*! The default token cache store to be used by the ADAuthenticationContext instances. */
 @property id<ADTokenCacheStoring> defaultTokenCacheStore;
+
+/*! The name of the keychain group to be used if sharing of cache between applications
+ is desired. Can be nil. The property sets the appropriate value of defaultTokenCacheStore
+ object. See apple's documentation for keychain groups: such groups require certain
+ entitlements to be set by the applications. Additionally, access to the items in this group
+ is only given to the applications from the same vendor. If this property is not set, the behavior
+ will depend on the values in the entitlements file (if such exists) and may not result in token
+ sharing. The property has no effect if other cache mechanisms are used (non-keychain). */
+@property (getter = getSharedCacheKeychainGroup, setter = setSharedCacheKeychainGroup:) NSString* sharedCacheKeychainGroup;
+
+/*! Some servers may require client authentication over TLS. The certificate will be stored in the
+ shared keychain group, pointed by this property. */
+@property NSString* clientTLSKeychainGroup;
 
 @end

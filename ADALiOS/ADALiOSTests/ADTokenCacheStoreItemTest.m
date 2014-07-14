@@ -18,7 +18,7 @@
 
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
-#import <ADALiOS/ADTokenCacheStoreItem.h>
+#import "../ADALiOS/ADAuthenticationContext.h"
 
 @interface ADTokenCacheStoreItemTest : XCTestCase
 
@@ -41,7 +41,7 @@
 
 -(void) testIsExpired
 {
-    ADTokenCacheStoreItem* item = [self createCacheItem];
+    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
     XCTAssertTrue(item.isExpired, "When time is now, the item should expire.");
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:30];
@@ -57,7 +57,7 @@
 }
 - (void)testIsEmptyUser
 {
-    ADTokenCacheStoreItem* item = [self createCacheItem];
+    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
     XCTAssertFalse(item.isEmptyUser);
     item.userInformation = nil;
     XCTAssertTrue(item.isEmptyUser);
@@ -70,7 +70,7 @@
 {
     ADAuthenticationError* error;
     
-    ADTokenCacheStoreItem* item1 = [self createCacheItem];
+    ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
     if (userId1)
     {
         item1.userInformation = [ADUserInformation userInformationWithUserId:userId1 error:&error];
@@ -82,7 +82,7 @@
         item1.userInformation = nil;
     }
     
-    ADTokenCacheStoreItem* item2 = [self createCacheItem];
+    ADTokenCacheStoreItem* item2 = [self adCreateCacheItem];
     if (userId2)
     {
         item2.userInformation = [ADUserInformation userInformationWithUserId:userId2 error:&error];
@@ -101,7 +101,7 @@
 -(void)testIsSameUser
 {
     //Check the trivial cases:
-    ADTokenCacheStoreItem* item = [self createCacheItem];
+    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
     XCTAssertTrue([item isSameUser:item]);//self
     ADTokenCacheStoreItem* copy = [item copy];
     XCTAssertTrue([item isSameUser:copy]);
@@ -127,7 +127,7 @@
 
 -(void) testMultiRefreshTokens
 {
-    ADTokenCacheStoreItem* item = [self createCacheItem];
+    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
     XCTAssertFalse(item.multiResourceRefreshToken);
     item.resource = nil;
     XCTAssertFalse(item.multiResourceRefreshToken);

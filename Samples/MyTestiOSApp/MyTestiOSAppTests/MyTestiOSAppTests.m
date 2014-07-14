@@ -23,6 +23,7 @@
 #import <ADALiOS/ADLogger.h>
 #import "BVTestInstance.h"
 #import "BVSettings.h"
+#import <ADALiOS/ADErrorCodes.h>
 
 //Timeouts in seconds. They are inflated to accumulate cloud-based
 //builds on slow VMs:
@@ -129,7 +130,9 @@ const int sTokenWorkflowTimeout     = 20;
 
 -(void) clearCache
 {
-    [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore removeAll];
+    ADAuthenticationError* error;
+    [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore removeAllWithError:&error];
+    XCTAssertNil(error.errorDetails);
 }
 
 //Runs the run loop in the current thread until the passed condition
@@ -160,13 +163,47 @@ const int sTokenWorkflowTimeout     = 20;
     }
 }
 
+-(ADAuthenticationResult*) callAcquireTokenWithInstance: (BVTestInstance*) instance
+                                        refresh_session: (BOOL) refresh_session
+                                            interactive: (BOOL) interactive
+                                           keepSignedIn: (BOOL) keepSignedIn
+                                          expectSuccess: (BOOL) expectSuccess
+                                                   line: (int) sourceLine
+{
+    return [self callAcquireTokenWithInstance:instance
+                              refresh_session:refresh_session
+                                  interactive:interactive
+                                 keepSignedIn:keepSignedIn
+                                expectSuccess:expectSuccess
+                                       userId:instance.userId
+                                         line:sourceLine];
+}
+
+-(void) setElementWithWebView: (UIWebView*) webView
+                      element: (NSString*) elementName
+                        value: (NSString*) value
+{
+    [webView stringByEvaluatingJavaScriptFromString:
+     [NSString stringWithFormat:@"document.getElementById('%@').value = '%@'",
+      elementName, value]];
+}
+
+-(NSString*) getElementWithWebView: (UIWebView*) webView
+                           element: (NSString*) elementName
+{
+    return [webView stringByEvaluatingJavaScriptFromString:
+            [NSString stringWithFormat:@"document.getElementById('%@').value", elementName]];
+}
+
 //Calls the asynchronous acquireTokenWithResource method.
 //"interactive" parameter indicates whether the call will display
 //UI which user will interact with
 -(ADAuthenticationResult*) callAcquireTokenWithInstance: (BVTestInstance*) instance
+                                        refresh_session: (BOOL) refresh_session
                                             interactive: (BOOL) interactive
                                            keepSignedIn: (BOOL) keepSignedIn
                                           expectSuccess: (BOOL) expectSuccess
+                                                 userId: (NSString*) userId /*requested userid, may be different from entered*/
                                                    line: (int) sourceLine
 {
     XCTAssertNotNil(instance, "Internal test failure.");
@@ -178,7 +215,8 @@ const int sTokenWorkflowTimeout     = 20;
     [context acquireTokenWithResource:instance.resource
                              clientId:instance.clientId
                           redirectUri:[NSURL URLWithString:instance.redirectUri]
-                               userId:instance.userId
+                       promptBehavior:refresh_session ? AD_PROMPT_REFRESH_SESSION : AD_PROMPT_AUTO
+                               userId:userId
                  extraQueryParameters:instance.extraQueryParameters
                       completionBlock:^(ADAuthenticationResult *result)
      {
@@ -210,15 +248,15 @@ const int sTokenWorkflowTimeout     = 20;
             return [formLoaded isEqualToString:@"1"];
         }];
         
-        //Check the username:
-        NSString* formUserId = [webView stringByEvaluatingJavaScriptFromString:
-                                @"document.getElementById('cred_userid_inputtext').value"];
-        XCTAssertTrue([formUserId isEqualToString:instance.userId]);
+        //Check the username is prepopulated to requested:
+        NSString* formUserId = [self getElementWithWebView:webView element:@"cred_userid_inputtext"];
+        XCTAssertTrue([formUserId isEqualToString:userId]);
+        
+        //Now set the userId to the one passed in the instance (may be different):
+        [self setElementWithWebView:webView element:@"cred_userid_inputtext" value:instance.userId];
         
         //Add the password:
-        [webView stringByEvaluatingJavaScriptFromString:
-                [NSString stringWithFormat:@"document.getElementById('cred_password_inputtext').value = '%@'",
-                 instance.password]];
+        [self setElementWithWebView:webView element:@"cred_password_inputtext" value:instance.password];
         if (keepSignedIn)
         {
             [webView stringByEvaluatingJavaScriptFromString:
@@ -253,7 +291,7 @@ const int sTokenWorkflowTimeout     = 20;
                                         atLine:sourceLine
                                       expected:NO];
         }
-        if ([NSString isStringNilOrBlank:localResult.tokenCacheStoreItem.accessToken])
+        if (!localResult.tokenCacheStoreItem.accessToken.length)
         {
             [self recordFailureWithDescription:@"Nil or empty access token."
                                         inFile:@"" __FILE__
@@ -269,6 +307,7 @@ const int sTokenWorkflowTimeout     = 20;
 {
     BVTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
+                       refresh_session:NO
                            interactive:YES
                           keepSignedIn:NO
                          expectSuccess:YES
@@ -280,6 +319,7 @@ const int sTokenWorkflowTimeout     = 20;
     //Add query parameters:
     instance.extraQueryParameters = @"&foo=bar&bar=foo";//With "&"
     [self callAcquireTokenWithInstance:instance
+                       refresh_session:NO
                            interactive:YES
                           keepSignedIn:NO
                          expectSuccess:YES
@@ -289,6 +329,7 @@ const int sTokenWorkflowTimeout     = 20;
     [self clearCookies];
     instance.extraQueryParameters = @"foo=bar&bar=foo";//Without "&"
     [self callAcquireTokenWithInstance:instance
+                       refresh_session:NO
                            interactive:YES
                           keepSignedIn:NO
                          expectSuccess:YES
@@ -298,6 +339,7 @@ const int sTokenWorkflowTimeout     = 20;
 {
     BVTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
+                       refresh_session:NO
                            interactive:YES
                           keepSignedIn:NO
                          expectSuccess:YES
@@ -306,6 +348,7 @@ const int sTokenWorkflowTimeout     = 20;
     //Now ensure that the cache is used:
     [self clearCookies];//No cookies, force cache use:
     ADAuthenticationResult* result = [self callAcquireTokenWithInstance:instance
+                                                        refresh_session:NO
                                                             interactive:NO
                                                            keepSignedIn:YES
                                                           expectSuccess:YES
@@ -318,6 +361,7 @@ const int sTokenWorkflowTimeout     = 20;
     XCTAssertNil(error);
     [self clearCookies];//Just in case
     [self callAcquireTokenWithInstance:instance
+                       refresh_session:NO
                            interactive:NO
                           keepSignedIn:YES
                          expectSuccess:YES
@@ -328,6 +372,7 @@ const int sTokenWorkflowTimeout     = 20;
 {
     BVTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
+                       refresh_session:NO
                            interactive:YES
                           keepSignedIn:YES
                          expectSuccess:YES
@@ -336,6 +381,7 @@ const int sTokenWorkflowTimeout     = 20;
     //Clear the cache, so that cookies are used:
     [self clearCache];
     [self callAcquireTokenWithInstance:instance
+                       refresh_session:NO
                            interactive:NO
                           keepSignedIn:YES
                          expectSuccess:YES
@@ -349,16 +395,18 @@ const int sTokenWorkflowTimeout     = 20;
     instance.authority = @"https://example.com/common";
     instance.validateAuthority = NO;
     ADAuthenticationResult* result = [self callAcquireTokenWithInstance:instance
+                                                        refresh_session:NO
                                                             interactive:NO
                                                            keepSignedIn:YES
                                                           expectSuccess:NO
                                                                    line:__LINE__];
-    XCTAssertTrue([result.error.errorDetails containsString:@"certificate"]);
+    XCTAssertTrue([result.error.errorDetails rangeOfString:@"certificate"].location != NSNotFound);
     
     //Unreachable authority:
     instance.authority = @"https://SomeReallyNonExistingDomain.com/SomeTenant";
     instance.validateAuthority = NO;
     [self callAcquireTokenWithInstance:instance
+                       refresh_session:NO
                            interactive:NO
                           keepSignedIn:YES
                          expectSuccess:NO
@@ -368,11 +416,88 @@ const int sTokenWorkflowTimeout     = 20;
     instance.authority = @"https://microsoft.com/SomeTenant";
     instance.validateAuthority = YES;
     result = [self callAcquireTokenWithInstance:instance
+                                refresh_session:NO
                                     interactive:NO
                                    keepSignedIn:YES
                                   expectSuccess:NO
                                            line:__LINE__];
     XCTAssertEqual((long)result.error.code, (long)AD_ERROR_AUTHORITY_VALIDATION);
 }
+
+-(long) cacheCount
+{
+    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    ADAuthenticationError* error;
+    NSArray* all = [cache allItemsWithError:&error];
+    XCTAssertNotNil(all);
+    XCTAssertNil(error.errorDetails);
+    return all.count;
+}
+
+//Verifies that error is generated in case of wrong user authentication
+-(void) testWrongUser
+{
+    //Clean, request one user, enter another
+    XCTAssertEqual([self cacheCount], (long)0);//Access token and MRRT
+    ADAuthenticationResult* result = [self callAcquireTokenWithInstance:[self getAADInstance]
+                                                        refresh_session:NO
+                                                            interactive:YES
+                                                           keepSignedIn:YES
+                                                          expectSuccess:NO
+                                                                 userId:@"Nonexistent"
+                                                                   line:__LINE__];
+    XCTAssertNil(result.tokenCacheStoreItem);
+    XCTAssertEqual([self cacheCount], (long)2);//Access token and MRRT
+    //Cache present, same:
+    result = [self callAcquireTokenWithInstance:[self getAADInstance]
+                                refresh_session:NO
+                                    interactive:NO
+                                   keepSignedIn:NO
+                                  expectSuccess:NO
+                                         userId:@"Nonexistent"
+                                           line:__LINE__];
+    XCTAssertNil(result.tokenCacheStoreItem);
+    XCTAssertEqual((long)result.error.code, (long)AD_ERROR_WRONG_USER);
+    XCTAssertEqual([self cacheCount], (long)2);//Access token and MRRT
+}
+
+-(void) testRefreshSession
+{
+    BVTestInstance* instance = [self getAADInstance];
+    //Start with getting a normal token that will be refreshed later:
+    ADAuthenticationResult* result1 = [self callAcquireTokenWithInstance:instance
+                                                         refresh_session:NO
+                                                             interactive:YES
+                                                            keepSignedIn:YES
+                                                           expectSuccess:YES
+                                                                    line:__LINE__];
+
+    //This one will use the cookies, but should re-authorize with the refres_session parameter:
+    ADAuthenticationResult* result2 = [self callAcquireTokenWithInstance:instance
+                                                         refresh_session:YES
+                                                             interactive:NO
+                                                            keepSignedIn:YES
+                                                           expectSuccess:YES
+                                                                    line:__LINE__];
+    XCTAssertNotEqualObjects(result1.accessToken, result2.accessToken);
+    
+    //Retry without the cache, cookies should still be used:
+    [self clearCache];
+    [self callAcquireTokenWithInstance:instance
+                       refresh_session:YES
+                           interactive:NO
+                          keepSignedIn:YES
+                         expectSuccess:YES
+                                  line:__LINE__];
+    
+    //Now clear both cache and cookies, normal interactive session should be invoked:
+    [self clearCache];
+    [self clearCookies];
+    [self callAcquireTokenWithInstance:instance
+                       refresh_session:YES
+                           interactive:YES
+                          keepSignedIn:YES
+                         expectSuccess:YES
+                                  line:__LINE__];}
 
 @end

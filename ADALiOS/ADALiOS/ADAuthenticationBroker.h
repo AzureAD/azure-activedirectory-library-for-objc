@@ -15,6 +15,16 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
+#if TARGET_OS_IPHONE
+//iOS:
+#   include <UIKit/UIKit.h>
+typedef UIWebView WebViewType;
+#else
+//OS X:
+#   include <WebKit/WebKit.h>
+typedef WebView   WebViewType;
+#endif
+
 @class ADAuthenticationError;
 
 typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
@@ -27,10 +37,11 @@ typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 
 // Start the authentication process. Note that there are two different behaviours here dependent on whether the caller has provided
 // a WebView to host the browser interface. If no WebView is provided, then a full window is launched that hosts a WebView to run
-// the authentication process. If a WebView is provided, then that is used instead of launching a complete window.
+// the authentication process. 
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
-      webView:(WebViewType *)webView
+parentController:(UIViewController *)parent
+      webView:(WebViewType*)webView
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID*)correlationId
    completion: (ADBrokerCallback) completionBlock;

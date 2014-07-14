@@ -18,7 +18,9 @@
 
 #import "ADALiOS.h"
 #import "ADTokenCacheStoreItem.h"
+#import "ADUserInformation.h"
 #import "ADAuthenticationSettings.h"
+#import "ADTokenCacheStoreKey.h"
 
 @implementation ADTokenCacheStoreItem
 
@@ -28,9 +30,9 @@
 //we create a special, "broad" cache item, with nil resource and access token:
 -(BOOL) isMultiResourceRefreshToken
 {
-    return [NSString isStringNilOrBlank:self.resource]
-        && [NSString isStringNilOrBlank:self.accessToken]
-       && ![NSString isStringNilOrBlank:self.refreshToken];
+    return [NSString adIsStringNilOrBlank:self.resource]
+        && [NSString adIsStringNilOrBlank:self.accessToken]
+       && ![NSString adIsStringNilOrBlank:self.refreshToken];
 }
 
 -(id) copyWithZone:(NSZone*) zone

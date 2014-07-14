@@ -15,9 +15,11 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
-
+#import "ADALiOS.h"
 #import "ADAuthenticationDelegate.h"
 #import "ADAuthenticationWebViewController.h"
+#import "ADAuthenticationSettings.h"
+#import "ADErrorCodes.h"
 #import "ADLogger.h"
 
 @implementation ADAuthenticationWebViewController

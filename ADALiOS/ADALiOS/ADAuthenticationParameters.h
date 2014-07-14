@@ -15,10 +15,9 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
-
 #import <Foundation/Foundation.h>
-#import <ADALiOS/ADAuthenticationResult.h>
-#import <ADALiOS/ADAuthenticationError.h>
+
+@class ADAuthenticationError;
 
 /*! Contains authentication parameters based on unauthorized
  response from resource server */
@@ -42,7 +41,7 @@
  is a valid pointer. If an error occurs, ADAuthenticationParameters will be nil and the NSException parameter
  contains all of the details.
 */
-typedef void (^ADParametersCompletion)(ADAuthenticationParameters*, ADAuthenticationError*);
+typedef void (^ADParametersCompletion)(ADAuthenticationParameters* parameters, ADAuthenticationError* error);
 
 /*! Creates authentication parameters from the response received from the resource. The method 
  creates an HTTP GET request and expects the resource to have unauthorized status (401) and "WWW-Authenticate" 
