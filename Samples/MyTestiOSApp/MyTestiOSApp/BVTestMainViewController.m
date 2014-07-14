@@ -27,14 +27,15 @@
 #import "BVTestInstance.h"
 
 @interface BVTestMainViewController ()
-@property (weak, nonatomic) IBOutlet UILabel *resultLabel;
+
+@property (weak, nonatomic) IBOutlet UITextView *resultLabel;
 - (IBAction)pressMeAction:(id)sender;
 - (IBAction)clearCachePressed:(id)sender;
 - (IBAction)getUsersPressed:(id)sender;
 - (IBAction)refreshTokenPressed:(id)sender;
 - (IBAction)expireAllPressed:(id)sender;
 - (IBAction)promptAlways:(id)sender;
-
+- (IBAction)acquireTokenSilentAction:(id)sender;
 @end
 
 @implementation BVTestMainViewController
@@ -44,9 +45,10 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];//Log everything
-
+    
     mTestData = [BVSettings new];
     mAADInstance = mTestData.testAuthorities[sAADTestInstance];
+    self.resultLabel.text = @"-- Response Goes Here --";
 }
 
 - (void)didReceiveMemoryWarning
@@ -105,7 +107,7 @@
 {
     BVTestMainViewController* __weak weakSelf = self;
     [self.resultLabel setText:@"Starting 401 challenge."];
-
+    
     //TODO: implement the 401 challenge response in the test Azure app. Temporarily using another one:
     NSString* __block resourceString = @"http://testapi007.azurewebsites.net/api/WorkItem";
     NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
@@ -147,6 +149,44 @@
                                [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
                            }];
      }];
+}
+
+
+- (IBAction)acquireTokenSilentAction:(id)sender
+{
+    BVTestMainViewController* __weak weakSelf = self;
+    [self.resultLabel setText:@"Starting Acquire Token Silent."];
+    
+    //TODO: implement the 401 challenge response in the test Azure app. Temporarily using another one:
+    NSString* __block resourceString = @"http://testapi007.azurewebsites.net/api/WorkItem";
+    //    NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
+    ADAuthenticationError * error;
+    
+    //401 worked, now try to acquire the token:
+    //TODO: replace the authority here with the one that comes back from 'params'
+    NSString* authority = mAADInstance.authority;//params.authority;
+    NSString* clientId = mAADInstance.clientId;
+    NSString* userId = mAADInstance.userId;
+    //NSString* __block resourceString = mAADInstance.resource;
+    NSString* redirectUri = mAADInstance.redirectUri;
+    [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", authority]];
+    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
+    if (!context)
+    {
+        [weakSelf setStatus:error.errorDetails];
+        return;
+    }
+    context.parentController = self;
+    
+    [context acquireTokenSilentWithResource:resourceString clientId:clientId redirectUri:[NSURL URLWithString:redirectUri] userId:userId completionBlock:^(ADAuthenticationResult *result) {
+        if (result.status != AD_SUCCEEDED)
+        {
+            [weakSelf setStatus:result.error.errorDetails];
+            return;
+        }
+        
+        [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+    }];
 }
 
 - (IBAction)clearCachePressed:(id)sender
@@ -313,16 +353,16 @@
                                userId:mAADInstance.userId
                  extraQueryParameters:@""
                       completionBlock:^(ADAuthenticationResult *result)
-    {
-        if (result.status != AD_SUCCEEDED)
-        {
-            [weakSelf setStatus:result.error.errorDetails];
-            return;
-        }
-        
-        [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
-        NSLog(@"Access token: %@", result.accessToken);
-    }];
+     {
+         if (result.status != AD_SUCCEEDED)
+         {
+             [weakSelf setStatus:result.error.errorDetails];
+             return;
+         }
+         
+         [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+         NSLog(@"Access token: %@", result.accessToken);
+     }];
     
     
 }
