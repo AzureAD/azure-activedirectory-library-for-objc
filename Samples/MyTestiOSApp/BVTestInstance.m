@@ -33,7 +33,8 @@
     self->_redirectUri          = [contents objectForKey:@"RedirectUri"];
     self->_userId               = [contents objectForKey:@"UserId"];
     self->_password             = [contents objectForKey:@"Password"];
-    self->_validateAuthority    = (BOOL)[contents objectForKey:@"SupportsValidation"];
+    NSString* va = [contents objectForKey:@"SupportsValidation"];
+    self->_validateAuthority    = [va boolValue];
     self->_extraQueryParameters = [contents objectForKey:@"extraQueryParameters"];
     
     return self;
