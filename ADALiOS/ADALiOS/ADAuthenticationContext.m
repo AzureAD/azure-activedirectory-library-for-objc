@@ -33,7 +33,7 @@
 #import "ADUserInformation.h"
 
 NSString* const unknownError = @"Uknown error.";
-NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call acquireToken with 'promptBehavior' not set to AD_PROMPT_NEVER";
+NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
 NSString* const serverError = @"The authentication server returned an error: %@.";
 
 //Used for the callback of obtaining the OAuth2 code:
@@ -79,6 +79,26 @@ if (![self checkAndHandleBadArgument:ARG \
     {
         return YES;
     }
+}
+
+//Translates the ADPromptBehavior into prompt query parameter. May return nil, if such
+//parameter is not needed.
++(NSString*) getPromptParameter: (ADPromptBehavior) prompt
+{
+    switch (prompt) {
+        case AD_PROMPT_ALWAYS:
+            return @"login";
+        case AD_PROMPT_REFRESH_SESSION:
+            return @"refresh_session";
+        default:
+            return nil;
+    }
+}
+
++(BOOL) isForcedAuthorization: (ADPromptBehavior) prompt
+{
+    //If prompt parameter needs to be passed, re-authorization is needed.
+    return [self getPromptParameter:prompt] != nil;
 }
 
 
@@ -159,6 +179,7 @@ if (![self checkAndHandleBadArgument:ARG \
                                          clientId:clientId
                                       redirectUri:redirectUri
                                    promptBehavior:AD_PROMPT_AUTO
+                                           silent:NO
                                            userId:nil
                                             scope:nil
                              extraQueryParameters:nil
@@ -179,6 +200,7 @@ if (![self checkAndHandleBadArgument:ARG \
                                   clientId:clientId
                                redirectUri:redirectUri
                             promptBehavior:AD_PROMPT_AUTO
+                                    silent:NO
                                     userId:userId
                                      scope:nil
                       extraQueryParameters:nil
@@ -201,6 +223,7 @@ if (![self checkAndHandleBadArgument:ARG \
                                   clientId:clientId
                                redirectUri:redirectUri
                             promptBehavior:AD_PROMPT_AUTO
+                                    silent:NO
                                     userId:userId
                                      scope:nil
                       extraQueryParameters:queryParams
@@ -208,6 +231,47 @@ if (![self checkAndHandleBadArgument:ARG \
                          validateAuthority:self.validateAuthority
                              correlationId:self.correlationId
                            completionBlock:completionBlock];
+}
+
+-(void) acquireTokenSilentWithResource: (NSString*) resource
+                              clientId: (NSString*) clientId
+                           redirectUri: (NSURL*) redirectUri
+                       completionBlock: (ADAuthenticationCallback) completionBlock
+{
+    API_ENTRY;
+    return [self internalAcquireTokenWithResource:resource
+                                         clientId:clientId
+                                      redirectUri:redirectUri
+                                   promptBehavior:AD_PROMPT_AUTO
+                                           silent:YES
+                                           userId:nil
+                                            scope:nil
+                             extraQueryParameters:nil
+                                         tryCache:YES
+                                validateAuthority:self.validateAuthority
+                                    correlationId:self.correlationId
+                                  completionBlock:completionBlock];
+}
+
+-(void) acquireTokenSilentWithResource: (NSString*) resource
+                              clientId: (NSString*) clientId
+                           redirectUri: (NSURL*) redirectUri
+                                userId: (NSString*) userId
+                       completionBlock: (ADAuthenticationCallback) completionBlock
+{
+    API_ENTRY;
+    return [self internalAcquireTokenWithResource:resource
+                                         clientId:clientId
+                                      redirectUri:redirectUri
+                                   promptBehavior:AD_PROMPT_AUTO
+                                           silent:YES
+                                           userId:userId
+                                            scope:nil
+                             extraQueryParameters:nil
+                                         tryCache:YES
+                                validateAuthority:self.validateAuthority
+                                    correlationId:self.correlationId
+                                  completionBlock:completionBlock];
 }
 
 //Returns YES if we shouldn't attempt other means to get access token.
@@ -226,6 +290,7 @@ if (![self checkAndHandleBadArgument:ARG \
                      clientId: (NSString*) clientId
                   redirectUri: (NSURL*) redirectUri
                promptBehavior: (ADPromptBehavior) promptBehavior
+                       silent: (BOOL) silent
                        userId: (NSString*) userId
          extraQueryParameters: (NSString*) queryParams
                 correlationId: (NSUUID*) correlationId
@@ -303,6 +368,7 @@ if (![self checkAndHandleBadArgument:ARG \
                                         clientId:clientId
                                      redirectUri:redirectUri
                                   promptBehavior:promptBehavior
+                                          silent:silent
                                           userId:userId
                             extraQueryParameters:queryParams
                                    correlationId:correlationId
@@ -318,6 +384,7 @@ if (![self checkAndHandleBadArgument:ARG \
                                        clientId: clientId
                                     redirectUri: redirectUri
                                  promptBehavior: promptBehavior
+                                         silent: silent
                                          userId: userId
                                           scope: nil
                            extraQueryParameters: queryParams
@@ -342,6 +409,7 @@ if (![self checkAndHandleBadArgument:ARG \
                                   clientId:clientId
                                redirectUri:redirectUri
                             promptBehavior:promptBehavior
+                                    silent:NO
                                     userId:userId
                                      scope:nil
                       extraQueryParameters:queryParams
@@ -463,6 +531,7 @@ if (![self checkAndHandleBadArgument:ARG \
                                 clientId: (NSString*) clientId
                              redirectUri: (NSURL*) redirectUri
                           promptBehavior: (ADPromptBehavior) promptBehavior
+                                  silent: (BOOL) silent /* Do not show web UI for authorization. */
                                   userId: (NSString*) userId
                                    scope: (NSString*) scope
                     extraQueryParameters: (NSString*) queryParams
@@ -490,6 +559,7 @@ if (![self checkAndHandleBadArgument:ARG \
                                               clientId:clientId
                                            redirectUri:redirectUri
                                         promptBehavior:promptBehavior
+                                                silent:silent
                                                 userId:userId
                                                  scope:scope
                                   extraQueryParameters:queryParams
@@ -515,7 +585,7 @@ if (![self checkAndHandleBadArgument:ARG \
         return;
     }
     
-    if (tryCache && promptBehavior != AD_PROMPT_ALWAYS && self.tokenCacheStore)
+    if (tryCache && ![self.class isForcedAuthorization:promptBehavior] && self.tokenCacheStore)
     {
         //Cache should be used in this case:
         BOOL accessTokenUsable;
@@ -535,6 +605,7 @@ if (![self checkAndHandleBadArgument:ARG \
                                clientId:clientId
                             redirectUri:redirectUri
                          promptBehavior:promptBehavior
+                                 silent:silent
                                  userId:userId
                    extraQueryParameters:queryParams
                           correlationId:correlationId
@@ -543,10 +614,11 @@ if (![self checkAndHandleBadArgument:ARG \
         }
     }
     
-    if (promptBehavior == AD_PROMPT_NEVER)
+    if (silent)
     {
         //The cache lookup and refresh token attempt have been unsuccessful,
-        //so credentials are needed to get an access token:
+        //so credentials are needed to get an access token, but the developer, requested
+        //no UI to be shown:
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_INPUT_NEEDED
                                                protocolCode:nil
@@ -996,10 +1068,11 @@ if (![self checkAndHandleBadArgument:ARG \
     {
         [startUrl appendFormat:@"&%@=%@", OAUTH2_LOGIN_HINT, [userId adUrlFormEncode]];
     }
-    if (AD_PROMPT_ALWAYS == promptBehavior)
+    NSString* promptParam = [self.class getPromptParameter:promptBehavior];
+    if (promptParam)
     {
         //Force the server to ignore cookies, by specifying explicitly the prompt behavior:
-        [startUrl appendString:@"&prompt=login"];
+        [startUrl appendString:[NSString stringWithFormat:@"&prompt=%@", promptParam]];
     }
     if (![NSString adIsStringNilOrBlank:queryParams])
     {//Append the additional query parameters if specified:

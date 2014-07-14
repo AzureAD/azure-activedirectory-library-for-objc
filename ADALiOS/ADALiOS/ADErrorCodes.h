@@ -52,10 +52,11 @@ typedef enum
     /*! Access tokens for multiple users exist in the token cache. Please specify the userId. */
     AD_ERROR_MULTIPLE_USERS = 9,
     
-    /*! User needs to authenticate. This error is raised when access token cannot be obtained
-     without user explicitly authenticating, but the acquireToken is called with AD_PROMPT_NEVER
-     parameter. To obtain the token, the calling application can retry the call with AD_PROMPT_AUTO
-     or AD_PROMPT_ALWAYS at appropriate time/thread. */
+    /*! User needs to re-authorize resource usage. This error is raised when access token cannot 
+     be obtained without user explicitly re-authorizing, but the developer has called 
+     acquireTokenSilentWithResource method. To obtain the token, the application will need to call
+     acquireTokenWithResource after this error to allow the library to give user abitlity
+     to re-authorize (with web UI involved). */
     AD_ERROR_USER_INPUT_NEEDED = 10,
     
     /*! The cache store cannot be persisted to the specified location. This error is raised only if
