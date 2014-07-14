@@ -20,6 +20,7 @@
 #import "ADAuthenticationWebViewController.h"
 #import "ADAuthenticationSettings.h"
 #import "ADErrorCodes.h"
+#import "ADLogger.h"
 
 @implementation ADAuthenticationWebViewController
 {
