@@ -1,14 +1,28 @@
-#Windows Azure Active Directory Authentication Library (ADAL) for iOS
+#Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and OSX
 =====================================
 
 [![Build Status](https://travis-ci.org/MSOpenTech/azure-activedirectory-library-for-ios.png)](https://travis-ci.org/MSOpenTech/azure-activedirectory-library-for-ios)
 [![Coverage Status](https://coveralls.io/repos/MSOpenTech/azure-activedirectory-library-for-ios/badge.png?branch=master)](https://coveralls.io/r/MSOpenTech/azure-activedirectory-library-for-ios?branch=master)
 
-The ADAL SDK for iOS gives you the ability to add Windows Azure Active Directory authentication to your application with just a few lines of additional code. Using our ADAL SDKs you can quickly and easily extend your existing application to all the employees that use Windows Azure AD and Active Directory on-premises using Active Directory Federation Services, including Office365 customers. This SDK gives your application the full functionality of Windows Azure AD, including industry standard protocol support for OAuth2, Web API integration, and two factor authentication support. Best of all, it’s FOSS (Free and Open Source Software) so that you can participate in the development process as we build these libraries.
+The ADAL SDK for iOS gives you the ability to add support for Work Accounts to your application with just a few lines of additional code. This SDK gives your application the full functionality of Microsoft Azure AD, including industry standard protocol support for OAuth2, Web API integration with user level consent, and two factor authentication support. Best of all, it’s FOSS (Free and Open Source Software) so that you can participate in the development process as we build these libraries. 
 
-## Latest Preview Release
+**What is a Work Account?**
 
-We have released a Preview of the ADAL for iOS! [You can grab the release here] (https://github.com/MSOpenTech/azure-activedirectory-library-for-ios/releases/tag/0.5-alpha)
+A Work Account is an identity you use to get work done no matter if at your business or on a college campus. Anywhere you need to get access to your work life you'll use a Work Account. The Work Account can be tied to an Active Directory server running in your datacenter or live completely in the cloud like when you use Office365. A Work Account will be how your users know that they are accessing their important documents and data backed my Microsoft security.
+
+## ADAL for iOS 1.0 Released!
+
+Thanks to your feedback, we have released the 1.0.0 version of iOS for ADAL  [You can grab the release here] (https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases/tag/1.0.0)
+
+## Samples and Documentation
+
+[We provide a full suite of sample applications and documentation on GitHub](https://github.com/AzureADSamples) to help you get started with learning the Azure Identity system. This includes tutorials for native clients such as Windows, Windows Phone, iOS, OSX, Android, and Linux. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect, Graph API, and other awesome features. 
+
+Visit your Azure Identity samples for iOS is here: [https://github.com/AzureADSamples/NativeClient-iOS](https://github.com/AzureADSamples/NativeClient-iOS)
+
+## Contributing
+
+All code is licensed under the Apache 2.0 license and we triage actively on GitHub. We enthusiastically welcome contributions and feedback. You can clone the repo and start contributing now. 
 
 ## Quick Start
 
@@ -18,8 +32,18 @@ We have released a Preview of the ADAL for iOS! [You can grab the release here] 
 4. Add the storyboards from the ADALiOSBundle to your project resources
 5. Add libADALiOS to “Link With Libraries” phase. 
 
-### With Cocoapods
-    pod 'ADALiOS', '~> 0.5.1-alpha'
+
+##Download
+
+We've made it easy for you to have multiple options to use this library in your iOS project:
+
+###Option 1: Source Zip
+
+To download a copy of the source code, click "Download ZIP" on the right side of the page or click [here](https://github.com/AzureAD/azure-activedirectory-library-for-objc/archive/1.0.0.tar.gz).
+
+###Option 2: Cocoapods
+
+    pod 'ADALiOS', '~> 1.0.0'
 
 ## Usage
 
