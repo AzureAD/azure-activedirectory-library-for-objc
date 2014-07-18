@@ -12,7 +12,7 @@ A Work Account is an identity you use to get work done no matter if at your busi
 
 ## ADAL for iOS 1.0 Released!
 
-Thanks to your feedback, we have released the 1.0.0 version of iOS for ADAL  [You can grab the release here] (https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases/tag/1.0.0)
+Thanks to your feedback, we have released the 1.0.0 version of iOS for ADAL  [You can grab the release here] (https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases/tag/1.0.1)
 
 ## Samples and Documentation
 
@@ -43,7 +43,7 @@ To download a copy of the source code, click "Download ZIP" on the right side of
 
 ###Option 2: Cocoapods
 
-    pod 'ADALiOS', '~> 1.0.0'
+    pod 'ADALiOS', '~> 1.0.1'
 
 ## Usage
 
