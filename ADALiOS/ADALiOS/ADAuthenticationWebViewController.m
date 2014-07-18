@@ -32,6 +32,7 @@
 }
 
 #pragma mark - Initialization
+ NSTimer *timer;
 
 - (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
@@ -111,11 +112,13 @@
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
+    timer = [NSTimer scheduledTimerWithTimeInterval:20.0 target:self selector:@selector(didFailLoadWithError) userInfo:nil repeats:NO];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
+    [timer invalidate];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
