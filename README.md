@@ -43,7 +43,7 @@ To download a copy of the source code, click "Download ZIP" on the right side of
 
 ###Option 2: Cocoapods
 
-    pod 'ADALiOS', '~> 1.0.1'
+    pod 'ADALiOS', '~> 1.0.2'
 
 ## Usage
 
