@@ -23,5 +23,5 @@
 - (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
 - (void)start;
 - (void)stop;
-
+- (void) handlePKeyAuthChallenge:(NSString *)challengeUrl  ;
 @end

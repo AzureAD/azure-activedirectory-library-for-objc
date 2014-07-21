@@ -21,6 +21,10 @@
 #import "ADAuthenticationSettings.h"
 #import "ADErrorCodes.h"
 #import "ADLogger.h"
+#import "WorkPlaceJoinUtil.h"
+#import "WorkPlaceJoin.h"
+#import "NSDictionary+ADExtensions.h"
+
 
 @implementation ADAuthenticationWebViewController
 {
@@ -32,7 +36,8 @@
 }
 
 #pragma mark - Initialization
- NSTimer *timer;
+//NSTimer *timer;
+__weak NSString *_pKeyAuthUrn = @"urn:http-auth:pkeyauth?";
 
 - (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
@@ -70,12 +75,24 @@
 
 - (void)start
 {
+   // NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
+    //if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined]){
+       // [request setValue:@"1.0" forHTTPHeaderField: @"x-ms-PKeyAuth"];
+    //}
     [_webView loadRequest:[NSURLRequest requestWithURL:_startURL]];
 }
 
 - (void)stop
 {
 }
+
+- (void) handlePKeyAuthChallenge:(NSString *)challengeUrl
+{
+
+    NSDictionary* queryParams = [NSDictionary adURLFormDecode:challengeUrl];
+    
+}
+
 
 #pragma mark - UIWebViewDelegate Protocol
 
@@ -88,6 +105,14 @@
     
     // TODO: We lowercase both URLs, is this the right thing to do?
     NSString *requestURL = [[request.URL absoluteString] lowercaseString];
+    
+    
+    // check for pkeyauth challenge.
+    if ( [requestURL hasPrefix:_pKeyAuthUrn] )
+    {
+        dispatch_async( dispatch_get_main_queue(), ^{ [self handlePKeyAuthChallenge: requestURL]; });
+        return NO;
+    }
     
     // Stop at the end URL.
     if ( [requestURL hasPrefix:_endURL] )
@@ -112,13 +137,13 @@
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
-    timer = [NSTimer scheduledTimerWithTimeInterval:20.0 target:self selector:@selector(didFailLoadWithError) userInfo:nil repeats:NO];
+    //timer = [NSTimer scheduledTimerWithTimeInterval:20.0 target:self selector:@selector(didFailLoadWithError) userInfo:nil repeats:NO];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
-    [timer invalidate];
+    //[timer invalidate];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
