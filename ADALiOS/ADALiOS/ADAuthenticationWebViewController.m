@@ -105,6 +105,12 @@
         return NO;
     }
     
+    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"] && navigationType == UIWebViewNavigationTypeLinkClicked) {
+        requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
+        [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];
+        return NO;
+    }
+    
     return YES;
 }
 
