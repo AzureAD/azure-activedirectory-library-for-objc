@@ -91,6 +91,9 @@
 		8BFEF07B182DB15E00122C0C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF066182DA57800122C0C /* InfoPlist.strings */; };
 		8BFEF07C182DB15E00122C0C /* ADAL_iPhone_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04B182D906700122C0C /* ADAL_iPhone_Storyboard.storyboard */; };
 		8BFEF07D182DB15E00122C0C /* ADAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04C182D906700122C0C /* ADAL_iPad_Storyboard.storyboard */; };
+		97D97839197B85A800603E95 /* WorkPlaceJoin.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D97835197B85A800603E95 /* WorkPlaceJoin.m */; };
+		97D9783A197B85A800603E95 /* WorkPlaceJoinUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D97838197B85A800603E95 /* WorkPlaceJoinUtil.m */; };
+		97D9783D197B86A500603E95 /* RegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D9783C197B86A500603E95 /* RegistrationInformation.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -240,6 +243,13 @@
 		8BFEF065182DA57800122C0C /* ADALiOSBundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ADALiOSBundle-Info.plist"; sourceTree = "<group>"; };
 		8BFEF067182DA57800122C0C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BFEF069182DA57800122C0C /* ADALiOSBundle-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADALiOSBundle-Prefix.pch"; sourceTree = "<group>"; };
+		97D97834197B85A800603E95 /* WorkPlaceJoin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorkPlaceJoin.h; sourceTree = "<group>"; };
+		97D97835197B85A800603E95 /* WorkPlaceJoin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WorkPlaceJoin.m; sourceTree = "<group>"; };
+		97D97836197B85A800603E95 /* WorkPlaceJoinConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorkPlaceJoinConstants.h; sourceTree = "<group>"; };
+		97D97837197B85A800603E95 /* WorkPlaceJoinUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorkPlaceJoinUtil.h; sourceTree = "<group>"; };
+		97D97838197B85A800603E95 /* WorkPlaceJoinUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WorkPlaceJoinUtil.m; sourceTree = "<group>"; };
+		97D9783B197B86A500603E95 /* RegistrationInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegistrationInformation.h; sourceTree = "<group>"; };
+		97D9783C197B86A500603E95 /* RegistrationInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RegistrationInformation.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -310,6 +320,7 @@
 		8B0965AF17F25770002BDFB8 /* ADALiOS */ = {
 			isa = PBXGroup;
 			children = (
+				97D97833197B853E00603E95 /* WorkPlaceJoin */,
 				8B0965B217F25770002BDFB8 /* ADALiOS.h */,
 				8B0965B417F25770002BDFB8 /* ADALiOS.m */,
 				8BB8345A18074A58007F9F0D /* ADAuthenticationContext.h */,
@@ -463,6 +474,20 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		97D97833197B853E00603E95 /* WorkPlaceJoin */ = {
+			isa = PBXGroup;
+			children = (
+				97D9783B197B86A500603E95 /* RegistrationInformation.h */,
+				97D9783C197B86A500603E95 /* RegistrationInformation.m */,
+				97D97834197B85A800603E95 /* WorkPlaceJoin.h */,
+				97D97835197B85A800603E95 /* WorkPlaceJoin.m */,
+				97D97836197B85A800603E95 /* WorkPlaceJoinConstants.h */,
+				97D97837197B85A800603E95 /* WorkPlaceJoinUtil.h */,
+				97D97838197B85A800603E95 /* WorkPlaceJoinUtil.m */,
+			);
+			name = WorkPlaceJoin;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -609,9 +634,11 @@
 				8B343450183305A6002DE1DC /* ADAuthenticationWebViewController.m in Sources */,
 				8B51F11218F5F21F0055815E /* ADURLProtocol.m in Sources */,
 				8B7E6FC81856A1E8000DC3C8 /* ADOAuth2Constants.m in Sources */,
+				97D9783D197B86A500603E95 /* RegistrationInformation.m in Sources */,
 				8B343444183304FE002DE1DC /* ADWebResponse.m in Sources */,
 				8B34344F183305A6002DE1DC /* ADAuthenticationViewController.m in Sources */,
 				8B611401186E517D007759C2 /* ADInstanceDiscovery.m in Sources */,
+				97D97839197B85A800603E95 /* WorkPlaceJoin.m in Sources */,
 				8B34343718330474002DE1DC /* NSDictionary+ADExtensions.m in Sources */,
 				8B34343D183304B1002DE1DC /* NSURL+ADExtensions.m in Sources */,
 				8BB8345C18074A58007F9F0D /* ADAuthenticationContext.m in Sources */,
@@ -633,6 +660,7 @@
 				8B59893A180DE00300744AEE /* ADAuthenticationOperation.m in Sources */,
 				8BD14619182189C800796E79 /* ADAuthenticationParameters+Internal.m in Sources */,
 				8BB8345F18074B74007F9F0D /* ADAuthenticationResult.m in Sources */,
+				97D9783A197B85A800603E95 /* WorkPlaceJoinUtil.m in Sources */,
 				8B0965B517F25770002BDFB8 /* ADALiOS.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -992,12 +1020,10 @@
 				);
 				INFOPLIST_FILE = "ADALiOSBundle/ADALiOSBundle-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
-
 				ONLY_ACTIVE_ARCH = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				SDKROOT = iphoneos7.0;
-
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = bundle;
 			};
@@ -1029,12 +1055,10 @@
 				);
 				INFOPLIST_FILE = "ADALiOSBundle/ADALiOSBundle-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
-
 				ONLY_ACTIVE_ARCH = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				SDKROOT = iphoneos7.0;
-
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = bundle;
 			};
@@ -1053,12 +1077,10 @@
 				GCC_PREFIX_HEADER = "ADALiOSBundle/ADALiOSBundle-Prefix.pch";
 				INFOPLIST_FILE = "ADALiOSBundle/ADALiOSBundle-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
-
 				ONLY_ACTIVE_ARCH = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				SDKROOT = iphoneos7.0;
-
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = bundle;
 			};

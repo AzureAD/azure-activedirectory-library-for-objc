@@ -102,7 +102,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 {
     AD_LOG_VERBOSE_F(sLog, @"connection:willSendRequestForAuthenticationChallenge: %@. Previous challenge failure count: %ld", challenge.protectionSpace.authenticationMethod, (long)challenge.previousFailureCount);
 
-    if (![ADWorkplaceJoined handleClientTLSChallenge:challenge])
+    //if (![ADWorkplaceJoined handleClientTLSChallenge:challenge])
     {
         // Do default handling
         [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];

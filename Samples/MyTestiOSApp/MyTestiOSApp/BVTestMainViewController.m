@@ -127,7 +127,7 @@
          NSString* redirectUri = mAADInstance.redirectUri;
          NSString* userId = mAADInstance.userId;
          [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
-         ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
+         ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:mAADInstance.validateAuthority error:&error];
          if (!context)
          {
              [weakSelf setStatus:error.errorDetails];

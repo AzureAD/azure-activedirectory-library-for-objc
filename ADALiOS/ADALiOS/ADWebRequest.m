@@ -189,7 +189,7 @@ NSString *const HTTPPost = @"POST";
 {
 #pragma unused(connection)
 
-    if (![ADWorkplaceJoined handleClientTLSChallenge:challenge])
+    //if (![ADWorkplaceJoined handleClientTLSChallenge:challenge])
     {
         // Do default handling
         [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
