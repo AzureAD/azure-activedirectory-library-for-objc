@@ -21,8 +21,10 @@
 #import "ADAuthenticationSettings.h"
 #import "ADErrorCodes.h"
 #import "ADLogger.h"
+#import "ADPkeyAuthHelper.h"
 #import "WorkPlaceJoinUtil.h"
 #import "WorkPlaceJoin.h"
+#import "WorkPlaceJoinConstants.h"
 #import "NSDictionary+ADExtensions.h"
 
 
@@ -37,7 +39,6 @@
 
 #pragma mark - Initialization
 //NSTimer *timer;
-__weak NSString *_pKeyAuthUrn = @"urn:http-auth:pkeyauth?";
 
 - (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
@@ -50,8 +51,7 @@ __weak NSString *_pKeyAuthUrn = @"urn:http-auth:pkeyauth?";
     if ( ( self = [super init] ) != nil )
     {
         _startURL  = [startURL copy];
-        _endURL    = [[endURL absoluteString] lowercaseString];
-        
+        _endURL    = [endURL absoluteString];
         _complete  = NO;
         
         _webView          = webView;
@@ -75,11 +75,11 @@ __weak NSString *_pKeyAuthUrn = @"urn:http-auth:pkeyauth?";
 
 - (void)start
 {
-   // NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
-    //if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined]){
-       // [request setValue:@"1.0" forHTTPHeaderField: @"x-ms-PKeyAuth"];
-    //}
-    [_webView loadRequest:[NSURLRequest requestWithURL:_startURL]];
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
+    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined]){
+        [request setValue:@"1.0" forHTTPHeaderField: @"x-ms-PkeyAuth"];
+    }
+    [_webView loadRequest:request];
 }
 
 - (void)stop
@@ -88,9 +88,21 @@ __weak NSString *_pKeyAuthUrn = @"urn:http-auth:pkeyauth?";
 
 - (void) handlePKeyAuthChallenge:(NSString *)challengeUrl
 {
-
-    NSDictionary* queryParams = [NSDictionary adURLFormDecode:challengeUrl];
+    NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
+    NSString *qp = [parts objectAtIndex:1];
+    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    NSString* value = [queryParamsMap valueForKey:@"SubmitUrl"];
     
+    NSArray * authorityParts = [value componentsSeparatedByString:@"?"];
+    NSString *authority = [authorityParts objectAtIndex:0];
+    
+    NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc] initWithURL: [NSURL URLWithString: value]];
+    
+    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority challengeData:queryParamsMap];
+    
+    [responseUrl setValue:@"1.0" forHTTPHeaderField: @"x-ms-PkeyAuth"];
+    [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
+    [_webView loadRequest:responseUrl];
 }
 
 
@@ -101,14 +113,12 @@ __weak NSString *_pKeyAuthUrn = @"urn:http-auth:pkeyauth?";
 #pragma unused(webView)
 #pragma unused(navigationType)
     
-    //DebugLog( @"URL: %@", request.URL.absoluteString );
-    
-    // TODO: We lowercase both URLs, is this the right thing to do?
-    NSString *requestURL = [[request.URL absoluteString] lowercaseString];
-    
+    DebugLog( @"URL: %@", request.URL.absoluteString );
+    NSString *requestURL = [request.URL absoluteString];
     
     // check for pkeyauth challenge.
-    if ( [requestURL hasPrefix:_pKeyAuthUrn] )
+    //https://fs.scm-dc1.dft.com/adfs
+    if ([requestURL hasPrefix: pKeyAuthUrn] )
     {
         dispatch_async( dispatch_get_main_queue(), ^{ [self handlePKeyAuthChallenge: requestURL]; });
         return NO;
@@ -130,6 +140,17 @@ __weak NSString *_pKeyAuthUrn = @"urn:http-auth:pkeyauth?";
         // Tell the web view that this URL should not be loaded.
         return NO;
     }
+    
+    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined] && ![request.allHTTPHeaderFields valueForKey:@"x-ms-PkeyAuth"]){
+        // Create a mutable copy of the immutable request and add more headers
+        NSMutableURLRequest *mutableRequest = [request mutableCopy];
+        [mutableRequest addValue:@"1.0" forHTTPHeaderField:@"x-ms-PkeyAuth"];
+        
+        // Now set our request variable with an (immutable) copy of the altered request
+        request = [mutableRequest copy];
+        [webView loadRequest:request];
+    }
+    
     
     return YES;
 }
@@ -156,6 +177,10 @@ __weak NSString *_pKeyAuthUrn = @"urn:http-auth:pkeyauth?";
         return;
     }
 
+    if([error.domain isEqual:@"WebKitErrorDomain"]){
+        return;
+    }
+    
     // Ignore failures that are triggered after we have found the end URL
     if ( _complete == YES )
     {

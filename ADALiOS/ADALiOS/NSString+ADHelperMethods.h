@@ -72,4 +72,7 @@
 + (BOOL) adSame: (NSString*) string1
        toString: (NSString*) string2;
 
+/*! Converts NSData to base64 String */
+- (NSString *) Base64EncodeData:(NSData *)data;
+
 @end
