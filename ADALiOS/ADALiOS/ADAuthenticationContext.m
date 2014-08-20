@@ -33,6 +33,8 @@
 #import "ADUserInformation.h"
 #import "WorkPlaceJoin.h"
 #import "ADPkeyAuthHelper.h"
+#import "WorkPlaceJoinConstants.h"
+
 
 NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
@@ -1295,7 +1297,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                 case 401:
                 {
                     if(!isHandlingPKeyAuthChallenge){
-                        NSString* wwwAuthValue = [headers valueForKey:@"WWW-Authenticate"];
+                        NSString* wwwAuthValue = [headers valueForKey:wwwAuthenticateHeader];
                         if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:@"PKeyAuth"]){
                             [self handlePKeyAuthChallenge:endPoint wwwAuthHeaderValue:wwwAuthValue requestData:request_data requestCorrelationId:requestCorrelationId completion:completionBlock];
                             return;
@@ -1367,6 +1369,8 @@ additionalHeaders:(NSDictionary *)additionalHeaders
 {
     //pkeyauth word length=8 + 1 whitespace
     wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:9];
+    wwwAuthHeaderValue = [wwwAuthHeaderValue stringByReplacingOccurrencesOfString:@"\""
+                                         withString:@""];
     NSArray* headerPairs = [wwwAuthHeaderValue componentsSeparatedByString:@","];
     NSMutableDictionary* headerKeyValuePair = [[NSMutableDictionary alloc]init];
     for(int i=0; i<[headerPairs count]; ++i) {

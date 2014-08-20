@@ -27,18 +27,39 @@
     NSString* pKeyAuthHeader = @"";
     
     NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
-    certAuths = [certAuths adUrlFormDecode];
+    certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
+                                                                       withString:@""];
     
-    NSString* certIssuer = [OpenSSLHelper getCertificateIssuer:[info certificateData]];
+    NSMutableSet* certIssuer = [OpenSSLHelper getCertificateIssuer:[info certificateData]];
     
-    if([info isWorkPlaceJoined]){
+    if([self isValidIssuer:certAuths keychainCertIssuer:certIssuer] && [info isWorkPlaceJoined]){
         pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
     }
+    
     [info releaseData];
     return [NSString stringWithFormat:authHeaderTemplate, pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
 }
 
-
++ (BOOL) isValidIssuer:(NSString*) certAuths
+    keychainCertIssuer:(NSMutableSet*) keychainCertIssuer{
+    
+    NSArray * acceptedCerts = [certAuths componentsSeparatedByString:@";"];
+    NSMutableSet* currentCert;
+    BOOL isMatch = TRUE;
+    for (int i=0; i<[acceptedCerts count]; i++) {
+        currentCert = [NSMutableSet new];
+        isMatch = TRUE;
+        NSArray * keyPair = [[acceptedCerts objectAtIndex:i] componentsSeparatedByString:@","];
+        for(int index=0;index<[keyPair count]; index++){
+            if(![keychainCertIssuer containsObject:[keyPair objectAtIndex:index]]){
+                isMatch = false;
+                break;
+            }
+        }
+        if(isMatch) return isMatch;
+    }
+    return isMatch;
+}
 
 + (NSString *) createDeviceAuthResponse:(NSString*) audience
                                   nonce:(NSString*) nonce
