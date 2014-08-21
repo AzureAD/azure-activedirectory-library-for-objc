@@ -21,6 +21,12 @@
 #import "ADAuthenticationSettings.h"
 #import "ADErrorCodes.h"
 #import "ADLogger.h"
+#import "ADPkeyAuthHelper.h"
+#import "WorkPlaceJoinUtil.h"
+#import "WorkPlaceJoin.h"
+#import "WorkPlaceJoinConstants.h"
+#import "NSDictionary+ADExtensions.h"
+
 
 @implementation ADAuthenticationWebViewController
 {
@@ -29,9 +35,11 @@
     NSURL    *_startURL;
     NSString *_endURL;
     BOOL      _complete;
+    float _timeout;
 }
 
 #pragma mark - Initialization
+NSTimer *timer;
 
 - (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
@@ -44,10 +52,9 @@
     if ( ( self = [super init] ) != nil )
     {
         _startURL  = [startURL copy];
-        _endURL    = [[endURL absoluteString] lowercaseString];
-        
+        _endURL    = [endURL absoluteString];
         _complete  = NO;
-        
+        _timeout = 20.0;
         _webView          = webView;
         _webView.delegate = self;
     }
@@ -69,12 +76,36 @@
 
 - (void)start
 {
-    [_webView loadRequest:[NSURLRequest requestWithURL:_startURL]];
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
+    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined]){
+        [request setValue:@"1.0" forHTTPHeaderField: @"x-ms-PkeyAuth"];
+    }
+    [_webView loadRequest:request];
 }
 
 - (void)stop
 {
 }
+
+- (void) handlePKeyAuthChallenge:(NSString *)challengeUrl
+{
+    NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
+    NSString *qp = [parts objectAtIndex:1];
+    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    NSString* value = [queryParamsMap valueForKey:@"SubmitUrl"];
+    
+    NSArray * authorityParts = [value componentsSeparatedByString:@"?"];
+    NSString *authority = [authorityParts objectAtIndex:0];
+    
+    NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc] initWithURL: [NSURL URLWithString: value]];
+    
+    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority challengeData:queryParamsMap];
+    
+    [responseUrl setValue:pKeyAuthHeaderVersion forHTTPHeaderField: pKeyAuthHeader];
+    [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
+    [_webView loadRequest:responseUrl];
+}
+
 
 #pragma mark - UIWebViewDelegate Protocol
 
@@ -83,10 +114,16 @@
 #pragma unused(webView)
 #pragma unused(navigationType)
     
-    //DebugLog( @"URL: %@", request.URL.absoluteString );
+    DebugLog( @"URL: %@", request.URL.absoluteString );
+    NSString *requestURL = [request.URL absoluteString];
     
-    // TODO: We lowercase both URLs, is this the right thing to do?
-    NSString *requestURL = [[request.URL absoluteString] lowercaseString];
+    // check for pkeyauth challenge.
+    //https://fs.scm-dc1.dft.com/adfs
+    if ([requestURL hasPrefix: pKeyAuthUrn] )
+    {
+        [self handlePKeyAuthChallenge: requestURL];
+        return NO;
+    }
     
     // Stop at the end URL.
     if ( [requestURL hasPrefix:_endURL] )
@@ -105,6 +142,17 @@
         return NO;
     }
     
+    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined] && ![request.allHTTPHeaderFields valueForKey:pKeyAuthHeader]){
+        // Create a mutable copy of the immutable request and add more headers
+        NSMutableURLRequest *mutableRequest = [request mutableCopy];
+        [mutableRequest addValue:pKeyAuthHeaderVersion forHTTPHeaderField:pKeyAuthHeader];
+        
+        // Now set our request variable with an (immutable) copy of the altered request
+        request = [mutableRequest copy];
+        [webView loadRequest:request];
+        return NO;
+    }
+    
     if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"] && navigationType == UIWebViewNavigationTypeLinkClicked) {
         requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
         [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];
@@ -117,16 +165,22 @@
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
+    timer = [NSTimer scheduledTimerWithTimeInterval:_timeout target:self selector:@selector(failWithTimeout) userInfo:nil repeats:NO];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
+    [timer invalidate];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
 #pragma unused(webView)
+    if(timer && [timer isValid]){
+        [timer invalidate];
+    }
+    
     if (NSURLErrorCancelled == error.code)
     {
         //This is a common error that webview generates and could be ignored.
@@ -134,6 +188,10 @@
         return;
     }
 
+    if([error.domain isEqual:@"WebKitErrorDomain"]){
+        return;
+    }
+    
     // Ignore failures that are triggered after we have found the end URL
     if ( _complete == YES )
     {
@@ -152,6 +210,13 @@
     {
         AD_LOG_ERROR(@"Delegate object is lost", AD_ERROR_APPLICATION, @"The delegate object was lost, potentially due to another concurrent request.");
     }
+}
+
+- (void) failWithTimeout{
+ 
+    [self webView:_webView didFailLoadWithError:[NSError errorWithDomain:NSURLErrorDomain
+                                                                    code:NSURLErrorTimedOut
+                                                                userInfo:nil]];
 }
 
 @end
