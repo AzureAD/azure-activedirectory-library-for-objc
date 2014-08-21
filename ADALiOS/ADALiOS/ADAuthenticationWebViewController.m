@@ -141,10 +141,10 @@
         return NO;
     }
     
-    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined] && ![request.allHTTPHeaderFields valueForKey:@"x-ms-PkeyAuth"]){
+    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined] && ![request.allHTTPHeaderFields valueForKey:pKeyAuthHeader]){
         // Create a mutable copy of the immutable request and add more headers
         NSMutableURLRequest *mutableRequest = [request mutableCopy];
-        [mutableRequest addValue:@"1.0" forHTTPHeaderField:@"x-ms-PkeyAuth"];
+        [mutableRequest addValue:pKeyAuthHeaderVersion forHTTPHeaderField:pKeyAuthHeader];
         
         // Now set our request variable with an (immutable) copy of the altered request
         request = [mutableRequest copy];

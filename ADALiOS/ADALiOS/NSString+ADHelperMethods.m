@@ -392,4 +392,75 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
         return [string1 isEqualToString:string2];
 }
 
+
++ (NSString *) adBase64EncodeData:(NSData*) data
+{
+    
+    const byte *pbBytes = [data bytes];
+    int         cbBytes = (int)[data length];
+    
+    // Calculate encoded string size including padding. This may be more than is actually
+    // required since we will not pad and instead will terminate with null. The computation
+    // is the number of byte triples times 4 radix64 characters plus 1 for null termination.
+    int   encodedSize = 1 + ( cbBytes + 2 ) / 3 * 4;
+    char *pbEncoded = (char *)calloc( encodedSize, sizeof(char) );
+    
+    // Encode data byte triplets into four-byte clusters.
+    int   iBytes;      // raw byte index
+    int   iEncoded;    // encoded byte index
+    byte  b0, b1, b2;  // individual bytes for triplet
+    
+    iBytes = iEncoded = 0;
+    
+    int end3 = (cbBytes/3)*3;
+    //Fast loop, no bounderies check:
+    for ( ; iBytes < end3; )
+    {
+        b0 = pbBytes[iBytes++];
+        b1 = pbBytes[iBytes++];
+        b2 = pbBytes[iBytes++];
+        
+        Encode3bytesTo4bytes(pbEncoded + iEncoded, b0, b1, b2);
+        iEncoded += 4;
+    }
+    
+    //Slower loop should execute no more than 3 times:
+    while ( iBytes < cbBytes )
+    {
+        b0 = pbBytes[iBytes++];
+        b1 = (iBytes < cbBytes) ? pbBytes[iBytes++] : 0;                                        // Add extra zero byte if needed
+        b2 = (iBytes < cbBytes) ? pbBytes[iBytes++] : 0;                                        // Add extra zero byte if needed
+        
+        Encode3bytesTo4bytes(pbEncoded + iEncoded, b0, b1, b2);
+        iEncoded += 4;
+    }
+    
+    // Where we would have padded it, we instead truncate the string
+    switch ( cbBytes % 3 )
+    {
+        case 0:
+            // No left overs, nothing to pad
+            break;
+            
+        case 1:
+            // One left over, normally pad 2
+            pbEncoded[iEncoded - 2] = '\0';
+            // fall through
+            
+        case 2:
+            pbEncoded[iEncoded - 1] = '\0';
+            break;
+    }
+    
+    // Null terminate, convert to NSString and free the buffer
+    pbEncoded[iEncoded++] = '\0';
+    
+    NSString *result = [NSString stringWithCString:pbEncoded encoding:NSASCIIStringEncoding];
+    
+    free(pbEncoded);
+    
+    return result;
+}
+
+
 @end

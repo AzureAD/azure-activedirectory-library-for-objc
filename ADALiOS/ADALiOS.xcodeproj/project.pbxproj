@@ -93,7 +93,6 @@
 		9722232F19A2C9F900092E85 /* WorkPlaceJoin.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722232A19A2C9F900092E85 /* WorkPlaceJoin.m */; };
 		9722233019A2C9F900092E85 /* WorkPlaceJoinUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722232D19A2C9F900092E85 /* WorkPlaceJoinUtil.m */; };
 		97345B92199160BD0044B1A6 /* ADPkeyAuthHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 97345B91199160BD0044B1A6 /* ADPkeyAuthHelper.m */; };
-		97D96ED019A07E4B007387D3 /* NSData+ADHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D96ECF19A07E4B007387D3 /* NSData+ADHelperMethods.m */; };
 		97D96EDA19A18D89007387D3 /* OpenSSLHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D96ED919A18D89007387D3 /* OpenSSLHelper.m */; };
 		97D96F4219A28599007387D3 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D96F3F19A28599007387D3 /* libcrypto.a */; };
 		97D96F4319A28599007387D3 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D96F4019A28599007387D3 /* libssl.a */; };
@@ -251,8 +250,6 @@
 		9722232D19A2C9F900092E85 /* WorkPlaceJoinUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WorkPlaceJoinUtil.m; sourceTree = "<group>"; };
 		97345B90199160BD0044B1A6 /* ADPkeyAuthHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADPkeyAuthHelper.h; sourceTree = "<group>"; };
 		97345B91199160BD0044B1A6 /* ADPkeyAuthHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADPkeyAuthHelper.m; sourceTree = "<group>"; };
-		97D96ECE19A07E4B007387D3 /* NSData+ADHelperMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+ADHelperMethods.h"; sourceTree = "<group>"; };
-		97D96ECF19A07E4B007387D3 /* NSData+ADHelperMethods.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+ADHelperMethods.m"; sourceTree = "<group>"; };
 		97D96ED119A07E7F007387D3 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = OpenSSL/lib/libcrypto.a; sourceTree = "<group>"; };
 		97D96ED219A07E7F007387D3 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = OpenSSL/lib/libssl.a; sourceTree = "<group>"; };
 		97D96ED819A18D89007387D3 /* OpenSSLHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenSSLHelper.h; sourceTree = "<group>"; };
@@ -411,8 +408,6 @@
 		8B0965AF17F25770002BDFB8 /* ADALiOS */ = {
 			isa = PBXGroup;
 			children = (
-				97D96ECE19A07E4B007387D3 /* NSData+ADHelperMethods.h */,
-				97D96ECF19A07E4B007387D3 /* NSData+ADHelperMethods.m */,
 				97345B90199160BD0044B1A6 /* ADPkeyAuthHelper.h */,
 				97345B91199160BD0044B1A6 /* ADPkeyAuthHelper.m */,
 				97D97833197B853E00603E95 /* WorkPlaceJoin */,
@@ -857,7 +852,6 @@
 				8B5989511811A3DB00744AEE /* ADAuthenticationError.m in Sources */,
 				8B92DB6C181ADE44004AAB0E /* NSString+ADHelperMethods.m in Sources */,
 				8B59894E1810BEAC00744AEE /* ADTokenCacheStoreItem.m in Sources */,
-				97D96ED019A07E4B007387D3 /* NSData+ADHelperMethods.m in Sources */,
 				4CAE461D18F75F0900659400 /* ADKeyChainHelper.m in Sources */,
 				8B34344A18330591002DE1DC /* ADAuthenticationBroker.m in Sources */,
 				8B59893A180DE00300744AEE /* ADAuthenticationOperation.m in Sources */,

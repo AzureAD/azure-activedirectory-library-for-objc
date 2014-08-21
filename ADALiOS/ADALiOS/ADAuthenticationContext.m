@@ -1263,7 +1263,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined ]){
-        [webRequest.headers setObject:@"1.0" forKey:@"x-ms-PKeyAuth"];
+        [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
     }
     
     if(additionalHeaders){
@@ -1298,7 +1298,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                 {
                     if(!isHandlingPKeyAuthChallenge){
                         NSString* wwwAuthValue = [headers valueForKey:wwwAuthenticateHeader];
-                        if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:@"PKeyAuth"]){
+                        if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName]){
                             [self handlePKeyAuthChallenge:endPoint wwwAuthHeaderValue:wwwAuthValue requestData:request_data requestCorrelationId:requestCorrelationId completion:completionBlock];
                             return;
                         }
@@ -1368,7 +1368,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                       completion:( void (^)(NSDictionary *) )completionBlock
 {
     //pkeyauth word length=8 + 1 whitespace
-    wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:9];
+    wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[pKeyAuthName length] + 1];
     wwwAuthHeaderValue = [wwwAuthHeaderValue stringByReplacingOccurrencesOfString:@"\""
                                          withString:@""];
     NSArray* headerPairs = [wwwAuthHeaderValue componentsSeparatedByString:@","];

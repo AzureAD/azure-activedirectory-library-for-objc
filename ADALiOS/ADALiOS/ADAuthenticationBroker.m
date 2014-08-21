@@ -42,7 +42,6 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
     ADAuthenticationWebViewController *_authenticationWebViewController;
     
     NSLock                             *_completionLock;
-    //BOOL                               _clientTLSSession;
     
     void (^_completionBlock)( ADAuthenticationError *, NSURL *);
 }
@@ -103,7 +102,6 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
     if ( self )
     {
         _completionLock = [[NSLock alloc] init];
-        //_clientTLSSession = NO;
     }
     
     return self;
@@ -253,11 +251,6 @@ correlationId:(NSUUID *)correlationId
         }
         if ( parent )
         {
-//            _clientTLSSession = [ADWorkplaceJoined startWebViewTLSSessionWithError:nil];
-//            if (_clientTLSSession)
-//            {
-//                AD_LOG_INFO(@"Authorization UI", @"The device is workplace joined. Client TLS Session started.");
-//            }
             // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
             UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
             
@@ -322,11 +315,7 @@ correlationId:(NSUUID *)correlationId
     //       be resilient to this condition and should not generate
     //       two callbacks.
     [_completionLock lock];
-    
-//    if (_clientTLSSession)
-//    {
-//        [ADWorkplaceJoined endWebViewTLSSession];
-//    }
+
     if ( _completionBlock )
     {
         void (^completionBlock)( ADAuthenticationError *, NSURL *) = _completionBlock;

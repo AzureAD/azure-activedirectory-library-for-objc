@@ -38,7 +38,9 @@ static NSString* certificateDeleteFailure           = @"Delete workplace certifi
 static NSString* upnMismatchOnJoin                  = @"Original upn: %@ does not match the one we recieved from DRS: %@";
 static NSString* wwwAuthenticateHeader = @"WWW-Authenticate";
 static NSString* pKeyAuthUrn = @"urn:http-auth:PKeyAuth?";
-static NSString* pKeyAuthHeader = @"WWW-Authenticate: PKeyAuth ";
+static NSString* pKeyAuthHeader = @"x-ms-PkeyAuth";
+static NSString* pKeyAuthHeaderVersion = @"1.0";
+static NSString* pKeyAuthName = @"PKeyAuth";
 
 typedef enum errorCodeTypes
 {

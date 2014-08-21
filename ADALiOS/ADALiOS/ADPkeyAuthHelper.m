@@ -1,10 +1,20 @@
+// Copyright © Microsoft Open Technologies, Inc.
 //
-//  ADPkeyAuthHelper.m
-//  ADALiOS
+// All Rights Reserved
 //
-//  Created by Kanishk Panwar on 7/29/14.
-//  Copyright (c) 2014 MS Open Tech. All rights reserved.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
+// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
+// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
+// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
+//
+// See the Apache License, Version 2.0 for the specific language
+// governing permissions and limitations under the License.
 
 #import "ADPkeyAuthHelper.h"
 #import <Foundation/Foundation.h>
@@ -12,7 +22,6 @@
 #import "RegistrationInformation.h"
 #import "NSString+ADHelperMethods.h"
 #import "WorkPlaceJoin.h"
-#import "NSData+ADHelperMethods.h"
 #import "OpenSSLHelper.h"
 
 @implementation ADPkeyAuthHelper
@@ -32,7 +41,7 @@
     
     NSMutableSet* certIssuer = [OpenSSLHelper getCertificateIssuer:[info certificateData]];
     
-    if([self isValidIssuer:certAuths keychainCertIssuer:certIssuer] && [info isWorkPlaceJoined]){
+    if([info isWorkPlaceJoined] && [self isValidIssuer:certAuths keychainCertIssuer:certIssuer]){
         pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
     }
     
@@ -81,7 +90,7 @@
 
     NSString* signingInput = [NSString stringWithFormat:@"%@.%@", [[self createJSONFromDictionary:header] adBase64UrlEncode], [[self createJSONFromDictionary:payload] adBase64UrlEncode]];
     NSData* signedData = [self sign:[identity privateKey] data:[signingInput dataUsingEncoding:NSUTF8StringEncoding]];
-    NSString* signedEncodedDataString = [signedData adBase64EncodeData];
+    NSString* signedEncodedDataString = [NSString adBase64EncodeData: signedData];
     
     return [NSString stringWithFormat:@"%@.%@", signingInput, signedEncodedDataString];
 }
