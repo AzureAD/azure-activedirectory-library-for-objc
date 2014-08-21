@@ -101,7 +101,7 @@ NSTimer *timer;
     
     NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority challengeData:queryParamsMap];
     
-    [responseUrl setValue:@"1.0" forHTTPHeaderField: @"x-ms-PkeyAuth"];
+    [responseUrl setValue:pKeyAuthHeaderVersion forHTTPHeaderField: pKeyAuthHeader];
     [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
     [_webView loadRequest:responseUrl];
 }
@@ -121,7 +121,7 @@ NSTimer *timer;
     //https://fs.scm-dc1.dft.com/adfs
     if ([requestURL hasPrefix: pKeyAuthUrn] )
     {
-        dispatch_async( dispatch_get_main_queue(), ^{ [self handlePKeyAuthChallenge: requestURL]; });
+        [self handlePKeyAuthChallenge: requestURL];
         return NO;
     }
     

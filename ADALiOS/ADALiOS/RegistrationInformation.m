@@ -61,28 +61,30 @@
 
 
 -(void) releaseData{
-    if(_securityIdentity){
-        CFRelease(_securityIdentity);
-    }
-    
-    if(_certificate){
-        CFRelease(_certificate);
-    }
-    
-    if(_privateKey){
-        CFRelease(_privateKey);
-    }
-    
-    if(_privateKeyData){
-        CFRelease((__bridge CFTypeRef)_privateKeyData);
-    }
-    
-    if(_certificateSubject){
-        CFRelease((__bridge CFTypeRef)(_certificateSubject));
-    }
-    
-    if(_certificateData){
-        CFRelease((__bridge CFTypeRef)(_certificateData));
+    if(self){
+        if(_securityIdentity){
+            CFRelease(_securityIdentity);
+        }
+        
+        if(_certificate){
+            CFRelease(_certificate);
+        }
+        
+        if(_privateKey){
+            CFRelease(_privateKey);
+        }
+        
+        if(_privateKeyData){
+            CFRelease((__bridge CFTypeRef)_privateKeyData);
+        }
+        
+        if(_certificateSubject){
+            CFRelease((__bridge CFTypeRef)(_certificateSubject));
+        }
+        
+        if(_certificateData){
+            CFRelease((__bridge CFTypeRef)(_certificateData));
+        }
     }
 }
 

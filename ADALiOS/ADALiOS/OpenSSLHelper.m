@@ -35,19 +35,6 @@
     certificateX509 =  d2i_X509(NULL, &certificateDataBytes, [certificateData length]);
     NSMutableSet* issuer = [NSMutableSet new];
     if (certificateX509 != NULL) {
-//        ASN1_INTEGER *serial = X509_get_serialNumber(certificateX509);
-//        BIGNUM *bnser = ASN1_INTEGER_to_BN(serial, NULL);
-//        int n = BN_num_bytes(bnser);
-//        unsigned char outbuf[n];
-//        int bin = BN_bn2bin(bnser, outbuf);
-//        char *hexBuf = (char*) outbuf;
-//        NSMutableString *str = [[NSMutableString alloc] init];
-//        for (int i=0; i<n; i++) {
-//            NSString *temp = [NSString stringWithFormat:@"%.6x", hexBuf[i]];
-//            [str appendString:[NSString stringWithFormat:@"%@ ", temp]];
-//        }
-        
-        
         X509_NAME *issuerX509Name = X509_get_issuer_name(certificateX509);
         if (issuerX509Name != NULL) {
             [issuer addObjectsFromArray:[self getX509EntryData:issuerX509Name nid:NID_domainComponent shortName:@"DC"]];
@@ -62,9 +49,8 @@
 + (NSArray*) getX509EntryData:(X509_NAME*) issuerX509Name
                                nid:(int) nid
                     shortName:(NSString*) shortName{
-    int loc;
+    int loc = -1;
     X509_NAME_ENTRY *e;
-    loc = -1;
     NSMutableArray* values =  [NSMutableArray new];
     for (;;)
     {
