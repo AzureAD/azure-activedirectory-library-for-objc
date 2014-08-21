@@ -31,7 +31,7 @@
 
 
 + (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
-                    challengeData:(NSMutableDictionary*) challengeData
+                         challengeData:(NSMutableDictionary*) challengeData
 {
     RegistrationInformation *info = [[WorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
     NSString* authHeaderTemplate = @"PKeyAuth %@ Context=\"%@\", Version=\"%@\"";
@@ -88,7 +88,7 @@
                               @"nonce" : nonce,
                               @"iat" : [NSString stringWithFormat:@"%d", (CC_LONG)[[NSDate date] timeIntervalSince1970]]
                               };
-
+    
     NSString* signingInput = [NSString stringWithFormat:@"%@.%@", [[self createJSONFromDictionary:header] adBase64UrlEncode], [[self createJSONFromDictionary:payload] adBase64UrlEncode]];
     NSData* signedData = [self sign:[identity privateKey] data:[signingInput dataUsingEncoding:NSUTF8StringEncoding]];
     NSString* signedEncodedDataString = [NSString Base64EncodeData: signedData];
@@ -97,7 +97,7 @@
 }
 
 +(NSData *) sign: (SecKeyRef) privateKey
-                         data:(NSData *) plainData
+            data:(NSData *) plainData
 {
     size_t signedHashBytesSize = SecKeyGetBlockSize(privateKey);
     uint8_t* signedHashBytes = malloc(signedHashBytesSize);
@@ -115,11 +115,11 @@
     }
     
     OSStatus status = SecKeyRawSign(privateKey,
-                  kSecPaddingPKCS1SHA256,
-                  hashBytes,
-                  hashBytesSize,
-                  signedHashBytes,
-                  &signedHashBytesSize);
+                                    kSecPaddingPKCS1SHA256,
+                                    hashBytes,
+                                    hashBytesSize,
+                                    signedHashBytes,
+                                    &signedHashBytesSize);
     
     [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"Status returned from data signing - " errorCode:status additionalInformation:nil ];
     NSData* signedHash = [NSData dataWithBytes:signedHashBytes

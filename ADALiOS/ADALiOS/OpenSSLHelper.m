@@ -41,6 +41,7 @@
             [issuer addObjectsFromArray:[self getX509EntryData:issuerX509Name nid:NID_commonName shortName:@"CN"]];
             [issuer addObjectsFromArray:[self getX509EntryData:issuerX509Name nid:NID_organizationalUnitName shortName:@"OU"]];
         }
+        
         X509_free(certificateX509);
     }
     return issuer;
@@ -55,10 +56,11 @@
     for (;;)
     {
         loc = X509_NAME_get_index_by_NID(issuerX509Name, nid, loc);
-        if (loc == -1)
+        if (loc == -1){
             break;
-        e = X509_NAME_get_entry(issuerX509Name, loc);
+        }
         
+        e = X509_NAME_get_entry(issuerX509Name, loc);
         if (e) {
             ASN1_STRING *issuerNameASN1 = X509_NAME_ENTRY_get_data(e);
             
