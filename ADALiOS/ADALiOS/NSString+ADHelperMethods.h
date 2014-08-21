@@ -73,6 +73,6 @@
        toString: (NSString*) string2;
 
 /*! Converts NSData to base64 String */
-+ (NSString *) adBase64EncodeData:(NSData *)data;
++ (NSString *) Base64EncodeData:(NSData *)data;
 
 @end
