@@ -35,10 +35,11 @@
     NSURL    *_startURL;
     NSString *_endURL;
     BOOL      _complete;
+    float _timeout;
 }
 
 #pragma mark - Initialization
-//NSTimer *timer;
+NSTimer *timer;
 
 - (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
@@ -53,7 +54,7 @@
         _startURL  = [startURL copy];
         _endURL    = [endURL absoluteString];
         _complete  = NO;
-        
+        _timeout = 20.0;
         _webView          = webView;
         _webView.delegate = self;
     }
@@ -164,18 +165,22 @@
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
-    //timer = [NSTimer scheduledTimerWithTimeInterval:20.0 target:self selector:@selector(didFailLoadWithError) userInfo:nil repeats:NO];
+    timer = [NSTimer scheduledTimerWithTimeInterval:_timeout target:self selector:@selector(failWithTimeout) userInfo:nil repeats:NO];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
-    //[timer invalidate];
+    [timer invalidate];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
 #pragma unused(webView)
+    if(timer && [timer isValid]){
+        [timer invalidate];
+    }
+    
     if (NSURLErrorCancelled == error.code)
     {
         //This is a common error that webview generates and could be ignored.
@@ -205,6 +210,13 @@
     {
         AD_LOG_ERROR(@"Delegate object is lost", AD_ERROR_APPLICATION, @"The delegate object was lost, potentially due to another concurrent request.");
     }
+}
+
+- (void) failWithTimeout{
+ 
+    [self webView:_webView didFailLoadWithError:[NSError errorWithDomain:NSURLErrorDomain
+                                                                    code:NSURLErrorTimedOut
+                                                                userInfo:nil]];
 }
 
 @end
