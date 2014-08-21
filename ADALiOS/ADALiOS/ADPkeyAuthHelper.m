@@ -23,6 +23,8 @@
 #import "NSString+ADHelperMethods.h"
 #import "WorkPlaceJoin.h"
 #import "OpenSSLHelper.h"
+#import "ADLogger.h"
+#import "ADErrorCodes.h"
 
 @implementation ADPkeyAuthHelper
 
@@ -38,7 +40,6 @@
     NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
     certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
                                                                        withString:@""];
-    
     NSMutableSet* certIssuer = [OpenSSLHelper getCertificateIssuer:[info certificateData]];
     
     if([info isWorkPlaceJoined] && [self isValidIssuer:certAuths keychainCertIssuer:certIssuer]){
@@ -105,6 +106,7 @@
     size_t hashBytesSize = CC_SHA256_DIGEST_LENGTH;
     uint8_t* hashBytes = malloc(hashBytesSize);
     if (!CC_SHA256([plainData bytes], (CC_LONG)[plainData length], hashBytes)) {
+        [ADLogger log:ADAL_LOG_LEVEL_ERROR message:@"Could not compute SHA265 hash." errorCode:AD_ERROR_UNEXPECTED additionalInformation:nil ];
         if (hashBytes)
             free(hashBytes);
         if (signedHashBytes)
@@ -118,7 +120,8 @@
                   hashBytesSize,
                   signedHashBytes,
                   &signedHashBytesSize);
-    assert(status == noErr);
+    
+    [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"Status returned from data signing - " errorCode:status additionalInformation:nil ];
     NSData* signedHash = [NSData dataWithBytes:signedHashBytes
                                         length:(NSUInteger)signedHashBytesSize];
     
@@ -137,7 +140,7 @@
                                                        options:NSJSONWritingPrettyPrinted
                                                          error:&error];
     if (! jsonData) {
-        NSLog(@"Got an error: %@", error);
+        [ADLogger log:ADAL_LOG_LEVEL_ERROR message:[NSString stringWithFormat:@"Got an error: %@",error] errorCode:error.code additionalInformation:nil ];
     } else {
         return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }
