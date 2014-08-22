@@ -289,7 +289,7 @@
     if (!item)
     {
         [self setStatus:@"Missing cache item."];
-        //return;
+        return;
     }
     BVTestMainViewController* __weak weakSelf = self;
     [context acquireTokenByRefreshToken:item.refreshToken
