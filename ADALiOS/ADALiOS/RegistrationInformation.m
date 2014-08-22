@@ -85,6 +85,9 @@
         if(_certificateData){
             CFRelease((__bridge CFTypeRef)(_certificateData));
         }
+        if(_privateKeyData){
+            CFRelease((__bridge CFTypeRef)_privateKeyData);
+        }
     }
 }
 

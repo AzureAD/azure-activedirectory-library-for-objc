@@ -22,6 +22,6 @@
 @interface ADPkeyAuthHelper : NSObject
 
 + (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
-                         challengeData:(NSMutableDictionary*) challengeData;
+                         challengeData:(NSDictionary*) challengeData;
 
 @end
