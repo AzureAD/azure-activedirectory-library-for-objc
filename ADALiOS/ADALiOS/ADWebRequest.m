@@ -20,10 +20,9 @@
 #import "ADOAuth2Constants.h"
 #import "NSURL+ADExtensions.h"
 #import "ADErrorCodes.h"
-
+#import "NSString+ADHelperMethods.h"
 #import "ADWebRequest.h"
 #import "ADWebResponse.h"
-#import "ADWorkplaceJoined.h"
 
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
@@ -39,13 +38,13 @@ NSString *const HTTPPost = @"POST";
 @implementation ADWebRequest
 {
     NSURLConnection     *_connection;
-
+    
     NSData              *_requestData;
     
     NSHTTPURLResponse   *_response;
     NSMutableData       *_responseData;
     NSUUID              *_correlationId;
-
+    
     void (^_completionHandler)( NSError *, ADWebResponse *);
 }
 
@@ -82,7 +81,7 @@ NSString *const HTTPPost = @"POST";
     THROW_ON_CONDITION_ARGUMENT(![self verifyRequestURL:requestURL], requestURL);//Should have been checked by the caller
     
     self = [super init];
-
+    
     if ( nil != self )
     {
         _connection     = nil;
@@ -95,7 +94,7 @@ NSString *const HTTPPost = @"POST";
         _response          = nil;
         _responseData      = nil;
         
-        // Default timeout for ADWebRequest is 30 seconds 
+        // Default timeout for ADWebRequest is 30 seconds
         _timeout           = 30;
         
         _completionHandler = nil;
@@ -155,10 +154,7 @@ NSString *const HTTPPost = @"POST";
         [_requestHeaders setValue:[NSString stringWithFormat:@"%ld", (unsigned long)_requestData.length] forKey:@"Content-Length"];
     }
     
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_requestURL
-                                                                cachePolicy:NSURLRequestUseProtocolCachePolicy
-                                                            timeoutInterval:_timeout];
-    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_requestURL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:_timeout];
     request.HTTPMethod          = _requestMethod;
     request.allHTTPHeaderFields = _requestHeaders;
     request.HTTPBody            = _requestData;
@@ -188,12 +184,8 @@ NSString *const HTTPPost = @"POST";
 - (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
 #pragma unused(connection)
-
-    if (![ADWorkplaceJoined handleClientTLSChallenge:challenge])
-    {
-        // Do default handling
-        [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
-    }
+    // Do default handling
+    [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
 }
 
 // Connection Completion
@@ -246,7 +238,7 @@ NSString *const HTTPPost = @"POST";
     //       dependent on the the challenge processing that the application performs.
     //
     NSAssert( _response != nil, @"No HTTP Response available" );
-
+    
     [self completeWithError:nil andResponse:[[ADWebResponse alloc] initWithResponse:_response data:_responseData]];
 }
 
@@ -259,7 +251,5 @@ NSString *const HTTPPost = @"POST";
 #pragma unused(totalBytesExpectedToWrite)
     
 }
-
-//– connection:needNewBodyStream
 
 @end

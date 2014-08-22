@@ -234,7 +234,7 @@ ID_TOKEN_PROPERTY_GETTER(GuestId, ID_TOKEN_GUEST_ID);
 -(id) copyWithZone:(NSZone*) zone
 {
     //Deep copy. Note that the user may have passed NSMutableString objects, so all of the objects should be copied:
-    ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithUserId:[self.userId copyWithZone:zone]];
+    ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithUserId:self.userId];
     info->_userIdDisplayable  = self.userIdDisplayable;
     info->_rawIdToken       = [self.rawIdToken copyWithZone:zone];
     info->_allClaims        = [self.allClaims copyWithZone:zone];
