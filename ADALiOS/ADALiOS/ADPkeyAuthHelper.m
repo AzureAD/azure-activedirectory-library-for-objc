@@ -28,10 +28,8 @@
 
 @implementation ADPkeyAuthHelper
 
-
-
 + (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
-                         challengeData:(NSMutableDictionary*) challengeData
+                         challengeData:(NSDictionary*) challengeData
 {
     RegistrationInformation *info = [[WorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
     NSString* authHeaderTemplate = @"PKeyAuth %@ Context=\"%@\", Version=\"%@\"";
@@ -54,10 +52,8 @@
     keychainCertIssuer:(NSMutableSet*) keychainCertIssuer{
     
     NSArray * acceptedCerts = [certAuths componentsSeparatedByString:@";"];
-    NSMutableSet* currentCert;
     BOOL isMatch = TRUE;
     for (int i=0; i<[acceptedCerts count]; i++) {
-        currentCert = [NSMutableSet new];
         isMatch = TRUE;
         NSArray * keyPair = [[acceptedCerts objectAtIndex:i] componentsSeparatedByString:@","];
         for(int index=0;index<[keyPair count]; index++){

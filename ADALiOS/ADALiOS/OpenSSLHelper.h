@@ -20,6 +20,6 @@
 
 @interface OpenSSLHelper : NSObject
 
-+ (NSString*) getCertificateIssuer:(NSData*)certificateData;
++ (NSMutableSet*) getCertificateIssuer:(NSData*)certificateData;
 
 @end
