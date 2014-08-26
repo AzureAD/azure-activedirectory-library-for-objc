@@ -22,9 +22,9 @@
 #import "ADErrorCodes.h"
 #import "ADLogger.h"
 #import "ADPkeyAuthHelper.h"
-#import "WorkPlaceJoinUtil.h"
-#import "WorkPlaceJoin.h"
-#import "WorkPlaceJoinConstants.h"
+#import "ADWorkPlaceJoinUtil.h"
+#import "ADWorkPlaceJoin.h"
+#import "ADWorkPlaceJoinConstants.h"
 #import "NSDictionary+ADExtensions.h"
 
 
@@ -77,7 +77,7 @@ NSTimer *timer;
 - (void)start
 {
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
-    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined]){
+    if([[ADWorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined]){
         [request setValue:@"1.0" forHTTPHeaderField: @"x-ms-PkeyAuth"];
     }
     [_webView loadRequest:request];
@@ -141,7 +141,7 @@ NSTimer *timer;
         return NO;
     }
     
-    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined] && ![request.allHTTPHeaderFields valueForKey:pKeyAuthHeader]){
+    if([[ADWorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined] && ![request.allHTTPHeaderFields valueForKey:pKeyAuthHeader]){
         // Create a mutable copy of the immutable request and add more headers
         NSMutableURLRequest *mutableRequest = [request mutableCopy];
         [mutableRequest addValue:pKeyAuthHeaderVersion forHTTPHeaderField:pKeyAuthHeader];

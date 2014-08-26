@@ -19,10 +19,10 @@
 #import "ADPkeyAuthHelper.h"
 #import <Foundation/Foundation.h>
 #import <CommonCrypto/CommonDigest.h>
-#import "RegistrationInformation.h"
+#import "ADRegistrationInformation.h"
 #import "NSString+ADHelperMethods.h"
-#import "WorkPlaceJoin.h"
-#import "OpenSSLHelper.h"
+#import "ADWorkPlaceJoin.h"
+#import "ADOpenSSLHelper.h"
 #import "ADLogger.h"
 #import "ADErrorCodes.h"
 
@@ -31,14 +31,14 @@
 + (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
                          challengeData:(NSDictionary*) challengeData
 {
-    RegistrationInformation *info = [[WorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
+    ADRegistrationInformation *info = [[ADWorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
     NSString* authHeaderTemplate = @"PKeyAuth %@ Context=\"%@\", Version=\"%@\"";
     NSString* pKeyAuthHeader = @"";
     
     NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
     certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
                                                                        withString:@""];
-    NSMutableSet* certIssuer = [OpenSSLHelper getCertificateIssuer:[info certificateData]];
+    NSMutableSet* certIssuer = [ADOpenSSLHelper getCertificateIssuer:[info certificateData]];
     
     if([info isWorkPlaceJoined] && [self isValidIssuer:certAuths keychainCertIssuer:certIssuer]){
         pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
@@ -69,7 +69,7 @@
 
 + (NSString *) createDeviceAuthResponse:(NSString*) audience
                                   nonce:(NSString*) nonce
-                               identity:(RegistrationInformation *) identity{
+                               identity:(ADRegistrationInformation *) identity{
     
     
     NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];

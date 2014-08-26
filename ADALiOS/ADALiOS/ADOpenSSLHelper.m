@@ -17,7 +17,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "OpenSSLHelper.h"
+#import "ADOpenSSLHelper.h"
 
 #include <openssl/bio.h>
 #include <openssl/evp.h>
@@ -26,7 +26,7 @@
 #include <openssl/pem.h>
 #include <openssl/err.h>
 
-@implementation OpenSSLHelper : NSObject
+@implementation ADOpenSSLHelper : NSObject
 
 + (NSMutableSet*) getCertificateIssuer:(NSData*)certificateData
 {
