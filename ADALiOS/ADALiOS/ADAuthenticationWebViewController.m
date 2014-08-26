@@ -118,7 +118,6 @@ NSTimer *timer;
     NSString *requestURL = [request.URL absoluteString];
     
     // check for pkeyauth challenge.
-    //https://fs.scm-dc1.dft.com/adfs
     if ([requestURL hasPrefix: pKeyAuthUrn] )
     {
         [self handlePKeyAuthChallenge: requestURL];
