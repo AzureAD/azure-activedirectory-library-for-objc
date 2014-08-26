@@ -31,9 +31,9 @@
 #import "ADTokenCacheStoreItem.h"
 #import "ADTokenCacheStoreKey.h"
 #import "ADUserInformation.h"
-#import "WorkPlaceJoin.h"
+#import "ADWorkPlaceJoin.h"
 #import "ADPkeyAuthHelper.h"
-#import "WorkPlaceJoinConstants.h"
+#import "ADWorkPlaceJoinConstants.h"
 
 
 NSString* const unknownError = @"Uknown error.";
@@ -1262,7 +1262,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     webRequest.method = HTTPPost;
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
-    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined ]){
+    if([[ADWorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined ]){
         [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
     }
     

@@ -16,28 +16,27 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "WorkPlaceJoin.h"
-#import "WorkPlaceJoinUtil.h"
-#import "WorkPlaceJoinConstants.h"
-#import "RegistrationInformation.h"
+#import "ADWorkPlaceJoin.h"
+#import "ADWorkPlaceJoinUtil.h"
+#import "ADWorkPlaceJoinConstants.h"
+#import "ADRegistrationInformation.h"
 #import <UIKit/UIKit.h>
 #import <MessageUI/MessageUI.h>
 
 
-@implementation WorkPlaceJoin
+@implementation ADWorkPlaceJoin
 
 NSArray *_upnParts;
 NSString *_userPrincipalName;
 UIViewController * _callingViewController;
-WorkplaceJoinLeaveCallback leaveCompletionBlock;
 
-static WorkPlaceJoin* wpjManager;
+static ADWorkPlaceJoin* wpjManager;
 
 NSString* _oauthClientId;
 
 #pragma mark - Public Methods
 
-+ (WorkPlaceJoin*) WorkPlaceJoinManager
++ (ADWorkPlaceJoin*) WorkPlaceJoinManager
 {
     if (!wpjManager)
     {
@@ -50,23 +49,23 @@ NSString* _oauthClientId;
 - (id)init {
     self = [super init];
     if (self) {
-        [WorkPlaceJoinUtil WorkPlaceJoinUtilManager].workplaceJoin = self;
-        _sharedGroup = [NSString stringWithFormat:@"%@.%@", [[WorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix], _defaultSharedGroup];
+        [ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager].workplaceJoin = self;
+        _sharedGroup = [NSString stringWithFormat:@"%@.%@", [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix], _defaultSharedGroup];
     }
     return self;
 }
 
 - (BOOL)isWorkPlaceJoined
 {
-    [[WorkPlaceJoinUtil WorkPlaceJoinUtilManager]  Log:@"Is workplace joined"];
-    RegistrationInformation *userRegInfo = [self getRegistrationInformation];
+    [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  Log:@"Is workplace joined"];
+    ADRegistrationInformation *userRegInfo = [self getRegistrationInformation];
     BOOL certExists = [userRegInfo certificate] != NULL;
     [userRegInfo releaseData];
     return certExists;
 }
 
-- (RegistrationInformation*) getRegistrationInformation {
-    return [[WorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getRegistrationInformation:_sharedGroup error:nil];
+- (ADRegistrationInformation*) getRegistrationInformation {
+    return [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getRegistrationInformation:_sharedGroup error:nil];
 }
 
 @end

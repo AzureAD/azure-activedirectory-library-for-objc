@@ -17,11 +17,9 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "ADRegistrationInformation.h"
 
-@interface ADPkeyAuthHelper : NSObject
+@interface ADOpenSSLHelper : NSObject
 
-+ (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
-                         challengeData:(NSDictionary*) challengeData;
++ (NSMutableSet*) getCertificateIssuer:(NSData*)certificateData;
 
 @end

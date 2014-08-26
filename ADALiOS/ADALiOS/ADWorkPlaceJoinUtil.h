@@ -17,24 +17,20 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "RegistrationInformation.h"
-#import "WorkPlaceJoin.h"
+#import "ADRegistrationInformation.h"
+#import "ADWorkPlaceJoin.h"
 
-@interface WorkPlaceJoinUtil : NSObject
+@interface ADWorkPlaceJoinUtil : NSObject
 
-@property (nonatomic, readwrite) WorkPlaceJoin *workplaceJoin;
+@property (nonatomic, readwrite) ADWorkPlaceJoin *workplaceJoin;
 
-+ (WorkPlaceJoinUtil*) WorkPlaceJoinUtilManager;
-
-- (NSData *)getPrivateKeyForAccessGroup: (NSString*)sharedAccessGroup
-                   privateKeyIdentifier: (NSString*) privateKey
-                                  error: (NSError**) error;
++ (ADWorkPlaceJoinUtil*) WorkPlaceJoinUtilManager;
 
 - (NSError*)getCertificateForAccessGroup: (NSString*)sharedAccessGroup
                                 identity: (SecIdentityRef*) identity
                              certificate: (SecCertificateRef*) clientCertificate;
 
-- (RegistrationInformation*)getRegistrationInformation: (NSString*) sharedAccessGroup
+- (ADRegistrationInformation*)getRegistrationInformation: (NSString*) sharedAccessGroup
                                                  error: (NSError**) error;
 
 - (NSData *) base64DataFromString: (NSString *)string;

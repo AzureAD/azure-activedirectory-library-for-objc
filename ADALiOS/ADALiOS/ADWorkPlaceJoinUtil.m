@@ -16,15 +16,15 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "WorkPlaceJoinUtil.h"
-#import "RegistrationInformation.h"
-#import "WorkPlaceJoinConstants.h"
+#import "ADWorkPlaceJoinUtil.h"
+#import "ADRegistrationInformation.h"
+#import "ADWorkPlaceJoinConstants.h"
 
-@implementation WorkPlaceJoinUtil
+@implementation ADWorkPlaceJoinUtil
 
-WorkPlaceJoinUtil* wpjUtilManager = nil;
+ADWorkPlaceJoinUtil* wpjUtilManager = nil;
 
-+ (WorkPlaceJoinUtil*) WorkPlaceJoinUtilManager;
++ (ADWorkPlaceJoinUtil*) WorkPlaceJoinUtilManager;
 {
     if (!wpjUtilManager)
     {
@@ -79,7 +79,7 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
 
 
 
-- (RegistrationInformation*)getRegistrationInformation: (NSString*) sharedAccessGroup
+- (ADRegistrationInformation*)getRegistrationInformation: (NSString*) sharedAccessGroup
                                                  error: (NSError**) error
 {
     [self Log:[NSString stringWithFormat:@"Attempting to get registration information from %@ shared access keychain",
@@ -143,7 +143,7 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
     
     if(identity && certificate && certificateSubject && certificateData && privateKey && privateKeyData)
     {
-        RegistrationInformation *info = [[RegistrationInformation alloc] initWithSecurityIdentity:identity
+        ADRegistrationInformation *info = [[ADRegistrationInformation alloc] initWithSecurityIdentity:identity
                                                                                 userPrincipalName:userPrincipalName
                                                                             certificateProperties:certificateProperties
                                                                                       certificate:certificate
@@ -342,14 +342,7 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
 
 - (void) Log: (NSString*) logMessage
 {
-    if ([self workplaceJoin].delegate)
-    {
-        [[self workplaceJoin].delegate workplaceClient:[self workplaceJoin] logMessage:logMessage];
-    }
-    else
-    {
         NSLog(@"%@", logMessage);
-    }
 }
 
 - (SecKeyRef)getPrivateKeyRef {

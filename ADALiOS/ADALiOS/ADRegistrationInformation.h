@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface RegistrationInformation : NSObject
+@interface ADRegistrationInformation : NSObject
 
 @property (nonatomic, readonly) SecIdentityRef securityIdentity;
 @property (nonatomic, readonly) SecCertificateRef certificate;
