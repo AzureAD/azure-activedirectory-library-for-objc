@@ -23,6 +23,7 @@
 #import "NSString+ADHelperMethods.h"
 #import "ADWebRequest.h"
 #import "ADWebResponse.h"
+#import "ADAuthenticationSettings.h"
 
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
@@ -95,7 +96,7 @@ NSString *const HTTPPost = @"POST";
         _responseData      = nil;
         
         // Default timeout for ADWebRequest is 30 seconds
-        _timeout           = 30;
+        _timeout           = [[ADAuthenticationSettings init] requestTimeOut];
         
         _completionHandler = nil;
         _correlationId     = correlationId;
