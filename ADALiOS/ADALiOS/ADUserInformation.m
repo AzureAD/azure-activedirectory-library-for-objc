@@ -44,7 +44,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 {
     AD_LOG_VERBOSE(@"ADUserInformation", @"dealloc");
     
-    
+
     SAFE_ARC_RELEASE(_userId);
     SAFE_ARC_RELEASE(_allClaims);
     SAFE_ARC_RELEASE(_rawIdToken);
@@ -66,7 +66,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
         return nil;//Quick exit;
     }
     NSString* normalized = [userId adTrimmedString].lowercaseString;
-    
+        
     return normalized.length ? normalized : nil;
 }
 
@@ -89,13 +89,13 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 //in case of error
 #define RETURN_ID_TOKEN_ERROR(text) \
 { \
-ADAuthenticationError* idTokenError = [self errorFromIdToken:text]; \
-if (error) \
-{ \
-*error = idTokenError; \
-} \
-SAFE_ARC_AUTORELEASE(self); \
-return nil; \
+    ADAuthenticationError* idTokenError = [self errorFromIdToken:text]; \
+    if (error) \
+    { \
+        *error = idTokenError; \
+    } \
+    SAFE_ARC_AUTORELEASE(self); \
+    return nil; \
 }
 
 
@@ -119,21 +119,20 @@ return nil; \
     _userId = nil;
     _rawIdToken = nil;
     _allClaims = nil;
-    
+
     if ([NSString adIsStringNilOrBlank:idToken])
     {
         RETURN_ID_TOKEN_ERROR(idToken);
     }
     
     _rawIdToken = SAFE_ARC_RETAIN(idToken);
+    NSMutableDictionary* allClaims = [NSMutableDictionary new];
     
     NSArray* parts = [idToken componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"."]];
     if (parts.count < 1)
     {
         RETURN_ID_TOKEN_ERROR(idToken);
     }
-    
-    NSMutableDictionary* allClaims = [[NSMutableDictionary new] autorelease];
     
     NSString* type = nil;
     for (NSString* part in parts)
@@ -146,18 +145,16 @@ return nil; \
             id jsonObject = [NSJSONSerialization JSONObjectWithData:[decoded dataUsingEncoding:NSUTF8StringEncoding]
                                                             options:0
                                                               error:&jsonError];
-            if (jsonError)
-            {
-                ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:jsonError
-                                                                            errorDetails:[NSString stringWithFormat:@"Failed to deserialize the id_token contents: %@", part]];
-                if (error)
+                if (jsonError)
                 {
-                    *error = adError;
+                    ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:jsonError
+                                                                                errorDetails:[NSString stringWithFormat:@"Failed to deserialize the id_token contents: %@", part]];
+                    if (error)
+                    {
+                        *error = adError;
+                    }
+                    return nil;
                 }
-                
-                [self release];
-                return nil;
-            }
             
             if (![jsonObject isKindOfClass:[NSDictionary class]])
             {
@@ -178,7 +175,7 @@ return nil; \
                     }
                 }
             }
-            
+
             [allClaims addEntriesFromDictionary:contents];
         }
     }
@@ -231,7 +228,7 @@ return nil; \
 #define ID_TOKEN_PROPERTY_GETTER(property, claimName) \
 -(NSString*) get##property \
 { \
-return [self.allClaims objectForKey:claimName]; \
+    return [self.allClaims objectForKey:claimName]; \
 }
 
 ID_TOKEN_PROPERTY_GETTER(GivenName, ID_TOKEN_GIVEN_NAME);
@@ -249,7 +246,7 @@ ID_TOKEN_PROPERTY_GETTER(GuestId, ID_TOKEN_GUEST_ID);
                                           error: (ADAuthenticationError* __autoreleasing*) error
 {
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(userId);
-    
+
     return SAFE_ARC_AUTORELEASE([[ADUserInformation alloc] initWithUserId:userId]);
 }
 
@@ -264,7 +261,7 @@ ID_TOKEN_PROPERTY_GETTER(GuestId, ID_TOKEN_GUEST_ID);
 -(id) copyWithZone:(NSZone*) zone
 {
     //Deep copy. Note that the user may have passed NSMutableString objects, so all of the objects should be copied:
-    ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithUserId:self.userId];
+    ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithUserId:[self.userId copyWithZone:zone]];
     info->_userIdDisplayable  = self.userIdDisplayable;
     info->_rawIdToken       = [self.rawIdToken copyWithZone:zone];
     info->_allClaims        = [self.allClaims copyWithZone:zone];
