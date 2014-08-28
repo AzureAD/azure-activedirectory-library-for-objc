@@ -96,7 +96,7 @@ NSString *const HTTPPost = @"POST";
         _responseData      = nil;
         
         // Default timeout for ADWebRequest is 30 seconds
-        _timeout           = [[ADAuthenticationSettings init] requestTimeOut];
+        _timeout           = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
         
         _completionHandler = nil;
         _correlationId     = correlationId;

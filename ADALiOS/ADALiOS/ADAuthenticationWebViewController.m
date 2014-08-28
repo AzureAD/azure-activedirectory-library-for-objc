@@ -54,7 +54,7 @@ NSTimer *timer;
         _startURL  = [startURL copy];
         _endURL    = [endURL absoluteString];
         _complete  = NO;
-        _timeout = [[ADAuthenticationSettings init] requestTimeOut];
+        _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
         _webView          = webView;
         _webView.delegate = self;
     }
