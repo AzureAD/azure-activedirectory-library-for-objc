@@ -126,7 +126,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     
     _rawIdToken = SAFE_ARC_RETAIN(idToken);
-    NSMutableDictionary* allClaims = [NSMutableDictionary new];
+    NSMutableDictionary* allClaims = SAFE_ARC_AUTORELEASE([NSMutableDictionary new]);
     
     NSArray* parts = [idToken componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"."]];
     if (parts.count < 1)
@@ -134,6 +134,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
         RETURN_ID_TOKEN_ERROR(idToken);
     }
     
+   
     NSString* type = nil;
     for (NSString* part in parts)
     {
@@ -153,6 +154,8 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
                     {
                         *error = adError;
                     }
+                    
+                    _SAFE_ARC_RELEASE(self);
                     return nil;
                 }
             
@@ -261,7 +264,7 @@ ID_TOKEN_PROPERTY_GETTER(GuestId, ID_TOKEN_GUEST_ID);
 -(id) copyWithZone:(NSZone*) zone
 {
     //Deep copy. Note that the user may have passed NSMutableString objects, so all of the objects should be copied:
-    ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithUserId:[self.userId copyWithZone:zone]];
+    ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithUserId:self.userId];
     info->_userIdDisplayable  = self.userIdDisplayable;
     info->_rawIdToken       = [self.rawIdToken copyWithZone:zone];
     info->_allClaims        = [self.allClaims copyWithZone:zone];
