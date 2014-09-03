@@ -35,9 +35,11 @@
     
     if ( ( self = [super init] ) != nil )
     {
+    
+        _parentDelegate = [webView delegate];
+    
         _startURL  = [startURL copy];
         _endURL    = [[endURL absoluteString] lowercaseString];
-        _URLs      = [NSMutableArray new];
         
         _complete  = NO;
         
@@ -58,25 +60,6 @@
     // UIWebView when we are released.
     _webView.delegate = nil;
     _webView          = nil;
-}
-
-- (void)deleteCookies
-{
-    __block NSArray* URLs = [_URLs copy]; // Make a copy so we don't have to worry about something changing it
-    dispatch_async( dispatch_get_main_queue(), ^{
-    
-        [URLs enumerateObjectsUsingBlock:^(id obj, NSUInteger i, BOOL* pf) {
-            // The WebView is storing cookies behind our back which makes signing in with multiple accounts
-            // difficult. Remove them from the webview.
-            NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-            NSArray* cookies = [cookieStorage cookiesForURL:[NSURL URLWithString:(NSString*)obj]];
-            [cookies enumerateObjectsUsingBlock:^(id obj, NSUInteger i, BOOL * pf)
-             {
-                 [cookieStorage deleteCookie:obj];
-             }];
-        }];
-    });
-    [_URLs removeAllObjects];
 }
 
 #pragma mark - Public Methods
@@ -102,10 +85,14 @@
     
     //DebugLog( @"URL: %@", request.URL.absoluteString );
     
+    if ([_parentDelegate respondsToSelector:@selector(webView:shouldStartLoadWithRequest:navigationType:)])
+    {
+        if (![_parentDelegate webView:webView shouldStartLoadWithRequest:request navigationType:navigationType])
+            return NO;
+    }
+    
     // TODO: We lowercase both URLs, is this the right thing to do?
     NSString *requestURL = [[request.URL absoluteString] lowercaseString];
-    
-    [_URLs addObject:requestURL];
     
     // Stop at the end URL.
     if ( [requestURL hasPrefix:_endURL] )
@@ -119,7 +106,6 @@
         // This event is explicitly scheduled on the main thread as it is UI related.
         NSAssert( nil != _delegate, @"Delegate object was lost" );
         dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCompleteWithURL:request.URL]; } );
-        [self deleteCookies];
         
         // Tell the web view that this URL should not be loaded.
         return NO;
@@ -131,11 +117,15 @@
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
+    if ([_parentDelegate respondsToSelector:@selector(webViewDidStartLoad:)])
+        [_parentDelegate webViewDidStartLoad:webView];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
+    if ([_parentDelegate respondsToSelector:@selector(webViewDidFinishLoad:)])
+        [_parentDelegate webViewDidFinishLoad:webView];
 }
 
 -(void) dispatchError: (NSError*) error
@@ -152,13 +142,13 @@
     {
         AD_LOG_ERROR(@"Delegate object is lost", AD_ERROR_APPLICATION, @"The delegate object was lost, potentially due to another concurrent request.");
     }
-    
-    [self deleteCookies];
 }
 
 - (void)webView:(WebViewType *)webView didFailLoadWithError:(NSError *)error
 {
 #pragma unused(webView)
+    if ([_parentDelegate respondsToSelector:@selector(webView:didFailLoadWithError:)])
+        [_parentDelegate webView:webView didFailLoadWithError:error];
     
     if (NSURLErrorCancelled == error.code)
     {

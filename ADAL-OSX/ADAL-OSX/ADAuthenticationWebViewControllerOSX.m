@@ -37,9 +37,9 @@
     
     if ( ( self = [super init] ) != nil )
     {
+        _parentDelegate = [webView policyDelegate];
         _startURL  = [startURL copy];
         _endURL    = SAFE_ARC_RETAIN([[endURL absoluteString] lowercaseString]);
-        _URLs      = [NSMutableArray new];
         
         _complete  = NO;
         
@@ -68,28 +68,8 @@
     
     SAFE_ARC_RELEASE(_startURL);
     SAFE_ARC_RELEASE(_endURL);
-    SAFE_ARC_RELEASE(_URLs);
     
     SAFE_ARC_SUPER_DEALLOC();
-}
-
-- (void)deleteCookies
-{
-    __block NSArray* URLs = [_URLs copy]; // Make a copy so we don't have to worry about something changing it
-    dispatch_async( dispatch_get_main_queue(), ^{
-    
-        [URLs enumerateObjectsUsingBlock:^(id obj, NSUInteger i, BOOL* pf) {
-            // The WebView is storing cookies behind our back which makes signing in with multiple accounts
-            // difficult. Remove them from the webview.
-            NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-            NSArray* cookies = [cookieStorage cookiesForURL:[NSURL URLWithString:(NSString*)obj]];
-            [cookies enumerateObjectsUsingBlock:^(id obj, NSUInteger i, BOOL * pf)
-             {
-                 [cookieStorage deleteCookie:obj];
-             }];
-        }];
-    });
-    [_URLs removeAllObjects];
 }
 
 - (void)start
@@ -133,33 +113,36 @@
         //Still log the error, but it is not critical:
         AD_LOG_WARN(@"WebView Error", error.description);
     }
-    
-    [self deleteCookies];
 }
 
 - (void)webView:(WebView *)sender didFailProvisionalLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
 {
 #pragma unused(sender)
+    if ([_parentDelegate respondsToSelector:@selector(webView:didFailProvisionalLoadWithError:forFrame:)])
+        [_parentDelegate webView:sender didFailProvisionalLoadWithError:error forFrame:frame];
     [self handleError:error toFrame:frame];
 }
 
 - (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
 {
 #pragma unused(sender)
+    if ([_parentDelegate respondsToSelector:@selector(webView:didFailLoadWithError:forFrame:)])
+        [_parentDelegate webView:sender didFailLoadWithError:error forFrame:frame];
     [self handleError:error toFrame:frame];
 }
 
 - (void)webView:(WebView *)webView decidePolicyForNavigationAction:(NSDictionary *)actionInformation
         request:(NSURLRequest *)request
           frame:(WebFrame *)frame
-decisionListener:(id<WebPolicyDecisionListener>)listener;
+decisionListener:(id<WebPolicyDecisionListener>)listener
 {
 #pragma unused(webView)
 #pragma unused(actionInformation)
+
+    if ([_parentDelegate respondsToSelector:@selector(webView: decidePolicyForNavigationAction:request:frame:decisionListener:)])
+        [_parentDelegate webView:webView decidePolicyForNavigationAction:actionInformation request:request frame:frame decisionListener:listener];
     
     NSString *currentURL = [[request.URL absoluteString] lowercaseString];
-    [_URLs addObject:currentURL];
-    
     if ( [currentURL hasPrefix:_endURL] )
     {
         _complete = YES;
@@ -170,12 +153,33 @@ decisionListener:(id<WebPolicyDecisionListener>)listener;
         // NOTE: Synchronous invocation
         NSAssert( nil != _delegate, @"Delegate has been lost" );
         [self.delegate webAuthenticationDidCompleteWithURL:request.URL];
-        [self deleteCookies];
     }
     else
     {
         [listener use];
     }
+}
+
+- (void)forwardInvocation:(NSInvocation *)anInvocation
+{
+    if ([_parentDelegate respondsToSelector:[anInvocation selector]])
+        [anInvocation invokeWithTarget:_parentDelegate];
+    else
+        [super forwardInvocation:anInvocation];
+}
+
+- (BOOL)respondsToSelector:(SEL)aSelector
+{
+    return [super respondsToSelector:aSelector] || [_parentDelegate respondsToSelector:aSelector];
+}
+
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector
+{
+    NSMethodSignature *signature = [super methodSignatureForSelector:selector];
+    if (!signature) {
+        signature = [_parentDelegate methodSignatureForSelector:selector];
+    }
+    return signature;
 }
 
 
