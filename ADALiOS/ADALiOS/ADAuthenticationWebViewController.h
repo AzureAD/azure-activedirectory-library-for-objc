@@ -41,6 +41,7 @@ typedef WebView   WebViewType;
     NSURL    *_startURL;
     NSString *_endURL;
     BOOL      _complete;
+    float     _timeout;
     
     __weak id<ADAuthenticationDelegate> _delegate;
 }

@@ -18,6 +18,9 @@
 
 #import "ADAuthenticationWebViewController.h"
 #import "ADAuthenticationDelegate.h"
+#import "ADPkeyAuthHelper.h"
+#import "WorkPlaceJoinConstants.h"
+#import "WorkplaceJoin.h"
 
 @interface ADAuthenticationWebViewController ()
 
@@ -126,6 +129,28 @@
     [self handleError:error toFrame:frame];
 }
 
+
+
+- (void) handlePKeyAuthChallenge:(NSString *)challengeUrl
+{
+    NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
+    NSString *qp = [parts objectAtIndex:1];
+    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    NSString* value = [queryParamsMap valueForKey:@"SubmitUrl"];
+    
+    NSArray * authorityParts = [value componentsSeparatedByString:@"?"];
+    NSString *authority = [authorityParts objectAtIndex:0];
+    
+    NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc] initWithURL: [NSURL URLWithString: value]];
+    
+    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority challengeData:queryParamsMap];
+    
+    [responseUrl setValue:pKeyAuthHeaderVersion forHTTPHeaderField: pKeyAuthHeader];
+    [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
+    [_webView.mainFrame loadRequest:responseUrl];
+}
+
+
 - (void)webView:(WebView *)webView decidePolicyForNavigationAction:(NSDictionary *)actionInformation
         request:(NSURLRequest *)request
           frame:(WebFrame *)frame
@@ -133,10 +158,16 @@ decisionListener:(id<WebPolicyDecisionListener>)listener;
 {
 #pragma unused(webView)
 #pragma unused(actionInformation)
+    NSString *requestURL = [request.URL absoluteString];
     
-    NSString *currentURL = [[request.URL absoluteString] lowercaseString];
+    // check for pkeyauth challenge.
+    if ([requestURL hasPrefix: pKeyAuthUrn] )
+    {
+        [self handlePKeyAuthChallenge: requestURL];
+        return;
+    }
     
-    if ( [currentURL hasPrefix:_endURL] )
+    if ( [requestURL hasPrefix:_endURL] )
     {
         _complete = YES;
         
@@ -149,6 +180,24 @@ decisionListener:(id<WebPolicyDecisionListener>)listener;
     }
     else
     {
+        
+        if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined] && ![request.allHTTPHeaderFields valueForKey:pKeyAuthHeader]){
+            // Create a mutable copy of the immutable request and add more headers
+            NSMutableURLRequest *mutableRequest = [request mutableCopy];
+            [mutableRequest addValue:pKeyAuthHeaderVersion forHTTPHeaderField:pKeyAuthHeader];
+            
+            // Now set our request variable with an (immutable) copy of the altered request
+            request = [mutableRequest copy];
+            [_webView.mainFrame loadRequest:request];
+            return;
+        }
+        
+        if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"]) {
+            requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
+            [[NSWorkspace sharedWorkspace] openURL:[[NSURL alloc] initWithString:requestURL]];
+            return;
+        }
+        
         [listener use];
     }
 }
