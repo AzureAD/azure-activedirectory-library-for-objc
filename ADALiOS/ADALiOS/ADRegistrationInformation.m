@@ -64,29 +64,46 @@
     if(self){
         if(_securityIdentity){
             CFRelease(_securityIdentity);
+            _securityIdentity = nil;
         }
         
         if(_certificate){
             CFRelease(_certificate);
+            _certificate = nil;
         }
         
         if(_privateKey){
             CFRelease(_privateKey);
+            _privateKey = nil;
         }
         
         if(_privateKeyData){
             CFRelease((__bridge CFTypeRef)_privateKeyData);
+            _privateKeyData = nil;
         }
         
         if(_certificateSubject){
             CFRelease((__bridge CFTypeRef)(_certificateSubject));
+            _certificateSubject = nil;
         }
         
         if(_certificateData){
             CFRelease((__bridge CFTypeRef)(_certificateData));
+            _certificateData = nil;
         }
         if(_privateKeyData){
             CFRelease((__bridge CFTypeRef)_privateKeyData);
+            _privateKeyData = nil;
+        }
+        
+        if(_userPrincipalName){
+            CFRelease((__bridge CFTypeRef)(_userPrincipalName));
+            _userPrincipalName = nil;
+        }
+        
+        if(_certificateProperties){
+            CFRelease((__bridge CFTypeRef)(_certificateProperties));
+            _certificateProperties = nil;
         }
     }
 }
