@@ -19,7 +19,7 @@
 #import "ADOAuth2Constants.h"
 #import "NSURL+ADExtensions.h"
 #import "ADErrorCodes.h"
-
+#import "ADAuthenticationSettings.h"
 #import "ADWebRequest.h"
 #import "ADWebResponse.h"
 #if TARGET_OS_IPHONE
@@ -107,7 +107,7 @@ NSString *const HTTPPost = @"POST";
         _responseData      = nil;
         
         // Default timeout for ADWebRequest is 30 seconds 
-        _timeout           = 30;
+        _timeout           = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
         
         _completionHandler = nil;
         _correlationId     = SAFE_ARC_RETAIN(correlationId);

@@ -24,6 +24,7 @@
 #import "WorkPlaceJoin.h"
 #import "ADPkeyAuthHelper.h"
 #import "NSDictionary+ADExtensions.h"
+#import "ADAuthenticationSettings.h"
 
 @implementation ADAuthenticationWebViewController
 
@@ -44,7 +45,7 @@ NSTimer *timer;
         _endURL    = [[endURL absoluteString] lowercaseString];
         
         _complete  = NO;
-        _timeout = 20.0;
+        _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
         
         _webView          = webView;
         _webView.delegate = self;
