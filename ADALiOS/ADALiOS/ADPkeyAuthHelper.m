@@ -45,6 +45,7 @@
     }
     
     [info releaseData];
+    info = nil;
     return [NSString stringWithFormat:authHeaderTemplate, pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
 }
 
