@@ -152,6 +152,7 @@
     
     CFDataRef signature = SecTransformExecute(signingTransform, &error);
     CFRetain(signature);
+    signedHash = (__bridge id)signature;
     CFRelease(signingTransform);
     
 #endif
