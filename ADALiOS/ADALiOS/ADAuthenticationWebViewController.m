@@ -20,10 +20,15 @@
 #import "ADAuthenticationWebViewController.h"
 #import "ADAuthenticationSettings.h"
 #import "ADErrorCodes.h"
+#import "WorkPlaceJoinConstants.h"
+#import "WorkPlaceJoin.h"
+#import "ADPkeyAuthHelper.h"
+#import "NSDictionary+ADExtensions.h"
 
 @implementation ADAuthenticationWebViewController
 
 #pragma mark - Initialization
+NSTimer *timer;
 
 - (id)initWithWebView:(WebViewType *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
@@ -39,6 +44,7 @@
         _endURL    = [[endURL absoluteString] lowercaseString];
         
         _complete  = NO;
+        _timeout = 20.0;
         
         _webView          = webView;
         _webView.delegate = self;
@@ -63,8 +69,10 @@
 
 - (void)start
 {
-    NSURLRequest *request = [NSURLRequest requestWithURL:_startURL];
-
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
+    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined]){
+        [request setValue:@"1.0" forHTTPHeaderField: @"x-ms-PkeyAuth"];
+    }
     [_webView loadRequest:request];
 }
 
@@ -73,6 +81,28 @@
     //In future this method may be expanded to clear some state like cookies
 }
 
+
+- (void) handlePKeyAuthChallenge:(NSString *)challengeUrl
+{
+    NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
+    NSString *qp = [parts objectAtIndex:1];
+    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    NSString* value = [queryParamsMap valueForKey:@"SubmitUrl"];
+    
+    NSArray * authorityParts = [value componentsSeparatedByString:@"?"];
+    NSString *authority = [authorityParts objectAtIndex:0];
+    
+    NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc] initWithURL: [NSURL URLWithString: value]];
+    
+    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority challengeData:queryParamsMap];
+    
+    [responseUrl setValue:pKeyAuthHeaderVersion forHTTPHeaderField: pKeyAuthHeader];
+    [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
+    [_webView loadRequest:responseUrl];
+}
+
+
+
 #pragma mark - UIWebViewDelegate Protocol
 
 - (BOOL)webView:(WebViewType *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
@@ -80,10 +110,16 @@
 #pragma unused(webView)
 #pragma unused(navigationType)
     
-    //DebugLog( @"URL: %@", request.URL.absoluteString );
     
-    // TODO: We lowercase both URLs, is this the right thing to do?
-    NSString *requestURL = [[request.URL absoluteString] lowercaseString];
+    DebugLog( @"URL: %@", request.URL.absoluteString );
+    NSString *requestURL = [request.URL absoluteString];
+    
+    // check for pkeyauth challenge.
+    if ([requestURL hasPrefix: pKeyAuthUrn] )
+    {
+        [self handlePKeyAuthChallenge: requestURL];
+        return NO;
+    }
     
     // Stop at the end URL.
     if ( [requestURL hasPrefix:_endURL] )
@@ -102,17 +138,36 @@
         return NO;
     }
     
+    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined] && ![request.allHTTPHeaderFields valueForKey:pKeyAuthHeader]){
+        // Create a mutable copy of the immutable request and add more headers
+        NSMutableURLRequest *mutableRequest = [request mutableCopy];
+        [mutableRequest addValue:pKeyAuthHeaderVersion forHTTPHeaderField:pKeyAuthHeader];
+        
+        // Now set our request variable with an (immutable) copy of the altered request
+        request = [mutableRequest copy];
+        [webView loadRequest:request];
+        return NO;
+    }
+    
+    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"] && navigationType == UIWebViewNavigationTypeLinkClicked) {
+        requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
+        [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];
+        return NO;
+    }
+    
     return YES;
 }
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
+    timer = [NSTimer scheduledTimerWithTimeInterval:_timeout target:self selector:@selector(failWithTimeout) userInfo:nil repeats:NO];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
+    [timer invalidate];
 }
 
 -(void) dispatchError: (NSError*) error
@@ -134,11 +189,18 @@
 - (void)webView:(WebViewType *)webView didFailLoadWithError:(NSError *)error
 {
 #pragma unused(webView)
+    if(timer && [timer isValid]){
+        [timer invalidate];
+    }
     
     if (NSURLErrorCancelled == error.code)
     {
         //This is a common error that webview generates and could be ignored.
         //See this thread for details: https://discussions.apple.com/thread/1727260
+        return;
+    }
+    
+    if([error.domain isEqual:@"WebKitErrorDomain"]){
         return;
     }
 
@@ -151,6 +213,13 @@
     }
     
     [self dispatchError:error];
+}
+
+- (void) failWithTimeout{
+    
+    [self webView:_webView didFailLoadWithError:[NSError errorWithDomain:NSURLErrorDomain
+                                                                    code:NSURLErrorTimedOut
+                                                                userInfo:nil]];
 }
 
 @end

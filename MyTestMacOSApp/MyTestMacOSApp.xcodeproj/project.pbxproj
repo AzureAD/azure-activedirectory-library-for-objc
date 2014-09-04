@@ -60,6 +60,7 @@
 		8BD92F1D18C943F50026A014 /* TestData.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = TestData.plist; path = ../../Samples/MyTestiOSApp/MyTestiOSApp/TestData.plist; sourceTree = "<group>"; };
 		8BD92F1F18C944190026A014 /* BVSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BVSettings.h; path = ../../Samples/MyTestiOSApp/MyTestiOSApp/BVSettings.h; sourceTree = "<group>"; };
 		8BD92F2018C944190026A014 /* BVSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BVSettings.m; path = ../../Samples/MyTestiOSApp/MyTestiOSApp/BVSettings.m; sourceTree = "<group>"; };
+		9722233519A813BB00092E85 /* MyTestMacOSApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MyTestMacOSApp.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,6 +128,7 @@
 		8BD92EE718C93BE70026A014 /* MyTestMacOSApp */ = {
 			isa = PBXGroup;
 			children = (
+				9722233519A813BB00092E85 /* MyTestMacOSApp.entitlements */,
 				8BD92F1F18C944190026A014 /* BVSettings.h */,
 				8BD92F2018C944190026A014 /* BVSettings.m */,
 				8BD92F1A18C943580026A014 /* BVTestInstance.h */,
@@ -219,6 +221,14 @@
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Microsoft Open Technologies, Inc";
 				TargetAttributes = {
+					8BD92EDD18C93BE70026A014 = {
+						DevelopmentTeam = 4XAC8VP2M2;
+						SystemCapabilities = {
+							com.apple.Keychain = {
+								enabled = 1;
+							};
+						};
+					};
 					8BD92F0118C93BE70026A014 = {
 						TestTargetID = 8BD92EDD18C93BE70026A014;
 					};
@@ -401,12 +411,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MyTestMacOSApp/MyTestMacOSApp.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MyTestMacOSApp/MyTestMacOSApp-Prefix.pch";
 				INFOPLIST_FILE = "MyTestMacOSApp/MyTestMacOSApp-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -415,12 +429,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MyTestMacOSApp/MyTestMacOSApp.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MyTestMacOSApp/MyTestMacOSApp-Prefix.pch";
 				INFOPLIST_FILE = "MyTestMacOSApp/MyTestMacOSApp-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
