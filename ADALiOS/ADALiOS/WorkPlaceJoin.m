@@ -57,6 +57,7 @@ NSString* _oauthClientId;
     RegistrationInformation *userRegInfo = [self getRegistrationInformation];
     BOOL certExists = [userRegInfo certificate] != NULL;
     [userRegInfo releaseData];
+    userRegInfo = nil;
     return certExists;
 }
 

@@ -39,8 +39,6 @@
 		8B34344A18330591002DE1DC /* ADAuthenticationBroker.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34344918330591002DE1DC /* ADAuthenticationBroker.m */; };
 		8B34344F183305A6002DE1DC /* ADAuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34344C183305A6002DE1DC /* ADAuthenticationViewController.m */; };
 		8B343450183305A6002DE1DC /* ADAuthenticationWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34344E183305A6002DE1DC /* ADAuthenticationWebViewController.m */; };
-		8B51F11218F5F21F0055815E /* ADURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B51F11118F5F21F0055815E /* ADURLProtocol.m */; };
-		8B51F11518F5F4840055815E /* ADWorkplaceJoined.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B51F11418F5F4840055815E /* ADWorkplaceJoined.m */; };
 		8B59893A180DE00300744AEE /* ADAuthenticationOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B598939180DE00300744AEE /* ADAuthenticationOperation.m */; };
 		8B59893E180DE8A100744AEE /* ADUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B59893D180DE8A100744AEE /* ADUserInformation.m */; };
 		8B59894A180DF7A900744AEE /* ADUserInformation.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B59893C180DE8A100744AEE /* ADUserInformation.h */; };
@@ -179,10 +177,6 @@
 		8B34344C183305A6002DE1DC /* ADAuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationViewController.m; sourceTree = "<group>"; };
 		8B34344D183305A6002DE1DC /* ADAuthenticationWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationWebViewController.h; sourceTree = "<group>"; };
 		8B34344E183305A6002DE1DC /* ADAuthenticationWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationWebViewController.m; sourceTree = "<group>"; };
-		8B51F11018F5F21F0055815E /* ADURLProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADURLProtocol.h; sourceTree = "<group>"; };
-		8B51F11118F5F21F0055815E /* ADURLProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADURLProtocol.m; sourceTree = "<group>"; };
-		8B51F11318F5F4840055815E /* ADWorkplaceJoined.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWorkplaceJoined.h; sourceTree = "<group>"; };
-		8B51F11418F5F4840055815E /* ADWorkplaceJoined.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWorkplaceJoined.m; sourceTree = "<group>"; };
 		8B598938180DE00300744AEE /* ADAuthenticationOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationOperation.h; sourceTree = "<group>"; };
 		8B598939180DE00300744AEE /* ADAuthenticationOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationOperation.m; sourceTree = "<group>"; };
 		8B59893C180DE8A100744AEE /* ADUserInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADUserInformation.h; sourceTree = "<group>"; };
@@ -450,8 +444,6 @@
 				8B92DB6A181ADE44004AAB0E /* NSString+ADHelperMethods.h */,
 				8B92DB6B181ADE44004AAB0E /* NSString+ADHelperMethods.m */,
 				8B0965B017F25770002BDFB8 /* Supporting Files */,
-				8B51F11318F5F4840055815E /* ADWorkplaceJoined.h */,
-				8B51F11418F5F4840055815E /* ADWorkplaceJoined.m */,
 			);
 			path = ADALiOS;
 			sourceTree = "<group>";
@@ -502,8 +494,6 @@
 			isa = PBXGroup;
 			children = (
 				8B2E422D182C0A2600A38559 /* iOS */,
-				8B51F11018F5F21F0055815E /* ADURLProtocol.h */,
-				8B51F11118F5F21F0055815E /* ADURLProtocol.m */,
 				8B34343518330474002DE1DC /* NSDictionary+ADExtensions.h */,
 				8B34343618330474002DE1DC /* NSDictionary+ADExtensions.m */,
 				8B34343B183304B1002DE1DC /* NSURL+ADExtensions.h */,
@@ -834,7 +824,6 @@
 			files = (
 				8B343450183305A6002DE1DC /* ADAuthenticationWebViewController.m in Sources */,
 				9722234419AB060200092E85 /* RegistrationInformation.m in Sources */,
-				8B51F11218F5F21F0055815E /* ADURLProtocol.m in Sources */,
 				8B7E6FC81856A1E8000DC3C8 /* ADOAuth2Constants.m in Sources */,
 				9722234619AB060200092E85 /* WorkPlaceJoinUtil.m in Sources */,
 				9722234319AB060200092E85 /* OpenSSLHelper.m in Sources */,
@@ -854,7 +843,6 @@
 				8B92DB70181B2335004AAB0E /* ADLogger.m in Sources */,
 				8B5989551811B89800744AEE /* ADTokenCacheStoreKey.m in Sources */,
 				9722233819AB05D700092E85 /* ADPkeyAuthHelper.m in Sources */,
-				8B51F11518F5F4840055815E /* ADWorkplaceJoined.m in Sources */,
 				8B0DA7DE182AD01100CF5E1E /* ADAuthenticationResult+Internal.m in Sources */,
 				8BBE6FB41964DC440039C23E /* ADAuthenticationContext.m in Sources */,
 				8B5989511811A3DB00744AEE /* ADAuthenticationError.m in Sources */,
