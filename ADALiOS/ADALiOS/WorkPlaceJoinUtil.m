@@ -72,13 +72,12 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
             AD_LOG_VERBOSE(@"Found certificate in keychain", nil);
             certificateSubject = (__bridge NSString *)(SecCertificateCopySubjectSummary(certificate));
             certificateData = (__bridge NSData *)(SecCertificateCopyData(certificate));
-            
-            
         }
         
         //Get the private key and data
         SecIdentityCopyPrivateKey(identity, &privateKey);
-        if (error)
+        privateKey = [self getPrivateKeyRef];
+        if (!privateKey)
         {
             if (certificateSubject)
                 CFRelease((__bridge CFTypeRef)(certificateSubject));
@@ -87,11 +86,9 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
             
             return nil;
         }
-        
-        privateKey = [self getPrivateKeyRef];
     }
     
-    if(identity && certificate && certificateSubject && certificateData && privateKey && privateKeyData)
+    if(identity && certificate && certificateSubject && certificateData && privateKey)
     {
         RegistrationInformation *info = [[RegistrationInformation alloc] initWithSecurityIdentity:identity
                                                                                 userPrincipalName:userPrincipalName

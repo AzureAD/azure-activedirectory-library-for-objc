@@ -20,11 +20,14 @@
 
 @implementation RegistrationInformation
 
-
 @synthesize certificate      = _certificate;
 @synthesize identity  = _identity;
 @synthesize privateKey   = _privateKey;
-
+@synthesize userPrincipalName = _userPrincipalName;
+@synthesize certificateSubject = _certificateSubject;
+@synthesize certificateData = _certificateData;
+@synthesize certificateProperties = _certificateProperties;
+@synthesize privateKeyData = _privateKeyData;
 
 -(id)initWithSecurityIdentity:(SecIdentityRef)identity
             userPrincipalName:(NSString*)userPrincipalName
@@ -68,30 +71,48 @@
     if(self){
         if(_identity){
             CFRelease(_identity);
+            _identity = nil;
         }
         
         if(_certificate){
             CFRelease(_certificate);
+            _certificate = nil;
         }
         
         if(_privateKey){
             CFRelease(_privateKey);
+            _privateKey = nil;
         }
         
         if(_privateKeyData){
             CFRelease((__bridge CFTypeRef)_privateKeyData);
+            _privateKeyData = nil;
         }
         
         if(_certificateSubject){
             CFRelease((__bridge CFTypeRef)(_certificateSubject));
+            _certificateSubject = nil;
         }
         
         if(_certificateData){
             CFRelease((__bridge CFTypeRef)(_certificateData));
+            _certificateData = nil;
         }
         if(_privateKeyData){
             CFRelease((__bridge CFTypeRef)_privateKeyData);
+            _privateKeyData = nil;
         }
+        
+        if(_userPrincipalName){
+            CFRelease((__bridge CFTypeRef)(_userPrincipalName));
+            _userPrincipalName = nil;
+        }
+        
+        if(_certificateProperties){
+            CFRelease((__bridge CFTypeRef)(_certificateProperties));
+            _certificateProperties = nil;
+        }
+        
     }
 }
 
