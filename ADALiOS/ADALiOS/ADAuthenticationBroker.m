@@ -24,7 +24,6 @@
 #import "ADAuthenticationViewController.h"
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
-#import "ADWorkplaceJoined.h"
 
 NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current view controller";
 NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
@@ -219,11 +218,6 @@ correlationId:(NSUUID *)correlationId
         }
         if ( parent )
         {
-            _clientTLSSession = [ADWorkplaceJoined startWebViewTLSSessionWithError:nil];
-            if (_clientTLSSession)
-            {
-                AD_LOG_INFO(@"Authorization UI", @"The device is workplace joined. Client TLS Session started.");
-            }
             // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
             UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
             
@@ -288,11 +282,6 @@ correlationId:(NSUUID *)correlationId
     //       be resilient to this condition and should not generate
     //       two callbacks.
     [_completionLock lock];
-    
-    if (_clientTLSSession)
-    {
-        [ADWorkplaceJoined endWebViewTLSSession];
-    }
     if ( _completionBlock )
     {
         if ( _completionBlock )

@@ -45,6 +45,7 @@
     }
     
     [info releaseData];
+    info = nil;
     return [NSString stringWithFormat:authHeaderTemplate, pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
 }
 
@@ -154,6 +155,7 @@
     CFRetain(signature);
     signedHash = (__bridge id)signature;
     CFRelease(signingTransform);
+    CFRelease(signature);
     
 #endif
     return signedHash;
