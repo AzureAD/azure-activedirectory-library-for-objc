@@ -155,7 +155,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
                         *error = adError;
                     }
                     
-                    _SAFE_ARC_RELEASE(self);
+                    SAFE_ARC_RELEASE(self);
                     return nil;
                 }
             
