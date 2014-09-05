@@ -20,6 +20,9 @@
 
 @interface ADKeychainTokenCacheStore : NSObject<ADTokenCacheStoring>
 
+/* Initializes the token cache store with default shared group value.
+ */
+-(id) init;
 /*! Initializes the token cache store.
  @param: sharedGroup: Optional. If the application needs to share the cached tokens
  with other applications from the same vendor, the app will need to specify the 

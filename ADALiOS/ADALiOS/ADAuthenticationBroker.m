@@ -38,6 +38,7 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 // Implementation
 @implementation ADAuthenticationBroker
 {
+    UIViewController* parentController;
     ADAuthenticationViewController    *_authenticationViewController;
     ADAuthenticationWebViewController *_authenticationWebViewController;
     
@@ -251,6 +252,7 @@ correlationId:(NSUUID *)correlationId
         }
         if ( parent )
         {
+            parentController = parent;
             // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
             UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
             
@@ -343,7 +345,7 @@ correlationId:(NSUUID *)correlationId
     if ( nil != _authenticationViewController)
     {
         // Dismiss the authentication view and dispatch the completion block
-        [[UIApplication adCurrentViewController] dismissViewControllerAnimated:YES completion:^{
+        [parentController dismissViewControllerAnimated:YES completion:^{
             [self dispatchCompletionBlock:error URL:nil];
         }];
     }
