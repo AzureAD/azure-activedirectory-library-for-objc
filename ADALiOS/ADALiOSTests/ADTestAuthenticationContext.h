@@ -51,10 +51,12 @@
                                             error: (ADAuthenticationError* __autoreleasing *) error;
 
 //Override of the parent's request to allow testing of the class behavior.
--(void)request:(NSString *)authorizationServer
-   requestData:(NSDictionary *)request_data
+- (void)request:(NSString *)authorizationServer
+    requestData:(NSDictionary *)request_data
 requestCorrelationId: (NSUUID*) requestCorrelationId
-    completion:( void (^)(NSDictionary *) )completionBlock;
+isHandlingPKeyAuthChallenge: (BOOL) isHandlingPKeyAuthChallenge
+additionalHeaders:(NSDictionary *)additionalHeaders
+     completion:( void (^)(NSDictionary *) )completionBlock;
 
 
 @end
