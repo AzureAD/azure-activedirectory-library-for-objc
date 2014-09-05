@@ -29,6 +29,7 @@ NSString* const sNilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";//A special at
 NSString* const sDelimiter = @"|";
 NSString* const sKeyChainlog = @"Keychain token cache store";
 NSString* const sMultiUserError = @"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used.";
+NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
 
 const long sKeychainVersion = 1;//will need to increase when we break the forward compatibility
 
@@ -49,7 +50,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 //Shouldn't be called.
 -(id) init
 {
-    return [self initWithGroup:nil];
+    return [self initWithGroup:sKeychainSharedGroup];
 }
 
 -(id) initWithGroup: (NSString *)sharedGroup

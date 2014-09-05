@@ -114,7 +114,7 @@ NSTimer *timer;
 #pragma unused(webView)
 #pragma unused(navigationType)
     
-    DebugLog( @"URL: %@", request.URL.absoluteString );
+    //DebugLog( @"URL: %@", request.URL.absoluteString );
     NSString *requestURL = [request.URL absoluteString];
     
     // check for pkeyauth challenge.
