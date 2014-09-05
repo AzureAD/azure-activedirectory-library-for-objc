@@ -42,7 +42,7 @@ NSTimer *timer;
     if ( ( self = [super init] ) != nil )
     {
         _startURL  = [startURL copy];
-        _endURL    = [[endURL absoluteString] lowercaseString];
+        _endURL    = [endURL absoluteString];
         
         _complete  = NO;
         _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
@@ -112,7 +112,7 @@ NSTimer *timer;
 #pragma unused(navigationType)
     
     
-    DebugLog( @"URL: %@", request.URL.absoluteString );
+    //DebugLog( @"URL: %@", request.URL.absoluteString );
     NSString *requestURL = [request.URL absoluteString];
     
     // check for pkeyauth challenge.
