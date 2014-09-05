@@ -62,14 +62,8 @@
 
 - (void) testCopy
 {
-    ADAuthenticationError* error = nil;
-    ADUserInformation* userInfo = [ADUserInformation userInformationWithUserId:@"valid user" error:&error];
-    ADAssertNoError;
+    ADUserInformation* userInfo = [self adCreateUserInformation];
     XCTAssertNotNil(userInfo);
-    userInfo.givenName = @"given name  ";
-    userInfo.familyName = @"  family name";
-    userInfo.identityProvider = @" asdf afds";
-    userInfo.userIdDisplayable = YES;//Non-default value
     
     ADUserInformation* copy = [userInfo copy];
     XCTAssertNotNil(copy);
@@ -79,6 +73,7 @@
     ADAssertStringEquals(userInfo.familyName, copy.familyName);
     ADAssertStringEquals(userInfo.identityProvider, copy.identityProvider);
     XCTAssertEqual(userInfo.userIdDisplayable, copy.userIdDisplayable);
+    XCTAssertEqual(userInfo.allClaims, copy.allClaims);
 }
 
 - (void) testIdTokenNormal
@@ -90,6 +85,9 @@
     ADAssertStringEquals(userInfo.userId.lowercaseString, @"boris@msopentechbv.onmicrosoft.com");
     ADAssertStringEquals(userInfo.familyName, @"Vidolovv");
     ADAssertStringEquals(userInfo.givenName, @"Boriss");
+    ADAssertStringEquals(userInfo.rawIdToken, normalToken);
+    //Test one random property:
+    ADAssertStringEquals([userInfo.allClaims objectForKey:@"given_name"], userInfo.givenName);
 }
 
 -(void) testIdTokenBad

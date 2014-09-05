@@ -18,6 +18,7 @@
 #import "ADAL.h"
 #import "ADKeyChainHelper.h"
 #import "ADKeyChainHelper.h"
+#import "WorkPlaceJoinUtil.h"
 
 extern NSString* const sKeyChainlog;
 
@@ -47,7 +48,9 @@ extern NSString* const sKeyChainlog;
     mValueDataKey = (__bridge id)kSecValueData;
     _classValue = classValue;
     _genericValue = generic;
-    _sharedGroup = sharedGroup;
+    if(sharedGroup){
+        _sharedGroup = [NSString stringWithFormat:@"%@.%@", [[WorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix], sharedGroup];
+    }
     
     return self;
 }
@@ -79,7 +82,7 @@ extern NSString* const sKeyChainlog;
                      error: (ADAuthenticationError* __autoreleasing*) error
 {
     RETURN_NO_ON_NIL_ARGUMENT(attributes);
-
+    
     NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:attributes];
     [self addStandardAttributes:query];
     
@@ -133,7 +136,7 @@ extern NSString* const sKeyChainlog;
         case errSecItemNotFound:
         {
             NSString* errorDetails = [NSString stringWithFormat:@"Cannot update a keychain item, as it is not present anymore. Attributes: %@",
-                                    attributes];
+                                      attributes];
             toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
                                                               protocolCode:nil
                                                               errorDetails:errorDetails];
@@ -211,10 +214,10 @@ extern NSString* const sKeyChainlog;
     
     [updatedAttributes addEntriesFromDictionary:
      @{
-        (__bridge id)kSecAttrIsInvisible:(__bridge id)kCFBooleanTrue, // do not show in the keychain UI
-        (__bridge id)kSecAttrAccessible:(__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly, // do not roam or migrate to other devices
-        mValueDataKey:value,//Item data
-    }];
+       (__bridge id)kSecAttrIsInvisible:(__bridge id)kCFBooleanTrue, // do not show in the keychain UI
+       (__bridge id)kSecAttrAccessible:(__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly, // do not roam or migrate to other devices
+       mValueDataKey:value,//Item data
+       }];
     
     OSStatus res = SecItemAdd((__bridge CFMutableDictionaryRef)updatedAttributes, NULL);
     if (errSecSuccess != res)

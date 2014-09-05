@@ -36,6 +36,8 @@ typedef NSViewController   ViewController;
 typedef WebView WebViewType;
 #endif
 
+@class UIViewController;
+
 #if __has_feature(objc_arc_weak)
 #   define weak_property   weak
 #   define __weak_delegate __weak
@@ -64,7 +66,7 @@ typedef enum
 
 @class ADAuthenticationResult;
 
-/*! The completion block declaration */
+/*! The completion block declaration. */
 typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 
 /*! The central class for managing multiple tokens. Usage: create one per AAD or ADFS authority.
@@ -80,8 +82,8 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     NSUUID   *_correlationId;
     id<ADTokenCacheStoring> _tokenCacheStore;
     __weak_delegate ViewController *_parentController;
+    __weak_delegate WebViewType *_webView;
     BOOL _validateAuthority;
-    __weak WebViewType *_webView;
 }
 
 /*! The method allows subclassing of ADAuthenticationContext. For direct class usage, the static factory methods
@@ -157,6 +159,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 
 /*! The parent view controller for the authentication view controller UI. */
 @property (weak_property, atomic) ViewController* parentController;
+
 
 /*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
  when needed, leveraging the parentController property. */

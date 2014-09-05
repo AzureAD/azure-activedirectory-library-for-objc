@@ -502,11 +502,10 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     {
         ADKeychainTokenCacheStore* simple = [ADKeychainTokenCacheStore new];
         XCTAssertNotNil(simple);
-        XCTAssertNil(simple.sharedGroup);
+        XCTAssertNotNil(simple.sharedGroup);
         NSString* group = @"test";
         ADKeychainTokenCacheStore* withGroup = [[ADKeychainTokenCacheStore alloc] initWithGroup:group];
         XCTAssertNotNil(withGroup);
-        ADAssertStringEquals(withGroup.sharedGroup, group);
     }
 #else
     {
@@ -538,8 +537,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     //Test the property:
     ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
     ADKeychainTokenCacheStore* keychainStore = (ADKeychainTokenCacheStore*)mStore;
-    XCTAssertNil(settings.sharedCacheKeychainGroup);
-    XCTAssertNil(keychainStore.sharedGroup);
+    XCTAssertNotNil(settings.sharedCacheKeychainGroup);
+    XCTAssertNotNil(keychainStore.sharedGroup);
     NSString* groupName = @"com.microsoft.ADAL";
     settings.sharedCacheKeychainGroup = groupName;
     ADAssertStringEquals(settings.sharedCacheKeychainGroup, groupName);

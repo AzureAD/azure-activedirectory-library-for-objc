@@ -451,7 +451,6 @@ const int sAsyncContextTimeout = 10;
         ADAssertNoError;
         XCTAssertNotNil(info, "Nil user info returned.");
         item.userInformation = info;
-        item.userInformation.tenantId = @"msopentech.com";
     }
     
     [mDefaultTokenCache addOrUpdateItem:item error:&error];

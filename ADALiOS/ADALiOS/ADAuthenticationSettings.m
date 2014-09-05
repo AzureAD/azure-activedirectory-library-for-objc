@@ -56,7 +56,6 @@
 #else
         _defaultTokenCacheStore     = [[ADPersistentTokenCacheStore alloc] initWithLocation:nil];
 #endif
-        self.clientTLSKeychainGroup = nil;
     }
     return self;
 }

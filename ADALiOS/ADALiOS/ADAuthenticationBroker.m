@@ -24,7 +24,6 @@
 #import "ADAuthenticationViewController.h"
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
-#import "ADWorkplaceJoined.h"
 
 NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current view controller";
 NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
@@ -38,6 +37,7 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 // Implementation
 @implementation ADAuthenticationBroker
 {
+    UIViewController* parentController;
     ADAuthenticationViewController    *_authenticationViewController;
     
     NSLock                             *_completionLock;
@@ -219,13 +219,10 @@ correlationId:(NSUUID *)correlationId
         }
         if ( parent )
         {
-            _clientTLSSession = [ADWorkplaceJoined startWebViewTLSSessionWithError:nil];
-            if (_clientTLSSession)
-            {
-                AD_LOG_INFO(@"Authorization UI", @"The device is workplace joined. Client TLS Session started.");
-            }
+            parentController = parent;
             // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
             UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
+            
             if (navigationController)
             {
                 _authenticationPageController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
@@ -246,7 +243,7 @@ correlationId:(NSUUID *)correlationId
                     });
                 }];
             }
-            else
+            else //Navigation controller
             {
                 error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
                                                                protocolCode:nil
@@ -258,6 +255,7 @@ correlationId:(NSUUID *)correlationId
             error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
                                                            protocolCode:nil
                                                            errorDetails:AD_FAILED_NO_CONTROLLER];
+            
         }
     }
     
@@ -286,11 +284,6 @@ correlationId:(NSUUID *)correlationId
     //       be resilient to this condition and should not generate
     //       two callbacks.
     [_completionLock lock];
-    
-    if (_clientTLSSession)
-    {
-        [ADWorkplaceJoined endWebViewTLSSession];
-    }
     if ( _completionBlock )
     {
         if ( _completionBlock )
@@ -323,7 +316,7 @@ correlationId:(NSUUID *)correlationId
         if ( _authenticationPageController)
         {
             // Dismiss the authentication view and dispatch the completion block
-            [[UIApplication adCurrentViewController] dismissViewControllerAnimated:YES completion:^{
+            [parentController dismissViewControllerAnimated:YES completion:^{
                 [self dispatchCompletionBlock:error URL:nil];
             }];
         }

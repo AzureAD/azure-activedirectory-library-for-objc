@@ -24,16 +24,9 @@
 // OSX Universal Compatibility
 @private
     NSString *_userId;
-    NSString *_givenName;
-    NSString *_familyName;
-    NSString *_identityProvider;
-    NSString *_eMail;
-    NSString *_uniqueName;
-    NSString *_upn;
-    NSString *_tenantId;
-    NSString *_subject;
-    NSString *_guestId;
-    NSString *_userObjectId;
+    NSString *_rawIdToken;
+    NSDictionary *_allClaims;
+
     
     BOOL      _userIdDisplayable;
 }
@@ -53,40 +46,43 @@
 @property (retain, readonly) NSString* userId;
 
 /*! Determines whether userId is displayable */
-@property BOOL userIdDisplayable;
+@property (readonly) BOOL userIdDisplayable;
 
 /*! May be null */
-@property (retain, atomic) NSString* givenName;
+@property (retain, atomic, readonly, getter = getGivenName) NSString* givenName;
 
 /*! May be null */
-@property (retain, atomic) NSString* familyName;
+@property (retain, atomic, readonly, getter = getFamilyName) NSString* familyName;
 
 /*! May be null */
-@property (retain, atomic) NSString* identityProvider;
+@property (retain, atomic, readonly, getter = getIdentityProvider) NSString* identityProvider;
 
 /*! May be null */
-@property (retain, atomic) NSString* eMail;
+@property (retain, atomic, readonly, getter = getEMail) NSString* eMail;
 
 /*! May be null */
-@property (retain, atomic) NSString* uniqueName;
+@property (retain, atomic, readonly, getter = getUniqueName) NSString* uniqueName;
 
 /*! May be null */
-@property (retain, atomic) NSString* upn;
-
-/*! May be null */
-@property (retain, atomic) NSString* tenantId;
-
-/*! May be null */
-@property (retain, atomic) NSString* subject;
-
-/*! Unique object id that identifies the user. Internal user representation. May be null. " */
-@property (retain, atomic) NSString* userObjectId;
+@property (retain, atomic, readonly, getter = getUpn) NSString* upn;
 
 /*! Internal representation for guest users to the tenants. May be null. */
-@property (retain, atomic) NSString* guestId;
+@property (retain, atomic, readonly, getter = getTenantId) NSString* tenantId;
 
-/* A helper method to normalize userId, e.g. remove white spaces, lowercase. 
- Returns nil if userId is nil or empty. */
+@property (retain, atomic, readonly, getter = getSubject) NSString* subject;
+
+/*! Unique object id that identifies the user. Internal user representation. May be null.*/
+@property (retain, atomic, readonly, getter = getUserObjectId) NSString* userObjectId;
+
+@property (retain, atomic, readonly, getter = getGuestId) NSString* guestId;
+
+/* A helper method to normalize userId, e.g. remove white spaces, lowercase.*/
 +(NSString*) normalizeUserId: (NSString*) userId;
+
+/*! The raw id_token claim string. */
+@property (retain, atomic, readonly) NSString* rawIdToken;
+
+/*! Contains all claims that had been read from the id_token. May be null, if the object was not created from a real id_token. */
+@property (retain, atomic, readonly) NSDictionary* allClaims;
 
 @end

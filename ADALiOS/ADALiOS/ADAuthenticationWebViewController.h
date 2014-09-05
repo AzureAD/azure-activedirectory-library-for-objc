@@ -42,6 +42,7 @@ typedef WebView   WebViewType;
     NSURL    *_startURL;
     NSString *_endURL;
     BOOL      _complete;
+    float     _timeout;
     
 #if TARGET_OS_IPHONE
     __weak id<UIWebViewDelegate> _parentDelegate;
