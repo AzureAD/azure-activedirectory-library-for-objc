@@ -981,7 +981,10 @@ return; \
         item.expiresOn       = expires;
         [ADLogger logToken:accessToken tokenType:@"access token" expiresOn:expires correlationId:responseUUID];
         
-        item.refreshToken    = [response objectForKey:OAUTH2_REFRESH_TOKEN];
+        if([response objectForKey:OAUTH2_REFRESH_TOKEN]){
+            item.refreshToken    = [response objectForKey:OAUTH2_REFRESH_TOKEN];
+        }
+        
         NSString* resource   = [response objectForKey:OAUTH2_RESOURCE];
         BOOL multiResourceRefreshToken = NO;
         if (![NSString adIsStringNilOrBlank:resource])
