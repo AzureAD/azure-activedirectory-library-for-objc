@@ -40,7 +40,6 @@
         //exists. Hence for now, we create the connection on the main thread by default:
         self.dispatchQueue = dispatch_get_main_queue();
         self.defaultTokenCacheStore = [ADKeychainTokenCacheStore new];
-        self.clientTLSKeychainGroup = nil;
     }
     return self;
 }

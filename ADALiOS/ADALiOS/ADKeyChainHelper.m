@@ -18,6 +18,7 @@
 #import "ADALiOS.h"
 #import "ADKeyChainHelper.h"
 #import "ADKeyChainHelper.h"
+#import "ADWorkPlaceJoinUtil.h"
 
 extern NSString* const sKeyChainlog;
 
@@ -47,8 +48,9 @@ extern NSString* const sKeyChainlog;
     mValueDataKey = (__bridge id)kSecValueData;
     _classValue = classValue;
     _genericValue = generic;
-    _sharedGroup = sharedGroup;
-    
+    if(sharedGroup){
+        _sharedGroup = [NSString stringWithFormat:@"%@.%@", [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix], sharedGroup];
+    }
     return self;
 }
 
