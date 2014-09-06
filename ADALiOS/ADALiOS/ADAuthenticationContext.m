@@ -396,7 +396,12 @@ return; \
     if (!item && !localError && userId)
     {//ADFS fix, where the userId is not received by the server, but can be passed to the API:
         //We didn't find element with the userId, try finding an item with nil userId:
-        item = [self.tokenCacheStore getItemWithKey:key userId:nil error:&localError];
+        NSArray* items = [self.tokenCacheStore getItemsWithKey:key error:&localError];
+        if(items.count) {
+            item = items.firstObject;
+        }else{
+            item = nil;
+        }
         if (item && item.userInformation)
         {
             item = nil;//Different user id, just clear.
