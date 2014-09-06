@@ -439,7 +439,13 @@ return; \
     if (!item && !localError && userId)
     {//ADFS fix, where the userId is not received by the server, but can be passed to the API:
         //We didn't find element with the userId, try finding an item with nil userId:
-        item = [self.tokenCacheStore getItemWithKey:key userId:nil error:&localError];
+        NSArray* items = [self.tokenCacheStore getItemsWithKey:key error:&localError];
+        if(items.count) {
+            item = items.firstObject;
+        }else{
+            item = nil;
+        }
+        
         if (item && item.userInformation)
         {
             item = nil;//Different user id, just clear.
@@ -981,7 +987,10 @@ return; \
         item.expiresOn       = expires;
         [ADLogger logToken:accessToken tokenType:@"access token" expiresOn:expires correlationId:responseUUID];
         
-        item.refreshToken    = [response objectForKey:OAUTH2_REFRESH_TOKEN];
+        if([response objectForKey:OAUTH2_REFRESH_TOKEN]){
+            item.refreshToken    = [response objectForKey:OAUTH2_REFRESH_TOKEN];
+        }
+        
         NSString* resource   = [response objectForKey:OAUTH2_RESOURCE];
         BOOL multiResourceRefreshToken = NO;
         if (![NSString adIsStringNilOrBlank:resource])
@@ -1370,7 +1379,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     //pkeyauth word length=8 + 1 whitespace
     wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[pKeyAuthName length] + 1];
     wwwAuthHeaderValue = [wwwAuthHeaderValue stringByReplacingOccurrencesOfString:@"\""
-                                         withString:@""];
+                                                                       withString:@""];
     NSArray* headerPairs = [wwwAuthHeaderValue componentsSeparatedByString:@","];
     NSMutableDictionary* headerKeyValuePair = [[NSMutableDictionary alloc]init];
     for(int i=0; i<[headerPairs count]; ++i) {
