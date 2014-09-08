@@ -398,7 +398,7 @@ return; \
         //We didn't find element with the userId, try finding an item with nil userId:
         NSArray* items = [self.tokenCacheStore getItemsWithKey:key error:&localError];
         if(items.count) {
-            item = items.firstObject;
+            item = [items objectAtIndex:0];
         }else{
             item = nil;
         }
