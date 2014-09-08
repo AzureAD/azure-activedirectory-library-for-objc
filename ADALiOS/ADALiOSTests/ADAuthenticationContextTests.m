@@ -757,7 +757,7 @@ const int sAsyncContextTimeout = 10;
     [self.testContext->mResponse1 setObject:mResource forKey:OAUTH2_RESOURCE];
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_SUCCEEDED);
-    XCTAssertFalse(mResult.multiResourceRefreshToken);
+    XCTAssertTrue(mResult.multiResourceRefreshToken);
     ADAssertLongEquals(3, [self cacheCount]);
     [self verifyCacheWithResource:oldResource accessToken:accessToken2 refreshToken:nil line:__LINE__];
     [self verifyCacheWithResource:nil accessToken:nil refreshToken:broadToken2 line:__LINE__];
