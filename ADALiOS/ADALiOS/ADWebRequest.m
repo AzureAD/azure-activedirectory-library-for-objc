@@ -26,6 +26,8 @@
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
 
+static NSOperationQueue *queue;
+
 @interface ADWebRequest () <NSURLConnectionDelegate>
 
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response;
@@ -90,7 +92,6 @@ NSString *const HTTPPost = @"POST";
     THROW_ON_CONDITION_ARGUMENT(![self verifyRequestURL:requestURL], requestURL);//Should have been checked by the caller
     
     self = [super init];
-
     if ( nil != self )
     {
         _connection        = nil;
@@ -108,6 +109,8 @@ NSString *const HTTPPost = @"POST";
         
         _completionHandler = nil;
         _correlationId     = SAFE_ARC_RETAIN(correlationId);
+        queue = [[NSOperationQueue alloc] init];
+        
     }
     
     return self;
@@ -160,7 +163,9 @@ NSString *const HTTPPost = @"POST";
     request.allHTTPHeaderFields = _requestHeaders;
     request.HTTPBody            = _requestData;
     
-    _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:YES];
+    _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
+    [_connection setDelegateQueue:queue];
+    [_connection start];
     
     SAFE_ARC_RELEASE(request);
 }
