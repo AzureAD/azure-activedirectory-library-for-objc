@@ -1250,9 +1250,11 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     
-//    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined ]){
-//        [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
-//    }
+#ifdef TARGET_OS_IPHONE
+    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined ]){
+        [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
+    }
+#endif
     
     if(additionalHeaders){
         for (NSString* key in [additionalHeaders allKeys] ) {
@@ -1377,7 +1379,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
         [headerKeyValuePair setValue:[pair objectAtIndex:1] forKey:[[pair objectAtIndex:0] adTrimmedString]];
     }
     
-    NSString* authHeader = nil;//[ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer challengeData:headerKeyValuePair];
+    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer challengeData:headerKeyValuePair];
     [headerKeyValuePair removeAllObjects];
     [headerKeyValuePair setObject:authHeader forKey:@"Authorization"];
     

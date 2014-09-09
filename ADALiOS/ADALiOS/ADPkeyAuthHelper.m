@@ -31,6 +31,7 @@
 + (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
                          challengeData:(NSDictionary*) challengeData
 {
+#ifdef TARGET_OS_IPHONE
     RegistrationInformation *info = [[WorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
     NSString* authHeaderTemplate = @"PKeyAuth %@ Context=\"%@\", Version=\"%@\"";
     NSString* pKeyAuthHeader = @"";
@@ -47,6 +48,9 @@
     [info releaseData];
     info = nil;
     return [NSString stringWithFormat:authHeaderTemplate, pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
+#else
+    return nil;
+#endif
 }
 
 + (BOOL) isValidIssuer:(NSString*) certAuths
@@ -71,7 +75,8 @@
 + (NSString *) createDeviceAuthResponse:(NSString*) audience
                                   nonce:(NSString*) nonce
                                identity:(RegistrationInformation *) identity{
-
+    
+#ifdef TARGET_OS_IPHONE
     NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];
     NSDictionary *header = @{
                              @"alg" : @"RS256",
@@ -90,6 +95,9 @@
     NSString* signedEncodedDataString = [NSString Base64EncodeData: signedData];
     
     return [NSString stringWithFormat:@"%@.%@", signingInput, signedEncodedDataString];
+#else
+    return nil;
+#endif
 }
 
 +(NSData *) sign: (SecKeyRef) privateKey
@@ -133,29 +141,29 @@
     
 #else
     
-    CFErrorRef error = nil;
-    SecTransformRef signingTransform = SecSignTransformCreate(privateKey, &error);
-    if (signingTransform == NULL)
-        return NULL;
-    
-    Boolean success = SecTransformSetAttribute(signingTransform, kSecDigestTypeAttribute, kSecDigestSHA2, &error);
-    
-    if (success) {
-        success = SecTransformSetAttribute(signingTransform,
-                                           kSecTransformInputAttributeName,
-                                           hashBytes,
-                                           &error) != false;
-    }
-    if (!success) {
-        CFRelease(signingTransform);
-        return NULL;
-    }
-    
-    CFDataRef signature = SecTransformExecute(signingTransform, &error);
-    CFRetain(signature);
-    signedHash = (__bridge id)signature;
-    CFRelease(signingTransform);
-    CFRelease(signature);
+//    CFErrorRef error = nil;
+//    SecTransformRef signingTransform = SecSignTransformCreate(privateKey, &error);
+//    if (signingTransform == NULL)
+//        return NULL;
+//    
+//    Boolean success = SecTransformSetAttribute(signingTransform, kSecDigestTypeAttribute, kSecDigestSHA2, &error);
+//    
+//    if (success) {
+//        success = SecTransformSetAttribute(signingTransform,
+//                                           kSecTransformInputAttributeName,
+//                                           hashBytes,
+//                                           &error) != false;
+//    }
+//    if (!success) {
+//        CFRelease(signingTransform);
+//        return NULL;
+//    }
+//    
+//    CFDataRef signature = SecTransformExecute(signingTransform, &error);
+//    CFRetain(signature);
+//    signedHash = (__bridge id)signature;
+//    CFRelease(signingTransform);
+//    CFRelease(signature);
     
 #endif
     return signedHash;
