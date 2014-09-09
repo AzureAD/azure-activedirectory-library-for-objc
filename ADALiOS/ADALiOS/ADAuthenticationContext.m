@@ -816,7 +816,7 @@ return; \
             [request_data setObject:resource forKey:OAUTH2_RESOURCE];
         }
     
-    dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^
                    {
                        AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@'; user:'%@'", clientId, resource, userId);
                        [self request:self.authority
