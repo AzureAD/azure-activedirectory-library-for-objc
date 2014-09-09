@@ -31,9 +31,12 @@
 #import "ADTokenCacheStoreItem.h"
 #import "ADTokenCacheStoreKey.h"
 #import "ADUserInformation.h"
-#import "WorkPlaceJoin.h"
-#import "ADPkeyAuthHelper.h"
-#import "WorkPlaceJoinConstants.h"
+
+#ifdef TARGET_OS_IPHONE
+    #import "WorkPlaceJoin.h"
+    #import "ADPkeyAuthHelper.h"
+    #import "WorkPlaceJoinConstants.h"
+#endif
 
 NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call acquireToken with 'promptBehavior' not set to AD_PROMPT_NEVER";
@@ -1247,9 +1250,9 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     
-    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined ]){
-        [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
-    }
+//    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined ]){
+//        [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
+//    }
     
     if(additionalHeaders){
         for (NSString* key in [additionalHeaders allKeys] ) {
@@ -1281,6 +1284,8 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                 case 400:
                 case 401:
                 {
+
+#ifdef TARGET_OS_IPHONE
                     if(!isHandlingPKeyAuthChallenge){
                         NSString* wwwAuthValue = [headers valueForKey:wwwAuthenticateHeader];
                         if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName]){
@@ -1288,6 +1293,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                             return;
                         }
                     }
+#endif
                     
                     NSError   *jsonError  = nil;
                     id         jsonObject = [NSJSONSerialization JSONObjectWithData:webResponse.body options:0 error:&jsonError];
@@ -1353,13 +1359,13 @@ additionalHeaders:(NSDictionary *)additionalHeaders
              adURLFormEncode] adBase64UrlEncode];
 }
 
-
 - (void) handlePKeyAuthChallenge:(NSString *)authorizationServer
               wwwAuthHeaderValue:(NSString *)wwwAuthHeaderValue
                      requestData:(NSDictionary *)request_data
             requestCorrelationId: (NSUUID*) requestCorrelationId
                       completion:( void (^)(NSDictionary *) )completionBlock
 {
+#ifdef TARGET_OS_IPHONE
     //pkeyauth word length=8 + 1 whitespace
     wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[pKeyAuthName length] + 1];
     wwwAuthHeaderValue = [wwwAuthHeaderValue stringByReplacingOccurrencesOfString:@"\""
@@ -1371,13 +1377,14 @@ additionalHeaders:(NSDictionary *)additionalHeaders
         [headerKeyValuePair setValue:[pair objectAtIndex:1] forKey:[[pair objectAtIndex:0] adTrimmedString]];
     }
     
-    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer challengeData:headerKeyValuePair];
+    NSString* authHeader = nil;//[ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer challengeData:headerKeyValuePair];
     [headerKeyValuePair removeAllObjects];
     [headerKeyValuePair setObject:authHeader forKey:@"Authorization"];
     
     [self request:authorizationServer requestData:request_data requestCorrelationId:requestCorrelationId isHandlingPKeyAuthChallenge:TRUE additionalHeaders:headerKeyValuePair completion:completionBlock];
+    
+#endif
 }
-
 
 
 @end

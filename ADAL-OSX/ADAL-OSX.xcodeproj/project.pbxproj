@@ -83,17 +83,6 @@
 		8BE8682E18D7BA5100D95ABB /* ADTokenCacheStoreItemTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BE8682118D7BA5100D95ABB /* ADTokenCacheStoreItemTest.m */; };
 		8BE8682F18D7BA5100D95ABB /* ADTokenCacheStoreKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BE8682218D7BA5100D95ABB /* ADTokenCacheStoreKeyTests.m */; };
 		8BE8683018D7BA5100D95ABB /* ADUserInformationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BE8682318D7BA5100D95ABB /* ADUserInformationTests.m */; };
-		9722235219ABCA9D00092E85 /* ADPkeyAuthHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 9722234719ABCA9D00092E85 /* ADPkeyAuthHelper.h */; };
-		9722235319ABCA9D00092E85 /* ADPkeyAuthHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722234819ABCA9D00092E85 /* ADPkeyAuthHelper.m */; };
-		9722235419ABCA9D00092E85 /* OpenSSLHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 9722234919ABCA9D00092E85 /* OpenSSLHelper.h */; };
-		9722235519ABCA9D00092E85 /* OpenSSLHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722234A19ABCA9D00092E85 /* OpenSSLHelper.m */; };
-		9722235619ABCA9D00092E85 /* RegistrationInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = 9722234B19ABCA9D00092E85 /* RegistrationInformation.h */; };
-		9722235719ABCA9D00092E85 /* RegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722234C19ABCA9D00092E85 /* RegistrationInformation.m */; };
-		9722235819ABCA9D00092E85 /* WorkPlaceJoin.h in Headers */ = {isa = PBXBuildFile; fileRef = 9722234D19ABCA9D00092E85 /* WorkPlaceJoin.h */; };
-		9722235919ABCA9D00092E85 /* WorkPlaceJoin.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722234E19ABCA9D00092E85 /* WorkPlaceJoin.m */; };
-		9722235A19ABCA9D00092E85 /* WorkPlaceJoinConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 9722234F19ABCA9D00092E85 /* WorkPlaceJoinConstants.h */; };
-		9722235B19ABCA9D00092E85 /* WorkPlaceJoinUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 9722235019ABCA9D00092E85 /* WorkPlaceJoinUtil.h */; };
-		9722235C19ABCA9D00092E85 /* WorkPlaceJoinUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722235119ABCA9D00092E85 /* WorkPlaceJoinUtil.m */; };
 		974E4E8A19AC655000172D2C /* build-libssl.sh in Resources */ = {isa = PBXBuildFile; fileRef = 974E4E3719AC655000172D2C /* build-libssl.sh */; };
 		974E4E8B19AC655000172D2C /* aes.h in Headers */ = {isa = PBXBuildFile; fileRef = 974E4E3819AC655000172D2C /* aes.h */; };
 		974E4E8C19AC655000172D2C /* asn1.h in Headers */ = {isa = PBXBuildFile; fileRef = 974E4E3919AC655000172D2C /* asn1.h */; };
@@ -272,17 +261,6 @@
 		8BE8682118D7BA5100D95ABB /* ADTokenCacheStoreItemTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADTokenCacheStoreItemTest.m; path = ../../ADALiOS/ADALiOSTests/ADTokenCacheStoreItemTest.m; sourceTree = "<group>"; };
 		8BE8682218D7BA5100D95ABB /* ADTokenCacheStoreKeyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADTokenCacheStoreKeyTests.m; path = ../../ADALiOS/ADALiOSTests/ADTokenCacheStoreKeyTests.m; sourceTree = "<group>"; };
 		8BE8682318D7BA5100D95ABB /* ADUserInformationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADUserInformationTests.m; path = ../../ADALiOS/ADALiOSTests/ADUserInformationTests.m; sourceTree = "<group>"; };
-		9722234719ABCA9D00092E85 /* ADPkeyAuthHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADPkeyAuthHelper.h; path = ../../ADALiOS/ADALiOS/ADPkeyAuthHelper.h; sourceTree = "<group>"; };
-		9722234819ABCA9D00092E85 /* ADPkeyAuthHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADPkeyAuthHelper.m; path = ../../ADALiOS/ADALiOS/ADPkeyAuthHelper.m; sourceTree = "<group>"; };
-		9722234919ABCA9D00092E85 /* OpenSSLHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpenSSLHelper.h; path = ../../ADALiOS/ADALiOS/OpenSSLHelper.h; sourceTree = "<group>"; };
-		9722234A19ABCA9D00092E85 /* OpenSSLHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OpenSSLHelper.m; path = ../../ADALiOS/ADALiOS/OpenSSLHelper.m; sourceTree = "<group>"; };
-		9722234B19ABCA9D00092E85 /* RegistrationInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RegistrationInformation.h; path = ../../ADALiOS/ADALiOS/RegistrationInformation.h; sourceTree = "<group>"; };
-		9722234C19ABCA9D00092E85 /* RegistrationInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RegistrationInformation.m; path = ../../ADALiOS/ADALiOS/RegistrationInformation.m; sourceTree = "<group>"; };
-		9722234D19ABCA9D00092E85 /* WorkPlaceJoin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WorkPlaceJoin.h; path = ../../ADALiOS/ADALiOS/WorkPlaceJoin.h; sourceTree = "<group>"; };
-		9722234E19ABCA9D00092E85 /* WorkPlaceJoin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WorkPlaceJoin.m; path = ../../ADALiOS/ADALiOS/WorkPlaceJoin.m; sourceTree = "<group>"; };
-		9722234F19ABCA9D00092E85 /* WorkPlaceJoinConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WorkPlaceJoinConstants.h; path = ../../ADALiOS/ADALiOS/WorkPlaceJoinConstants.h; sourceTree = "<group>"; };
-		9722235019ABCA9D00092E85 /* WorkPlaceJoinUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WorkPlaceJoinUtil.h; path = ../../ADALiOS/ADALiOS/WorkPlaceJoinUtil.h; sourceTree = "<group>"; };
-		9722235119ABCA9D00092E85 /* WorkPlaceJoinUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WorkPlaceJoinUtil.m; path = ../../ADALiOS/ADALiOS/WorkPlaceJoinUtil.m; sourceTree = "<group>"; };
 		974E4E3719AC655000172D2C /* build-libssl.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "build-libssl.sh"; sourceTree = "<group>"; };
 		974E4E3819AC655000172D2C /* aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes.h; sourceTree = "<group>"; };
 		974E4E3919AC655000172D2C /* asn1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asn1.h; sourceTree = "<group>"; };
@@ -436,9 +414,6 @@
 		4C60D4CE18C6960400F9EAAE /* ADAL-OSX */ = {
 			isa = PBXGroup;
 			children = (
-				9722235D19ABCAB100092E85 /* WorkPlaceJoin */,
-				9722234719ABCA9D00092E85 /* ADPkeyAuthHelper.h */,
-				9722234819ABCA9D00092E85 /* ADPkeyAuthHelper.m */,
 				8BB1E68E1921476300A71479 /* ADWebResponse.h */,
 				8BB1E68F1921476300A71479 /* ADWebResponse.m */,
 				8BB1E6901921476300A71479 /* ADWebRequest.h */,
@@ -544,22 +519,6 @@
 				4C60D4E618C6960500F9EAAE /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		9722235D19ABCAB100092E85 /* WorkPlaceJoin */ = {
-			isa = PBXGroup;
-			children = (
-				9722234919ABCA9D00092E85 /* OpenSSLHelper.h */,
-				9722234A19ABCA9D00092E85 /* OpenSSLHelper.m */,
-				9722234B19ABCA9D00092E85 /* RegistrationInformation.h */,
-				9722234C19ABCA9D00092E85 /* RegistrationInformation.m */,
-				9722234D19ABCA9D00092E85 /* WorkPlaceJoin.h */,
-				9722234E19ABCA9D00092E85 /* WorkPlaceJoin.m */,
-				9722234F19ABCA9D00092E85 /* WorkPlaceJoinConstants.h */,
-				9722235019ABCA9D00092E85 /* WorkPlaceJoinUtil.h */,
-				9722235119ABCA9D00092E85 /* WorkPlaceJoinUtil.m */,
-			);
-			name = WorkPlaceJoin;
 			sourceTree = "<group>";
 		};
 		974E4E8319AC655000172D2C /* openssl */ = {
@@ -710,7 +669,6 @@
 				4C60D61118C697E500F9EAAE /* ADUserInformation.h in Headers */,
 				974E4E9719AC655000172D2C /* comp.h in Headers */,
 				4C60D5F518C697E500F9EAAE /* ADAuthenticationSettings.h in Headers */,
-				9722235819ABCA9D00092E85 /* WorkPlaceJoin.h in Headers */,
 				4C60D60C18C697E500F9EAAE /* ADTokenCacheStoreKey.h in Headers */,
 				4C60D60818C697E500F9EAAE /* ADPersistentTokenCacheStore.h in Headers */,
 				8BB1E6981921476300A71479 /* ADWebRequest.h in Headers */,
@@ -731,7 +689,6 @@
 				4C60D5E118C697E500F9EAAE /* ADAL.h in Headers */,
 				4C60D5FB18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.h in Headers */,
 				974E4EBC19AC655000172D2C /* pqueue.h in Headers */,
-				9722235619ABCA9D00092E85 /* RegistrationInformation.h in Headers */,
 				8BB1E69C1921476300A71479 /* NSDictionary+ADExtensions.h in Headers */,
 				974E4EC719AC655000172D2C /* ssl.h in Headers */,
 				974E4ECF19AC655000172D2C /* txt_db.h in Headers */,
@@ -755,7 +712,6 @@
 				974E4EAD19AC655000172D2C /* lhash.h in Headers */,
 				974E4ECE19AC655000172D2C /* ts.h in Headers */,
 				974E4E8F19AC655000172D2C /* bio.h in Headers */,
-				9722235419ABCA9D00092E85 /* OpenSSLHelper.h in Headers */,
 				974E4E9519AC655000172D2C /* cmac.h in Headers */,
 				974E4ED019AC655000172D2C /* ui.h in Headers */,
 				8BB1E69D1921476300A71479 /* NSURL+ADExtensions.h in Headers */,
@@ -763,7 +719,6 @@
 				4C60D5E418C697E500F9EAAE /* ADAuthenticationBroker.h in Headers */,
 				974E4ED119AC655000172D2C /* ui_compat.h in Headers */,
 				4C60D60018C697E500F9EAAE /* ADInstanceDiscovery.h in Headers */,
-				9722235219ABCA9D00092E85 /* ADPkeyAuthHelper.h in Headers */,
 				974E4ECB19AC655000172D2C /* stack.h in Headers */,
 				974E4ED419AC655000172D2C /* x509_vfy.h in Headers */,
 				974E4EC119AC655000172D2C /* rsa.h in Headers */,
@@ -782,12 +737,10 @@
 				974E4EB919AC655000172D2C /* pem2.h in Headers */,
 				974E4EBE19AC655000172D2C /* rc2.h in Headers */,
 				4C42482818C84D4A00B2E350 /* ADAuthenticationWebViewController.h in Headers */,
-				9722235B19ABCA9D00092E85 /* WorkPlaceJoinUtil.h in Headers */,
 				974E4EB319AC655000172D2C /* objects.h in Headers */,
 				974E4E9619AC655000172D2C /* cms.h in Headers */,
 				974E4EB819AC655000172D2C /* pem.h in Headers */,
 				974E4EBB19AC655000172D2C /* pkcs7.h in Headers */,
-				9722235A19ABCA9D00092E85 /* WorkPlaceJoinConstants.h in Headers */,
 				974E4EC019AC655000172D2C /* ripemd.h in Headers */,
 				974E4EB519AC655000172D2C /* opensslconf.h in Headers */,
 			);
@@ -892,17 +845,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				4C60D5EC18C697E500F9EAAE /* ADAuthenticationOperation.m in Sources */,
-				9722235719ABCA9D00092E85 /* RegistrationInformation.m in Sources */,
-				9722235C19ABCA9D00092E85 /* WorkPlaceJoinUtil.m in Sources */,
-				9722235919ABCA9D00092E85 /* WorkPlaceJoin.m in Sources */,
-				9722235319ABCA9D00092E85 /* ADPkeyAuthHelper.m in Sources */,
 				8BB1E6991921476300A71479 /* ADWebRequest.m in Sources */,
 				8BB1E6971921476300A71479 /* ADWebResponse.m in Sources */,
 				4C60D61C18C697E500F9EAAE /* NSString+ADHelperMethods.m in Sources */,
 				8BB1E69A1921476300A71479 /* NSDictionary+ADExtensions.m in Sources */,
 				4C60D5F018C697E500F9EAAE /* ADAuthenticationParameters+Internal.m in Sources */,
 				4C60D60118C697E500F9EAAE /* ADInstanceDiscovery.m in Sources */,
-				9722235519ABCA9D00092E85 /* OpenSSLHelper.m in Sources */,
 				4C60D5EA18C697E500F9EAAE /* ADAuthenticationError.m in Sources */,
 				4C60D61218C697E500F9EAAE /* ADUserInformation.m in Sources */,
 				4C60D60D18C697E500F9EAAE /* ADTokenCacheStoreKey.m in Sources */,
