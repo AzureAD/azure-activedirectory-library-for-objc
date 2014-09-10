@@ -851,7 +851,7 @@ return; \
     
     dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
                    {
-                       AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@'; user:'%@'", clientId, resource, userId);
+                       AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@';", clientId, resource);
                        [self request:self.authority
                          requestData:request_data
                 requestCorrelationId:correlationId

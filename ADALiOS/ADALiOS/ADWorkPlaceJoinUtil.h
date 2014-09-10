@@ -43,6 +43,4 @@
 
 - (NSString*)getApplicationIdentifierPrefix;
 
-- (void) Log: (NSString*) logMessage;
-
 @end
