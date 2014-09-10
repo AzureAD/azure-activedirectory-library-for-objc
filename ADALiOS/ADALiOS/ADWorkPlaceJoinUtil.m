@@ -19,6 +19,8 @@
 #import "ADWorkPlaceJoinUtil.h"
 #import "ADRegistrationInformation.h"
 #import "ADWorkPlaceJoinConstants.h"
+#import "ADLogger.h"
+#import "ADErrorCodes.h"
 
 @implementation ADWorkPlaceJoinUtil
 
@@ -34,12 +36,11 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     return wpjUtilManager;
 }
 
-- (NSData *)getPrivateKeyForAccessGroup: (NSString*)sharedAccessGroup
+- (NSData *)getPrivateKeyForAccessGroup: (NSString*) sharedAccessGroup
                    privateKeyIdentifier: (NSString*) privateKey
                                   error: (NSError**) error
 {
-    [self Log:[NSString stringWithFormat:@"Getting private key from %@ shared access Group",
-                            sharedAccessGroup]];
+    AD_LOG_VERBOSE_F(@"Getting private key - ", @"%@ shared access Group", sharedAccessGroup);
     OSStatus status = noErr;
     CFDataRef item = NULL;
     NSData *keyData = nil;
@@ -82,8 +83,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
 - (ADRegistrationInformation*)getRegistrationInformation: (NSString*) sharedAccessGroup
                                                  error: (NSError**) error
 {
-    [self Log:[NSString stringWithFormat:@"Attempting to get registration information from %@ shared access keychain",
-                            sharedAccessGroup]];
+    AD_LOG_VERBOSE_F(@"Attempting to get registration information - ", @"%@ shared access Group", sharedAccessGroup);
     
     SecIdentityRef identity = NULL;
     SecCertificateRef certificate = NULL;
@@ -108,12 +108,12 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     //Get the identity		
     if(identity)
     {
-        [self Log:@"Found identity in keychain"];
+        AD_LOG_VERBOSE(@"Found identity in keychain", nil);
         //Get the certificate and data
         SecIdentityCopyCertificate(identity, &certificate);
         if(certificate)
         {
-            [self Log:@"Found certificate in keychain"];
+            AD_LOG_VERBOSE(@"Found certificate in keychain", nil);
             certificateSubject = (__bridge NSString *)(SecCertificateCopySubjectSummary(certificate));
             certificateData = (__bridge NSData *)(SecCertificateCopyData(certificate));
             
@@ -124,7 +124,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
         SecIdentityCopyPrivateKey(identity, &privateKey);
         if(privateKey)
         {
-            [self Log:@"Retrieved privatekey"];
+            AD_LOG_VERBOSE(@"Retrieved privatekey", nil);
             privateKeyData = [self getPrivateKeyForAccessGroup:sharedAccessGroup privateKeyIdentifier:privateKeyIdentifier error:error];
         }
         
@@ -155,9 +155,8 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     }
     else
     {
-        [self Log:[NSString stringWithFormat:@"Unable to extract a workplace join identity from the %@ shared access keychain",
-                                sharedAccessGroup]];
-        
+        AD_LOG_VERBOSE_F(@"Unable to extract a workplace join identity for", @"%@ shared access keychain",
+                                sharedAccessGroup);
         if (certificateSubject)
             CFRelease((__bridge CFTypeRef)(certificateSubject));
         if (certificateData)
@@ -300,7 +299,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
 
 - (NSString*)getApplicationIdentifierPrefix{
     
-    [self Log:@"Looking for application identifier prefix in app data"];
+    AD_LOG_VERBOSE(@"Looking for application identifier prefix in app data", nil);
     NSUserDefaults* c = [NSUserDefaults standardUserDefaults];
     NSString* appIdentifierPrefix = [c objectForKey:applicationIdentifierPrefix];
 
@@ -308,7 +307,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     {
         appIdentifierPrefix = [self bundleSeedID];
         
-        [self Log:@"Storing application identifier prefix in app data"];
+        AD_LOG_VERBOSE(@"Storing application identifier prefix in app data", nil);
         NSUserDefaults* c = [NSUserDefaults standardUserDefaults];
         [c setObject:appIdentifierPrefix forKey:applicationIdentifierPrefix];
         [c synchronize];
@@ -337,12 +336,6 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     
     CFRelease(result);
     return bundleSeedID;
-}
-
-
-- (void) Log: (NSString*) logMessage
-{
-        NSLog(@"%@", logMessage);
 }
 
 - (SecKeyRef)getPrivateKeyRef {

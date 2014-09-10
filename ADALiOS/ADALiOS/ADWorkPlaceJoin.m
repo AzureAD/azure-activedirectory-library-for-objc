@@ -57,7 +57,6 @@ NSString* _oauthClientId;
 
 - (BOOL)isWorkPlaceJoined
 {
-    [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  Log:@"Is workplace joined"];
     ADRegistrationInformation *userRegInfo = [self getRegistrationInformation];
     BOOL certExists = [userRegInfo certificate] != NULL;
     [userRegInfo releaseData];
