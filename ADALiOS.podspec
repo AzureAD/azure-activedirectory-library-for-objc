@@ -18,8 +18,10 @@ Pod::Spec.new do |s|
     :git => "https://github.com/AzureAD/azure-activedirectory-library-for-objc.git", 
     :tag => s.version.to_s
   }
+  s.dependency 'OpenSSL'
   s.source_files = "ADALiOS/ADALiOS/**/*.{h,m}"
   s.resources    = "ADALiOS/ADALiOS/*.storyboard"
   s.preserve_paths = "ADALiOS/ADALiOS/**/*.{h,m}"
+  s.libraries = "OpenSSL"
   s.requires_arc = true
 end
