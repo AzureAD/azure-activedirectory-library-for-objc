@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "ADALiOS"
-  s.version      = "1.1.0"
+  s.version      = "1.1.2"
   s.summary      = "The ADAL SDK for iOS gives you the ability to add Azure Identity authentication to your application"
 
   s.description  = <<-DESC
@@ -18,10 +18,9 @@ Pod::Spec.new do |s|
     :git => "https://github.com/AzureAD/azure-activedirectory-library-for-objc.git", 
     :tag => s.version.to_s
   }
-  s.dependency 'OpenSSL'
+  s.dependency 'OpenSSL', '1.0'
   s.source_files = "ADALiOS/ADALiOS/**/*.{h,m}"
   s.resources    = "ADALiOS/ADALiOS/*.storyboard"
   s.preserve_paths = "ADALiOS/ADALiOS/**/*.{h,m}"
-  s.libraries = "OpenSSL"
   s.requires_arc = true
 end
