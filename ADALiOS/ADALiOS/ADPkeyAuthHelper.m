@@ -53,19 +53,15 @@
     keychainCertIssuer:(NSString*) keychainCertIssuer{
     
     NSArray * acceptedCerts = [certAuths componentsSeparatedByString:@";"];
-    BOOL isMatch = TRUE;
     for (int i=0; i<[acceptedCerts count]; i++) {
-        isMatch = TRUE;
         NSArray * keyPair = [[acceptedCerts objectAtIndex:i] componentsSeparatedByString:@","];
         for(int index=0;index<[keyPair count]; index++){
-            if(![keychainCertIssuer containsObject:[keyPair objectAtIndex:index]]){
-                isMatch = false;
-                break;
+            if([[keyPair objectAtIndex:index] caseInsensitiveCompare:keychainCertIssuer]==NSOrderedSame){
+                return true;
             }
         }
-        if(isMatch) return isMatch;
     }
-    return isMatch;
+    return false;
 }
 
 + (NSString *) createDeviceAuthResponse:(NSString*) audience
