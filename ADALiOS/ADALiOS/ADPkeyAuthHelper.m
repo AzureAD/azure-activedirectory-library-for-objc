@@ -22,6 +22,7 @@
 #import "ADRegistrationInformation.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADWorkPlaceJoin.h"
+#import "ADOpenSSLHelper.h"
 #import "ADLogger.h"
 #import "ADErrorCodes.h"
 
@@ -37,9 +38,8 @@
     NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
     certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
                                                                        withString:@""];
+    NSMutableSet* certIssuer = [ADOpenSSLHelper getCertificateIssuer:[info certificateData]];
     
-    //NSMutableSet* certIssuer = [self getCertIssuer:[info certificate]];
-    NSString* certIssuer = [NSString stringWithFormat:@"OU=%@", [info certificateSubject]];
     if([info isWorkPlaceJoined] && [self isValidIssuer:certAuths keychainCertIssuer:certIssuer]){
         pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
     }
@@ -50,18 +50,22 @@
 }
 
 + (BOOL) isValidIssuer:(NSString*) certAuths
-    keychainCertIssuer:(NSString*) keychainCertIssuer{
+    keychainCertIssuer:(NSMutableSet*) keychainCertIssuer{
     
     NSArray * acceptedCerts = [certAuths componentsSeparatedByString:@";"];
+    BOOL isMatch = TRUE;
     for (int i=0; i<[acceptedCerts count]; i++) {
+        isMatch = TRUE;
         NSArray * keyPair = [[acceptedCerts objectAtIndex:i] componentsSeparatedByString:@","];
         for(int index=0;index<[keyPair count]; index++){
-            if([[keyPair objectAtIndex:index] caseInsensitiveCompare:keychainCertIssuer]==NSOrderedSame){
-                return true;
+            if(![keychainCertIssuer containsObject:[keyPair objectAtIndex:index]]){
+                isMatch = false;
+                break;
             }
         }
+        if(isMatch) return isMatch;
     }
-    return false;
+    return isMatch;
 }
 
 + (NSString *) createDeviceAuthResponse:(NSString*) audience
@@ -139,34 +143,5 @@
     }
     return nil;
 }
-
-
-//+(NSMutableSet*) getCertIssuer: (SecCertificateRef) certificate
-//{
-//    NSString* string = (__bridge NSString *)(SecCertificateCopySubjectSummary(certificate)) ;
-//    NSMutableSet* returnedSet = [[NSMutableSet alloc] init];
-//    NSRegularExpression *nameExpression = [NSRegularExpression regularExpressionWithPattern:@"Issuer: (.*?)\n" options:NSRegularExpressionSearch error:nil];
-//    
-//    NSArray *matches = [nameExpression matchesInString:string
-//                                               options:0
-//                                                 range:NSMakeRange(0, [string length])];
-//    if(matches){
-//        NSTextCheckingResult *match = [matches objectAtIndex:0];
-//        NSRange matchRange = [match range];
-//        NSString *matchString = [string substringWithRange:matchRange];
-//        matchString = [matchString substringFromIndex:8];
-//        NSArray * issuerParts = [matchString componentsSeparatedByString:@","];
-//        for (int i=0; i<[issuerParts count]; i++) {
-//            [returnedSet addObject: [[issuerParts objectAtIndex:i] stringByReplacingOccurrencesOfString:@" "
-//                                                                                             withString:@""]];
-//        }
-//        
-//    }
-//    CFRelease((__bridge CFTypeRef)(string));
-//    return returnedSet;
-//}
-//
-
-
 
 @end

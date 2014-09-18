@@ -367,7 +367,7 @@ correlationId:(NSUUID *)correlationId
     if ( nil != _authenticationViewController)
     {
         // Dismiss the authentication view and dispatch the completion block
-        [parentController dismissViewControllerAnimated:YES completion:^{
+        [[UIApplication adCurrentViewController] dismissViewControllerAnimated:YES completion:^{
             [self dispatchCompletionBlock:nil URL:endURL];
         }];
     }
@@ -390,7 +390,7 @@ correlationId:(NSUUID *)correlationId
     if ( nil != _authenticationViewController)
     {
         // Dismiss the authentication view and dispatch the completion block
-        [parentController dismissViewControllerAnimated:YES completion:^{
+        [[UIApplication adCurrentViewController] dismissViewControllerAnimated:YES completion:^{
             [self dispatchCompletionBlock:adError URL:nil];
         }];
     }
