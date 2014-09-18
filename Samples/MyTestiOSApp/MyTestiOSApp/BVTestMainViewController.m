@@ -110,7 +110,7 @@
     
     //TODO: implement the 401 challenge response in the test Azure app. Temporarily using another one:
     NSString* __block resourceString = @"http://testapi007.azurewebsites.net/api/WorkItem";
-    NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
+    NSURL* resource = [NSURL URLWithString:resourceString];
     [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters * params, ADAuthenticationError * error)
      {
          if (!params)
