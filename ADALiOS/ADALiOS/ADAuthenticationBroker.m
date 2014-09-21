@@ -183,7 +183,7 @@ correlationId:(NSUUID *)correlationId
     THROW_ON_NIL_ARGUMENT(endURL);
     THROW_ON_NIL_ARGUMENT(correlationId);
     THROW_ON_NIL_ARGUMENT(completionBlock)
-    AD_LOG_VERBOSE(@"Authorization", startURL.absoluteString);
+    //AD_LOG_VERBOSE(@"Authorization", startURL.absoluteString);
     
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
     
