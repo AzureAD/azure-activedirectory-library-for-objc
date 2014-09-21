@@ -106,6 +106,10 @@ BOOL validBase64Characters(const byte* data, const int size)
     
     byte *pbDecoded = (byte *)calloc( cbDecodedSize, sizeof(byte) );
     
+    if(!pbEncoded) {
+        return nil;
+    }
+    
     // Decode each four-byte cluster into the corresponding three data bytes,
     // allowing for the fact that the last cluster may be less than four bytes
     // (virtual padding).
@@ -190,6 +194,10 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     // is the number of byte triples times 4 radix64 characters plus 1 for null termination.
     int   encodedSize = 1 + ( cbBytes + 2 ) / 3 * 4;
     char *pbEncoded = (char *)calloc( encodedSize, sizeof(char) );
+    
+    if(!pbEncoded){
+        return nil;
+    }
     
     // Encode data byte triplets into four-byte clusters.
     int   iBytes;      // raw byte index
