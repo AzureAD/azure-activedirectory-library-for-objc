@@ -19,7 +19,7 @@
 
 #import "ADTokenCacheStoring.h"
 #import "ADAuthenticationError.h"
-#import "ADAuthenticationResult.h"
+#import "ADAUthenticationResult.h"
 #import "ADTokenCacheStoreItem.h"
 #import "ADUserInformation.h"
 #import "ADTokenCacheStoreKey.h"
