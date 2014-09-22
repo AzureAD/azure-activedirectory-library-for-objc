@@ -98,6 +98,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     NSMutableDictionary *identityAttr = [[NSMutableDictionary alloc] init];
     [identityAttr setObject:(__bridge id)kSecClassIdentity forKey:(__bridge id)kSecClass];
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnRef)];
+    [identityAttr setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
     
 #if !TARGET_IPHONE_SIMULATOR
     [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
@@ -116,8 +117,6 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
             AD_LOG_VERBOSE(@"Found certificate in keychain", nil);
             certificateSubject = (__bridge NSString *)(SecCertificateCopySubjectSummary(certificate));
             certificateData = (__bridge NSData *)(SecCertificateCopyData(certificate));
-            
-            
         }
         
         //Get the private key and data
@@ -138,7 +137,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
             return nil;
         }
         
-        privateKey = [self getPrivateKeyRef];
+        //privateKey = [self getPrivateKeyRef];
     }
     
     if(identity && certificate && certificateSubject && certificateData && privateKey && privateKeyData)
