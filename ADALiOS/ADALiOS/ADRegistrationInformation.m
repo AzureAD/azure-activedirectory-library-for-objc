@@ -77,11 +77,6 @@
             _privateKey = nil;
         }
         
-        if(_privateKeyData){
-            CFRelease((__bridge CFTypeRef)_privateKeyData);
-            _privateKeyData = nil;
-        }
-        
         if(_certificateSubject){
             CFRelease((__bridge CFTypeRef)(_certificateSubject));
             _certificateSubject = nil;
