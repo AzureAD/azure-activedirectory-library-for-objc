@@ -330,32 +330,5 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     return bundleSeedID;
 }
 
-- (SecKeyRef)getPrivateKeyRef {
-    OSStatus sanityCheck = noErr;
-    SecKeyRef privateKeyReference = NULL;
-    
-    NSData *privateKeyTag = [NSData dataWithBytes:[privateKeyIdentifier UTF8String] length:privateKeyIdentifier.length];
-    
-    NSMutableDictionary * queryPrivateKey = [[NSMutableDictionary alloc] init];
-    
-    // Set the private key query dictionary.
-    [queryPrivateKey setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
-    [queryPrivateKey setObject:privateKeyTag forKey:(__bridge id)kSecAttrApplicationTag];
-    [queryPrivateKey setObject:(__bridge id)kSecAttrKeyTypeRSA forKey:(__bridge id)kSecAttrKeyType];
-    [queryPrivateKey setObject:[NSNumber numberWithBool:YES] forKey:(__bridge id)kSecReturnRef];
-#if !TARGET_IPHONE_SIMULATOR
-    [queryPrivateKey setObject:@"com.microsoft.workplacejoin" forKey:(__bridge id)kSecAttrAccessGroup];
-#endif
-    // Get the key.
-    sanityCheck = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef *)&privateKeyReference);
-    
-    if (sanityCheck != noErr)
-    {
-        privateKeyReference = NULL;
-    }
-    
-    return privateKeyReference;
-}
-
 @end
 
