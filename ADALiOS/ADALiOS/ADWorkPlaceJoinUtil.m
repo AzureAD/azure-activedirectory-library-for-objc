@@ -68,10 +68,10 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
         if (*error != NULL)
         {
             *error = [self buildNSErrorForDomain:errorDomain
-                                  errorCode:sharedKeychainPermission
-                               errorMessage: [NSString stringWithFormat:unabletoReadFromSharedKeychain, sharedAccessGroup]
-                            underlyingError:nil
-                                shouldRetry:false];
+                                       errorCode:sharedKeychainPermission
+                                    errorMessage: [NSString stringWithFormat:unabletoReadFromSharedKeychain, sharedAccessGroup]
+                                 underlyingError:nil
+                                     shouldRetry:false];
         }
     }
     
@@ -81,7 +81,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
 
 
 - (ADRegistrationInformation*)getRegistrationInformation: (NSString*) sharedAccessGroup
-                                                 error: (NSError**) error
+                                                   error: (NSError**) error
 {
     AD_LOG_VERBOSE_F(@"Attempting to get registration information - ", @"%@ shared access Group", sharedAccessGroup);
     
@@ -103,15 +103,15 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
 #if !TARGET_IPHONE_SIMULATOR
     [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
 #endif
-   
-    SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)&identity);
     
-    //Get the identity		
-    if(identity)
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)&identity);
+    
+    //Get the identity
+    if(status == errSecSuccess && identity)
     {
         AD_LOG_VERBOSE(@"Found identity in keychain", nil);
         //Get the certificate and data
-        SecIdentityCopyCertificate(identity, &certificate);
+        status = SecIdentityCopyCertificate(identity, &certificate);
         if(certificate)
         {
             AD_LOG_VERBOSE(@"Found certificate in keychain", nil);
@@ -120,14 +120,8 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
         }
         
         //Get the private key and data
-        SecIdentityCopyPrivateKey(identity, &privateKey);
-        if(privateKey)
-        {
-            AD_LOG_VERBOSE(@"Retrieved privatekey", nil);
-            privateKeyData = [self getPrivateKeyForAccessGroup:sharedAccessGroup privateKeyIdentifier:privateKeyIdentifier error:error];
-        }
-        
-        if (error)
+        status = SecIdentityCopyPrivateKey(identity, &privateKey);
+        if (status != errSecSuccess)
         {
             if (certificateSubject)
                 CFRelease((__bridge CFTypeRef)(certificateSubject));
@@ -137,25 +131,24 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
             return nil;
         }
         
-        //privateKey = [self getPrivateKeyRef];
     }
     
-    if(identity && certificate && certificateSubject && certificateData && privateKey && privateKeyData)
+    if(identity && certificate && certificateSubject && certificateData && privateKey)
     {
         ADRegistrationInformation *info = [[ADRegistrationInformation alloc] initWithSecurityIdentity:identity
-                                                                                userPrincipalName:userPrincipalName
-                                                                            certificateProperties:certificateProperties
-                                                                                      certificate:certificate
-                                                                               certificateSubject:certificateSubject
-                                                                                  certificateData:certificateData
-                                                                                       privateKey:privateKey
-                                                                                   privateKeyData:privateKeyData];
+                                                                                    userPrincipalName:userPrincipalName
+                                                                                certificateProperties:certificateProperties
+                                                                                          certificate:certificate
+                                                                                   certificateSubject:certificateSubject
+                                                                                      certificateData:certificateData
+                                                                                           privateKey:privateKey
+                                                                                       privateKeyData:privateKeyData];
         return info;
     }
     else
     {
         AD_LOG_VERBOSE_F(@"Unable to extract a workplace join identity for", @"%@ shared access keychain",
-                                sharedAccessGroup);
+                         sharedAccessGroup);
         if (certificateSubject)
             CFRelease((__bridge CFTypeRef)(certificateSubject));
         if (certificateData)
@@ -190,13 +183,13 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     else
     {
         return [self buildNSErrorForDomain:errorDomain
-                                   errorCode:sharedKeychainPermission
-                                errorMessage: [NSString stringWithFormat:unabletoReadFromSharedKeychain, sharedAccessGroup]
-                             underlyingError:nil
-                                 shouldRetry:false];
+                                 errorCode:sharedKeychainPermission
+                              errorMessage: [NSString stringWithFormat:unabletoReadFromSharedKeychain, sharedAccessGroup]
+                           underlyingError:nil
+                               shouldRetry:false];
     }
     
-
+    
 }
 
 
@@ -236,7 +229,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     {
         return [NSData data];
     }
-
+    
     charString = (const unsigned char *)[string UTF8String];
     
     theData = [NSMutableData dataWithCapacity: [string length]];
@@ -290,7 +283,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
             }
             
         }
-
+        
     }
     
     return theData;
@@ -301,7 +294,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     AD_LOG_VERBOSE(@"Looking for application identifier prefix in app data", nil);
     NSUserDefaults* c = [NSUserDefaults standardUserDefaults];
     NSString* appIdentifierPrefix = [c objectForKey:applicationIdentifierPrefix];
-
+    
     if (!appIdentifierPrefix)
     {
         appIdentifierPrefix = [self bundleSeedID];
@@ -335,33 +328,6 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     
     CFRelease(result);
     return bundleSeedID;
-}
-
-- (SecKeyRef)getPrivateKeyRef {
-    OSStatus sanityCheck = noErr;
-    SecKeyRef privateKeyReference = NULL;
-    
-    NSData *privateKeyTag = [NSData dataWithBytes:[privateKeyIdentifier UTF8String] length:privateKeyIdentifier.length];
-    
-    NSMutableDictionary * queryPrivateKey = [[NSMutableDictionary alloc] init];
-    
-    // Set the private key query dictionary.
-    [queryPrivateKey setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
-    [queryPrivateKey setObject:privateKeyTag forKey:(__bridge id)kSecAttrApplicationTag];
-    [queryPrivateKey setObject:(__bridge id)kSecAttrKeyTypeRSA forKey:(__bridge id)kSecAttrKeyType];
-    [queryPrivateKey setObject:[NSNumber numberWithBool:YES] forKey:(__bridge id)kSecReturnRef];
-#if !TARGET_IPHONE_SIMULATOR
-    [queryPrivateKey setObject:@"com.microsoft.workplacejoin" forKey:(__bridge id)kSecAttrAccessGroup];
-#endif
-    // Get the key.
-    sanityCheck = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef *)&privateKeyReference);
-    
-    if (sanityCheck != noErr)
-    {
-        privateKeyReference = NULL;
-    }
-    
-    return privateKeyReference;
 }
 
 @end
