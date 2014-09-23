@@ -107,11 +107,11 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)&identity);
     
     //Get the identity
-    if(status != errSecSuccess)
+    if(status != errSecSuccess && identity)
     {
         AD_LOG_VERBOSE(@"Found identity in keychain", nil);
         //Get the certificate and data
-        SecIdentityCopyCertificate(identity, &certificate);
+        status = SecIdentityCopyCertificate(identity, &certificate);
         if(certificate)
         {
             AD_LOG_VERBOSE(@"Found certificate in keychain", nil);
