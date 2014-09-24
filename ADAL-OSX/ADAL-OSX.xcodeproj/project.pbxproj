@@ -359,7 +359,6 @@
 		974E4E8219AC655000172D2C /* x509v3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509v3.h; sourceTree = "<group>"; };
 		974E4E8519AC655000172D2C /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		974E4E8619AC655000172D2C /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
-		974E4E8819AC655000172D2C /* OSSREADME_0714.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OSSREADME_0714.txt; sourceTree = "<group>"; };
 		974E4ED919AC65AD00172D2C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -466,11 +465,8 @@
 				4C60D5B218C697E500F9EAAE /* ADAuthenticationResult.m */,
 				4C60D5B518C697E500F9EAAE /* ADAuthenticationSettings.h */,
 				4C60D5B618C697E500F9EAAE /* ADAuthenticationSettings.m */,
-				4C42482618C84D4A00B2E350 /* ADAuthenticationWebViewController.h */,
 				4C8AB26018E9F18C005F241A /* ADAuthenticationWebViewControllerOSX.m */,
 				4C42482618C84D4A00B2E350 /* ADAuthenticationWebViewController.h */,
-				4C42481518C83DBA00B2E350 /* ADAuthenticationWindowController.h */,
-				4C42481618C83DBA00B2E350 /* ADAuthenticationWindowController.m */,
 				4C60D5BB18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.h */,
 				4C60D5BC18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.m */,
 				4C60D5BF18C697E500F9EAAE /* ADErrorCodes.h */,
@@ -665,11 +661,10 @@
 				974E4E3719AC655000172D2C /* build-libssl.sh */,
 				974E4E8419AC655000172D2C /* include */,
 				974E4E8719AC655000172D2C /* lib */,
-				974E4E8819AC655000172D2C /* OSSREADME_0714.txt */,
 			);
 			name = OpenSSL;
-			path = "/Users/kanishk/git/azure-activedirectory-library-for-objc/ADALiOS/../OpenSSL";
-			sourceTree = "<absolute>";
+			path = "../OpenSSL";
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
@@ -1017,7 +1012,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx10.9;
 			};
 			name = Debug;
 		};
@@ -1061,7 +1055,6 @@
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				SDKROOT = macosx10.9;
 			};
 			name = Release;
 		};
@@ -1078,12 +1071,11 @@
 				INFOPLIST_FILE = "ADAL-OSX/ADAL-OSX-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/kanishk/git/azure-activedirectory-library-for-objc/OpenSSL/lib",
+					"$(SRCROOT)/../OpenSSL/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -1101,12 +1093,11 @@
 				INFOPLIST_FILE = "ADAL-OSX/ADAL-OSX-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/kanishk/git/azure-activedirectory-library-for-objc/OpenSSL/lib",
+					"$(SRCROOT)/../OpenSSL/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
