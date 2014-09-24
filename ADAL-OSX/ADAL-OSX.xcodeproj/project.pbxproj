@@ -468,11 +468,8 @@
 				4C60D5B218C697E500F9EAAE /* ADAuthenticationResult.m */,
 				4C60D5B518C697E500F9EAAE /* ADAuthenticationSettings.h */,
 				4C60D5B618C697E500F9EAAE /* ADAuthenticationSettings.m */,
-				4C42482618C84D4A00B2E350 /* ADAuthenticationWebViewController.h */,
 				4C8AB26018E9F18C005F241A /* ADAuthenticationWebViewControllerOSX.m */,
 				4C42482618C84D4A00B2E350 /* ADAuthenticationWebViewController.h */,
-				4C42481518C83DBA00B2E350 /* ADAuthenticationWindowController.h */,
-				4C42481618C83DBA00B2E350 /* ADAuthenticationWindowController.m */,
 				4C60D5BB18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.h */,
 				4C60D5BC18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.m */,
 				4C60D5BF18C697E500F9EAAE /* ADErrorCodes.h */,
@@ -1091,7 +1088,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -1114,7 +1110,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
