@@ -31,9 +31,12 @@
 #import "ADTokenCacheStoreItem.h"
 #import "ADTokenCacheStoreKey.h"
 #import "ADUserInformation.h"
-#import "WorkPlaceJoin.h"
-#import "ADPkeyAuthHelper.h"
-#import "WorkPlaceJoinConstants.h"
+
+#ifdef TARGET_OS_IPHONE
+    #import "WorkPlaceJoin.h"
+    #import "ADPkeyAuthHelper.h"
+    #import "WorkPlaceJoinConstants.h"
+#endif
 
 NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call acquireToken with 'promptBehavior' not set to AD_PROMPT_NEVER";
@@ -396,7 +399,12 @@ return; \
     if (!item && !localError && userId)
     {//ADFS fix, where the userId is not received by the server, but can be passed to the API:
         //We didn't find element with the userId, try finding an item with nil userId:
-        item = [self.tokenCacheStore getItemWithKey:key userId:nil error:&localError];
+        NSArray* items = [self.tokenCacheStore getItemsWithKey:key error:&localError];
+        if(items.count) {
+            item = [items objectAtIndex:0];
+        }else{
+            item = nil;
+        }
         if (item && item.userInformation)
         {
             item = nil;//Different user id, just clear.
@@ -808,7 +816,7 @@ return; \
             [request_data setObject:resource forKey:OAUTH2_RESOURCE];
         }
     
-    dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^
                    {
                        AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@'; user:'%@'", clientId, resource, userId);
                        [self request:self.authority
@@ -1242,9 +1250,11 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     
+#ifdef TARGET_OS_IPHONE
     if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined ]){
         [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
     }
+#endif
     
     if(additionalHeaders){
         for (NSString* key in [additionalHeaders allKeys] ) {
@@ -1276,6 +1286,8 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                 case 400:
                 case 401:
                 {
+
+#ifdef TARGET_OS_IPHONE
                     if(!isHandlingPKeyAuthChallenge){
                         NSString* wwwAuthValue = [headers valueForKey:wwwAuthenticateHeader];
                         if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName]){
@@ -1283,6 +1295,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                             return;
                         }
                     }
+#endif
                     
                     NSError   *jsonError  = nil;
                     id         jsonObject = [NSJSONSerialization JSONObjectWithData:webResponse.body options:0 error:&jsonError];
@@ -1348,13 +1361,13 @@ additionalHeaders:(NSDictionary *)additionalHeaders
              adURLFormEncode] adBase64UrlEncode];
 }
 
-
 - (void) handlePKeyAuthChallenge:(NSString *)authorizationServer
               wwwAuthHeaderValue:(NSString *)wwwAuthHeaderValue
                      requestData:(NSDictionary *)request_data
             requestCorrelationId: (NSUUID*) requestCorrelationId
                       completion:( void (^)(NSDictionary *) )completionBlock
 {
+#ifdef TARGET_OS_IPHONE
     //pkeyauth word length=8 + 1 whitespace
     wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[pKeyAuthName length] + 1];
     wwwAuthHeaderValue = [wwwAuthHeaderValue stringByReplacingOccurrencesOfString:@"\""
@@ -1371,8 +1384,9 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     [headerKeyValuePair setObject:authHeader forKey:@"Authorization"];
     
     [self request:authorizationServer requestData:request_data requestCorrelationId:requestCorrelationId isHandlingPKeyAuthChallenge:TRUE additionalHeaders:headerKeyValuePair completion:completionBlock];
+    
+#endif
 }
-
 
 
 @end

@@ -131,7 +131,7 @@ NSTimer *timer;
     }
     
     // Stop at the end URL.
-    if ( [requestURL hasPrefix:_endURL] )
+    if ( [[requestURL lowercaseString] hasPrefix:[_endURL lowercaseString]] )
     {
         // iOS generates a 102, Frame load interrupted error from stopLoading, so we set a flag
         // here to note that it was this code that halted the frame load in order that we can ignore

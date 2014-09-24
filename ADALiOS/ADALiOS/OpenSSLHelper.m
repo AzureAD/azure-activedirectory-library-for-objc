@@ -30,6 +30,7 @@
 
 + (NSMutableSet*) getCertificateIssuer:(NSData*)certificateData
 {
+#ifdef TARGET_OS_IPHONE
     X509 *certificateX509;
     const unsigned char *certificateDataBytes = (const unsigned char *)[certificateData bytes];
     certificateX509 =  d2i_X509(NULL, &certificateDataBytes, [certificateData length]);
@@ -45,11 +46,16 @@
         X509_free(certificateX509);
     }
     return issuer;
+#else
+    return nil;
+#endif
 }
 
 + (NSArray*) getX509EntryData:(X509_NAME*) issuerX509Name
                                nid:(int) nid
-                    shortName:(NSString*) shortName{
+                    shortName:(NSString*) shortName
+{
+#ifdef TARGET_OS_IPHONE
     int loc = -1;
     X509_NAME_ENTRY *e;
     NSMutableArray* values =  [NSMutableArray new];
@@ -71,6 +77,9 @@
         }
     }
     return values;
+#else
+    return nil;
+#endif
 }
 
 @end
