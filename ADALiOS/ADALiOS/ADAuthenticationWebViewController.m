@@ -41,6 +41,9 @@ NSTimer *timer;
     
     if ( ( self = [super init] ) != nil )
     {
+    
+        _parentDelegate = [webView delegate];
+    
         _startURL  = [startURL copy];
         _endURL    = [endURL absoluteString];
         
@@ -111,7 +114,12 @@ NSTimer *timer;
 #pragma unused(webView)
 #pragma unused(navigationType)
     
-    
+    if ([_parentDelegate respondsToSelector:@selector(webView:shouldStartLoadWithRequest:navigationType:)])
+    {
+        if (![_parentDelegate webView:webView shouldStartLoadWithRequest:request navigationType:navigationType])
+            return NO;
+    }
+
     //DebugLog( @"URL: %@", request.URL.absoluteString );
     NSString *requestURL = [request.URL absoluteString];
     
@@ -162,12 +170,18 @@ NSTimer *timer;
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
+	if ([_parentDelegate respondsToSelector:@selector(webViewDidStartLoad:)])
+        [_parentDelegate webViewDidStartLoad:webView];
+
     timer = [NSTimer scheduledTimerWithTimeInterval:_timeout target:self selector:@selector(failWithTimeout) userInfo:nil repeats:NO];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
+	if ([_parentDelegate respondsToSelector:@selector(webViewDidFinishLoad:)])
+        [_parentDelegate webViewDidFinishLoad:webView];
+
     [timer invalidate];
 }
 
@@ -190,6 +204,9 @@ NSTimer *timer;
 - (void)webView:(WebViewType *)webView didFailLoadWithError:(NSError *)error
 {
 #pragma unused(webView)
+	if ([_parentDelegate respondsToSelector:@selector(webView:didFailLoadWithError:)])
+        [_parentDelegate webView:webView didFailLoadWithError:error];
+    
     if(timer && [timer isValid]){
         [timer invalidate];
     }

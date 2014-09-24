@@ -22,6 +22,7 @@ typedef UIWebView WebViewType;
 #else
 //OS X:
 #   include <WebKit/WebKit.h>
+#   include <WebKit/WebPolicyDelegate.h>
 typedef WebView   WebViewType;
 #endif
 
@@ -43,6 +44,11 @@ typedef WebView   WebViewType;
     BOOL      _complete;
     float     _timeout;
     
+#if TARGET_OS_IPHONE
+    __weak id<UIWebViewDelegate> _parentDelegate;
+#else
+    __weak id _parentDelegate;
+#endif
     __weak id<ADAuthenticationDelegate> _delegate;
 }
 
