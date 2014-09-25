@@ -29,7 +29,6 @@
 @implementation ADAuthenticationWebViewController
 
 #pragma mark - Initialization
-NSTimer *timer;
 
 - (id)initWithWebView:(WebViewType *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
@@ -173,7 +172,10 @@ NSTimer *timer;
 	if ([_parentDelegate respondsToSelector:@selector(webViewDidStartLoad:)])
         [_parentDelegate webViewDidStartLoad:webView];
 
-    timer = [NSTimer scheduledTimerWithTimeInterval:_timeout target:self selector:@selector(failWithTimeout) userInfo:nil repeats:NO];
+    if (_timer != nil)
+        [_timer invalidate];
+    
+    _timer = [NSTimer scheduledTimerWithTimeInterval:_timeout target:self selector:@selector(failWithTimeout) userInfo:nil repeats:NO];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
@@ -182,7 +184,8 @@ NSTimer *timer;
 	if ([_parentDelegate respondsToSelector:@selector(webViewDidFinishLoad:)])
         [_parentDelegate webViewDidFinishLoad:webView];
 
-    [timer invalidate];
+    [_timer invalidate];
+    _timer = nil;
 }
 
 -(void) dispatchError: (NSError*) error
@@ -207,8 +210,9 @@ NSTimer *timer;
 	if ([_parentDelegate respondsToSelector:@selector(webView:didFailLoadWithError:)])
         [_parentDelegate webView:webView didFailLoadWithError:error];
     
-    if(timer && [timer isValid]){
-        [timer invalidate];
+    if(_timer && [_timer isValid]){
+        [_timer invalidate];
+        _timer = nil;
     }
     
     if (NSURLErrorCancelled == error.code)
