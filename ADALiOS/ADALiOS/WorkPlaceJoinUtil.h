@@ -21,8 +21,11 @@
 #import "WorkPlaceJoin.h"
 
 @interface WorkPlaceJoinUtil : NSObject
+{
+    WorkPlaceJoin *workplaceJoin;
+}
 
-@property (nonatomic, readwrite) WorkPlaceJoin *workplaceJoin;
+@property (nonatomic, retain, readwrite) WorkPlaceJoin *workplaceJoin;
 
 + (WorkPlaceJoinUtil*) WorkPlaceJoinUtilManager;
 
