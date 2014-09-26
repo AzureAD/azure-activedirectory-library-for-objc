@@ -115,8 +115,6 @@ static NSOperationQueue *s_queue;
         
         _completionHandler = nil;
         _correlationId     = SAFE_ARC_RETAIN(correlationId);
-        queue = [[NSOperationQueue alloc] init];
-        
     }
     
     return self;
