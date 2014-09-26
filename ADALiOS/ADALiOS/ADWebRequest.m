@@ -26,7 +26,7 @@
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
 
-static NSOperationQueue *queue;
+static NSOperationQueue *s_queue;
 
 @interface ADWebRequest () <NSURLConnectionDelegate>
 
@@ -64,6 +64,12 @@ static NSOperationQueue *queue;
 }
 
 #pragma mark - Initialization
+
++ (void)initialize
+{
+    s_queue = [[NSOperationQueue alloc] init];
+
+}
 
 - (void)dealloc
 {
@@ -164,7 +170,7 @@ static NSOperationQueue *queue;
     request.HTTPBody            = _requestData;
     
     _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
-    [_connection setDelegateQueue:queue];
+    [_connection setDelegateQueue:s_queue];
     [_connection start];
     
     SAFE_ARC_RELEASE(request);

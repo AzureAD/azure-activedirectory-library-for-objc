@@ -23,6 +23,8 @@
 
 @implementation WorkPlaceJoinUtil
 
+@synthesize workplaceJoin;
+
 WorkPlaceJoinUtil* wpjUtilManager = nil;
 
 + (WorkPlaceJoinUtil*) WorkPlaceJoinUtilManager;

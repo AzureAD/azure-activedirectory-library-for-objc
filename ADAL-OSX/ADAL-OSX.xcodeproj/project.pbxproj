@@ -647,8 +647,8 @@
 				974E4E8719AC655000172D2C /* lib */,
 			);
 			name = OpenSSL;
-			path = "/Users/kanishk/git/azure-activedirectory-library-for-objc/ADALiOS/../OpenSSL";
-			sourceTree = "<absolute>";
+			path = "../OpenSSL";
+			sourceTree = SOURCE_ROOT;
 		};
 		97B59B5619BFBE7100DB79D0 /* WorkPlaceJoin */ = {
 			isa = PBXGroup;
@@ -1016,7 +1016,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx10.9;
 			};
 			name = Debug;
 		};
@@ -1060,7 +1059,6 @@
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				SDKROOT = macosx10.9;
 			};
 			name = Release;
 		};
