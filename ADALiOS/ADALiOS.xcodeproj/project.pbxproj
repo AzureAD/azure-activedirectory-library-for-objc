@@ -327,7 +327,6 @@
 		972223AC19ABCFFA00092E85 /* x509v3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509v3.h; sourceTree = "<group>"; };
 		972223AE19ABCFFA00092E85 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		972223AF19ABCFFA00092E85 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
-		972223B019ABCFFA00092E85 /* OSSREADME_0714.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OSSREADME_0714.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -573,7 +572,6 @@
 				9722235F19ABCFFA00092E85 /* build-libssl.sh */,
 				9722236019ABCFFA00092E85 /* include */,
 				972223AD19ABCFFA00092E85 /* lib */,
-				972223B019ABCFFA00092E85 /* OSSREADME_0714.txt */,
 			);
 			name = OpenSSL;
 			path = ../OpenSSL;

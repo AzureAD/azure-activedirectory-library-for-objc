@@ -83,7 +83,6 @@
 		8BE8682E18D7BA5100D95ABB /* ADTokenCacheStoreItemTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BE8682118D7BA5100D95ABB /* ADTokenCacheStoreItemTest.m */; };
 		8BE8682F18D7BA5100D95ABB /* ADTokenCacheStoreKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BE8682218D7BA5100D95ABB /* ADTokenCacheStoreKeyTests.m */; };
 		8BE8683018D7BA5100D95ABB /* ADUserInformationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BE8682318D7BA5100D95ABB /* ADUserInformationTests.m */; };
-		974E4E8A19AC655000172D2C /* build-libssl.sh in Resources */ = {isa = PBXBuildFile; fileRef = 974E4E3719AC655000172D2C /* build-libssl.sh */; };
 		974E4E8B19AC655000172D2C /* aes.h in Headers */ = {isa = PBXBuildFile; fileRef = 974E4E3819AC655000172D2C /* aes.h */; };
 		974E4E8C19AC655000172D2C /* asn1.h in Headers */ = {isa = PBXBuildFile; fileRef = 974E4E3919AC655000172D2C /* asn1.h */; };
 		974E4E8D19AC655000172D2C /* asn1_mac.h in Headers */ = {isa = PBXBuildFile; fileRef = 974E4E3A19AC655000172D2C /* asn1_mac.h */; };
@@ -161,7 +160,6 @@
 		974E4ED519AC655000172D2C /* x509v3.h in Headers */ = {isa = PBXBuildFile; fileRef = 974E4E8219AC655000172D2C /* x509v3.h */; };
 		974E4ED619AC655000172D2C /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 974E4E8519AC655000172D2C /* libcrypto.a */; };
 		974E4ED719AC655000172D2C /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 974E4E8619AC655000172D2C /* libssl.a */; };
-		974E4ED819AC655000172D2C /* OSSREADME_0714.txt in Resources */ = {isa = PBXBuildFile; fileRef = 974E4E8819AC655000172D2C /* OSSREADME_0714.txt */; };
 		974E4EDA19AC65AD00172D2C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 974E4ED919AC65AD00172D2C /* Security.framework */; };
 		97B59B5419BFBC9800DB79D0 /* ADKeyChainHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 97B59B5219BFBC9800DB79D0 /* ADKeyChainHelper.h */; };
 		97B59B5519BFBC9800DB79D0 /* WorkPlaceJoin.h in Headers */ = {isa = PBXBuildFile; fileRef = 97B59B5319BFBC9800DB79D0 /* WorkPlaceJoin.h */; };
@@ -351,7 +349,6 @@
 		974E4E8219AC655000172D2C /* x509v3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509v3.h; sourceTree = "<group>"; };
 		974E4E8519AC655000172D2C /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		974E4E8619AC655000172D2C /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
-		974E4E8819AC655000172D2C /* OSSREADME_0714.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OSSREADME_0714.txt; sourceTree = "<group>"; };
 		974E4ED919AC65AD00172D2C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		97B59B5219BFBC9800DB79D0 /* ADKeyChainHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADKeyChainHelper.h; path = ../../ADALiOS/ADALiOS/ADKeyChainHelper.h; sourceTree = "<group>"; };
 		97B59B5319BFBC9800DB79D0 /* WorkPlaceJoin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WorkPlaceJoin.h; path = ../../ADALiOS/ADALiOS/WorkPlaceJoin.h; sourceTree = "<group>"; };
@@ -648,11 +645,10 @@
 				974E4E3719AC655000172D2C /* build-libssl.sh */,
 				974E4E8419AC655000172D2C /* include */,
 				974E4E8719AC655000172D2C /* lib */,
-				974E4E8819AC655000172D2C /* OSSREADME_0714.txt */,
 			);
 			name = OpenSSL;
-			path = "/Users/kanishk/git/azure-activedirectory-library-for-objc/ADALiOS/../OpenSSL";
-			sourceTree = "<absolute>";
+			path = "../OpenSSL";
+			sourceTree = SOURCE_ROOT;
 		};
 		97B59B5619BFBE7100DB79D0 /* WorkPlaceJoin */ = {
 			isa = PBXGroup;
@@ -871,8 +867,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BD92F2718C94E130026A014 /* ADAuthenticationWindowController.xib in Resources */,
-				974E4E8A19AC655000172D2C /* build-libssl.sh in Resources */,
-				974E4ED819AC655000172D2C /* OSSREADME_0714.txt in Resources */,
 				4C60D4D318C6960400F9EAAE /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1022,7 +1016,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx10.9;
 			};
 			name = Debug;
 		};
@@ -1066,7 +1059,6 @@
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				SDKROOT = macosx10.9;
 			};
 			name = Release;
 		};
@@ -1083,7 +1075,7 @@
 				INFOPLIST_FILE = "ADAL-OSX/ADAL-OSX-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/kanishk/git/azure-activedirectory-library-for-objc/OpenSSL/lib",
+					"$(SRCROOT)/../OpenSSL/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = NO;
@@ -1105,7 +1097,7 @@
 				INFOPLIST_FILE = "ADAL-OSX/ADAL-OSX-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/kanishk/git/azure-activedirectory-library-for-objc/OpenSSL/lib",
+					"$(SRCROOT)/../OpenSSL/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = NO;

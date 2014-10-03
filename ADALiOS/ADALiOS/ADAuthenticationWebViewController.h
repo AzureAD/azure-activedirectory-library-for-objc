@@ -44,6 +44,8 @@ typedef WebView   WebViewType;
     BOOL      _complete;
     float     _timeout;
     
+    NSTimer   *_timer;
+    
 #if TARGET_OS_IPHONE
     __weak id<UIWebViewDelegate> _parentDelegate;
 #else
