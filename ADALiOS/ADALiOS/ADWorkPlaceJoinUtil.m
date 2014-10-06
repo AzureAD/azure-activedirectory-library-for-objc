@@ -111,7 +111,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     {
         AD_LOG_VERBOSE(@"Found identity in keychain", nil);
         //Get the certificate and data
-        status = SecIdentityCopyCertificate(identity, &certificate);
+        SecIdentityCopyCertificate(identity, &certificate);
         if(certificate)
         {
             AD_LOG_VERBOSE(@"Found certificate in keychain", nil);
@@ -228,6 +228,10 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     if (string == nil)
     {
         return [NSData data];
+    }
+    
+    for (int i = 0; i < BASE64QUANTUMREP; i++) {
+        accumulated[i] = 0;
     }
     
     charString = (const unsigned char *)[string UTF8String];
