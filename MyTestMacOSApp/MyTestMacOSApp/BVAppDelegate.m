@@ -15,6 +15,7 @@
 @implementation BVAppDelegate
 
 @synthesize window = _window;
+@synthesize resultLabel = _resultLabel;
 
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 @synthesize managedObjectModel         = _managedObjectModel;
@@ -22,6 +23,12 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    [_resultLabel setStringValue:@"Response goes here"];
+}
+
+
+
+- (IBAction)endToEndAction:(id)sender{
     // Do any additional setup after loading the view, typically from a nib.
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];//Log everything
     
@@ -30,29 +37,39 @@
     
     ADAuthenticationError   *error = nil;
     
-    __block ADAuthenticationContext *context = [[ADAuthenticationContext authenticationContextWithAuthority:aadInstance.authority error:&error] retain];
+    __block ADAuthenticationContext *context = [[ADAuthenticationContext authenticationContextWithAuthority:aadInstance.authority validateAuthority: NO
+                                                                                                      error:&error] retain];
     
     [context acquireTokenWithResource:aadInstance.resource
                              clientId:aadInstance.clientId
                           redirectUri:[NSURL URLWithString:aadInstance.redirectUri]
+                       promptBehavior:AD_PROMPT_AUTO
                                userId:aadInstance.userId
+                 extraQueryParameters: nil
                       completionBlock:^(ADAuthenticationResult *result)
-    {
-        if (AD_SUCCEEDED == result.status)
-        {
-            NSLog(@"AcquireToken succeeded with access token: %@", result.accessToken);
-        }
-        else
-        {
-            NSLog(@"AcqurieToken failed with access token: %@", result.error.errorDetails);
-        }
-        
-        [context release];
-    }];
+     {
+         if (AD_SUCCEEDED == result.status)
+         {
+             [_resultLabel setStringValue: [NSString stringWithFormat:@"AcquireToken succeeded with access token: %@", result.accessToken]];
+         }
+         else
+         {
+             [_resultLabel setStringValue: [NSString stringWithFormat:@"AcquireToken failed with access token: %@", result.error.errorDetails]];
+         }
+         
+         [context release];
+     }];
     
     [aadInstance release];
     [testData release];
 }
+
+
+- (IBAction)showUsersAction:(id)sender{
+    
+}
+
+
 
 // Returns the directory the application uses to store the Core Data store file. This code uses a directory named "MSOpenTech.MyTestMacOSApp" in the user's Application Support directory.
 - (NSURL *)applicationFilesDirectory

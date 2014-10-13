@@ -231,14 +231,14 @@
     NSString* resourceString =mAADInstance.resource;
     [self setStatus:@"Attemp to refresh..."];
     ADAuthenticationError* error = nil;
-    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
+    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:NO error:&error];
     if (!context)
     {
         [self setStatus:error.errorDetails];
         return;
     }
     //We will leverage a multi-resource refresh token:
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:authority resource:nil clientId:clientId error:&error];
+    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:authority resource:resourceString clientId:clientId error:&error];
     if (!key)
     {
         [self setStatus:error.errorDetails];
