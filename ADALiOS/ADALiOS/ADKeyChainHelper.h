@@ -21,7 +21,14 @@
 
 /*! Internal helper class for keychain operations. 
  The class is not thread-safe. */
-@interface ADKeyChainHelper : NSObject
+@interface ADKeyChainHelper : NSObject {
+    
+@private
+    id _valueDataKey;
+    id   _classValue;
+    NSData*     _genericValue;
+    NSString*       _sharedGroup;
+}
 
 /*! Initializes the object. The default initializer is not supported. 
  Only classValue is required as it identifies the item type. */
@@ -30,13 +37,16 @@
         sharedGroup: (NSString*) sharedGroup;
 
 //The type of the keychain item. Should not be nil:
-@property (readonly) id   classValue;
+@property (readonly) id   ClassValue;
 
 //Some generic data to identify the items. Can be nil.
-@property NSData*         genericValue;
+@property (readonly) NSData*         GenericValue;
+
+//Some generic data to identify the items. Can be nil.
+@property (readonly) id         ValueDataKey;
 
 //Shared keychain group. Can be nil.
-@property NSString*       sharedGroup;
+@property (nonatomic, strong) NSString*       SharedGroup;
 
 
 /*! Returns the attributes (as dictionary values in the array) of the items that match the query.

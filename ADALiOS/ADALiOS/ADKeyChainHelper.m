@@ -24,8 +24,14 @@ extern NSString* const sKeyChainlog;
 
 @implementation ADKeyChainHelper
 {
-    id mValueDataKey;
+   // id mValueDataKey;
 }
+
+//Shared keychain group. Can be nil.
+@synthesize ValueDataKey = _valueDataKey;
+@synthesize SharedGroup = _sharedGroup;
+@synthesize ClassValue = _classValue;
+@synthesize GenericValue = _genericValue;
 
 -(id) init
 {
@@ -45,14 +51,26 @@ extern NSString* const sKeyChainlog;
         return nil;
     }
     
-    mValueDataKey = (__bridge id)kSecValueData;
+    _valueDataKey = (__bridge id)kSecValueData;
     _classValue = classValue;
     _genericValue = generic;
+    SAFE_ARC_RETAIN(_valueDataKey);
+    SAFE_ARC_RETAIN(_classValue);
+    SAFE_ARC_RETAIN(_genericValue);
     if(sharedGroup){
         _sharedGroup = [NSString stringWithFormat:@"%@.%@", [[WorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix], sharedGroup];
+        SAFE_ARC_RETAIN(_sharedGroup);
     }
     
     return self;
+}
+
+-(void) dealloc{
+    SAFE_ARC_RELEASE(_valueDataKey);
+    SAFE_ARC_RELEASE(_classValue);
+    SAFE_ARC_RELEASE(_genericValue);
+    SAFE_ARC_RELEASE(_sharedGroup);
+    SAFE_ARC_SUPER_DEALLOC();
 }
 
 //Adds the attributes which need to be set before each operation:
@@ -126,7 +144,7 @@ extern NSString* const sKeyChainlog;
     [self addStandardAttributes:updatedAttributes];
     
     OSStatus res = SecItemUpdate((__bridge CFMutableDictionaryRef)updatedAttributes,
-                                 (__bridge CFDictionaryRef)@{ mValueDataKey:value });
+                                 (__bridge CFDictionaryRef)@{ _valueDataKey:value });
     ADAuthenticationError* toReport = nil;
     switch(res)
     {
@@ -178,14 +196,21 @@ extern NSString* const sKeyChainlog;
     
     CFArrayRef all;
     OSStatus res = SecItemCopyMatching((__bridge CFMutableDictionaryRef)updatedQuery, (CFTypeRef*)&all);
+    NSArray *toReturn = nil;
     switch(res)
     {
         case errSecSuccess:
             //Success:
-            return (__bridge_transfer NSArray*)all;
+#if TARGET_OS_IPHONE
+            toReturn = (__bridge_transfer NSArray*)all;
+#else
+            toReturn = (NSArray*)all;
+#endif
+            break;
         case errSecItemNotFound:
             AD_LOG_VERBOSE_F(sKeyChainlog, @"No cache items found.");
-            return [NSArray new];//Empty one
+            toReturn = [NSArray new];//Empty one
+            break;
         default:
         {
             //Couldn't extract the elements:
@@ -197,9 +222,13 @@ extern NSString* const sKeyChainlog;
             {
                 *error = toReport;
             }
-            return nil;
         }
+            break;
     }
+#if !__has_feature(objc_arc)
+    [updatedQuery release];
+#endif
+    return toReturn;
 }
 
 -(BOOL) addItemWithAttributes: (NSDictionary*) attributes
@@ -216,7 +245,7 @@ extern NSString* const sKeyChainlog;
      @{
        (__bridge id)kSecAttrIsInvisible:(__bridge id)kCFBooleanTrue, // do not show in the keychain UI
        (__bridge id)kSecAttrAccessible:(__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly, // do not roam or migrate to other devices
-       mValueDataKey:value,//Item data
+       _valueDataKey:value,//Item data
        }];
     
     OSStatus res = SecItemAdd((__bridge CFMutableDictionaryRef)updatedAttributes, NULL);
@@ -293,7 +322,11 @@ extern NSString* const sKeyChainlog;
         return nil;
     }
     
+#if !__has_feature(objc_arc)
+    return (NSData*)data;
+#else
     return (__bridge_transfer NSData*)data;
+#endif
 }
 
 -(CFTypeRef) getItemTypeRefWithAttributes: (NSDictionary*) attributes
