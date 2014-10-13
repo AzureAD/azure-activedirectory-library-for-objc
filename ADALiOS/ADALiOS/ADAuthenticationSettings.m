@@ -16,11 +16,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 #import "ADAuthenticationSettings.h"
-#if TARGET_OS_IPHONE
 #   import "ADKeychainTokenCacheStore.h"
-#else
-#   import "ADPersistentTokenCacheStore.h"
-#endif
 
 @implementation ADAuthenticationSettings
 
@@ -51,11 +47,11 @@
         //exists. Hence for now, we create the connection on the main thread by default:
         _dispatchQueue              = dispatch_get_main_queue();
         SAFE_ARC_DISPATCH_RETAIN(_dispatchQueue);
-#if TARGET_OS_IPHONE
+//#if TARGET_OS_IPHONE
         self.defaultTokenCacheStore = [ADKeychainTokenCacheStore new];
-#else
-        _defaultTokenCacheStore     = [[ADPersistentTokenCacheStore alloc] initWithLocation:nil];
-#endif
+//#else
+//        _defaultTokenCacheStore     = [[ADPersistentTokenCacheStore alloc] initWithLocation:nil];
+//#endif
     }
     return self;
 }

@@ -19,9 +19,16 @@
 #import <Foundation/Foundation.h>
 #import "RegistrationInformation.h"
 
+typedef enum
+{
+    AD_ISSUER,
+    AD_THUMBPRINT,
+} ADChallengeType;
+
 @interface ADPkeyAuthHelper : NSObject
 
 + (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
-                         challengeData:(NSDictionary*) challengeData;
+                         challengeData:(NSDictionary*) challengeData
+                       challengeType: (ADChallengeType) challengeType;
 
 @end

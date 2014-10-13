@@ -49,22 +49,42 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
     NSString *certificateSubject = nil;
     NSData *certificateData = nil;
     NSData *privateKeyData = nil;
-    NSString *certificateProperties = nil;
+    NSString *certificateIssuer = nil;
     NSString *userPrincipalName = nil;
     error = nil;
     
     NSMutableDictionary *identityAttr = [[NSMutableDictionary alloc] init];
     [identityAttr setObject:(__bridge id)kSecClassIdentity forKey:(__bridge id)kSecClass];
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnRef)];
+    [identityAttr setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
+    [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
     
 #if !TARGET_IPHONE_SIMULATOR && TARGET_OS_IPHONE
     [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
 #endif
    
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)&identity);
     
-    //Get the identity		
-    if(identity)
+    CFDictionaryRef  result;
+    OSStatus status = noErr;
+    //get the issuer information
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef *) &result);
+    
+    if (status == noErr) {
+        NSDictionary *  cerDict = (__bridge NSDictionary *) result;
+        assert([cerDict isKindOfClass:[NSDictionary class]]);
+        NSData* issuer = [cerDict objectForKey:(__bridge id)kSecAttrIssuer];
+        certificateIssuer = [[NSString alloc] initWithData:issuer encoding:NSISOLatin1StringEncoding];
+        CFRelease(result);
+    } else {
+        NSLog(@"error %d", (int) status);
+    }
+    
+    // now get the identity out and use it.
+    [identityAttr removeObjectForKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)&identity);
+    
+    //Get the identity
+    if(status == errSecSuccess && identity)
     {
         AD_LOG_VERBOSE(@"Found identity in keychain", nil);
         //Get the certificate and data
@@ -77,9 +97,8 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
         }
         
         //Get the private key and data
-        SecIdentityCopyPrivateKey(identity, &privateKey);
-        privateKey = [self getPrivateKeyRef];
-        if (!privateKey)
+        status = SecIdentityCopyPrivateKey(identity, &privateKey);
+        if (status != errSecSuccess)
         {
             if (certificateSubject)
                 CFRelease((__bridge CFTypeRef)(certificateSubject));
@@ -90,11 +109,11 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
         }
     }
     
-    if(identity && certificate && certificateSubject && certificateData && privateKey)
+    if(identity && certificate && certificateSubject && certificateData && privateKey && certificateIssuer)
     {
         RegistrationInformation *info = [[RegistrationInformation alloc] initWithSecurityIdentity:identity
                                                                                 userPrincipalName:userPrincipalName
-                                                                            certificateProperties:certificateProperties
+                                                                            certificateIssuer:certificateIssuer
                                                                                       certificate:certificate
                                                                                certificateSubject:certificateSubject
                                                                                   certificateData:certificateData
@@ -192,7 +211,11 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
     {
         return [NSData data];
     }
-
+    
+    for (int i = 0; i < BASE64QUANTUMREP; i++) {
+        accumulated[i] = 0;
+    }
+    
     charString = (const unsigned char *)[string UTF8String];
     
     theData = [NSMutableData dataWithCapacity: [string length]];
@@ -246,7 +269,7 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
             }
             
         }
-
+        
     }
     
     return theData;
