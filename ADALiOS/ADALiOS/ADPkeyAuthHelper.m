@@ -96,6 +96,7 @@
     certAuths = [certAuths uppercaseString];
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:0 error:NULL];
     NSTextCheckingResult* matches = (NSTextCheckingResult*)[regex matchesInString:certAuths options:0 range:NSMakeRange(0, [certAuths length])];
+
     for (NSTextCheckingResult *match in matches)
     {
         NSString *text = [certAuths substringWithRange:match.range];
@@ -168,11 +169,11 @@
     if (hashBytes) {
         free(hashBytes);
     }
-    
     if (signedHashBytes) {
         free(signedHashBytes);
     }
     
+    return signedHash;
 #else
     
 //    CFErrorRef error = nil;
@@ -200,7 +201,7 @@
 //    CFRelease(signature);
     
 #endif
-    return signedHash;
+    return nil;
 }
 
 + (NSString *) createJSONFromDictionary:(NSDictionary *) dictionary{
@@ -209,12 +210,13 @@
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary
                                                        options:NSJSONWritingPrettyPrinted
                                                          error:&error];
+    NSString* returnValue = nil;
     if (! jsonData) {
         [ADLogger log:ADAL_LOG_LEVEL_ERROR message:[NSString stringWithFormat:@"Got an error: %@",error] errorCode:error.code additionalInformation:nil ];
     } else {
-        return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        returnValue = SAFE_ARC_AUTORELEASE([[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]);
     }
-    return nil;
+    return returnValue;
 }
 
 @end

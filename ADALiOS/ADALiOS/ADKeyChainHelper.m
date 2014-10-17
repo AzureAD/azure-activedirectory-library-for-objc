@@ -80,6 +80,11 @@ extern NSString* const sKeyChainlog;
     {
         return;
     }
+
+#if !TARGET_OS_IPHONE
+    [attributes removeObjectForKey:kSecAttrCreationDate];
+    [attributes removeObjectForKey:kSecAttrModificationDate];
+#endif
     
     [attributes setObject:_classValue forKey:(__bridge id)kSecClass];
     if (_genericValue)
@@ -89,7 +94,7 @@ extern NSString* const sKeyChainlog;
     if (![NSString adIsStringNilOrBlank:_sharedGroup])
     {
         //Apps are not signed on the simulator, so the shared group doesn't apply there.
-#if !(TARGET_IPHONE_SIMULATOR)
+#if !TARGET_IPHONE_SIMULATOR && TARGET_OS_IPHONE
         [attributes setObject:_sharedGroup forKey:(__bridge id)kSecAttrAccessGroup];
 #endif
     }
@@ -100,10 +105,9 @@ extern NSString* const sKeyChainlog;
                      error: (ADAuthenticationError* __autoreleasing*) error
 {
     RETURN_NO_ON_NIL_ARGUMENT(attributes);
-    
     NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:attributes];
     [self addStandardAttributes:query];
-    
+
     AD_LOG_VERBOSE_F(sKeyChainlog, @"Attempting to remove items that match attributes: %@", attributes);
     
     OSStatus res = SecItemDelete((__bridge CFDictionaryRef)query);
@@ -201,10 +205,10 @@ extern NSString* const sKeyChainlog;
     {
         case errSecSuccess:
             //Success:
-#if TARGET_OS_IPHONE
+#if __has_feature(objc_arc)
             toReturn = (__bridge_transfer NSArray*)all;
 #else
-            toReturn = (NSArray*)all;
+            toReturn = (NSArray*) all;
 #endif
             break;
         case errSecItemNotFound:
@@ -225,10 +229,9 @@ extern NSString* const sKeyChainlog;
         }
             break;
     }
-#if !__has_feature(objc_arc)
-    [updatedQuery release];
-#endif
-    return toReturn;
+    
+    SAFE_ARC_RELEASE(updatedQuery);
+    return SAFE_ARC_AUTORELEASE(toReturn);
 }
 
 -(BOOL) addItemWithAttributes: (NSDictionary*) attributes
@@ -322,11 +325,7 @@ extern NSString* const sKeyChainlog;
         return nil;
     }
     
-#if !__has_feature(objc_arc)
-    return (NSData*)data;
-#else
     return (__bridge_transfer NSData*)data;
-#endif
 }
 
 -(CFTypeRef) getItemTypeRefWithAttributes: (NSDictionary*) attributes

@@ -1250,7 +1250,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     
-#ifdef TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
     if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined ]){
         [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
     }
@@ -1287,7 +1287,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                 case 401:
                 {
 
-#ifdef TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
                     if(!isHandlingPKeyAuthChallenge){
                         NSString* wwwAuthValue = [headers valueForKey:wwwAuthenticateHeader];
                         if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName]){

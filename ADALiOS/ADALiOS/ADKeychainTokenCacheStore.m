@@ -68,10 +68,11 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         _mLibraryString  = [NSString stringWithFormat:@"MSOpenTech.ADAL.%ld", sKeychainVersion];
         SAFE_ARC_RETAIN(_mLibraryString);
         _mLibraryValue   = [_mLibraryString dataUsingEncoding:NSUTF8StringEncoding];
-        
+
         _mHelper = [[ADKeyChainHelper alloc] initWithClass:_mClassValue
                                                    generic:_mLibraryValue
                                                sharedGroup:sharedGroup];
+
     }
     return self;
 }
@@ -181,7 +182,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
             [toReturn setObject:dictionary forKey:key];
         }
     }
-    
+    allAttributes = nil;
     return toReturn;
 }
 
@@ -248,8 +249,12 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     {
         return nil;
     }
+    SAFE_ARC_RETAIN(data);
     
     ADTokenCacheStoreItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    
+    SAFE_ARC_RELEASE(data);
+    
     if ([item isKindOfClass:[ADTokenCacheStoreItem class]])
     {
         //Verify that the item is valid:
@@ -362,7 +367,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     {
         @synchronized(self)
         {
-            NSDictionary* keyItemsAttributes = [self keychainAttributesWithKey:key userId:userId error:&adError];
+            NSDictionary* keyItemsAttributes = SAFE_ARC_AUTORELEASE([self keychainAttributesWithKey:key userId:userId error:&adError]);
             if (keyItemsAttributes)
             {
                 if (!allowMany && keyItemsAttributes.count > 1)
@@ -374,7 +379,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                 else
                 {
                     //Note that we may have an empty dictionary too:
-                    NSMutableArray* array = [[NSMutableArray alloc] initWithCapacity:keyItemsAttributes.count];
+                    NSMutableArray* array = SAFE_ARC_AUTORELEASE([[NSMutableArray alloc] initWithCapacity:keyItemsAttributes.count]);
                     for(NSDictionary* attributes in keyItemsAttributes.allValues)
                     {
                         ADTokenCacheStoreItem* item = [self readCacheItemWithAttributes:attributes
@@ -391,16 +396,8 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                         }
                     }
                     toReturn = [array copy];
-#if !__has_feature(objc_arc)
-                    [array release];
-#else
-                    array = nil;
-#endif
                 }
             }
-#if !__has_feature(objc_arc)
-            [keyItemsAttributes release];
-#endif
         }
     }
     else
@@ -412,9 +409,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     {
         *error = adError;
     }
-#if !__has_feature(objc_arc)
-    [adError release];
-#endif
+                                                                    
     return toReturn;
 }
 
@@ -443,7 +438,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     API_ENTRY;
     
     NSMutableArray* toReturn = nil;
-    ADAuthenticationError* adError;
+    ADAuthenticationError* adError = nil;
     
     @synchronized(self)
     {
@@ -451,7 +446,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         NSMutableDictionary* all = [self keychainAttributesWithQuery:nil error:&adError];
         if (all)
         {
-            toReturn = [[NSMutableArray alloc] initWithCapacity:all.count];
+            toReturn = SAFE_ARC_AUTORELEASE([[NSMutableArray alloc] initWithCapacity:all.count]);
             for(NSDictionary* attributes in all.allValues)
             {
                 ADTokenCacheStoreItem* item = [self readCacheItemWithAttributes:attributes error:&adError];//The error is always logged internally.

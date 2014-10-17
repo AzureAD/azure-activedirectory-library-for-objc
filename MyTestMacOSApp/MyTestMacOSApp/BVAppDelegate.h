@@ -19,7 +19,7 @@
 }
 
 @property (assign) IBOutlet NSWindow *window;
-@property (weak, nonatomic) IBOutlet NSTextField *resultLabel;
+@property (assign) IBOutlet NSTextField *resultLabel;
 
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 @property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
@@ -28,5 +28,10 @@
 - (IBAction)saveAction:(id)sender;
 - (IBAction)endToEndAction:(id)sender;
 - (IBAction)showUsersAction:(id)sender;
+- (IBAction)expireAllAction:(id)sender;
+- (IBAction)clearCacheAndCookiesAction:(id)sender;
+- (IBAction)refreshTokenFlowAction:(id)sender;
+- (IBAction)acquireTokenSilentAction:(id)sender;
+- (IBAction)promptAlwaysAction:(id)sender;
 
 @end

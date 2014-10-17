@@ -83,6 +83,8 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
     [identityAttr removeObjectForKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
     status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)&identity);
     
+    SAFE_ARC_RELEASE(identityAttr);
+    
     //Get the identity
     if(status == errSecSuccess && identity)
     {
@@ -104,6 +106,9 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
                 CFRelease((__bridge CFTypeRef)(certificateSubject));
             if (certificateData)
                 CFRelease((__bridge CFTypeRef)(certificateData));
+            if(certificateIssuer){
+                SAFE_ARC_RELEASE(certificateIssuer);
+            }
             
             return nil;
         }
@@ -129,7 +134,9 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
             CFRelease((__bridge CFTypeRef)(certificateSubject));
         if (certificateData)
             CFRelease((__bridge CFTypeRef)(certificateData));
-        
+        if(certificateIssuer){
+            SAFE_ARC_RELEASE(certificateIssuer);
+        }
         return nil;
     }
 }
@@ -155,9 +162,8 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
 #endif
     
     SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)identity);
-    
     OSStatus status = SecIdentityCopyCertificate(*identity, clientCertificate );
-    
+    SAFE_ARC_AUTORELEASE(identityAttr);
     if (status == errSecSuccess)
     {
         return nil;
@@ -344,7 +350,7 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
     {
         privateKeyReference = NULL;
     }
-    
+    SAFE_ARC_AUTORELEASE(queryPrivateKey);
     return privateKeyReference;
 }
 

@@ -81,10 +81,10 @@
 		8BE8682E18D7BA5100D95ABB /* ADTokenCacheStoreItemTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BE8682118D7BA5100D95ABB /* ADTokenCacheStoreItemTest.m */; };
 		8BE8682F18D7BA5100D95ABB /* ADTokenCacheStoreKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BE8682218D7BA5100D95ABB /* ADTokenCacheStoreKeyTests.m */; };
 		8BE8683018D7BA5100D95ABB /* ADUserInformationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BE8682318D7BA5100D95ABB /* ADUserInformationTests.m */; };
-		974309B619E8432D007CFB0F /* ADKeyChainHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 974309B319E8432D007CFB0F /* ADKeyChainHelper.m */; };
 		974309B719E8432D007CFB0F /* ADKeychainTokenCacheStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 974309B419E8432D007CFB0F /* ADKeychainTokenCacheStore.h */; };
 		974309B819E8432D007CFB0F /* ADKeychainTokenCacheStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 974309B519E8432D007CFB0F /* ADKeychainTokenCacheStore.m */; };
 		974E4EDA19AC65AD00172D2C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 974E4ED919AC65AD00172D2C /* Security.framework */; };
+		977CD4D119F07FA1006E37C3 /* ADKeyChainHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 977CD4D019F07FA1006E37C3 /* ADKeyChainHelper.m */; };
 		97B59B5419BFBC9800DB79D0 /* ADKeyChainHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 97B59B5219BFBC9800DB79D0 /* ADKeyChainHelper.h */; };
 		97B59B5519BFBC9800DB79D0 /* WorkPlaceJoin.h in Headers */ = {isa = PBXBuildFile; fileRef = 97B59B5319BFBC9800DB79D0 /* WorkPlaceJoin.h */; };
 		97B59B6119BFBEA700DB79D0 /* ADPkeyAuthHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 97B59B5719BFBEA700DB79D0 /* ADPkeyAuthHelper.h */; };
@@ -191,10 +191,10 @@
 		8BE8682118D7BA5100D95ABB /* ADTokenCacheStoreItemTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADTokenCacheStoreItemTest.m; path = ../../ADALiOS/ADALiOSTests/ADTokenCacheStoreItemTest.m; sourceTree = "<group>"; };
 		8BE8682218D7BA5100D95ABB /* ADTokenCacheStoreKeyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADTokenCacheStoreKeyTests.m; path = ../../ADALiOS/ADALiOSTests/ADTokenCacheStoreKeyTests.m; sourceTree = "<group>"; };
 		8BE8682318D7BA5100D95ABB /* ADUserInformationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADUserInformationTests.m; path = ../../ADALiOS/ADALiOSTests/ADUserInformationTests.m; sourceTree = "<group>"; };
-		974309B319E8432D007CFB0F /* ADKeyChainHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADKeyChainHelper.m; path = ../../ADALiOS/ADALiOS/ADKeyChainHelper.m; sourceTree = "<group>"; };
 		974309B419E8432D007CFB0F /* ADKeychainTokenCacheStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADKeychainTokenCacheStore.h; path = ../../ADALiOS/ADALiOS/ADKeychainTokenCacheStore.h; sourceTree = "<group>"; };
 		974309B519E8432D007CFB0F /* ADKeychainTokenCacheStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADKeychainTokenCacheStore.m; path = ../../ADALiOS/ADALiOS/ADKeychainTokenCacheStore.m; sourceTree = "<group>"; };
 		974E4ED919AC65AD00172D2C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		977CD4D019F07FA1006E37C3 /* ADKeyChainHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADKeyChainHelper.m; path = ../../ADALiOS/ADALiOS/ADKeyChainHelper.m; sourceTree = "<group>"; };
 		97B59B5219BFBC9800DB79D0 /* ADKeyChainHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADKeyChainHelper.h; path = ../../ADALiOS/ADALiOS/ADKeyChainHelper.h; sourceTree = "<group>"; };
 		97B59B5319BFBC9800DB79D0 /* WorkPlaceJoin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WorkPlaceJoin.h; path = ../../ADALiOS/ADALiOS/WorkPlaceJoin.h; sourceTree = "<group>"; };
 		97B59B5719BFBEA700DB79D0 /* ADPkeyAuthHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADPkeyAuthHelper.h; path = ../../ADALiOS/ADALiOS/ADPkeyAuthHelper.h; sourceTree = "<group>"; };
@@ -275,8 +275,8 @@
 		4C60D4CE18C6960400F9EAAE /* ADAL-OSX */ = {
 			isa = PBXGroup;
 			children = (
+				977CD4D019F07FA1006E37C3 /* ADKeyChainHelper.m */,
 				97B59B5219BFBC9800DB79D0 /* ADKeyChainHelper.h */,
-				974309B319E8432D007CFB0F /* ADKeyChainHelper.m */,
 				974309B419E8432D007CFB0F /* ADKeychainTokenCacheStore.h */,
 				974309B519E8432D007CFB0F /* ADKeychainTokenCacheStore.m */,
 				97B59B5619BFBE7100DB79D0 /* WorkPlaceJoin */,
@@ -550,6 +550,7 @@
 				4C60D61C18C697E500F9EAAE /* NSString+ADHelperMethods.m in Sources */,
 				8BB1E69A1921476300A71479 /* NSDictionary+ADExtensions.m in Sources */,
 				4C60D5F018C697E500F9EAAE /* ADAuthenticationParameters+Internal.m in Sources */,
+				977CD4D119F07FA1006E37C3 /* ADKeyChainHelper.m in Sources */,
 				4C60D60118C697E500F9EAAE /* ADInstanceDiscovery.m in Sources */,
 				4C60D5EA18C697E500F9EAAE /* ADAuthenticationError.m in Sources */,
 				4C60D61218C697E500F9EAAE /* ADUserInformation.m in Sources */,
@@ -557,7 +558,6 @@
 				4C60D60B18C697E500F9EAAE /* ADTokenCacheStoreItem.m in Sources */,
 				8BB1E69B1921476300A71479 /* NSURL+ADExtensions.m in Sources */,
 				4C60D5FC18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.m in Sources */,
-				974309B619E8432D007CFB0F /* ADKeyChainHelper.m in Sources */,
 				4C42481818C83DBA00B2E350 /* ADAuthenticationWindowController.m in Sources */,
 				4C60D5E718C697E500F9EAAE /* ADAuthenticationContext.m in Sources */,
 				4C60D5F618C697E500F9EAAE /* ADAuthenticationSettings.m in Sources */,
@@ -726,10 +726,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ADAL-OSX/ADAL-OSX-Prefix.pch";
 				INFOPLIST_FILE = "ADAL-OSX/ADAL-OSX-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../OpenSSL/lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -748,10 +745,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ADAL-OSX/ADAL-OSX-Prefix.pch";
 				INFOPLIST_FILE = "ADAL-OSX/ADAL-OSX-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../OpenSSL/lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -780,7 +774,7 @@
 					"-ObjC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -807,7 +801,7 @@
 					"-ObjC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};

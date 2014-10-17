@@ -301,8 +301,8 @@ ID_TOKEN_PROPERTY_GETTER(GuestId, ID_TOKEN_GUEST_ID);
     if (self)
     {
         _userIdDisplayable  = [aDecoder decodeBoolForKey:@"userIdDisplayable"];
-        _rawIdToken         = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
-        _allClaims          = [aDecoder decodeObjectOfClass:[NSDictionary class] forKey:@"allClaims"];
+        _rawIdToken         = SAFE_ARC_RETAIN([aDecoder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"]);
+        _allClaims          = SAFE_ARC_RETAIN([aDecoder decodeObjectOfClass:[NSDictionary class] forKey:@"allClaims"]);
     }
     
     return self;
