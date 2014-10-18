@@ -34,7 +34,9 @@
     CC_SHA1(certificateData.bytes, certificateData.length, sha1Buffer);
     NSMutableString *fingerprint = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 3];
     for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; ++i)
+    {
         [fingerprint appendFormat:@"%02x ",sha1Buffer[i]];
+    }
     NSString* thumbprint = [fingerprint stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     thumbprint = [thumbprint uppercaseString];
     return [thumbprint stringByReplacingOccurrencesOfString:@" " withString:@""];
