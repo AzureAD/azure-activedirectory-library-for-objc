@@ -21,7 +21,7 @@
 
 @class ADWorkPlaceJoin;
 
-@interface ADWorkPlaceJoin : NSObject <NSURLConnectionDelegate>
+@interface ADWorkPlaceJoin : NSObject
 
 /// Returns a static instance of the WorkPlaceJoin class which can then be used
 /// to perform a join, leave, verify if the device is joined and get the

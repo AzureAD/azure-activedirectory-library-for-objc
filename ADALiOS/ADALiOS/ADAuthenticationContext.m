@@ -1386,8 +1386,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
         NSArray* pair = [headerPairs[i] componentsSeparatedByString:@"="];
         [headerKeyValuePair setValue:pair[1] forKey:[pair[0] adTrimmedString]];
     }
-    
-    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer challengeData:headerKeyValuePair];
+    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer challengeData:headerKeyValuePair challengeType:AD_THUMBPRINT];
     [headerKeyValuePair removeAllObjects];
     [headerKeyValuePair setObject:authHeader forKey:@"Authorization"];
     

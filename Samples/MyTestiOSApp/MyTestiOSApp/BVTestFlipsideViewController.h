@@ -34,4 +34,7 @@
 
 - (IBAction)done:(id)sender;
 
+- (IBAction)restoreDefaults:(id)sender;
+
+- (IBAction)save:(id)sender;
 @end
