@@ -81,11 +81,15 @@
 + (NSString*) getOrgUnitFromIssuer:(NSString*) issuer{
     NSString *regexString = @"[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:0 error:NULL];
-    NSTextCheckingResult* matches = (NSTextCheckingResult*)[regex matchesInString:issuer options:0 range:NSMakeRange(0, [issuer length])];
-    for (NSTextCheckingResult* match in matches)
-    {
-        return [NSString stringWithFormat:@"OU=%@", [issuer substringWithRange:match.range]];
+    
+    for (NSTextCheckingResult* myMatch in [regex matchesInString:issuer options:0 range:NSMakeRange(0, [issuer length])]){
+        for (NSUInteger i = 0; i < myMatch.numberOfRanges; ++i)
+        {
+            NSRange matchedRange = [myMatch rangeAtIndex: i];
+            return [NSString stringWithFormat:@"OU=%@", [issuer substringWithRange: matchedRange]];
+        }
     }
+    
     return nil;
 }
 
@@ -95,15 +99,18 @@
     keychainCertIssuer = [keychainCertIssuer uppercaseString];
     certAuths = [certAuths uppercaseString];
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:0 error:NULL];
-    NSTextCheckingResult* matches = (NSTextCheckingResult*)[regex matchesInString:certAuths options:0 range:NSMakeRange(0, [certAuths length])];
-
-    for (NSTextCheckingResult *match in matches)
-    {
-        NSString *text = [certAuths substringWithRange:match.range];
-        if([NSString adSame:text toString:keychainCertIssuer]){
-            return true;
+    
+    for (NSTextCheckingResult* myMatch in [regex matchesInString:certAuths options:0 range:NSMakeRange(0, [certAuths length])]){
+        for (NSUInteger i = 0; i < myMatch.numberOfRanges; ++i)
+        {
+            NSRange matchedRange = [myMatch rangeAtIndex: i];
+            NSString *text = [certAuths substringWithRange:matchedRange];
+            if([NSString adSame:text toString:keychainCertIssuer]){
+                return true;
+            }
         }
     }
+    
     return false;
 }
 
