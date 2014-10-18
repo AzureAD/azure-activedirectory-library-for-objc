@@ -91,7 +91,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     NSString *certificateSubject = nil;
     NSData *certificateData = nil;
     NSData *privateKeyData = nil;
-    NSString *certificateProperties = nil;
+    NSString *certificateIssuer = nil;
     NSString *userPrincipalName = nil;
     error = nil;
     
@@ -99,12 +99,30 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     [identityAttr setObject:(__bridge id)kSecClassIdentity forKey:(__bridge id)kSecClass];
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnRef)];
     [identityAttr setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
+    [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
     
 #if !TARGET_IPHONE_SIMULATOR
     [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
 #endif
     
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)&identity);
+    CFDictionaryRef  result;
+    OSStatus status = noErr;
+    //get the issuer information
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef *) &result);
+    
+    if (status == noErr) {
+        NSDictionary *  cerDict = (__bridge NSDictionary *) result;
+        assert([cerDict isKindOfClass:[NSDictionary class]]);
+        NSData* issuer = [cerDict objectForKey:(__bridge id)kSecAttrIssuer];
+        certificateIssuer = [[NSString alloc] initWithData:issuer encoding:NSISOLatin1StringEncoding];
+        CFRelease(result);
+    } else {
+        NSLog(@"error %d", (int) status);
+    }
+    
+    // now get the identity out and use it.
+    [identityAttr removeObjectForKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)&identity);
     
     //Get the identity
     if(status == errSecSuccess && identity)
@@ -133,11 +151,11 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
         
     }
     
-    if(identity && certificate && certificateSubject && certificateData && privateKey)
+    if(identity && certificate && certificateSubject && certificateData && privateKey && certificateIssuer)
     {
         ADRegistrationInformation *info = [[ADRegistrationInformation alloc] initWithSecurityIdentity:identity
                                                                                     userPrincipalName:userPrincipalName
-                                                                                certificateProperties:certificateProperties
+                                                                                    certificateIssuer:certificateIssuer
                                                                                           certificate:certificate
                                                                                    certificateSubject:certificateSubject
                                                                                       certificateData:certificateData

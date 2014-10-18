@@ -22,25 +22,49 @@
 #import "ADRegistrationInformation.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADWorkPlaceJoin.h"
-#import "ADOpenSSLHelper.h"
 #import "ADLogger.h"
 #import "ADErrorCodes.h"
 
 @implementation ADPkeyAuthHelper
 
++ (NSString*) computeThumbprint:(NSData*) certificateData{
+    
+    //compute SHA-1 thumbprint
+    unsigned char sha1Buffer[CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1(certificateData.bytes, certificateData.length, sha1Buffer);
+    NSMutableString *fingerprint = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 3];
+    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; ++i)
+        [fingerprint appendFormat:@"%02x ",sha1Buffer[i]];
+    NSString* thumbprint = [fingerprint stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    thumbprint = [thumbprint uppercaseString];
+    return [thumbprint stringByReplacingOccurrencesOfString:@" " withString:@""];
+}
+
+
 + (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
                          challengeData:(NSDictionary*) challengeData
+                         challengeType: (ADChallengeType) challengeType
 {
     ADRegistrationInformation *info = [[ADWorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
     NSString* authHeaderTemplate = @"PKeyAuth %@ Context=\"%@\", Version=\"%@\"";
     NSString* pKeyAuthHeader = @"";
+    BOOL challengeSuccessful = false;
     
-    NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
-    certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
-                                                                       withString:@""];
-    NSMutableSet* certIssuer = [ADOpenSSLHelper getCertificateIssuer:[info certificateData]];
+    if(challengeType == AD_ISSUER){
+        
+        NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
+        certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
+                                                                           withString:@""];
+        NSString* issuerOU = [ADPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
+        challengeSuccessful = [self isValidIssuer:certAuths keychainCertIssuer:issuerOU];
+    }else{
+        NSString* expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
+        if(expectedThumbprint){
+            challengeSuccessful = [NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]];
+        }
+    }
     
-    if([info isWorkPlaceJoined] && [self isValidIssuer:certAuths keychainCertIssuer:certIssuer]){
+    if(challengeSuccessful){
         pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
     }
     
@@ -49,30 +73,39 @@
     return [NSString stringWithFormat:authHeaderTemplate, pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
 }
 
-+ (BOOL) isValidIssuer:(NSString*) certAuths
-    keychainCertIssuer:(NSMutableSet*) keychainCertIssuer{
-    
-    NSArray * acceptedCerts = [certAuths componentsSeparatedByString:@";"];
-    BOOL isMatch = TRUE;
-    for (int i=0; i<[acceptedCerts count]; i++) {
-        isMatch = TRUE;
-        NSArray * keyPair = [[acceptedCerts objectAtIndex:i] componentsSeparatedByString:@","];
-        for(int index=0;index<[keyPair count]; index++){
-            if(![keychainCertIssuer containsObject:[keyPair objectAtIndex:index]]){
-                isMatch = false;
-                break;
-            }
-        }
-        if(isMatch) return isMatch;
+
++ (NSString*) getOrgUnitFromIssuer:(NSString*) issuer{
+    NSString *regexString = @"[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:0 error:NULL];
+    NSTextCheckingResult* matches = (NSTextCheckingResult*)[regex matchesInString:issuer options:0 range:NSMakeRange(0, [issuer length])];
+    for (NSTextCheckingResult* match in matches)
+    {
+        return [NSString stringWithFormat:@"OU=%@", [issuer substringWithRange:match.range]];
     }
-    return isMatch;
+    return nil;
+}
+
++ (BOOL) isValidIssuer:(NSString*) certAuths
+    keychainCertIssuer:(NSString*) keychainCertIssuer{
+    NSString *regexString = @"OU=[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
+    keychainCertIssuer = [keychainCertIssuer uppercaseString];
+    certAuths = [certAuths uppercaseString];
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:0 error:NULL];
+    NSTextCheckingResult* matches = (NSTextCheckingResult*)[regex matchesInString:certAuths options:0 range:NSMakeRange(0, [certAuths length])];
+    for (NSTextCheckingResult *match in matches)
+    {
+        NSString *text = [certAuths substringWithRange:match.range];
+        if([NSString adSame:text toString:keychainCertIssuer]){
+            return true;
+        }
+    }
+    return false;
 }
 
 + (NSString *) createDeviceAuthResponse:(NSString*) audience
                                   nonce:(NSString*) nonce
                                identity:(ADRegistrationInformation *) identity{
-    
-    
+
     NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];
     NSDictionary *header = @{
                              @"alg" : @"RS256",
@@ -96,6 +129,7 @@
 +(NSData *) sign: (SecKeyRef) privateKey
             data:(NSData *) plainData
 {
+    NSData* signedHash = nil;
     size_t signedHashBytesSize = SecKeyGetBlockSize(privateKey);
     uint8_t* signedHashBytes = malloc(signedHashBytesSize);
     memset(signedHashBytes, 0x0, signedHashBytesSize);
@@ -119,14 +153,16 @@
                                     &signedHashBytesSize);
     
     [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"Status returned from data signing - " errorCode:status additionalInformation:nil ];
-    NSData* signedHash = [NSData dataWithBytes:signedHashBytes
-                                        length:(NSUInteger)signedHashBytesSize];
+    signedHash = [NSData dataWithBytes:signedHashBytes
+                                length:(NSUInteger)signedHashBytesSize];
     
-    if (hashBytes)
+    if (hashBytes) {
         free(hashBytes);
-    if (signedHashBytes)
-        free(signedHashBytes);
+    }
     
+    if (signedHashBytes) {
+        free(signedHashBytes);
+    }
     return signedHash;
 }
 
