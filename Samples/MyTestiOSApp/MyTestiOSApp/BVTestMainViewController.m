@@ -278,7 +278,7 @@
         return;
     }
     //We will leverage a multi-resource refresh token:
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:authority resource:nil clientId:clientId error:&error];
+    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:authority resource:resourceString clientId:clientId error:&error];
     if (!key)
     {
         [self setStatus:error.errorDetails];
