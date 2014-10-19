@@ -367,7 +367,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     {
         @synchronized(self)
         {
-            NSDictionary* keyItemsAttributes = SAFE_ARC_AUTORELEASE([self keychainAttributesWithKey:key userId:userId error:&adError]);
+            NSDictionary* keyItemsAttributes = ([self keychainAttributesWithKey:key userId:userId error:&adError]);
             if (keyItemsAttributes)
             {
                 if (!allowMany && keyItemsAttributes.count > 1)
