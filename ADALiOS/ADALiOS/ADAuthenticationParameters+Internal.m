@@ -32,9 +32,12 @@ NSString* const ConnectionError = @"Connection error: %@";
 NSString* const InvalidResponse = @"Missing or invalid Url response.";
 NSString* const UnauthorizedHTTStatusExpected = @"Expected Unauthorized (401) HTTP status code. Actual status code %d";
 const unichar Quote = '\"';
-//The regular expression that matches the Bearer contents:
-NSString* const RegularExpression = @"^Bearer\\s+([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*(?:,\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*)*$";
-NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
+// The regular expressions that match the Bearer contents
+// Note that the expressions support key-value pairs in the payload with single/double/no quotation marks
+// surrounding the value part
+// Comma and white space characters are not treated as valid characters in the key-value pairs
+NSString* const RegularExpression = @"^Bearer\\s+(?:[^,\\s='\"]+)=(['\"]?)(?:[^,\\s'\"]+)\\1\\s*(?:,\\s*(?:[^,\\s='\"]+)=(['\"]?)(?:[^,\\s'\"]+)\\2\\s*)*$";
+NSString* const ExtractionExpression = @"([^,\\s='\"]+)=(['\"]?)([^,\\s'\"]+)\\2";
 
 @implementation ADAuthenticationParameters (Internal)
 
@@ -97,7 +100,7 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
         if (overAllRegEx)
         {
             long matched = [overAllRegEx numberOfMatchesInString:headerContents options:0 range:NSMakeRange(0, headerContents.length)];
-            if (!matched)
+            if (matched != 1)
             {
                 adError = [self invalidHeader:headerContents];
             }
@@ -116,8 +119,13 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
                                                       options:0
                                                         range:NSMakeRange(0, headerContents.length)
                                                    usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
-                     {//Block executed for each name-value match:
-                         if (result.numberOfRanges != 3)//0: whole match, 1 - name group, 2 - value group
+                     {   //Block executed for each key-value match:
+                         if (result.numberOfRanges != 4)
+                             // 3 capture groups for ExtractionExpression
+                             // 0: entire key-value pair
+                             // 1: key capture group
+                             // 2: quote (' or ") capture group. If no quote is used, this capture group could correspond to an empty string
+                             // 3: value capture group
                          {
                              //Shouldn't happen given the explicit expressions and matches, but just in case:
                              adError = [self invalidHeader:headerContents];
@@ -125,7 +133,7 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
                          else
                          {
                              NSRange key = [result rangeAtIndex:1];
-                             NSRange value = [result rangeAtIndex:2];
+                             NSRange value = [result rangeAtIndex:3];
                              if (key.length && value.length)
                              {
                                  [parameters setObject:[headerContents substringWithRange:value]

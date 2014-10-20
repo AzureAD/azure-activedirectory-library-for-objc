@@ -890,15 +890,23 @@ return; \
 {
     THROW_ON_NIL_ARGUMENT(result);
     userId = [ADUserInformation normalizeUserId:userId];
+    
     NSString* actualUser = result.tokenCacheStoreItem.userInformation.userId;
+    BOOL userIdDisplayable = result.tokenCacheStoreItem.userInformation.userIdDisplayable;
+    
     if (!userId || AD_SUCCEEDED != result.status || !actualUser)
     {
         //No user to compare - either no specific user id requested, or no specific userId obtained:
         return result;
     }
     
-    
-    if (![userId isEqualToString:actualUser])
+    // Only compare displayable id extracted from the id_token
+    // This specifically excludes the sub claim content
+    // BUGBUG: this is just a temporary workaround of the real problem. When prompted by the ADFS server,
+    // the user can use either DOMAIN\USERNAME or his/her email address as the account name, which does not
+    // necessarily need to be the same with the userId parameter here. This possible inconsistency renders
+    // the check extraneous and error-prone.
+    if (userIdDisplayable && ![userId isEqualToString:actualUser])
     {
         NSString* errorText = [NSString stringWithFormat:@"Different user was authenticated. Expected: '%@'; Actual: '%@'. Either the user entered credentials for different user, or cookie for different logged user is present. Consider calling acquireToken with AD_PROMPT_ALWAYS to ignore the cookie.",
                                userId, actualUser];
