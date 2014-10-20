@@ -61,11 +61,16 @@
 
 - (void)flipsideViewControllerDidFinish:(BVTestFlipsideViewController *)controller
 {
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+    
+//    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
         [self dismissViewControllerAnimated:YES completion:nil];
-    } else {
-        [self.flipsidePopoverController dismissPopoverAnimated:YES];
-    }
+//    } else {
+//        [self.flipsidePopoverController dismissPopoverAnimated:YES];
+//    }
+    
+    ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
+    settings.enableFullScreen = [mAADInstance enableFullScreen];
+    settings.requestTimeOut = [mAADInstance requestTimeout];
 }
 
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
@@ -78,11 +83,11 @@
     if ([[segue identifier] isEqualToString:@"showAlternate"]) {
         [[segue destinationViewController] setDelegate:self];
         
-        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-            UIPopoverController *popoverController = [(UIStoryboardPopoverSegue *)segue popoverController];
-            self.flipsidePopoverController = popoverController;
-            popoverController.delegate = self;
-        }
+//        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+//            UIPopoverController *popoverController = [(UIStoryboardPopoverSegue *)segue popoverController];
+//            self.flipsidePopoverController = popoverController;
+//            popoverController.delegate = self;
+//        }
     }
 }
 
