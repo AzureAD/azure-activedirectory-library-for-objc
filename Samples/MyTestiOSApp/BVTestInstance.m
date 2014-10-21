@@ -17,27 +17,72 @@
 // governing permissions and limitations under the License.
 
 #import "BVTestInstance.h"
+#import <ADALiOS/ADAuthenticationSettings.h>
 
 @implementation BVTestInstance
 
--(id) initWithDictionary: (NSDictionary*) contents
+const NSString* AUTHORITY = @"Authority";
+const NSString* CLIENT_ID = @"ClientId";
+const NSString* RESOURCE = @"Resource";
+const NSString* REDIRECT_URI = @"RedirectUri";
+const NSString* USER_ID= @"UserId";
+const NSString* PASSWORD= @"Password";
+const NSString* SUPPORTS_VALIDATION= @"SupportsValidation";
+const NSString* EXTRA_QUERYPARAMETERS= @"ExtraQueryParameters";
+const NSString* ENABLE_FULLSCREEN= @"FullScreen";
+const NSString* REQUEST_TIMEOUT = @"RequestTimeout";
+
++ (id) getInstance: (NSDictionary*) contents
 {
-    self = [super init];
-    if (!self)
-    {
-        return nil;
-    }
-    self->_authority            = [contents objectForKey:@"Authority"];
-    self->_clientId             = [contents objectForKey:@"ClientId"];
-    self->_resource             = [contents objectForKey:@"Resource"];
-    self->_redirectUri          = [contents objectForKey:@"RedirectUri"];
-    self->_userId               = [contents objectForKey:@"UserId"];
-    self->_password             = [contents objectForKey:@"Password"];
-    NSString* va = [contents objectForKey:@"SupportsValidation"];
-    self->_validateAuthority    = [va boolValue];
-    self->_extraQueryParameters = [contents objectForKey:@"extraQueryParameters"];
+    static BVTestInstance *instance = nil;
+    static dispatch_once_t onceToken;
     
-    return self;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+        instance->_originalContents = contents;
+        [instance loadProperties:instance->_originalContents];
+    });
+    
+    return instance;
+}
+
+- (void) loadProperties: (NSDictionary*) contents
+{
+    self->_authority            = [contents objectForKey:AUTHORITY];
+    self->_clientId             = [contents objectForKey:CLIENT_ID];
+    self->_resource             = [contents objectForKey:RESOURCE];
+    self->_redirectUri          = [contents objectForKey:REDIRECT_URI];
+    self->_userId               = [contents objectForKey:USER_ID];
+    self->_password             = [contents objectForKey:PASSWORD];
+    NSString* va = [contents objectForKey:SUPPORTS_VALIDATION];
+    self->_validateAuthority    = [va boolValue];
+    self->_extraQueryParameters = [contents objectForKey:EXTRA_QUERYPARAMETERS];
+    
+    va = [contents objectForKey:ENABLE_FULLSCREEN];
+    if (va) {
+        self->_enableFullScreen    = [va boolValue];
+    }else{
+        self->_enableFullScreen   = [[ADAuthenticationSettings sharedInstance] enableFullScreen];
+    }
+    
+    va = [contents objectForKey:REQUEST_TIMEOUT];
+    if (va) {
+        self->_requestTimeout    = [va intValue];
+    }else{
+        self->_requestTimeout   = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
+    }
+}
+
+
+-(void) updateValues: (NSDictionary*) contents
+{
+    [self loadProperties:contents];
+}
+
+
+-(void) restoreDefaults
+{
+    [self loadProperties:_originalContents];
 }
 
 @end

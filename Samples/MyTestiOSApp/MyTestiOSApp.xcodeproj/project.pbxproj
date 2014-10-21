@@ -24,7 +24,6 @@
 		8BA42B1217E3C150002D206E /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B1017E3C150002D206E /* Main_iPad.storyboard */; };
 		8BA42B1517E3C150002D206E /* MyTestiOSApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B1317E3C150002D206E /* MyTestiOSApp.xcdatamodeld */; };
 		8BA42B1817E3C150002D206E /* BVTestMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B1717E3C150002D206E /* BVTestMainViewController.m */; };
-		8BA42B1B17E3C150002D206E /* BVTestFlipsideViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B1A17E3C150002D206E /* BVTestFlipsideViewController.m */; };
 		8BA42B1D17E3C150002D206E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B1C17E3C150002D206E /* Images.xcassets */; };
 		8BA42B2417E3C150002D206E /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA42B2317E3C150002D206E /* XCTest.framework */; };
 		8BA42B2517E3C150002D206E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA42AF917E3C150002D206E /* Foundation.framework */; };
@@ -33,6 +32,7 @@
 		8BA42B2F17E3C150002D206E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B2D17E3C150002D206E /* InfoPlist.strings */; };
 		8BA42B3117E3C150002D206E /* MyTestiOSAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */; };
 		8BAB18B4184576B700FDD4DD /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BAB18B3184576B700FDD4DD /* libADALiOS.a */; };
+		97E5968719F5C82200D9F44E /* BVTestFlipsideViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B1A17E3C150002D206E /* BVTestFlipsideViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -306,10 +306,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				97E5968719F5C82200D9F44E /* BVTestFlipsideViewController.m in Sources */,
 				8B87548F18997DB70061999F /* BVTestInstance.m in Sources */,
 				8BA42B0C17E3C150002D206E /* BVTestAppDelegate.m in Sources */,
 				8BA42B1817E3C150002D206E /* BVTestMainViewController.m in Sources */,
-				8BA42B1B17E3C150002D206E /* BVTestFlipsideViewController.m in Sources */,
 				8BA42B1517E3C150002D206E /* MyTestiOSApp.xcdatamodeld in Sources */,
 				8B87548C189978350061999F /* BVSettings.m in Sources */,
 				8BA42B0817E3C150002D206E /* main.m in Sources */,

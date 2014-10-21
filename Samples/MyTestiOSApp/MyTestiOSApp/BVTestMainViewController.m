@@ -43,7 +43,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+    // Do any additional setup after loading the view, typically from a nib.
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];//Log everything
     
     mTestData = [BVSettings new];
@@ -61,11 +61,11 @@
 
 - (void)flipsideViewControllerDidFinish:(BVTestFlipsideViewController *)controller
 {
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
-        [self dismissViewControllerAnimated:YES completion:nil];
-    } else {
-        [self.flipsidePopoverController dismissPopoverAnimated:YES];
-    }
+    [self dismissViewControllerAnimated:YES completion:nil];
+    
+    ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
+    settings.enableFullScreen = [mAADInstance enableFullScreen];
+    settings.requestTimeOut = [mAADInstance requestTimeout];
 }
 
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
@@ -77,12 +77,6 @@
 {
     if ([[segue identifier] isEqualToString:@"showAlternate"]) {
         [[segue destinationViewController] setDelegate:self];
-        
-        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-            UIPopoverController *popoverController = [(UIStoryboardPopoverSegue *)segue popoverController];
-            self.flipsidePopoverController = popoverController;
-            popoverController.delegate = self;
-        }
     }
 }
 
@@ -139,6 +133,7 @@
                                   clientId:clientId
                                redirectUri:[NSURL URLWithString:redirectUri]
                                     userId:userId
+                      extraQueryParameters: mAADInstance.extraQueryParameters
                            completionBlock:^(ADAuthenticationResult *result) {
                                if (result.status != AD_SUCCEEDED)
                                {
@@ -351,7 +346,7 @@
                           redirectUri:[NSURL URLWithString:mAADInstance.redirectUri]
                        promptBehavior:AD_PROMPT_ALWAYS
                                userId:mAADInstance.userId
-                 extraQueryParameters:@""
+                 extraQueryParameters:mAADInstance.extraQueryParameters
                       completionBlock:^(ADAuthenticationResult *result)
      {
          if (result.status != AD_SUCCEEDED)

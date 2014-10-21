@@ -26,9 +26,6 @@
 @end
 
 @interface BVTestFlipsideViewController : UIViewController
-{
-    NSString* myMember;
-}
 
 @property (weak, nonatomic) id <BVTestFlipsideViewControllerDelegate> delegate;
 
