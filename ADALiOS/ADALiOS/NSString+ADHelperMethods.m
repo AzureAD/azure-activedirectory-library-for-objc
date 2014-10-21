@@ -106,7 +106,7 @@ BOOL validBase64Characters(const byte* data, const int size)
     
     byte *pbDecoded = (byte *)calloc( cbDecodedSize, sizeof(byte) );
     
-    if(!pbEncoded) {
+    if(!pbDecoded) {
         free(pbDecoded);
         return nil;
     }
