@@ -142,10 +142,21 @@
     NSData* signedHash = nil;
     size_t signedHashBytesSize = SecKeyGetBlockSize(privateKey);
     uint8_t* signedHashBytes = malloc(signedHashBytesSize);
+    if(!signedHashBytes){
+        free(signedHashBytes);
+        return nil;
+    }
+    
     memset(signedHashBytes, 0x0, signedHashBytesSize);
     
     size_t hashBytesSize = CC_SHA256_DIGEST_LENGTH;
     uint8_t* hashBytes = malloc(hashBytesSize);
+    if(!hashBytes){
+        free(hashBytes);
+        free(signedHashBytes);
+        return nil;
+    }
+    
     if (!CC_SHA256([plainData bytes], (CC_LONG)[plainData length], hashBytes)) {
         [ADLogger log:ADAL_LOG_LEVEL_ERROR message:@"Could not compute SHA265 hash." errorCode:AD_ERROR_UNEXPECTED additionalInformation:nil ];
         if (hashBytes)
