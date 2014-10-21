@@ -149,9 +149,19 @@
     size_t signedHashBytesSize = SecKeyGetBlockSize(privateKey);
     uint8_t* signedHashBytes = malloc(signedHashBytesSize);
     memset(signedHashBytes, 0x0, signedHashBytesSize);
+    if(!signedHashBytes){
+        free(signedHashBytes);
+        return nil;
+    }
     
     size_t hashBytesSize = CC_SHA256_DIGEST_LENGTH;
     uint8_t* hashBytes = malloc(hashBytesSize);
+    if(!hashBytes){
+        free(hashBytes);
+        free(signedHashBytes);
+        return nil;
+    }
+    
     if (!CC_SHA256([plainData bytes], (CC_LONG)[plainData length], hashBytes)) {
         [ADLogger log:ADAL_LOG_LEVEL_ERROR message:@"Could not compute SHA265 hash." errorCode:AD_ERROR_UNEXPECTED additionalInformation:nil ];
         if (hashBytes)
@@ -171,7 +181,7 @@
     
     [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"Status returned from data signing - " errorCode:status additionalInformation:nil ];
     signedHash = [NSData dataWithBytes:signedHashBytes
-                                        length:(NSUInteger)signedHashBytesSize];
+                                length:(NSUInteger)signedHashBytesSize];
     
     if (hashBytes) {
         free(hashBytes);
@@ -183,29 +193,29 @@
     return signedHash;
 #else
     
-//    CFErrorRef error = nil;
-//    SecTransformRef signingTransform = SecSignTransformCreate(privateKey, &error);
-//    if (signingTransform == NULL)
-//        return NULL;
-//    
-//    Boolean success = SecTransformSetAttribute(signingTransform, kSecDigestTypeAttribute, kSecDigestSHA2, &error);
-//    
-//    if (success) {
-//        success = SecTransformSetAttribute(signingTransform,
-//                                           kSecTransformInputAttributeName,
-//                                           hashBytes,
-//                                           &error) != false;
-//    }
-//    if (!success) {
-//        CFRelease(signingTransform);
-//        return NULL;
-//    }
-//    
-//    CFDataRef signature = SecTransformExecute(signingTransform, &error);
-//    CFRetain(signature);
-//    signedHash = (__bridge id)signature;
-//    CFRelease(signingTransform);
-//    CFRelease(signature);
+    //    CFErrorRef error = nil;
+    //    SecTransformRef signingTransform = SecSignTransformCreate(privateKey, &error);
+    //    if (signingTransform == NULL)
+    //        return NULL;
+    //
+    //    Boolean success = SecTransformSetAttribute(signingTransform, kSecDigestTypeAttribute, kSecDigestSHA2, &error);
+    //
+    //    if (success) {
+    //        success = SecTransformSetAttribute(signingTransform,
+    //                                           kSecTransformInputAttributeName,
+    //                                           hashBytes,
+    //                                           &error) != false;
+    //    }
+    //    if (!success) {
+    //        CFRelease(signingTransform);
+    //        return NULL;
+    //    }
+    //
+    //    CFDataRef signature = SecTransformExecute(signingTransform, &error);
+    //    CFRetain(signature);
+    //    signedHash = (__bridge id)signature;
+    //    CFRelease(signingTransform);
+    //    CFRelease(signature);
     
 #endif
     return nil;
