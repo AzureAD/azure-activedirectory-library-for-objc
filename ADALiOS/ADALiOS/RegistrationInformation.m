@@ -26,12 +26,12 @@
 @synthesize userPrincipalName = _userPrincipalName;
 @synthesize certificateSubject = _certificateSubject;
 @synthesize certificateData = _certificateData;
-@synthesize certificateProperties = _certificateProperties;
+@synthesize certificateIssuer = _certificateIssuer;
 @synthesize privateKeyData = _privateKeyData;
 
 -(id)initWithSecurityIdentity:(SecIdentityRef)identity
             userPrincipalName:(NSString*)userPrincipalName
-        certificateProperties:(NSString*)certificateProperties
+        certificateIssuer:(NSString*)certificateIssuer
                   certificate:(SecCertificateRef)certificate
            certificateSubject:(NSString*)certificateSubject
               certificateData:(NSData*)certificateData
@@ -49,7 +49,7 @@
         _certificateData = SAFE_ARC_RETAIN(certificateData);
         _privateKey = privateKey;
         _privateKeyData = SAFE_ARC_RETAIN(privateKeyData);
-        _certificateProperties = SAFE_ARC_RETAIN(certificateProperties);
+        _certificateIssuer = SAFE_ARC_RETAIN(certificateIssuer);
         return self;
     }
     return nil;
@@ -95,12 +95,7 @@
         }
         
         if(_certificateData){
-            CFRelease((__bridge CFTypeRef)(_certificateData));
             _certificateData = nil;
-        }
-        if(_privateKeyData){
-            CFRelease((__bridge CFTypeRef)_privateKeyData);
-            _privateKeyData = nil;
         }
         
         if(_userPrincipalName){
@@ -108,9 +103,8 @@
             _userPrincipalName = nil;
         }
         
-        if(_certificateProperties){
-            CFRelease((__bridge CFTypeRef)(_certificateProperties));
-            _certificateProperties = nil;
+        if(_certificateIssuer){
+            _certificateIssuer = nil;
         }
         
     }

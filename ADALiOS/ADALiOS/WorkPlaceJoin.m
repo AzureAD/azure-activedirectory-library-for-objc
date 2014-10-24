@@ -25,10 +25,7 @@
 @implementation WorkPlaceJoin
 
 NSString* sharedGroup;
-NSArray *_upnParts;
-NSString *_userPrincipalName;
 static WorkPlaceJoin* wpjManager;
-NSString* _oauthClientId;
 
 #pragma mark - Public Methods
 
@@ -47,8 +44,14 @@ NSString* _oauthClientId;
     if (self) {
         [WorkPlaceJoinUtil WorkPlaceJoinUtilManager].workplaceJoin = self;
         sharedGroup = [NSString stringWithFormat:@"%@.%@", [[WorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix], _defaultSharedGroup];
+         SAFE_ARC_RETAIN(sharedGroup);
     }
     return self;
+}
+
+- (void) dealloc{
+    SAFE_ARC_RELEASE(sharedGroup);
+    SAFE_ARC_SUPER_DEALLOC();
 }
 
 - (BOOL)isWorkPlaceJoined
