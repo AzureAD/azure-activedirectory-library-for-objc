@@ -51,17 +51,20 @@ typedef enum
     /*! Users will be prompted only if their attention is needed. Default option. */
     AD_PROMPT_AUTO,
     
+    /*! The user will be prompted explicitly for credentials, consent or any other prompts. This option
+     is useful in multi-user scenarios. Example is authenticating for the same e-mail service with different
+     user */
+    AD_PROMPT_ALWAYS,
+    
+    /*! There's a value that exists here in the Master branch, but not for us. */
+    AD_PROMPT_NOT_MERGED_YET,
+    
     /*! Users will never be prompted. If their attention is needed, the corresponding calls will fail
      with appropriate error code. This option is useful for background running tasks, while the user
      attention is occupied by another activity. A subsequent call with AD_PROMPT_AUTO may be made in more
      appropriate time.
      */
     AD_PROMPT_NEVER,
-    
-    /*! The user will be prompted explicitly for credentials, consent or any other prompts. This option
-     is useful in multi-user scenarios. Example is authenticating for the same e-mail service with different
-     user */
-    AD_PROMPT_ALWAYS,
 } ADPromptBehavior;
 
 @class ADAuthenticationResult;
