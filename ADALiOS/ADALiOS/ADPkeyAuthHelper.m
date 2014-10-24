@@ -31,7 +31,7 @@
     
     //compute SHA-1 thumbprint
     unsigned char sha1Buffer[CC_SHA1_DIGEST_LENGTH];
-    CC_SHA1(certificateData.bytes, certificateData.length, sha1Buffer);
+    CC_SHA1(certificateData.bytes, (CC_LONG)certificateData.length, sha1Buffer);
     NSMutableString *fingerprint = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 3];
     for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; ++i)
         [fingerprint appendFormat:@"%02x ",sha1Buffer[i]];
@@ -148,16 +148,15 @@
     NSData* signedHash = nil;
     size_t signedHashBytesSize = SecKeyGetBlockSize(privateKey);
     uint8_t* signedHashBytes = malloc(signedHashBytesSize);
-    memset(signedHashBytes, 0x0, signedHashBytesSize);
     if(!signedHashBytes){
-        free(signedHashBytes);
         return nil;
     }
+    
+    memset(signedHashBytes, 0x0, signedHashBytesSize);
     
     size_t hashBytesSize = CC_SHA256_DIGEST_LENGTH;
     uint8_t* hashBytes = malloc(hashBytesSize);
     if(!hashBytes){
-        free(hashBytes);
         free(signedHashBytes);
         return nil;
     }
@@ -218,6 +217,12 @@
     //    CFRelease(signature);
     
 #endif
+    if (hashBytes) {
+        free(hashBytes);
+    }
+    if (signedHashBytes) {
+        free(signedHashBytes);
+    }
     return nil;
 }
 

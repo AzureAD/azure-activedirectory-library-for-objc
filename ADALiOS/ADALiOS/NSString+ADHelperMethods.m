@@ -106,7 +106,6 @@ static BOOL validBase64Characters(const byte* data, const int size)
     
     byte *pbDecoded = (byte *)calloc( cbDecodedSize, sizeof(byte) );
     if(!pbDecoded) {
-        free(pbDecoded);
         return nil;
     }
     
@@ -195,7 +194,6 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     int   encodedSize = 1 + ( cbBytes + 2 ) / 3 * 4;
     char *pbEncoded = (char *)calloc( encodedSize, sizeof(char) );
     if(!pbEncoded) {
-        free(pbEncoded);
         return nil;
     }
     

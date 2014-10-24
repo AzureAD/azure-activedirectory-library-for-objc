@@ -183,7 +183,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         }
     }
     allAttributes = nil;
-    return toReturn;
+    return SAFE_ARC_AUTORELEASE(toReturn);
 }
 
 //Log operations that result in storing or reading cache item:
@@ -410,7 +410,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         *error = adError;
     }
                                                                     
-    return toReturn;
+    return SAFE_ARC_AUTORELEASE(toReturn);
 }
 
 //Removes all items, specified by the passed dictionary.
