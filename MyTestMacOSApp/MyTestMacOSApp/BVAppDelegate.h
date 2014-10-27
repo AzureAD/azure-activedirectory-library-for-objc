@@ -12,14 +12,16 @@
 {
 //@private:
     IBOutlet NSWindow *_window;
-    IBOutlet NSTextField *_resultLabel;
+    IBOutlet NSTextView *_resultField;
+    IBOutlet NSTextView *_samlAssertionField;
     NSPersistentStoreCoordinator *_persistentStoreCoordinator;
     NSManagedObjectModel         *_managedObjectModel;
     NSManagedObjectContext       *_managedObjectContext;
 }
 
 @property (assign) IBOutlet NSWindow *window;
-@property (assign) IBOutlet NSTextField *resultLabel;
+@property (assign) IBOutlet NSTextView *resultField;
+@property (assign) IBOutlet NSTextView *samlAssertionField;
 
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 @property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
@@ -33,5 +35,6 @@
 - (IBAction)refreshTokenFlowAction:(id)sender;
 - (IBAction)acquireTokenSilentAction:(id)sender;
 - (IBAction)promptAlwaysAction:(id)sender;
+- (IBAction)samlAssertionAction:(id)sender;
 
 @end

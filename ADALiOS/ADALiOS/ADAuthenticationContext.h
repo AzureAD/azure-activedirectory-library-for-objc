@@ -46,6 +46,14 @@ typedef WebView WebViewType;
 #   define __weak_delegate __unsafe_unretained
 #endif
 
+
+typedef enum
+{
+    AD_SAML1_1,
+    AD_SAML2,
+} ADAssertionType;
+
+
 typedef enum
 {
     /*! Users will be prompted only if their attention is needed. Default option. */
@@ -164,6 +172,17 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 /*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
  when needed, leveraging the parentController property. */
 @property (weak_property) WebViewType* webView;
+
+
+
+-(void)  acquireTokenForAssertion: (NSString*) samlAssertion
+assertionType: (ADAssertionType) assertionType
+resource: (NSString*) resource
+clientId: (NSString*) clientId
+userId: (NSString*) userId
+completionBlock: (ADAuthenticationCallback) completionBlock;
+
+
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,

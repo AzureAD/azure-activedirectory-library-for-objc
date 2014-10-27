@@ -94,18 +94,14 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
         if(certificate)
         {
             AD_LOG_VERBOSE(@"Found certificate in keychain", nil);
-            certificateSubject = (__bridge NSString *)(SecCertificateCopySubjectSummary(certificate));
-            certificateData = (__bridge NSData *)(SecCertificateCopyData(certificate));
+            certificateSubject = (NSString *)CFBridgingRelease(SecCertificateCopySubjectSummary(certificate));
+            certificateData = (NSData *)CFBridgingRelease(SecCertificateCopyData(certificate));
         }
         
         //Get the private key and data
         status = SecIdentityCopyPrivateKey(identity, &privateKey);
         if (status != errSecSuccess)
         {
-            if (certificateSubject)
-                CFRelease((__bridge CFTypeRef)(certificateSubject));
-            if (certificateData)
-                CFRelease((__bridge CFTypeRef)(certificateData));
             if(certificateIssuer){
                 SAFE_ARC_RELEASE(certificateIssuer);
             }
@@ -128,15 +124,11 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
     }
     else
     {
-        AD_LOG_ERROR(@"Unable to extract a workplace join identity from the shared access keychain", status, nil);
-        
-        if (certificateSubject)
-            CFRelease((__bridge CFTypeRef)(certificateSubject));
-        if (certificateData)
-            CFRelease((__bridge CFTypeRef)(certificateData));
+        AD_LOG_VERBOSE_F(@"Unable to extract a workplace join identity for", @"%@ shared access keychain", sharedAccessGroup);
         if(certificateIssuer){
             SAFE_ARC_RELEASE(certificateIssuer);
         }
+        
         return nil;
     }
 }
