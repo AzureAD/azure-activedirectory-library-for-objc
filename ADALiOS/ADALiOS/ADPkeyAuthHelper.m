@@ -143,7 +143,6 @@
     size_t signedHashBytesSize = SecKeyGetBlockSize(privateKey);
     uint8_t* signedHashBytes = malloc(signedHashBytesSize);
     if(!signedHashBytes){
-        free(signedHashBytes);
         return nil;
     }
     
@@ -152,7 +151,6 @@
     size_t hashBytesSize = CC_SHA256_DIGEST_LENGTH;
     uint8_t* hashBytes = malloc(hashBytesSize);
     if(!hashBytes){
-        free(hashBytes);
         free(signedHashBytes);
         return nil;
     }
