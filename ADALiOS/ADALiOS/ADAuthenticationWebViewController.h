@@ -43,7 +43,6 @@ typedef WebView   WebViewType;
     NSString *_endURL;
     BOOL      _complete;
     float     _timeout;
-    
     NSTimer   *_timer;
     
 #if TARGET_OS_IPHONE

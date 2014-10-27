@@ -163,9 +163,9 @@ decisionListener:(id<WebPolicyDecisionListener>)listener
 {
 #pragma unused(webView)
 #pragma unused(actionInformation)
-	if ([_parentDelegate respondsToSelector:@selector(webView: decidePolicyForNavigationAction:request:frame:decisionListener:)])
+    if ([_parentDelegate respondsToSelector:@selector(webView: decidePolicyForNavigationAction:request:frame:decisionListener:)]){
         [_parentDelegate webView:webView decidePolicyForNavigationAction:actionInformation request:request frame:frame decisionListener:listener];
-
+    }
     //NSString *requestURL = [request.URL absoluteString];
     NSString *currentURL = [[request.URL absoluteString] lowercaseString];
     

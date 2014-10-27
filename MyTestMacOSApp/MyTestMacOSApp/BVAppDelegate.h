@@ -12,17 +12,26 @@
 {
 //@private:
     IBOutlet NSWindow *_window;
+    IBOutlet NSTextField *_resultLabel;
     NSPersistentStoreCoordinator *_persistentStoreCoordinator;
     NSManagedObjectModel         *_managedObjectModel;
     NSManagedObjectContext       *_managedObjectContext;
 }
 
 @property (assign) IBOutlet NSWindow *window;
+@property (assign) IBOutlet NSTextField *resultLabel;
 
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 @property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
 @property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
 - (IBAction)saveAction:(id)sender;
+- (IBAction)endToEndAction:(id)sender;
+- (IBAction)showUsersAction:(id)sender;
+- (IBAction)expireAllAction:(id)sender;
+- (IBAction)clearCacheAndCookiesAction:(id)sender;
+- (IBAction)refreshTokenFlowAction:(id)sender;
+- (IBAction)acquireTokenSilentAction:(id)sender;
+- (IBAction)promptAlwaysAction:(id)sender;
 
 @end

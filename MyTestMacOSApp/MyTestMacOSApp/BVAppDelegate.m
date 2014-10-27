@@ -11,10 +11,12 @@
 #import <ADAL-OSX/ADLogger.h>
 #import "BVSettings.h"
 #import "BVTestInstance.h"
+#import <ADAL-OSX/ADAuthenticationSettings.h>
 
 @implementation BVAppDelegate
 
 @synthesize window = _window;
+@synthesize resultLabel = _resultLabel;
 
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 @synthesize managedObjectModel         = _managedObjectModel;
@@ -22,36 +24,259 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    // Do any additional setup after loading the view, typically from a nib.
-    [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];//Log everything
+    [_resultLabel setStringValue:@"Response goes here"];
+}
+
+
+- (void) setStatus:(NSString*) message
+{
+    [_resultLabel setStringValue:message];
+}
+
+- (void) appendStatus:(NSString*) message {
     
+    NSMutableString* mutableString = [NSMutableString stringWithString:[_resultLabel stringValue]];
+    [mutableString appendString:message];
+    [self setStatus:mutableString];
+}
+
+
+
+- (IBAction)endToEndAction:(id)sender{
+    // Do any additional setup after loading the view, typically from a nib.
+    //Log everything
+    [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
+    
+    [self setStatus:@"Running End-to-End"];
     BVSettings     *testData    = [BVSettings new];
     BVTestInstance *aadInstance = [[testData.testAuthorities objectForKey:sAADTestInstance] retain];
     
     ADAuthenticationError   *error = nil;
-    
-    __block ADAuthenticationContext *context = [[ADAuthenticationContext authenticationContextWithAuthority:aadInstance.authority error:&error] retain];
+    __block ADAuthenticationContext *context = [[ADAuthenticationContext authenticationContextWithAuthority:aadInstance.authority validateAuthority: NO
+                                                                                                      error:&error] retain];
     
     [context acquireTokenWithResource:aadInstance.resource
                              clientId:aadInstance.clientId
                           redirectUri:[NSURL URLWithString:aadInstance.redirectUri]
+                       promptBehavior:AD_PROMPT_AUTO
                                userId:aadInstance.userId
+                 extraQueryParameters: nil
                       completionBlock:^(ADAuthenticationResult *result)
-    {
-        if (AD_SUCCEEDED == result.status)
-        {
-            NSLog(@"AcquireToken succeeded with access token: %@", result.accessToken);
-        }
-        else
-        {
-            NSLog(@"AcqurieToken failed with access token: %@", result.error.errorDetails);
-        }
-        
-        [context release];
-    }];
+     {
+         if (AD_SUCCEEDED == result.status)
+         {
+             [_resultLabel setStringValue: [NSString stringWithFormat:@"AcquireToken succeeded with access token: %@", result.accessToken]];
+         }
+         else
+         {
+             [_resultLabel setStringValue: [NSString stringWithFormat:@"AcquireToken failed with access token: %@", result.error.errorDetails]];
+         }
+         
+         [context release];
+     }];
     
     [aadInstance release];
     [testData release];
+}
+
+
+- (IBAction)showUsersAction:(id)sender{
+    
+    [self setStatus:@"Getting users from cache...\n"];
+    ADAuthenticationError* error = nil;
+    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    NSArray* array = [cache allItemsWithError:&error];
+    if (error)
+    {
+        [self appendStatus:error.errorDetails];
+        return;
+    }
+    NSMutableSet* users = [NSMutableSet new];
+    NSMutableString* usersStr = [NSMutableString new];
+    for(ADTokenCacheStoreItem* item in array)
+    {
+        ADUserInformation *user = item.userInformation;
+        if (!item.userInformation)
+        {
+            user = [ADUserInformation userInformationWithUserId:@"Unknown user" error:nil];
+        }
+        if (![users containsObject:user.userId])
+        {
+            //New user, add and print:
+            [users addObject:user.userId];
+            [usersStr appendFormat:@"%@: %@ %@\n", user.userId, user.givenName, user.familyName];
+        }
+    }
+    [self appendStatus:usersStr];
+    [usersStr release];
+}
+
+
+- (IBAction)expireAllAction:(id)sender{
+    ADAuthenticationError* error = nil;
+    [self setStatus:@"Attempt to expire...\n"];
+    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    NSArray* array = [cache allItemsWithError:&error];
+    if (error)
+    {
+        [self appendStatus:error.errorDetails];
+        return;
+    }
+    
+    
+    [self appendStatus:[NSString stringWithFormat:@"Items found - %lu\n", (unsigned long)array.count]];
+    for(ADTokenCacheStoreItem* item in array)
+    {
+        item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
+        [cache addOrUpdateItem:item error:&error];
+    }
+    if (error)
+    {
+        [_resultLabel setStringValue:error.errorDetails];
+    }
+    else
+    {
+        [self appendStatus:@"Done."];
+    }
+}
+
+
+- (IBAction)clearCacheAndCookiesAction:(id)sender{
+    ADAuthenticationError* error = nil;
+    [self setStatus:@"Clearing cache...\n"];
+    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    NSArray* allItems = [cache allItemsWithError:&error];
+    if (error)
+    {
+        [_resultLabel setStringValue:error.errorDetails];
+        return;
+    }
+    
+    [self appendStatus:[NSString stringWithFormat: @"Total Items - %lu\n", (unsigned long)allItems.count]];
+    NSString* status = @"Nothing in the cache.\n";
+    if (allItems.count > 0)
+    {
+        [cache removeAllWithError:&error];
+        if (error)
+        {
+            status = error.errorDetails;
+        }
+        else
+        {
+            status = @"Items removed.\n";
+        }
+    }
+    [self appendStatus:status];
+    
+    [self appendStatus:@"\nRemoving cookies..."];
+    NSHTTPCookieStorage* cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSArray* cookies = cookieStorage.cookies;
+    
+    [self appendStatus:[NSString stringWithFormat: @"Total Cookies - %lu\n", (unsigned long)cookies.count]];
+    if (cookies.count)
+    {
+        for(NSHTTPCookie* cookie in cookies)
+        {
+            [cookieStorage deleteCookie:cookie];
+        }
+        [self appendStatus:@"Cookies cleared.\n"];
+    }
+}
+
+
+- (IBAction)refreshTokenFlowAction:(id)sender{
+    
+    BVSettings     *testData    = [BVSettings new];
+    BVTestInstance *aadInstance = [[testData.testAuthorities objectForKey:sAADTestInstance] retain];
+    
+    NSString* authority = aadInstance.authority;
+    NSString* clientId = aadInstance.clientId;
+    NSString* resourceString =aadInstance.resource;
+    
+    [_resultLabel setStringValue:@"Attempt to refresh..."];
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:NO error:&error];
+    if (!context)
+    {
+        [_resultLabel setStringValue:error.errorDetails];
+        return;
+    }
+    //We will leverage a multi-resource refresh token:
+    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:authority resource:resourceString clientId:clientId error:&error];
+    if (!key)
+    {
+        [_resultLabel setStringValue:error.errorDetails];
+        return;
+    }
+    id<ADTokenCacheStoring> cache = context.tokenCacheStore;
+    ADTokenCacheStoreItem* item = [cache getItemWithKey:key userId:nil error:nil];
+    if (!item)
+    {
+        [_resultLabel setStringValue:@"Missing cache item."];
+        return;
+    }
+    
+    [context acquireTokenByRefreshToken:item.refreshToken
+                               clientId:clientId
+                               resource:resourceString
+                        completionBlock:^(ADAuthenticationResult *result)
+     {
+         if (result.error)
+         {
+             [_resultLabel setStringValue:result.error.errorDetails];
+         }
+         else
+         {
+             [_resultLabel setStringValue:result.tokenCacheStoreItem.accessToken];
+         }
+     }];
+    
+    [aadInstance release];
+    [testData release];
+    
+}
+
+
+
+- (IBAction)acquireTokenSilentAction:(id)sender{
+    
+}
+
+
+- (IBAction)promptAlwaysAction:(id)sender{
+    
+    BVSettings     *testData    = [BVSettings new];
+    BVTestInstance *aadInstance = [[testData.testAuthorities objectForKey:sAADTestInstance] retain];
+    
+    [_resultLabel setStringValue:@"Setting prompt always..."];
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:aadInstance.authority error:&error];
+    if (!context)
+    {
+        [_resultLabel setStringValue:error.errorDetails];
+        return;
+    }
+    
+    [context acquireTokenWithResource:aadInstance.resource
+                             clientId:aadInstance.clientId
+                          redirectUri:[NSURL URLWithString:aadInstance.redirectUri]
+                       promptBehavior:AD_PROMPT_ALWAYS
+                               userId:aadInstance.userId
+                 extraQueryParameters:@""
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         if (result.status != AD_SUCCEEDED)
+         {
+             [_resultLabel setStringValue:result.error.errorDetails];
+             return;
+         }
+         
+         [_resultLabel setStringValue:result.tokenCacheStoreItem.accessToken];
+     }];
+    
+    [aadInstance release];
+    [testData release];
+    
 }
 
 // Returns the directory the application uses to store the Core Data store file. This code uses a directory named "MSOpenTech.MyTestMacOSApp" in the user's Application Support directory.

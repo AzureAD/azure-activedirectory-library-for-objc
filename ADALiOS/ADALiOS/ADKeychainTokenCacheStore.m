@@ -23,6 +23,7 @@
 #import "ADTokenCacheStoreKey.h"
 #import "ADUserInformation.h"
 #import "ADKeyChainHelper.h"
+#import "ADTokenCacheStoring.h"
 
 NSString* const sNilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";//A special attribute to write, instead of nil/empty one.
 NSString* const sDelimiter = @"|";
@@ -33,18 +34,18 @@ NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
 const long sKeychainVersion = 1;//will need to increase when we break the forward compatibility
 
 @implementation ADKeychainTokenCacheStore
-{
-    //Cache store keys:
-    id mItemKeyAttributeKey;
-    id mUserIdKey;
-    
-    //Cache store values:
-    id mClassValue;
-    NSString* mLibraryString;
-    NSData* mLibraryValue;//Data representation of the library string.
 
-    ADKeyChainHelper* mHelper;
-}
+#pragma mark - Properties
+@synthesize ItemKeyAttributeKey      = _mItemKeyAttributeKey;
+//Cache store keys:
+@synthesize  UserIdKey = _mUserIdKey;
+
+//Cache store values:
+@synthesize  ClassValue = _mClassValue;
+@synthesize  LibraryString = _mLibraryString;
+@synthesize  LibraryValue = _mLibraryValue;
+@synthesize  Helper = _mHelper;
+
 
 //Shouldn't be called.
 -(id) init
@@ -59,20 +60,33 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         //Full key:
         /* The keychain does allow searching for a limited set of attributes only,
          so we need to combine all of the ADTokenCacheStoreKey fields in a single string.*/
-        mItemKeyAttributeKey   = (__bridge id)kSecAttrService;
-        mUserIdKey             = (__bridge id)kSecAttrAccount;
+        _mItemKeyAttributeKey   = (__bridge id)kSecAttrService;
+        _mUserIdKey             = (__bridge id)kSecAttrAccount;
         
         //Generic setup values:
-        mClassValue     = (__bridge id)kSecClassGenericPassword;
-        mLibraryString  = [NSString stringWithFormat:@"MSOpenTech.ADAL.%ld", sKeychainVersion];
-        mLibraryValue   = [mLibraryString dataUsingEncoding:NSUTF8StringEncoding];
-        
-        mHelper = [[ADKeyChainHelper alloc] initWithClass:mClassValue
-                                                  generic:mLibraryValue
-                                              sharedGroup:sharedGroup];
+        _mClassValue     = (__bridge id)kSecClassGenericPassword;
+        _mLibraryString  = [NSString stringWithFormat:@"MSOpenTech.ADAL.%ld", sKeychainVersion];
+        SAFE_ARC_RETAIN(_mLibraryString);
+        _mLibraryValue   = [_mLibraryString dataUsingEncoding:NSUTF8StringEncoding];
+
+        _mHelper = [[ADKeyChainHelper alloc] initWithClass:_mClassValue
+                                                   generic:_mLibraryValue
+                                               sharedGroup:sharedGroup];
+
     }
     return self;
 }
+
+-(void)dealloc{
+    
+    SAFE_ARC_AUTORELEASE(_mItemKeyAttributeKey);
+    SAFE_ARC_AUTORELEASE(_mUserIdKey);
+    SAFE_ARC_AUTORELEASE(_mClassValue);
+    SAFE_ARC_AUTORELEASE(_mLibraryString);
+    SAFE_ARC_AUTORELEASE(_mLibraryValue);
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 
 //Extracts all of the key and user data fields into a single string.
 //Used for comparison and verification that the item exists.
@@ -81,9 +95,9 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     THROW_ON_NIL_ARGUMENT(attributes);
     
     return [NSString stringWithFormat:@"%@%@%@",
-            [attributes objectForKey:mItemKeyAttributeKey],
+            [attributes objectForKey:_mItemKeyAttributeKey],
             sDelimiter,
-            [attributes objectForKey:mUserIdKey]
+            [attributes objectForKey:_mUserIdKey]
             ];
 }
 
@@ -94,7 +108,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     //library. The latter is required to ensure that SecItemAdd won't break on collisions
     //with items left over from the previous versions of the library.
     return [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
-            mLibraryString, sDelimiter,
+            _mLibraryString, sDelimiter,
             [itemKey.authority adBase64UrlEncode], sDelimiter,
             [self.class getAttributeName:itemKey.resource], sDelimiter,
             [itemKey.clientId adBase64UrlEncode]
@@ -127,9 +141,9 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     {
         return nil;
     }
-
+    
     return [NSString stringWithFormat:@"%@%@%@",
-                       keyText, sDelimiter, [self.class getAttributeName:item.userInformation.userId]];
+            keyText, sDelimiter, [self.class getAttributeName:item.userInformation.userId]];
 }
 
 //Returns the keychain elements, specified in the query, or all cache keychain
@@ -139,12 +153,12 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 -(NSMutableDictionary*) keychainAttributesWithQuery: (NSMutableDictionary*) query
                                               error: (ADAuthenticationError* __autoreleasing*)error
 {
-    NSArray* allAttributes = [mHelper getItemsAttributes:query error:error];
+    NSArray* allAttributes = [_mHelper getItemsAttributes:query error:error];
     if (!allAttributes)
     {
         return nil;
     }
-
+    
     NSMutableDictionary* toReturn = [[NSMutableDictionary alloc] initWithCapacity:allAttributes.count];
     for(NSDictionary* dictionary in allAttributes)
     {
@@ -168,7 +182,8 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
             [toReturn setObject:dictionary forKey:key];
         }
     }
-    return toReturn;
+    allAttributes = nil;
+    return SAFE_ARC_AUTORELEASE(toReturn);
 }
 
 //Log operations that result in storing or reading cache item:
@@ -186,11 +201,11 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 {
     RETURN_ON_NIL_ARGUMENT(item);
     RETURN_ON_NIL_ARGUMENT(attributes);
-
+    
     [self LogItem:item message:@"Attempting to update an item"];
-    if ([mHelper updateItemByAttributes:attributes
-                                  value:[NSKeyedArchiver archivedDataWithRootObject:item]
-                                  error:error])
+    if ([_mHelper updateItemByAttributes:attributes
+                                   value:[NSKeyedArchiver archivedDataWithRootObject:item]
+                                   error:error])
     {
         [self LogItem:item message:@"Item successfully updated"];
     }
@@ -200,9 +215,9 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                   error: (ADAuthenticationError* __autoreleasing*) error
 {
     RETURN_ON_NIL_ARGUMENT(item);
-
+    
     [self LogItem:item message:@"Attempting to add an item"];
-
+    
     NSString* keyText = [self keychainKeyFromCacheItem:item error:error];
     if (!keyText)
     {
@@ -210,12 +225,12 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     }
     
     NSMutableDictionary* keychainItem = [NSMutableDictionary dictionaryWithDictionary:@{
-        mItemKeyAttributeKey: keyText,//Item key
-        mUserIdKey:[self.class getAttributeName:item.userInformation.userId],
-        }];
-    if ([mHelper addItemWithAttributes:keychainItem
-                                 value:[NSKeyedArchiver archivedDataWithRootObject:item]
-                                 error:error])
+                                                                                        _mItemKeyAttributeKey: keyText,//Item key
+                                                                                        _mUserIdKey:[self.class getAttributeName:item.userInformation.userId],
+                                                                                        }];
+    if ([_mHelper addItemWithAttributes:keychainItem
+                                  value:[NSKeyedArchiver archivedDataWithRootObject:item]
+                                  error:error])
     {
         [self LogItem:item message:@"Item successfully added"];
     }
@@ -229,13 +244,17 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 {
     RETURN_NIL_ON_NIL_ARGUMENT(attributes);
     
-    NSData* data = [mHelper getItemDataWithAttributes:attributes error:error];
+    NSData* data = [_mHelper getItemDataWithAttributes:attributes error:error];
     if (!data)
     {
         return nil;
     }
-
+    SAFE_ARC_RETAIN(data);
+    
     ADTokenCacheStoreItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    
+    SAFE_ARC_RELEASE(data);
+    
     if ([item isKindOfClass:[ADTokenCacheStoreItem class]])
     {
         //Verify that the item is valid:
@@ -251,7 +270,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     else
     {
         NSString* errorDetails = [NSString stringWithFormat:@"The key chain item data does not contain cache item. Attributes: %@",
-                        attributes];
+                                  attributes];
         ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
                                                                                  protocolCode:nil
                                                                                  errorDetails:errorDetails];
@@ -302,7 +321,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
             }
         }
     }
-  
+    
     if (error && toReport)
     {
         *error = toReport;
@@ -322,12 +341,12 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 {
     NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:
                                   @{
-                                    mItemKeyAttributeKey:[self keychainKeyFromCacheKey:key],
+                                    _mItemKeyAttributeKey:[self keychainKeyFromCacheKey:key],
                                     }];
     
     if (![NSString adIsStringNilOrBlank:userId])
     {
-        [query setObject:[userId adBase64UrlEncode] forKey:mUserIdKey];
+        [query setObject:[userId adBase64UrlEncode] forKey:_mUserIdKey];
     }
     
     return [self keychainAttributesWithQuery:query error:error];
@@ -348,7 +367,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     {
         @synchronized(self)
         {
-            NSDictionary* keyItemsAttributes = [self keychainAttributesWithKey:key userId:userId error:&adError];
+            NSDictionary* keyItemsAttributes = ([self keychainAttributesWithKey:key userId:userId error:&adError]);
             if (keyItemsAttributes)
             {
                 if (!allowMany && keyItemsAttributes.count > 1)
@@ -360,7 +379,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                 else
                 {
                     //Note that we may have an empty dictionary too:
-                    NSMutableArray* array = [[NSMutableArray alloc] initWithCapacity:keyItemsAttributes.count];
+                    NSMutableArray* array = SAFE_ARC_AUTORELEASE([[NSMutableArray alloc] initWithCapacity:keyItemsAttributes.count]);
                     for(NSDictionary* attributes in keyItemsAttributes.allValues)
                     {
                         ADTokenCacheStoreItem* item = [self readCacheItemWithAttributes:attributes
@@ -376,7 +395,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                             break;
                         }
                     }
-                    toReturn = array;
+                    toReturn = [array copy];
                 }
             }
         }
@@ -390,7 +409,8 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     {
         *error = adError;
     }
-    return toReturn;
+                                                                    
+    return SAFE_ARC_AUTORELEASE(toReturn);
 }
 
 //Removes all items, specified by the passed dictionary.
@@ -407,7 +427,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     }
     for(NSDictionary* attributes in keysAndAttributes.allValues)
     {
-        [mHelper deleteByAttributes:attributes error:error];
+        [_mHelper deleteByAttributes:attributes error:error];
     }
 }
 
@@ -418,7 +438,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     API_ENTRY;
     
     NSMutableArray* toReturn = nil;
-    ADAuthenticationError* adError;
+    ADAuthenticationError* adError = nil;
     
     @synchronized(self)
     {
@@ -426,7 +446,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         NSMutableDictionary* all = [self keychainAttributesWithQuery:nil error:&adError];
         if (all)
         {
-            toReturn = [[NSMutableArray alloc] initWithCapacity:all.count];
+            toReturn = SAFE_ARC_AUTORELEASE([[NSMutableArray alloc] initWithCapacity:all.count]);
             for(NSDictionary* attributes in all.allValues)
             {
                 ADTokenCacheStoreItem* item = [self readCacheItemWithAttributes:attributes error:&adError];//The error is always logged internally.
@@ -456,7 +476,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                                    error: (ADAuthenticationError *__autoreleasing *)error
 {
     API_ENTRY;
-
+    
     userId = [ADUserInformation normalizeUserId:userId];
     NSArray* items = [self readCacheItemsWithKey:key userId:userId allowMany:NO error:error];
     
@@ -545,7 +565,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 
 -(NSString*) getSharedGroup
 {
-    return mHelper.sharedGroup;
+    return _mHelper.SharedGroup;
 }
 
 -(void) setSharedGroup:(NSString *)sharedGroup
@@ -553,9 +573,9 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     API_ENTRY;
     @synchronized(self)
     {
-        if (![NSString adSame:mHelper.sharedGroup toString:sharedGroup])
+        if (![NSString adSame:_mHelper.SharedGroup toString:sharedGroup])
         {
-            mHelper.sharedGroup = sharedGroup;
+            _mHelper.SharedGroup = sharedGroup;
         }
     }
 }

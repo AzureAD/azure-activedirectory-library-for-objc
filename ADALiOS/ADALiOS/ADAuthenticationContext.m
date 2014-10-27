@@ -33,9 +33,9 @@
 #import "ADUserInformation.h"
 
 #ifdef TARGET_OS_IPHONE
-    #import "WorkPlaceJoin.h"
-    #import "ADPkeyAuthHelper.h"
-    #import "WorkPlaceJoinConstants.h"
+#import "WorkPlaceJoin.h"
+#import "ADPkeyAuthHelper.h"
+#import "WorkPlaceJoinConstants.h"
 #endif
 
 NSString* const unknownError = @"Uknown error.";
@@ -75,6 +75,21 @@ static volatile int sDialogInProgress = 0;
     SAFE_ARC_SUPER_DEALLOC();
 }
 
+- (BOOL) handleNilOrEmptyAsResult:(NSObject*) argumentValue
+                     argumentName: (NSString*) argumentName
+             authenticationResult: (ADAuthenticationResult**)authenticationResult
+{
+    if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString adIsStringNilOrBlank:(NSString*)argumentValue]))
+    {
+        ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName];
+        *authenticationResult = [ADAuthenticationResult resultFromError:argumentError];
+        return NO;
+    }
+    
+    return YES;
+}
+
+
 //A wrapper around checkAndHandleBadArgument. Assumes that "completionMethod" is in scope:
 #define HANDLE_ARGUMENT(ARG) \
 if (![self checkAndHandleBadArgument:ARG \
@@ -89,11 +104,11 @@ return; \
  Then the method calls the callback with the result.
  The method returns if the argument is valid. If the method returns false,
  the calling method should return. */
--(BOOL) checkAndHandleBadArgument: (NSString*) argumentValue
+-(BOOL) checkAndHandleBadArgument: (NSObject*) argumentValue
                      argumentName: (NSString*) argumentName
                   completionBlock: (ADAuthenticationCallback)completionBlock
 {
-    if ([NSString adIsStringNilOrBlank:argumentValue])
+    if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString adIsStringNilOrBlank:(NSString*)argumentValue]))
     {
         ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:argumentError];
@@ -264,11 +279,11 @@ return; \
               completionBlock: (ADAuthenticationCallback)completionBlock
 {
     //All of these should be set before calling this method:
-    THROW_ON_NIL_ARGUMENT(item);
-    THROW_ON_NIL_EMPTY_ARGUMENT(resource);
-    THROW_ON_NIL_EMPTY_ARGUMENT(clientId);
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    THROW_ON_NIL_ARGUMENT(correlationId);//Should have been set before this call
+    HANDLE_ARGUMENT(item);
+    HANDLE_ARGUMENT(resource);
+    HANDLE_ARGUMENT(clientId);
+    HANDLE_ARGUMENT(correlationId);//Should have been set before this call
     
     if (useAccessToken)
     {
@@ -675,16 +690,22 @@ return; \
                   cacheItem: (ADTokenCacheStoreItem*) cacheItem
            withRefreshToken: (NSString*) refreshToken
 {
-    THROW_ON_NIL_ARGUMENT(result);
+    
+    if(![self handleNilOrEmptyAsResult:result argumentName:@"result" authenticationResult:&result]){
+        return;
+    }
     
     if (!self.tokenCacheStore)
         return;//No cache to update
     
     if (AD_SUCCEEDED == result.status)
     {
-        THROW_ON_NIL_ARGUMENT(result.tokenCacheStoreItem);
-        THROW_ON_NIL_EMPTY_ARGUMENT(result.tokenCacheStoreItem.resource);
-        THROW_ON_NIL_EMPTY_ARGUMENT(result.tokenCacheStoreItem.accessToken);
+        if(![self handleNilOrEmptyAsResult:result.tokenCacheStoreItem argumentName:@"tokenCacheStoreItem" authenticationResult:&result]
+           || ![self handleNilOrEmptyAsResult:result.tokenCacheStoreItem.resource argumentName:@"resource" authenticationResult:&result]
+           || ![self handleNilOrEmptyAsResult:result.tokenCacheStoreItem.accessToken argumentName:@"accessToken" authenticationResult:&result])
+        {
+            return;
+        }
         
         //In case of success we use explicitly the item that comes back in the result:
         cacheItem = result.tokenCacheStoreItem;
@@ -716,9 +737,12 @@ return; \
     {
         if (AD_ERROR_INVALID_REFRESH_TOKEN == result.error.code)
         {//Bad refresh token. Remove it from the cache:
-            THROW_ON_NIL_ARGUMENT(cacheItem);
-            THROW_ON_NIL_EMPTY_ARGUMENT(cacheItem.resource);
-            THROW_ON_NIL_EMPTY_ARGUMENT(refreshToken);
+            if(![self handleNilOrEmptyAsResult:cacheItem argumentName:@"cacheItem" authenticationResult:&result]
+               || ![self handleNilOrEmptyAsResult:cacheItem.resource argumentName:@"cacheItem.resource" authenticationResult:&result]
+               || ![self handleNilOrEmptyAsResult:refreshToken argumentName:@"refreshToken" authenticationResult:&result])
+            {
+                return;
+            }
             
             BOOL removed = NO;
             //The refresh token didn't work. We need to clear this refresh item from the cache.
@@ -763,6 +787,7 @@ return; \
                              correlationId: correlationId
                            completionBlock: (ADAuthenticationCallback)completionBlock
 {
+    THROW_ON_NIL_ARGUMENT(completionBlock);
     HANDLE_ARGUMENT(refreshToken);
     HANDLE_ARGUMENT(clientId);
     
@@ -857,7 +882,15 @@ return; \
 -(ADAuthenticationResult*) updateResult: (ADAuthenticationResult*) result
                                  toUser: (NSString*) userId
 {
-    THROW_ON_NIL_ARGUMENT(result);
+    if (!result)
+    {
+        ADAuthenticationError* error =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
+                                               protocolCode:nil
+                                               errorDetails:@"ADAuthenticationResult is nil"];
+        return [ADAuthenticationResult resultFromError:error];
+    }
+    
     userId = [ADUserInformation normalizeUserId:userId];
     NSString* actualUser = result.tokenCacheStoreItem.userInformation.userId;
     if (!userId || AD_SUCCEEDED != result.status || !actualUser)
@@ -888,10 +921,14 @@ return; \
                                      fromRefresh: (BOOL) fromRefreshTokenWorkflow
                             requestCorrelationId: (NSUUID*) requestCorrelationId
 {
-    THROW_ON_NIL_ARGUMENT(response);
-    THROW_ON_NIL_ARGUMENT(item);
-    AD_LOG_VERBOSE(@"Token extraction", @"Attempt to extract the data from the server response.");
+    ADAuthenticationResult *result = nil;
+    if(![self handleNilOrEmptyAsResult:response argumentName:@"response" authenticationResult:&result]
+       || ![self handleNilOrEmptyAsResult:item argumentName:@"item" authenticationResult:&result])
+    {
+        return result;
+    }
     
+    AD_LOG_VERBOSE(@"Token extraction", @"Attempt to extract the data from the server response.");
     NSString *responseId   = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
     NSUUID   *responseUUID = nil;
     if (![NSString adIsStringNilOrBlank:responseId])
@@ -1132,7 +1169,10 @@ return; \
                    completion: (ADAuthorizationCodeCallback) completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    THROW_ON_NIL_ARGUMENT(correlationId);
+    if(!correlationId){
+        completionBlock(nil, [ADAuthenticationError errorFromArgument:correlationId argumentName:@"correlationId"]);
+        return;
+    }
     
     AD_LOG_VERBOSE_F(@"Requesting authorization code.", @"Requesting authorization code for resource: %@", resource);
     if (![self takeExclusionLockWithCallback:completionBlock])
@@ -1200,8 +1240,8 @@ return; \
                 completion: (ADAuthenticationCallback) completionBlock
 {
 #pragma unused(scope)
-    THROW_ON_NIL_EMPTY_ARGUMENT(code);
-    THROW_ON_NIL_ARGUMENT(correlationId);//Should be set by the caller
+    HANDLE_ARGUMENT(code);
+    HANDLE_ARGUMENT(correlationId);//Should be set by the caller
     AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code for resource: %@", resource);
     
     //Fill the data for the token refreshing:
@@ -1250,7 +1290,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     
-#ifdef TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
     if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined ]){
         [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
     }
@@ -1286,8 +1326,8 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                 case 400:
                 case 401:
                 {
-
-#ifdef TARGET_OS_IPHONE
+                    
+#if TARGET_OS_IPHONE
                     if(!isHandlingPKeyAuthChallenge){
                         NSString* wwwAuthValue = [headers valueForKey:wwwAuthenticateHeader];
                         if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName]){
@@ -1332,7 +1372,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                     AD_LOG_WARN(@"HTTP Error", errorData);
                     
                     //Now add the information to the dictionary, so that the parser can extract it:
-                    [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:nil errorDetails:errorData]
+                    [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:[NSString stringWithFormat:@"%ld", (long)webResponse.statusCode] errorDetails:errorData]
                                  forKey:AUTH_NON_PROTOCOL_ERROR];
                     
                     SAFE_ARC_RELEASE(body);
@@ -1379,7 +1419,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
         [headerKeyValuePair setValue:[pair objectAtIndex:1] forKey:[[pair objectAtIndex:0] adTrimmedString]];
     }
     
-    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer challengeData:headerKeyValuePair];
+    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer challengeData:headerKeyValuePair challengeType:AD_THUMBPRINT];
     [headerKeyValuePair removeAllObjects];
     [headerKeyValuePair setObject:authHeader forKey:@"Authorization"];
     

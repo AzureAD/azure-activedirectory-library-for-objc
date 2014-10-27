@@ -6,6 +6,7 @@
 	<array>
 		<string>$(AppIdentifierPrefix)MSOpenTech.MyTestMacOSApp</string>
 		<string>$(AppIdentifierPrefix)com.microsoft.workplacejoin</string>
+		<string>$(AppIdentifierPrefix)com.microsoft.adalcache</string>
 	</array>
 </dict>
 </plist>

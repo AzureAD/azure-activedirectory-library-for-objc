@@ -16,9 +16,34 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADTokenCacheStoring.h"
+
+@class ADKeychainTokenCacheStore;
+@class ADKeyChainHelper;
+
+@protocol ADTokenCacheStoring;
 
 @interface ADKeychainTokenCacheStore : NSObject<ADTokenCacheStoring>
+{
+@private
+    id _mItemKeyAttributeKey;
+    id _mUserIdKey;
+    
+    //Cache store values:
+    id _mClassValue;
+    NSString* _mLibraryString;
+    NSData* _mLibraryValue;//Data representation of the library string.
+    
+    ADKeyChainHelper* _mHelper;
+}
+
+
+@property (strong) id               ItemKeyAttributeKey;
+@property (strong) id               UserIdKey;
+@property (strong) id               ClassValue;
+@property (strong) NSString*               LibraryString;
+@property (strong) NSData*               LibraryValue;
+@property (strong) ADKeyChainHelper*               Helper;
+
 
 /* Initializes the token cache store with default shared group value.
   */
@@ -34,6 +59,6 @@
 /* The shared keychain group, where the ADAL library will keep the tokens.
  May be nil. The cache items from the previous keychain group are not transferred
  automatically. */
-@property (getter = getSharedGroup, setter = setSharedGroup:) NSString* sharedGroup;
+@property (retain, getter = getSharedGroup, setter = setSharedGroup:) NSString* sharedGroup;
 
 @end
