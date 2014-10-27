@@ -1381,7 +1381,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                     AD_LOG_WARN(@"HTTP Error", errorData);
                     
                     //Now add the information to the dictionary, so that the parser can extract it:
-                    [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:nil errorDetails:errorData]
+                    [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:@(webResponse.statusCode).stringValue errorDetails:errorData]
                                  forKey:AUTH_NON_PROTOCOL_ERROR];
                 }
             }
