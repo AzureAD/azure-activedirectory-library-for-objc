@@ -16,7 +16,11 @@
 		<string>boris@msopentechbv.onmicrosoft.com</string>
 		<key>Password</key>
 		<string>~test123</string>
+		<key>RequestTimeout</key>
+		<integer>30</integer>
 		<key>SupportsValidation</key>
+		<true/>
+		<key>FullScreen</key>
 		<true/>
 	</dict>
 </dict>

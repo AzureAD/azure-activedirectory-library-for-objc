@@ -63,16 +63,31 @@ completionBlock:completionBlock]) \
 return; \
 }
 
+
+- (BOOL) handleNilOrEmptyAsResult:(NSObject*) argumentValue
+                     argumentName: (NSString*) argumentName
+             authenticationResult: (ADAuthenticationResult**)authenticationResult
+{
+    if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString adIsStringNilOrBlank:(NSString*)argumentValue]))
+    {
+        ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName];
+        *authenticationResult = [ADAuthenticationResult resultFromError:argumentError];
+        return NO;
+    }
+    
+    return YES;
+}
+
 /*! Verifies that the string parameter is not nil or empty. If it is,
  the method generates an error and set it to an authentication result.
  Then the method calls the callback with the result.
  The method returns if the argument is valid. If the method returns false,
  the calling method should return. */
--(BOOL) checkAndHandleBadArgument: (NSString*) argumentValue
+-(BOOL) checkAndHandleBadArgument: (NSObject*) argumentValue
                      argumentName: (NSString*) argumentName
                   completionBlock: (ADAuthenticationCallback)completionBlock
 {
-    if ([NSString adIsStringNilOrBlank:argumentValue])
+    if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString adIsStringNilOrBlank:(NSString*)argumentValue]))
     {
         ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:argumentError];
@@ -301,11 +316,11 @@ return; \
               completionBlock: (ADAuthenticationCallback)completionBlock
 {
     //All of these should be set before calling this method:
-    THROW_ON_NIL_ARGUMENT(item);
-    THROW_ON_NIL_EMPTY_ARGUMENT(resource);
-    THROW_ON_NIL_EMPTY_ARGUMENT(clientId);
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    THROW_ON_NIL_ARGUMENT(correlationId);//Should have been set before this call
+    HANDLE_ARGUMENT(item);
+    HANDLE_ARGUMENT(resource);
+    HANDLE_ARGUMENT(clientId);
+    HANDLE_ARGUMENT(correlationId);//Should have been set before this call
     
     if (useAccessToken)
     {
@@ -716,16 +731,21 @@ return; \
                   cacheItem: (ADTokenCacheStoreItem*) cacheItem
            withRefreshToken: (NSString*) refreshToken
 {
-    THROW_ON_NIL_ARGUMENT(result);
+    if(![self handleNilOrEmptyAsResult:result argumentName:@"result" authenticationResult:&result]){
+        return;
+    }
     
     if (!self.tokenCacheStore)
         return;//No cache to update
     
     if (AD_SUCCEEDED == result.status)
     {
-        THROW_ON_NIL_ARGUMENT(result.tokenCacheStoreItem);
-        THROW_ON_NIL_EMPTY_ARGUMENT(result.tokenCacheStoreItem.resource);
-        THROW_ON_NIL_EMPTY_ARGUMENT(result.tokenCacheStoreItem.accessToken);
+        if(![self handleNilOrEmptyAsResult:result.tokenCacheStoreItem argumentName:@"tokenCacheStoreItem" authenticationResult:&result]
+           || ![self handleNilOrEmptyAsResult:result.tokenCacheStoreItem.resource argumentName:@"resource" authenticationResult:&result]
+           || ![self handleNilOrEmptyAsResult:result.tokenCacheStoreItem.accessToken argumentName:@"accessToken" authenticationResult:&result])
+        {
+            return;
+        }
         
         //In case of success we use explicitly the item that comes back in the result:
         cacheItem = result.tokenCacheStoreItem;
@@ -755,9 +775,12 @@ return; \
     {
         if (AD_ERROR_INVALID_REFRESH_TOKEN == result.error.code)
         {//Bad refresh token. Remove it from the cache:
-            THROW_ON_NIL_ARGUMENT(cacheItem);
-            THROW_ON_NIL_EMPTY_ARGUMENT(cacheItem.resource);
-            THROW_ON_NIL_EMPTY_ARGUMENT(refreshToken);
+            if(![self handleNilOrEmptyAsResult:cacheItem argumentName:@"cacheItem" authenticationResult:&result]
+               || ![self handleNilOrEmptyAsResult:cacheItem.resource argumentName:@"cacheItem.resource" authenticationResult:&result]
+               || ![self handleNilOrEmptyAsResult:refreshToken argumentName:@"refreshToken" authenticationResult:&result])
+            {
+                return;
+            }
             
             BOOL removed = NO;
             //The refresh token didn't work. We need to clear this refresh item from the cache.
@@ -802,6 +825,7 @@ return; \
                              correlationId: correlationId
                            completionBlock: (ADAuthenticationCallback)completionBlock
 {
+    THROW_ON_NIL_ARGUMENT(completionBlock);
     HANDLE_ARGUMENT(refreshToken);
     HANDLE_ARGUMENT(clientId);
     
@@ -888,7 +912,15 @@ return; \
 -(ADAuthenticationResult*) updateResult: (ADAuthenticationResult*) result
                                  toUser: (NSString*) userId
 {
-    THROW_ON_NIL_ARGUMENT(result);
+    if (!result)
+    {
+        ADAuthenticationError* error =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
+                                               protocolCode:nil
+                                               errorDetails:@"ADAuthenticationResult is nil"];
+        return [ADAuthenticationResult resultFromError:error];
+    }
+    
     userId = [ADUserInformation normalizeUserId:userId];
     NSString* actualUser = result.tokenCacheStoreItem.userInformation.userId;
     if (!userId || AD_SUCCEEDED != result.status || !actualUser)
@@ -1156,7 +1188,10 @@ return; \
                    completion: (ADAuthorizationCodeCallback) completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    THROW_ON_NIL_ARGUMENT(correlationId);
+    if(!correlationId){
+        completionBlock(nil, [ADAuthenticationError errorFromArgument:correlationId argumentName:@"correlationId"]);
+        return;
+    }
     
     AD_LOG_VERBOSE_F(@"Requesting authorization code.", @"Requesting authorization code for resource: %@", resource);
     if (![self takeExclusionLockWithCallback:completionBlock])
@@ -1223,8 +1258,8 @@ return; \
              correlationId: (NSUUID*) correlationId
                 completion: (ADAuthenticationCallback) completionBlock
 {
-    THROW_ON_NIL_EMPTY_ARGUMENT(code);
-    THROW_ON_NIL_ARGUMENT(correlationId);//Should be set by the caller
+    HANDLE_ARGUMENT(code);
+    HANDLE_ARGUMENT(correlationId);//Should be set by the caller
     AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code for resource: %@", resource);
     
     //Fill the data for the token refreshing:
@@ -1346,7 +1381,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                     AD_LOG_WARN(@"HTTP Error", errorData);
                     
                     //Now add the information to the dictionary, so that the parser can extract it:
-                    [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:nil errorDetails:errorData]
+                    [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:@(webResponse.statusCode).stringValue errorDetails:errorData]
                                  forKey:AUTH_NON_PROTOCOL_ERROR];
                 }
             }
