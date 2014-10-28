@@ -174,7 +174,17 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 @property (weak_property) WebViewType* webView;
 
 
-
+/*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+ expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+ the function will use the refresh token automatically.
+ @param samlAssertion: the SAML assertion to be used to authenticate the user.
+ @param assertionType: defines the assertion type.
+ @param resource: the resource whose token is needed.
+ @param clientId: the client identifier
+ @param userId: The user for which assertion is presented. Additionally, if token is found in the cache,
+ it may not be used if it belongs to different token.
+ @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
 -(void)  acquireTokenForAssertion: (NSString*) samlAssertion
 assertionType: (ADAssertionType) assertionType
 resource: (NSString*) resource
@@ -241,7 +251,7 @@ completionBlock: (ADAuthenticationCallback) completionBlock;
  it may not be used if it belongs to different token. This parameter can be nil.
  @param extraQueryParameters: will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
  @param credentialsType: controls the way of obtaining client credentials if such are needed.
- @param promptBehavior: controls if any credentials UI will be shownt.
+ @param promptBehavior: controls if any credentials UI will be shown.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 -(void)  acquireTokenWithResource: (NSString*) resource
