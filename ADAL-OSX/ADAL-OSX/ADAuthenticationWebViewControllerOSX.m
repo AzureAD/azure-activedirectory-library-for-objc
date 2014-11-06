@@ -131,6 +131,14 @@
 #pragma unused(sender)
     if ([_parentDelegate respondsToSelector:@selector(webView:didFailLoadWithError:forFrame:)])
         [_parentDelegate webView:sender didFailLoadWithError:error forFrame:frame];
+
+    if (NSURLErrorCancelled == error.code)
+    {
+        //This is a common error that webview generates and could be ignored.
+        //See this thread for details: https://discussions.apple.com/thread/1727260
+        return;
+    }
+    
     [self handleError:error toFrame:frame];
 }
 
