@@ -25,9 +25,9 @@
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
 #import "NSString+ADHelperMethods.h"
+#import "ADClientMetrics.h"
 
 NSString* const sTrustedAuthority = @"https://login.windows.net";
-NSString* const sInstanceDiscoverySuffix = @"common/discovery/instance";
 NSString* const sApiVersionKey = @"api-version";
 NSString* const sApiVersion = @"1.0";
 NSString* const sAuthorizationEndPointKey = @"authorization_endpoint";
@@ -235,7 +235,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
                                          authorizationEndpoint, sAuthorizationEndPointKey,
                                          nil];
     
-    NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, sInstanceDiscoverySuffix, [request_data adURLFormEncode]];
+    NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data adURLFormEncode]];
 
     AD_LOG_VERBOSE(@"Authority Validation Request", endPoint);
     __block ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint] correlationId:correlationId];
@@ -243,7 +243,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
     webRequest.method = HTTPGet;
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
-    
+    [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[correlationId UUIDString] requestHeader:webRequest.headers];
     [webRequest send:^( NSError *error, ADWebResponse *webResponse )
     {
         // Request completion callback
@@ -313,6 +313,11 @@ NSString* const sValidationServerError = @"The authority validation server retur
             AD_LOG_WARN(@"System error while making request.", error.description);
             // System error
             adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription];
+        }
+        if(adError){
+            [[ADClientMetrics getInstance] endClientMetricsRecord:[adError description]];
+        } else {
+            [[ADClientMetrics getInstance] endClientMetricsRecord:nil];
         }
         
         completionBlock( verified, adError );

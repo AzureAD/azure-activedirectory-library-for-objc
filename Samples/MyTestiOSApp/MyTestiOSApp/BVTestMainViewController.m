@@ -164,6 +164,7 @@
                                   clientId:clientId
                                redirectUri:[NSURL URLWithString:redirectUri]
                                     userId:userId
+                      extraQueryParameters:mAADInstance.extraQueryParameters
                            completionBlock:^(ADAuthenticationResult *result) {
                                if (result.status != AD_SUCCEEDED)
                                {
@@ -272,7 +273,7 @@
         return;
     }
     id<ADTokenCacheStoring> cache = context.tokenCacheStore;
-    ADTokenCacheStoreItem* item = [cache getItemWithKey:key userId:nil error:nil];
+    ADTokenCacheStoreItem* item = [cache getItemWithKey:key userId:mAADInstance.userId error:nil];
     if (!item)
     {
         [self setStatus:@"Missing cache item."];
@@ -338,7 +339,7 @@
                           redirectUri:[NSURL URLWithString:mAADInstance.redirectUri]
                        promptBehavior:AD_PROMPT_ALWAYS
                                userId:mAADInstance.userId
-                 extraQueryParameters:@""
+                 extraQueryParameters:mAADInstance.extraQueryParameters
                       completionBlock:^(ADAuthenticationResult *result)
      {
          if (result.status != AD_SUCCEEDED)
