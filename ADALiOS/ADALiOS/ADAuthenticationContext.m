@@ -1478,8 +1478,8 @@ return; \
     //samlAssertion = [NSString samlAssertion adBase64];
     NSData *encodeData = [samlAssertion dataUsingEncoding:NSUTF8StringEncoding];
     NSString *base64String = [encodeData base64EncodedStringWithOptions:0];
-    //Fill the data for the token refreshing:
-    NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+    //Fill the data for the SAML assertion:
+    NSDictionary *request_data = [NSDictionary dictionaryWithObjectsAndKeys:
                                          [self getAssertionTypeGrantValue:assertionType], OAUTH2_GRANT_TYPE,
                                          base64String, OAUTH2_ASSERTION,
                                          clientId, OAUTH2_CLIENT_ID,
