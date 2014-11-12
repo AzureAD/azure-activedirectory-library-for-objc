@@ -46,21 +46,10 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
             instance = [[ADClientMetrics alloc] init];
         });
     }
-#if !__has_feature(objc_arc)
-    if ( [instance retainCount] > 1 )
-    {
-        DebugLog( @"ADClientMetrics retainCount = %lu", (unsigned long)[instance retainCount] );
-    }
-    NSAssert( [instance retainCount] >= 1, @"Bad retain count on shared instance" );
-#endif
     return instance;
 }
 
-
 #if !__has_feature(objc_arc)
-- (id)retain {
-    return self;
-}
 - (unsigned)retainCount {
     return UINT_MAX; //denotes an object that cannot be released
 }
@@ -86,7 +75,6 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
     SAFE_ARC_RELEASE(_correlationId);
     SAFE_ARC_RELEASE(_errorToReport);
     SAFE_ARC_RELEASE(_startTime);
-//    SAFE_ARC_RELEASE(self);
     SAFE_ARC_SUPER_DEALLOC();
 }
 
@@ -115,7 +103,6 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
         SAFE_ARC_RETAIN(_correlationId);
         SAFE_ARC_RETAIN(_errorToReport);
         SAFE_ARC_RETAIN(_startTime);
-//        SAFE_ARC_RETAIN(self);
     }
 }
 
