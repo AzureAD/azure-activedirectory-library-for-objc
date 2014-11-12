@@ -19,6 +19,7 @@
 #import "ADKeyChainHelper.h"
 #import "ADKeyChainHelper.h"
 #import "WorkPlaceJoinUtil.h"
+#import "ADAuthenticationSettings.h"
 
 extern NSString* const sKeyChainlog;
 
@@ -250,6 +251,20 @@ extern NSString* const sKeyChainlog;
        (__bridge id)kSecAttrAccessible:(__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly, // do not roam or migrate to other devices
        _valueDataKey:value,//Item data
        }];
+    
+#if !TARGET_OS_IPHONE
+    CreateSecAccessBlock block = [[ADAuthenticationSettings sharedInstance] createSecAccessBlock];
+    
+    if (block != nil)
+    {
+        SecAccessRef access = block((__bridge CFStringRef)[updatedAttributes objectForKey:kSecAttrLabel]);
+        if (access != NULL)
+        {
+            [updatedAttributes setObject:(id)access forKey:kSecAttrAccess];
+            CFRelease(access);
+        }
+    }
+#endif // !TARGET_OS_IPHONE
     
     OSStatus res = SecItemAdd((__bridge CFMutableDictionaryRef)updatedAttributes, NULL);
     if (errSecSuccess != res)
