@@ -86,7 +86,7 @@
                           redirectUri:[NSURL URLWithString:aadInstance.redirectUri]
                        promptBehavior:AD_PROMPT_AUTO
                                userId:aadInstance.userId
-                 extraQueryParameters: nil
+                 extraQueryParameters: aadInstance.extraQueryParameters
                       completionBlock:^(ADAuthenticationResult *result)
      {
          if (AD_SUCCEEDED == result.status)
@@ -288,7 +288,7 @@
                           redirectUri:[NSURL URLWithString:aadInstance.redirectUri]
                        promptBehavior:AD_PROMPT_ALWAYS
                                userId:aadInstance.userId
-                 extraQueryParameters:@""
+                 extraQueryParameters: aadInstance.extraQueryParameters
                       completionBlock:^(ADAuthenticationResult *result)
      {
          if (result.status != AD_SUCCEEDED)

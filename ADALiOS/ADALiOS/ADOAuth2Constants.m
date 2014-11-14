@@ -42,6 +42,7 @@ NSString *const OAUTH2_SCOPE              = @"scope";
 NSString *const OAUTH2_STATE              = @"state";
 NSString *const OAUTH2_TOKEN              = @"token";
 NSString *const OAUTH2_TOKEN_SUFFIX       = @"/oauth2/token";
+NSString* const OAUTH2_INSTANCE_DISCOVERY_SUFFIX = @"common/discovery/instance";
 NSString *const OAUTH2_TOKEN_TYPE         = @"token_type";
 NSString *const OAUTH2_LOGIN_HINT         = @"login_hint";
 NSString *const OAUTH2_ID_TOKEN           = @"id_token";

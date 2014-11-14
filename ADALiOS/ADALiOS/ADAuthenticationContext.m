@@ -31,6 +31,7 @@
 #import "ADTokenCacheStoreItem.h"
 #import "ADTokenCacheStoreKey.h"
 #import "ADUserInformation.h"
+#import "ADClientMetrics.h"
 
 #ifdef TARGET_OS_IPHONE
 #import "WorkPlaceJoin.h"
@@ -1593,6 +1594,8 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     
     webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
     
+    [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[requestCorrelationId UUIDString] requestHeader:webRequest.headers];
+    
     [webRequest send:^( NSError *error, ADWebResponse *webResponse ) {
         // Request completion callback
         NSMutableDictionary *response = [NSMutableDictionary new];
@@ -1672,6 +1675,12 @@ additionalHeaders:(NSDictionary *)additionalHeaders
             // System error
             [response setObject:[ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription]
                          forKey:AUTH_NON_PROTOCOL_ERROR];
+        }
+    
+        if([response valueForKey:AUTH_NON_PROTOCOL_ERROR]){
+            [[ADClientMetrics getInstance] endClientMetricsRecord:[response valueForKey:AUTH_NON_PROTOCOL_ERROR]];
+        } else {
+            [[ADClientMetrics getInstance] endClientMetricsRecord:nil];
         }
         
         completionBlock( response );
