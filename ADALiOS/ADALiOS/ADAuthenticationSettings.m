@@ -26,7 +26,9 @@
 @synthesize requestTimeOut         = _requestTimeOut;
 @synthesize enableFullScreen       = _enableFullScreen;
 @synthesize clientTLSKeychainGroup  = _clientTLSKeychainGroup;
-
+#if !TARGET_OS_IPHONE
+@synthesize createSecAccessBlock    = _createSecAccessBlock;
+#endif // !TARGET_OS_IPHONE
 
 /*!
  An internal initializer used from the static creation function.
