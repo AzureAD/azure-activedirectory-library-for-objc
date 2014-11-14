@@ -16,7 +16,8 @@
 @implementation BVAppDelegate
 
 @synthesize window = _window;
-@synthesize resultLabel = _resultLabel;
+@synthesize resultField = _resultField;
+@synthesize samlAssertionField = _samlAssertionField;
 
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 @synthesize managedObjectModel         = _managedObjectModel;
@@ -24,23 +25,48 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    [_resultLabel setStringValue:@"Response goes here"];
+    [_resultField setString:@"Response goes here"];
 }
 
 
 - (void) setStatus:(NSString*) message
 {
-    [_resultLabel setStringValue:message];
+    [_resultField setString:message];
 }
 
 - (void) appendStatus:(NSString*) message {
     
-    NSMutableString* mutableString = [NSMutableString stringWithString:[_resultLabel stringValue]];
+    NSMutableString* mutableString = [NSMutableString stringWithString:[[_resultField textStorage] string]];
     [mutableString appendString:message];
     [self setStatus:mutableString];
 }
 
-
+- (IBAction)samlAssertionAction:(id)sender
+{
+    BVSettings     *testData    = [BVSettings new];
+    BVTestInstance *aadInstance = [[testData.testAuthorities objectForKey:sAADTestInstance] retain];
+    
+    NSString* authority = aadInstance.authority;//params.authority;
+    NSString* clientId = aadInstance.clientId;
+    NSString* resourceString = aadInstance.resource;
+    ADAuthenticationError * error;
+    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:aadInstance.validateAuthority error:&error];
+    if (!context)
+    {
+        [self setStatus:error.errorDetails];
+        return;
+    }
+    
+    [context acquireTokenForAssertion:[[_samlAssertionField textStorage] string] assertionType:AD_SAML1_1 resource:resourceString clientId:clientId userId:@"kpanwar@microsoft.com" completionBlock:^(ADAuthenticationResult *result) {
+        if (result.status != AD_SUCCEEDED)
+        {
+            [self setStatus:result.error.errorDetails];
+            return;
+        }
+        
+        [self setStatus:result.tokenCacheStoreItem.accessToken];
+    }];
+}
 
 - (IBAction)endToEndAction:(id)sender{
     // Do any additional setup after loading the view, typically from a nib.
@@ -60,16 +86,16 @@
                           redirectUri:[NSURL URLWithString:aadInstance.redirectUri]
                        promptBehavior:AD_PROMPT_AUTO
                                userId:aadInstance.userId
-                 extraQueryParameters: nil
+                 extraQueryParameters: aadInstance.extraQueryParameters
                       completionBlock:^(ADAuthenticationResult *result)
      {
          if (AD_SUCCEEDED == result.status)
          {
-             [_resultLabel setStringValue: [NSString stringWithFormat:@"AcquireToken succeeded with access token: %@", result.accessToken]];
+             [self setStatus: [NSString stringWithFormat:@"AcquireToken succeeded with access token: %@", result.accessToken]];
          }
          else
          {
-             [_resultLabel setStringValue: [NSString stringWithFormat:@"AcquireToken failed with access token: %@", result.error.errorDetails]];
+             [self setStatus: [NSString stringWithFormat:@"AcquireToken failed with access token: %@", result.error.errorDetails]];
          }
          
          [context release];
@@ -132,7 +158,7 @@
     }
     if (error)
     {
-        [_resultLabel setStringValue:error.errorDetails];
+        [self appendStatus:error.errorDetails];
     }
     else
     {
@@ -148,7 +174,7 @@
     NSArray* allItems = [cache allItemsWithError:&error];
     if (error)
     {
-        [_resultLabel setStringValue:error.errorDetails];
+        [self appendStatus:error.errorDetails];
         return;
     }
     
@@ -193,26 +219,26 @@
     NSString* clientId = aadInstance.clientId;
     NSString* resourceString =aadInstance.resource;
     
-    [_resultLabel setStringValue:@"Attempt to refresh..."];
+    [self setStatus:@"Attempt to refresh...\n"];
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:NO error:&error];
     if (!context)
     {
-        [_resultLabel setStringValue:error.errorDetails];
+        [self appendStatus:error.errorDetails];
         return;
     }
     //We will leverage a multi-resource refresh token:
     ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:authority resource:resourceString clientId:clientId error:&error];
     if (!key)
     {
-        [_resultLabel setStringValue:error.errorDetails];
+        [self appendStatus:error.errorDetails];
         return;
     }
     id<ADTokenCacheStoring> cache = context.tokenCacheStore;
     ADTokenCacheStoreItem* item = [cache getItemWithKey:key userId:nil error:nil];
     if (!item)
     {
-        [_resultLabel setStringValue:@"Missing cache item."];
+        [self appendStatus:@"Missing cache item."];
         return;
     }
     
@@ -223,11 +249,11 @@
      {
          if (result.error)
          {
-             [_resultLabel setStringValue:result.error.errorDetails];
+             [self appendStatus:result.error.errorDetails];
          }
          else
          {
-             [_resultLabel setStringValue:result.tokenCacheStoreItem.accessToken];
+             [self appendStatus:result.tokenCacheStoreItem.accessToken];
          }
      }];
     
@@ -248,12 +274,12 @@
     BVSettings     *testData    = [BVSettings new];
     BVTestInstance *aadInstance = [[testData.testAuthorities objectForKey:sAADTestInstance] retain];
     
-    [_resultLabel setStringValue:@"Setting prompt always..."];
+    [self setStatus:@"Setting prompt always..."];
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:aadInstance.authority error:&error];
     if (!context)
     {
-        [_resultLabel setStringValue:error.errorDetails];
+        [self appendStatus:error.errorDetails];
         return;
     }
     
@@ -262,16 +288,16 @@
                           redirectUri:[NSURL URLWithString:aadInstance.redirectUri]
                        promptBehavior:AD_PROMPT_ALWAYS
                                userId:aadInstance.userId
-                 extraQueryParameters:@""
+                 extraQueryParameters: aadInstance.extraQueryParameters
                       completionBlock:^(ADAuthenticationResult *result)
      {
          if (result.status != AD_SUCCEEDED)
          {
-             [_resultLabel setStringValue:result.error.errorDetails];
+             [self appendStatus:result.error.errorDetails];
              return;
          }
          
-         [_resultLabel setStringValue:result.tokenCacheStoreItem.accessToken];
+         [self appendStatus:result.tokenCacheStoreItem.accessToken];
      }];
     
     [aadInstance release];
@@ -294,7 +320,7 @@
     if (_managedObjectModel) {
         return _managedObjectModel;
     }
-	
+    
     NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"MyTestMacOSApp" withExtension:@"momd"];
     _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
     return _managedObjectModel;
@@ -353,7 +379,7 @@
     return _persistentStoreCoordinator;
 }
 
-// Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.) 
+// Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.)
 - (NSManagedObjectContext *)managedObjectContext
 {
     if (_managedObjectContext) {
@@ -371,7 +397,7 @@
     }
     _managedObjectContext = [[NSManagedObjectContext alloc] init];
     [_managedObjectContext setPersistentStoreCoordinator:coordinator];
-
+    
     return _managedObjectContext;
 }
 
@@ -414,13 +440,13 @@
     
     NSError *error = nil;
     if (![[self managedObjectContext] save:&error]) {
-
-        // Customize this code block to include application-specific recovery steps.              
+        
+        // Customize this code block to include application-specific recovery steps.
         BOOL result = [sender presentError:error];
         if (result) {
             return NSTerminateCancel;
         }
-
+        
         NSString *question = NSLocalizedString(@"Could not save changes while quitting. Quit anyway?", @"Quit without saves error question message");
         NSString *info = NSLocalizedString(@"Quitting now will lose any changes you have made since the last successful save", @"Quit without saves error question info");
         NSString *quitButton = NSLocalizedString(@"Quit anyway", @"Quit anyway button title");
@@ -430,14 +456,14 @@
         [alert setInformativeText:info];
         [alert addButtonWithTitle:quitButton];
         [alert addButtonWithTitle:cancelButton];
-
+        
         NSInteger answer = [alert runModal];
         
         if (answer == NSAlertAlternateReturn) {
             return NSTerminateCancel;
         }
     }
-
+    
     return NSTerminateNow;
 }
 

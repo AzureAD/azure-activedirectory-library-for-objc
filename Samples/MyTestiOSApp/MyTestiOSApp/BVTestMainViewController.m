@@ -34,6 +34,7 @@
 - (IBAction)refreshTokenPressed:(id)sender;
 - (IBAction)expireAllPressed:(id)sender;
 - (IBAction)promptAlways:(id)sender;
+- (IBAction)samlAssertionPressed:(id)sender;
 
 @end
 
@@ -42,9 +43,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+    // Do any additional setup after loading the view, typically from a nib.
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];//Log everything
-
+    
     mTestData = [BVSettings new];
     mAADInstance = mTestData.testAuthorities[sAADTestInstance];
 }
@@ -101,11 +102,37 @@
     });
 }
 
+- (IBAction)samlAssertionPressed:(id)sender
+{
+    BVTestMainViewController* __weak weakSelf = self;
+    NSString* authority = mAADInstance.authority;//params.authority;
+    NSString* clientId = mAADInstance.clientId;
+    NSString* resourceString = mAADInstance.resource;
+    ADAuthenticationError * error;
+    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:mAADInstance.validateAuthority error:&error];
+    if (!context)
+    {
+        [weakSelf setStatus:error.errorDetails];
+        return;
+    }
+    
+    [context acquireTokenForAssertion:@"" assertionType:AD_SAML1_1 resource:resourceString clientId:clientId userId:@"kpanwar@microsoft.com" completionBlock:^(ADAuthenticationResult *result) {
+        if (result.status != AD_SUCCEEDED)
+        {
+            [weakSelf setStatus:result.error.errorDetails];
+            return;
+        }
+        
+        [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+    }];
+}
+
+
 - (IBAction)pressMeAction:(id)sender
 {
     BVTestMainViewController* __weak weakSelf = self;
     [self.resultLabel setText:@"Starting 401 challenge."];
-
+    
     //TODO: implement the 401 challenge response in the test Azure app. Temporarily using another one:
     NSString* __block resourceString = @"http://testapi007.azurewebsites.net/api/WorkItem";
     NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
@@ -137,6 +164,7 @@
                                   clientId:clientId
                                redirectUri:[NSURL URLWithString:redirectUri]
                                     userId:userId
+                      extraQueryParameters:mAADInstance.extraQueryParameters
                            completionBlock:^(ADAuthenticationResult *result) {
                                if (result.status != AD_SUCCEEDED)
                                {
@@ -245,7 +273,7 @@
         return;
     }
     id<ADTokenCacheStoring> cache = context.tokenCacheStore;
-    ADTokenCacheStoreItem* item = [cache getItemWithKey:key userId:nil error:nil];
+    ADTokenCacheStoreItem* item = [cache getItemWithKey:key userId:mAADInstance.userId error:nil];
     if (!item)
     {
         [self setStatus:@"Missing cache item."];
@@ -311,18 +339,18 @@
                           redirectUri:[NSURL URLWithString:mAADInstance.redirectUri]
                        promptBehavior:AD_PROMPT_ALWAYS
                                userId:mAADInstance.userId
-                 extraQueryParameters:@""
+                 extraQueryParameters:mAADInstance.extraQueryParameters
                       completionBlock:^(ADAuthenticationResult *result)
-    {
-        if (result.status != AD_SUCCEEDED)
-        {
-            [weakSelf setStatus:result.error.errorDetails];
-            return;
-        }
-        
-        [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
-        NSLog(@"Access token: %@", result.accessToken);
-    }];
+     {
+         if (result.status != AD_SUCCEEDED)
+         {
+             [weakSelf setStatus:result.error.errorDetails];
+             return;
+         }
+         
+         [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+         NSLog(@"Access token: %@", result.accessToken);
+     }];
     
     
 }

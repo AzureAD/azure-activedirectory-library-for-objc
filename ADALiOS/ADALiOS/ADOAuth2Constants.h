@@ -41,12 +41,17 @@ extern NSString *const OAUTH2_SCOPE;
 extern NSString *const OAUTH2_STATE;
 extern NSString *const OAUTH2_TOKEN;
 extern NSString *const OAUTH2_TOKEN_SUFFIX;
+extern NSString *const OAUTH2_INSTANCE_DISCOVERY_SUFFIX;
 extern NSString *const OAUTH2_TOKEN_TYPE;
 extern NSString *const OAUTH2_LOGIN_HINT;
 extern NSString *const OAUTH2_ID_TOKEN;
 extern NSString *const OAUTH2_CORRELATION_ID_RESPONSE;
 extern NSString *const OAUTH2_CORRELATION_ID_REQUEST;
 extern NSString *const OAUTH2_CORRELATION_ID_REQUEST_VALUE;
+extern NSString *const OAUTH2_SAML11_BEARER_VALUE;
+extern NSString *const OAUTH2_SAML2_BEARER_VALUE;
+extern NSString *const OAUTH2_ASSERTION;
+
 
 //Diagnostic traces sent to the Azure Active Directory servers:
 extern NSString *const ADAL_ID_PLATFORM;//The ADAL platform. iOS or OSX

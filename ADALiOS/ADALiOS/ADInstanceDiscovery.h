@@ -18,6 +18,7 @@
 #import <Foundation/Foundation.h>
 
 @class ADAuthenticationError;
+@class ADClientMetrics;
 
 /*! The completion block declaration. */
 typedef void(^ADDiscoveryCallback)(BOOL validated, ADAuthenticationError* error);

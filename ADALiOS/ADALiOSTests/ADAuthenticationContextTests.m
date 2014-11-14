@@ -57,6 +57,8 @@ const int sAsyncContextTimeout = 10;
     NSURL* mRedirectURL;
     NSString* mUserId;
     ADPromptBehavior mPromptBehavior;
+    NSString* mAssertion;
+    ADAssertionType mAssertionType;
     
     //The results:
     ADAuthenticationError* mError;//The error filled by the result;
@@ -363,6 +365,30 @@ const int sAsyncContextTimeout = 10;
     }
 }
 
+#define acquireTokenForAssertionAsync [self asynchronousAcquireTokenForAssertionWithLine:__LINE__]
+-(void) asynchronousAcquireTokenForAssertionWithLine: (int) line
+{
+    [self prepareForAsynchronousCall];
+    
+    static volatile int completion = 0;
+    [self adCallAndWaitWithFile:@"" __FILE__ line:line completionSignal: &completion block:^
+     {
+         [self->mContext acquireTokenForAssertion:self->mAssertion
+                                    assertionType:self->mAssertionType
+                                         resource:self->mResource
+                                         clientId:self->mClientId
+                                           userId:self->mUserId
+                                  completionBlock:^(ADAuthenticationResult *result)
+          {
+              //Fill in the iVars with the result:
+              self->mResult = SAFE_ARC_RETAIN( result );
+              self->mError = SAFE_ARC_RETAIN(self->mResult.error);
+              ASYNC_BLOCK_COMPLETE(completion);
+          }];
+     }];
+    [self validateAsynchronousResultWithLine:line];
+}
+
 #define acquireTokenAsync [self asynchronousAcquireTokenWithLine:__LINE__]
 /* Helper function to fascilitate calling of the asynchronous acquireToken. 
    Uses the ivars of the test class for the arguments.
@@ -663,6 +689,44 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
 }
 
+
+
+-(void) testAcquireTokenFromAssertion
+{
+    ADAuthenticationError* error = nil;
+    //Nothing in the cache, as we cannot prompt for credentials, this should fail:
+    acquireTokenForAssertionAsync;
+    XCTAssertEqual(mResult.status, AD_FAILED);
+    ADAssertLongEquals(mResult.error.code, AD_ERROR_INVALID_ARGUMENT);
+    
+    self->mAssertion = @"some assertion";
+    NSString* someTokenValue = @"someToken value";
+    [self addCacheWithToken:someTokenValue refreshToken:nil];
+    acquireTokenForAssertionAsync;
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
+    
+    //Expire the cache item:
+    [mDefaultTokenCache removeAllWithError:&error];
+    ADAssertNoError;
+    NSArray* allItems = [mDefaultTokenCache allItemsWithError:&error];
+    XCTAssertTrue(allItems.count == 0);
+
+    NSString* broadRefreshToken = @"broad refresh token testAcquireTokenWithNoPrompt";
+    NSString* anotherAccessToken = @"another access token testAcquireTokenWithNoPrompt";
+    
+    [self.testContext->mExpectedRequest1 setObject:OAUTH2_SAML11_BEARER_VALUE forKey:OAUTH2_GRANT_TYPE];
+    
+    [self.testContext->mResponse1 setObject:anotherAccessToken forKey:OAUTH2_ACCESS_TOKEN];
+    [self.testContext->mResponse1 setObject:broadRefreshToken forKey:OAUTH2_REFRESH_TOKEN];
+    //Next line makes it a broad token:
+    [self.testContext->mResponse1 setObject:@"anything" forKey:OAUTH2_RESOURCE];
+    acquireTokenForAssertionAsync;
+    XCTAssertEqual(mResult.status, AD_SUCCEEDED);
+    ADAssertStringEquals(mResult.accessToken, anotherAccessToken);
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.refreshToken, broadRefreshToken);
+}
+
+
 -(void) testGenericErrors
 {
     //Refresh token in the cache, but there is no connection to the server. We should not try to open a credentials web view:
@@ -707,8 +771,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([self cacheCount] == 2);
     ADTokenCacheStoreItem* exactItem = [self verifyCacheWithResource:mResource accessToken:accessToken refreshToken:exactRefreshToken line:__LINE__];
     NSDate* expiration = exactItem.expiresOn;
-    NSDate* minExpiration = [NSDate dateWithTimeIntervalSinceNow:(3500 - 10)];
-    //ADAssertLongEquals(NSOrderedAscending, [minExpiration compare:expiration]);
+
     NSDate* maxExpiration = [NSDate dateWithTimeIntervalSinceNow:(3500 + 10)];
     ADAssertLongEquals(NSOrderedDescending, [maxExpiration compare:expiration]);
     [self verifyCacheWithResource:nil accessToken:nil refreshToken:broadToken line:__LINE__];

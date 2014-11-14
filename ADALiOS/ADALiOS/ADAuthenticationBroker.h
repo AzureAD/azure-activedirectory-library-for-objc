@@ -17,15 +17,6 @@
 // governing permissions and limitations under the License.
 
 #include "ADAuthenticationContext.h"
-#if TARGET_OS_IPHONE
-//iOS:
-#   include <UIKit/UIKit.h>
-typedef UIWebView WebViewType;
-#else
-//OS X:
-#   include <WebKit/WebKit.h>
-typedef WebView   WebViewType;
-#endif
 
 @class ADAuthenticationError;
 @class ADAuthenticationWindowController;
