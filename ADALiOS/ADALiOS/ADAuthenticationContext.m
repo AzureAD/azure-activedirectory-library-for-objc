@@ -1678,7 +1678,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
         }
     
         if([response valueForKey:AUTH_NON_PROTOCOL_ERROR]){
-            [[ADClientMetrics getInstance] endClientMetricsRecord:[response valueForKey:AUTH_NON_PROTOCOL_ERROR]];
+            [[ADClientMetrics getInstance] endClientMetricsRecord:[[response valueForKey:AUTH_NON_PROTOCOL_ERROR] errorDetails]];
         } else {
             [[ADClientMetrics getInstance] endClientMetricsRecord:nil];
         }
