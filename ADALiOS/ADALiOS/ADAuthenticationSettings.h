@@ -15,7 +15,13 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
+
 #import <Foundation/Foundation.h>
+#include <Security/Security.h>
+
+#if !TARGET_OS_IPHONE
+typedef SecAccessRef (^CreateSecAccessBlock)(CFStringRef label);
+#endif // !TARGET_OS_IPHONE
 
 @protocol ADTokenCacheStoring;
 /*!
@@ -38,6 +44,8 @@ typedef enum
     
 } ADCredentialsType;
 
+
+
 /*! The class stores global settings for the ADAL library. It is a singleton class
  and the alloc, init and new should not be called directly. The "sharedInstance" selector
  should be used instead to provide the settings instance. The class is not thread-safe.
@@ -54,6 +62,9 @@ typedef enum
     ADCredentialsType       _credentialsType;
     dispatch_queue_t _dispatchQueue;
     NSString* _clientTLSKeychainGroup;
+#if !TARGET_OS_IPHONE
+    CreateSecAccessBlock _createSecAccessBlock;
+#endif // !TARGET_OS_IPHONE
 }
 
 /*! The static instance of the singleton settings class*/
@@ -79,6 +90,10 @@ typedef enum
 
 /*! The default token cache store to be used by the ADAuthenticationContext instances. */
 @property (retain) id<ADTokenCacheStoring> defaultTokenCacheStore;
+
+#if !TARGET_OS_IPHONE
+@property (copy) CreateSecAccessBlock createSecAccessBlock;
+#endif // !TARGET_OS_IPHONE
 
 #if TARGET_OS_IPHONE
 /*! The name of the keychain group to be used if sharing of cache between applications
