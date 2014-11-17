@@ -5,15 +5,15 @@
 	<key>AAD Instance</key>
 	<dict>
 		<key>Authority</key>
-		<string>https://login.windows.net/MSOpenTechBV.onMicrosoft.com</string>
+		<string>https://login.windows.net/adalobjc.onmicrosoft.com</string>
 		<key>ClientId</key>
-		<string>c3c7f5e5-7153-44d4-90e6-329686d48d76</string>
+		<string>dd9caee2-38bd-484e-998c-7529bdef220f</string>
 		<key>Resource</key>
-		<string>http://localhost/TodoListService</string>
+        <string>https://graph.windows.net</string>
 		<key>RedirectUri</key>
-		<string>http://todolistclient/</string>
+		<string>MyTestiOSApp://com.MSOpenTech.MyTestiOSApp</string>
 		<key>UserId</key>
-		<string>boris@msopentechbv.onmicrosoft.com</string>
+		<string>e2e@adalobjc.onmicrosoft.com</string>
 		<key>Password</key>
 		<string>~test123</string>
 		<key>RequestTimeout</key>

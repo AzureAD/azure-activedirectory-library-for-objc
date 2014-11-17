@@ -34,11 +34,16 @@
 #import "ADWorkPlaceJoin.h"
 #import "ADPkeyAuthHelper.h"
 #import "ADWorkPlaceJoinConstants.h"
+#import "ADKeyChainHelper.h"
+#import "ADBrokerKeyHelper.h"
 
 
 NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
 NSString* const serverError = @"The authentication server returned an error: %@.";
+
+NSString* const brokerAppIdentifier = @"com.microsoft.adbrokerApp";
+NSString* const brokerURL = @"msauth://";
 
 //Used for the callback of obtaining the OAuth2 code:
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
@@ -397,6 +402,19 @@ return; \
              }//key
          }//!item.multiResourceRefreshToken
          
+         
+         if([self canUseBroker]){
+             [self callBrokerForAuthority: self.authority
+                                 resource: resource
+                                 clientId: clientId
+                              redirectUri: redirectUri
+                                   userId: userId
+                            correlationId: [correlationId UUIDString]
+                     extraQueryParameters: queryParams];
+             return;
+         }
+         
+         
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
          [self internalAcquireTokenWithResource: resource
@@ -637,6 +655,18 @@ return; \
                         completionBlock:completionBlock];
             return; //The tryRefreshingFromCacheItem has taken care of the token obtaining
         }
+    }
+    
+    //call the broker.
+    if([self canUseBroker]){
+        [self callBrokerForAuthority: self.authority
+                            resource: resource
+                            clientId: clientId
+                         redirectUri: redirectUri
+                              userId: userId
+                       correlationId: [correlationId UUIDString]
+                extraQueryParameters: queryParams];
+        return;
     }
     
     if (silent)
@@ -1426,6 +1456,28 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     [headerKeyValuePair setObject:authHeader forKey:@"Authorization"];
     
     [self request:authorizationServer requestData:request_data requestCorrelationId:requestCorrelationId isHandlingPKeyAuthChallenge:TRUE additionalHeaders:headerKeyValuePair completion:completionBlock];
+}
+
+- (BOOL) canUseBroker
+{
+    return [[ADAuthenticationSettings sharedInstance] credentialsType] == AD_CREDENTIALS_AUTO && [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:brokerURL]];
+}
+
+
+- (void) callBrokerForAuthority:(NSString*) authority
+                       resource: (NSString*) resource
+                       clientId: (NSString*)clientId
+                    redirectUri: (NSURL*) redirectUri
+                         userId: (NSString*) userId
+                         correlationId: (NSString*) correlationId
+           extraQueryParameters: (NSString*) queryParams
+{
+    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+    ADAuthenticationError* error = nil;
+    NSData* key = [brokerHelper getBrokerKey:&error];
+    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&query_params=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, queryParams, [[NSString alloc] initWithData:key encoding:NSUTF8StringEncoding]];
+    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@?%@", brokerURL, query]];
+    [[UIApplication sharedApplication] openURL:appUrl];
 }
 
 @end

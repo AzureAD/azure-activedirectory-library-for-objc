@@ -72,26 +72,32 @@ BOOL sNSLogging = YES;
     
     switch (level) {
         case ADAL_LOG_LEVEL_ERROR:
-            return @"ADALiOS: ERROR: %@. Additional Information: %@. ErrorCode: %u.";
+            return [ADLogger createStringForLevel: @"ERROR"];
             break;
             
         case ADAL_LOG_LEVEL_WARN:
-            return @"ADALiOS: WARNING: %@. Additional Information: %@. ErrorCode: %u.";
+            return [ADLogger createStringForLevel: @"WARNING"];
             break;
             
         case ADAL_LOG_LEVEL_INFO:
-            return @"ADALiOS: INFORMATION: %@. Additional Information: %@. ErrorCode: %u.";
+            return [ADLogger createStringForLevel: @"INFORMATION"];
             break;
             
         case ADAL_LOG_LEVEL_VERBOSE:
-            return @"ADALiOS: VERBOSE: %@. Additional Information: %@. ErrorCode: %u.";
+            return [ADLogger createStringForLevel: @"VERBOSE"];
             break;
             
         default:
-            return @"ADALiOS: UNKNOWN: %@. Additional Information: %@. ErrorCode: %u.";
+            return [ADLogger createStringForLevel: @"UNKOWN"];
             break;
     }
 }
+
++ (NSString*) createStringForLevel:(NSString*) level
+{
+return [NSString stringWithFormat:@"%@%@%@%@%@", @"ADALiOS(", [NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH] , @"): ", level , @": %@. Additional Information: %@. ErrorCode: %u."];
+}
+
 
 +(void) log: (ADAL_LOG_LEVEL)logLevel
     message: (NSString*) message
@@ -151,7 +157,7 @@ additionalInformation: (NSString*) additionalInformation
     NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
     @{
       ADAL_ID_PLATFORM:@"iOS",
-      ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW],
+      ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH],
       ADAL_ID_OS_VER:device.systemVersion,
       ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
       }];

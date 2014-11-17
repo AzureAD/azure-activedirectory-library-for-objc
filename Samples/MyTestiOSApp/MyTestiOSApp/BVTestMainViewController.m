@@ -267,6 +267,7 @@
     [self setStatus:@"Attemp to refresh..."];
     ADAuthenticationError* error;
     ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:mAADInstance.validateAuthority error:&error];
+
     if (!context)
     {
         [self setStatus:error.errorDetails];
