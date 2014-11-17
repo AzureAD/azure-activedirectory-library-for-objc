@@ -2,9 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:TestADBrokerShell/ADBrokerShellTestApp.xcodeproj">
+      location = "group:ADAuthenticationBroker/ADAuthenticationBroker.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:ADBroker/ADBroker.xcodeproj">
+      location = "group:MyTestADBrokerApp/MyTestADBrokerApp.xcodeproj">
    </FileRef>
 </Workspace>
