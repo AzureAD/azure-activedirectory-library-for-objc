@@ -38,12 +38,22 @@ typedef WebView   WebViewType;
 
 typedef enum
 {
-    /*! Default option. Users will be prompted only if their attention is needed. First the cache will 
-     be checked for a suitable access token (non-expired). If none is found, the cache will be checked 
-     for a suitable refresh token to be used for obtaining a new access token. If this attempt fails 
-     too, it depends on the acquireToken method being called. 
+    /*! Default option. Assumes the assertion provided is of type SAML 1.1. */
+    AD_SAML1_1,
+    
+    /*! Assumes the assertion provided is of type SAML 2. */
+    AD_SAML2,
+} ADAssertionType;
+
+
+typedef enum
+{
+    /*! Default option. Users will be prompted only if their attention is needed. First the cache will
+     be checked for a suitable access token (non-expired). If none is found, the cache will be checked
+     for a suitable refresh token to be used for obtaining a new access token. If this attempt fails
+     too, it depends on the acquireToken method being called.
      acquireTokenWithResource methods will prompt the user to re-authorize the resource usage by providing
-     credentials. If user login cookies are present from previous authorization, the webview will be 
+     credentials. If user login cookies are present from previous authorization, the webview will be
      displayed and automatically dismiss itself without asking the user to re-enter credentials.
      acquireTokenSilentWithResource methods will not show UI in this case, but fail with error code
      AD_ERROR_USER_INPUT_NEEDED. */
@@ -55,7 +65,7 @@ typedef enum
     AD_PROMPT_ALWAYS,
     
     /*! Re-authorizes (through displaying webview) the resource usage, making sure that the resulting access
-     token contains updated claims. If user logon cookies are available, the user will not be asked for 
+     token contains updated claims. If user logon cookies are available, the user will not be asked for
      credentials again and the logon dialog will dismiss automatically. This is equivalent to passing
      prompt=refresh_session as an extra query parameter during the authorization. */
     AD_PROMPT_REFRESH_SESSION,
@@ -79,7 +89,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  @param validateAuthority: Specifies if the authority should be validated.
  @param tokenCacheStore: Allows the user to specify a dictionary object that will implement the token caching. If this
  parameter is null, tokens will not be cached.
-@param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
+ @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil.
  */
 -(id) initWithAuthority: (NSString*) authority
@@ -150,13 +160,33 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 
 
 /*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
-   when needed, leveraging the parentController property. */
+ when needed, leveraging the parentController property. */
 @property (weak) WebViewType* webView;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+ the function will use the refresh token automatically. If neither of these attempts succeeds, the method will use the provided assertion to get an 
+ access token from the service.
+ 
+ @param samlAssertion: the assertion representing the authenticated user.
+ @param assertionType: the assertion type of the user assertion.
+ @param resource: the resource whose token is needed.
+ @param clientId: the client identifier
+ @param userId: the user id of the authenticated user. Required.
+ @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+-(void)  acquireTokenForAssertion: (NSString*) samlAssertion
+                    assertionType: (ADAssertionType) assertionType
+                         resource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                           userId: (NSString*) userId
+                  completionBlock: (ADAuthenticationCallback) completionBlock;
+
+
+/*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+ expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
  the function will use the refresh token automatically. If neither of these attempts succeeds, the method will display
- credentials web UI for the user to re-authorize the resource usage. Logon cookie from previous authorization may be 
+ credentials web UI for the user to re-authorize the resource usage. Logon cookie from previous authorization may be
  leveraged by the web UI, so user may not be actuall prompted. Use the other overloads if a more precise control of the
  UI displaying is desired.
  @param resource: the resource whose token is needed.
@@ -239,9 +269,9 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 -(void) acquireTokenSilentWithResource: (NSString*) resource
-                        clientId: (NSString*) clientId
-                     redirectUri: (NSURL*) redirectUri
-                 completionBlock: (ADAuthenticationCallback) completionBlock;
+                              clientId: (NSString*) clientId
+                           redirectUri: (NSURL*) redirectUri
+                       completionBlock: (ADAuthenticationCallback) completionBlock;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
@@ -255,10 +285,10 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 -(void) acquireTokenSilentWithResource: (NSString*) resource
-                        clientId: (NSString*) clientId
-                     redirectUri: (NSURL*) redirectUri
-                          userId: (NSString*) userId
-                 completionBlock: (ADAuthenticationCallback) completionBlock;
+                              clientId: (NSString*) clientId
+                           redirectUri: (NSURL*) redirectUri
+                                userId: (NSString*) userId
+                       completionBlock: (ADAuthenticationCallback) completionBlock;
 
 /*! Follows the OAuth2 protocol (RFC 6749). Uses the refresh token to obtain an access token (and another refresh token). The method
  is superceded by acquireToken, which will implicitly use the refresh token if needed. Please use acquireTokenByRefreshToken
