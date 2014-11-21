@@ -23,7 +23,7 @@
 #import <ADALiOS/ADLogger.h>
 #import <ADALiOS/ADErrorCodes.h>
 #import <ADALiOS/ADAuthenticationError.h>
-#import "NSString+ADHelperMethods.h"
+#import "NSString+ADBrokerHelperMethods.h"
 
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \
