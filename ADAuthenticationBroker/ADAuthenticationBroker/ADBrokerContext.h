@@ -27,8 +27,11 @@ typedef void(^ADBrokerCallback)(ADAuthenticationResult* result);
 
 @interface ADBrokerContext : NSObject
 
-+ (void) invokeBroker: (NSString*) requestPayload
- sourceApplication: (NSString*) sourceApplication
-   completionBlock: (ADBrokerCallback) completionBlock;
++ (void) invokeBrokerLocally: (NSString*) requestPayload
+             completionBlock: (ADBrokerCallback) completionBlock;
+
++ (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
+                        sourceApplication: (NSString*) sourceApplication
+                          completionBlock: (ADBrokerCallback) completionBlock;
 
 @end

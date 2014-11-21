@@ -73,9 +73,16 @@ return; \
     }
 }
 
-+ (void) invokeBroker: (NSString*) requestPayload
-    sourceApplication: (NSString*) sourceApplication
-      completionBlock: (ADBrokerCallback) completionBlock
++ (void) invokeBrokerLocally: (NSString*) requestPayload
+             completionBlock: (ADBrokerCallback) completionBlock
+{
+    [ADBrokerContext invokeBrokerForSourceApplication:requestPayload sourceApplication:LOCAL_APPLICATION completionBlock:completionBlock];
+}
+
+
++ (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
+                        sourceApplication: (NSString*) sourceApplication
+                          completionBlock: (ADBrokerCallback) completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
     HANDLE_ARGUMENT(requestPayload);
@@ -116,25 +123,46 @@ return; \
                                    userId:[queryParamsMap valueForKey:USER_ID]
                      extraQueryParameters:[queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS]
                           completionBlock:^(ADAuthenticationResult *result)
-            {
-                if(result.status == AD_SUCCEEDED){
-                    
-                    NSString* rawIdToken = @"";
-                    if(result.tokenCacheStoreItem.userInformation){
-                        rawIdToken = result.tokenCacheStoreItem.userInformation.rawIdToken;
-                    }
-                    
-                    NSString* response = [NSString stringWithFormat:@"access_token=%@&id_token=%@", result.accessToken, rawIdToken];
-                    response = [NSString Base64EncodeData:[ADBrokerHelpers encryptData:response key:[NSString Base64DecodeData:[queryParamsMap valueForKey:BROKER_KEY]]]];
-                }
-            }];
+             {
+                 NSString* response = nil;
+                 if(result.status == AD_SUCCEEDED){
+                     
+                     NSString* rawIdToken = @"";
+                     if(result.tokenCacheStoreItem.userInformation){
+                         rawIdToken = result.tokenCacheStoreItem.userInformation.rawIdToken;
+                     }
+                     
+                     response = [NSString stringWithFormat:@"access_token=%@&id_token=%@", result.accessToken, rawIdToken];
+                     response = [NSString Base64EncodeData:[ADBrokerHelpers encryptData:response key:[NSString Base64DecodeData:[queryParamsMap valueForKey:BROKER_KEY]]]];
+                     response = [NSString stringWithFormat:@"response=%@", response];
+                 } else{
+                     response = [ADBrokerContext getErrorResponse: result.error];
+                 }
+                 
+                 [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:REDIRECT_URI] response:response];
+             }];
             return;
         }
     }
     
     if(error){
-        completionBlock([ADAuthenticationResult resultFromError:error]);
+        NSString* response = [ADBrokerContext getErrorResponse: error];
+        [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:REDIRECT_URI] response:response];
+        return;
     }
+}
+
++(void)openAppInBackground:(NSString *)application
+                       response:(NSString *)response
+{        NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@/broker?%@", application, response]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[UIApplication sharedApplication] openURL:appUrl];
+    });
+}
+
++ (NSString*) getErrorResponse:(ADAuthenticationError*) error
+{
+    return [NSString stringWithFormat:@"code=%@&error_details=%@", error.protocolCode, error.errorDetails];
 }
 
 @end

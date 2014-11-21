@@ -32,15 +32,10 @@
          annotation:(id)annotation
 {
     if([[url host] isEqualToString:@"broker"]){
-        [ADBrokerContext invokeBroker:[url absoluteString] sourceApplication:sourceApplication completionBlock:^(ADAuthenticationResult *result) {
+        [ADBrokerContext invokeBrokerForSourceApplication:[url absoluteString] sourceApplication:sourceApplication completionBlock:^(ADAuthenticationResult *result) {
             //HANDLE response
         }];
-        return NO;
     }
-    
-    
-    [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"kp://%@",sourceApplication]]];
-    
     return YES;
 }
 

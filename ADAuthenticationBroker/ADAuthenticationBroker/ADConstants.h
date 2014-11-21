@@ -25,3 +25,5 @@ extern NSString* const BROKER_KEY = @"broker_key";
 extern NSString* const USER_ID = @"user_id";
 extern NSString* const EXTRA_QUERY_PARAMETERS = @"query_params";
 extern NSString* const CORRELATION_ID = @"correlation_id";
+
+extern NSString* const LOCAL_APPLICATION = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
