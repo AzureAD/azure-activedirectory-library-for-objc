@@ -33,13 +33,12 @@
 @property (nonatomic, retain) NSData * symmetricKeyRef;
 
 -(id) initHelper;
+
 -(void) createBrokerKey: (ADAuthenticationError* __autoreleasing*) error;
+
 -(NSData*) getBrokerKey: (ADAuthenticationError* __autoreleasing*) error;
--(NSDictionary*) decryptBrokerResponse: (NSString*) response
+
+-(NSData*) decryptBrokerResponse: (NSString*) response
                                  error:(ADAuthenticationError* __autoreleasing*) error;
-
-+(NSData*) encryptData: (NSString*) data
-                   key:(NSString*) key;
-
 
 @end

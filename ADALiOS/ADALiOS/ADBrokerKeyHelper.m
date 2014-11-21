@@ -18,6 +18,7 @@
 
 #import <Foundation/Foundation.h>
 #import "ADAuthenticationError.h"
+#import "ADErrorCodes.h"
 #import "ADBrokerKeyHelper.h"
 #import "ADKeyChainHelper.h"
 #import <CommonCrypto/CommonCryptor.h>
@@ -59,7 +60,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     uint8_t * symmetricKey = NULL;
     
     // First delete current symmetric key.
-    [self deleteSymmetricKey];
+    [self deleteSymmetricKey:error];
     
     // Container dictionary
     NSMutableDictionary *symmetricKeyAttr = [[NSMutableDictionary alloc] init];
@@ -76,15 +77,18 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     memset((void *)symmetricKey, 0x0, kChosenCipherKeySize);
     
     sanityCheck = SecRandomCopyBytes(kSecRandomDefault, kChosenCipherKeySize, symmetricKey);
+    if(sanityCheck == errSecSuccess){
+        self.symmetricKeyRef = [[NSData alloc] initWithBytes:(const void *)symmetricKey length:kChosenCipherKeySize];
+        // Add the wrapped key data to the container dictionary.
+        [symmetricKeyAttr setObject:_symmetricKeyRef
+                             forKey:(__bridge id)kSecValueData];
+        // Add the symmetric key to the keychain.
+        sanityCheck = SecItemAdd((__bridge CFDictionaryRef) symmetricKeyAttr, NULL);
+    }
     
-    self.symmetricKeyRef = [[NSData alloc] initWithBytes:(const void *)symmetricKey length:kChosenCipherKeySize];
-    
-    // Add the wrapped key data to the container dictionary.
-    [symmetricKeyAttr setObject:_symmetricKeyRef
-                         forKey:(__bridge id)kSecValueData];
-    
-    // Add the symmetric key to the keychain.
-    sanityCheck = SecItemAdd((__bridge CFDictionaryRef) symmetricKeyAttr, NULL);
+    if(sanityCheck != errSecSuccess){
+        *error = [ADAuthenticationError errorWithDomain:@"Could not create broker key." code:AD_ERROR_UNEXPECTED userInfo:nil];
+    }
     
     if (symmetricKey)
     {
@@ -92,7 +96,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     }
 }
 
-- (void)deleteSymmetricKey {
+- (void)deleteSymmetricKey: (ADAuthenticationError* __autoreleasing*) error {
     OSStatus sanityCheck = noErr;
     
     NSMutableDictionary * querySymmetricKey = [[NSMutableDictionary alloc] init];
@@ -104,8 +108,13 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     
     // Delete the symmetric key.
     sanityCheck = SecItemDelete((__bridge CFDictionaryRef)querySymmetricKey);
+    
+    if(sanityCheck != errSecSuccess){
+        *error = [ADAuthenticationError errorWithDomain:@"Could not delete broker key." code:AD_ERROR_UNEXPECTED userInfo:nil];
+    }
+    
     if(_symmetricKeyRef){
-    CFRelease((__bridge CFTypeRef)(_symmetricKeyRef));
+        CFRelease((__bridge CFTypeRef)(_symmetricKeyRef));
     }
 }
 
@@ -152,7 +161,7 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
 }
 
 
--(NSDictionary*) decryptBrokerResponse: (NSString*) response
+-(NSData*) decryptBrokerResponse: (NSString*) response
                                  error:(ADAuthenticationError* __autoreleasing*) error
 {
     NSData *iv = [self randomDataOfLength:kAlgorithmIVSize];
@@ -160,7 +169,7 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
     
     size_t outLength;
     NSMutableData *cipherData = [NSMutableData dataWithLength:response.length +
-                  kAlgorithmBlockSize];
+                                 kAlgorithmBlockSize];
     
     CCCryptorStatus
     result = CCCrypt(kCCDecrypt, // operation
@@ -168,7 +177,7 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
                      kCCOptionPKCS7Padding, // options
                      key.bytes, // key
                      key.length, // keylength
-                     nil,// iv
+                     (__bridge const void *)(iv),// iv
                      (__bridge const void *)([response dataUsingEncoding:NSUTF8StringEncoding]), // dataIn
                      response.length, // dataInLength,
                      cipherData.mutableBytes, // dataOut
@@ -179,11 +188,11 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
         cipherData.length = outLength;
     }
     else {
-//        if (error) {
-//            *error = [NSError errorWithDomain:kRNCryptManagerErrorDomain
-//                                         code:result
-//                                     userInfo:nil];
-//        }
+        //        if (error) {
+        //            *error = [NSError errorWithDomain:kRNCryptManagerErrorDomain
+        //                                         code:result
+        //                                     userInfo:nil];
+        //        }
         return nil;
     }
     
@@ -192,13 +201,9 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
 
 - (NSData *)randomDataOfLength:(size_t)length {
     NSMutableData *data = [NSMutableData dataWithLength:length];
-    
-    int result = SecRandomCopyBytes(kSecRandomDefault,
+    SecRandomCopyBytes(kSecRandomDefault,
                                     length,
                                     data.mutableBytes);
-    NSAssert(result == 0, @"Unable to generate random bytes: %d",
-             errno);
-    
     return data;
 }
 
