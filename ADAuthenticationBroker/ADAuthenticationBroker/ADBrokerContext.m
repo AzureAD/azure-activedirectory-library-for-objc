@@ -17,13 +17,14 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import <ADALiOS/ADAuthenticationContext.h>
+#import <ADALiOS/ADAuthenticationSettings.h>
 #import "ADBrokerContext.h"
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADConstants.h"
 #import "NSDictionary+ADExtensions.h"
 #import "ADBrokerKeychainTokenCacheStore.h"
+#import "ADBrokerHelpers.h"
 
 @implementation ADBrokerContext
 
@@ -73,8 +74,8 @@ return; \
 }
 
 + (void) invokeBroker: (NSString*) requestPayload
-sourceApplication: (NSString*) sourceApplication
-completionBlock: (ADAuthenticationCallback) completionBlock
+    sourceApplication: (NSString*) sourceApplication
+      completionBlock: (ADBrokerCallback) completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
     HANDLE_ARGUMENT(requestPayload);
@@ -87,18 +88,53 @@ completionBlock: (ADAuthenticationCallback) completionBlock
     HANDLE_ARGUMENT([queryParamsMap valueForKey:AUTHORITY]);
     HANDLE_ARGUMENT([queryParamsMap valueForKey:CLIENT_ID]);
     HANDLE_ARGUMENT([queryParamsMap valueForKey:CORRELATION_ID]);
+    HANDLE_ARGUMENT([queryParamsMap valueForKey:REDIRECT_URI]);
     HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_KEY]);
     
+    //validate source application against redirect uri
     ADAuthenticationError* error = nil;
-    ADAuthenticationContext* ctx = [[ADAuthenticationContext alloc] initWithAuthority:[queryParamsMap valueForKey:AUTHORITY] validateAuthority:NO tokenCacheStore:[ADBrokerKeychainTokenCacheStore new] error:&error];
-    if(!ctx || error)
-    {
-        
-    } else{
-        
+    NSURL *redirectUri = [[NSURL alloc] initWithString:[queryParamsMap valueForKey:REDIRECT_URI]];
+    if(![NSString adSame:sourceApplication toString:[redirectUri host]]){
+        //TODO - get right error
+        error = [ADAuthenticationError errorFromNSError:nil errorDetails:@"source application bundle identifier should be same as the redirect URI domain"];
     }
     
+    if(!error)
+    {
+        [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
+        ADAuthenticationContext* ctx = [[ADAuthenticationContext alloc] initWithAuthority:[queryParamsMap valueForKey:AUTHORITY]
+                                                                        validateAuthority:NO
+                                                                          tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc]initWithSourceApp:sourceApplication]
+                                                                                    error:&error];
+        ctx.correlationId = [[NSUUID alloc] initWithUUIDString:[queryParamsMap valueForKey:CORRELATION_ID]];
+        if(ctx)
+        {
+            
+            [ctx acquireTokenWithResource:[queryParamsMap valueForKey:RESOURCE]
+                                 clientId:[queryParamsMap valueForKey:CLIENT_ID]
+                              redirectUri:redirectUri
+                                   userId:[queryParamsMap valueForKey:USER_ID]
+                     extraQueryParameters:[queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS]
+                          completionBlock:^(ADAuthenticationResult *result)
+            {
+                if(result.status == AD_SUCCEEDED){
+                    
+                    NSString* rawIdToken = @"";
+                    if(result.tokenCacheStoreItem.userInformation){
+                        rawIdToken = result.tokenCacheStoreItem.userInformation.rawIdToken;
+                    }
+                    
+                    NSString* response = [NSString stringWithFormat:@"access_token=%@&id_token=%@", result.accessToken, rawIdToken];
+                    response = [NSString Base64EncodeData:[ADBrokerHelpers encryptData:response key:[NSString Base64DecodeData:[queryParamsMap valueForKey:BROKER_KEY]]]];
+                }
+            }];
+            return;
+        }
+    }
     
+    if(error){
+        completionBlock([ADAuthenticationResult resultFromError:error]);
+    }
 }
 
 @end

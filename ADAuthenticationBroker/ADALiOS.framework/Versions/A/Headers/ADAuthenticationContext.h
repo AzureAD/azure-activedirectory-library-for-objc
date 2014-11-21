@@ -136,9 +136,6 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 /*! Controls authority validation in acquire token calls. */
 @property BOOL validateAuthority;
 
-/*! Controls if the broker should be acquired in acquire token calls. */
-@property BOOL skipBroker;
-
 /*! Represnts the URL scheme of the application. If nil, the API selects the first value in an array of URL schemes. */
 @property NSString* applicationURLScheme;
 

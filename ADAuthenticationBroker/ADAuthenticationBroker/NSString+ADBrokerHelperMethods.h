@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSString (ADHelperMethods)
+@interface NSString (ADBrokerHelperMethods)
 
 /*! Encodes string to the Base64 encoding. */
 - (NSString *) adBase64UrlEncode;
@@ -27,6 +27,12 @@
 
 /*! Returns YES if the string is nil, or contains only white space */
 +(BOOL) adIsStringNilOrBlank: (NSString*)string;
+
+
+/*! Returns empty string if the string is nil, or contains only white space; else it will
+ return the same string without whitespaces*/
++(NSString*) adNormalizeString: (NSString*)string;
+
 
 /*! Returns YES if the passed string is contained. Throws if the passed
  argument is nil or empty string.
@@ -71,6 +77,10 @@
 /*! Compares two strings, returning YES, if they are both nil. */
 + (BOOL) adSame: (NSString*) string1
        toString: (NSString*) string2;
+
+
+/*! Converts base64 String to NSData */
++ (NSData *) Base64DecodeData:(NSString *)encodedString;
 
 /*! Converts NSData to base64 String */
 + (NSString *) Base64EncodeData:(NSData *)data;

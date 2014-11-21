@@ -41,7 +41,7 @@ static byte rgbDecodeTable[128] = {                         // character code
 };
 
 //Checks that all bytes inside the format are valid base64 characters:
-BOOL validBase64Characters(const byte* data, const int size)    
+BOOL areValidBase64Characters(const byte* data, const int size)
 {
     for (int i = 0; i < size; ++i)
     {
@@ -53,7 +53,7 @@ BOOL validBase64Characters(const byte* data, const int size)
     return true;
 }
 
-@implementation NSString (ADHelperMethods)
+@implementation NSString (ADBrokerHelperMethods)
 
 /// <summary>
 /// Base64 URL decode a set of bytes.
@@ -72,7 +72,7 @@ BOOL validBase64Characters(const byte* data, const int size)
     NSData      *encodedBytes = [encodedString dataUsingEncoding:NSASCIIStringEncoding];
     const byte  *pbEncoded    = [encodedBytes bytes];
     const int    cbEncoded    = (int)[encodedBytes length];
-    if (!validBase64Characters(pbEncoded, cbEncoded))
+    if (!areValidBase64Characters(pbEncoded, cbEncoded))
     {
         return nil;
     }
@@ -398,6 +398,16 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
         return !string2; //if both are nil, they are equal
     else
         return [string1 isEqualToString:string2];
+}
+
+
++(NSString*) adNormalizeString: (NSString*)string
+{
+    if(!string){
+        return @"";
+    }
+    
+    return [string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 
 @end

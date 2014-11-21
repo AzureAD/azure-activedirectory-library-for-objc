@@ -21,7 +21,7 @@
 
 /*! Internal helper class for keychain operations. 
  The class is not thread-safe. */
-@interface ADKeyChainHelper : NSObject
+@interface ADBrokerKeyChainHelper : NSObject
 
 /*! Initializes the object. The default initializer is not supported. 
  Only classValue is required as it identifies the item type. */

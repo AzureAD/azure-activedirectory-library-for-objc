@@ -19,7 +19,7 @@
 #import <Foundation/Foundation.h>
 
 #import "NSDictionary+ADExtensions.h"
-#import "NSString+ADHelperMethods.h"
+#import "NSString+ADBrokerHelperMethods.h"
 
 @implementation NSDictionary ( ADAL )
 

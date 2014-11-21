@@ -22,17 +22,17 @@
 #import <ADALiOS/ADTokenCacheStoring.h>
 #import <ADALiOS/ADTokenCacheStoreKey.h>
 #import <ADALiOS/ADUserInformation.h>
-#import "NSString+ADHelperMethods.h"
-#import "ADKeyChainHelper.h"
+#import "NSString+ADBrokerHelperMethods.h"
+#import "ADBrokerKeyChainHelper.h"
 #import "ADAuthenticationBroker.h"
 
-NSString* const sNilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";//A special attribute to write, instead of nil/empty one.
-NSString* const sDelimiter = @"|";
-NSString* const sKeyChainlog = @"Keychain token cache store";
-NSString* const sMultiUserError = @"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used.";
-NSString* const sKeychainSharedGroup = @"com.microsoft.brokercache";
+NSString* const nilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";//A special attribute to write, instead of nil/empty one.
+NSString* const delimiter = @"|";
+NSString* const keyChainlog = @"Keychain token cache store";
+NSString* const multiUserError = @"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used.";
+NSString* const keychainSharedGroup = @"com.microsoft.brokercache";
 
-const long sKeychainVersion = 1;//will need to increase when we break the forward compatibility
+const long keychainVersion = 1;//will need to increase when we break the forward compatibility
 
 @implementation ADBrokerKeychainTokenCacheStore
 {
@@ -45,14 +45,19 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     NSString* mLibraryString;
     NSData* mLibraryValue;//Data representation of the library string.
     
-    ADKeyChainHelper* mHelper;
+    ADBrokerKeyChainHelper* mHelper;
+}
+
+-(id) init
+{
+    
+    return [self initWithSourceApp:nil];
 }
 
 -(id) initWithSourceApp: (NSString *)sourceApplication
 {
     if (self = [super init])
-    {
-        //Full key:
+    {    //Full key:
         /* The keychain does allow searching for a limited set of attributes only,
          so we need to combine all of the ADTokenCacheStoreKey fields in a single string.*/
         mItemKeyAttributeKey   = (__bridge id)kSecAttrService;
@@ -60,12 +65,12 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         
         //Generic setup values:
         mClassValue     = (__bridge id)kSecClassGenericPassword;
-        mLibraryString  = [NSString stringWithFormat:@"MSOpenTech.ADALBroker.%ld", sKeychainVersion];
+        mLibraryString  = [NSString stringWithFormat:@"MSOpenTech.ADALBroker.%ld", keychainVersion];
         mLibraryValue   = [mLibraryString dataUsingEncoding:NSUTF8StringEncoding];
+        mHelper = [[ADBrokerKeyChainHelper alloc] initWithClass:mClassValue
+                                                        generic:mLibraryValue
+                                                    sharedGroup:nil];
         _sourceApplication = sourceApplication;
-        mHelper = [[ADKeyChainHelper alloc] initWithClass:mClassValue
-                                                  generic:mLibraryValue
-                                              sharedGroup:nil];
     }
     return self;
 }
@@ -78,7 +83,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     
     return [NSString stringWithFormat:@"%@%@%@",
             [attributes objectForKey:mItemKeyAttributeKey],
-            sDelimiter,
+            delimiter,
             [attributes objectForKey:mUserIdKey]
             ];
 }
@@ -90,10 +95,10 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     //library. The latter is required to ensure that SecItemAdd won't break on collisions
     //with items left over from the previous versions of the library.
     return [NSString stringWithFormat:@"%@%@%@%@%@%@%@%@%@",
-            mLibraryString, sDelimiter,
-            [itemKey.authority adBase64UrlEncode], sDelimiter,
-            [self.class getAttributeName:itemKey.resource], sDelimiter,
-            [itemKey.clientId adBase64UrlEncode], sDelimiter,
+            mLibraryString, delimiter,
+            [itemKey.authority adBase64UrlEncode], delimiter,
+            [self.class getAttributeName:itemKey.resource], delimiter,
+            [itemKey.clientId adBase64UrlEncode], delimiter,
             [_sourceApplication adBase64UrlEncode]
             ];
 }
@@ -126,7 +131,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     }
     
     return [NSString stringWithFormat:@"%@%@%@",
-            keyText, sDelimiter, [self.class getAttributeName:item.userInformation.userId]];
+            keyText, delimiter, [self.class getAttributeName:item.userInformation.userId]];
 }
 
 //Returns the keychain elements, specified in the query, or all cache keychain
@@ -149,7 +154,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         NSDictionary* first = [toReturn objectForKey:key];
         if (first != nil)
         {
-            AD_LOG_INFO_F(sKeyChainlog, @"Duplicated keychain cache entry: %@. Picking the newest...", key);
+            AD_LOG_INFO_F(keyChainlog, @"Duplicated keychain cache entry: %@. Picking the newest...", key);
             //Note that this can happen if the application has multiple keychain groups and the keychain group is
             //not specified explicitly:
             //Recover by picking the newest (based on modification date):
@@ -172,7 +177,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 -(void) LogItem: (ADTokenCacheStoreItem*) item
         message: (NSString*) additionalMessage
 {
-    AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. Resource: %@ Access token hash: %@; Refresh token hash: %@", item.resource,additionalMessage, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
+    AD_LOG_VERBOSE_F(keyChainlog, @"%@. Resource: %@ Access token hash: %@; Refresh token hash: %@", item.resource,additionalMessage, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
 }
 
 //Updates the keychain item. "attributes" parameter should ALWAYS come from previous
@@ -263,7 +268,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 //We should not put nil keys in the keychain. The method substitutes nil with a special GUID:
 +(NSString*) getAttributeName: (NSString*)original
 {
-    return ([NSString adIsStringNilOrBlank:original]) ? sNilKey : [original adBase64UrlEncode];
+    return ([NSString adIsStringNilOrBlank:original]) ? nilKey : [original adBase64UrlEncode];
 }
 
 //Stores the passed items in the group. Does not explicitly remove items that are not there.
@@ -352,7 +357,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                 {
                     adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
                                                                      protocolCode:nil
-                                                                     errorDetails:sMultiUserError];
+                                                                     errorDetails:multiUserError];
                 }
                 else
                 {

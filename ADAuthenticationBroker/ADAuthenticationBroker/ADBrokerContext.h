@@ -19,11 +19,16 @@
 
 #import <Foundation/Foundation.h>
 #include <UIKit/UIKit.h>
+#import <ADALiOS/ADAuthenticationResult.h>
+#import <ADALiOS/ADAuthenticationContext.h>
+
+/*! The completion block declaration. */
+typedef void(^ADBrokerCallback)(ADAuthenticationResult* result);
 
 @interface ADBrokerContext : NSObject
 
 + (void) invokeBroker: (NSString*) requestPayload
  sourceApplication: (NSString*) sourceApplication
-   completionBlock: (ADAuthenticationCallback) completionBlock;
+   completionBlock: (ADBrokerCallback) completionBlock;
 
 @end
