@@ -55,6 +55,8 @@ const int sAsyncContextTimeout = 10;
     NSURL* mRedirectURL;
     NSString* mUserId;
     ADPromptBehavior mPromptBehavior;
+    NSString* mAssertion;
+    ADAssertionType mAssertionType;
     BOOL mSilent;
     
     //The results:
@@ -360,6 +362,31 @@ const int sAsyncContextTimeout = 10;
     }
 }
 
+
+#define acquireTokenForAssertionAsync [self asynchronousAcquireTokenForAssertionWithLine:__LINE__]
+-(void) asynchronousAcquireTokenForAssertionWithLine: (int) line
+{
+    [self prepareForAsynchronousCall];
+    
+    static volatile int completion = 0;
+    [self adCallAndWaitWithFile:@"" __FILE__ line:line completionSignal: &completion block:^
+     {
+         [self->mContext acquireTokenForAssertion:self->mAssertion
+                                    assertionType:self->mAssertionType
+                                         resource:self->mResource
+                                         clientId:self->mClientId
+                                           userId:self->mUserId
+                                  completionBlock:^(ADAuthenticationResult *result)
+          {
+              //Fill in the iVars with the result:
+              self->mResult = result;
+              self->mError = mResult.error;
+              ASYNC_BLOCK_COMPLETE(completion);
+          }];
+     }];
+    [self validateAsynchronousResultWithLine:line];
+}
+
 #define acquireTokenAsync [self asynchronousAcquireTokenWithLine:__LINE__]
 /* Helper function to fascilitate calling of the asynchronous acquireToken. 
    Uses the ivars of the test class for the arguments.
@@ -483,6 +510,41 @@ const int sAsyncContextTimeout = 10;
                refreshToken: refreshToken
                      userId: mUserId
                    resource: mResource];
+}
+
+-(void) testAcquireTokenFromAssertion
+{
+    ADAuthenticationError* error = nil;
+    //Nothing in the cache, as we cannot prompt for credentials, this should fail:
+    acquireTokenForAssertionAsync;
+    XCTAssertEqual(mResult.status, AD_FAILED);
+    ADAssertLongEquals(mResult.error.code, AD_ERROR_INVALID_ARGUMENT);
+    
+    self->mAssertion = @"some assertion";
+    NSString* someTokenValue = @"someToken value";
+    [self addCacheWithToken:someTokenValue refreshToken:nil];
+    acquireTokenForAssertionAsync;
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
+    
+    //Expire the cache item:
+    [mDefaultTokenCache removeAllWithError:&error];
+    ADAssertNoError;
+    NSArray* allItems = [mDefaultTokenCache allItemsWithError:&error];
+    XCTAssertTrue(allItems.count == 0);
+    
+    NSString* broadRefreshToken = @"broad refresh token testAcquireTokenWithNoPrompt";
+    NSString* anotherAccessToken = @"another access token testAcquireTokenWithNoPrompt";
+    
+    [self.testContext->mExpectedRequest1 setObject:OAUTH2_SAML11_BEARER_VALUE forKey:OAUTH2_GRANT_TYPE];
+    
+    [self.testContext->mResponse1 setObject:anotherAccessToken forKey:OAUTH2_ACCESS_TOKEN];
+    [self.testContext->mResponse1 setObject:broadRefreshToken forKey:OAUTH2_REFRESH_TOKEN];
+    //Next line makes it a broad token:
+    [self.testContext->mResponse1 setObject:@"anything" forKey:OAUTH2_RESOURCE];
+    acquireTokenForAssertionAsync;
+    XCTAssertEqual(mResult.status, AD_SUCCEEDED);
+    ADAssertStringEquals(mResult.accessToken, anotherAccessToken);
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.refreshToken, broadRefreshToken);
 }
 
 -(void) testAcquireTokenWithUserCache

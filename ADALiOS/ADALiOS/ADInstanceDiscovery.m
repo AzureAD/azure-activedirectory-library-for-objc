@@ -25,9 +25,9 @@
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
 #import "NSString+ADHelperMethods.h"
+#import "ADClientMetrics.h"
 
 NSString* const sTrustedAuthority = @"https://login.windows.net";
-NSString* const sInstanceDiscoverySuffix = @"common/discovery/instance";
 NSString* const sApiVersionKey = @"api-version";
 NSString* const sApiVersion = @"1.0";
 NSString* const sAuthorizationEndPointKey = @"authorization_endpoint";
@@ -162,17 +162,17 @@ NSString* const sValidationServerError = @"The authority validation server retur
         completionBlock(YES, nil);
         return;
     }
-
-
+    
+    
     dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
-    {
-        //Nothing in the cache, ask the server:
-        [self requestValidationOfAuthority:authority
-                                      host:authorityHost
-                          trustedAuthority:sTrustedAuthority
-                             correlationId:correlationId
-                           completionBlock:completionBlock];
-    });
+                   {
+                       //Nothing in the cache, ask the server:
+                       [self requestValidationOfAuthority:authority
+                                                     host:authorityHost
+                                         trustedAuthority:sTrustedAuthority
+                                            correlationId:correlationId
+                                          completionBlock:completionBlock];
+                   });
 }
 
 //Checks the cache for previously validated authority.
@@ -226,88 +226,98 @@ NSString* const sValidationServerError = @"The authority validation server retur
                                          authorizationEndpoint, sAuthorizationEndPointKey,
                                          nil];
     
-    NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, sInstanceDiscoverySuffix, [request_data adURLFormEncode]];
-
+    NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data adURLFormEncode]];
+    
     AD_LOG_VERBOSE(@"Authority Validation Request", endPoint);
     ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint] correlationId:correlationId];
     
     webRequest.method = HTTPGet;
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
+    [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[correlationId UUIDString] requestHeader:webRequest.headers];
     
     [webRequest send:^( NSError *error, ADWebResponse *webResponse )
-    {
-        // Request completion callback
-        NSDictionary *response = nil;
-        
-        BOOL verified = NO;
-        ADAuthenticationError* adError = nil;
-        if ( error == nil )
-        {
-            switch (webResponse.statusCode)
-            {
-                case 200:
-                case 400:
-                case 401:
-                {
-                    NSError   *jsonError  = nil;
-                    id         jsonObject = [NSJSONSerialization JSONObjectWithData:webResponse.body options:0 error:&jsonError];
-                    
-                    if ( nil != jsonObject && [jsonObject isKindOfClass:[NSDictionary class]] )
-                    {
-                        // Load the response
-                        response = (NSDictionary *)jsonObject;
-                        AD_LOG_VERBOSE(@"Discovery response", response.description);
-                        verified = ![NSString adIsStringNilOrBlank:[response objectForKey:sTenantDiscoveryEndpoint]];
-                        if (verified)
-                        {
-                            [self setAuthorityValidation:authorityHost];
-                        }
-                        else
-                        {
-                            //First check for explicit OAuth2 protocol error:
-                            NSString* serverOAuth2Error = [response objectForKey:OAUTH2_ERROR];
-                            NSString* errorDetails = [response objectForKey:OAUTH2_ERROR_DESCRIPTION];
-                            // Error response from the server
-                            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
-                                                                             protocolCode:serverOAuth2Error
-                                                                             errorDetails:(errorDetails) ? errorDetails : [NSString stringWithFormat:sValidationServerError, serverOAuth2Error]];
-
-                        }
-                    }
-                    else
-                    {
-                        if (jsonError)
-                        {
-                            adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
-                        }
-                        else
-                        {
-                            NSString* errorMessage = [NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]];
-                            adError = [ADAuthenticationError unexpectedInternalError:errorMessage];
-                        }
-                    }
-                }
-                    break;
-                default:
-                {
-                    // Request failure
-                    NSString* logMessage = [NSString stringWithFormat:@"Server HTTP Status %ld", (long)webResponse.statusCode];
-                    NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding]];
-                    AD_LOG_WARN(logMessage, errorData);
-                    adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData];
-                }
-            }
-        }
-        else
-        {
-            AD_LOG_WARN(@"System error while making request.", error.description);
-            // System error
-            adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription];
-        }
-        
-        completionBlock( verified, adError );
-    }];
+     {
+         // Request completion callback
+         NSDictionary *response = nil;
+         
+         BOOL verified = NO;
+         ADAuthenticationError* adError = nil;
+         if ( error == nil )
+         {
+             switch (webResponse.statusCode)
+             {
+                 case 200:
+                 case 400:
+                 case 401:
+                 {
+                     NSError   *jsonError  = nil;
+                     id         jsonObject = [NSJSONSerialization JSONObjectWithData:webResponse.body options:0 error:&jsonError];
+                     
+                     if ( nil != jsonObject && [jsonObject isKindOfClass:[NSDictionary class]] )
+                     {
+                         // Load the response
+                         response = (NSDictionary *)jsonObject;
+                         AD_LOG_VERBOSE(@"Discovery response", response.description);
+                         verified = ![NSString adIsStringNilOrBlank:[response objectForKey:sTenantDiscoveryEndpoint]];
+                         if (verified)
+                         {
+                             [self setAuthorityValidation:authorityHost];
+                         }
+                         else
+                         {
+                             //First check for explicit OAuth2 protocol error:
+                             NSString* serverOAuth2Error = [response objectForKey:OAUTH2_ERROR];
+                             NSString* errorDetails = [response objectForKey:OAUTH2_ERROR_DESCRIPTION];
+                             // Error response from the server
+                             adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
+                                                                              protocolCode:serverOAuth2Error
+                                                                              errorDetails:(errorDetails) ? errorDetails : [NSString stringWithFormat:sValidationServerError, serverOAuth2Error]];
+                             
+                         }
+                     }
+                     else
+                     {
+                         if (jsonError)
+                         {
+                             adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
+                         }
+                         else
+                         {
+                             NSString* errorMessage = [NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]];
+                             adError = [ADAuthenticationError unexpectedInternalError:errorMessage];
+                         }
+                     }
+                 }
+                     break;
+                 default:
+                 {
+                     // Request failure
+                     NSString* logMessage = [NSString stringWithFormat:@"Server HTTP Status %ld", (long)webResponse.statusCode];
+                     NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding]];
+                     AD_LOG_WARN(logMessage, errorData);
+                     adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData];
+                 }
+             }
+         }
+         else
+         {
+             AD_LOG_WARN(@"System error while making request.", error.description);
+             // System error
+             adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription];
+         }
+         
+         if(adError)
+         {
+             [[ADClientMetrics getInstance] endClientMetricsRecord:[adError description]];
+         }
+         else
+         {
+             [[ADClientMetrics getInstance] endClientMetricsRecord:nil];
+         }
+         
+         completionBlock( verified, adError );
+     }];
 }
 
 +(NSString*) canonicalizeAuthority: (NSString*) authority
@@ -335,7 +345,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
     NSArray* paths = url.pathComponents;//Returns '/' as the first and the tenant as the second element.
     if (paths.count < 2)
         return nil;//No path component: invalid URL
-
+    
     NSString* tenant = [paths objectAtIndex:1];
     if ([NSString adIsStringNilOrBlank:tenant])
     {

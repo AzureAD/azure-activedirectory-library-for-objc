@@ -38,6 +38,16 @@ typedef WebView   WebViewType;
 
 typedef enum
 {
+    /*! Default option. Assumes the assertion provided is of type SAML 1.1. */
+    AD_SAML1_1,
+    
+    /*! Assumes the assertion provided is of type SAML 2. */
+    AD_SAML2,
+} ADAssertionType;
+
+
+typedef enum
+{
     /*! Default option. Users will be prompted only if their attention is needed. First the cache will
      be checked for a suitable access token (non-expired). If none is found, the cache will be checked
      for a suitable refresh token to be used for obtaining a new access token. If this attempt fails
@@ -154,6 +164,26 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 /*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
  when needed, leveraging the parentController property. */
 @property (weak) WebViewType* webView;
+
+/*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+ expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+ the function will use the refresh token automatically. If neither of these attempts succeeds, the method will use the provided assertion to get an 
+ access token from the service.
+ 
+ @param samlAssertion: the assertion representing the authenticated user.
+ @param assertionType: the assertion type of the user assertion.
+ @param resource: the resource whose token is needed.
+ @param clientId: the client identifier
+ @param userId: the user id of the authenticated user. Required.
+ @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+-(void)  acquireTokenForAssertion: (NSString*) samlAssertion
+                    assertionType: (ADAssertionType) assertionType
+                         resource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                           userId: (NSString*) userId
+                  completionBlock: (ADAuthenticationCallback) completionBlock;
+
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
