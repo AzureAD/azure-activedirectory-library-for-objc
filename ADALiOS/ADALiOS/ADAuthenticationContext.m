@@ -1472,6 +1472,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                          correlationId: (NSString*) correlationId
            extraQueryParameters: (NSString*) queryParams
 {
+    AD_LOG_INFO(@"Invoking broker for authentication", nil);
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
     ADAuthenticationError* error = nil;
     NSData* key = [brokerHelper getBrokerKey:&error];
