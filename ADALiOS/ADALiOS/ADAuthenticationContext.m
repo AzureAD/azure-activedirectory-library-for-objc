@@ -43,7 +43,7 @@ NSString* const credentialsNeeded = @"The user credentials are need to obtain ac
 NSString* const serverError = @"The authentication server returned an error: %@.";
 
 NSString* const brokerAppIdentifier = @"com.microsoft.adbrokerApp";
-NSString* const brokerURL = @"msauth://";
+NSString* const brokerURL = @"msauth://broker";
 
 //Used for the callback of obtaining the OAuth2 code:
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
@@ -615,6 +615,18 @@ return; \
         return;//The asynchronous handler above will do the work.
     }
     
+    //call the broker.
+    if([self canUseBroker]){
+        [self callBrokerForAuthority: self.authority
+                            resource: resource
+                            clientId: clientId
+                         redirectUri: redirectUri
+                              userId: userId
+                       correlationId: [correlationId UUIDString]
+                extraQueryParameters: queryParams];
+        return;
+    }
+    
     //Check the cache:
     ADAuthenticationError* error;
     //We are explicitly creating a key first to ensure indirectly that all of the required arguments are correct.
@@ -655,18 +667,6 @@ return; \
                         completionBlock:completionBlock];
             return; //The tryRefreshingFromCacheItem has taken care of the token obtaining
         }
-    }
-    
-    //call the broker.
-    if([self canUseBroker]){
-        [self callBrokerForAuthority: self.authority
-                            resource: resource
-                            clientId: clientId
-                         redirectUri: redirectUri
-                              userId: userId
-                       correlationId: [correlationId UUIDString]
-                extraQueryParameters: queryParams];
-        return;
     }
     
     if (silent)
@@ -1475,7 +1475,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
     ADAuthenticationError* error = nil;
     NSData* key = [brokerHelper getBrokerKey:&error];
-    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&query_params=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, queryParams, [[NSString alloc] initWithData:key encoding:NSUTF8StringEncoding]];
+    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&query_params=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, queryParams, [NSString Base64EncodeData: key]];
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@?%@", brokerURL, query]];
     [[UIApplication sharedApplication] openURL:appUrl];
 }

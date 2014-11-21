@@ -20,7 +20,7 @@
 #import "ADAuthenticationError.h"
 
 #define kChosenCipherBlockSize  kCCBlockSizeAES128
-#define kChosenCipherKeySize    kCCKeySizeAES256
+#define kChosenCipherKeySize    kCCKeySizeAES128
 #define kSymmetricKeyTag        "com.microsoft.adBrokerKey"
 
 @interface ADBrokerKeyHelper : NSObject

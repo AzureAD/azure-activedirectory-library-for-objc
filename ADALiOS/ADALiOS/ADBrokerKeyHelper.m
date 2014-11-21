@@ -104,14 +104,15 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     
     // Delete the symmetric key.
     sanityCheck = SecItemDelete((__bridge CFDictionaryRef)querySymmetricKey);
+    if(_symmetricKeyRef){
     CFRelease((__bridge CFTypeRef)(_symmetricKeyRef));
+    }
 }
 
 -(NSData*) getBrokerKey: (ADAuthenticationError* __autoreleasing*) error
 {
     return [self getBrokerKey:error createKeyIfDoesNotExist:YES];
 }
-
 
 -(NSData*) getBrokerKey: (ADAuthenticationError* __autoreleasing*) error
 createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
@@ -133,9 +134,9 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
         
         if(sanityCheck != errSecSuccess && createKeyIfDoesNotExist)
         {
+            [self createBrokerKey:error];
             [self getBrokerKey:error createKeyIfDoesNotExist:NO];
         } else {
-            
             symmetricKeyReturn = (__bridge NSData *)symmetricKeyReturnRef;
             if (sanityCheck == noErr && symmetricKeyReturn != nil) {
                 self.symmetricKeyRef = symmetricKeyReturn;
@@ -148,7 +149,6 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
     }
     
     return symmetricKeyReturn;
-    
 }
 
 

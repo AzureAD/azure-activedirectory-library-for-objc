@@ -48,6 +48,7 @@
     
     mTestData = [BVSettings new];
     mAADInstance = mTestData.testAuthorities[sAADTestInstance];
+    //[ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
     self.resultLabel.text = @"-- Response Goes Here --";
 }
 
