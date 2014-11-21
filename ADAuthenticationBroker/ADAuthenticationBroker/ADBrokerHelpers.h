@@ -23,8 +23,9 @@
 
 @interface ADBrokerHelpers : NSObject
 
++ (NSString*) computeHash:(NSData*) inputData;
+
 +(NSData*) encryptData: (NSString*) data
                    key: (NSData*) key;
-
 
 @end

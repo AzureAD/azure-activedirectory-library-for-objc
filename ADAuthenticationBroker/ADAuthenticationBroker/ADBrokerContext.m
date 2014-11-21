@@ -133,8 +133,8 @@ return; \
                      }
                      
                      response = [NSString stringWithFormat:@"access_token=%@&id_token=%@", result.accessToken, rawIdToken];
-                     response = [NSString Base64EncodeData:[ADBrokerHelpers encryptData:response key:[NSString Base64DecodeData:[queryParamsMap valueForKey:BROKER_KEY]]]];
-                     response = [NSString stringWithFormat:@"response=%@", response];
+                     NSData* responseData = [ADBrokerHelpers encryptData:response key:[NSString Base64DecodeData:[queryParamsMap valueForKey:BROKER_KEY]]];
+                     response = [NSString stringWithFormat:@"response=%@&hash=%@", response, [ADBrokerHelpers computeHash:responseData]];
                  } else{
                      response = [ADBrokerContext getErrorResponse: result.error];
                  }

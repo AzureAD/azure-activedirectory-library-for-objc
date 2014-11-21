@@ -19,6 +19,7 @@
 #import "ADBrokerHelpers.h"
 #import <CommonCrypto/CommonCryptor.h>
 #import <Security/Security.h>
+#import <CommonCrypto/CommonDigest.h>
 
 
 const CCAlgorithm algorithm = kCCAlgorithmAES128;
@@ -33,6 +34,22 @@ enum {
     CSSM_ALGID_VENDOR_DEFINED =         CSSM_ALGID_NONE + 0x80000000L,
     CSSM_ALGID_AES
 };
+
++ (NSString*) computeHash:(NSData*) inputData{
+    
+    //compute SHA-1 thumbprint
+    unsigned char sha1Buffer[CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1(inputData.bytes, (CC_LONG)inputData.length, sha1Buffer);
+    NSMutableString *fingerprint = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 3];
+    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; ++i)
+    {
+        [fingerprint appendFormat:@"%02x ",sha1Buffer[i]];
+    }
+    NSString* thumbprint = [fingerprint stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    thumbprint = [thumbprint uppercaseString];
+    return [thumbprint stringByReplacingOccurrencesOfString:@" " withString:@""];
+}
+
 
 
 +(NSData*) encryptData: (NSString*) data
