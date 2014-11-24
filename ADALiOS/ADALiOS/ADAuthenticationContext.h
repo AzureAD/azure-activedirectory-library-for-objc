@@ -93,8 +93,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  be nil.
  */
 -(id) initWithAuthority: (NSString*) authority
-      validateAuthority: (BOOL) validateAuthority
-        tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
+      validateAuthority: (BOOL) validateAuthority        tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
                   error: (ADAuthenticationError* __autoreleasing *) error;
 
 /*! Creates the object, setting the authority, default cache and enables the authority validation. In case of an error
@@ -146,6 +145,9 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 
 /*! Controls authority validation in acquire token calls. */
 @property BOOL validateAuthority;
+
+/*! Represents the URL scheme of the application. If nil, the API selects the first value in an array of URL schemes. */
+@property NSString* applicationURLScheme;
 
 /*! Provides access to the token cache used in this context. If null, tokens will not be cached. */
 @property id<ADTokenCacheStoring> tokenCacheStore;

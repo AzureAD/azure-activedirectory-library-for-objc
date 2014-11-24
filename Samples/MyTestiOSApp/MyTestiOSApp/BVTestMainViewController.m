@@ -48,6 +48,7 @@
     
     mTestData = [BVSettings new];
     mAADInstance = mTestData.testAuthorities[sAADTestInstance];
+    //[ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
     self.resultLabel.text = @"-- Response Goes Here --";
 }
 
@@ -267,6 +268,7 @@
     [self setStatus:@"Attemp to refresh..."];
     ADAuthenticationError* error;
     ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:mAADInstance.validateAuthority error:&error];
+
     if (!context)
     {
         [self setStatus:error.errorDetails];

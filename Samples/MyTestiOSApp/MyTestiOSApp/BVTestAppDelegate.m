@@ -27,6 +27,18 @@
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 
+
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication
+         annotation:(id)annotation
+{
+    if([[url path] isEqualToString:@"broker"]){
+        
+    }
+    return YES;
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
@@ -103,6 +115,22 @@
     if (_managedObjectModel != nil) {
         return _managedObjectModel;
     }
+    NSBundle* bundle = [NSBundle mainBundle];
+    NSDictionary* dict = [bundle infoDictionary];
+    NSArray* urlTypes = [dict valueForKey:@"CFBundleURLTypes"];
+    NSString* scheme  = nil;
+    if(urlTypes)
+    {
+        NSDictionary* urlType = [urlTypes objectAtIndex:0];
+        if(urlType){
+            NSArray* schemes = [urlType valueForKey:@"CFBundleURLSchemes"];
+            if(schemes)
+            {
+                scheme = [schemes objectAtIndex:0];
+            }
+        }
+    }
+    
     NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"MyTestiOSApp" withExtension:@"momd"];
     _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
     return _managedObjectModel;
