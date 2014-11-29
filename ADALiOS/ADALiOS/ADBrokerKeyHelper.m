@@ -164,7 +164,6 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
 -(NSData*) decryptBrokerResponse: (NSString*) response
                                  error:(ADAuthenticationError* __autoreleasing*) error
 {
-    NSData *iv = [self randomDataOfLength:kAlgorithmIVSize];
     NSData *key = [self getBrokerKey:error];
     
     size_t outLength;
@@ -177,7 +176,7 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
                      kCCOptionPKCS7Padding, // options
                      key.bytes, // key
                      key.length, // keylength
-                     (__bridge const void *)(iv),// iv
+                     nil,// iv
                      (__bridge const void *)([response dataUsingEncoding:NSUTF8StringEncoding]), // dataIn
                      response.length, // dataInLength,
                      cipherData.mutableBytes, // dataOut

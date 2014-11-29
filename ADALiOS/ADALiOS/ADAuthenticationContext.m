@@ -61,7 +61,7 @@ static volatile int sDialogInProgress = 0;
 
 //A wrapper around checkAndHandleBadArgument. Assumes that "completionMethod" is in scope:
 #define HANDLE_ARGUMENT(ARG) \
-if (![self checkAndHandleBadArgument:ARG \
+if (![ADAuthenticationContext checkAndHandleBadArgument:ARG \
 argumentName:TO_NSSTRING(#ARG) \
 completionBlock:completionBlock]) \
 { \
@@ -88,7 +88,7 @@ return; \
  Then the method calls the callback with the result.
  The method returns if the argument is valid. If the method returns false,
  the calling method should return. */
--(BOOL) checkAndHandleBadArgument: (NSObject*) argumentValue
++(BOOL) checkAndHandleBadArgument: (NSObject*) argumentValue
                      argumentName: (NSString*) argumentName
                   completionBlock: (ADAuthenticationCallback)completionBlock
 {
@@ -191,6 +191,32 @@ return; \
                            tokenCacheStore: tokenCache
                                      error: error];
 }
+
++(BOOL) isResponseFromBroker:(NSURL*) response
+{
+    return response && [NSString adSame:[response path] toString:@"broker"];
+}
+
++(void) handleBrokerResponse:(NSURL*) response
+             completionBlock: (ADAuthenticationCallback) completionBlock
+{
+    
+    THROW_ON_NIL_ARGUMENT(completionBlock);
+    HANDLE_ARGUMENT(response);
+    
+    NSString *qp = [response query];
+    //expect to either response or error and description, AND correlation_id AND hash.
+    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    
+    HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
+    ADAuthenticationResult* result;
+    if([queryParamsMap valueForKey:OAUTH2_ERROR]){
+        
+    } else{
+        
+    }
+}
+
 
 -(void)  acquireTokenForAssertion: (NSString*) samlAssertion
                     assertionType: (ADAssertionType) assertionType

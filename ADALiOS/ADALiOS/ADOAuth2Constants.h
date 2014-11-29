@@ -52,6 +52,9 @@ extern NSString *const OAUTH2_SAML11_BEARER_VALUE;
 extern NSString *const OAUTH2_SAML2_BEARER_VALUE;
 extern NSString *const OAUTH2_ASSERTION;
 
+extern NSString *const BROKER_RESPONSE_KEY;
+extern NSString *const BROKER_HASH_KEY;
+
 //Diagnostic traces sent to the Azure Active Directory servers:
 extern NSString *const ADAL_ID_PLATFORM;//The ADAL platform. iOS or OSX
 extern NSString *const ADAL_ID_VERSION;

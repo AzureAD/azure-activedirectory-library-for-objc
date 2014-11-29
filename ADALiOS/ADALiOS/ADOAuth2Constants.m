@@ -53,6 +53,9 @@ NSString *const OAUTH2_ASSERTION = @"assertion";
 NSString *const OAUTH2_SAML11_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml1_1-bearer";
 NSString *const OAUTH2_SAML2_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml2-bearer";
 
+NSString *const BROKER_RESPONSE_KEY               = @"response";
+NSString *const BROKER_HASH_KEY               = @"hash";
+
 //Diagnostic traces sent to the Azure Active Directory servers:
 NSString *const ADAL_ID_PLATFORM          = @"x-client-SKU";//The ADAL platform. iOS or OSX
 NSString *const ADAL_ID_VERSION           = @"x-client-Ver";
