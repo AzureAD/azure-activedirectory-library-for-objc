@@ -1,0 +1,597 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		975E42D01A1D28A20033B500 /* libADAuthenticationBroker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 975E42C71A1D20DB0033B500 /* libADAuthenticationBroker.a */; };
+		975E42D71A1D49D10033B500 /* ADALiOS.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 975E42D61A1D49D10033B500 /* ADALiOS.bundle */; };
+		97603B991A1D555A00A9C9C3 /* ADALiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97603B981A1D555A00A9C9C3 /* ADALiOS.framework */; };
+		976CCB261A02DA49006C91F4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB251A02DA49006C91F4 /* main.m */; };
+		976CCB291A02DA49006C91F4 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB281A02DA49006C91F4 /* AppDelegate.m */; };
+		976CCB2C1A02DA49006C91F4 /* MyTestADBrokerApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB2A1A02DA49006C91F4 /* MyTestADBrokerApp.xcdatamodeld */; };
+		976CCB2F1A02DA49006C91F4 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB2E1A02DA49006C91F4 /* ViewController.m */; };
+		976CCB431A02DA49006C91F4 /* MyTestADBrokerAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB421A02DA49006C91F4 /* MyTestADBrokerAppTests.m */; };
+		976CCB4F1A02E2C1006C91F4 /* Images-2.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 976CCB4E1A02E2C1006C91F4 /* Images-2.xcassets */; };
+		976CCB521A02E863006C91F4 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 976CCB511A02E863006C91F4 /* CoreData.framework */; };
+		976CCB541A02E86E006C91F4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 976CCB531A02E86E006C91F4 /* UIKit.framework */; };
+		976CCB561A02E874006C91F4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 976CCB551A02E874006C91F4 /* Foundation.framework */; };
+		97E21CD41A1C348C00EF5520 /* MyTestADBrokerApp.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = 97E21CD11A1C348C00EF5520 /* MyTestADBrokerApp.entitlements */; };
+		97E21CDA1A1C349900EF5520 /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97E21CD61A1C349900EF5520 /* Main_iPad.storyboard */; };
+		97E21CDB1A1C349900EF5520 /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97E21CD81A1C349900EF5520 /* Main_iPhone.storyboard */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		975E42C61A1D20DB0033B500 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 975E42BF1A1D20DB0033B500 /* ADAuthenticationBroker.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 97D685BE1A13EA5000EE816C;
+			remoteInfo = ADAuthenticationBroker;
+		};
+		975E42CA1A1D20DB0033B500 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 975E42BF1A1D20DB0033B500 /* ADAuthenticationBroker.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 97D685C91A13EA5000EE816C;
+			remoteInfo = ADAuthenticationBrokerTests;
+		};
+		975E42CD1A1D286A0033B500 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 975E42BF1A1D20DB0033B500 /* ADAuthenticationBroker.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 975E428E1A1C845C0033B500;
+			remoteInfo = ADAuthenticationBrokerFramework;
+		};
+		976CCB3D1A02DA49006C91F4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 976CCB181A02DA49006C91F4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 976CCB1F1A02DA49006C91F4;
+			remoteInfo = MyTestADBrokerApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		976CCB5D1A02EE31006C91F4 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		975E42BF1A1D20DB0033B500 /* ADAuthenticationBroker.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ADAuthenticationBroker.xcodeproj; path = ../ADAuthenticationBroker/ADAuthenticationBroker.xcodeproj; sourceTree = "<group>"; };
+		975E42D61A1D49D10033B500 /* ADALiOS.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = ADALiOS.bundle; sourceTree = "<group>"; };
+		97603B981A1D555A00A9C9C3 /* ADALiOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ADALiOS.framework; sourceTree = "<group>"; };
+		976CCB201A02DA49006C91F4 /* MyTestADBrokerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyTestADBrokerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		976CCB241A02DA49006C91F4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		976CCB251A02DA49006C91F4 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		976CCB271A02DA49006C91F4 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		976CCB281A02DA49006C91F4 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		976CCB2B1A02DA49006C91F4 /* MyTestADBrokerApp.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MyTestADBrokerApp.xcdatamodel; sourceTree = "<group>"; };
+		976CCB2D1A02DA49006C91F4 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		976CCB2E1A02DA49006C91F4 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		976CCB3C1A02DA49006C91F4 /* MyTestADBrokerAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyTestADBrokerAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		976CCB411A02DA49006C91F4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		976CCB421A02DA49006C91F4 /* MyTestADBrokerAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyTestADBrokerAppTests.m; sourceTree = "<group>"; };
+		976CCB4E1A02E2C1006C91F4 /* Images-2.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Images-2.xcassets"; sourceTree = "<group>"; };
+		976CCB511A02E863006C91F4 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		976CCB531A02E86E006C91F4 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		976CCB551A02E874006C91F4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		97E21CD11A1C348C00EF5520 /* MyTestADBrokerApp.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = MyTestADBrokerApp.entitlements; sourceTree = "<group>"; };
+		97E21CD71A1C349900EF5520 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
+		97E21CD91A1C349900EF5520 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		976CCB1D1A02DA49006C91F4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				975E42D01A1D28A20033B500 /* libADAuthenticationBroker.a in Frameworks */,
+				976CCB561A02E874006C91F4 /* Foundation.framework in Frameworks */,
+				976CCB541A02E86E006C91F4 /* UIKit.framework in Frameworks */,
+				97603B991A1D555A00A9C9C3 /* ADALiOS.framework in Frameworks */,
+				976CCB521A02E863006C91F4 /* CoreData.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		976CCB391A02DA49006C91F4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		975E42C01A1D20DB0033B500 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				975E42C71A1D20DB0033B500 /* libADAuthenticationBroker.a */,
+				975E42CB1A1D20DB0033B500 /* ADAuthenticationBrokerTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		976CCB171A02DA49006C91F4 = {
+			isa = PBXGroup;
+			children = (
+				975E42BF1A1D20DB0033B500 /* ADAuthenticationBroker.xcodeproj */,
+				976CCB501A02E847006C91F4 /* Frameworks */,
+				976CCB221A02DA49006C91F4 /* MyTestADBrokerApp */,
+				976CCB3F1A02DA49006C91F4 /* MyTestADBrokerAppTests */,
+				976CCB211A02DA49006C91F4 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		976CCB211A02DA49006C91F4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				976CCB201A02DA49006C91F4 /* MyTestADBrokerApp.app */,
+				976CCB3C1A02DA49006C91F4 /* MyTestADBrokerAppTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		976CCB221A02DA49006C91F4 /* MyTestADBrokerApp */ = {
+			isa = PBXGroup;
+			children = (
+				97E21CD61A1C349900EF5520 /* Main_iPad.storyboard */,
+				97E21CD81A1C349900EF5520 /* Main_iPhone.storyboard */,
+				97E21CD11A1C348C00EF5520 /* MyTestADBrokerApp.entitlements */,
+				976CCB271A02DA49006C91F4 /* AppDelegate.h */,
+				976CCB281A02DA49006C91F4 /* AppDelegate.m */,
+				976CCB2D1A02DA49006C91F4 /* ViewController.h */,
+				976CCB2E1A02DA49006C91F4 /* ViewController.m */,
+				976CCB2A1A02DA49006C91F4 /* MyTestADBrokerApp.xcdatamodeld */,
+				976CCB4E1A02E2C1006C91F4 /* Images-2.xcassets */,
+				976CCB231A02DA49006C91F4 /* Supporting Files */,
+			);
+			path = MyTestADBrokerApp;
+			sourceTree = "<group>";
+		};
+		976CCB231A02DA49006C91F4 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				975E42D61A1D49D10033B500 /* ADALiOS.bundle */,
+				976CCB241A02DA49006C91F4 /* Info.plist */,
+				976CCB251A02DA49006C91F4 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		976CCB3F1A02DA49006C91F4 /* MyTestADBrokerAppTests */ = {
+			isa = PBXGroup;
+			children = (
+				976CCB421A02DA49006C91F4 /* MyTestADBrokerAppTests.m */,
+				976CCB401A02DA49006C91F4 /* Supporting Files */,
+			);
+			path = MyTestADBrokerAppTests;
+			sourceTree = "<group>";
+		};
+		976CCB401A02DA49006C91F4 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				976CCB411A02DA49006C91F4 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		976CCB501A02E847006C91F4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				97603B981A1D555A00A9C9C3 /* ADALiOS.framework */,
+				976CCB551A02E874006C91F4 /* Foundation.framework */,
+				976CCB531A02E86E006C91F4 /* UIKit.framework */,
+				976CCB511A02E863006C91F4 /* CoreData.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		976CCB1F1A02DA49006C91F4 /* MyTestADBrokerApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 976CCB461A02DA49006C91F4 /* Build configuration list for PBXNativeTarget "MyTestADBrokerApp" */;
+			buildPhases = (
+				976CCB1C1A02DA49006C91F4 /* Sources */,
+				976CCB1D1A02DA49006C91F4 /* Frameworks */,
+				976CCB1E1A02DA49006C91F4 /* Resources */,
+				976CCB5D1A02EE31006C91F4 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				975E42CE1A1D286A0033B500 /* PBXTargetDependency */,
+			);
+			name = MyTestADBrokerApp;
+			productName = MyTestADBrokerApp;
+			productReference = 976CCB201A02DA49006C91F4 /* MyTestADBrokerApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		976CCB3B1A02DA49006C91F4 /* MyTestADBrokerAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 976CCB491A02DA49006C91F4 /* Build configuration list for PBXNativeTarget "MyTestADBrokerAppTests" */;
+			buildPhases = (
+				976CCB381A02DA49006C91F4 /* Sources */,
+				976CCB391A02DA49006C91F4 /* Frameworks */,
+				976CCB3A1A02DA49006C91F4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				976CCB3E1A02DA49006C91F4 /* PBXTargetDependency */,
+			);
+			name = MyTestADBrokerAppTests;
+			productName = MyTestADBrokerAppTests;
+			productReference = 976CCB3C1A02DA49006C91F4 /* MyTestADBrokerAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		976CCB181A02DA49006C91F4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = "Microsoft Corp.";
+				TargetAttributes = {
+					976CCB1F1A02DA49006C91F4 = {
+						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = 4XAC8VP2M2;
+						SystemCapabilities = {
+							com.apple.Keychain = {
+								enabled = 1;
+							};
+						};
+					};
+					976CCB3B1A02DA49006C91F4 = {
+						CreatedOnToolsVersion = 6.1;
+						TestTargetID = 976CCB1F1A02DA49006C91F4;
+					};
+				};
+			};
+			buildConfigurationList = 976CCB1B1A02DA49006C91F4 /* Build configuration list for PBXProject "MyTestADBrokerApp" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 976CCB171A02DA49006C91F4;
+			productRefGroup = 976CCB211A02DA49006C91F4 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 975E42C01A1D20DB0033B500 /* Products */;
+					ProjectRef = 975E42BF1A1D20DB0033B500 /* ADAuthenticationBroker.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				976CCB1F1A02DA49006C91F4 /* MyTestADBrokerApp */,
+				976CCB3B1A02DA49006C91F4 /* MyTestADBrokerAppTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		975E42C71A1D20DB0033B500 /* libADAuthenticationBroker.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libADAuthenticationBroker.a;
+			remoteRef = 975E42C61A1D20DB0033B500 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		975E42CB1A1D20DB0033B500 /* ADAuthenticationBrokerTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ADAuthenticationBrokerTests.xctest;
+			remoteRef = 975E42CA1A1D20DB0033B500 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		976CCB1E1A02DA49006C91F4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97E21CDB1A1C349900EF5520 /* Main_iPhone.storyboard in Resources */,
+				97E21CDA1A1C349900EF5520 /* Main_iPad.storyboard in Resources */,
+				975E42D71A1D49D10033B500 /* ADALiOS.bundle in Resources */,
+				976CCB4F1A02E2C1006C91F4 /* Images-2.xcassets in Resources */,
+				97E21CD41A1C348C00EF5520 /* MyTestADBrokerApp.entitlements in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		976CCB3A1A02DA49006C91F4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		976CCB1C1A02DA49006C91F4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				976CCB291A02DA49006C91F4 /* AppDelegate.m in Sources */,
+				976CCB2C1A02DA49006C91F4 /* MyTestADBrokerApp.xcdatamodeld in Sources */,
+				976CCB2F1A02DA49006C91F4 /* ViewController.m in Sources */,
+				976CCB261A02DA49006C91F4 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		976CCB381A02DA49006C91F4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				976CCB431A02DA49006C91F4 /* MyTestADBrokerAppTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		975E42CE1A1D286A0033B500 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ADAuthenticationBrokerFramework;
+			targetProxy = 975E42CD1A1D286A0033B500 /* PBXContainerItemProxy */;
+		};
+		976CCB3E1A02DA49006C91F4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 976CCB1F1A02DA49006C91F4 /* MyTestADBrokerApp */;
+			targetProxy = 976CCB3D1A02DA49006C91F4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		97E21CD61A1C349900EF5520 /* Main_iPad.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				97E21CD71A1C349900EF5520 /* Base */,
+			);
+			name = Main_iPad.storyboard;
+			sourceTree = "<group>";
+		};
+		97E21CD81A1C349900EF5520 /* Main_iPhone.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				97E21CD91A1C349900EF5520 /* Base */,
+			);
+			name = Main_iPhone.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		976CCB441A02DA49006C91F4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Kanishk Panwar (X4F5492TDP)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Kanishk Panwar (X4F5492TDP)";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PROVISIONING_PROFILE = "278AFE1F-77E4-4570-ABA1-C416222D0E10";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		976CCB451A02DA49006C91F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Kanishk Panwar (X4F5492TDP)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Kanishk Panwar (X4F5492TDP)";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PROVISIONING_PROFILE = "278AFE1F-77E4-4570-ABA1-C416222D0E10";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		976CCB471A02DA49006C91F4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = MyTestADBrokerApp/MyTestADBrokerApp.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/ADAuthenticationBroker.framework/Headers",
+				);
+				INFOPLIST_FILE = MyTestADBrokerApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+			};
+			name = Debug;
+		};
+		976CCB481A02DA49006C91F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = MyTestADBrokerApp/MyTestADBrokerApp.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/ADAuthenticationBroker.framework/Headers",
+				);
+				INFOPLIST_FILE = MyTestADBrokerApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+			};
+			name = Release;
+		};
+		976CCB4A1A02DA49006C91F4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = MyTestADBrokerAppTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyTestADBrokerApp.app/MyTestADBrokerApp";
+			};
+			name = Debug;
+		};
+		976CCB4B1A02DA49006C91F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = MyTestADBrokerAppTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyTestADBrokerApp.app/MyTestADBrokerApp";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		976CCB1B1A02DA49006C91F4 /* Build configuration list for PBXProject "MyTestADBrokerApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				976CCB441A02DA49006C91F4 /* Debug */,
+				976CCB451A02DA49006C91F4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		976CCB461A02DA49006C91F4 /* Build configuration list for PBXNativeTarget "MyTestADBrokerApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				976CCB471A02DA49006C91F4 /* Debug */,
+				976CCB481A02DA49006C91F4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		976CCB491A02DA49006C91F4 /* Build configuration list for PBXNativeTarget "MyTestADBrokerAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				976CCB4A1A02DA49006C91F4 /* Debug */,
+				976CCB4B1A02DA49006C91F4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		976CCB2A1A02DA49006C91F4 /* MyTestADBrokerApp.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				976CCB2B1A02DA49006C91F4 /* MyTestADBrokerApp.xcdatamodel */,
+			);
+			currentVersion = 976CCB2B1A02DA49006C91F4 /* MyTestADBrokerApp.xcdatamodel */;
+			path = MyTestADBrokerApp.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 976CCB181A02DA49006C91F4 /* Project object */;
+}
