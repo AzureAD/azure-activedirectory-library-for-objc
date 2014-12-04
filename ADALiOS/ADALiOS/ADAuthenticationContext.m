@@ -204,7 +204,7 @@ return; \
                            userId: (NSString*) userId
                   completionBlock: (ADAuthenticationCallback) completionBlock{
     API_ENTRY;
-    return [self internalAcquireTokenForAssertion:samlAssertion
+    return [self internalAcquireTokenForAssertion:assertion
                                          clientId:clientId
                                          resource: resource
                                     assertionType:  assertionType
