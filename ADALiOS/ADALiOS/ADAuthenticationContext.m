@@ -197,7 +197,7 @@ return; \
 }
 
 
--(void)  acquireTokenForAssertion: (NSString*) samlAssertion
+-(void)  acquireTokenForAssertion: (NSString*) assertion
                     assertionType: (ADAssertionType) assertionType
                          resource: (NSString*) resource
                          clientId: (NSString*) clientId

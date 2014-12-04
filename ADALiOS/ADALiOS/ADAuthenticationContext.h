@@ -84,7 +84,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  */
 @interface ADAuthenticationContext : NSObject
 {
-// OSX Universal Compatibility
+    // OSX Universal Compatibility
 @private
     NSString *_authority;
     NSUUID   *_correlationId;
@@ -100,7 +100,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  @param validateAuthority: Specifies if the authority should be validated.
  @param tokenCacheStore: Allows the user to specify a dictionary object that will implement the token caching. If this
  parameter is null, tokens will not be cached.
-@param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
+ @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil.
  */
 -(id) initWithAuthority: (NSString*) authority
@@ -185,12 +185,12 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  it may not be used if it belongs to different token.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
--(void)  acquireTokenForAssertion: (NSString*) samlAssertion
-assertionType: (ADAssertionType) assertionType
-resource: (NSString*) resource
-clientId: (NSString*) clientId
-userId: (NSString*) userId
-completionBlock: (ADAuthenticationCallback) completionBlock;
+-(void)  acquireTokenForAssertion: (NSString*) assertion
+                    assertionType: (ADAssertionType) assertionType
+                         resource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                           userId: (NSString*) userId
+                  completionBlock: (ADAuthenticationCallback) completionBlock;
 
 
 
