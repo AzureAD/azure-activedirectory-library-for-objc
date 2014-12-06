@@ -532,61 +532,19 @@ extern void __gcov_flush(void);
 
 -(void) adCallAndWaitWithFile: (NSString*) file
                          line: (int) line
-             completionSignal: (volatile int*) signal
+                    semaphore: (dispatch_semaphore_t)sem
                         block: (void (^)(void)) block
 {
-    THROW_ON_NIL_ARGUMENT(signal);
+    THROW_ON_NIL_ARGUMENT(sem);
     THROW_ON_NIL_EMPTY_ARGUMENT(file);
     THROW_ON_NIL_ARGUMENT(block);
     
-    if (*signal)
-    {
-        [self recordFailureWithDescription:@"The signal should be 0 before asynchronous execution."
-                                    inFile:file
-                                    atLine:line
-                                  expected:NO];
-        return;
-    }
-    
     block();//Run the intended asynchronous method
     
-    //Set up and excuted the run loop until completion:
-    NSDate* timeOut = [NSDate dateWithTimeIntervalSinceNow:10];//Waits for 10 seconds.
-    while (!(*signal) && [(NSDate*)[NSDate dateWithTimeIntervalSinceNow:0] compare:timeOut] != NSOrderedDescending)
+    while (dispatch_semaphore_wait(sem, DISPATCH_TIME_NOW))
     {
-        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeOut];
-    }
-    if (!*signal)
-    {
-        [self recordFailureWithDescription:@"Timeout while waiting for validateAuthority callback."
-         "This can also happen if the inner callback does not end with ASYNC_BLOCK_COMPLETE"
-                                    inFile:file
-                                    atLine:line
-                                  expected:NO];
-    }
-    else
-    {
-        //Completed as expected, reset for the next execuion.
-        *signal = 0;
+        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
     }
 }
-
-/* Called by the ASYNC_BLOCK_COMPLETE macro to signal the completion of the block
- and handle multiple calls of the callback. See the method above for details.*/
--(void) adAsynchInnerBlockCompleteWithFile: (NSString*) file
-                                      line: (int) line
-                          completionSignal: (volatile int*) signal
-{
-    if (!OSAtomicCompareAndSwapInt(0, 1, signal))//Signal completion
-    {
-        //The inner callback is called more than once.
-        //Intentionally crash the test execution. As this may happen on another thread,
-        //there is no reliable to ensure that a second call is not made, without just throwing.
-        //Note that the test will succeed, but the test run will fail:
-        NSString* message = [NSString stringWithFormat:@"Duplicate calling of the complition callback at %@(%d)", file, line];
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:message userInfo:nil];
-    }
-}
-
 
 @end

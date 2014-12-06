@@ -314,14 +314,14 @@ const int sAsyncTimeout = 10;//in seconds
                      line: (int) line
 {
     SAFE_ARC_RELEASE(mError); mError = nil;//Reset
-    static volatile int completion = 0;//Set to 1 at the end of the callback
-    [self adCallAndWaitWithFile:@"" __FILE__ line:line completionSignal:&completion block:^
+    __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    [self adCallAndWaitWithFile:@"" __FILE__ line:line semaphore:sem block:^
      {
          [self->mInstanceDiscovery validateAuthority:authority correlationId:correlationId completionBlock:^(BOOL validated, ADAuthenticationError *error)
           {
               self->mValidated = validated;
               self->mError = SAFE_ARC_RETAIN(error);
-              ASYNC_BLOCK_COMPLETE(completion)
+              dispatch_semaphore_signal(sem);
           }];
      }];
     
@@ -441,8 +441,8 @@ const int sAsyncTimeout = 10;//in seconds
 -(void) testUnreachableServer
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    static volatile int completion = 0;//Set to 1 at the end of the callback
-    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal:&completion block:^
+    __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
     {
         [self->mTestInstanceDiscovery requestValidationOfAuthority:@"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com"
                                                         host:@"https://login.windows.cn"
@@ -452,7 +452,7 @@ const int sAsyncTimeout = 10;//in seconds
          {
              self->mValidated = validated;
              self->mError = error;
-             ASYNC_BLOCK_COMPLETE(completion);
+             dispatch_semaphore_signal(sem);
          }];
     }];
     
