@@ -29,6 +29,10 @@
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \
 NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u", __PRETTY_FUNCTION__, __LINE__]
+
+#define ADAL_VERSION \
+NSString* __adalVersion = [NSString stringWithFormat:@"ADAL API call [Version - %@]",[ADLogger getAdalVersion]]
+
 //General macro for throwing exception named NSInvalidArgumentException
 #define THROW_ON_CONDITION_ARGUMENT(CONDITION, ARG) \
 { \
@@ -101,7 +105,8 @@ argumentName:@#ARG]; \
 #define API_ENTRY \
 { \
 WHERE; \
-AD_LOG_VERBOSE(@"ADAL API call", __where); \
+ADAL_VERSION; \
+AD_LOG_VERBOSE(__adalVersion, __where); \
 }
 
 
