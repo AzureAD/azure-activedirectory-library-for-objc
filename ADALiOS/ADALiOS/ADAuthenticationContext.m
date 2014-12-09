@@ -252,7 +252,7 @@ return; \
                                     assertionType:  assertionType
                                            userId:userId
                                             scope:nil
-                                         tryCache:[NSString adIsStringNilOrBlank:userId]
+                                         tryCache:YES
                                 validateAuthority:self.validateAuthority
                                     correlationId:self.correlationId
                                   completionBlock:completionBlock];

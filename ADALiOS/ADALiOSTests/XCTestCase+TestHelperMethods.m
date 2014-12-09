@@ -16,6 +16,10 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import "../ADALiOS/ADALiOS.h"
+#import "../ADALiOS/ADLogger.h"
+#import "../ADALiOS/NSString+ADHelperMethods.h"
+#import "../ADALiOS/ADErrorCodes.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "../ADALiOS/ADAuthenticationContext.h"
 #import "../ADALioS/ADAuthenticationSettings.h"
@@ -43,7 +47,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 /*! See header for comments */
 -(void) adAssertValidText: (NSString*) text
-                message: (NSString*) message
+                  message: (NSString*) message
 {
     //The pragmas here are copied directly from the XCTAssertNotNil:
     _Pragma("clang diagnostic push")
@@ -57,7 +61,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 /* See header for details. */
 -(void) adValidateForInvalidArgument: (NSString*) argument
-                             error: (ADAuthenticationError*) error
+                               error: (ADAuthenticationError*) error
 {
     XCTAssertNotNil(argument, "Internal test error: please specify the expected parameter.");
     
@@ -76,8 +80,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 /* See header for details.*/
 -(void) adValidateFactoryForInvalidArgument: (NSString*) argument
-                           returnedObject: (id) returnedObject
-                                    error: (ADAuthenticationError*) error
+                             returnedObject: (id) returnedObject
+                                      error: (ADAuthenticationError*) error
 {
     XCTAssertNil(returnedObject, "Creator should have returned nil. Object: %@", returnedObject);
     
@@ -96,23 +100,22 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     
     @synchronized(self.class)
     {
-        static dispatch_once_t once;
-
+        static dispatch_once_t once = 0;
+        
         dispatch_once(&once, ^{
             sLogLevelsLog = [NSMutableString new];
             sMessagesLog = [NSMutableString new];
             sInformationLog = [NSMutableString new];
             sErrorCodesLog = [NSMutableString new];
         });
-
+        
         //Note beginning of the test:
         [sLogLevelsLog appendString:sTestBegin];
         [sMessagesLog appendString:sTestBegin];
         [sInformationLog appendString:sTestBegin];
         [sErrorCodesLog appendString:sTestBegin];
     }
-
-    __block __weak  XCTestCase* weakSelf = self;
+    
     LogCallback logCallback = ^(ADAL_LOG_LEVEL logLevel,
                                 NSString* message,
                                 NSString* additionalInformation,
@@ -130,16 +133,19 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
             {
                 NSString* fail = [NSString stringWithFormat:@"Level: %u; Message: %@; Info: %@; Code: %lu",
                                   logLevel, message, additionalInformation, (long)errorCode];
-                [weakSelf recordFailureWithDescription:fail inFile:@"" __FILE__ atLine:__LINE__ expected:NO];
+                
+                [self recordFailureWithDescription:fail inFile:@"" __FILE__ atLine:__LINE__ expected:NO];
             }
         }
     };
-
+    
     
     [ADLogger setLogCallBack:logCallback];
     [ADLogger setLevel:ADAL_LOG_LAST];//Log everything by default. Tests can change this.
     [ADLogger setNSLogging:NO];//Disables the NS logging to avoid generating huge amount of system logs.
-    XCTAssertEqual(logCallback, [ADLogger getLogCallBack], "Setting of logCallBack failed.");
+    
+    // ARC: comparing two block objects is not valid in non-ARC environments
+    //XCTAssertEqual(logCallback, [ADLogger getLogCallBack], "Setting of logCallBack failed.");
 }
 
 #ifdef AD_CODE_COVERAGE
@@ -349,7 +355,7 @@ extern void __gcov_flush(void);
 
 -(ADUserInformation*) adCreateUserInformation
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     //This one sets the "userId" property:
     NSString* id_token = [NSString stringWithFormat:@"%@.%@.",
                           [sIDTokenHeader adBase64UrlEncode],
@@ -357,7 +363,7 @@ extern void __gcov_flush(void);
     ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:id_token error:&error];
     ADAssertNoError;
     XCTAssertNotNil(userInfo, "Nil user info returned.");
-
+    
     //Check the standard properties:
     ADAssertStringEquals(userInfo.userId, @"boris@msopentechbv.onmicrosoft.com");
     ADAssertStringEquals(userInfo.givenName, @"Boriss");
@@ -396,13 +402,13 @@ extern void __gcov_flush(void);
     
     //Add here calculated properties that cannot be initialized and shouldn't be checked for initialization:
     NSDictionary* const exceptionProperties = @{
-        NSStringFromClass([ADTokenCacheStoreItem class]):[NSSet setWithObjects:@"multiResourceRefreshToken", nil],
-    };
+                                                NSStringFromClass([ADTokenCacheStoreItem class]):[NSSet setWithObjects:@"multiResourceRefreshToken", nil],
+                                                };
     
     //Enumerate all properties and ensure that they are set to non-default values:
     unsigned int propertyCount;
     objc_property_t* properties = class_copyPropertyList([object class], &propertyCount);
-
+    
     for (int i = 0; i < propertyCount; ++i)
     {
         NSString* propertyName = [NSString stringWithCString:property_getName(properties[i])
@@ -432,7 +438,7 @@ extern void __gcov_flush(void);
 }
 
 -(void) adVerifyPropertiesAreSame: (NSObject*) object1
-                         second: (NSObject*) object2
+                           second: (NSObject*) object2
 {
     if ((nil == object1) != (nil == object1))
     {
@@ -511,6 +517,7 @@ extern void __gcov_flush(void);
             XCTFail("Unsupported property. Please fix this test code accordingly. ");
         }
     }
+    free(properties);
 }
 
 //Ensures that two items are the same:
@@ -525,61 +532,19 @@ extern void __gcov_flush(void);
 
 -(void) adCallAndWaitWithFile: (NSString*) file
                          line: (int) line
-             completionSignal: (volatile int*) signal
+                    semaphore: (dispatch_semaphore_t)sem
                         block: (void (^)(void)) block
 {
-    THROW_ON_NIL_ARGUMENT(signal);
+    THROW_ON_NIL_ARGUMENT(sem);
     THROW_ON_NIL_EMPTY_ARGUMENT(file);
     THROW_ON_NIL_ARGUMENT(block);
     
-    if (*signal)
-    {
-        [self recordFailureWithDescription:@"The signal should be 0 before asynchronous execution."
-                                    inFile:file
-                                    atLine:line
-                                  expected:NO];
-        return;
-    }
-    
     block();//Run the intended asynchronous method
-    
-    //Set up and excuted the run loop until completion:
-    NSDate* timeOut = [NSDate dateWithTimeIntervalSinceNow:10];//Waits for 10 seconds.
-    while (!(*signal) && [[NSDate dateWithTimeIntervalSinceNow:0] compare:timeOut] != NSOrderedDescending)
+    //NSDate* timeOut = [NSDate dateWithTimeIntervalSinceNow:10];//Waits for 10 seconds.
+    while (dispatch_semaphore_wait(sem, DISPATCH_TIME_NOW))
     {
-        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeOut];
-    }
-    if (!*signal)
-    {
-        [self recordFailureWithDescription:@"Timeout while waiting for validateAuthority callback."
-         "This can also happen if the inner callback does not end with ASYNC_BLOCK_COMPLETE"
-                                    inFile:file
-                                    atLine:line
-                                  expected:NO];
-    }
-    else
-    {
-        //Completed as expected, reset for the next execuion.
-        *signal = 0;
+        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
     }
 }
-
-/* Called by the ASYNC_BLOCK_COMPLETE macro to signal the completion of the block
- and handle multiple calls of the callback. See the method above for details.*/
--(void) adAsynchInnerBlockCompleteWithFile: (NSString*) file
-                                      line: (int) line
-                          completionSignal: (volatile int*) signal
-{
-    if (!OSAtomicCompareAndSwapInt(0, 1, signal))//Signal completion
-    {
-        //The inner callback is called more than once.
-        //Intentionally crash the test execution. As this may happen on another thread,
-        //there is no reliable to ensure that a second call is not made, without just throwing.
-        //Note that the test will succeed, but the test run will fail:
-        NSString* message = [NSString stringWithFormat:@"Duplicate calling of the complition callback at %@(%d)", file, line];
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:message userInfo:nil];
-    }
-}
-
 
 @end

@@ -183,7 +183,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  @param assertionType: the assertion type of the user assertion.
  @param resource: the resource whose token is needed.
  @param clientId: the client identifier
- @param userId: the user id of the authenticated user. If nil, the cache lookup is skipped.
+ @param userId: the required user id of the authenticated user.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 -(void)  acquireTokenForAssertion: (NSString*) samlAssertion
