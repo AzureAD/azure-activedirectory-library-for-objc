@@ -42,8 +42,9 @@ NSString* const serverError = @"The authentication server returned an error: %@.
 
 //Used for the callback of obtaining the OAuth2 code:
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
-
 static volatile int sDialogInProgress = 0;
+
+BOOL isCorrelationIdUserProvided = NO;
 
 @implementation ADAuthenticationContext
 
@@ -195,6 +196,7 @@ return; \
 - (void) setCorrelationId:(NSUUID*) correlationId
 {
     [ADLogger setCorrelationId: correlationId];
+    isCorrelationIdUserProvided = YES;
 }
 
 -(void)  acquireTokenForAssertion: (NSString*) assertion
@@ -684,9 +686,9 @@ return; \
 -(void) updateCorrelationId: (NSUUID* __autoreleasing*) correlationId
 {
     THROW_ON_NIL_ARGUMENT(correlationId);
-    if (!*correlationId)
+    if (!*correlationId || !isCorrelationIdUserProvided)
     {
-       [self setCorrelationId: [NSUUID UUID]];
+       [ADLogger setCorrelationId:[NSUUID UUID]];
         *correlationId = [self getCorrelationId];
     }
 }
