@@ -547,6 +547,31 @@ const int sAsyncContextTimeout = 10;
     ADAssertStringEquals(mResult.tokenCacheStoreItem.refreshToken, broadRefreshToken);
 }
 
+
+-(void) testAcquireTokenCorrelationId
+{
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
+    NSString* someTokenValue = @"someToken value";
+    [self addCacheWithToken:someTokenValue refreshToken:nil];
+    acquireTokenAsync;
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
+    NSUUID* corrId = [mContext getCorrelationId];
+    //Cache a token for nil user:
+    NSString* nilUserTokenValue = @"nil user value";
+    [self addCacheWithToken:nilUserTokenValue refreshToken:nil userId:nil];
+    acquireTokenAsync;
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertNotEqual([corrId UUIDString], [[mContext getCorrelationId] UUIDString]);
+    corrId = [NSUUID UUID];
+    [mContext setCorrelationId:corrId];
+    acquireTokenAsync;
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
+    ADAssertStringEquals([corrId UUIDString], [[mContext getCorrelationId] UUIDString]);
+    acquireTokenAsync;
+    ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
+    ADAssertStringEquals([corrId UUIDString], [[mContext getCorrelationId] UUIDString]);
+}
+
 -(void) testAcquireTokenWithUserCache
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
@@ -924,8 +949,6 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testCorrelationIdProperty
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
-    XCTAssertNil(mContext.correlationId, "default should be nil");
     
     NSUUID* first = [NSUUID UUID];
     mContext.correlationId = first;

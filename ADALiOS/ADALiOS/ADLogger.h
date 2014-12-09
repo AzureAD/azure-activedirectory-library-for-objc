@@ -28,6 +28,7 @@ typedef enum
     ADAL_LOG_LEVEL_VERBOSE,
     ADAL_LOG_LAST = ADAL_LOG_LEVEL_VERBOSE,
 } ADAL_LOG_LEVEL;
+
 @interface ADLogger : NSObject
 
 /*! Sets the logging level for the internal logging messages. Messages with
@@ -91,6 +92,14 @@ typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
 /*! Calculates a hash of the passed string. Useful for logging tokens, where we do not log
  the actual contents, but still want to log something that can be correlated. */
 +(NSString*) getHash: (NSString*) input;
+
+/*! Sets correlation id to be used in the requests sent to server. */
++(void) setCorrelationId: (NSUUID*) correlationId;
+
+/*! Gets correlation Id. */
++(NSUUID*) getCorrelationId;
+
++(NSString*) getAdalVersion;
 
 @end
 
