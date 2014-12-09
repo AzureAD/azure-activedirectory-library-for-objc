@@ -194,7 +194,7 @@ return; \
 
 +(BOOL) isResponseFromBroker:(NSURL*) response
 {
-    return response && [NSString adSame:[response path] toString:@"broker"];
+    return response && [NSString adSame:[response path] toString:@"/broker"];
 }
 
 +(void) handleBrokerResponse:(NSURL*) response
@@ -207,14 +207,35 @@ return; \
     NSString *qp = [response query];
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
-    
-    HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
     ADAuthenticationResult* result;
-    if([queryParamsMap valueForKey:OAUTH2_ERROR]){
-        
-    } else{
-        
+    //response=encrypted_response&hash=hash_value
+    //code=some_code&error_details=message
+    if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION]){
+        result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     }
+    else
+    {
+        HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
+     
+        NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
+        NSString* encryptedResponse = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
+        
+        if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:[NSString Base64DecodeData:[queryParamsMap valueForKey:BROKER_RESPONSE_KEY]] isSha2:YES]]){
+            ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+            ADAuthenticationError* error;
+            
+            NSData *plainData = [NSString Base64DecodeData:encryptedResponse ];
+            NSData* decrypted = [brokerHelper decryptBrokerResponse:plainData error:&error];
+           
+            if(!error)
+            {
+                NSString* decryptedString =[[NSString alloc] initWithData:decrypted encoding:0];
+                queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
+                result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+            }
+        }
+    }
+    completionBlock(result);
 }
 
 
@@ -231,7 +252,7 @@ return; \
                                     assertionType:  assertionType
                                            userId:userId
                                             scope:nil
-                                         tryCache:YES
+                                         tryCache:[NSString adIsStringNilOrBlank:userId]
                                 validateAuthority:self.validateAuthority
                                     correlationId:self.correlationId
                                   completionBlock:completionBlock];
@@ -1789,14 +1810,17 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                        clientId: (NSString*)clientId
                     redirectUri: (NSURL*) redirectUri
                          userId: (NSString*) userId
-                         correlationId: (NSString*) correlationId
+                  correlationId: (NSString*) correlationId
            extraQueryParameters: (NSString*) queryParams
 {
     AD_LOG_INFO(@"Invoking broker for authentication", nil);
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
     ADAuthenticationError* error = nil;
     NSData* key = [brokerHelper getBrokerKey:&error];
-    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&query_params=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, queryParams, [NSString Base64EncodeData: key]];
+    NSString* base64Key = [NSString Base64EncodeData:key];
+    NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    
+    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&query_params=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, queryParams, base64UrlKey];
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@?%@", brokerURL, query]];
     [[UIApplication sharedApplication] openURL:appUrl];
 }

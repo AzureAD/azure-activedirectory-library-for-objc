@@ -20,6 +20,9 @@
 #import "BVTestAppDelegate.h"
 #import "BVTestMainViewController.h"
 #import "BVSettings.h"
+#import "BVApplicationData.h"
+#import <ADALiOS/ADAuthenticationContext.h>
+#import <ADALiOS/ADAuthenticationResult.h>
 
 @implementation BVTestAppDelegate
 
@@ -33,8 +36,12 @@
   sourceApplication:(NSString *)sourceApplication
          annotation:(id)annotation
 {
-    if([[url path] isEqualToString:@"broker"]){
-        
+    if([ADAuthenticationContext isResponseFromBroker:url]){
+        [ADAuthenticationContext handleBrokerResponse:url completionBlock:^(ADAuthenticationResult *result) 
+        {
+            BVApplicationData* data = [BVApplicationData getInstance];
+            data.result = result;
+        }];
     }
     return YES;
 }

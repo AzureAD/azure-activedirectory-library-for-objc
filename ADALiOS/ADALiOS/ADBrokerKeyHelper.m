@@ -87,7 +87,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     }
     
     if(sanityCheck != errSecSuccess){
-        *error = [ADAuthenticationError errorWithDomain:@"Could not create broker key." code:AD_ERROR_UNEXPECTED userInfo:nil];
+         *error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:@"Could not create broker key." code:AD_ERROR_UNEXPECTED userInfo:nil] errorDetails:nil];
     }
     
     if (symmetricKey)
@@ -110,7 +110,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     sanityCheck = SecItemDelete((__bridge CFDictionaryRef)querySymmetricKey);
     
     if(sanityCheck != errSecSuccess){
-        *error = [ADAuthenticationError errorWithDomain:@"Could not delete broker key." code:AD_ERROR_UNEXPECTED userInfo:nil];
+        *error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:@"Could not delete broker key." code:AD_ERROR_UNEXPECTED userInfo:nil] errorDetails:@"Could not delete broker key."];
     }
     
     if(_symmetricKeyRef){
@@ -144,7 +144,7 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
         if(sanityCheck != errSecSuccess && createKeyIfDoesNotExist)
         {
             [self createBrokerKey:error];
-            [self getBrokerKey:error createKeyIfDoesNotExist:NO];
+            symmetricKeyReturn = self.symmetricKeyRef;
         } else {
             symmetricKeyReturn = (__bridge NSData *)symmetricKeyReturnRef;
             if (sanityCheck == noErr && symmetricKeyReturn != nil) {
@@ -161,51 +161,43 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
 }
 
 
--(NSData*) decryptBrokerResponse: (NSString*) response
+-(NSData*) decryptBrokerResponse: (NSData*) response
                                  error:(ADAuthenticationError* __autoreleasing*) error
 {
-    NSData *key = [self getBrokerKey:error];
+    NSData* keyData = [self getBrokerKey: error];
+    NSString *key = [[NSString alloc] initWithData:keyData encoding:0];
     
-    size_t outLength;
-    NSMutableData *cipherData = [NSMutableData dataWithLength:response.length +
-                                 kAlgorithmBlockSize];
     
-    CCCryptorStatus
-    result = CCCrypt(kCCDecrypt, // operation
-                     kAlgorithm, // Algorithm
-                     kCCOptionPKCS7Padding, // options
-                     key.bytes, // key
-                     key.length, // keylength
-                     nil,// iv
-                     (__bridge const void *)([response dataUsingEncoding:NSUTF8StringEncoding]), // dataIn
-                     response.length, // dataInLength,
-                     cipherData.mutableBytes, // dataOut
-                     cipherData.length, // dataOutAvailable
-                     &outLength); // dataOutMoved
+    // 'key' should be 32 bytes for AES256, will be null-padded otherwise
+    char keyPtr[kCCKeySizeAES256+1]; // room for terminator (unused)
+    bzero(keyPtr, sizeof(keyPtr)); // fill with zeroes (for padding)
     
-    if (result == kCCSuccess) {
-        cipherData.length = outLength;
+    // fetch key data
+    [key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
+    
+    NSUInteger dataLength = [response length];
+    
+    //See the doc: For block ciphers, the output size will always be less than or
+    //equal to the input size plus the size of one block.
+    //That's why we need to add the size of one block here
+    size_t bufferSize = dataLength + kCCBlockSizeAES128;
+    void *buffer = malloc(bufferSize);
+    
+    size_t numBytesDecrypted = 0;
+    CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding,
+                                          keyPtr, kCCKeySizeAES256,
+                                          NULL /* initialization vector (optional) */,
+                                          [response bytes], dataLength, /* input */
+                                          buffer, bufferSize, /* output */
+                                          &numBytesDecrypted);
+    
+    if (cryptStatus == kCCSuccess) {
+        //the returned NSData takes ownership of the buffer and will free it on deallocation
+        return [NSData dataWithBytesNoCopy:buffer length:numBytesDecrypted];
     }
-    else {
-        //        if (error) {
-        //            *error = [NSError errorWithDomain:kRNCryptManagerErrorDomain
-        //                                         code:result
-        //                                     userInfo:nil];
-        //        }
-        return nil;
-    }
     
-    return cipherData;
+    free(buffer); //free the buffer;
+    return nil;
 }
-
-- (NSData *)randomDataOfLength:(size_t)length {
-    NSMutableData *data = [NSMutableData dataWithLength:length];
-    SecRandomCopyBytes(kSecRandomDefault,
-                                    length,
-                                    data.mutableBytes);
-    return data;
-}
-
-
 
 @end;

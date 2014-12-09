@@ -21,6 +21,8 @@
 #import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADTokenCacheStoreItem.h"
+#import "ADOAuth2Constants.h"
+#import "ADUserInformation.h"
 
 @implementation ADAuthenticationResult (Internal)
 
@@ -98,6 +100,42 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 {
     ADAuthenticationResult* result = [ADAuthenticationResult alloc];
     return [result initWithCancellation];
+}
+
++(ADAuthenticationResult*) resultFromBrokerResponse: (NSDictionary*) response
+{
+    ADAuthenticationError* error;
+    ADAuthenticationResult* result;
+    ADTokenCacheStoreItem* item = nil;
+    if([response valueForKey:OAUTH2_ERROR_DESCRIPTION]){
+        error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADBrokerResponseErrorDomain code:0 userInfo:nil] errorDetails:[response valueForKey:OAUTH2_ERROR_DESCRIPTION]];
+    }
+    else
+    {
+        item = [ADTokenCacheStoreItem new];
+        item.authority =  [response valueForKey:OAUTH2_RESOURCE];
+        item.resource = [response valueForKey:OAUTH2_RESOURCE];
+        item.clientId = [response valueForKey:OAUTH2_CLIENT_ID];
+        item.accessToken = [response valueForKey:OAUTH2_ACCESS_TOKEN];
+        if([response valueForKey:OAUTH2_ID_TOKEN])
+        {
+            ADUserInformation* info = [ADUserInformation userInformationWithIdToken:[response valueForKey:OAUTH2_ID_TOKEN] error:&error];
+            if(!error)
+            {
+                item.userInformation = info;
+            }
+        }
+    }
+    if(error)
+    {
+        result = [ADAuthenticationResult resultFromError:error];
+    }
+    else
+    {
+        result = [[ADAuthenticationResult alloc ]initWithItem:item multiResourceRefreshToken:NO];
+    }
+    
+    return result;
 }
 
 @end

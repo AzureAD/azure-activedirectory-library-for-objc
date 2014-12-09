@@ -17,27 +17,12 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "ADAuthenticationError.h"
+#import <ADALiOS/ADAuthenticationResult.h>
 
-#define kChosenCipherKeySize    kCCKeySizeAES256
-#define kSymmetricKeyTag        "com.microsoft.adBrokerKey"
+@interface BVApplicationData : NSObject
 
-@interface ADBrokerKeyHelper : NSObject
-{
-    NSData * _symmetricTag;
-    NSData * _symmetricKeyRef;
-}
+@property ADAuthenticationResult* result;
 
-@property (nonatomic, retain) NSData * symmetricTag;
-@property (nonatomic, retain) NSData * symmetricKeyRef;
-
--(id) initHelper;
-
--(void) createBrokerKey: (ADAuthenticationError* __autoreleasing*) error;
-
--(NSData*) getBrokerKey: (ADAuthenticationError* __autoreleasing*) error;
-
--(NSData*) decryptBrokerResponse: (NSData*) response
-                                 error:(ADAuthenticationError* __autoreleasing*) error;
++(id) getInstance;
 
 @end

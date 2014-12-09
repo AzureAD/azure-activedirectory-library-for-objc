@@ -21,7 +21,7 @@
 NSString *const OAUTH2_ACCESS_TOKEN       = @"access_token";
 NSString *const OAUTH2_AUTHORIZATION      = @"authorization";
 NSString *const OAUTH2_AUTHORIZE_SUFFIX   = @"/oauth2/authorize";
-
+NSString *const OAUTH2_AUTHORITY           = @"authority";
 NSString *const OAUTH2_AUTHORIZATION_CODE = @"authorization_code";
 NSString *const OAUTH2_AUTHORIZATION_URI  = @"authorization_uri";
 NSString *const OAUTH2_BEARER             = @"Bearer";
