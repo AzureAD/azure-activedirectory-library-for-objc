@@ -47,8 +47,9 @@ NSString* const brokerURL = @"msauth://broker";
 
 //Used for the callback of obtaining the OAuth2 code:
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
-
 static volatile int sDialogInProgress = 0;
+
+BOOL isCorrelationIdUserProvided = NO;
 
 @implementation ADAuthenticationContext
 
@@ -192,14 +193,25 @@ return; \
                                      error: error];
 }
 
--(void)  acquireTokenForAssertion: (NSString*) samlAssertion
+- (NSUUID*) getCorrelationId
+{
+    return ADLogger.getCorrelationId;
+}
+
+- (void) setCorrelationId:(NSUUID*) correlationId
+{
+    [ADLogger setCorrelationId: correlationId];
+    isCorrelationIdUserProvided = YES;
+}
+
+-(void)  acquireTokenForAssertion: (NSString*) assertion
                     assertionType: (ADAssertionType) assertionType
                          resource: (NSString*) resource
                          clientId: (NSString*) clientId
                            userId: (NSString*) userId
                   completionBlock: (ADAuthenticationCallback) completionBlock{
     API_ENTRY;
-    return [self internalAcquireTokenForAssertion:samlAssertion
+    return [self internalAcquireTokenForAssertion:assertion
                                          clientId:clientId
                                          resource: resource
                                     assertionType:  assertionType
@@ -207,7 +219,7 @@ return; \
                                             scope:nil
                                          tryCache:YES
                                 validateAuthority:self.validateAuthority
-                                    correlationId:self.correlationId
+                                    correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
     
 }
@@ -229,7 +241,7 @@ return; \
                              extraQueryParameters:nil
                                          tryCache:YES
                                 validateAuthority:self.validateAuthority
-                                    correlationId:self.correlationId
+                                    correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
 }
 
@@ -250,7 +262,7 @@ return; \
                       extraQueryParameters:nil
                                   tryCache:YES
                          validateAuthority:self.validateAuthority
-                             correlationId:self.correlationId
+                             correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
 }
 
@@ -273,7 +285,7 @@ return; \
                       extraQueryParameters:queryParams
                                   tryCache:YES
                          validateAuthority:self.validateAuthority
-                             correlationId:self.correlationId
+                             correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
 }
 
@@ -293,7 +305,7 @@ return; \
                              extraQueryParameters:nil
                                          tryCache:YES
                                 validateAuthority:self.validateAuthority
-                                    correlationId:self.correlationId
+                                    correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
 }
 
@@ -314,7 +326,7 @@ return; \
                              extraQueryParameters:nil
                                          tryCache:YES
                                 validateAuthority:self.validateAuthority
-                                    correlationId:self.correlationId
+                                    correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
 }
 
@@ -581,7 +593,7 @@ return; \
                       extraQueryParameters:queryParams
                                   tryCache:YES
                          validateAuthority:self.validateAuthority
-                             correlationId:self.correlationId
+                             correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
 }
 
@@ -692,10 +704,10 @@ return; \
 -(void) updateCorrelationId: (NSUUID* __autoreleasing*) correlationId
 {
     THROW_ON_NIL_ARGUMENT(correlationId);
-    if (!*correlationId)
+    if (!*correlationId || !isCorrelationIdUserProvided)
     {
-        NSUUID* selfCorrelationId = self.correlationId;//Copy to avoid thread-safety issues in the check below:
-        *correlationId = selfCorrelationId ? selfCorrelationId : [NSUUID UUID];
+       [ADLogger setCorrelationId:[NSUUID UUID]];
+        *correlationId = [self getCorrelationId];
     }
 }
 
@@ -964,7 +976,7 @@ return; \
                                       userId:nil
                                    cacheItem:nil
                            validateAuthority:self.validateAuthority
-                               correlationId:self.correlationId
+                               correlationId:[self getCorrelationId]
                              completionBlock:completionBlock];
 }
 
@@ -980,7 +992,7 @@ return; \
                                       userId:nil
                                    cacheItem:nil
                            validateAuthority:self.validateAuthority
-                               correlationId:self.correlationId
+                               correlationId:[self getCorrelationId]
                              completionBlock:completionBlock];
 }
 

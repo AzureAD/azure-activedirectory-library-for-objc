@@ -154,7 +154,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 
 /*! Unique identifier passed to the server and returned back with errors. Useful during investigations to correlate the
  requests and the responses from the server. If nil, a new UUID is generated on every request. */
-@property NSUUID* correlationId;
+@property (strong, getter=getCorrelationId, setter=setCorrelationId:) NSUUID* correlationId;
 
 /*! The parent view controller for the authentication view controller UI. This property will be used only if
  a custom web view is NOT specified. */
@@ -177,7 +177,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  @param userId: the user id of the authenticated user. Required.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
--(void)  acquireTokenForAssertion: (NSString*) samlAssertion
+-(void)  acquireTokenForAssertion: (NSString*) assertion
                     assertionType: (ADAssertionType) assertionType
                          resource: (NSString*) resource
                          clientId: (NSString*) clientId
