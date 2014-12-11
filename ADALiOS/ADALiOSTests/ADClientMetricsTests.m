@@ -36,8 +36,8 @@
 }
 
 - (void)testMetrics {
-
-    ADClientMetrics* metrics = [ADClientMetrics getInstance];
+    
+    ADClientMetrics* metrics = [ADClientMetrics new];
     NSMutableDictionary* header = [NSMutableDictionary new];
     [metrics beginClientMetricsRecordForEndpoint:@"https://login.windows.net/common/oauth2/token" correlationId:@"correlationId" requestHeader:header];
     [metrics endClientMetricsRecord:@"error"];

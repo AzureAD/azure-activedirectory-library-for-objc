@@ -23,12 +23,7 @@
 #import <libkern/OSAtomic.h>
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADAuthenticationContext.h"
-#if TARGET_OS_IPHONE
-#   import "../ADALiOS/ADKeychainTokenCacheStore.h"
-#else
-#   import "../ADALiOS/ADDefaultTokenCacheStorePersistance.h"
-#   import "../ADALiOS/ADPersistentTokenCacheStore.h"
-#endif
+#import "../ADALiOS/ADKeychainTokenCacheStore.h"
 
 dispatch_semaphore_t sThreadsSemaphore;//Will be signalled when the last thread is done. Should be initialized and cleared in the test.
 volatile int32_t sThreadsFinished;//The number of threads that are done. Should be set to 0 at the beginning of the test.
@@ -498,29 +493,12 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 -(void) testInitializer
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-#if TARGET_OS_IPHONE
-    {
-        ADKeychainTokenCacheStore* simple = [ADKeychainTokenCacheStore new];
-        XCTAssertNotNil(simple);
-        XCTAssertNotNil(simple.sharedGroup);
-        NSString* group = @"test";
-        ADKeychainTokenCacheStore* withGroup = [[ADKeychainTokenCacheStore alloc] initWithGroup:group];
-        XCTAssertNotNil(withGroup);
-    }
-#else
-    {
-        //The assumptions below apply to platforms where file persistence is required.
-        //Currently, we do not have file persistence.
-//        XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:nil]);
-//        XCTAssertNil([[ADPersistentTokenCacheStore alloc] initWithLocation:@"   "]);
-        
-        //Abstract methods
-        NSString* location = @"location";
-        ADPersistentTokenCacheStore* instance = [[ADPersistentTokenCacheStore alloc] initWithLocation:location];
-        ADAssertStringEquals(instance.cacheLocation, location);
-//        XCTAssertThrows([instance addInitialCacheItems], "This method should call non-implmented unpersistence.");
-    }
-#endif
+    ADKeychainTokenCacheStore* simple = [ADKeychainTokenCacheStore new];
+    XCTAssertNotNil(simple);
+    XCTAssertNotNil(simple.sharedGroup);
+    NSString* group = @"test";
+    ADKeychainTokenCacheStore* withGroup = [[ADKeychainTokenCacheStore alloc] initWithGroup:group];
+    XCTAssertNotNil(withGroup);
 }
 
 #if TARGET_OS_IPHONE

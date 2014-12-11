@@ -370,8 +370,8 @@ const int sAsyncContextTimeout = 10;
 {
     [self prepareForAsynchronousCall];
     
-    static volatile int completion = 0;
-    [self adCallAndWaitWithFile:@"" __FILE__ line:line completionSignal: &completion block:^
+    __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    [self adCallAndWaitWithFile:@"" __FILE__ line:line semaphore:sem block:^
      {
          [self->mContext acquireTokenForAssertion:self->mAssertion
                                     assertionType:self->mAssertionType
@@ -383,7 +383,7 @@ const int sAsyncContextTimeout = 10;
               //Fill in the iVars with the result:
               self->mResult = SAFE_ARC_RETAIN( result );
               self->mError = SAFE_ARC_RETAIN(self->mResult.error);
-              ASYNC_BLOCK_COMPLETE(completion);
+              dispatch_semaphore_signal(sem);
           }];
      }];
     [self validateAsynchronousResultWithLine:line];
@@ -397,8 +397,8 @@ const int sAsyncContextTimeout = 10;
 {
     [self prepareForAsynchronousCall];
 
-    static volatile int completion = 0;
-    [self adCallAndWaitWithFile:@"" __FILE__ line:line completionSignal: &completion block:^
+    __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    [self adCallAndWaitWithFile:@"" __FILE__ line:line semaphore:sem block:^
      {
          [self->mContext acquireTokenWithResource:self->mResource
                                    clientId:self->mClientId
@@ -411,7 +411,7 @@ const int sAsyncContextTimeout = 10;
               //Fill in the iVars with the result:
               self->mResult = SAFE_ARC_RETAIN( result );
               self->mError = SAFE_ARC_RETAIN(self->mResult.error);
-              ASYNC_BLOCK_COMPLETE(completion);
+              dispatch_semaphore_signal(sem);
           }];
      }];
     [self validateAsynchronousResultWithLine:line];
@@ -1140,15 +1140,15 @@ const int sAsyncContextTimeout = 10;
     [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     [self addCacheWithToken:@"cacheToken" refreshToken:nil];
 
-    static volatile int completion = 0;
+    __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     ADAuthenticationCallback innerCallback = ^(ADAuthenticationResult* result)
     {
         //Fill in the iVars with the result:
         self->mResult = result;
         self->mError = self->mResult.error;
-        ASYNC_BLOCK_COMPLETE(completion);
+        dispatch_semaphore_signal(sem);
     };
-    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
          [self->mContext acquireTokenWithResource:self->mResource
                                    clientId:self->mClientId
@@ -1158,7 +1158,7 @@ const int sAsyncContextTimeout = 10;
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
     
-    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
          [self->mContext acquireTokenWithResource:self->mResource
                                    clientId:self->mClientId
@@ -1169,7 +1169,7 @@ const int sAsyncContextTimeout = 10;
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
 
-    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
          [self->mContext acquireTokenWithResource:self->mResource
                                    clientId:self->mClientId
@@ -1190,8 +1190,8 @@ const int sAsyncContextTimeout = 10;
     //There is no resource for this call:
     [self.testContext->mExpectedRequest1 removeObjectForKey:OAUTH2_RESOURCE];
     //Calls the acquireToken
-    static volatile int completion = 0;
-    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
+    __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
          [self->mContext acquireTokenByRefreshToken:@"nonExisting one"
                                      clientId:self->mClientId
@@ -1200,7 +1200,7 @@ const int sAsyncContextTimeout = 10;
               //Fill in the iVars with the result:
               self->mResult = SAFE_ARC_RETAIN(result);
               self->mError = SAFE_ARC_RETAIN(self->mResult.error);
-              ASYNC_BLOCK_COMPLETE(completion);
+              dispatch_semaphore_signal(sem);
           }];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
@@ -1212,8 +1212,8 @@ const int sAsyncContextTimeout = 10;
 {
     [self prepareForAsynchronousCall];
     
-    static volatile int completion = 0;
-    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
+    __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
          [self->mContext acquireTokenByRefreshToken:refreshToken
                                      clientId:self->mClientId
@@ -1223,7 +1223,7 @@ const int sAsyncContextTimeout = 10;
               //Fill in the iVars with the result:
               self->mResult = SAFE_ARC_RETAIN(result);
               self->mError = SAFE_ARC_RETAIN(self->mResult.error);
-              ASYNC_BLOCK_COMPLETE(completion);
+              dispatch_semaphore_signal(sem);
           }];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];

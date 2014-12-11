@@ -197,14 +197,14 @@ return; \
 }
 
 
--(void)  acquireTokenForAssertion: (NSString*) samlAssertion
+-(void)  acquireTokenForAssertion: (NSString*) assertion
                     assertionType: (ADAssertionType) assertionType
                          resource: (NSString*) resource
                          clientId: (NSString*) clientId
                            userId: (NSString*) userId
                   completionBlock: (ADAuthenticationCallback) completionBlock{
     API_ENTRY;
-    return [self internalAcquireTokenForAssertion:samlAssertion
+    return [self internalAcquireTokenForAssertion:assertion
                                          clientId:clientId
                                          resource: resource
                                     assertionType:  assertionType
@@ -844,7 +844,7 @@ return; \
         return;
     }
     
-    dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
+    dispatch_async(dispatch_get_main_queue(), ^
                    {
                        //Get the code first:
                        [self requestCodeByResource:resource
@@ -1073,7 +1073,7 @@ return; \
             [request_data setObject:resource forKey:OAUTH2_RESOURCE];
         }
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^
+    dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
                    {
                        AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@'; user:'%@'", clientId, resource, userId);
                        [self request:self.authority
