@@ -62,7 +62,7 @@ BOOL isCorrelationIdUserProvided = NO;
 
 //A wrapper around checkAndHandleBadArgument. Assumes that "completionMethod" is in scope:
 #define HANDLE_ARGUMENT(ARG) \
-if (![self checkAndHandleBadArgument:ARG \
+if (![ADAuthenticationContext checkAndHandleBadArgument:ARG \
 argumentName:TO_NSSTRING(#ARG) \
 completionBlock:completionBlock]) \
 { \
@@ -89,7 +89,7 @@ return; \
  Then the method calls the callback with the result.
  The method returns if the argument is valid. If the method returns false,
  the calling method should return. */
--(BOOL) checkAndHandleBadArgument: (NSObject*) argumentValue
++(BOOL) checkAndHandleBadArgument: (NSObject*) argumentValue
                      argumentName: (NSString*) argumentName
                   completionBlock: (ADAuthenticationCallback)completionBlock
 {
@@ -203,6 +203,53 @@ return; \
     [ADLogger setCorrelationId: correlationId];
     isCorrelationIdUserProvided = YES;
 }
+
++(BOOL) isResponseFromBroker:(NSURL*) response
+{
+    return response && [NSString adSame:[response path] toString:@"/broker"];
+}
+
++(void) handleBrokerResponse:(NSURL*) response
+             completionBlock: (ADAuthenticationCallback) completionBlock
+{
+    
+    THROW_ON_NIL_ARGUMENT(completionBlock);
+    HANDLE_ARGUMENT(response);
+    
+    NSString *qp = [response query];
+    //expect to either response or error and description, AND correlation_id AND hash.
+    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    ADAuthenticationResult* result;
+    //response=encrypted_response&hash=hash_value
+    //code=some_code&error_details=message
+    if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION]){
+        result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+    }
+    else
+    {
+        HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
+     
+        NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
+        NSString* encryptedResponse = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
+        
+        if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:[NSString Base64DecodeData:[queryParamsMap valueForKey:BROKER_RESPONSE_KEY]] isSha2:YES]]){
+            ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+            ADAuthenticationError* error;
+            
+            NSData *plainData = [NSString Base64DecodeData:encryptedResponse ];
+            NSData* decrypted = [brokerHelper decryptBrokerResponse:plainData error:&error];
+           
+            if(!error)
+            {
+                NSString* decryptedString =[[NSString alloc] initWithData:decrypted encoding:0];
+                queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
+                result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+            }
+        }
+    }
+    completionBlock(result);
+}
+
 
 -(void)  acquireTokenForAssertion: (NSString*) assertion
                     assertionType: (ADAssertionType) assertionType
@@ -1775,14 +1822,17 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                        clientId: (NSString*)clientId
                     redirectUri: (NSURL*) redirectUri
                          userId: (NSString*) userId
-                         correlationId: (NSString*) correlationId
+                  correlationId: (NSString*) correlationId
            extraQueryParameters: (NSString*) queryParams
 {
     AD_LOG_INFO(@"Invoking broker for authentication", nil);
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
     ADAuthenticationError* error = nil;
     NSData* key = [brokerHelper getBrokerKey:&error];
-    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&query_params=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, queryParams, [NSString Base64EncodeData: key]];
+    NSString* base64Key = [NSString Base64EncodeData:key];
+    NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    
+    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&query_params=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, queryParams, base64UrlKey];
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@?%@", brokerURL, query]];
     [[UIApplication sharedApplication] openURL:appUrl];
 }
