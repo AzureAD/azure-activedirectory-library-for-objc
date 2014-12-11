@@ -197,7 +197,7 @@ additionalInformation: (NSString*) additionalInformation
 
 +(NSString*) getAdalVersion
 {
-    return [NSString stringWithFormat:@"%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW];
+    return [NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH];
 }
 
 +(void) logToken: (NSString*) token
