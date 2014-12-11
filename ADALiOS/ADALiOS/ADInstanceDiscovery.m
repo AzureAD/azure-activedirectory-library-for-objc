@@ -164,7 +164,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
     }
     
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
+    dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
                    {
                        //Nothing in the cache, ask the server:
                        [self requestValidationOfAuthority:authority
