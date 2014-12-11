@@ -1,0 +1,64 @@
+Version 1.1.11
+--------------
+This release contains bug fixes and updates for an improved developer experience. Given below is the changelist -
+
+* Added support for client assertion to acquire token.
+* Client Metric reporting support for improved service analytics.
+* Updated logging messages to include ADAL version and correlation id.
+* Fixed Issue #230.
+* Fixed Issue #229.
+
+Version 1.1.10
+--------------
+This release contains several bug fixes and updates for an improved developer experience. Given below is the changelist -
+
+* Fixed incorrect casing in the import that could break the build on the case sensitive file system.
+* Commented code cleanup.
+* Fixed Issue #180.
+* Fix bridging between non-ARC and ARC when calling.SecCertificateBopySubjectSummary and SecCertificateCopyData.
+* Fixed Issue #63.
+* Fixed Issue #182.
+* Fixed Issue #138.
+
+
+Version 1.1.9
+--------------
+Hotfix to address the incorrect casing in an import statement. Without this fix, the build will fail on case insensitive file systems.
+
+
+Version 1.1.8
+--------------
+This release removes the OpenSSL dependency that was used to read certificate information.
+
+
+Version 1.1.7
+--------------
+Added a fix for leaky timers in case of server redirects.
+
+
+Version 1.1.6
+--------------
+Fixed pod spec with OpenSSL dependency.
+
+
+Version 1.1.5
+--------------
+This release includes -
+
+1) Hotfix for double free error
+2) Removing extraction of private key bits.
+3) ParentController dismissal fix.
+
+
+Version 1.1.4
+--------------
+This release includes bug fixes for PkeyAuth protocol. Given below is a cumulative list of fixes and updates in 1.1.x releases.
+
+* Support for PKeyAuth protocol to acquire conditional access claims (device claims). Developer should add "com.microsoft.workplacejoin" to entitlements.
+* Added default keychain shared group name (com.microsoft.adalcache) for cache storage and sharing.
+* Support for configurable HTTP timeouts.
+* Fixed the issue where web request will not time out due to 100% network loss.
+* Removed PII indentifying log statements.
+* Fixed the issue where the root view controller was being dismissed upon web view cancellation.
+* Fixed memory leaks and added allocation checks.
+* Fixed cache issue where adal would error out while getting token for 3rd unique user.

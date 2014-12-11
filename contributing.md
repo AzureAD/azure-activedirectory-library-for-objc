@@ -18,7 +18,7 @@ Example for iOS:
 
 ```
 $ git clone git@github.com:username/azure-activedirectory-library-for-ios.git
-$ cd node
+$ cd azure-activedirectory-library-for-ios
 $ git remote add upstream git@github.com:MSOpenTech/azure-activedirectory-library-for-ios.git
 ```
 

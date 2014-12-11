@@ -77,9 +77,7 @@ NSTimer *timer;
 - (void)start
 {
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
-    if([[ADWorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined]){
-        [request setValue:@"1.0" forHTTPHeaderField: @"x-ms-PkeyAuth"];
-    }
+    [request setValue:@"1.0" forHTTPHeaderField: @"x-ms-PkeyAuth"];
     [_webView loadRequest:request];
 }
 
@@ -141,7 +139,7 @@ NSTimer *timer;
         return NO;
     }
     
-    if([[ADWorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined] && ![request.allHTTPHeaderFields valueForKey:pKeyAuthHeader]){
+    if(![request.allHTTPHeaderFields valueForKey:pKeyAuthHeader]){
         // Create a mutable copy of the immutable request and add more headers
         NSMutableURLRequest *mutableRequest = [request mutableCopy];
         [mutableRequest addValue:pKeyAuthHeaderVersion forHTTPHeaderField:pKeyAuthHeader];

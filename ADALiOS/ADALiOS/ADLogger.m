@@ -26,6 +26,7 @@
 ADAL_LOG_LEVEL sLogLevel = ADAL_LOG_LEVEL_ERROR;
 LogCallback sLogCallback;
 BOOL sNSLogging = YES;
+NSUUID* requestCorrelationId;
 
 @implementation ADLogger
 
@@ -43,7 +44,7 @@ BOOL sNSLogging = YES;
 {
     @synchronized(self)//Avoid changing to null while attempting to call it.
     {
-        sLogCallback = callback;
+        sLogCallback = [callback copy];
     }
 }
 
@@ -72,30 +73,25 @@ BOOL sNSLogging = YES;
     
     switch (level) {
         case ADAL_LOG_LEVEL_ERROR:
-            return [ADLogger createStringForLevel: @"ERROR"];
+            return @"ADALiOS [%@ - %@] ERROR: %@. Additional Information: %@. ErrorCode: %u.";
             break;
             
         case ADAL_LOG_LEVEL_WARN:
-            return [ADLogger createStringForLevel: @"WARNING"];
+            return @"ADALiOS [%@ - %@] WARNING: %@. Additional Information: %@. ErrorCode: %u.";
             break;
             
         case ADAL_LOG_LEVEL_INFO:
-            return [ADLogger createStringForLevel: @"INFORMATION"];
+            return @"ADALiOS [%@ - %@] INFORMATION: %@. Additional Information: %@. ErrorCode: %u.";
             break;
             
         case ADAL_LOG_LEVEL_VERBOSE:
-            return [ADLogger createStringForLevel: @"VERBOSE"];
+            return @"ADALiOS [%@ - %@] VERBOSE: %@. Additional Information: %@. ErrorCode: %u.";
             break;
             
         default:
-            return [ADLogger createStringForLevel: @"UNKOWN"];
+            return @"ADALiOS [%@ - %@] UNKNOWN: %@. Additional Information: %@. ErrorCode: %u.";
             break;
     }
-}
-
-+ (NSString*) createStringForLevel:(NSString*) level
-{
-return [NSString stringWithFormat:@"%@%@%@%@%@", @"ADALiOS(", [NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH] , @"): ", level , @": %@. Additional Information: %@. ErrorCode: %u."];
 }
 
 
@@ -117,7 +113,10 @@ additionalInformation: (NSString*) additionalInformation
         if (sNSLogging)
         {
             //NSLog is documented as thread-safe:
-            NSLog([self formatStringPerLevel:logLevel], message, additionalInformation, errorCode);
+            NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
+            [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+            [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+            NSLog([self formatStringPerLevel:logLevel], [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message, additionalInformation, errorCode);
         }
         
         @synchronized(self)//Guard against thread-unsafe callback and modification of sLogCallback after the check
@@ -157,7 +156,7 @@ additionalInformation: (NSString*) additionalInformation
     NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
     @{
       ADAL_ID_PLATFORM:@"iOS",
-      ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH],
+      ADAL_ID_VERSION:[ADLogger getAdalVersion],
       ADAL_ID_OS_VER:device.systemVersion,
       ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
       }];
@@ -184,6 +183,22 @@ additionalInformation: (NSString*) additionalInformation
         [toReturn appendFormat:@"%02x", hash[i]];
     }
     return toReturn;
+}
+
++(void) setCorrelationId: (NSUUID*) correlationId
+{
+    requestCorrelationId = correlationId;
+}
+
++(NSUUID*) getCorrelationId
+{
+    return requestCorrelationId;
+}
+
+
++(NSString*) getAdalVersion
+{
+    return [NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH];
 }
 
 +(void) logToken: (NSString*) token

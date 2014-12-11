@@ -47,8 +47,9 @@ NSString* const brokerURL = @"msauth://broker";
 
 //Used for the callback of obtaining the OAuth2 code:
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
-
 static volatile int sDialogInProgress = 0;
+
+BOOL isCorrelationIdUserProvided = NO;
 
 @implementation ADAuthenticationContext
 
@@ -192,6 +193,17 @@ return; \
                                      error: error];
 }
 
+- (NSUUID*) getCorrelationId
+{
+    return ADLogger.getCorrelationId;
+}
+
+- (void) setCorrelationId:(NSUUID*) correlationId
+{
+    [ADLogger setCorrelationId: correlationId];
+    isCorrelationIdUserProvided = YES;
+}
+
 +(BOOL) isResponseFromBroker:(NSURL*) response
 {
     return response && [NSString adSame:[response path] toString:@"/broker"];
@@ -238,15 +250,14 @@ return; \
     completionBlock(result);
 }
 
-
--(void)  acquireTokenForAssertion: (NSString*) samlAssertion
+-(void)  acquireTokenForAssertion: (NSString*) assertion
                     assertionType: (ADAssertionType) assertionType
                          resource: (NSString*) resource
                          clientId: (NSString*) clientId
                            userId: (NSString*) userId
                   completionBlock: (ADAuthenticationCallback) completionBlock{
     API_ENTRY;
-    return [self internalAcquireTokenForAssertion:samlAssertion
+    return [self internalAcquireTokenForAssertion:assertion
                                          clientId:clientId
                                          resource: resource
                                     assertionType:  assertionType
@@ -254,7 +265,7 @@ return; \
                                             scope:nil
                                          tryCache:YES
                                 validateAuthority:self.validateAuthority
-                                    correlationId:self.correlationId
+                                    correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
     
 }
@@ -276,7 +287,7 @@ return; \
                              extraQueryParameters:nil
                                          tryCache:YES
                                 validateAuthority:self.validateAuthority
-                                    correlationId:self.correlationId
+                                    correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
 }
 
@@ -297,7 +308,7 @@ return; \
                       extraQueryParameters:nil
                                   tryCache:YES
                          validateAuthority:self.validateAuthority
-                             correlationId:self.correlationId
+                             correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
 }
 
@@ -320,7 +331,7 @@ return; \
                       extraQueryParameters:queryParams
                                   tryCache:YES
                          validateAuthority:self.validateAuthority
-                             correlationId:self.correlationId
+                             correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
 }
 
@@ -340,7 +351,7 @@ return; \
                              extraQueryParameters:nil
                                          tryCache:YES
                                 validateAuthority:self.validateAuthority
-                                    correlationId:self.correlationId
+                                    correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
 }
 
@@ -361,7 +372,7 @@ return; \
                              extraQueryParameters:nil
                                          tryCache:YES
                                 validateAuthority:self.validateAuthority
-                                    correlationId:self.correlationId
+                                    correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
 }
 
@@ -628,7 +639,7 @@ return; \
                       extraQueryParameters:queryParams
                                   tryCache:YES
                          validateAuthority:self.validateAuthority
-                             correlationId:self.correlationId
+                             correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
 }
 
@@ -739,10 +750,10 @@ return; \
 -(void) updateCorrelationId: (NSUUID* __autoreleasing*) correlationId
 {
     THROW_ON_NIL_ARGUMENT(correlationId);
-    if (!*correlationId)
+    if (!*correlationId || !isCorrelationIdUserProvided)
     {
-        NSUUID* selfCorrelationId = self.correlationId;//Copy to avoid thread-safety issues in the check below:
-        *correlationId = selfCorrelationId ? selfCorrelationId : [NSUUID UUID];
+       [ADLogger setCorrelationId:[NSUUID UUID]];
+        *correlationId = [self getCorrelationId];
     }
 }
 
@@ -1011,7 +1022,7 @@ return; \
                                       userId:nil
                                    cacheItem:nil
                            validateAuthority:self.validateAuthority
-                               correlationId:self.correlationId
+                               correlationId:[self getCorrelationId]
                              completionBlock:completionBlock];
 }
 
@@ -1027,7 +1038,7 @@ return; \
                                       userId:nil
                                    cacheItem:nil
                            validateAuthority:self.validateAuthority
-                               correlationId:self.correlationId
+                               correlationId:[self getCorrelationId]
                              completionBlock:completionBlock];
 }
 
@@ -1667,10 +1678,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     webRequest.method = HTTPPost;
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
-    if([[ADWorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined ]){
-        [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
-    }
-    
+    [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];    
     if(additionalHeaders){
         for (NSString* key in [additionalHeaders allKeys] ) {
             [webRequest.headers setObject:[additionalHeaders objectForKey:key ] forKey:key];
