@@ -1678,10 +1678,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     webRequest.method = HTTPPost;
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
-    if([[ADWorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined ]){
-        [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
-    }
-    
+    [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];    
     if(additionalHeaders){
         for (NSString* key in [additionalHeaders allKeys] ) {
             [webRequest.headers setObject:[additionalHeaders objectForKey:key ] forKey:key];
