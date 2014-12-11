@@ -44,7 +44,7 @@ NSUUID* requestCorrelationId;
 {
     @synchronized(self)//Avoid changing to null while attempting to call it.
     {
-        sLogCallback = callback;
+        sLogCallback = [callback copy];
     }
 }
 
