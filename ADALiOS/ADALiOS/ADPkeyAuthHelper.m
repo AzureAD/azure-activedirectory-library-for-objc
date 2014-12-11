@@ -52,20 +52,21 @@
     NSString* pKeyAuthHeader = @"";
     BOOL challengeSuccessful = false;
     
-    if(challengeType == AD_ISSUER){
-        
-        NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
-        certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
-                                                                           withString:@""];
-        NSString* issuerOU = [ADPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
-        challengeSuccessful = [self isValidIssuer:certAuths keychainCertIssuer:issuerOU];
-    }else{
-        NSString* expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
-        if(expectedThumbprint){
-            challengeSuccessful = [NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]];
+    if ([info isWorkPlaceJoined]) {
+        if(challengeType == AD_ISSUER){
+            
+            NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
+            certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
+                                                                               withString:@""];
+            NSString* issuerOU = [ADPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
+            challengeSuccessful = [self isValidIssuer:certAuths keychainCertIssuer:issuerOU];
+        }else{
+            NSString* expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
+            if(expectedThumbprint){
+                challengeSuccessful = [NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]];
+            }
         }
     }
-    
     if(challengeSuccessful){
         pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
     }
@@ -97,7 +98,7 @@
     keychainCertIssuer = [keychainCertIssuer uppercaseString];
     certAuths = [certAuths uppercaseString];
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:0 error:NULL];
-
+    
     for (NSTextCheckingResult* myMatch in [regex matchesInString:certAuths options:0 range:NSMakeRange(0, [certAuths length])]){
         for (NSUInteger i = 0; i < myMatch.numberOfRanges; ++i)
         {
@@ -115,7 +116,7 @@
 + (NSString *) createDeviceAuthResponse:(NSString*) audience
                                   nonce:(NSString*) nonce
                                identity:(ADRegistrationInformation *) identity{
-
+    
     NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];
     NSDictionary *header = @{
                              @"alg" : @"RS256",
