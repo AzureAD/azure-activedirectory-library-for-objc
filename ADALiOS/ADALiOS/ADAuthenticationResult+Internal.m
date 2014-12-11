@@ -113,7 +113,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     else
     {
         item = [ADTokenCacheStoreItem new];
-        item.authority =  [response valueForKey:OAUTH2_RESOURCE];
+        item.authority =  [response valueForKey:OAUTH2_AUTHORITY];
         item.resource = [response valueForKey:OAUTH2_RESOURCE];
         item.clientId = [response valueForKey:OAUTH2_CLIENT_ID];
         item.accessToken = [response valueForKey:OAUTH2_ACCESS_TOKEN];

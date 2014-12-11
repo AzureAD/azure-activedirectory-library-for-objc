@@ -183,6 +183,12 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
     size_t bufferSize = dataLength + kCCBlockSizeAES128;
     void *buffer = malloc(bufferSize);
     
+    if(!buffer){
+        *error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UNEXPECTED userInfo:nil]
+                                           errorDetails:@"Failed to allocate memory for decryption"];
+        return nil;
+    }
+    
     size_t numBytesDecrypted = 0;
     CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding,
                                           keyPtr, kCCKeySizeAES256,
