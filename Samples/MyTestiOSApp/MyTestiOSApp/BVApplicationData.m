@@ -16,28 +16,21 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import "ADAuthenticationError.h"
+#import "BVApplicationData.h"
 
-#define kChosenCipherKeySize    kCCKeySizeAES256
-#define kSymmetricKeyTag        "com.microsoft.adBrokerKey"
+@implementation BVApplicationData
 
-@interface ADBrokerKeyHelper : NSObject
++ (id) getInstance
 {
-    NSData * _symmetricTag;
-    NSData * _symmetricKeyRef;
+    static BVApplicationData *instance = nil;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    
+    return instance;
 }
 
-@property (nonatomic, retain) NSData * symmetricTag;
-@property (nonatomic, retain) NSData * symmetricKeyRef;
-
--(id) initHelper;
-
--(void) createBrokerKey: (ADAuthenticationError* __autoreleasing*) error;
-
--(NSData*) getBrokerKey: (ADAuthenticationError* __autoreleasing*) error;
-
--(NSData*) decryptBrokerResponse: (NSData*) response
-                                 error:(ADAuthenticationError* __autoreleasing*) error;
-
 @end
+

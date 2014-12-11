@@ -138,17 +138,8 @@ typedef enum
  */
 -(void) adCallAndWaitWithFile: (NSString*) file
                          line: (int) line
-             completionSignal: (volatile int*) signal
+                    semaphore: (dispatch_semaphore_t) signal
                         block: (void (^)(void)) block;
-
-/* Called by the ASYNC_BLOCK_COMPLETE macro to signal the completion of the block
- and handle multiple calls of the callback. See the method above for details.*/
--(void) adAsynchInnerBlockCompleteWithFile: (NSString*) file
-                                    line: (int) line
-                        completionSignal: (volatile int*) signal;
-
-#define ASYNC_BLOCK_COMPLETE(SIGNAL) \
-    [self adAsynchInnerBlockCompleteWithFile:@"" __FILE__ line:__LINE__ completionSignal: &SIGNAL];
 
 @end
 

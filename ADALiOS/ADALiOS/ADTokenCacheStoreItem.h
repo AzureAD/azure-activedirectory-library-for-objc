@@ -29,7 +29,7 @@
 /*! Applicable resource. Should be nil, in case the item stores multi-resource refresh token. */
 @property NSString* resource;
 
-@property NSString* authority;
+@property (copy) NSString* authority;
 
 @property NSString* clientId;
 
@@ -64,7 +64,5 @@
 
 /*! Verifies if the user (as defined by userId) is the same between the two items. */
 -(BOOL) isSameUser: (ADTokenCacheStoreItem*) other;
-
-
 
 @end

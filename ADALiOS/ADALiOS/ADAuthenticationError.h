@@ -22,6 +22,8 @@ extern NSString* const ADAuthenticationErrorDomain;
 extern NSString* const ADInvalidArgumentDomain;
 /*! Error related to extracting authority from the 401 (Unauthorized) challenge response */
 extern NSString* const ADUnauthorizedResponseErrorDomain;
+/*! Error returned by Broker */
+extern NSString* const ADBrokerResponseErrorDomain;
 
 @interface ADAuthenticationError : NSError
 

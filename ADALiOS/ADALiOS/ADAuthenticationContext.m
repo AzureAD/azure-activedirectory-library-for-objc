@@ -250,7 +250,6 @@ return; \
     completionBlock(result);
 }
 
-
 -(void)  acquireTokenForAssertion: (NSString*) assertion
                     assertionType: (ADAssertionType) assertionType
                          resource: (NSString*) resource

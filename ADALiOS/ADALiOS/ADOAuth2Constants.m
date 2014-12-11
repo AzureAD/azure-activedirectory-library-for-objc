@@ -21,7 +21,7 @@
 NSString *const OAUTH2_ACCESS_TOKEN       = @"access_token";
 NSString *const OAUTH2_AUTHORIZATION      = @"authorization";
 NSString *const OAUTH2_AUTHORIZE_SUFFIX   = @"/oauth2/authorize";
-
+NSString *const OAUTH2_AUTHORITY           = @"authority";
 NSString *const OAUTH2_AUTHORIZATION_CODE = @"authorization_code";
 NSString *const OAUTH2_AUTHORIZATION_URI  = @"authorization_uri";
 NSString *const OAUTH2_BEARER             = @"Bearer";
@@ -52,6 +52,9 @@ NSString *const OAUTH2_CORRELATION_ID_REQUEST_VALUE = @"client-request-id";
 NSString *const OAUTH2_ASSERTION = @"assertion";
 NSString *const OAUTH2_SAML11_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml1_1-bearer";
 NSString *const OAUTH2_SAML2_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml2-bearer";
+
+NSString *const BROKER_RESPONSE_KEY               = @"response";
+NSString *const BROKER_HASH_KEY               = @"hash";
 
 //Diagnostic traces sent to the Azure Active Directory servers:
 NSString *const ADAL_ID_PLATFORM          = @"x-client-SKU";//The ADAL platform. iOS or OSX
