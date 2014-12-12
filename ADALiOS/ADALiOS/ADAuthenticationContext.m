@@ -1579,9 +1579,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     
 #if TARGET_OS_IPHONE
-    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined ]){
         [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
-    }
 #endif
     
     if(additionalHeaders){

@@ -73,9 +73,7 @@
 - (void)start
 {
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
-    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined]){
-        [request setValue:@"1.0" forHTTPHeaderField: @"x-ms-PkeyAuth"];
-    }
+    [request setValue:@"1.0" forHTTPHeaderField: @"x-ms-PkeyAuth"];
     [_webView loadRequest:request];
 }
 

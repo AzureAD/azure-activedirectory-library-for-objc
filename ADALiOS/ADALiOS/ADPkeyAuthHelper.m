@@ -51,17 +51,19 @@
     NSString* pKeyAuthHeader = @"";
     BOOL challengeSuccessful = false;
     
-    if(challengeType == AD_ISSUER){
-        
-        NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
-        certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
-                                                                           withString:@""];
-        NSString* issuerOU = [ADPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
-        challengeSuccessful = [self isValidIssuer:certAuths keychainCertIssuer:issuerOU];
-    }else{
-        NSString* expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
-        if(expectedThumbprint){
-            challengeSuccessful = [NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]];
+    if ([info isWorkPlaceJoined]) {
+        if(challengeType == AD_ISSUER){
+            
+            NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
+            certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
+                                                                               withString:@""];
+            NSString* issuerOU = [ADPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
+            challengeSuccessful = [self isValidIssuer:certAuths keychainCertIssuer:issuerOU];
+        }else{
+            NSString* expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
+            if(expectedThumbprint){
+                challengeSuccessful = [NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]];
+            }
         }
     }
     
