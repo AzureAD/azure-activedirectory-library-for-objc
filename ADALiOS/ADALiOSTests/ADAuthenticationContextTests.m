@@ -1345,6 +1345,7 @@ const int sAsyncContextTimeout = 10;
 //Hits a the cloud with either a bad server or a bad refresh token:
 -(void) testRefreshingTokenWithServerErrors
 {
+    [ADAuthenticationSettings sharedInstance].requestTimeOut = 5;
     //Authority cannot be validated or reached:
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:@"https://example.com/common" error:nil];
     XCTAssertNotNil(mContext);
