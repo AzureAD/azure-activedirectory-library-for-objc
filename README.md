@@ -146,23 +146,30 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
     }];
     return nil; } 
 ```
+
+
 ### Diagnostics
 
 The following are the primary sources of information for diagnosing issues:
 
-+ Exceptions
++ NSError
 + Logs
 + Network traces
 
 Also, note that correlation IDs are central to the diagnostics in the library. You can set your correlation IDs on a per request basis if you want to correlate an ADAL request with other operations in your code. If you don't set a correlations id then ADAL will generate a random one and all log messages and network calls will be stamped with the correlation id. The self generated id changes on each request.
 
-#### Exceptions
+#### NSError
 
-This is obviously the first diagnostic. We try to provide helpful error messages. If you find one that is not helpful please file an issue and let us know. Please also provide device information such as model and SDK#. The SDK does not throw exceptions, except when the callbacks are nil. The error message is returned as a part of the ADAuthenticationResult where the status is set to AD_FAILED.
+This is obviously the first diagnostic. We try to provide helpful error messages. If you find one that is not helpful please file an issue and let us know. Please also provide device information such as model and SDK#. The error message is returned as a part of the ADAuthenticationResult where the status is set to AD_FAILED.
 
 #### Logs
 
-You can configure the library to generate log messages that you can use to help diagnose issues. ADAL uses NSLog by default to log the messages. Each API method call is decorated with API version and every other message is decorated with correlation id and UTC timestamp. This data is important to look of server side diagnostics.
+You can configure the library to generate log messages that you can use to help diagnose issues. ADAL uses NSLog by default to log the messages. Each API method call is decorated with API version and every other message is decorated with correlation id and UTC timestamp. This data is important to look of server side diagnostics. SDK also exposes the ability to provide a custom Logger callback as follows.
+```Objective-C
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInformation, NSInteger errorCode) {
+        //HANDLE LOG MESSAGE HERE
+    }]
+```
 
 ##### Logging Levels
 + No_Log(Disable all logging)
@@ -173,7 +180,7 @@ You can configure the library to generate log messages that you can use to help 
 
 You set the log level like this:
 ```Objective-C
-ADLogger setLevel:ADAL_LOG_LEVEL_INFO]
+[ADLogger setLevel:ADAL_LOG_LEVEL_INFO]
  ```
  
 #### Network Traces
