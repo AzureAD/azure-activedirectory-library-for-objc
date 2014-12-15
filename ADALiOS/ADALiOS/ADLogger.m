@@ -110,12 +110,12 @@ additionalInformation: (NSString*) additionalInformation
     
     if (logLevel <= sLogLevel)
     {
+        NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+        [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
         if (sNSLogging)
         {
             //NSLog is documented as thread-safe:
-            NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
-            [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
-            [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
             NSLog([self formatStringPerLevel:logLevel], [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message, additionalInformation, errorCode);
         }
         
@@ -123,7 +123,7 @@ additionalInformation: (NSString*) additionalInformation
         {
             if (sLogCallback)
             {
-                sLogCallback(logLevel, message, additionalInformation, errorCode);
+                sLogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@ - %@] %@", [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message], additionalInformation, errorCode);
             }
         }
     }
