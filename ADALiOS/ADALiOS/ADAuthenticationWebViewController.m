@@ -73,9 +73,7 @@
 - (void)start
 {
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
-    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined]){
-        [request setValue:@"1.0" forHTTPHeaderField: @"x-ms-PkeyAuth"];
-    }
+    [request setValue:@"1.0" forHTTPHeaderField: @"x-ms-PkeyAuth"];
     [_webView loadRequest:request];
 }
 
@@ -157,7 +155,7 @@
         return NO;
     }
     
-    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"] && navigationType == UIWebViewNavigationTypeLinkClicked) {
+    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"]) {
         requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
         [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];
         return NO;
