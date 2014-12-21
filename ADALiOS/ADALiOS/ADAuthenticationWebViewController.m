@@ -115,6 +115,13 @@ NSTimer *timer;
     //DebugLog( @"URL: %@", request.URL.absoluteString );
     NSString *requestURL = [request.URL absoluteString];
     
+    
+    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"]) {
+        requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
+        [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];
+        return NO;
+    }
+    
     // check for pkeyauth challenge.
     if ([requestURL hasPrefix: pKeyAuthUrn] )
     {
@@ -147,12 +154,6 @@ NSTimer *timer;
         // Now set our request variable with an (immutable) copy of the altered request
         request = [mutableRequest copy];
         [webView loadRequest:request];
-        return NO;
-    }
-    
-    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"] && navigationType == UIWebViewNavigationTypeLinkClicked) {
-        requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
-        [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];
         return NO;
     }
     

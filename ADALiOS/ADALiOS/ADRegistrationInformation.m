@@ -78,7 +78,6 @@
         }
         
         if(_certificateSubject){
-            CFRelease((__bridge CFTypeRef)(_certificateSubject));
             _certificateSubject = nil;
         }
         
@@ -87,7 +86,6 @@
         }
         
         if(_userPrincipalName){
-            CFRelease((__bridge CFTypeRef)(_userPrincipalName));
             _userPrincipalName = nil;
         }
         
