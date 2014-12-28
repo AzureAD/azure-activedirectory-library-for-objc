@@ -25,6 +25,7 @@
 #import "ADAuthenticationViewController.h"
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
+#import "ADNTLMHandler.h"
 
 NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
 NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
@@ -42,6 +43,7 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
     ADAuthenticationViewController    *_authenticationViewController;
     ADAuthenticationWebViewController *_authenticationWebViewController;
     
+    BOOL                               _ntlmSession;
     NSLock                             *_completionLock;
     
     void (^_completionBlock)( ADAuthenticationError *, NSURL *);
@@ -103,6 +105,7 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
     if ( self )
     {
         _completionLock = [[NSLock alloc] init];
+        _ntlmSession = NO;
     }
     
     return self;
@@ -252,6 +255,13 @@ correlationId:(NSUUID *)correlationId
         }
         if ( parent )
         {
+            
+            _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
+            if (_ntlmSession)
+            {
+                AD_LOG_INFO(@"Authorization UI", @"The device is workplace joined. Client TLS Session started.");
+            }
+            
             parentController = parent;
             // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
             UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
@@ -317,7 +327,10 @@ correlationId:(NSUUID *)correlationId
     //       be resilient to this condition and should not generate
     //       two callbacks.
     [_completionLock lock];
-
+    if (_ntlmSession)
+    {
+        [ADNTLMHandler endWebViewNTLMHandler];
+    }
     if ( _completionBlock )
     {
         void (^completionBlock)( ADAuthenticationError *, NSURL *) = _completionBlock;

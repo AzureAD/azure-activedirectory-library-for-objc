@@ -16,13 +16,11 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@interface ADAuthenticationWebViewController : NSObject <UIWebViewDelegate, NSURLConnectionDelegate>
+#pragma once
 
-@property (weak, nonatomic) id<ADAuthenticationDelegate> delegate;
-
-- (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
-- (void)start;
-- (void)stop;
-- (void) handlePKeyAuthChallenge:(NSString *)challengeUrl;
+//Intercepts HTTPS protocol for the application in order to allow
+//TLS with client-authentication. Such authentication is the base
+//of workplace joined devices. The class is not thread-safe.
+@interface ADURLProtocol : NSURLProtocol <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 
 @end

@@ -107,11 +107,11 @@
     NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters * params, ADAuthenticationError * error)
      {
-         if (!params)
-         {
-             [weakSelf setStatus:error.errorDetails];
-             return;
-         }
+//         if (!params)
+//         {
+//             [weakSelf setStatus:error.errorDetails];
+//             return;
+//         }
          
          //401 worked, now try to acquire the token:
          //TODO: replace the authority here with the one that comes back from 'params'
@@ -120,7 +120,7 @@
          resourceString = mAADInstance.resource;
          NSString* redirectUri = mAADInstance.redirectUri;
          NSString* userId = mAADInstance.userId;
-         [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
+         //[weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
          ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:mAADInstance.validateAuthority error:&error];
          if (!context)
          {
