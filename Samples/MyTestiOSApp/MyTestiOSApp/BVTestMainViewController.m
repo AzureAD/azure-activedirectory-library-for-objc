@@ -27,7 +27,7 @@
 #import "BVTestInstance.h"
 
 @interface BVTestMainViewController ()
-@property (weak, nonatomic) IBOutlet UILabel *resultLabel;
+@property (weak, nonatomic) IBOutlet UITextView *resultView;
 - (IBAction)pressMeAction:(id)sender;
 - (IBAction)clearCachePressed:(id)sender;
 - (IBAction)getUsersPressed:(id)sender;
@@ -98,7 +98,7 @@
 -(void) setStatus: (NSString*) status
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.resultLabel setText:status];
+        self.resultView.text = status;
     });
 }
 
@@ -131,18 +131,18 @@
 - (IBAction)pressMeAction:(id)sender
 {
     BVTestMainViewController* __weak weakSelf = self;
-    [self.resultLabel setText:@"Starting 401 challenge."];
+    self.resultView.Text=@"Starting 401 challenge.";
     
     //TODO: implement the 401 challenge response in the test Azure app. Temporarily using another one:
     NSString* __block resourceString = @"http://testapi007.azurewebsites.net/api/WorkItem";
     NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters * params, ADAuthenticationError * error)
      {
-         if (!params)
-         {
-             [weakSelf setStatus:error.errorDetails];
-             return;
-         }
+//         if (!params)
+//         {
+//             [weakSelf setStatus:error.errorDetails];
+//             return;
+//         }
          
          //401 worked, now try to acquire the token:
          //TODO: replace the authority here with the one that comes back from 'params'

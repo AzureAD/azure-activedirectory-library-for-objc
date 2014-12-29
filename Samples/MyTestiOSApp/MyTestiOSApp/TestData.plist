@@ -9,11 +9,11 @@
 		<key>ClientId</key>
 		<string>d3590ed6-52b3-4102-aeff-aad2292ab01c</string>
 		<key>Resource</key>
-		<string>https://drsaztest.spoppe.com</string>
+		<string>https://officeapps.live.com</string>
 		<key>RedirectUri</key>
 		<string>urn:ietf:wg:oauth:2.0:oob</string>
 		<key>UserId</key>
-		<string>aztest@drsaztest.ccsctp.net</string>
+		<string></string>
 		<key>Password</key>
 		<string></string>
 		<key>SupportsValidation</key>

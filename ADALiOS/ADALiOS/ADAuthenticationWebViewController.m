@@ -25,6 +25,7 @@
 #import "ADPkeyAuthHelper.h"
 #import "NSDictionary+ADExtensions.h"
 #import "ADAuthenticationSettings.h"
+#import "ADNTLMHandler.h"
 
 @implementation ADAuthenticationWebViewController
 
@@ -48,7 +49,8 @@
         
         _complete  = NO;
         _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
-        
+        [ADNTLMHandler setCancellationUrl:[_startURL absoluteString]];
+
         _webView          = webView;
         _webView.delegate = self;
     }
@@ -117,8 +119,12 @@
             return NO;
     }
 
-    //DebugLog( @"URL: %@", request.URL.absoluteString );
     NSString *requestURL = [request.URL absoluteString];
+    if([ADNTLMHandler isChallengeCancelled]){
+        _complete = YES;
+        dispatch_async( dispatch_get_main_queue(), ^{[_delegate webAuthenticationDidCancel];});
+        return NO;
+    }
     
     // check for pkeyauth challenge.
     if ([requestURL hasPrefix: pKeyAuthUrn] )
