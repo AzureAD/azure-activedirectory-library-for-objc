@@ -93,8 +93,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  be nil.
  */
 -(id) initWithAuthority: (NSString*) authority
-      validateAuthority: (BOOL) validateAuthority
-        tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
+      validateAuthority: (BOOL) validateAuthority        tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
                   error: (ADAuthenticationError* __autoreleasing *) error;
 
 /*! Creates the object, setting the authority, default cache and enables the authority validation. In case of an error
@@ -140,12 +139,24 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                                                tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
                                                          error: (ADAuthenticationError* __autoreleasing *) error;
 
+/*!
+ */
++(BOOL) isResponseFromBroker:(NSURL*) response;
+
+/*!
+ */
++(void) handleBrokerResponse:(NSURL*) response
+             completionBlock: (ADAuthenticationCallback) completionBlock;
+
 
 /*! Represents the authority used by the context. */
 @property (readonly) NSString* authority;
 
 /*! Controls authority validation in acquire token calls. */
 @property BOOL validateAuthority;
+
+/*! Represents the URL scheme of the application. If nil, the API selects the first value in an array of URL schemes. */
+@property NSString* applicationURLScheme;
 
 /*! Provides access to the token cache used in this context. If null, tokens will not be cached. */
 @property id<ADTokenCacheStoring> tokenCacheStore;
@@ -172,7 +183,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  @param assertionType: the assertion type of the user assertion.
  @param resource: the resource whose token is needed.
  @param clientId: the client identifier
- @param userId: the user id of the authenticated user. Required.
+ @param userId: the required user id of the authenticated user.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 -(void)  acquireTokenForAssertion: (NSString*) assertion

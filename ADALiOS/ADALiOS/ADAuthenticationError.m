@@ -22,6 +22,7 @@
 NSString* const ADAuthenticationErrorDomain = @"ADAuthenticationErrorDomain";
 NSString* const ADInvalidArgumentDomain = @"ADAuthenticationErrorDomain";
 NSString* const ADUnauthorizedResponseErrorDomain = @"ADUnauthorizedResponseErrorDomain";
+NSString* const ADBrokerResponseErrorDomain = @"ADBrokerResponseErrorDomain";
 
 NSString* const ADInvalidArgumentMessage = @"The argument '%@' is invalid. Value:%@";
 

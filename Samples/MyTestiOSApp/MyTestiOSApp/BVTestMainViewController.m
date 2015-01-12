@@ -25,6 +25,7 @@
 #import <ADALiOS/ADInstanceDiscovery.h>
 #import "BVSettings.h"
 #import "BVTestInstance.h"
+#import "BVApplicationData.h"
 
 @interface BVTestMainViewController ()
 
@@ -43,13 +44,43 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
+    //settings.credentialsType = AD_CREDENTIALS_EMBEDDED;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(consumeToken)
+     name:UIApplicationWillEnterForegroundNotification object:nil];
+    
     // Do any additional setup after loading the view, typically from a nib.
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];//Log everything
     
     mTestData = [BVSettings new];
     mAADInstance = mTestData.testAuthorities[sAADTestInstance];
+    //[ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
     self.resultLabel.text = @"-- Response Goes Here --";
 }
+
+-(void) dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+
+-(void) consumeToken
+{
+    BVApplicationData* data = [BVApplicationData getInstance];
+    if(data.result){
+        if(data.result.status == AD_SUCCEEDED)
+        {
+        self.resultLabel.text = [NSString stringWithFormat:@"-- TOKEN FROM BROKER --\n%@", data.result.accessToken];
+        }
+        else
+        {
+            self.resultLabel.text = [NSString stringWithFormat:@"-- ERROR FROM BROKER --\n%@", data.result.error.errorDetails];
+        }
+    }
+}
+
 
 - (void)didReceiveMemoryWarning
 {
@@ -173,7 +204,11 @@
     }
     context.parentController = self;
     
-    [context acquireTokenSilentWithResource:resourceString clientId:clientId redirectUri:[NSURL URLWithString:redirectUri] userId:userId completionBlock:^(ADAuthenticationResult *result) {
+    [context acquireTokenSilentWithResource:resourceString
+                                   clientId:clientId
+                                redirectUri:[NSURL URLWithString:redirectUri]
+                                     userId:userId
+                            completionBlock:^(ADAuthenticationResult *result) {
         if (result.status != AD_SUCCEEDED)
         {
             [weakSelf setStatus:result.error.errorDetails];
@@ -267,6 +302,7 @@
     [self setStatus:@"Attemp to refresh..."];
     ADAuthenticationError* error;
     ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:mAADInstance.validateAuthority error:&error];
+    
     if (!context)
     {
         [self setStatus:error.errorDetails];

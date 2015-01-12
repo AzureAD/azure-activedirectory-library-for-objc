@@ -147,6 +147,7 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
     return nil; } 
 ```
 
+
 ### Diagnostics
 
 The following are the primary sources of information for diagnosing issues:
@@ -189,7 +190,6 @@ You can use various tools to capture the HTTP traffic that ADAL generates.  This
 Charles is the easiest HTTP tracing tool in OSX.  Use the following links to setup it up to correctly record ADAL network traffic.  In order to be useful it is necessary to configure Charles, to record unencrypted SSL traffic.  NOTE: Traces generated in this way may contain highly privileged information such as access tokens, usernames and passwords.  If you are using production accounts, do not share these traces with 3rd parties.  If you need to supply a trace to someone in order to get support, reproduce the issue with a temporary account with usernames and passwords that you don't mind sharing.
 
 + [Setting Up SSL For iOS Simulator or Devices](http://www.charlesproxy.com/documentation/faqs/ssl-connections-from-within-iphone-applications/)
-
 
 
 ##Common problems

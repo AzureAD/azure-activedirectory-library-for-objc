@@ -9,7 +9,7 @@
 		<key>ClientId</key>
 		<string>dd9caee2-38bd-484e-998c-7529bdef220f</string>
 		<key>Resource</key>
-		<string>https://graph.windows.net</string>
+        <string>https://graph.windows.net</string>
 		<key>RedirectUri</key>
 		<string>MyTestiOSApp://com.MSOpenTech.MyTestiOSApp</string>
 		<key>UserId</key>

@@ -94,6 +94,7 @@ NSUUID* requestCorrelationId;
     }
 }
 
+
 +(void) log: (ADAL_LOG_LEVEL)logLevel
     message: (NSString*) message
   errorCode: (NSInteger) errorCode

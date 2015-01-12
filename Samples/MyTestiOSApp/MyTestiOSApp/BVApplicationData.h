@@ -17,21 +17,12 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "ADRegistrationInformation.h"
+#import <ADALiOS/ADAuthenticationResult.h>
 
-typedef enum
-{
-    AD_ISSUER,
-    AD_THUMBPRINT,
-} ADChallengeType;
+@interface BVApplicationData : NSObject
 
-@interface ADPkeyAuthHelper : NSObject
+@property ADAuthenticationResult* result;
 
-+ (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
-                         challengeData:(NSDictionary*) challengeData
-                         challengeType: (ADChallengeType) challengeType;
-
-
-+ (NSString*) computeThumbprint:(NSData*) data isSha2:(BOOL) isSha2;
++(id) getInstance;
 
 @end

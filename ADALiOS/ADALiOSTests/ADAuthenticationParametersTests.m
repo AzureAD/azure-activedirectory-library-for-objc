@@ -70,8 +70,8 @@
     //Reset
     mParameters = nil;
     mError = nil;
-    static volatile int completion = 0;
-    [self adCallAndWaitWithFile:@"" __FILE__ line:sourceLine completionSignal:&completion block:^
+    __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    [self adCallAndWaitWithFile:@"" __FILE__ line:sourceLine semaphore:sem block:^
     {
         //The asynchronous call:
         [ADAuthenticationParameters parametersFromResourceUrl:resource
@@ -80,7 +80,7 @@
              //Fill in the class members with the result:
              mParameters = par;
              mError = err;
-             ASYNC_BLOCK_COMPLETE(completion);
+            dispatch_semaphore_signal(sem);
          }];
     }];
     if (!!mParameters == !!mError)//Exactly one of these two should be set

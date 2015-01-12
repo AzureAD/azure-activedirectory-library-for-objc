@@ -16,22 +16,21 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import "ADRegistrationInformation.h"
+#import "BVApplicationData.h"
 
-typedef enum
+@implementation BVApplicationData
+
++ (id) getInstance
 {
-    AD_ISSUER,
-    AD_THUMBPRINT,
-} ADChallengeType;
-
-@interface ADPkeyAuthHelper : NSObject
-
-+ (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
-                         challengeData:(NSDictionary*) challengeData
-                         challengeType: (ADChallengeType) challengeType;
-
-
-+ (NSString*) computeThumbprint:(NSData*) data isSha2:(BOOL) isSha2;
+    static BVApplicationData *instance = nil;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    
+    return instance;
+}
 
 @end
+
