@@ -105,6 +105,7 @@ const int sAsyncContextTimeout = 10;
     [testContext->mExpectedRequest2 setObject:mResource forKey:OAUTH2_RESOURCE];
     [testContext->mExpectedRequest2 setObject:mClientId forKey:OAUTH2_CLIENT_ID];
     
+    [ADAuthenticationSettings sharedInstance].requestTimeOut = 5;
     //Clear the cache between the tests:
     [mDefaultTokenCache removeAllWithError:&error];
     ADAssertNoError;

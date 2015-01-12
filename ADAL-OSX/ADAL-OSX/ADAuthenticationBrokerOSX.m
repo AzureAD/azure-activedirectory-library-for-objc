@@ -22,6 +22,7 @@
 #import "ADAuthenticationWindowController.h"
 #import "ADAuthenticationWebViewController.h"
 #import "ADAuthenticationSettings.h"
+#import "ADNTLMHandler.h"
 
 
 NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current view controller";
@@ -95,6 +96,7 @@ correlationId:(NSUUID *)correlationId
     _authenticationWebViewController    = nil;
     _authenticationPageController       = nil;
     _authenticationSession              = NULL;
+    _ntlmSession    = NO;
     
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
     
@@ -123,6 +125,12 @@ correlationId:(NSUUID *)correlationId
     }
     else
     {
+        _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
+        if (_ntlmSession)
+        {
+            AD_LOG_INFO(@"Authorization UI", @"Starting NTLM handler.");
+        }
+        
         // Load the authentication view
         _authenticationPageController = [[ADAuthenticationWindowController alloc] initAtURL:startURL
                                                                                    endAtURL:endURL];
@@ -197,6 +205,11 @@ correlationId:(NSUUID *)correlationId
     //       two callbacks.
     @synchronized(self)
     {
+        if (_ntlmSession)
+        {
+            [ADNTLMHandler endWebViewNTLMHandler];
+        }
+        
         if ( _completionBlock )
         {
             void (^completionBlock)( ADAuthenticationError *, NSURL *) = _completionBlock; _completionBlock = nil;

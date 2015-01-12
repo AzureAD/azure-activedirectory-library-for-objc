@@ -40,7 +40,6 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 {
     UIViewController* parentController;
     ADAuthenticationViewController    *_authenticationViewController;
-    BOOL                               _ntlmSession;
     NSLock                             *_completionLock;
 }
 

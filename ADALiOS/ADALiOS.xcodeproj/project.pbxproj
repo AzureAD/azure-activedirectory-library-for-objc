@@ -92,6 +92,7 @@
 		9722234419AB060200092E85 /* RegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722233D19AB060200092E85 /* RegistrationInformation.m */; };
 		9722234519AB060200092E85 /* WorkPlaceJoin.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722233F19AB060200092E85 /* WorkPlaceJoin.m */; };
 		9722234619AB060200092E85 /* WorkPlaceJoinUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722234219AB060200092E85 /* WorkPlaceJoinUtil.m */; };
+		9738F9121A5F4A93000A9312 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9738F9111A5F4A93000A9312 /* Localizable.strings */; };
 		97D6859F1A0DF10F00EE816C /* ADHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D6859E1A0DF10F00EE816C /* ADHelpers.m */; };
 		97D685A21A0E125400EE816C /* ADClientMetricsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D685A11A0E125400EE816C /* ADClientMetricsTests.m */; };
 		97EEE7C21A4FFD5600D003F8 /* UIAlertView+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 97EEE7BC1A4FFD5600D003F8 /* UIAlertView+Additions.m */; };
@@ -250,6 +251,7 @@
 		9722234019AB060200092E85 /* WorkPlaceJoinConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorkPlaceJoinConstants.h; sourceTree = "<group>"; };
 		9722234119AB060200092E85 /* WorkPlaceJoinUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorkPlaceJoinUtil.h; sourceTree = "<group>"; };
 		9722234219AB060200092E85 /* WorkPlaceJoinUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WorkPlaceJoinUtil.m; sourceTree = "<group>"; };
+		9738F9111A5F4A93000A9312 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		97D6859E1A0DF10F00EE816C /* ADHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADHelpers.m; sourceTree = "<group>"; };
 		97D685A01A0DF12600EE816C /* ADHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADHelpers.h; sourceTree = "<group>"; };
 		97D685A11A0E125400EE816C /* ADClientMetricsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetricsTests.m; sourceTree = "<group>"; };
@@ -384,6 +386,7 @@
 		8B0965B017F25770002BDFB8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				9738F9111A5F4A93000A9312 /* Localizable.strings */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -607,6 +610,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BFEF07B182DB15E00122C0C /* InfoPlist.strings in Resources */,
+				9738F9121A5F4A93000A9312 /* Localizable.strings in Resources */,
 				8BFEF07C182DB15E00122C0C /* ADAL_iPhone_Storyboard.storyboard in Resources */,
 				8BFEF07D182DB15E00122C0C /* ADAL_iPad_Storyboard.storyboard in Resources */,
 			);

@@ -57,7 +57,7 @@
         return;
     }
     
-    [context acquireTokenForAssertion:[[_samlAssertionField textStorage] string] assertionType:AD_SAML1_1 resource:resourceString clientId:clientId userId:@"kpanwar@microsoft.com" completionBlock:^(ADAuthenticationResult *result) {
+    [context acquireTokenForAssertion:[[_samlAssertionField textStorage] string] assertionType:AD_SAML1_1 resource:resourceString clientId:clientId userId:aadInstance.userId completionBlock:^(ADAuthenticationResult *result) {
         if (result.status != AD_SUCCEEDED)
         {
             [self setStatus:result.error.errorDetails];
@@ -78,7 +78,8 @@
     BVTestInstance *aadInstance = [[testData.testAuthorities objectForKey:sAADTestInstance] retain];
     
     ADAuthenticationError   *error = nil;
-    __block ADAuthenticationContext *context = [[ADAuthenticationContext authenticationContextWithAuthority:aadInstance.authority validateAuthority: NO
+    __block ADAuthenticationContext *context = [[ADAuthenticationContext authenticationContextWithAuthority:aadInstance.authority
+                                                                                          validateAuthority: NO
                                                                                                       error:&error] retain];
     
     [context acquireTokenWithResource:aadInstance.resource

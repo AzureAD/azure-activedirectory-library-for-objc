@@ -13,7 +13,7 @@
 		<key>RedirectUri</key>
 		<string>urn:ietf:wg:oauth:2.0:oob</string>
 		<key>UserId</key>
-		<string></string>
+		<string>testuser1@aadadfs20.info</string>
 		<key>Password</key>
 		<string></string>
 		<key>SupportsValidation</key>

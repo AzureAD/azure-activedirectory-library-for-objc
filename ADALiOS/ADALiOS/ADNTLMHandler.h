@@ -39,4 +39,7 @@
 +(BOOL) isChallengeCancelled;
 
 +(void) setCancellationUrl:(NSString*) url;
+
++(void) runNSAlertAndProcessResult:(NSMutableDictionary*) stateObject;
+
 @end
