@@ -85,6 +85,8 @@ NSString* const sLog = @"HTTP Protocol";
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
+#pragma unused (connection)
+    
     AD_LOG_VERBOSE_F(sLog, @"connection:didFaileWithError: %@", error);
     [self.client URLProtocol:self didFailWithError:error];
 }
@@ -92,9 +94,17 @@ NSString* const sLog = @"HTTP Protocol";
 -(void) connection:(NSURLConnection *)connection
 willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    AD_LOG_VERBOSE_F(sLog, @"connection:willSendRequestForAuthenticationChallenge: %@. Previous challenge failure count: %ld", challenge.protectionSpace.authenticationMethod, (long)challenge.previousFailureCount);
+#pragma unused (connection)
     
-    if (![ADNTLMHandler handleNTLMChallenge:challenge urlRequest:[connection currentRequest] customProtocol:self])
+    AD_LOG_VERBOSE_F(sLog, @"connection:willSendRequestForAuthenticationChallenge: %@. Previous challenge failure count: %ld", challenge.protectionSpace.authenticationMethod, (long)challenge.previousFailureCount);
+    BOOL ntlmHandled = NO;
+#if TARGET_OS_IPHONE
+    ntlmHandled = [ADNTLMHandler handleNTLMChallenge:challenge urlRequest:[connection currentRequest] customProtocol:self];
+#else
+    ntlmHandled = [ADNTLMHandler handleNTLMChallenge:challenge customProtocol:self];
+#endif
+    
+    if (!ntlmHandled)
     {
         // Do default handling
         [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];

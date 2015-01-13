@@ -75,9 +75,9 @@ NSURLConnection *_conn = nil;
 }
 
 +(BOOL) handleNTLMChallenge:(NSURLAuthenticationChallenge *)challenge
-                 urlRequest:(NSURLRequest*) request
              customProtocol:(NSURLProtocol*) protocol
 {
+    
     BOOL __block succeeded = NO;
     AD_LOG_VERBOSE_F(AD_WPJ_LOG, @"Challenge Type for host: %@", challenge.protectionSpace.authenticationMethod);
     

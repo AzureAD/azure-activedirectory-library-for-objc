@@ -27,15 +27,16 @@
 -(id) init
 {
     self = [super init];
-    BOOL loaded = NO;
     if(self)
     {
-        loaded = [NSBundle loadNibNamed:@"ADCredentialViewController" owner:self];
+        [NSBundle loadNibNamed:@"ADCredentialViewController" owner:self];
 //        loaded = [[NSBundle mainBundle] loadNibNamed:@"ADCredentialViewController" owner:self topLevelObjects:nil];
+        
+        SAFE_ARC_RETAIN(_customView);
+        SAFE_ARC_RETAIN(_usernameField);
+        SAFE_ARC_RETAIN(_passwordField);
     }
-    SAFE_ARC_RETAIN(_customView);
-    SAFE_ARC_RETAIN(_usernameField);
-    SAFE_ARC_RETAIN(_passwordField);
+    
     return self;
 }
 
