@@ -40,12 +40,6 @@
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
-    NSURL* launchURL = [launchOptions objectForKey:UIApplicationLaunchOptionsURLKey];
-    if ( nil != launchURL )
-    {
-        // handle url
-    }
     return YES;
 }
 

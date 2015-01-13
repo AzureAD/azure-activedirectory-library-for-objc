@@ -19,13 +19,11 @@
 #import <Foundation/Foundation.h>
 
 #define chosenCipherBlockSize  kCCBlockSizeAES128
-#define chosenCipherKeySize    kCCKeySizeAES128
 
 @interface ADBrokerHelpers : NSObject
 
 + (NSString*) computeHash:(NSData*) inputData;
 
-+(NSData*) encryptData: (NSString*) data
-                   key: (NSData*) key;
-
++(NSData*) encryptData: (NSData*) data
+                   key: (NSString*) key;
 @end

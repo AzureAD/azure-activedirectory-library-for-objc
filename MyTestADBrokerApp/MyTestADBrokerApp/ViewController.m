@@ -20,6 +20,7 @@
 #import <ADALiOS/ADAuthenticationError.h>
 #import <ADALiOS/ADUserInformation.h>
 #import <ADALiOS/ADTokenCacheStoreItem.h>
+#import <ADALiOS/ADAuthenticationSettings.h>
 
 @interface ViewController ()
 
@@ -62,7 +63,7 @@
         return;
     }
     [weakSelf setStatus:[NSString stringWithFormat:@"Removing %lu items..", count]];
-
+    
     [cache removeAllWithError:&error];
     if (error)
     {
@@ -74,31 +75,57 @@
 
 - (IBAction)getUsersPressed:(id)sender
 {
-ADAuthenticationError* error;
-id<ADTokenCacheStoring> cache = [ADBrokerKeychainTokenCacheStore new];
-NSArray* array = [cache allItemsWithError:&error];
-if (error)
-{
-    [self setStatus:error.errorDetails];
-    return;
-}
+    ADAuthenticationError* error;
+    id<ADTokenCacheStoring> cache = [ADBrokerKeychainTokenCacheStore new];
+    NSArray* array = [cache allItemsWithError:&error];
+    if (error)
+    {
+        [self setStatus:error.errorDetails];
+        return;
+    }
     
-NSMutableSet* users = [NSMutableSet new];
-NSMutableString* usersStr = [NSMutableString new];
-for(ADTokenCacheStoreItem* item in array)
-{
-    ADUserInformation *user = item.userInformation;
-    if (!item.userInformation)
+    NSMutableSet* users = [NSMutableSet new];
+    NSMutableString* usersStr = [NSMutableString new];
+    for(ADTokenCacheStoreItem* item in array)
     {
-        user = [ADUserInformation userInformationWithUserId:@"Unknown user" error:nil];
+        ADUserInformation *user = item.userInformation;
+        if (!item.userInformation)
+        {
+            user = [ADUserInformation userInformationWithUserId:@"Unknown user" error:nil];
+        }
+        if (![users containsObject:user.userId])
+        {
+            //New user, add and print:
+            [users addObject:user.userId];
+            [usersStr appendFormat:@"%@: %@ %@", user.userId, user.givenName, user.familyName];
+        }
     }
-    if (![users containsObject:user.userId])
+    
+    cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    array = [cache allItemsWithError:&error];
+    if (error)
     {
-        //New user, add and print:
-        [users addObject:user.userId];
-        [usersStr appendFormat:@"%@: %@ %@", user.userId, user.givenName, user.familyName];
+        [self setStatus:error.errorDetails];
+        return;
     }
+    
+    for(ADTokenCacheStoreItem* item in array)
+    {
+        ADUserInformation *user = item.userInformation;
+        if (!item.userInformation)
+        {
+            user = [ADUserInformation userInformationWithUserId:@"Unknown user" error:nil];
+        }
+        
+        if (![users containsObject:user.userId])
+        {
+            //New user, add and print:
+            [users addObject:user.userId];
+            [usersStr appendFormat:@"%@: %@ %@", user.userId, user.givenName, user.familyName];
+        }
+    }
+    
+    [self setStatus:usersStr];
 }
-[self setStatus:usersStr];
-}
+
 @end
