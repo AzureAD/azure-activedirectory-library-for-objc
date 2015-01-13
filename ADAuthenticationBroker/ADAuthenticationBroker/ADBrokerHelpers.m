@@ -50,58 +50,39 @@ enum {
     return [thumbprint stringByReplacingOccurrencesOfString:@" " withString:@""];
 }
 
-
-
-+(NSData*) encryptData: (NSString*) data
-                   key: (NSData*) key
++(NSData*) encryptData: (NSData*) data
+                   key: (NSString*) key
 {
-    NSData *iv = [ADBrokerHelpers randomDataOfLength:algorithmIVSize];
+    // 'key' should be 32 bytes for AES256, will be null-padded otherwise
+    char keyPtr[kCCKeySizeAES256+1]; // room for terminator (unused)
+    bzero(keyPtr, sizeof(keyPtr)); // fill with zeroes (for padding)
     
-    size_t outLength;
-    NSMutableData *cipherData = [NSMutableData dataWithLength:data.length +
-                                 algorithmBlockSize];
+    // fetch key data
+    [key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
     
-    CCCryptorStatus
-    result = CCCrypt(kCCEncrypt, // operation
-                     algorithm, // Algorithm
-                     kCCOptionPKCS7Padding, // options
-                     key.bytes, // key
-                     key.length, // keylength
-                     (__bridge const void *)(iv),// iv
-                     (__bridge const void *)([data dataUsingEncoding:NSUTF8StringEncoding]), // dataIn
-                     data.length, // dataInLength,
-                     cipherData.mutableBytes, // dataOut
-                     cipherData.length, // dataOutAvailable
-                     &outLength); // dataOutMoved
+    NSUInteger dataLength = [data length];
     
-    if (result == kCCSuccess) {
-        cipherData.length = outLength;
-    }
-    else {
-        //        if (error) {
-        //            *error = [NSError errorWithDomain:kRNCryptManagerErrorDomain
-        //                                         code:result
-        //                                     userInfo:nil];
-        //        }
-        return nil;
+    //See the doc: For block ciphers, the output size will always be less than or
+    //equal to the input size plus the size of one block.
+    //That's why we need to add the size of one block here
+    size_t bufferSize = dataLength + kCCBlockSizeAES128;
+    void *buffer = malloc(bufferSize);
+    
+    size_t numBytesEncrypted = 0;
+    CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding,
+                                          keyPtr, kCCKeySizeAES256,
+                                          NULL /* initialization vector (optional) */,
+                                          [data bytes], dataLength, /* input */
+                                          buffer, bufferSize, /* output */
+                                          &numBytesEncrypted);
+    if (cryptStatus == kCCSuccess) {
+        //the returned NSData takes ownership of the buffer and will free it on deallocation
+        return [NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted];
     }
     
-    return cipherData;
+    free(buffer); //free the buffer;
+    return nil;
     
 }
-
-
-+ (NSData *)randomDataOfLength:(size_t)length {
-    NSMutableData *data = [NSMutableData dataWithLength:length];
-    
-    int result = SecRandomCopyBytes(kSecRandomDefault,
-                                    length,
-                                    data.mutableBytes);
-    NSAssert(result == 0, @"Unable to generate random bytes: %d",
-             errno);
-    
-    return data;
-}
-
 
 @end

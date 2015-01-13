@@ -21,7 +21,7 @@
 #import "ADBrokerContext.h"
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationResult+Internal.h"
-#import "ADConstants.h"
+#import "ADBrokerConstants.h"
 #import "NSDictionary+ADExtensions.h"
 #import "ADBrokerKeychainTokenCacheStore.h"
 #import "ADBrokerHelpers.h"
@@ -84,7 +84,11 @@ return; \
                         sourceApplication: (NSString*) sourceApplication
                           completionBlock: (ADBrokerCallback) completionBlock
 {
-    THROW_ON_NIL_ARGUMENT(completionBlock);
+    if([NSString adSame:sourceApplication toString:LOCAL_APPLICATION])
+    {
+        THROW_ON_NIL_ARGUMENT(completionBlock);
+    }
+    
     HANDLE_ARGUMENT(requestPayload);
     HANDLE_ARGUMENT(sourceApplication);
     
@@ -116,53 +120,77 @@ return; \
         ctx.correlationId = [[NSUUID alloc] initWithUUIDString:[queryParamsMap valueForKey:CORRELATION_ID]];
         if(ctx)
         {
+            NSString* extraQp = nil;
+            if([queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS])
+            {
+                extraQp = [queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS];
+            }
             
             [ctx acquireTokenWithResource:[queryParamsMap valueForKey:RESOURCE]
                                  clientId:[queryParamsMap valueForKey:CLIENT_ID]
                               redirectUri:redirectUri
                                    userId:[queryParamsMap valueForKey:USER_ID]
-                     extraQueryParameters:[queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS]
+                     extraQueryParameters:extraQp
                           completionBlock:^(ADAuthenticationResult *result)
              {
-                 NSString* response = nil;
-                 if(result.status == AD_SUCCEEDED){
-                     
-                     NSString* rawIdToken = @"";
-                     if(result.tokenCacheStoreItem.userInformation){
-                         rawIdToken = result.tokenCacheStoreItem.userInformation.rawIdToken;
+                 
+                 if([NSString adSame:sourceApplication toString:LOCAL_APPLICATION])
+                 {
+                     completionBlock(result);
+                 }
+                 else
+                 {
+                     NSString* response = nil;
+                     if(result.status == AD_SUCCEEDED){
+                         NSString* rawIdToken = @"";
+                         if(result.tokenCacheStoreItem.userInformation){
+                             rawIdToken = result.tokenCacheStoreItem.userInformation.rawIdToken;
+                         }
+                         
+                         response = [NSString stringWithFormat:@"authority=%@&client_id=%@&resource=%@&correlation_id=%@&access_token=%@&id_token=%@", [queryParamsMap valueForKey:AUTHORITY], [queryParamsMap valueForKey:CLIENT_ID], [queryParamsMap valueForKey:RESOURCE], [queryParamsMap valueForKey:CORRELATION_ID], result.accessToken, rawIdToken];
+                         
+                         NSString* brokerKey = [queryParamsMap valueForKey:BROKER_KEY];
+                         NSData *decodedKey = [NSString Base64DecodeData:brokerKey];
+                         NSString *decodedKeyString = [[NSString alloc] initWithData:decodedKey encoding:0];
+                         
+                         NSData *plainData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                         NSData* responseData = [ADBrokerHelpers encryptData:plainData key:decodedKeyString];
+                         
+                         response = [NSString stringWithFormat:@"response=%@&hash=%@", [[NSString Base64EncodeData: responseData] adUrlFormEncode], [ADBrokerHelpers computeHash:responseData]];
+                     } else{
+                         response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@", [result.error.protocolCode adUrlFormEncode], [result.error.errorDetails adUrlFormEncode], [queryParamsMap valueForKey:CORRELATION_ID]];
                      }
                      
-                     response = [NSString stringWithFormat:@"access_token=%@&id_token=%@", result.accessToken, rawIdToken];
-                     NSData* responseData = [ADBrokerHelpers encryptData:response key:[NSString Base64DecodeData:[queryParamsMap valueForKey:BROKER_KEY]]];
-                     response = [NSString stringWithFormat:@"response=%@&hash=%@", response, [ADBrokerHelpers computeHash:responseData]];
-                 } else{
-                     response = [ADBrokerContext getErrorResponse: result.error];
+                     [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:REDIRECT_URI] response:response];
                  }
-                 
-                 [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:REDIRECT_URI] response:response];
              }];
+            
             return;
         }
     }
     
     if(error){
-        NSString* response = [ADBrokerContext getErrorResponse: error];
-        [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:REDIRECT_URI] response:response];
+        if([NSString adSame:sourceApplication toString:LOCAL_APPLICATION])
+        {
+            ADAuthenticationResult *result = [ADAuthenticationResult resultFromError:error];
+            completionBlock(result);
+        }
+        else
+        {
+            NSString* response = [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@", [error.protocolCode adUrlFormEncode], [error.errorDetails adUrlFormEncode], [queryParamsMap valueForKey:CORRELATION_ID]];
+            [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:REDIRECT_URI] response:response];
+        }
+        
         return;
     }
 }
 
 +(void)openAppInBackground:(NSString *)application
-                       response:(NSString *)response
+                  response:(NSString *)response
 {        NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@/broker?%@", application, response]];
     dispatch_async(dispatch_get_main_queue(), ^{
         [[UIApplication sharedApplication] openURL:appUrl];
     });
-}
-
-+ (NSString*) getErrorResponse:(ADAuthenticationError*) error
-{
-    return [NSString stringWithFormat:@"code=%@&error_details=%@", error.protocolCode, error.errorDetails];
 }
 
 @end
