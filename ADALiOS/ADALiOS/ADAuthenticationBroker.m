@@ -229,6 +229,7 @@ correlationId:(NSUUID *)correlationId
 
     if (webView)
     {
+        AD_LOG_INFO(@"Authorization UI", @"Use the application provided WebView.");
         // Use the application provided WebView
         _authenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL];
         
@@ -253,9 +254,9 @@ correlationId:(NSUUID *)correlationId
             // Must have a parent view controller to start the authentication view
             parent = [UIApplication adCurrentViewController];
         }
-        if ( parent )
+        
+        if (parent)
         {
-            
             _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
             if (_ntlmSession)
             {

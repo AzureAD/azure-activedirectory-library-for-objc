@@ -89,6 +89,9 @@ NSTimer *timer;
 
 - (void) handlePKeyAuthChallenge:(NSString *)challengeUrl
 {
+    
+    AD_LOG_VERBOSE(@"Handling PKeyAuth Challenge", nil);
+
     NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
@@ -226,7 +229,8 @@ NSTimer *timer;
 }
 
 - (void) failWithTimeout{
- 
+    
+    AD_LOG_ERROR(@"Request load timeout", NSURLErrorTimedOut, nil);
     [self webView:_webView didFailLoadWithError:[NSError errorWithDomain:NSURLErrorDomain
                                                                     code:NSURLErrorTimedOut
                                                                 userInfo:nil]];

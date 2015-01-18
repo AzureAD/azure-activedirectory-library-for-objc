@@ -123,6 +123,9 @@ NSURLConnection *_conn = nil;
             }];
             succeeded = YES;
         }//@synchronized
+    } else{
+        
+        AD_LOG_VERBOSE_F(AD_WPJ_LOG, @"Ignoring to handle challenge: %@", challenge.protectionSpace.authenticationMethod);
     }//Challenge type
     
     return succeeded;
