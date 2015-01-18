@@ -213,7 +213,11 @@ NSTimer *timer;
     if (_delegate)
     {
         AD_LOG_ERROR(@"authorization error", error.code, [error localizedDescription]);
-        dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidFailWithError:error]; } );
+        if([ADNTLMHandler isChallengeCancelled]){
+            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCancel]; } );
+        } else{
+            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidFailWithError:error]; } );
+        }
     }
     else
     {

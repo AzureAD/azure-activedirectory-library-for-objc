@@ -81,10 +81,6 @@ NSString* const sLog = @"HTTP Protocol";
     [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
 }
 
-#pragma mark - Private Methods
-
-
-
 #pragma mark - NSURLConnectionDelegate Methods
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
