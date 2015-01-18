@@ -128,11 +128,7 @@ NSURLConnection *_conn = nil;
                 _challengeUrl = nil;
             } else if (button == NSAlertAlternateReturn) {
                 _challengeCancelled = YES;
-                NSURL* url = [[NSURL alloc] initWithString:@"https://microsoft.com"];
-                _challengeUrl = [NSMutableURLRequest requestWithURL:url];
-                
-                [NSURLProtocol setProperty:@"YES" forKey:@"ADURLProtocol" inRequest:_challengeUrl];
-                _conn = [[NSURLConnection alloc]initWithRequest:_challengeUrl delegate:protocol startImmediately:YES];
+                [protocol stopLoading];
             }
             succeeded = YES;
         }//@synchronized
