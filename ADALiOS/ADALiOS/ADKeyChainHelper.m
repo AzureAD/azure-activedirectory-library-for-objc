@@ -248,7 +248,7 @@ extern NSString* const sKeyChainlog;
     [updatedAttributes addEntriesFromDictionary:
      @{
        (__bridge id)kSecAttrIsInvisible:(__bridge id)kCFBooleanTrue, // do not show in the keychain UI
-       (__bridge id)kSecAttrAccessible:(__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly, // do not roam or migrate to other devices
+       (__bridge id)kSecAttrAccessible:(__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly, // do not roam or migrate to other devices
        _valueDataKey:value,//Item data
        }];
     
