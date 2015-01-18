@@ -1319,7 +1319,7 @@ const int sAsyncContextTimeout = 10;
 -(void) testRefreshingTokenWithServerErrors
 {
     //Authority cannot be validated or reached:
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:@"https://example.com/common" error:nil];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:@"https://aadadfstodolistservice.azurewebsites.net/api/todolist" error:nil];
     XCTAssertNotNil(mContext);
 
     [self asyncAcquireTokenByRefreshToken:@"doesn't matter"];
@@ -1329,7 +1329,7 @@ const int sAsyncContextTimeout = 10;
     mContext.validateAuthority = NO;
     [self asyncAcquireTokenByRefreshToken:@"doesn't matter"];
     ADAssertLongEquals(AD_FAILED, mResult.status);
-    ADAssertStringEquals(mResult.error.domain, NSURLErrorDomain);
+    ADAssertStringEquals(mResult.error.domain, ADAuthenticationErrorDomain);
     
     //Valid authority, but invalid refresh token:
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority error:nil];
