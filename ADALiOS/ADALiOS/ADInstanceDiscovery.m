@@ -64,6 +64,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
         [mValidatedAuthorities addObject:sTrustedAuthority];
         [mValidatedAuthorities addObject:@"https://login.chinacloudapi.cn"];
         [mValidatedAuthorities addObject:@"https://login.cloudgovapi.us"];
+        [mValidatedAuthorities addObject:@"https://login.microsoftonline.com"];
     }
     
     return self;
