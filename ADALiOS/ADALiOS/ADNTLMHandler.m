@@ -99,30 +99,14 @@ NSURLConnection *_conn = nil;
             }
             // This is the client TLS challenge: use the identity to authenticate:
             AD_LOG_VERBOSE_F(AD_WPJ_LOG, @"Attempting to handle NTLM challenge for host: %@", challenge.protectionSpace.host);
-            if(!_username)
-            {
-                [UIAlertView presentCredentialAlert:^(NSUInteger index) {
-                    if (index == 1)
-                    {
-                        UITextField *username = [[UIAlertView getAlertInstance] textFieldAtIndex:0];
-                        _username = username.text;
-                        UITextField *password = [[UIAlertView getAlertInstance] textFieldAtIndex:1];
-                        _password = password.text;
-                        _challengeUrl = [request copy];
-                    } else {
-                        _challengeCancelled = YES;
-                        NSURL* url = [[NSURL alloc] initWithString:@"https://microsoft.com"];
-                        _challengeUrl = [NSMutableURLRequest requestWithURL:url];
-                    }
-                    
-                    [NSURLProtocol setProperty:@"YES" forKey:@"ADURLProtocol" inRequest:_challengeUrl];
-                    _conn = [[NSURLConnection alloc]initWithRequest:_challengeUrl delegate:protocol startImmediately:YES];
-                }];
-            }
-            else
-            {
-                if([challenge previousFailureCount] < 1)
+            
+            [UIAlertView presentCredentialAlert:^(NSUInteger index) {
+                if (index == 1)
                 {
+                    UITextField *username = [[UIAlertView getAlertInstance] textFieldAtIndex:0];
+                    _username = username.text;
+                    UITextField *password = [[UIAlertView getAlertInstance] textFieldAtIndex:1];
+                    _password = password.text;
                     NSURLCredential *credential;
                     credential = [NSURLCredential
                                   credentialWithUser:_username
@@ -133,13 +117,12 @@ NSURLConnection *_conn = nil;
                     AD_LOG_VERBOSE(AD_WPJ_LOG, @"NTLM challenge responded.");
                     _username = nil;
                     _password = nil;
-                    _challengeUrl = nil;
+                } else {
+                    _challengeCancelled = YES;
+                    [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
+                    [protocol stopLoading];
                 }
-                else
-                {
-                    return NO;
-                }
-            }
+            }];
             succeeded = YES;
         }//@synchronized
     }//Challenge type

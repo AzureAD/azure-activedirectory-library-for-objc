@@ -41,16 +41,16 @@
     
     if ( ( self = [super init] ) != nil )
     {
-    
+        
         _parentDelegate = [webView delegate];
-    
+        
         _startURL  = [startURL copy];
         _endURL    = [endURL absoluteString];
         
         _complete  = NO;
         _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
         [ADNTLMHandler setCancellationUrl:[_startURL absoluteString]];
-
+        
         _webView          = webView;
         _webView.delegate = self;
     }
@@ -118,7 +118,7 @@
         if (![_parentDelegate webView:webView shouldStartLoadWithRequest:request navigationType:navigationType])
             return NO;
     }
-
+    
     NSString *requestURL = [request.URL absoluteString];
     if([ADNTLMHandler isChallengeCancelled]){
         _complete = YES;
@@ -173,9 +173,9 @@
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
-	if ([_parentDelegate respondsToSelector:@selector(webViewDidStartLoad:)])
+    if ([_parentDelegate respondsToSelector:@selector(webViewDidStartLoad:)])
         [_parentDelegate webViewDidStartLoad:webView];
-
+    
     if (_timer != nil)
         [_timer invalidate];
     
@@ -185,9 +185,9 @@
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
-	if ([_parentDelegate respondsToSelector:@selector(webViewDidFinishLoad:)])
+    if ([_parentDelegate respondsToSelector:@selector(webViewDidFinishLoad:)])
         [_parentDelegate webViewDidFinishLoad:webView];
-
+    
     [_timer invalidate];
     _timer = nil;
 }
@@ -200,7 +200,11 @@
     if (_delegate)
     {
         //On iOS, enque on the main thread:
-        dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidFailWithError:error]; } );
+        if([ADNTLMHandler isChallengeCancelled]){
+            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCancel]; } );
+        } else{
+            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidFailWithError:error]; } );
+        }
     }
     else
     {
@@ -211,7 +215,7 @@
 - (void)webView:(WebViewType *)webView didFailLoadWithError:(NSError *)error
 {
 #pragma unused(webView)
-	if ([_parentDelegate respondsToSelector:@selector(webView:didFailLoadWithError:)])
+    if ([_parentDelegate respondsToSelector:@selector(webView:didFailLoadWithError:)])
         [_parentDelegate webView:webView didFailLoadWithError:error];
     
     if(_timer && [_timer isValid]){
@@ -229,7 +233,7 @@
     if([error.domain isEqual:@"WebKitErrorDomain"]){
         return;
     }
-
+    
     // Ignore failures that are triggered after we have found the end URL
     if ( _complete == YES )
     {
