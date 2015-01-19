@@ -27,6 +27,7 @@
 #import "ADWorkPlaceJoinConstants.h"
 #import "NSDictionary+ADExtensions.h"
 #import "ADAuthenticationSettings.h"
+#import "ADNTLMHandler.h"
 
 @implementation ADAuthenticationWebViewController
 {
@@ -57,6 +58,7 @@ NSTimer *timer;
         _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
         _webView          = webView;
         _webView.delegate = self;
+        [ADNTLMHandler setCancellationUrl:[_startURL absoluteString]];
     }
     
     return self;
@@ -87,6 +89,9 @@ NSTimer *timer;
 
 - (void) handlePKeyAuthChallenge:(NSString *)challengeUrl
 {
+    
+    AD_LOG_VERBOSE(@"Handling PKeyAuth Challenge", nil);
+
     NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
@@ -112,10 +117,13 @@ NSTimer *timer;
 #pragma unused(webView)
 #pragma unused(navigationType)
     
-    //DebugLog( @"URL: %@", request.URL.absoluteString );
+    if([ADNTLMHandler isChallengeCancelled]){
+        _complete = YES;
+        dispatch_async( dispatch_get_main_queue(), ^{[_delegate webAuthenticationDidCancel];});
+        return NO;
+    }
+    
     NSString *requestURL = [request.URL absoluteString];
-    
-    
     if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"]) {
         requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
         [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];
@@ -140,6 +148,7 @@ NSTimer *timer;
         // Schedule the finish event; we do this so that the web view gets a chance to stop
         // This event is explicitly scheduled on the main thread as it is UI related.
         NSAssert( nil != _delegate, @"Delegate object was lost" );
+        
         dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCompleteWithURL:request.URL]; } );
         
         // Tell the web view that this URL should not be loaded.
@@ -162,7 +171,6 @@ NSTimer *timer;
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-    
     if (timer != nil){
         [timer invalidate];
     }
@@ -208,7 +216,11 @@ NSTimer *timer;
     if (_delegate)
     {
         AD_LOG_ERROR(@"authorization error", error.code, [error localizedDescription]);
-        dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidFailWithError:error]; } );
+        if([ADNTLMHandler isChallengeCancelled]){
+            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCancel]; } );
+        } else{
+            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidFailWithError:error]; } );
+        }
     }
     else
     {
@@ -217,7 +229,8 @@ NSTimer *timer;
 }
 
 - (void) failWithTimeout{
- 
+    
+    AD_LOG_ERROR(@"Request load timeout", NSURLErrorTimedOut, nil);
     [self webView:_webView didFailLoadWithError:[NSError errorWithDomain:NSURLErrorDomain
                                                                     code:NSURLErrorTimedOut
                                                                 userInfo:nil]];

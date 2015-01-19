@@ -5,15 +5,15 @@
 	<key>AAD Instance</key>
 	<dict>
 		<key>Authority</key>
-		<string>https://login.windows.net/adalobjc.onmicrosoft.com</string>
+		<string>https://login.windows-ppe.net/common</string>
 		<key>ClientId</key>
-		<string>dd9caee2-38bd-484e-998c-7529bdef220f</string>
+		<string>d3590ed6-52b3-4102-aeff-aad2292ab01c</string>
 		<key>Resource</key>
-		<string>https://graph.windows.net</string>
+		<string>https://officeapps.live.com</string>
 		<key>RedirectUri</key>
-		<string>MyTestiOSApp://com.MSOpenTech.MyTestiOSApp</string>
+		<string>urn:ietf:wg:oauth:2.0:oob</string>
 		<key>UserId</key>
-		<string>e2e@adalobjc.onmicrosoft.com</string>
+		<string></string>
 		<key>Password</key>
 		<string>~test123</string>
 		<key>RequestTimeout</key>
