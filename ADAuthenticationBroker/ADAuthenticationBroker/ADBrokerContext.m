@@ -156,7 +156,7 @@ return; \
                          NSData *plainData = [response dataUsingEncoding:NSUTF8StringEncoding];
                          NSData* responseData = [ADBrokerHelpers encryptData:plainData key:decodedKeyString];
                          
-                         response = [NSString stringWithFormat:@"response=%@&hash=%@", [[NSString Base64EncodeData: responseData] adUrlFormEncode], [ADBrokerHelpers computeHash:responseData]];
+                         response = [NSString stringWithFormat:@"response=%@&hash=%@", [[NSString Base64EncodeData: responseData] adUrlFormEncode], [ADBrokerHelpers computeHash:plainData]];
                      } else{
                          response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@", [result.error.protocolCode adUrlFormEncode], [result.error.errorDetails adUrlFormEncode], [queryParamsMap valueForKey:CORRELATION_ID]];
                      }
