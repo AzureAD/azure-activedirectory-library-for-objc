@@ -98,7 +98,7 @@ NSURLConnection *_conn = nil;
             if(_conn){
                 _conn = nil;
             }
-            // This is the client TLS challenge: use the identity to authenticate:
+            // This is the NTLM challenge: use the identity to authenticate:
             AD_LOG_VERBOSE_F(AD_WPJ_LOG, @"Attempting to handle NTLM challenge for host: %@", challenge.protectionSpace.host);
             [UIAlertView presentCredentialAlert:^(NSUInteger index) {
                 if (index == 1)

@@ -260,7 +260,7 @@ correlationId:(NSUUID *)correlationId
             _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
             if (_ntlmSession)
             {
-                AD_LOG_INFO(@"Authorization UI", @"The device is workplace joined. Client TLS Session started.");
+                AD_LOG_INFO(@"Authorization UI", @"NTLM support enabled.");
             }
             
             parentController = parent;

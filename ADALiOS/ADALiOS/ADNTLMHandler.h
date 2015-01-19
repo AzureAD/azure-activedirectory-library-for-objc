@@ -22,15 +22,15 @@
 
 @interface ADNTLMHandler : NSObject
 
-/* Starts intercepting HTTPS connections to enable client TLS authentication over webview. 
- If this method succeeds, it should be paired with endWebViewTLSSession. The method attempts
+/* Starts intercepting HTTPS connections to enable NTLM authentication over webview. 
+ If this method succeeds, it should be paired with endWebViewNTLMHandler. The method attempts
  to retrieve the workplace join identity and certificate. The interception should be as 
  short as possible, as this is a very specific fix to overcome the webview limitations. */
 +(BOOL) startWebViewNTLMHandlerWithError: (ADAuthenticationError* __autoreleasing*) error;
 /* Stops the HTTPS interception. */
 +(void) endWebViewNTLMHandler;
 
-/* Handles a client authentication TLS challenge by providing the client certificate. Returns YES,
+/* Handles a client authentication NTLM challenge by collecting user credentials. Returns YES,
  if the challenge has been handled. */
 +(BOOL) handleNTLMChallenge:(NSURLAuthenticationChallenge *)challenge
                  urlRequest:(NSURLRequest*) request

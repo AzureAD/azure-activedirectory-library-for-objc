@@ -19,8 +19,7 @@
 #pragma once
 
 //Intercepts HTTPS protocol for the application in order to allow
-//TLS with client-authentication. Such authentication is the base
-//of workplace joined devices. The class is not thread-safe.
+//NTLM with client-authentication. The class is not thread-safe.
 @interface ADURLProtocol : NSURLProtocol <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 
 @end
