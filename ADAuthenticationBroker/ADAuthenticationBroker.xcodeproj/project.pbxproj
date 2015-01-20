@@ -27,7 +27,6 @@
 		97603B9D1A1E952100A9C9C3 /* ADBrokerAuthenticationResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 97603B9C1A1E952100A9C9C3 /* ADBrokerAuthenticationResult.m */; };
 		9777DFFD1A37553800D8D8A8 /* ADBrokerConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 9777DFFC1A37553800D8D8A8 /* ADBrokerConstants.m */; };
 		977A1A2C1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 977A1A2B1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m */; };
-		977A1A421A6F159300E6EA85 /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 977A1A3D1A6F155800E6EA85 /* libADALiOS.a */; };
 		977A1A471A6F15C700E6EA85 /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 977A1A3D1A6F155800E6EA85 /* libADALiOS.a */; };
 		977A1A481A6F166900E6EA85 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D685E61A13F43C00EE816C /* Foundation.framework */; };
 		977A1A491A6F168200E6EA85 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D685E71A13F43C00EE816C /* UIKit.framework */; };
@@ -87,13 +86,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 8BFEF05C182DA57800122C0C;
 			remoteInfo = ADALiOSBundle;
-		};
-		977A1A431A6F15B000E6EA85 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 977A1A351A6F155800E6EA85 /* ADALiOS.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 8B0965A917F25770002BDFB8;
-			remoteInfo = ADALiOS;
 		};
 		97D685CB1A13EA5000EE816C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -170,7 +162,6 @@
 			files = (
 				977A1A491A6F168200E6EA85 /* UIKit.framework in Frameworks */,
 				977A1A481A6F166900E6EA85 /* Foundation.framework in Frameworks */,
-				977A1A421A6F159300E6EA85 /* libADALiOS.a in Frameworks */,
 				97D685CA1A13EA5000EE816C /* libADAuthenticationBroker.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -326,7 +317,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				977A1A441A6F15B000E6EA85 /* PBXTargetDependency */,
 				97D685CC1A13EA5000EE816C /* PBXTargetDependency */,
 			);
 			name = ADAuthenticationBrokerTests;
@@ -478,11 +468,6 @@
 			isa = PBXTargetDependency;
 			target = 97D685BD1A13EA5000EE816C /* ADAuthenticationBroker */;
 			targetProxy = 975E42921A1C84780033B500 /* PBXContainerItemProxy */;
-		};
-		977A1A441A6F15B000E6EA85 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = ADALiOS;
-			targetProxy = 977A1A431A6F15B000E6EA85 /* PBXContainerItemProxy */;
 		};
 		97D685CC1A13EA5000EE816C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -650,6 +635,7 @@
 					"$(inherited)",
 					"-framework",
 					XCTest,
+					"-ObjC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -669,6 +655,7 @@
 					"$(inherited)",
 					"-framework",
 					XCTest,
+					"-ObjC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

@@ -4,19 +4,17 @@
 #import <ADALiOS/ADTokenCacheStoring.h>
 #import <ADALiOS/ADTokenCacheStoreItem.h>
 #import <ADALiOS/ADUserInformation.h>
+#import <ADALiOS/ADTokenCacheStoreKey.h>
 #import "NSString+ADBrokerHelperMethods.h"
 
 const int sMaxLoggerThreadsDuration = 5;//In seconds
 const int sMaxLoggerTestThreads = 100;
 volatile int32_t sLoggerTestThreadsCompleted = 0;
 dispatch_semaphore_t sLoggerTestCompletedSignal;
-NSString* const sIdTokenClaims = @"{\"aud\":\"c3c7f5e5-7153-44d4-90e6-329686d48d76\",\"iss\":\"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/\",\"iat\":1387224169,\"nbf\":1387224170,\"exp\":1387227769,\"ver\":\"1.0\",\"tid\":\"6fd1f5cd-a94c-4335-889b-6c598e6d8048\",\"oid\":\"53c6acf2-2742-4538-918d-e78257ec8516\",\"upn\":\"boris@MSOpenTechBV.onmicrosoft.com\",\"unique_name\":\"boris@MSOpenTechBV.onmicrosoft.com\",\"sub\":\"0DxnAlLi12IvGL_dG3dDMk3zp6AQHnjgogyim5AWpSc\",\"family_name\":\"Vidolovv\",\"given_name\":\"Boriss\",\"altsecid\":\"Some Guest id\",\"idp\":\"Fake IDP\",\"email\":\"fake e-mail\"}";
+NSString* const sIdTokenClaims = @"{\"aud\":\"c3c7f5e5-7153-44d4-90e6-329686d48d76\",\"iss\":\"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/\",\"iat\":1387224169,\"nbf\":1387224170,\"exp\":1387227769,\"ver\":\"1.0\",\"tid\":\"6fd1f5cd-a94c-4335-889b-6c598e6d8048\",\"oid\":\"53c6acf2-2742-4538-918d-e78257ec8516\",\"upn\":\"someone@example.com\",\"unique_name\":\"someone@example.com\",\"sub\":\"0DxnAlLi12IvGL_dG3dDMk3zp6AQHnjgogyim5AWpSc\",\"family_name\":\"One\",\"given_name\":\"Some\",\"altsecid\":\"Some Guest id\",\"idp\":\"Fake IDP\",\"email\":\"fake e-mail\"}";
 NSString* const sIDTokenHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
 
 @interface ADBrokerKeychainStoreTests : XCTestCase
-{
-    ADBrokerKeychainTokenCacheStore *store;
-}
 @end
 
 @implementation ADBrokerKeychainStoreTests
@@ -35,12 +33,24 @@ NSString* const sIDTokenHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
 {
     ADAuthenticationError* error;
     ADBrokerKeychainTokenCacheStore *store = [[ADBrokerKeychainTokenCacheStore  alloc] initWithAppKey:@"key1"];
+    [store removeAllWithError:&error];
     XCTAssertTrue([self cacheSize:store] == 0, "Start empty.");
     
     ADTokenCacheStoreItem* item = [self adCreateCacheItem];
     [store addOrUpdateItem:item error:&error];
     XCTAssertNil(error);
     
+    ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
+    ADTokenCacheStoreItem* outItem = [store getItemWithKey:key userId:nil error:&error];
+    XCTAssertNotNil(outItem);
+    XCTAssertNil(error);
+    outItem = nil;
+    
+    store = [[ADBrokerKeychainTokenCacheStore  alloc] initWithAppKey:@"key2"];
+    key = [item extractKeyWithError:&error];
+    outItem = [store getItemWithKey:key userId:nil error:&error];
+    XCTAssertNil(outItem);
+    XCTAssertNil(error);
 }
 
 
@@ -55,10 +65,15 @@ NSString* const sIDTokenHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
 
 //Creates an new item with all of the properties having correct
 //values
--(ADTokenCacheStoreItem*) adCreateCacheItem
+
+-(ADTokenCacheStoreItem*) adCreateCacheItem{
+    return [self adCreateCacheItem:@"resource"];
+}
+
+-(ADTokenCacheStoreItem*) adCreateCacheItem:(NSString*) resource
 {
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
-    item.resource = @"resource";
+    item.resource = resource;
     item.authority = @"https://login.windows.net/sometenant.com";
     item.clientId = @"client id";
     item.accessToken = @"access token";
