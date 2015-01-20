@@ -49,9 +49,6 @@ extern NSString* const keyChainlog;
     mValueDataKey = (__bridge id)kSecValueData;
     _classValue = classValue;
     _genericValue = generic;
-//    if(sharedGroup){
-//        _sharedGroup = [NSString stringWithFormat:@"%@.%@", [ADBrokerHelpers getApplicationIdentifierPrefix], sharedGroup];
-//    }
     return self;
 }
 

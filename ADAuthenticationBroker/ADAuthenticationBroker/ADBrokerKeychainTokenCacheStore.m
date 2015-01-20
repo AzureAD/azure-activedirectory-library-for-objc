@@ -25,6 +25,7 @@
 #import "NSString+ADBrokerHelperMethods.h"
 #import "ADBrokerKeyChainHelper.h"
 #import "ADAuthenticationBroker.h"
+#import "NSString+ADBrokerHelperMethods.h"
 
 NSString* const nilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";//A special attribute to write, instead of nil/empty one.
 NSString* const delimiter = @"|";
@@ -46,15 +47,16 @@ const long keychainVersion = 1;//will need to increase when we break the forward
     NSData* mLibraryValue;//Data representation of the library string.
     
     ADBrokerKeyChainHelper* mHelper;
+    NSString* appKeyHash;
 }
 
 -(id) init
 {
     
-    return [self initWithSourceApp:nil];
+    return [self initWithAppKey:nil];
 }
 
--(id) initWithSourceApp: (NSString *)sourceApplication
+-(id) initWithAppKey: (NSString *)appKey
 {
     if (self = [super init])
     {    //Full key:
@@ -70,7 +72,7 @@ const long keychainVersion = 1;//will need to increase when we break the forward
         mHelper = [[ADBrokerKeyChainHelper alloc] initWithClass:mClassValue
                                                         generic:mLibraryValue
                                                     sharedGroup:nil];
-        _sourceApplication = sourceApplication;
+        appKeyHash = [appKey adComputeSHA256];
     }
     return self;
 }
@@ -99,7 +101,7 @@ const long keychainVersion = 1;//will need to increase when we break the forward
             [itemKey.authority adBase64UrlEncode], delimiter,
             [self.class getAttributeName:itemKey.resource], delimiter,
             [itemKey.clientId adBase64UrlEncode], delimiter,
-            [_sourceApplication adBase64UrlEncode]
+            [appKeyHash adBase64UrlEncode]
             ];
 }
 

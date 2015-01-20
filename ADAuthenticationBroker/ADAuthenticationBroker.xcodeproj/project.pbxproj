@@ -27,6 +27,7 @@
 		97603B9B1A1E94FF00A9C9C3 /* ADBrokerAuthenticationResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 97603B9A1A1E94FF00A9C9C3 /* ADBrokerAuthenticationResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		97603B9D1A1E952100A9C9C3 /* ADBrokerAuthenticationResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 97603B9C1A1E952100A9C9C3 /* ADBrokerAuthenticationResult.m */; };
 		9777DFFD1A37553800D8D8A8 /* ADBrokerConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 9777DFFC1A37553800D8D8A8 /* ADBrokerConstants.m */; };
+		977A1A2C1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 977A1A2B1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m */; };
 		97A522541A1A9E07001D77CE /* ADBrokerSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A522531A1A9E07001D77CE /* ADBrokerSettings.m */; };
 		97D10BAA1A18241E004FCD51 /* ADAuthenticationResult+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D10BA91A18241E004FCD51 /* ADAuthenticationResult+Internal.m */; };
 		97D10BAF1A182EAA004FCD51 /* NSDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D10BAD1A182EAA004FCD51 /* NSDictionary+ADExtensions.m */; };
@@ -94,6 +95,7 @@
 		97603B9A1A1E94FF00A9C9C3 /* ADBrokerAuthenticationResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerAuthenticationResult.h; sourceTree = "<group>"; };
 		97603B9C1A1E952100A9C9C3 /* ADBrokerAuthenticationResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerAuthenticationResult.m; sourceTree = "<group>"; };
 		9777DFFC1A37553800D8D8A8 /* ADBrokerConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerConstants.m; sourceTree = "<group>"; };
+		977A1A2B1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeychainStoreTests.m; sourceTree = "<group>"; };
 		97A522521A1A9DF3001D77CE /* ADBrokerSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerSettings.h; sourceTree = "<group>"; };
 		97A522531A1A9E07001D77CE /* ADBrokerSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerSettings.m; sourceTree = "<group>"; };
 		97D10BA81A18241E004FCD51 /* ADAuthenticationResult+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationResult+Internal.h"; sourceTree = "<group>"; };
@@ -203,6 +205,7 @@
 			isa = PBXGroup;
 			children = (
 				97D685CE1A13EA5000EE816C /* Supporting Files */,
+				977A1A2B1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m */,
 			);
 			path = ADAuthenticationBrokerTests;
 			sourceTree = "<group>";
@@ -389,6 +392,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				977A1A2C1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

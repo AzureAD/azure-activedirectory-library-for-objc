@@ -25,11 +25,6 @@
  with other applications from the same vendor, the app will need to specify the
  shared group here and add the necessary entitlements to the application.
  See Apple's keychain services documentation for details. */
--(id) initWithSourceApp: (NSString*) sourceApplication;
-
-/* The shared keychain group, where the ADAL library will keep the tokens.
- May be nil. The cache items from the previous keychain group are not transferred
- automatically. */
-@property (getter = getSourceApplication, setter = setSourceApplication:) NSString* sourceApplication;
+-(id) initWithAppKey: (NSString*) appKey;
 
 @end

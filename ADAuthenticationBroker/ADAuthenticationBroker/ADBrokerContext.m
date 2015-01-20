@@ -115,7 +115,7 @@ return; \
         [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
         ADAuthenticationContext* ctx = [[ADAuthenticationContext alloc] initWithAuthority:[queryParamsMap valueForKey:AUTHORITY]
                                                                         validateAuthority:NO
-                                                                          tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc]initWithSourceApp:sourceApplication]
+                                                                          tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc]initWithAppKey:[queryParamsMap valueForKey:BROKER_KEY]]
                                                                                     error:&error];
         ctx.correlationId = [[NSUUID alloc] initWithUUIDString:[queryParamsMap valueForKey:CORRELATION_ID]];
         if(ctx)

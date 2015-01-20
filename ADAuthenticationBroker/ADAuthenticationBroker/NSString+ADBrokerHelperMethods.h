@@ -17,6 +17,9 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
+#import <CommonCrypto/CommonCryptor.h>
+#import <Security/Security.h>
+#import <CommonCrypto/CommonDigest.h>
 
 @interface NSString (ADBrokerHelperMethods)
 
@@ -84,5 +87,8 @@
 
 /*! Converts NSData to base64 String */
 + (NSString *) Base64EncodeData:(NSData *)data;
+
+
+-(NSString*)adComputeSHA256;
 
 @end
