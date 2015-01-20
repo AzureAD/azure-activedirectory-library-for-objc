@@ -21,6 +21,8 @@
 #import <ADALiOS/ADUserInformation.h>
 #import <ADALiOS/ADTokenCacheStoreItem.h>
 #import <ADALiOS/ADAuthenticationSettings.h>
+#import <ADALiOS/ADTokenCacheStoring.h>
+
 
 @interface ViewController ()
 
@@ -54,7 +56,7 @@
 {
     
     ViewController* __weak weakSelf = self;
-    ADBrokerKeychainTokenCacheStore* cache = [ADBrokerKeychainTokenCacheStore new];
+    id<ADTokenCacheStoring> cache = [ADBrokerKeychainTokenCacheStore new];
     ADAuthenticationError *error = nil;
     long count = (unsigned long)[[cache allItemsWithError:&error] count];
     if (error)
