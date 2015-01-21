@@ -230,21 +230,36 @@ return; \
         HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
      
         NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
-        NSString* encryptedResponse = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
+        NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
+
+        //decrypt response first
+        ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+        ADAuthenticationError* error;
+        NSData *encryptedResponse = [NSString Base64DecodeData:encryptedBase64Response ];
+        NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse error:&error];
+        NSString* decryptedString = nil;
         
-        if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:[NSString Base64DecodeData:[queryParamsMap valueForKey:BROKER_RESPONSE_KEY]] isSha2:YES]]){
-            ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
-            ADAuthenticationError* error;
-            
-            NSData *plainData = [NSString Base64DecodeData:encryptedResponse ];
-            NSData* decrypted = [brokerHelper decryptBrokerResponse:plainData error:&error];
-           
-            if(!error)
-            {
-                NSString* decryptedString =[[NSString alloc] initWithData:decrypted encoding:0];
+        if(!error)
+        {
+            decryptedString =[[NSString alloc] initWithData:decrypted encoding:0];
+            //now compute the hash on the unencrypted data
+            if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:[NSString Base64DecodeData:decryptedString] isSha2:YES]]){
+                //create response from the decrypted payload
                 queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
                 result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+                
             }
+            else
+            {
+                result = [ADAuthenticationResult resultFromError:[ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADAuthenticationErrorDomain
+                                                                                                                             code:AD_ERROR_BROKER_RESPONSE_HASH_MISMATCH
+                                                                                                                         userInfo:nil]
+                                                                                            errorDetails:@"Decrypted response does not match the hash"]];
+            }
+        }
+        else
+        {
+            result = [ADAuthenticationResult resultFromError:error];
         }
     }
     completionBlock(result);
