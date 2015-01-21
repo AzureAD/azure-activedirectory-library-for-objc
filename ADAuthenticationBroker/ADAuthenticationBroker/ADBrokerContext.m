@@ -115,7 +115,7 @@ return; \
         [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
         ADAuthenticationContext* ctx = [[ADAuthenticationContext alloc] initWithAuthority:[queryParamsMap valueForKey:AUTHORITY]
                                                                         validateAuthority:NO
-                                                                          tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc]initWithSourceApp:sourceApplication]
+                                                                          tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc]initWithAppKey:[queryParamsMap valueForKey:BROKER_KEY]]
                                                                                     error:&error];
         ctx.correlationId = [[NSUUID alloc] initWithUUIDString:[queryParamsMap valueForKey:CORRELATION_ID]];
         if(ctx)
@@ -156,7 +156,7 @@ return; \
                          NSData *plainData = [response dataUsingEncoding:NSUTF8StringEncoding];
                          NSData* responseData = [ADBrokerHelpers encryptData:plainData key:decodedKeyString];
                          
-                         response = [NSString stringWithFormat:@"response=%@&hash=%@", [[NSString Base64EncodeData: responseData] adUrlFormEncode], [ADBrokerHelpers computeHash:responseData]];
+                         response = [NSString stringWithFormat:@"response=%@&hash=%@", [[NSString Base64EncodeData: responseData] adUrlFormEncode], [ADBrokerHelpers computeHash:plainData]];
                      } else{
                          response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@", [result.error.protocolCode adUrlFormEncode], [result.error.errorDetails adUrlFormEncode], [queryParamsMap valueForKey:CORRELATION_ID]];
                      }
