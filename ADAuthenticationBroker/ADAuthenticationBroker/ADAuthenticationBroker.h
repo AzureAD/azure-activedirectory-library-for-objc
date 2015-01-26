@@ -16,9 +16,9 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#define AD_BROKER_VER_HIGH   1
+#define AD_BROKER_VER_HIGH   0
 #define AD_BROKER_VER_LOW    1
-#define AD_BROKER_VER_PATCH  10
+#define AD_BROKER_VER_PATCH  0
 
 #import <ADALiOS/ADLogger.h>
 #import <ADALiOS/ADErrorCodes.h>

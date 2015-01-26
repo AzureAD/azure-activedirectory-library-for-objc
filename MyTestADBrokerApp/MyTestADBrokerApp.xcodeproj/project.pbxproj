@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		975E42D01A1D28A20033B500 /* libADAuthenticationBroker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 975E42C71A1D20DB0033B500 /* libADAuthenticationBroker.a */; };
 		975E42D71A1D49D10033B500 /* ADALiOS.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 975E42D61A1D49D10033B500 /* ADALiOS.bundle */; };
-		97603B991A1D555A00A9C9C3 /* ADALiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97603B981A1D555A00A9C9C3 /* ADALiOS.framework */; };
 		976CCB261A02DA49006C91F4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB251A02DA49006C91F4 /* main.m */; };
 		976CCB291A02DA49006C91F4 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB281A02DA49006C91F4 /* AppDelegate.m */; };
 		976CCB2C1A02DA49006C91F4 /* MyTestADBrokerApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB2A1A02DA49006C91F4 /* MyTestADBrokerApp.xcdatamodeld */; };
@@ -100,7 +99,6 @@
 				975E42D01A1D28A20033B500 /* libADAuthenticationBroker.a in Frameworks */,
 				976CCB561A02E874006C91F4 /* Foundation.framework in Frameworks */,
 				976CCB541A02E86E006C91F4 /* UIKit.framework in Frameworks */,
-				97603B991A1D555A00A9C9C3 /* ADALiOS.framework in Frameworks */,
 				976CCB521A02E863006C91F4 /* CoreData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

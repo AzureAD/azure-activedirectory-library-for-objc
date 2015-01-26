@@ -56,6 +56,8 @@
 		97E21CE71A1C38CF00EF5520 /* ADBrokerHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 97D685F51A169D3300EE816C /* ADBrokerHelpers.h */; };
 		97E21CE81A1C38CF00EF5520 /* ADBrokerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 97D10BB01A1891D9004FCD51 /* ADBrokerConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		97E21CE91A1C38CF00EF5520 /* ADBrokerSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 97A522521A1A9DF3001D77CE /* ADBrokerSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		97F45F171A75F8B400022523 /* ADBrokerJwtHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 97F45F161A75F8B400022523 /* ADBrokerJwtHelper.m */; };
+		97F45F1D1A75F8CF00022523 /* ADBrokerJwtHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 97F45F1C1A75F8CF00022523 /* ADBrokerJwtHelper.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -143,6 +145,8 @@
 		97D685F01A1670FE00EE816C /* ADBrokerKeyChainHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeyChainHelper.m; sourceTree = "<group>"; };
 		97D685F31A169D1700EE816C /* ADBrokerHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelpers.m; sourceTree = "<group>"; };
 		97D685F51A169D3300EE816C /* ADBrokerHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerHelpers.h; sourceTree = "<group>"; };
+		97F45F161A75F8B400022523 /* ADBrokerJwtHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerJwtHelper.m; sourceTree = "<group>"; };
+		97F45F1C1A75F8CF00022523 /* ADBrokerJwtHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerJwtHelper.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -233,6 +237,8 @@
 				97A522531A1A9E07001D77CE /* ADBrokerSettings.m */,
 				97603B9A1A1E94FF00A9C9C3 /* ADBrokerAuthenticationResult.h */,
 				97603B9C1A1E952100A9C9C3 /* ADBrokerAuthenticationResult.m */,
+				97F45F161A75F8B400022523 /* ADBrokerJwtHelper.m */,
+				97F45F1C1A75F8CF00022523 /* ADBrokerJwtHelper.h */,
 			);
 			path = ADAuthenticationBroker;
 			sourceTree = "<group>";
@@ -274,6 +280,7 @@
 				97E21CE61A1C38CF00EF5520 /* ADBrokerKeychainTokenCacheStore.h in Headers */,
 				97E21CE81A1C38CF00EF5520 /* ADBrokerConstants.h in Headers */,
 				97E21CE91A1C38CF00EF5520 /* ADBrokerSettings.h in Headers */,
+				97F45F1D1A75F8CF00022523 /* ADBrokerJwtHelper.h in Headers */,
 				97E21CE01A1C38CF00EF5520 /* NSDictionary+ADExtensions.h in Headers */,
 				97E21CE11A1C38CF00EF5520 /* ADAuthenticationResult+Internal.h in Headers */,
 				97E21CE21A1C38CF00EF5520 /* NSString+ADBrokerHelperMethods.h in Headers */,
@@ -440,6 +447,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				97603B9D1A1E952100A9C9C3 /* ADBrokerAuthenticationResult.m in Sources */,
+				97F45F171A75F8B400022523 /* ADBrokerJwtHelper.m in Sources */,
 				97D685C41A13EA5000EE816C /* ADAuthenticationBroker.m in Sources */,
 				97D685F11A1670FE00EE816C /* NSString+ADBrokerHelperMethods.m in Sources */,
 				97D685EB1A15432500EE816C /* ADBrokerKeychainTokenCacheStore.m in Sources */,
