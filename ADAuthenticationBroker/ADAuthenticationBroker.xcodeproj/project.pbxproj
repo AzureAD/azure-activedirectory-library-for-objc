@@ -27,7 +27,6 @@
 		97603B9D1A1E952100A9C9C3 /* ADBrokerAuthenticationResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 97603B9C1A1E952100A9C9C3 /* ADBrokerAuthenticationResult.m */; };
 		9777DFFD1A37553800D8D8A8 /* ADBrokerConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 9777DFFC1A37553800D8D8A8 /* ADBrokerConstants.m */; };
 		977A1A2C1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 977A1A2B1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m */; };
-		977A1A471A6F15C700E6EA85 /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 977A1A3D1A6F155800E6EA85 /* libADALiOS.a */; };
 		977A1A481A6F166900E6EA85 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D685E61A13F43C00EE816C /* Foundation.framework */; };
 		977A1A491A6F168200E6EA85 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D685E71A13F43C00EE816C /* UIKit.framework */; };
 		97A522541A1A9E07001D77CE /* ADBrokerSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A522531A1A9E07001D77CE /* ADBrokerSettings.m */; };
@@ -68,27 +67,6 @@
 			remoteGlobalIDString = 97D685BD1A13EA5000EE816C;
 			remoteInfo = ADAuthenticationBroker;
 		};
-		977A1A3C1A6F155800E6EA85 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 977A1A351A6F155800E6EA85 /* ADALiOS.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 8B0965AA17F25770002BDFB8;
-			remoteInfo = ADALiOS;
-		};
-		977A1A3E1A6F155800E6EA85 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 977A1A351A6F155800E6EA85 /* ADALiOS.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 8B0965BA17F25770002BDFB8;
-			remoteInfo = ADALiOSTests;
-		};
-		977A1A401A6F155800E6EA85 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 977A1A351A6F155800E6EA85 /* ADALiOS.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 8BFEF05C182DA57800122C0C;
-			remoteInfo = ADALiOSBundle;
-		};
 		97D685CB1A13EA5000EE816C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 97D685B61A13EA5000EE816C /* Project object */;
@@ -120,7 +98,6 @@
 		97603B9C1A1E952100A9C9C3 /* ADBrokerAuthenticationResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerAuthenticationResult.m; sourceTree = "<group>"; };
 		9777DFFC1A37553800D8D8A8 /* ADBrokerConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerConstants.m; sourceTree = "<group>"; };
 		977A1A2B1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeychainStoreTests.m; sourceTree = "<group>"; };
-		977A1A351A6F155800E6EA85 /* ADALiOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ADALiOS.xcodeproj; path = Frameworks/ADALiOS/ADALiOS/ADALiOS.xcodeproj; sourceTree = "<group>"; };
 		97A522521A1A9DF3001D77CE /* ADBrokerSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerSettings.h; sourceTree = "<group>"; };
 		97A522531A1A9E07001D77CE /* ADBrokerSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerSettings.m; sourceTree = "<group>"; };
 		97D10BA81A18241E004FCD51 /* ADAuthenticationResult+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationResult+Internal.h"; sourceTree = "<group>"; };
@@ -154,7 +131,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				977A1A471A6F15C700E6EA85 /* libADALiOS.a in Frameworks */,
 				97D685E81A13F43C00EE816C /* Foundation.framework in Frameworks */,
 				97D685E91A13F43C00EE816C /* UIKit.framework in Frameworks */,
 			);
@@ -181,20 +157,9 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		977A1A361A6F155800E6EA85 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				977A1A3D1A6F155800E6EA85 /* libADALiOS.a */,
-				977A1A3F1A6F155800E6EA85 /* ADALiOSTests.xctest */,
-				977A1A411A6F155800E6EA85 /* ADALiOS.bundle */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		97D685B51A13EA5000EE816C = {
 			isa = PBXGroup;
 			children = (
-				977A1A351A6F155800E6EA85 /* ADALiOS.xcodeproj */,
 				97D685DD1A13EAAF00EE816C /* Framework */,
 				97D685C01A13EA5000EE816C /* ADAuthenticationBroker */,
 				97D685CD1A13EA5000EE816C /* ADAuthenticationBrokerTests */,
@@ -361,12 +326,6 @@
 			mainGroup = 97D685B51A13EA5000EE816C;
 			productRefGroup = 97D685BF1A13EA5000EE816C /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 977A1A361A6F155800E6EA85 /* Products */;
-					ProjectRef = 977A1A351A6F155800E6EA85 /* ADALiOS.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				97D685BD1A13EA5000EE816C /* ADAuthenticationBroker */,
@@ -375,30 +334,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		977A1A3D1A6F155800E6EA85 /* libADALiOS.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libADALiOS.a;
-			remoteRef = 977A1A3C1A6F155800E6EA85 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		977A1A3F1A6F155800E6EA85 /* ADALiOSTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = ADALiOSTests.xctest;
-			remoteRef = 977A1A3E1A6F155800E6EA85 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		977A1A411A6F155800E6EA85 /* ADALiOS.bundle */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = ADALiOS.bundle;
-			remoteRef = 977A1A401A6F155800E6EA85 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		97D685C71A13EA5000EE816C /* Resources */ = {
