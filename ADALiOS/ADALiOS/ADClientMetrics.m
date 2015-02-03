@@ -61,10 +61,6 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
 }
 #endif
 
-
-
-
-
 - (id)init {
     return self;
 }
@@ -80,7 +76,7 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
 
 - (void) beginClientMetricsRecordForEndpoint: (NSString*) endPoint
                                correlationId: (NSString*) correlationId
-                                requestHeader: (NSMutableDictionary*) requestHeader
+                               requestHeader: (NSMutableDictionary*) requestHeader
 {
     @synchronized(self)
     {
@@ -88,12 +84,18 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
             return;
         }
         if(_isPending){
-        [requestHeader setObject:_errorToReport forKey:HeaderLastError];
-        [requestHeader setObject:_responseTime forKey:HeaderLastResponseTime];
-        [requestHeader setObject:[ADHelpers getEndpointName:_endpoint] forKey:HeaderLastEndpoint];
-        [requestHeader setObject:_correlationId forKey:HeaderLastRequest];
+            [requestHeader setObject:_errorToReport forKey:HeaderLastError];
+            [requestHeader setObject:_responseTime forKey:HeaderLastResponseTime];
+            [requestHeader setObject:[ADHelpers getEndpointName:_endpoint] forKey:HeaderLastEndpoint];
+            [requestHeader setObject:_correlationId forKey:HeaderLastRequest];
             _isPending = NO;
         }
+        
+        SAFE_ARC_RELEASE(_endpoint);
+        SAFE_ARC_RELEASE(_responseTime);
+        SAFE_ARC_RELEASE(_correlationId);
+        SAFE_ARC_RELEASE(_errorToReport);
+        SAFE_ARC_RELEASE(_startTime);
         _endpoint = endPoint;
         _responseTime = @"";
         _correlationId = correlationId;
@@ -114,13 +116,19 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
         if([ADHelpers isADFSInstance:_endpoint]){
             return;
         }
+        
+        SAFE_ARC_RELEASE(_errorToReport);
         if([NSString adIsStringNilOrBlank:error]){
-                _errorToReport = @"";
-        }else{
+            _errorToReport = @"";
+        }
+        else
+        {
             _errorToReport = error;
         }
+        
         _responseTime = [NSString stringWithFormat:@"%f", [_startTime timeIntervalSinceNow] * -1000.0];
         SAFE_ARC_RETAIN(_responseTime);
+        SAFE_ARC_RETAIN(_errorToReport);
         _isPending = YES;
     }
 }

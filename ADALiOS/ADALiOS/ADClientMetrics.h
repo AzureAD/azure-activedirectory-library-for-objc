@@ -38,10 +38,13 @@
 
 + (ADClientMetrics*) getInstance;
 
+/*! This method is called to start the collection of client metrics. It will also bundle previously collected metrics in the 
+ header of the current request. */
 - (void) beginClientMetricsRecordForEndpoint: (NSString*) endPoint
                                correlationId: (NSString*) correlationId
                                 requestHeader: (NSMutableDictionary*) requestHeader;
 
+/*! Completes the client metric collection process and saves the data to be sent when beginClientMetricsRecordForEndpoint is called. */
 -(void) endClientMetricsRecord: (NSString*) error;
 
 
