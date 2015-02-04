@@ -92,6 +92,14 @@ typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
  the actual contents, but still want to log something that can be correlated. */
 +(NSString*) getHash: (NSString*) input;
 
+/*! Sets correlation id to be used in the requests sent to server. */
++(void) setCorrelationId: (NSUUID*) correlationId;
+
+/*! Gets correlation Id. */
++(NSUUID*) getCorrelationId;
+
++(NSString*) getAdalVersion;
+
 @end
 
 //A simple macro for single-line logging:

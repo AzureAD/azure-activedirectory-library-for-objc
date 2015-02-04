@@ -915,9 +915,6 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testCorrelationIdProperty
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
-    XCTAssertNil(mContext.correlationId, "default should be nil");
-    
     NSUUID* first = [NSUUID UUID];
     mContext.correlationId = first;
     XCTAssertEqual(mContext.correlationId, first);
