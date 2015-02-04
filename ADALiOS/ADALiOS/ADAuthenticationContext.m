@@ -779,7 +779,7 @@ return; \
         }
     }
     
-    dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
                    {
                        [self requestTokenByAssertion: samlAssertion
                                        assertionType: assertionType
@@ -1114,7 +1114,7 @@ return; \
             [request_data setObject:resource forKey:OAUTH2_RESOURCE];
         }
     
-    dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
                    {
                        AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@';", clientId, resource);
                        [self request:self.authority

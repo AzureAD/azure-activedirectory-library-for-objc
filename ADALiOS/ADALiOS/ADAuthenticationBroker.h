@@ -18,6 +18,8 @@
 
 @class ADAuthenticationError;
 
+#import "ADAuthenticationContext.h"
+
 typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 @interface ADAuthenticationBroker : NSObject
 

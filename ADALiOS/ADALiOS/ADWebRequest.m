@@ -28,6 +28,8 @@
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
 
+static NSOperationQueue *s_queue;
+
 @interface ADWebRequest () <NSURLConnectionDelegate>
 
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response;
@@ -47,6 +49,12 @@ NSString *const HTTPPost = @"POST";
     NSUUID              *_correlationId;
     
     void (^_completionHandler)( NSError *, ADWebResponse *);
+}
+
++ (void)initialize
+{
+    s_queue = [[NSOperationQueue alloc] init];
+    
 }
 
 #pragma mark - Properties
@@ -155,12 +163,16 @@ NSString *const HTTPPost = @"POST";
         [_requestHeaders setValue:[NSString stringWithFormat:@"%ld", (unsigned long)_requestData.length] forKey:@"Content-Length"];
     }
     
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_requestURL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:_timeout];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_requestURL
+                                                                cachePolicy:NSURLRequestReloadIgnoringCacheData
+                                                            timeoutInterval:_timeout];
     request.HTTPMethod          = _requestMethod;
     request.allHTTPHeaderFields = _requestHeaders;
     request.HTTPBody            = _requestData;
     
-    _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:YES];
+    _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
+    [_connection setDelegateQueue:s_queue];
+    [_connection start];
 }
 
 - (BOOL)verifyRequestURL:(NSURL *)requestURL
