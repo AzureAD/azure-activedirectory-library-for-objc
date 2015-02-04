@@ -104,6 +104,7 @@ const int sAsyncTimeout = 10;//in seconds
         [mValidatedAuthorities addObject:sAlwaysTrusted];
         XCTAssertTrue(mValidatedAuthorities.count == 1);
     }
+    [ADAuthenticationSettings sharedInstance].requestTimeOut = 5;
 }
 
 - (void)tearDown
@@ -306,14 +307,14 @@ const int sAsyncTimeout = 10;//in seconds
                      line: (int) line
 {
     mError = nil;//Reset
-    static volatile int completion = 0;//Set to 1 at the end of the callback
-    [self adCallAndWaitWithFile:@"" __FILE__ line:line completionSignal:&completion block:^
+    __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
          [mInstanceDiscovery validateAuthority:authority correlationId:correlationId completionBlock:^(BOOL validated, ADAuthenticationError *error)
           {
               mValidated = validated;
               mError = error;
-              ASYNC_BLOCK_COMPLETE(completion)
+              dispatch_semaphore_signal(sem);
           }];
      }];
     
@@ -433,8 +434,8 @@ const int sAsyncTimeout = 10;//in seconds
 -(void) testUnreachableServer
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    static volatile int completion = 0;//Set to 1 at the end of the callback
-    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal:&completion block:^
+    __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
     {
         [mTestInstanceDiscovery requestValidationOfAuthority:@"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com"
                                                         host:@"https://login.windows.cn"
@@ -444,7 +445,7 @@ const int sAsyncTimeout = 10;//in seconds
          {
              mValidated = validated;
              mError = error;
-             ASYNC_BLOCK_COMPLETE(completion);
+             dispatch_semaphore_signal(sem);
          }];
     }];
     
