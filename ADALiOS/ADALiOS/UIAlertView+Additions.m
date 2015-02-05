@@ -8,14 +8,14 @@ static UIAlertView *alert;
 
 + (void)presentCredentialAlert:(void (^)(NSUInteger))handler {
     
-    alert = [[UIAlertView alloc] initWithTitle:@"Login"
-                                                    message:@"Enter Username & Password"
-                                                   delegate:nil
-                                          cancelButtonTitle:@"Cancel"
-                                          otherButtonTitles: nil];
+    alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter your credentials", nil)
+                                       message:nil
+                                      delegate:nil
+                             cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
+                             otherButtonTitles: nil];
     
     alert.alertViewStyle = UIAlertViewStyleLoginAndPasswordInput;
-    [alert addButtonWithTitle:@"Login"];
+    [alert addButtonWithTitle:NSLocalizedString(@"Login", nil)];
     [alert setDelegate:alert];
     
     if (handler)
