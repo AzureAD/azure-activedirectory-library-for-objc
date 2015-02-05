@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "BVTestInstance.h"
-#import <ADALiOS/ADAuthenticationSettings.h>
+#import <ADALiOS/ADAL.h>
 
 @implementation BVTestInstance
 

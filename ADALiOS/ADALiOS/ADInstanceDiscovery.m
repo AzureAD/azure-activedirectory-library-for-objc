@@ -55,6 +55,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
         [mValidatedAuthorities addObject:sTrustedAuthority];
         [mValidatedAuthorities addObject:@"https://login.chinacloudapi.cn"];
         [mValidatedAuthorities addObject:@"https://login.cloudgovapi.us"];
+        [mValidatedAuthorities addObject:@"https://login.microsoftonline.com"];
     }
     
     return self;
@@ -164,7 +165,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
     }
     
     
-    dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
                    {
                        //Nothing in the cache, ask the server:
                        [self requestValidationOfAuthority:authority

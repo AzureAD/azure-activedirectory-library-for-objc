@@ -106,6 +106,7 @@ const int sAsyncContextTimeout = 10;
     //Clear the cache between the tests:
     [mDefaultTokenCache removeAllWithError:&error];
     ADAssertNoError;
+    [ADAuthenticationSettings sharedInstance].requestTimeOut = 5;
 }
 
 - (void)tearDown
@@ -395,7 +396,6 @@ const int sAsyncContextTimeout = 10;
 -(void) asynchronousAcquireTokenWithLine: (int) line
 {
     [self prepareForAsynchronousCall];
-
     __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     [self adCallAndWaitWithFile:@"" __FILE__ line:line semaphore:sem block:^
      {
@@ -1168,7 +1168,11 @@ const int sAsyncContextTimeout = 10;
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     [self addCacheWithToken:@"cacheToken" refreshToken:nil];
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> master
     __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     ADAuthenticationCallback innerCallback = ^(ADAuthenticationResult* result)
     {
@@ -1177,6 +1181,10 @@ const int sAsyncContextTimeout = 10;
         mError = mResult.error;
         dispatch_semaphore_signal(sem);
     };
+<<<<<<< HEAD
+=======
+    
+>>>>>>> master
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
          [mContext acquireTokenWithResource:mResource
@@ -1197,7 +1205,11 @@ const int sAsyncContextTimeout = 10;
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> master
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
          [mContext acquireTokenWithResource:mResource

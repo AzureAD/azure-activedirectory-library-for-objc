@@ -22,9 +22,32 @@
 
 @implementation UIApplication ( internal )
 
-+ (UIViewController *) adCurrentViewController
++ (UIViewController *)adCurrentViewController
 {
-    return [[[UIApplication sharedApplication] keyWindow] rootViewController];
+    return [self adCurrentViewControllerWithRootViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+}
+
++ (UIViewController*)adCurrentViewControllerWithRootViewController:(UIViewController*)rootViewController
+{
+    if ([rootViewController isKindOfClass:[UITabBarController class]])
+    {
+        UITabBarController* tabBarController = (UITabBarController*)rootViewController;
+        return [self adCurrentViewControllerWithRootViewController:tabBarController.selectedViewController];
+    }
+    else if ([rootViewController isKindOfClass:[UINavigationController class]])
+    {
+        UINavigationController* navigationController = (UINavigationController*)rootViewController;
+        return [self adCurrentViewControllerWithRootViewController:navigationController.visibleViewController];
+    }
+    else if (rootViewController.presentedViewController)
+    {
+        UIViewController* presentedViewController = rootViewController.presentedViewController;
+        return [self adCurrentViewControllerWithRootViewController:presentedViewController];
+    }
+    else
+    {
+        return rootViewController;
+    }
 }
 
 @end

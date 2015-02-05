@@ -540,7 +540,6 @@ extern void __gcov_flush(void);
     THROW_ON_NIL_ARGUMENT(block);
     
     block();//Run the intended asynchronous method
-    //NSDate* timeOut = [NSDate dateWithTimeIntervalSinceNow:10];//Waits for 10 seconds.
     while (dispatch_semaphore_wait(sem, DISPATCH_TIME_NOW))
     {
         [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];

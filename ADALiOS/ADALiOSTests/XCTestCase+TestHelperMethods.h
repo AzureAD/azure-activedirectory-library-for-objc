@@ -140,7 +140,6 @@ typedef enum
                          line: (int) line
                     semaphore: (dispatch_semaphore_t) signal
                         block: (void (^)(void)) block;
-
 @end
 
 //Fixes the issue with XCTAssertEqual not comparing int and long values
