@@ -2,7 +2,9 @@ Version 1.2.0
 -------------
 * Support for NTLM login.
 * Addition of a master header file (ADAL.h) for easy developer access to the API.
-* Fix to cancel the webview when the user clicks "Enroll" button to initiate workplace join
+* Fix to cancel the webview when the user clicks "Enroll" button to initiate workplace join.
+* Fix for Issue #246.
+* Fix for Issue #245.
 
 Version 1.1.12
 --------------
