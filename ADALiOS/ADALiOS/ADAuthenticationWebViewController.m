@@ -162,6 +162,8 @@
     }
     
     if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"]) {
+        _complete = YES;
+        dispatch_async( dispatch_get_main_queue(), ^{[_delegate webAuthenticationDidCancel];});
         requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
         [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];
         return NO;
