@@ -84,6 +84,23 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
             return;
         }
         if(_isPending){
+            if(!_errorToReport){
+                _errorToReport = @"";
+
+            }
+            
+            if(!_responseTime){
+                _responseTime = @"";
+            }
+            
+            if(!_endpoint){
+                _endpoint = @"";
+            }
+            
+            if(!_correlationId){
+                _correlationId = @"";
+            }
+            
             [requestHeader setObject:_errorToReport forKey:HeaderLastError];
             [requestHeader setObject:_responseTime forKey:HeaderLastResponseTime];
             [requestHeader setObject:[ADHelpers getEndpointName:_endpoint] forKey:HeaderLastEndpoint];
