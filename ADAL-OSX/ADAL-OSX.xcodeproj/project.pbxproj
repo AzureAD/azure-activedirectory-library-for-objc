@@ -15,7 +15,7 @@
 		4C60D4DE18C6960500F9EAAE /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C60D4DD18C6960500F9EAAE /* XCTest.framework */; };
 		4C60D4DF18C6960500F9EAAE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C60D4C818C6960400F9EAAE /* Cocoa.framework */; };
 		4C60D4E218C6960500F9EAAE /* ADAL-OSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C60D4C518C6960400F9EAAE /* ADAL-OSX.framework */; };
-		4C60D5E118C697E500F9EAAE /* ADAL.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A118C697E500F9EAAE /* ADAL.h */; };
+		4C60D5E118C697E500F9EAAE /* ADAL.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A118C697E500F9EAAE /* ADAL.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4C60D5E318C697E500F9EAAE /* ADALiOS-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A318C697E500F9EAAE /* ADALiOS-Prefix.pch */; };
 		4C60D5E418C697E500F9EAAE /* ADAuthenticationBroker.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A418C697E500F9EAAE /* ADAuthenticationBroker.h */; };
 		4C60D5E618C697E500F9EAAE /* ADAuthenticationContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C60D5A618C697E500F9EAAE /* ADAuthenticationContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -430,13 +430,13 @@
 				4C60D60418C697E500F9EAAE /* ADLogger.h in Headers */,
 				4C60D5E918C697E500F9EAAE /* ADAuthenticationError.h in Headers */,
 				4C60D61118C697E500F9EAAE /* ADUserInformation.h in Headers */,
+				4C60D5E118C697E500F9EAAE /* ADAL.h in Headers */,
 				4C60D5F518C697E500F9EAAE /* ADAuthenticationSettings.h in Headers */,
 				4C60D60C18C697E500F9EAAE /* ADTokenCacheStoreKey.h in Headers */,
 				8BB1E6981921476300A71479 /* ADWebRequest.h in Headers */,
 				974309B719E8432D007CFB0F /* ADKeychainTokenCacheStore.h in Headers */,
 				8BB1E6961921476300A71479 /* ADWebResponse.h in Headers */,
 				4C60D5EF18C697E500F9EAAE /* ADAuthenticationParameters+Internal.h in Headers */,
-				4C60D5E118C697E500F9EAAE /* ADAL.h in Headers */,
 				4C60D5FB18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.h in Headers */,
 				8BB1E69C1921476300A71479 /* NSDictionary+ADExtensions.h in Headers */,
 				4C60D60618C697E500F9EAAE /* ADOAuth2Constants.h in Headers */,

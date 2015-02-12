@@ -48,7 +48,7 @@
 {
     if([NSString adIsStringNilOrBlank:fullEndpoint])
     {
-        return nil;
+        return @"";
     }
     
     NSURL* endpointUrl = [NSURL URLWithString:fullEndpoint.lowercaseString];

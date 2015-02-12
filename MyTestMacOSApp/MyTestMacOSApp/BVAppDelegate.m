@@ -7,11 +7,9 @@
 //
 
 #import "BVAppDelegate.h"
-#import <ADAL-OSX/ADAuthenticationContext.h>
-#import <ADAL-OSX/ADLogger.h>
 #import "BVSettings.h"
 #import "BVTestInstance.h"
-#import <ADAL-OSX/ADAuthenticationSettings.h>
+#import <ADAL-OSX/ADAL.h>
 
 @implementation BVAppDelegate
 

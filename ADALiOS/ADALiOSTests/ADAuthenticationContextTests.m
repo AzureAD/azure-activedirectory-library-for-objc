@@ -915,9 +915,6 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testCorrelationIdProperty
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
-    XCTAssertNil(mContext.correlationId, "default should be nil");
-    
     NSUUID* first = [NSUUID UUID];
     mContext.correlationId = first;
     XCTAssertEqual(mContext.correlationId, first);
@@ -1328,7 +1325,7 @@ const int sAsyncContextTimeout = 10;
     mContext.validateAuthority = NO;
     [self asyncAcquireTokenByRefreshToken:@"doesn't matter"];
     ADAssertLongEquals(AD_FAILED, mResult.status);
-    ADAssertStringEquals(mResult.error.domain, NSURLErrorDomain);
+    ADAssertStringEquals(mResult.error.domain, ADAuthenticationErrorDomain);
     
     //Valid authority, but invalid refresh token:
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority error:nil];
