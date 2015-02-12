@@ -212,7 +212,9 @@ additionalInformation: (NSString*) additionalInformation
 
 +(void) setCorrelationId: (NSUUID*) correlationId
 {
+    SAFE_ARC_RELEASE(requestCorrelationId);
     requestCorrelationId = correlationId;
+    SAFE_ARC_RETAIN(requestCorrelationId);
 }
 
 +(NSUUID*) getCorrelationId
