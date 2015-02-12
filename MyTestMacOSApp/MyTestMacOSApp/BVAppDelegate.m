@@ -30,6 +30,7 @@
 - (void) setStatus:(NSString*) message
 {
     [_resultField setString:message];
+    [_resultField displayIfNeeded];
 }
 
 - (void) appendStatus:(NSString*) message {
@@ -55,7 +56,7 @@
         return;
     }
     
-    [context acquireTokenForAssertion:[[_samlAssertionField textStorage] string] assertionType:AD_SAML1_1 resource:resourceString clientId:clientId userId:@"kpanwar@microsoft.com" completionBlock:^(ADAuthenticationResult *result) {
+    [context acquireTokenForAssertion:[[_samlAssertionField textStorage] string] assertionType:AD_SAML1_1 resource:resourceString clientId:clientId userId:aadInstance.userId completionBlock:^(ADAuthenticationResult *result) {
         if (result.status != AD_SUCCEEDED)
         {
             [self setStatus:result.error.errorDetails];
@@ -71,12 +72,13 @@
     //Log everything
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
     
-    [self setStatus:@"Running End-to-End"];
+    [self setStatus:@"Running End-to-End\n"];
     BVSettings     *testData    = [BVSettings new];
     BVTestInstance *aadInstance = [[testData.testAuthorities objectForKey:sAADTestInstance] retain];
     
     ADAuthenticationError   *error = nil;
-    __block ADAuthenticationContext *context = [[ADAuthenticationContext authenticationContextWithAuthority:aadInstance.authority validateAuthority: NO
+    __block ADAuthenticationContext *context = [[ADAuthenticationContext authenticationContextWithAuthority:aadInstance.authority
+                                                                                          validateAuthority: NO
                                                                                                       error:&error] retain];
     
     [context acquireTokenWithResource:aadInstance.resource
@@ -89,11 +91,11 @@
      {
          if (AD_SUCCEEDED == result.status)
          {
-             [self setStatus: [NSString stringWithFormat:@"AcquireToken succeeded with access token: %@", result.accessToken]];
+             [self setStatus: [NSString stringWithFormat:@"AcquireToken succeeded with access token: %@\n", result.accessToken]];
          }
          else
          {
-             [self setStatus: [NSString stringWithFormat:@"AcquireToken failed with access token: %@", result.error.errorDetails]];
+             [self setStatus: [NSString stringWithFormat:@"AcquireToken failed with access token: %@\n", result.error.errorDetails]];
          }
          
          [context release];
@@ -263,7 +265,37 @@
 
 
 - (IBAction)acquireTokenSilentAction:(id)sender{
+    BVSettings     *testData    = [BVSettings new];
+    BVTestInstance *aadInstance = [[testData.testAuthorities objectForKey:sAADTestInstance] retain];
     
+    [self setStatus:@"Setting prompt never..."];
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:aadInstance.authority error:&error];
+    if (!context)
+    {
+        [self appendStatus:error.errorDetails];
+        return;
+    }
+    
+    [context acquireTokenWithResource:aadInstance.resource
+                             clientId:aadInstance.clientId
+                          redirectUri:[NSURL URLWithString:aadInstance.redirectUri]
+                       promptBehavior:AD_PROMPT_NEVER
+                               userId:aadInstance.userId
+                 extraQueryParameters: aadInstance.extraQueryParameters
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         if (result.status != AD_SUCCEEDED)
+         {
+             [self appendStatus:result.error.errorDetails];
+             return;
+         }
+         
+         [self appendStatus:result.tokenCacheStoreItem.accessToken];
+     }];
+    
+    [aadInstance release];
+    [testData release];
 }
 
 

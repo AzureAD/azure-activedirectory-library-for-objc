@@ -18,6 +18,8 @@
 
 #import "ADAuthenticationWebViewController.h"
 #import "ADAuthenticationDelegate.h"
+#import "ADCredentialCollectionController.h"
+#import "ADNTLMHandler.h"
 //#import "ADPkeyAuthHelper.h"
 //#import "WorkPlaceJoinConstants.h"
 //#import "WorkplaceJoin.h"
@@ -51,7 +53,7 @@
         [_webView setResourceLoadDelegate:self];
         [_webView setPolicyDelegate:self];
         _delegate = nil;
-    }
+   }
     
     return self;
 }
@@ -174,6 +176,7 @@ decisionListener:(id<WebPolicyDecisionListener>)listener
     if ([_parentDelegate respondsToSelector:@selector(webView: decidePolicyForNavigationAction:request:frame:decisionListener:)]){
         [_parentDelegate webView:webView decidePolicyForNavigationAction:actionInformation request:request frame:frame decisionListener:listener];
     }
+    
     //NSString *requestURL = [request.URL absoluteString];
     NSString *currentURL = [[request.URL absoluteString] lowercaseString];
     
@@ -185,7 +188,19 @@ decisionListener:(id<WebPolicyDecisionListener>)listener
 //    }
     
  //   if ( [requestURL hasPrefix:_endURL] )
-    if ( [currentURL hasPrefix:_endURL] )
+    
+    
+    if([ADNTLMHandler isChallengeCancelled]){
+        _complete = YES;
+        [listener ignore];
+        [frame stopLoading];
+        NSAssert( nil != _delegate, @"Delegate has been lost" );
+        [self.delegate webAuthenticationDidCancel];
+        return;
+    }
+    
+    
+    if ( [currentURL hasPrefix:_endURL])
     {
         _complete = YES;
         
@@ -295,6 +310,5 @@ decisionListener:(id<WebPolicyDecisionListener>)listener
 //
 //    [self.class.cookieJar setCookiesFromResponse:response];
 //}
-
 
 @end

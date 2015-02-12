@@ -105,6 +105,7 @@ const int sAsyncContextTimeout = 10;
     [testContext->mExpectedRequest2 setObject:mResource forKey:OAUTH2_RESOURCE];
     [testContext->mExpectedRequest2 setObject:mClientId forKey:OAUTH2_CLIENT_ID];
     
+    [ADAuthenticationSettings sharedInstance].requestTimeOut = 5;
     //Clear the cache between the tests:
     [mDefaultTokenCache removeAllWithError:&error];
     ADAssertNoError;
@@ -1315,7 +1316,7 @@ const int sAsyncContextTimeout = 10;
 -(void) testRefreshingTokenWithServerErrors
 {
     //Authority cannot be validated or reached:
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:@"https://example.com/common" error:nil];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:@"https://aadadfstodolistservice.azurewebsites.net/api/todolist" error:nil];
     XCTAssertNotNil(mContext);
 
     [self asyncAcquireTokenByRefreshToken:@"doesn't matter"];

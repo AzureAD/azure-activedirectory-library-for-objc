@@ -35,6 +35,8 @@ typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
     ADAuthenticationWindowController  *_authenticationPageController;
     NSModalSession                     _authenticationSession;
 #endif
+    
+    BOOL                                _ntlmSession;
     ADAuthenticationWebViewController *_authenticationWebViewController;
     
     void (^_completionBlock)( ADAuthenticationError *, NSURL *);

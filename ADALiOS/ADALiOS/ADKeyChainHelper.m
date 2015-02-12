@@ -81,7 +81,22 @@ extern NSString* const sKeyChainlog;
     {
         return;
     }
-
+    
+#if !TARGET_OS_IPHONE
+    CreateSecAccessBlock block = [[ADAuthenticationSettings sharedInstance] createSecAccessBlock];
+    
+    if (block != nil)
+    {
+        SecAccessRef access = block((__bridge CFStringRef)[attributes objectForKey:kSecAttrLabel]);
+        if (access != NULL)
+        {
+            [attributes setObject:(id)access forKey:kSecAttrAccess];
+            CFRelease(access);
+        }
+    }
+    [attributes setObject:(__bridge id)kSecAttrAccessible forKey:(__bridge id)kSecAttrAccessibleAlways];
+#endif // !TARGET_OS_IPHONE
+    
 #if !TARGET_OS_IPHONE
     [attributes removeObjectForKey:kSecAttrCreationDate];
     [attributes removeObjectForKey:kSecAttrModificationDate];
@@ -248,23 +263,9 @@ extern NSString* const sKeyChainlog;
     [updatedAttributes addEntriesFromDictionary:
      @{
        (__bridge id)kSecAttrIsInvisible:(__bridge id)kCFBooleanTrue, // do not show in the keychain UI
-       (__bridge id)kSecAttrAccessible:(__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly, // do not roam or migrate to other devices
+       (__bridge id)kSecAttrAccessible:(__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly, // do not roam or migrate to other devices
        _valueDataKey:value,//Item data
        }];
-    
-#if !TARGET_OS_IPHONE
-    CreateSecAccessBlock block = [[ADAuthenticationSettings sharedInstance] createSecAccessBlock];
-    
-    if (block != nil)
-    {
-        SecAccessRef access = block((__bridge CFStringRef)[updatedAttributes objectForKey:kSecAttrLabel]);
-        if (access != NULL)
-        {
-            [updatedAttributes setObject:(id)access forKey:kSecAttrAccess];
-            CFRelease(access);
-        }
-    }
-#endif // !TARGET_OS_IPHONE
     
     OSStatus res = SecItemAdd((__bridge CFMutableDictionaryRef)updatedAttributes, NULL);
     if (errSecSuccess != res)
