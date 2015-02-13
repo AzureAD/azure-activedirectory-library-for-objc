@@ -16,5 +16,8 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-"username" = "Username";
-"password" = "Password";
+"Enter your credentials" = "Enter your credentials";
+"Cancel" = "Cancel";
+"Login" = "Login";
+"User Name" = "User Name";
+"Password" = "Password";

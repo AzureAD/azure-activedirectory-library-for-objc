@@ -86,6 +86,7 @@
 		974309B819E8432D007CFB0F /* ADKeychainTokenCacheStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 974309B519E8432D007CFB0F /* ADKeychainTokenCacheStore.m */; };
 		974E4EDA19AC65AD00172D2C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 974E4ED919AC65AD00172D2C /* Security.framework */; };
 		977CD4D119F07FA1006E37C3 /* ADKeyChainHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 977CD4D019F07FA1006E37C3 /* ADKeyChainHelper.m */; };
+		97927E9B1A8EABAD0053E283 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 97927E9A1A8EABAD0053E283 /* Localizable.strings */; };
 		97B59B5419BFBC9800DB79D0 /* ADKeyChainHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 97B59B5219BFBC9800DB79D0 /* ADKeyChainHelper.h */; };
 		97B59B5519BFBC9800DB79D0 /* WorkPlaceJoin.h in Headers */ = {isa = PBXBuildFile; fileRef = 97B59B5319BFBC9800DB79D0 /* WorkPlaceJoin.h */; };
 		97B59B6119BFBEA700DB79D0 /* ADPkeyAuthHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 97B59B5719BFBEA700DB79D0 /* ADPkeyAuthHelper.h */; };
@@ -208,6 +209,7 @@
 		974309B519E8432D007CFB0F /* ADKeychainTokenCacheStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADKeychainTokenCacheStore.m; path = ../../ADALiOS/ADALiOS/ADKeychainTokenCacheStore.m; sourceTree = "<group>"; };
 		974E4ED919AC65AD00172D2C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		977CD4D019F07FA1006E37C3 /* ADKeyChainHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADKeyChainHelper.m; path = ../../ADALiOS/ADALiOS/ADKeyChainHelper.m; sourceTree = "<group>"; };
+		97927E9A1A8EABAD0053E283 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Localizable.strings; path = ../../ADALiOS/ADALiOS/Localizable.strings; sourceTree = "<group>"; };
 		97B59B5219BFBC9800DB79D0 /* ADKeyChainHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADKeyChainHelper.h; path = ../../ADALiOS/ADALiOS/ADKeyChainHelper.h; sourceTree = "<group>"; };
 		97B59B5319BFBC9800DB79D0 /* WorkPlaceJoin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WorkPlaceJoin.h; path = ../../ADALiOS/ADALiOS/WorkPlaceJoin.h; sourceTree = "<group>"; };
 		97B59B5719BFBEA700DB79D0 /* ADPkeyAuthHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADPkeyAuthHelper.h; path = ../../ADALiOS/ADALiOS/ADPkeyAuthHelper.h; sourceTree = "<group>"; };
@@ -373,6 +375,7 @@
 		4C60D4CF18C6960400F9EAAE /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				97927E9A1A8EABAD0053E283 /* Localizable.strings */,
 				8BD92F2618C94E130026A014 /* ADAuthenticationWindowController.xib */,
 				4C60D4D018C6960400F9EAAE /* ADAL-OSX-Info.plist */,
 				4C60D4D118C6960400F9EAAE /* InfoPlist.strings */,
@@ -561,6 +564,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BD92F2718C94E130026A014 /* ADAuthenticationWindowController.xib in Resources */,
+				97927E9B1A8EABAD0053E283 /* Localizable.strings in Resources */,
 				97123B781A533DD5009F7F63 /* ADCredentialViewController.xib in Resources */,
 				4C60D4D318C6960400F9EAAE /* InfoPlist.strings in Resources */,
 			);
