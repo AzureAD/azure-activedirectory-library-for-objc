@@ -23,6 +23,8 @@
 @synthesize customView = _customView;
 @synthesize usernameField = _usernameField;
 @synthesize passwordField = _passwordField;
+@synthesize usernameLabel = _usernameLabel;
+@synthesize passwordLabel = _passwordLabel;
 
 -(id) init
 {
@@ -35,6 +37,8 @@
         SAFE_ARC_RETAIN(_customView);
         SAFE_ARC_RETAIN(_usernameField);
         SAFE_ARC_RETAIN(_passwordField);
+        SAFE_ARC_RETAIN(_usernameLabel);
+        SAFE_ARC_RETAIN(_passwordLabel);
     }
     
     return self;
@@ -46,9 +50,13 @@
     SAFE_ARC_RELEASE(_customView);
     SAFE_ARC_RELEASE(_usernameField);
     SAFE_ARC_RELEASE(_passwordField);
+    SAFE_ARC_RELEASE(_usernameLabel);
+    SAFE_ARC_RELEASE(_passwordLabel);
     _customView = nil;
     _usernameField = nil;
     _passwordField = nil;
+    _usernameLabel = nil;
+    _passwordLabel = nil;
 }
 
 @end

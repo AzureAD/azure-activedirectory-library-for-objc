@@ -96,13 +96,14 @@ NSURLConnection *_conn = nil;
             }
             // This is the client TLS challenge: use the identity to authenticate:
             AD_LOG_VERBOSE_F(AD_WPJ_LOG, @"Attempting to handle %@ challenge for host: %@", challenge.protectionSpace.authenticationMethod, challenge.protectionSpace.host);
-            NSAlert *alert = [NSAlert alertWithMessageText: NSLocalizedString(@"Enter your credentials", nil)
+            NSAlert *alert = [NSAlert alertWithMessageText:NSLocalizedString(@"Enter your credentials", nil)
                                              defaultButton:NSLocalizedString(@"Login", nil)
                                            alternateButton:NSLocalizedString(@"Cancel", nil)
                                                otherButton:nil
                                  informativeTextWithFormat:@""];
             ADCredentialCollectionController *view = [ADCredentialCollectionController new];
-            [alert setAccessoryView:view.customView];
+            [view.usernameLabel setStringValue:NSLocalizedString(@"User Name", nil)];
+            [view.passwordLabel setStringValue:NSLocalizedString(@"Password", nil)];            [alert setAccessoryView:view.customView];
             NSMutableDictionary* stateObject = [NSMutableDictionary new];
             [stateObject setValue:alert forKey:@"alert"];
             

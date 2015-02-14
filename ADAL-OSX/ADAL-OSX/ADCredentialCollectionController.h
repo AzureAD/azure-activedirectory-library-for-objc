@@ -22,10 +22,14 @@
     IBOutlet NSView *_customView;
     IBOutlet NSTextField *_usernameField;
     IBOutlet NSSecureTextField *_passwordField;
+    IBOutlet NSTextField *_usernameLabel;
+    IBOutlet NSTextField *_passwordLabel;
 }
 
 @property (strong) IBOutlet NSView *customView;
 @property (strong) IBOutlet NSTextField *usernameField;
 @property (strong) IBOutlet NSSecureTextField *passwordField;
+@property (strong) IBOutlet NSTextField *usernameLabel;
+@property (strong) IBOutlet NSTextField *passwordLabel;
 
 @end
