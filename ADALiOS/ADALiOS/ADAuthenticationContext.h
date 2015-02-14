@@ -92,6 +92,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     __weak_delegate ViewController *_parentController;
     __weak_delegate WebViewType *_webView;
     BOOL _validateAuthority;
+    BOOL _isCorrelationIdUserProvided;
 }
 
 /*! The method allows subclassing of ADAuthenticationContext. For direct class usage, the static factory methods
@@ -158,12 +159,16 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 /*! Controls authority validation in acquire token calls. */
 @property BOOL validateAuthority;
 
+
+/*! Returns if the correlation ID was user provided. */
+@property BOOL isCorrelationIdUserProvided;
+
 /*! Provides access to the token cache used in this context. If null, tokens will not be cached. */
 @property (retain, atomic) id<ADTokenCacheStoring> tokenCacheStore;
 
 /*! Unique identifier passed to the server and returned back with errors. Useful during investigations to correlate the
  requests and the responses from the server. If nil, a new UUID is generated on every request. */
-@property (retain, atomic) NSUUID* correlationId;
+@property (strong, atomic, getter=getCorrelationId, setter=setCorrelationId:) NSUUID* correlationId;
 
 /*! The parent view controller for the authentication view controller UI. */
 @property (weak_property, atomic) ViewController* parentController;

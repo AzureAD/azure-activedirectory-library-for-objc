@@ -18,8 +18,21 @@
 
 //iOS does not support resources in client libraries. Hence putting the
 //version in static define until we identify a better place:
+
+#import "ADLogger.h"
+#import "ADAuthenticationContext.h"
+#import "ADTokenCacheStoring.h"
+#import "ADAuthenticationError.h"
+#import "ADAuthenticationResult.h"
+#import "ADTokenCacheStoreItem.h"
+#import "ADUserInformation.h"
+#import "ADTokenCacheStoreKey.h"
+#import "ADAuthenticationSettings.h"
+#import "ADAuthenticationParameters.h"
+
 #define ADAL_VER_HIGH   1
-#define ADAL_VER_LOW    1
+#define ADAL_VER_LOW    2
+#define ADAL_VER_PATCH  0
 
 #pragma mark - OSX Universal ARC compatibility macros
 

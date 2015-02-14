@@ -56,6 +56,7 @@ static volatile int sDialogInProgress = 0;
 @synthesize tokenCacheStore   = _tokenCacheStore;
 @synthesize validateAuthority = _validateAuthority;
 @synthesize webView           = _webView;
+@synthesize isCorrelationIdUserProvided = _isCorrelationIdUserProvided;
 
 -(id) init
 {
@@ -122,6 +123,16 @@ return; \
     }
 }
 
+- (NSUUID*) getCorrelationId
+{
+    return ADLogger.getCorrelationId;
+}
+
+- (void) setCorrelationId:(NSUUID*) correlationId
+{
+    [ADLogger setCorrelationId: correlationId];
+    _isCorrelationIdUserProvided = YES;
+}
 
 -(id) initWithAuthority: (NSString*) authority
       validateAuthority: (BOOL)bValidate
@@ -212,7 +223,7 @@ return; \
                                             scope:nil
                                          tryCache:YES
                                 validateAuthority:self.validateAuthority
-                                    correlationId:self.correlationId
+                                    correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
     
 }
@@ -233,7 +244,7 @@ return; \
                              extraQueryParameters:nil
                                          tryCache:YES
                                 validateAuthority:self.validateAuthority
-                                    correlationId:self.correlationId
+                                    correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
 }
 
@@ -253,7 +264,7 @@ return; \
                       extraQueryParameters:nil
                                   tryCache:YES
                          validateAuthority:self.validateAuthority
-                             correlationId:self.correlationId
+                             correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
 }
 
@@ -275,7 +286,7 @@ return; \
                       extraQueryParameters:queryParams
                                   tryCache:YES
                          validateAuthority:self.validateAuthority
-                             correlationId:self.correlationId
+                             correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
 }
 
@@ -525,7 +536,7 @@ return; \
                       extraQueryParameters:queryParams
                                   tryCache:YES
                          validateAuthority:self.validateAuthority
-                             correlationId:self.correlationId
+                             correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
 }
 
@@ -635,10 +646,10 @@ return; \
 -(void) updateCorrelationId: (NSUUID* __autoreleasing*) correlationId
 {
     THROW_ON_NIL_ARGUMENT(correlationId);
-    if (!*correlationId)
+    if (!*correlationId || !_isCorrelationIdUserProvided)
     {
-        NSUUID* selfCorrelationId = self.correlationId;//Copy to avoid thread-safety issues in the check below:
-        *correlationId = selfCorrelationId ? selfCorrelationId : [NSUUID UUID];
+        [ADLogger setCorrelationId:[NSUUID UUID]];
+        *correlationId = [self getCorrelationId];
     }
 }
 
@@ -896,7 +907,7 @@ return; \
                                       userId:nil
                                    cacheItem:nil
                            validateAuthority:self.validateAuthority
-                               correlationId:self.correlationId
+                               correlationId:[self getCorrelationId]
                              completionBlock:completionBlock];
 }
 
@@ -912,7 +923,7 @@ return; \
                                       userId:nil
                                    cacheItem:nil
                            validateAuthority:self.validateAuthority
-                               correlationId:self.correlationId
+                               correlationId:[self getCorrelationId]
                              completionBlock:completionBlock];
 }
 
