@@ -22,8 +22,11 @@
 #import <ADALiOS/ADAuthenticationResult.h>
 #import <ADALiOS/ADAuthenticationContext.h>
 
-/*! The completion block declaration. */
+
+/*! The completion block declarations. */
 typedef void(^ADBrokerCallback)(ADAuthenticationResult* result);
+typedef void(^ADOnResultCallback)(BOOL result, NSError* error);
+typedef void(^ADAccountListCallback)(NSDictionary* accounts);
 
 @interface ADBrokerContext : NSObject
 
@@ -33,5 +36,17 @@ typedef void(^ADBrokerCallback)(ADAuthenticationResult* result);
 + (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
                         sourceApplication: (NSString*) sourceApplication
                           completionBlock: (ADBrokerCallback) completionBlock;
+
+// to be used when user invokes add account flow from the app
+- (void) acquireAccount:(NSString*) upn
+           clientId:(NSString*) clientId
+               resource:(NSString*) resource
+            redirectUri:(NSString*) redirectUri
+    completionBlock:(ADBrokerCallback) completionBlock;
+
+- (void) removeAccount: (NSString*) upn
+         onResultBlock:(ADOnResultCallback) onResultBlock;
+
+//- (void) isDeviceWpj
 
 @end

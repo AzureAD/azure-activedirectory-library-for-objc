@@ -36,10 +36,11 @@ enum {
 };
 
 + (NSString*) computeHash:(NSData*) inputData{
-    
+
     //compute SHA-1 thumbprint
     unsigned char sha256Buffer[CC_SHA256_DIGEST_LENGTH];
     CC_SHA256(inputData.bytes, (CC_LONG)inputData.length, sha256Buffer);
+    
     NSMutableString *fingerprint = [NSMutableString stringWithCapacity:CC_SHA256_DIGEST_LENGTH * 3];
     for (int i = 0; i < CC_SHA256_DIGEST_LENGTH; ++i)
     {
@@ -83,6 +84,33 @@ enum {
     free(buffer); //free the buffer;
     return nil;
     
+}
+
+
+
++ (NSString*) computeKDFInCounterMode:(NSData*)key
+{
+    uint8_t* keyDerivationKey = (uint8_t*) [key bytes];
+    int outputSizeBit = 256; //TODO - confirm
+    uint8_t* fixedInput;
+    int keyDerivationKey_length = [key length];
+    int fixedInput_length = sizeof(fixedInput);
+    
+    return nil;
+
+
+}
+
+
+
++(uint8_t*) updateDataInput: (uint8_t) ctr
+                 fixedInput:(uint8_t*) fixedInput
+           fixedInputLength:(int) fixedInput_length
+{
+    uint8_t* tmpFixedInput = malloc(fixedInput_length + 1);
+    tmpFixedInput[0] = ctr;
+    memcpy(tmpFixedInput + 1, fixedInput, fixedInput_length * sizeof(uint8_t));
+    return tmpFixedInput;
 }
 
 @end

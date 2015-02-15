@@ -19,6 +19,7 @@
 
 #import "ADBrokerConstants.h"
 
+NSString* const BROKER_ERROR_DOMAIN = @"ADBrokerErrorDomain";
 NSString* const AUTHORITY = @"authority";
 NSString* const REDIRECT_URI = @"redirect_uri";
 NSString* const RESOURCE = @"resource";
@@ -28,3 +29,8 @@ NSString* const USER_ID = @"user_id";
 NSString* const EXTRA_QUERY_PARAMETERS = @"query_params";
 NSString* const CORRELATION_ID = @"correlation_id";
 NSString* const LOCAL_APPLICATION = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
+
+NSString* const DEFAULT_AUTHORITY = @"https://login.windows.net/common/";
+NSString* const BROKER_CLIENT_ID = @"broker";
+NSString* const BROKER_RESOURCE = @"https://graph.windows.net";
+NSString* const BROKER_REDIRECT_URI = @"";

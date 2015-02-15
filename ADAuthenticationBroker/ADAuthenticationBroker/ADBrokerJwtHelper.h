@@ -20,7 +20,8 @@
 
 @interface ADBrokerJwtHelper : NSObject
 
-
-+ (NSString*)
++(NSDictionary*) decryptJWE:(NSString*) encryptedJwt
+              privateKeyRef:(SecKeyRef) privateKeyRef
+                      error:(NSError**) error;
 
 @end

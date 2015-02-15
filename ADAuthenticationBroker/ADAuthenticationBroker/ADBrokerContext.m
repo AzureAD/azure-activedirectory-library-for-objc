@@ -193,4 +193,33 @@ return; \
     });
 }
 
+
+
+// to be used when user invokes add account flow from the app
+- (void) acquireAccount:(NSString*) upn
+               clientId:(NSString*) clientId
+               resource:(NSString*) resource
+               redirectUri:(NSString*) redirectUri
+        completionBlock:(ADBrokerCallback) completionBlock
+{
+    
+    ADAuthenticationError* error = nil;
+    [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
+    ADAuthenticationContext* ctx = [[ADAuthenticationContext alloc] initWithAuthority:DEFAULT_AUTHORITY
+                                                                    validateAuthority:YES
+                                                                      tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc]initWithAppKey:LOCAL_APPLICATION]
+                                                                                error:&error];
+    
+    [ctx acquireTokenWithResource:resource
+                         clientId:clientId
+                      redirectUri:redirectUri
+                           userId:upn
+             extraQueryParameters:@""
+                  completionBlock:^(ADAuthenticationResult *result)
+     {
+         
+     }];
+}
+
+
 @end

@@ -19,6 +19,7 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString* const BROKER_ERROR_DOMAIN;
 extern NSString* const AUTHORITY;
 extern NSString* const REDIRECT_URI;
 extern NSString* const RESOURCE;
@@ -28,3 +29,8 @@ extern NSString* const USER_ID;
 extern NSString* const EXTRA_QUERY_PARAMETERS;
 extern NSString* const CORRELATION_ID;
 extern NSString* const LOCAL_APPLICATION;
+
+extern NSString* const DEFAULT_AUTHORITY;
+extern NSString* const BROKER_CLIENT_ID;
+extern NSString* const BROKER_RESOURCE;
+extern NSString* const BROKER_REDIRECT_URI;
