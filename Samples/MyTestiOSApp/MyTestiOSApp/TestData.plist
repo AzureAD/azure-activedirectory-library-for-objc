@@ -5,11 +5,11 @@
 	<key>AAD Instance</key>
 	<dict>
 		<key>Authority</key>
-		<string>https://login.windows-ppe.net/common</string>
+		<string>https://login.windows.net/common</string>
 		<key>ClientId</key>
 		<string>d3590ed6-52b3-4102-aeff-aad2292ab01c</string>
 		<key>Resource</key>
-		<string>https://msft.spoppe.com</string>
+		<string>https://graph.windows.net</string>
 		<key>RedirectUri</key>
 		<string>urn:ietf:wg:oauth:2.0:oob</string>
 		<key>UserId</key>

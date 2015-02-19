@@ -126,6 +126,8 @@ additionalInformation: (NSString*) additionalInformation
                 sLogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@ - %@] %@", [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message], additionalInformation, errorCode);
             }
         }
+        SAFE_ARC_RELEASE(dateFormatter);
+        dateFormatter = nil;
     }
 }
 

@@ -68,12 +68,16 @@ NSString* const sLog = @"HTTP Protocol";
     _connection = [[NSURLConnection alloc] initWithRequest:mutableRequest
                                                   delegate:self
                                           startImmediately:YES];
+    SAFE_ARC_RELEASE(mutableRequest);
+    mutableRequest = nil;
 }
 
 - (void)stopLoading
 {
     AD_LOG_VERBOSE_F(sLog, @"Stop loading");
     [_connection cancel];
+    SAFE_ARC_RELEASE(_connection);
+    _connection = nil;
     [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
 }
 
@@ -123,6 +127,8 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
         [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
         
         [_connection cancel];
+        SAFE_ARC_RELEASE(_connection);
+        _connection = nil;
         [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
         
         return mutableRequest;
@@ -146,6 +152,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 {
 #pragma unused (connection)
     [self.client URLProtocolDidFinishLoading:self];
+    SAFE_ARC_RELEASE(_connection);
     _connection = nil;
 }
 
