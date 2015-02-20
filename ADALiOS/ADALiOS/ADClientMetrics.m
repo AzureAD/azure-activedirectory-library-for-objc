@@ -121,7 +121,6 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
         SAFE_ARC_RETAIN(_endpoint);
         SAFE_ARC_RETAIN(_correlationId);
         SAFE_ARC_RETAIN(_errorToReport);
-        SAFE_ARC_RETAIN(_startTime);
     }
 }
 
