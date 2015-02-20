@@ -21,5 +21,6 @@ Pod::Spec.new do |s|
   s.source_files = "ADALiOS/ADALiOS/**/*.{h,m}"
   s.resources    = "ADALiOS/ADALiOS/*.storyboard"
   s.preserve_paths = "ADALiOS/ADALiOS/**/*.{h,m}"
+  s.public_header_files = "ADALiOS/ADALiOS/ADAL.h", "ADALiOS/ADALiOS/ADLogger.h", "ADALiOS/ADALiOS/ADAuthenticationContext.h", "ADALiOS/ADALiOS/ADTokenCacheStoring.h", "ADALiOS/ADALiOS/ADAuthenticationError.h", "ADALiOS/ADALiOS/ADAuthenticationResult.h", "ADALiOS/ADALiOS/ADTokenCacheStoreItem.h", "ADALiOS/ADALiOS/ADUserInformation.h", "ADALiOS/ADALiOS/ADTokenCacheStoreKey.h", "ADALiOS/ADALiOS/ADAuthenticationSettings.h", "ADALiOS/ADALiOS/ADAuthenticationBroker.h", "ADALiOS/ADALiOS/ADErrorCodes.h", "ADALiOS/ADALiOS/ADAuthenticationParameters.h"
   s.requires_arc = true
 end
