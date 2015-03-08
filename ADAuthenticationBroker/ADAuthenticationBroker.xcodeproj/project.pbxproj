@@ -29,6 +29,8 @@
 		977A1A2C1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 977A1A2B1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m */; };
 		977A1A481A6F166900E6EA85 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D685E61A13F43C00EE816C /* Foundation.framework */; };
 		977A1A491A6F168200E6EA85 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D685E71A13F43C00EE816C /* UIKit.framework */; };
+		97927EAD1A90AB6B0053E283 /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 97927EA61A90A9EB0053E283 /* libADALiOS.a */; };
+		97927EAF1A915D1B0053E283 /* ADBrokerHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97927EAE1A915D1B0053E283 /* ADBrokerHelpersTests.m */; };
 		97A522541A1A9E07001D77CE /* ADBrokerSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A522531A1A9E07001D77CE /* ADBrokerSettings.m */; };
 		97D10BAA1A18241E004FCD51 /* ADAuthenticationResult+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D10BA91A18241E004FCD51 /* ADAuthenticationResult+Internal.m */; };
 		97D10BAF1A182EAA004FCD51 /* NSDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D10BAD1A182EAA004FCD51 /* NSDictionary+ADExtensions.m */; };
@@ -55,8 +57,13 @@
 		97E21CE71A1C38CF00EF5520 /* ADBrokerHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 97D685F51A169D3300EE816C /* ADBrokerHelpers.h */; };
 		97E21CE81A1C38CF00EF5520 /* ADBrokerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 97D10BB01A1891D9004FCD51 /* ADBrokerConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		97E21CE91A1C38CF00EF5520 /* ADBrokerSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 97A522521A1A9DF3001D77CE /* ADBrokerSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		97ED7A571A97B44000DEA5E7 /* ADBrokerPRTCacheItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 97ED7A551A97B44000DEA5E7 /* ADBrokerPRTCacheItem.h */; };
+		97ED7A581A97B44000DEA5E7 /* ADBrokerPRTCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 97ED7A561A97B44000DEA5E7 /* ADBrokerPRTCacheItem.m */; };
+		97ED7A5C1A9AED1700DEA5E7 /* ADBrokerPRTContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 97ED7A5A1A9AED1700DEA5E7 /* ADBrokerPRTContext.h */; };
+		97ED7A5D1A9AED1700DEA5E7 /* ADBrokerPRTContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 97ED7A5B1A9AED1700DEA5E7 /* ADBrokerPRTContext.m */; };
 		97F45F171A75F8B400022523 /* ADBrokerJwtHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 97F45F161A75F8B400022523 /* ADBrokerJwtHelper.m */; };
 		97F45F1D1A75F8CF00022523 /* ADBrokerJwtHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 97F45F1C1A75F8CF00022523 /* ADBrokerJwtHelper.h */; };
+		97F5D7B91A94331A00E0AD3A /* libWorkPlaceJoinAPI.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 97F5D7B41A9432CC00E0AD3A /* libWorkPlaceJoinAPI.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,12 +74,54 @@
 			remoteGlobalIDString = 97D685BD1A13EA5000EE816C;
 			remoteInfo = ADAuthenticationBroker;
 		};
+		97927EA51A90A9EB0053E283 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97927E9E1A90A9EB0053E283 /* ADALiOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8B0965AA17F25770002BDFB8;
+			remoteInfo = ADALiOS;
+		};
+		97927EA71A90A9EB0053E283 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97927E9E1A90A9EB0053E283 /* ADALiOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8B0965BA17F25770002BDFB8;
+			remoteInfo = ADALiOSTests;
+		};
+		97927EA91A90A9EB0053E283 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97927E9E1A90A9EB0053E283 /* ADALiOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8BFEF05C182DA57800122C0C;
+			remoteInfo = ADALiOSBundle;
+		};
 		97D685CB1A13EA5000EE816C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 97D685B61A13EA5000EE816C /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 97D685BD1A13EA5000EE816C;
 			remoteInfo = ADAuthenticationBroker;
+		};
+		97F5D7B31A9432CC00E0AD3A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1E76311C18D21F7D0079BE69;
+			remoteInfo = WorkPlaceJoinAPI;
+		};
+		97F5D7B51A9432CC00E0AD3A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1E76312C18D21F7D0079BE69;
+			remoteInfo = WorkPlaceJoinAPITests;
+		};
+		97F5D7B71A9432CC00E0AD3A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4C56402118E0E6660033FC1A;
+			remoteInfo = Bundle;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -98,6 +147,8 @@
 		97603B9C1A1E952100A9C9C3 /* ADBrokerAuthenticationResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerAuthenticationResult.m; sourceTree = "<group>"; };
 		9777DFFC1A37553800D8D8A8 /* ADBrokerConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerConstants.m; sourceTree = "<group>"; };
 		977A1A2B1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeychainStoreTests.m; sourceTree = "<group>"; };
+		97927E9E1A90A9EB0053E283 /* ADALiOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ADALiOS.xcodeproj; path = "Frameworks/azure-activedirectory-library-for-objc-unity-fork/ADALiOS/ADALiOS.xcodeproj"; sourceTree = "<group>"; };
+		97927EAE1A915D1B0053E283 /* ADBrokerHelpersTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelpersTests.m; sourceTree = "<group>"; };
 		97A522521A1A9DF3001D77CE /* ADBrokerSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerSettings.h; sourceTree = "<group>"; };
 		97A522531A1A9E07001D77CE /* ADBrokerSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerSettings.m; sourceTree = "<group>"; };
 		97D10BA81A18241E004FCD51 /* ADAuthenticationResult+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationResult+Internal.h"; sourceTree = "<group>"; };
@@ -122,8 +173,13 @@
 		97D685F01A1670FE00EE816C /* ADBrokerKeyChainHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeyChainHelper.m; sourceTree = "<group>"; };
 		97D685F31A169D1700EE816C /* ADBrokerHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelpers.m; sourceTree = "<group>"; };
 		97D685F51A169D3300EE816C /* ADBrokerHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerHelpers.h; sourceTree = "<group>"; };
+		97ED7A551A97B44000DEA5E7 /* ADBrokerPRTCacheItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerPRTCacheItem.h; sourceTree = "<group>"; };
+		97ED7A561A97B44000DEA5E7 /* ADBrokerPRTCacheItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerPRTCacheItem.m; sourceTree = "<group>"; };
+		97ED7A5A1A9AED1700DEA5E7 /* ADBrokerPRTContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerPRTContext.h; sourceTree = "<group>"; };
+		97ED7A5B1A9AED1700DEA5E7 /* ADBrokerPRTContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerPRTContext.m; sourceTree = "<group>"; };
 		97F45F161A75F8B400022523 /* ADBrokerJwtHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerJwtHelper.m; sourceTree = "<group>"; };
 		97F45F1C1A75F8CF00022523 /* ADBrokerJwtHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerJwtHelper.h; sourceTree = "<group>"; };
+		97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WorkPlaceJoinAPI.xcodeproj; path = "Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/WorkPlaceJoinAPI.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +187,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				97F5D7B91A94331A00E0AD3A /* libWorkPlaceJoinAPI.a in Frameworks */,
+				97927EAD1A90AB6B0053E283 /* libADALiOS.a in Frameworks */,
 				97D685E81A13F43C00EE816C /* Foundation.framework in Frameworks */,
 				97D685E91A13F43C00EE816C /* UIKit.framework in Frameworks */,
 			);
@@ -155,6 +213,16 @@
 				975E42D31A1D3F2A0033B500 /* ADALiOS.bundle */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		97927E9F1A90A9EB0053E283 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				97927EA61A90A9EB0053E283 /* libADALiOS.a */,
+				97927EA81A90A9EB0053E283 /* ADALiOSTests.xctest */,
+				97927EAA1A90A9EB0053E283 /* ADALiOS.bundle */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		97D685B51A13EA5000EE816C = {
@@ -204,6 +272,10 @@
 				97603B9C1A1E952100A9C9C3 /* ADBrokerAuthenticationResult.m */,
 				97F45F161A75F8B400022523 /* ADBrokerJwtHelper.m */,
 				97F45F1C1A75F8CF00022523 /* ADBrokerJwtHelper.h */,
+				97ED7A551A97B44000DEA5E7 /* ADBrokerPRTCacheItem.h */,
+				97ED7A561A97B44000DEA5E7 /* ADBrokerPRTCacheItem.m */,
+				97ED7A5A1A9AED1700DEA5E7 /* ADBrokerPRTContext.h */,
+				97ED7A5B1A9AED1700DEA5E7 /* ADBrokerPRTContext.m */,
 			);
 			path = ADAuthenticationBroker;
 			sourceTree = "<group>";
@@ -213,6 +285,7 @@
 			children = (
 				97D685CE1A13EA5000EE816C /* Supporting Files */,
 				977A1A2B1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m */,
+				97927EAE1A915D1B0053E283 /* ADBrokerHelpersTests.m */,
 			);
 			path = ADAuthenticationBrokerTests;
 			sourceTree = "<group>";
@@ -228,10 +301,22 @@
 		97D685DD1A13EAAF00EE816C /* Framework */ = {
 			isa = PBXGroup;
 			children = (
+				97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */,
+				97927E9E1A90A9EB0053E283 /* ADALiOS.xcodeproj */,
 				97D685E61A13F43C00EE816C /* Foundation.framework */,
 				97D685E71A13F43C00EE816C /* UIKit.framework */,
 			);
 			name = Framework;
+			sourceTree = "<group>";
+		};
+		97F5D7AD1A9432CB00E0AD3A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				97F5D7B41A9432CC00E0AD3A /* libWorkPlaceJoinAPI.a */,
+				97F5D7B61A9432CC00E0AD3A /* WorkPlaceJoinAPITests.xctest */,
+				97F5D7B81A9432CC00E0AD3A /* WorkPlaceJoinAPI.bundle */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -248,7 +333,9 @@
 				97F45F1D1A75F8CF00022523 /* ADBrokerJwtHelper.h in Headers */,
 				97E21CE01A1C38CF00EF5520 /* NSDictionary+ADExtensions.h in Headers */,
 				97E21CE11A1C38CF00EF5520 /* ADAuthenticationResult+Internal.h in Headers */,
+				97ED7A5C1A9AED1700DEA5E7 /* ADBrokerPRTContext.h in Headers */,
 				97E21CE21A1C38CF00EF5520 /* NSString+ADBrokerHelperMethods.h in Headers */,
+				97ED7A571A97B44000DEA5E7 /* ADBrokerPRTCacheItem.h in Headers */,
 				97E21CE31A1C38CF00EF5520 /* ADBrokerKeyChainHelper.h in Headers */,
 				97603B9B1A1E94FF00A9C9C3 /* ADBrokerAuthenticationResult.h in Headers */,
 				97E21CE51A1C38CF00EF5520 /* ADAuthenticationBroker.h in Headers */,
@@ -326,6 +413,16 @@
 			mainGroup = 97D685B51A13EA5000EE816C;
 			productRefGroup = 97D685BF1A13EA5000EE816C /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 97927E9F1A90A9EB0053E283 /* Products */;
+					ProjectRef = 97927E9E1A90A9EB0053E283 /* ADALiOS.xcodeproj */;
+				},
+				{
+					ProductGroup = 97F5D7AD1A9432CB00E0AD3A /* Products */;
+					ProjectRef = 97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				97D685BD1A13EA5000EE816C /* ADAuthenticationBroker */,
@@ -334,6 +431,51 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		97927EA61A90A9EB0053E283 /* libADALiOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libADALiOS.a;
+			remoteRef = 97927EA51A90A9EB0053E283 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		97927EA81A90A9EB0053E283 /* ADALiOSTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ADALiOSTests.xctest;
+			remoteRef = 97927EA71A90A9EB0053E283 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		97927EAA1A90A9EB0053E283 /* ADALiOS.bundle */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ADALiOS.bundle;
+			remoteRef = 97927EA91A90A9EB0053E283 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		97F5D7B41A9432CC00E0AD3A /* libWorkPlaceJoinAPI.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libWorkPlaceJoinAPI.a;
+			remoteRef = 97F5D7B31A9432CC00E0AD3A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		97F5D7B61A9432CC00E0AD3A /* WorkPlaceJoinAPITests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = WorkPlaceJoinAPITests.xctest;
+			remoteRef = 97F5D7B51A9432CC00E0AD3A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		97F5D7B81A9432CC00E0AD3A /* WorkPlaceJoinAPI.bundle */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = WorkPlaceJoinAPI.bundle;
+			remoteRef = 97F5D7B71A9432CC00E0AD3A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		97D685C71A13EA5000EE816C /* Resources */ = {
@@ -385,11 +527,13 @@
 				97F45F171A75F8B400022523 /* ADBrokerJwtHelper.m in Sources */,
 				97D685C41A13EA5000EE816C /* ADAuthenticationBroker.m in Sources */,
 				97D685F11A1670FE00EE816C /* NSString+ADBrokerHelperMethods.m in Sources */,
+				97ED7A5D1A9AED1700DEA5E7 /* ADBrokerPRTContext.m in Sources */,
 				97D685EB1A15432500EE816C /* ADBrokerKeychainTokenCacheStore.m in Sources */,
 				97D10BAA1A18241E004FCD51 /* ADAuthenticationResult+Internal.m in Sources */,
 				97D685F21A1670FE00EE816C /* ADBrokerKeyChainHelper.m in Sources */,
 				9777DFFD1A37553800D8D8A8 /* ADBrokerConstants.m in Sources */,
 				97A522541A1A9E07001D77CE /* ADBrokerSettings.m in Sources */,
+				97ED7A581A97B44000DEA5E7 /* ADBrokerPRTCacheItem.m in Sources */,
 				97D685DC1A13EAA600EE816C /* ADBrokerContext.m in Sources */,
 				97D10BAF1A182EAA004FCD51 /* NSDictionary+ADExtensions.m in Sources */,
 				97D685F41A169D1700EE816C /* ADBrokerHelpers.m in Sources */,
@@ -401,6 +545,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				977A1A2C1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m in Sources */,
+				97927EAF1A915D1B0053E283 /* ADBrokerHelpersTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

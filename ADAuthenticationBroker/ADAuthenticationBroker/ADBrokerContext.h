@@ -21,32 +21,43 @@
 #include <UIKit/UIKit.h>
 #import <ADALiOS/ADAuthenticationResult.h>
 #import <ADALiOS/ADAuthenticationContext.h>
-
+#import <ADALiOS/ADAuthenticationContextForBroker.h>
+#import <workplaceJoinAPI/RegistrationInformation.h>
+#import "ADBrokerPRTContext.h"
 
 /*! The completion block declarations. */
-typedef void(^ADBrokerCallback)(ADAuthenticationResult* result);
-typedef void(^ADOnResultCallback)(BOOL result, NSError* error);
+typedef void(^ADOnResultCallback)(NSError* error);
 typedef void(^ADAccountListCallback)(NSDictionary* accounts);
 
 @interface ADBrokerContext : NSObject
 
-+ (void) invokeBrokerLocally: (NSString*) requestPayload
-             completionBlock: (ADBrokerCallback) completionBlock;
+@property (readonly) NSString* authority;
+
+@property (strong) NSUUID* correlationId;
 
 + (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
                         sourceApplication: (NSString*) sourceApplication
-                          completionBlock: (ADBrokerCallback) completionBlock;
+                          completionBlock: (ADAuthenticationCallback) completionBlock;
+
+- (id) initWithAuthority:(NSString*) authority;
+
 
 // to be used when user invokes add account flow from the app
 - (void) acquireAccount:(NSString*) upn
            clientId:(NSString*) clientId
                resource:(NSString*) resource
             redirectUri:(NSString*) redirectUri
-    completionBlock:(ADBrokerCallback) completionBlock;
+    completionBlock:(ADAuthenticationCallback) completionBlock;
 
 - (void) removeAccount: (NSString*) upn
          onResultBlock:(ADOnResultCallback) onResultBlock;
 
-//- (void) isDeviceWpj
+- (void) doWorkPlaceJoinForUpn: (NSString*) upn
+                 onResultBlock:(ADPRTResultCallback) onResultBlock;
+
+- (RegistrationInformation*) getWorkPlaceJoinInformation;
+
+- (void) removeWorkPlaceJoinRegistration:(ADOnResultCallback) onResultBlock;
+
 
 @end

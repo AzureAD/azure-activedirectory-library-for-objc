@@ -24,4 +24,8 @@
               privateKeyRef:(SecKeyRef) privateKeyRef
                       error:(NSError**) error;
 
++(NSString*) createSignedJWTforHeader:(NSDictionary*) header
+                              payload:(NSDictionary*) payload
+                           signingKey:(SecKeyRef) signingKey;
+
 @end

@@ -17,8 +17,10 @@
 // governing permissions and limitations under the License.
 
 #import "ADBrokerHelpers.h"
-#import <CommonCrypto/CommonCryptor.h>
+#import "NSString+ADBrokerHelperMethods.h"
 #import <Security/Security.h>
+#import <CommonCrypto/CommonCryptor.h>
+#import <CommonCrypto/CommonHMAC.h>
 #import <CommonCrypto/CommonDigest.h>
 
 
@@ -87,18 +89,34 @@ enum {
 }
 
 
-
 + (NSString*) computeKDFInCounterMode:(NSData*)key
+                              context:(NSString*)ctx
+                                label:(NSString*)label
 {
-    uint8_t* keyDerivationKey = (uint8_t*) [key bytes];
-    int outputSizeBit = 256; //TODO - confirm
-    uint8_t* fixedInput;
-    int keyDerivationKey_length = [key length];
-    int fixedInput_length = sizeof(fixedInput);
+    uint8_t* keyDerivationKey = (uint8_t*)[key bytes];
     
-    return nil;
-
-
+    const unsigned char bytes[] = { 0x00 };
+    NSData *nullData = [NSData dataWithBytes:bytes length:1];
+    NSString *nullString = [[NSString alloc] initWithData:nullData encoding:NSUTF8StringEncoding];
+    
+    NSString* fixed = [NSString stringWithFormat:@"%@%@%@%d", ctx, nullString, label, 256];
+    uint8_t* retval = [ADBrokerHelpers KDFCounterMode:keyDerivationKey
+                      outputSizeBit:256
+                         fixedInput:(uint8_t *)fixed.UTF8String
+             keyDerivationKeyLength:32
+                   fixedInputLength:[fixed length]];
+    
+    char             hexmac[2 * CC_SHA256_DIGEST_LENGTH + 1];
+    char             *p;
+    
+    p = hexmac;
+    for (int i = 0; i < CC_SHA256_DIGEST_LENGTH; i++ ) {
+        snprintf( p, 3, "%02x", retval[ i ] );
+        p += 2;
+    }
+    
+    NSString* string = [NSString stringWithUTF8String:hexmac];
+    return [ NSString Base64EncodeData:[string dataUsingEncoding:NSUTF8StringEncoding] ];
 }
 
 
@@ -112,5 +130,67 @@ enum {
     memcpy(tmpFixedInput + 1, fixedInput, fixedInput_length * sizeof(uint8_t));
     return tmpFixedInput;
 }
+
++(uint8_t*) KDFCounterMode:(uint8_t*) keyDerivationKey
+             outputSizeBit:(int) outputSizeBit
+                fixedInput:(uint8_t*) fixedInput
+    keyDerivationKeyLength:(int) keyDerivationKey_length
+          fixedInputLength: (int) fixedInput_length
+{
+    
+    CCHmacContext hmacContext;
+    uint8_t ctr;
+    uint8_t* KI;
+    uint8_t* keyDerivated;
+    uint8_t* dataInput;
+    int len;
+    int numCurrentElements;
+    int len_bytes;
+    int numCurrentElements_bytes;
+    int prfOutputSizeBit = 256;
+    
+    numCurrentElements = 0;
+    ctr = 1;
+    keyDerivated = malloc(outputSizeBit/8);
+    
+    do{
+        //update data using "ctr"
+        dataInput = [ADBrokerHelpers updateDataInput:ctr
+                                          fixedInput:fixedInput
+                                    fixedInputLength:fixedInput_length];
+        
+        //init PRF function
+        CCHmacInit(&hmacContext, kCCHmacAlgSHA256, keyDerivationKey, keyDerivationKey_length);
+        
+        //account the +1 for ctr
+        CCHmacUpdate(&hmacContext, dataInput, (fixedInput_length+1));
+        CCHmacFinal(&hmacContext, KI);
+        
+        //decide how many bytes (so the "length") copy for currently keyDerivated?
+        if (prfOutputSizeBit >= outputSizeBit) {
+            len = outputSizeBit;
+        } else {
+            len = MIN(prfOutputSizeBit, outputSizeBit - numCurrentElements);
+        }
+        
+        //convert bits in byte
+        len_bytes = len/8;
+        numCurrentElements_bytes = numCurrentElements/8;
+        
+        //copy KI in part of keyDerivated
+        memcpy((keyDerivated + numCurrentElements_bytes), KI, len_bytes * sizeof(uint8_t));
+        
+        //increment ctr and numCurrentElements copied in keyDerivated
+        numCurrentElements = numCurrentElements + len;
+        ctr++;
+        
+        //deallock space in memory
+        free(dataInput);
+        
+    } while (numCurrentElements < outputSizeBit);
+    
+    return keyDerivated;
+}
+
 
 @end

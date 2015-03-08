@@ -17,18 +17,14 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
+#import <ADALiOS/ADTokenCacheStoreItem.h>
 
-#define chosenCipherBlockSize  kCCBlockSizeAES128
+@interface ADBrokerPRTCacheItem : ADTokenCacheStoreItem
 
-@interface ADBrokerHelpers : NSObject
+@property NSString* tokenType;
 
-+ (NSString*) computeHash:(NSData*) inputData;
+@property NSString* primaryRefreshToken;
 
-+(NSData*) encryptData: (NSData*) data
-                   key: (NSString*) key;
-
-+ (NSString*) computeKDFInCounterMode:(NSString*)key
-                              context:(NSString*)ctx
-                                label:(NSString*)label;
+@property NSString* sessionKey;
 
 @end

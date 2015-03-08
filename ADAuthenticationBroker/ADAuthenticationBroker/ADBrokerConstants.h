@@ -28,9 +28,19 @@ extern NSString* const BROKER_KEY;
 extern NSString* const USER_ID;
 extern NSString* const EXTRA_QUERY_PARAMETERS;
 extern NSString* const CORRELATION_ID;
-extern NSString* const LOCAL_APPLICATION;
+extern NSString* const DEFAULT_GUID_FOR_NIL;
 
 extern NSString* const DEFAULT_AUTHORITY;
 extern NSString* const BROKER_CLIENT_ID;
 extern NSString* const BROKER_RESOURCE;
 extern NSString* const BROKER_REDIRECT_URI;
+extern NSString* const DEFAULT_FIRST_PARTY_CLIENT_ID;
+
+extern NSString *const OAUTH2_ERROR_KEY;
+extern NSString *const OAUTH2_GRANT_TYPE_KEY;
+extern NSString *const OAUTH2_TOKEN_TYPE_KEY;
+extern NSString *const OAUTH2_REFRESH_TOKEN_EXPIRES_KEY;
+extern NSString *const OAUTH2_ID_TOKEN_KEY;
+extern NSString *const OAUTH2_REFRESH_TOKEN_KEY;
+extern NSString *const OAUTH2_SESSION_JWE_KEY;
+extern NSString *const CORRELATION_ID_RESPONSE;

@@ -18,6 +18,7 @@
 
 #import <Foundation/Foundation.h>
 #import <ADALiOS/ADAuthenticationSettings.h>
+#import <workplaceJoinAPI/WorkPlaceJoin.h>
 #import "ADBrokerContext.h"
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationResult+Internal.h"
@@ -25,6 +26,7 @@
 #import "NSDictionary+ADExtensions.h"
 #import "ADBrokerKeychainTokenCacheStore.h"
 #import "ADBrokerHelpers.h"
+#import "ADBrokerPRTCacheItem.h"
 
 @implementation ADBrokerContext
 
@@ -36,6 +38,17 @@ completionBlock:completionBlock]) \
 { \
 return; \
 }
+
+- (id) initWithAuthority:(NSString*) authority
+{
+    self = [super init];
+    if(self)
+    {
+        _authority = authority;
+    }
+    return self;
+}
+
 
 + (BOOL) handleNilOrEmptyAsResult:(NSObject*) argumentValue
                      argumentName: (NSString*) argumentName
@@ -73,21 +86,14 @@ return; \
     }
 }
 
-+ (void) invokeBrokerLocally: (NSString*) requestPayload
-             completionBlock: (ADBrokerCallback) completionBlock
-{
-    [ADBrokerContext invokeBrokerForSourceApplication:requestPayload sourceApplication:LOCAL_APPLICATION completionBlock:completionBlock];
-}
-
-
 + (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
                         sourceApplication: (NSString*) sourceApplication
-                          completionBlock: (ADBrokerCallback) completionBlock
+                          completionBlock: (ADAuthenticationCallback) completionBlock
 {
-    if([NSString adSame:sourceApplication toString:LOCAL_APPLICATION])
-    {
-        THROW_ON_NIL_ARGUMENT(completionBlock);
-    }
+//    if([NSString adSame:sourceApplication toString:DEFAULT_GUID_FOR_NIL])
+//    {
+//        THROW_ON_NIL_ARGUMENT(completionBlock);
+//    }
     
     HANDLE_ARGUMENT(requestPayload);
     HANDLE_ARGUMENT(sourceApplication);
@@ -113,11 +119,10 @@ return; \
     if(!error)
     {
         [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
-        ADAuthenticationContext* ctx = [[ADAuthenticationContext alloc] initWithAuthority:[queryParamsMap valueForKey:AUTHORITY]
-                                                                        validateAuthority:NO
-                                                                          tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc]initWithAppKey:[queryParamsMap valueForKey:BROKER_KEY]]
-                                                                                    error:&error];
-        ctx.correlationId = [[NSUUID alloc] initWithUUIDString:[queryParamsMap valueForKey:CORRELATION_ID]];
+        ADBrokerContext* ctx = [ADBrokerContext new];
+        ctx.correlationId = [[NSUUID alloc]
+                             initWithUUIDString:[queryParamsMap
+                                                 valueForKey:CORRELATION_ID]];
         if(ctx)
         {
             NSString* extraQp = nil;
@@ -126,100 +131,204 @@ return; \
                 extraQp = [queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS];
             }
             
-            [ctx acquireTokenWithResource:[queryParamsMap valueForKey:RESOURCE]
-                                 clientId:[queryParamsMap valueForKey:CLIENT_ID]
-                              redirectUri:redirectUri
-                                   userId:[queryParamsMap valueForKey:USER_ID]
-                     extraQueryParameters:extraQp
-                          completionBlock:^(ADAuthenticationResult *result)
-             {
-                 
-                 if([NSString adSame:sourceApplication toString:LOCAL_APPLICATION])
-                 {
-                     completionBlock(result);
-                 }
-                 else
-                 {
-                     NSString* response = nil;
-                     if(result.status == AD_SUCCEEDED){
-                         NSString* rawIdToken = @"";
-                         if(result.tokenCacheStoreItem.userInformation){
-                             rawIdToken = result.tokenCacheStoreItem.userInformation.rawIdToken;
-                         }
-                         
-                         response = [NSString stringWithFormat:@"authority=%@&client_id=%@&resource=%@&correlation_id=%@&access_token=%@&id_token=%@", [queryParamsMap valueForKey:AUTHORITY], [queryParamsMap valueForKey:CLIENT_ID], [queryParamsMap valueForKey:RESOURCE], [queryParamsMap valueForKey:CORRELATION_ID], result.accessToken, rawIdToken];
-                         
-                         NSString* brokerKey = [queryParamsMap valueForKey:BROKER_KEY];
-                         NSData *decodedKey = [NSString Base64DecodeData:brokerKey];
-                         NSString *decodedKeyString = [[NSString alloc] initWithData:decodedKey encoding:0];
-                         
-                         NSData *plainData = [response dataUsingEncoding:NSUTF8StringEncoding];
-                         NSData* responseData = [ADBrokerHelpers encryptData:plainData key:decodedKeyString];
-                         
-                         response = [NSString stringWithFormat:@"response=%@&hash=%@", [[NSString Base64EncodeData: responseData] adUrlFormEncode], [ADBrokerHelpers computeHash:plainData]];
-                     } else{
-                         response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@", [result.error.protocolCode adUrlFormEncode], [result.error.errorDetails adUrlFormEncode], [queryParamsMap valueForKey:CORRELATION_ID]];
-                     }
-                     
-                     [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:REDIRECT_URI] response:response];
-                 }
-             }];
+            ADAuthenticationCallback defaultCallback = ^(ADAuthenticationResult *result)
+            {
+                if([NSString adSame:sourceApplication toString:DEFAULT_GUID_FOR_NIL])
+                {
+                    completionBlock(result);
+                }
+                else
+                {
+                    NSString* response = nil;
+                    if(result.status == AD_SUCCEEDED){
+                        NSString* rawIdToken = @"";
+                        if(result.tokenCacheStoreItem.userInformation){
+                            rawIdToken = result.tokenCacheStoreItem.userInformation.rawIdToken;
+                        }
+                        
+                        response = [NSString stringWithFormat:@"authority=%@&client_id=%@&resource=%@&correlation_id=%@&access_token=%@&id_token=%@", [queryParamsMap valueForKey:AUTHORITY], [queryParamsMap valueForKey:CLIENT_ID], [queryParamsMap valueForKey:RESOURCE], [queryParamsMap valueForKey:CORRELATION_ID], result.accessToken, rawIdToken];
+                        
+                        NSString* brokerKey = [queryParamsMap valueForKey:BROKER_KEY];
+                        NSData *decodedKey = [NSString Base64DecodeData:brokerKey];
+                        NSString *decodedKeyString = [[NSString alloc] initWithData:decodedKey encoding:0];
+                        
+                        NSData *plainData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                        NSData* responseData = [ADBrokerHelpers encryptData:plainData key:decodedKeyString];
+                        
+                        response = [NSString stringWithFormat:@"response=%@&hash=%@", [[NSString Base64EncodeData: responseData] adUrlFormEncode], [ADBrokerHelpers computeHash:plainData]];
+                    } else{
+                        response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@", [result.error.protocolCode adUrlFormEncode], [result.error.errorDetails adUrlFormEncode], [queryParamsMap valueForKey:CORRELATION_ID]];
+                    }
+                    
+                    [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:REDIRECT_URI] response:response];
+                }
+            };
             
-            return;
+            
+            [ctx acquireAccount:[queryParamsMap valueForKey:AUTHORITY]
+                         userId:[queryParamsMap valueForKey:USER_ID]
+                       clientId:[queryParamsMap valueForKey:CLIENT_ID]
+                       resource:[queryParamsMap valueForKey:RESOURCE]
+                    redirectUri:[queryParamsMap valueForKey:REDIRECT_URI]
+                         appKey:[queryParamsMap valueForKey:BROKER_KEY]
+                completionBlock:defaultCallback];
         }
-    }
-    
-    if(error){
-        if([NSString adSame:sourceApplication toString:LOCAL_APPLICATION])
-        {
-            ADAuthenticationResult *result = [ADAuthenticationResult resultFromError:error];
-            completionBlock(result);
-        }
-        else
-        {
-            NSString* response = [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@", [error.protocolCode adUrlFormEncode], [error.errorDetails adUrlFormEncode], [queryParamsMap valueForKey:CORRELATION_ID]];
-            [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:REDIRECT_URI] response:response];
-        }
-        
-        return;
     }
 }
 
 +(void)openAppInBackground:(NSString *)application
                   response:(NSString *)response
-{        NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@/broker?%@", application, response]];
+{
+    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@/broker?%@", application, response]];
     dispatch_async(dispatch_get_main_queue(), ^{
         [[UIApplication sharedApplication] openURL:appUrl];
     });
 }
 
-
+- (void) acquireAccount:(NSString*) authority
+                 userId:(NSString*) upn
+               clientId:(NSString*) clientId
+               resource:(NSString*) resource
+            redirectUri:(NSString*) redirectUri
+                 appKey:(NSString*) appKey
+        completionBlock:(ADAuthenticationCallback) completionBlock
+{
+    ADAuthenticationError* error = nil;
+    [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
+    //if client id is not broker, use incoming app's key for cache.
+    ADAuthenticationContextForBroker* ctx = [[ADAuthenticationContextForBroker alloc]
+                                             initWithAuthority:authority
+                                             validateAuthority:YES
+                                             tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc]initWithAppKey:appKey]
+                                             error:&error];
+    [ctx setCorrelationId:_correlationId];
+    
+    //silent call also does the AT refresh, if needed.
+    [ctx acquireTokenSilentWithResource: resource
+                         clientId: clientId
+                      redirectUri: [NSURL URLWithString:redirectUri]
+                           userId: upn
+                  completionBlock:^(ADAuthenticationResult *result) {
+                      //if failed, check for and use PRT
+                      if(result.status == AD_SUCCEEDED)
+                      {
+                          //update first party cache
+                          if(![NSString adSame:clientId toString: BROKER_CLIENT_ID])
+                          {
+                              id<ADTokenCacheStoring> firstPartyCache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+                              //save AT and RT in the cache
+                              [ctx updateCacheToResult:result
+                                               cacheInstance:firstPartyCache
+                                                   cacheItem:nil
+                                  withRefreshToken:nil];
+                              result = [ctx updateResult:result
+                                              toUser:upn];
+                          }
+                      
+                          completionBlock(result);
+                          return;
+                      }
+                      else
+                      {
+                       //silent call failed. check if the user is WPJ.
+                          if([self isWorkplaceJoined:upn])
+                          {
+                          ADAuthenticationError* error = nil;
+                          ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
+                                                                                 correlationId:_correlationId
+                                                                                         error:&error];
+                              [prtCtx acquireTokenUsingPRTForResource:resource
+                                                             clientId:clientId
+                                                          redirectUri:redirectUri
+                                                               appKey:appKey
+                                                      completionBlock:completionBlock];
+                          }
+                          else
+                          { //not WPJ. Simply call AT
+                              [ctx acquireTokenWithResource:resource
+                                                   clientId:clientId
+                                                redirectUri:[NSURL URLWithString:redirectUri]
+                                                     userId:upn
+                                       extraQueryParameters:@"nux=1"
+                                            completionBlock:completionBlock];
+                          }
+                      }
+                  }];
+}
 
 // to be used when user invokes add account flow from the app
 - (void) acquireAccount:(NSString*) upn
                clientId:(NSString*) clientId
                resource:(NSString*) resource
-               redirectUri:(NSString*) redirectUri
-        completionBlock:(ADBrokerCallback) completionBlock
+            redirectUri:(NSString*) redirectUri
+        completionBlock:(ADAuthenticationCallback) completionBlock
 {
-    
-    ADAuthenticationError* error = nil;
-    [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
-    ADAuthenticationContext* ctx = [[ADAuthenticationContext alloc] initWithAuthority:DEFAULT_AUTHORITY
-                                                                    validateAuthority:YES
-                                                                      tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc]initWithAppKey:LOCAL_APPLICATION]
-                                                                                error:&error];
-    
-    [ctx acquireTokenWithResource:resource
-                         clientId:clientId
-                      redirectUri:redirectUri
-                           userId:upn
-             extraQueryParameters:@""
-                  completionBlock:^(ADAuthenticationResult *result)
-     {
-         
-     }];
+    [self acquireAccount:DEFAULT_AUTHORITY
+                  userId:upn
+                clientId:clientId
+                resource:resource
+             redirectUri:redirectUri
+                  appKey:DEFAULT_GUID_FOR_NIL
+         completionBlock:completionBlock];
 }
 
+- (void) doWorkPlaceJoinForUpn: (NSString*) upn
+                 onResultBlock:(ADPRTResultCallback) onResultBlock
+{
+    
+    WorkPlaceJoin *workPlaceJoinApi = [WorkPlaceJoin WorkPlaceJoinManager];
+    NSError* error;
+    ServiceInformation *svcInfo = [workPlaceJoinApi doDiscoveryForUpn:upn error:&error];
+    [svcInfo registrationEndpoint];
+    
+    //find an access token or refresh token for the UPN.
+    [self acquireAccount:[svcInfo registrationEndpoint]
+                  userId:upn
+                clientId:BROKER_CLIENT_ID
+                resource:[svcInfo registrationResourceId]
+             redirectUri:BROKER_REDIRECT_URI
+                  appKey:DEFAULT_GUID_FOR_NIL
+         completionBlock:^(ADAuthenticationResult *result) {
+             if(result.status == AD_SUCCEEDED)
+             {
+                 [workPlaceJoinApi registerDeviceForUser:upn
+                                                   token:result.accessToken
+                                         completionBlock:^(NSError *error) {
+                                             if(!error)
+                                             {
+                                                 //do PRT work
+                                                 ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc]
+                                                                               initWithUpn:upn
+                                                                               correlationId:nil
+                                                                               error:&error];
+                                                 [prtCtx acquirePRTForUPN:onResultBlock];
+                                             } else {
+                                                 onResultBlock(nil, error);
+                                             }
+                                         }];
+             }
+             else
+             {
+                 onResultBlock(nil, result.error);
+             }
+         }];
+}
+
+-(BOOL) isWorkplaceJoined:(NSString*) upn
+{
+    RegistrationInformation* regInfo = [self getWorkPlaceJoinInformation];
+    BOOL result = NO;
+    if(regInfo)
+    {
+        result = [NSString adSame:upn toString:[regInfo userPrincipalName]];
+        [regInfo releaseData];
+    }
+    return result;
+}
+
+- (RegistrationInformation*) getWorkPlaceJoinInformation
+{
+    return nil;
+}
 
 @end
