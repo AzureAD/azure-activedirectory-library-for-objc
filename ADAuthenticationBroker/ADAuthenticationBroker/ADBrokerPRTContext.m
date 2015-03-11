@@ -271,27 +271,8 @@ isHandlingPKeyAuthChallenge:NO
         }
         else
         {
-            //could not get PRT.
-            //TODO log error and call adal with appkey specific cache.
-            ADAuthenticationError* authError;
-            ADAuthenticationContextForBroker* adalContext = [[ADAuthenticationContextForBroker alloc] initWithAuthority:DEFAULT_AUTHORITY
-                                                                                                      validateAuthority:YES
-                                                                                                        tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:appKey]
-                                                                                                                  error:&authError];
-            adalContext.correlationId = ctx.correlationId;
-            if(error)
-            {
-                completionBlock([ADAuthenticationResult resultFromError:authError]);
-            }
-            else
-            {
-                [adalContext acquireTokenWithResource:resource
-                                             clientId:clientId
-                                          redirectUri:[NSURL URLWithString:redirectUri]
-                                               userId:userPrincipalIdentifier
-                                 extraQueryParameters:@"nux=1"
-                                      completionBlock:completionBlock];
-            }
+            //could not get PRT. bubble up the error to calling app.
+            completionBlock([ADAuthenticationResult resultFromError:error]);
         }
     }];
 }
@@ -303,60 +284,62 @@ isHandlingPKeyAuthChallenge:NO
                                              prtItem:(ADBrokerPRTCacheItem*) prtItem
                                      completionBlock:(ADAuthenticationCallback) completionBlock
 {
-    [ctx requestCodeByResource:resource
-                      clientId:clientId
-                   redirectUri:[NSURL URLWithString:redirectUri]
-                         scope:nil
-                        userId:userPrincipalIdentifier
-                promptBehavior:AD_PROMPT_AUTO extraQueryParameters:@"nux=1"
-                 correlationId:ctx.getCorrelationId
+    [ctx requestCodeByResource: resource
+                      clientId: clientId
+                   redirectUri: [NSURL URLWithString:redirectUri]
+                         scope: nil /*for future use */
+                        userId: userPrincipalIdentifier
+                promptBehavior: AD_PROMPT_AUTO
+          extraQueryParameters: @"nux=1"
+        refreshTokenCredential: nil
+                 correlationId: ctx.getCorrelationId
                     completion:^(NSString *code, ADAuthenticationError *authError) {
-        if(!authError)
-        {
-            
-        }
-        else
-        {
-            //create JWT
-            NSString* jwtToken = [self createAccessTokenRequestJWTUsingPRT:prtItem
-                                                                  resource:resource
-                                                                  clientId:clientId];
-            NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                                 @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE_KEY,
-                                                 jwtToken, @"request",
-                                                 nil];
-            
-            //send JWT to token endpoint
-            [ctx request:DEFAULT_AUTHORITY
-             requestData:request_data
-    requestCorrelationId:[ctx getCorrelationId]
-isHandlingPKeyAuthChallenge:NO
-       additionalHeaders:nil
-              completion:^(NSDictionary *response) {
-                  
-                  ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
-                  item.resource = resource;
-                  item.clientId = clientId;
-                  ADAuthenticationResult* result = [ctx processTokenResponse:response
-                                                                     forItem:item
-                                                                 fromRefresh:NO
-                                                        requestCorrelationId:[ctx getCorrelationId]];
-                  
-                  if(result.status == AD_SUCCEEDED)
-                  {
-                      //save AT and RT in the app key specific cache
-                      id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:appKey];
-                      [ctx updateCacheToResult:result
-                                 cacheInstance:cacheStore
-                                     cacheItem:nil
-                              withRefreshToken:nil];
-                      result = [ctx updateResult:result
-                                          toUser:userPrincipalIdentifier];
-                  }
-                  completionBlock(result);
-              }];
-        }
-    }];
+                        if(!authError)
+                        {
+                            
+                        }
+                        else
+                        {
+                            //create JWT
+                            NSString* jwtToken = [self createAccessTokenRequestJWTUsingPRT:prtItem
+                                                                                  resource:resource
+                                                                                  clientId:clientId];
+                            NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                                                 @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE_KEY,
+                                                                 jwtToken, @"request",
+                                                                 nil];
+                            
+                            //send JWT to token endpoint
+                            [ctx request:DEFAULT_AUTHORITY
+                             requestData:request_data
+                    requestCorrelationId:[ctx getCorrelationId]
+             isHandlingPKeyAuthChallenge:NO
+                       additionalHeaders:nil
+                              completion:^(NSDictionary *response) {
+                                  
+                                  ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
+                                  item.resource = resource;
+                                  item.clientId = clientId;
+                                  ADAuthenticationResult* result = [ctx processTokenResponse:response
+                                                                                     forItem:item
+                                                                                 fromRefresh:NO
+                                                                        requestCorrelationId:[ctx getCorrelationId]];
+                                  
+                                  if(result.status == AD_SUCCEEDED)
+                                  {
+                                      //save AT and RT in the app key specific cache
+                                      id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:appKey];
+                                      [ctx updateCacheToResult:result
+                                                 cacheInstance:cacheStore
+                                                     cacheItem:nil
+                                              withRefreshToken:nil];
+                                      result = [ctx updateResult:result
+                                                          toUser:userPrincipalIdentifier];
+                                  }
+                                  completionBlock(result);
+                              }];
+                        }
+                    }];
 }
 
 
