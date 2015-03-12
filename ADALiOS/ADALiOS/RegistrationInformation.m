@@ -42,12 +42,12 @@
     self = [super init];
     if(self)
     {
-        _identity = identity;
+        _identity = SAFE_ARC_RETAIN(identity);
         _userPrincipalName = SAFE_ARC_RETAIN(userPrincipalName);
-        _certificate = certificate;
+        _certificate = SAFE_ARC_RETAIN(certificate);
         _certificateSubject = SAFE_ARC_RETAIN(certificateSubject);
         _certificateData = SAFE_ARC_RETAIN(certificateData);
-        _privateKey = privateKey;
+        _privateKey = SAFE_ARC_RETAIN(privateKey);
         _privateKeyData = SAFE_ARC_RETAIN(privateKeyData);
         _certificateIssuer = SAFE_ARC_RETAIN(certificateIssuer);
         return self;
@@ -70,40 +70,42 @@
 -(void) releaseData{
     if(self){
         if(_identity){
-            CFRelease(_identity);
+            SAFE_ARC_RELEASE(_identity);
             _identity = nil;
         }
         
         if(_certificate){
-            CFRelease(_certificate);
+            SAFE_ARC_RELEASE(_certificate);
             _certificate = nil;
         }
         
         if(_privateKey){
-            CFRelease(_privateKey);
+            SAFE_ARC_RELEASE(_privateKey);
             _privateKey = nil;
         }
         
         if(_privateKeyData){
-            CFRelease((__bridge CFTypeRef)_privateKeyData);
+            SAFE_ARC_RELEASE(_privateKeyData);
             _privateKeyData = nil;
         }
         
         if(_certificateSubject){
-            CFRelease((__bridge CFTypeRef)(_certificateSubject));
+            SAFE_ARC_RELEASE(_certificateSubject);
             _certificateSubject = nil;
         }
         
         if(_certificateData){
+            SAFE_ARC_RELEASE(_certificateData);
             _certificateData = nil;
         }
         
         if(_userPrincipalName){
-            CFRelease((__bridge CFTypeRef)(_userPrincipalName));
+            SAFE_ARC_RELEASE(_userPrincipalName);
             _userPrincipalName = nil;
         }
         
         if(_certificateIssuer){
+            SAFE_ARC_RELEASE(_certificateIssuer);
             _certificateIssuer = nil;
         }
         
