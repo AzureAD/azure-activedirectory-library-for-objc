@@ -42,12 +42,12 @@
     self = [super init];
     if(self)
     {
-        _identity = SAFE_ARC_RETAIN(identity);
+        _identity = identity;
         _userPrincipalName = SAFE_ARC_RETAIN(userPrincipalName);
-        _certificate = SAFE_ARC_RETAIN(certificate);
+        _certificate = certificate;
         _certificateSubject = SAFE_ARC_RETAIN(certificateSubject);
         _certificateData = SAFE_ARC_RETAIN(certificateData);
-        _privateKey = SAFE_ARC_RETAIN(privateKey);
+        _privateKey = privateKey;
         _privateKeyData = SAFE_ARC_RETAIN(privateKeyData);
         _certificateIssuer = SAFE_ARC_RETAIN(certificateIssuer);
         return self;
@@ -70,17 +70,17 @@
 -(void) releaseData{
     if(self){
         if(_identity){
-            SAFE_ARC_RELEASE(_identity);
+            CFRelease(_identity);
             _identity = nil;
         }
         
         if(_certificate){
-            SAFE_ARC_RELEASE(_certificate);
+            CFRelease(_certificate);
             _certificate = nil;
         }
         
         if(_privateKey){
-            SAFE_ARC_RELEASE(_privateKey);
+            CFRelease(_privateKey);
             _privateKey = nil;
         }
         
