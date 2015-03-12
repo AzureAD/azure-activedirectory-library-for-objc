@@ -85,25 +85,27 @@
         }
         
         if(_privateKeyData){
-            CFRelease((__bridge CFTypeRef)_privateKeyData);
+            SAFE_ARC_RELEASE(_privateKeyData);
             _privateKeyData = nil;
         }
         
         if(_certificateSubject){
-            CFRelease((__bridge CFTypeRef)(_certificateSubject));
+            SAFE_ARC_RELEASE(_certificateSubject);
             _certificateSubject = nil;
         }
         
         if(_certificateData){
+            SAFE_ARC_RELEASE(_certificateData);
             _certificateData = nil;
         }
         
         if(_userPrincipalName){
-            CFRelease((__bridge CFTypeRef)(_userPrincipalName));
+            SAFE_ARC_RELEASE(_userPrincipalName);
             _userPrincipalName = nil;
         }
         
         if(_certificateIssuer){
+            SAFE_ARC_RELEASE(_certificateIssuer);
             _certificateIssuer = nil;
         }
         
