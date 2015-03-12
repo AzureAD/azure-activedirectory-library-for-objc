@@ -1326,7 +1326,8 @@ const int sAsyncContextTimeout = 10;
     mContext.validateAuthority = NO;
     [self asyncAcquireTokenByRefreshToken:@"doesn't matter"];
     ADAssertLongEquals(AD_FAILED, mResult.status);
-    ADAssertStringEquals(mResult.error.domain, ADAuthenticationErrorDomain);
+    XCTAssertTrue([NSString adSame:mResult.error.domain toString:ADAuthenticationErrorDomain] ||
+                  [NSString adSame:mResult.error.domain toString:NSURLErrorDomain] );
     
     //Valid authority, but invalid refresh token:
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority error:nil];
