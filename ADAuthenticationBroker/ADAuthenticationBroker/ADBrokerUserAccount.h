@@ -16,23 +16,19 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <UIKit/UIKit.h>
-#import <CoreData/CoreData.h>
+#import <Foundation/Foundation.h>
+#import <ADALiOS/ADUserInformation.h>
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface ADBrokerUserAccount : NSObject
 
-@property (nonatomic, retain) NSString *_sourceApplication;
-@property (nonatomic, retain) NSURL *_url;
+@property (readonly) ADUserInformation* userInformation;
 
-@property (strong, nonatomic) UIWindow *window;
+@property (readonly) BOOL isWorkplaceJoined;
 
-@property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
-@property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
-@property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+@property (readonly) BOOL isNGCEnabled;
 
-- (void)saveContext;
-- (NSURL *)applicationDocumentsDirectory;
-
+- (id) init:(ADUserInformation*) userInformation
+isWorkplaceJoined:(BOOL) isWorkplaceJoined
+isNGCEnabled:(BOOL) isNGCEnabled;
 
 @end
-

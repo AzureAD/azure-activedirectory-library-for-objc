@@ -31,11 +31,9 @@
   sourceApplication:(NSString *)sourceApplication
          annotation:(id)annotation
 {
-    if([[url host] isEqualToString:@"broker"]){
-        [ADBrokerContext invokeBrokerForSourceApplication:[url absoluteString] sourceApplication:sourceApplication completionBlock:^(ADAuthenticationResult *result) {
-            //HANDLE response
-        }];
-    }
+    self._sourceApplication = sourceApplication;
+    self._url = url;
+    
     return YES;
 }
 

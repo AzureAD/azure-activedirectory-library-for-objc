@@ -17,22 +17,10 @@
 // governing permissions and limitations under the License.
 
 #import <UIKit/UIKit.h>
-#import <CoreData/CoreData.h>
+#import <ADAuthenticationBroker/ADBrokerUserAccount.h>
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface AccountDetailsViewController : UIViewController<UIAlertViewDelegate>
 
-@property (nonatomic, retain) NSString *_sourceApplication;
-@property (nonatomic, retain) NSURL *_url;
-
-@property (strong, nonatomic) UIWindow *window;
-
-@property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
-@property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
-@property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
-
-- (void)saveContext;
-- (NSURL *)applicationDocumentsDirectory;
-
+@property (nonatomic, retain) ADBrokerUserAccount* account;
 
 @end
-

@@ -20,14 +20,12 @@
 #import <Foundation/Foundation.h>
 #include <UIKit/UIKit.h>
 #import <ADALiOS/ADAuthenticationResult.h>
-#import <ADALiOS/ADAuthenticationContext.h>
 #import <ADALiOS/ADAuthenticationContextForBroker.h>
 #import <workplaceJoinAPI/RegistrationInformation.h>
-#import "ADBrokerPRTContext.h"
+#import <ADAuthenticationBroker/ADBrokerPRTContext.h>
 
 /*! The completion block declarations. */
 typedef void(^ADOnResultCallback)(NSError* error);
-typedef void(^ADAccountListCallback)(NSDictionary* accounts);
 
 @interface ADBrokerContext : NSObject
 
@@ -35,12 +33,19 @@ typedef void(^ADAccountListCallback)(NSDictionary* accounts);
 
 @property (strong) NSUUID* correlationId;
 
++ (BOOL) isBrokerRequest: (NSURL*) requestPayloadUrl
+               returnUpn: (NSString**) returnUpn;
+
++ (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
+                        sourceApplication: (NSString*) sourceApplication
+                                      upn: (NSString*) upn
+                          completionBlock: (ADAuthenticationCallback) completionBlock;
+
 + (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
                         sourceApplication: (NSString*) sourceApplication
                           completionBlock: (ADAuthenticationCallback) completionBlock;
 
 - (id) initWithAuthority:(NSString*) authority;
-
 
 // to be used when user invokes add account flow from the app
 - (void) acquireAccount:(NSString*) upn
@@ -48,6 +53,8 @@ typedef void(^ADAccountListCallback)(NSDictionary* accounts);
                resource:(NSString*) resource
             redirectUri:(NSString*) redirectUri
     completionBlock:(ADAuthenticationCallback) completionBlock;
+
++ (NSArray*) getAllAccounts:(ADAuthenticationError*) error;
 
 - (void) removeAccount: (NSString*) upn
          onResultBlock:(ADOnResultCallback) onResultBlock;

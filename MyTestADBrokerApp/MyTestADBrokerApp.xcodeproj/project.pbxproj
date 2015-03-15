@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		975E42D01A1D28A20033B500 /* libADAuthenticationBroker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 975E42C71A1D20DB0033B500 /* libADAuthenticationBroker.a */; };
 		975E42D71A1D49D10033B500 /* ADALiOS.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 975E42D61A1D49D10033B500 /* ADALiOS.bundle */; };
 		976CCB261A02DA49006C91F4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB251A02DA49006C91F4 /* main.m */; };
 		976CCB291A02DA49006C91F4 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB281A02DA49006C91F4 /* AppDelegate.m */; };
@@ -18,39 +17,20 @@
 		976CCB521A02E863006C91F4 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 976CCB511A02E863006C91F4 /* CoreData.framework */; };
 		976CCB541A02E86E006C91F4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 976CCB531A02E86E006C91F4 /* UIKit.framework */; };
 		976CCB561A02E874006C91F4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 976CCB551A02E874006C91F4 /* Foundation.framework */; };
+		977DA5CB1AAFD308009E75FE /* libADAuthenticationBroker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 977DA5CA1AAFD308009E75FE /* libADAuthenticationBroker.a */; };
+		979F4EDF1AB34822009B3E43 /* AccountDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 979F4EDE1AB34822009B3E43 /* AccountDetailsViewController.m */; };
 		97E21CD41A1C348C00EF5520 /* MyTestADBrokerApp.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = 97E21CD11A1C348C00EF5520 /* MyTestADBrokerApp.entitlements */; };
 		97E21CDA1A1C349900EF5520 /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97E21CD61A1C349900EF5520 /* Main_iPad.storyboard */; };
 		97E21CDB1A1C349900EF5520 /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97E21CD81A1C349900EF5520 /* Main_iPhone.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		975E42C61A1D20DB0033B500 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 975E42BF1A1D20DB0033B500 /* ADAuthenticationBroker.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 97D685BE1A13EA5000EE816C;
-			remoteInfo = ADAuthenticationBroker;
-		};
-		975E42CA1A1D20DB0033B500 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 975E42BF1A1D20DB0033B500 /* ADAuthenticationBroker.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 97D685C91A13EA5000EE816C;
-			remoteInfo = ADAuthenticationBrokerTests;
-		};
 		976CCB3D1A02DA49006C91F4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 976CCB181A02DA49006C91F4 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 976CCB1F1A02DA49006C91F4;
 			remoteInfo = MyTestADBrokerApp;
-		};
-		97F5D7A41A9414F900E0AD3A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 975E42BF1A1D20DB0033B500 /* ADAuthenticationBroker.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 97D685BD1A13EA5000EE816C;
-			remoteInfo = ADAuthenticationBroker;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -68,9 +48,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		975E42BF1A1D20DB0033B500 /* ADAuthenticationBroker.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ADAuthenticationBroker.xcodeproj; path = ../ADAuthenticationBroker/ADAuthenticationBroker.xcodeproj; sourceTree = "<group>"; };
 		975E42D61A1D49D10033B500 /* ADALiOS.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = ADALiOS.bundle; sourceTree = "<group>"; };
-		97603B981A1D555A00A9C9C3 /* ADALiOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ADALiOS.framework; sourceTree = "<group>"; };
 		976CCB201A02DA49006C91F4 /* MyTestADBrokerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyTestADBrokerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		976CCB241A02DA49006C91F4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		976CCB251A02DA49006C91F4 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -86,6 +64,11 @@
 		976CCB511A02E863006C91F4 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		976CCB531A02E86E006C91F4 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		976CCB551A02E874006C91F4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		977DA5C41AAFD25C009E75FE /* libADALiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADALiOS.a; path = "../../../Library/Developer/Xcode/DerivedData/ADAuthenticationBroker-bvcelnfdafckoahgsnmzojpxkneo/Build/Products/Debug-iphoneos/libADALiOS.a"; sourceTree = "<group>"; };
+		977DA5C51AAFD25C009E75FE /* libWorkPlaceJoinAPI.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWorkPlaceJoinAPI.a; path = "../ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/build/Debug-iphoneos/libWorkPlaceJoinAPI.a"; sourceTree = "<group>"; };
+		977DA5CA1AAFD308009E75FE /* libADAuthenticationBroker.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADAuthenticationBroker.a; path = "../../../Library/Developer/Xcode/DerivedData/ADAuthenticationBroker-bvcelnfdafckoahgsnmzojpxkneo/Build/Products/Debug-iphoneos/libADAuthenticationBroker.a"; sourceTree = "<group>"; };
+		979F4EDD1AB34822009B3E43 /* AccountDetailsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccountDetailsViewController.h; sourceTree = "<group>"; };
+		979F4EDE1AB34822009B3E43 /* AccountDetailsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AccountDetailsViewController.m; sourceTree = "<group>"; };
 		97E21CD11A1C348C00EF5520 /* MyTestADBrokerApp.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = MyTestADBrokerApp.entitlements; sourceTree = "<group>"; };
 		97E21CD71A1C349900EF5520 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
 		97E21CD91A1C349900EF5520 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
@@ -96,7 +79,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				975E42D01A1D28A20033B500 /* libADAuthenticationBroker.a in Frameworks */,
+				977DA5CB1AAFD308009E75FE /* libADAuthenticationBroker.a in Frameworks */,
 				976CCB561A02E874006C91F4 /* Foundation.framework in Frameworks */,
 				976CCB541A02E86E006C91F4 /* UIKit.framework in Frameworks */,
 				976CCB521A02E863006C91F4 /* CoreData.framework in Frameworks */,
@@ -113,19 +96,9 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		975E42C01A1D20DB0033B500 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				975E42C71A1D20DB0033B500 /* libADAuthenticationBroker.a */,
-				975E42CB1A1D20DB0033B500 /* ADAuthenticationBrokerTests.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		976CCB171A02DA49006C91F4 = {
 			isa = PBXGroup;
 			children = (
-				975E42BF1A1D20DB0033B500 /* ADAuthenticationBroker.xcodeproj */,
 				976CCB501A02E847006C91F4 /* Frameworks */,
 				976CCB221A02DA49006C91F4 /* MyTestADBrokerApp */,
 				976CCB3F1A02DA49006C91F4 /* MyTestADBrokerAppTests */,
@@ -155,6 +128,8 @@
 				976CCB2A1A02DA49006C91F4 /* MyTestADBrokerApp.xcdatamodeld */,
 				976CCB4E1A02E2C1006C91F4 /* Images-2.xcassets */,
 				976CCB231A02DA49006C91F4 /* Supporting Files */,
+				979F4EDD1AB34822009B3E43 /* AccountDetailsViewController.h */,
+				979F4EDE1AB34822009B3E43 /* AccountDetailsViewController.m */,
 			);
 			path = MyTestADBrokerApp;
 			sourceTree = "<group>";
@@ -189,7 +164,9 @@
 		976CCB501A02E847006C91F4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				97603B981A1D555A00A9C9C3 /* ADALiOS.framework */,
+				977DA5CA1AAFD308009E75FE /* libADAuthenticationBroker.a */,
+				977DA5C41AAFD25C009E75FE /* libADALiOS.a */,
+				977DA5C51AAFD25C009E75FE /* libWorkPlaceJoinAPI.a */,
 				976CCB551A02E874006C91F4 /* Foundation.framework */,
 				976CCB531A02E86E006C91F4 /* UIKit.framework */,
 				976CCB511A02E863006C91F4 /* CoreData.framework */,
@@ -212,7 +189,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				97F5D7A51A9414F900E0AD3A /* PBXTargetDependency */,
 			);
 			name = MyTestADBrokerApp;
 			productName = MyTestADBrokerApp;
@@ -272,12 +248,6 @@
 			mainGroup = 976CCB171A02DA49006C91F4;
 			productRefGroup = 976CCB211A02DA49006C91F4 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 975E42C01A1D20DB0033B500 /* Products */;
-					ProjectRef = 975E42BF1A1D20DB0033B500 /* ADAuthenticationBroker.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				976CCB1F1A02DA49006C91F4 /* MyTestADBrokerApp */,
@@ -285,23 +255,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		975E42C71A1D20DB0033B500 /* libADAuthenticationBroker.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libADAuthenticationBroker.a;
-			remoteRef = 975E42C61A1D20DB0033B500 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		975E42CB1A1D20DB0033B500 /* ADAuthenticationBrokerTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = ADAuthenticationBrokerTests.xctest;
-			remoteRef = 975E42CA1A1D20DB0033B500 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		976CCB1E1A02DA49006C91F4 /* Resources */ = {
@@ -331,6 +284,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				976CCB291A02DA49006C91F4 /* AppDelegate.m in Sources */,
+				979F4EDF1AB34822009B3E43 /* AccountDetailsViewController.m in Sources */,
 				976CCB2C1A02DA49006C91F4 /* MyTestADBrokerApp.xcdatamodeld in Sources */,
 				976CCB2F1A02DA49006C91F4 /* ViewController.m in Sources */,
 				976CCB261A02DA49006C91F4 /* main.m in Sources */,
@@ -352,11 +306,6 @@
 			isa = PBXTargetDependency;
 			target = 976CCB1F1A02DA49006C91F4 /* MyTestADBrokerApp */;
 			targetProxy = 976CCB3D1A02DA49006C91F4 /* PBXContainerItemProxy */;
-		};
-		97F5D7A51A9414F900E0AD3A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = ADAuthenticationBroker;
-			targetProxy = 97F5D7A41A9414F900E0AD3A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -480,6 +429,8 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ADAuthenticationBroker-bvcelnfdafckoahgsnmzojpxkneo/Build/Products/Debug-iphoneos",
+					"/Users/kanishk/git/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/build/Debug-iphoneos",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -505,6 +456,8 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ADAuthenticationBroker-bvcelnfdafckoahgsnmzojpxkneo/Build/Products/Debug-iphoneos",
+					"/Users/kanishk/git/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/build/Debug-iphoneos",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";

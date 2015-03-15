@@ -27,6 +27,7 @@
 #import "ADBrokerKeychainTokenCacheStore.h"
 #import "ADBrokerHelpers.h"
 #import "ADBrokerPRTCacheItem.h"
+#import "ADBrokerUserAccount.h"
 
 @implementation ADBrokerContext
 
@@ -86,8 +87,36 @@ return; \
     }
 }
 
++ (BOOL) isBrokerRequest: (NSURL*) requestPayloadUrl
+               returnUpn: (NSString**) returnUpn
+{
+    
+    BOOL isBrokerRequest = requestPayloadUrl && [[requestPayloadUrl host] isEqualToString:@"broker"];
+    if(isBrokerRequest)
+    {
+        NSArray * parts = [[requestPayloadUrl absoluteString] componentsSeparatedByString:@"?"];
+        NSString *qp = [parts objectAtIndex:1];
+        NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+        *returnUpn = [queryParamsMap valueForKey:USER_ID];
+    }
+    
+    return isBrokerRequest;
+}
+
+
+
++ (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
+                        sourceApplication: (NSString*) sourceApplication                          completionBlock: (ADAuthenticationCallback) completionBlock
+{
+    [ADBrokerContext invokeBrokerForSourceApplication:requestPayload
+                                    sourceApplication:sourceApplication
+                                                  upn:nil
+                                      completionBlock:completionBlock];
+}
+
 + (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
                         sourceApplication: (NSString*) sourceApplication
+                                      upn: (NSString*) upn
                           completionBlock: (ADAuthenticationCallback) completionBlock
 {
 //    if([NSString adSame:sourceApplication toString:DEFAULT_GUID_FOR_NIL])
@@ -185,6 +214,83 @@ return; \
     });
 }
 
+
++ (NSArray*) getAllAccounts:(ADAuthenticationError*) error
+{
+    NSMutableArray* accountsArray = [NSMutableArray new];
+    id<ADTokenCacheStoring> cache = [ADBrokerKeychainTokenCacheStore new];
+    
+    NSError* errObj = nil;
+    RegistrationInformation* regInfo = [[WorkPlaceJoin WorkPlaceJoinManager]
+                                        getRegistrationInformation:nil];
+    NSString* wpjUpn = nil;
+    if(regInfo)
+    {
+        wpjUpn = regInfo.userPrincipalName;
+        [regInfo releaseData];
+        regInfo = nil;
+    }
+    if(errObj)
+    {
+        error = [ADAuthenticationError errorFromNSError:errObj
+                                           errorDetails:nil];
+        return accountsArray;
+    }
+    
+    error = nil;
+    NSArray* array = [cache allItemsWithError:&error];
+    if (error)
+    {
+        return accountsArray;
+    }
+    
+    NSMutableSet* users = [NSMutableSet new];
+    for(ADTokenCacheStoreItem* item in array)
+    {
+        ADUserInformation *user = item.userInformation;
+        if (!item.userInformation)
+        {
+            user = [ADUserInformation userInformationWithUserId:@"Unknown user" error:nil];
+        }
+        if (![users containsObject:user.userId])
+        {
+            [users addObject:user.userId];
+            [accountsArray addObject:[[ADBrokerUserAccount alloc] init:user
+                                                     isWorkplaceJoined:[NSString adSame:user.userId
+                                                                               toString:wpjUpn]
+                                                          isNGCEnabled:NO]];
+        }
+    }
+    
+    cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    array = [cache allItemsWithError:&error];
+    if (error)
+    {
+        return accountsArray;
+    }
+    
+    for(ADTokenCacheStoreItem* item in array)
+    {
+        ADUserInformation *user = item.userInformation;
+        if (!item.userInformation)
+        {
+            user = [ADUserInformation userInformationWithUserId:@"Unknown user" error:nil];
+        }
+        
+        if (![users containsObject:user.userId])
+        {
+            [users addObject:user.userId];
+            [accountsArray addObject:[[ADBrokerUserAccount alloc] init:user
+                                                     isWorkplaceJoined:[NSString adSame:user.userId
+                                                                               toString:wpjUpn]
+                                                          isNGCEnabled:NO]];
+        }
+    }
+    
+    return accountsArray;
+}
+
+
 - (void) acquireAccount:(NSString*) authority
                  userId:(NSString*) upn
                clientId:(NSString*) clientId
@@ -203,57 +309,82 @@ return; \
                                              error:&error];
     [ctx setCorrelationId:_correlationId];
     
+    // if UPN is blank, do not use acquire token silent as it will return
+    // the default token in the case in case there is a single user.
+    
+    BOOL forceUI = [NSString adIsStringNilOrBlank:upn];
+    
+    ADAuthenticationCallback defaultCallback = ^(ADAuthenticationResult *result) {
+        //if failed, check for and use PRT
+        if(result.status == AD_SUCCEEDED)
+        {
+            //update first party cache
+            if(![NSString adSame:clientId toString: BROKER_CLIENT_ID])
+            {
+                id<ADTokenCacheStoring> firstPartyCache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+                //save AT and RT in the cache
+                [ctx updateCacheToResult:result
+                           cacheInstance:firstPartyCache
+                               cacheItem:nil
+                        withRefreshToken:nil];
+                result = [ctx updateResult:result
+                                    toUser:upn];
+            }
+            
+            completionBlock(result);
+            return;
+        }
+        else
+        {
+            //silent call failed. check if the user is WPJ.
+            if([self isWorkplaceJoined:upn])
+            {
+                ADAuthenticationError* error = nil;
+                ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
+                                                                       correlationId:_correlationId
+                                                                               error:&error];
+                [prtCtx acquireTokenUsingPRTForResource:resource
+                                               clientId:clientId
+                                            redirectUri:redirectUri
+                                                 appKey:appKey
+                                        completionBlock:completionBlock];
+            }
+            else
+            { //not WPJ. Simply call AT
+                if(!forceUI){
+                [ctx acquireTokenWithResource:resource
+                                     clientId:clientId
+                                  redirectUri:[NSURL URLWithString:redirectUri]
+                                       userId:upn
+                         extraQueryParameters:@"nux=1"
+                              completionBlock:completionBlock];
+                } else {
+                    completionBlock(result);
+                    return;
+                }
+            }
+        }
+    };
+    
+    if(!forceUI)
+    {
     //silent call also does the AT refresh, if needed.
     [ctx acquireTokenSilentWithResource: resource
                          clientId: clientId
                       redirectUri: [NSURL URLWithString:redirectUri]
                            userId: upn
-                  completionBlock:^(ADAuthenticationResult *result) {
-                      //if failed, check for and use PRT
-                      if(result.status == AD_SUCCEEDED)
-                      {
-                          //update first party cache
-                          if(![NSString adSame:clientId toString: BROKER_CLIENT_ID])
-                          {
-                              id<ADTokenCacheStoring> firstPartyCache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
-                              //save AT and RT in the cache
-                              [ctx updateCacheToResult:result
-                                               cacheInstance:firstPartyCache
-                                                   cacheItem:nil
-                                  withRefreshToken:nil];
-                              result = [ctx updateResult:result
-                                              toUser:upn];
-                          }
-                      
-                          completionBlock(result);
-                          return;
-                      }
-                      else
-                      {
-                       //silent call failed. check if the user is WPJ.
-                          if([self isWorkplaceJoined:upn])
-                          {
-                          ADAuthenticationError* error = nil;
-                          ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
-                                                                                 correlationId:_correlationId
-                                                                                         error:&error];
-                              [prtCtx acquireTokenUsingPRTForResource:resource
-                                                             clientId:clientId
-                                                          redirectUri:redirectUri
-                                                               appKey:appKey
-                                                      completionBlock:completionBlock];
-                          }
-                          else
-                          { //not WPJ. Simply call AT
-                              [ctx acquireTokenWithResource:resource
-                                                   clientId:clientId
-                                                redirectUri:[NSURL URLWithString:redirectUri]
-                                                     userId:upn
-                                       extraQueryParameters:@"nux=1"
-                                            completionBlock:completionBlock];
-                          }
-                      }
-                  }];
+                  completionBlock:defaultCallback];
+    }
+    else
+    {
+        [ctx acquireTokenWithResource:resource
+                             clientId:clientId
+                          redirectUri:[NSURL URLWithString:redirectUri]
+                       promptBehavior:AD_PROMPT_ALWAYS
+                               userId:upn
+                 extraQueryParameters:@"nux=1"
+                      completionBlock:completionBlock];
+    }
 }
 
 // to be used when user invokes add account flow from the app
@@ -263,7 +394,7 @@ return; \
             redirectUri:(NSString*) redirectUri
         completionBlock:(ADAuthenticationCallback) completionBlock
 {
-    [self acquireAccount:DEFAULT_AUTHORITY
+    [self acquireAccount:_authority
                   userId:upn
                 clientId:clientId
                 resource:resource
@@ -328,7 +459,30 @@ return; \
 
 - (RegistrationInformation*) getWorkPlaceJoinInformation
 {
-    return nil;
+    return [[WorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation:nil];
+}
+
+
+- (void) removeWorkPlaceJoinRegistration:(ADOnResultCallback) onResultBlock
+{
+    [[WorkPlaceJoin WorkPlaceJoinManager] leaveWithCompletionBlock:onResultBlock];
+}
+
+
+- (void) removeAccount: (NSString*) upn
+         onResultBlock:(ADOnResultCallback) onResultBlock
+{
+    RegistrationInformation* regInfo = [self getWorkPlaceJoinInformation];
+    if(regInfo && [NSString adSame:upn toString:regInfo.userPrincipalName])
+    {
+        //remove WPJ as well
+        [ self removeWorkPlaceJoinRegistration:nil];
+        [regInfo releaseData];
+        regInfo = nil;
+    }
+    
+    
+    
 }
 
 @end
