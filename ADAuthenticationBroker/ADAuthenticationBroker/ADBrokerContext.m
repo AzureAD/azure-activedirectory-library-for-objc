@@ -311,7 +311,6 @@ return; \
     
     // if UPN is blank, do not use acquire token silent as it will return
     // the default token in the case in case there is a single user.
-    
     BOOL forceUI = [NSString adIsStringNilOrBlank:upn];
     
     ADAuthenticationCallback defaultCallback = ^(ADAuthenticationResult *result) {
@@ -336,7 +335,7 @@ return; \
         }
         else
         {
-            //silent call failed. check if the user is WPJ.
+            //call failed. check if the user is WPJ.
             if([self isWorkplaceJoined:upn])
             {
                 ADAuthenticationError* error = nil;
@@ -350,42 +349,32 @@ return; \
                                         completionBlock:completionBlock];
             }
             else
-            { //not WPJ. Simply call AT
-                if(!forceUI){
-                [ctx acquireTokenWithResource:resource
-                                     clientId:clientId
-                                  redirectUri:[NSURL URLWithString:redirectUri]
-                                       userId:upn
-                         extraQueryParameters:@"nux=1"
-                              completionBlock:completionBlock];
-                } else {
-                    completionBlock(result);
-                    return;
-                }
+            {
+                completionBlock(result);
+                return;
             }
         }
     };
     
-    if(!forceUI)
+    ADPromptBehavior pb = AD_PROMPT_AUTO;
+    if(forceUI)
     {
-    //silent call also does the AT refresh, if needed.
-    [ctx acquireTokenSilentWithResource: resource
-                         clientId: clientId
-                      redirectUri: [NSURL URLWithString:redirectUri]
-                           userId: upn
-                  completionBlock:defaultCallback];
+        pb = AD_PROMPT_ALWAYS;
     }
-    else
-    {
-        [ctx acquireTokenWithResource:resource
-                             clientId:clientId
-                          redirectUri:[NSURL URLWithString:redirectUri]
-                       promptBehavior:AD_PROMPT_ALWAYS
-                               userId:upn
-                 extraQueryParameters:@"nux=1"
-                      completionBlock:completionBlock];
+
+        [ctx internalAcquireTokenWithResource:resource
+                                     clientId:clientId
+                                  redirectUri:[NSURL URLWithString:redirectUri]
+                               promptBehavior:pb
+                                       silent:NO
+                                       userId:upn
+                                        scope:nil
+                         extraQueryParameters:@"nux=1"
+                                     tryCache:YES
+                            validateAuthority:YES
+                                correlationId:ctx.getCorrelationId
+                              completionBlock:defaultCallback];
     }
-}
 
 // to be used when user invokes add account flow from the app
 - (void) acquireAccount:(NSString*) upn
@@ -409,11 +398,20 @@ return; \
     
     WorkPlaceJoin *workPlaceJoinApi = [WorkPlaceJoin WorkPlaceJoinManager];
     NSError* error;
+    error = [workPlaceJoinApi addDiscoveryHint:PROD];
+    if(error)
+    {
+        onResultBlock(nil, error);
+    }
+    
     ServiceInformation *svcInfo = [workPlaceJoinApi doDiscoveryForUpn:upn error:&error];
-    [svcInfo registrationEndpoint];
+    if(error)
+    {
+        onResultBlock(nil, error);
+    }
     
     //find an access token or refresh token for the UPN.
-    [self acquireAccount:[svcInfo registrationEndpoint]
+    [self acquireAccount:[svcInfo oauthAuthCodeEndpoint]
                   userId:upn
                 clientId:BROKER_CLIENT_ID
                 resource:[svcInfo registrationResourceId]
@@ -424,6 +422,8 @@ return; \
              {
                  [workPlaceJoinApi registerDeviceForUser:upn
                                                    token:result.accessToken
+                                    registrationEndpoint:[svcInfo registrationEndpoint]
+                              registrationServiceVersion:[svcInfo registrationServiceVersion]
                                          completionBlock:^(NSError *error) {
                                              if(!error)
                                              {
@@ -432,7 +432,7 @@ return; \
                                                                                initWithUpn:upn
                                                                                correlationId:nil
                                                                                error:&error];
-                                                 [prtCtx acquirePRTForUPN:onResultBlock];
+                                                 //[prtCtx acquirePRTForUPN:onResultBlock];
                                              } else {
                                                  onResultBlock(nil, error);
                                              }
@@ -447,7 +447,7 @@ return; \
 
 -(BOOL) isWorkplaceJoined:(NSString*) upn
 {
-    RegistrationInformation* regInfo = [self getWorkPlaceJoinInformation];
+    RegistrationInformation* regInfo = [ADBrokerContext getWorkPlaceJoinInformation];
     BOOL result = NO;
     if(regInfo)
     {
@@ -457,7 +457,7 @@ return; \
     return result;
 }
 
-- (RegistrationInformation*) getWorkPlaceJoinInformation
++ (RegistrationInformation*) getWorkPlaceJoinInformation
 {
     return [[WorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation:nil];
 }
@@ -472,17 +472,29 @@ return; \
 - (void) removeAccount: (NSString*) upn
          onResultBlock:(ADOnResultCallback) onResultBlock
 {
-    RegistrationInformation* regInfo = [self getWorkPlaceJoinInformation];
+    RegistrationInformation* regInfo = [ADBrokerContext getWorkPlaceJoinInformation];
     if(regInfo && [NSString adSame:upn toString:regInfo.userPrincipalName])
     {
         //remove WPJ as well
-        [ self removeWorkPlaceJoinRegistration:nil];
+        [ self removeWorkPlaceJoinRegistration:^(NSError *error) {
+            //do nothing
+        }];
         [regInfo releaseData];
         regInfo = nil;
     }
     
-    
-    
+    [self deleteFromCache:[ADBrokerKeychainTokenCacheStore new]
+                      upn:upn];
+    [self deleteFromCache:[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
+                      upn:upn];
+    onResultBlock(nil);
+}
+
+-(void) deleteFromCache:(id<ADTokenCacheStoring>) cache
+                    upn:(NSString*) upn
+{
+    ADAuthenticationError* error;
+    [cache removeAllForUser:upn error:&error];
 }
 
 @end

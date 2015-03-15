@@ -19,7 +19,7 @@
 #import "AccountDetailsViewController.h"
 #import <ADAuthenticationBroker/ADBrokerContext.h>
 #import <ADAuthenticationBroker/ADBrokerConstants.h>
-
+#import <ADAuthenticationBroker/NSString+ADBrokerHelperMethods.h>
 
 @interface AccountDetailsViewController ()
 
@@ -43,7 +43,18 @@
                       self.account.userInformation.familyName];
     self.upn.text = self.account.userInformation.userId;
     
+    [_activityIndicator hidesWhenStopped];
+    _activityIndicator.hidden = true;
+    [_activityIndicator stopAnimating];
     // Do any additional setup after loading the view.
+    RegistrationInformation* info = [ADBrokerContext getWorkPlaceJoinInformation];
+    if(info)
+    {
+        self.wpjEnabled.enabled = [NSString adSame:self.account.userInformation.userId
+                                          toString:info.userPrincipalName];
+        [info releaseData];
+        info = nil;
+    }
     if(self.account.isWorkplaceJoined)
     {
         [self.wpjEnabled setOn:YES animated:YES];
@@ -75,7 +86,7 @@
 - (IBAction)wpjSwitchPressed:(id)sender
 {
     ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:DEFAULT_AUTHORITY];
-    if(!self.wpjEnabled.enabled)
+    if(!self.wpjEnabled.isOn)
     {
         //user wants to remove WPJ
         [ctx removeWorkPlaceJoinRegistration:^(NSError *error) {
@@ -89,7 +100,7 @@
                 [alert show];
             } else
             {
-                [self dismissViewControllerAnimated:YES completion:nil];
+                [self.navigationController popViewControllerAnimated:YES];
             }
         }];
     }
@@ -110,7 +121,7 @@
                              [alert show];
                          } else
                          {
-                             [self dismissViewControllerAnimated:YES completion:nil];
+                             [self.navigationController popViewControllerAnimated:YES];
                          }
                      }];
     }
@@ -133,7 +144,7 @@
             }
             else
             {
-                [self dismissViewControllerAnimated:YES completion:nil];
+                [self.navigationController popViewControllerAnimated:YES];
             }
         }];
     }

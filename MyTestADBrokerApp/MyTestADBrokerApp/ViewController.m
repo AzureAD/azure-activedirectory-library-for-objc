@@ -47,6 +47,11 @@ NSMutableArray* users;
     [super loadView];
 }
 
+-(void) viewWillAppear:(BOOL)animated
+{
+    [self getAllAccounts:YES];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];

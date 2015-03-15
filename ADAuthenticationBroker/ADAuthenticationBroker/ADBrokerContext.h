@@ -62,7 +62,7 @@ typedef void(^ADOnResultCallback)(NSError* error);
 - (void) doWorkPlaceJoinForUpn: (NSString*) upn
                  onResultBlock:(ADPRTResultCallback) onResultBlock;
 
-- (RegistrationInformation*) getWorkPlaceJoinInformation;
++ (RegistrationInformation*) getWorkPlaceJoinInformation;
 
 - (void) removeWorkPlaceJoinRegistration:(ADOnResultCallback) onResultBlock;
 

@@ -31,9 +31,9 @@ NSString* const CORRELATION_ID = @"correlation_id";
 NSString* const DEFAULT_GUID_FOR_NIL = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
 
 NSString* const DEFAULT_AUTHORITY = @"https://login.windows.net/common/";
-NSString* const BROKER_CLIENT_ID = @"e3786e2a-0dcb-449a-8eba-b4042c9bec01";
+NSString* const BROKER_CLIENT_ID = @"29d9ed98-a469-4536-ade2-f981bc1d605e";
 NSString* const BROKER_RESOURCE = @"https://graph.windows.net";
-NSString* const BROKER_REDIRECT_URI = @"https://aadadfstodolistservice.azurewebsites.net";
+NSString* const BROKER_REDIRECT_URI = @"ms-appx-web://Microsoft.AAD.BrokerPlugin";
 NSString* const DEFAULT_FIRST_PARTY_CLIENT_ID = @"";
 
 NSString *const OAUTH2_ERROR_KEY = @"error";

@@ -534,6 +534,28 @@ const long keychainVersion = 1;//will need to increase when we break the forward
     }
 }
 
+
+
+-(void) removeAllForUser: (NSString*) userId
+                   error: (ADAuthenticationError* __autoreleasing*) error
+{
+    API_ENTRY;
+    @synchronized(self)
+    {
+        NSMutableDictionary* query = [NSMutableDictionary new];
+        if (![NSString adIsStringNilOrBlank:userId])
+        {
+            [query setObject:[userId adBase64UrlEncode] forKey:mUserIdKey];
+        }
+        
+        NSDictionary* allAttributes = [self keychainAttributesWithQuery:query error:error];
+        if (allAttributes)
+        {
+            [self removeWithAttributesDictionaries:allAttributes error:error];
+        }
+    }
+}
+
 -(void) removeAllWithError:(ADAuthenticationError *__autoreleasing *)error
 {
     API_ENTRY;
