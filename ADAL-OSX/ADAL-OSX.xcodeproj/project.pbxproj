@@ -87,6 +87,8 @@
 		974E4EDA19AC65AD00172D2C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 974E4ED919AC65AD00172D2C /* Security.framework */; };
 		977CD4D119F07FA1006E37C3 /* ADKeyChainHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 977CD4D019F07FA1006E37C3 /* ADKeyChainHelper.m */; };
 		97927E9B1A8EABAD0053E283 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 97927E9A1A8EABAD0053E283 /* Localizable.strings */; };
+		979F4EEA1AB758F2009B3E43 /* ADMemoryTokenCacheStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 979F4EE81AB758F2009B3E43 /* ADMemoryTokenCacheStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		979F4EEB1AB758F2009B3E43 /* ADMemoryTokenCacheStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 979F4EE91AB758F2009B3E43 /* ADMemoryTokenCacheStore.m */; };
 		97B59B5419BFBC9800DB79D0 /* ADKeyChainHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 97B59B5219BFBC9800DB79D0 /* ADKeyChainHelper.h */; };
 		97B59B5519BFBC9800DB79D0 /* WorkPlaceJoin.h in Headers */ = {isa = PBXBuildFile; fileRef = 97B59B5319BFBC9800DB79D0 /* WorkPlaceJoin.h */; };
 		97B59B6119BFBEA700DB79D0 /* ADPkeyAuthHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 97B59B5719BFBEA700DB79D0 /* ADPkeyAuthHelper.h */; };
@@ -210,6 +212,8 @@
 		974E4ED919AC65AD00172D2C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		977CD4D019F07FA1006E37C3 /* ADKeyChainHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADKeyChainHelper.m; path = ../../ADALiOS/ADALiOS/ADKeyChainHelper.m; sourceTree = "<group>"; };
 		97927E9A1A8EABAD0053E283 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Localizable.strings; path = ../../ADALiOS/ADALiOS/Localizable.strings; sourceTree = "<group>"; };
+		979F4EE81AB758F2009B3E43 /* ADMemoryTokenCacheStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADMemoryTokenCacheStore.h; sourceTree = "<group>"; };
+		979F4EE91AB758F2009B3E43 /* ADMemoryTokenCacheStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADMemoryTokenCacheStore.m; sourceTree = "<group>"; };
 		97B59B5219BFBC9800DB79D0 /* ADKeyChainHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADKeyChainHelper.h; path = ../../ADALiOS/ADALiOS/ADKeyChainHelper.h; sourceTree = "<group>"; };
 		97B59B5319BFBC9800DB79D0 /* WorkPlaceJoin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WorkPlaceJoin.h; path = ../../ADALiOS/ADALiOS/WorkPlaceJoin.h; sourceTree = "<group>"; };
 		97B59B5719BFBEA700DB79D0 /* ADPkeyAuthHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADPkeyAuthHelper.h; path = ../../ADALiOS/ADALiOS/ADPkeyAuthHelper.h; sourceTree = "<group>"; };
@@ -368,6 +372,8 @@
 				97EEE7CD1A52110600D003F8 /* ADNTLMHandlerOSX.m */,
 				97EEE7D11A52758A00D003F8 /* ADCredentialCollectionController.h */,
 				97EEE7D21A52758A00D003F8 /* ADCredentialCollectionController.m */,
+				979F4EE81AB758F2009B3E43 /* ADMemoryTokenCacheStore.h */,
+				979F4EE91AB758F2009B3E43 /* ADMemoryTokenCacheStore.m */,
 			);
 			path = "ADAL-OSX";
 			sourceTree = "<group>";
@@ -453,6 +459,7 @@
 				4C60D5ED18C697E500F9EAAE /* ADAuthenticationParameters.h in Headers */,
 				4C60D60418C697E500F9EAAE /* ADLogger.h in Headers */,
 				4C60D5E918C697E500F9EAAE /* ADAuthenticationError.h in Headers */,
+				979F4EEA1AB758F2009B3E43 /* ADMemoryTokenCacheStore.h in Headers */,
 				97EEE7CA1A50179C00D003F8 /* ADURLProtocol.h in Headers */,
 				4C60D61118C697E500F9EAAE /* ADUserInformation.h in Headers */,
 				4C60D5E118C697E500F9EAAE /* ADAL.h in Headers */,
@@ -609,6 +616,7 @@
 				4C60D5FC18C697E500F9EAAE /* ADDefaultTokenCacheStorePersistance.m in Sources */,
 				97EEE7C91A50179C00D003F8 /* ADURLProtocol.m in Sources */,
 				4C42481818C83DBA00B2E350 /* ADAuthenticationWindowController.m in Sources */,
+				979F4EEB1AB758F2009B3E43 /* ADMemoryTokenCacheStore.m in Sources */,
 				97D685AE1A0E15A200EE816C /* ADHelpers.m in Sources */,
 				4C60D5E718C697E500F9EAAE /* ADAuthenticationContext.m in Sources */,
 				4C60D5F618C697E500F9EAAE /* ADAuthenticationSettings.m in Sources */,
