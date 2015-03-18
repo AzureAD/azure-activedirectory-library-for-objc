@@ -243,7 +243,7 @@ return; \
         {
             decryptedString =[[NSString alloc] initWithData:decrypted encoding:0];
             //now compute the hash on the unencrypted data
-            if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:[NSString Base64DecodeData:decryptedString] isSha2:YES]]){
+            if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES]]){
                 //create response from the decrypted payload
                 queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
                 result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
