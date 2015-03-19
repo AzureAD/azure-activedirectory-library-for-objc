@@ -433,6 +433,7 @@ return; \
                                                                                correlationId:nil
                                                                                error:&error];
                                                  //[prtCtx acquirePRTForUPN:onResultBlock];
+                                                 onResultBlock(nil,nil); //TODO remove this later
                                              } else {
                                                  onResultBlock(nil, error);
                                              }
