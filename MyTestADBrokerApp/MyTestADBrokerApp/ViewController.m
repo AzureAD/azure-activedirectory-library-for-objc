@@ -34,7 +34,6 @@
 @property (weak, nonatomic) IBOutlet UITableView* tableView;
 - (IBAction)addUserPressed:(id)sender;
 - (IBAction)clearKeychainPressed:(id)sender;
-//- (IBAction)getUsersPressed:(id)sender;
 
 @end
 
@@ -45,17 +44,32 @@ NSMutableArray* users;
 -(void) loadView
 {
     [super loadView];
+    [self registerForNotifications];
 }
 
--(void) viewWillAppear:(BOOL)animated
+- (void)registerForNotifications
 {
-    [self getAllAccounts:YES];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(yourCustomMethod:)
+                                                 name:@"handleAdalRequest"
+                                               object:nil];
+}
+-(void)unregisterForNotifications
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:@"handleAdalRequest"
+                                                  object:nil];
 }
 
-- (void)viewDidLoad
+
+-(void)viewDidUnload
 {
-    [super viewDidLoad];
-    
+    [self unregisterForNotifications];
+}
+
+/*** Your custom method called on notification ***/
+-(void)yourCustomMethod:(NSNotification*)_notification
+{
     AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
     NSString* upnInRequest = nil;
     BOOL isBrokerRequest = [ADBrokerContext isBrokerRequest:appDelegate._url
@@ -71,8 +85,20 @@ NSMutableArray* users;
                                                   appDelegate._url = nil;
                                                   appDelegate._sourceApplication = nil;
                                               }];
+            return;
         }
     }
+}
+
+-(void) viewWillAppear:(BOOL)animated
+{
+    [self getAllAccounts:YES];
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+
     if(!users || users.count == 0)
     {
         users = [NSMutableArray new];
@@ -87,7 +113,6 @@ NSMutableArray* users;
 
 - (IBAction)clearKeychainPressed:(id)sender
 {
-    
     ViewController* __weak weakSelf = self;
     id<ADTokenCacheStoring> cache = [ADBrokerKeychainTokenCacheStore new];
     ADAuthenticationError *error = nil;
@@ -102,6 +127,20 @@ NSMutableArray* users;
     {
         return;
     }
+    
+    cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore ;
+    count = (unsigned long)[[cache allItemsWithError:&error] count];
+    if (error)
+    {
+        return;
+    }
+    
+    [cache removeAllWithError:&error];
+    if (error)
+    {
+        return;
+    }
+    
     [self getAllAccounts:YES];
 }
 
@@ -128,7 +167,6 @@ NSMutableArray* users;
         }
     }];
 }
-
 
 
 - (void) getAllAccounts
@@ -198,8 +236,6 @@ NSMutableArray* users;
     if(isBrokerRequest)
     {
         [self getAllAccounts];
-        if(upnInRequest || users.count == 0)
-        {
             [ADBrokerContext invokeBrokerForSourceApplication:[appDelegate._url absoluteString]
                                             sourceApplication:appDelegate._sourceApplication
                                                           upn:info.getUpn
@@ -207,7 +243,6 @@ NSMutableArray* users;
                                                   appDelegate._url = nil;
                                                   appDelegate._sourceApplication = nil;
                                               }];
-        }
     }
     else
     {

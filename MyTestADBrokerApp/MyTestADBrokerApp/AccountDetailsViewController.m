@@ -107,11 +107,8 @@
     else
     {
         //user wants to do WPJ
-        [_activityIndicator startAnimating];
         [ctx doWorkPlaceJoinForUpn:self.account.userInformation.upn
-                     onResultBlock:^(ADBrokerPRTCacheItem *item, NSError *error) {
-                         [_activityIndicator stopAnimating];
-                         if(error)
+                     onResultBlock:^(ADBrokerPRTCacheItem *item, NSError *error) {                         if(error)
                          {
                              UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to WPJ"
                                                                              message:error.description

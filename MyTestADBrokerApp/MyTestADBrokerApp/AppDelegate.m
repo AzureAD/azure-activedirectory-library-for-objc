@@ -33,6 +33,12 @@
 {
     self._sourceApplication = sourceApplication;
     self._url = url;
+    NSString* upn = nil;
+    if([ADBrokerContext isBrokerRequest:url returnUpn:&upn])
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"handleAdalRequest"
+                                                            object:nil];
+    }
     
     return YES;
 }

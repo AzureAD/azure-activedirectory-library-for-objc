@@ -233,6 +233,7 @@
 					};
 					976CCB3B1A02DA49006C91F4 = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = 4XAC8VP2M2;
 						TestTargetID = 976CCB1F1A02DA49006C91F4;
 					};
 				};
@@ -469,6 +470,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -480,6 +483,7 @@
 				INFOPLIST_FILE = MyTestADBrokerAppTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyTestADBrokerApp.app/MyTestADBrokerApp";
 			};
 			name = Debug;
@@ -488,6 +492,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -495,6 +501,7 @@
 				INFOPLIST_FILE = MyTestADBrokerAppTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyTestADBrokerApp.app/MyTestADBrokerApp";
 			};
 			name = Release;
