@@ -75,7 +75,6 @@
 - (void)start
 {
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
-    [request setValue:@"1.0" forHTTPHeaderField: @"x-ms-PkeyAuth"];
     [_webView loadRequest:request];
 }
 
@@ -147,17 +146,6 @@
         dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCompleteWithURL:request.URL]; } );
         
         // Tell the web view that this URL should not be loaded.
-        return NO;
-    }
-    
-    if([[WorkPlaceJoin WorkPlaceJoinManager] isWorkPlaceJoined] && ![request.allHTTPHeaderFields valueForKey:pKeyAuthHeader]){
-        // Create a mutable copy of the immutable request and add more headers
-        NSMutableURLRequest *mutableRequest = [request mutableCopy];
-        [mutableRequest addValue:pKeyAuthHeaderVersion forHTTPHeaderField:pKeyAuthHeader];
-        
-        // Now set our request variable with an (immutable) copy of the altered request
-        request = [mutableRequest copy];
-        [webView loadRequest:request];
         return NO;
     }
     
