@@ -20,7 +20,7 @@
 //version in static define until we identify a better place:
 #define ADAL_VER_HIGH   1
 #define ADAL_VER_LOW    2
-#define ADAL_VER_PATCH  1
+#define ADAL_VER_PATCH  2
 
 #import "ADLogger.h"
 #import "ADErrorCodes.h"

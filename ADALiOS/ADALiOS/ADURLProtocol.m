@@ -107,17 +107,26 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 {
     AD_LOG_VERBOSE_F(sLog, @"HTTPProtocol::connection:willSendRequest:. Redirect response: %@. New request:%@", response.URL, request.URL);
     //Ensure that the webview gets the redirect notifications:
+    NSMutableURLRequest* mutableRequest = [request mutableCopy];
     if (response)
     {
-        NSMutableURLRequest* mutableRequest = [request mutableCopy];
-        
         [[self class] removePropertyForKey:@"ADURLProtocol" inRequest:mutableRequest];
         [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
         
         [_connection cancel];
         [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
-        
+        if(![request.allHTTPHeaderFields valueForKey:@"x-ms-PkeyAuth"])
+        {
+            [mutableRequest addValue:@"1.0" forHTTPHeaderField:@"x-ms-PkeyAuth"];
+        }
         return mutableRequest;
+    }
+    
+    if(![request.allHTTPHeaderFields valueForKey:@"x-ms-PkeyAuth"])
+    {
+        [mutableRequest addValue:@"1.0" forHTTPHeaderField:@"x-ms-PkeyAuth"];
+        request = [mutableRequest copy];
+        mutableRequest = nil;
     }
     return request;
 }
