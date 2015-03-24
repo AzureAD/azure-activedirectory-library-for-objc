@@ -19,6 +19,7 @@
 #import "ADBrokerJwtHelper.h"
 #import "NSString+ADBrokerHelperMethods.h"
 #import "ADBrokerConstants.h"
+#include "xCryptLib.h"
 
 @implementation ADBrokerJwtHelper
 
