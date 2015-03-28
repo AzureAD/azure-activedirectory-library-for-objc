@@ -19,6 +19,7 @@
 #import "ADURLProtocol.h"
 #import "ADLogger.h"
 #import "ADNTLMHandler.h"
+#import "WorkPlaceJoinConstants.h"
 
 NSString* const sLog = @"HTTP Protocol";
 
@@ -131,8 +132,26 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
         _connection = nil;
         [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
         
+        
+#if TARGET_OS_IPHONE
+        if(![request.allHTTPHeaderFields valueForKey:pKeyAuthHeader])
+        {
+            [mutableRequest addValue:pKeyAuthHeaderVersion forHTTPHeaderField:pKeyAuthHeader];
+        }
+#endif
         return mutableRequest;
     }
+    
+#if TARGET_OS_IPHONE
+    if(![request.allHTTPHeaderFields valueForKey:pKeyAuthHeader])
+    {
+        NSMutableURLRequest* mutableRequest = [request mutableCopy];
+        [mutableRequest addValue:pKeyAuthHeaderVersion forHTTPHeaderField:pKeyAuthHeader];
+        request = [mutableRequest copy];
+        mutableRequest = nil;
+    }
+#endif
+    
     return request;
 }
 
