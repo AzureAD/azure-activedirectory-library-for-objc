@@ -82,9 +82,8 @@
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:0 error:NULL];
     
     for (NSTextCheckingResult* myMatch in [regex matchesInString:issuer options:0 range:NSMakeRange(0, [issuer length])]){
-        for (NSUInteger i = 0; i < myMatch.numberOfRanges; ++i)
-        {
-            NSRange matchedRange = [myMatch rangeAtIndex: i];
+        if (myMatch.numberOfRanges > 0) {
+            NSRange matchedRange = [myMatch rangeAtIndex: 0];
             return [NSString stringWithFormat:@"OU=%@", [issuer substringWithRange: matchedRange]];
         }
     }
