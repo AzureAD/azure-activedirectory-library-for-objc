@@ -39,6 +39,11 @@ completionBlock:completionBlock]) \
 { \
 return; \
 }
+- (id) init
+{
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
+}
 
 - (id) initWithAuthority:(NSString*) authority
 {
@@ -47,6 +52,7 @@ return; \
     {
         _authority = authority;
     }
+    
     return self;
 }
 
@@ -432,7 +438,7 @@ return; \
                                                                                initWithUpn:upn
                                                                                correlationId:nil
                                                                                error:&error];
-                                                 //[prtCtx acquirePRTForUPN:onResultBlock];
+                                                 [prtCtx acquirePRTForUPN:onResultBlock];
                                                  onResultBlock(nil,nil); //TODO remove this later
                                              } else {
                                                  onResultBlock(nil, error);

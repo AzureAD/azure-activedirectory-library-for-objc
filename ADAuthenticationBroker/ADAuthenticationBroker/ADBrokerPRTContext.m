@@ -25,6 +25,7 @@
 #import "NSString+ADBrokerHelperMethods.h"
 #import <workplaceJoinAPI/WorkPlaceJoin.h>
 #import "ADAuthenticationBroker.h"
+#import "ADBrokerJWEResponse.h"
 
 @implementation ADBrokerPRTContext
 
@@ -60,7 +61,7 @@ NSString* userPrincipalIdentifier;
     ADAuthenticationError* error = nil;
     //get PRT from cache
     id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:DEFAULT_GUID_FOR_NIL];
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:DEFAULT_GUID_FOR_NIL
+    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:DEFAULT_AUTHORITY
                                                               resource:nil
                                                               clientId:DEFAULT_GUID_FOR_NIL
                                                                  error:&error];
@@ -75,7 +76,7 @@ NSString* userPrincipalIdentifier;
     ADAuthenticationError* error = nil;
     //get PRT from cache
     id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:DEFAULT_GUID_FOR_NIL];
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:DEFAULT_GUID_FOR_NIL
+    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:DEFAULT_AUTHORITY
                                                               resource:nil
                                                               clientId:DEFAULT_GUID_FOR_NIL
                                                                  error:&error];
@@ -93,13 +94,17 @@ NSString* userPrincipalIdentifier;
                          clientId: BROKER_CLIENT_ID
                       redirectUri: [NSURL URLWithString:BROKER_REDIRECT_URI]
                            userId: userPrincipalIdentifier
-                            scope: @"openid aza"
+                            scope: @"openid"
              extraQueryParameters: @"nux=1"
                   completionBlock:^(ADAuthenticationResult *result) {
                       ADAuthenticationError* error;
                       if(result.status == AD_SUCCEEDED)
                       {
-                          ADTokenCacheStoreKey* key = [result.tokenCacheStoreItem extractKeyWithError:&error];
+                          ADTokenCacheStoreKey* accessTokenKey = [result.tokenCacheStoreItem extractKeyWithError:nil];
+                          ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:accessTokenKey.authority
+                                                                                    resource:nil
+                                                                                    clientId:BROKER_CLIENT_ID
+                                                                                       error:&error];
                           if(error)
                           {
                               callback(nil, error);
@@ -107,6 +112,7 @@ NSString* userPrincipalIdentifier;
                           }else{
                               // we have a fresh AT and RT. Get RT from cache as it is not returned
                               // in the result.
+                              
                               NSArray* items = [ctx.tokenCacheStore getItemsWithKey:key
                                                                               error:&error];
                               NSString* brokerRefreshToken = nil;
@@ -148,11 +154,11 @@ NSString* userPrincipalIdentifier;
                                                                             requestCorrelationId:[ctx getCorrelationId]];
                                     if(prtResult.status == AD_SUCCEEDED)
                                     {
-                                        ADAuthenticationError* error;
+                                        ADAuthenticationError* err;
                                         //persist PRT cache item
                                         [ctx.tokenCacheStore addOrUpdateItem:item
-                                                                       error:&error];
-                                        callback(item, error);
+                                                                       error:&err];
+                                        callback(item, err);
                                     }
                                     else
                                     {
@@ -364,7 +370,7 @@ isHandlingPKeyAuthChallenge:NO
                               @"refresh_token" : [item refreshToken],
                               @"iss" : @"aad:brokerplugin",
                               @"iat" : [NSString stringWithFormat:@"%d", (CC_LONG)[[NSDate date] timeIntervalSince1970]],
-                              @"scope" : @"openid aza",
+                              @"scope" : @"openid",
                               @"grant_type" : @"refresh_token",
                               @"aud" : DEFAULT_AUTHORITY
                               };
@@ -379,8 +385,7 @@ isHandlingPKeyAuthChallenge:NO
 
 -(NSString*) createPRTRequestJWTUsingBrokerRT:(NSString*) brokerRefreshToken
 {
-    NSError* error;
-    RegistrationInformation* identity = [[WorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation:&error];
+    RegistrationInformation* identity = [[WorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation:nil];
     NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];
     NSDictionary *header = @{
                              @"alg" : @"RS256",
@@ -394,9 +399,11 @@ isHandlingPKeyAuthChallenge:NO
                               @"grant_type" : @"refresh_token"
                               };
     
-    return [ADBrokerJwtHelper createSignedJWTforHeader:header
-                                               payload:payload
-                                            signingKey:[identity sessionTransportPrivateKey]];
+    NSString* prtRequestJWT = [ADBrokerJwtHelper createSignedJWTforHeader:header
+                                                                  payload:payload
+                                                               signingKey:[identity privateKey]];
+    [identity releaseData];
+    return prtRequestJWT;
 }
 
 
@@ -440,11 +447,11 @@ isHandlingPKeyAuthChallenge:NO
     NSString* refreshToken = [response objectForKey:OAUTH2_REFRESH_TOKEN_KEY];
     if (![NSString adIsStringNilOrBlank:refreshToken])
     {
-        item.refreshToken    = refreshToken;
-        item.authority = DEFAULT_GUID_FOR_NIL;
+        item.primaryRefreshToken    = refreshToken;
+        item.authority = DEFAULT_AUTHORITY;
         
         // Token response
-        id      expires_in = [response objectForKey:OAUTH2_REFRESH_TOKEN_EXPIRES_KEY];
+        id      expires_in = [response objectForKey:OAUTH2_PRIMARY_REFRESH_TOKEN_EXPIRES_KEY];
         NSDate *expires    = nil;
         
         if ( expires_in != nil )
@@ -474,14 +481,6 @@ isHandlingPKeyAuthChallenge:NO
         
         item.tokenType = [response objectForKey:OAUTH2_TOKEN_TYPE_KEY];
         item.expiresOn       = expires;
-        //        [ADLogger logToken:accessToken tokenType:@"access token" expiresOn:expires correlationId:responseUUID];
-        //
-        
-        //        [ADLogger logToken:item.refreshToken
-        //                 tokenType:multiResourceRefreshToken ? @"multi-resource refresh token": @"refresh token"
-        //                 expiresOn:nil
-        //             correlationId:responseUUID];
-        
         NSString* idToken = [response objectForKey:OAUTH2_ID_TOKEN_KEY];
         if (idToken)
         {
@@ -491,8 +490,17 @@ isHandlingPKeyAuthChallenge:NO
                 item.userInformation = userInfo;
             }
         }
-        
-        return [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:NO];
+        item.accessToken = @"placeholder-value";
+        //handle JWE
+        NSString* rawJwe = [response objectForKey:OAUTH2_SESSION_JWE_KEY];
+        RegistrationInformation* regInfo = [[WorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation:nil];
+        item.sessionKey = [ADBrokerJwtHelper getSessionKeyFromEncryptedJWT:rawJwe
+                                                             privateKeyRef:[regInfo
+                                                                            sessionTransportPrivateKey]
+                                                                     error:&error];
+        [regInfo releaseData];
+        return [ADAuthenticationResult resultFromTokenCacheStoreItem:item
+                                           multiResourceRefreshToken:NO];
     }
     
     //No refresh token and no error, we assume that there was another kind of error (connection, server down, etc.).

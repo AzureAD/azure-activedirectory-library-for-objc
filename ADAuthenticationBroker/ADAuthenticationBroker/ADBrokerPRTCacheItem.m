@@ -48,6 +48,7 @@
     [super encodeWithCoder:aCoder];
     [aCoder encodeObject:self.tokenType forKey:@"tokenType"];
     [aCoder encodeObject:self.sessionKey forKey:@"sessionKey"];
+    [aCoder encodeObject:self.primaryRefreshToken forKey:@"primaryRefreshToken"];
 }
 
 //Deserializer:
@@ -58,7 +59,7 @@
     {
         self.tokenType = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"tokenType"];
         self.primaryRefreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"primaryRefreshToken"];
-        self.sessionKey = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"sessionKey"];
+        self.sessionKey = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"sessionKey"];
     }
     return self;
 }

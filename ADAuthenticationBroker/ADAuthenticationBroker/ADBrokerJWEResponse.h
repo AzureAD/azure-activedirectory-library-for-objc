@@ -17,14 +17,13 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import <ADALiOS/ADTokenCacheStoreItem.h>
 
-@interface ADBrokerPRTCacheItem : ADTokenCacheStoreItem
+@interface ADBrokerJWEResponse : NSObject
 
-@property NSString* tokenType;
+@property (readonly) NSData* encryptedKey;
 
-@property NSString* primaryRefreshToken;
+@property (readonly) NSString* headerAlgorithm;
 
-@property NSData* sessionKey;
+-(id) initWithRawJWE:(NSString*) rawJWE;
 
 @end

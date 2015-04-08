@@ -40,4 +40,6 @@ typedef void(^ADOnResultCallback)(NSError* error);
                                  appKey:(NSString*) appKey
                         completionBlock:(ADAuthenticationCallback) completionBlock;
 
+
+-(void) deletePRT;
 @end

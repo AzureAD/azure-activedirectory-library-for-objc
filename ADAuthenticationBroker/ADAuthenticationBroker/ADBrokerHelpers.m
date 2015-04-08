@@ -18,11 +18,14 @@
 
 #import "ADBrokerHelpers.h"
 #import "NSString+ADBrokerHelperMethods.h"
+#import "ADBrokerBase64Additions.h"
+#import "ADBrokerCryptoHelper.h"
 #import <Security/Security.h>
 #import <CommonCrypto/CommonCryptor.h>
 #import <CommonCrypto/CommonHMAC.h>
 #import <CommonCrypto/CommonDigest.h>
 
+#import <sal.h>
 #import <xCryptLib.h>
 
 const CCAlgorithm algorithm = kCCAlgorithmAES128;
@@ -39,7 +42,7 @@ enum {
 };
 
 + (NSString*) computeHash:(NSData*) inputData{
-
+    
     //compute SHA-1 thumbprint
     unsigned char sha256Buffer[CC_SHA256_DIGEST_LENGTH];
     CC_SHA256(inputData.bytes, (CC_LONG)inputData.length, sha256Buffer);
@@ -91,46 +94,31 @@ enum {
 
 
 + (NSString*) computeKDFInCounterMode:(NSData*)key
-                              context:(NSString*)ctx
+                              context:(NSData*)ctx
                                 label:(NSString*)label
 {
-    
-    
     uint8_t* keyDerivationKey = (uint8_t*)[key bytes];
-    return nil;
-//    const unsigned char bytes[] = { 0x00 };
-//    NSData *nullData = [NSData dataWithBytes:bytes length:1];
-//    NSString *nullString = [[NSString alloc] initWithData:nullData encoding:NSUTF8StringEncoding];
-//    
-//    NSString* fixed = [NSString stringWithFormat:@"%@%@%@%d", ctx, nullString, label, 256];
-//    uint8_t* retval = [ADBrokerHelpers KDFCounterMode:keyDerivationKey
-//                      outputSizeBit:256
-//                         fixedInput:(uint8_t *)fixed.UTF8String
-//             keyDerivationKeyLength:32
-//                   fixedInputLength:[fixed length]];
-//    
-//    char             hexmac[2 * CC_SHA256_DIGEST_LENGTH + 1];
-//    char             *p;
-//    
-//    p = hexmac;
-//    for (int i = 0; i < CC_SHA256_DIGEST_LENGTH; i++ ) {
-//        snprintf( p, 3, "%02x", retval[ i ] );
-//        p += 2;
-//    }
-//    
-//    NSString* string = [NSString stringWithUTF8String:hexmac];
-//    return [ NSString Base64EncodeData:[string dataUsingEncoding:NSUTF8StringEncoding] ];
+    unsigned char pbDerivedKey[CC_SHA256_DIGEST_LENGTH];
+    NSData* labelData = [label dataUsingEncoding:NSUTF8StringEncoding];
+    
+    CRYPTO_RESULT result = DoKDFUsingxCryptLib(
+                                               (unsigned char *)labelData.bytes,
+                                               labelData.length,
+                                               (unsigned char *)ctx.bytes,
+                                               ctx.length,
+                                               keyDerivationKey,
+                                               key.length,
+                                               pbDerivedKey,
+                                               32
+                                               );
+    
+    if(result != CRYPTO_SUCCESS)
+    {
+        return nil;
+    }
+    
+    NSString* string = [[NSData dataWithBytes:(const void *)pbDerivedKey length:sizeof(pbDerivedKey)] base64String];
+    return string;
 }
-
-
-+(uint8_t*) KDFCounterMode:(uint8_t*) keyDerivationKey
-             outputSizeBit:(int) outputSizeBit
-                fixedInput:(uint8_t*) fixedInput
-    keyDerivationKeyLength:(int) keyDerivationKey_length
-          fixedInputLength: (int) fixedInput_length
-{
-    return nil;
-}
-
 
 @end

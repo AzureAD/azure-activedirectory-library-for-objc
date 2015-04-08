@@ -27,10 +27,17 @@
 @property (weak, nonatomic) IBOutlet UISwitch* wpjEnabled;
 @property (weak, nonatomic) IBOutlet UILabel* name;
 @property (weak, nonatomic) IBOutlet UILabel* upn;
+@property (weak, nonatomic) IBOutlet UIButton* prtButton;
+@property (weak, nonatomic) IBOutlet UIButton* deletePrtButton;
+
 
 - (IBAction)deleteAccountPressed:(id)sender;
 
 - (IBAction)wpjSwitchPressed:(id)sender;
+
+- (IBAction)getPRTPressed:(id)sender;
+
+- (IBAction)deletePRTPressed:(id)sender;
 
 @end
 
@@ -55,10 +62,14 @@
         [info releaseData];
         info = nil;
     }
+    
+    
+    [self.deletePrtButton setEnabled:self.account.isWorkplaceJoined];
+    [self.prtButton setEnabled:self.account.isWorkplaceJoined];
+
     if(self.account.isWorkplaceJoined)
     {
-        [self.wpjEnabled setOn:YES animated:YES];
-    }
+        [self.wpjEnabled setOn:YES animated:YES];    }
     else
     {
         [self.wpjEnabled setOn:NO animated:YES];
@@ -68,6 +79,15 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+
+- (IBAction)deletePRTPressed:(id)sender
+{
+    ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.upn.text
+                                                        correlationId:[NSUUID UUID]
+                                                                error:nil];
+    [ctx deletePRT];
 }
 
 
@@ -81,6 +101,21 @@
     [alert addButtonWithTitle:@"Yes"];
     [alert show];
 
+}
+
+- (IBAction)getPRTPressed:(id)sender
+{
+    ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.account.userInformation.upn correlationId:[NSUUID UUID] error:nil];
+    [ctx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error) {
+        if(error)
+        {                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to get PRT"
+                                                                         message:error.description
+                                                                        delegate:self
+                                                               cancelButtonTitle:@"OK"
+                                                               otherButtonTitles:nil];
+            [alert show];
+        }
+    }];
 }
 
 - (IBAction)wpjSwitchPressed:(id)sender
@@ -108,7 +143,8 @@
     {
         //user wants to do WPJ
         [ctx doWorkPlaceJoinForUpn:self.account.userInformation.upn
-                     onResultBlock:^(ADBrokerPRTCacheItem *item, NSError *error) {                         if(error)
+                     onResultBlock:^(ADBrokerPRTCacheItem *item, NSError *error) {
+                         if(error)
                          {
                              UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to WPJ"
                                                                              message:error.description

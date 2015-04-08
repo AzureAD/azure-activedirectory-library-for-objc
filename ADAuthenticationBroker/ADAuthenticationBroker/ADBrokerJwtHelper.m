@@ -19,6 +19,8 @@
 #import "ADBrokerJwtHelper.h"
 #import "NSString+ADBrokerHelperMethods.h"
 #import "ADBrokerConstants.h"
+#import "ADBrokerJWEResponse.h"
+
 #include "xCryptLib.h"
 
 @implementation ADBrokerJwtHelper
@@ -28,62 +30,42 @@ const size_t CIPHER_BUFFER_SIZE = 2048;
 const uint32_t PADDING = kSecPaddingNone;
 const NSString* Label = @"AzureAD-SecureConversation";
 
-+(NSDictionary*) decryptJWE:(NSString*) encryptedJwt
-              privateKeyRef:(SecKeyRef) privateKeyRef
-                      error:(NSError**) error
++(NSData*) getSessionKeyFromEncryptedJWT:(NSString*) encryptedJwt
+                             privateKeyRef:(SecKeyRef) privateKeyRef
+                                     error:(NSError**) error;
 {
-    encryptedJwt = [encryptedJwt adBase64UrlDecode];
-    NSDictionary* resultDictionary = [NSDictionary new];
-    NSData* decryptedeResponse = [ADBrokerJwtHelper decryptData:encryptedJwt
+    ADBrokerJWEResponse* response = [[ADBrokerJWEResponse alloc] initWithRawJWE:encryptedJwt];
+    NSData* decryptedResponse = [ADBrokerJwtHelper decryptData:response.encryptedKey
                                                   privateKeyRef:privateKeyRef
                                                           error:error];
     
-    if(!error)
-    {
-        id         jsonObject = [NSJSONSerialization JSONObjectWithData:decryptedeResponse options:0 error:error];
-        
-        if ( nil != jsonObject && [jsonObject isKindOfClass:[NSDictionary class]] )
-        {
-            resultDictionary = (NSDictionary*)jsonObject;
-        }
-        else
-        {
-            if (!error)
-            {
-                *error = [NSError errorWithDomain:BROKER_ERROR_DOMAIN
-                                              code:kCFErrorHTTPParseFailure
-                                          userInfo:@{
-                                                     NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Unexpected object type instead of JWE: %@", [jsonObject class]]
-                                                     }];
-            }
-        }
-    }
-    return resultDictionary;
+    return decryptedResponse;
 }
 
 
-+(NSData*) decryptData:(NSString*) encryptedJwt
++(NSData*) decryptData:(NSData*) encryptedJwt
          privateKeyRef:(SecKeyRef) privateKeyRef
                  error:(NSError**) error
 {
     size_t plainBufferSize = SecKeyGetBlockSize(privateKeyRef);
     uint8_t *plainBuffer = malloc(plainBufferSize);
-    NSData *incomingData = [encryptedJwt dataUsingEncoding:NSASCIIStringEncoding];
-    uint8_t *cipherBuffer = (uint8_t*)[incomingData bytes];
-    size_t cipherBufferSize = SecKeyGetBlockSize(privateKeyRef);
-    OSStatus status = SecKeyDecrypt(privateKeyRef,
-                                    kSecPaddingOAEP,
-                                    cipherBuffer,
-                                    cipherBufferSize,
-                                    plainBuffer,
-                                    &plainBufferSize);
+    uint8_t *cipherBuffer = (uint8_t*)[encryptedJwt bytes];
+    size_t cipherBufferSize = [encryptedJwt length];
     
-    if(status != errSecSuccess) {
-        
+    OSStatus status = SecKeyDecrypt(privateKeyRef,
+                  kSecPaddingOAEP,
+                  cipherBuffer,
+                  cipherBufferSize,
+                  plainBuffer,
+                  &plainBufferSize);
+    if(status != errSecSuccess)
+    {
         return nil;
     }
+    
     NSData *decryptedData = [NSData dataWithBytes:plainBuffer length:plainBufferSize];
-    return decryptedData;
+//    NSString *decryptedString = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding]; return decryptedString;
+    return  decryptedData;
 }
 
 

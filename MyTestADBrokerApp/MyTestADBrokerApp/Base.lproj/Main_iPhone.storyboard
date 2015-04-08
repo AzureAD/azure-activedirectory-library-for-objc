@@ -81,19 +81,13 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="N/A" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bO9-0i-wl2">
-                                <rect key="frame" x="28" y="119" width="276" height="21"/>
+                                <rect key="frame" x="28" y="103" width="276" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0A3-EW-5ww">
-                                <rect key="frame" x="192" y="181" width="51" height="31"/>
-                                <connections>
-                                    <action selector="wpjSwitchPressed:" destination="JNQ-y8-Cg0" eventType="valueChanged" id="4XY-5l-ZlL"/>
-                                </connections>
-                            </switch>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Workplace Join" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lJH-Ho-VzU">
-                                <rect key="frame" x="28" y="186" width="118" height="21"/>
+                                <rect key="frame" x="28" y="161" width="118" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
@@ -109,22 +103,44 @@
                                     <action selector="deleteAccountPressed:" destination="JNQ-y8-Cg0" eventType="touchUpInside" id="v18-qk-fe4"/>
                                 </connections>
                             </button>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" hidesWhenStopped="YES" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="Qe2-WM-aLj">
-                                <rect key="frame" x="140" y="275" width="20" height="20"/>
-                            </activityIndicatorView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="N/A" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="klo-jZ-ofx">
                                 <rect key="frame" x="28" y="59" width="213" height="47"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sFd-UC-9xU">
+                                <rect key="frame" x="28" y="206" width="63" height="30"/>
+                                <state key="normal" title="Get PRT">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="getPRTPressed:" destination="JNQ-y8-Cg0" eventType="touchUpInside" id="sZy-Ua-JKq"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="P74-S7-gUV">
+                                <rect key="frame" x="122" y="206" width="77" height="30"/>
+                                <state key="normal" title="Delete PRT">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="deletePRTPressed:" destination="JNQ-y8-Cg0" eventType="touchUpInside" id="zO5-Ge-yCU"/>
+                                </connections>
+                            </button>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0A3-EW-5ww">
+                                <rect key="frame" x="234" y="156" width="51" height="31"/>
+                                <connections>
+                                    <action selector="wpjSwitchPressed:" destination="JNQ-y8-Cg0" eventType="valueChanged" id="4XY-5l-ZlL"/>
+                                </connections>
+                            </switch>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" id="V3h-9D-1nb"/>
                     <connections>
-                        <outlet property="activityIndicator" destination="Qe2-WM-aLj" id="mAO-n9-01t"/>
+                        <outlet property="deletePrtButton" destination="P74-S7-gUV" id="rTO-DU-TeJ"/>
                         <outlet property="name" destination="klo-jZ-ofx" id="Gb7-ei-hx5"/>
+                        <outlet property="prtButton" destination="sFd-UC-9xU" id="j9h-RQ-yjt"/>
                         <outlet property="upn" destination="bO9-0i-wl2" id="lvM-h9-H9n"/>
                         <outlet property="wpjEnabled" destination="0A3-EW-5ww" id="8E7-vq-5Jp"/>
                     </connections>

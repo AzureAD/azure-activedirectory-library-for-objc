@@ -85,6 +85,8 @@ Revision History:
 // TODO: Assign functions to groups.  The AES ones are done. (gregz)
 
 
+#include "sal.h"
+#include "port.h"
 
 #ifndef __XCRYPTLIB_H__
 #define __XCRYPTLIB_H__

@@ -16,15 +16,20 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+
 #import <Foundation/Foundation.h>
-#import <ADALiOS/ADTokenCacheStoreItem.h>
 
-@interface ADBrokerPRTCacheItem : ADTokenCacheStoreItem
+@interface NSString (Base64Addition)
++(NSString *)stringFromBase64String:(NSString *)base64String;
+-(NSString *)base64String;
+@end
 
-@property NSString* tokenType;
+@interface NSData (Base64Addition)
++(NSData *)dataWithBase64String:(NSString *)base64String;
+-(NSString *)base64String;
+@end
 
-@property NSString* primaryRefreshToken;
-
-@property NSData* sessionKey;
-
+@interface ADBrokerBase64Codec : NSObject
++(NSData *)dataFromBase64String:(NSString *)base64String;
++(NSString *)base64StringFromData:(NSData *)data;
 @end
