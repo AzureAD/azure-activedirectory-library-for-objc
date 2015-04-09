@@ -33,6 +33,8 @@ const NSUInteger algorithmKeySize = kCCKeySizeAES128;
 const NSUInteger algorithmBlockSize = kCCBlockSizeAES128;
 const NSUInteger algorithmIVSize = kCCBlockSizeAES128;
 
+const NSString* Label = @"AzureAD-SecureConversation";
+
 @implementation ADBrokerHelpers
 
 enum {
@@ -93,13 +95,12 @@ enum {
 }
 
 
-+ (NSString*) computeKDFInCounterMode:(NSData*)key
++ (NSData*) computeKDFInCounterMode:(NSData*)key
                               context:(NSData*)ctx
-                                label:(NSString*)label
 {
     uint8_t* keyDerivationKey = (uint8_t*)[key bytes];
     unsigned char pbDerivedKey[CC_SHA256_DIGEST_LENGTH];
-    NSData* labelData = [label dataUsingEncoding:NSUTF8StringEncoding];
+    NSData* labelData = [Label dataUsingEncoding:NSUTF8StringEncoding];
     
     CRYPTO_RESULT result = DoKDFUsingxCryptLib(
                                                (unsigned char *)labelData.bytes,
@@ -117,8 +118,7 @@ enum {
         return nil;
     }
     
-    NSString* string = [[NSData dataWithBytes:(const void *)pbDerivedKey length:sizeof(pbDerivedKey)] base64String];
-    return string;
+    return [NSData dataWithBytes:(const void *)pbDerivedKey length:sizeof(pbDerivedKey)];
 }
 
 @end

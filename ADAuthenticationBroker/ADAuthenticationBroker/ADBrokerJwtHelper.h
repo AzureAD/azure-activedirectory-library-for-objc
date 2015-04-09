@@ -28,4 +28,9 @@
                               payload:(NSDictionary*) payload
                            signingKey:(SecKeyRef) signingKey;
 
++(NSString*) createSignedJWTUsingKeyDerivation:(NSDictionary*) header
+                                       payload:(NSDictionary*) payload
+                                       context:(NSString*) context
+                                  symmetricKey:(NSData*) sessionKey;
+
 @end

@@ -20,6 +20,7 @@
 #import "ADBrokerConstants.h"
 #import "ADBrokerJwtHelper.h"
 #import "ADBrokerPRTCacheItem.h"
+#import "ADBrokerBase64Additions.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADBrokerKeychainTokenCacheStore.h"
 #import "NSString+ADBrokerHelperMethods.h"
@@ -211,6 +212,9 @@ NSString* userPrincipalIdentifier;
                                                                   resource:resource
                                                                   clientId:clientId];
             NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                                 redirectUri, @"redirect_uri",
+                                                 clientId, @"client_id",
+                                                 @"2.0", @"windows_api_verion",
                                                  @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE_KEY,
                                                  jwtToken, @"request",
                                                  nil];
@@ -355,30 +359,31 @@ isHandlingPKeyAuthChallenge:NO
                                         resource:(NSString*) resource
                                         clientId:(NSString*) clientId
 {
-    NSError* error;
-    RegistrationInformation* identity = [[WorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation:&error];
     NSString* ctx = [[[NSUUID UUID] UUIDString] adComputeSHA256];
     NSDictionary *header = @{
                              @"alg" : @"HS256",
-                             @"kid" : [item sessionKey],
-                             @"ctx" : ctx
+                             @"typ" : @"JWT",
+                             @"ctx" : [ctx adBase64UrlEncode]
                              };
+    NSString* iat = [NSString stringWithFormat:@"%d", (CC_LONG)[[NSDate date] timeIntervalSince1970]];
     NSDictionary *payload = @{
                               @"version" : @"2",
                               @"resource" : resource,
                               @"client_id" : clientId,
-                              @"refresh_token" : [item refreshToken],
-                              @"iss" : @"aad:brokerplugin",
-                              @"iat" : [NSString stringWithFormat:@"%d", (CC_LONG)[[NSDate date] timeIntervalSince1970]],
+                              @"refresh_token" : [item primaryRefreshToken],
+                              @"iss" : BROKER_CLIENT_ID,
+                              @"iat" : iat,
+                              @"nbf" : iat,
+                              @"exp" : @"300",
                               @"scope" : @"openid",
                               @"grant_type" : @"refresh_token",
                               @"aud" : DEFAULT_AUTHORITY
                               };
     
-    NSString* returnValue = [ADBrokerJwtHelper createSignedJWTforHeader:header
-                                                                payload:payload
-                                                             signingKey:[identity sessionTransportPrivateKey]];
-    [identity releaseData];
+    NSString* returnValue = [ADBrokerJwtHelper createSignedJWTUsingKeyDerivation:header
+                                                                         payload:payload
+                                                                         context:ctx
+                                                                    symmetricKey:item.sessionKey];
     return returnValue;
 }
 

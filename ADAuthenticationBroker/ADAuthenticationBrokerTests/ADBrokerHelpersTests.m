@@ -37,15 +37,6 @@
     [super tearDown];
 }
 
-- (void)testKDF {
-
-    NSString* kdf = [ADBrokerHelpers computeKDFInCounterMode:[@"X1oaW28F4WyVEj9H5Yq7Z54JBv8K9746" dataUsingEncoding:NSUTF8StringEncoding]
-                                                     context:[@"ALICE123E1" dataUsingEncoding:NSUTF8StringEncoding]
-                                                       label:@"ALICE123"];
-    XCTAssertNotNil(kdf);
-}
-
-
 - (void)testKDFOfEvo {
     NSString* keyEncoded = @"8jvPwsy86vlWPq6S6/LsFP6idTXYUBS6JvuLe+6eTsc=";
     NSString* derivedKeyEncoded = @"VywMlfWil62OEFBgzBQW8jeFJ4jPQE0AoAFouBYW5t0=";
@@ -53,10 +44,9 @@
     
     NSData* key = [NSData dataWithBase64String:keyEncoded];
     NSData* ctx = [NSData dataWithBase64String:ctxEncoded];
-    NSString* kdf = [ADBrokerHelpers computeKDFInCounterMode:key
-                                                     context:ctx
-                                                       label:@"AzureAD-SecureConversation"];
-    XCTAssertTrue([NSString adSame:derivedKeyEncoded toString:kdf]);
+    NSData* kdf = [ADBrokerHelpers computeKDFInCounterMode:key
+                                                     context:ctx];
+    XCTAssertTrue([NSString adSame:derivedKeyEncoded toString:[kdf base64String]]);
 }
 
 @end

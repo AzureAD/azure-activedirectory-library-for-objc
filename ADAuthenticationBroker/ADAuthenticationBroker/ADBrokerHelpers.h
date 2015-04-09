@@ -27,8 +27,7 @@
 +(NSData*) encryptData: (NSData*) data
                    key: (NSString*) key;
 
-+ (NSString*) computeKDFInCounterMode:(NSData*)key
-                              context:(NSData*)ctx
-                                label:(NSString*)label;
++ (NSData*) computeKDFInCounterMode:(NSData*)key
+                              context:(NSData*)ctx;
 
 @end

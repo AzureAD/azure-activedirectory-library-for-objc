@@ -28,6 +28,7 @@
 #import "ADBrokerHelpers.h"
 #import "ADBrokerPRTCacheItem.h"
 #import "ADBrokerUserAccount.h"
+#import "NSString+ADBrokerHelperMethods.h"
 
 @implementation ADBrokerContext
 
@@ -98,12 +99,16 @@ return; \
 {
     
     BOOL isBrokerRequest = requestPayloadUrl && [[requestPayloadUrl host] isEqualToString:@"broker"];
+    *returnUpn = nil;
     if(isBrokerRequest)
     {
         NSArray * parts = [[requestPayloadUrl absoluteString] componentsSeparatedByString:@"?"];
         NSString *qp = [parts objectAtIndex:1];
         NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
-        *returnUpn = [queryParamsMap valueForKey:USER_ID];
+        if(![NSString adIsStringNilOrBlank:[queryParamsMap valueForKey:USER_ID]])
+        {
+            *returnUpn = [queryParamsMap valueForKey:USER_ID];
+        }
     }
     
     return isBrokerRequest;
@@ -154,7 +159,7 @@ return; \
     if(!error)
     {
         [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
-        ADBrokerContext* ctx = [ADBrokerContext new];
+        ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:AUTHORITY];
         ctx.correlationId = [[NSUUID alloc]
                              initWithUUIDString:[queryParamsMap
                                                  valueForKey:CORRELATION_ID]];
@@ -198,7 +203,6 @@ return; \
                     [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:REDIRECT_URI] response:response];
                 }
             };
-            
             
             [ctx acquireAccount:[queryParamsMap valueForKey:AUTHORITY]
                          userId:[queryParamsMap valueForKey:USER_ID]
@@ -319,6 +323,7 @@ return; \
     // the default token in the case in case there is a single user.
     BOOL forceUI = [NSString adIsStringNilOrBlank:upn];
     
+    //callback implementation
     ADAuthenticationCallback defaultCallback = ^(ADAuthenticationResult *result) {
         //if failed, check for and use PRT
         if(result.status == AD_SUCCEEDED)
@@ -356,22 +361,59 @@ return; \
             }
             else
             {
-                completionBlock(result);
-                return;
+                if(![NSString adIsStringNilOrBlank:upn])
+                {
+                    // upn was provided and silent cache lookup failed.
+                    // Time to get a new token via UI.
+                    [ctx internalAcquireTokenWithResource:resource
+                                                 clientId:clientId
+                                              redirectUri:[NSURL URLWithString:redirectUri]
+                                           promptBehavior:AD_PROMPT_ALWAYS
+                                                   silent:NO
+                                                   userId:upn
+                                                    scope:nil
+                                     extraQueryParameters:@"nux=1"
+                                                 tryCache:NO
+                                        validateAuthority:NO
+                                            correlationId:ctx.getCorrelationId
+                                          completionBlock:^(ADAuthenticationResult *result) {
+                                              //if successful, save the token in first party cache.
+                                              if(result.status == AD_SUCCEEDED)
+                                              {
+                                                  //update first party cache
+                                                  if(![NSString adSame:clientId toString: BROKER_CLIENT_ID])
+                                                  {
+                                                      id<ADTokenCacheStoring> firstPartyCache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+                                                      //save AT and RT in the cache
+                                                      [ctx updateCacheToResult:result
+                                                                 cacheInstance:firstPartyCache
+                                                                     cacheItem:nil
+                                                              withRefreshToken:nil];
+                                                      result = [ctx updateResult:result
+                                                                          toUser:upn];
+                                                  }
+                                              }
+                                              
+                                              completionBlock(result);
+                                              return;
+                                          }];
+                }
+                else
+                {
+                    completionBlock(result);
+                    return;
+                }
             }
         }
     };
     
-    ADPromptBehavior pb = AD_PROMPT_AUTO;
+    //if forceUI then pass AD_PROMPT_ALWAYS.
     if(forceUI)
     {
-        pb = AD_PROMPT_ALWAYS;
-    }
-
         [ctx internalAcquireTokenWithResource:resource
                                      clientId:clientId
                                   redirectUri:[NSURL URLWithString:redirectUri]
-                               promptBehavior:pb
+                               promptBehavior:AD_PROMPT_ALWAYS
                                        silent:NO
                                        userId:upn
                                         scope:nil
@@ -381,6 +423,25 @@ return; \
                                 correlationId:ctx.getCorrelationId
                               completionBlock:defaultCallback];
     }
+    else
+    {
+        // try cache in silent first. if that fails, callback checks for WPJ.
+        // If the user is not WPJ then use default UI
+        [ctx acquireTokenSilentWithResource:resource
+                                   clientId:clientId
+                                redirectUri:[NSURL URLWithString:redirectUri]
+                                     userId:upn
+                            completionBlock:defaultCallback];
+    }
+    
+}
+
+- (void) handleSuccessfulAuth:(ADAuthenticationResult*) result
+                     clientId:(NSString*) clientId
+                          upn:(NSString*) upn
+{
+    
+}
 
 // to be used when user invokes add account flow from the app
 - (void) acquireAccount:(NSString*) upn
@@ -472,7 +533,20 @@ return; \
 
 - (void) removeWorkPlaceJoinRegistration:(ADOnResultCallback) onResultBlock
 {
-    [[WorkPlaceJoin WorkPlaceJoinManager] leaveWithCompletionBlock:onResultBlock];
+    RegistrationInformation* regInfo = [ADBrokerContext getWorkPlaceJoinInformation];
+    if(regInfo)
+    {
+        //remove WPJ as well
+        [ self removeWorkPlaceJoinRegistration:^(NSError *error) {
+            //do nothing
+        }];
+        
+//        [self deleteFromCache:[ADBrokerKeychainTokenCacheStore new]
+//                          upn:regInfo.userPrincipalName];
+        [regInfo releaseData];
+        regInfo = nil;
+    }
+    
 }
 
 

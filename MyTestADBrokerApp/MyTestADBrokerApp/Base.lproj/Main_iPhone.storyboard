@@ -86,6 +86,12 @@
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0A3-EW-5ww">
+                                <rect key="frame" x="234" y="156" width="51" height="31"/>
+                                <connections>
+                                    <action selector="wpjSwitchPressed:" destination="JNQ-y8-Cg0" eventType="valueChanged" id="4XY-5l-ZlL"/>
+                                </connections>
+                            </switch>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Workplace Join" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lJH-Ho-VzU">
                                 <rect key="frame" x="28" y="161" width="118" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -93,7 +99,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fYB-Ph-ia2">
-                                <rect key="frame" x="36" y="303" width="256" height="37"/>
+                                <rect key="frame" x="16" y="473" width="256" height="37"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <state key="normal" title="Delete Account">
                                     <color key="titleColor" red="1" green="0.0061464114094909039" blue="0.016787503503685519" alpha="1" colorSpace="calibratedRGB"/>
@@ -127,20 +133,48 @@
                                     <action selector="deletePRTPressed:" destination="JNQ-y8-Cg0" eventType="touchUpInside" id="zO5-Ge-yCU"/>
                                 </connections>
                             </button>
-                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0A3-EW-5ww">
-                                <rect key="frame" x="234" y="156" width="51" height="31"/>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hAq-zL-xoj">
+                                <rect key="frame" x="28" y="397" width="201" height="30"/>
+                                <state key="normal" title="Get Access Token Using PRT">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
                                 <connections>
-                                    <action selector="wpjSwitchPressed:" destination="JNQ-y8-Cg0" eventType="valueChanged" id="4XY-5l-ZlL"/>
+                                    <action selector="getATFromPRTPressed:" destination="JNQ-y8-Cg0" eventType="touchUpInside" id="bH7-ve-4Bn"/>
                                 </connections>
-                            </switch>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Client ID" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iCM-rm-tc8">
+                                <rect key="frame" x="28" y="264" width="66" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="d3590ed6-52b3-4102-aeff-aad2292ab01c" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="VpH-va-NXB">
+                                <rect key="frame" x="28" y="293" width="276" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Redirect URI" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aKd-Vf-0Kt">
+                                <rect key="frame" x="28" y="331" width="98" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="urn:ietf:wg:oauth:2.0:oob" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ol2-WG-fwB">
+                                <rect key="frame" x="28" y="360" width="276" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" id="V3h-9D-1nb"/>
                     <connections>
+                        <outlet property="clientId" destination="VpH-va-NXB" id="vQT-Tw-Ge6"/>
                         <outlet property="deletePrtButton" destination="P74-S7-gUV" id="rTO-DU-TeJ"/>
+                        <outlet property="getATFromPrtButton" destination="hAq-zL-xoj" id="LGg-dJ-2K1"/>
                         <outlet property="name" destination="klo-jZ-ofx" id="Gb7-ei-hx5"/>
                         <outlet property="prtButton" destination="sFd-UC-9xU" id="j9h-RQ-yjt"/>
+                        <outlet property="redirectUri" destination="ol2-WG-fwB" id="zrl-h5-RVE"/>
                         <outlet property="upn" destination="bO9-0i-wl2" id="lvM-h9-H9n"/>
                         <outlet property="wpjEnabled" destination="0A3-EW-5ww" id="8E7-vq-5Jp"/>
                     </connections>

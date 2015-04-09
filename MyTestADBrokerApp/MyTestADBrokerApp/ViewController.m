@@ -141,6 +141,9 @@ NSMutableArray* users;
         return;
     }
     
+    ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:DEFAULT_AUTHORITY];
+    [ctx removeWorkPlaceJoinRegistration:nil];
+    
     [self getAllAccounts:YES];
 }
 
@@ -148,6 +151,24 @@ NSMutableArray* users;
 - (IBAction)addUserPressed:(id)sender
 {
     ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:DEFAULT_AUTHORITY];
+    
+    AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
+    NSString* upnInRequest = nil;
+    BOOL isBrokerRequest = [ADBrokerContext isBrokerRequest:appDelegate._url
+                                                  returnUpn:&upnInRequest];
+    if(isBrokerRequest)
+    {
+        [self getAllAccounts];
+        [ADBrokerContext invokeBrokerForSourceApplication:[appDelegate._url absoluteString]
+                                        sourceApplication:appDelegate._sourceApplication
+                                                      upn:upnInRequest
+                                          completionBlock:^(ADAuthenticationResult *result) {
+                                              appDelegate._url = nil;
+                                              appDelegate._sourceApplication = nil;
+                                          }];
+    }
+    else
+    {
     [ctx acquireAccount:nil
                clientId:BROKER_CLIENT_ID
                resource:BROKER_RESOURCE
@@ -166,6 +187,7 @@ NSMutableArray* users;
             [self getAllAccounts:YES];
         }
     }];
+    }
 }
 
 

@@ -23,21 +23,21 @@
 
 @interface AccountDetailsViewController ()
 
-@property (weak, nonatomic)   IBOutlet UIActivityIndicatorView *activityIndicator;
 @property (weak, nonatomic) IBOutlet UISwitch* wpjEnabled;
 @property (weak, nonatomic) IBOutlet UILabel* name;
 @property (weak, nonatomic) IBOutlet UILabel* upn;
 @property (weak, nonatomic) IBOutlet UIButton* prtButton;
 @property (weak, nonatomic) IBOutlet UIButton* deletePrtButton;
 
+@property (weak, nonatomic) IBOutlet UIButton* getATFromPrtButton;
+@property (weak, nonatomic) IBOutlet UITextField* clientId;
+@property (weak, nonatomic) IBOutlet UITextField* redirectUri;
 
 - (IBAction)deleteAccountPressed:(id)sender;
-
 - (IBAction)wpjSwitchPressed:(id)sender;
-
 - (IBAction)getPRTPressed:(id)sender;
-
 - (IBAction)deletePRTPressed:(id)sender;
+- (IBAction)getATFromPRTPressed:(id)sender;
 
 @end
 
@@ -50,9 +50,6 @@
                       self.account.userInformation.familyName];
     self.upn.text = self.account.userInformation.userId;
     
-    [_activityIndicator hidesWhenStopped];
-    _activityIndicator.hidden = true;
-    [_activityIndicator stopAnimating];
     // Do any additional setup after loading the view.
     RegistrationInformation* info = [ADBrokerContext getWorkPlaceJoinInformation];
     if(info)
@@ -66,6 +63,7 @@
     
     [self.deletePrtButton setEnabled:self.account.isWorkplaceJoined];
     [self.prtButton setEnabled:self.account.isWorkplaceJoined];
+    [self.getATFromPrtButton setEnabled:self.account.isWorkplaceJoined];
 
     if(self.account.isWorkplaceJoined)
     {
@@ -181,6 +179,32 @@
             }
         }];
     }
+}
+
+
+- (IBAction)getATFromPRTPressed:(id)sender
+{
+    
+    ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.account.userInformation.upn correlationId:[NSUUID UUID] error:nil];
+    [ctx acquireTokenUsingPRTForResource:@"https://graph.windows.net"
+                                clientId:self.clientId.text
+                             redirectUri:self.redirectUri.text
+                                  appKey:DEFAULT_GUID_FOR_NIL
+                         completionBlock:^(ADAuthenticationResult *result) {
+                             if(result.status != AD_SUCCEEDED)
+                             {
+                                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to get Token"
+                                                                                 message:result.error.description
+                                                                                delegate:self
+                                                                       cancelButtonTitle:@"OK"
+                                                                       otherButtonTitles:nil];
+                                 [alert show];
+                             }
+                             else
+                             {
+                                 //do somethin
+                             }
+                         }];
 }
 
 @end

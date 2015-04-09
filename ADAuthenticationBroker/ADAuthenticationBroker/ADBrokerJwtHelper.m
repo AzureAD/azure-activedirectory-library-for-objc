@@ -20,6 +20,8 @@
 #import "NSString+ADBrokerHelperMethods.h"
 #import "ADBrokerConstants.h"
 #import "ADBrokerJWEResponse.h"
+#import "ADBrokerHelpers.h"
+#import <CommonCrypto/CommonHMAC.h>
 
 #include "xCryptLib.h"
 
@@ -28,7 +30,6 @@
 const size_t BUFFER_SIZE = 64;
 const size_t CIPHER_BUFFER_SIZE = 2048;
 const uint32_t PADDING = kSecPaddingNone;
-const NSString* Label = @"AzureAD-SecureConversation";
 
 +(NSData*) getSessionKeyFromEncryptedJWT:(NSString*) encryptedJwt
                              privateKeyRef:(SecKeyRef) privateKeyRef
@@ -87,30 +88,33 @@ const NSString* Label = @"AzureAD-SecureConversation";
 +(NSString*) createSignedJWTUsingKeyDerivation:(NSDictionary*) header
                                        payload:(NSDictionary*) payload
                                        context:(NSString*) context
-                                  symmetricKey:(NSString*) symmetricKey
+                                  symmetricKey:(NSData*) sessionKey
 {
-NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
-
-SecKeyRef privateKeyRef = NULL;
-
-//change to the actual password you used here
-[options setObject:@"!@#EWQ" forKey:(__bridge id)kSecImportExportPassphrase];
-CFArrayRef items = CFArrayCreate(NULL, 0, 0, NULL);
-OSStatus securityError = SecPKCS12Import((__bridge CFDataRef)[symmetricKey dataUsingEncoding:NSUTF8StringEncoding], (__bridge CFDictionaryRef)options, &items);
-
-if (securityError == noErr && CFArrayGetCount(items) > 0) {
-    CFDictionaryRef identityDict = CFArrayGetValueAtIndex(items, 0);
-    SecIdentityRef identityApp = (SecIdentityRef)CFDictionaryGetValue(identityDict, kSecImportItemIdentity);
+    NSString* signingInput = [NSString stringWithFormat:@"%@.%@",
+                              [[ADBrokerJwtHelper createJSONFromDictionary:header] adBase64UrlEncode],
+                              [[ADBrokerJwtHelper createJSONFromDictionary:payload] adBase64UrlEncode]];
     
-    securityError = SecIdentityCopyPrivateKey(identityApp, &privateKeyRef);
-    if (securityError != noErr) {
-        privateKeyRef = NULL;
-    }
-}
+    NSData* derivedKey = [ADBrokerHelpers computeKDFInCounterMode:sessionKey
+                                     context:[context dataUsingEncoding:NSUTF8StringEncoding]];
 
-CFRelease(items);
+    const char *cData = [signingInput cStringUsingEncoding:NSASCIIStringEncoding];
+    unsigned char cHMAC[CC_SHA256_DIGEST_LENGTH];
+    CCHmac(kCCHmacAlgSHA256,
+           derivedKey.bytes,
+           derivedKey.length,
+           cData,
+           strlen(cData),
+           cHMAC);
+    NSData* signedData = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
+    NSString* signedEncodedDataString = [NSString Base64EncodeData: signedData];
     
-    return nil;
+    signedEncodedDataString = [signedEncodedDataString stringByReplacingOccurrencesOfString:@"/"
+                                                           withString:@"_"];
+    signedEncodedDataString = [signedEncodedDataString stringByReplacingOccurrencesOfString:@"+"
+                                                           withString:@"-"];
+    return [NSString stringWithFormat:@"%@.%@",
+            signingInput,
+            signedEncodedDataString];
 }
 
 
