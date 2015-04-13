@@ -50,6 +50,11 @@
         _privateKey = privateKey;
         _privateKeyData = SAFE_ARC_RETAIN(privateKeyData);
         _certificateIssuer = SAFE_ARC_RETAIN(certificateIssuer);
+        
+        CFRetain(_identity);
+        CFRetain(_certificate);
+        CFRetain(_privateKey);
+        
         return self;
     }
     return nil;
