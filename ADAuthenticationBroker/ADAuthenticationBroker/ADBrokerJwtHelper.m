@@ -220,7 +220,7 @@ const uint32_t PADDING = kSecPaddingNone;
     
     size_t numBytesDecrypted    = 0;
     CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt, kCCAlgorithmAES128,
-                                          0,
+                                          kCCOptionPKCS7Padding,
                                           [derivedKey bytes], kCCKeySizeAES256,
                                           [encryptedResponse.iv bytes],
                                           [encryptedResponse.payload bytes], dataLength, /* input */
@@ -234,13 +234,8 @@ const uint32_t PADDING = kSecPaddingNone;
         NSData* data = [NSData dataWithBytes:buffer length:numBytesDecrypted];
         free(buffer);
         
-        NSString* string = [[[[[[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] stringByReplacingOccurrencesOfString:@"\t" withString:@""] stringByReplacingOccurrencesOfString:@"\0" withString:@""] stringByReplacingOccurrencesOfString:@"\r" withString:@""] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-        data = [string dataUsingEncoding:NSUTF8StringEncoding];
-        NSMutableData* mutData = [[NSMutableData alloc] initWithBytes:data.bytes
-                                                               length:dataLength];
-        [mutData setLength:[data length] - 4];
         NSError   *jsonError  = nil;
-        id         jsonObject = [NSJSONSerialization JSONObjectWithData:mutData options:NSJSONReadingMutableLeaves error:&jsonError];
+        id         jsonObject = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:&jsonError];
         
         if ( nil != jsonObject && [jsonObject isKindOfClass:[NSDictionary class]] )
         {
@@ -252,9 +247,6 @@ const uint32_t PADDING = kSecPaddingNone;
             ADAuthenticationError* adError;
             if (jsonError)
             {
-                // Unrecognized JSON response
-                //NSString* bodyStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-//                AD_LOG_ERROR_F(@"JSON deserialization", jsonError.code, @"Error: %@. Body text: '%@'. HTTPS Code: %ld. Response correlation id: %@", jsonError.description, bodyStr, (long)webResponse.statusCode, responseCorrelationId);
                 adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
             }
             else
@@ -263,7 +255,7 @@ const uint32_t PADDING = kSecPaddingNone;
             }
             [response setObject:adError forKey:@"non_protocol_error"];
         }
-        mutData = nil;
+        
         return response;
     }
     
