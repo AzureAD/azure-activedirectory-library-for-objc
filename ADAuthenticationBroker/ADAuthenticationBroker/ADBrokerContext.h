@@ -47,14 +47,8 @@ typedef void(^ADOnResultCallback)(NSError* error);
 
 - (id) initWithAuthority:(NSString*) authority;
 
-- (void) acquireAccount:(NSString*) upn
-                 completionBlock:(ADAuthenticationCallback) completionBlock;
-
 // to be used when user invokes add account flow from the app
 - (void) acquireAccount:(NSString*) upn
-           clientId:(NSString*) clientId
-               resource:(NSString*) resource
-            redirectUri:(NSString*) redirectUri
     completionBlock:(ADAuthenticationCallback) completionBlock;
 
 + (NSArray*) getAllAccounts:(ADAuthenticationError*) error;

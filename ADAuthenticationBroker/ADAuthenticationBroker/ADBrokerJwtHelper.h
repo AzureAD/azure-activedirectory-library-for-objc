@@ -17,6 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
+#import "ADBrokerJWEResponse.h"
 
 @interface ADBrokerJwtHelper : NSObject
 
@@ -31,6 +32,10 @@
 +(NSString*) createSignedJWTUsingKeyDerivation:(NSDictionary*) header
                                        payload:(NSDictionary*) payload
                                        context:(NSString*) context
-                                  symmetricKey:(NSData*) sessionKey;
+                                  symmetricKey:(NSData*) symmetricKey;
 
+
++ (NSDictionary*) decryptJWEResponseUsingKeyDerivation:(ADBrokerJWEResponse*) encryptedResponse
+                                           context:(NSData*) context
+                                               key:(NSData*) key;
 @end

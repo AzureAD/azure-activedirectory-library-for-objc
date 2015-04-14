@@ -19,9 +19,11 @@
 #import "ADBrokerJwtHelper.h"
 #import "NSString+ADBrokerHelperMethods.h"
 #import "ADBrokerConstants.h"
-#import "ADBrokerJWEResponse.h"
 #import "ADBrokerHelpers.h"
+#import <ADALiOS/ADAuthenticationError.h>
+#import <ADALiOS/ADErrorCodes.h>
 #import <CommonCrypto/CommonHMAC.h>
+#import <CommonCrypto/CommonCryptor.h>
 
 #include "xCryptLib.h"
 
@@ -42,6 +44,19 @@ const uint32_t PADDING = kSecPaddingNone;
     
     return decryptedResponse;
 }
+//
+//+(NSData*) getSessionKeyFromEncryptedJWT:(NSString*) encryptedJwt
+//                           privateKeyRef:(SecKeyRef) privateKeyRef
+//                                   error:(NSError**) error;
+//{
+//    ADBrokerJWEResponse* response = [[ADBrokerJWEResponse alloc] initWithRawJWE:encryptedJwt];
+//    NSData* decryptedResponse = [ADBrokerJwtHelper decryptData:response.encryptedKey
+//                                                 privateKeyRef:privateKeyRef
+//                                                         error:error];
+//    
+//    return decryptedResponse;
+//}
+
 
 
 +(NSData*) decryptData:(NSData*) encryptedJwt
@@ -88,13 +103,13 @@ const uint32_t PADDING = kSecPaddingNone;
 +(NSString*) createSignedJWTUsingKeyDerivation:(NSDictionary*) header
                                        payload:(NSDictionary*) payload
                                        context:(NSString*) context
-                                  symmetricKey:(NSData*) sessionKey
+                                  symmetricKey:(NSData*) symmetricKey
 {
     NSString* signingInput = [NSString stringWithFormat:@"%@.%@",
                               [[ADBrokerJwtHelper createJSONFromDictionary:header] adBase64UrlEncode],
                               [[ADBrokerJwtHelper createJSONFromDictionary:payload] adBase64UrlEncode]];
     
-    NSData* derivedKey = [ADBrokerHelpers computeKDFInCounterMode:sessionKey
+    NSData* derivedKey = [ADBrokerHelpers computeKDFInCounterMode:symmetricKey
                                      context:[context dataUsingEncoding:NSUTF8StringEncoding]];
 
     const char *cData = [signingInput cStringUsingEncoding:NSASCIIStringEncoding];
@@ -108,10 +123,10 @@ const uint32_t PADDING = kSecPaddingNone;
     NSData* signedData = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
     NSString* signedEncodedDataString = [NSString Base64EncodeData: signedData];
     
-    signedEncodedDataString = [signedEncodedDataString stringByReplacingOccurrencesOfString:@"/"
-                                                           withString:@"_"];
-    signedEncodedDataString = [signedEncodedDataString stringByReplacingOccurrencesOfString:@"+"
-                                                           withString:@"-"];
+//    signedEncodedDataString = [signedEncodedDataString stringByReplacingOccurrencesOfString:@"/"
+//                                                           withString:@"_"];
+//    signedEncodedDataString = [signedEncodedDataString stringByReplacingOccurrencesOfString:@"+"
+//                                                           withString:@"-"];
     return [NSString stringWithFormat:@"%@.%@",
             signingInput,
             signedEncodedDataString];
@@ -182,5 +197,78 @@ const uint32_t PADDING = kSecPaddingNone;
     return nil;
 }
 
+
++ (NSDictionary*) decryptJWEResponseUsingKeyDerivation:(ADBrokerJWEResponse*) encryptedResponse
+                                           context:(NSData*) context
+                                               key:(NSData*) rawKey
+{
+    // 'key' should be 32 bytes for AES256, will be null-padded otherwise
+    //char keyPtr[kCCKeySizeAES256 + 1]; // room for terminator (unused)
+    //bzero(keyPtr, sizeof(keyPtr)); // fill with zeroes (for padding)
+    
+    NSData* derivedKey = [ADBrokerHelpers computeKDFInCounterMode:rawKey
+                                                          context:context];
+
+    //[derivedKey getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
+    NSUInteger dataLength = [encryptedResponse.payload length];
+    
+    //See the doc: For block ciphers, the output size will always be less than or
+    //equal to the input size plus the size of one block.
+    //That's why we need to add the size of one block here
+    size_t bufferSize           = dataLength + kCCBlockSizeAES128;
+    void* buffer                = malloc(bufferSize);
+    
+    size_t numBytesDecrypted    = 0;
+    CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt, kCCAlgorithmAES128,
+                                          0,
+                                          [derivedKey bytes], kCCKeySizeAES256,
+                                          [encryptedResponse.iv bytes],
+                                          [encryptedResponse.payload bytes], dataLength, /* input */
+                                          buffer, bufferSize, /* output */
+                                          &numBytesDecrypted);
+
+    NSMutableDictionary* response = [NSMutableDictionary new];
+    if (cryptStatus == kCCSuccess)
+    {
+        //the returned NSData takes ownership of the buffer and will free it on deallocation
+        NSData* data = [NSData dataWithBytes:buffer length:numBytesDecrypted];
+        free(buffer);
+        
+        NSString* string = [[[[[[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] stringByReplacingOccurrencesOfString:@"\t" withString:@""] stringByReplacingOccurrencesOfString:@"\0" withString:@""] stringByReplacingOccurrencesOfString:@"\r" withString:@""] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+        data = [string dataUsingEncoding:NSUTF8StringEncoding];
+        NSMutableData* mutData = [[NSMutableData alloc] initWithBytes:data.bytes
+                                                               length:dataLength];
+        [mutData setLength:[data length] - 4];
+        NSError   *jsonError  = nil;
+        id         jsonObject = [NSJSONSerialization JSONObjectWithData:mutData options:NSJSONReadingMutableLeaves error:&jsonError];
+        
+        if ( nil != jsonObject && [jsonObject isKindOfClass:[NSDictionary class]] )
+        {
+            // Load the response
+            [response addEntriesFromDictionary:(NSDictionary*)jsonObject];
+        }
+        else
+        {
+            ADAuthenticationError* adError;
+            if (jsonError)
+            {
+                // Unrecognized JSON response
+                //NSString* bodyStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+//                AD_LOG_ERROR_F(@"JSON deserialization", jsonError.code, @"Error: %@. Body text: '%@'. HTTPS Code: %ld. Response correlation id: %@", jsonError.description, bodyStr, (long)webResponse.statusCode, responseCorrelationId);
+                adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
+            }
+            else
+            {
+                adError = [ADAuthenticationError unexpectedInternalError:[NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]]];
+            }
+            [response setObject:adError forKey:@"non_protocol_error"];
+        }
+        mutData = nil;
+        return response;
+    }
+    
+    free(buffer); //free the buffer;
+    return nil;
+}
 
 @end

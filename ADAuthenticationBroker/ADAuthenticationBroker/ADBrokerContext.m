@@ -436,12 +436,19 @@ return; \
     
 }
 
-- (void) handleSuccessfulAuth:(ADAuthenticationResult*) result
-                     clientId:(NSString*) clientId
-                          upn:(NSString*) upn
+
+- (void) acquireAccount:(NSString*) upn
+        completionBlock:(ADAuthenticationCallback) completionBlock
 {
-    
+    [self acquireAccount:_authority
+                  userId:upn
+                clientId:BROKER_CLIENT_ID
+                resource:BROKER_RESOURCE
+             redirectUri:BROKER_REDIRECT_URI
+                  appKey:DEFAULT_GUID_FOR_NIL
+         completionBlock:completionBlock];
 }
+
 
 // to be used when user invokes add account flow from the app
 - (void) acquireAccount:(NSString*) upn

@@ -170,9 +170,6 @@ NSMutableArray* users;
     else
     {
     [ctx acquireAccount:nil
-               clientId:BROKER_CLIENT_ID
-               resource:BROKER_RESOURCE
-            redirectUri:BROKER_REDIRECT_URI
         completionBlock:^(ADAuthenticationResult *result) {
         if(result.status != AD_SUCCEEDED)
         {

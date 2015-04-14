@@ -21,7 +21,9 @@
 @interface ADBrokerJWEResponse : NSObject
 
 @property (readonly) NSData* encryptedKey;
-
+@property (readonly) NSData* iv;
+@property (readonly) NSData* payload;
+@property (readonly) NSData* headerContext;
 @property (readonly) NSString* headerAlgorithm;
 
 -(id) initWithRawJWE:(NSString*) rawJWE;

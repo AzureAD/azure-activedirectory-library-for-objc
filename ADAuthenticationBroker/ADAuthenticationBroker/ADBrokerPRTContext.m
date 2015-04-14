@@ -27,6 +27,7 @@
 #import <workplaceJoinAPI/WorkPlaceJoin.h>
 #import "ADAuthenticationBroker.h"
 #import "ADBrokerJWEResponse.h"
+#import "ADBrokerHelpers.h"
 
 @implementation ADBrokerPRTContext
 
@@ -142,6 +143,7 @@ NSString* userPrincipalIdentifier;
                       requestCorrelationId:[ctx getCorrelationId]
                isHandlingPKeyAuthChallenge:NO
                          additionalHeaders:request_data
+                               returnRawResponse:NO
                                 completion:^(NSDictionary *response) {
                                     
                                     ADBrokerPRTCacheItem* item = [ADBrokerPRTCacheItem new];
@@ -214,7 +216,7 @@ NSString* userPrincipalIdentifier;
             NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                  redirectUri, @"redirect_uri",
                                                  clientId, @"client_id",
-                                                 @"2.0", @"windows_api_verion",
+                                                 @"2.0", @"windows_api_version",
                                                  @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE_KEY,
                                                  jwtToken, @"request",
                                                  nil];
@@ -225,7 +227,21 @@ NSString* userPrincipalIdentifier;
     requestCorrelationId:[ctx getCorrelationId]
 isHandlingPKeyAuthChallenge:NO
        additionalHeaders:nil
+       returnRawResponse:YES
               completion:^(NSDictionary *response) {
+                  
+                  if([response valueForKey:@"raw_response"])
+                  {
+                  ADBrokerJWEResponse* jweResp = [[ADBrokerJWEResponse alloc] initWithRawJWE:[response valueForKey:@"raw_response"]];
+                  response = [ADBrokerJwtHelper decryptJWEResponseUsingKeyDerivation:jweResp
+                                                                  context:[jweResp headerContext]
+                                                                      key:prtItem.sessionKey];
+                      
+                      //id_token is not returned. Use id_token from PRT entry
+                      [response setValue:[prtItem.userInformation rawIdToken]
+                                   forKey:@"id_token"];
+                  }
+                  
                   
                   ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
                   item.resource = resource;
@@ -249,7 +265,7 @@ isHandlingPKeyAuthChallenge:NO
                       if(attemptPRTUpdate)
                       {
                           NSString* errorType = [response objectForKey:OAUTH2_ERROR_KEY];
-                          if(errorType && [NSString adSame:errorType toString:@"interaction_required"])
+                          if(errorType && [NSString adSame:errorType toString:@"invalid_grant"])
                           {
                               // if error is interaction_required use webview
                               [self acquireTokenViaWebviewInteractionForResource:resource
@@ -294,27 +310,35 @@ isHandlingPKeyAuthChallenge:NO
                                              prtItem:(ADBrokerPRTCacheItem*) prtItem
                                      completionBlock:(ADAuthenticationCallback) completionBlock
 {
+    
+    
+    NSString* refreshTokenCredential = [self createRefreshTokenCredentialJWT:prtItem];
+    
     [ctx requestCodeByResource: resource
                       clientId: clientId
                    redirectUri: [NSURL URLWithString:redirectUri]
-                         scope: nil /*for future use */
+                         scope: @"openid" /*for future use */
                         userId: userPrincipalIdentifier
                 promptBehavior: AD_PROMPT_AUTO
           extraQueryParameters: @"nux=1"
-        refreshTokenCredential: nil
+        refreshTokenCredential: refreshTokenCredential
                  correlationId: ctx.getCorrelationId
                     completion:^(NSString *code, ADAuthenticationError *authError) {
-                        if(!authError)
+                        if(authError)
                         {
-                            
+                            //TODO
                         }
                         else
                         {
                             //create JWT
-                            NSString* jwtToken = [self createAccessTokenRequestJWTUsingPRT:prtItem
+                            NSString* jwtToken = [self createPRTRequestJWTUsingAuthCode:prtItem
                                                                                   resource:resource
-                                                                                  clientId:clientId];
+                                                                                  clientId:clientId
+                                                                                   code:code];
                             NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                                                 redirectUri, @"redirect_uri",
+                                                                 clientId, @"client_id",
+                                                                 @"2.0", @"windows_api_version",
                                                                  @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE_KEY,
                                                                  jwtToken, @"request",
                                                                  nil];
@@ -325,6 +349,7 @@ isHandlingPKeyAuthChallenge:NO
                     requestCorrelationId:[ctx getCorrelationId]
              isHandlingPKeyAuthChallenge:NO
                        additionalHeaders:nil
+                       returnRawResponse:YES
                               completion:^(NSDictionary *response) {
                                   
                                   ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
@@ -353,30 +378,87 @@ isHandlingPKeyAuthChallenge:NO
 }
 
 
+-(NSString*) createRefreshTokenCredentialJWT:(ADBrokerPRTCacheItem*) item
+{
+    NSString* ctx = [[[NSUUID UUID] UUIDString] adComputeSHA256];
+    NSDictionary *header = @{
+                             @"alg" : @"HS256",
+                             @"kid" : [[NSUUID UUID] UUIDString],
+                             @"ctx" : [ADBrokerHelpers convertBase64UrlStringToBase64NSString:[ctx adBase64UrlEncode]]
+                             };
+    NSInteger iat = round([[NSDate date] timeIntervalSince1970]);
+    NSDictionary *payload = @{
+                              @"refresh_token" : [item primaryRefreshToken],                             @"iat" : [NSNumber numberWithInteger:iat]
+                              };
+    
+    NSString* returnValue = [ADBrokerJwtHelper createSignedJWTUsingKeyDerivation:header
+                                                                         payload:payload
+                                                                         context:ctx
+                                                                    symmetricKey:item.sessionKey];
+    return returnValue;
+    
+}
 
+
+-(NSString*) createPRTRequestJWTUsingAuthCode:(ADBrokerPRTCacheItem*) item
+                                        resource:(NSString*) resource
+                                        clientId:(NSString*) clientId
+                                            code:(NSString*) code
+{
+    NSString* grantType = @"authorization_code";
+    
+    NSString* ctx = [[[NSUUID UUID] UUIDString] adComputeSHA256];
+    NSDictionary *header = @{
+                             @"alg" : @"HS256",
+                             @"typ" : @"JWT",
+                             @"ctx" : [ADBrokerHelpers convertBase64UrlStringToBase64NSString:[ctx adBase64UrlEncode]]
+                             };
+    
+    NSInteger iat = round([[NSDate date] timeIntervalSince1970]);
+    NSDictionary *payload = @{
+                              @"resource" : resource,
+                              @"client_id" : clientId,
+                              @"code" : code,
+                              @"iss" : BROKER_CLIENT_ID,
+                              @"iat" : [NSNumber numberWithInteger:iat],
+                              @"nbf" : [NSNumber numberWithInteger:iat],
+                              @"exp" : [NSNumber numberWithInteger:iat],
+                              @"scope" : @"openid aza",
+                              @"grant_type" : grantType,
+                              @"aud" : DEFAULT_AUTHORITY
+                              };
+    
+    NSString* returnValue = [ADBrokerJwtHelper createSignedJWTUsingKeyDerivation:header
+                                                                         payload:payload
+                                                                         context:ctx
+                                                                    symmetricKey:item.sessionKey];
+    return returnValue;
+}
 
 -(NSString*) createAccessTokenRequestJWTUsingPRT:(ADBrokerPRTCacheItem*) item
                                         resource:(NSString*) resource
                                         clientId:(NSString*) clientId
 {
+    NSString* grantType = @"refresh_token";
+    
     NSString* ctx = [[[NSUUID UUID] UUIDString] adComputeSHA256];
     NSDictionary *header = @{
                              @"alg" : @"HS256",
                              @"typ" : @"JWT",
-                             @"ctx" : [ctx adBase64UrlEncode]
+                             @"ctx" : [ADBrokerHelpers convertBase64UrlStringToBase64NSString:[ctx adBase64UrlEncode]]
                              };
-    NSString* iat = [NSString stringWithFormat:@"%d", (CC_LONG)[[NSDate date] timeIntervalSince1970]];
+    
+    NSInteger iat = round([[NSDate date] timeIntervalSince1970]);
     NSDictionary *payload = @{
-                              @"version" : @"2",
                               @"resource" : resource,
                               @"client_id" : clientId,
                               @"refresh_token" : [item primaryRefreshToken],
                               @"iss" : BROKER_CLIENT_ID,
-                              @"iat" : iat,
-                              @"nbf" : iat,
-                              @"exp" : @"300",
+                              @"iat" : [NSNumber numberWithInteger:iat],
+                              @"nbf" : [NSNumber numberWithInteger:iat],
+                              @"exp" : [NSNumber numberWithInteger:iat],
                               @"scope" : @"openid",
-                              @"grant_type" : @"refresh_token",
+                              @"grant_type" : grantType,
                               @"aud" : DEFAULT_AUTHORITY
                               };
     

@@ -121,4 +121,35 @@ enum {
     return [NSData dataWithBytes:(const void *)pbDerivedKey length:sizeof(pbDerivedKey)];
 }
 
+
+
++ (NSData*) convertBase64UrlStringToBase64NSData:(NSString*) base64UrlString
+{
+    
+    return [NSData dataWithBase64String:[ADBrokerHelpers convertBase64UrlStringToBase64NSString:base64UrlString]];
+}
+
+
++ (NSString*) convertBase64UrlStringToBase64NSString:(NSString*) base64UrlString
+{
+    base64UrlString = [base64UrlString stringByReplacingOccurrencesOfString:@"-" withString:@"+"];
+    base64UrlString = [base64UrlString stringByReplacingOccurrencesOfString:@"_" withString:@"/"];
+    
+    NSString* base64PadCharacter = @"=";
+    
+    switch (base64UrlString.length % 4) // Pad
+    {
+        case 0:
+            break; // No pad chars in this case
+        case 2:
+            base64UrlString = [NSString stringWithFormat:@"%@%@%@", base64UrlString, base64PadCharacter, base64PadCharacter];
+            break; // Two pad chars
+        case 3:
+            base64UrlString = [NSString stringWithFormat:@"%@%@", base64UrlString, base64PadCharacter];
+            break; // One pad char
+    }
+    
+    return base64UrlString;
+}
+
 @end

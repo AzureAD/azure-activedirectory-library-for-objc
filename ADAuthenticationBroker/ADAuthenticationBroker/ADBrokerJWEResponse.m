@@ -19,6 +19,7 @@
 #import "ADBrokerJWEResponse.h"
 #import "NSString+ADBrokerHelperMethods.h"
 #import "ADBrokerBase64Additions.h"
+#import "ADBrokerHelpers.h"
 
 @implementation ADBrokerJWEResponse
 
@@ -46,7 +47,12 @@
         
         if ( nil != jsonObject && [jsonObject isKindOfClass:[NSDictionary class]] )
         {
-            _headerAlgorithm = [(NSDictionary*)jsonObject objectForKey:@"alg"];
+            NSDictionary* dict = (NSDictionary*)jsonObject;
+            _headerAlgorithm = [dict objectForKey:@"alg"];
+            if([dict objectForKey:@"ctx"])
+            {
+            _headerContext = [[NSData alloc] initWithBase64EncodedString:[dict objectForKey:@"ctx"] options:0];
+            }
         }
         else
         {
@@ -54,26 +60,12 @@
         }
         
         NSString* encryptedKey = [jwePieces objectAtIndex:1];
-        encryptedKey = [encryptedKey stringByReplacingOccurrencesOfString:@"-" withString:@"+"];
-        encryptedKey = [encryptedKey stringByReplacingOccurrencesOfString:@"_" withString:@"/"];
-        
-        NSString* base64PadCharacter = @"=";
-        
-        switch (encryptedKey.length % 4) // Pad
-        {
-            case 0:
-                break; // No pad chars in this case
-            case 2:
-                encryptedKey = [NSString stringWithFormat:@"%@%@%@", encryptedKey, base64PadCharacter, base64PadCharacter];
-                break; // Two pad chars
-            case 3:
-                encryptedKey = [NSString stringWithFormat:@"%@%@", encryptedKey, base64PadCharacter];
-                break; // One pad char
-        }
-        
-        _encryptedKey = [NSData dataWithBase64String:encryptedKey];
+        _encryptedKey = [ADBrokerHelpers convertBase64UrlStringToBase64NSData:encryptedKey];
+        _iv = [ADBrokerHelpers convertBase64UrlStringToBase64NSData:[jwePieces objectAtIndex:2]];
+        _payload = [ADBrokerHelpers convertBase64UrlStringToBase64NSData:[jwePieces objectAtIndex:3]];
     }
     return self;
 }
+
 
 @end
