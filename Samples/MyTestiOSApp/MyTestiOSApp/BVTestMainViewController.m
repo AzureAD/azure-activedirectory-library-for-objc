@@ -44,6 +44,7 @@
     
     mTestData = [BVSettings new];
     mAADInstance = mTestData.testAuthorities[sAADTestInstance];
+    [ADAuthenticationSettings sharedInstance].sharedCacheKeychainGroup = nil;
 }
 
 - (void)didReceiveMemoryWarning
@@ -112,7 +113,7 @@
         return;
     }
     
-    [context acquireTokenForAssertion:@"" assertionType:AD_SAML1_1 resource:resourceString clientId:clientId userId:@"kpanwar@microsoft.com" completionBlock:^(ADAuthenticationResult *result) {
+    [context acquireTokenForAssertion:@"" assertionType:AD_SAML1_1 resource:resourceString clientId:clientId userId:mAADInstance.userId completionBlock:^(ADAuthenticationResult *result) {
         if (result.status != AD_SUCCEEDED)
         {
             [weakSelf setStatus:result.error.errorDetails];
