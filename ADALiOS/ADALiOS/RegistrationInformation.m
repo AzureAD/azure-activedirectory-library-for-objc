@@ -43,13 +43,17 @@
     if(self)
     {
         _identity = identity;
+        CFRetain(_identity);
         _userPrincipalName = SAFE_ARC_RETAIN(userPrincipalName);
         _certificate = certificate;
+        CFRetain(_certificate);
         _certificateSubject = SAFE_ARC_RETAIN(certificateSubject);
         _certificateData = SAFE_ARC_RETAIN(certificateData);
         _privateKey = privateKey;
+        CFRetain(_privateKey);
         _privateKeyData = SAFE_ARC_RETAIN(privateKeyData);
         _certificateIssuer = SAFE_ARC_RETAIN(certificateIssuer);
+        
         return self;
     }
     return nil;
