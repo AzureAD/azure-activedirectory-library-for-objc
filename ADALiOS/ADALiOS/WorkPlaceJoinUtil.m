@@ -120,6 +120,9 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
                                                                                   certificateData:certificateData
                                                                                        privateKey:privateKey
                                                                                    privateKeyData:privateKeyData];
+        CFRelease(identity);
+        CFRelease(certificate);
+        CFRelease(privateKey);
         return info;
     }
     else
