@@ -499,7 +499,9 @@ return; \
         onResultBlock(nil, error);
     }
     
-    ServiceInformation *svcInfo = [workPlaceJoinApi doDiscoveryForUpn:upn error:&error];
+    ServiceInformation *svcInfo = [workPlaceJoinApi doDiscoveryForUpn:upn
+                                                        correlationId:[NSUUID UUID]
+                                                         error:&error];
     if(error)
     {
         onResultBlock(nil, error);
@@ -519,6 +521,7 @@ return; \
                                                    token:result.accessToken
                                     registrationEndpoint:[svcInfo registrationEndpoint]
                               registrationServiceVersion:[svcInfo registrationServiceVersion]
+                                           correlationId:[NSUUID UUID]
                                          completionBlock:^(NSError *error) {
                                              if(!error)
                                              {
@@ -567,7 +570,9 @@ return; \
         //remove WPJ as well
         [ [WorkPlaceJoin WorkPlaceJoinManager] leaveWithCompletionBlock:^(NSError *error) {
             //do nothing
-        }];
+        }
+         
+                                                          correlationId:[NSUUID UUID]];
         
 //        [self deleteFromCache:[ADBrokerKeychainTokenCacheStore new]
 //                          upn:regInfo.userPrincipalName];
