@@ -51,6 +51,12 @@ typedef void(^ADOnResultCallback)(NSError* error);
 - (void) acquireAccount:(NSString*) upn
     completionBlock:(ADAuthenticationCallback) completionBlock;
 
+- (void) acquireAccount:(NSString*) upn
+               clientId:(NSString*) clientId
+               resource:(NSString*) resource
+            redirectUri:(NSString*) redirectUri
+        completionBlock:(ADAuthenticationCallback) completionBlock;
+
 + (NSArray*) getAllAccounts:(ADAuthenticationError*) error;
 
 - (void) removeAccount: (NSString*) upn

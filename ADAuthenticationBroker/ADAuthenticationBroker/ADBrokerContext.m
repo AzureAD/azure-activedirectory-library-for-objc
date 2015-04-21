@@ -29,6 +29,7 @@
 #import "ADBrokerPRTCacheItem.h"
 #import "ADBrokerUserAccount.h"
 #import "NSString+ADBrokerHelperMethods.h"
+#import <ADALiOS/ADLogger.h>
 
 @implementation ADBrokerContext
 
@@ -357,7 +358,27 @@ return; \
                                                clientId:clientId
                                             redirectUri:redirectUri
                                                  appKey:appKey
-                                        completionBlock:completionBlock];
+                                        completionBlock:^(ADAuthenticationResult *result) {
+                                            //if failed, check for and use PRT
+                                            if(result.status == AD_SUCCEEDED)
+                                            {
+                                                //update first party cache
+                                                if(![NSString adSame:clientId toString: BROKER_CLIENT_ID])
+                                                {
+                                                    id<ADTokenCacheStoring> firstPartyCache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+                                                    //save AT and RT in the cache
+                                                    [ctx updateCacheToResult:result
+                                                               cacheInstance:firstPartyCache
+                                                                   cacheItem:nil
+                                                            withRefreshToken:nil];
+                                                    result = [ctx updateResult:result
+                                                                        toUser:upn];
+                                                }
+                                            }
+                                            
+                                            completionBlock(result);
+                                            return;
+                                        }];
             }
             else
             {
@@ -368,7 +389,7 @@ return; \
                     [ctx internalAcquireTokenWithResource:resource
                                                  clientId:clientId
                                               redirectUri:[NSURL URLWithString:redirectUri]
-                                           promptBehavior:AD_PROMPT_ALWAYS
+                                           promptBehavior:AD_PROMPT_AUTO
                                                    silent:NO
                                                    userId:upn
                                                     scope:nil
@@ -544,7 +565,7 @@ return; \
     if(regInfo)
     {
         //remove WPJ as well
-        [ self removeWorkPlaceJoinRegistration:^(NSError *error) {
+        [ [WorkPlaceJoin WorkPlaceJoinManager] leaveWithCompletionBlock:^(NSError *error) {
             //do nothing
         }];
         

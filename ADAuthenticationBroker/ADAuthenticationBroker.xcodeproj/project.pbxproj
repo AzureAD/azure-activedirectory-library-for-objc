@@ -33,12 +33,8 @@
 		97927EAF1A915D1B0053E283 /* ADBrokerHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97927EAE1A915D1B0053E283 /* ADBrokerHelpersTests.m */; };
 		979F4ED21AB2ADBB009B3E43 /* ADBrokerUserAccount.h in Headers */ = {isa = PBXBuildFile; fileRef = 979F4ED01AB2ADBB009B3E43 /* ADBrokerUserAccount.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		979F4ED31AB2ADBB009B3E43 /* ADBrokerUserAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 979F4ED11AB2ADBB009B3E43 /* ADBrokerUserAccount.m */; };
-		979F4F041ABCE773009B3E43 /* ADBrokerCryptoHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 979F4F021ABCE773009B3E43 /* ADBrokerCryptoHelper.h */; };
-		979F4F051ABCE773009B3E43 /* ADBrokerCryptoHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 979F4F031ABCE773009B3E43 /* ADBrokerCryptoHelper.m */; };
 		979F4F1B1AC1248B009B3E43 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 979F4F1A1AC1248B009B3E43 /* Security.framework */; };
 		979F4F231AC1DCF6009B3E43 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 979F4F221AC1DCF6009B3E43 /* CoreGraphics.framework */; };
-		979F4F281AC1E133009B3E43 /* xCryptLib_iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 979F4F271AC1E133009B3E43 /* xCryptLib_iOS.a */; };
-		979F4F2A1AC1E147009B3E43 /* xCryptLib_iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 979F4F291AC1E147009B3E43 /* xCryptLib_iOS.a */; };
 		97A522541A1A9E07001D77CE /* ADBrokerSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A522531A1A9E07001D77CE /* ADBrokerSettings.m */; };
 		97B2AFB31ACB3F0000DE04A3 /* ADBrokerJWEResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 97B2AFB11ACB3F0000DE04A3 /* ADBrokerJWEResponse.h */; };
 		97B2AFB41ACB3F0000DE04A3 /* ADBrokerJWEResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 97B2AFB21ACB3F0000DE04A3 /* ADBrokerJWEResponse.m */; };
@@ -164,13 +160,8 @@
 		97927EAE1A915D1B0053E283 /* ADBrokerHelpersTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelpersTests.m; sourceTree = "<group>"; };
 		979F4ED01AB2ADBB009B3E43 /* ADBrokerUserAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerUserAccount.h; sourceTree = "<group>"; };
 		979F4ED11AB2ADBB009B3E43 /* ADBrokerUserAccount.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerUserAccount.m; sourceTree = "<group>"; };
-		979F4F021ABCE773009B3E43 /* ADBrokerCryptoHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerCryptoHelper.h; sourceTree = "<group>"; };
-		979F4F031ABCE773009B3E43 /* ADBrokerCryptoHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerCryptoHelper.m; sourceTree = "<group>"; };
 		979F4F1A1AC1248B009B3E43 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		979F4F211AC14170009B3E43 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = Frameworks/xCrypt/include; sourceTree = "<group>"; };
 		979F4F221AC1DCF6009B3E43 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		979F4F271AC1E133009B3E43 /* xCryptLib_iOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = xCryptLib_iOS.a; path = Frameworks/xCrypt/lib/os/xCryptLib_iOS.a; sourceTree = "<group>"; };
-		979F4F291AC1E147009B3E43 /* xCryptLib_iOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = xCryptLib_iOS.a; path = Frameworks/xCrypt/lib/simulator/xCryptLib_iOS.a; sourceTree = "<group>"; };
 		97A522521A1A9DF3001D77CE /* ADBrokerSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerSettings.h; sourceTree = "<group>"; };
 		97A522531A1A9E07001D77CE /* ADBrokerSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerSettings.m; sourceTree = "<group>"; };
 		97B2AFB11ACB3F0000DE04A3 /* ADBrokerJWEResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerJWEResponse.h; sourceTree = "<group>"; };
@@ -198,6 +189,7 @@
 		97D685F01A1670FE00EE816C /* ADBrokerKeyChainHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeyChainHelper.m; sourceTree = "<group>"; };
 		97D685F31A169D1700EE816C /* ADBrokerHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelpers.m; sourceTree = "<group>"; };
 		97D685F51A169D3300EE816C /* ADBrokerHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerHelpers.h; sourceTree = "<group>"; };
+		97DFE46D1AE41A9C008109E1 /* ADBrokerErrorCodes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADBrokerErrorCodes.h; sourceTree = "<group>"; };
 		97ED7A551A97B44000DEA5E7 /* ADBrokerPRTCacheItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerPRTCacheItem.h; sourceTree = "<group>"; };
 		97ED7A561A97B44000DEA5E7 /* ADBrokerPRTCacheItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerPRTCacheItem.m; sourceTree = "<group>"; };
 		97ED7A5A1A9AED1700DEA5E7 /* ADBrokerPRTContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerPRTContext.h; sourceTree = "<group>"; };
@@ -214,8 +206,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				979F4F2A1AC1E147009B3E43 /* xCryptLib_iOS.a in Frameworks */,
-				979F4F281AC1E133009B3E43 /* xCryptLib_iOS.a in Frameworks */,
 				979F4F231AC1DCF6009B3E43 /* CoreGraphics.framework in Frameworks */,
 				979F4F1B1AC1248B009B3E43 /* Security.framework in Frameworks */,
 				97F5D7B91A94331A00E0AD3A /* libWorkPlaceJoinAPI.a in Frameworks */,
@@ -259,7 +249,6 @@
 		97D685B51A13EA5000EE816C = {
 			isa = PBXGroup;
 			children = (
-				979F4F211AC14170009B3E43 /* include */,
 				97D685DD1A13EAAF00EE816C /* Framework */,
 				97D685C01A13EA5000EE816C /* ADAuthenticationBroker */,
 				97D685CD1A13EA5000EE816C /* ADAuthenticationBrokerTests */,
@@ -310,12 +299,11 @@
 				97ED7A5B1A9AED1700DEA5E7 /* ADBrokerPRTContext.m */,
 				979F4ED01AB2ADBB009B3E43 /* ADBrokerUserAccount.h */,
 				979F4ED11AB2ADBB009B3E43 /* ADBrokerUserAccount.m */,
-				979F4F021ABCE773009B3E43 /* ADBrokerCryptoHelper.h */,
-				979F4F031ABCE773009B3E43 /* ADBrokerCryptoHelper.m */,
 				97FBE7411AC60FB1001883A5 /* ADBrokerBase64Additions.h */,
 				97FBE7421AC60FB1001883A5 /* ADBrokerBase64Additions.m */,
 				97B2AFB11ACB3F0000DE04A3 /* ADBrokerJWEResponse.h */,
 				97B2AFB21ACB3F0000DE04A3 /* ADBrokerJWEResponse.m */,
+				97DFE46D1AE41A9C008109E1 /* ADBrokerErrorCodes.h */,
 			);
 			path = ADAuthenticationBroker;
 			sourceTree = "<group>";
@@ -342,8 +330,6 @@
 		97D685DD1A13EAAF00EE816C /* Framework */ = {
 			isa = PBXGroup;
 			children = (
-				979F4F291AC1E147009B3E43 /* xCryptLib_iOS.a */,
-				979F4F271AC1E133009B3E43 /* xCryptLib_iOS.a */,
 				979F4F221AC1DCF6009B3E43 /* CoreGraphics.framework */,
 				979F4F1A1AC1248B009B3E43 /* Security.framework */,
 				97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */,
@@ -380,7 +366,6 @@
 				97B2AFB31ACB3F0000DE04A3 /* ADBrokerJWEResponse.h in Headers */,
 				979F4ED21AB2ADBB009B3E43 /* ADBrokerUserAccount.h in Headers */,
 				97E21CE01A1C38CF00EF5520 /* NSDictionary+ADExtensions.h in Headers */,
-				979F4F041ABCE773009B3E43 /* ADBrokerCryptoHelper.h in Headers */,
 				97FBE7431AC60FB1001883A5 /* ADBrokerBase64Additions.h in Headers */,
 				97E21CE21A1C38CF00EF5520 /* NSString+ADBrokerHelperMethods.h in Headers */,
 				97ED7A5C1A9AED1700DEA5E7 /* ADBrokerPRTContext.h in Headers */,
@@ -586,7 +571,6 @@
 				979F4ED31AB2ADBB009B3E43 /* ADBrokerUserAccount.m in Sources */,
 				97A522541A1A9E07001D77CE /* ADBrokerSettings.m in Sources */,
 				97ED7A581A97B44000DEA5E7 /* ADBrokerPRTCacheItem.m in Sources */,
-				979F4F051ABCE773009B3E43 /* ADBrokerCryptoHelper.m in Sources */,
 				97D685DC1A13EAA600EE816C /* ADBrokerContext.m in Sources */,
 				97D10BAF1A182EAA004FCD51 /* NSDictionary+ADExtensions.m in Sources */,
 				97D685F41A169D1700EE816C /* ADBrokerHelpers.m in Sources */,

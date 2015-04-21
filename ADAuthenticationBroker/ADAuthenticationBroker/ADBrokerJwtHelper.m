@@ -25,8 +25,6 @@
 #import <CommonCrypto/CommonHMAC.h>
 #import <CommonCrypto/CommonCryptor.h>
 
-#include "xCryptLib.h"
-
 @implementation ADBrokerJwtHelper
 
 const size_t BUFFER_SIZE = 64;
@@ -122,11 +120,6 @@ const uint32_t PADDING = kSecPaddingNone;
            cHMAC);
     NSData* signedData = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
     NSString* signedEncodedDataString = [NSString Base64EncodeData: signedData];
-    
-//    signedEncodedDataString = [signedEncodedDataString stringByReplacingOccurrencesOfString:@"/"
-//                                                           withString:@"_"];
-//    signedEncodedDataString = [signedEncodedDataString stringByReplacingOccurrencesOfString:@"+"
-//                                                           withString:@"-"];
     return [NSString stringWithFormat:@"%@.%@",
             signingInput,
             signedEncodedDataString];

@@ -20,6 +20,7 @@
 #import "ADBrokerHelpers.h"
 #import "../ADAuthenticationBroker/ADBrokerBase64Additions.h"
 #import "../ADAuthenticationBroker/NSString+ADBrokerHelperMethods.h"
+#import <CommonCrypto/CommonHMAC.h>
 
 @interface ADBrokerHelpersTests : XCTestCase
 

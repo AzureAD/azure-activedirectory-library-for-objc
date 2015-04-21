@@ -184,27 +184,49 @@
 
 - (IBAction)getATFromPRTPressed:(id)sender
 {
+
+    ADBrokerContext*ctx = [[ADBrokerContext alloc] initWithAuthority:DEFAULT_AUTHORITY];
+    [ctx setCorrelationId:[NSUUID UUID]];
+    [ctx acquireAccount:self.account.userInformation.upn
+               clientId:self.clientId.text
+               resource:@"https://graph.windows.net"
+            redirectUri:self.redirectUri.text
+        completionBlock:^(ADAuthenticationResult *result) {
+            if(result.status != AD_SUCCEEDED)
+            {
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to get Token"
+                                                                message:result.error.description
+                                                               delegate:self
+                                                      cancelButtonTitle:@"OK"
+                                                      otherButtonTitles:nil];
+                [alert show];
+            }
+            else
+            {
+                //do something
+            }
+        }];
     
-    ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.account.userInformation.upn correlationId:[NSUUID UUID] error:nil];
-    [ctx acquireTokenUsingPRTForResource:@"https://graph.windows.net"
-                                clientId:self.clientId.text
-                             redirectUri:self.redirectUri.text
-                                  appKey:DEFAULT_GUID_FOR_NIL
-                         completionBlock:^(ADAuthenticationResult *result) {
-                             if(result.status != AD_SUCCEEDED)
-                             {
-                                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to get Token"
-                                                                                 message:result.error.description
-                                                                                delegate:self
-                                                                       cancelButtonTitle:@"OK"
-                                                                       otherButtonTitles:nil];
-                                 [alert show];
-                             }
-                             else
-                             {
-                                 //do somethin
-                             }
-                         }];
+//    ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.account.userInformation.upn correlationId:[NSUUID UUID] error:nil];
+//    [ctx acquireTokenUsingPRTForResource:@"https://graph.windows.net"
+//                                clientId:self.clientId.text
+//                             redirectUri:self.redirectUri.text
+//                                  appKey:DEFAULT_GUID_FOR_NIL
+//                         completionBlock:^(ADAuthenticationResult *result) {
+//                             if(result.status != AD_SUCCEEDED)
+//                             {
+//                                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to get Token"
+//                                                                                 message:result.error.description
+//                                                                                delegate:self
+//                                                                       cancelButtonTitle:@"OK"
+//                                                                       otherButtonTitles:nil];
+//                                 [alert show];
+//                             }
+//                             else
+//                             {
+//                                 //do somethin
+//                             }
+//                         }];
 }
 
 @end

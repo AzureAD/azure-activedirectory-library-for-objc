@@ -317,7 +317,7 @@ isHandlingPKeyAuthChallenge:NO
     [ctx requestCodeByResource: resource
                       clientId: clientId
                    redirectUri: [NSURL URLWithString:redirectUri]
-                         scope: @"openid" /*for future use */
+                         scope: @"openid"
                         userId: userPrincipalIdentifier
                 promptBehavior: AD_PROMPT_AUTO
           extraQueryParameters: @"nux=1"
@@ -418,7 +418,7 @@ isHandlingPKeyAuthChallenge:NO
     NSDictionary *payload = @{
                               @"resource" : resource,
                               @"client_id" : clientId,
-                              @"code" : code,
+                              grantType : code,
                               @"iss" : BROKER_CLIENT_ID,
                               @"iat" : [NSNumber numberWithInteger:iat],
                               @"nbf" : [NSNumber numberWithInteger:iat],
