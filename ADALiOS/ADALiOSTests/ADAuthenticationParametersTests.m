@@ -18,6 +18,7 @@
 
 #import <XCTest/XCTest.h>
 #import <ADALiOS/ADAuthenticationParameters.h>
+#import <ADALiOS/ADAuthenticationSettings.h>
 #import "XCTestCase+TestHelperMethods.h"
 #import "../ADALiOS/ADAuthenticationParameters+Internal.h"
 
@@ -39,6 +40,7 @@
     // Runs before each test case. Just in case, set them to nil.
     mParameters = nil;
     mError = nil;
+    [ADAuthenticationSettings sharedInstance].requestTimeOut = 5;
 }
 
 - (void)tearDown
@@ -71,7 +73,7 @@
     mParameters = nil;
     mError = nil;
     __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    [self adCallAndWaitWithFile:@"" __FILE__ line:sourceLine semaphore:sem block:^
+    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
     {
         //The asynchronous call:
         [ADAuthenticationParameters parametersFromResourceUrl:resource

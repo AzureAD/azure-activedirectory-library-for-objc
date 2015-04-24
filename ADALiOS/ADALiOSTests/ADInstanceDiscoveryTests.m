@@ -105,6 +105,7 @@ const int sAsyncTimeout = 10;//in seconds
         [mValidatedAuthorities addObject:sAlwaysTrusted];
         XCTAssertTrue(mValidatedAuthorities.count == 1);
     }
+    [ADAuthenticationSettings sharedInstance].requestTimeOut = 5;
 }
 
 - (void)tearDown

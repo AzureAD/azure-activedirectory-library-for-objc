@@ -1,3 +1,15 @@
+Version 1.2.0
+-------------
+* Support for NTLM login.
+* Addition of a master header file (ADAL.h) for easy developer access to the API.
+* Fix to cancel the webview when the user clicks "Enroll" button to initiate workplace join.
+* Fix for Issue #246.
+* Fix for Issue #245.
+
+Version 1.1.12
+--------------
+* Fix to ignore navigation type in the webview. It was blocking users from enrolling their device.
+
 Version 1.1.11
 --------------
 This release contains bug fixes and updates for an improved developer experience. Given below is the changelist -

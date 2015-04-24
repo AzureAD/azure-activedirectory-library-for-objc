@@ -18,11 +18,7 @@
 
 
 #import "BVTestMainViewController.h"
-#import <ADALiOS/ADAuthenticationContext.h>
-#import <ADALiOS/ADAuthenticationParameters.h>
-#import <ADALiOS/ADAuthenticationSettings.h>
-#import <ADALiOS/ADLogger.h>
-#import <ADALiOS/ADInstanceDiscovery.h>
+#import <ADALiOS/ADAL.h>
 #import "BVSettings.h"
 #import "BVTestInstance.h"
 #import "BVApplicationData.h"
@@ -138,11 +134,11 @@
     NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters * params, ADAuthenticationError * error)
      {
-         if (!params)
-         {
-             [weakSelf setStatus:error.errorDetails];
-             return;
-         }
+//         if (!params)
+//         {
+//             [weakSelf setStatus:error.errorDetails];
+//             return;
+//         }
          
          //401 worked, now try to acquire the token:
          //TODO: replace the authority here with the one that comes back from 'params'
@@ -151,7 +147,7 @@
          resourceString = mAADInstance.resource;
          NSString* redirectUri = mAADInstance.redirectUri;
          NSString* userId = mAADInstance.userId;
-         [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
+         //[weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
          ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:mAADInstance.validateAuthority error:&error];
          if (!context)
          {
