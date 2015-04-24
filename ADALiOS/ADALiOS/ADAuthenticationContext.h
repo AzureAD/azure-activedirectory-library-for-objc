@@ -301,30 +301,6 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                                 userId: (NSString*) userId
                        completionBlock: (ADAuthenticationCallback) completionBlock;
 
-/*! Follows the OAuth2 protocol (RFC 6749). Uses the refresh token to obtain an access token (and another refresh token). The method
- is superceded by acquireToken, which will implicitly use the refresh token if needed. Please use acquireTokenByRefreshToken
- only if you would like to store the access and refresh tokens, managing the expiration times in your application logic.
- @param refreshToken: the resource whose token is needed.
- @param clientId: the client identifier
- @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here }"
- */
--(void) acquireTokenByRefreshToken: (NSString*) refreshToken
-                          clientId: (NSString*) clientId
-                   completionBlock: (ADAuthenticationCallback) completionBlock;
-
-/*! Follows the OAuth2 protocol (RFC 6749). Uses the refresh token to obtain an access token (and another refresh token). The method
- is superceded by acquireToken, which will implicitly use the refresh token if needed. Please use acquireTokenByRefreshToken
- only if you would like to store the access and refresh tokens, managing the expiration times in your application logic.
- @param refreshToken: the resource whose token is needed.
- @param clientId: the client identifier
- @param resource: the desired resource to which the token applies.
- @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
- */
--(void) acquireTokenByRefreshToken: (NSString*) refreshToken
-                          clientId: (NSString*) clientId
-                          resource: (NSString*) resource
-                   completionBlock: (ADAuthenticationCallback) completionBlock;
-
 @end
 
 
