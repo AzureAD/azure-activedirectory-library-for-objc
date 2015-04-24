@@ -1,3 +1,11 @@
+Version 1.2.2
+-------------
+* Fix a bug where a webpage would show blank screen when custom headers were sent.
+
+Version 1.2.1
+-------------
+* Fix a crash in iOS 7.1 when NTLM alert is shown.
+
 Version 1.2.0
 -------------
 * Support for NTLM login.

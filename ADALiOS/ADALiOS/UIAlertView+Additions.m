@@ -21,7 +21,9 @@ static UIAlertView *alert;
     if (handler)
         objc_setAssociatedObject(alert, HANDLER_KEY, handler, OBJC_ASSOCIATION_COPY_NONATOMIC);
     
-    [alert show];
+    dispatch_async(dispatch_get_main_queue(), ^(void){
+        [alert show];
+    });
 }
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
