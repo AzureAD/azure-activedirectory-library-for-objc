@@ -26,4 +26,18 @@
 
 +(NSString*) getEndpointName:(NSString*) fullEndpoint;
 
++ (NSData*) convertBase64UrlStringToBase64NSData:(NSString*) base64UrlString;
+
++ (NSString*) convertBase64UrlStringToBase64NSString:(NSString*) base64UrlString;
+
++(NSString*) createSignedJWTUsingKeyDerivation:(NSDictionary*) header
+                                       payload:(NSDictionary*) payload
+                                       context:(NSString*) context
+                                  symmetricKey:(NSData*) symmetricKey;
+
++ (NSString *) createJSONFromDictionary:(NSDictionary *) dictionary;
+
++ (NSData*) computeKDFInCounterMode:(NSData*)key
+                            context:(NSData*)ctx;
+
 @end

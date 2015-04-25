@@ -16,6 +16,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 #import "ADALiOS.h"
+#import <CommonCrypto/CommonDigest.h>
 
 typedef unsigned char byte;
 
@@ -398,6 +399,20 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
         return !string2; //if both are nil, they are equal
     else
         return [string1 isEqualToString:string2];
+}
+
+
+-(NSString*) adComputeSHA256
+{
+    const char* inputStr = [self UTF8String];
+    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256(inputStr, (int)strlen(inputStr), hash);
+    NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
+    for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
+    {
+        [toReturn appendFormat:@"%02x", hash[i]];
+    }
+    return toReturn;
 }
 
 @end

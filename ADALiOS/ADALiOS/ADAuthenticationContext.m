@@ -37,6 +37,9 @@
 #import "ADKeyChainHelper.h"
 #import "ADBrokerKeyHelper.h"
 #import "ADClientMetrics.h"
+#import "NSString+ADHelperMethods.h"
+#import "ADHelpers.h"
+#import "ADOAuth2Constants.h"
 
 NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
@@ -228,10 +231,10 @@ return; \
     else
     {
         HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
-     
+        
         NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
         NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
-
+        
         //decrypt response first
         ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
         ADAuthenticationError* error;
@@ -274,8 +277,9 @@ return; \
     API_ENTRY;
     return [self internalAcquireTokenForAssertion:assertion
                                          clientId:clientId
-                                         resource: resource
-                                    assertionType:  assertionType
+                                      redirectUri:nil
+                                         resource:resource
+                                    assertionType:assertionType
                                            userId:userId
                                             scope:nil
                                          tryCache:YES
@@ -408,6 +412,7 @@ return; \
                 assertionType: (ADAssertionType) assertionType
                      resource: (NSString*) resource
                      clientId: (NSString*) clientId
+                  redirectUri: (NSString*) redirectUri
                        userId: (NSString*) userId
                 correlationId: (NSUUID*) correlationId
               completionBlock: (ADAuthenticationCallback)completionBlock
@@ -438,6 +443,7 @@ return; \
     //Now attempt to use the refresh token of the passed cache item:
     [self internalAcquireTokenByRefreshToken:item.refreshToken
                                     clientId:clientId
+                                 redirectUri: (NSString*) redirectUri
                                     resource:resource
                                       userId:item.userInformation.userId
                                    cacheItem:item
@@ -484,6 +490,7 @@ return; \
                                    assertionType:assertionType
                                         resource:resource
                                         clientId:clientId
+                                     redirectUri:redirectUri
                                           userId:userId
                                    correlationId:correlationId
                                  completionBlock:completionBlock];
@@ -496,6 +503,7 @@ return; \
          //call acquireToken
          [self internalAcquireTokenForAssertion:samlAssertion
                                        clientId:clientId
+                                    redirectUri:redirectUri
                                        resource:resource
                                   assertionType: assertionType
                                          userId:userId
@@ -548,6 +556,7 @@ return; \
     //Now attempt to use the refresh token of the passed cache item:
     [self internalAcquireTokenByRefreshToken:item.refreshToken
                                     clientId:clientId
+                                 redirectUri:[redirectUri absoluteString]
                                     resource:resource
                                       userId:item.userInformation.userId
                                    cacheItem:item
@@ -766,7 +775,7 @@ return; \
     THROW_ON_NIL_ARGUMENT(correlationId);
     if (!*correlationId || !isCorrelationIdUserProvided)
     {
-       [ADLogger setCorrelationId:[NSUUID UUID]];
+        [ADLogger setCorrelationId:[NSUUID UUID]];
         *correlationId = [self getCorrelationId];
     }
 }
@@ -774,6 +783,7 @@ return; \
 
 -(void) internalAcquireTokenForAssertion: (NSString*) samlAssertion
                                 clientId: (NSString*) clientId
+                             redirectUri: (NSString*) redirectUri
                                 resource: (NSString*) resource
                            assertionType: (ADAssertionType) assertionType
                                   userId: (NSString*) userId
@@ -804,6 +814,7 @@ return; \
              {
                  [self internalAcquireTokenForAssertion:samlAssertion
                                                clientId:clientId
+                                            redirectUri:redirectUri
                                                resource:resource
                                           assertionType: assertionType
                                                  userId:userId
@@ -850,6 +861,7 @@ return; \
                           assertionType:assertionType
                                resource:resource
                                clientId:clientId
+                            redirectUri:redirectUri
                                  userId:userId
                           correlationId:correlationId
                         completionBlock:completionBlock];
@@ -1027,11 +1039,13 @@ return; \
 
 -(void) acquireTokenByRefreshToken: (NSString*)refreshToken
                           clientId: (NSString*)clientId
+                       redirectUri: (NSString*)redirectUri
                    completionBlock: (ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
     [self internalAcquireTokenByRefreshToken:refreshToken
                                     clientId:clientId
+                                 redirectUri:redirectUri
                                     resource:nil
                                       userId:nil
                                    cacheItem:nil
@@ -1042,12 +1056,14 @@ return; \
 
 -(void) acquireTokenByRefreshToken:(NSString*)refreshToken
                           clientId:(NSString*)clientId
+                       redirectUri:(NSString*)redirectUri
                           resource:(NSString*)resource
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
     [self internalAcquireTokenByRefreshToken:refreshToken
                                     clientId:clientId
+                                 redirectUri:redirectUri
                                     resource:resource
                                       userId:nil
                                    cacheItem:nil
@@ -1149,6 +1165,7 @@ return; \
 //information and updates the cache:
 -(void) internalAcquireTokenByRefreshToken: (NSString*) refreshToken
                                   clientId: (NSString*) clientId
+                               redirectUri: (NSString*) redirectUri
                                   resource: (NSString*) resource
                                     userId: (NSString*) userId
                                  cacheItem: (ADTokenCacheStoreItem*) cacheItem
@@ -1175,6 +1192,7 @@ return; \
              {
                  [self internalAcquireTokenByRefreshToken:refreshToken
                                                  clientId:clientId
+                                              redirectUri:redirectUri
                                                  resource:resource
                                                    userId:userId
                                                 cacheItem:cacheItem
@@ -1188,11 +1206,30 @@ return; \
     
     [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:nil];
     //Fill the data for the token refreshing:
-    NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                         OAUTH2_REFRESH_TOKEN, OAUTH2_GRANT_TYPE,
-                                         refreshToken, OAUTH2_REFRESH_TOKEN,
-                                         clientId, OAUTH2_CLIENT_ID,
-                                         nil];
+    NSMutableDictionary *request_data = nil;
+    
+    if(cacheItem.sessionKey)
+    {
+        NSString* jwtToken = [self createAccessTokenRequestJWTUsingRT:cacheItem
+                                                             resource:resource
+                                                             clientId:clientId];
+         request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                             redirectUri, @"redirect_uri",
+                                             clientId, @"client_id",
+                                             @"2.0", @"windows_api_version",
+                                             @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
+                                             jwtToken, @"request",
+                                             nil];
+        
+    }
+    else
+    {
+        request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                        OAUTH2_REFRESH_TOKEN, OAUTH2_GRANT_TYPE,
+                        refreshToken, OAUTH2_REFRESH_TOKEN,
+                        clientId, OAUTH2_CLIENT_ID,
+                        nil];
+    }
     
     //The clang analyzer has some issues with the logic inside adIsStringNilOrBlank, as it is defined in a category.
 #ifndef __clang_analyzer__
@@ -1236,6 +1273,41 @@ return; \
                         }];
                    });
 }
+
+
+-(NSString*) createAccessTokenRequestJWTUsingRT:(ADTokenCacheStoreItem*) cacheItem
+                                       resource:(NSString*) resource
+                                       clientId:(NSString*) clientId
+{
+    NSString* grantType = @"refresh_token";
+    
+    NSString* ctx = [[[NSUUID UUID] UUIDString] adComputeSHA256];
+    NSDictionary *header = @{
+                             @"alg" : @"HS256",
+                             @"typ" : @"JWT",
+                             @"ctx" : [ADHelpers convertBase64UrlStringToBase64NSString:[ctx adBase64UrlEncode]]
+                             };
+    
+    NSInteger iat = round([[NSDate date] timeIntervalSince1970]);
+    NSDictionary *payload = @{
+                              @"resource" : resource,
+                              @"client_id" : clientId,
+                              @"refresh_token" : cacheItem.refreshToken,
+                              @"iat" : [NSNumber numberWithInteger:iat],
+                              @"nbf" : [NSNumber numberWithInteger:iat],
+                              @"exp" : [NSNumber numberWithInteger:iat],
+                              @"scope" : @"openid",
+                              @"grant_type" : grantType,
+                              @"aud" : self.authority
+                              };
+    
+    NSString* returnValue = [ADHelpers createSignedJWTUsingKeyDerivation:header
+                                                                 payload:payload
+                                                                 context:ctx
+                                                            symmetricKey:cacheItem.sessionKey];
+    return returnValue;
+}
+
 
 //Used in the flows, where developer requested an explicit user. The method compares
 //the user for the obtained tokens (if provided by the server). If the user is different,
@@ -1692,7 +1764,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     webRequest.method = HTTPPost;
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
-    [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];    
+    [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
     if(additionalHeaders){
         for (NSString* key in [additionalHeaders allKeys] ) {
             [webRequest.headers setObject:[additionalHeaders objectForKey:key ] forKey:key];

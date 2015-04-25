@@ -40,6 +40,8 @@
 
 @property NSString* refreshToken;
 
+@property NSData* sessionKey;
+
 @property NSDate* expiresOn;
 
 @property ADUserInformation* userInformation;
