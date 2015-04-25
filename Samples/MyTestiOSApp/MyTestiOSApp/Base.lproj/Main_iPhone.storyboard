@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="rQl-PL-IFJ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7531" systemVersion="14D136" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="rQl-PL-IFJ">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7520"/>
     </dependencies>
     <scenes>
         <!--Test Main View Controller-->
@@ -40,16 +40,6 @@
                                     <action selector="pressMeAction:" destination="rQl-PL-IFJ" eventType="touchUpInside" id="c6V-3p-XyU"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eED-F4-K6i">
-                                <rect key="frame" x="52" y="295" width="140" height="30"/>
-                                <state key="normal" title="Acquire Token Silent">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="acquireTokenSilentAction:" destination="rQl-PL-IFJ" eventType="touchUpInside" id="tMv-u3-AK0"/>
-                                    <action selector="pressMeAction:" destination="rQl-PL-IFJ" eventType="touchUpInside" id="be0-IN-e4H"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kmh-k3-Gc8">
                                 <rect key="frame" x="52" y="119" width="85" height="30"/>
                                 <state key="normal" title="Clear Cache">
@@ -68,17 +58,24 @@
                                     <action selector="getUsersPressed:" destination="rQl-PL-IFJ" eventType="touchUpInside" id="5k5-X4-PRp"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oXf-bC-KtG">
-                                <rect key="frame" x="52" y="187" width="98" height="30"/>
-                                <state key="normal" title="Refresh Token">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wT8-Bz-vLQ">
+                                <rect key="frame" x="20" y="339" width="293" height="179"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eED-F4-K6i">
+                                <rect key="frame" x="52" y="259" width="140" height="30"/>
+                                <state key="normal" title="Acquire Token Silent">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <action selector="refreshTokenPressed:" destination="rQl-PL-IFJ" eventType="touchUpInside" id="cmm-if-h8z"/>
+                                    <action selector="acquireTokenSilentAction:" destination="rQl-PL-IFJ" eventType="touchUpInside" id="tMv-u3-AK0"/>
+                                    <action selector="pressMeAction:" destination="rQl-PL-IFJ" eventType="touchUpInside" id="be0-IN-e4H"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cvg-hR-arT">
-                                <rect key="frame" x="52" y="225" width="64" height="30"/>
+                                <rect key="frame" x="52" y="189" width="64" height="30"/>
                                 <state key="normal" title="Expire All">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -87,7 +84,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lDc-ZK-ov7" userLabel="Button - Promp Always">
-                                <rect key="frame" x="52" y="263" width="118" height="30"/>
+                                <rect key="frame" x="52" y="227" width="118" height="30"/>
                                 <state key="normal" title="Prompt Always">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -95,12 +92,6 @@
                                     <action selector="promptAlways:" destination="rQl-PL-IFJ" eventType="touchUpInside" id="zeu-t5-AFy"/>
                                 </connections>
                             </button>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wT8-Bz-vLQ">
-                                <rect key="frame" x="20" y="339" width="293" height="179"/>
-                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                            </textView>
                         </subviews>
                         <color key="backgroundColor" white="0.25" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>

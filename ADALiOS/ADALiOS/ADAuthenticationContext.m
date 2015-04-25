@@ -43,7 +43,7 @@ NSString* const credentialsNeeded = @"The user credentials are need to obtain ac
 NSString* const serverError = @"The authentication server returned an error: %@.";
 
 NSString* const brokerAppIdentifier = @"com.microsoft.adbrokerApp";
-NSString* const brokerURL = @"msauth://broker";
+
 
 //Used for the callback of obtaining the OAuth2 code:
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
@@ -611,8 +611,7 @@ return; \
                                  clientId: clientId
                               redirectUri: redirectUri
                                    userId: userId
-                            correlationId: [correlationId UUIDString]
-                     extraQueryParameters: queryParams];
+                            correlationId: [correlationId UUIDString]];
              return;
          }
          
@@ -925,7 +924,7 @@ return; \
                          redirectUri: redirectUri
                               userId: userId
                        correlationId: [correlationId UUIDString]
-                extraQueryParameters: queryParams];
+         ];
         return;
     }
     
@@ -1824,9 +1823,9 @@ additionalHeaders:(NSDictionary *)additionalHeaders
 
 - (BOOL) canUseBroker
 {
-    return [[ADAuthenticationSettings sharedInstance] credentialsType] == AD_CREDENTIALS_AUTO && [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:brokerURL]];
+    return [[ADAuthenticationSettings sharedInstance] credentialsType] == AD_CREDENTIALS_AUTO &&
+    [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", brokerScheme]]];
 }
-
 
 - (void) callBrokerForAuthority:(NSString*) authority
                        resource: (NSString*) resource
@@ -1834,7 +1833,6 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                     redirectUri: (NSURL*) redirectUri
                          userId: (NSString*) userId
                   correlationId: (NSString*) correlationId
-           extraQueryParameters: (NSString*) queryParams
 {
     AD_LOG_INFO(@"Invoking broker for authentication", nil);
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
@@ -1843,9 +1841,12 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
     
-    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&query_params=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, queryParams, base64UrlKey];
-    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@?%@", brokerURL, query]];
-    [[UIApplication sharedApplication] openURL:appUrl];
+    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, base64UrlKey];
+    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", brokerScheme, query]];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[UIApplication sharedApplication] openURL:appUrl];
+    });
 }
 
 @end

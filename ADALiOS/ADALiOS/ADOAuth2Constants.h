@@ -76,3 +76,7 @@ extern NSString *const AUTH_FAILED_BAD_PARAMETERS;
 extern NSString *const AUTH_FAILED_NO_CLIENTID;
 extern NSString *const AUTH_FAILED_NO_REDIRECTURI;
 extern NSString *const AUTH_FAILED_BUSY;
+
+
+
+extern NSString* const brokerScheme;

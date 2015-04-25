@@ -28,6 +28,7 @@
 #import "NSDictionary+ADExtensions.h"
 #import "ADAuthenticationSettings.h"
 #import "ADNTLMHandler.h"
+#import "ADBrokerKeyHelper.h"
 
 @implementation ADAuthenticationWebViewController
 {
@@ -90,7 +91,7 @@ NSTimer *timer;
 {
     
     AD_LOG_VERBOSE(@"Handling PKeyAuth Challenge", nil);
-
+    
     NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
@@ -126,12 +127,57 @@ NSTimer *timer;
     if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"]) {
         _complete = YES;
         dispatch_async( dispatch_get_main_queue(), ^{[_delegate webAuthenticationDidCancel];});
-        
         requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
-        [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];
+        dispatch_async( dispatch_get_main_queue(), ^{[[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];});
         
         return NO;
     }
+    
+    //handle broker invocation
+    if([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"])
+    {
+        if([[UIApplication sharedApplication] canOpenURL:request.URL])
+        {
+            NSString* qp = [_startURL query];
+            NSDictionary* qpDict = [NSDictionary adURLFormDecode:qp];
+            NSURL *authorityURL = [[NSURL alloc] initWithScheme:[_startURL scheme]
+                                                      host:[_startURL host]
+                                                      path:[_startURL path]];
+            ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+            ADAuthenticationError* error = nil;
+            NSData* key = [brokerHelper getBrokerKey:&error];
+            NSString* base64Key = [NSString Base64EncodeData:key];
+            NSString* base64UrlKey = [base64Key adUrlFormEncode];
+            
+            NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&correlation_id=%@&broker_key=%@",
+                               authorityURL.absoluteString,
+                               [qpDict valueForKey:@"resource"],
+                               [qpDict valueForKey:@"client_id"],
+                               [qpDict valueForKey:@"redirect_uri"],
+                               [qpDict valueForKey:@"client-request-id"],
+                               base64UrlKey];
+            NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@&%@", requestURL, query]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[UIApplication sharedApplication] openURL:appUrl];
+            });
+        }
+        else
+        {
+            //no broker installed. go to app store
+            NSString* qp = [request.URL query];
+            NSDictionary* qpDict = [NSDictionary adURLFormDecode:qp];
+            NSString* url = [qpDict valueForKey:@"app_link"];
+            url = [url adBase64UrlDecode];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:url]];
+            });
+        }
+        
+        return NO;
+    }
+    
+    
+    
     
     // check for pkeyauth challenge.
     if ([requestURL hasPrefix: pKeyAuthUrn] )
@@ -191,7 +237,7 @@ NSTimer *timer;
         //See this thread for details: https://discussions.apple.com/thread/1727260
         return;
     }
-
+    
     if([error.domain isEqual:@"WebKitErrorDomain"]){
         return;
     }

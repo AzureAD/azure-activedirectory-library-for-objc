@@ -76,3 +76,8 @@ NSString *const AUTH_FAILED_BAD_PARAMETERS = @"Incorrect parameters for authoriz
 NSString *const AUTH_FAILED_NO_CLIENTID    = @"Unable to determine client identifier";
 NSString *const AUTH_FAILED_NO_REDIRECTURI = @"Unable to determine redirect URL";
 NSString *const AUTH_FAILED_BUSY           = @"Authorization call already in progress";
+
+
+//application constants
+NSString* const brokerScheme = @"msauth";
+
