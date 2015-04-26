@@ -31,7 +31,7 @@ NSString* const sKeyChainlog = @"Keychain token cache store";
 NSString* const sMultiUserError = @"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used.";
 NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
 
-const long sKeychainVersion = 1;//will need to increase when we break the forward compatibility
+const long sKeychainVersion = 2;//will need to increase when we break the forward compatibility
 
 @implementation ADKeychainTokenCacheStore
 {
@@ -176,7 +176,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 -(void) LogItem: (ADTokenCacheStoreItem*) item
         message: (NSString*) additionalMessage
 {
-    AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. Resource: %@ Access token hash: %@; Refresh token hash: %@", item.resource,additionalMessage, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
+    AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. Resource: %@ Access token hash: %@; Refresh token hash: %@", item.resource,additionalMessage, [item.accessToken adComputeSHA256], [item.refreshToken adComputeSHA256]);
 }
 
 //Updates the keychain item. "attributes" parameter should ALWAYS come from previous
