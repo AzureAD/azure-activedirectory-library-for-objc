@@ -131,10 +131,10 @@ return; \
                                       upn: (NSString*) upn
                           completionBlock: (ADAuthenticationCallback) completionBlock
 {
-//    if([NSString adSame:sourceApplication toString:DEFAULT_GUID_FOR_NIL])
-//    {
-//        THROW_ON_NIL_ARGUMENT(completionBlock);
-//    }
+    //    if([NSString adSame:sourceApplication toString:DEFAULT_GUID_FOR_NIL])
+    //    {
+    //        THROW_ON_NIL_ARGUMENT(completionBlock);
+    //    }
     
     HANDLE_ARGUMENT(requestPayload);
     HANDLE_ARGUMENT(sourceApplication);
@@ -504,49 +504,53 @@ return; \
         onResultBlock(nil, error);
     }
     
-    ServiceInformation *svcInfo = [workPlaceJoinApi doDiscoveryForUpn:upn
-                                                        correlationId:[NSUUID UUID]
-                                                         error:&error];
-    if(error)
-    {
-        onResultBlock(nil, error);
-    }
-    
-    //find an access token or refresh token for the UPN.
-    [self acquireAccount:[svcInfo oauthAuthCodeEndpoint]
-                  userId:upn
-                clientId:BROKER_CLIENT_ID
-                resource:[svcInfo registrationResourceId]
-             redirectUri:BROKER_REDIRECT_URI
-                  appKey:DEFAULT_GUID_FOR_NIL
-         completionBlock:^(ADAuthenticationResult *result) {
-             if(result.status == AD_SUCCEEDED)
-             {
-                 [workPlaceJoinApi registerDeviceForUser:upn
-                                                   token:result.accessToken
-                                    registrationEndpoint:[svcInfo registrationEndpoint]
-                              registrationServiceVersion:[svcInfo registrationServiceVersion]
-                                           correlationId:[NSUUID UUID]
-                                         completionBlock:^(NSError *error) {
-                                             if(!error)
-                                             {
-                                                 //do PRT work
-                                                 ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc]
-                                                                               initWithUpn:upn
-                                                                               correlationId:nil
-                                                                               error:&error];
-                                                 [prtCtx acquirePRTForUPN:onResultBlock];
-                                                 onResultBlock(nil,nil); //TODO remove this later
-                                             } else {
-                                                 onResultBlock(nil, error);
-                                             }
-                                         }];
-             }
-             else
-             {
-                 onResultBlock(nil, result.error);
-             }
-         }];
+    [workPlaceJoinApi doDiscoveryForUpn:upn
+                          correlationId:[NSUUID UUID]
+                        completionBlock:^(ServiceInformation *svcInfo, NSError *error)
+     {
+         
+         if(error)
+         {
+             onResultBlock(nil, error);
+         }
+         
+         //find an access token or refresh token for the UPN.
+         [self acquireAccount:[svcInfo oauthAuthCodeEndpoint]
+                       userId:upn
+                     clientId:BROKER_CLIENT_ID
+                     resource:[svcInfo registrationResourceId]
+                  redirectUri:BROKER_REDIRECT_URI
+                       appKey:DEFAULT_GUID_FOR_NIL
+              completionBlock:^(ADAuthenticationResult *result) {
+                  if(result.status == AD_SUCCEEDED)
+                  {
+                      [workPlaceJoinApi registerDeviceForUser:upn
+                                                        token:result.accessToken
+                                         registrationEndpoint:[svcInfo registrationEndpoint]
+                                   registrationServiceVersion:[svcInfo registrationServiceVersion]
+                                                correlationId:[NSUUID UUID]
+                                              completionBlock:^(NSError *error) {
+                                                  if(!error)
+                                                  {
+                                                      //do PRT work
+                                                      ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc]
+                                                                                    initWithUpn:upn
+                                                                                    correlationId:nil
+                                                                                    error:&error];
+                                                      [prtCtx acquirePRTForUPN:onResultBlock];
+                                                      onResultBlock(nil,nil); //TODO remove this later
+                                                  } else {
+                                                      onResultBlock(nil, error);
+                                                  }
+                                              }];
+                  }
+                  else
+                  {
+                      onResultBlock(nil, result.error);
+                  }
+              }];
+         
+     }];
 }
 
 -(BOOL) isWorkplaceJoined:(NSString*) upn
@@ -570,21 +574,21 @@ return; \
 - (void) removeWorkPlaceJoinRegistration:(ADOnResultCallback) onResultBlock
 {
     RegistrationInformation* regInfo = [ADBrokerContext getWorkPlaceJoinInformation];
+    NSString* upn = regInfo.userPrincipalName;
     if(regInfo)
     {
         //remove WPJ as well
-        [ [WorkPlaceJoin WorkPlaceJoinManager] leaveWithCompletionBlock:^(NSError *error) {
-            //do nothing
-        }
-         
-                                                          correlationId:[NSUUID UUID]];
+        [ [WorkPlaceJoin WorkPlaceJoinManager] leaveWithCompletionBlock:[NSUUID UUID]
+                                                        completionBlock:^(NSError *error)
+        {
+            
+            [self deleteFromCache:[ADBrokerKeychainTokenCacheStore new]
+                              upn:upn];
+        }];
         
-//        [self deleteFromCache:[ADBrokerKeychainTokenCacheStore new]
-//                          upn:regInfo.userPrincipalName];
         [regInfo releaseData];
         regInfo = nil;
     }
-    
 }
 
 
