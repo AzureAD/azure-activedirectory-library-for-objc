@@ -32,6 +32,7 @@
 @property (weak, nonatomic) IBOutlet UIButton* getATFromPrtButton;
 @property (weak, nonatomic) IBOutlet UITextField* clientId;
 @property (weak, nonatomic) IBOutlet UITextField* redirectUri;
+@property (weak, nonatomic) IBOutlet UITextField* resource;
 
 - (IBAction)deleteAccountPressed:(id)sender;
 - (IBAction)wpjSwitchPressed:(id)sender;
@@ -189,7 +190,7 @@
     [ctx setCorrelationId:[NSUUID UUID]];
     [ctx acquireAccount:self.account.userInformation.upn
                clientId:self.clientId.text
-               resource:@"https://graph.windows.net"
+               resource:self.resource.text
             redirectUri:self.redirectUri.text
         completionBlock:^(ADAuthenticationResult *result) {
             if(result.status != AD_SUCCEEDED)

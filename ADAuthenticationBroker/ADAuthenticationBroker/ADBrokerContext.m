@@ -187,7 +187,12 @@ return; \
                             rawIdToken = result.tokenCacheStoreItem.userInformation.rawIdToken;
                         }
                         
-                        response = [NSString stringWithFormat:@"authority=%@&client_id=%@&resource=%@&correlation_id=%@&access_token=%@&id_token=%@", [queryParamsMap valueForKey:AUTHORITY], [queryParamsMap valueForKey:CLIENT_ID], [queryParamsMap valueForKey:RESOURCE], [queryParamsMap valueForKey:CORRELATION_ID], result.accessToken, rawIdToken];
+                        response = [NSString stringWithFormat:@"authority=%@&client_id=%@&resource=%@&correlation_id=%@&access_token=%@&id_token=%@",
+                                    [queryParamsMap valueForKey:AUTHORITY],
+                                    [queryParamsMap valueForKey:CLIENT_ID],
+                                    [queryParamsMap valueForKey:RESOURCE],
+                                    [queryParamsMap valueForKey:CORRELATION_ID],
+                                    result.accessToken, rawIdToken];
                         
                         NSString* brokerKey = [queryParamsMap valueForKey:BROKER_KEY];
                         NSData *decodedKey = [NSString Base64DecodeData:brokerKey];
@@ -393,7 +398,7 @@ return; \
                                                    silent:NO
                                                    userId:upn
                                                     scope:nil
-                                     extraQueryParameters:@"nux=1"
+                                     extraQueryParameters:@"brkr=1"
                                                  tryCache:NO
                                         validateAuthority:NO
                                             correlationId:ctx.getCorrelationId
@@ -438,7 +443,7 @@ return; \
                                        silent:NO
                                        userId:upn
                                         scope:nil
-                         extraQueryParameters:@"nux=1"
+                         extraQueryParameters:@"brkr=1"
                                      tryCache:YES
                             validateAuthority:YES
                                 correlationId:ctx.getCorrelationId

@@ -87,6 +87,7 @@ NSString* userPrincipalIdentifier;
                                                                              error:&error];
     if(!error && item)
     {
+        //TODO check for PRT expiration
         callback(item, error);
         return;
     }
@@ -208,7 +209,6 @@ NSString* userPrincipalIdentifier;
         if(!error)
         {
             // found PRT token. Use it against token endpoint
-            
             //create JWT
             NSString* jwtToken = [self createAccessTokenRequestJWTUsingPRT:prtItem
                                                                   resource:resource
@@ -265,7 +265,9 @@ isHandlingPKeyAuthChallenge:NO
                       if(attemptPRTUpdate)
                       {
                           NSString* errorType = [response objectForKey:OAUTH2_ERROR_KEY];
-                          if(errorType && [NSString adSame:errorType toString:@"invalid_grant"])
+                          if(errorType && ([NSString adSame:errorType toString:@"interaction_required"]
+                                           || [NSString adSame:errorType toString:@"invalid_request"]
+                                           || [NSString adSame:errorType toString:@"invalid_grant"]))
                           {
                               // if error is interaction_required use webview
                               [self acquireTokenViaWebviewInteractionForResource:resource
@@ -282,6 +284,7 @@ isHandlingPKeyAuthChallenge:NO
                               
                               // call acquireTokenUsingPRTForResource recursively with
                               // attemptPRTUpdate=NO to avoid infinite recursion.
+                              //TODO wait for a little bit?
                               [self acquireTokenUsingPRTForResource:resource
                                                            clientId:clientId
                                                         redirectUri:redirectUri
@@ -423,7 +426,7 @@ isHandlingPKeyAuthChallenge:NO
                               @"iat" : [NSNumber numberWithInteger:iat],
                               @"nbf" : [NSNumber numberWithInteger:iat],
                               @"exp" : [NSNumber numberWithInteger:iat],
-                              @"scope" : @"openid aza",
+                              @"scope" : @"openid",
                               @"grant_type" : grantType,
                               @"aud" : DEFAULT_AUTHORITY
                               };
