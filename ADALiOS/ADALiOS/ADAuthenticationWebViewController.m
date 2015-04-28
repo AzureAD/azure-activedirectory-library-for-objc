@@ -136,27 +136,29 @@ NSTimer *timer;
     //handle broker invocation
     if([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"])
     {
+        NSString* qp = [_startURL query];
+        NSDictionary* qpDict = [NSDictionary adURLFormDecode:qp];
+        NSURL *authorityURL = [[NSURL alloc] initWithScheme:[_startURL scheme]
+                                                       host:[_startURL host]
+                                                       path:[_startURL path]];
+        ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+        ADAuthenticationError* error = nil;
+        NSData* key = [brokerHelper getBrokerKey:&error];
+        NSString* base64Key = [NSString Base64EncodeData:key];
+        NSString* base64UrlKey = [base64Key adUrlFormEncode];
+        
+        NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&correlation_id=%@&broker_key=%@",
+                           authorityURL.absoluteString,
+                           [qpDict valueForKey:@"resource"],
+                           [qpDict valueForKey:@"client_id"],
+                           [qpDict valueForKey:@"redirect_uri"],
+                           [qpDict valueForKey:@"client-request-id"],
+                           base64UrlKey];
+        NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@&%@", requestURL, query]];
+        
         if([[UIApplication sharedApplication] canOpenURL:request.URL])
         {
-            NSString* qp = [_startURL query];
-            NSDictionary* qpDict = [NSDictionary adURLFormDecode:qp];
-            NSURL *authorityURL = [[NSURL alloc] initWithScheme:[_startURL scheme]
-                                                      host:[_startURL host]
-                                                      path:[_startURL path]];
-            ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
-            ADAuthenticationError* error = nil;
-            NSData* key = [brokerHelper getBrokerKey:&error];
-            NSString* base64Key = [NSString Base64EncodeData:key];
-            NSString* base64UrlKey = [base64Key adUrlFormEncode];
-            
-            NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&correlation_id=%@&broker_key=%@",
-                               authorityURL.absoluteString,
-                               [qpDict valueForKey:@"resource"],
-                               [qpDict valueForKey:@"client_id"],
-                               [qpDict valueForKey:@"redirect_uri"],
-                               [qpDict valueForKey:@"client-request-id"],
-                               base64UrlKey];
-            NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@&%@", requestURL, query]];
+            [self saveToPasteBoard:appUrl.absoluteString];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[UIApplication sharedApplication] openURL:appUrl];
             });
@@ -175,8 +177,6 @@ NSTimer *timer;
         
         return NO;
     }
-    
-    
     
     
     // check for pkeyauth challenge.
@@ -272,6 +272,17 @@ NSTimer *timer;
     [self webView:_webView didFailLoadWithError:[NSError errorWithDomain:NSURLErrorDomain
                                                                     code:NSURLErrorTimedOut
                                                                 userInfo:nil]];
+}
+
+
+- (void)saveToPasteBoard:(NSString*) url
+{
+    UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
+                                                            create:YES];
+    appPasteBoard.persistent = YES;
+    NSData *data = [url dataUsingEncoding:NSUTF8StringEncoding];
+    [appPasteBoard setData:data
+         forPasteboardType:@"com.microsoft.broker"];
 }
 
 @end
