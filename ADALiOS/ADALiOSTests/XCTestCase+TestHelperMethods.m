@@ -343,6 +343,7 @@ extern void __gcov_flush(void);
     item.clientId = @"client id";
     item.accessToken = @"access token";
     item.refreshToken = @"refresh token";
+    item.sessionKey = nil;
     //1hr into the future:
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
     item.userInformation = [self adCreateUserInformation];
@@ -402,8 +403,8 @@ extern void __gcov_flush(void);
     
     //Add here calculated properties that cannot be initialized and shouldn't be checked for initialization:
     NSDictionary* const exceptionProperties = @{
-                                                NSStringFromClass([ADTokenCacheStoreItem class]):[NSSet setWithObjects:@"multiResourceRefreshToken", nil],
-                                                };
+                                                NSStringFromClass([ADTokenCacheStoreItem class]):[NSSet setWithObjects:@"multiResourceRefreshToken",
+                                                                                                  @"sessionKey",nil], };
     
     //Enumerate all properties and ensure that they are set to non-default values:
     unsigned int propertyCount;
