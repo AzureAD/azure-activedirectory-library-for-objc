@@ -908,7 +908,7 @@ return; \
              }
              else
              {
-                 [self internalAcquireTokenWithResource:resource
+                 [self validatedAcquireTokenWithResource:resource
                                                clientId:clientId
                                             redirectUri:redirectUri
                                          promptBehavior:promptBehavior
@@ -916,14 +916,40 @@ return; \
                                                  userId:userId
                                                   scope:scope
                                    extraQueryParameters:queryParams
-                                               tryCache:tryCache
-                                      validateAuthority:NO /* Already validated in this block. */
+                                                tryCache:tryCache
                                           correlationId:correlationId
                                         completionBlock:completionBlock];
              }
          }];
         return;//The asynchronous handler above will do the work.
     }
+    
+    [self validatedAcquireTokenWithResource:resource
+                                   clientId:clientId
+                                redirectUri:redirectUri
+                             promptBehavior:promptBehavior
+                                     silent:silent
+                                     userId:userId
+                                      scope:scope
+                       extraQueryParameters:queryParams
+                                   tryCache:tryCache
+                              correlationId:correlationId
+                            completionBlock:completionBlock];
+
+}
+
+- (void) validatedAcquireTokenWithResource: (NSString*) resource
+                                 clientId: (NSString*) clientId
+                              redirectUri: (NSURL*) redirectUri
+                           promptBehavior: (ADPromptBehavior) promptBehavior
+                                   silent: (BOOL) silent /* Do not show web UI for authorization. */
+                                   userId: (NSString*) userId
+                                    scope: (NSString*) scope
+                     extraQueryParameters: (NSString*) queryParams
+                                  tryCache:(BOOL)tryCache
+                            correlationId: (NSUUID*) correlationId
+                          completionBlock: (ADAuthenticationCallback)completionBlock
+    {
     
     //call the broker.
     if([self canUseBroker]){
