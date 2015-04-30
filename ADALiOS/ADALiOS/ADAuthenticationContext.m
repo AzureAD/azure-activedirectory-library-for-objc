@@ -304,7 +304,6 @@ return; \
                                            userId:nil
                                             scope:nil
                              extraQueryParameters:nil
-                                         tryCache:YES
                                 validateAuthority:self.validateAuthority
                                     correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
@@ -325,7 +324,6 @@ return; \
                                     userId:userId
                                      scope:nil
                       extraQueryParameters:nil
-                                  tryCache:YES
                          validateAuthority:self.validateAuthority
                              correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
@@ -348,7 +346,6 @@ return; \
                                     userId:userId
                                      scope:nil
                       extraQueryParameters:queryParams
-                                  tryCache:YES
                          validateAuthority:self.validateAuthority
                              correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
@@ -368,7 +365,6 @@ return; \
                                            userId:nil
                                             scope:nil
                              extraQueryParameters:nil
-                                         tryCache:YES
                                 validateAuthority:self.validateAuthority
                                     correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
@@ -389,7 +385,6 @@ return; \
                                            userId:userId
                                             scope:nil
                              extraQueryParameters:nil
-                                         tryCache:YES
                                 validateAuthority:self.validateAuthority
                                     correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
@@ -658,7 +653,6 @@ return; \
                                     userId:userId
                                      scope:nil
                       extraQueryParameters:queryParams
-                                  tryCache:YES
                          validateAuthority:self.validateAuthority
                              correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
@@ -886,7 +880,6 @@ return; \
                                   userId: (NSString*) userId
                                    scope: (NSString*) scope
                     extraQueryParameters: (NSString*) queryParams
-                                tryCache: (BOOL) tryCache /* set internally to avoid infinite recursion */
                        validateAuthority: (BOOL) validateAuthority
                            correlationId: (NSUUID*) correlationId
                          completionBlock: (ADAuthenticationCallback)completionBlock
@@ -914,7 +907,6 @@ return; \
                                                  userId:userId
                                                   scope:scope
                                    extraQueryParameters:queryParams
-                                                tryCache:tryCache
                                           correlationId:correlationId
                                         completionBlock:completionBlock];
              }
@@ -930,7 +922,6 @@ return; \
                                      userId:userId
                                       scope:scope
                        extraQueryParameters:queryParams
-                                   tryCache:tryCache
                               correlationId:correlationId
                             completionBlock:completionBlock];
 
@@ -944,7 +935,6 @@ return; \
                                    userId: (NSString*) userId
                                     scope: (NSString*) scope
                      extraQueryParameters: (NSString*) queryParams
-                                  tryCache:(BOOL)tryCache
                             correlationId: (NSUUID*) correlationId
                           completionBlock: (ADAuthenticationCallback)completionBlock
 {
@@ -974,7 +964,7 @@ return; \
         return;
     }
     
-    if (tryCache && ![self.class isForcedAuthorization:promptBehavior] && self.tokenCacheStore)
+    if (![self.class isForcedAuthorization:promptBehavior] && self.tokenCacheStore)
     {
         //Cache should be used in this case:
         BOOL accessTokenUsable;
