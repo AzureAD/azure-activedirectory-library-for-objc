@@ -41,6 +41,8 @@
 #import "ADHelpers.h"
 #import "ADOAuth2Constants.h"
 
+#import <objc/runtime.h>
+
 NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
 NSString* const serverError = @"The authentication server returned an error: %@.";
@@ -52,9 +54,45 @@ static ADAuthenticationCallback _callbackForBroker = nil;
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 static volatile int sDialogInProgress = 0;
 
+typedef BOOL (*applicationOpenURLPtr)(id, SEL, UIApplication*, NSURL*, NSString*, id);
+IMP __original_ApplicationOpenURL = NULL;
+
+BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application, NSURL* url, NSString* sourceApplication, id annotation)
+{
+    if (![ADAuthenticationContext isResponseFromBroker:sourceApplication response:url])
+    {
+        if (__original_ApplicationOpenURL)
+            return ((applicationOpenURLPtr)__original_ApplicationOpenURL)(self, _cmd, application, url, sourceApplication, annotation);
+        else
+            return NO;
+    }
+    
+    [ADAuthenticationContext handleBrokerResponse:url];
+    return YES;
+}
 BOOL isCorrelationIdUserProvided = NO;
 
 @implementation ADAuthenticationContext
+
++ (void)swizzleAppOpenURL
+{
+    // Dig out the app delegate (if there is one)
+    id appDelegate = [[UIApplication sharedApplication] delegate];
+    if (![appDelegate respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)])
+        return;
+    
+    Method m = class_getInstanceMethod([appDelegate class], @selector(application:openURL:sourceApplication:annotation:));
+    if (!m)
+        return;
+    
+    __original_ApplicationOpenURL = method_getImplementation(m);
+    method_setImplementation(m, (IMP)__swizzle_ApplicationOpenURL);
+}
+
++ (void)initialize
+{
+    [self swizzleAppOpenURL];
+}
 
 -(id) init
 {
