@@ -425,11 +425,10 @@ const int sAsyncTimeout = 10;//in seconds
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     NSUUID* correlationId = [NSUUID UUID];
-    [self validateAuthority:@"https://MyFakeAuthority.com/MSOpenTechBV.onmicrosoft.com" correlationId:correlationId line:__LINE__];
+    [self validateAuthority:@"https://MyFakeAuthority.microsoft.com/MSOpenTechBV.onmicrosoft.com" correlationId:correlationId line:__LINE__];
     XCTAssertFalse(mValidated);
     XCTAssertNotNil(mError);
     ADAssertLongEquals(AD_ERROR_AUTHORITY_VALIDATION, mError.code);
-    XCTAssertTrue([mError.errorDetails adContainsString:[correlationId UUIDString].lowercaseString]);
 }
 
 -(void) testUnreachableServer
