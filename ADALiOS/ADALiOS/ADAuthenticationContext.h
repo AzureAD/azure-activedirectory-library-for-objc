@@ -141,12 +141,12 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 
 /*!
  */
-+(BOOL) isResponseFromBroker:(NSURL*) response;
++(BOOL) isResponseFromBroker:(NSString*) sourceApplication
+                    response:(NSURL*) response;
 
 /*!
  */
-+(void) handleBrokerResponse:(NSURL*) response
-             completionBlock: (ADAuthenticationCallback) completionBlock;
++(void) handleBrokerResponse:(NSURL*) response;
 
 
 /*! Represents the authority used by the context. */
