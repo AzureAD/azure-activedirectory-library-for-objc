@@ -282,7 +282,6 @@ return; \
                                     assertionType:assertionType
                                            userId:userId
                                             scope:nil
-                                         tryCache:YES
                                 validateAuthority:self.validateAuthority
                                     correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
@@ -496,17 +495,13 @@ return; \
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
-         [self internalAcquireTokenForAssertion:samlAssertion
-                                       clientId:clientId
-                                    redirectUri:redirectUri
-                                       resource:resource
-                                  assertionType: assertionType
-                                         userId:userId
-                                          scope:nil
-                                       tryCache:NO
-                              validateAuthority:NO /* Already validated in this block. */
-                                  correlationId:correlationId
-                                completionBlock:completionBlock];
+         [self requestTokenByAssertion: samlAssertion
+                         assertionType: assertionType
+                              resource: resource
+                              clientId: clientId
+                                 scope: nil//For future use
+                         correlationId: correlationId
+                            completion: completionBlock];
      }];//End of the refreshing token completion block, executed asynchronously.
 }
 
@@ -773,17 +768,16 @@ return; \
 }
 
 
--(void) internalAcquireTokenForAssertion: (NSString*) samlAssertion
-                                clientId: (NSString*) clientId
-                             redirectUri: (NSString*) redirectUri
-                                resource: (NSString*) resource
-                           assertionType: (ADAssertionType) assertionType
-                                  userId: (NSString*) userId
-                                   scope: (NSString*) scope
-                                tryCache:(BOOL) tryCache
-                       validateAuthority: (BOOL) validateAuthority
-                           correlationId: (NSUUID*) correlationId
-                         completionBlock: (ADAuthenticationCallback)completionBlock
+- (void) internalAcquireTokenForAssertion: (NSString*) samlAssertion
+                                 clientId: (NSString*) clientId
+                              redirectUri: (NSString*) redirectUri
+                                 resource: (NSString*) resource
+                            assertionType: (ADAssertionType) assertionType
+                                   userId: (NSString*) userId
+                                    scope: (NSString*) scope
+                        validateAuthority: (BOOL) validateAuthority
+                            correlationId: (NSUUID*) correlationId
+                          completionBlock: (ADAuthenticationCallback)completionBlock
 {
     
     THROW_ON_NIL_ARGUMENT(completionBlock);
@@ -804,22 +798,41 @@ return; \
              }
              else
              {
-                 [self internalAcquireTokenForAssertion:samlAssertion
-                                               clientId:clientId
-                                            redirectUri:redirectUri
-                                               resource:resource
-                                          assertionType: assertionType
-                                                 userId:userId
-                                                  scope:scope
-                                               tryCache:tryCache
-                                      validateAuthority:NO /* Already validated in this block. */
-                                          correlationId:correlationId
-                                        completionBlock:completionBlock];
+                 [self validatedAcquireTokenForAssertion:samlAssertion
+                                                clientId:clientId
+                                             redirectUri:redirectUri
+                                                resource:resource
+                                           assertionType: assertionType
+                                                  userId:userId
+                                                   scope:scope
+                                           correlationId:correlationId
+                                         completionBlock:completionBlock];
              }
          }];
         return;//The asynchronous handler above will do the work.
     }
     
+    [self validatedAcquireTokenForAssertion:samlAssertion
+                                  clientId:clientId
+                               redirectUri:redirectUri
+                                  resource:resource
+                             assertionType: assertionType
+                                    userId:userId
+                                     scope:scope
+                             correlationId:correlationId
+                           completionBlock:completionBlock];
+}
+
+- (void) validatedAcquireTokenForAssertion: (NSString*) samlAssertion
+                                  clientId: (NSString*) clientId
+                               redirectUri: (NSString*) redirectUri
+                                  resource: (NSString*) resource
+                             assertionType: (ADAssertionType) assertionType
+                                    userId: (NSString*) userId
+                                     scope: (NSString*) scope
+                             correlationId: (NSUUID*) correlationId
+                           completionBlock: (ADAuthenticationCallback)completionBlock
+{
     //Check the cache:
     ADAuthenticationError* error = nil;
     //We are explicitly creating a key first to ensure indirectly that all of the required arguments are correct.
@@ -833,7 +846,7 @@ return; \
         return;
     }
     
-    if (tryCache && self.tokenCacheStore)
+    if (self.tokenCacheStore)
     {
         //Cache should be used in this case:
         BOOL accessTokenUsable;
