@@ -133,52 +133,6 @@ NSTimer *timer;
         return NO;
     }
     
-    //handle broker invocation
-    if([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"])
-    {
-        NSString* qp = [_startURL query];
-        NSDictionary* qpDict = [NSDictionary adURLFormDecode:qp];
-        NSURL *authorityURL = [[NSURL alloc] initWithScheme:[_startURL scheme]
-                                                       host:[_startURL host]
-                                                       path:[_startURL path]];
-        ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
-        ADAuthenticationError* error = nil;
-        NSData* key = [brokerHelper getBrokerKey:&error];
-        NSString* base64Key = [NSString Base64EncodeData:key];
-        NSString* base64UrlKey = [base64Key adUrlFormEncode];
-        
-        NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&correlation_id=%@&broker_key=%@",
-                           authorityURL.absoluteString,
-                           [qpDict valueForKey:@"resource"],
-                           [qpDict valueForKey:@"client_id"],
-                           [qpDict valueForKey:@"redirect_uri"],
-                           [qpDict valueForKey:@"client-request-id"],
-                           base64UrlKey];
-        NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@&%@", requestURL, query]];
-        
-        if([[UIApplication sharedApplication] canOpenURL:request.URL])
-        {
-            [self saveToPasteBoard:appUrl.absoluteString];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[UIApplication sharedApplication] openURL:appUrl];
-            });
-        }
-        else
-        {
-            //no broker installed. go to app store
-            NSString* qp = [request.URL query];
-            NSDictionary* qpDict = [NSDictionary adURLFormDecode:qp];
-            NSString* url = [qpDict valueForKey:@"app_link"];
-            url = [url adBase64UrlDecode];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:url]];
-            });
-        }
-        
-        return NO;
-    }
-    
-    
     // check for pkeyauth challenge.
     if ([requestURL hasPrefix: pKeyAuthUrn] )
     {
@@ -187,7 +141,8 @@ NSTimer *timer;
     }
     
     // Stop at the end URL.
-    if ( [[requestURL lowercaseString] hasPrefix:[_endURL lowercaseString]] )
+    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"] ||
+        [[requestURL lowercaseString] hasPrefix:[_endURL lowercaseString]] )
     {
         // iOS generates a 102, Frame load interrupted error from stopLoading, so we set a flag
         // here to note that it was this code that halted the frame load in order that we can ignore
@@ -272,17 +227,6 @@ NSTimer *timer;
     [self webView:_webView didFailLoadWithError:[NSError errorWithDomain:NSURLErrorDomain
                                                                     code:NSURLErrorTimedOut
                                                                 userInfo:nil]];
-}
-
-
-- (void)saveToPasteBoard:(NSString*) url
-{
-    UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
-                                                            create:YES];
-    appPasteBoard.persistent = YES;
-    NSData *data = [url dataUsingEncoding:NSUTF8StringEncoding];
-    [appPasteBoard setData:data
-         forPasteboardType:@"com.microsoft.broker"];
 }
 
 @end

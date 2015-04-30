@@ -332,6 +332,7 @@ correlationId:(NSUUID *)correlationId
     {
         [ADNTLMHandler endWebViewNTLMHandler];
     }
+    
     if ( _completionBlock )
     {
         void (^completionBlock)( ADAuthenticationError *, NSURL *) = _completionBlock;

@@ -44,9 +44,9 @@
 NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
 NSString* const serverError = @"The authentication server returned an error: %@.";
+NSString* const brokerAppIdentifier = @"com.microsoft.broker";
 
-NSString* const brokerAppIdentifier = @"com.microsoft.adbrokerApp";
-
+static ADAuthenticationCallback _callbackForBroker = nil;
 
 //Used for the callback of obtaining the OAuth2 code:
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
@@ -207,16 +207,19 @@ return; \
     isCorrelationIdUserProvided = YES;
 }
 
-+(BOOL) isResponseFromBroker:(NSURL*) response
++(BOOL) isResponseFromBroker:(NSString*) sourceApplication
+                    response:(NSURL*) response
 {
-    return response && [NSString adSame:[response path] toString:@"/broker"];
+    return sourceApplication && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
+    response &&
+    [NSString adSame:[response path] toString:@"broker"];
 }
 
 +(void) handleBrokerResponse:(NSURL*) response
-             completionBlock: (ADAuthenticationCallback) completionBlock
 {
     
-    THROW_ON_NIL_ARGUMENT(completionBlock);
+    THROW_ON_NIL_ARGUMENT(_callbackForBroker);
+    ADAuthenticationCallback completionBlock = _callbackForBroker;
     HANDLE_ARGUMENT(response);
     
     NSString *qp = [response query];
@@ -266,6 +269,7 @@ return; \
         }
     }
     completionBlock(result);
+    _callbackForBroker = nil;
 }
 
 -(void)  acquireTokenForAssertion: (NSString*) assertion
@@ -1017,25 +1021,119 @@ return; \
                             }
                             else
                             {
-                                [self requestTokenByCode:code
-                                                resource:resource
-                                                clientId:clientId
-                                             redirectUri:redirectUri
-                                                   scope:scope
-                                           correlationId:correlationId
-                                              completion:^(ADAuthenticationResult *result)
-                                 {
-                                     if (AD_SUCCEEDED == result.status)
+                                
+                                if([code hasPrefix:@"msauth://"])
+                                {
+                                    [self handleBrokerFromWebiewResponse:code
+                                                                resource:resource
+                                                                clientId:clientId
+                                                             redirectUri:redirectUri
+                                                                  userId:userId
+                                                           correlationId:correlationId
+                                                         completionBlock:completionBlock];
+                                }
+                                else
+                                {
+                                    [self requestTokenByCode:code
+                                                    resource:resource
+                                                    clientId:clientId
+                                                 redirectUri:redirectUri
+                                                       scope:scope
+                                               correlationId:correlationId
+                                                  completion:^(ADAuthenticationResult *result)
                                      {
-                                         [self updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
-                                         result = [self updateResult:result toUser:userId];
-                                     }
-                                     completionBlock(result);
-                                 }];
+                                         if (AD_SUCCEEDED == result.status)
+                                         {
+                                             [self updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
+                                             result = [self updateResult:result toUser:userId];
+                                         }
+                                         completionBlock(result);
+                                     }];
+                                }
                             }
                         }];
                    });
 }
+
+
+-(void) handleBrokerFromWebiewResponse: (NSString*) urlString
+                              resource: (NSString*) resource
+                              clientId: (NSString*) clientId
+                           redirectUri: (NSURL*) redirectUri
+                                userId: (NSString*) userId
+                         correlationId: (NSUUID*) correlationId
+                       completionBlock: (ADAuthenticationCallback)completionBlock
+{
+    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+    ADAuthenticationError* error = nil;
+    NSData* key = [brokerHelper getBrokerKey:&error];
+    NSString* base64Key = [NSString Base64EncodeData:key];
+    NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    
+    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&correlation_id=%@&broker_key=%@",
+                       _authority,
+                       resource,
+                       clientId,
+                       redirectUri.absoluteString,
+                       [correlationId UUIDString],
+                       base64UrlKey];
+    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@&%@", urlString, query]];
+    
+    _callbackForBroker = completionBlock;
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(callbackCleanup)
+                                                 name:UIApplicationDidBecomeActiveNotification object:nil];
+    
+    
+    if([[UIApplication sharedApplication] canOpenURL:appUrl])
+    {
+        [self saveToPasteBoard:appUrl.absoluteString];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[UIApplication sharedApplication] openURL:appUrl];
+        });
+    }
+    else
+    {
+        //no broker installed. go to app store
+        NSString* qp = [appUrl query];
+        NSDictionary* qpDict = [NSDictionary adURLFormDecode:qp];
+        NSString* url = [qpDict valueForKey:@"app_link"];
+        url = [url adBase64UrlDecode];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:url]];
+        });
+    }
+}
+
+- (void)saveToPasteBoard:(NSString*) url
+{
+    UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
+                                                            create:YES];
+    appPasteBoard.persistent = YES;
+    NSData *data = [url dataUsingEncoding:NSUTF8StringEncoding];
+    [appPasteBoard setData:data
+         forPasteboardType:@"com.microsoft.broker"];
+}
+
+
+- (void)callbackCleanup
+{
+    if(_callbackForBroker)
+    {
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BROKER_RESPONSE_NOT_RECEIVED
+                                                         protocolCode:nil
+                                                         errorDetails:@"application did not receive response from broker."];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:adError];
+        ADAuthenticationCallback callback = _callbackForBroker;
+        callback(result);
+    }
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationDidBecomeActiveNotification
+                                                  object:nil];
+    _callbackForBroker = nil;
+}
+
 
 -(void) acquireTokenByRefreshToken: (NSString*)refreshToken
                           clientId: (NSString*)clientId
@@ -1213,13 +1311,13 @@ return; \
         NSString* jwtToken = [self createAccessTokenRequestJWTUsingRT:cacheItem
                                                              resource:resource
                                                              clientId:clientId];
-         request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                             redirectUri, @"redirect_uri",
-                                             clientId, @"client_id",
-                                             @"2.0", @"windows_api_version",
-                                             @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
-                                             jwtToken, @"request",
-                                             nil];
+        request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                        redirectUri, @"redirect_uri",
+                        clientId, @"client_id",
+                        @"2.0", @"windows_api_version",
+                        @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
+                        jwtToken, @"request",
+                        nil];
         
     }
     else
@@ -1625,25 +1723,32 @@ return; \
          NSString* code = nil;
          if (!error)
          {
-             //Try both the URL and the fragment parameters:
-             NSDictionary *parameters = [end adFragmentParameters];
-             if ( parameters.count == 0 )
+             if([[[end scheme] lowercaseString] isEqualToString:@"msauth"])
              {
-                 parameters = [end adQueryParameters];
+                 code = end.absoluteString;
              }
-             
-             //OAuth2 error may be passed by the server:
-             error = [self errorFromDictionary:parameters errorCode:AD_ERROR_AUTHENTICATION];
-             if (!error)
+             else
              {
-                 //Note that we do not enforce the state, just log it:
-                 [self verifyStateFromDictionary:parameters];
-                 code = [parameters objectForKey:OAUTH2_CODE];
-                 if ([NSString adIsStringNilOrBlank:code])
+                 //Try both the URL and the fragment parameters:
+                 NSDictionary *parameters = [end adFragmentParameters];
+                 if ( parameters.count == 0 )
                  {
-                     error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
-                                                                    protocolCode:nil
-                                                                    errorDetails:@"The authorization server did not return a valid authorization code."];
+                     parameters = [end adQueryParameters];
+                 }
+                 
+                 //OAuth2 error may be passed by the server:
+                 error = [self errorFromDictionary:parameters errorCode:AD_ERROR_AUTHENTICATION];
+                 if (!error)
+                 {
+                     //Note that we do not enforce the state, just log it:
+                     [self verifyStateFromDictionary:parameters];
+                     code = [parameters objectForKey:OAUTH2_CODE];
+                     if ([NSString adIsStringNilOrBlank:code])
+                     {
+                         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
+                                                                        protocolCode:nil
+                                                                        errorDetails:@"The authorization server did not return a valid authorization code."];
+                     }
                  }
              }
          }

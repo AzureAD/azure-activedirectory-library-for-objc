@@ -36,13 +36,16 @@
   sourceApplication:(NSString *)sourceApplication
          annotation:(id)annotation
 {
-    if([ADAuthenticationContext isResponseFromBroker:url]){
-        [ADAuthenticationContext handleBrokerResponse:url completionBlock:^(ADAuthenticationResult *result) 
+    if([ADAuthenticationContext isResponseFromBroker:url])
+    {
+        [ADAuthenticationContext handleBrokerResponse:url
+                                      completionBlock:^(ADAuthenticationResult *result)
         {
             BVApplicationData* data = [BVApplicationData getInstance];
             data.result = result;
         }];
     }
+    
     return YES;
 }
 

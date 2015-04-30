@@ -159,7 +159,7 @@
                                   clientId:clientId
                                redirectUri:[NSURL URLWithString:redirectUri]
                                     userId:userId
-                      extraQueryParameters:@"nux=1"
+                      extraQueryParameters:mAADInstance.extraQueryParameters
                            completionBlock:^(ADAuthenticationResult *result) {
                                if (result.status != AD_SUCCEEDED)
                                {
