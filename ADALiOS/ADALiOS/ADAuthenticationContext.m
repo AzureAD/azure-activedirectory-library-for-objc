@@ -1334,13 +1334,12 @@ return; \
              }
              else
              {
-                 [self internalAcquireTokenByRefreshToken:refreshToken
+                 [self validatedAcquireTokenByRefreshToken:refreshToken
                                                  clientId:clientId
                                               redirectUri:redirectUri
                                                  resource:resource
                                                    userId:userId
                                                 cacheItem:cacheItem
-                                        validateAuthority:NO /*Already validated in this block. */
                                             correlationId:correlationId
                                           completionBlock:completionBlock];
              }
@@ -1348,6 +1347,25 @@ return; \
         return;//The asynchronous block above will handle everything;
     }
     
+    [self validatedAcquireTokenByRefreshToken:refreshToken
+                                    clientId:clientId
+                                 redirectUri:redirectUri
+                                    resource:resource
+                                      userId:userId
+                                   cacheItem:cacheItem
+                               correlationId:correlationId
+                             completionBlock:completionBlock];
+}
+
+- (void) validatedAcquireTokenByRefreshToken: (NSString*) refreshToken
+                                    clientId: (NSString*) clientId
+                                 redirectUri: (NSString*) redirectUri
+                                    resource: (NSString*) resource
+                                      userId: (NSString*) userId
+                                   cacheItem: (ADTokenCacheStoreItem*) cacheItem
+                               correlationId: correlationId
+                             completionBlock: (ADAuthenticationCallback)completionBlock
+{
     [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:nil];
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = nil;
