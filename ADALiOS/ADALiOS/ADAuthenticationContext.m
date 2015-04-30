@@ -868,17 +868,14 @@ return; \
             return; //The tryRefreshingFromCacheItem has taken care of the token obtaining
         }
     }
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
-                   {
-                       [self requestTokenByAssertion: samlAssertion
-                                       assertionType: assertionType
-                                            resource: resource
-                                            clientId: clientId
-                                               scope: nil//For future use
-                                       correlationId: correlationId
-                                          completion: completionBlock];
-                   });
+
+    [self requestTokenByAssertion: samlAssertion
+                   assertionType: assertionType
+                        resource: resource
+                        clientId: clientId
+                           scope: nil//For future use
+                   correlationId: correlationId
+                      completion: completionBlock];
 }
 
 
@@ -996,45 +993,42 @@ return; \
         return;
     }
     
-    dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
-                   {
-                       //Get the code first:
-                       [self requestCodeByResource:resource
-                                          clientId:clientId
-                                       redirectUri:redirectUri
-                                             scope:scope
-                                            userId:userId
-                                    promptBehavior:promptBehavior
-                              extraQueryParameters:queryParams
-                                     correlationId:correlationId
-                                        completion:^(NSString * code, ADAuthenticationError *error)
-                        {
-                            if (error)
-                            {
-                                ADAuthenticationResult* result = (AD_ERROR_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation]
-                                : [ADAuthenticationResult resultFromError:error];
-                                completionBlock(result);
-                            }
-                            else
-                            {
-                                [self requestTokenByCode:code
-                                                resource:resource
-                                                clientId:clientId
-                                             redirectUri:redirectUri
-                                                   scope:scope
-                                           correlationId:correlationId
-                                              completion:^(ADAuthenticationResult *result)
-                                 {
-                                     if (AD_SUCCEEDED == result.status)
-                                     {
-                                         [self updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
-                                         result = [self updateResult:result toUser:userId];
-                                     }
-                                     completionBlock(result);
-                                 }];
-                            }
-                        }];
-                   });
+    //Get the code first:
+    [self requestCodeByResource:resource
+                      clientId:clientId
+                   redirectUri:redirectUri
+                         scope:scope
+                        userId:userId
+                promptBehavior:promptBehavior
+          extraQueryParameters:queryParams
+                 correlationId:correlationId
+                    completion:^(NSString * code, ADAuthenticationError *error)
+    {
+        if (error)
+        {
+            ADAuthenticationResult* result = (AD_ERROR_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation]
+            : [ADAuthenticationResult resultFromError:error];
+            completionBlock(result);
+        }
+        else
+        {
+            [self requestTokenByCode:code
+                            resource:resource
+                            clientId:clientId
+                         redirectUri:redirectUri
+                               scope:scope
+                       correlationId:correlationId
+                          completion:^(ADAuthenticationResult *result)
+             {
+                 if (AD_SUCCEEDED == result.status)
+                 {
+                     [self updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
+                     result = [self updateResult:result toUser:userId];
+                 }
+                 completionBlock(result);
+             }];
+        }
+    }];
 }
 
 -(void) acquireTokenByRefreshToken: (NSString*)refreshToken
@@ -1241,37 +1235,34 @@ return; \
             [request_data setObject:resource forKey:OAUTH2_RESOURCE];
         }
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
-                   {
-                       AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@';", clientId, resource);
-                       [self request:self.authority
-                         requestData:request_data
-                requestCorrelationId:correlationId
-         isHandlingPKeyAuthChallenge:FALSE
-                   additionalHeaders:nil
-                          completion:^(NSDictionary *response)
-                        {
-                            ADTokenCacheStoreItem* resultItem = (cacheItem) ? cacheItem : [ADTokenCacheStoreItem new];
-                            
-                            //Always ensure that the cache item has all of these set, especially in the broad token case, where the passed item
-                            //may have empty "resource" property:
-                            resultItem.resource = resource;
-                            resultItem.clientId = clientId;
-                            resultItem.authority = self.authority;
-                            
-                            
-                            ADAuthenticationResult *result = [self processTokenResponse:response forItem:resultItem fromRefresh:YES requestCorrelationId:correlationId];
-                            if (cacheItem)//The request came from the cache item, update it:
-                            {
-                                [self updateCacheToResult:result
-                                                cacheItem:resultItem
-                                         withRefreshToken:refreshToken];
-                            }
-                            result = [self updateResult:result toUser:userId];//Verify the user (just in case)
-                            
-                            completionBlock(result);
-                        }];
-                   });
+    AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@';", clientId, resource);
+    [self request:self.authority
+      requestData:request_data
+requestCorrelationId:correlationId
+isHandlingPKeyAuthChallenge:FALSE
+additionalHeaders:nil
+       completion:^(NSDictionary *response)
+    {
+        ADTokenCacheStoreItem* resultItem = (cacheItem) ? cacheItem : [ADTokenCacheStoreItem new];
+        
+        //Always ensure that the cache item has all of these set, especially in the broad token case, where the passed item
+        //may have empty "resource" property:
+        resultItem.resource = resource;
+        resultItem.clientId = clientId;
+        resultItem.authority = self.authority;
+        
+        
+        ADAuthenticationResult *result = [self processTokenResponse:response forItem:resultItem fromRefresh:YES requestCorrelationId:correlationId];
+        if (cacheItem)//The request came from the cache item, update it:
+        {
+            [self updateCacheToResult:result
+                            cacheItem:resultItem
+                     withRefreshToken:refreshToken];
+        }
+        result = [self updateResult:result toUser:userId];//Verify the user (just in case)
+        
+        completionBlock(result);
+    }];
 }
 
 
