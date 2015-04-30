@@ -627,18 +627,16 @@ return; \
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
-         [self internalAcquireTokenWithResource: resource
-                                       clientId: clientId
-                                    redirectUri: redirectUri
-                                 promptBehavior: promptBehavior
-                                         silent: silent
-                                         userId: userId
-                                          scope: nil
-                           extraQueryParameters: queryParams
-                                       tryCache: NO
-                              validateAuthority: NO
-                                  correlationId:correlationId
-                                completionBlock: completionBlock];
+         [self requestTokenWithResource: resource
+                               clientId: clientId
+                            redirectUri: redirectUri
+                         promptBehavior: promptBehavior
+                                 silent: silent
+                                 userId: userId
+                                  scope: nil
+                   extraQueryParameters: queryParams
+                          correlationId:correlationId
+                        completionBlock: completionBlock];
      }];//End of the refreshing token completion block, executed asynchronously.
 }
 
@@ -949,7 +947,7 @@ return; \
                                   tryCache:(BOOL)tryCache
                             correlationId: (NSUUID*) correlationId
                           completionBlock: (ADAuthenticationCallback)completionBlock
-    {
+{
     
     //call the broker.
     if([self canUseBroker]){
@@ -1004,6 +1002,30 @@ return; \
             return; //The tryRefreshingFromCacheItem has taken care of the token obtaining
         }
     }
+    
+    [self requestTokenWithResource:resource
+                          clientId:clientId
+                       redirectUri:redirectUri
+                    promptBehavior:promptBehavior
+                            silent:silent
+                            userId:userId
+                             scope:scope
+              extraQueryParameters:queryParams
+                     correlationId:correlationId
+                   completionBlock:completionBlock];
+}
+
+- (void) requestTokenWithResource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                      redirectUri: (NSURL*) redirectUri
+                   promptBehavior: (ADPromptBehavior) promptBehavior
+                           silent: (BOOL) silent /* Do not show web UI for authorization. */
+                           userId: (NSString*) userId
+                            scope: (NSString*) scope
+             extraQueryParameters: (NSString*) queryParams
+                    correlationId: (NSUUID*) correlationId
+                  completionBlock: (ADAuthenticationCallback)completionBlock
+{
     
     if (silent)
     {
