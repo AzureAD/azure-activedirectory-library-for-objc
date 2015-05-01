@@ -40,4 +40,6 @@
 + (NSData*) computeKDFInCounterMode:(NSData*)key
                             context:(NSData*)ctx;
 
++ (void) removeNullStringFrom:(NSDictionary*) dict;
+
 @end

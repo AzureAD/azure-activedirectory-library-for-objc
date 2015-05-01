@@ -225,8 +225,7 @@ return; \
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
     ADAuthenticationResult* result;
-    //response=encrypted_response&hash=hash_value
-    //code=some_code&error_details=message
+
     if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION]){
         result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     }
@@ -251,6 +250,7 @@ return; \
             if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES]]){
                 //create response from the decrypted payload
                 queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
+                [ADHelpers removeNullStringFrom:queryParamsMap];
                 result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
                 
             }
