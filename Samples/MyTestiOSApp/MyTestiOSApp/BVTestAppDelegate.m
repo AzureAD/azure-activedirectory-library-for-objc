@@ -38,7 +38,6 @@
          annotation:(id)annotation
 {
     NSLog(@"original application openURL hit!");
-    
     return YES;
 }
 */

@@ -23,8 +23,10 @@
 #import "BVTestInstance.h"
 #import "BVApplicationData.h"
 
-@interface BVTestMainViewController ()
 
+ADAuthenticationContext* context = nil;
+
+@interface BVTestMainViewController ()
 @property (weak, nonatomic) IBOutlet UITextView *resultLabel;
 - (IBAction)pressMeAction:(id)sender;
 - (IBAction)clearCachePressed:(id)sender;
@@ -147,7 +149,9 @@
          NSString* redirectUri = mAADInstance.redirectUri;
          NSString* userId = mAADInstance.userId;
          //[weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
-         ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:mAADInstance.validateAuthority error:&error];
+         context = [ADAuthenticationContext authenticationContextWithAuthority:authority
+                                                             validateAuthority:mAADInstance.validateAuthority
+                                                                         error:&error];
          if (!context)
          {
              [weakSelf setStatus:error.errorDetails];
@@ -191,7 +195,8 @@
     //NSString* __block resourceString = mAADInstance.resource;
     NSString* redirectUri = mAADInstance.redirectUri;
     [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", authority]];
-    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
+    context = [ADAuthenticationContext authenticationContextWithAuthority:authority
+                                                                    error:&error];
     if (!context)
     {
         [weakSelf setStatus:error.errorDetails];
@@ -319,7 +324,9 @@
 {
     [self setStatus:@"Setting prompt always..."];
     ADAuthenticationError* error;
-    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:mAADInstance.authority validateAuthority:mAADInstance.validateAuthority error:&error];
+    context = [ADAuthenticationContext authenticationContextWithAuthority:mAADInstance.authority
+                                                        validateAuthority:mAADInstance.validateAuthority
+                                                                    error:&error];
     if (!context)
     {
         [self setStatus:error.errorDetails];

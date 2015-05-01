@@ -117,6 +117,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         item.resource = [response valueForKey:OAUTH2_RESOURCE];
         item.clientId = [response valueForKey:OAUTH2_CLIENT_ID];
         item.accessToken = [response valueForKey:OAUTH2_ACCESS_TOKEN];
+        item.refreshToken = [response valueForKey:OAUTH2_REFRESH_TOKEN];
         if([response valueForKey:OAUTH2_ID_TOKEN])
         {
             ADUserInformation* info = [ADUserInformation userInformationWithIdToken:[response valueForKey:OAUTH2_ID_TOKEN] error:&error];
@@ -126,13 +127,16 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
             }
         }
     }
+    
+    BOOL isMRRT = item.resource && item.refreshToken;
+    
     if(error)
     {
         result = [ADAuthenticationResult resultFromError:error];
     }
     else
     {
-        result = [[ADAuthenticationResult alloc ]initWithItem:item multiResourceRefreshToken:NO];
+        result = [[ADAuthenticationResult alloc ]initWithItem:item multiResourceRefreshToken:isMRRT];
     }
     
     return result;
