@@ -36,12 +36,7 @@
   sourceApplication:(NSString *)sourceApplication
          annotation:(id)annotation
 {
-    if([ADAuthenticationContext isResponseFromBroker:sourceApplication
-                                            response:url])
-    {
-        [ADAuthenticationContext handleBrokerResponse:url];
-    }
-    
+    NSLog(@"original application openURL hit!");
     return YES;
 }
 
