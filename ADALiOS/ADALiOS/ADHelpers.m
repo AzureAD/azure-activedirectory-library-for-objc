@@ -28,6 +28,18 @@
 
 const NSString* Label = @"AzureAD-SecureConversation";
 
+
++ (void) removeNullStringFrom:(NSDictionary*) dict
+{
+    for (NSString* key in dict.allKeys)
+    {
+        if([[dict valueForKey:key] isEqualToString:@"(null)"])
+        {
+            [dict setValue:nil forKey:key];
+        }
+    }
+}
+
 +(BOOL) isADFSInstance:(NSString*) endpoint
 {
     if([NSString adIsStringNilOrBlank:endpoint]){
