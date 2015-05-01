@@ -39,14 +39,13 @@
 #import "ADClientMetrics.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADHelpers.h"
+#import "ADBrokerNotificationManager.h"
 #import "ADOAuth2Constants.h"
 
 NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
 NSString* const serverError = @"The authentication server returned an error: %@.";
 NSString* const brokerAppIdentifier = @"com.microsoft.broker";
-
-static ADAuthenticationCallback _callbackForBroker = nil;
 
 //Used for the callback of obtaining the OAuth2 code:
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
@@ -210,16 +209,16 @@ return; \
 +(BOOL) isResponseFromBroker:(NSString*) sourceApplication
                     response:(NSURL*) response
 {
-    return sourceApplication && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
+    return //sourceApplication && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
     response &&
-    [NSString adSame:[response path] toString:@"broker"];
+    [NSString adSame:[response path] toString:@"/broker"];
 }
 
 +(void) handleBrokerResponse:(NSURL*) response
 {
     
-    THROW_ON_NIL_ARGUMENT(_callbackForBroker);
-    ADAuthenticationCallback completionBlock = _callbackForBroker;
+    THROW_ON_NIL_ARGUMENT([ADBrokerNotificationManager sharedInstance].callbackForBroker);
+    ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].callbackForBroker;
     HANDLE_ARGUMENT(response);
     
     NSString *qp = [response query];
@@ -268,8 +267,38 @@ return; \
             result = [ADAuthenticationResult resultFromError:error];
         }
     }
+    
+    if (AD_SUCCEEDED == result.status)
+    {
+        ADAuthenticationContext* ctx = [ADAuthenticationContext
+                                        authenticationContextWithAuthority:result.tokenCacheStoreItem.authority
+                                        error:nil];
+        
+        SEL selector = @selector(updateCacheToResult:cacheItem:withRefreshToken:);
+        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[ctx methodSignatureForSelector:selector]];
+        [inv setSelector:selector];
+        [inv setTarget:ctx];
+        [inv setArgument:&result atIndex:2];
+        [inv invoke];
+ 
+        NSString* userId = [queryParamsMap valueForKey:@"user_id"];
+        selector = nil;
+        selector = @selector(updateResult:toUser:);
+        inv = nil;
+        inv = [NSInvocation invocationWithMethodSignature:[ctx methodSignatureForSelector:selector]];
+        [inv setSelector:selector];
+        [inv setTarget:ctx];
+        [inv setArgument:&result atIndex:2];
+        if(userId)
+        {
+            [inv setArgument:&userId atIndex:3];
+        }
+        
+        [inv invoke];
+    }
+    
     completionBlock(result);
-    _callbackForBroker = nil;
+    [ADBrokerNotificationManager sharedInstance].callbackForBroker = nil;
 }
 
 -(void)  acquireTokenForAssertion: (NSString*) assertion
@@ -606,18 +635,6 @@ return; \
                  }//broad item
              }//key
          }//!item.multiResourceRefreshToken
-         
-         
-         if([self canUseBroker]){
-             [self callBrokerForAuthority: self.authority
-                                 resource: resource
-                                 clientId: clientId
-                              redirectUri: redirectUri
-                                   userId: userId
-                            correlationId: [correlationId UUIDString]];
-             return;
-         }
-         
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
@@ -956,18 +973,6 @@ return; \
                           completionBlock: (ADAuthenticationCallback)completionBlock
 {
     
-    //call the broker.
-    if([self canUseBroker]){
-        [self callBrokerForAuthority: self.authority
-                            resource: resource
-                            clientId: clientId
-                         redirectUri: redirectUri
-                              userId: userId
-                       correlationId: [correlationId UUIDString]
-         ];
-        return;
-    }
-    
     //Check the cache:
     ADAuthenticationError* error;
     //We are explicitly creating a key first to ensure indirectly that all of the required arguments are correct.
@@ -1033,6 +1038,18 @@ return; \
                     correlationId: (NSUUID*) correlationId
                   completionBlock: (ADAuthenticationCallback)completionBlock
 {
+    //call the broker.
+    if([self canUseBroker]){
+        [self callBrokerForAuthority: self.authority
+                            resource: resource
+                            clientId: clientId
+                         redirectUri: redirectUri
+                              userId: userId
+                       correlationId: [correlationId UUIDString]
+                     completionBlock:completionBlock
+         ];
+        return;
+    }
     
     if (silent)
     {
@@ -1124,16 +1141,10 @@ return; \
                        [correlationId UUIDString],
                        base64UrlKey];
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@&%@", urlString, query]];
-    
-    _callbackForBroker = completionBlock;
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(callbackCleanup)
-                                                 name:UIApplicationDidBecomeActiveNotification object:nil];
-    
+    [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];
     
     if([[UIApplication sharedApplication] canOpenURL:appUrl])
     {
-        [self saveToPasteBoard:appUrl.absoluteString];
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UIApplication sharedApplication] openURL:appUrl];
         });
@@ -1145,6 +1156,7 @@ return; \
         NSDictionary* qpDict = [NSDictionary adURLFormDecode:qp];
         NSString* url = [qpDict valueForKey:@"app_link"];
         url = [url adBase64UrlDecode];
+        [self saveToPasteBoard:appUrl.absoluteString];
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:url]];
         });
@@ -1159,25 +1171,6 @@ return; \
     NSData *data = [url dataUsingEncoding:NSUTF8StringEncoding];
     [appPasteBoard setData:data
          forPasteboardType:@"com.microsoft.broker"];
-}
-
-
-- (void)callbackCleanup
-{
-    if(_callbackForBroker)
-    {
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BROKER_RESPONSE_NOT_RECEIVED
-                                                         protocolCode:nil
-                                                         errorDetails:@"application did not receive response from broker."];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:adError];
-        ADAuthenticationCallback callback = _callbackForBroker;
-        callback(result);
-    }
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIApplicationDidBecomeActiveNotification
-                                                  object:nil];
-    _callbackForBroker = nil;
 }
 
 
@@ -1880,7 +1873,14 @@ additionalHeaders:nil
                                          [redirectUri absoluteString], OAUTH2_REDIRECT_URI,
                                          nil];
     
-    [self executeRequest:self.authority requestData:request_data resource:resource clientId:clientId requestCorrelationId:correlationId isHandlingPKeyAuthChallenge:NO additionalHeaders:nil completion:completionBlock];
+    [self executeRequest:self.authority
+             requestData:request_data
+                resource:resource
+                clientId:clientId
+    requestCorrelationId:correlationId
+isHandlingPKeyAuthChallenge:NO
+       additionalHeaders:nil
+              completion:completionBlock];
 }
 
 
@@ -1904,7 +1904,10 @@ additionalHeaders:additionalHeaders
          ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
          item.resource = resource;
          item.clientId = clientId;
-         completionBlock([self processTokenResponse:response forItem:item fromRefresh:NO requestCorrelationId:requestCorrelationId]);
+         completionBlock([self processTokenResponse:response
+                                            forItem:item
+                                        fromRefresh:NO
+                               requestCorrelationId:requestCorrelationId]);
      }];
 }
 
@@ -2071,6 +2074,8 @@ additionalHeaders:(NSDictionary *)additionalHeaders
                     redirectUri: (NSURL*) redirectUri
                          userId: (NSString*) userId
                   correlationId: (NSString*) correlationId
+                completionBlock: (ADAuthenticationCallback)completionBlock
+
 {
     AD_LOG_INFO(@"Invoking broker for authentication", nil);
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
@@ -2081,6 +2086,8 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     
     NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, base64UrlKey];
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", brokerScheme, query]];
+    
+    [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [[UIApplication sharedApplication] openURL:appUrl];

@@ -7,11 +7,11 @@
 		<key>Authority</key>
 		<string>https://login.windows.net/common</string>
 		<key>ClientId</key>
-		<string>d3590ed6-52b3-4102-aeff-aad2292ab01c</string>
+		<string>dd9caee2-38bd-484e-998c-7529bdef220f</string>
 		<key>Resource</key>
-		<string>https://officeapps.live.com</string>
-        <key>RedirectUri</key>
-		<string>urn:ietf:wg:oauth:2.0:oob</string>
+		<string>https://graph.windows.net</string>
+		<key>RedirectUri</key>
+		<string>mytestiosapp://com.MSOpenTech.MyTestiOSApp</string>
 		<key>UserId</key>
 		<string></string>
 		<key>Password</key>
