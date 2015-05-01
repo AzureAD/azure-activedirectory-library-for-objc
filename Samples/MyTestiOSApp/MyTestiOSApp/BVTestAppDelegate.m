@@ -31,6 +31,7 @@
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 
 
+/*
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)url
   sourceApplication:(NSString *)sourceApplication
@@ -39,6 +40,7 @@
     NSLog(@"original application openURL hit!");
     return YES;
 }
+*/
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {

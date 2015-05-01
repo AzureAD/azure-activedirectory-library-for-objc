@@ -73,24 +73,45 @@ BOOL isCorrelationIdUserProvided = NO;
 
 @implementation ADAuthenticationContext
 
-+ (void)swizzleAppOpenURL
++ (void) load
 {
-    // Dig out the app delegate (if there is one)
-    id appDelegate = [[UIApplication sharedApplication] delegate];
-    if (![appDelegate respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)])
-        return;
+    __block id observer = nil;
     
-    Method m = class_getInstanceMethod([appDelegate class], @selector(application:openURL:sourceApplication:annotation:));
-    if (!m)
-        return;
+    observer = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification
+                                                                 object:nil
+                                                                  queue:nil
+                                                             usingBlock:^(NSNotification* notification)
+    {
+        // We don't want to swizzle multiple times so remove the observer
+        [[NSNotificationCenter defaultCenter] removeObserver:observer name:UIApplicationDidFinishLaunchingNotification object:nil];
+        
+        SEL sel = @selector(application:openURL:sourceApplication:annotation:);
+        
+        // Dig out the app delegate (if there is one)
+        __strong id appDelegate = [[UIApplication sharedApplication] delegate];
+        if ([appDelegate respondsToSelector:sel])
+        {
+            Method m = class_getInstanceMethod([appDelegate class], sel);
+            __original_ApplicationOpenURL = method_getImplementation(m);
+            method_setImplementation(m, (IMP)__swizzle_ApplicationOpenURL);
+        }
+        else
+        {
+            NSString* typeEncoding = [NSString stringWithFormat:@"%s%s%s%s%s%s%s", @encode(BOOL), @encode(id), @encode(SEL), @encode(UIApplication*), @encode(NSURL*), @encode(NSString*), @encode(id)];
+            if (!class_addMethod([appDelegate class], sel, (IMP)__swizzle_ApplicationOpenURL, [typeEncoding UTF8String]))
+                NSLog(@"failed to add!");
+            if (![appDelegate respondsToSelector:sel])
+                NSLog(@"what the fucking fuck");
+            
+            // UIApplication caches whether or not the delegate responds to certain selectors. Clearing out the delegate and resetting it gaurantees that gets updated
+            [[UIApplication sharedApplication] setDelegate:nil];
+            // UIApplication employs dark magic to assume ownership of the app delegate when it gets the app delegate at launch, it won't do that for setDelegate calls so we
+            // have to add a retain here to make sure it doesn't turn into a zombie
+            [[UIApplication sharedApplication] setDelegate:(__bridge id)CFRetain((__bridge CFTypeRef)appDelegate)];
+        }
+        
+    }];
     
-    __original_ApplicationOpenURL = method_getImplementation(m);
-    method_setImplementation(m, (IMP)__swizzle_ApplicationOpenURL);
-}
-
-+ (void)initialize
-{
-    [self swizzleAppOpenURL];
 }
 
 -(id) init
