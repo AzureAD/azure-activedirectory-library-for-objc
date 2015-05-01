@@ -34,11 +34,11 @@
         [NSBundle loadNibNamed:@"ADCredentialViewController" owner:self];
 //        loaded = [[NSBundle mainBundle] loadNibNamed:@"ADCredentialViewController" owner:self topLevelObjects:nil];
         
-        SAFE_ARC_RETAIN(_customView);
-        SAFE_ARC_RETAIN(_usernameField);
-        SAFE_ARC_RETAIN(_passwordField);
-        SAFE_ARC_RETAIN(_usernameLabel);
-        SAFE_ARC_RETAIN(_passwordLabel);
+//        SAFE_ARC_RETAIN(_customView);
+//        SAFE_ARC_RETAIN(_usernameField);
+//        SAFE_ARC_RETAIN(_passwordField);
+//        SAFE_ARC_RETAIN(_usernameLabel);
+//        SAFE_ARC_RETAIN(_passwordLabel);
     }
     
     return self;
@@ -52,11 +52,6 @@
     SAFE_ARC_RELEASE(_passwordField);
     SAFE_ARC_RELEASE(_usernameLabel);
     SAFE_ARC_RELEASE(_passwordLabel);
-    _customView = nil;
-    _usernameField = nil;
-    _passwordField = nil;
-    _usernameLabel = nil;
-    _passwordLabel = nil;
 }
 
 @end

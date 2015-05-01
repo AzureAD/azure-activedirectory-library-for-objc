@@ -344,7 +344,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                                     _mItemKeyAttributeKey:[self keychainKeyFromCacheKey:key],
                                     }];
     
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString adIsStringNilOrBlank:userId] && [userId adBase64UrlEncode])
     {
         [query setObject:[userId adBase64UrlEncode] forKey:_mUserIdKey];
     }

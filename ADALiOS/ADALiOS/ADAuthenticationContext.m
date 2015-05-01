@@ -71,7 +71,6 @@ static volatile int sDialogInProgress = 0;
     
     SAFE_ARC_RELEASE(_authority);
     SAFE_ARC_RELEASE(_correlationId);
-    SAFE_ARC_RELEASE(_parentController);
     SAFE_ARC_RELEASE(_tokenCacheStore);
     
     SAFE_ARC_SUPER_DEALLOC();

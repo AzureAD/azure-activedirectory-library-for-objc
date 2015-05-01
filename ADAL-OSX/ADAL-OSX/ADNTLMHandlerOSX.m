@@ -26,6 +26,80 @@
 
 NSString* const AD_WPJ_LOG = @"ADNTLMHandler";
 
+@interface NTLMSheetHelper : NSObject
+{
+    dispatch_semaphore_t _dsem;
+    NSAlert*            _alert;
+    NSModalResponse     _response;
+    NSString*           _username;
+    NSString*           _password;
+}
+
+@property (readwrite, retain) NSString* username;
+@property (readwrite, retain) NSString* password;
+
+
+- (id)init;
+- (NSModalResponse)showNTLMSheet;
+
+@end
+
+@implementation NTLMSheetHelper
+
+@synthesize username = _username;
+@synthesize password = _password;
+
+- (id)init
+{
+    if (!(self = [super init]))
+        return nil;
+    
+    _dsem = dispatch_semaphore_create(0);
+
+    return self;
+}
+
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_alert);
+    dispatch_release(_dsem);
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
+- (void)internalShowNTLMSheet
+{
+    _alert = [NSAlert alertWithMessageText:NSLocalizedString(@"Enter your credentials", nil)
+                             defaultButton:NSLocalizedString(@"Login", nil)
+                           alternateButton:NSLocalizedString(@"Cancel", nil)
+                               otherButton:nil
+                 informativeTextWithFormat:@""];
+    
+    SAFE_ARC_RETAIN(_alert);
+    
+    ADCredentialCollectionController *view = [ADCredentialCollectionController new];
+    [view.usernameLabel setStringValue:NSLocalizedString(@"User Name", nil)];
+    [view.passwordLabel setStringValue:NSLocalizedString(@"Password", nil)];
+    [_alert setAccessoryView:view.customView];
+    
+    [_alert beginSheetModalForWindow:[NSApp keyWindow] completionHandler:^(NSModalResponse returnCode) {
+        _response = returnCode;
+        
+        _username = [view.usernameField stringValue];
+        _password = [view.passwordField stringValue];
+        dispatch_semaphore_signal(_dsem);
+    }];
+}
+
+- (NSModalResponse)showNTLMSheet
+{
+    [self performSelectorOnMainThread:@selector(internalShowNTLMSheet) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+    dispatch_semaphore_wait(_dsem, DISPATCH_TIME_FOREVER);
+    return _response;
+}
+
+
+@end
+
 @implementation ADNTLMHandler
 
 BOOL _challengeCancelled = NO;
@@ -94,56 +168,34 @@ NSURLConnection *_conn = nil;
             if(_conn){
                 _conn = nil;
             }
-            // This is the client TLS challenge: use the identity to authenticate:
+            
             AD_LOG_VERBOSE_F(AD_WPJ_LOG, @"Attempting to handle %@ challenge for host: %@", challenge.protectionSpace.authenticationMethod, challenge.protectionSpace.host);
-            NSAlert *alert = [NSAlert alertWithMessageText:NSLocalizedString(@"Enter your credentials", nil)
-                                             defaultButton:NSLocalizedString(@"Login", nil)
-                                           alternateButton:NSLocalizedString(@"Cancel", nil)
-                                               otherButton:nil
-                                 informativeTextWithFormat:@""];
-            ADCredentialCollectionController *view = [ADCredentialCollectionController new];
-            [view.usernameLabel setStringValue:NSLocalizedString(@"User Name", nil)];
-            [view.passwordLabel setStringValue:NSLocalizedString(@"Password", nil)];            [alert setAccessoryView:view.customView];
-            NSMutableDictionary* stateObject = [NSMutableDictionary new];
-            [stateObject setValue:alert forKey:@"alert"];
             
-            SAFE_ARC_AUTORELEASE(stateObject);
-            SAFE_ARC_AUTORELEASE(view);
+            NTLMSheetHelper* helper = [NTLMSheetHelper new];
+            NSModalResponse returnCode = [helper showNTLMSheet];
             
-            SEL selector = NSSelectorFromString(@"runNSAlertAndProcessResult:");
-            [ADNTLMHandler performSelectorOnMainThread:selector withObject:stateObject waitUntilDone:YES];
-            NSInteger button = [[stateObject valueForKey:@"result"] intValue];
-            
-            if (button == NSAlertDefaultReturn){
-                [view.usernameField validateEditing];
+            if (returnCode == 1){
                 NSURLCredential *credential;
-                NSString* user  = [view.usernameField stringValue];
-                NSString* password = [view.passwordField stringValue];
                 credential = [NSURLCredential
-                              credentialWithUser:user
-                              password:password
+                              credentialWithUser:helper.username
+                              password:helper.password
                               persistence:NSURLCredentialPersistenceForSession];
                 [challenge.sender useCredential:credential
                      forAuthenticationChallenge:challenge];
                 AD_LOG_VERBOSE(AD_WPJ_LOG, @"NTLM challenge responded.");
                 _challengeUrl = nil;
-            } else if (button == NSAlertAlternateReturn) {
+            } else if (returnCode == 0) {
                 _challengeCancelled = YES;
                 [protocol stopLoading];
             }
+            SAFE_ARC_RELEASE(helper);
+            
             succeeded = YES;
+            
         }//@synchronized
     }//Challenge type
     
     return succeeded;
-}
-
-+(void) runNSAlertAndProcessResult:(NSMutableDictionary*) stateObject
-{
-    NSAlert* alert = [stateObject valueForKey:@"alert"];
-    NSInteger result = [alert runModal];
-    NSNumber* number = [NSNumber numberWithInteger:result];
-    [stateObject setValue:number forKey:@"result"];
 }
 
 @end

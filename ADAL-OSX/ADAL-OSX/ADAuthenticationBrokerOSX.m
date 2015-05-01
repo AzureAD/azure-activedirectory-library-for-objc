@@ -146,21 +146,18 @@ correlationId:(NSUUID *)correlationId
                 // Initialize the web view controller
                 [_authenticationPageController start];
                 
-                NSDate   *beforeDate = [NSDate date];
+                NSDate   *beforeDate = [NSDate distantFuture];
                 NSInteger result = NSRunContinuesResponse;
                 
                 // Loop until window is endModal is called
                 while ( result == NSRunContinuesResponse )
                 {
                     result = [NSApp runModalSession:_authenticationSession];
-                    
-                    beforeDate = [beforeDate dateByAddingTimeInterval:300];
                     [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:beforeDate];
                 }
                 
                 // End the modal session
                 [NSApp endModalSession:_authenticationSession];
-                
                 _authenticationSession = NULL;
             }
             else

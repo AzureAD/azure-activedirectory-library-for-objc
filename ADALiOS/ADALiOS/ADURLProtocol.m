@@ -123,6 +123,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     if (response)
     {
         NSMutableURLRequest* mutableRequest = [request mutableCopy];
+        SAFE_ARC_AUTORELEASE(mutableRequest);
         
         [[self class] removePropertyForKey:@"ADURLProtocol" inRequest:mutableRequest];
         [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];

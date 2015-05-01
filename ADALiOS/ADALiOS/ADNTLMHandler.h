@@ -29,7 +29,6 @@
 #if !TARGET_OS_IPHONE
 +(BOOL) handleNTLMChallenge:(NSURLAuthenticationChallenge *)challenge
              customProtocol:(NSURLProtocol*) protocol;
-+(void) runNSAlertAndProcessResult:(NSMutableDictionary*) stateObject;
 
 #else
 +(BOOL) handleNTLMChallenge:(NSURLAuthenticationChallenge *)challenge
