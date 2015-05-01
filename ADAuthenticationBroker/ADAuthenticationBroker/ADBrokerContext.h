@@ -38,12 +38,10 @@ typedef void(^ADOnResultCallback)(NSError* error);
 
 + (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
                         sourceApplication: (NSString*) sourceApplication
-                                      upn: (NSString*) upn
-                          completionBlock: (ADAuthenticationCallback) completionBlock;
+                                      upn: (NSString*) upn;
 
 + (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
-                        sourceApplication: (NSString*) sourceApplication
-                          completionBlock: (ADAuthenticationCallback) completionBlock;
+                        sourceApplication: (NSString*) sourceApplication;
 
 - (id) initWithAuthority:(NSString*) authority;
 

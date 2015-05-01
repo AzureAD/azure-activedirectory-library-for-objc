@@ -79,12 +79,11 @@ NSMutableArray* users;
         [self getAllAccounts];
         if(upnInRequest || users.count == 0)
         {
-            [ADBrokerContext invokeBrokerForSourceApplication:[appDelegate._url absoluteString]
-                                            sourceApplication:appDelegate._sourceApplication
-                                              completionBlock:^(ADAuthenticationResult *result) {
-                                                  appDelegate._url = nil;
-                                                  appDelegate._sourceApplication = nil;
-                                              }];
+            [ADBrokerContext invokeBrokerForSourceApplication:[[appDelegate._url absoluteString] copy]
+                                            sourceApplication:[appDelegate._sourceApplication copy]];
+            
+            appDelegate._url = nil;
+            appDelegate._sourceApplication = nil;
             return;
         }
     }
@@ -159,13 +158,12 @@ NSMutableArray* users;
     if(isBrokerRequest)
     {
         [self getAllAccounts];
-        [ADBrokerContext invokeBrokerForSourceApplication:[appDelegate._url absoluteString]
-                                        sourceApplication:appDelegate._sourceApplication
-                                                      upn:upnInRequest
-                                          completionBlock:^(ADAuthenticationResult *result) {
-                                              appDelegate._url = nil;
-                                              appDelegate._sourceApplication = nil;
-                                          }];
+        [ADBrokerContext invokeBrokerForSourceApplication:[[appDelegate._url absoluteString] copy]
+                                        sourceApplication:[appDelegate._sourceApplication copy]
+                                                      upn:upnInRequest];
+        
+        appDelegate._url = nil;
+        appDelegate._sourceApplication = nil;
     }
     else
     {
@@ -255,13 +253,12 @@ NSMutableArray* users;
     if(isBrokerRequest)
     {
         [self getAllAccounts];
-            [ADBrokerContext invokeBrokerForSourceApplication:[appDelegate._url absoluteString]
-                                            sourceApplication:appDelegate._sourceApplication
-                                                          upn:info.getUpn
-                                              completionBlock:^(ADAuthenticationResult *result) {
-                                                  appDelegate._url = nil;
-                                                  appDelegate._sourceApplication = nil;
-                                              }];
+        [ADBrokerContext invokeBrokerForSourceApplication:[[appDelegate._url absoluteString] copy]
+                                        sourceApplication:[appDelegate._sourceApplication copy]
+                                                      upn:info.getUpn];
+        
+        appDelegate._url = nil;
+        appDelegate._sourceApplication = nil;
     }
     else
     {
