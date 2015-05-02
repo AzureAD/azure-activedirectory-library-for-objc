@@ -349,7 +349,7 @@ extern void __gcov_flush(void);
     item.accessTokenType = @"access token type";
     
     [self adVerifyPropertiesAreSet:item];
-    
+    SAFE_ARC_AUTORELEASE(item);
     return item;
 }
 
