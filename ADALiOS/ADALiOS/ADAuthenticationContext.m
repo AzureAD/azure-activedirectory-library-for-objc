@@ -1097,19 +1097,6 @@ return; \
                     correlationId: (NSUUID*) correlationId
                   completionBlock: (ADAuthenticationCallback)completionBlock
 {
-    //call the broker.
-    if([self canUseBroker]){
-        [self callBrokerForAuthority: self.authority
-                            resource: resource
-                            clientId: clientId
-                         redirectUri: redirectUri
-                              userId: userId
-                       correlationId: [correlationId UUIDString]
-                     completionBlock:completionBlock
-         ];
-        return;
-    }
-    
     if (silent)
     {
         //The cache lookup and refresh token attempt have been unsuccessful,
@@ -1124,7 +1111,19 @@ return; \
         return;
     }
     
-
+    //call the broker.
+    if([self canUseBroker]){
+        [self callBrokerForAuthority: self.authority
+                            resource: resource
+                            clientId: clientId
+                         redirectUri: redirectUri
+                              userId: userId
+                       correlationId: [correlationId UUIDString]
+                     completionBlock:completionBlock
+         ];
+        return;
+    }
+    
     //Get the code first:
     [self requestCodeByResource:resource
                       clientId:clientId

@@ -22,6 +22,8 @@
 		<true/>
 		<key>FullScreen</key>
 		<true/>
+		<key>ExtraQueryParameters</key>
+		<string>nux=1</string>
 	</dict>
 </dict>
 </plist>
