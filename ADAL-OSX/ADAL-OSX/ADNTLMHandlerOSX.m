@@ -63,6 +63,8 @@ NSString* const AD_WPJ_LOG = @"ADNTLMHandler";
 {
     SAFE_ARC_RELEASE(_alert);
     dispatch_release(_dsem);
+    SAFE_ARC_RELEASE(_username);
+    SAFE_ARC_RELEASE(_password);
     SAFE_ARC_SUPER_DEALLOC();
 }
 
@@ -85,7 +87,9 @@ NSString* const AD_WPJ_LOG = @"ADNTLMHandler";
         _response = returnCode;
         
         _username = [view.usernameField stringValue];
+        SAFE_ARC_RETAIN(_username);
         _password = [view.passwordField stringValue];
+        SAFE_ARC_RETAIN(_password);
         dispatch_semaphore_signal(_dsem);
     }];
 }
