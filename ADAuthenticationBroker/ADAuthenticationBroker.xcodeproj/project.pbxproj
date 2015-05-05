@@ -736,6 +736,7 @@
 				SKIP_INSTALL = YES;
 				STRIP_STYLE = "non-global";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/WorkPlaceJoinAPI Frameworks/azure-activedirectory-library-for-objc-unity-fork/ADALiOS/ADALiOS";
 			};
 			name = Debug;
 		};
@@ -770,6 +771,7 @@
 				SKIP_INSTALL = YES;
 				STRIP_STYLE = "non-global";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/WorkPlaceJoinAPI Frameworks/azure-activedirectory-library-for-objc-unity-fork/ADALiOS/ADALiOS";
 			};
 			name = Release;
 		};
