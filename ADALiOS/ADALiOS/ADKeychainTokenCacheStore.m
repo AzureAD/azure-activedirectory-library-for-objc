@@ -31,7 +31,7 @@ NSString* const sKeyChainlog = @"Keychain token cache store";
 NSString* const sMultiUserError = @"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used.";
 NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
 
-const long sKeychainVersion = 2;//will need to increase when we break the forward compatibility
+const long sKeychainVersion = 1;//will need to increase when we break the forward compatibility
 
 @implementation ADKeychainTokenCacheStore
 {
