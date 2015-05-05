@@ -18,6 +18,7 @@
 
 #import "ADBrokerPRTContext.h"
 #import "ADBrokerConstants.h"
+#import "ADOAuth2Constants.h"
 #import "ADBrokerJwtHelper.h"
 #import "ADBrokerPRTCacheItem.h"
 #import "ADBrokerBase64Additions.h"
@@ -134,7 +135,7 @@ NSString* userPrincipalIdentifier;
                               //create JWT
                               NSString* jwtToken = [self createPRTRequestJWTUsingBrokerRT:brokerRefreshToken];
                               NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                                                   @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE_KEY,
+                                                                   @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
                                                                    jwtToken, @"request",
                                                                    nil];
                               
@@ -217,7 +218,7 @@ NSString* userPrincipalIdentifier;
                                                  redirectUri, @"redirect_uri",
                                                  clientId, @"client_id",
                                                  @"2.0", @"windows_api_version",
-                                                 @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE_KEY,
+                                                 @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
                                                  jwtToken, @"request",
                                                  nil];
             
@@ -264,7 +265,7 @@ isHandlingPKeyAuthChallenge:NO
                   } else{
                       if(attemptPRTUpdate)
                       {
-                          NSString* errorType = [response objectForKey:OAUTH2_ERROR_KEY];
+                          NSString* errorType = [response objectForKey:OAUTH2_ERROR];
                           if(errorType && ([NSString adSame:errorType toString:@"interaction_required"]
                                            || [NSString adSame:errorType toString:@"invalid_request"]
                                            || [NSString adSame:errorType toString:@"invalid_grant"]))
@@ -342,7 +343,7 @@ isHandlingPKeyAuthChallenge:NO
                                                                  redirectUri, @"redirect_uri",
                                                                  clientId, @"client_id",
                                                                  @"2.0", @"windows_api_version",
-                                                                 @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE_KEY,
+                                                                 @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
                                                                  jwtToken, @"request",
                                                                  nil];
                             
@@ -509,7 +510,7 @@ isHandlingPKeyAuthChallenge:NO
     THROW_ON_NIL_ARGUMENT(item);
     AD_LOG_VERBOSE(@"Token extraction", @"Attempt to extract the data from the server response.");
     
-    NSString* responseId = [response objectForKey:CORRELATION_ID_RESPONSE];
+    NSString* responseId = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
     NSUUID* responseUUID;
     if (![NSString adIsStringNilOrBlank:responseId])
     {
@@ -534,14 +535,14 @@ isHandlingPKeyAuthChallenge:NO
         return [ADAuthenticationResult resultFromError:error];
     }
     
-    NSString* refreshToken = [response objectForKey:OAUTH2_REFRESH_TOKEN_KEY];
+    NSString* refreshToken = [response objectForKey:OAUTH2_REFRESH_TOKEN];
     if (![NSString adIsStringNilOrBlank:refreshToken])
     {
         item.primaryRefreshToken    = refreshToken;
         item.authority = DEFAULT_AUTHORITY;
         
         // Token response
-        id      expires_in = [response objectForKey:OAUTH2_PRIMARY_REFRESH_TOKEN_EXPIRES_KEY];
+        id      expires_in = [response objectForKey:OAUTH2_EXPIRES_IN];
         NSDate *expires    = nil;
         
         if ( expires_in != nil )
@@ -569,9 +570,9 @@ isHandlingPKeyAuthChallenge:NO
             expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//Assume 1hr expiration
         }
         
-        item.tokenType = [response objectForKey:OAUTH2_TOKEN_TYPE_KEY];
+        item.tokenType = [response objectForKey:OAUTH2_TOKEN_TYPE];
         item.expiresOn       = expires;
-        NSString* idToken = [response objectForKey:OAUTH2_ID_TOKEN_KEY];
+        NSString* idToken = [response objectForKey:OAUTH2_ID_TOKEN];
         if (idToken)
         {
             ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idToken error:nil];

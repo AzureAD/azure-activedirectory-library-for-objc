@@ -23,6 +23,7 @@
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADBrokerConstants.h"
+#import "ADOAuth2Constants.h"
 #import "NSDictionary+ADExtensions.h"
 #import "ADBrokerKeychainTokenCacheStore.h"
 #import "ADBrokerHelpers.h"
@@ -141,9 +142,9 @@ return; \
         THROW_ON_NIL_ARGUMENT(requestPayload);
         THROW_ON_NIL_ARGUMENT(sourceApplication);
         THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:AUTHORITY]);
-        THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:CLIENT_ID]);
-        THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:CORRELATION_ID]);
-        THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:REDIRECT_URI]);
+        THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_CLIENT_ID]);
+        THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]);
+        THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]);
         THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:BROKER_KEY]);
     }
     @catch (NSException *exception) {
@@ -156,7 +157,7 @@ return; \
     if(!error)
     {
         //validate source application against redirect uri
-        NSURL *redirectUri = [[NSURL alloc] initWithString:[queryParamsMap valueForKey:REDIRECT_URI]];
+        NSURL *redirectUri = [[NSURL alloc] initWithString:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]];
         if(![NSString adSame:sourceApplication toString:[redirectUri host]]){
             
             error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
@@ -166,8 +167,8 @@ return; \
             NSString* response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@",
                                    [error.protocolCode adUrlFormEncode],
                                    [error.errorDetails adUrlFormEncode],
-                                   [queryParamsMap valueForKey:CORRELATION_ID]];
-            [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:REDIRECT_URI] response:response];
+                                   [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
+            [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI] response:response];
             return;
         }
         
@@ -175,15 +176,9 @@ return; \
         ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:AUTHORITY];
         ctx.correlationId = [[NSUUID alloc]
                              initWithUUIDString:[queryParamsMap
-                                                 valueForKey:CORRELATION_ID]];
+                                                 valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
         if(ctx)
         {
-            NSString* extraQp = nil;
-            if([queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS])
-            {
-                extraQp = [queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS];
-            }
-            
             ADAuthenticationCallback defaultCallback = ^(ADAuthenticationResult *result)
             {
                 if(![NSString adSame:sourceApplication toString:DEFAULT_GUID_FOR_NIL])
@@ -197,10 +192,10 @@ return; \
                         
                         response = [NSString stringWithFormat:@"authority=%@&client_id=%@&resource=%@&user_id=%@&correlation_id=%@&access_token=%@&refresh_token=%@&id_token=%@",
                                     [queryParamsMap valueForKey:AUTHORITY],
-                                    [queryParamsMap valueForKey:CLIENT_ID],
-                                    [queryParamsMap valueForKey:RESOURCE],
+                                    [queryParamsMap valueForKey:OAUTH2_CLIENT_ID],
+                                    [queryParamsMap valueForKey:OAUTH2_RESOURCE],
                                     upn,
-                                    [queryParamsMap valueForKey:CORRELATION_ID],
+                                    [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE],
                                     result.accessToken,
                                     result.tokenCacheStoreItem.refreshToken,
                                     rawIdToken];
@@ -214,19 +209,19 @@ return; \
                         
                         response = [NSString stringWithFormat:@"response=%@&hash=%@", [[NSString Base64EncodeData: responseData] adUrlFormEncode], [ADBrokerHelpers computeHash:plainData]];
                     } else{
-                        response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@", [result.error.protocolCode adUrlFormEncode], [result.error.errorDetails adUrlFormEncode], [queryParamsMap valueForKey:CORRELATION_ID]];
+                        response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@", [result.error.protocolCode adUrlFormEncode], [result.error.errorDetails adUrlFormEncode], [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
                     }
                     
-                    [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:REDIRECT_URI] response:response];
+                    [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI] response:response];
                     return;
                 }
             };
             
             [ctx acquireAccount:[queryParamsMap valueForKey:AUTHORITY]
                          userId:upn
-                       clientId:[queryParamsMap valueForKey:CLIENT_ID]
-                       resource:[queryParamsMap valueForKey:RESOURCE]
-                    redirectUri:[queryParamsMap valueForKey:REDIRECT_URI]
+                       clientId:[queryParamsMap valueForKey:OAUTH2_CLIENT_ID]
+                       resource:[queryParamsMap valueForKey:OAUTH2_RESOURCE]
+                    redirectUri:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]
                          appKey:[queryParamsMap valueForKey:BROKER_KEY]
                 completionBlock:defaultCallback];
         }
