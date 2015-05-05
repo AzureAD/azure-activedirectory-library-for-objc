@@ -20,9 +20,9 @@
 #define AD_BROKER_VER_LOW    1
 #define AD_BROKER_VER_PATCH  0
 
-#import <ADALiOS/ADLogger.h>
-#import <ADALiOS/ADErrorCodes.h>
-#import <ADALiOS/ADAuthenticationError.h>
+#import "ADLogger.h"
+#import "ADErrorCodes.h"
+#import "ADAuthenticationError.h"
 #import "NSString+ADHelperMethods.h"
 
 //Helper macro to initialize a variable named __where string with place in file details:

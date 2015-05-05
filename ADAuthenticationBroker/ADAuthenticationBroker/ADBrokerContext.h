@@ -19,10 +19,12 @@
 
 #import <Foundation/Foundation.h>
 #include <UIKit/UIKit.h>
-#import <ADALiOS/ADAuthenticationResult.h>
-#import <ADALiOS/ADAuthenticationContextForBroker.h>
+//#import "ADAuthenticationContextForBroker.h"
 #import <workplaceJoinAPI/RegistrationInformation.h>
 #import <ADAuthenticationBroker/ADBrokerPRTContext.h>
+
+@class ADAuthenticationResult;
+@class ADAuthenticationContextForBroker;
 
 /*! The completion block declarations. */
 typedef void(^ADOnResultCallback)(NSError* error);

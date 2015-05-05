@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import <ADALiOS/ADUserInformation.h>
+#import "ADUserInformation.h"
 
 @interface ADBrokerUserAccount : NSObject
 

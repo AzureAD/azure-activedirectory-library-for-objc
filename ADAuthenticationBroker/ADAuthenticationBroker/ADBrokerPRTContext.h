@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import <ADALiOS/ADAuthenticationContextForBroker.h>
+#import "ADAuthenticationContextForBroker.h"
 #import "ADBrokerPRTCacheItem.h"
 
 typedef void(^ADPRTResultCallback)(ADBrokerPRTCacheItem* item, NSError* error);

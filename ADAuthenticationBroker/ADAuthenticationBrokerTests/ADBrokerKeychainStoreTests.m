@@ -1,7 +1,7 @@
 #import <XCTest/XCTest.h>
 #import <libkern/OSAtomic.h>
 #import "ADBrokerKeychainTokenCacheStore.h"
-#import <ADALiOS/ADTokenCacheStoring.h>
+#import "ADTokenCacheStoring.h"
 #import <ADALiOS/ADTokenCacheStoreItem.h>
 #import <ADALiOS/ADUserInformation.h>
 #import <ADALiOS/ADTokenCacheStoreKey.h>

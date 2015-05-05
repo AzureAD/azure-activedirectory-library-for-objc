@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import <ADALiOS/ADAuthenticationSettings.h>
+#import "ADAuthenticationSettings.h"
 #import <workplaceJoinAPI/WorkPlaceJoin.h>
 #import "ADBrokerContext.h"
 #import "ADAuthenticationBroker.h"
@@ -30,8 +30,8 @@
 #import "ADBrokerPRTCacheItem.h"
 #import "ADBrokerUserAccount.h"
 #import "NSString+ADHelperMethods.h"
-#import <ADALiOS/ADLogger.h>
-#import <ADALiOS/ADErrorCodes.h>
+#import "ADLogger.h"
+#import "ADErrorCodes.h"
 #import "ADWebRequest.h"
 
 @implementation ADBrokerContext

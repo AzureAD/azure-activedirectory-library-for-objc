@@ -20,8 +20,8 @@
 #import "NSString+ADHelperMethods.h"
 #import "ADBrokerConstants.h"
 #import "ADBrokerHelpers.h"
-#import <ADALiOS/ADAuthenticationError.h>
-#import <ADALiOS/ADErrorCodes.h>
+#import "ADAuthenticationError.h"
+#import "ADErrorCodes.h"
 #import <CommonCrypto/CommonHMAC.h>
 #import <CommonCrypto/CommonCryptor.h>
 

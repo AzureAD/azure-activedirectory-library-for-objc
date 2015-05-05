@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import <ADALiOS/ADTokenCacheStoreItem.h>
+#import "ADTokenCacheStoreItem.h"
 
 @interface ADBrokerPRTCacheItem : ADTokenCacheStoreItem
 
