@@ -28,8 +28,10 @@
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADErrorCodes.h"
 #import "../ADALiOS/NSString+ADHelperMethods.h"
-#import "ADMemoryTokenCacheStore.h"
 
+#if !TARGET_OS_IPHONE
+#import "ADMemoryTokenCacheStore.h"
+#endif
 const int sAsyncContextTimeout = 10;
 
 //A simple protocol to expose private methods:
@@ -78,7 +80,9 @@ const int sAsyncContextTimeout = 10;
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_ERROR];//Majority of the tests rely on errors
     mAuthority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
+    #if !TARGET_OS_IPHONE
     [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore = [ADMemoryTokenCacheStore new];
+#endif
     mDefaultTokenCache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     XCTAssertNotNil(mDefaultTokenCache);
     [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
