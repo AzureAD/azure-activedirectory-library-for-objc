@@ -116,6 +116,18 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
         tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
                   error: (ADAuthenticationError* __autoreleasing *) error;
 
+
+#if TARGET_OS_IPHONE
+/*!
+ */
++(BOOL) isResponseFromBroker:(NSString*) sourceApplication
+                    response:(NSURL*) response;
+
+/*!
+ */
++(void) handleBrokerResponse:(NSURL*) response;
+#endif
+
 /*! Creates the object, setting the authority, default cache and enables the authority validation. In case of an error
  the function will return nil and if the error parameter is supplied, it will be filled with error details.
  @param authority: The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
@@ -158,15 +170,6 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                                              validateAuthority: (BOOL) validate
                                                tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
                                                          error: (ADAuthenticationError* __autoreleasing *) error;
-
-/*!
- */
-+(BOOL) isResponseFromBroker:(NSString*) sourceApplication
-                    response:(NSURL*) response;
-
-/*!
- */
-+(void) handleBrokerResponse:(NSURL*) response;
 
 /*! Represents the authority used by the context. */
 @property (readonly) NSString* authority;
@@ -315,6 +318,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                        completionBlock: (ADAuthenticationCallback) completionBlock;
 
 #if !TARGET_OS_IPHONE
+
 /*! Follows the OAuth2 protocol (RFC 6749). Uses the refresh token to obtain an access token (and another refresh token). The method
  is superceded by acquireToken, which will implicitly use the refresh token if needed. Please use acquireTokenByRefreshToken
  only if you would like to store the access and refresh tokens, managing the expiration times in your application logic.

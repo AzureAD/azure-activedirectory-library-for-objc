@@ -28,7 +28,7 @@
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADErrorCodes.h"
 #import "../ADALiOS/NSString+ADHelperMethods.h"
-//#import "../ADALiOS/ADKeychainTokenCacheStore.h"
+#import "ADMemoryTokenCacheStore.h"
 
 const int sAsyncContextTimeout = 10;
 
@@ -78,6 +78,7 @@ const int sAsyncContextTimeout = 10;
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_ERROR];//Majority of the tests rely on errors
     mAuthority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
+    [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore = [ADMemoryTokenCacheStore new];
     mDefaultTokenCache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     XCTAssertNotNil(mDefaultTokenCache);
     [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;

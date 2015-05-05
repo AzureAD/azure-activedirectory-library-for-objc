@@ -46,7 +46,7 @@
     SAFE_ARC_RELEASE(_refreshToken);
     SAFE_ARC_RELEASE(_resource);
     SAFE_ARC_RELEASE(_userInformation);
-    SAFE_ARC_RELEASE(sessionKey);
+    SAFE_ARC_RELEASE(_sessionKey);
     SAFE_ARC_SUPER_DEALLOC();
 }
 

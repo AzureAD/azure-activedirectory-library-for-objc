@@ -104,8 +104,8 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 
 +(ADAuthenticationResult*) resultFromBrokerResponse: (NSDictionary*) response
 {
-    ADAuthenticationError* error;
-    ADAuthenticationResult* result;
+    ADAuthenticationError* error = nil;
+    ADAuthenticationResult* result = nil;
     ADTokenCacheStoreItem* item = nil;
     if([response valueForKey:OAUTH2_ERROR_DESCRIPTION]){
         error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADBrokerResponseErrorDomain code:0 userInfo:nil] errorDetails:[response valueForKey:OAUTH2_ERROR_DESCRIPTION]];

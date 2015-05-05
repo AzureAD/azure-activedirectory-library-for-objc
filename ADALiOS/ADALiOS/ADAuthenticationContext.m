@@ -38,7 +38,7 @@
 #import "ADHelpers.h"
 #import "ADOAuth2Constants.h"
 
-#ifdef TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
 #import <objc/runtime.h>
 #import "ADBrokerNotificationManager.h"
 #import "WorkPlaceJoin.h"
@@ -58,6 +58,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 static volatile int sDialogInProgress = 0;
 
+#if TARGET_OS_IPHONE
 typedef BOOL (*applicationOpenURLPtr)(id, SEL, UIApplication*, NSURL*, NSString*, id);
 IMP __original_ApplicationOpenURL = NULL;
 
@@ -74,6 +75,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
     [ADAuthenticationContext handleBrokerResponse:url];
     return YES;
 }
+#endif
 
 
 @implementation ADAuthenticationContext
@@ -87,7 +89,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
 @synthesize isCorrelationIdUserProvided = _isCorrelationIdUserProvided;
 
 
-
+#if TARGET_OS_IPHONE
 + (void) load
 {
     __block id observer = nil;
@@ -128,6 +130,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
                 }];
     
 }
+#endif
 
 -(id) init
 {
@@ -295,105 +298,6 @@ return; \
                                                                  error: error];
     
     return SAFE_ARC_AUTORELEASE(context);
-}
-
-
-+(BOOL) isResponseFromBroker:(NSString*) sourceApplication
-                    response:(NSURL*) response
-{
-    return sourceApplication && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
-    response &&
-    [NSString adSame:[response path] toString:@"broker"];
-}
-
-+(void) handleBrokerResponse:(NSURL*) response
-{
-    THROW_ON_NIL_ARGUMENT([ADBrokerNotificationManager sharedInstance].callbackForBroker);
-    ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].callbackForBroker;
-    
-    HANDLE_ARGUMENT(response);
-    
-    
-    NSString *qp = [response query];
-    //expect to either response or error and description, AND correlation_id AND hash.
-    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
-    ADAuthenticationResult* result;
-    //response=encrypted_response&hash=hash_value
-    //code=some_code&error_details=message
-    if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION]){
-        result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
-    }
-    else
-    {
-        HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
-        
-        NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
-        NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
-        
-        //decrypt response first
-        ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
-        ADAuthenticationError* error;
-        NSData *encryptedResponse = [NSString Base64DecodeData:encryptedBase64Response ];
-        NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse error:&error];
-        NSString* decryptedString = nil;
-        
-        if(!error)
-        {
-            decryptedString =[[NSString alloc] initWithData:decrypted encoding:0];
-            //now compute the hash on the unencrypted data
-            if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES]]){
-                //create response from the decrypted payload
-                queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
-                [ADHelpers removeNullStringFrom:queryParamsMap];
-                result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
-                
-            }
-            else
-            {
-                result = [ADAuthenticationResult resultFromError:[ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADAuthenticationErrorDomain
-                                                                                                                             code:AD_ERROR_BROKER_RESPONSE_HASH_MISMATCH
-                                                                                                                         userInfo:nil]
-                                                                                            errorDetails:@"Decrypted response does not match the hash"]];
-            }
-        }
-        else
-        {
-            result = [ADAuthenticationResult resultFromError:error];
-        }
-    }
-    
-    if (AD_SUCCEEDED == result.status)
-    {
-        ADAuthenticationContext* ctx = [ADAuthenticationContext
-                                        authenticationContextWithAuthority:result.tokenCacheStoreItem.authority
-                                        error:nil];
-        
-        SEL selector = @selector(updateCacheToResult:cacheItem:withRefreshToken:);
-        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[ctx methodSignatureForSelector:selector]];
-        [inv setSelector:selector];
-        [inv setTarget:ctx];
-        [inv setArgument:&result atIndex:2];
-        [inv invoke];
-        
-        NSString* userId = [queryParamsMap valueForKey:@"user_id"];
-        selector = nil;
-        selector = @selector(updateResult:toUser:);
-        inv = nil;
-        inv = [NSInvocation invocationWithMethodSignature:[ctx methodSignatureForSelector:selector]];
-        [inv setSelector:selector];
-        [inv setTarget:ctx];
-        [inv setArgument:&result atIndex:2];
-        if(userId)
-        {
-            [inv setArgument:&userId atIndex:3];
-        }
-        
-        [inv invoke];
-    }
-    
-    completionBlock(result);
-    [ADBrokerNotificationManager sharedInstance].callbackForBroker = nil;
-    
 }
 
 -(void)  acquireTokenForAssertion: (NSString*) assertion
@@ -951,7 +855,7 @@ return; \
                              correlationId: (NSUUID*) correlationId
                            completionBlock: (ADAuthenticationCallback)completionBlock
 {
-    
+#pragma unused (scope)
     
     //Check the cache:
     ADAuthenticationError* error = nil;
@@ -1154,6 +1058,7 @@ return; \
         return;
     }
     
+#if TARGET_OS_IPHONE
     //call the broker.
     if([self canUseBroker]){
         [self callBrokerForAuthority: self.authority
@@ -1166,6 +1071,7 @@ return; \
          ];
         return;
     }
+#endif
     
     //Get the code first:
     [self requestCodeByResource:resource
@@ -1186,6 +1092,7 @@ return; \
          }
          else
          {
+#if TARGET_OS_IPHONE
              if([code hasPrefix:@"msauth://"])
              {
                  [self handleBrokerFromWebiewResponse:code
@@ -1198,6 +1105,8 @@ return; \
              }
              else
              {
+                 
+#endif
                  [self requestTokenByCode:code
                                  resource:resource
                                  clientId:clientId
@@ -1214,10 +1123,13 @@ return; \
                       completionBlock(result);
                   }];
              }
+             #if TARGET_OS_IPHONE
          }
+#endif
      }];
 }
 
+#if TARGET_OS_IPHONE
 -(void) handleBrokerFromWebiewResponse: (NSString*) urlString
                               resource: (NSString*) resource
                               clientId: (NSString*) clientId
@@ -1272,6 +1184,8 @@ return; \
     [appPasteBoard setData:data
          forPasteboardType:@"com.microsoft.broker"];
 }
+
+#endif
 
 -(void) acquireTokenByRefreshToken: (NSString*)refreshToken
                           clientId: (NSString*)clientId
@@ -2175,13 +2089,14 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     return returnValue;
 }
 
+
+#if TARGET_OS_IPHONE
 - (void) handlePKeyAuthChallenge:(NSString *)authorizationServer
               wwwAuthHeaderValue:(NSString *)wwwAuthHeaderValue
                      requestData:(NSDictionary *)request_data
             requestCorrelationId: (NSUUID*) requestCorrelationId
                       completion:( void (^)(NSDictionary *) )completionBlock
 {
-#ifdef TARGET_OS_IPHONE
     //pkeyauth word length=8 + 1 whitespace
     wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[pKeyAuthName length] + 1];
     wwwAuthHeaderValue = [wwwAuthHeaderValue stringByReplacingOccurrencesOfString:@"\""
@@ -2197,13 +2112,115 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     [headerKeyValuePair removeAllObjects];
     [headerKeyValuePair setObject:authHeader forKey:@"Authorization"];
     
-    [self request:authorizationServer requestData:request_data requestCorrelationId:requestCorrelationId isHandlingPKeyAuthChallenge:TRUE additionalHeaders:headerKeyValuePair completion:completionBlock];
-    
-#endif
+    [self request:authorizationServer
+      requestData:request_data
+requestCorrelationId:requestCorrelationId
+isHandlingPKeyAuthChallenge:TRUE
+additionalHeaders:headerKeyValuePair
+       completion:completionBlock];
 }
 
 
-#ifdef TARGET_OS_IPHONE
+
++(BOOL) isResponseFromBroker:(NSString*) sourceApplication
+                    response:(NSURL*) response
+{
+    return sourceApplication && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
+    response &&
+    [NSString adSame:[response path] toString:@"broker"];
+}
+
+
++(void) handleBrokerResponse:(NSURL*) response
+{
+    THROW_ON_NIL_ARGUMENT([ADBrokerNotificationManager sharedInstance].callbackForBroker);
+    ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].callbackForBroker;
+    
+    HANDLE_ARGUMENT(response);
+    
+    
+    NSString *qp = [response query];
+    //expect to either response or error and description, AND correlation_id AND hash.
+    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    ADAuthenticationResult* result;
+    //response=encrypted_response&hash=hash_value
+    //code=some_code&error_details=message
+    if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION]){
+        result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+    }
+    else
+    {
+        HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
+        
+        NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
+        NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
+        
+        //decrypt response first
+        ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+        ADAuthenticationError* error;
+        NSData *encryptedResponse = [NSString Base64DecodeData:encryptedBase64Response ];
+        NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse error:&error];
+        NSString* decryptedString = nil;
+        
+        if(!error)
+        {
+            decryptedString =[[NSString alloc] initWithData:decrypted encoding:0];
+            //now compute the hash on the unencrypted data
+            if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES]]){
+                //create response from the decrypted payload
+                queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
+                [ADHelpers removeNullStringFrom:queryParamsMap];
+                result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+                
+            }
+            else
+            {
+                result = [ADAuthenticationResult resultFromError:[ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADAuthenticationErrorDomain
+                                                                                                                             code:AD_ERROR_BROKER_RESPONSE_HASH_MISMATCH
+                                                                                                                         userInfo:nil]
+                                                                                            errorDetails:@"Decrypted response does not match the hash"]];
+            }
+        }
+        else
+        {
+            result = [ADAuthenticationResult resultFromError:error];
+        }
+    }
+    
+    if (AD_SUCCEEDED == result.status)
+    {
+        ADAuthenticationContext* ctx = [ADAuthenticationContext
+                                        authenticationContextWithAuthority:result.tokenCacheStoreItem.authority
+                                        error:nil];
+        
+        SEL selector = @selector(updateCacheToResult:cacheItem:withRefreshToken:);
+        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[ctx methodSignatureForSelector:selector]];
+        [inv setSelector:selector];
+        [inv setTarget:ctx];
+        [inv setArgument:&result atIndex:2];
+        [inv invoke];
+        
+        NSString* userId = [queryParamsMap valueForKey:@"user_id"];
+        selector = nil;
+        selector = @selector(updateResult:toUser:);
+        inv = nil;
+        inv = [NSInvocation invocationWithMethodSignature:[ctx methodSignatureForSelector:selector]];
+        [inv setSelector:selector];
+        [inv setTarget:ctx];
+        [inv setArgument:&result atIndex:2];
+        if(userId)
+        {
+            [inv setArgument:&userId atIndex:3];
+        }
+        
+        [inv invoke];
+    }
+    
+    completionBlock(result);
+    [ADBrokerNotificationManager sharedInstance].callbackForBroker = nil;
+    
+}
+
 - (BOOL) canUseBroker
 {
     return [[ADAuthenticationSettings sharedInstance] credentialsType] == AD_CREDENTIALS_AUTO &&
