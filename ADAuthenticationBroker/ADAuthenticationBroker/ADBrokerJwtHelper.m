@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADBrokerJwtHelper.h"
-#import "NSString+ADBrokerHelperMethods.h"
+#import "NSString+ADHelperMethods.h"
 #import "ADBrokerConstants.h"
 #import "ADBrokerHelpers.h"
 #import <ADALiOS/ADAuthenticationError.h>

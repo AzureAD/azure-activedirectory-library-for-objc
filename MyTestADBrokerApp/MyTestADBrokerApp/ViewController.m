@@ -167,7 +167,7 @@ NSMutableArray* users;
     }
     else
     {
-    [ctx acquireAccount:nil
+    [ctx acquireAccount:@"test@mamadalobjc.onmicrosoft.com"
         completionBlock:^(ADAuthenticationResult *result) {
         if(result.status != AD_SUCCEEDED)
         {

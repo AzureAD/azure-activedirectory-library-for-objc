@@ -23,7 +23,7 @@
 #import "ADBrokerBase64Additions.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADBrokerKeychainTokenCacheStore.h"
-#import "NSString+ADBrokerHelperMethods.h"
+#import "NSString+ADHelperMethods.h"
 #import <workplaceJoinAPI/WorkPlaceJoin.h>
 #import "ADAuthenticationBroker.h"
 #import "ADBrokerJWEResponse.h"

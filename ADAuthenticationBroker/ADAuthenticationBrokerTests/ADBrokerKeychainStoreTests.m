@@ -5,7 +5,7 @@
 #import <ADALiOS/ADTokenCacheStoreItem.h>
 #import <ADALiOS/ADUserInformation.h>
 #import <ADALiOS/ADTokenCacheStoreKey.h>
-#import "NSString+ADBrokerHelperMethods.h"
+#import "NSString+ADHelperMethods.h"
 
 const int sMaxLoggerThreadsDuration = 5;//In seconds
 const int sMaxLoggerTestThreads = 100;

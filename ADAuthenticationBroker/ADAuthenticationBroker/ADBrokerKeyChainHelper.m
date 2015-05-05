@@ -18,7 +18,7 @@
 
 #import "ADBrokerKeyChainHelper.h"
 #import "ADBrokerHelpers.h"
-#import "NSString+ADBrokerHelperMethods.h"
+#import "NSString+ADHelperMethods.h"
 #import "ADAuthenticationBroker.h"
 
 extern NSString* const keyChainlog;

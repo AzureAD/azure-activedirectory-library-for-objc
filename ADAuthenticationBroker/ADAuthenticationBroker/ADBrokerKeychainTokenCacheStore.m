@@ -22,10 +22,10 @@
 #import <ADALiOS/ADTokenCacheStoring.h>
 #import <ADALiOS/ADTokenCacheStoreKey.h>
 #import <ADALiOS/ADUserInformation.h>
-#import "NSString+ADBrokerHelperMethods.h"
+#import "NSString+ADHelperMethods.h"
 #import "ADBrokerKeyChainHelper.h"
 #import "ADAuthenticationBroker.h"
-#import "NSString+ADBrokerHelperMethods.h"
+#import "NSString+ADHelperMethods.h"
 
 NSString* const nilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";//A special attribute to write, instead of nil/empty one.
 NSString* const delimiter = @"|";

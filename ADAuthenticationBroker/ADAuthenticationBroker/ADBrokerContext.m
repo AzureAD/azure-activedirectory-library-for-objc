@@ -28,9 +28,10 @@
 #import "ADBrokerHelpers.h"
 #import "ADBrokerPRTCacheItem.h"
 #import "ADBrokerUserAccount.h"
-#import "NSString+ADBrokerHelperMethods.h"
+#import "NSString+ADHelperMethods.h"
 #import <ADALiOS/ADLogger.h>
 #import <ADALiOS/ADErrorCodes.h>
+#import "ADWebRequest.h"
 
 @implementation ADBrokerContext
 
@@ -388,7 +389,7 @@ return; \
                                                    silent:NO
                                                    userId:upn
                                                     scope:nil
-                                     extraQueryParameters:@"brkr=1"
+                                     extraQueryParameters:@"brkr=1&slice=testslice"
                                                  tryCache:NO
                                         validateAuthority:NO
                                             correlationId:ctx.getCorrelationId
@@ -423,7 +424,7 @@ return; \
                                        silent:NO
                                        userId:upn
                                         scope:nil
-                         extraQueryParameters:@"brkr=1"
+                         extraQueryParameters:@"brkr=1&slice=testslice"
                                      tryCache:YES
                             validateAuthority:YES
                                 correlationId:ctx.getCorrelationId

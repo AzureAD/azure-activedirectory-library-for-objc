@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADBrokerHelpers.h"
-#import "NSString+ADBrokerHelperMethods.h"
+#import "NSString+ADHelperMethods.h"
 #import "ADBrokerBase64Additions.h"
 #import <Security/Security.h>
 #import <CommonCrypto/CommonCryptor.h>
