@@ -26,6 +26,7 @@
 #import "NSDictionary+ADExtensions.h"
 #import "ADAuthenticationSettings.h"
 #import "ADNTLMHandler.h"
+#import "ADBrokerKeyHelper.h"
 
 @implementation ADAuthenticationWebViewController
 
@@ -86,6 +87,7 @@
 
 - (void) handlePKeyAuthChallenge:(NSString *)challengeUrl
 {
+    AD_LOG_VERBOSE(@"Handling PKeyAuth Challenge", nil);
     NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
@@ -125,6 +127,14 @@
         return NO;
     }
     
+    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"]) {
+        _complete = YES;
+        dispatch_async( dispatch_get_main_queue(), ^{[_delegate webAuthenticationDidCancel];});
+        requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
+        dispatch_async( dispatch_get_main_queue(), ^{[[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];});
+        return NO;
+    }
+    
     // check for pkeyauth challenge.
     if ([requestURL hasPrefix: pKeyAuthUrn] )
     {
@@ -133,7 +143,8 @@
     }
     
     // Stop at the end URL.
-    if ( [[requestURL lowercaseString] hasPrefix:[_endURL lowercaseString]] )
+    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"] ||
+        [[requestURL lowercaseString] hasPrefix:[_endURL lowercaseString]] )
     {
         // iOS generates a 102, Frame load interrupted error from stopLoading, so we set a flag
         // here to note that it was this code that halted the frame load in order that we can ignore
@@ -146,14 +157,6 @@
         dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCompleteWithURL:request.URL]; } );
         
         // Tell the web view that this URL should not be loaded.
-        return NO;
-    }
-    
-    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"]) {
-        _complete = YES;
-        dispatch_async( dispatch_get_main_queue(), ^{[_delegate webAuthenticationDidCancel];});
-        requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
-        [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];
         return NO;
     }
     
@@ -237,6 +240,7 @@
 
 - (void) failWithTimeout{
     
+    AD_LOG_ERROR(@"Request load timeout", NSURLErrorTimedOut, nil);
     [self webView:_webView didFailLoadWithError:[NSError errorWithDomain:NSURLErrorDomain
                                                                     code:NSURLErrorTimedOut
                                                                 userInfo:nil]];

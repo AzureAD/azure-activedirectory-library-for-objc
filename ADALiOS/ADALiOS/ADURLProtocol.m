@@ -37,20 +37,20 @@ NSString* const sLog = @"HTTP Protocol";
         //for initialization
         if ( [NSURLProtocol propertyForKey:@"ADURLProtocol" inRequest:request] == nil )
         {
-            AD_LOG_VERBOSE_F(sLog, @"Requested handling of URL: %@", [request.URL absoluteString]);
+            AD_LOG_VERBOSE_F(sLog, @"Requested handling of URL: %@", [request.URL host]);
             
             return YES;
         }
     }
     
-    AD_LOG_VERBOSE_F(sLog, @"Ignoring handling of URL: %@", [request.URL absoluteString]);
+    AD_LOG_VERBOSE_F(sLog, @"Ignoring handling of URL: %@", [request.URL host]);
     
     return NO;
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
-    AD_LOG_VERBOSE_F(sLog, @"canonicalRequestForRequest: %@", [request.URL absoluteString] );
+    AD_LOG_VERBOSE_F(sLog, @"canonicalRequestForRequest: %@", [request.URL host] );
     
     return request;
 }
@@ -63,7 +63,7 @@ NSString* const sLog = @"HTTP Protocol";
         return;
     }
     
-    AD_LOG_VERBOSE_F(sLog, @"startLoading: %@", [self.request.URL absoluteString] );
+    AD_LOG_VERBOSE_F(sLog, @"startLoading: %@", [self.request.URL host] );
     NSMutableURLRequest *mutableRequest = [self.request mutableCopy];
     [NSURLProtocol setProperty:@"YES" forKey:@"ADURLProtocol" inRequest:mutableRequest];
     _connection = [[NSURLConnection alloc] initWithRequest:mutableRequest

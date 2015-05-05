@@ -32,6 +32,7 @@
 @synthesize refreshToken              = _refreshToken;
 @synthesize resource                  = _resource;
 @synthesize userInformation           = _userInformation;
+@synthesize sessionKey                = _sessionKey;
 
 - (void)dealloc
 {
@@ -45,7 +46,7 @@
     SAFE_ARC_RELEASE(_refreshToken);
     SAFE_ARC_RELEASE(_resource);
     SAFE_ARC_RELEASE(_userInformation);
-    
+    SAFE_ARC_RELEASE(sessionKey);
     SAFE_ARC_SUPER_DEALLOC();
 }
 
@@ -70,6 +71,7 @@
     item->_refreshToken = [self.refreshToken copyWithZone:zone];
     item->_expiresOn = [self.expiresOn copyWithZone:zone];
     item->_userInformation = [self.userInformation copyWithZone:zone];
+    item->_sessionKey = [self.sessionKey copyWithZone:zone];
     
     return item;
 }
@@ -124,6 +126,7 @@
     [aCoder encodeObject:self.accessToken forKey:@"accessToken"];
     [aCoder encodeObject:self.accessTokenType forKey:@"accessTokenType"];
     [aCoder encodeObject:self.refreshToken forKey:@"refreshToken"];
+    [aCoder encodeObject:self.sessionKey forKey:@"sessionKey"];
     [aCoder encodeObject:self.expiresOn forKey:@"expiresOn"];
     [aCoder encodeObject:self.userInformation forKey:@"userInformation"];
 }
@@ -139,6 +142,7 @@
         self.clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
         self.accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
         self.accessTokenType = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessTokenType"];
+        self.sessionKey = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"sessionKey"];
         self.refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
         self.expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
         self.userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];

@@ -97,6 +97,12 @@ typedef enum
      certificate. The error is generated if more than one certificate is found in the keychain. */
     AD_ERROR_MULTIPLE_TLS_CERTIFICATES = 20,
     
+    /*! When the hash of the decrypted broker response does not match the hash returned from broker. */
+    AD_ERROR_BROKER_RESPONSE_HASH_MISMATCH = 21,
+    
+    /*! When the application waiting for broker is activated without broker response. */
+    AD_ERROR_BROKER_RESPONSE_NOT_RECEIVED = 22,
+    
 } ADErrorCode;
 
 /* HTTP status codes used by the library */

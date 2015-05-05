@@ -27,7 +27,6 @@
 - (IBAction)pressMeAction:(id)sender;
 - (IBAction)clearCachePressed:(id)sender;
 - (IBAction)getUsersPressed:(id)sender;
-- (IBAction)refreshTokenPressed:(id)sender;
 - (IBAction)expireAllPressed:(id)sender;
 - (IBAction)promptAlways:(id)sender;
 - (IBAction)samlAssertionPressed:(id)sender;
@@ -113,7 +112,12 @@
         return;
     }
     
-    [context acquireTokenForAssertion:@"" assertionType:AD_SAML1_1 resource:resourceString clientId:clientId userId:mAADInstance.userId completionBlock:^(ADAuthenticationResult *result) {
+    [context acquireTokenForAssertion:@"" assertionType:AD_SAML1_1
+                             resource:resourceString
+                             clientId:clientId
+                          redirectUri:mAADInstance.redirectUri 
+                               userId:mAADInstance.userId
+                      completionBlock:^(ADAuthenticationResult *result) {
         if (result.status != AD_SUCCEEDED)
         {
             [weakSelf setStatus:result.error.errorDetails];
@@ -247,50 +251,6 @@
 {
     //Add any future processing of the token here (e.g. opening to see what is inside):
     return accessToken;
-}
-
-- (IBAction)refreshTokenPressed:(id)sender
-{
-    NSString* authority = mAADInstance.authority;
-    NSString* clientId = mAADInstance.clientId;
-    NSString* resourceString =mAADInstance.resource;
-    [self setStatus:@"Attemp to refresh..."];
-    ADAuthenticationError* error = nil;
-    ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:NO error:&error];
-    if (!context)
-    {
-        [self setStatus:error.errorDetails];
-        return;
-    }
-    //We will leverage a multi-resource refresh token:
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:authority resource:resourceString clientId:clientId error:&error];
-    if (!key)
-    {
-        [self setStatus:error.errorDetails];
-        return;
-    }
-    id<ADTokenCacheStoring> cache = context.tokenCacheStore;
-    ADTokenCacheStoreItem* item = [cache getItemWithKey:key userId:mAADInstance.userId error:nil];
-    if (!item)
-    {
-        [self setStatus:@"Missing cache item."];
-        return;
-    }
-    BVTestMainViewController* __weak weakSelf = self;
-    [context acquireTokenByRefreshToken:item.refreshToken
-                               clientId:clientId
-                               resource:resourceString
-                        completionBlock:^(ADAuthenticationResult *result)
-     {
-         if (result.error)
-         {
-             [weakSelf setStatus:result.error.errorDetails];
-         }
-         else
-         {
-             [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
-         }
-     }];
 }
 
 - (IBAction)expireAllPressed:(id)sender

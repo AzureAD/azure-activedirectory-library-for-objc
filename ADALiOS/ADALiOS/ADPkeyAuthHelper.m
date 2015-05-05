@@ -27,19 +27,36 @@
 
 @implementation ADPkeyAuthHelper
 
-+ (NSString*) computeThumbprint:(NSData*) certificateData{
++ (NSString*) computeThumbprint:(NSData*) data{
+    return [ADPkeyAuthHelper computeThumbprint:data isSha2:NO];
+}
+
+
++ (NSString*) computeThumbprint:(NSData*) data isSha2:(BOOL) isSha2
+{
+    int length = CC_SHA1_DIGEST_LENGTH;
+    if(isSha2){
+        length = CC_SHA256_DIGEST_LENGTH;
+    }
     
-    //compute SHA-1 thumbprint
-    unsigned char sha1Buffer[CC_SHA1_DIGEST_LENGTH];
-    CC_SHA1(certificateData.bytes, (CC_LONG)certificateData.length, sha1Buffer);
-    NSMutableString *fingerprint = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 3];
-    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; ++i)
-        [fingerprint appendFormat:@"%02x ",sha1Buffer[i]];
+    unsigned char dataBuffer[length];
+    if(!isSha2){
+        CC_SHA1(data.bytes, (CC_LONG)data.length, dataBuffer);
+    }
+    else{
+        CC_SHA256(data.bytes, (CC_LONG)data.length, dataBuffer);
+    }
+    
+    NSMutableString *fingerprint = [NSMutableString stringWithCapacity:length * 3];
+    for (int i = 0; i < length; ++i)
+    {
+        [fingerprint appendFormat:@"%02x ",dataBuffer[i]];
+    }
+    
     NSString* thumbprint = [fingerprint stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     thumbprint = [thumbprint uppercaseString];
     return [thumbprint stringByReplacingOccurrencesOfString:@" " withString:@""];
 }
-
 
 + (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
                          challengeData:(NSDictionary*) challengeData
@@ -85,9 +102,8 @@
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:0 error:NULL];
     
     for (NSTextCheckingResult* myMatch in [regex matchesInString:issuer options:0 range:NSMakeRange(0, [issuer length])]){
-        for (NSUInteger i = 0; i < myMatch.numberOfRanges; ++i)
-        {
-            NSRange matchedRange = [myMatch rangeAtIndex: i];
+        if (myMatch.numberOfRanges > 0) {
+            NSRange matchedRange = [myMatch rangeAtIndex: 0];
             return [NSString stringWithFormat:@"OU=%@", [issuer substringWithRange: matchedRange]];
         }
     }

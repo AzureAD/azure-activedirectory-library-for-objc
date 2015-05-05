@@ -42,6 +42,7 @@
     // Runs before each test case. Just in case, set them to nil.
     mParameters = nil;
     mError = nil;
+    [ADAuthenticationSettings sharedInstance].requestTimeOut = 5;
 }
 
 - (void)tearDown

@@ -181,8 +181,7 @@ correlationId:(NSUUID *)correlationId
     THROW_ON_NIL_ARGUMENT(startURL);
     THROW_ON_NIL_ARGUMENT(endURL);
     THROW_ON_NIL_ARGUMENT(correlationId);
-    THROW_ON_NIL_ARGUMENT(completionBlock)
-    AD_LOG_VERBOSE(@"Authorization", startURL.absoluteString);
+    THROW_ON_NIL_ARGUMENT(completionBlock);
     
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
     
@@ -192,6 +191,8 @@ correlationId:(NSUUID *)correlationId
     
     if (webView)
     {
+        AD_LOG_INFO(@"Authorization UI", @"Use the application provided WebView.");
+        
         // Use the application provided WebView
         _authenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL];
         
@@ -221,7 +222,7 @@ correlationId:(NSUUID *)correlationId
             _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
             if (_ntlmSession)
             {
-                AD_LOG_INFO(@"Authorization UI", @"The device is workplace joined. Client TLS Session started.");
+                AD_LOG_INFO(@"Authorization UI", @"NTLM support enabled");
             }
 
             parentController = parent;

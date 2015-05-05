@@ -17,21 +17,16 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "RegistrationInformation.h"
+#import "ADAuthenticationContext.h"
 
-typedef enum
-{
-    AD_ISSUER,
-    AD_THUMBPRINT,
-} ADChallengeType;
+@interface ADBrokerNotificationManager : NSObject
 
-@interface ADPkeyAuthHelper : NSObject
+@property (retain) ADAuthenticationCallback callbackForBroker;
 
-+ (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
-                         challengeData:(NSDictionary*) challengeData
-                       challengeType: (ADChallengeType) challengeType;
++(ADBrokerNotificationManager*)sharedInstance;
 
+-(void) enableOnActiveNotification:(ADAuthenticationCallback) callback;
 
-+ (NSString*) computeThumbprint:(NSData*) data isSha2:(BOOL) isSha2;
+-(void) runCompletionBlock:(ADAuthenticationResult*) result;
 
 @end
