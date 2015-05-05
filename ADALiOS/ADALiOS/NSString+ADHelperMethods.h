@@ -76,4 +76,8 @@
 /*! Converts NSData to base64 String */
 + (NSString *) Base64EncodeData:(NSData *)data;
 
++ (NSData *) Base64DecodeData:(NSString *)encodedString;
+
+-(NSString*) adComputeSHA256;
+
 @end

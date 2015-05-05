@@ -32,8 +32,15 @@
 #import "ADTokenCacheStoreKey.h"
 #import "ADUserInformation.h"
 #import "ADClientMetrics.h"
+#import "ADKeyChainHelper.h"
+#import "ADBrokerKeyHelper.h"
+#import "NSString+ADHelperMethods.h"
+#import "ADHelpers.h"
+#import "ADOAuth2Constants.h"
 
-#ifdef TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
+#import <objc/runtime.h>
+#import "ADBrokerNotificationManager.h"
 #import "WorkPlaceJoin.h"
 #import "ADPkeyAuthHelper.h"
 #import "WorkPlaceJoinConstants.h"
@@ -43,10 +50,33 @@ NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call acquireToken with 'promptBehavior' not set to AD_PROMPT_NEVER";
 NSString* const serverError = @"The authentication server returned an error: %@.";
 
+NSString* const brokerAppIdentifier = @"com.microsoft.broker";
+NSString* const brokerURL = @"msauth://";
+
 //Used for the callback of obtaining the OAuth2 code:
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 static volatile int sDialogInProgress = 0;
+
+#if TARGET_OS_IPHONE
+typedef BOOL (*applicationOpenURLPtr)(id, SEL, UIApplication*, NSURL*, NSString*, id);
+IMP __original_ApplicationOpenURL = NULL;
+
+BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application, NSURL* url, NSString* sourceApplication, id annotation)
+{
+    if (![ADAuthenticationContext isResponseFromBroker:sourceApplication response:url])
+    {
+        if (__original_ApplicationOpenURL)
+            return ((applicationOpenURLPtr)__original_ApplicationOpenURL)(self, _cmd, application, url, sourceApplication, annotation);
+        else
+            return NO;
+    }
+    
+    [ADAuthenticationContext handleBrokerResponse:url];
+    return YES;
+}
+#endif
+
 
 @implementation ADAuthenticationContext
 
@@ -57,6 +87,50 @@ static volatile int sDialogInProgress = 0;
 @synthesize validateAuthority = _validateAuthority;
 @synthesize webView           = _webView;
 @synthesize isCorrelationIdUserProvided = _isCorrelationIdUserProvided;
+
+
+#if TARGET_OS_IPHONE
++ (void) load
+{
+    __block id observer = nil;
+    
+    observer = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification
+                                                                 object:nil
+                                                                  queue:nil
+                                                             usingBlock:^(NSNotification* notification)
+                {
+                    // We don't want to swizzle multiple times so remove the observer
+                    [[NSNotificationCenter defaultCenter] removeObserver:observer name:UIApplicationDidFinishLaunchingNotification object:nil];
+                    
+                    SEL sel = @selector(application:openURL:sourceApplication:annotation:);
+                    
+                    // Dig out the app delegate (if there is one)
+                    __strong id appDelegate = [[UIApplication sharedApplication] delegate];
+                    if ([appDelegate respondsToSelector:sel])
+                    {
+                        Method m = class_getInstanceMethod([appDelegate class], sel);
+                        __original_ApplicationOpenURL = method_getImplementation(m);
+                        method_setImplementation(m, (IMP)__swizzle_ApplicationOpenURL);
+                    }
+                    else
+                    {
+                        NSString* typeEncoding = [NSString stringWithFormat:@"%s%s%s%s%s%s%s", @encode(BOOL), @encode(id), @encode(SEL), @encode(UIApplication*), @encode(NSURL*), @encode(NSString*), @encode(id)];
+                        if (!class_addMethod([appDelegate class], sel, (IMP)__swizzle_ApplicationOpenURL, [typeEncoding UTF8String]))
+                            NSLog(@"failed to add!");
+                        if (![appDelegate respondsToSelector:sel])
+                            NSLog(@"what the fucking fuck");
+                        
+                        // UIApplication caches whether or not the delegate responds to certain selectors. Clearing out the delegate and resetting it gaurantees that gets updated
+                        [[UIApplication sharedApplication] setDelegate:nil];
+                        // UIApplication employs dark magic to assume ownership of the app delegate when it gets the app delegate at launch, it won't do that for setDelegate calls so we
+                        // have to add a retain here to make sure it doesn't turn into a zombie
+                        [[UIApplication sharedApplication] setDelegate:(__bridge id)CFRetain((__bridge CFTypeRef)appDelegate)];
+                    }
+                    
+                }];
+    
+}
+#endif
 
 -(id) init
 {
@@ -93,7 +167,7 @@ static volatile int sDialogInProgress = 0;
 
 //A wrapper around checkAndHandleBadArgument. Assumes that "completionMethod" is in scope:
 #define HANDLE_ARGUMENT(ARG) \
-if (![self checkAndHandleBadArgument:ARG \
+if (![ADAuthenticationContext checkAndHandleBadArgument:ARG \
 argumentName:TO_NSSTRING(#ARG) \
 completionBlock:completionBlock]) \
 { \
@@ -105,7 +179,7 @@ return; \
  Then the method calls the callback with the result.
  The method returns if the argument is valid. If the method returns false,
  the calling method should return. */
--(BOOL) checkAndHandleBadArgument: (NSObject*) argumentValue
++(BOOL) checkAndHandleBadArgument: (NSObject*) argumentValue
                      argumentName: (NSString*) argumentName
                   completionBlock: (ADAuthenticationCallback)completionBlock
 {
@@ -131,6 +205,26 @@ return; \
 {
     [ADLogger setCorrelationId: correlationId];
     _isCorrelationIdUserProvided = YES;
+}
+
+//Translates the ADPromptBehavior into prompt query parameter. May return nil, if such
+//parameter is not needed.
++(NSString*) getPromptParameter: (ADPromptBehavior) prompt
+{
+    switch (prompt) {
+        case AD_PROMPT_ALWAYS:
+            return @"login";
+        case AD_PROMPT_REFRESH_SESSION:
+            return @"refresh_session";
+        default:
+            return nil;
+    }
+}
+
++(BOOL) isForcedAuthorization: (ADPromptBehavior) prompt
+{
+    //If prompt parameter needs to be passed, re-authorization is needed.
+    return [self getPromptParameter:prompt] != nil;
 }
 
 -(id) initWithAuthority: (NSString*) authority
@@ -206,21 +300,21 @@ return; \
     return SAFE_ARC_AUTORELEASE(context);
 }
 
-
 -(void)  acquireTokenForAssertion: (NSString*) assertion
                     assertionType: (ADAssertionType) assertionType
                          resource: (NSString*) resource
                          clientId: (NSString*) clientId
+                      redirectUri: (NSString*)redirectUri
                            userId: (NSString*) userId
                   completionBlock: (ADAuthenticationCallback) completionBlock{
     API_ENTRY;
     return [self internalAcquireTokenForAssertion:assertion
                                          clientId:clientId
-                                         resource: resource
-                                    assertionType:  assertionType
+                                      redirectUri:redirectUri
+                                         resource:resource
+                                    assertionType:assertionType
                                            userId:userId
                                             scope:nil
-                                         tryCache:YES
                                 validateAuthority:self.validateAuthority
                                     correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
@@ -238,10 +332,10 @@ return; \
                                          clientId:clientId
                                       redirectUri:redirectUri
                                    promptBehavior:AD_PROMPT_AUTO
+                                           silent:NO
                                            userId:nil
                                             scope:nil
                              extraQueryParameters:nil
-                                         tryCache:YES
                                 validateAuthority:self.validateAuthority
                                     correlationId:[self getCorrelationId]
                                   completionBlock:completionBlock];
@@ -258,10 +352,10 @@ return; \
                                   clientId:clientId
                                redirectUri:redirectUri
                             promptBehavior:AD_PROMPT_AUTO
+                                    silent:NO
                                     userId:userId
                                      scope:nil
                       extraQueryParameters:nil
-                                  tryCache:YES
                          validateAuthority:self.validateAuthority
                              correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
@@ -280,14 +374,54 @@ return; \
                                   clientId:clientId
                                redirectUri:redirectUri
                             promptBehavior:AD_PROMPT_AUTO
+                                    silent:NO
                                     userId:userId
                                      scope:nil
                       extraQueryParameters:queryParams
-                                  tryCache:YES
                          validateAuthority:self.validateAuthority
                              correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
 }
+
+-(void) acquireTokenSilentWithResource: (NSString*) resource
+                              clientId: (NSString*) clientId
+                           redirectUri: (NSURL*) redirectUri
+                       completionBlock: (ADAuthenticationCallback) completionBlock
+{
+    API_ENTRY;
+    return [self internalAcquireTokenWithResource:resource
+                                         clientId:clientId
+                                      redirectUri:redirectUri
+                                   promptBehavior:AD_PROMPT_AUTO
+                                           silent:YES
+                                           userId:nil
+                                            scope:nil
+                             extraQueryParameters:nil
+                                validateAuthority:self.validateAuthority
+                                    correlationId:[self getCorrelationId]
+                                  completionBlock:completionBlock];
+}
+
+-(void) acquireTokenSilentWithResource: (NSString*) resource
+                              clientId: (NSString*) clientId
+                           redirectUri: (NSURL*) redirectUri
+                                userId: (NSString*) userId
+                       completionBlock: (ADAuthenticationCallback) completionBlock
+{
+    API_ENTRY;
+    return [self internalAcquireTokenWithResource:resource
+                                         clientId:clientId
+                                      redirectUri:redirectUri
+                                   promptBehavior:AD_PROMPT_AUTO
+                                           silent:YES
+                                           userId:userId
+                                            scope:nil
+                             extraQueryParameters:nil
+                                validateAuthority:self.validateAuthority
+                                    correlationId:[self getCorrelationId]
+                                  completionBlock:completionBlock];
+}
+
 
 //Returns YES if we shouldn't attempt other means to get access token.
 //
@@ -306,6 +440,7 @@ return; \
                      clientId: (NSString*) clientId
                   redirectUri: (NSURL*) redirectUri
                promptBehavior: (ADPromptBehavior) promptBehavior
+                       silent: (BOOL) silent
                        userId: (NSString*) userId
          extraQueryParameters: (NSString*) queryParams
                 correlationId: (NSUUID*) correlationId
@@ -337,6 +472,7 @@ return; \
     //Now attempt to use the refresh token of the passed cache item:
     [self internalAcquireTokenByRefreshToken:item.refreshToken
                                     clientId:clientId
+                                 redirectUri:[redirectUri absoluteString]
                                     resource:resource
                                       userId:item.userInformation.userId
                                    cacheItem:item
@@ -383,6 +519,7 @@ return; \
                                         clientId:clientId
                                      redirectUri:redirectUri
                                   promptBehavior:promptBehavior
+                                          silent:silent
                                           userId:userId
                             extraQueryParameters:queryParams
                                    correlationId:correlationId
@@ -394,17 +531,16 @@ return; \
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
-         [self internalAcquireTokenWithResource: resource
-                                       clientId: clientId
-                                    redirectUri: redirectUri
-                                 promptBehavior: promptBehavior
-                                         userId: userId
-                                          scope: nil
-                           extraQueryParameters: queryParams
-                                       tryCache: NO
-                              validateAuthority: NO
-                                  correlationId:correlationId
-                                completionBlock: completionBlock];
+         [self requestTokenWithResource: resource
+                               clientId: clientId
+                            redirectUri: redirectUri
+                         promptBehavior: promptBehavior
+                                 silent: silent
+                                 userId: userId
+                                  scope: nil
+                   extraQueryParameters: queryParams
+                          correlationId:correlationId
+                        completionBlock: completionBlock];
      }];//End of the refreshing token completion block, executed asynchronously.
 }
 
@@ -417,6 +553,7 @@ return; \
                 assertionType: (ADAssertionType) assertionType
                      resource: (NSString*) resource
                      clientId: (NSString*) clientId
+                  redirectUri: (NSString*) redirectUri
                        userId: (NSString*) userId
                 correlationId: (NSUUID*) correlationId
               completionBlock: (ADAuthenticationCallback)completionBlock
@@ -447,6 +584,7 @@ return; \
     //Now attempt to use the refresh token of the passed cache item:
     [self internalAcquireTokenByRefreshToken:item.refreshToken
                                     clientId:clientId
+                                 redirectUri:redirectUri
                                     resource:resource
                                       userId:item.userInformation.userId
                                    cacheItem:item
@@ -493,6 +631,7 @@ return; \
                                    assertionType:assertionType
                                         resource:resource
                                         clientId:clientId
+                                     redirectUri:redirectUri
                                           userId:userId
                                    correlationId:correlationId
                                  completionBlock:completionBlock];
@@ -503,16 +642,13 @@ return; \
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
-         [self internalAcquireTokenForAssertion:samlAssertion
-                                       clientId:clientId
-                                       resource:resource
-                                  assertionType: assertionType
-                                         userId:userId
-                                          scope:nil
-                                       tryCache:NO
-                              validateAuthority:NO /* Already validated in this block. */
-                                  correlationId:correlationId
-                                completionBlock:completionBlock];
+         [self requestTokenByAssertion: samlAssertion
+                         assertionType: assertionType
+                              resource: resource
+                              clientId: clientId
+                                 scope: nil//For future use
+                         correlationId: correlationId
+                            completion: completionBlock];
      }];//End of the refreshing token completion block, executed asynchronously.
 }
 
@@ -530,10 +666,10 @@ return; \
                                   clientId:clientId
                                redirectUri:redirectUri
                             promptBehavior:promptBehavior
+                                    silent:NO
                                     userId:userId
                                      scope:nil
                       extraQueryParameters:queryParams
-                                  tryCache:YES
                          validateAuthority:self.validateAuthority
                              correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];
@@ -654,11 +790,11 @@ return; \
 
 -(void) internalAcquireTokenForAssertion: (NSString*) samlAssertion
                                 clientId: (NSString*) clientId
+                             redirectUri: (NSString*) redirectUri
                                 resource: (NSString*) resource
                            assertionType: (ADAssertionType) assertionType
                                   userId: (NSString*) userId
                                    scope: (NSString*) scope
-                                tryCache:(BOOL) tryCache
                        validateAuthority: (BOOL) validateAuthority
                            correlationId: (NSUUID*) correlationId
                          completionBlock: (ADAuthenticationCallback)completionBlock
@@ -683,21 +819,43 @@ return; \
              }
              else
              {
-                 [self internalAcquireTokenForAssertion:samlAssertion
-                                               clientId:clientId
-                                               resource:resource
-                                          assertionType: assertionType
-                                                 userId:userId
-                                                  scope:scope
-                                               tryCache:tryCache
-                                      validateAuthority:NO /* Already validated in this block. */
-                                          correlationId:correlationId
-                                        completionBlock:localCompletionBlock];
+                 [self validatedAcquireTokenForAssertion:samlAssertion
+                                                clientId:clientId
+                                             redirectUri:redirectUri
+                                                resource:resource
+                                           assertionType: assertionType
+                                                  userId:userId
+                                                   scope:scope
+                                           correlationId:correlationId
+                                         completionBlock:localCompletionBlock];
              }
              SAFE_ARC_BLOCK_RELEASE( localCompletionBlock );
          }];
         return;//The asynchronous handler above will do the work.
     }
+    
+    [self validatedAcquireTokenForAssertion:samlAssertion
+                                   clientId:clientId
+                                redirectUri:redirectUri
+                                   resource:resource
+                              assertionType: assertionType
+                                     userId:userId
+                                      scope:scope
+                              correlationId:correlationId
+                            completionBlock:completionBlock];
+}
+
+- (void) validatedAcquireTokenForAssertion: (NSString*) samlAssertion
+                                  clientId: (NSString*) clientId
+                               redirectUri: (NSString*) redirectUri
+                                  resource: (NSString*) resource
+                             assertionType: (ADAssertionType) assertionType
+                                    userId: (NSString*) userId
+                                     scope: (NSString*) scope
+                             correlationId: (NSUUID*) correlationId
+                           completionBlock: (ADAuthenticationCallback)completionBlock
+{
+#pragma unused (scope)
     
     //Check the cache:
     ADAuthenticationError* error = nil;
@@ -712,7 +870,7 @@ return; \
         return;
     }
     
-    if (tryCache && self.tokenCacheStore)
+    if (self.tokenCacheStore)
     {
         //Cache should be used in this case:
         BOOL accessTokenUsable;
@@ -732,6 +890,7 @@ return; \
                           assertionType:assertionType
                                resource:resource
                                clientId:clientId
+                            redirectUri:redirectUri
                                  userId:userId
                           correlationId:correlationId
                         completionBlock:completionBlock];
@@ -739,28 +898,24 @@ return; \
         }
     }
     
-    dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
-                   {
-                  [self requestTokenByAssertion: samlAssertion
-                   assertionType: assertionType
-                   resource: resource
-                   clientId: clientId
-                   scope: nil//For future use
-                   correlationId: correlationId
-                                     completion: completionBlock];
-                   });
+    [self requestTokenByAssertion: samlAssertion
+                    assertionType: assertionType
+                         resource: resource
+                         clientId: clientId
+                            scope: nil//For future use
+                    correlationId: correlationId
+                       completion: completionBlock];
 }
-
 
 
 -(void) internalAcquireTokenWithResource: (NSString*) resource
                                 clientId: (NSString*) clientId
                              redirectUri: (NSURL*) redirectUri
                           promptBehavior: (ADPromptBehavior) promptBehavior
+                                  silent: (BOOL) silent /* Do not show web UI for authorization. */
                                   userId: (NSString*) userId
                                    scope: (NSString*) scope
                     extraQueryParameters: (NSString*) queryParams
-                                tryCache: (BOOL) tryCache /* set internally to avoid infinite recursion */
                        validateAuthority: (BOOL) validateAuthority
                            correlationId: (NSUUID*) correlationId
                          completionBlock: (ADAuthenticationCallback)completionBlock
@@ -783,22 +938,47 @@ return; \
              }
              else
              {
-                 [self internalAcquireTokenWithResource:resource
-                                               clientId:clientId
-                                            redirectUri:redirectUri
-                                         promptBehavior:promptBehavior
-                                                 userId:userId
-                                                  scope:scope
-                                   extraQueryParameters:queryParams
-                                               tryCache:tryCache
-                                      validateAuthority:NO /* Already validated in this block. */
-                                          correlationId:correlationId
-                                        completionBlock:localCompletionBlock];
+                 [self validatedAcquireTokenWithResource:resource
+                                                clientId:clientId
+                                             redirectUri:redirectUri
+                                          promptBehavior:promptBehavior
+                                                  silent:silent
+                                                  userId:userId
+                                                   scope:scope
+                                    extraQueryParameters:queryParams
+                                           correlationId:correlationId
+                                         completionBlock:completionBlock];
              }
              SAFE_ARC_BLOCK_RELEASE( localCompletionBlock );
          }];
         return;//The asynchronous handler above will do the work.
     }
+    
+    [self validatedAcquireTokenWithResource:resource
+                                   clientId:clientId
+                                redirectUri:redirectUri
+                             promptBehavior:promptBehavior
+                                     silent:silent
+                                     userId:userId
+                                      scope:scope
+                       extraQueryParameters:queryParams
+                              correlationId:correlationId
+                            completionBlock:completionBlock];
+    
+}
+
+- (void) validatedAcquireTokenWithResource: (NSString*) resource
+                                  clientId: (NSString*) clientId
+                               redirectUri: (NSURL*) redirectUri
+                            promptBehavior: (ADPromptBehavior) promptBehavior
+                                    silent: (BOOL) silent /* Do not show web UI for authorization. */
+                                    userId: (NSString*) userId
+                                     scope: (NSString*) scope
+                      extraQueryParameters: (NSString*) queryParams
+                             correlationId: (NSUUID*) correlationId
+                           completionBlock: (ADAuthenticationCallback)completionBlock
+{
+    
     
     //Check the cache:
     ADAuthenticationError* error = nil;
@@ -813,7 +993,7 @@ return; \
         return;
     }
     
-    if (tryCache && promptBehavior != AD_PROMPT_ALWAYS && self.tokenCacheStore)
+    if (![self.class isForcedAuthorization:promptBehavior] && self.tokenCacheStore)
     {
         //Cache should be used in this case:
         BOOL accessTokenUsable;
@@ -833,6 +1013,7 @@ return; \
                                clientId:clientId
                             redirectUri:redirectUri
                          promptBehavior:promptBehavior
+                                 silent:silent
                                  userId:userId
                    extraQueryParameters:queryParams
                           correlationId:correlationId
@@ -841,7 +1022,30 @@ return; \
         }
     }
     
-    if (promptBehavior == AD_PROMPT_NEVER)
+    [self requestTokenWithResource:resource
+                          clientId:clientId
+                       redirectUri:redirectUri
+                    promptBehavior:promptBehavior
+                            silent:silent
+                            userId:userId
+                             scope:scope
+              extraQueryParameters:queryParams
+                     correlationId:correlationId
+                   completionBlock:completionBlock];
+}
+
+- (void) requestTokenWithResource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                      redirectUri: (NSURL*) redirectUri
+                   promptBehavior: (ADPromptBehavior) promptBehavior
+                           silent: (BOOL) silent /* Do not show web UI for authorization. */
+                           userId: (NSString*) userId
+                            scope: (NSString*) scope
+             extraQueryParameters: (NSString*) queryParams
+                    correlationId: (NSUUID*) correlationId
+                  completionBlock: (ADAuthenticationCallback)completionBlock
+{
+    if (silent)
     {
         //The cache lookup and refresh token attempt have been unsuccessful,
         //so credentials are needed to get an access token:
@@ -854,54 +1058,144 @@ return; \
         return;
     }
     
-    dispatch_async(dispatch_get_main_queue(), ^
-                   {
-                       //Get the code first:
-                       [self requestCodeByResource:resource
-                                          clientId:clientId
-                                       redirectUri:redirectUri
-                                             scope:scope
-                                            userId:userId
-                                    promptBehavior:promptBehavior
-                              extraQueryParameters:queryParams
-                                     correlationId:correlationId
-                                        completion:^(NSString * code, ADAuthenticationError *error)
-                        {
-                            if (error)
-                            {
-                                ADAuthenticationResult* result = (AD_ERROR_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation]
-                                : [ADAuthenticationResult resultFromError:error];
-                                completionBlock(result);
-                            }
-                            else
-                            {
-                                [self requestTokenByCode:code
-                                                resource:resource
-                                                clientId:clientId
-                                             redirectUri:redirectUri
-                                                   scope:scope
-                                           correlationId:correlationId
-                                              completion:^(ADAuthenticationResult *result)
-                                 {
-                                     if (AD_SUCCEEDED == result.status)
-                                     {
-                                         [self updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
-                                         result = [self updateResult:result toUser:userId];
-                                     }
-                                     completionBlock(result);
-                                 }];
-                            }
-                        }];
-                   });
+#if TARGET_OS_IPHONE
+    //call the broker.
+    if([self canUseBroker]){
+        [self callBrokerForAuthority: self.authority
+                            resource: resource
+                            clientId: clientId
+                         redirectUri: redirectUri
+                              userId: userId
+                       correlationId: [correlationId UUIDString]
+                     completionBlock:completionBlock
+         ];
+        return;
+    }
+#endif
+    
+    //Get the code first:
+    [self requestCodeByResource:resource
+                       clientId:clientId
+                    redirectUri:redirectUri
+                          scope:scope
+                         userId:userId
+                 promptBehavior:promptBehavior
+           extraQueryParameters:queryParams
+                  correlationId:correlationId
+                     completion:^(NSString * code, ADAuthenticationError *error)
+     {
+         if (error)
+         {
+             ADAuthenticationResult* result = (AD_ERROR_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation]
+             : [ADAuthenticationResult resultFromError:error];
+             completionBlock(result);
+         }
+         else
+         {
+#if TARGET_OS_IPHONE
+             if([code hasPrefix:@"msauth://"])
+             {
+                 [self handleBrokerFromWebiewResponse:code
+                                             resource:resource
+                                             clientId:clientId
+                                          redirectUri:redirectUri
+                                               userId:userId
+                                        correlationId:correlationId
+                                      completionBlock:completionBlock];
+             }
+             else
+             {
+                 
+#endif
+                 [self requestTokenByCode:code
+                                 resource:resource
+                                 clientId:clientId
+                              redirectUri:redirectUri
+                                    scope:scope
+                            correlationId:correlationId
+                               completion:^(ADAuthenticationResult *result)
+                  {
+                      if (AD_SUCCEEDED == result.status)
+                      {
+                          [self updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
+                          result = [self updateResult:result toUser:userId];
+                      }
+                      completionBlock(result);
+                  }];
+             }
+             #if TARGET_OS_IPHONE
+         }
+#endif
+     }];
 }
+
+#if TARGET_OS_IPHONE
+-(void) handleBrokerFromWebiewResponse: (NSString*) urlString
+                              resource: (NSString*) resource
+                              clientId: (NSString*) clientId
+                           redirectUri: (NSURL*) redirectUri
+                                userId: (NSString*) userId
+                         correlationId: (NSUUID*) correlationId
+                       completionBlock: (ADAuthenticationCallback)completionBlock
+{
+    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+    ADAuthenticationError* error = nil;
+    NSData* key = [brokerHelper getBrokerKey:&error];
+    NSString* base64Key = [NSString Base64EncodeData:key];
+    NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    
+    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&correlation_id=%@&broker_key=%@",
+                       _authority,
+                       resource,
+                       clientId,
+                       redirectUri.absoluteString,
+                       [correlationId UUIDString],
+                       base64UrlKey];
+    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@&%@", urlString, query]];
+    
+    [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];;
+    
+    if([[UIApplication sharedApplication] canOpenURL:appUrl])
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[UIApplication sharedApplication] openURL:appUrl];
+        });
+    }
+    else
+    {
+        //no broker installed. go to app store
+        NSString* qp = [appUrl query];
+        NSDictionary* qpDict = [NSDictionary adURLFormDecode:qp];
+        NSString* url = [qpDict valueForKey:@"app_link"];
+        url = [url adBase64UrlDecode];
+        [self saveToPasteBoard:appUrl.absoluteString];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:url]];
+        });
+    }
+}
+
+- (void)saveToPasteBoard:(NSString*) url
+{
+    UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
+                                                            create:YES];
+    appPasteBoard.persistent = YES;
+    NSData *data = [url dataUsingEncoding:NSUTF8StringEncoding];
+    [appPasteBoard setData:data
+         forPasteboardType:@"com.microsoft.broker"];
+}
+
+#endif
 
 -(void) acquireTokenByRefreshToken: (NSString*)refreshToken
                           clientId: (NSString*)clientId
+                       redirectUri: (NSString*) redirectUri
                    completionBlock: (ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
     [self internalAcquireTokenByRefreshToken:refreshToken
                                     clientId:clientId
+                                 redirectUri:redirectUri
                                     resource:nil
                                       userId:nil
                                    cacheItem:nil
@@ -912,12 +1206,14 @@ return; \
 
 -(void) acquireTokenByRefreshToken:(NSString*)refreshToken
                           clientId:(NSString*)clientId
+                       redirectUri:(NSString*) redirectUri
                           resource:(NSString*)resource
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
     [self internalAcquireTokenByRefreshToken:refreshToken
                                     clientId:clientId
+                                 redirectUri:redirectUri
                                     resource:resource
                                       userId:nil
                                    cacheItem:nil
@@ -1022,6 +1318,7 @@ return; \
 //information and updates the cache:
 -(void) internalAcquireTokenByRefreshToken: (NSString*) refreshToken
                                   clientId: (NSString*) clientId
+                               redirectUri: (NSString*) redirectUri
                                   resource: (NSString*) resource
                                     userId: (NSString*) userId
                                  cacheItem: (ADTokenCacheStoreItem*) cacheItem
@@ -1050,14 +1347,14 @@ return; \
              }
              else
              {
-                 [self internalAcquireTokenByRefreshToken:refreshToken
-                                                 clientId:clientId
-                                                 resource:resource
-                                                   userId:userId
-                                                cacheItem:cacheItem
-                                        validateAuthority:NO /*Already validated in this block. */
-                                            correlationId:correlationId
-                                          completionBlock:localCompletionBlock];
+                 [self validatedAcquireTokenByRefreshToken:refreshToken
+                                                  clientId:clientId
+                                               redirectUri:redirectUri
+                                                  resource:resource
+                                                    userId:userId
+                                                 cacheItem:cacheItem
+                                             correlationId:correlationId
+                                           completionBlock:completionBlock];
              }
              
              SAFE_ARC_BLOCK_RELEASE( localCompletionBlock );
@@ -1065,13 +1362,52 @@ return; \
         return;//The asynchronous block above will handle everything;
     }
     
+    [self validatedAcquireTokenByRefreshToken:refreshToken
+                                     clientId:clientId
+                                  redirectUri:redirectUri
+                                     resource:resource
+                                       userId:userId
+                                    cacheItem:cacheItem
+                                correlationId:correlationId
+                              completionBlock:completionBlock];
+}
+
+- (void) validatedAcquireTokenByRefreshToken: (NSString*) refreshToken
+                                    clientId: (NSString*) clientId
+                                 redirectUri: (NSString*) redirectUri
+                                    resource: (NSString*) resource
+                                      userId: (NSString*) userId
+                                   cacheItem: (ADTokenCacheStoreItem*) cacheItem
+                               correlationId: correlationId
+                             completionBlock: (ADAuthenticationCallback)completionBlock
+{
+    
     [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:nil];
     //Fill the data for the token refreshing:
-    NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                         OAUTH2_REFRESH_TOKEN, OAUTH2_GRANT_TYPE,
-                                         refreshToken, OAUTH2_REFRESH_TOKEN,
-                                         clientId, OAUTH2_CLIENT_ID,
-                                         nil];
+    NSMutableDictionary *request_data = nil;
+    
+    if(cacheItem.sessionKey)
+    {
+        NSString* jwtToken = [self createAccessTokenRequestJWTUsingRT:cacheItem
+                                                             resource:resource
+                                                             clientId:clientId];
+        request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                        redirectUri, @"redirect_uri",
+                        clientId, @"client_id",
+                        @"2.0", @"windows_api_version",
+                        @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
+                        jwtToken, @"request",
+                        nil];
+        
+    }
+    else
+    {
+        request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                        OAUTH2_REFRESH_TOKEN, OAUTH2_GRANT_TYPE,
+                        refreshToken, OAUTH2_REFRESH_TOKEN,
+                        clientId, OAUTH2_CLIENT_ID,
+                        nil];
+    }
     
     //The clang analyzer has some issues with the logic inside adIsStringNilOrBlank, as it is defined in a category.
 #ifndef __clang_analyzer__
@@ -1083,39 +1419,36 @@ return; \
             [request_data setObject:resource forKey:OAUTH2_RESOURCE];
         }
     
-    dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue, ^
-                   {
-                       AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@'; user:'%@'", clientId, resource, userId);
-                       [self request:self.authority
-                         requestData:request_data
-                requestCorrelationId:correlationId
-         isHandlingPKeyAuthChallenge:FALSE
-                   additionalHeaders:nil
-                          completion:^(NSDictionary *response)
-                        {
-                            ADTokenCacheStoreItem* resultItem = (cacheItem) ? SAFE_ARC_RETAIN(cacheItem) : [ADTokenCacheStoreItem new];
-                            
-                            //Always ensure that the cache item has all of these set, especially in the broad token case, where the passed item
-                            //may have empty "resource" property:
-                            resultItem.resource = resource;
-                            resultItem.clientId = clientId;
-                            resultItem.authority = self.authority;
-                            
-                            
-                            ADAuthenticationResult *result = [self processTokenResponse:response forItem:resultItem fromRefresh:YES requestCorrelationId:correlationId];
-                            if (cacheItem)//The request came from the cache item, update it:
-                            {
-                                [self updateCacheToResult:result
-                                                cacheItem:resultItem
-                                         withRefreshToken:refreshToken];
-                            }
-                            result = [self updateResult:result toUser:userId];//Verify the user (just in case)
-                            
-                            SAFE_ARC_RELEASE(resultItem);
-                            
-                            completionBlock(result);
-                        }];
-                   });
+    AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@'; user:'%@'", clientId, resource, userId);
+    [self request:self.authority
+      requestData:request_data
+requestCorrelationId:correlationId
+isHandlingPKeyAuthChallenge:FALSE
+additionalHeaders:nil
+       completion:^(NSDictionary *response)
+     {
+         ADTokenCacheStoreItem* resultItem = (cacheItem) ? SAFE_ARC_RETAIN(cacheItem) : [ADTokenCacheStoreItem new];
+         
+         //Always ensure that the cache item has all of these set, especially in the broad token case, where the passed item
+         //may have empty "resource" property:
+         resultItem.resource = resource;
+         resultItem.clientId = clientId;
+         resultItem.authority = self.authority;
+         
+         
+         ADAuthenticationResult *result = [self processTokenResponse:response forItem:resultItem fromRefresh:YES requestCorrelationId:correlationId];
+         if (cacheItem)//The request came from the cache item, update it:
+         {
+             [self updateCacheToResult:result
+                             cacheItem:resultItem
+                      withRefreshToken:refreshToken];
+         }
+         result = [self updateResult:result toUser:userId];//Verify the user (just in case)
+         
+         SAFE_ARC_RELEASE(resultItem);
+         
+         completionBlock(result);
+     }];
 }
 
 //Used in the flows, where developer requested an explicit user. The method compares
@@ -1339,10 +1672,11 @@ return; \
     {
         [startUrl appendFormat:@"&%@=%@", OAUTH2_LOGIN_HINT, [userId adUrlFormEncode]];
     }
-    if (AD_PROMPT_ALWAYS == promptBehavior)
+    NSString* promptParam = [self.class getPromptParameter:promptBehavior];
+    if (promptParam)
     {
         //Force the server to ignore cookies, by specifying explicitly the prompt behavior:
-        [startUrl appendString:@"&prompt=login"];
+        [startUrl appendString:[NSString stringWithFormat:@"&prompt=%@", promptParam]];
     }
     if (![NSString adIsStringNilOrBlank:queryParams])
     {//Append the additional query parameters if specified:
@@ -1445,25 +1779,32 @@ return; \
          NSString* code = nil;
          if (!error)
          {
-             //Try both the URL and the fragment parameters:
-             NSDictionary *parameters = [end adFragmentParameters];
-             if ( parameters.count == 0 )
+             if([[[end scheme] lowercaseString] isEqualToString:@"msauth"])
              {
-                 parameters = [end adQueryParameters];
+                 code = end.absoluteString;
              }
-             
-             //OAuth2 error may be passed by the server:
-             error = [self errorFromDictionary:parameters errorCode:AD_ERROR_AUTHENTICATION];
-             if (!error)
+             else
              {
-                 //Note that we do not enforce the state, just log it:
-                 [self verifyStateFromDictionary:parameters];
-                 code = [parameters objectForKey:OAUTH2_CODE];
-                 if ([NSString adIsStringNilOrBlank:code])
+                 //Try both the URL and the fragment parameters:
+                 NSDictionary *parameters = [end adFragmentParameters];
+                 if ( parameters.count == 0 )
                  {
-                     error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
-                                                                    protocolCode:nil
-                                                                    errorDetails:@"The authorization server did not return a valid authorization code."];
+                     parameters = [end adQueryParameters];
+                 }
+                 
+                 //OAuth2 error may be passed by the server:
+                 error = [self errorFromDictionary:parameters errorCode:AD_ERROR_AUTHENTICATION];
+                 if (!error)
+                 {
+                     //Note that we do not enforce the state, just log it:
+                     [self verifyStateFromDictionary:parameters];
+                     code = [parameters objectForKey:OAUTH2_CODE];
+                     if ([NSString adIsStringNilOrBlank:code])
+                     {
+                         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
+                                                                        protocolCode:nil
+                                                                        errorDetails:@"The authorization server did not return a valid authorization code."];
+                     }
                  }
              }
          }
@@ -1475,12 +1816,12 @@ return; \
 
 // Generic OAuth2 Authorization Request, obtains a token from a SAML assertion.
 - (void)requestTokenByAssertion: (NSString *) samlAssertion
-                    assertionType: (ADAssertionType) assertionType
-                  resource: (NSString *) resource
-                  clientId: (NSString*) clientId
-                     scope: (NSString*) scope //For future use
-             correlationId: (NSUUID*) correlationId
-                completion: (ADAuthenticationCallback) completionBlock
+                  assertionType: (ADAssertionType) assertionType
+                       resource: (NSString *) resource
+                       clientId: (NSString*) clientId
+                          scope: (NSString*) scope //For future use
+                  correlationId: (NSUUID*) correlationId
+                     completion: (ADAuthenticationCallback) completionBlock
 {
 #pragma unused(scope)
     HANDLE_ARGUMENT(correlationId);//Should be set by the caller
@@ -1491,11 +1832,11 @@ return; \
     NSString *base64String = [encodeData base64EncodedStringWithOptions:0];
     //Fill the data for the SAML assertion:
     NSDictionary *request_data = [NSDictionary dictionaryWithObjectsAndKeys:
-                                         [self getAssertionTypeGrantValue:assertionType], OAUTH2_GRANT_TYPE,
-                                         base64String, OAUTH2_ASSERTION,
-                                         clientId, OAUTH2_CLIENT_ID,
-                                         resource, OAUTH2_RESOURCE,
-                                         nil];
+                                  [self getAssertionTypeGrantValue:assertionType], OAUTH2_GRANT_TYPE,
+                                  base64String, OAUTH2_ASSERTION,
+                                  clientId, OAUTH2_CLIENT_ID,
+                                  resource, OAUTH2_RESOURCE,
+                                  nil];
     [self executeRequest:self.authority requestData:request_data resource:resource clientId:clientId requestCorrelationId:correlationId isHandlingPKeyAuthChallenge:NO additionalHeaders:nil completion:completionBlock];
 }
 
@@ -1527,7 +1868,6 @@ return; \
     HANDLE_ARGUMENT(code);
     HANDLE_ARGUMENT(correlationId);//Should be set by the caller
     AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code for resource: %@", resource);
-    
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                          OAUTH2_AUTHORIZATION_CODE, OAUTH2_GRANT_TYPE,
@@ -1535,7 +1875,15 @@ return; \
                                          clientId, OAUTH2_CLIENT_ID,
                                          [redirectUri absoluteString], OAUTH2_REDIRECT_URI,
                                          nil];
-    [self executeRequest:self.authority requestData:request_data resource:resource clientId:clientId requestCorrelationId:correlationId isHandlingPKeyAuthChallenge:NO additionalHeaders:nil completion:completionBlock];
+    
+    [self executeRequest:self.authority
+             requestData:request_data
+                resource:resource
+                clientId:clientId
+    requestCorrelationId:correlationId
+isHandlingPKeyAuthChallenge:NO
+       additionalHeaders:nil
+              completion:completionBlock];
 }
 
 
@@ -1559,7 +1907,10 @@ additionalHeaders:additionalHeaders
          ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
          item.resource = resource;
          item.clientId = clientId;
-         completionBlock([self processTokenResponse:response forItem:item fromRefresh:NO requestCorrelationId:requestCorrelationId]);
+         completionBlock([self processTokenResponse:response
+                                            forItem:item
+                                        fromRefresh:NO
+                               requestCorrelationId:requestCorrelationId]);
          SAFE_ARC_RELEASE(item);
      }];
 }
@@ -1589,7 +1940,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     
 #if TARGET_OS_IPHONE
-        [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
+    [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
 #endif
     
     if(additionalHeaders){
@@ -1684,7 +2035,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
             [response setObject:[ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription]
                          forKey:AUTH_NON_PROTOCOL_ERROR];
         }
-    
+        
         if([response valueForKey:AUTH_NON_PROTOCOL_ERROR]){
             [[ADClientMetrics getInstance] endClientMetricsRecord:[[response valueForKey:AUTH_NON_PROTOCOL_ERROR] errorDetails]];
         } else {
@@ -1705,13 +2056,47 @@ additionalHeaders:(NSDictionary *)additionalHeaders
              adURLFormEncode] adBase64UrlEncode];
 }
 
+-(NSString*) createAccessTokenRequestJWTUsingRT:(ADTokenCacheStoreItem*) cacheItem
+                                       resource:(NSString*) resource
+                                       clientId:(NSString*) clientId
+{
+    NSString* grantType = @"refresh_token";
+    
+    NSString* ctx = [[[NSUUID UUID] UUIDString] adComputeSHA256];
+    NSDictionary *header = @{
+                             @"alg" : @"HS256",
+                             @"typ" : @"JWT",
+                             @"ctx" : [ADHelpers convertBase64UrlStringToBase64NSString:[ctx adBase64UrlEncode]]
+                             };
+    
+    NSInteger iat = round([[NSDate date] timeIntervalSince1970]);
+    NSDictionary *payload = @{
+                              @"resource" : resource,
+                              @"client_id" : clientId,
+                              @"refresh_token" : cacheItem.refreshToken,
+                              @"iat" : [NSNumber numberWithInteger:iat],
+                              @"nbf" : [NSNumber numberWithInteger:iat],
+                              @"exp" : [NSNumber numberWithInteger:iat],
+                              @"scope" : @"openid",
+                              @"grant_type" : grantType,
+                              @"aud" : self.authority
+                              };
+    
+    NSString* returnValue = [ADHelpers createSignedJWTUsingKeyDerivation:header
+                                                                 payload:payload
+                                                                 context:ctx
+                                                            symmetricKey:cacheItem.sessionKey];
+    return returnValue;
+}
+
+
+#if TARGET_OS_IPHONE
 - (void) handlePKeyAuthChallenge:(NSString *)authorizationServer
               wwwAuthHeaderValue:(NSString *)wwwAuthHeaderValue
                      requestData:(NSDictionary *)request_data
             requestCorrelationId: (NSUUID*) requestCorrelationId
                       completion:( void (^)(NSDictionary *) )completionBlock
 {
-#ifdef TARGET_OS_IPHONE
     //pkeyauth word length=8 + 1 whitespace
     wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[pKeyAuthName length] + 1];
     wwwAuthHeaderValue = [wwwAuthHeaderValue stringByReplacingOccurrencesOfString:@"\""
@@ -1727,11 +2112,148 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     [headerKeyValuePair removeAllObjects];
     [headerKeyValuePair setObject:authHeader forKey:@"Authorization"];
     
-    [self request:authorizationServer requestData:request_data requestCorrelationId:requestCorrelationId isHandlingPKeyAuthChallenge:TRUE additionalHeaders:headerKeyValuePair completion:completionBlock];
-    
-#endif
+    [self request:authorizationServer
+      requestData:request_data
+requestCorrelationId:requestCorrelationId
+isHandlingPKeyAuthChallenge:TRUE
+additionalHeaders:headerKeyValuePair
+       completion:completionBlock];
 }
 
+
+
++(BOOL) isResponseFromBroker:(NSString*) sourceApplication
+                    response:(NSURL*) response
+{
+    return sourceApplication && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
+    response &&
+    [NSString adSame:[response path] toString:@"broker"];
+}
+
+
++(void) handleBrokerResponse:(NSURL*) response
+{
+    THROW_ON_NIL_ARGUMENT([ADBrokerNotificationManager sharedInstance].callbackForBroker);
+    ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].callbackForBroker;
+    
+    HANDLE_ARGUMENT(response);
+    
+    
+    NSString *qp = [response query];
+    //expect to either response or error and description, AND correlation_id AND hash.
+    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    ADAuthenticationResult* result;
+    //response=encrypted_response&hash=hash_value
+    //code=some_code&error_details=message
+    if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION]){
+        result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+    }
+    else
+    {
+        HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
+        
+        NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
+        NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
+        
+        //decrypt response first
+        ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+        ADAuthenticationError* error;
+        NSData *encryptedResponse = [NSString Base64DecodeData:encryptedBase64Response ];
+        NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse error:&error];
+        NSString* decryptedString = nil;
+        
+        if(!error)
+        {
+            decryptedString =[[NSString alloc] initWithData:decrypted encoding:0];
+            //now compute the hash on the unencrypted data
+            if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES]]){
+                //create response from the decrypted payload
+                queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
+                [ADHelpers removeNullStringFrom:queryParamsMap];
+                result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+                
+            }
+            else
+            {
+                result = [ADAuthenticationResult resultFromError:[ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADAuthenticationErrorDomain
+                                                                                                                             code:AD_ERROR_BROKER_RESPONSE_HASH_MISMATCH
+                                                                                                                         userInfo:nil]
+                                                                                            errorDetails:@"Decrypted response does not match the hash"]];
+            }
+        }
+        else
+        {
+            result = [ADAuthenticationResult resultFromError:error];
+        }
+    }
+    
+    if (AD_SUCCEEDED == result.status)
+    {
+        ADAuthenticationContext* ctx = [ADAuthenticationContext
+                                        authenticationContextWithAuthority:result.tokenCacheStoreItem.authority
+                                        error:nil];
+        
+        SEL selector = @selector(updateCacheToResult:cacheItem:withRefreshToken:);
+        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[ctx methodSignatureForSelector:selector]];
+        [inv setSelector:selector];
+        [inv setTarget:ctx];
+        [inv setArgument:&result atIndex:2];
+        [inv invoke];
+        
+        NSString* userId = [queryParamsMap valueForKey:@"user_id"];
+        selector = nil;
+        selector = @selector(updateResult:toUser:);
+        inv = nil;
+        inv = [NSInvocation invocationWithMethodSignature:[ctx methodSignatureForSelector:selector]];
+        [inv setSelector:selector];
+        [inv setTarget:ctx];
+        [inv setArgument:&result atIndex:2];
+        if(userId)
+        {
+            [inv setArgument:&userId atIndex:3];
+        }
+        
+        [inv invoke];
+    }
+    
+    completionBlock(result);
+    [ADBrokerNotificationManager sharedInstance].callbackForBroker = nil;
+    
+}
+
+- (BOOL) canUseBroker
+{
+    return [[ADAuthenticationSettings sharedInstance] credentialsType] == AD_CREDENTIALS_AUTO &&
+    [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", brokerScheme]]];
+    
+}
+
+
+- (void) callBrokerForAuthority:(NSString*) authority
+                       resource: (NSString*) resource
+                       clientId: (NSString*)clientId
+                    redirectUri: (NSURL*) redirectUri
+                         userId: (NSString*) userId
+                  correlationId: (NSString*) correlationId
+                completionBlock: (ADAuthenticationCallback)completionBlock
+{
+    AD_LOG_INFO(@"Invoking broker for authentication", nil);
+    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+    ADAuthenticationError* error = nil;
+    NSData* key = [brokerHelper getBrokerKey:&error];
+    NSString* base64Key = [NSString Base64EncodeData:key];
+    NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    
+    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, base64UrlKey];
+    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", brokerScheme, query]];
+    
+    [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[UIApplication sharedApplication] openURL:appUrl];
+    });
+}
+#endif
 
 @end
 

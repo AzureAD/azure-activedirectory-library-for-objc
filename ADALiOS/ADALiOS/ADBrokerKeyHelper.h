@@ -17,21 +17,27 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "RegistrationInformation.h"
+#import "ADAuthenticationError.h"
 
-typedef enum
+#define kChosenCipherKeySize    kCCKeySizeAES256
+#define kSymmetricKeyTag        "com.microsoft.adBrokerKey"
+
+@interface ADBrokerKeyHelper : NSObject
 {
-    AD_ISSUER,
-    AD_THUMBPRINT,
-} ADChallengeType;
+    NSData * _symmetricTag;
+    NSData * _symmetricKeyRef;
+}
 
-@interface ADPkeyAuthHelper : NSObject
+@property (nonatomic, retain) NSData * symmetricTag;
+@property (nonatomic, retain) NSData * symmetricKeyRef;
 
-+ (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
-                         challengeData:(NSDictionary*) challengeData
-                       challengeType: (ADChallengeType) challengeType;
+-(id) initHelper;
 
+-(void) createBrokerKey: (ADAuthenticationError* __autoreleasing*) error;
 
-+ (NSString*) computeThumbprint:(NSData*) data isSha2:(BOOL) isSha2;
+-(NSData*) getBrokerKey: (ADAuthenticationError* __autoreleasing*) error;
+
+-(NSData*) decryptBrokerResponse: (NSData*) response
+                                 error:(ADAuthenticationError* __autoreleasing*) error;
 
 @end

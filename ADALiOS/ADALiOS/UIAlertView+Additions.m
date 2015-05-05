@@ -19,7 +19,10 @@ static UIAlertView *alert;
     [alert setDelegate:alert];
     
     if (handler)
+    {
         objc_setAssociatedObject(alert, HANDLER_KEY, handler, OBJC_ASSOCIATION_COPY_NONATOMIC);
+    }
+    
     dispatch_async(dispatch_get_main_queue(), ^(void){
         [alert show];
     });

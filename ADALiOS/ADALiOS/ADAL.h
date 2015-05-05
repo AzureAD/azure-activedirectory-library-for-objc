@@ -31,8 +31,8 @@
 #import "ADAuthenticationParameters.h"
 
 #define ADAL_VER_HIGH   1
-#define ADAL_VER_LOW    2
-#define ADAL_VER_PATCH  2
+#define ADAL_VER_LOW    3
+#define ADAL_VER_PATCH  0
 
 #pragma mark - OSX Universal ARC compatibility macros
 

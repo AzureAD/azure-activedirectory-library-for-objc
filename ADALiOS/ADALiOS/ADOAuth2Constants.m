@@ -24,6 +24,7 @@ NSString *const OAUTH2_AUTHORIZE_SUFFIX   = @"/oauth2/authorize";
 
 NSString *const OAUTH2_AUTHORIZATION_CODE = @"authorization_code";
 NSString *const OAUTH2_AUTHORIZATION_URI  = @"authorization_uri";
+NSString *const OAUTH2_AUTHORITY           = @"authority";
 NSString *const OAUTH2_BEARER             = @"Bearer";
 NSString *const OAUTH2_CLIENT_ID          = @"client_id";
 NSString *const OAUTH2_CLIENT_SECRET      = @"client_secret";
@@ -53,6 +54,8 @@ NSString *const OAUTH2_ASSERTION = @"assertion";
 NSString *const OAUTH2_SAML11_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml1_1-bearer";
 NSString *const OAUTH2_SAML2_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml2-bearer";
 
+NSString *const BROKER_RESPONSE_KEY               = @"response";
+NSString *const BROKER_HASH_KEY               = @"hash";
 
 //Diagnostic traces sent to the Azure Active Directory servers:
 NSString *const ADAL_ID_PLATFORM          = @"x-client-SKU";//The ADAL platform. iOS or OSX
@@ -74,3 +77,6 @@ NSString *const AUTH_FAILED_BAD_PARAMETERS = @"Incorrect parameters for authoriz
 NSString *const AUTH_FAILED_NO_CLIENTID    = @"Unable to determine client identifier";
 NSString *const AUTH_FAILED_NO_REDIRECTURI = @"Unable to determine redirect URL";
 NSString *const AUTH_FAILED_BUSY           = @"Authorization call already in progress";
+
+//application constants
+NSString* const brokerScheme = @"msauth";

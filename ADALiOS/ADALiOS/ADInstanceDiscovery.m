@@ -289,12 +289,17 @@ NSString* const sValidationServerError = @"The authority validation server retur
                     {
                         if (jsonError)
                         {
-                            adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
+                            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
+                                                                             protocolCode:nil
+                                                                             errorDetails:jsonError.localizedDescription];
+                                       
                         }
                         else
                         {
                             NSString* errorMessage = [NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]];
-                            adError = [ADAuthenticationError unexpectedInternalError:errorMessage];
+                            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
+                                                                             protocolCode:nil
+                                                                             errorDetails:errorMessage];
                         }
                     }
                 }
