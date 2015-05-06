@@ -326,7 +326,7 @@ return; \
     [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
     //if client id is not broker, use incoming app's key for cache.
     id<ADTokenCacheStoring> cache = [[ADBrokerKeychainTokenCacheStore alloc]initWithAppKey:appKey];
-    ADAuthenticationContextForBroker* ctx = [[ADAuthenticationContextForBroker alloc]
+    ADAuthenticationContext* ctx = [[ADAuthenticationContext alloc]
                                              initWithAuthority:authority
                                              validateAuthority:YES
                                              tokenCacheStore:cache

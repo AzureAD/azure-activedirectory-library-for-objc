@@ -19,7 +19,6 @@
 #import "AccountDetailsViewController.h"
 #import <ADAuthenticationBroker/ADBrokerContext.h>
 #import <ADAuthenticationBroker/ADBrokerConstants.h>
-#import <ADAuthenticationBroker/NSString+ADBrokerHelperMethods.h>
 
 @interface AccountDetailsViewController ()
 

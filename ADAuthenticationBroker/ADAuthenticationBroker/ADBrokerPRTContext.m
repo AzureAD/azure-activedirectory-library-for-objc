@@ -32,7 +32,7 @@
 
 @implementation ADBrokerPRTContext
 
-ADAuthenticationContextForBroker* ctx;
+ADAuthenticationContext* ctx;
 NSString* userPrincipalIdentifier;
 
 -(id) initWithUpn:(NSString*) upn
@@ -44,7 +44,7 @@ NSString* userPrincipalIdentifier;
     if(self)
     {
         ADAuthenticationError* error = nil;
-        ctx = [[ADAuthenticationContextForBroker alloc] initWithAuthority:DEFAULT_AUTHORITY
+        ctx = [[ADAuthenticationContext alloc] initWithAuthority:DEFAULT_AUTHORITY
                                                         validateAuthority:YES
                                                           tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:DEFAULT_GUID_FOR_NIL]
                                                                     error:&error];

@@ -113,7 +113,7 @@ NSMutableArray* users;
 - (IBAction)clearKeychainPressed:(id)sender
 {
     ViewController* __weak weakSelf = self;
-    id<ADTokenCacheStoring> cache = [ADBrokerKeychainTokenCacheStore new];
+    id<ADTokenCacheStoring> cache = [[ADBrokerKeychainTokenCacheStore alloc] ini;
     ADAuthenticationError *error = nil;
     long count = (unsigned long)[[cache allItemsWithError:&error] count];
     if (error)
@@ -167,7 +167,7 @@ NSMutableArray* users;
     }
     else
     {
-    [ctx acquireAccount:@"test@mamadalobjc.onmicrosoft.com"
+    [ctx acquireAccount:nil
         completionBlock:^(ADAuthenticationResult *result) {
         if(result.status != AD_SUCCEEDED)
         {
