@@ -16,12 +16,12 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADBrokerKeychainTokenCacheStore.h"
 #import "ADAuthenticationBroker.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADTokenCacheStoreItem.h"
 #import "ADUserInformation.h"
 #import "ADTokenCacheStoreKey.h"
+#import "ADBrokerKeychainTokenCacheStore.h"
 
 NSString* const delimiter = @"|";
 @implementation ADBrokerKeychainTokenCacheStore
@@ -57,7 +57,7 @@ NSString* const delimiter = @"|";
 -(void) removeAllForUser: (NSString*) userId
                    error: (ADAuthenticationError* __autoreleasing*) error
 {
-    API_ENTRY;
+    //API_ENTRY;
     @synchronized(self)
     {
         ADTokenCacheStoreKey* key = nil;

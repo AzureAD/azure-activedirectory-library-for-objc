@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		971C57B61AFAB2FE0034820F /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 971C57B41AFAB2FE0034820F /* libADALiOS.a */; };
 		975E42D71A1D49D10033B500 /* ADALiOS.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 975E42D61A1D49D10033B500 /* ADALiOS.bundle */; };
 		976CCB261A02DA49006C91F4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB251A02DA49006C91F4 /* main.m */; };
 		976CCB291A02DA49006C91F4 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB281A02DA49006C91F4 /* AppDelegate.m */; };
@@ -48,6 +49,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		971C57B41AFAB2FE0034820F /* libADALiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADALiOS.a; path = "../ADAuthenticationBroker/Frameworks/azure-activedirectory-library-for-objc-unity-fork/ADALiOS/build/Debug-iphoneos/libADALiOS.a"; sourceTree = "<group>"; };
+		971C57B51AFAB2FE0034820F /* libWorkPlaceJoinAPI.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWorkPlaceJoinAPI.a; path = "../ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/build/Debug-iphoneos/libWorkPlaceJoinAPI.a"; sourceTree = "<group>"; };
+		971C57C01AFABA600034820F /* MyTestADBroker.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyTestADBroker.pch; sourceTree = "<group>"; };
 		975E42D61A1D49D10033B500 /* ADALiOS.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = ADALiOS.bundle; sourceTree = "<group>"; };
 		976CCB201A02DA49006C91F4 /* MyTestADBrokerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyTestADBrokerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		976CCB241A02DA49006C91F4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -79,6 +83,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				971C57B61AFAB2FE0034820F /* libADALiOS.a in Frameworks */,
 				977DA5CB1AAFD308009E75FE /* libADAuthenticationBroker.a in Frameworks */,
 				976CCB561A02E874006C91F4 /* Foundation.framework in Frameworks */,
 				976CCB541A02E86E006C91F4 /* UIKit.framework in Frameworks */,
@@ -140,6 +145,7 @@
 				975E42D61A1D49D10033B500 /* ADALiOS.bundle */,
 				976CCB241A02DA49006C91F4 /* Info.plist */,
 				976CCB251A02DA49006C91F4 /* main.m */,
+				971C57C01AFABA600034820F /* MyTestADBroker.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -164,6 +170,8 @@
 		976CCB501A02E847006C91F4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				971C57B41AFAB2FE0034820F /* libADALiOS.a */,
+				971C57B51AFAB2FE0034820F /* libWorkPlaceJoinAPI.a */,
 				977DA5CA1AAFD308009E75FE /* libADAuthenticationBroker.a */,
 				977DA5C41AAFD25C009E75FE /* libADALiOS.a */,
 				977DA5C51AAFD25C009E75FE /* libWorkPlaceJoinAPI.a */,
@@ -354,6 +362,8 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = MyTestADBrokerApp/MyTestADBroker.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -397,6 +407,8 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = MyTestADBrokerApp/MyTestADBroker.pch;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -432,6 +444,7 @@
 					"$(PROJECT_DIR)",
 					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ADAuthenticationBroker-bvcelnfdafckoahgsnmzojpxkneo/Build/Products/Debug-iphoneos",
 					"/Users/kanishk/git/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/build/Debug-iphoneos",
+					"/Users/kanishk/git/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Frameworks/azure-activedirectory-library-for-objc-unity-fork/ADALiOS/build/Debug-iphoneos",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -459,6 +472,7 @@
 					"$(PROJECT_DIR)",
 					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/ADAuthenticationBroker-bvcelnfdafckoahgsnmzojpxkneo/Build/Products/Debug-iphoneos",
 					"/Users/kanishk/git/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/build/Debug-iphoneos",
+					"/Users/kanishk/git/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Frameworks/azure-activedirectory-library-for-objc-unity-fork/ADALiOS/build/Debug-iphoneos",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";

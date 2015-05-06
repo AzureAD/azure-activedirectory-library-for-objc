@@ -16,9 +16,10 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "AccountDetailsViewController.h"
 #import <ADAuthenticationBroker/ADBrokerContext.h>
 #import <ADAuthenticationBroker/ADBrokerConstants.h>
+#import <ADAuthenticationBroker/ADBrokerUserAccount.h>
+#import "AccountDetailsViewController.h"
 
 @interface AccountDetailsViewController ()
 
@@ -54,8 +55,8 @@
     RegistrationInformation* info = [ADBrokerContext getWorkPlaceJoinInformation];
     if(info)
     {
-        self.wpjEnabled.enabled = [NSString adSame:self.account.userInformation.userId
-                                          toString:info.userPrincipalName];
+        self.wpjEnabled.enabled = [self.account.userInformation.userId isEqualToString:
+                                   info.userPrincipalName];
         [info releaseData];
         info = nil;
     }

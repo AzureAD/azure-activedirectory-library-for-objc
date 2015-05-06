@@ -19,7 +19,6 @@
 #import "ViewController.h"
 #import "AppDelegate.h"
 #import "AccountDetailsViewController.h"
-#import <ADAuthenticationBroker/ADBrokerKeychainTokenCacheStore.h>
 #import <ADAuthenticationBroker/ADBrokerConstants.h>
 #import <ADAuthenticationBroker/ADBrokerContext.h>
 #import <ADALiOS/ADAuthenticationError.h>
@@ -112,33 +111,33 @@ NSMutableArray* users;
 
 - (IBAction)clearKeychainPressed:(id)sender
 {
-    ViewController* __weak weakSelf = self;
-    id<ADTokenCacheStoring> cache = [[ADBrokerKeychainTokenCacheStore alloc] ini;
-    ADAuthenticationError *error = nil;
-    long count = (unsigned long)[[cache allItemsWithError:&error] count];
-    if (error)
-    {
-        return;
-    }
-    
-    [cache removeAllWithError:&error];
-    if (error)
-    {
-        return;
-    }
-    
-    cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore ;
-    count = (unsigned long)[[cache allItemsWithError:&error] count];
-    if (error)
-    {
-        return;
-    }
-    
-    [cache removeAllWithError:&error];
-    if (error)
-    {
-        return;
-    }
+//    ViewController* __weak weakSelf = self;
+//    id<ADTokenCacheStoring> cache = [[ADBrokerK]]
+//    ADAuthenticationError *error = nil;
+//    long count = (unsigned long)[[cache allItemsWithError:&error] count];
+//    if (error)
+//    {
+//        return;
+//    }
+//    
+//    [cache removeAllWithError:&error];
+//    if (error)
+//    {
+//        return;
+//    }
+//    
+//    cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore ;
+//    count = (unsigned long)[[cache allItemsWithError:&error] count];
+//    if (error)
+//    {
+//        return;
+//    }
+//    
+//    [cache removeAllWithError:&error];
+//    if (error)
+//    {
+//        return;
+//    }
     
     ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:DEFAULT_AUTHORITY];
     [ctx removeWorkPlaceJoinRegistration:nil];

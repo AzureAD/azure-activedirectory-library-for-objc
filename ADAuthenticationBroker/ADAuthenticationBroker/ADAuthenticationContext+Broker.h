@@ -17,8 +17,6 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "ADAL.h"
-
 
 @interface ADAuthenticationContext (Broker)
 

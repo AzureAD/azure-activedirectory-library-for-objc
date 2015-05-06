@@ -1,0 +1,18 @@
+//
+//  MyTestADBroker.pch
+//  MyTestADBrokerApp
+//
+//  Created by Kanishk Panwar on 5/6/15.
+//  Copyright (c) 2015 Microsoft Corp. All rights reserved.
+//
+
+#ifndef MyTestADBrokerApp_MyTestADBroker_pch
+#define MyTestADBrokerApp_MyTestADBroker_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#import <UIKit/UIKit.h>
+#import <ADALiOS/ADAL.h>
+
+#endif

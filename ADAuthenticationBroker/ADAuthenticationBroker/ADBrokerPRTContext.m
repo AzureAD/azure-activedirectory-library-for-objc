@@ -16,15 +16,16 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+
+#import "ADOAuth2Constants.h"
+#import "NSString+ADHelperMethods.h"
+#import "ADAuthenticationResult+Internal.h"
 #import "ADBrokerPRTContext.h"
 #import "ADBrokerConstants.h"
-#import "ADOAuth2Constants.h"
 #import "ADBrokerJwtHelper.h"
 #import "ADBrokerPRTCacheItem.h"
 #import "ADBrokerBase64Additions.h"
-#import "ADAuthenticationResult+Internal.h"
 #import "ADBrokerKeychainTokenCacheStore.h"
-#import "NSString+ADHelperMethods.h"
 #import <workplaceJoinAPI/WorkPlaceJoin.h>
 #import "ADAuthenticationBroker.h"
 #import "ADBrokerJWEResponse.h"

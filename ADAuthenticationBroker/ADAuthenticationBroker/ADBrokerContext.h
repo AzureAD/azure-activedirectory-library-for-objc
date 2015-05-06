@@ -20,7 +20,7 @@
 #import <Foundation/Foundation.h>
 #include <UIKit/UIKit.h>
 #import <workplaceJoinAPI/RegistrationInformation.h>
-#import <ADAuthenticationBroker/ADBrokerPRTContext.h>
+#import "ADBrokerPRTContext.h"
 
 @class ADAuthenticationResult;
 
