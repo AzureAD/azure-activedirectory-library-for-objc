@@ -27,7 +27,6 @@
 #import "ADBrokerBase64Additions.h"
 #import "ADBrokerKeychainTokenCacheStore.h"
 #import <workplaceJoinAPI/WorkPlaceJoin.h>
-#import "ADAuthenticationBroker.h"
 #import "ADBrokerJWEResponse.h"
 #import "ADBrokerHelpers.h"
 

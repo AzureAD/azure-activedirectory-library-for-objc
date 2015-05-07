@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		971C57B61AFAB2FE0034820F /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 971C57B41AFAB2FE0034820F /* libADALiOS.a */; };
+		971C57B61AFAB2FE0034820F /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 971C57B41AFAB2FE0034820F /* libADALiOS.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		975E42D71A1D49D10033B500 /* ADALiOS.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 975E42D61A1D49D10033B500 /* ADALiOS.bundle */; };
 		976CCB261A02DA49006C91F4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB251A02DA49006C91F4 /* main.m */; };
 		976CCB291A02DA49006C91F4 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB281A02DA49006C91F4 /* AppDelegate.m */; };
