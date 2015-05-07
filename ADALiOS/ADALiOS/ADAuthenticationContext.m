@@ -47,7 +47,7 @@
 NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
 NSString* const serverError = @"The authentication server returned an error: %@.";
-NSString* const brokerAppIdentifier = @"com.microsoft.broker";
+NSString* const brokerAppIdentifier = @"com.microsoft.azureadauthenticator";
 
 //Used for the callback of obtaining the OAuth2 code:
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
@@ -1188,13 +1188,14 @@ return; \
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
     
-    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&correlation_id=%@&broker_key=%@",
+    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&correlation_id=%@&broker_key=%@&client_version=%@",
                        _authority,
                        resource,
                        clientId,
                        redirectUri.absoluteString,
                        [correlationId UUIDString],
-                       base64UrlKey];
+                       base64UrlKey,
+                       [ADLogger getAdalVersion]];
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@&%@", urlString, query]];
     [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];
     
@@ -2138,7 +2139,7 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
     
-    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, base64UrlKey];
+    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&broker_key=%@&client_version=%@", authority, resource, clientId, redirectUri, userId, correlationId, base64UrlKey, [ADLogger getAdalVersion]];
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", brokerScheme, query]];
     
     [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];
