@@ -102,47 +102,48 @@ correlationId:(NSUUID *)correlationId
     
     // Save the completion block
     _completionBlock = SAFE_ARC_BLOCK_COPY(completionBlock);
-    ADAuthenticationError* error = nil;
+    __block ADAuthenticationError* error = nil;
     
-    if (webView)
-    {
-        // Use the application provided WebView
-        _authenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL];
+    dispatch_block_t authWindowBlock = ^{
         
-        if ( _authenticationWebViewController )
+        if (webView)
         {
-            // Show the authentication view
-            _authenticationWebViewController.delegate = self;
-            [_authenticationWebViewController start];
+            // Use the application provided WebView
+            _authenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL];
+            
+            if ( _authenticationWebViewController )
+            {
+                // Show the authentication view
+                _authenticationWebViewController.delegate = self;
+                [_authenticationWebViewController start];
+            }
+            else
+            {
+                // Dispatch the completion block
+                error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
+                                                               protocolCode:nil
+                                                               errorDetails:AD_FAILED_NO_RESOURCES];
+            }
         }
         else
         {
-            // Dispatch the completion block
-            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
-                                                           protocolCode:nil
-                                                           errorDetails:AD_FAILED_NO_RESOURCES];
-        }
-    }
-    else
-    {
-        _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
-        if (_ntlmSession)
-        {
-            AD_LOG_INFO(@"Authorization UI", @"Starting NTLM handler.");
-        }
-        
-        // Load the authentication view
-        _authenticationPageController = [[ADAuthenticationWindowController alloc] initAtURL:startURL
-                                                                                   endAtURL:endURL];
-        
-        if ( _authenticationPageController )
-        {
-            _authenticationPageController.delegate = self;
-            
-            // Start the modal session
-            _authenticationSession = [NSApp beginModalSessionForWindow:[_authenticationPageController window]];
-            if (_authenticationSession)
+            _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
+            if (_ntlmSession)
             {
+                AD_LOG_INFO(@"Authorization UI", @"Starting NTLM handler.");
+            }
+            
+            // Load the authentication view
+            _authenticationPageController = [[ADAuthenticationWindowController alloc] initAtURL:startURL
+                                                                                       endAtURL:endURL];
+            
+            if ( _authenticationPageController )
+            {
+                _authenticationPageController.delegate = self;
+                NSWindow* authWindow = [_authenticationPageController window];
+                // Start the modal session
+                _authenticationSession = [NSApp beginModalSessionForWindow:authWindow];
+                
                 // Initialize the web view controller
                 [_authenticationPageController start];
                 
@@ -159,6 +160,9 @@ correlationId:(NSUUID *)correlationId
                 // End the modal session
                 [NSApp endModalSession:_authenticationSession];
                 _authenticationSession = NULL;
+                
+                SAFE_ARC_RELEASE(_authenticationPageController);
+                _authenticationPageController = nil;
             }
             else
             {
@@ -167,23 +171,17 @@ correlationId:(NSUUID *)correlationId
                                                                errorDetails:AD_FAILED_NO_RESOURCES];
             }
         }
-        else
-        {
-            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
-                                                           protocolCode:nil
-                                                           errorDetails:AD_FAILED_NO_RESOURCES];
-        }
-    }
+    };
+    
+    if ([NSThread isMainThread])
+        authWindowBlock();
+    else
+        dispatch_sync(dispatch_get_main_queue(), authWindowBlock);
+    
     //Error occurred above. Dispatch the callback to the caller:
     if (error)
     {
         [self dispatchCompletionBlock:error URL:nil];
-    }
-    
-    if ( _authenticationPageController )
-    {
-        SAFE_ARC_RELEASE(_authenticationPageController);
-        _authenticationPageController = nil;
     }
 }
 
