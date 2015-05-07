@@ -1210,7 +1210,6 @@ return; \
         NSString* qp = [appUrl query];
         NSDictionary* qpDict = [NSDictionary adURLFormDecode:qp];
         NSString* url = [qpDict valueForKey:@"app_link"];
-        url = [url adBase64UrlDecode];
         [self saveToPasteBoard:appUrl.absoluteString];
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:url]];

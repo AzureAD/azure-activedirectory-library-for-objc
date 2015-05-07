@@ -30,6 +30,7 @@
 		8BA42B2F17E3C150002D206E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B2D17E3C150002D206E /* InfoPlist.strings */; };
 		8BA42B3117E3C150002D206E /* MyTestiOSAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */; };
 		8BAB18B4184576B700FDD4DD /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BAB18B3184576B700FDD4DD /* libADALiOS.a */; };
+		971C57C61AFBBA490034820F /* ADALiOS.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 971C57C51AFBBA490034820F /* ADALiOS.bundle */; };
 		9777DFFB1A3586D600D8D8A8 /* BVApplicationData.m in Sources */ = {isa = PBXBuildFile; fileRef = 9777DFFA1A3586D600D8D8A8 /* BVApplicationData.m */; };
 		97E5968719F5C82200D9F44E /* BVTestFlipsideViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B1A17E3C150002D206E /* BVTestFlipsideViewController.m */; };
 /* End PBXBuildFile section */
@@ -76,6 +77,7 @@
 		8BA42B2E17E3C150002D206E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyTestiOSAppTests.m; sourceTree = "<group>"; };
 		8BAB18B3184576B700FDD4DD /* libADALiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADALiOS.a; path = "../../../../Library/Developer/Xcode/DerivedData/ADALiOS-ckezcambqztutxakbxsnwblsewcb/Build/Products/Debug-iphoneos/libADALiOS.a"; sourceTree = "<group>"; };
+		971C57C51AFBBA490034820F /* ADALiOS.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = ADALiOS.bundle; path = ../ADALiOS.bundle; sourceTree = "<group>"; };
 		9777DFF91A3586C200D8D8A8 /* BVApplicationData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BVApplicationData.h; sourceTree = "<group>"; };
 		9777DFFA1A3586D600D8D8A8 /* BVApplicationData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BVApplicationData.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -167,6 +169,7 @@
 		8BA42B0217E3C150002D206E /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				971C57C51AFBBA490034820F /* ADALiOS.bundle */,
 				8BA42B0317E3C150002D206E /* MyTestiOSApp-Info.plist */,
 				8BA42B0417E3C150002D206E /* InfoPlist.strings */,
 				8BA42B0717E3C150002D206E /* main.m */,
@@ -282,6 +285,7 @@
 				8BA42B1217E3C150002D206E /* Main_iPad.storyboard in Resources */,
 				8BA42B1D17E3C150002D206E /* Images.xcassets in Resources */,
 				8BA42B0F17E3C150002D206E /* Main_iPhone.storyboard in Resources */,
+				971C57C61AFBBA490034820F /* ADALiOS.bundle in Resources */,
 				8B87548818988C4B0061999F /* TestData.plist in Resources */,
 				8BA42B0617E3C150002D206E /* InfoPlist.strings in Resources */,
 			);
