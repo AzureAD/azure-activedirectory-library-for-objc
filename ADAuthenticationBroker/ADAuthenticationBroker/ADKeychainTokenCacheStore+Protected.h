@@ -22,4 +22,13 @@
 
 -(NSString*) keychainKeyFromCacheKey: (ADTokenCacheStoreKey*) itemKey;
 
+-(NSMutableDictionary*) keychainAttributesWithQuery: (NSMutableDictionary*) query
+                                              error: (ADAuthenticationError* __autoreleasing*)error;
+
+-(ADTokenCacheStoreItem*) readCacheItemWithAttributes: (NSDictionary*)attributes
+                                                error: (ADAuthenticationError* __autoreleasing*)error;
+
+-(void) removeWithAttributesDictionaries: (NSDictionary*) keysAndAttributes
+                                   error: (ADAuthenticationError* __autoreleasing*) error;
+
 @end

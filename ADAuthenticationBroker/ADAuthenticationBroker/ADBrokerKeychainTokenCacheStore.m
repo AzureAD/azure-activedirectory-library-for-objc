@@ -18,6 +18,7 @@
 
 #import "NSString+ADHelperMethods.h"
 #import "ADBrokerKeychainTokenCacheStore.h"
+#import "ADBrokerConstants.h"
 
 NSString* const delimiter = @"|";
 @implementation ADBrokerKeychainTokenCacheStore
@@ -28,7 +29,7 @@ NSString* const delimiter = @"|";
 -(id) init
 {
     
-    return [self initWithAppKey:nil];
+    return [self initWithAppKey:DEFAULT_GUID_FOR_NIL];
 }
 
 -(id) initWithAppKey: (NSString *)appKey
@@ -53,20 +54,54 @@ NSString* const delimiter = @"|";
 -(void) removeAllForUser: (NSString*) userId
                    error: (ADAuthenticationError* __autoreleasing*) error
 {
-    //API_ENTRY;
+    API_ENTRY;
+//    @synchronized(self)
+//    {
+//        ADTokenCacheStoreKey* key = nil;
+//        NSArray* allEntries = [self allItemsWithError:error];
+//        
+//        for(ADTokenCacheStoreItem* item in allEntries)
+//        {
+//            if([item userInformation] && [NSString adSame:userId toString:item.userInformation.userId])
+//            {
+//                key = [item extractKeyWithError:error];
+//                [self removeItemWithKey:key userId:userId error:error];
+//            }
+//        }
+//    }
+
+    ADAuthenticationError* adError;
+    
     @synchronized(self)
     {
-        ADTokenCacheStoreKey* key = nil;
-        NSArray* allEntries = [self allItemsWithError:error];
-        
-        for(ADTokenCacheStoreItem* item in allEntries)
+        NSMutableDictionary* toDelete = [NSMutableDictionary new];
+        //Read all stored keys, then extract the data (full cache item) for each key:
+        NSMutableDictionary* all = [self keychainAttributesWithQuery:nil error:&adError];
+        if (all)
         {
-            if([item userInformation] && [NSString adSame:userId toString:item.userInformation.userId])
+            for(NSDictionary* attributes in all.allValues)
             {
-                key = [item extractKeyWithError:error];
-                [self removeItemWithKey:key userId:userId error:error];
+                ADTokenCacheStoreItem* item = [self readCacheItemWithAttributes:attributes error:&adError];//The error is always logged internally.
+                if([item userInformation] && [NSString adSame:userId toString:item.userInformation.userId])
+                {
+                    [toDelete setObject:attributes forKey:[[NSUUID UUID] UUIDString]];
+                }
+                else if (adError)
+                {
+                    break;
+                }
             }
         }
+        
+        if(toDelete.count > 0)
+        {
+            [self removeWithAttributesDictionaries:toDelete error:&adError];
+        }
+    }
+    
+    if (error && adError)
+    {
+        *error = adError;
     }
 }
 

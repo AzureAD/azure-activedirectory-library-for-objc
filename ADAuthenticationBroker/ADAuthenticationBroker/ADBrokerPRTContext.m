@@ -324,7 +324,7 @@ isHandlingPKeyAuthChallenge:NO
                          scope: @"openid"
                         userId: userPrincipalIdentifier
                 promptBehavior: AD_PROMPT_AUTO
-          extraQueryParameters: @"nux=1"
+          extraQueryParameters: @"nux=1&slice=testslice"
         refreshTokenCredential: refreshTokenCredential
                  correlationId: ctx.getCorrelationId
                     completion:^(NSString *code, ADAuthenticationError *authError) {
@@ -355,6 +355,18 @@ isHandlingPKeyAuthChallenge:NO
                        additionalHeaders:nil
                        returnRawResponse:YES
                               completion:^(NSDictionary *response) {
+                                  
+                                  if([response valueForKey:@"raw_response"])
+                                  {
+                                      ADBrokerJWEResponse* jweResp = [[ADBrokerJWEResponse alloc] initWithRawJWE:[response valueForKey:@"raw_response"]];
+                                      response = [ADBrokerJwtHelper decryptJWEResponseUsingKeyDerivation:jweResp
+                                                                                                 context:[jweResp headerContext]
+                                                                                                     key:prtItem.sessionKey];
+                                      
+                                      //id_token is not returned. Use id_token from PRT entry
+                                      [response setValue:[prtItem.userInformation rawIdToken]
+                                                  forKey:@"id_token"];
+                                  }
                                   
                                   ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
                                   item.resource = resource;
