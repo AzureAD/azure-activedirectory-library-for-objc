@@ -380,7 +380,7 @@ return; \
                                                    silent:NO
                                                    userId:upn
                                                     scope:nil
-                                     extraQueryParameters:@"brkr=1&slice=testslice"
+                                     extraQueryParameters:@"brkr=1"
                                                  tryCache:NO
                                         validateAuthority:NO
                                             correlationId:ctx.getCorrelationId
@@ -415,7 +415,7 @@ return; \
                                        silent:NO
                                        userId:upn
                                         scope:nil
-                         extraQueryParameters:@"brkr=1&slice=testslice"
+                         extraQueryParameters:@"brkr=1"
                                      tryCache:YES
                             validateAuthority:YES
                                 correlationId:ctx.getCorrelationId
