@@ -324,7 +324,7 @@ isHandlingPKeyAuthChallenge:NO
                          scope: @"openid"
                         userId: userPrincipalIdentifier
                 promptBehavior: AD_PROMPT_AUTO
-          extraQueryParameters: @"nux=1"
+          extraQueryParameters: @"nux=1&slice=testslice"
         refreshTokenCredential: refreshTokenCredential
                  correlationId: ctx.getCorrelationId
                     completion:^(NSString *code, ADAuthenticationError *authError) {

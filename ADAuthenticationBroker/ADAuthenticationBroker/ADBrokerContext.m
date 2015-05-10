@@ -133,23 +133,15 @@ return; \
     NSArray * parts = [requestPayload componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
-    @try
-    {
-        THROW_ON_NIL_ARGUMENT(requestPayload);
-        THROW_ON_NIL_ARGUMENT(sourceApplication);
-        THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:AUTHORITY]);
-        THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_CLIENT_ID]);
-        THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]);
-        THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]);
-        THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:BROKER_KEY]);
-    }
-    @catch (NSException *exception) {
-        
-        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
-                                                       protocolCode:nil
-                                                       errorDetails:[exception reason]];
-    }
-    
+
+    THROW_ON_NIL_ARGUMENT(requestPayload);
+    THROW_ON_NIL_ARGUMENT(sourceApplication);
+    THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:AUTHORITY]);
+    THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_CLIENT_ID]);
+    THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]);
+    THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]);
+    THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:BROKER_KEY]);
+
     if(!error)
     {
         //validate source application against redirect uri
@@ -175,7 +167,7 @@ return; \
                                                  valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
         if(ctx)
         {
-            ADAuthenticationCallback defaultCallback = ^(ADAuthenticationResult *result)
+            ADAuthenticationCallback takeMeBack = ^(ADAuthenticationResult *result)
             {
                 if(![NSString adSame:sourceApplication toString:DEFAULT_GUID_FOR_NIL])
                 {
@@ -219,7 +211,36 @@ return; \
                        resource:[queryParamsMap valueForKey:OAUTH2_RESOURCE]
                     redirectUri:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]
                          appKey:[queryParamsMap valueForKey:BROKER_KEY]
-                completionBlock:defaultCallback];
+                completionBlock:^(ADAuthenticationResult *result) {
+                    
+                    if(result.status != AD_SUCCEEDED && result.error.code == AD_ERROR_WPJ_REQUIRED)
+                    {
+                        ADAuthenticationError* err = result.error;
+                        [ctx doWorkPlaceJoinForUpn:[err.userInfo valueForKey:@"username"]
+                                     onResultBlock:^(ADBrokerPRTCacheItem *item, NSError *error) {
+                                         if(!error)
+                                         {
+                                             [ctx acquireAccount:[queryParamsMap valueForKey:AUTHORITY]
+                                                          userId:[err.userInfo valueForKey:@"username"]
+                                                        clientId:[queryParamsMap valueForKey:OAUTH2_CLIENT_ID]
+                                                        resource:[queryParamsMap valueForKey:OAUTH2_RESOURCE]
+                                                     redirectUri:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]
+                                                          appKey:[queryParamsMap valueForKey:BROKER_KEY]
+                                                 completionBlock:takeMeBack];
+                                         }
+                                         else
+                                         {
+                                             takeMeBack([ADAuthenticationResult resultFromError:[ADAuthenticationError errorFromNSError:error errorDetails:error.description]]);
+                                         }
+                                     }];
+                    }
+                    else
+                    {
+                        //either succeeded or a non-WPJ failure. Take the user back
+                        //to the calling app.
+                        takeMeBack(result);
+                    }
+                }];
         }
     }
 }
@@ -323,10 +344,10 @@ return; \
     //if client id is not broker, use incoming app's key for cache.
     id<ADTokenCacheStoring> cache = [[ADBrokerKeychainTokenCacheStore alloc]initWithAppKey:appKey];
     ADAuthenticationContext* ctx = [[ADAuthenticationContext alloc]
-                                             initWithAuthority:authority
-                                             validateAuthority:YES
-                                             tokenCacheStore:cache
-                                             error:&error];
+                                    initWithAuthority:authority
+                                    validateAuthority:YES
+                                    tokenCacheStore:cache
+                                    error:&error];
     [ctx setCorrelationId:_correlationId];
     
     // if UPN is blank, do not use acquire token silent as it will return
@@ -380,7 +401,7 @@ return; \
                                                    silent:NO
                                                    userId:upn
                                                     scope:nil
-                                     extraQueryParameters:@"brkr=1"
+                                     extraQueryParameters:@"brkr=1&slice=testslice"
                                                  tryCache:NO
                                         validateAuthority:NO
                                             correlationId:ctx.getCorrelationId
@@ -415,7 +436,7 @@ return; \
                                        silent:NO
                                        userId:upn
                                         scope:nil
-                         extraQueryParameters:@"brkr=1"
+                         extraQueryParameters:@"brkr=1&slice=testslice"
                                      tryCache:YES
                             validateAuthority:YES
                                 correlationId:ctx.getCorrelationId
