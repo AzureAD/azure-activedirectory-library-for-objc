@@ -238,11 +238,13 @@ isHandlingPKeyAuthChallenge:NO
                                                                   context:[jweResp headerContext]
                                                                       key:prtItem.sessionKey];
                       
-                      //id_token is not returned. Use id_token from PRT entry
-                      [response setValue:[prtItem.userInformation rawIdToken]
-                                   forKey:@"id_token"];
+                      //if id_token is not returned, Use id_token from PRT entry
+                      if([response valueForKey:OAUTH2_ID_TOKEN])
+                      {
+                          [response setValue:[prtItem.userInformation rawIdToken]
+                                      forKey:OAUTH2_ID_TOKEN];
+                      }
                   }
-                  
                   
                   ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
                   item.resource = resource;
@@ -330,7 +332,7 @@ isHandlingPKeyAuthChallenge:NO
                     completion:^(NSString *code, ADAuthenticationError *authError) {
                         if(authError)
                         {
-                            //TODO
+                            completionBlock([ADAuthenticationResult resultFromError:authError]);
                         }
                         else
                         {

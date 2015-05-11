@@ -175,7 +175,10 @@ NSMutableArray* users;
                                                            delegate:self
                                                   cancelButtonTitle:@"OK"
                                                   otherButtonTitles:nil];
+            
+            dispatch_async(dispatch_get_main_queue(),^{
             [alert show];
+            });
         }
         else{
             [self getAllAccounts:YES];

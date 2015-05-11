@@ -65,7 +65,7 @@
     [self.deletePrtButton setEnabled:self.account.isWorkplaceJoined];
     [self.prtButton setEnabled:self.account.isWorkplaceJoined];
     [self.getATFromPrtButton setEnabled:self.account.isWorkplaceJoined];
-
+    
     if(self.account.isWorkplaceJoined)
     {
         [self.wpjEnabled setOn:YES animated:YES];    }
@@ -99,7 +99,7 @@
                                            otherButtonTitles: nil];
     [alert addButtonWithTitle:@"Yes"];
     [alert show];
-
+    
 }
 
 - (IBAction)getPRTPressed:(id)sender
@@ -131,10 +131,13 @@
                                                                delegate:self
                                                       cancelButtonTitle:@"OK"
                                                       otherButtonTitles:nil];
-                [alert show];
+                dispatch_async(dispatch_get_main_queue(),^{
+                    [alert show];
+                });
             } else
-            {
+            {            dispatch_async(dispatch_get_main_queue(),^{
                 [self.navigationController popViewControllerAnimated:YES];
+            });
             }
         }];
     }
@@ -150,10 +153,13 @@
                                                                             delegate:self
                                                                    cancelButtonTitle:@"OK"
                                                                    otherButtonTitles:nil];
-                             [alert show];
+                             dispatch_async(dispatch_get_main_queue(),^{
+                                 [alert show];
+                             });
                          } else
-                         {
+                         {                    dispatch_async(dispatch_get_main_queue(),^{
                              [self.navigationController popViewControllerAnimated:YES];
+                         });
                          }
                      }];
     }
@@ -168,15 +174,18 @@
             if(error)
             {
                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to remove account"
-                                                             message:error.description
-                                                            delegate:self
-                                                   cancelButtonTitle:@"OK"
-                                                   otherButtonTitles:nil];
-                [alert show];
+                                                                message:error.description
+                                                               delegate:self
+                                                      cancelButtonTitle:@"OK"
+                                                      otherButtonTitles:nil];
+                dispatch_async(dispatch_get_main_queue(),^{
+                    [alert show];
+                });
             }
             else
-            {
+            {dispatch_async(dispatch_get_main_queue(),^{
                 [self.navigationController popViewControllerAnimated:YES];
+            });
             }
         }];
     }
@@ -185,7 +194,7 @@
 
 - (IBAction)getATFromPRTPressed:(id)sender
 {
-
+    
     ADBrokerContext*ctx = [[ADBrokerContext alloc] initWithAuthority:DEFAULT_AUTHORITY];
     [ctx setCorrelationId:[NSUUID UUID]];
     [ctx acquireAccount:self.account.userInformation.upn
@@ -200,7 +209,10 @@
                                                                delegate:self
                                                       cancelButtonTitle:@"OK"
                                                       otherButtonTitles:nil];
-                [alert show];
+                
+                dispatch_async(dispatch_get_main_queue(),^{
+                    [alert show];
+                });
             }
             else
             {
@@ -208,26 +220,26 @@
             }
         }];
     
-//    ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.account.userInformation.upn correlationId:[NSUUID UUID] error:nil];
-//    [ctx acquireTokenUsingPRTForResource:@"https://graph.windows.net"
-//                                clientId:self.clientId.text
-//                             redirectUri:self.redirectUri.text
-//                                  appKey:DEFAULT_GUID_FOR_NIL
-//                         completionBlock:^(ADAuthenticationResult *result) {
-//                             if(result.status != AD_SUCCEEDED)
-//                             {
-//                                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to get Token"
-//                                                                                 message:result.error.description
-//                                                                                delegate:self
-//                                                                       cancelButtonTitle:@"OK"
-//                                                                       otherButtonTitles:nil];
-//                                 [alert show];
-//                             }
-//                             else
-//                             {
-//                                 //do somethin
-//                             }
-//                         }];
+    //    ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.account.userInformation.upn correlationId:[NSUUID UUID] error:nil];
+    //    [ctx acquireTokenUsingPRTForResource:@"https://graph.windows.net"
+    //                                clientId:self.clientId.text
+    //                             redirectUri:self.redirectUri.text
+    //                                  appKey:DEFAULT_GUID_FOR_NIL
+    //                         completionBlock:^(ADAuthenticationResult *result) {
+    //                             if(result.status != AD_SUCCEEDED)
+    //                             {
+    //                                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to get Token"
+    //                                                                                 message:result.error.description
+    //                                                                                delegate:self
+    //                                                                       cancelButtonTitle:@"OK"
+    //                                                                       otherButtonTitles:nil];
+    //                                 [alert show];
+    //                             }
+    //                             else
+    //                             {
+    //                                 //do somethin
+    //                             }
+    //                         }];
 }
 
 @end

@@ -48,6 +48,7 @@ return; \
 
 - (id) initWithAuthority:(NSString*) authority
 {
+    API_ENTRY;
     self = [super init];
     if(self)
     {
@@ -98,6 +99,7 @@ return; \
                returnUpn: (NSString**) returnUpn
 {
     
+    API_ENTRY;
     BOOL isBrokerRequest = requestPayloadUrl && [[requestPayloadUrl host] isEqualToString:@"broker"];
     *returnUpn = nil;
     if(isBrokerRequest)
@@ -119,6 +121,7 @@ return; \
 + (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
                         sourceApplication: (NSString*) sourceApplication
 {
+    API_ENTRY;
     [ADBrokerContext invokeBrokerForSourceApplication:requestPayload
                                     sourceApplication:sourceApplication
                                                   upn:nil];
@@ -128,6 +131,8 @@ return; \
                         sourceApplication: (NSString*) sourceApplication
                                       upn: (NSString*) upn
 {
+    API_ENTRY;
+    
     ADAuthenticationError* error = nil;
     
     NSArray * parts = [requestPayload componentsSeparatedByString:@"?"];
@@ -302,31 +307,6 @@ return; \
         }
     }
     
-    cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
-    array = [cache allItemsWithError:&error];
-    if (error)
-    {
-        return accountsArray;
-    }
-    
-    for(ADTokenCacheStoreItem* item in array)
-    {
-        ADUserInformation *user = item.userInformation;
-        if (!item.userInformation)
-        {
-            user = [ADUserInformation userInformationWithUserId:@"Unknown user" error:nil];
-        }
-        
-        if (![users containsObject:user.userId])
-        {
-            [users addObject:user.userId];
-            [accountsArray addObject:[[ADBrokerUserAccount alloc] init:user
-                                                     isWorkplaceJoined:[NSString adSame:user.userId
-                                                                               toString:wpjUpn]
-                                                          isNGCEnabled:NO]];
-        }
-    }
-    
     return accountsArray;
 }
 
@@ -459,6 +439,7 @@ return; \
 - (void) acquireAccount:(NSString*) upn
         completionBlock:(ADAuthenticationCallback) completionBlock
 {
+    API_ENTRY;
     [self acquireAccount:_authority
                   userId:upn
                 clientId:BROKER_CLIENT_ID
@@ -476,6 +457,7 @@ return; \
             redirectUri:(NSString*) redirectUri
         completionBlock:(ADAuthenticationCallback) completionBlock
 {
+    API_ENTRY;
     [self acquireAccount:_authority
                   userId:upn
                 clientId:clientId
@@ -489,6 +471,7 @@ return; \
                  onResultBlock:(ADPRTResultCallback) onResultBlock
 {
     
+    API_ENTRY;
     WorkPlaceJoin *workPlaceJoinApi = [WorkPlaceJoin WorkPlaceJoinManager];
     NSError* error;
     error = [workPlaceJoinApi addDiscoveryHint:PROD];
@@ -548,6 +531,7 @@ return; \
 
 -(BOOL) isWorkplaceJoined:(NSString*) upn
 {
+    API_ENTRY;
     RegistrationInformation* regInfo = [ADBrokerContext getWorkPlaceJoinInformation];
     BOOL result = NO;
     if(regInfo)
@@ -566,6 +550,7 @@ return; \
 
 - (void) removeWorkPlaceJoinRegistration:(ADOnResultCallback) onResultBlock
 {
+    API_ENTRY;
     RegistrationInformation* regInfo = [ADBrokerContext getWorkPlaceJoinInformation];
     NSString* upn = regInfo.userPrincipalName;
     if(regInfo)
@@ -574,9 +559,9 @@ return; \
         [ [WorkPlaceJoin WorkPlaceJoinManager] leaveWithCompletionBlock:[NSUUID UUID]
                                                         completionBlock:^(NSError *error)
          {
-             
-             [self deleteFromCache:[ADBrokerKeychainTokenCacheStore new]
-                               upn:upn];
+             ADBrokerPRTContext* brokerCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
+                                                                       correlationId:[NSUUID UUID] error:nil];
+             [brokerCtx deletePRT];
          }];
         
         [regInfo releaseData];
@@ -588,6 +573,7 @@ return; \
 - (void) removeAccount: (NSString*) upn
          onResultBlock:(ADOnResultCallback) onResultBlock
 {
+    API_ENTRY;
     RegistrationInformation* regInfo = [ADBrokerContext getWorkPlaceJoinInformation];
     if(regInfo && [NSString adSame:upn toString:regInfo.userPrincipalName])
     {
