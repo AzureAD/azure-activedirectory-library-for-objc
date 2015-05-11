@@ -57,7 +57,6 @@
     {
         self.wpjEnabled.enabled = [self.account.userInformation.userId isEqualToString:
                                    info.userPrincipalName];
-        [info releaseData];
         info = nil;
     }
     

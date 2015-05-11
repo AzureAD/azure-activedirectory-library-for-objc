@@ -507,7 +507,7 @@ isHandlingPKeyAuthChallenge:NO
     NSString* prtRequestJWT = [ADBrokerJwtHelper createSignedJWTforHeader:header
                                                                   payload:payload
                                                                signingKey:[identity privateKey]];
-    [identity releaseData];
+    identity = nil;
     return prtRequestJWT;
 }
 
@@ -603,7 +603,7 @@ isHandlingPKeyAuthChallenge:NO
                                                              privateKeyRef:[regInfo
                                                                             sessionTransportPrivateKey]
                                                                      error:&error];
-        [regInfo releaseData];
+        regInfo = nil;
         return [ADAuthenticationResult resultFromTokenCacheStoreItem:item
                                            multiResourceRefreshToken:NO];
     }

@@ -272,7 +272,6 @@ return; \
     if(regInfo)
     {
         wpjUpn = regInfo.userPrincipalName;
-        [regInfo releaseData];
         regInfo = nil;
     }
     if(errObj)
@@ -537,7 +536,6 @@ return; \
     if(regInfo)
     {
         result = [NSString adSame:upn toString:[regInfo userPrincipalName]];
-        [regInfo releaseData];
     }
     return result;
 }
@@ -556,7 +554,7 @@ return; \
     if(regInfo)
     {
         //remove WPJ as well
-        [ [WorkPlaceJoin WorkPlaceJoinManager] leaveWithCompletionBlock:[NSUUID UUID]
+        [ [WorkPlaceJoin WorkPlaceJoinManager] leaveWithCorrelationId:[NSUUID UUID]
                                                         completionBlock:^(NSError *error)
          {
              ADBrokerPRTContext* brokerCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
@@ -564,7 +562,6 @@ return; \
              [brokerCtx deletePRT];
          }];
         
-        [regInfo releaseData];
         regInfo = nil;
     }
 }
@@ -581,7 +578,7 @@ return; \
         [ self removeWorkPlaceJoinRegistration:^(NSError *error) {
             //do nothing
         }];
-        [regInfo releaseData];
+        
         regInfo = nil;
     }
     
