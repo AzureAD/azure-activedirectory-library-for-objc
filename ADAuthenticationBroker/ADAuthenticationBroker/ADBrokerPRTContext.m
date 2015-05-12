@@ -86,9 +86,9 @@ NSString* userPrincipalIdentifier;
     ADBrokerPRTCacheItem* item = (ADBrokerPRTCacheItem*)[cacheStore getItemWithKey:key
                                                                             userId:userPrincipalIdentifier
                                                                              error:&error];
-    if(!error && item)
+    if(!error && item && !item.isExpired)
     {
-        //TODO check for PRT expiration
+        //success
         callback(item, error);
         return;
     }
