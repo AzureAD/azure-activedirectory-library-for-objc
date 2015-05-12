@@ -7,11 +7,11 @@
 		<key>Authority</key>
 		<string>https://login.windows.net/common</string>
 		<key>ClientId</key>
-		<string>dd9caee2-38bd-484e-998c-7529bdef220f</string>
+		<string>e3786e2a-0dcb-449a-8eba-b4042c9bec01</string>
 		<key>Resource</key>
-		<string>https://graph.windows.net</string>
+		<string>https://aadadfs.onmicrosoft.com/TodoListService</string>
 		<key>RedirectUri</key>
-		<string>mytestiosapp://com.MSOpenTech.MyTestiOSApp</string>
+		<string>https://aadadfstodolistservice.azurewebsites.net</string>
 		<key>UserId</key>
 		<string></string>
 		<key>Password</key>

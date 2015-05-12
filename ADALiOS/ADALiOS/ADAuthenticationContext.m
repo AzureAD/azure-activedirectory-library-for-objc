@@ -1225,7 +1225,11 @@ return; \
     appPasteBoard.persistent = YES;
     NSData *data = [url dataUsingEncoding:NSUTF8StringEncoding];
     [appPasteBoard setData:data
-         forPasteboardType:@"com.microsoft.broker"];
+         forPasteboardType:@"com.microsoft.broker.url"];
+    
+    data = [[[NSBundle mainBundle] bundleIdentifier] dataUsingEncoding:NSUTF8StringEncoding];
+    [appPasteBoard setData:data
+         forPasteboardType:@"com.microsoft.broker.sourceApp"];
 }
 
 
