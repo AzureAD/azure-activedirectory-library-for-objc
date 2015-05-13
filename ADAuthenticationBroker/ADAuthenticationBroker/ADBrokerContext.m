@@ -245,11 +245,20 @@ return; \
                 }
             };
             
+            NSString* extraQP =[queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS];
+            NSDictionary* extraQpDictionary = [NSDictionary adURLFormDecode:extraQP];
+            extraQP = nil;
+            if([extraQpDictionary valueForKey:@"mamver"])
+            {
+                extraQP = [NSString stringWithFormat:@"mamver=%@", [extraQpDictionary valueForKey:@"mamver"]];
+            }
+            
             [ctx acquireAccount:[queryParamsMap valueForKey:AUTHORITY]
                          userId:upn
                        clientId:[queryParamsMap valueForKey:OAUTH2_CLIENT_ID]
                        resource:[queryParamsMap valueForKey:OAUTH2_RESOURCE]
                     redirectUri:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]
+           extraQueryParameters:extraQP
                          appKey:[queryParamsMap valueForKey:BROKER_KEY]
                 completionBlock:^(ADAuthenticationResult *result) {
                     
@@ -265,6 +274,7 @@ return; \
                                                         clientId:[queryParamsMap valueForKey:OAUTH2_CLIENT_ID]
                                                         resource:[queryParamsMap valueForKey:OAUTH2_RESOURCE]
                                                      redirectUri:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]
+                                            extraQueryParameters:extraQP
                                                           appKey:[queryParamsMap valueForKey:BROKER_KEY]
                                                  completionBlock:takeMeBack];
                                          }
@@ -350,6 +360,7 @@ return; \
                clientId:(NSString*) clientId
                resource:(NSString*) resource
             redirectUri:(NSString*) redirectUri
+   extraQueryParameters:(NSString*) queryParams
                  appKey:(NSString*) appKey
         completionBlock:(ADAuthenticationCallback) completionBlock
 {
@@ -442,6 +453,7 @@ return; \
     //if forceUI then pass AD_PROMPT_ALWAYS.
     if(forceUI)
     {
+        NSString* qp = [NSString stringWithFormat:@"%@&%@", @"brkr=1&slice=testslice", queryParams];
         AD_LOG_INFO(@"Force UI Prompt", @"UPN is nil so ignore cache. Use PROMPT_ALWAYS to force UI.");
         [ctx internalAcquireTokenWithResource:resource
                                      clientId:clientId
@@ -480,6 +492,7 @@ return; \
                 clientId:BROKER_CLIENT_ID
                 resource:BROKER_RESOURCE
              redirectUri:BROKER_REDIRECT_URI
+    extraQueryParameters:nil
                   appKey:DEFAULT_GUID_FOR_NIL
          completionBlock:completionBlock];
 }
@@ -498,6 +511,7 @@ return; \
                 clientId:clientId
                 resource:resource
              redirectUri:redirectUri
+    extraQueryParameters:nil
                   appKey:DEFAULT_GUID_FOR_NIL
          completionBlock:completionBlock];
 }
@@ -531,6 +545,7 @@ return; \
                      clientId:BROKER_CLIENT_ID
                      resource:[svcInfo registrationResourceId]
                   redirectUri:BROKER_REDIRECT_URI
+         extraQueryParameters:nil
                        appKey:DEFAULT_GUID_FOR_NIL
               completionBlock:^(ADAuthenticationResult *result) {
                   if(result.status == AD_SUCCEEDED)
