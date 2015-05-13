@@ -22,9 +22,10 @@
 extern NSString* const BROKER_ERROR_DOMAIN;
 extern NSString* const DEFAULT_GUID_FOR_NIL;
 extern NSString* const BROKER_KEY;
-extern NSString* const USER_ID;
+extern NSString* const USERNAME;
 extern NSString* const AUTHORITY;
 extern NSString* const CLIENT_ADAL_VERSION;
+extern NSString *const EXTRA_QUERY_PARAMETERS;
 
 extern NSString* const BROKER_CLIENT_ID;
 extern NSString* const BROKER_RESOURCE;

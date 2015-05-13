@@ -22,9 +22,10 @@
 NSString* const BROKER_ERROR_DOMAIN = @"ADBrokerErrorDomain";
 NSString* const DEFAULT_GUID_FOR_NIL = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
 NSString* const BROKER_KEY = @"broker_key";
-NSString* const USER_ID = @"user_id";
+NSString* const USERNAME = @"username";
 NSString* const AUTHORITY = @"authority";
 NSString* const CLIENT_ADAL_VERSION = @"client_version";
+NSString *const EXTRA_QUERY_PARAMETERS = @"extra_qp";
 
 
 NSString* const BROKER_CLIENT_ID = @"29d9ed98-a469-4536-ade2-f981bc1d605e";
