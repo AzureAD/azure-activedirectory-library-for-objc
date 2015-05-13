@@ -16,21 +16,14 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import "ADLogger.h"
 
-#import <Foundation/Foundation.h>
+@interface ADLogger (Broker)
 
-extern NSString* const BROKER_ERROR_DOMAIN;
-extern NSString* const DEFAULT_GUID_FOR_NIL;
-extern NSString* const BROKER_KEY;
-extern NSString* const USER_ID;
-extern NSString* const AUTHORITY;
-extern NSString* const CLIENT_ADAL_VERSION;
++(void) resetAdalVersion;
 
-extern NSString* const BROKER_CLIENT_ID;
-extern NSString* const BROKER_RESOURCE;
-extern NSString* const BROKER_REDIRECT_URI;
-extern NSString* const DEFAULT_FIRST_PARTY_CLIENT_ID;
++(void) setAdalVersion:(NSString*) adalVersion;
 
-extern NSString *const OAUTH2_SESSION_JWE_KEY;
++(NSString*) getCPUInfo;
 
-extern NSString *const ADAL_ID_BROKER_VER;
+@end

@@ -30,6 +30,7 @@
 #import "ADBrokerPRTCacheItem.h"
 #import "ADBrokerUserAccount.h"
 #import "ADBrokerSettings.h"
+#import "ADLogger+Broker.h"
 
 @implementation ADBrokerContext
 
@@ -54,6 +55,7 @@ return; \
     if(self)
     {
         _authority = authority;
+        [ADLogger resetAdalVersion];
     }
     
     return self;
@@ -147,7 +149,8 @@ return; \
     THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]);
     THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]);
     THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:BROKER_KEY]);
-
+    THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:CLIENT_ADAL_VERSION]);
+    
     if(!error)
     {
         //validate source application against redirect uri
@@ -168,6 +171,10 @@ return; \
         
         [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
         ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:AUTHORITY];
+        
+        //update version after creating ADBrokerContext instance because the instance creation
+        //sets the client ADAL version to 0.0.0
+        [ADLogger setAdalVersion:[queryParamsMap valueForKey:CLIENT_ADAL_VERSION]];
         ctx.correlationId = [[NSUUID alloc]
                              initWithUUIDString:[queryParamsMap
                                                  valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
@@ -339,6 +346,7 @@ return; \
         //if failed, check for and use PRT
         if(result.status == AD_SUCCEEDED)
         {
+            AD_LOG_INFO(@"acquireAccount - SUCCESS", @"Add refresh token to result and call completion block");
             [self addRefreshTokenTo:result fromCache:cache];
             completionBlock(result);
             return;
@@ -348,6 +356,7 @@ return; \
             //call failed. check if the user is WPJ.
             if([self isWorkplaceJoined:upn])
             {
+                AD_LOG_INFO(@"acquireAccount - FAILED", @"Workplace joined = true. Attempt to get token using PRT");
                 ADAuthenticationError* error = nil;
                 ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
                                                                        correlationId:_correlationId
@@ -360,6 +369,7 @@ return; \
                                             
                                             if(result.status == AD_SUCCEEDED)
                                             {
+                                                AD_LOG_INFO(@"token using PRT call - SUCCESS", @"Add refresh token to result and call completion block");
                                                 [self addRefreshTokenTo:result
                                                               fromCache:cache];
                                             }
@@ -371,9 +381,7 @@ return; \
             else
             {
                 if(![NSString adIsStringNilOrBlank:upn])
-                {
-                    // upn was provided and silent cache lookup failed.
-                    // Time to get a new token via UI.
+                {AD_LOG_INFO(@"acquireAccount - FAILED", @"Workplace joined = FALSE. UPN was provided and silent cache lookup failed. Get a new token via UI.");
                     [ctx internalAcquireTokenWithResource:resource
                                                  clientId:clientId
                                               redirectUri:[NSURL URLWithString:redirectUri]
@@ -409,6 +417,7 @@ return; \
     //if forceUI then pass AD_PROMPT_ALWAYS.
     if(forceUI)
     {
+        AD_LOG_INFO(@"Force UI Prompt", @"UPN is nil so ignore cache. Use PROMPT_ALWAYS to force UI.");
         [ctx internalAcquireTokenWithResource:resource
                                      clientId:clientId
                                   redirectUri:[NSURL URLWithString:redirectUri]
@@ -426,6 +435,8 @@ return; \
     {
         // try cache in silent first. if that fails, callback checks for WPJ.
         // If the user is not WPJ then use default UI
+        
+        AD_LOG_INFO(@"UPN provided", @"do silent cache lookup.");
         [ctx acquireTokenSilentWithResource:resource
                                    clientId:clientId
                                 redirectUri:[NSURL URLWithString:redirectUri]

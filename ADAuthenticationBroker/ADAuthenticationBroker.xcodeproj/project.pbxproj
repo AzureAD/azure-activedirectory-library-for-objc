@@ -17,6 +17,8 @@
 		971C57BB1AFAB37F0034820F /* ADBrokerUserAccount.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 979F4ED01AB2ADBB009B3E43 /* ADBrokerUserAccount.h */; };
 		971C57BF1AFAB8800034820F /* ADAuthenticationBroker.pch in Headers */ = {isa = PBXBuildFile; fileRef = 971C57BE1AFAB8800034820F /* ADAuthenticationBroker.pch */; };
 		971C57C31AFAD11C0034820F /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 97927EA61A90A9EB0053E283 /* libADALiOS.a */; settings = {ATTRIBUTES = (Required, ); }; };
+		971C57E11B0325570034820F /* ADLogger+Broker.h in Headers */ = {isa = PBXBuildFile; fileRef = 971C57DF1B0325570034820F /* ADLogger+Broker.h */; };
+		971C57E21B0325570034820F /* ADLogger+Broker.m in Sources */ = {isa = PBXBuildFile; fileRef = 971C57E01B0325570034820F /* ADLogger+Broker.m */; };
 		975E42D41A1D3F2A0033B500 /* ADALiOS.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 975E42D31A1D3F2A0033B500 /* ADALiOS.bundle */; };
 		9777DFFD1A37553800D8D8A8 /* ADBrokerConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 9777DFFC1A37553800D8D8A8 /* ADBrokerConstants.m */; };
 		977A1A2C1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 977A1A2B1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m */; };
@@ -160,6 +162,8 @@
 		971C56F61AF9DB700034820F /* ADAuthenticationContext+Broker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADAuthenticationContext+Broker.m"; sourceTree = "<group>"; };
 		971C56F81AF9EA0D0034820F /* ADBrokerContextTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerContextTest.m; sourceTree = "<group>"; };
 		971C57BE1AFAB8800034820F /* ADAuthenticationBroker.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationBroker.pch; sourceTree = "<group>"; };
+		971C57DF1B0325570034820F /* ADLogger+Broker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADLogger+Broker.h"; sourceTree = "<group>"; };
+		971C57E01B0325570034820F /* ADLogger+Broker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADLogger+Broker.m"; sourceTree = "<group>"; };
 		975E42D31A1D3F2A0033B500 /* ADALiOS.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = ADALiOS.bundle; sourceTree = "<group>"; };
 		9777DFFC1A37553800D8D8A8 /* ADBrokerConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerConstants.m; sourceTree = "<group>"; };
 		977A1A2B1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeychainStoreTests.m; sourceTree = "<group>"; };
@@ -295,6 +299,8 @@
 				97DFE46D1AE41A9C008109E1 /* ADBrokerErrorCodes.h */,
 				971C56F21AF9D9CF0034820F /* ADAuthenticationContext+Broker.h */,
 				971C56F61AF9DB700034820F /* ADAuthenticationContext+Broker.m */,
+				971C57DF1B0325570034820F /* ADLogger+Broker.h */,
+				971C57E01B0325570034820F /* ADLogger+Broker.m */,
 			);
 			path = ADAuthenticationBroker;
 			sourceTree = "<group>";
@@ -361,6 +367,7 @@
 				979F4ED21AB2ADBB009B3E43 /* ADBrokerUserAccount.h in Headers */,
 				97FBE7431AC60FB1001883A5 /* ADBrokerBase64Additions.h in Headers */,
 				97ED7A5C1A9AED1700DEA5E7 /* ADBrokerPRTContext.h in Headers */,
+				971C57E11B0325570034820F /* ADLogger+Broker.h in Headers */,
 				971C56E91AF9D96B0034820F /* ADKeychainTokenCacheStore+Protected.h in Headers */,
 				97ED7A571A97B44000DEA5E7 /* ADBrokerPRTCacheItem.h in Headers */,
 				97F45F1D1A75F8CF00022523 /* ADBrokerJwtHelper.h in Headers */,
@@ -564,6 +571,7 @@
 				97B2AFB41ACB3F0000DE04A3 /* ADBrokerJWEResponse.m in Sources */,
 				97ED7A5D1A9AED1700DEA5E7 /* ADBrokerPRTContext.m in Sources */,
 				97D685EB1A15432500EE816C /* ADBrokerKeychainTokenCacheStore.m in Sources */,
+				971C57E21B0325570034820F /* ADLogger+Broker.m in Sources */,
 				97FBE7441AC60FB1001883A5 /* ADBrokerBase64Additions.m in Sources */,
 				9777DFFD1A37553800D8D8A8 /* ADBrokerConstants.m in Sources */,
 				971C56F71AF9DB700034820F /* ADAuthenticationContext+Broker.m in Sources */,
