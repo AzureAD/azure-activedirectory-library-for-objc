@@ -66,6 +66,14 @@
                    userId: (NSString*) userId
                     error: (ADAuthenticationError* __autoreleasing*) error;
 
+
+/*! Clears token cache details for specific user.
+ @param userId: The user for which the item will be removed.
+ The method does not raise an error, if the item is not found.
+ */
+-(void) removeAllForUser: (NSString*) userId
+                   error: (ADAuthenticationError* __autoreleasing*) error;
+
 /*! Clears the whole cache store. The method does not raise an error if there are no items in the cache. */
 -(void) removeAllWithError: (ADAuthenticationError* __autoreleasing*) error;
 

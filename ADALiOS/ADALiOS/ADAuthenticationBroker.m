@@ -26,6 +26,7 @@
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
 #import "ADNTLMHandler.h"
+#import "ADCustomHeaderHandler.h"
 
 NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
 NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
@@ -209,6 +210,7 @@ static NSString *_resourcePath = nil;
 
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
+refreshTokenCredential:(NSString*)refreshTokenCredential
 parentController:(UIViewController *)parent
       webView:(WebViewType *)webView
    fullScreen:(BOOL)fullScreen
@@ -263,6 +265,13 @@ correlationId:(NSUUID *)correlationId
                 AD_LOG_INFO(@"Authorization UI", @"NTLM support enabled.");
             }
             
+            if(![NSString adIsStringNilOrBlank:refreshTokenCredential])
+            {
+                [ADCustomHeaderHandler addCustomHeaderValue:refreshTokenCredential
+                                               forHeaderKey:@"x-ms-RefreshTokenCredential"
+                                               forSingleUse:YES];
+            }
+            
             parentController = parent;
             // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
             UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
@@ -283,7 +292,8 @@ correlationId:(NSUUID *)correlationId
                     // Instead of loading the URL immediately on completion, get the UI on the screen
                     // and then dispatch the call to load the authorization URL
                     dispatch_async( dispatch_get_main_queue(), ^{
-                        [_authenticationViewController startWithURL:startURL endAtURL:endURL];
+                        [_authenticationViewController startWithURL:startURL
+                                                           endAtURL:endURL];
                     });
                 }];
             }

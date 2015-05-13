@@ -132,7 +132,7 @@ NSTimer *timer;
         
         return NO;
     }
-    
+
     // check for pkeyauth challenge.
     if ([requestURL hasPrefix: pKeyAuthUrn] )
     {
@@ -144,6 +144,13 @@ NSTimer *timer;
     if ([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"] ||
         [[requestURL lowercaseString] hasPrefix:[_endURL lowercaseString]] )
     {
+#if AD_BROKER
+        if ([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"]) {
+            _complete = YES;
+            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCompleteWithURL:request.URL]; } );
+            return NO;
+        }
+#endif
         // iOS generates a 102, Frame load interrupted error from stopLoading, so we set a flag
         // here to note that it was this code that halted the frame load in order that we can ignore
         // the error when we are notified later.
@@ -153,7 +160,9 @@ NSTimer *timer;
         // This event is explicitly scheduled on the main thread as it is UI related.
         NSAssert( nil != _delegate, @"Delegate object was lost" );
         
-        dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCompleteWithURL:request.URL]; } );
+        NSURL* url = request.URL;
+        
+        dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCompleteWithURL:url]; } );
         
         // Tell the web view that this URL should not be loaded.
         return NO;

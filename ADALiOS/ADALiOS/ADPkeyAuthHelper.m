@@ -24,6 +24,7 @@
 #import "ADWorkPlaceJoin.h"
 #import "ADLogger.h"
 #import "ADErrorCodes.h"
+#import "ADJwtHelper.h"
 
 @implementation ADPkeyAuthHelper
 
@@ -146,11 +147,7 @@
                               @"iat" : [NSString stringWithFormat:@"%d", (CC_LONG)[[NSDate date] timeIntervalSince1970]]
                               };
     
-    NSString* signingInput = [NSString stringWithFormat:@"%@.%@", [[self createJSONFromDictionary:header] adBase64UrlEncode], [[self createJSONFromDictionary:payload] adBase64UrlEncode]];
-    NSData* signedData = [self sign:[identity privateKey] data:[signingInput dataUsingEncoding:NSUTF8StringEncoding]];
-    NSString* signedEncodedDataString = [NSString Base64EncodeData: signedData];
-    
-    return [NSString stringWithFormat:@"%@.%@", signingInput, signedEncodedDataString];
+    return [ADJwtHelper createSignedJWTforHeader:header payload:payload signingKey:[identity privateKey]];
 }
 
 +(NSData *) sign: (SecKeyRef) privateKey

@@ -18,7 +18,7 @@
 
 #import <Security/Security.h>
 #import "ADALiOS.h"
-#import "ADKeyChainTokenCacheStore.h"
+#import "ADKeychainTokenCacheStore.h"
 #import "ADTokenCacheStoreItem.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADTokenCacheStoreKey.h"
@@ -176,7 +176,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 -(void) LogItem: (ADTokenCacheStoreItem*) item
         message: (NSString*) additionalMessage
 {
-    AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. Resource: %@ Access token hash: %@; Refresh token hash: %@", item.resource,additionalMessage, [item.accessToken adComputeSHA256], [item.refreshToken adComputeSHA256]);
+    AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. Resource: %@ Access token hash: %@; Refresh token hash: %@", item.resource,additionalMessage, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
 }
 
 //Updates the keychain item. "attributes" parameter should ALWAYS come from previous
@@ -524,6 +524,27 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     @synchronized(self)
     {
         NSDictionary* allAttributes = [self keychainAttributesWithKey:key userId:userId error:error];
+        if (allAttributes)
+        {
+            [self removeWithAttributesDictionaries:allAttributes error:error];
+        }
+    }
+}
+
+
+-(void) removeAllForUser: (NSString*) userId
+                   error: (ADAuthenticationError* __autoreleasing*) error
+{
+    API_ENTRY;
+    @synchronized(self)
+    {
+        NSMutableDictionary* query = [NSMutableDictionary new];
+        if (![NSString adIsStringNilOrBlank:userId])
+        {
+            [query setObject:[userId adBase64UrlEncode] forKey:mUserIdKey];
+        }
+        
+        NSDictionary* allAttributes = [self keychainAttributesWithQuery:query error:error];
         if (allAttributes)
         {
             [self removeWithAttributesDictionaries:allAttributes error:error];

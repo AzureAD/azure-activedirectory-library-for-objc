@@ -21,7 +21,7 @@
 
 @interface ADBrokerNotificationManager : NSObject
 
-@property (retain) ADAuthenticationCallback callbackForBroker;
+@property (copy) ADAuthenticationCallback callbackForBroker;
 
 +(ADBrokerNotificationManager*)sharedInstance;
 

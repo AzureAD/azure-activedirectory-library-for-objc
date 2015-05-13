@@ -18,7 +18,6 @@
 
 #import "ADALiOS.h"
 #import "ADOAuth2Constants.h"
-#import "NSString+ADHelperMethods.h"
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <mach/machine.h>
@@ -95,7 +94,6 @@ NSUUID* requestCorrelationId;
     }
 }
 
-
 +(void) log: (ADAL_LOG_LEVEL)logLevel
     message: (NSString*) message
   errorCode: (NSInteger) errorCode
@@ -169,6 +167,23 @@ additionalInformation: (NSString*) additionalInformation
     return result;
 }
 
++(NSString*) getHash: (NSString*) input
+{
+    if (!input)
+    {
+        return nil;//Handle gracefully
+    }
+    const char* inputStr = [input UTF8String];
+    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256(inputStr, (int)strlen(inputStr), hash);
+    NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
+    for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
+    {
+        [toReturn appendFormat:@"%02x", hash[i]];
+    }
+    return toReturn;
+}
+
 +(void) setCorrelationId: (NSUUID*) correlationId
 {
     requestCorrelationId = correlationId;
@@ -190,7 +205,7 @@ additionalInformation: (NSString*) additionalInformation
        expiresOn: (NSDate*) expiresOn
    correlationId: (NSUUID*) correlationId
 {
-    AD_LOG_VERBOSE_F(@"Token returned", @"Obtained %@ with hash %@, expiring on %@ and correlationId: %@", tokenType, [token adComputeSHA256], expiresOn, [correlationId UUIDString]);
+    AD_LOG_VERBOSE_F(@"Token returned", @"Obtained %@ with hash %@, expiring on %@ and correlationId: %@", tokenType, [self getHash:token], expiresOn, [correlationId UUIDString]);
 }
 
 @end

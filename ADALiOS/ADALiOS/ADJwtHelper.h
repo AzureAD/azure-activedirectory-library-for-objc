@@ -16,17 +16,18 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@protocol ADAuthenticationDelegate;
+#import <Foundation/Foundation.h>
 
-@interface ADAuthenticationViewController : UIViewController
+@interface ADJwtHelper : NSObject
 
-@property (weak, nonatomic)   id<ADAuthenticationDelegate>     delegate;
-@property (weak, nonatomic)   IBOutlet UIWebView               *webView;
-@property (weak, nonatomic)   IBOutlet UIActivityIndicatorView *activityIndicator;
++(NSString*) createSignedJWTforHeader:(NSDictionary*) header
+                     payload:(NSDictionary*) payload
+                  signingKey:(SecKeyRef) signingKey;
 
-- (IBAction)onCancel:(id)sender;
 
-- (BOOL)startWithURL:(NSURL *)startURL
-            endAtURL:(NSURL *)endURL;
++(NSString*) decryptJWT:(NSData*) jwtData
+          decrpytionKey:(SecKeyRef) decrpytionKey;
+
++(NSDictionary*) deserializeJWTResponse:(NSString*)jwtResponse;
 
 @end

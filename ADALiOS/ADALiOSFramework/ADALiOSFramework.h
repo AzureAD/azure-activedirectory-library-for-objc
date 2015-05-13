@@ -16,17 +16,15 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@protocol ADAuthenticationDelegate;
 
-@interface ADAuthenticationViewController : UIViewController
+#import <UIKit/UIKit.h>
 
-@property (weak, nonatomic)   id<ADAuthenticationDelegate>     delegate;
-@property (weak, nonatomic)   IBOutlet UIWebView               *webView;
-@property (weak, nonatomic)   IBOutlet UIActivityIndicatorView *activityIndicator;
+//! Project version number for ADALiOSFramework.
+FOUNDATION_EXPORT double ADALiOSFrameworkVersionNumber;
 
-- (IBAction)onCancel:(id)sender;
+//! Project version string for ADALiOSFramework.
+FOUNDATION_EXPORT const unsigned char ADALiOSFrameworkVersionString[];
 
-- (BOOL)startWithURL:(NSURL *)startURL
-            endAtURL:(NSURL *)endURL;
+// In this header, you should import all the public headers of your framework using statements like #import <ADALiOSFramework/PublicHeader.h>
 
-@end
+

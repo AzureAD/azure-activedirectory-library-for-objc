@@ -23,6 +23,7 @@
 #import "ADTokenCacheStoreItem.h"
 #import "ADUserInformation.h"
 #import "ADTokenCacheStoreKey.h"
+#import "ADErrorCodes.h"
 
 #if TARGET_OS_IPHONE
 //iOS:
@@ -93,7 +94,8 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  be nil.
  */
 -(id) initWithAuthority: (NSString*) authority
-      validateAuthority: (BOOL) validateAuthority        tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
+      validateAuthority: (BOOL) validateAuthority
+        tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
                   error: (ADAuthenticationError* __autoreleasing *) error;
 
 /*! Creates the object, setting the authority, default cache and enables the authority validation. In case of an error

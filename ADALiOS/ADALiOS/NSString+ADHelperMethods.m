@@ -402,7 +402,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 }
 
 
--(NSString*) adComputeSHA256
+- (NSString*) adComputeSHA256
 {
     const char* inputStr = [self UTF8String];
     unsigned char hash[CC_SHA256_DIGEST_LENGTH];
