@@ -379,6 +379,8 @@ return; \
     // the default token in the case in case there is a single user.
     BOOL forceUI = [NSString adIsStringNilOrBlank:upn];
     
+    NSString* qp = [NSString stringWithFormat:@"%@&%@", @"brkr=1&slice=testslice", queryParams];
+    
     //callback implementation
     ADAuthenticationCallback defaultCallback = ^(ADAuthenticationResult *result) {
         //if failed, check for and use PRT
@@ -427,7 +429,7 @@ return; \
                                                    silent:NO
                                                    userId:upn
                                                     scope:nil
-                                     extraQueryParameters:@"brkr=1&slice=testslice"
+                                     extraQueryParameters:qp
                                             correlationId:ctx.getCorrelationId
                                           completionBlock:^(ADAuthenticationResult *result) {
                                               
@@ -453,7 +455,6 @@ return; \
     //if forceUI then pass AD_PROMPT_ALWAYS.
     if(forceUI)
     {
-        NSString* qp = [NSString stringWithFormat:@"%@&%@", @"brkr=1&slice=testslice", queryParams];
         AD_LOG_INFO(@"Force UI Prompt", @"UPN is nil so ignore cache. Use PROMPT_ALWAYS to force UI.");
         [ctx internalAcquireTokenWithResource:resource
                                      clientId:clientId
