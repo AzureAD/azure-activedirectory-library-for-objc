@@ -19,6 +19,7 @@
 #import <ADAuthenticationBroker/ADBrokerContext.h>
 #import <ADAuthenticationBroker/ADBrokerConstants.h>
 #import <ADAuthenticationBroker/ADBrokerUserAccount.h>
+#import <ADAuthenticationBroker/ADBrokerSettings.h>
 #import "AccountDetailsViewController.h"
 
 @interface AccountDetailsViewController ()
@@ -118,7 +119,7 @@
 
 - (IBAction)wpjSwitchPressed:(id)sender
 {
-    ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:DEFAULT_AUTHORITY];
+    ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:[ADBrokerSettings sharedInstance].authority];
     if(!self.wpjEnabled.isOn)
     {
         //user wants to remove WPJ
@@ -144,7 +145,7 @@
     {
         //user wants to do WPJ
         [ctx doWorkPlaceJoinForUpn:self.account.userInformation.upn
-                     onResultBlock:^(ADBrokerPRTCacheItem *item, NSError *error) {
+                     onResultBlock:^(NSError *error) {
                          if(error)
                          {
                              UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to WPJ"
@@ -168,7 +169,7 @@
 {
     if(buttonIndex == 1)
     {
-        ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:DEFAULT_AUTHORITY];
+        ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:[ADBrokerSettings sharedInstance].authority];
         [ctx removeAccount:self.account.userInformation.upn onResultBlock:^(NSError *error) {
             if(error)
             {
@@ -194,7 +195,7 @@
 - (IBAction)getATFromPRTPressed:(id)sender
 {
     
-    ADBrokerContext*ctx = [[ADBrokerContext alloc] initWithAuthority:DEFAULT_AUTHORITY];
+    ADBrokerContext*ctx = [[ADBrokerContext alloc] initWithAuthority:[ADBrokerSettings sharedInstance].authority];
     [ctx setCorrelationId:[NSUUID UUID]];
     [ctx acquireAccount:self.account.userInformation.upn
                clientId:self.clientId.text

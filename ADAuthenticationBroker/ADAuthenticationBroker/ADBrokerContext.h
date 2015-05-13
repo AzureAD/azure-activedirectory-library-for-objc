@@ -19,7 +19,7 @@
 
 #import <Foundation/Foundation.h>
 #include <UIKit/UIKit.h>
-#import <workplaceJoinAPI/RegistrationInformation.h>
+#import <workplaceJoinAPI/WorkplaceJoin.h>
 #import "ADBrokerPRTContext.h"
 
 @class ADAuthenticationResult;
@@ -60,8 +60,8 @@ typedef void(^ADOnResultCallback)(NSError* error);
 - (void) removeAccount: (NSString*) upn
          onResultBlock:(ADOnResultCallback) onResultBlock;
 
-- (void) doWorkPlaceJoinForUpn: (NSString*) upn
-                 onResultBlock:(ADPRTResultCallback) onResultBlock;
+- (void) doWorkPlaceJoinForUpn:(NSString*) upn
+                 onResultBlock:(WPJCallback) onResultBlock;
 
 + (RegistrationInformation*) getWorkPlaceJoinInformation;
 

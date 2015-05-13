@@ -223,7 +223,7 @@ return; \
                     {
                         ADAuthenticationError* err = result.error;
                         [ctx doWorkPlaceJoinForUpn:[err.userInfo valueForKey:@"username"]
-                                     onResultBlock:^(ADBrokerPRTCacheItem *item, NSError *error) {
+                                     onResultBlock:^(NSError *error) {
                                          if(!error)
                                          {
                                              [ctx acquireAccount:[queryParamsMap valueForKey:AUTHORITY]
@@ -468,7 +468,7 @@ return; \
 }
 
 - (void) doWorkPlaceJoinForUpn: (NSString*) upn
-                 onResultBlock:(ADPRTResultCallback) onResultBlock
+                 onResultBlock:(WPJCallback) onResultBlock
 {
     
     API_ENTRY;
@@ -477,7 +477,7 @@ return; \
     error = [workPlaceJoinApi addDiscoveryHint:PROD];
     if(error)
     {
-        onResultBlock(nil, error);
+        onResultBlock(error);
     }
     
     [workPlaceJoinApi doDiscoveryForUpn:upn
@@ -487,7 +487,7 @@ return; \
          
          if(error)
          {
-             onResultBlock(nil, error);
+             onResultBlock(error);
          }
          
          //find an access token or refresh token for the UPN.
@@ -509,22 +509,39 @@ return; \
                                                   if(!error)
                                                   {
                                                       //do PRT work
-                                                      [NSThread sleepForTimeInterval:[ADBrokerSettings sharedInstance].prtRequestWaitInSeconds];
                                                       ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc]
                                                                                     initWithUpn:upn
                                                                                     correlationId:nil
                                                                                     error:&error];
-                                                      [prtCtx acquirePRTForUPN:onResultBlock];
+                                                      [prtCtx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error) {
+                                                          if(error)
+                                                          {
+                                                              ADBrokerPRTContext* newCtx = [[ADBrokerPRTContext alloc]
+                                                                                            initWithUpn:upn
+                                                                                            correlationId:nil
+                                                                                            error:&error];
+                                                              
+                                                              [NSThread sleepForTimeInterval:[ADBrokerSettings sharedInstance].prtRequestWaitInSeconds];
+                                                              [newCtx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error){
+                                                                  onResultBlock(error);
+                                                              }];
+                                                              return;
+                                                          }
+                                                          else
+                                                          {
+                                                              onResultBlock(error);
+                                                          }
+                                                      }];
                                                   }
                                                   else
                                                   {
-                                                      onResultBlock(nil, error);
+                                                      onResultBlock(error);
                                                   }
                                               }];
                   }
                   else
                   {
-                      onResultBlock(nil, result.error);
+                      onResultBlock(result.error);
                   }
               }];
          

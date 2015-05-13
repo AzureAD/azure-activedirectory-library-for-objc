@@ -27,6 +27,7 @@
 #import <ADALiOS/ADAuthenticationSettings.h>
 #import <ADALiOS/ADTokenCacheStoring.h>
 #import <ADAuthenticationBroker/ADBrokerUserAccount.h>
+#import <ADAuthenticationBroker/ADBrokerSettings.h>
 
 @interface ViewController ()
 
@@ -139,7 +140,7 @@ NSMutableArray* users;
 //        return;
 //    }
     
-    ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:DEFAULT_AUTHORITY];
+    ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:[ADBrokerSettings sharedInstance].authority];
     [ctx removeWorkPlaceJoinRegistration:nil];
     
     [self getAllAccounts:YES];
@@ -148,7 +149,7 @@ NSMutableArray* users;
 
 - (IBAction)addUserPressed:(id)sender
 {
-    ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:DEFAULT_AUTHORITY];
+    ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:[ADBrokerSettings sharedInstance].authority];
     
     AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
     NSString* upnInRequest = nil;
