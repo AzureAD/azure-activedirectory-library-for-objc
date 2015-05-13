@@ -109,7 +109,10 @@ enum {
                                 fixedInput:(uint8_t*)mutData.bytes
                          fixedInputLength:mutData.length];
     mutData = nil;
-    return [NSData dataWithBytes:(const void *)pbDerivedKey length:32];
+    NSData* dataToReturn = [NSData dataWithBytes:(const void *)pbDerivedKey length:32];
+    free(pbDerivedKey);
+    
+    return dataToReturn;
 }
 
 
