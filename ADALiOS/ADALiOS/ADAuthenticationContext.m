@@ -1213,25 +1213,27 @@ return; \
         NSString* qp = [appUrl query];
         NSDictionary* qpDict = [NSDictionary adURLFormDecode:qp];
         NSString* url = [qpDict valueForKey:@"app_link"];
-        [self saveToPasteBoard:appUrl.absoluteString];
+        [self saveToPasteBoard:appUrl];
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:url]];
         });
     }
 }
 
-- (void)saveToPasteBoard:(NSString*) url
+- (void)saveToPasteBoard:(NSURL*) url
 {
     UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
                                                             create:YES];
     appPasteBoard.persistent = YES;
-    NSData *data = [url dataUsingEncoding:NSUTF8StringEncoding];
-    [appPasteBoard setData:data
-         forPasteboardType:@"com.microsoft.broker.url"];
-    
-    data = [[[NSBundle mainBundle] bundleIdentifier] dataUsingEncoding:NSUTF8StringEncoding];
-    [appPasteBoard setData:data
-         forPasteboardType:@"com.microsoft.broker.sourceApp"];
+
+//    NSData *data = [url dataUsingEncoding:NSUTF8StringEncoding];
+//    [appPasteBoard setData:data
+//         forPasteboardType:@"com.microsoft.broker.url"];
+//    
+//    [appPasteBoard setData:
+//         forPasteboardType:@"com.microsoft.broker.sourceApp"];
+    url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication",[[NSBundle mainBundle] bundleIdentifier]]];
+    [appPasteBoard setURL:url];
 }
 
 
