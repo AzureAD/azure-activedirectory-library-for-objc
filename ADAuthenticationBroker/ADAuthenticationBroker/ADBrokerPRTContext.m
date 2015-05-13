@@ -518,8 +518,6 @@ isHandlingPKeyAuthChallenge:NO
 }
 
 
-
-
 //Understands and processes the access token response:
 - (ADAuthenticationResult *) processPRTResponse: (NSDictionary *)response
                                         forItem: (ADBrokerPRTCacheItem*)item

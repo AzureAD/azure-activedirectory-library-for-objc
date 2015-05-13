@@ -16,6 +16,8 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import <workplaceJoinAPI/WorkplaceJoin.h>
+
 @interface ADBrokerSettings : NSObject
 
 /*! The static instance of the singleton settings class*/
@@ -24,5 +26,7 @@
 @property int prtRequestWaitInSeconds;
 
 @property NSString* authority;
+
+@property WPJEnvironment wpjEnvironment;
 
 @end

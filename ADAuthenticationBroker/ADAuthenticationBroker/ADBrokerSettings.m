@@ -31,6 +31,7 @@
         //Initialize the defaults here:
         self.prtRequestWaitInSeconds = 5;
         self.authority = @"https://login.windows.net/common";
+        self.wpjEnvironment = PROD;
     }
     return self;
 }

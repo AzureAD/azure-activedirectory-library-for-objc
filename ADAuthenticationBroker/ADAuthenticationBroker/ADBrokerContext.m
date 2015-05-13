@@ -474,7 +474,7 @@ return; \
     API_ENTRY;
     WorkPlaceJoin *workPlaceJoinApi = [WorkPlaceJoin WorkPlaceJoinManager];
     NSError* error;
-    error = [workPlaceJoinApi addDiscoveryHint:PROD];
+    error = [workPlaceJoinApi addWPJEnvironment:[ADBrokerSettings sharedInstance].wpjEnvironment];
     if(error)
     {
         onResultBlock(error);
