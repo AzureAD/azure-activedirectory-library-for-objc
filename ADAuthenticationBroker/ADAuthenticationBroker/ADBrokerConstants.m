@@ -25,7 +25,6 @@ NSString* const BROKER_KEY = @"broker_key";
 NSString* const USER_ID = @"user_id";
 NSString* const AUTHORITY = @"authority";
 
-NSString* DEFAULT_AUTHORITY = @"https://login.windows.net/common/";
 NSString* const BROKER_CLIENT_ID = @"29d9ed98-a469-4536-ade2-f981bc1d605e";
 NSString* const BROKER_RESOURCE = @"https://graph.windows.net";
 NSString* const BROKER_REDIRECT_URI = @"ms-appx-web://Microsoft.AAD.BrokerPlugin";

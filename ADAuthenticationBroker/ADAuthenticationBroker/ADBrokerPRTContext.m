@@ -29,6 +29,7 @@
 #import <workplaceJoinAPI/WorkPlaceJoin.h>
 #import "ADBrokerJWEResponse.h"
 #import "ADBrokerHelpers.h"
+#import "ADBrokerSettings.h"
 
 @implementation ADBrokerPRTContext
 
@@ -44,10 +45,10 @@ NSString* userPrincipalIdentifier;
     if(self)
     {
         ADAuthenticationError* error = nil;
-        ctx = [[ADAuthenticationContext alloc] initWithAuthority:DEFAULT_AUTHORITY
-                                                        validateAuthority:YES
-                                                          tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:DEFAULT_GUID_FOR_NIL]
-                                                                    error:&error];
+        ctx = [[ADAuthenticationContext alloc] initWithAuthority:[ADBrokerSettings sharedInstance].authority
+                                               validateAuthority:YES
+                                                 tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:DEFAULT_GUID_FOR_NIL]
+                                                           error:&error];
         [ctx setCorrelationId:correlationId];
         if(!error)
         {
@@ -64,7 +65,7 @@ NSString* userPrincipalIdentifier;
     ADAuthenticationError* error = nil;
     //get PRT from cache
     id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:DEFAULT_GUID_FOR_NIL];
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:DEFAULT_AUTHORITY
+    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:[ADBrokerSettings sharedInstance].authority
                                                               resource:nil
                                                               clientId:DEFAULT_GUID_FOR_NIL
                                                                  error:&error];
@@ -79,7 +80,7 @@ NSString* userPrincipalIdentifier;
     ADAuthenticationError* error = nil;
     //get PRT from cache
     id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:DEFAULT_GUID_FOR_NIL];
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:DEFAULT_AUTHORITY
+    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:[ADBrokerSettings sharedInstance].authority
                                                               resource:nil
                                                               clientId:DEFAULT_GUID_FOR_NIL
                                                                  error:&error];
@@ -139,37 +140,39 @@ NSString* userPrincipalIdentifier;
                                                                    jwtToken, @"request",
                                                                    nil];
                               
+                              void (^prtProcessCallback)(NSDictionary *response) =  ^(NSDictionary *response) {
+                                  
+                                  ADBrokerPRTCacheItem* item = [ADBrokerPRTCacheItem new];
+                                  item.userInformation = nil;
+                                  item.clientId = DEFAULT_GUID_FOR_NIL;
+                                  
+                                  //create result for PRT and populate cache item object
+                                  ADAuthenticationResult* prtResult = [self processPRTResponse:response
+                                                                                       forItem:item
+                                                                                   fromRefresh:NO
+                                                                          requestCorrelationId:[ctx getCorrelationId]];
+                                  if(prtResult.status == AD_SUCCEEDED)
+                                  {
+                                      ADAuthenticationError* err;
+                                      //persist PRT cache item
+                                      [ctx.tokenCacheStore addOrUpdateItem:item
+                                                                     error:&err];
+                                      callback(item, err);
+                                  }
+                                  else
+                                  {
+                                      callback(nil, prtResult.error);
+                                  }
+                              };
+                              
                               //send JWT to token endpoint
-                              [ctx request:DEFAULT_AUTHORITY
+                              [ctx request:[ADBrokerSettings sharedInstance].authority
                                requestData:request_data
                       requestCorrelationId:[ctx getCorrelationId]
                isHandlingPKeyAuthChallenge:NO
                          additionalHeaders:request_data
-                               returnRawResponse:NO
-                                completion:^(NSDictionary *response) {
-                                    
-                                    ADBrokerPRTCacheItem* item = [ADBrokerPRTCacheItem new];
-                                    item.userInformation = nil;
-                                    item.clientId = DEFAULT_GUID_FOR_NIL;
-                                    
-                                    //create result for PRT and populate cache item object
-                                    ADAuthenticationResult* prtResult = [self processPRTResponse:response
-                                                                                         forItem:item
-                                                                                     fromRefresh:NO
-                                                                            requestCorrelationId:[ctx getCorrelationId]];
-                                    if(prtResult.status == AD_SUCCEEDED)
-                                    {
-                                        ADAuthenticationError* err;
-                                        //persist PRT cache item
-                                        [ctx.tokenCacheStore addOrUpdateItem:item
-                                                                       error:&err];
-                                        callback(item, err);
-                                    }
-                                    else
-                                    {
-                                        callback(nil, prtResult.error);
-                                    }
-                                }];
+                         returnRawResponse:NO
+                                completion:prtProcessCallback];
                           }
                           
                       }else{
@@ -223,7 +226,7 @@ NSString* userPrincipalIdentifier;
                                                  nil];
             
             //send JWT to token endpoint
-            [ctx request:DEFAULT_AUTHORITY
+            [ctx request:[ADBrokerSettings sharedInstance].authority
              requestData:request_data
     requestCorrelationId:[ctx getCorrelationId]
 isHandlingPKeyAuthChallenge:NO
@@ -233,10 +236,10 @@ isHandlingPKeyAuthChallenge:NO
                   
                   if([response valueForKey:@"raw_response"])
                   {
-                  ADBrokerJWEResponse* jweResp = [[ADBrokerJWEResponse alloc] initWithRawJWE:[response valueForKey:@"raw_response"]];
-                  response = [ADBrokerJwtHelper decryptJWEResponseUsingKeyDerivation:jweResp
-                                                                  context:[jweResp headerContext]
-                                                                      key:prtItem.sessionKey];
+                      ADBrokerJWEResponse* jweResp = [[ADBrokerJWEResponse alloc] initWithRawJWE:[response valueForKey:@"raw_response"]];
+                      response = [ADBrokerJwtHelper decryptJWEResponseUsingKeyDerivation:jweResp
+                                                                                 context:[jweResp headerContext]
+                                                                                     key:prtItem.sessionKey];
                       
                       //if id_token is not returned, Use id_token from PRT entry
                       if([response valueForKey:OAUTH2_ID_TOKEN])
@@ -338,8 +341,8 @@ isHandlingPKeyAuthChallenge:NO
                         {
                             //create JWT
                             NSString* jwtToken = [self createPRTRequestJWTUsingAuthCode:prtItem
-                                                                                  resource:resource
-                                                                                  clientId:clientId
+                                                                               resource:resource
+                                                                               clientId:clientId
                                                                                    code:code];
                             NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                                  redirectUri, @"redirect_uri",
@@ -350,7 +353,7 @@ isHandlingPKeyAuthChallenge:NO
                                                                  nil];
                             
                             //send JWT to token endpoint
-                            [ctx request:DEFAULT_AUTHORITY
+                            [ctx request:[ADBrokerSettings sharedInstance].authority
                              requestData:request_data
                     requestCorrelationId:[ctx getCorrelationId]
              isHandlingPKeyAuthChallenge:NO
@@ -365,9 +368,12 @@ isHandlingPKeyAuthChallenge:NO
                                                                                                  context:[jweResp headerContext]
                                                                                                      key:prtItem.sessionKey];
                                       
-                                      //id_token is not returned. Use id_token from PRT entry
-                                      [response setValue:[prtItem.userInformation rawIdToken]
-                                                  forKey:@"id_token"];
+                                      //if id_token is not returned, Use id_token from PRT entry
+                                      if([response valueForKey:OAUTH2_ID_TOKEN])
+                                      {
+                                          [response setValue:[prtItem.userInformation rawIdToken]
+                                                      forKey:OAUTH2_ID_TOKEN];
+                                      }
                                   }
                                   
                                   ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
@@ -419,9 +425,9 @@ isHandlingPKeyAuthChallenge:NO
 
 
 -(NSString*) createPRTRequestJWTUsingAuthCode:(ADBrokerPRTCacheItem*) item
-                                        resource:(NSString*) resource
-                                        clientId:(NSString*) clientId
-                                            code:(NSString*) code
+                                     resource:(NSString*) resource
+                                     clientId:(NSString*) clientId
+                                         code:(NSString*) code
 {
     NSString* grantType = @"authorization_code";
     
@@ -443,7 +449,7 @@ isHandlingPKeyAuthChallenge:NO
                               @"exp" : [NSNumber numberWithInteger:iat],
                               @"scope" : @"openid",
                               @"grant_type" : grantType,
-                              @"aud" : DEFAULT_AUTHORITY
+                              @"aud" : [ADBrokerSettings sharedInstance].authority
                               };
     
     NSString* returnValue = [ADBrokerJwtHelper createSignedJWTUsingKeyDerivation:header
@@ -477,7 +483,7 @@ isHandlingPKeyAuthChallenge:NO
                               @"exp" : [NSNumber numberWithInteger:iat],
                               @"scope" : @"openid",
                               @"grant_type" : grantType,
-                              @"aud" : DEFAULT_AUTHORITY
+                              @"aud" : [ADBrokerSettings sharedInstance].authority
                               };
     
     NSString* returnValue = [ADBrokerJwtHelper createSignedJWTUsingKeyDerivation:header
@@ -553,7 +559,7 @@ isHandlingPKeyAuthChallenge:NO
     if (![NSString adIsStringNilOrBlank:refreshToken])
     {
         item.primaryRefreshToken    = refreshToken;
-        item.authority = DEFAULT_AUTHORITY;
+        item.authority = [ADBrokerSettings sharedInstance].authority;
         
         // Token response
         id      expires_in = [response objectForKey:OAUTH2_EXPIRES_IN];

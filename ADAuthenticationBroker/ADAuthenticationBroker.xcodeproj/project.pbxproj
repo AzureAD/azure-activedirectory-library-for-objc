@@ -64,6 +64,27 @@
 			remoteGlobalIDString = 971C573F1AFA9BD10034820F;
 			remoteInfo = ADALiOSFramework;
 		};
+		971C57D71B02DEFC0034820F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D6DFBDCD1AF9539F00F0D88F;
+			remoteInfo = WorkPlaceJoinAPIMac;
+		};
+		971C57D91B02DEFC0034820F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D6DFBDD71AF9539F00F0D88F;
+			remoteInfo = WorkPlaceJoinAPIMacTests;
+		};
+		971C57DB1B02DEFC0034820F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D6C565E51AFAC6110048107A;
+			remoteInfo = WorkPlaceJoin;
+		};
 		97927EA51A90A9EB0053E283 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 97927E9E1A90A9EB0053E283 /* ADALiOS.xcodeproj */;
@@ -316,7 +337,10 @@
 			children = (
 				97F5D7B41A9432CC00E0AD3A /* libWorkPlaceJoinAPI.a */,
 				97F5D7B61A9432CC00E0AD3A /* WorkPlaceJoinAPITests.xctest */,
+				971C57D81B02DEFC0034820F /* libWorkPlaceJoinAPIMac.a */,
+				971C57DA1B02DEFC0034820F /* WorkPlaceJoinAPIMacTests.xctest */,
 				97F5D7B81A9432CC00E0AD3A /* WorkPlaceJoinAPI.bundle */,
+				971C57DC1B02DEFC0034820F /* WorkPlaceJoin.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -436,6 +460,27 @@
 			fileType = wrapper.framework;
 			path = ADALiOS.framework;
 			remoteRef = 971C57C11AFACD4B0034820F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		971C57D81B02DEFC0034820F /* libWorkPlaceJoinAPIMac.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libWorkPlaceJoinAPIMac.a;
+			remoteRef = 971C57D71B02DEFC0034820F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		971C57DA1B02DEFC0034820F /* WorkPlaceJoinAPIMacTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = WorkPlaceJoinAPIMacTests.xctest;
+			remoteRef = 971C57D91B02DEFC0034820F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		971C57DC1B02DEFC0034820F /* WorkPlaceJoin.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = WorkPlaceJoin.framework;
+			remoteRef = 971C57DB1B02DEFC0034820F /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		97927EA61A90A9EB0053E283 /* libADALiOS.a */ = {
@@ -595,6 +640,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -637,6 +683,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				USER_HEADER_SEARCH_PATHS = "";

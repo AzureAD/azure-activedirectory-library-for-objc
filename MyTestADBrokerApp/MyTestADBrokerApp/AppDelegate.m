@@ -44,6 +44,23 @@
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"])
+    {
+        UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ" create:NO];
+        if(appPasteBoard)
+        {
+            self._url = [appPasteBoard URL];
+            NSArray* parts = [[self._url absoluteString] componentsSeparatedByString: @"sourceApplication="];
+            self._sourceApplication  = [parts objectAtIndex: 1];
+            
+            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"HasLaunchedOnce"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            [ADBrokerContext invokeBrokerForSourceApplication:[self._url absoluteString]
+                                            sourceApplication:self._sourceApplication];
+        }
+    }
+    
     return YES;
 }
 

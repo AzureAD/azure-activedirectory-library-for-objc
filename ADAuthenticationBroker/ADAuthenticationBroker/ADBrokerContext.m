@@ -29,6 +29,7 @@
 #import "ADBrokerHelpers.h"
 #import "ADBrokerPRTCacheItem.h"
 #import "ADBrokerUserAccount.h"
+#import "ADBrokerSettings.h"
 
 @implementation ADBrokerContext
 
@@ -508,13 +509,15 @@ return; \
                                                   if(!error)
                                                   {
                                                       //do PRT work
+                                                      [NSThread sleepForTimeInterval:[ADBrokerSettings sharedInstance].prtRequestWaitInSeconds];
                                                       ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc]
                                                                                     initWithUpn:upn
                                                                                     correlationId:nil
                                                                                     error:&error];
                                                       [prtCtx acquirePRTForUPN:onResultBlock];
-                                                      onResultBlock(nil,nil); //TODO remove this later
-                                                  } else {
+                                                  }
+                                                  else
+                                                  {
                                                       onResultBlock(nil, error);
                                                   }
                                               }];

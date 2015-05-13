@@ -25,7 +25,6 @@ extern NSString* const BROKER_KEY;
 extern NSString* const USER_ID;
 extern NSString* const AUTHORITY;
 
-extern NSString* DEFAULT_AUTHORITY;
 extern NSString* const BROKER_CLIENT_ID;
 extern NSString* const BROKER_RESOURCE;
 extern NSString* const BROKER_REDIRECT_URI;
