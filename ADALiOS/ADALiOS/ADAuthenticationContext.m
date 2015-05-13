@@ -2245,7 +2245,7 @@ returnRawResponse:(BOOL)returnRawResponse
                                       @"authority": authority,
                                       @"resource" : resource,
                                       @"client_id": clientId,
-                                      @"redirect_uri": redirectUri,
+                                      @"redirect_uri": redirectUri.absoluteString,
                                       @"username": userId,
                                       @"correlation_id": correlationId,
                                       @"broker_key": base64UrlKey,
