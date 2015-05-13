@@ -110,9 +110,9 @@ return; \
         NSArray * parts = [[requestPayloadUrl absoluteString] componentsSeparatedByString:@"?"];
         NSString *qp = [parts objectAtIndex:1];
         NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
-        if(![NSString adIsStringNilOrBlank:[queryParamsMap valueForKey:USER_ID]])
+        if(![NSString adIsStringNilOrBlank:[queryParamsMap valueForKey:USERNAME]])
         {
-            *returnUpn = [queryParamsMap valueForKey:USER_ID];
+            *returnUpn = [queryParamsMap valueForKey:USERNAME];
         }
     }
     
