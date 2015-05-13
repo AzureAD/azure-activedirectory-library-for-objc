@@ -14,8 +14,8 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "8BFEF072182DACE300122C0C"
-               BuildableName = "ADALiOSFramework"
+               BlueprintIdentifier = "971C573E1AFA9BD10034820F"
+               BuildableName = "ADALiOS.framework"
                BlueprintName = "ADALiOSFramework"
                ReferencedContainer = "container:../../ADALiOS/ADALiOS.xcodeproj">
             </BuildableReference>
@@ -72,7 +72,8 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8BA42AF517E3C150002D206E"
@@ -90,7 +91,8 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8BA42AF517E3C150002D206E"

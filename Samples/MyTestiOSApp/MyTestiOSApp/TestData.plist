@@ -11,7 +11,7 @@
 		<key>Resource</key>
 		<string>https://aadadfs.onmicrosoft.com/TodoListService</string>
 		<key>RedirectUri</key>
-		<string>https://aadadfstodolistservice.azurewebsites.net</string>
+		<string>MyTestiOSApp://com.MSOpenTech.MyTestiOSApp</string>
 		<key>UserId</key>
 		<string></string>
 		<key>Password</key>
