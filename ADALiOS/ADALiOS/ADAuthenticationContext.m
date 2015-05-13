@@ -1112,12 +1112,13 @@ return; \
     
     //call the broker.
     if([self canUseBroker]){
-        [self callBrokerForAuthority: self.authority
-                            resource: resource
-                            clientId: clientId
-                         redirectUri: redirectUri
-                              userId: userId
-                       correlationId: [correlationId UUIDString]
+        [self callBrokerForAuthority:self.authority
+                            resource:resource
+                            clientId:clientId
+                         redirectUri:redirectUri
+                              userId:userId
+                extraQueryParameters:queryParams
+                       correlationId:[correlationId UUIDString]
                      completionBlock:completionBlock
          ];
         return;
@@ -1150,6 +1151,7 @@ return; \
                                              clientId:clientId
                                           redirectUri:redirectUri
                                                userId:userId
+                                 extraQueryParameters:queryParams
                                         correlationId:correlationId
                                       completionBlock:completionBlock];
              }
@@ -1200,13 +1202,14 @@ return; \
     return schemeIsInPlist && canOpenUrl;
 }
 
--(void) handleBrokerFromWebiewResponse: (NSString*) urlString
-                              resource: (NSString*) resource
-                              clientId: (NSString*) clientId
-                           redirectUri: (NSURL*) redirectUri
-                                userId: (NSString*) userId
-                         correlationId: (NSUUID*) correlationId
-                       completionBlock: (ADAuthenticationCallback)completionBlock
+-(void) handleBrokerFromWebiewResponse:(NSString*) urlString
+                              resource:(NSString*) resource
+                              clientId:(NSString*) clientId
+                           redirectUri:(NSURL*) redirectUri
+                                userId:(NSString*) userId
+                  extraQueryParameters:(NSString*) queryParams
+                         correlationId:(NSUUID*) correlationId
+                       completionBlock:(ADAuthenticationCallback)completionBlock
 {
     
     ADAuthenticationError* error = nil;
@@ -1224,14 +1227,19 @@ return; \
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
     
-    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&correlation_id=%@&broker_key=%@&client_version=%@",
-                       _authority,
-                       resource,
-                       clientId,
-                       redirectUri.absoluteString,
-                       [correlationId UUIDString],
-                       base64UrlKey,
-                       [ADLogger getAdalVersion]];
+    NSDictionary* queryDictionary = @{
+                                      @"authority": _authority,
+                                      @"resource" : resource,
+                                      @"client_id": clientId,
+                                      @"redirect_uri": redirectUri.absoluteString,
+                                      @"username": userId,
+                                      @"correlation_id": [correlationId UUIDString],
+                                      @"broker_key": base64UrlKey,
+                                      @"client_version": [ADLogger getAdalVersion],
+                                      @"extra_qp": queryParams,
+                                      };
+    NSString* query = [queryDictionary adURLFormEncode];
+    
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@&%@", urlString, query]];
     [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];
     
@@ -1259,13 +1267,6 @@ return; \
     UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
                                                             create:YES];
     appPasteBoard.persistent = YES;
-    
-    //    NSData *data = [url dataUsingEncoding:NSUTF8StringEncoding];
-    //    [appPasteBoard setData:data
-    //         forPasteboardType:@"com.microsoft.broker.url"];
-    //
-    //    [appPasteBoard setData:
-    //         forPasteboardType:@"com.microsoft.broker.sourceApp"];
     url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication",[[NSBundle mainBundle] bundleIdentifier]]];
     [appPasteBoard setURL:url];
 }
@@ -2215,12 +2216,13 @@ returnRawResponse:(BOOL)returnRawResponse
 }
 
 - (void) callBrokerForAuthority:(NSString*) authority
-                       resource: (NSString*) resource
-                       clientId: (NSString*)clientId
-                    redirectUri: (NSURL*) redirectUri
-                         userId: (NSString*) userId
-                  correlationId: (NSString*) correlationId
-                completionBlock: (ADAuthenticationCallback)completionBlock
+                       resource:(NSString*) resource
+                       clientId:(NSString*)clientId
+                    redirectUri:(NSURL*) redirectUri
+                         userId:(NSString*) userId
+           extraQueryParameters:(NSString*) queryParams
+                  correlationId:(NSString*) correlationId
+                completionBlock:(ADAuthenticationCallback)completionBlock
 
 {
     ADAuthenticationError* error = nil;
@@ -2239,7 +2241,20 @@ returnRawResponse:(BOOL)returnRawResponse
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
     
-    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&broker_key=%@&client_version=%@", authority, resource, clientId, redirectUri, userId, correlationId, base64UrlKey, [ADLogger getAdalVersion]];
+    NSDictionary* queryDictionary = @{
+                                      @"authority": authority,
+                                      @"resource" : resource,
+                                      @"client_id": clientId,
+                                      @"redirect_uri": redirectUri,
+                                      @"username": userId,
+                                      @"correlation_id": correlationId,
+                                      @"broker_key": base64UrlKey,
+                                      @"client_version": [ADLogger getAdalVersion],
+                                      @"extra_qp": queryParams,
+                                      };
+    
+    NSString* query = [queryDictionary adURLFormEncode];
+    
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", brokerScheme, query]];
     
     [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];
