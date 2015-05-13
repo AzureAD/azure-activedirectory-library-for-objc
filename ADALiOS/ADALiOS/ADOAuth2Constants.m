@@ -77,6 +77,8 @@ NSString *const AUTH_FAILED_NO_CLIENTID    = @"Unable to determine client identi
 NSString *const AUTH_FAILED_NO_REDIRECTURI = @"Unable to determine redirect URL";
 NSString *const AUTH_FAILED_BUSY           = @"Authorization call already in progress";
 
+NSString *const AAD_SECURECONVERSATION_LABEL = @"AzureAD-SecureConversation";
+
 
 //application constants
 NSString* const brokerScheme = @"msauth";

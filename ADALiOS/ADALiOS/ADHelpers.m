@@ -24,9 +24,9 @@
 #import <CommonCrypto/CommonHMAC.h>
 #import <CommonCrypto/CommonDigest.h>
 
-@implementation ADHelpers
+#include "ADOauth2Constants.h"
 
-const NSString* Label = @"AzureAD-SecureConversation";
+@implementation ADHelpers
 
 
 + (void) removeNullStringFrom:(NSDictionary*) dict
@@ -151,7 +151,7 @@ const NSString* Label = @"AzureAD-SecureConversation";
 + (NSData*) computeKDFInCounterMode:(NSData*)key
                             context:(NSData*)ctx
 {
-    NSData* labelData = [Label dataUsingEncoding:NSUTF8StringEncoding];
+    NSData* labelData = [AAD_SECURECONVERSATION_LABEL dataUsingEncoding:NSUTF8StringEncoding];
     NSMutableData* mutData = [NSMutableData new];
     [mutData appendBytes:labelData.bytes length:labelData.length];
     Byte bytes[] = {0x00};

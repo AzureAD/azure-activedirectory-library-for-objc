@@ -24,11 +24,6 @@
 #import <CommonCrypto/CommonCryptor.h>
 #import <Security/Security.h>
 
-const CCAlgorithm kAlgorithm = kCCAlgorithmAES128;
-const NSUInteger kAlgorithmKeySize = kCCKeySizeAES128;
-const NSUInteger kAlgorithmBlockSize = kCCBlockSizeAES128;
-const NSUInteger kAlgorithmIVSize = kCCBlockSizeAES128;
-
 @implementation ADBrokerKeyHelper
 
 enum {
