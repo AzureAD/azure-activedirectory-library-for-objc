@@ -18,6 +18,22 @@
 
 #import "ADAuthenticationContext+Broker.h"
 
+@interface ADAuthenticationContext ()
+
+- (void)internalAcquireTokenWithResource:(NSString*)resource
+                                clientId:(NSString*)clientId
+                             redirectUri:(NSURL*)redirectUri
+                          promptBehavior:(ADPromptBehavior)promptBehavior
+                                  silent:(BOOL)silent /* Do not show web UI for authorization. */
+                                  userId:(NSString*)userId
+                                   scope:(NSString*)scope
+                    extraQueryParameters:(NSString*)queryParams
+                       validateAuthority:(BOOL)validateAuthority
+                           correlationId:(NSUUID*)correlationId
+                         completionBlock:(ADAuthenticationCallback)completionBlock;
+
+@end
+
 @implementation ADAuthenticationContext (Broker)
 
 -(void) acquireTokenWithResource: (NSString*) resource
@@ -37,7 +53,6 @@
                                     userId:userId
                                      scope:scope
                       extraQueryParameters:extraQueryParameters
-                                  tryCache:YES
                          validateAuthority:self.validateAuthority
                              correlationId:[self getCorrelationId]
                            completionBlock:completionBlock];

@@ -32,6 +32,33 @@
 #import "ADBrokerSettings.h"
 #import "ADLogger+Broker.h"
 
+@interface ADAuthenticationContext ()
+
+- (void)internalAcquireTokenWithResource:(NSString*)resource
+                                clientId:(NSString*)clientId
+                             redirectUri:(NSURL*)redirectUri
+                          promptBehavior:(ADPromptBehavior)promptBehavior
+                                  silent:(BOOL)silent /* Do not show web UI for authorization. */
+                                  userId:(NSString*)userId
+                                   scope:(NSString*)scope
+                    extraQueryParameters:(NSString*)queryParams
+                       validateAuthority:(BOOL)validateAuthority
+                           correlationId:(NSUUID*)correlationId
+                         completionBlock:(ADAuthenticationCallback)completionBlock;
+
+- (void) requestTokenWithResource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                      redirectUri: (NSURL*) redirectUri
+                   promptBehavior: (ADPromptBehavior) promptBehavior
+                           silent: (BOOL) silent /* Do not show web UI for authorization. */
+                           userId: (NSString*) userId
+                            scope: (NSString*) scope
+             extraQueryParameters: (NSString*) queryParams
+                    correlationId: (NSUUID*) correlationId
+                  completionBlock: (ADAuthenticationCallback)completionBlock;
+
+@end
+
 @implementation ADBrokerContext
 
 //A wrapper around checkAndHandleBadArgument. Assumes that "completionMethod" is in scope:
@@ -382,7 +409,7 @@ return; \
             {
                 if(![NSString adIsStringNilOrBlank:upn])
                 {AD_LOG_INFO(@"acquireAccount - FAILED", @"Workplace joined = FALSE. UPN was provided and silent cache lookup failed. Get a new token via UI.");
-                    [ctx internalAcquireTokenWithResource:resource
+                    [ctx requestTokenWithResource:resource
                                                  clientId:clientId
                                               redirectUri:[NSURL URLWithString:redirectUri]
                                            promptBehavior:AD_PROMPT_AUTO
@@ -390,8 +417,6 @@ return; \
                                                    userId:upn
                                                     scope:nil
                                      extraQueryParameters:@"brkr=1&slice=testslice"
-                                                 tryCache:NO
-                                        validateAuthority:NO
                                             correlationId:ctx.getCorrelationId
                                           completionBlock:^(ADAuthenticationResult *result) {
                                               
@@ -426,7 +451,6 @@ return; \
                                        userId:upn
                                         scope:nil
                          extraQueryParameters:@"brkr=1&slice=testslice"
-                                     tryCache:YES
                             validateAuthority:YES
                                 correlationId:ctx.getCorrelationId
                               completionBlock:defaultCallback];

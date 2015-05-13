@@ -25,12 +25,7 @@
 #import <CommonCrypto/CommonHMAC.h>
 #import <CommonCrypto/CommonDigest.h>
 
-const CCAlgorithm algorithm = kCCAlgorithmAES128;
-const NSUInteger algorithmKeySize = kCCKeySizeAES128;
-const NSUInteger algorithmBlockSize = kCCBlockSizeAES128;
-const NSUInteger algorithmIVSize = kCCBlockSizeAES128;
-
-const NSString* Label = @"AzureAD-SecureConversation";
+#include "ADOAuth2Constants.h"
 
 @implementation ADBrokerHelpers
 
@@ -95,7 +90,7 @@ enum {
 + (NSData*) computeKDFInCounterMode:(NSData*)key
                               context:(NSData*)ctx
 {
-    NSData* labelData = [Label dataUsingEncoding:NSUTF8StringEncoding];
+    NSData* labelData = [AAD_SECURECONVERSATION_LABEL dataUsingEncoding:NSUTF8StringEncoding];
     NSMutableData* mutData = [NSMutableData new];
     [mutData appendBytes:labelData.bytes length:labelData.length];
     Byte bytes[] = {0x00};

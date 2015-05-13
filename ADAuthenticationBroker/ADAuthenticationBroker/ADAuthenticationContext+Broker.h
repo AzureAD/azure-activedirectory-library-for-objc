@@ -55,8 +55,6 @@ returnRawResponse:(BOOL)returnRawResponse
                                   userId: (NSString*) userId
                                    scope: (NSString*) scope
                     extraQueryParameters: (NSString*) queryParams
-                                tryCache: (BOOL) tryCache /* set internally to avoid infinite recursion */
-                       validateAuthority: (BOOL) validateAuthority
                            correlationId: (NSUUID*) correlationId
                          completionBlock: (ADAuthenticationCallback)completionBlock;
 
@@ -78,5 +76,4 @@ returnRawResponse:(BOOL)returnRawResponse
                            scope: (NSString*) scope
             extraQueryParameters: (NSString*) extraQueryParameters
                  completionBlock: (ADAuthenticationCallback) completionBlock;
-
 @end
