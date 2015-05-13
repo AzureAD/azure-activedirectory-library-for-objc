@@ -481,7 +481,7 @@ return; \
     }
     
     [workPlaceJoinApi doDiscoveryForUpn:upn
-                          correlationId:[NSUUID UUID]
+                          correlationId:self.correlationId
                         completionBlock:^(ServiceInformation *svcInfo, NSError *error)
      {
          
@@ -504,21 +504,21 @@ return; \
                                                         token:result.accessToken
                                          registrationEndpoint:[svcInfo registrationEndpoint]
                                    registrationServiceVersion:[svcInfo registrationServiceVersion]
-                                                correlationId:[NSUUID UUID]
+                                                correlationId:self.correlationId
                                               completionBlock:^(NSError *error) {
                                                   if(!error)
                                                   {
                                                       //do PRT work
                                                       ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc]
                                                                                     initWithUpn:upn
-                                                                                    correlationId:nil
+                                                                                    correlationId:self.correlationId
                                                                                     error:&error];
                                                       [prtCtx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error) {
                                                           if(error)
                                                           {
                                                               ADBrokerPRTContext* newCtx = [[ADBrokerPRTContext alloc]
                                                                                             initWithUpn:upn
-                                                                                            correlationId:nil
+                                                                correlationId:self.correlationId
                                                                                             error:&error];
                                                               
                                                               [NSThread sleepForTimeInterval:[ADBrokerSettings sharedInstance].prtRequestWaitInSeconds];
@@ -574,11 +574,12 @@ return; \
     if(regInfo)
     {
         //remove WPJ as well
-        [ [WorkPlaceJoin WorkPlaceJoinManager] leaveWithCorrelationId:[NSUUID UUID]
+        [ [WorkPlaceJoin WorkPlaceJoinManager] leaveWithCorrelationId:self.correlationId
                                                         completionBlock:^(NSError *error)
          {
              ADBrokerPRTContext* brokerCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
-                                                                       correlationId:[NSUUID UUID] error:nil];
+                                                                       correlationId:self.correlationId
+                                                                               error:nil];
              [brokerCtx deletePRT];
          }];
         
