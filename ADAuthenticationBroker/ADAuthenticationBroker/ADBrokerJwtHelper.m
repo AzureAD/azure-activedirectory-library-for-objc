@@ -74,11 +74,13 @@ const uint32_t PADDING = kSecPaddingNone;
                   &plainBufferSize);
     if(status != errSecSuccess)
     {
+        free(plainBuffer);
         return nil;
     }
     
     NSData *decryptedData = [NSData dataWithBytes:plainBuffer length:plainBufferSize];
-//    NSString *decryptedString = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding]; return decryptedString;
+
+    free(plainBuffer);
     return  decryptedData;
 }
 
