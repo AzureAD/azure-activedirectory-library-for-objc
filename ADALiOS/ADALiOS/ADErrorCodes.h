@@ -107,6 +107,9 @@ typedef enum
 	/*! When work place join is required by the service. */
     AD_ERROR_WPJ_REQUIRED = 23,
     
+    /*! The redirect URI cannot be used for invoking broker. */
+    AD_ERROR_INVALID_REDIRECT_URI = 23,
+    
 } ADErrorCode;
 
 /* HTTP status codes used by the library */
