@@ -132,14 +132,6 @@ NSTimer *timer;
         
         return NO;
     }
-   
-#if AD_BROKER
-    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"]) {
-        _complete = YES;
-        dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCompleteWithURL:request.URL]; } );
-        return NO;
-    }
-#endif
 
     // check for pkeyauth challenge.
     if ([requestURL hasPrefix: pKeyAuthUrn] )
@@ -152,6 +144,13 @@ NSTimer *timer;
     if ([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"] ||
         [[requestURL lowercaseString] hasPrefix:[_endURL lowercaseString]] )
     {
+#if AD_BROKER
+        if ([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"]) {
+            _complete = YES;
+            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCompleteWithURL:request.URL]; } );
+            return NO;
+        }
+#endif
         // iOS generates a 102, Frame load interrupted error from stopLoading, so we set a flag
         // here to note that it was this code that halted the frame load in order that we can ignore
         // the error when we are notified later.
@@ -168,19 +167,6 @@ NSTimer *timer;
         // Tell the web view that this URL should not be loaded.
         return NO;
     }
-    
-#if AD_BROKER
-    if(![request.allHTTPHeaderFields valueForKey:pKeyAuthHeader]){
-        // Create a mutable copy of the immutable request and add more headers
-        NSMutableURLRequest *mutableRequest = [request mutableCopy];
-        [mutableRequest addValue:pKeyAuthHeaderVersion forHTTPHeaderField:pKeyAuthHeader];
-        
-        // Now set our request variable with an (immutable) copy of the altered request
-        request = [mutableRequest copy];
-        [webView loadRequest:request];
-        return NO;
-    }
-#endif // AD_BROKER
     
     return YES;
 }
