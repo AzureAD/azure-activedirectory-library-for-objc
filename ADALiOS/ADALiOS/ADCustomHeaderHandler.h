@@ -16,17 +16,11 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@protocol ADAuthenticationDelegate;
+#import <Foundation/Foundation.h>
 
-@interface ADAuthenticationViewController : UIViewController
+@interface ADCustomHeaderHandler : NSObject
 
-@property (weak, nonatomic)   id<ADAuthenticationDelegate>     delegate;
-@property (weak, nonatomic)   IBOutlet UIWebView               *webView;
-@property (weak, nonatomic)   IBOutlet UIActivityIndicatorView *activityIndicator;
++(void) addCustomHeaderValue:(NSString*)value forHeaderKey:(NSString*)key forSingleUse:(BOOL)singleUse;
 
-- (IBAction)onCancel:(id)sender;
-
-- (BOOL)startWithURL:(NSURL *)startURL
-            endAtURL:(NSURL *)endURL;
-
++(void) applyCustomHeadersTo:(NSMutableURLRequest*) request;
 @end

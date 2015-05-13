@@ -71,6 +71,8 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
 }
 BOOL isCorrelationIdUserProvided = NO;
 
+typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
+
 @implementation ADAuthenticationContext
 
 + (void) load
@@ -1274,11 +1276,22 @@ return; \
                   cacheItem: (ADTokenCacheStoreItem*) cacheItem
            withRefreshToken: (NSString*) refreshToken
 {
+    [self updateCacheToResult:result
+                cacheInstance:self.tokenCacheStore
+                    cacheItem:cacheItem
+             withRefreshToken:refreshToken];
+}
+
+-(void) updateCacheToResult: (ADAuthenticationResult*) result
+              cacheInstance: (id<ADTokenCacheStoring>) tokenCacheStoreInstance
+                  cacheItem: (ADTokenCacheStoreItem*) cacheItem
+           withRefreshToken: (NSString*) refreshToken
+{
     if(![self handleNilOrEmptyAsResult:result argumentName:@"result" authenticationResult:&result]){
         return;
     }
     
-    if (!self.tokenCacheStore)
+    if (!tokenCacheStoreInstance)
         return;//No cache to update
     
     if (AD_SUCCEEDED == result.status)
@@ -1307,11 +1320,11 @@ return; \
             multiRefreshTokenItem.accessToken = nil;
             multiRefreshTokenItem.resource = nil;
             multiRefreshTokenItem.expiresOn = nil;
-            [self.tokenCacheStore addOrUpdateItem:multiRefreshTokenItem error:nil];
+            [tokenCacheStoreInstance addOrUpdateItem:multiRefreshTokenItem error:nil];
         }
         
         AD_LOG_VERBOSE_F(@"Token cache store", @"Storing access token for resource: %@", cacheItem.resource);
-        [self.tokenCacheStore addOrUpdateItem:cacheItem error:nil];
+        [tokenCacheStoreInstance addOrUpdateItem:cacheItem error:nil];
         cacheItem.refreshToken = savedRefreshToken;//Restore for the result
     }
     else
@@ -1330,11 +1343,11 @@ return; \
             ADTokenCacheStoreKey* exactKey = [cacheItem extractKeyWithError:nil];
             if (exactKey)
             {
-                ADTokenCacheStoreItem* existing = [self.tokenCacheStore getItemWithKey:exactKey userId:cacheItem.userInformation.userId error:nil];
+                ADTokenCacheStoreItem* existing = [tokenCacheStoreInstance getItemWithKey:exactKey userId:cacheItem.userInformation.userId error:nil];
                 if ([refreshToken isEqualToString:existing.refreshToken])//If still there, attempt to remove
                 {
                     AD_LOG_VERBOSE_F(@"Token cache store", @"Removing cache for resource: %@", cacheItem.resource);
-                    [self.tokenCacheStore removeItemWithKey:exactKey userId:existing.userInformation.userId error:nil];
+                    [tokenCacheStoreInstance removeItemWithKey:exactKey userId:existing.userInformation.userId error:nil];
                     removed = YES;
                 }
             }
@@ -1345,11 +1358,11 @@ return; \
                 ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:self.authority resource:nil clientId:cacheItem.clientId error:nil];
                 if (broadKey)
                 {
-                    ADTokenCacheStoreItem* broadItem = [self.tokenCacheStore getItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
+                    ADTokenCacheStoreItem* broadItem = [tokenCacheStoreInstance getItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
                     if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
                     {
                         AD_LOG_VERBOSE_F(@"Token cache store", @"Removing multi-resource refresh token for authority: %@", self.authority);
-                        [self.tokenCacheStore removeItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
+                        [tokenCacheStoreInstance removeItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
                     }
                 }
             }
@@ -1825,6 +1838,7 @@ additionalHeaders:nil
     
     [[ADAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
                                                end:[NSURL URLWithString:[redirectUri absoluteString]]
+                            refreshTokenCredential:nil
                                   parentController:self.parentController
                                            webView:self.webView
                                         fullScreen:settings.enableFullScreen
@@ -1836,9 +1850,20 @@ additionalHeaders:nil
          NSString* code = nil;
          if (!error)
          {
-             if([[[end scheme] lowercaseString] isEqualToString:@"msauth"])
-             {
-                 code = end.absoluteString;
+
+             if ([[[end scheme] lowercaseString] isEqualToString:@"msauth"]) {
+#if AD_BROKER
+                 
+                 NSDictionary* userInfo = @{
+                                            @"username": [[NSDictionary adURLFormDecode:[end query]] valueForKey:@"username"],
+                                            };
+                 NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
+                                                    code:AD_ERROR_WPJ_REQUIRED
+                                                userInfo:userInfo];
+                 error = [ADAuthenticationError errorFromNSError:err errorDetails:@"work place join is required"];
+#else
+	              code = end.absoluteString;
+#endif   
              }
              else
              {
@@ -1931,6 +1956,10 @@ additionalHeaders:nil
                                          clientId, OAUTH2_CLIENT_ID,
                                          [redirectUri absoluteString], OAUTH2_REDIRECT_URI,
                                          nil];
+    if(![NSString adIsStringNilOrBlank:scope])
+    {
+        [request_data setValue:scope forKey:OAUTH2_SCOPE];
+    }
     
     [self executeRequest:self.authority
              requestData:request_data
@@ -1980,6 +2009,22 @@ isHandlingPKeyAuthChallenge: (BOOL) isHandlingPKeyAuthChallenge
 additionalHeaders:(NSDictionary *)additionalHeaders
      completion:( void (^)(NSDictionary *) )completionBlock
 {
+    [self request:authorizationServer
+      requestData:request_data
+requestCorrelationId:requestCorrelationId
+isHandlingPKeyAuthChallenge:isHandlingPKeyAuthChallenge
+additionalHeaders:additionalHeaders
+returnRawResponse:NO completion:completionBlock];
+}
+
+- (void)request:(NSString *)authorizationServer
+    requestData:(NSDictionary *)request_data
+requestCorrelationId: (NSUUID*) requestCorrelationId
+isHandlingPKeyAuthChallenge: (BOOL) isHandlingPKeyAuthChallenge
+additionalHeaders:(NSDictionary *)additionalHeaders
+returnRawResponse:(BOOL)returnRawResponse
+     completion:( void (^)(NSDictionary *) )completionBlock
+{
     NSString* endPoint = authorizationServer;
     
     if(!isHandlingPKeyAuthChallenge){
@@ -2021,6 +2066,12 @@ additionalHeaders:(NSDictionary *)additionalHeaders
             switch (webResponse.statusCode)
             {
                 case 200:
+                    if(returnRawResponse)
+                    {
+                        [response setObject:[[NSString alloc] initWithData:webResponse.body encoding:0]
+                                     forKey:@"raw_response"];
+                        break;
+                    }
                 case 400:
                 case 401:
                 {

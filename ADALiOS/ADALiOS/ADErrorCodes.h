@@ -103,6 +103,9 @@ typedef enum
     
     /*! When the application waiting for broker is activated without broker response. */
     AD_ERROR_BROKER_RESPONSE_NOT_RECEIVED = 22,
+
+	/*! When work place join is required by the service. */
+    AD_ERROR_WPJ_REQUIRED = 23,
     
 } ADErrorCode;
 

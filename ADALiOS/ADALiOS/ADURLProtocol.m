@@ -20,6 +20,7 @@
 #import "ADURLProtocol.h"
 #import "ADLogger.h"
 #import "ADNTLMHandler.h"
+#import "ADCustomHeaderHandler.h"
 
 NSString* const sLog = @"HTTP Protocol";
 
@@ -115,13 +116,15 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
         
         [_connection cancel];
         [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
-        if(![request.allHTTPHeaderFields valueForKey:@"x-ms-PkeyAuth"])
+        [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
+		if(![request.allHTTPHeaderFields valueForKey:@"x-ms-PkeyAuth"])
         {
             [mutableRequest addValue:@"1.0" forHTTPHeaderField:@"x-ms-PkeyAuth"];
         }
         return mutableRequest;
     }
     
+	[ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
     if(![request.allHTTPHeaderFields valueForKey:@"x-ms-PkeyAuth"])
     {
         [mutableRequest addValue:@"1.0" forHTTPHeaderField:@"x-ms-PkeyAuth"];
