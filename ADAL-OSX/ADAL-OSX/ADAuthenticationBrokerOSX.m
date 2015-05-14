@@ -242,7 +242,7 @@ correlationId:(NSUUID *)correlationId
         }
         
         [_authenticationWebViewController stop];
-        _authenticationWebViewController = nil;
+        SAFE_ARC_RELEASE(_authenticationWebViewController); _authenticationWebViewController = nil;
         
         // Dispatch the completion block
         [self dispatchCompletionBlock:error URL:nil];
@@ -269,7 +269,7 @@ correlationId:(NSUUID *)correlationId
         }
         
         [_authenticationWebViewController stop];
-        _authenticationWebViewController = nil;
+        SAFE_ARC_RELEASE(_authenticationWebViewController); _authenticationWebViewController = nil;
         
         [self dispatchCompletionBlock:nil URL:endURL];
     }
@@ -296,7 +296,7 @@ correlationId:(NSUUID *)correlationId
         }
         
         [_authenticationWebViewController stop];
-        _authenticationWebViewController = nil;
+        SAFE_ARC_RELEASE(_authenticationWebViewController); _authenticationWebViewController = nil;
         
         // Dispatch the completion block
         [self dispatchCompletionBlock:adError URL:nil];
