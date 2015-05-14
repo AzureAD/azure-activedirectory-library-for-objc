@@ -17,6 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADBrokerSettings.h"
+#import "ADBrokerKeychainTokenCacheStore.h"
 
 @implementation ADBrokerSettings
 
@@ -30,13 +31,13 @@
     {
         //Initialize the defaults here:
         self.prtRequestWaitInSeconds = 5;
-        self.authority = @"https://login.windows.net/common";
         self.wpjEnvironment = PROD;
+        _defaultCacheInstance = [ADBrokerKeychainTokenCacheStore new];
     }
     return self;
 }
 
-+(ADBrokerSettings*)sharedInstance
++(ADBrokerSettings*) sharedInstance
 {
     /* Below is a standard objective C singleton pattern*/
     static ADBrokerSettings* instance;
@@ -47,7 +48,34 @@
             instance = [[ADBrokerSettings alloc] initInternal];
         });
     }
+    
     return instance;
+}
+
+
+-(NSString*) authority
+{
+    {
+        NSString *authEndpoint = nil;
+        switch (self.wpjEnvironment)
+        {
+                
+            case NONE:
+            case PROD:
+                authEndpoint = @"https://login.windows.net/common";
+                break;
+                
+            case PPE:
+                authEndpoint = @"https://login.windows-ppe.net/common";
+                break;
+                
+            case INT:
+                authEndpoint = @"https://login.windows-int.net/common";
+                break;
+        }
+        
+        return authEndpoint;
+    }
 }
 
 @end

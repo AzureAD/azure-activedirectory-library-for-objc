@@ -47,9 +47,9 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Kr-1f-cRD">
-                                <rect key="frame" x="8" y="110" width="128" height="30"/>
+                                <rect key="frame" x="8" y="110" width="172" height="30"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <state key="normal" title="Clear Keychain">
+                                <state key="normal" title="Reset Application State">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
@@ -81,7 +81,20 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
-                    <navigationItem key="navigationItem" id="GeY-nA-U8U"/>
+                    <navigationItem key="navigationItem" id="GeY-nA-U8U">
+                        <barButtonItem key="rightBarButtonItem" style="plain" id="NsR-Us-gbX">
+                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="YeP-ug-mWJ">
+                                <rect key="frame" x="-23" y="-15" width="71" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Settings">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="settingsPressed:" destination="Nc3-55-hKk" eventType="touchUpInside" id="SNj-Fc-QLs"/>
+                                </connections>
+                            </button>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="tableView" destination="GFI-0q-iXt" id="TVL-XU-nE8"/>
                     </connections>
@@ -216,6 +229,70 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Afq-jz-bvp" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1699" y="-14"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="nTR-2c-evv">
+            <objects>
+                <navigationController id="9UO-4E-tMb" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="uMX-ZR-M1u">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="FOl-kL-1Bz" kind="relationship" relationship="rootViewController" id="Vo2-s5-jr6"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Rrh-4z-tcI" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1191" y="697"/>
+        </scene>
+        <!--App Settings View Controller-->
+        <scene sceneID="d4M-IB-6UY">
+            <objects>
+                <viewController storyboardIdentifier="AppSettingsViewController" id="FOl-kL-1Bz" customClass="AppSettingsViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Pl7-Wf-xbB"/>
+                        <viewControllerLayoutGuide type="bottom" id="1NW-mk-zzD"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="0PZ-37-Ju9">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <pickerView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0aM-Fv-2Pg">
+                                <rect key="frame" x="215" y="72" width="84" height="162"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="FOl-kL-1Bz" id="eXZ-0i-lRG"/>
+                                    <outlet property="delegate" destination="FOl-kL-1Bz" id="FlM-j6-Isq"/>
+                                </connections>
+                            </pickerView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VzE-cs-E2j">
+                                <rect key="frame" x="31" y="191" width="84" height="36"/>
+                                <state key="normal" title="Save">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="savePressed:" destination="FOl-kL-1Bz" eventType="touchUpInside" id="9Ke-7e-wow"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Application Environment" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Y25-an-BMx">
+                                <rect key="frame" x="7" y="142" width="187" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="kIK-DE-dfY"/>
+                    <connections>
+                        <outlet property="btnSave" destination="VzE-cs-E2j" id="AVp-79-t9H"/>
+                        <outlet property="picker" destination="0aM-Fv-2Pg" id="3ih-S4-Wbp"/>
+                        <outletCollection property="pickerData" destination="0aM-Fv-2Pg" id="34a-6y-Mbm"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="wt9-6g-Vsl" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1615" y="703"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Dl4-56-eXl">

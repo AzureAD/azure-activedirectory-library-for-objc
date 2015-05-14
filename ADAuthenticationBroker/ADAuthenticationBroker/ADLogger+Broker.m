@@ -28,11 +28,11 @@
 
 @implementation ADLogger (Broker)
 
-NSString* clientAdalVersion = @"";
+NSString* clientAdalVersion = @"0.0.0";
 
 +(void) resetAdalVersion
 {
-    clientAdalVersion = @"";
+    clientAdalVersion = @"0.0.0";
 }
 
 +(void) setAdalVersion:(NSString*) adalVersion

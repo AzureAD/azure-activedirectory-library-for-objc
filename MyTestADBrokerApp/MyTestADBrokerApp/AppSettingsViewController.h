@@ -16,17 +16,13 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <workplaceJoinAPI/WorkplaceJoin.h>
+#import <Foundation/Foundation.h>
 
-@interface ADBrokerSettings : NSObject
+@interface AppSettingsViewController : UIViewController
 
-/*! The static instance of the singleton settings class*/
-+(ADBrokerSettings*) sharedInstance;
+@property (weak, nonatomic) IBOutlet UIButton *btnSave;
+@property (weak, nonatomic) IBOutlet UIPickerView *picker;
+@property (retain, nonatomic) IBOutletCollection(UIPickerView) NSArray *pickerData;
 
-@property int prtRequestWaitInSeconds;
-@property WPJEnvironment wpjEnvironment;
-@property (readonly) id<ADTokenCacheStoring> defaultCacheInstance;
-
-- (NSString*) authority;
-
+- (IBAction)savePressed:(id)sender;
 @end

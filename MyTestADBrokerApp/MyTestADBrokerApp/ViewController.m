@@ -19,6 +19,7 @@
 #import "ViewController.h"
 #import "AppDelegate.h"
 #import "AccountDetailsViewController.h"
+#import "AppSettingsViewController.h"
 #import <ADAuthenticationBroker/ADBrokerConstants.h>
 #import <ADAuthenticationBroker/ADBrokerContext.h>
 #import <ADALiOS/ADAuthenticationError.h>
@@ -37,6 +38,7 @@
 - (IBAction)clearKeychainPressed:(id)sender;
 - (IBAction)clearLogPressed:(id)sender;
 - (IBAction)emailLogPressed:(id)sender;
+- (IBAction)settingsPressed:(id)sender;
 @end
 
 @implementation ViewController
@@ -112,38 +114,32 @@ NSMutableArray* users;
     // Dispose of any resources that can be recreated.
 }
 
+- (IBAction)settingsPressed:(id)sender
+{
+    AppSettingsViewController *detailsController = [self.storyboard instantiateViewControllerWithIdentifier:@"AppSettingsViewController"];
+    [detailsController setModalPresentationStyle:UIModalPresentationFullScreen];
+    [self.navigationController pushViewController:detailsController
+                                         animated:YES];
+}
+
+
 - (IBAction)clearKeychainPressed:(id)sender
 {
-//    ViewController* __weak weakSelf = self;
-//    id<ADTokenCacheStoring> cache = [[ADBrokerK]]
-//    ADAuthenticationError *error = nil;
-//    long count = (unsigned long)[[cache allItemsWithError:&error] count];
-//    if (error)
-//    {
-//        return;
-//    }
-//    
-//    [cache removeAllWithError:&error];
-//    if (error)
-//    {
-//        return;
-//    }
-//    
-//    cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore ;
-//    count = (unsigned long)[[cache allItemsWithError:&error] count];
-//    if (error)
-//    {
-//        return;
-//    }
-//    
-//    [cache removeAllWithError:&error];
-//    if (error)
-//    {
-//        return;
-//    }
-    
     ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:[ADBrokerSettings sharedInstance].authority];
     [ctx removeWorkPlaceJoinRegistration:nil];
+    
+    id<ADTokenCacheStoring> cache = [ADBrokerSettings sharedInstance].defaultCacheInstance;
+    [cache removeAllWithError:nil];
+    
+    NSHTTPCookieStorage* cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSArray* cookies = cookieStorage.cookies;
+    if (cookies.count)
+    {
+        for(NSHTTPCookie* cookie in cookies)
+        {
+            [cookieStorage deleteCookie:cookie];
+        }
+    }
     
     [self getAllAccounts:YES];
 }
@@ -314,7 +310,6 @@ NSMutableArray* users;
                                                 animated:YES];
     }
 }
-
 
 
 @end
