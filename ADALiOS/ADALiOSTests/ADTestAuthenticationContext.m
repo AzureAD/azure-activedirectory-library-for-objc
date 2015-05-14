@@ -52,12 +52,12 @@
 }
 
 //Override of the parent's request to allow testing of the class behavior.
-- (void)request:(NSString *)authorizationServer
-    requestData:(NSDictionary *)request_data
-requestCorrelationId: (NSUUID*) requestCorrelationId
-isHandlingPKeyAuthChallenge: (BOOL) isHandlingPKeyAuthChallenge
-additionalHeaders:(NSDictionary *)additionalHeaders
-     completion:( void (^)(NSDictionary *) )completionBlock
+- (void)requestWithServer:(NSString *)authorizationServer
+              requestData:(NSDictionary *)request_data
+     requestCorrelationId:(NSUUID*)requestCorrelationId
+          handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
+        additionalHeaders:(NSDictionary *)additionalHeaders
+               completion:( void (^)(NSDictionary *) )completionBlock
 {
     ++mNumRequests;
     if (mNumRequests > 2 || (!mAllowTwoRequests && mNumRequests > 1))
