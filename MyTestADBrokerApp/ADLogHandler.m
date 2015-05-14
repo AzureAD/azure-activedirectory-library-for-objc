@@ -28,7 +28,8 @@
         id<CUTLogWriter> circularFileLogWriter;
         
         CUTLoggerSettings* loggerSettings = [CUTLoggerSettings new];
-        loggerSettings.logLevelMask = CUTTraceLevelVerbose;
+        loggerSettings.logLevelMask = CUTTraceLevelWarning | CUTTraceLevelVerbose | CUTTraceLevelInfo |
+            CUTTraceLevelError;
         loggerSettings.logConfigMask = CUTLogTimeStamp | CUTLogFunction | CUTLogLineNumber | CUTLogThreadID;
         
         logger = [CUTLibrary loggerWithSettings:loggerSettings];
