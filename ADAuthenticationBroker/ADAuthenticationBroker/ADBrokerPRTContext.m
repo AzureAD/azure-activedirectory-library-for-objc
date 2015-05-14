@@ -31,6 +31,8 @@
 #import "ADBrokerHelpers.h"
 #import "ADBrokerSettings.h"
 
+#import "ADAuthenticationContext+BrokerSDK.h"
+
 @implementation ADBrokerPRTContext
 
 ADAuthenticationContext* ctx;
@@ -166,13 +168,13 @@ NSString* userPrincipalIdentifier;
                               };
                               
                               //send JWT to token endpoint
-                              [ctx request:[ADBrokerSettings sharedInstance].authority
-                               requestData:request_data
-                      requestCorrelationId:[ctx getCorrelationId]
-               isHandlingPKeyAuthChallenge:NO
-                         additionalHeaders:request_data
-                         returnRawResponse:NO
-                                completion:prtProcessCallback];
+                              [ctx requestWithServer:[ADBrokerSettings sharedInstance].authority
+                                         requestData:request_data
+                                requestCorrelationId:[ctx getCorrelationId]
+                                     handledPkeyAuth:NO
+                                   additionalHeaders:request_data
+                                   returnRawResponse:NO
+                                          completion:prtProcessCallback];
                           }
                           
                       }else{
@@ -226,13 +228,14 @@ NSString* userPrincipalIdentifier;
                                                  nil];
             
             //send JWT to token endpoint
-            [ctx request:[ADBrokerSettings sharedInstance].authority
-             requestData:request_data
-    requestCorrelationId:[ctx getCorrelationId]
-isHandlingPKeyAuthChallenge:NO
-       additionalHeaders:nil
-       returnRawResponse:YES
-              completion:^(NSDictionary *response) {
+            [ctx requestWithServer:[ADBrokerSettings sharedInstance].authority
+                       requestData:request_data
+              requestCorrelationId:[ctx getCorrelationId]
+                   handledPkeyAuth:NO
+                 additionalHeaders:nil
+                 returnRawResponse:YES
+                        completion:^(NSDictionary *response)
+{
                   
                   if([response valueForKey:@"raw_response"])
                   {
@@ -353,13 +356,13 @@ isHandlingPKeyAuthChallenge:NO
                                                                  nil];
                             
                             //send JWT to token endpoint
-                            [ctx request:[ADBrokerSettings sharedInstance].authority
-                             requestData:request_data
-                    requestCorrelationId:[ctx getCorrelationId]
-             isHandlingPKeyAuthChallenge:NO
-                       additionalHeaders:nil
-                       returnRawResponse:YES
-                              completion:^(NSDictionary *response) {
+                            [ctx requestWithServer:[ADBrokerSettings sharedInstance].authority
+                                       requestData:request_data
+                              requestCorrelationId:[ctx getCorrelationId]
+                                   handledPkeyAuth:NO
+                                 additionalHeaders:nil
+                                 returnRawResponse:YES
+                                        completion:^(NSDictionary *response) {
                                   
                                   if([response valueForKey:@"raw_response"])
                                   {
@@ -547,7 +550,7 @@ isHandlingPKeyAuthChallenge:NO
         AD_LOG_INFO_F(@"Missing correlation id", @"No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
     }
     
-    ADAuthenticationError* error = [ctx errorFromDictionary:response errorCode:(fromRefreshTokenWorkflow) ? AD_ERROR_INVALID_REFRESH_TOKEN : AD_ERROR_AUTHENTICATION];
+    ADAuthenticationError* error = [ADAuthenticationContext errorFromDictionary:response errorCode:(fromRefreshTokenWorkflow) ? AD_ERROR_INVALID_REFRESH_TOKEN : AD_ERROR_AUTHENTICATION];
     if (error)
     {
         return [ADAuthenticationResult resultFromError:error];

@@ -16,33 +16,17 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADAuthenticationContext+Broker.h"
+#import "ADAuthenticationContext+BrokerSDK.h"
 
-@interface ADAuthenticationContext ()
+@implementation ADAuthenticationContext (BrokerSDK)
 
-- (void)internalAcquireTokenWithResource:(NSString*)resource
-                                clientId:(NSString*)clientId
-                             redirectUri:(NSURL*)redirectUri
-                          promptBehavior:(ADPromptBehavior)promptBehavior
-                                  silent:(BOOL)silent /* Do not show web UI for authorization. */
-                                  userId:(NSString*)userId
-                                   scope:(NSString*)scope
-                    extraQueryParameters:(NSString*)queryParams
-                       validateAuthority:(BOOL)validateAuthority
-                           correlationId:(NSUUID*)correlationId
-                         completionBlock:(ADAuthenticationCallback)completionBlock;
-
-@end
-
-@implementation ADAuthenticationContext (Broker)
-
--(void) acquireTokenWithResource: (NSString*) resource
-                        clientId: (NSString*) clientId
-                     redirectUri: (NSURL*) redirectUri
-                          userId: (NSString*) userId
-                           scope: (NSString*) scope
-            extraQueryParameters: (NSString*) extraQueryParameters
-                 completionBlock: (ADAuthenticationCallback) completionBlock
+- (void)acquireTokenWithResource:(NSString*)resource
+                        clientId:(NSString*)clientId
+                     redirectUri:(NSURL*)redirectUri
+                          userId:(NSString*)userId
+                           scope:(NSString*)scope
+            extraQueryParameters:(NSString*)extraQueryParameters
+                 completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
     [self internalAcquireTokenWithResource:resource
