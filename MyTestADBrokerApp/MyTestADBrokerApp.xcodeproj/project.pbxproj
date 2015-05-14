@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		971C57B61AFAB2FE0034820F /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 971C57B41AFAB2FE0034820F /* libADALiOS.a */; settings = {ATTRIBUTES = (Required, ); }; };
+		97280E6A1B04A39100B2D958 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97280E691B04A39100B2D958 /* MessageUI.framework */; };
+		97280E851B04AF0F00B2D958 /* UnityLogger.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97280E821B04AEBD00B2D958 /* UnityLogger.framework */; };
+		97280E861B04AF7300B2D958 /* UnityLogger.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 97280E821B04AEBD00B2D958 /* UnityLogger.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		975E42D71A1D49D10033B500 /* ADALiOS.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 975E42D61A1D49D10033B500 /* ADALiOS.bundle */; };
 		976CCB261A02DA49006C91F4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB251A02DA49006C91F4 /* main.m */; };
 		976CCB291A02DA49006C91F4 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 976CCB281A02DA49006C91F4 /* AppDelegate.m */; };
@@ -20,12 +23,27 @@
 		976CCB561A02E874006C91F4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 976CCB551A02E874006C91F4 /* Foundation.framework */; };
 		977DA5CB1AAFD308009E75FE /* libADAuthenticationBroker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 977DA5CA1AAFD308009E75FE /* libADAuthenticationBroker.a */; };
 		979F4EDF1AB34822009B3E43 /* AccountDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 979F4EDE1AB34822009B3E43 /* AccountDetailsViewController.m */; };
+		97D034D61B049DC4000A9BD0 /* ADLogHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D034D51B049DC4000A9BD0 /* ADLogHandler.m */; };
 		97E21CD41A1C348C00EF5520 /* MyTestADBrokerApp.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = 97E21CD11A1C348C00EF5520 /* MyTestADBrokerApp.entitlements */; };
 		97E21CDA1A1C349900EF5520 /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97E21CD61A1C349900EF5520 /* Main_iPad.storyboard */; };
 		97E21CDB1A1C349900EF5520 /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97E21CD81A1C349900EF5520 /* Main_iPhone.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		97280E811B04AEBD00B2D958 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97280E7C1B04AEBD00B2D958 /* UnityLogger.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 97D0339A1B04035D000A9BD0;
+			remoteInfo = UnityLogger;
+		};
+		97280E831B04AEBD00B2D958 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97280E7C1B04AEBD00B2D958 /* UnityLogger.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 97D033A51B04035D000A9BD0;
+			remoteInfo = UnityLoggerTests;
+		};
 		976CCB3D1A02DA49006C91F4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 976CCB181A02DA49006C91F4 /* Project object */;
@@ -36,12 +54,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		976CCB5D1A02EE31006C91F4 /* Embed Frameworks */ = {
+		97280E781B04AA7900B2D958 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				97280E861B04AF7300B2D958 /* UnityLogger.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -52,6 +71,8 @@
 		971C57B41AFAB2FE0034820F /* libADALiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADALiOS.a; path = "../ADAuthenticationBroker/Frameworks/azure-activedirectory-library-for-objc-unity-fork/ADALiOS/build/Debug-iphoneos/libADALiOS.a"; sourceTree = "<group>"; };
 		971C57B51AFAB2FE0034820F /* libWorkPlaceJoinAPI.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWorkPlaceJoinAPI.a; path = "../ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/build/Debug-iphoneos/libWorkPlaceJoinAPI.a"; sourceTree = "<group>"; };
 		971C57C01AFABA600034820F /* MyTestADBroker.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyTestADBroker.pch; sourceTree = "<group>"; };
+		97280E691B04A39100B2D958 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		97280E7C1B04AEBD00B2D958 /* UnityLogger.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = UnityLogger.xcodeproj; path = UnityLogger/UnityLogger.xcodeproj; sourceTree = "<group>"; };
 		975E42D61A1D49D10033B500 /* ADALiOS.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = ADALiOS.bundle; sourceTree = "<group>"; };
 		976CCB201A02DA49006C91F4 /* MyTestADBrokerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyTestADBrokerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		976CCB241A02DA49006C91F4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -73,6 +94,8 @@
 		977DA5CA1AAFD308009E75FE /* libADAuthenticationBroker.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADAuthenticationBroker.a; path = "../../../Library/Developer/Xcode/DerivedData/ADAuthenticationBroker-bvcelnfdafckoahgsnmzojpxkneo/Build/Products/Debug-iphoneos/libADAuthenticationBroker.a"; sourceTree = "<group>"; };
 		979F4EDD1AB34822009B3E43 /* AccountDetailsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccountDetailsViewController.h; sourceTree = "<group>"; };
 		979F4EDE1AB34822009B3E43 /* AccountDetailsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AccountDetailsViewController.m; sourceTree = "<group>"; };
+		97D034D41B049DC4000A9BD0 /* ADLogHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADLogHandler.h; sourceTree = "<group>"; };
+		97D034D51B049DC4000A9BD0 /* ADLogHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADLogHandler.m; sourceTree = "<group>"; };
 		97E21CD11A1C348C00EF5520 /* MyTestADBrokerApp.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = MyTestADBrokerApp.entitlements; sourceTree = "<group>"; };
 		97E21CD71A1C349900EF5520 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
 		97E21CD91A1C349900EF5520 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
@@ -83,6 +106,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				97280E851B04AF0F00B2D958 /* UnityLogger.framework in Frameworks */,
+				97280E6A1B04A39100B2D958 /* MessageUI.framework in Frameworks */,
 				971C57B61AFAB2FE0034820F /* libADALiOS.a in Frameworks */,
 				977DA5CB1AAFD308009E75FE /* libADAuthenticationBroker.a in Frameworks */,
 				976CCB561A02E874006C91F4 /* Foundation.framework in Frameworks */,
@@ -101,9 +126,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		97280E7D1B04AEBD00B2D958 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				97280E821B04AEBD00B2D958 /* UnityLogger.framework */,
+				97280E841B04AEBD00B2D958 /* UnityLoggerTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		976CCB171A02DA49006C91F4 = {
 			isa = PBXGroup;
 			children = (
+				97D034D41B049DC4000A9BD0 /* ADLogHandler.h */,
+				97D034D51B049DC4000A9BD0 /* ADLogHandler.m */,
 				976CCB501A02E847006C91F4 /* Frameworks */,
 				976CCB221A02DA49006C91F4 /* MyTestADBrokerApp */,
 				976CCB3F1A02DA49006C91F4 /* MyTestADBrokerAppTests */,
@@ -170,6 +206,8 @@
 		976CCB501A02E847006C91F4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				97280E7C1B04AEBD00B2D958 /* UnityLogger.xcodeproj */,
+				97280E691B04A39100B2D958 /* MessageUI.framework */,
 				971C57B41AFAB2FE0034820F /* libADALiOS.a */,
 				971C57B51AFAB2FE0034820F /* libWorkPlaceJoinAPI.a */,
 				977DA5CA1AAFD308009E75FE /* libADAuthenticationBroker.a */,
@@ -192,7 +230,7 @@
 				976CCB1C1A02DA49006C91F4 /* Sources */,
 				976CCB1D1A02DA49006C91F4 /* Frameworks */,
 				976CCB1E1A02DA49006C91F4 /* Resources */,
-				976CCB5D1A02EE31006C91F4 /* Embed Frameworks */,
+				97280E781B04AA7900B2D958 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -257,6 +295,12 @@
 			mainGroup = 976CCB171A02DA49006C91F4;
 			productRefGroup = 976CCB211A02DA49006C91F4 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 97280E7D1B04AEBD00B2D958 /* Products */;
+					ProjectRef = 97280E7C1B04AEBD00B2D958 /* UnityLogger.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				976CCB1F1A02DA49006C91F4 /* MyTestADBrokerApp */,
@@ -264,6 +308,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		97280E821B04AEBD00B2D958 /* UnityLogger.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = UnityLogger.framework;
+			remoteRef = 97280E811B04AEBD00B2D958 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		97280E841B04AEBD00B2D958 /* UnityLoggerTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = UnityLoggerTests.xctest;
+			remoteRef = 97280E831B04AEBD00B2D958 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		976CCB1E1A02DA49006C91F4 /* Resources */ = {
@@ -296,6 +357,7 @@
 				979F4EDF1AB34822009B3E43 /* AccountDetailsViewController.m in Sources */,
 				976CCB2C1A02DA49006C91F4 /* MyTestADBrokerApp.xcdatamodeld in Sources */,
 				976CCB2F1A02DA49006C91F4 /* ViewController.m in Sources */,
+				97D034D61B049DC4000A9BD0 /* ADLogHandler.m in Sources */,
 				976CCB261A02DA49006C91F4 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -436,9 +498,15 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/ADAuthenticationBroker.framework/Headers",
+					"$(PROJECT_DIR)/logger-simulator",
+					"$(PROJECT_DIR)/logger-os",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 				);
 				INFOPLIST_FILE = MyTestADBrokerApp/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited)";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -464,9 +532,15 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/ADAuthenticationBroker.framework/Headers",
+					"$(PROJECT_DIR)/logger-simulator",
+					"$(PROJECT_DIR)/logger-os",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 				);
 				INFOPLIST_FILE = MyTestADBrokerApp/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited)";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",

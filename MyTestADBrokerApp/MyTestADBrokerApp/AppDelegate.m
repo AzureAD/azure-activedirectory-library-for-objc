@@ -19,6 +19,7 @@
 
 #import "AppDelegate.h"
 #import <ADAuthenticationBroker/ADBrokerContext.h>
+#import "ADLogHandler.h"
 
 @interface AppDelegate ()
 
@@ -45,12 +46,15 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
+    [ADLogHandler configureLoggers];
+    
     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"])
     {
         UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ" create:NO];
-        if(appPasteBoard)
+        if(appPasteBoard && [appPasteBoard URL])
         {
             self._url = [appPasteBoard URL];
+            [appPasteBoard setURL:nil];
             NSArray* parts = [[self._url absoluteString] componentsSeparatedByString: @"sourceApplication="];
             self._sourceApplication  = [parts objectAtIndex: 1];
             

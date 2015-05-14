@@ -29,12 +29,14 @@
 #import <ADAuthenticationBroker/ADBrokerUserAccount.h>
 #import <ADAuthenticationBroker/ADBrokerSettings.h>
 
+
 @interface ViewController ()
 
 @property (weak, nonatomic) IBOutlet UITableView* tableView;
 - (IBAction)addUserPressed:(id)sender;
 - (IBAction)clearKeychainPressed:(id)sender;
-
+- (IBAction)clearLogPressed:(id)sender;
+- (IBAction)emailLogPressed:(id)sender;
 @end
 
 @implementation ViewController
@@ -186,6 +188,46 @@ NSMutableArray* users;
         }
     }];
     }
+}
+
+
+- (IBAction)clearLogPressed:(id)sender
+{
+    [[CUTLibrary sharedLogger] clearLogs];
+}
+
+
+- (IBAction)emailLogPressed:(id)sender
+{
+    [[[CUTLibrary sharedLogger] getLogWriter] fetchLogDataWithCompletion:^(NSData *data, NSStringEncoding encoding, NSError *error) {
+        if(!error)
+        {
+            dispatch_async(dispatch_get_main_queue(),^{
+                mailComposer = [[MFMailComposeViewController alloc]init];
+                mailComposer.mailComposeDelegate = self;
+                [mailComposer setSubject:@"Authenticator Logs"];
+                [mailComposer setMessageBody:@"attached:" isHTML:NO];
+                [mailComposer addAttachmentData:data mimeType:@"text/plain" fileName:@"Authenticator-log.log"];
+                [self presentViewController:mailComposer animated:YES completion:nil];
+            });
+        }
+    }];
+}
+
+#pragma mark - mail compose delegate
+-(void)mailComposeController:(MFMailComposeViewController *)controller
+         didFinishWithResult:(MFMailComposeResult)result
+                       error:(NSError *)error{
+    
+    if (result) {
+        NSLog(@"Result : %d",result);
+    }
+    
+    if (error) {
+        NSLog(@"Error : %@",error);
+    }
+    
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 

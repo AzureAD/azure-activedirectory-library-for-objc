@@ -17,9 +17,12 @@
 // governing permissions and limitations under the License.
 
 #import <UIKit/UIKit.h>
+#import <MessageUI/MessageUI.h>
 
-@interface ViewController : UIViewController <UITableViewDelegate, UITableViewDataSource>
-
+@interface ViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, MFMailComposeViewControllerDelegate>
+{
+    MFMailComposeViewController *mailComposer;
+}
 
 @end
 

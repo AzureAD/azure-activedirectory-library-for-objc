@@ -1,0 +1,23 @@
+//
+//  PrefixHeader.pch
+//  UnityLogger
+//
+//  Created by Kanishk Panwar on 5/13/15.
+//  Copyright (c) 2015 Microsoft Corp. All rights reserved.
+//
+
+#ifndef UnityLogger_PrefixHeader_pch
+#define UnityLogger_PrefixHeader_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#import <Foundation/Foundation.h>
+#import "CUTConstants.h"
+#import "CUTError.h"
+#import "CUTCategories.h"
+#import "CUTTrace.h"
+#import "CUTDispatch.h"
+
+
+#endif
