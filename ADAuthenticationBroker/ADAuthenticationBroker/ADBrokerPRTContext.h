@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "ADBrokerPRTCacheItem.h"
+@class ADBrokerPRTCacheItem;
 
 typedef void(^ADPRTResultCallback)(ADBrokerPRTCacheItem* item, NSError* error);
 typedef void(^ADOnResultCallback)(NSError* error);
