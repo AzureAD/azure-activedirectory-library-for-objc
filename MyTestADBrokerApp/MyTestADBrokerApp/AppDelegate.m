@@ -19,6 +19,7 @@
 
 #import "AppDelegate.h"
 #import <ADAuthenticationBroker/ADBrokerContext.h>
+#import "ADLogHandler.h"
 
 @interface AppDelegate ()
 
@@ -31,15 +32,39 @@
   sourceApplication:(NSString *)sourceApplication
          annotation:(id)annotation
 {
-    if([[url host] isEqualToString:@"broker"]){
-        [ADBrokerContext invokeBrokerForSourceApplication:[url absoluteString] sourceApplication:sourceApplication completionBlock:^(ADAuthenticationResult *result) {
-            //HANDLE response
-        }];
+    self._sourceApplication = sourceApplication;
+    self._url = url;
+    NSString* upn = nil;
+    if([ADBrokerContext isBrokerRequest:url returnUpn:&upn])
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"handleAdalRequest"
+                                                            object:nil];
     }
+    
     return YES;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    [ADLogHandler configureLoggers];
+    
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"])
+    {
+        UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ" create:NO];
+        if(appPasteBoard && [appPasteBoard URL])
+        {
+            self._url = [appPasteBoard URL];
+            [appPasteBoard setURL:nil];
+            NSArray* parts = [[self._url absoluteString] componentsSeparatedByString: @"sourceApplication="];
+            self._sourceApplication  = [parts objectAtIndex: 1];
+            
+            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"HasLaunchedOnce"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            [ADBrokerContext invokeBrokerForSourceApplication:[self._url absoluteString]
+                                            sourceApplication:self._sourceApplication];
+        }
+    }
+    
     return YES;
 }
 

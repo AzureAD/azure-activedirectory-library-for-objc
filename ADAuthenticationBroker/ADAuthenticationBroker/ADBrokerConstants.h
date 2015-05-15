@@ -19,12 +19,19 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString* const AUTHORITY;
-extern NSString* const REDIRECT_URI;
-extern NSString* const RESOURCE;
-extern NSString* const CLIENT_ID;
+extern NSString* const BROKER_ERROR_DOMAIN;
+extern NSString* const DEFAULT_GUID_FOR_NIL;
 extern NSString* const BROKER_KEY;
-extern NSString* const USER_ID;
-extern NSString* const EXTRA_QUERY_PARAMETERS;
-extern NSString* const CORRELATION_ID;
-extern NSString* const LOCAL_APPLICATION;
+extern NSString* const USERNAME;
+extern NSString* const AUTHORITY;
+extern NSString* const CLIENT_ADAL_VERSION;
+extern NSString *const EXTRA_QUERY_PARAMETERS;
+
+extern NSString* const BROKER_CLIENT_ID;
+extern NSString* const BROKER_RESOURCE;
+extern NSString* const BROKER_REDIRECT_URI;
+extern NSString* const DEFAULT_FIRST_PARTY_CLIENT_ID;
+
+extern NSString *const OAUTH2_SESSION_JWE_KEY;
+
+extern NSString *const ADAL_ID_BROKER_VER;

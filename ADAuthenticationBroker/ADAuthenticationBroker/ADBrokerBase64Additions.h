@@ -1,0 +1,35 @@
+// Copyright © Microsoft Open Technologies, Inc.
+//
+// All Rights Reserved
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
+// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
+// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
+// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
+//
+// See the Apache License, Version 2.0 for the specific language
+// governing permissions and limitations under the License.
+
+
+#import <Foundation/Foundation.h>
+
+@interface NSString (Base64Addition)
++(NSString *)stringFromBase64String:(NSString *)base64String;
+-(NSString *)base64String;
+@end
+
+@interface NSData (Base64Addition)
++(NSData *)dataWithBase64String:(NSString *)base64String;
+-(NSString *)base64String;
+@end
+
+@interface ADBrokerBase64Codec : NSObject
++(NSData *)dataFromBase64String:(NSString *)base64String;
++(NSString *)base64StringFromData:(NSData *)data;
+@end

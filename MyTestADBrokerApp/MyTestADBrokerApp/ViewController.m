@@ -15,29 +15,98 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
+
 #import "ViewController.h"
-#import <ADAuthenticationBroker/ADBrokerKeychainTokenCacheStore.h>
+#import "AppDelegate.h"
+#import "AccountDetailsViewController.h"
+#import "AppSettingsViewController.h"
+#import <ADAuthenticationBroker/ADBrokerConstants.h>
+#import <ADAuthenticationBroker/ADBrokerContext.h>
 #import <ADALiOS/ADAuthenticationError.h>
 #import <ADALiOS/ADUserInformation.h>
 #import <ADALiOS/ADTokenCacheStoreItem.h>
 #import <ADALiOS/ADAuthenticationSettings.h>
 #import <ADALiOS/ADTokenCacheStoring.h>
+#import <ADAuthenticationBroker/ADBrokerUserAccount.h>
+#import <ADAuthenticationBroker/ADBrokerSettings.h>
 
 
 @interface ViewController ()
 
-@property (weak, nonatomic) IBOutlet UITextView *resultLabel;
-- (IBAction)pressMeAction:(id)sender;
+@property (weak, nonatomic) IBOutlet UITableView* tableView;
+- (IBAction)addUserPressed:(id)sender;
 - (IBAction)clearKeychainPressed:(id)sender;
-- (IBAction)getUsersPressed:(id)sender;
-
+- (IBAction)clearLogPressed:(id)sender;
+- (IBAction)emailLogPressed:(id)sender;
+- (IBAction)settingsPressed:(id)sender;
 @end
 
 @implementation ViewController
 
-- (void)viewDidLoad {
+NSMutableArray* users;
+
+-(void) loadView
+{
+    [super loadView];
+    [self registerForNotifications];
+}
+
+- (void)registerForNotifications
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(yourCustomMethod:)
+                                                 name:@"handleAdalRequest"
+                                               object:nil];
+}
+-(void)unregisterForNotifications
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:@"handleAdalRequest"
+                                                  object:nil];
+}
+
+
+-(void)viewDidUnload
+{
+    [self unregisterForNotifications];
+}
+
+/*** Your custom method called on notification ***/
+-(void)yourCustomMethod:(NSNotification*)_notification
+{
+    AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
+    NSString* upnInRequest = nil;
+    BOOL isBrokerRequest = [ADBrokerContext isBrokerRequest:appDelegate._url
+                                                  returnUpn:&upnInRequest];
+    if(isBrokerRequest)
+    {
+        [self getAllAccounts];
+        if(upnInRequest || users.count == 0)
+        {
+            [ADBrokerContext invokeBrokerForSourceApplication:[[appDelegate._url absoluteString] copy]
+                                            sourceApplication:[appDelegate._sourceApplication copy]];
+            
+            appDelegate._url = nil;
+            appDelegate._sourceApplication = nil;
+            return;
+        }
+    }
+}
+
+-(void) viewWillAppear:(BOOL)animated
+{
+    [self getAllAccounts:YES];
+}
+
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+
+    if(!users || users.count == 0)
+    {
+        users = [NSMutableArray new];
+        [self getAllAccounts];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -45,89 +114,202 @@
     // Dispose of any resources that can be recreated.
 }
 
--(void) setStatus: (NSString*) status
+- (IBAction)settingsPressed:(id)sender
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.resultLabel setText:status];
-    });
+    AppSettingsViewController *detailsController = [self.storyboard instantiateViewControllerWithIdentifier:@"AppSettingsViewController"];
+    [detailsController setModalPresentationStyle:UIModalPresentationFullScreen];
+    [self.navigationController pushViewController:detailsController
+                                         animated:YES];
 }
+
 
 - (IBAction)clearKeychainPressed:(id)sender
 {
+    ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:[ADBrokerSettings sharedInstance].authority];
+    [ctx removeWorkPlaceJoinRegistration:nil];
     
-    ViewController* __weak weakSelf = self;
-    id<ADTokenCacheStoring> cache = [ADBrokerKeychainTokenCacheStore new];
-    ADAuthenticationError *error = nil;
-    long count = (unsigned long)[[cache allItemsWithError:&error] count];
-    if (error)
-    {
-        [self setStatus:error.errorDetails];
-        return;
-    }
-    [weakSelf setStatus:[NSString stringWithFormat:@"Removing %lu items..", count]];
+    id<ADTokenCacheStoring> cache = [ADBrokerSettings sharedInstance].defaultCacheInstance;
+    [cache removeAllWithError:nil];
     
-    [cache removeAllWithError:&error];
-    if (error)
+    NSHTTPCookieStorage* cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSArray* cookies = cookieStorage.cookies;
+    if (cookies.count)
     {
-        [self setStatus:error.errorDetails];
-        return;
+        for(NSHTTPCookie* cookie in cookies)
+        {
+            [cookieStorage deleteCookie:cookie];
+        }
     }
-    [weakSelf setStatus:[NSString stringWithFormat:@"Current count %lu", (unsigned long)[[cache allItemsWithError:&error] count]]];
+    
+    [self getAllAccounts:YES];
 }
 
-- (IBAction)getUsersPressed:(id)sender
+
+- (IBAction)addUserPressed:(id)sender
 {
-    ADAuthenticationError* error;
-    id<ADTokenCacheStoring> cache = [ADBrokerKeychainTokenCacheStore new];
-    NSArray* array = [cache allItemsWithError:&error];
-    if (error)
-    {
-        [self setStatus:error.errorDetails];
-        return;
-    }
+    ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:[ADBrokerSettings sharedInstance].authority];
     
-    NSMutableSet* users = [NSMutableSet new];
-    NSMutableString* usersStr = [NSMutableString new];
-    for(ADTokenCacheStoreItem* item in array)
+    AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
+    NSString* upnInRequest = nil;
+    BOOL isBrokerRequest = [ADBrokerContext isBrokerRequest:appDelegate._url
+                                                  returnUpn:&upnInRequest];
+    if(isBrokerRequest)
     {
-        ADUserInformation *user = item.userInformation;
-        if (!item.userInformation)
-        {
-            user = [ADUserInformation userInformationWithUserId:@"Unknown user" error:nil];
-        }
-        if (![users containsObject:user.userId])
-        {
-            //New user, add and print:
-            [users addObject:user.userId];
-            [usersStr appendFormat:@"%@: %@ %@", user.userId, user.givenName, user.familyName];
-        }
-    }
-    
-    cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
-    array = [cache allItemsWithError:&error];
-    if (error)
-    {
-        [self setStatus:error.errorDetails];
-        return;
-    }
-    
-    for(ADTokenCacheStoreItem* item in array)
-    {
-        ADUserInformation *user = item.userInformation;
-        if (!item.userInformation)
-        {
-            user = [ADUserInformation userInformationWithUserId:@"Unknown user" error:nil];
-        }
+        [self getAllAccounts];
+        [ADBrokerContext invokeBrokerForSourceApplication:[[appDelegate._url absoluteString] copy]
+                                        sourceApplication:[appDelegate._sourceApplication copy]
+                                                      upn:upnInRequest];
         
-        if (![users containsObject:user.userId])
+        appDelegate._url = nil;
+        appDelegate._sourceApplication = nil;
+    }
+    else
+    {
+    [ctx acquireAccount:nil
+        completionBlock:^(ADAuthenticationResult *result) {
+        if(result.status != AD_SUCCEEDED)
         {
-            //New user, add and print:
-            [users addObject:user.userId];
-            [usersStr appendFormat:@"%@: %@ %@", user.userId, user.givenName, user.familyName];
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error"
+                                                            message:result.error.errorDetails
+                                                           delegate:self
+                                                  cancelButtonTitle:@"OK"
+                                                  otherButtonTitles:nil];
+            
+            dispatch_async(dispatch_get_main_queue(),^{
+            [alert show];
+            });
         }
+        else{
+            [self getAllAccounts:YES];
+        }
+    }];
+    }
+}
+
+
+- (IBAction)clearLogPressed:(id)sender
+{
+    [[CUTLibrary sharedLogger] clearLogs];
+}
+
+
+- (IBAction)emailLogPressed:(id)sender
+{
+    [[[CUTLibrary sharedLogger] getLogWriter] fetchLogDataWithCompletion:^(NSData *data, NSStringEncoding encoding, NSError *error) {
+        if(!error)
+        {
+            dispatch_async(dispatch_get_main_queue(),^{
+                mailComposer = [[MFMailComposeViewController alloc]init];
+                mailComposer.mailComposeDelegate = self;
+                [mailComposer setSubject:@"Authenticator Logs"];
+                [mailComposer setMessageBody:@"attached:" isHTML:NO];
+                [mailComposer addAttachmentData:data mimeType:@"text/plain" fileName:@"Authenticator-log.log"];
+                [self presentViewController:mailComposer animated:YES completion:nil];
+            });
+        }
+    }];
+}
+
+#pragma mark - mail compose delegate
+-(void)mailComposeController:(MFMailComposeViewController *)controller
+         didFinishWithResult:(MFMailComposeResult)result
+                       error:(NSError *)error{
+    
+    if (result) {
+        NSLog(@"Result : %d",result);
     }
     
-    [self setStatus:usersStr];
+    if (error) {
+        NSLog(@"Error : %@",error);
+    }
+    
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
+
+
+- (void) getAllAccounts
+{
+    [self getAllAccounts:NO];
+}
+
+- (void) getAllAccounts:(BOOL) refreshList
+{
+    NSArray *accounts = [ADBrokerContext getAllAccounts:nil];
+        [users removeAllObjects];
+        [users addObjectsFromArray:accounts];
+        if(refreshList)
+        {
+        dispatch_async(dispatch_get_main_queue(),^{
+            [_tableView reloadData];
+        });
+        }
+}
+
+- (void) addUserToList:(ADBrokerUserAccount*) account
+{
+    [users addObject:account];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[users indexOfObject:account] inSection:0];
+    [self.tableView beginUpdates];
+    [self.tableView
+     insertRowsAtIndexPaths:@[indexPath]withRowAnimation:UITableViewRowAnimationBottom];
+    [self.tableView endUpdates];
+}
+
+
+// delegate methods
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [users count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *simpleTableIdentifier = @"SimpleTableItem";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                      reuseIdentifier:simpleTableIdentifier];
+    }
+    
+    ADBrokerUserAccount* account = [users objectAtIndex:indexPath.row];
+    ADUserInformation* info = account.userInformation;
+    cell.textLabel.text = info.getUpn;
+    if(account.isWorkplaceJoined)
+    {
+        cell.backgroundColor = [UIColor greenColor];
+    }
+    
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    ADBrokerUserAccount* account = [users objectAtIndex:indexPath.row];
+    ADUserInformation* info = account.userInformation;
+    AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
+    NSString* upnInRequest = nil;
+    BOOL isBrokerRequest = [ADBrokerContext isBrokerRequest:appDelegate._url
+                                                  returnUpn:&upnInRequest];
+    if(isBrokerRequest)
+    {
+        [self getAllAccounts];
+        [ADBrokerContext invokeBrokerForSourceApplication:[[appDelegate._url absoluteString] copy]
+                                        sourceApplication:[appDelegate._sourceApplication copy]
+                                                      upn:info.getUpn];
+        
+        appDelegate._url = nil;
+        appDelegate._sourceApplication = nil;
+    }
+    else
+    {
+        AccountDetailsViewController *detailsController = [self.storyboard instantiateViewControllerWithIdentifier:@"AccountDetailsViewController"];
+        [detailsController setModalPresentationStyle:UIModalPresentationFullScreen];
+        detailsController.account = account;
+        [self.navigationController pushViewController:detailsController
+                                                animated:YES];
+    }
+}
+
 
 @end

@@ -16,11 +16,10 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@class ADBrokerKeychainTokenCacheStore;
-@protocol ADTokenCacheStoring;
+#import <Foundation/Foundation.h>
+#import "ADKeychainTokenCacheStore+Protected.h"
 
-
-@interface ADBrokerKeychainTokenCacheStore : NSObject<ADTokenCacheStoring>
+@interface ADBrokerKeychainTokenCacheStore : ADKeychainTokenCacheStore
 
 /*! Initializes the token cache store.
  @param: sourceApplication: Required. If the application needs to share the cached tokens
@@ -29,4 +28,7 @@
  See Apple's keychain services documentation for details. */
 -(id) initWithAppKey: (NSString*) appKey;
 
+
+-(void) removeAllForUser: (NSString*) userId
+                   error: (ADAuthenticationError* __autoreleasing*) error;
 @end

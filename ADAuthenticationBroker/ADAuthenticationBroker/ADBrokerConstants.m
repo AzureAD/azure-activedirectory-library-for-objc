@@ -19,12 +19,20 @@
 
 #import "ADBrokerConstants.h"
 
-NSString* const AUTHORITY = @"authority";
-NSString* const REDIRECT_URI = @"redirect_uri";
-NSString* const RESOURCE = @"resource";
-NSString* const CLIENT_ID = @"client_id";
+NSString* const BROKER_ERROR_DOMAIN = @"ADBrokerErrorDomain";
+NSString* const DEFAULT_GUID_FOR_NIL = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
 NSString* const BROKER_KEY = @"broker_key";
-NSString* const USER_ID = @"user_id";
-NSString* const EXTRA_QUERY_PARAMETERS = @"query_params";
-NSString* const CORRELATION_ID = @"correlation_id";
-NSString* const LOCAL_APPLICATION = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
+NSString* const USERNAME = @"username";
+NSString* const AUTHORITY = @"authority";
+NSString* const CLIENT_ADAL_VERSION = @"client_version";
+NSString *const EXTRA_QUERY_PARAMETERS = @"extra_qp";
+
+
+NSString* const BROKER_CLIENT_ID = @"29d9ed98-a469-4536-ade2-f981bc1d605e";
+NSString* const BROKER_RESOURCE = @"https://graph.windows.net";
+NSString* const BROKER_REDIRECT_URI = @"ms-appx-web://Microsoft.AAD.BrokerPlugin";
+NSString* const DEFAULT_FIRST_PARTY_CLIENT_ID = @"";
+
+NSString *const OAUTH2_SESSION_JWE_KEY      = @"session_key_jwe";
+
+NSString *const ADAL_ID_BROKER_VER           = @"x-client-brkrver";

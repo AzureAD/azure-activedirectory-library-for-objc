@@ -19,19 +19,53 @@
 
 #import <Foundation/Foundation.h>
 #include <UIKit/UIKit.h>
-#import <ADALiOS/ADAuthenticationResult.h>
-#import <ADALiOS/ADAuthenticationContext.h>
+#import <workplaceJoinAPI/WorkplaceJoin.h>
+#import "ADBrokerPRTContext.h"
 
-/*! The completion block declaration. */
-typedef void(^ADBrokerCallback)(ADAuthenticationResult* result);
+@class ADAuthenticationResult;
+
+/*! The completion block declarations. */
+typedef void(^ADOnResultCallback)(NSError* error);
 
 @interface ADBrokerContext : NSObject
 
-+ (void) invokeBrokerLocally: (NSString*) requestPayload
-             completionBlock: (ADBrokerCallback) completionBlock;
+@property (readonly) NSString* authority;
+
+@property (strong) NSUUID* correlationId;
+
++ (BOOL) isBrokerRequest: (NSURL*) requestPayloadUrl
+               returnUpn: (NSString**) returnUpn;
 
 + (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
                         sourceApplication: (NSString*) sourceApplication
-                          completionBlock: (ADBrokerCallback) completionBlock;
+                                      upn: (NSString*) upn;
+
++ (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
+                        sourceApplication: (NSString*) sourceApplication;
+
+- (id) initWithAuthority:(NSString*) authority;
+
+// to be used when user invokes add account flow from the app
+- (void) acquireAccount:(NSString*) upn
+    completionBlock:(ADAuthenticationCallback) completionBlock;
+
+- (void) acquireAccount:(NSString*) upn
+               clientId:(NSString*) clientId
+               resource:(NSString*) resource
+            redirectUri:(NSString*) redirectUri
+        completionBlock:(ADAuthenticationCallback) completionBlock;
+
++ (NSArray*) getAllAccounts:(ADAuthenticationError*) error;
+
+- (void) removeAccount: (NSString*) upn
+         onResultBlock:(ADOnResultCallback) onResultBlock;
+
+- (void) doWorkPlaceJoinForUpn:(NSString*) upn
+                 onResultBlock:(WPJCallback) onResultBlock;
+
++ (RegistrationInformation*) getWorkPlaceJoinInformation;
+
+- (void) removeWorkPlaceJoinRegistration:(ADOnResultCallback) onResultBlock;
+
 
 @end

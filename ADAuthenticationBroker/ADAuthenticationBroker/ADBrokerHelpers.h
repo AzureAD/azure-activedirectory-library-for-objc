@@ -26,4 +26,13 @@
 
 +(NSData*) encryptData: (NSData*) data
                    key: (NSString*) key;
+
++ (NSData*) computeKDFInCounterMode:(NSData*)key
+                              context:(NSData*)ctx;
+
++ (NSString*) convertBase64UrlStringToBase64NSString:(NSString*) base64UrlString;
+
++ (NSData*) convertBase64UrlStringToBase64NSData:(NSString*) base64UrlString;
+
+
 @end
