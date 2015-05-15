@@ -12,6 +12,10 @@
 	<dict>
 		<key>4648125BD3AA17B606E05BF2FA4D74F7F5299D62</key>
 		<string>https://github.com/AzureAD/azure-activedirectory-tokenbroker-for-objc.git</string>
+		<key>49839CDBA3606365C76D6A7C893B03090DA93A68</key>
+		<string>https://github.com/AzureAD/azure-activedirectory-library-for-objc.git</string>
+		<key>8DC8DEC15B6888058741BE6A6C61349E184DA4C8</key>
+		<string>https://github.com/AzureAD/WorkplaceJoin-for-iOS</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>ADAuthenticationBroker.xcworkspace</string>
@@ -19,6 +23,10 @@
 	<dict>
 		<key>4648125BD3AA17B606E05BF2FA4D74F7F5299D62</key>
 		<string>..</string>
+		<key>49839CDBA3606365C76D6A7C893B03090DA93A68</key>
+		<string>../ADAuthenticationBroker/Frameworks/ADALiOS</string>
+		<key>8DC8DEC15B6888058741BE6A6C61349E184DA4C8</key>
+		<string>../ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/AzureAD/azure-activedirectory-tokenbroker-for-objc.git</string>
@@ -32,9 +40,25 @@
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>49839CDBA3606365C76D6A7C893B03090DA93A68</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ADALiOS</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
 			<string>4648125BD3AA17B606E05BF2FA4D74F7F5299D62</string>
 			<key>IDESourceControlWCCName</key>
 			<string>azure-activedirectory-tokenbroker-for-objc</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>8DC8DEC15B6888058741BE6A6C61349E184DA4C8</string>
+			<key>IDESourceControlWCCName</key>
+			<string>WorkplaceJoin-for-iOS</string>
 		</dict>
 	</array>
 </dict>

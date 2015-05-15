@@ -1,0 +1,847 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		971C56E91AF9D96B0034820F /* ADKeychainTokenCacheStore+Protected.h in Headers */ = {isa = PBXBuildFile; fileRef = 971C56E81AF9D96B0034820F /* ADKeychainTokenCacheStore+Protected.h */; };
+		971C56F91AF9EA0D0034820F /* ADBrokerContextTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 971C56F81AF9EA0D0034820F /* ADBrokerContextTest.m */; };
+		971C57B81AFAB3380034820F /* ADBrokerPRTContext.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97ED7A5A1A9AED1700DEA5E7 /* ADBrokerPRTContext.h */; };
+		971C57B91AFAB3780034820F /* ADBrokerPRTCacheItem.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97ED7A551A97B44000DEA5E7 /* ADBrokerPRTCacheItem.h */; };
+		971C57BB1AFAB37F0034820F /* ADBrokerUserAccount.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 979F4ED01AB2ADBB009B3E43 /* ADBrokerUserAccount.h */; };
+		971C57BF1AFAB8800034820F /* ADAuthenticationBroker.pch in Headers */ = {isa = PBXBuildFile; fileRef = 971C57BE1AFAB8800034820F /* ADAuthenticationBroker.pch */; };
+		971C57E11B0325570034820F /* ADLogger+Broker.h in Headers */ = {isa = PBXBuildFile; fileRef = 971C57DF1B0325570034820F /* ADLogger+Broker.h */; };
+		971C57E21B0325570034820F /* ADLogger+Broker.m in Sources */ = {isa = PBXBuildFile; fileRef = 971C57E01B0325570034820F /* ADLogger+Broker.m */; };
+		975E42D41A1D3F2A0033B500 /* ADALiOS.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 975E42D31A1D3F2A0033B500 /* ADALiOS.bundle */; };
+		9777DFFD1A37553800D8D8A8 /* ADBrokerConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 9777DFFC1A37553800D8D8A8 /* ADBrokerConstants.m */; };
+		977A1A2C1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 977A1A2B1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m */; };
+		977A1A481A6F166900E6EA85 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D685E61A13F43C00EE816C /* Foundation.framework */; };
+		977A1A491A6F168200E6EA85 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D685E71A13F43C00EE816C /* UIKit.framework */; };
+		97927EAF1A915D1B0053E283 /* ADBrokerHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97927EAE1A915D1B0053E283 /* ADBrokerHelpersTests.m */; };
+		979F4ED21AB2ADBB009B3E43 /* ADBrokerUserAccount.h in Headers */ = {isa = PBXBuildFile; fileRef = 979F4ED01AB2ADBB009B3E43 /* ADBrokerUserAccount.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		979F4ED31AB2ADBB009B3E43 /* ADBrokerUserAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 979F4ED11AB2ADBB009B3E43 /* ADBrokerUserAccount.m */; };
+		979F4F1B1AC1248B009B3E43 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 979F4F1A1AC1248B009B3E43 /* Security.framework */; };
+		979F4F231AC1DCF6009B3E43 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 979F4F221AC1DCF6009B3E43 /* CoreGraphics.framework */; };
+		97A522541A1A9E07001D77CE /* ADBrokerSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A522531A1A9E07001D77CE /* ADBrokerSettings.m */; };
+		97B2AFB31ACB3F0000DE04A3 /* ADBrokerJWEResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 97B2AFB11ACB3F0000DE04A3 /* ADBrokerJWEResponse.h */; };
+		97B2AFB41ACB3F0000DE04A3 /* ADBrokerJWEResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 97B2AFB21ACB3F0000DE04A3 /* ADBrokerJWEResponse.m */; };
+		97B2AFBE1ACBB90E00DE04A3 /* ADBrokerJWEResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97B2AFBD1ACBB90E00DE04A3 /* ADBrokerJWEResponseTests.m */; };
+		97D0338E1B03F9C4000A9BD0 /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D033871B03F959000A9BD0 /* libADALiOS.a */; settings = {ATTRIBUTES = (Weak, ); }; };
+		97D0338F1B03F9EE000A9BD0 /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D033871B03F959000A9BD0 /* libADALiOS.a */; settings = {ATTRIBUTES = (Weak, ); }; };
+		97D685CA1A13EA5000EE816C /* libADAuthenticationBroker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D685BE1A13EA5000EE816C /* libADAuthenticationBroker.a */; };
+		97D685DC1A13EAA600EE816C /* ADBrokerContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D685DA1A13EAA600EE816C /* ADBrokerContext.m */; };
+		97D685E81A13F43C00EE816C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D685E61A13F43C00EE816C /* Foundation.framework */; };
+		97D685E91A13F43C00EE816C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97D685E71A13F43C00EE816C /* UIKit.framework */; };
+		97D685EB1A15432500EE816C /* ADBrokerKeychainTokenCacheStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D685EA1A15432500EE816C /* ADBrokerKeychainTokenCacheStore.m */; };
+		97D685F41A169D1700EE816C /* ADBrokerHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D685F31A169D1700EE816C /* ADBrokerHelpers.m */; };
+		97E21CCC1A1C33EB00EF5520 /* ADBrokerContext.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97D685DB1A13EAA600EE816C /* ADBrokerContext.h */; };
+		97E21CCE1A1C33EB00EF5520 /* ADBrokerSettings.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97A522521A1A9DF3001D77CE /* ADBrokerSettings.h */; };
+		97E21CE41A1C38CF00EF5520 /* ADBrokerContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 97D685DB1A13EAA600EE816C /* ADBrokerContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		97E21CE61A1C38CF00EF5520 /* ADBrokerKeychainTokenCacheStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 97D685EC1A15780A00EE816C /* ADBrokerKeychainTokenCacheStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		97E21CE71A1C38CF00EF5520 /* ADBrokerHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 97D685F51A169D3300EE816C /* ADBrokerHelpers.h */; };
+		97E21CE81A1C38CF00EF5520 /* ADBrokerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 97D10BB01A1891D9004FCD51 /* ADBrokerConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		97E21CE91A1C38CF00EF5520 /* ADBrokerSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 97A522521A1A9DF3001D77CE /* ADBrokerSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		97ED7A571A97B44000DEA5E7 /* ADBrokerPRTCacheItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 97ED7A551A97B44000DEA5E7 /* ADBrokerPRTCacheItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		97ED7A581A97B44000DEA5E7 /* ADBrokerPRTCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 97ED7A561A97B44000DEA5E7 /* ADBrokerPRTCacheItem.m */; };
+		97ED7A5C1A9AED1700DEA5E7 /* ADBrokerPRTContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 97ED7A5A1A9AED1700DEA5E7 /* ADBrokerPRTContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		97ED7A5D1A9AED1700DEA5E7 /* ADBrokerPRTContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 97ED7A5B1A9AED1700DEA5E7 /* ADBrokerPRTContext.m */; };
+		97F45F171A75F8B400022523 /* ADBrokerJwtHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 97F45F161A75F8B400022523 /* ADBrokerJwtHelper.m */; };
+		97F45F1D1A75F8CF00022523 /* ADBrokerJwtHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 97F45F1C1A75F8CF00022523 /* ADBrokerJwtHelper.h */; };
+		97F5D7B91A94331A00E0AD3A /* libWorkPlaceJoinAPI.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 97F5D7B41A9432CC00E0AD3A /* libWorkPlaceJoinAPI.a */; };
+		97FBE7431AC60FB1001883A5 /* ADBrokerBase64Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 97FBE7411AC60FB1001883A5 /* ADBrokerBase64Additions.h */; };
+		97FBE7441AC60FB1001883A5 /* ADBrokerBase64Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 97FBE7421AC60FB1001883A5 /* ADBrokerBase64Additions.m */; };
+		D6E43A841B04204D000F5BE2 /* ADAuthenticationContext+BrokerSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = D6E43A821B04204D000F5BE2 /* ADAuthenticationContext+BrokerSDK.h */; };
+		D6E43A851B04204D000F5BE2 /* ADAuthenticationContext+BrokerSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E43A831B04204D000F5BE2 /* ADAuthenticationContext+BrokerSDK.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		971C57D71B02DEFC0034820F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D6DFBDCD1AF9539F00F0D88F;
+			remoteInfo = WorkPlaceJoinAPIMac;
+		};
+		971C57D91B02DEFC0034820F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D6DFBDD71AF9539F00F0D88F;
+			remoteInfo = WorkPlaceJoinAPIMacTests;
+		};
+		971C57DB1B02DEFC0034820F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D6C565E51AFAC6110048107A;
+			remoteInfo = WorkPlaceJoin;
+		};
+		97D033861B03F959000A9BD0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97D0337F1B03F959000A9BD0 /* ADALiOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8B0965AA17F25770002BDFB8;
+			remoteInfo = ADALiOS;
+		};
+		97D033881B03F959000A9BD0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97D0337F1B03F959000A9BD0 /* ADALiOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8B0965BA17F25770002BDFB8;
+			remoteInfo = ADALiOSTests;
+		};
+		97D0338A1B03F959000A9BD0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97D0337F1B03F959000A9BD0 /* ADALiOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8BFEF05C182DA57800122C0C;
+			remoteInfo = ADALiOSBundle;
+		};
+		97D0338C1B03F959000A9BD0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97D0337F1B03F959000A9BD0 /* ADALiOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 971C573F1AFA9BD10034820F;
+			remoteInfo = ADALiOSFramework;
+		};
+		97D685CB1A13EA5000EE816C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97D685B61A13EA5000EE816C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 97D685BD1A13EA5000EE816C;
+			remoteInfo = ADAuthenticationBroker;
+		};
+		97F5D7B31A9432CC00E0AD3A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1E76311C18D21F7D0079BE69;
+			remoteInfo = WorkPlaceJoinAPI;
+		};
+		97F5D7B51A9432CC00E0AD3A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1E76312C18D21F7D0079BE69;
+			remoteInfo = WorkPlaceJoinAPITests;
+		};
+		97F5D7B71A9432CC00E0AD3A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4C56402118E0E6660033FC1A;
+			remoteInfo = Bundle;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		97D685BC1A13EA5000EE816C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+				971C57BB1AFAB37F0034820F /* ADBrokerUserAccount.h in CopyFiles */,
+				971C57B91AFAB3780034820F /* ADBrokerPRTCacheItem.h in CopyFiles */,
+				971C57B81AFAB3380034820F /* ADBrokerPRTContext.h in CopyFiles */,
+				97E21CCC1A1C33EB00EF5520 /* ADBrokerContext.h in CopyFiles */,
+				97E21CCE1A1C33EB00EF5520 /* ADBrokerSettings.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		971C56E81AF9D96B0034820F /* ADKeychainTokenCacheStore+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADKeychainTokenCacheStore+Protected.h"; sourceTree = "<group>"; };
+		971C56F81AF9EA0D0034820F /* ADBrokerContextTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerContextTest.m; sourceTree = "<group>"; };
+		971C57BE1AFAB8800034820F /* ADAuthenticationBroker.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationBroker.pch; sourceTree = "<group>"; };
+		971C57DF1B0325570034820F /* ADLogger+Broker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADLogger+Broker.h"; sourceTree = "<group>"; };
+		971C57E01B0325570034820F /* ADLogger+Broker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADLogger+Broker.m"; sourceTree = "<group>"; };
+		975E42D31A1D3F2A0033B500 /* ADALiOS.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = ADALiOS.bundle; sourceTree = "<group>"; };
+		9777DFFC1A37553800D8D8A8 /* ADBrokerConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerConstants.m; sourceTree = "<group>"; };
+		977A1A2B1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeychainStoreTests.m; sourceTree = "<group>"; };
+		97927EAE1A915D1B0053E283 /* ADBrokerHelpersTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelpersTests.m; sourceTree = "<group>"; };
+		979F4ED01AB2ADBB009B3E43 /* ADBrokerUserAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ADBrokerUserAccount.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		979F4ED11AB2ADBB009B3E43 /* ADBrokerUserAccount.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerUserAccount.m; sourceTree = "<group>"; };
+		979F4F1A1AC1248B009B3E43 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		979F4F221AC1DCF6009B3E43 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		97A522521A1A9DF3001D77CE /* ADBrokerSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerSettings.h; sourceTree = "<group>"; };
+		97A522531A1A9E07001D77CE /* ADBrokerSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerSettings.m; sourceTree = "<group>"; };
+		97B2AFB11ACB3F0000DE04A3 /* ADBrokerJWEResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerJWEResponse.h; sourceTree = "<group>"; };
+		97B2AFB21ACB3F0000DE04A3 /* ADBrokerJWEResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerJWEResponse.m; sourceTree = "<group>"; };
+		97B2AFBD1ACBB90E00DE04A3 /* ADBrokerJWEResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerJWEResponseTests.m; sourceTree = "<group>"; };
+		97D0337F1B03F959000A9BD0 /* ADALiOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ADALiOS.xcodeproj; path = Frameworks/adal/ADALiOS/ADALiOS.xcodeproj; sourceTree = "<group>"; };
+		97D10BB01A1891D9004FCD51 /* ADBrokerConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerConstants.h; sourceTree = "<group>"; };
+		97D685BE1A13EA5000EE816C /* libADAuthenticationBroker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libADAuthenticationBroker.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		97D685C91A13EA5000EE816C /* ADAuthenticationBrokerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADAuthenticationBrokerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		97D685CF1A13EA5000EE816C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		97D685DA1A13EAA600EE816C /* ADBrokerContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = ADBrokerContext.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		97D685DB1A13EAA600EE816C /* ADBrokerContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ADBrokerContext.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		97D685E61A13F43C00EE816C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		97D685E71A13F43C00EE816C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		97D685EA1A15432500EE816C /* ADBrokerKeychainTokenCacheStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeychainTokenCacheStore.m; sourceTree = "<group>"; };
+		97D685EC1A15780A00EE816C /* ADBrokerKeychainTokenCacheStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerKeychainTokenCacheStore.h; sourceTree = "<group>"; };
+		97D685F31A169D1700EE816C /* ADBrokerHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelpers.m; sourceTree = "<group>"; };
+		97D685F51A169D3300EE816C /* ADBrokerHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerHelpers.h; sourceTree = "<group>"; };
+		97DFE46D1AE41A9C008109E1 /* ADBrokerErrorCodes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADBrokerErrorCodes.h; sourceTree = "<group>"; };
+		97ED7A551A97B44000DEA5E7 /* ADBrokerPRTCacheItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ADBrokerPRTCacheItem.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		97ED7A561A97B44000DEA5E7 /* ADBrokerPRTCacheItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerPRTCacheItem.m; sourceTree = "<group>"; };
+		97ED7A5A1A9AED1700DEA5E7 /* ADBrokerPRTContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ADBrokerPRTContext.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		97ED7A5B1A9AED1700DEA5E7 /* ADBrokerPRTContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerPRTContext.m; sourceTree = "<group>"; };
+		97F45F161A75F8B400022523 /* ADBrokerJwtHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = ADBrokerJwtHelper.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		97F45F1C1A75F8CF00022523 /* ADBrokerJwtHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerJwtHelper.h; sourceTree = "<group>"; };
+		97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WorkPlaceJoinAPI.xcodeproj; path = "Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/WorkPlaceJoinAPI.xcodeproj"; sourceTree = "<group>"; };
+		97FBE7411AC60FB1001883A5 /* ADBrokerBase64Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerBase64Additions.h; sourceTree = "<group>"; };
+		97FBE7421AC60FB1001883A5 /* ADBrokerBase64Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerBase64Additions.m; sourceTree = "<group>"; };
+		D6E43A821B04204D000F5BE2 /* ADAuthenticationContext+BrokerSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationContext+BrokerSDK.h"; sourceTree = "<group>"; };
+		D6E43A831B04204D000F5BE2 /* ADAuthenticationContext+BrokerSDK.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADAuthenticationContext+BrokerSDK.m"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		97D685BB1A13EA5000EE816C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97D0338E1B03F9C4000A9BD0 /* libADALiOS.a in Frameworks */,
+				979F4F231AC1DCF6009B3E43 /* CoreGraphics.framework in Frameworks */,
+				979F4F1B1AC1248B009B3E43 /* Security.framework in Frameworks */,
+				97F5D7B91A94331A00E0AD3A /* libWorkPlaceJoinAPI.a in Frameworks */,
+				97D685E81A13F43C00EE816C /* Foundation.framework in Frameworks */,
+				97D685E91A13F43C00EE816C /* UIKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		97D685C61A13EA5000EE816C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97D0338F1B03F9EE000A9BD0 /* libADALiOS.a in Frameworks */,
+				977A1A491A6F168200E6EA85 /* UIKit.framework in Frameworks */,
+				977A1A481A6F166900E6EA85 /* Foundation.framework in Frameworks */,
+				97D685CA1A13EA5000EE816C /* libADAuthenticationBroker.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		975E42D21A1D3F030033B500 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				975E42D31A1D3F2A0033B500 /* ADALiOS.bundle */,
+				971C57BE1AFAB8800034820F /* ADAuthenticationBroker.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		97D033801B03F959000A9BD0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				97D033871B03F959000A9BD0 /* libADALiOS.a */,
+				97D033891B03F959000A9BD0 /* ADALiOSTests.xctest */,
+				97D0338B1B03F959000A9BD0 /* ADALiOS.bundle */,
+				97D0338D1B03F959000A9BD0 /* ADALiOS.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		97D685B51A13EA5000EE816C = {
+			isa = PBXGroup;
+			children = (
+				97D685DD1A13EAAF00EE816C /* Framework */,
+				97D685C01A13EA5000EE816C /* ADAuthenticationBroker */,
+				97D685CD1A13EA5000EE816C /* ADAuthenticationBrokerTests */,
+				97D685BF1A13EA5000EE816C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		97D685BF1A13EA5000EE816C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				97D685BE1A13EA5000EE816C /* libADAuthenticationBroker.a */,
+				97D685C91A13EA5000EE816C /* ADAuthenticationBrokerTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		97D685C01A13EA5000EE816C /* ADAuthenticationBroker */ = {
+			isa = PBXGroup;
+			children = (
+				971C56E81AF9D96B0034820F /* ADKeychainTokenCacheStore+Protected.h */,
+				975E42D21A1D3F030033B500 /* Supporting Files */,
+				97D685DA1A13EAA600EE816C /* ADBrokerContext.m */,
+				97D685DB1A13EAA600EE816C /* ADBrokerContext.h */,
+				97D685EA1A15432500EE816C /* ADBrokerKeychainTokenCacheStore.m */,
+				97D685EC1A15780A00EE816C /* ADBrokerKeychainTokenCacheStore.h */,
+				97D685F31A169D1700EE816C /* ADBrokerHelpers.m */,
+				97D685F51A169D3300EE816C /* ADBrokerHelpers.h */,
+				97D10BB01A1891D9004FCD51 /* ADBrokerConstants.h */,
+				9777DFFC1A37553800D8D8A8 /* ADBrokerConstants.m */,
+				97A522521A1A9DF3001D77CE /* ADBrokerSettings.h */,
+				97A522531A1A9E07001D77CE /* ADBrokerSettings.m */,
+				97F45F161A75F8B400022523 /* ADBrokerJwtHelper.m */,
+				97F45F1C1A75F8CF00022523 /* ADBrokerJwtHelper.h */,
+				97ED7A551A97B44000DEA5E7 /* ADBrokerPRTCacheItem.h */,
+				97ED7A561A97B44000DEA5E7 /* ADBrokerPRTCacheItem.m */,
+				97ED7A5A1A9AED1700DEA5E7 /* ADBrokerPRTContext.h */,
+				97ED7A5B1A9AED1700DEA5E7 /* ADBrokerPRTContext.m */,
+				979F4ED01AB2ADBB009B3E43 /* ADBrokerUserAccount.h */,
+				979F4ED11AB2ADBB009B3E43 /* ADBrokerUserAccount.m */,
+				97FBE7411AC60FB1001883A5 /* ADBrokerBase64Additions.h */,
+				97FBE7421AC60FB1001883A5 /* ADBrokerBase64Additions.m */,
+				97B2AFB11ACB3F0000DE04A3 /* ADBrokerJWEResponse.h */,
+				97B2AFB21ACB3F0000DE04A3 /* ADBrokerJWEResponse.m */,
+				97DFE46D1AE41A9C008109E1 /* ADBrokerErrorCodes.h */,
+				971C57DF1B0325570034820F /* ADLogger+Broker.h */,
+				971C57E01B0325570034820F /* ADLogger+Broker.m */,
+				D6E43A821B04204D000F5BE2 /* ADAuthenticationContext+BrokerSDK.h */,
+				D6E43A831B04204D000F5BE2 /* ADAuthenticationContext+BrokerSDK.m */,
+			);
+			path = ADAuthenticationBroker;
+			sourceTree = "<group>";
+		};
+		97D685CD1A13EA5000EE816C /* ADAuthenticationBrokerTests */ = {
+			isa = PBXGroup;
+			children = (
+				97D685CE1A13EA5000EE816C /* Supporting Files */,
+				977A1A2B1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m */,
+				97927EAE1A915D1B0053E283 /* ADBrokerHelpersTests.m */,
+				97B2AFBD1ACBB90E00DE04A3 /* ADBrokerJWEResponseTests.m */,
+				971C56F81AF9EA0D0034820F /* ADBrokerContextTest.m */,
+			);
+			path = ADAuthenticationBrokerTests;
+			sourceTree = "<group>";
+		};
+		97D685CE1A13EA5000EE816C /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				97D685CF1A13EA5000EE816C /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		97D685DD1A13EAAF00EE816C /* Framework */ = {
+			isa = PBXGroup;
+			children = (
+				97D0337F1B03F959000A9BD0 /* ADALiOS.xcodeproj */,
+				979F4F221AC1DCF6009B3E43 /* CoreGraphics.framework */,
+				979F4F1A1AC1248B009B3E43 /* Security.framework */,
+				97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */,
+				97D685E61A13F43C00EE816C /* Foundation.framework */,
+				97D685E71A13F43C00EE816C /* UIKit.framework */,
+			);
+			name = Framework;
+			sourceTree = "<group>";
+		};
+		97F5D7AD1A9432CB00E0AD3A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				97F5D7B41A9432CC00E0AD3A /* libWorkPlaceJoinAPI.a */,
+				97F5D7B61A9432CC00E0AD3A /* WorkPlaceJoinAPITests.xctest */,
+				971C57D81B02DEFC0034820F /* libWorkPlaceJoinAPIMac.a */,
+				971C57DA1B02DEFC0034820F /* WorkPlaceJoinAPIMacTests.xctest */,
+				97F5D7B81A9432CC00E0AD3A /* WorkPlaceJoinAPI.bundle */,
+				971C57DC1B02DEFC0034820F /* WorkPlaceJoin.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		97E21CDF1A1C38B500EF5520 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6E43A841B04204D000F5BE2 /* ADAuthenticationContext+BrokerSDK.h in Headers */,
+				97E21CE41A1C38CF00EF5520 /* ADBrokerContext.h in Headers */,
+				97E21CE61A1C38CF00EF5520 /* ADBrokerKeychainTokenCacheStore.h in Headers */,
+				97E21CE81A1C38CF00EF5520 /* ADBrokerConstants.h in Headers */,
+				97E21CE91A1C38CF00EF5520 /* ADBrokerSettings.h in Headers */,
+				97B2AFB31ACB3F0000DE04A3 /* ADBrokerJWEResponse.h in Headers */,
+				979F4ED21AB2ADBB009B3E43 /* ADBrokerUserAccount.h in Headers */,
+				97FBE7431AC60FB1001883A5 /* ADBrokerBase64Additions.h in Headers */,
+				97ED7A5C1A9AED1700DEA5E7 /* ADBrokerPRTContext.h in Headers */,
+				971C57E11B0325570034820F /* ADLogger+Broker.h in Headers */,
+				971C56E91AF9D96B0034820F /* ADKeychainTokenCacheStore+Protected.h in Headers */,
+				97ED7A571A97B44000DEA5E7 /* ADBrokerPRTCacheItem.h in Headers */,
+				97F45F1D1A75F8CF00022523 /* ADBrokerJwtHelper.h in Headers */,
+				97E21CE71A1C38CF00EF5520 /* ADBrokerHelpers.h in Headers */,
+				971C57BF1AFAB8800034820F /* ADAuthenticationBroker.pch in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		97D685BD1A13EA5000EE816C /* ADAuthenticationBroker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 97D685D21A13EA5000EE816C /* Build configuration list for PBXNativeTarget "ADAuthenticationBroker" */;
+			buildPhases = (
+				97D685BA1A13EA5000EE816C /* Sources */,
+				97D685BB1A13EA5000EE816C /* Frameworks */,
+				97D685BC1A13EA5000EE816C /* CopyFiles */,
+				97E21CDF1A1C38B500EF5520 /* Headers */,
+				97E21CDE1A1C387E00EF5520 /* Prepare Framework */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ADAuthenticationBroker;
+			productName = ADAuthenticationBroker;
+			productReference = 97D685BE1A13EA5000EE816C /* libADAuthenticationBroker.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		97D685C81A13EA5000EE816C /* ADAuthenticationBrokerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 97D685D51A13EA5000EE816C /* Build configuration list for PBXNativeTarget "ADAuthenticationBrokerTests" */;
+			buildPhases = (
+				97D685C51A13EA5000EE816C /* Sources */,
+				97D685C61A13EA5000EE816C /* Frameworks */,
+				97D685C71A13EA5000EE816C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				97D685CC1A13EA5000EE816C /* PBXTargetDependency */,
+			);
+			name = ADAuthenticationBrokerTests;
+			productName = ADAuthenticationBrokerTests;
+			productReference = 97D685C91A13EA5000EE816C /* ADAuthenticationBrokerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		97D685B61A13EA5000EE816C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = "Microsoft Corp.";
+				TargetAttributes = {
+					97D685BD1A13EA5000EE816C = {
+						CreatedOnToolsVersion = 6.1;
+					};
+					97D685C81A13EA5000EE816C = {
+						CreatedOnToolsVersion = 6.1;
+					};
+				};
+			};
+			buildConfigurationList = 97D685B91A13EA5000EE816C /* Build configuration list for PBXProject "ADAuthenticationBroker" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 97D685B51A13EA5000EE816C;
+			productRefGroup = 97D685BF1A13EA5000EE816C /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 97D033801B03F959000A9BD0 /* Products */;
+					ProjectRef = 97D0337F1B03F959000A9BD0 /* ADALiOS.xcodeproj */;
+				},
+				{
+					ProductGroup = 97F5D7AD1A9432CB00E0AD3A /* Products */;
+					ProjectRef = 97F5D7AC1A9432CB00E0AD3A /* WorkPlaceJoinAPI.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				97D685BD1A13EA5000EE816C /* ADAuthenticationBroker */,
+				97D685C81A13EA5000EE816C /* ADAuthenticationBrokerTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		971C57D81B02DEFC0034820F /* libWorkPlaceJoinAPIMac.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libWorkPlaceJoinAPIMac.a;
+			remoteRef = 971C57D71B02DEFC0034820F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		971C57DA1B02DEFC0034820F /* WorkPlaceJoinAPIMacTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = WorkPlaceJoinAPIMacTests.xctest;
+			remoteRef = 971C57D91B02DEFC0034820F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		971C57DC1B02DEFC0034820F /* WorkPlaceJoin.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = WorkPlaceJoin.framework;
+			remoteRef = 971C57DB1B02DEFC0034820F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		97D033871B03F959000A9BD0 /* libADALiOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libADALiOS.a;
+			remoteRef = 97D033861B03F959000A9BD0 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		97D033891B03F959000A9BD0 /* ADALiOSTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ADALiOSTests.xctest;
+			remoteRef = 97D033881B03F959000A9BD0 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		97D0338B1B03F959000A9BD0 /* ADALiOS.bundle */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ADALiOS.bundle;
+			remoteRef = 97D0338A1B03F959000A9BD0 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		97D0338D1B03F959000A9BD0 /* ADALiOS.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ADALiOS.framework;
+			remoteRef = 97D0338C1B03F959000A9BD0 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		97F5D7B41A9432CC00E0AD3A /* libWorkPlaceJoinAPI.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libWorkPlaceJoinAPI.a;
+			remoteRef = 97F5D7B31A9432CC00E0AD3A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		97F5D7B61A9432CC00E0AD3A /* WorkPlaceJoinAPITests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = WorkPlaceJoinAPITests.xctest;
+			remoteRef = 97F5D7B51A9432CC00E0AD3A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		97F5D7B81A9432CC00E0AD3A /* WorkPlaceJoinAPI.bundle */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = WorkPlaceJoinAPI.bundle;
+			remoteRef = 97F5D7B71A9432CC00E0AD3A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		97D685C71A13EA5000EE816C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				975E42D41A1D3F2A0033B500 /* ADALiOS.bundle in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		97E21CDE1A1C387E00EF5520 /* Prepare Framework */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Prepare Framework";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/A/Headers\"\n\n# Link the \"Current\" version to \"A\"\n/bin/ln -sfh A \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/Current\"\n/bin/ln -sfh Versions/Current/Headers \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Headers\"\n/bin/ln -sfh \"Versions/Current/${PRODUCT_NAME}\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/${PRODUCT_NAME}\"\n\n# The -a ensures that the headers maintain the source modification date so that we don't constantly\n# cause propagating rebuilds of files that import these headers.\n/bin/cp -a \"${TARGET_BUILD_DIR}/${PUBLIC_HEADERS_FOLDER_PATH}/\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/A/Headers\"";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		97D685BA1A13EA5000EE816C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97F45F171A75F8B400022523 /* ADBrokerJwtHelper.m in Sources */,
+				97B2AFB41ACB3F0000DE04A3 /* ADBrokerJWEResponse.m in Sources */,
+				97ED7A5D1A9AED1700DEA5E7 /* ADBrokerPRTContext.m in Sources */,
+				97D685EB1A15432500EE816C /* ADBrokerKeychainTokenCacheStore.m in Sources */,
+				D6E43A851B04204D000F5BE2 /* ADAuthenticationContext+BrokerSDK.m in Sources */,
+				971C57E21B0325570034820F /* ADLogger+Broker.m in Sources */,
+				97FBE7441AC60FB1001883A5 /* ADBrokerBase64Additions.m in Sources */,
+				9777DFFD1A37553800D8D8A8 /* ADBrokerConstants.m in Sources */,
+				979F4ED31AB2ADBB009B3E43 /* ADBrokerUserAccount.m in Sources */,
+				97A522541A1A9E07001D77CE /* ADBrokerSettings.m in Sources */,
+				97ED7A581A97B44000DEA5E7 /* ADBrokerPRTCacheItem.m in Sources */,
+				97D685DC1A13EAA600EE816C /* ADBrokerContext.m in Sources */,
+				97D685F41A169D1700EE816C /* ADBrokerHelpers.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		97D685C51A13EA5000EE816C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97B2AFBE1ACBB90E00DE04A3 /* ADBrokerJWEResponseTests.m in Sources */,
+				977A1A2C1A6EF49F00E6EA85 /* ADBrokerKeychainStoreTests.m in Sources */,
+				97927EAF1A915D1B0053E283 /* ADBrokerHelpersTests.m in Sources */,
+				971C56F91AF9EA0D0034820F /* ADBrokerContextTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		97D685CC1A13EA5000EE816C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 97D685BD1A13EA5000EE816C /* ADAuthenticationBroker */;
+			targetProxy = 97D685CB1A13EA5000EE816C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		97D685D01A13EA5000EE816C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = ADAuthenticationBroker/ADAuthenticationBroker.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "DEBUG=1";
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "-ObjC";
+				SDKROOT = iphoneos;
+				USER_HEADER_SEARCH_PATHS = "";
+			};
+			name = Debug;
+		};
+		97D685D11A13EA5000EE816C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = ADAuthenticationBroker/ADAuthenticationBroker.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "-ObjC";
+				SDKROOT = iphoneos;
+				USER_HEADER_SEARCH_PATHS = "";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		97D685D31A13EA5000EE816C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				FRAMEWORK_VERSION = "";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/Frameworks/xCrypt/lib/os",
+					"$(PROJECT_DIR)/Frameworks/xCrypt/lib/simulator",
+				);
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)Headers";
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = "non-global";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/WorkPlaceJoinAPI Frameworks/adal/ADALiOS/ADALiOS";
+			};
+			name = Debug;
+		};
+		97D685D41A13EA5000EE816C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				FRAMEWORK_VERSION = "";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/Frameworks/xCrypt/lib/os",
+					"$(PROJECT_DIR)/Frameworks/xCrypt/lib/simulator",
+				);
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)Headers";
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = "non-global";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/WorkPlaceJoinAPI Frameworks/adal/ADALiOS/ADALiOS";
+			};
+			name = Release;
+		};
+		97D685D61A13EA5000EE816C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = ADAuthenticationBrokerTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					XCTest,
+					"-ObjC",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/WorkPlaceJoinAPI Frameworks/adal/ADALiOS/ADALiOS";
+			};
+			name = Debug;
+		};
+		97D685D71A13EA5000EE816C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INFOPLIST_FILE = ADAuthenticationBrokerTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					XCTest,
+					"-ObjC",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) Frameworks/WorkplaceJoin-for-iOS/WorkPlaceJoinAPI/WorkPlaceJoinAPI Frameworks/adal/ADALiOS/ADALiOS";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		97D685B91A13EA5000EE816C /* Build configuration list for PBXProject "ADAuthenticationBroker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				97D685D01A13EA5000EE816C /* Debug */,
+				97D685D11A13EA5000EE816C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		97D685D21A13EA5000EE816C /* Build configuration list for PBXNativeTarget "ADAuthenticationBroker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				97D685D31A13EA5000EE816C /* Debug */,
+				97D685D41A13EA5000EE816C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		97D685D51A13EA5000EE816C /* Build configuration list for PBXNativeTarget "ADAuthenticationBrokerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				97D685D61A13EA5000EE816C /* Debug */,
+				97D685D71A13EA5000EE816C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 97D685B61A13EA5000EE816C /* Project object */;
+}

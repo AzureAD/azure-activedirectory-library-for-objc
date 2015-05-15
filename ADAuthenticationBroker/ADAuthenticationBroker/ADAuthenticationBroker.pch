@@ -1,0 +1,19 @@
+//
+//  ADAuthenticationBroker.pch
+//  ADAuthenticationBroker
+//
+//  Created by Kanishk Panwar on 5/6/15.
+//  Copyright (c) 2015 Microsoft Corp. All rights reserved.
+//
+
+#ifndef ADAuthenticationBroker_ADAuthenticationBroker_pch
+#define ADAuthenticationBroker_ADAuthenticationBroker_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#import <Foundation/Foundation.h>
+#import "ADAL.h"
+#import "ADALiOS.h"
+
+#endif

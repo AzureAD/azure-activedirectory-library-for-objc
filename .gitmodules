@@ -1,0 +1,6 @@
+[submodule "ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS"]
+	path = ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS
+	url = https://github.com/AzureAD/WorkplaceJoin-for-iOS
+[submodule "ADAuthenticationBroker/Frameworks/adal"]
+	path = ADAuthenticationBroker/Frameworks/adal
+	url = https://github.com/AzureAD/azure-activedirectory-library-for-objc
