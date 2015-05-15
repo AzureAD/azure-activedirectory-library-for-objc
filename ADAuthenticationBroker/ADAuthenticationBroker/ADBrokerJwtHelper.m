@@ -42,19 +42,6 @@ const uint32_t PADDING = kSecPaddingNone;
     
     return decryptedResponse;
 }
-//
-//+(NSData*) getSessionKeyFromEncryptedJWT:(NSString*) encryptedJwt
-//                           privateKeyRef:(SecKeyRef) privateKeyRef
-//                                   error:(NSError**) error;
-//{
-//    ADBrokerJWEResponse* response = [[ADBrokerJWEResponse alloc] initWithRawJWE:encryptedJwt];
-//    NSData* decryptedResponse = [ADBrokerJwtHelper decryptData:response.encryptedKey
-//                                                 privateKeyRef:privateKeyRef
-//                                                         error:error];
-//    
-//    return decryptedResponse;
-//}
-
 
 
 +(NSData*) decryptData:(NSData*) encryptedJwt

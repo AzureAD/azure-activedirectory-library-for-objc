@@ -528,6 +528,7 @@ return; \
     if(error)
     {
         onResultBlock(error);
+        return;
     }
     
     [workPlaceJoinApi doDiscoveryForUpn:upn
