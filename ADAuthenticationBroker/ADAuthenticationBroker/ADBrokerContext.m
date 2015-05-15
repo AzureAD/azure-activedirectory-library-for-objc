@@ -379,7 +379,7 @@ return; \
     // the default token in the case in case there is a single user.
     BOOL forceUI = [NSString adIsStringNilOrBlank:upn];
     
-    NSString* qp = [NSString stringWithFormat:@"%@&%@", @"brkr=1&slice=testslice", queryParams];
+    NSString* qp = [NSString stringWithFormat:@"%@&%@", @"brkr=1", queryParams];
     
     //callback implementation
     ADAuthenticationCallback defaultCallback = ^(ADAuthenticationResult *result) {
@@ -463,7 +463,7 @@ return; \
                                        silent:NO
                                        userId:upn
                                         scope:nil
-                         extraQueryParameters:@"brkr=1&slice=testslice"
+                         extraQueryParameters:@"brkr=1"
                             validateAuthority:YES
                                 correlationId:ctx.getCorrelationId
                               completionBlock:defaultCallback];
