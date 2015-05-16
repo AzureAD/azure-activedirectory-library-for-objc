@@ -62,7 +62,6 @@ ADAuthenticationContext* context = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-
 -(void) consumeToken
 {
     BVApplicationData* data = [BVApplicationData getInstance];
@@ -77,7 +76,6 @@ ADAuthenticationContext* context = nil;
         }
     }
 }
-
 
 - (void)didReceiveMemoryWarning
 {

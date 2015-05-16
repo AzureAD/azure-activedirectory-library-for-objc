@@ -9,7 +9,7 @@
 		<key>ClientId</key>
 		<string>e3786e2a-0dcb-449a-8eba-b4042c9bec01</string>
 		<key>Resource</key>
-		<string>https://aadadfs.onmicrosoft.com/TodoListService</string>
+		<string>https://graph.windows.net</string>
 		<key>RedirectUri</key>
 		<string>MyTestiOSApp://com.MSOpenTech.MyTestiOSApp</string>
 		<key>UserId</key>
