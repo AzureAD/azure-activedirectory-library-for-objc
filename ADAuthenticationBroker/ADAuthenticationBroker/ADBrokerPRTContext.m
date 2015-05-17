@@ -274,9 +274,7 @@ NSString* userPrincipalIdentifier;
                       if(attemptPRTUpdate)
                       {
                           NSString* errorType = [response objectForKey:OAUTH2_ERROR];
-                          if(errorType && ([NSString adSame:errorType toString:@"interaction_required"]
-                                           || [NSString adSame:errorType toString:@"invalid_request"]
-                                           || [NSString adSame:errorType toString:@"invalid_grant"]))
+                          if(errorType && ([NSString adSame:errorType toString:@"interaction_required"]))
                           {
                               // if error is interaction_required use webview
                               [self acquireTokenViaWebviewInteractionForResource:resource
