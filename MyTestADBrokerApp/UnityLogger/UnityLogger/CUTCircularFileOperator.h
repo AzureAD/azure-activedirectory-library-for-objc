@@ -13,6 +13,9 @@ extern NSString *const kCUTCircularFileNameFormat;
 
 @interface CUTCircularFileOperator : NSObject
 
++(unsigned long long) getCurrentFilesizeInBytes:(NSString *)fileName
+                                withFileManager:(NSFileManager *)fileManager;
+
 
 +(BOOL) isSizeAboveLimitForFile:(NSString *)fileName
                 withFileManager:(NSFileManager *)fileManager
