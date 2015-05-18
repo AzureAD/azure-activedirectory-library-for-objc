@@ -250,7 +250,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     // Null terminate, convert to NSString and free the buffer
     pbEncoded[iEncoded++] = '\0';
     
-    NSString *result = [NSString stringWithCString:pbEncoded encoding:NSASCIIStringEncoding];
+    NSString *result = [NSString stringWithCString:pbEncoded encoding:NSUTF8StringEncoding];
     
     free(pbEncoded);
     
@@ -260,7 +260,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 // Base64 URL encodes a string
 - (NSString *) adBase64UrlEncode
 {
-    NSData *decodedData = [self dataUsingEncoding:NSASCIIStringEncoding];
+    NSData *decodedData = [self dataUsingEncoding:NSUTF8StringEncoding];
     
     return [self.class Base64EncodeData:decodedData];
 }
