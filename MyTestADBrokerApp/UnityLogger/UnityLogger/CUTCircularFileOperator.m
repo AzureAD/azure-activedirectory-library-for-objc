@@ -58,8 +58,8 @@ NSString *const kCUTCircularFileNameFormat = @"%@-%lu.%@";
 //
 // Check if current file size reaches limit
 //
-+(BOOL) isSizeAboveLimitForFile:(NSString *)fileName withFileManager:(NSFileManager *)fileManager andSizeLimit:(NSUInteger) maxFileSize
-{
++(unsigned long long) getCurrentFilesizeInBytes:(NSString *)fileName
+                  withFileManager:(NSFileManager *)fileManager {
     // get the file size.
     NSDictionary *fileAttributes = [fileManager attributesOfItemAtPath:fileName error:nil];
     
@@ -67,10 +67,19 @@ NSString *const kCUTCircularFileNameFormat = @"%@-%lu.%@";
     if (fileAttributes == nil)
     {
         printf("Could not get file attributes for %s\n", fileName.UTF8String);
-        return YES;
+        return 0;
     }
     
-    return [fileAttributes fileSize] >= maxFileSize;
+    return [fileAttributes fileSize];
+}
+
+//
+// Check if current file size reaches limit
+//
++(BOOL) isSizeAboveLimitForFile:(NSString *)fileName withFileManager:(NSFileManager *)fileManager andSizeLimit:(NSUInteger) maxFileSize
+{
+    return [CUTCircularFileOperator getCurrentFilesizeInBytes:fileName
+                                              withFileManager:fileManager] >= maxFileSize;
 }
 
 //

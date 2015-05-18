@@ -27,6 +27,8 @@ const char *kCUTFileLogQueueName = "CUTFileLoggerQueue";
 @interface  CUTFileLogWriter ()
 
 
+@property (nonatomic) unsigned long long fileSizeInBytes;
+
 @property (strong,nonatomic) NSString *currentFilename;
 
 //
@@ -73,7 +75,8 @@ const char *kCUTFileLogQueueName = "CUTFileLoggerQueue";
     
     // Only open log file once and keep use this log file during the whole APP session
     _logFileHandle = [self openLogFile];
-    
+    _fileSizeInBytes = [CUTCircularFileOperator getCurrentFilesizeInBytes:_currentFilename
+                                       withFileManager:self.fileManager];
     return self;
 }
 
@@ -103,12 +106,16 @@ const char *kCUTFileLogQueueName = "CUTFileLoggerQueue";
 {
     @synchronized(self.fileLoggerQueue)
     {
-        if([CUTCircularFileOperator isSizeAboveLimitForFile:self.currentFilename
-                                         withFileManager:self.fileManager
-                                            andSizeLimit:self.fileLoggerSettings.maxLogFileSize])
+        if(userInfo.formattedString)
+        {
+            self.fileSizeInBytes+=[userInfo.formattedString dataUsingEncoding:NSUTF8StringEncoding].length;
+        }
+        
+        if(self.fileSizeInBytes >= self.fileLoggerSettings.maxLogFileSize)
         {
             [self.logFileHandle closeFile];
             self.logFileHandle = nil;
+            self.fileSizeInBytes = 0;
             self.logFileHandle = [self openLogFile];
         }
         

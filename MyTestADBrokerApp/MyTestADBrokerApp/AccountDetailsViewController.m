@@ -120,6 +120,7 @@
 - (IBAction)wpjSwitchPressed:(id)sender
 {
     ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:[ADBrokerSettings sharedInstance].authority];
+    [ctx setCorrelationId:[NSUUID UUID]];
     if(!self.wpjEnabled.isOn)
     {
         //user wants to remove WPJ
@@ -195,51 +196,65 @@
 - (IBAction)getATFromPRTPressed:(id)sender
 {
     
-    ADBrokerContext*ctx = [[ADBrokerContext alloc] initWithAuthority:[ADBrokerSettings sharedInstance].authority];
-    [ctx setCorrelationId:[NSUUID UUID]];
-    [ctx acquireAccount:self.account.userInformation.upn
-               clientId:self.clientId.text
-               resource:self.resource.text
-            redirectUri:self.redirectUri.text
-        completionBlock:^(ADAuthenticationResult *result) {
-            if(result.status != AD_SUCCEEDED)
-            {
-                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to get Token"
-                                                                message:result.error.description
-                                                               delegate:self
-                                                      cancelButtonTitle:@"OK"
-                                                      otherButtonTitles:nil];
-                
-                dispatch_async(dispatch_get_main_queue(),^{
-                    [alert show];
-                });
-            }
-            else
-            {
-                //do something
-            }
-        }];
+    __block UIAlertView *alert = nil;
+//    ADBrokerContext*ctx = [[ADBrokerContext alloc] initWithAuthority:[ADBrokerSettings sharedInstance].authority];
+//    [ctx acquireAccount:self.account.userInformation.upn
+//               clientId:self.clientId.text
+//               resource:self.resource.text
+//            redirectUri:self.redirectUri.text
+//        completionBlock:^(ADAuthenticationResult *result) {
+//            if(result.status != AD_SUCCEEDED)
+//            {
+//                alert = [[UIAlertView alloc] initWithTitle:@"FAILED to get token"
+//                                                 message:result.error.description
+//                                                delegate:self
+//                                       cancelButtonTitle:@"OK"
+//                                       otherButtonTitles:nil];
+//                dispatch_async(dispatch_get_main_queue(),^{
+//                    [alert show];
+//                });
+//            }
+//            else
+//            {
+//                alert = [[UIAlertView alloc] initWithTitle:@"Acquired token using PRT!"
+//                                                                message:[NSString stringWithFormat:@"%@ - %@",result.tokenCacheStoreItem.clientId, result.tokenCacheStoreItem.resource ]
+//                                                               delegate:self
+//                                                      cancelButtonTitle:@"OK"
+//                                                      otherButtonTitles:nil];
+//            }
+//        }];
     
-    //    ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.account.userInformation.upn correlationId:[NSUUID UUID] error:nil];
-    //    [ctx acquireTokenUsingPRTForResource:@"https://graph.windows.net"
-    //                                clientId:self.clientId.text
-    //                             redirectUri:self.redirectUri.text
-    //                                  appKey:DEFAULT_GUID_FOR_NIL
-    //                         completionBlock:^(ADAuthenticationResult *result) {
-    //                             if(result.status != AD_SUCCEEDED)
-    //                             {
-    //                                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to get Token"
-    //                                                                                 message:result.error.description
-    //                                                                                delegate:self
-    //                                                                       cancelButtonTitle:@"OK"
-    //                                                                       otherButtonTitles:nil];
-    //                                 [alert show];
-    //                             }
-    //                             else
-    //                             {
-    //                                 //do somethin
-    //                             }
-    //                         }];
+        ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.account.userInformation.upn
+                                                            correlationId:[NSUUID UUID]
+                                                                    error:nil];
+        [ctx acquireTokenUsingPRTForResource:self.resource.text
+                                    clientId:self.clientId.text
+                                 redirectUri:self.redirectUri.text
+                                      appKey:DEFAULT_GUID_FOR_NIL
+                             completionBlock:^(ADAuthenticationResult *result) {
+                                 if(result.status != AD_SUCCEEDED)
+                                 {
+                                     alert = [[UIAlertView alloc] initWithTitle:@"FAILED to get token"
+                                                                        message:result.error.description
+                                                                       delegate:self
+                                                              cancelButtonTitle:@"OK"
+                                                              otherButtonTitles:nil];
+                                     dispatch_async(dispatch_get_main_queue(),^{
+                                         [alert show];
+                                     });
+                                 }
+                                 else
+                                 {
+                                     alert = [[UIAlertView alloc] initWithTitle:@"Acquired token using PRT!"
+                                                                        message:[NSString stringWithFormat:@"%@ - %@",result.tokenCacheStoreItem.clientId, result.tokenCacheStoreItem.resource ]
+                                                                       delegate:self
+                                                              cancelButtonTitle:@"OK"
+                                                              otherButtonTitles:nil];
+                                     dispatch_async(dispatch_get_main_queue(),^{
+                                         [alert show];
+                                     });
+                                 }
+                             }];
 }
 
 @end
