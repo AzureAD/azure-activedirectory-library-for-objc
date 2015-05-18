@@ -281,6 +281,7 @@ return; \
                                          else
                                          {
                                              takeMeBack([ADAuthenticationResult resultFromError:[ADAuthenticationError errorFromNSError:error errorDetails:error.description]]);
+                                             return;
                                          }
                                      }];
                     }
@@ -289,6 +290,7 @@ return; \
                         //either succeeded or a non-WPJ failure. Take the user back
                         //to the calling app.
                         takeMeBack(result);
+                        return;
                     }
                 }];
         }
@@ -539,6 +541,7 @@ return; \
          if(error)
          {
              onResultBlock(error);
+             return;
          }
          
          //find an access token or refresh token for the UPN.
@@ -582,18 +585,21 @@ return; \
                                                           else
                                                           {
                                                               onResultBlock(error);
+                                                              return;
                                                           }
                                                       }];
                                                   }
                                                   else
                                                   {
                                                       onResultBlock(error);
+                                                      return;
                                                   }
                                               }];
                   }
                   else
                   {
                       onResultBlock(result.error);
+                      return;
                   }
               }];
          
