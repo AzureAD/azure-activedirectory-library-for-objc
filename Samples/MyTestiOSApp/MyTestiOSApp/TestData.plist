@@ -23,7 +23,7 @@
 		<key>FullScreen</key>
 		<true/>
 		<key>ExtraQueryParameters</key>
-		<string>nux=1&amp;slice=testslice&amp;mamver=1</string>
+		<string>nux=1</string>
 	</dict>
 </dict>
 </plist>
