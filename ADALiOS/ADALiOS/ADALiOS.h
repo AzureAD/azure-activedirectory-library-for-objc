@@ -26,6 +26,14 @@
 #import "ADErrorCodes.h"
 #import "ADAuthenticationError.h"
 #import "NSString+ADHelperMethods.h"
+#import "NSDictionary+ADExtensions.h"
+#import "NSURL+ADExtensions.h"
+
+#if TARGET_OS_IPHONE
+#define ADWebView UIWebView
+#else
+#define ADWebView WebView
+#endif
 
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \

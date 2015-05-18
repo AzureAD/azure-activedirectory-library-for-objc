@@ -39,4 +39,6 @@
 #include "../../../aad_overrides.h"
 #endif
 
+#import "ADALiOS.h"
+
 #endif

@@ -73,6 +73,7 @@
 		8BFEF07B182DB15E00122C0C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF066182DA57800122C0C /* InfoPlist.strings */; };
 		8BFEF07C182DB15E00122C0C /* ADAL_iPhone_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04B182D906700122C0C /* ADAL_iPhone_Storyboard.storyboard */; };
 		8BFEF07D182DB15E00122C0C /* ADAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04C182D906700122C0C /* ADAL_iPad_Storyboard.storyboard */; };
+		949296421B07F800009780CA /* ADWebViewControlleriOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 949296411B07F800009780CA /* ADWebViewControlleriOS.m */; };
 		971C56BE1AF2278C0034820F /* ADBrokerNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 971C56BD1AF2278C0034820F /* ADBrokerNotificationManager.m */; };
 		971C57441AFA9BD10034820F /* ADALiOSFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = 971C57431AFA9BD10034820F /* ADALiOSFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		971C575A1AFA9C0D0034820F /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AA17F25770002BDFB8 /* libADALiOS.a */; };
@@ -243,6 +244,8 @@
 		8BFEF065182DA57800122C0C /* ADALiOSBundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ADALiOSBundle-Info.plist"; sourceTree = "<group>"; };
 		8BFEF067182DA57800122C0C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BFEF069182DA57800122C0C /* ADALiOSBundle-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADALiOSBundle-Prefix.pch"; sourceTree = "<group>"; };
+		949296401B07F800009780CA /* ADWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWebViewController.h; sourceTree = "<group>"; };
+		949296411B07F800009780CA /* ADWebViewControlleriOS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebViewControlleriOS.m; sourceTree = "<group>"; };
 		971C56BC1AF2278C0034820F /* ADBrokerNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerNotificationManager.h; sourceTree = "<group>"; };
 		971C56BD1AF2278C0034820F /* ADBrokerNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerNotificationManager.m; sourceTree = "<group>"; };
 		971C573F1AFA9BD10034820F /* ADALiOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ADALiOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -522,6 +525,8 @@
 				8B34344C183305A6002DE1DC /* ADAuthenticationViewController.m */,
 				8B34344D183305A6002DE1DC /* ADAuthenticationWebViewController.h */,
 				8B34344E183305A6002DE1DC /* ADAuthenticationWebViewController.m */,
+				949296401B07F800009780CA /* ADWebViewController.h */,
+				949296411B07F800009780CA /* ADWebViewControlleriOS.m */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
@@ -790,6 +795,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				949296421B07F800009780CA /* ADWebViewControlleriOS.m in Sources */,
 				971C56BE1AF2278C0034820F /* ADBrokerNotificationManager.m in Sources */,
 				D6E43A701B040A9C000F5BE2 /* ADAuthenticationContext+AcquireAssertion.m in Sources */,
 				8B343450183305A6002DE1DC /* ADAuthenticationWebViewController.m in Sources */,
