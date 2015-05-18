@@ -115,6 +115,7 @@ const char *kCUTFileLogQueueName = "CUTFileLoggerQueue";
         {
             [self.logFileHandle closeFile];
             self.logFileHandle = nil;
+            self.fileSizeInBytes = 0;
             self.logFileHandle = [self openLogFile];
         }
         

@@ -120,6 +120,7 @@
 - (IBAction)wpjSwitchPressed:(id)sender
 {
     ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:[ADBrokerSettings sharedInstance].authority];
+    [ctx setCorrelationId:[NSUUID UUID]];
     if(!self.wpjEnabled.isOn)
     {
         //user wants to remove WPJ

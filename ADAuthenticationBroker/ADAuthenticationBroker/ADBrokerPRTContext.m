@@ -276,6 +276,8 @@ NSString* userPrincipalIdentifier;
                           NSString* errorType = [response objectForKey:OAUTH2_ERROR];
                           if(errorType && ([NSString adSame:errorType toString:@"interaction_required"]))
                           {
+                              dispatch_async(dispatch_get_main_queue(), ^
+                                              {
                               // if error is interaction_required use webview
                               [self acquireTokenViaWebviewInteractionForResource:resource
                                                                         clientId:clientId
@@ -283,6 +285,7 @@ NSString* userPrincipalIdentifier;
                                                                           appKey:appKey
                                                                          prtItem:prtItem
                                                                  completionBlock:completionBlock];
+                                              });
                           }
                           else
                           {
