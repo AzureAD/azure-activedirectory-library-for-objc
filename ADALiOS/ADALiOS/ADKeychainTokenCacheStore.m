@@ -190,8 +190,11 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 -(void) LogItem: (ADTokenCacheStoreItem*) item
         message: (NSString*) additionalMessage
 {
-    AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. Resource: %@ Access token hash: %@; Refresh token hash: %@", item.resource,additionalMessage, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
-}
+    AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. Resource: %@ Access token hash: %@; Refresh token hash: %@",
+                     additionalMessage,
+                     item.resource,
+                     [item.accessToken adComputeSHA256],
+                     [item.refreshToken adComputeSHA256]);}
 
 //Updates the keychain item. "attributes" parameter should ALWAYS come from previous
 //SecItemCopyMatching else the function will fail.
@@ -344,7 +347,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                                     _mItemKeyAttributeKey:[self keychainKeyFromCacheKey:key],
                                     }];
     
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString adIsStringNilOrBlank:userId] && [userId adBase64UrlEncode])
     {
         [query setObject:[userId adBase64UrlEncode] forKey:_mUserIdKey];
     }

@@ -78,7 +78,7 @@
         return;
     }
 
-    dispatch_async([ADAuthenticationSettings sharedInstance].dispatchQueue,^
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),^
     {
         __block ADWebRequest* request = [[ADWebRequest alloc] initWithURL:resourceUrl correlationId:nil];
         request.method = HTTPGet;

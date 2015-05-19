@@ -288,14 +288,11 @@
         [self appendStatus:error.errorDetails];
         return;
     }
-    
-    [context acquireTokenWithResource:aadInstance.resource
-                             clientId:aadInstance.clientId
-                          redirectUri:[NSURL URLWithString:aadInstance.redirectUri]
-                       promptBehavior:AD_PROMPT_NEVER
-                               userId:aadInstance.userId
-                 extraQueryParameters: aadInstance.extraQueryParameters
-                      completionBlock:^(ADAuthenticationResult *result)
+     
+     [context acquireTokenSilentWithResource:aadInstance.resource
+                                    clientId:aadInstance.clientId
+                                 redirectUri:[NSURL URLWithString:aadInstance.redirectUri]
+                             completionBlock:^(ADAuthenticationResult *result)
      {
          if (result.status != AD_SUCCEEDED)
          {

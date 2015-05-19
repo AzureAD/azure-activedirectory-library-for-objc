@@ -30,9 +30,9 @@
 #import "ADAuthenticationSettings.h"
 #import "ADAuthenticationParameters.h"
 
-#define ADAL_VER_HIGH   1
-#define ADAL_VER_LOW    2
-#define ADAL_VER_PATCH  2
+#define ADAL_VER_HIGH   2
+#define ADAL_VER_LOW    0
+#define ADAL_VER_PATCH  0
 
 #pragma mark - OSX Universal ARC compatibility macros
 
@@ -96,7 +96,7 @@
 #   define SAFE_ARC_DISPATCH_RELEASE(x) dispatch_release((x))
 # ifdef DEBUG
 //Crash the application if messages are sent to the released variable, but only in DEBUG mode
-#   define SAFE_ARC_RELEASE(x) { _SAFE_ARC_RELEASE(x); (x) = (id)0x21; }
+#   define SAFE_ARC_RELEASE(x) { _SAFE_ARC_RELEASE(x); (x) = (id)nil; }
 # else
 //Set the variable to nil in release mode to avoid crashing, as obj-c allows sending messages to nil pointers:
 #   define SAFE_ARC_RELEASE(x) { _SAFE_ARC_RELEASE(x); (x) = nil; }

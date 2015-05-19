@@ -123,6 +123,8 @@ WorkPlaceJoinUtil* wpjUtilManager = nil;
         CFRelease(identity);
         CFRelease(certificate);
         CFRelease(privateKey);
+        SAFE_ARC_RELEASE(certificateIssuer);
+        SAFE_ARC_AUTORELEASE(info);
         return info;
     }
     else

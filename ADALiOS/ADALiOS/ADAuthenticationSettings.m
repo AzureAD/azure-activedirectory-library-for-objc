@@ -47,7 +47,7 @@
         _dispatchQueue              = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
         SAFE_ARC_DISPATCH_RETAIN(_dispatchQueue);
 //#if TARGET_OS_IPHONE
-        self.defaultTokenCacheStore = [ADKeychainTokenCacheStore new];
+        _defaultTokenCacheStore = [ADKeychainTokenCacheStore new];
 //#else
 //        _defaultTokenCacheStore     = [[ADPersistentTokenCacheStore alloc] initWithLocation:nil];
 //#endif

@@ -88,6 +88,8 @@
 		8BFEF07B182DB15E00122C0C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF066182DA57800122C0C /* InfoPlist.strings */; };
 		8BFEF07C182DB15E00122C0C /* ADAL_iPhone_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04B182D906700122C0C /* ADAL_iPhone_Storyboard.storyboard */; };
 		8BFEF07D182DB15E00122C0C /* ADAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04C182D906700122C0C /* ADAL_iPad_Storyboard.storyboard */; };
+		971C56C31AF7CF370034820F /* ADBrokerKeyHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 971C56C01AF7CF370034820F /* ADBrokerKeyHelper.m */; };
+		971C56C41AF7CF370034820F /* ADBrokerNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 971C56C21AF7CF370034820F /* ADBrokerNotificationManager.m */; };
 		9722233819AB05D700092E85 /* ADPkeyAuthHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722233719AB05D700092E85 /* ADPkeyAuthHelper.m */; };
 		9722234419AB060200092E85 /* RegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722233D19AB060200092E85 /* RegistrationInformation.m */; };
 		9722234519AB060200092E85 /* WorkPlaceJoin.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722233F19AB060200092E85 /* WorkPlaceJoin.m */; };
@@ -242,6 +244,10 @@
 		8BFEF065182DA57800122C0C /* ADALiOSBundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ADALiOSBundle-Info.plist"; sourceTree = "<group>"; };
 		8BFEF067182DA57800122C0C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BFEF069182DA57800122C0C /* ADALiOSBundle-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADALiOSBundle-Prefix.pch"; sourceTree = "<group>"; };
+		971C56BF1AF7CF370034820F /* ADBrokerKeyHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerKeyHelper.h; sourceTree = "<group>"; };
+		971C56C01AF7CF370034820F /* ADBrokerKeyHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeyHelper.m; sourceTree = "<group>"; };
+		971C56C11AF7CF370034820F /* ADBrokerNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerNotificationManager.h; sourceTree = "<group>"; };
+		971C56C21AF7CF370034820F /* ADBrokerNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerNotificationManager.m; sourceTree = "<group>"; };
 		9722233619AB05D700092E85 /* ADPkeyAuthHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADPkeyAuthHelper.h; sourceTree = "<group>"; };
 		9722233719AB05D700092E85 /* ADPkeyAuthHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADPkeyAuthHelper.m; sourceTree = "<group>"; };
 		9722233C19AB060200092E85 /* RegistrationInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegistrationInformation.h; sourceTree = "<group>"; };
@@ -333,6 +339,10 @@
 		8B0965AF17F25770002BDFB8 /* ADALiOS */ = {
 			isa = PBXGroup;
 			children = (
+				971C56BF1AF7CF370034820F /* ADBrokerKeyHelper.h */,
+				971C56C01AF7CF370034820F /* ADBrokerKeyHelper.m */,
+				971C56C11AF7CF370034820F /* ADBrokerNotificationManager.h */,
+				971C56C21AF7CF370034820F /* ADBrokerNotificationManager.m */,
 				9722233919AB05E500092E85 /* WorkPlaceJoin */,
 				9722233619AB05D700092E85 /* ADPkeyAuthHelper.h */,
 				9722233719AB05D700092E85 /* ADPkeyAuthHelper.m */,
@@ -672,6 +682,8 @@
 				8BBE6FB61964DD090039C23E /* ADKeyChainHelper.m in Sources */,
 				8BB8346218074CFA007F9F0D /* ADAuthenticationParameters.m in Sources */,
 				8B8FD79B188223770070B1BE /* ADKeychainTokenCacheStore.m in Sources */,
+				971C56C31AF7CF370034820F /* ADBrokerKeyHelper.m in Sources */,
+				971C56C41AF7CF370034820F /* ADBrokerNotificationManager.m in Sources */,
 				8B92DB70181B2335004AAB0E /* ADLogger.m in Sources */,
 				97EEE7C41A4FFD5600D003F8 /* ADNTLMHandler.m in Sources */,
 				8B5989551811B89800744AEE /* ADTokenCacheStoreKey.m in Sources */,

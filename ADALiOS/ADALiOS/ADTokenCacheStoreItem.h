@@ -15,6 +15,7 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
+
 #import <Foundation/Foundation.h>
 
 @class ADUserInformation;
@@ -35,7 +36,7 @@
     NSDate   *_expiresOn;
     NSString *_refreshToken;
     NSString *_resource;
-    
+    NSData  *_sessionKey;   
     ADUserInformation *_userInformation;
     BOOL               _multiResourceRefreshToken;
 }
@@ -53,6 +54,8 @@
 @property (retain) NSString* accessTokenType;
 
 @property (retain) NSString* refreshToken;
+
+@property (retain) NSData* sessionKey;
 
 @property (retain) NSDate* expiresOn;
 
