@@ -20,6 +20,7 @@
 #import "NSString+ADHelperMethods.h"
 #import "ADWebRequest.h"
 #import "ADOAuth2Constants.h"
+#import "NSString+ADHelperMethods.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "NSDictionary+ADExtensions.h"
 #import <workplaceJoinAPI/WorkPlaceJoin.h>
@@ -187,7 +188,7 @@ return; \
             error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
                                                            protocolCode:nil
                                                            errorDetails:@"source application bundle identifier should be same as the redirect URI domain"];
-            
+            AD_LOG_ERROR_F(@"source application does not match redirect uri host", error.protocolCode , @"Invalid source app: %@", error.errorDetails);
             NSString* response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@",
                                    [error.protocolCode adUrlFormEncode],
                                    [error.errorDetails adUrlFormEncode],
@@ -212,7 +213,9 @@ return; \
                 if(![NSString adSame:sourceApplication toString:DEFAULT_GUID_FOR_NIL])
                 {
                     NSString* response = nil;
+                    
                     if(result.status == AD_SUCCEEDED){
+                        AD_LOG_INFO(@"acquireToken succeeded. Taking user back to client app", nil);
                         NSString* rawIdToken = @"";
                         if(result.tokenCacheStoreItem.userInformation){
                             rawIdToken = result.tokenCacheStoreItem.userInformation.rawIdToken;
@@ -237,6 +240,7 @@ return; \
                         
                         response = [NSString stringWithFormat:@"response=%@&hash=%@", [[NSString Base64EncodeData: responseData] adUrlFormEncode], [ADBrokerHelpers computeHash:plainData]];
                     } else{
+                        AD_LOG_INFO(@"acquireToken failed with error:%@. Taking user back to client app", result.error.errorDetails);
                         response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@", [result.error.protocolCode adUrlFormEncode], [result.error.errorDetails adUrlFormEncode], [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
                     }
                     
@@ -253,6 +257,14 @@ return; \
                 extraQP = [NSString stringWithFormat:@"mamver=%@", [extraQpDictionary valueForKey:@"mamver"]];
             }
             
+            
+            AD_LOG_INFO_F(@"Client App parameters", @"authority=%@; client_id=%@; resource=%@; redirect_uri=%@; client_adal_version=%@; upn_provided=%d;",[queryParamsMap valueForKey:AUTHORITY],
+                        [queryParamsMap valueForKey:OAUTH2_CLIENT_ID],
+                        [queryParamsMap valueForKey:OAUTH2_RESOURCE],
+                        [queryParamsMap valueForKey:OAUTH2_REDIRECT_URI],
+                        [queryParamsMap valueForKey:CLIENT_ADAL_VERSION],
+                        ![NSString adIsStringNilOrBlank:upn]);
+            
             [ctx acquireAccount:[queryParamsMap valueForKey:AUTHORITY]
                          userId:upn
                        clientId:[queryParamsMap valueForKey:OAUTH2_CLIENT_ID]
@@ -264,11 +276,13 @@ return; \
                     
                     if(result.status != AD_SUCCEEDED && result.error.code == AD_ERROR_WPJ_REQUIRED)
                     {
+                        AD_LOG_INFO(@"acquireAccount returned AD_ERROR_WPJ_REQUIRED error", nil);
                         ADAuthenticationError* err = result.error;
                         [ctx doWorkPlaceJoinForUpn:[err.userInfo valueForKey:@"username"]
                                      onResultBlock:^(NSError *error) {
                                          if(!error)
                                          {
+                                             AD_LOG_INFO(@"WPJ succeeded. Getting the token initally requested.", nil);
                                              [ctx acquireAccount:[queryParamsMap valueForKey:AUTHORITY]
                                                           userId:[err.userInfo valueForKey:@"username"]
                                                         clientId:[queryParamsMap valueForKey:OAUTH2_CLIENT_ID]
@@ -280,6 +294,7 @@ return; \
                                          }
                                          else
                                          {
+                                             AD_LOG_ERROR(@"WPJ failed.", error.code, error.description);
                                              takeMeBack([ADAuthenticationResult resultFromError:[ADAuthenticationError errorFromNSError:error errorDetails:error.description]]);
                                              return;
                                          }
@@ -309,6 +324,7 @@ return; \
 
 + (NSArray*) getAllAccounts:(ADAuthenticationError*) error
 {
+    API_ENTRY;
     NSMutableArray* accountsArray = [NSMutableArray new];
     id<ADTokenCacheStoring> cache = [ADBrokerKeychainTokenCacheStore new];
     
@@ -321,15 +337,17 @@ return; \
         wpjUpn = regInfo.userPrincipalName;
         regInfo = nil;
     }
+    
     if(errObj)
     {
         error = [ADAuthenticationError errorFromNSError:errObj
-                                           errorDetails:nil];
+                                           errorDetails:errObj.description];
         return accountsArray;
     }
     
     error = nil;
     NSArray* array = [cache allItemsWithError:&error];
+    
     if (error)
     {
         return accountsArray;
@@ -423,7 +441,8 @@ return; \
             else
             {
                 if(![NSString adIsStringNilOrBlank:upn])
-                {AD_LOG_INFO(@"acquireAccount - FAILED", @"Workplace joined = FALSE. UPN was provided and silent cache lookup failed. Get a new token via UI.");
+                {
+                    AD_LOG_INFO(@"acquireAccount - FAILED", @"Workplace joined = FALSE. UPN was provided and silent cache lookup failed. Get a new token via UI.");
                     [ctx requestTokenWithResource:resource
                                                  clientId:clientId
                                               redirectUri:[NSURL URLWithString:redirectUri]
@@ -533,6 +552,8 @@ return; \
         return;
     }
     
+    
+    AD_LOG_INFO_F(@"WPJ Discovery", @"do discovery in %u", [ADBrokerSettings sharedInstance].wpjEnvironment);
     [workPlaceJoinApi doDiscoveryForUpn:upn
                           correlationId:self.correlationId
                         completionBlock:^(ServiceInformation *svcInfo, NSError *error)
@@ -540,10 +561,12 @@ return; \
          
          if(error)
          {
+             AD_LOG_ERROR(@"WPJ discovery failed", error.code, nil);
              onResultBlock(error);
              return;
          }
          
+         AD_LOG_INFO(@"WPJ discovery succeeded. Acquiring token for broker client id and DRS resource", nil);
          //find an access token or refresh token for the UPN.
          [self acquireAccount:[svcInfo oauthAuthCodeEndpoint]
                        userId:upn
@@ -555,6 +578,7 @@ return; \
               completionBlock:^(ADAuthenticationResult *result) {
                   if(result.status == AD_SUCCEEDED)
                   {
+                      AD_LOG_INFO(@"acquireToken for broker client id and DRS resource succeeded", nil);
                       [workPlaceJoinApi registerDeviceForUser:upn
                                                         token:result.accessToken
                                          registrationEndpoint:[svcInfo registrationEndpoint]
@@ -563,6 +587,7 @@ return; \
                                               completionBlock:^(NSError *error) {
                                                   if(!error)
                                                   {
+                                                    AD_LOG_INFO(@"WPJ device registration succeeded. Attempt to get Primary Refresh Token", nil);
                                                       //do PRT work
                                                       ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc]
                                                                                     initWithUpn:upn
@@ -571,19 +596,27 @@ return; \
                                                       [prtCtx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error) {
                                                           if(error)
                                                           {
+                                                              AD_LOG_ERROR_F(@"Primary Refresh Token request FAILED. Attempting again...", error.code, error.description, nil);
                                                               ADBrokerPRTContext* newCtx = [[ADBrokerPRTContext alloc]
                                                                                             initWithUpn:upn
                                                                 correlationId:self.correlationId
                                                                                             error:&error];
-                                                              
                                                               [NSThread sleepForTimeInterval:[ADBrokerSettings sharedInstance].prtRequestWaitInSeconds];
                                                               [newCtx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error){
+                                                                  if(error)
+                                                                  {
+                                                                  AD_LOG_ERROR_F(@"Primary Refresh Token request re-attempt FAILED. Attempting again...", error.code, error.description, nil);
+                                                                  } else
+                                                                  {
+                                                                      AD_LOG_INFO(@"Primary Refresh Token request re-attempt succeeded.", nil);
+                                                                  }
                                                                   onResultBlock(error);
                                                               }];
                                                               return;
                                                           }
                                                           else
                                                           {
+                                                              AD_LOG_INFO(@"Primary Refresh Token acquired successfully.", nil);
                                                               onResultBlock(error);
                                                               return;
                                                           }
@@ -591,6 +624,7 @@ return; \
                                                   }
                                                   else
                                                   {
+                                                      AD_LOG_ERROR_F(@"WPJ request FAILED", error.code, error.description, nil);
                                                       onResultBlock(error);
                                                       return;
                                                   }
@@ -598,6 +632,7 @@ return; \
                   }
                   else
                   {
+                      AD_LOG_ERROR_F(@"acquireToken for broker client id and DRS resource FAILED", result.error.code, result.error.description, nil);
                       onResultBlock(result.error);
                       return;
                   }
