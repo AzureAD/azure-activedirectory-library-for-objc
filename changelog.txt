@@ -1,3 +1,7 @@
+Version 1.2.4
+-------------
+* Support NTLM for developers who provide custom webview.
+
 Version 1.2.3
 -------------
 * Fix a bug (#316) where non-ASCII input would result in a nil base64 value.
