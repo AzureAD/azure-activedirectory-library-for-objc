@@ -75,6 +75,10 @@ NSString* userPrincipalIdentifier;
     [cacheStore removeItemWithKey:key
                            userId:userPrincipalIdentifier
                             error:&error];
+    if(error)
+    {
+        AD_LOG_ERROR_F(@"PRT delete", error.code, @"failed to delete from keychain - %@", error.errorDetails);
+    }
 }
 
 -(void) acquirePRTForUPN: (ADPRTResultCallback)callback
@@ -91,11 +95,14 @@ NSString* userPrincipalIdentifier;
                                                                              error:&error];
     if(!error && item && !item.isExpired)
     {
+        AD_LOG_INFO(@"Valid PRT found in cache.", nil);
+        
         //success
         callback(item, error);
         return;
     }
     
+    AD_LOG_INFO(@"Valid PRT NOT found in cache... Acquiring new PRT", nil);
     // get broker client ID token
     [ctx acquireTokenWithResource: BROKER_RESOURCE
                          clientId: BROKER_CLIENT_ID
@@ -210,8 +217,8 @@ NSString* userPrincipalIdentifier;
                         completionBlock:(ADAuthenticationCallback) completionBlock
 {
     
-    [self acquirePRTForUPN:^(ADBrokerPRTCacheItem *prtItem, NSError *error) {
-        
+    [self acquirePRTForUPN:^(ADBrokerPRTCacheItem *prtItem, NSError *error)
+    {
         if(!error)
         {
             // found PRT token. Use it against token endpoint
@@ -235,83 +242,91 @@ NSString* userPrincipalIdentifier;
                  additionalHeaders:nil
                  returnRawResponse:YES
                         completion:^(NSDictionary *response)
-{
-                  
-                  if([response valueForKey:@"raw_response"])
-                  {
-                      ADBrokerJWEResponse* jweResp = [[ADBrokerJWEResponse alloc] initWithRawJWE:[response valueForKey:@"raw_response"]];
-                      response = [ADBrokerJwtHelper decryptJWEResponseUsingKeyDerivation:jweResp
-                                                                                 context:[jweResp headerContext]
-                                                                                     key:prtItem.sessionKey];
-                      
-                      //if id_token is not returned, Use id_token from PRT entry
-                      if([response valueForKey:OAUTH2_ID_TOKEN])
-                      {
-                          [response setValue:[prtItem.userInformation rawIdToken]
-                                      forKey:OAUTH2_ID_TOKEN];
-                      }
-                  }
-                  
-                  ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
-                  item.resource = resource;
-                  item.clientId = clientId;
-                  ADAuthenticationResult* result = [ctx processTokenResponse:response
-                                                                     forItem:item
-                                                                 fromRefresh:NO
-                                                        requestCorrelationId:[ctx getCorrelationId]];
-                  
-                  if(result.status == AD_SUCCEEDED)
-                  {
-                      //save AT and RT in the app key specific cache
-                      id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:appKey];
-                      [ctx updateCacheToResult:result
-                                 cacheInstance:cacheStore
-                                     cacheItem:nil
-                              withRefreshToken:nil];
-                      result = [ctx updateResult:result
-                                          toUser:userPrincipalIdentifier];
-                  } else{
-                      if(attemptPRTUpdate)
-                      {
-                          NSString* errorType = [response objectForKey:OAUTH2_ERROR];
-                          if(errorType && ([NSString adSame:errorType toString:@"interaction_required"]))
-                          {
-                              dispatch_async(dispatch_get_main_queue(), ^
-                                              {
-                              // if error is interaction_required use webview
-                              [self acquireTokenViaWebviewInteractionForResource:resource
-                                                                        clientId:clientId
-                                                                     redirectUri:redirectUri
-                                                                          appKey:appKey
-                                                                         prtItem:prtItem
-                                                                 completionBlock:completionBlock];
-                                              });
-                          }
-                          else
-                          {
-                              // remove PRT from cache
-                              [self deletePRT];
-                              
-                              // call acquireTokenUsingPRTForResource recursively with
-                              // attemptPRTUpdate=NO to avoid infinite recursion.
-                              //TODO wait for a little bit?
-                              [self acquireTokenUsingPRTForResource:resource
-                                                           clientId:clientId
-                                                        redirectUri:redirectUri
-                                                             appKey:appKey
-                                                   attemptPRTUpdate:NO
-                                                    completionBlock:completionBlock];
-                          }
-                          return;
-                      }
-                  }
-                  completionBlock(result);
-              }];
+            {
+                
+                if([response valueForKey:@"raw_response"])
+                {
+                    ADBrokerJWEResponse* jweResp = [[ADBrokerJWEResponse alloc] initWithRawJWE:[response valueForKey:@"raw_response"]];
+                    response = [ADBrokerJwtHelper decryptJWEResponseUsingKeyDerivation:jweResp
+                                                                               context:[jweResp headerContext]
+                                                                                   key:prtItem.sessionKey];
+                    
+                    //if id_token is not returned, Use id_token from PRT entry
+                    if([response valueForKey:OAUTH2_ID_TOKEN])
+                    {
+                        [response setValue:[prtItem.userInformation rawIdToken]
+                                    forKey:OAUTH2_ID_TOKEN];
+                    }
+                }
+                
+                ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
+                item.resource = resource;
+                item.clientId = clientId;
+                ADAuthenticationResult* result = [ctx processTokenResponse:response
+                                                                   forItem:item
+                                                               fromRefresh:NO
+                                                      requestCorrelationId:[ctx getCorrelationId]];
+                
+                if(result.status == AD_SUCCEEDED)
+                {
+                    //save AT and RT in the app key specific cache
+                    id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:appKey];
+                    [ctx updateCacheToResult:result
+                               cacheInstance:cacheStore
+                                   cacheItem:nil
+                            withRefreshToken:nil];
+                    result = [ctx updateResult:result
+                                        toUser:userPrincipalIdentifier];
+                } else{
+                    if(attemptPRTUpdate)
+                    {
+                        NSString* errorType = [response objectForKey:OAUTH2_ERROR];
+                        if(errorType && ([NSString adSame:errorType toString:@"interaction_required"]))
+                        {
+                            dispatch_async(dispatch_get_main_queue(), ^
+                                           {
+                                               // if error is interaction_required use webview
+                                               [self acquireTokenViaWebviewInteractionForResource:resource
+                                                                                         clientId:clientId
+                                                                                      redirectUri:redirectUri
+                                                                                           appKey:appKey
+                                                                                          prtItem:prtItem
+                                                                                  completionBlock:completionBlock];
+                                           });
+                        }
+                        else
+                        {
+                            
+                            if(errorType && ([NSString adSame:errorType toString:@"invalid_grant"]))
+                            {
+                                // remove PRT from cache
+                                [self deletePRT];
+                                
+                                // call acquireTokenUsingPRTForResource recursively with
+                                // attemptPRTUpdate=NO to avoid infinite recursion.
+                                //TODO wait for a little bit?
+                                [self acquireTokenUsingPRTForResource:resource
+                                                             clientId:clientId
+                                                          redirectUri:redirectUri
+                                                               appKey:appKey
+                                                     attemptPRTUpdate:NO
+                                                      completionBlock:completionBlock];
+                            }
+                            else
+                            {
+                                completionBlock(result);
+                            }
+                        }
+                        return;
+                    }
+                }
+                completionBlock(result);
+            }];
         }
         else
         {
             //could not get PRT. bubble up the error to calling app.
-            completionBlock([ADAuthenticationResult resultFromError:error]);
+            completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError errorFromNSError:error errorDetails:error.description]]);
         }
     }];
 }
@@ -364,43 +379,43 @@ NSString* userPrincipalIdentifier;
                                  additionalHeaders:nil
                                  returnRawResponse:YES
                                         completion:^(NSDictionary *response) {
-                                  
-                                  if([response valueForKey:@"raw_response"])
-                                  {
-                                      ADBrokerJWEResponse* jweResp = [[ADBrokerJWEResponse alloc] initWithRawJWE:[response valueForKey:@"raw_response"]];
-                                      response = [ADBrokerJwtHelper decryptJWEResponseUsingKeyDerivation:jweResp
-                                                                                                 context:[jweResp headerContext]
-                                                                                                     key:prtItem.sessionKey];
-                                      
-                                      //if id_token is not returned, Use id_token from PRT entry
-                                      if([response valueForKey:OAUTH2_ID_TOKEN])
-                                      {
-                                          [response setValue:[prtItem.userInformation rawIdToken]
-                                                      forKey:OAUTH2_ID_TOKEN];
-                                      }
-                                  }
-                                  
-                                  ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
-                                  item.resource = resource;
-                                  item.clientId = clientId;
-                                  ADAuthenticationResult* result = [ctx processTokenResponse:response
-                                                                                     forItem:item
-                                                                                 fromRefresh:NO
-                                                                        requestCorrelationId:[ctx getCorrelationId]];
-                                  
-                                  if(result.status == AD_SUCCEEDED)
-                                  {
-                                      //save AT and RT in the app key specific cache
-                                      id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:appKey];
-                                      [ctx updateCacheToResult:result
-                                                 cacheInstance:cacheStore
-                                                     cacheItem:nil
-                                              withRefreshToken:nil];
-                                      result = [ctx updateResult:result
-                                                          toUser:userPrincipalIdentifier];
-                                  }
-                                  completionBlock(result);
-                              }];
+                                            
+                                            if([response valueForKey:@"raw_response"])
+                                            {
+                                                ADBrokerJWEResponse* jweResp = [[ADBrokerJWEResponse alloc] initWithRawJWE:[response valueForKey:@"raw_response"]];
+                                                response = [ADBrokerJwtHelper decryptJWEResponseUsingKeyDerivation:jweResp
+                                                                                                           context:[jweResp headerContext]
+                                                                                                               key:prtItem.sessionKey];
+                                                
+                                                //if id_token is not returned, Use id_token from PRT entry
+                                                if([response valueForKey:OAUTH2_ID_TOKEN])
+                                                {
+                                                    [response setValue:[prtItem.userInformation rawIdToken]
+                                                                forKey:OAUTH2_ID_TOKEN];
+                                                }
+                                            }
+                                            
+                                            ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
+                                            item.resource = resource;
+                                            item.clientId = clientId;
+                                            ADAuthenticationResult* result = [ctx processTokenResponse:response
+                                                                                               forItem:item
+                                                                                           fromRefresh:NO
+                                                                                  requestCorrelationId:[ctx getCorrelationId]];
+                                            
+                                            if(result.status == AD_SUCCEEDED)
+                                            {
+                                                //save AT and RT in the app key specific cache
+                                                id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:appKey];
+                                                [ctx updateCacheToResult:result
+                                                           cacheInstance:cacheStore
+                                                               cacheItem:nil
+                                                        withRefreshToken:nil];
+                                                result = [ctx updateResult:result
+                                                                    toUser:userPrincipalIdentifier];
+                                            }
+                                            completionBlock(result);
+                                        }];
                         }
                     }];
 }
