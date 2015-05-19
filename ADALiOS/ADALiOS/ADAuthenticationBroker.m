@@ -226,7 +226,13 @@ correlationId:(NSUUID *)correlationId
     // Save the completion block
     _completionBlock = [completionBlock copy];
     ADAuthenticationError* error = nil;
-
+    
+    _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
+    if (_ntlmSession)
+    {
+        AD_LOG_INFO(@"Authorization UI", @"NTLM support enabled.");
+    }
+    
     if (webView)
     {
         AD_LOG_INFO(@"Authorization UI", @"Use the application provided WebView.");
@@ -257,12 +263,6 @@ correlationId:(NSUUID *)correlationId
         
         if (parent)
         {
-            _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
-            if (_ntlmSession)
-            {
-                AD_LOG_INFO(@"Authorization UI", @"NTLM support enabled.");
-            }
-            
             parentController = parent;
             // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
             UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
