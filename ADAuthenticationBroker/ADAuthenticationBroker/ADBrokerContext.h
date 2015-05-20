@@ -36,12 +36,14 @@ typedef void(^ADOnResultCallback)(NSError* error);
 + (BOOL) isBrokerRequest: (NSURL*) requestPayloadUrl
                returnUpn: (NSString**) returnUpn;
 
-+ (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
-                        sourceApplication: (NSString*) sourceApplication
-                                      upn: (NSString*) upn;
++ (void) invokeBroker: (NSString*) requestPayload
+    sourceApplication: (NSString*) sourceApplication
+                  upn: (NSString*) upn;
 
-+ (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
-                        sourceApplication: (NSString*) sourceApplication;
++ (void) invokeBroker: (NSString*) requestPayload
+    sourceApplication: (NSString*) sourceApplication;
+
++ (void) cancelRequest: (NSURL*) requestPayload;
 
 - (id) initWithAuthority:(NSString*) authority;
 

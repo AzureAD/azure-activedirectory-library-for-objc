@@ -20,11 +20,11 @@
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 
-@interface MyTestADBrokerAppTests : XCTestCase
+@interface AzureAuthenticatorTests : XCTestCase
 
 @end
 
-@implementation MyTestADBrokerAppTests
+@implementation AzureAuthenticatorTests
 
 - (void)setUp {
     [super setUp];
