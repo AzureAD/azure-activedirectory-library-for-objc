@@ -148,30 +148,54 @@ return; \
 }
 
 
++ (void) cancelRequest: (NSURL*) requestPayload
+{
+    
+    API_ENTRY;
+    
+    ADAuthenticationError* error = nil;
+    
+    THROW_ON_NIL_ARGUMENT(requestPayload);
+    NSArray * parts = [[requestPayload absoluteString] componentsSeparatedByString:@"?"];
+    NSString *qp = [parts objectAtIndex:1];
+    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    
+    THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]);
+    error = [ADAuthenticationError errorFromAuthenticationError:AD_USER_CANCELLED
+                                                   protocolCode:nil
+                                                   errorDetails:@"User cancelled authentication flow"];
+    AD_LOG_ERROR_F(@"Autentication error", AD_USER_CANCELLED , @"User cancelled authentication flow", nil);
+    NSString* response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@",
+                           [error.protocolCode adUrlFormEncode],
+                           [error.errorDetails adUrlFormEncode],
+                           [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
+    [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI] response:response];
+}
 
-+ (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
++ (void) invokeBroker: (NSString*) requestPayload
                         sourceApplication: (NSString*) sourceApplication
 {
     API_ENTRY;
-    [ADBrokerContext invokeBrokerForSourceApplication:requestPayload
-                                    sourceApplication:sourceApplication
-                                                  upn:nil];
+    [ADBrokerContext invokeBroker:requestPayload
+                sourceApplication:sourceApplication
+                              upn:nil];
 }
 
-+ (void) invokeBrokerForSourceApplication: (NSString*) requestPayload
-                        sourceApplication: (NSString*) sourceApplication
-                                      upn: (NSString*) upn
++ (void) invokeBroker: (NSString*) requestPayload
+    sourceApplication: (NSString*) sourceApplication
+                  upn: (NSString*) upn
 {
     API_ENTRY;
     
     ADAuthenticationError* error = nil;
     
+    THROW_ON_NIL_ARGUMENT(requestPayload);
+    THROW_ON_NIL_ARGUMENT(sourceApplication);
+    
     NSArray * parts = [requestPayload componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
 
-    THROW_ON_NIL_ARGUMENT(requestPayload);
-    THROW_ON_NIL_ARGUMENT(sourceApplication);
     THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:AUTHORITY]);
     THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_CLIENT_ID]);
     THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]);
