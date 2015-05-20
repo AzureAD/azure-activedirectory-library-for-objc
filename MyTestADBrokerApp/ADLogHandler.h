@@ -1,6 +1,6 @@
 //
 //  ADLogHandler.h
-//  MyTestADBrokerApp
+//  AzureAuthenticator
 //
 //  Created by Kanishk Panwar on 5/14/15.
 //  Copyright (c) 2015 Microsoft Corp. All rights reserved.

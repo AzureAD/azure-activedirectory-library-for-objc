@@ -34,6 +34,8 @@
 @interface ViewController ()
 
 @property (weak, nonatomic) IBOutlet UITableView* tableView;
+@property (weak, nonatomic) IBOutlet UIButton* cancelbutton;
+- (IBAction)cancelPressed:(id)sender;
 - (IBAction)addUserPressed:(id)sender;
 - (IBAction)clearKeychainPressed:(id)sender;
 - (IBAction)clearLogPressed:(id)sender;
@@ -78,13 +80,16 @@ NSMutableArray* users;
     NSString* upnInRequest = nil;
     BOOL isBrokerRequest = [ADBrokerContext isBrokerRequest:appDelegate._url
                                                   returnUpn:&upnInRequest];
+    
+    self.cancelbutton.enabled = isBrokerRequest;
     if(isBrokerRequest)
     {
         [self getAllAccounts];
         if(upnInRequest || users.count == 0)
         {
-            [ADBrokerContext invokeBrokerForSourceApplication:[[appDelegate._url absoluteString] copy]
-                                            sourceApplication:[appDelegate._sourceApplication copy]];
+            [ADBrokerContext invokeBroker:[[appDelegate._url absoluteString] copy]
+                                            sourceApplication:[appDelegate._sourceApplication copy]
+             upn:upnInRequest];
             
             appDelegate._url = nil;
             appDelegate._sourceApplication = nil;
@@ -112,6 +117,12 @@ NSMutableArray* users;
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)cancelPressed:(id)sender
+{
+    AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
+    [ADBrokerContext cancelRequest:appDelegate._url];
 }
 
 - (IBAction)settingsPressed:(id)sender
@@ -156,7 +167,7 @@ NSMutableArray* users;
     if(isBrokerRequest)
     {
         [self getAllAccounts];
-        [ADBrokerContext invokeBrokerForSourceApplication:[[appDelegate._url absoluteString] copy]
+        [ADBrokerContext invokeBroker:[[appDelegate._url absoluteString] copy]
                                         sourceApplication:[appDelegate._sourceApplication copy]
                                                       upn:upnInRequest];
         
@@ -294,7 +305,7 @@ NSMutableArray* users;
     if(isBrokerRequest)
     {
         [self getAllAccounts];
-        [ADBrokerContext invokeBrokerForSourceApplication:[[appDelegate._url absoluteString] copy]
+        [ADBrokerContext invokeBroker:[[appDelegate._url absoluteString] copy]
                                         sourceApplication:[appDelegate._sourceApplication copy]
                                                       upn:info.getUpn];
         
