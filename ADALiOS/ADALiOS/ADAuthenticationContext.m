@@ -123,8 +123,6 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
                         // have to add a retain here to make sure it doesn't turn into a zombie
                         [[UIApplication sharedApplication] setDelegate:(__bridge id)CFRetain((__bridge CFTypeRef)appDelegate)];
                     }
-                    
-                    SAFE_ARC_RELEASE(observer);
                 }];
     
 }
