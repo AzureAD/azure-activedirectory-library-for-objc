@@ -131,8 +131,11 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
             return [ADAuthenticationResult resultFromError:error];
         }
     }
+    
+    ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:NO];
+    SAFE_ARC_RELEASE(item);
 
-    return SAFE_ARC_AUTORELEASE([[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:NO]);
+    return SAFE_ARC_AUTORELEASE(result);
 }
 
 @end

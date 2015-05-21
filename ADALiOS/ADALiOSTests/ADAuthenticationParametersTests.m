@@ -152,10 +152,12 @@
     NSURL* resourceUrl = [[NSURL alloc] initWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     [self callAsynchronousCreator:resourceUrl line:__LINE__];
     [self verifyWithAuthority:@"https://login.windows.net/omercantest.onmicrosoft.com"];
-
+    SAFE_ARC_RELEASE(resourceUrl);
+    
     //HTTPS
     resourceUrl = [[NSURL alloc] initWithString:@"https://testapi007.azurewebsites.net/api/WorkItem"];
     [self callAsynchronousCreator:resourceUrl line:__LINE__];
+    SAFE_ARC_RELEASE(resourceUrl);
     [self verifyWithAuthority:@"https://login.windows.net/omercantest.onmicrosoft.com"];
 }
 
