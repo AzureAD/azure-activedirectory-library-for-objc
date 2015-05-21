@@ -51,8 +51,8 @@ const int sAsyncContextTimeout = 10;
 {
     //The source:
     ADAuthenticationContext* mContext;
-    id<ADAuthenticationContextProtocol> mProtocolContext; //Originally set same as above, provided for simplicity.
-    id<ADTokenCacheStoring> mDefaultTokenCache;
+    __weak id<ADAuthenticationContextProtocol> mProtocolContext; //Originally set same as above, provided for simplicity.
+    __weak id<ADTokenCacheStoring> mDefaultTokenCache;
     NSString* mAuthority;
     NSString* mResource;
     NSString* mClientId;
@@ -69,11 +69,15 @@ const int sAsyncContextTimeout = 10;
 }
 
 @property (readonly, getter = getTestContext) ADTestAuthenticationContext* testContext;
-
+@property (retain) ADAuthenticationResult* result;
+@property (retain) ADAuthenticationError* error;
 @end
 
 
 @implementation ADAuthenticationContextTests
+
+@synthesize result = mResult;
+@synthesize error = mError;
 
 - (void)setUp
 {
@@ -91,7 +95,8 @@ const int sAsyncContextTimeout = 10;
     mClientId    = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
     mResource    = @"http://localhost/TodoListService";
     mUserId      = @"boris@msopentechbv.onmicrosoft.com";
-    mError       = nil;
+    [self setError:nil];
+    [self setResult:nil];
     mSilent = NO;
     
     ADAuthenticationError* error = nil;
@@ -103,6 +108,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNotNil(testContext, "Cannot create the context in setUp.");
     
     mContext = testContext;
+    
     mProtocolContext = (id<ADAuthenticationContextProtocol>)mContext;
     
     [testContext->mExpectedRequest1 setObject:OAUTH2_REFRESH_TOKEN forKey:OAUTH2_GRANT_TYPE];
@@ -123,7 +129,7 @@ const int sAsyncContextTimeout = 10;
 {
     mContext = nil;//clear, allow deletion between the tests
     mDefaultTokenCache =  nil;
-
+    
     [self adTestEnd];
     [super tearDown];
 }
@@ -332,8 +338,8 @@ const int sAsyncContextTimeout = 10;
 -(void) prepareForAsynchronousCall
 {
     //Reset the iVars, as they will be set by the callback
-    SAFE_ARC_RELEASE( mResult ); mResult = nil;
-    SAFE_ARC_RELEASE( mError ); mError = nil;
+    [self setResult:nil];
+    [self setError:nil];
     
     if ([mContext isKindOfClass:[ADTestAuthenticationContext class]])
     {
@@ -391,8 +397,8 @@ const int sAsyncContextTimeout = 10;
                                   completionBlock:^(ADAuthenticationResult *result)
           {
               //Fill in the iVars with the result:
-              self->mResult = SAFE_ARC_RETAIN( result );
-              self->mError = SAFE_ARC_RETAIN(self->mResult.error);
+              [self setResult:result];
+              [self setError:result.error];
               dispatch_semaphore_signal(sem);
           }];
      }];
@@ -411,8 +417,8 @@ const int sAsyncContextTimeout = 10;
      {
          ADAuthenticationCallback callback = ^(ADAuthenticationResult* result){
              //Fill in the iVars with the result:
-             mResult = result;
-             mError = mResult.error;
+             [self setResult:result];
+             [self setError:result.error];
              dispatch_semaphore_signal(sem);
          };
          if (mSilent)
@@ -477,7 +483,7 @@ const int sAsyncContextTimeout = 10;
     mClientId = @"    ";
     acquireTokenAsync;
     [self adValidateForInvalidArgument:@"clientId" error:mError];
-}
+    }
 
 -(void) addCacheWithToken: (NSString*) accessToken
              refreshToken: (NSString*) refreshToken
@@ -1160,8 +1166,8 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationCallback innerCallback = ^(ADAuthenticationResult* result)
     {
         //Fill in the iVars with the result:
-        self->mResult = result;
-        self->mError = self->mResult.error;
+        [self setResult:result];
+        [self setError:result.error];
         dispatch_semaphore_signal(sem);
     };
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
