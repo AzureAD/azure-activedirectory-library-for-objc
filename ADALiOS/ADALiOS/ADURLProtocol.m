@@ -133,7 +133,6 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
         _connection = nil;
         [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
         
-        
 #if TARGET_OS_IPHONE
         if(![request.allHTTPHeaderFields valueForKey:pKeyAuthHeader])
         {

@@ -11,7 +11,7 @@
 		<key>Resource</key>
 		<string>https://graph.windows.net</string>
 		<key>RedirectUri</key>
-		<string>urn:ietf:wg:oauth:2.0:oob</string>
+		<string>mytestiosapp://com.MSOpenTech.MyTestiOSApp</string>
 		<key>UserId</key>
 		<string></string>
 		<key>Password</key>

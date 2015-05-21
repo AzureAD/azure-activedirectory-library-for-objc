@@ -166,7 +166,9 @@ const NSString* Label = @"AzureAD-SecureConversation";
                                            fixedInput:(uint8_t*)mutData.bytes
                                      fixedInputLength:mutData.length];
     mutData = nil;
-    return [NSData dataWithBytes:(const void *)pbDerivedKey length:32];
+    NSData* toReturn = [NSData dataWithBytes:(const void *)pbDerivedKey length:32];
+    free(pbDerivedKey);
+    return toReturn;
 }
 
 
