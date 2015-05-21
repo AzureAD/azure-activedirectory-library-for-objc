@@ -269,6 +269,7 @@
 		97EEE7C11A4FFD5600D003F8 /* ADNTLMHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADNTLMHandler.h; sourceTree = "<group>"; };
 		97FAE4FC1A096E140010ADEE /* ADClientMetrics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADClientMetrics.h; sourceTree = "<group>"; };
 		97FAE4FD1A096E330010ADEE /* ADClientMetrics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetrics.m; sourceTree = "<group>"; };
+		D6E2428D1B0E58CC00CC2904 /* adal__common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = adal__common.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -308,6 +309,7 @@
 				8B0965AF17F25770002BDFB8 /* ADALiOS */,
 				8B0965C317F25770002BDFB8 /* ADALiOSTests */,
 				8BFEF063182DA57800122C0C /* ADALiOSBundle */,
+				D6E2428C1B0E58AF00CC2904 /* xcconfig */,
 				8B0965AC17F25770002BDFB8 /* Frameworks */,
 				8B0965AB17F25770002BDFB8 /* Products */,
 			);
@@ -517,6 +519,14 @@
 				9722234219AB060200092E85 /* WorkPlaceJoinUtil.m */,
 			);
 			name = WorkPlaceJoin;
+			sourceTree = "<group>";
+		};
+		D6E2428C1B0E58AF00CC2904 /* xcconfig */ = {
+			isa = PBXGroup;
+			children = (
+				D6E2428D1B0E58CC00CC2904 /* adal__common.xcconfig */,
+			);
+			path = xcconfig;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -774,6 +784,7 @@
 /* Begin XCBuildConfiguration section */
 		8B0965CB17F25770002BDFB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6E2428D1B0E58CC00CC2904 /* adal__common.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
@@ -817,6 +828,7 @@
 		};
 		8B0965CC17F25770002BDFB8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6E2428D1B0E58CC00CC2904 /* adal__common.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
@@ -957,6 +969,7 @@
 		};
 		8B41A1E81888C6350027EE1E /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6E2428D1B0E58CC00CC2904 /* adal__common.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";

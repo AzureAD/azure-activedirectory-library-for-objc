@@ -25,6 +25,7 @@ typedef enum
     AD_THUMBPRINT,
 } ADChallengeType;
 
+#if TARGET_OS_IPHONE
 @interface ADPkeyAuthHelper : NSObject
 
 + (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
@@ -35,3 +36,5 @@ typedef enum
 + (NSString*) computeThumbprint:(NSData*) data isSha2:(BOOL) isSha2;
 
 @end
+
+#endif

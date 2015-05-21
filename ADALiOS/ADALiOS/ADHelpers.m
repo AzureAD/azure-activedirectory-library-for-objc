@@ -113,6 +113,7 @@ const NSString* Label = @"AzureAD-SecureConversation";
                                        context:(NSString*) context
                                   symmetricKey:(NSData*) symmetricKey
 {
+    
     NSString* signingInput = [NSString stringWithFormat:@"%@.%@",
                               [[ADHelpers createJSONFromDictionary:header] adBase64UrlEncode],
                               [[ADHelpers createJSONFromDictionary:payload] adBase64UrlEncode]];

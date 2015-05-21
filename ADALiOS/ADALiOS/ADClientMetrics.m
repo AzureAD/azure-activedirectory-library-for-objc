@@ -50,8 +50,8 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
 }
 
 #if !__has_feature(objc_arc)
-- (unsigned)retainCount {
-    return UINT_MAX; //denotes an object that cannot be released
+- (NSUInteger)retainCount {
+    return (NSUInteger)UINT_MAX; //denotes an object that cannot be released
 }
 - (oneway void)release {
     // never release
