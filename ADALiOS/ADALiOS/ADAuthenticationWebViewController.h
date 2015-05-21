@@ -42,8 +42,11 @@ typedef WebView   WebViewType;
     NSURL    *_startURL;
     NSString *_endURL;
     BOOL      _complete;
+#if TARGET_OS_IPHONE
+// These two never made it over to OS X. If defing out to quiet the analyzer.
     float     _timeout;
     NSTimer   *_timer;
+#endif
     
 #if TARGET_OS_IPHONE
     __weak id<UIWebViewDelegate> _parentDelegate;
