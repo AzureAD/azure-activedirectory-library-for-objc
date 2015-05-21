@@ -92,15 +92,19 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
 #if TARGET_OS_IPHONE
 + (void) load
 {
-    __block id observer = nil;
-    
+    __block __weak id observer;
     observer = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification
                                                                  object:nil
                                                                   queue:nil
                                                              usingBlock:^(NSNotification* notification)
                 {
                     // We don't want to swizzle multiple times so remove the observer
-                    [[NSNotificationCenter defaultCenter] removeObserver:observer name:UIApplicationDidFinishLaunchingNotification object:nil];
+                    if (observer)
+                    {
+                        [[NSNotificationCenter defaultCenter] removeObserver:observer
+                                                                        name:UIApplicationDidFinishLaunchingNotification
+                                                                      object:nil];
+                    }
                     
                     SEL sel = @selector(application:openURL:sourceApplication:annotation:);
                     
