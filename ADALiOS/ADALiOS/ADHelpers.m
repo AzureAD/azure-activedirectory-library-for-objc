@@ -113,7 +113,6 @@ const NSString* Label = @"AzureAD-SecureConversation";
                                        context:(NSString*) context
                                   symmetricKey:(NSData*) symmetricKey
 {
-    
     NSString* signingInput = [NSString stringWithFormat:@"%@.%@",
                               [[ADHelpers createJSONFromDictionary:header] adBase64UrlEncode],
                               [[ADHelpers createJSONFromDictionary:payload] adBase64UrlEncode]];
@@ -131,20 +130,21 @@ const NSString* Label = @"AzureAD-SecureConversation";
            cHMAC);
     NSData* signedData = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
     NSString* signedEncodedDataString = [NSString Base64EncodeData: signedData];
+    SAFE_ARC_RELEASE(signedData);
     return [NSString stringWithFormat:@"%@.%@",
             signingInput,
             signedEncodedDataString];
 }
 
 
-+ (NSString *) createJSONFromDictionary:(NSDictionary *) dictionary{
++ (NSString *)createJSONFromDictionary:(NSDictionary *) dictionary{
     
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary
                                                        options:NSJSONWritingPrettyPrinted
                                                          error:&error];
     if (jsonData) {
-        return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        return SAFE_ARC_AUTORELEASE([[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]);
     }
     return nil;
 }
@@ -165,6 +165,7 @@ const NSString* Label = @"AzureAD-SecureConversation";
                                keyDerivationKeyLength:key.length
                                            fixedInput:(uint8_t*)mutData.bytes
                                      fixedInputLength:mutData.length];
+    SAFE_ARC_RELEASE(mutData);
     mutData = nil;
     NSData* toReturn = [NSData dataWithBytes:(const void *)pbDerivedKey length:32];
     free(pbDerivedKey);
