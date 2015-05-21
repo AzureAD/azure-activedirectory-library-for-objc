@@ -1066,6 +1066,7 @@ return; \
                             clientId: clientId
                          redirectUri: redirectUri
                               userId: userId
+                extraQueryParameters: queryParams
                        correlationId: [correlationId UUIDString]
                      completionBlock:completionBlock
          ];
@@ -2272,6 +2273,7 @@ additionalHeaders:headerKeyValuePair
                        clientId: (NSString*)clientId
                     redirectUri: (NSURL*) redirectUri
                          userId: (NSString*) userId
+           extraQueryParameters: (NSString*)queryParams
                   correlationId: (NSString*) correlationId
                 completionBlock: (ADAuthenticationCallback)completionBlock
 {
@@ -2301,6 +2303,7 @@ additionalHeaders:headerKeyValuePair
                                       @"correlation_id": correlationId,
                                       @"broker_key": base64UrlKey,
                                       @"client_version": [ADLogger getAdalVersion],
+                                      @"extra_qp": queryParams,
                                       };
     
     NSString* query = [queryDictionary adURLFormEncode];
