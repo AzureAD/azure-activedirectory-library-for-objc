@@ -50,8 +50,8 @@ NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call acquireToken with 'promptBehavior' not set to AD_PROMPT_NEVER";
 NSString* const serverError = @"The authentication server returned an error: %@.";
 
-NSString* const brokerAppIdentifier = @"com.microsoft.broker";
-NSString* const brokerURL = @"msauth://";
+NSString* const brokerAppIdentifier = @"com.microsoft.azureauthenticator";
+NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to invoke the application. Update your redirect URI to be of  <app-scheme>://<bundle-id> format";
 
 //Used for the callback of obtaining the OAuth2 code:
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
@@ -124,6 +124,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
                         [[UIApplication sharedApplication] setDelegate:(__bridge id)CFRetain((__bridge CFTypeRef)appDelegate)];
                     }
                     
+                    SAFE_ARC_RELEASE(observer);
                 }];
     
 }
@@ -1135,20 +1136,34 @@ return; \
                          correlationId: (NSUUID*) correlationId
                        completionBlock: (ADAuthenticationCallback)completionBlock
 {
-    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
     ADAuthenticationError* error = nil;
+    if(![self respondsToUrl:[redirectUri absoluteString]])
+    {
+        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
+                                                       protocolCode:nil
+                                                       errorDetails:ADRedirectUriInvalidError];
+        completionBlock([ADAuthenticationResult resultFromError:error]);
+        return;
+    }
+    
+    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
     
-    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&correlation_id=%@&broker_key=%@",
-                       _authority,
-                       resource,
-                       clientId,
-                       redirectUri.absoluteString,
-                       [correlationId UUIDString],
-                       base64UrlKey];
-    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@&%@", urlString, query]];
+    NSDictionary* queryDictionary = @{
+                                      @"authority": _authority,
+                                      @"resource" : resource,
+                                      @"client_id": clientId,
+                                      @"redirect_uri": redirectUri.absoluteString,
+                                      @"username": userId,
+                                      @"correlation_id": correlationId,
+                                      @"broker_key": base64UrlKey,
+                                      @"client_version": [ADLogger getAdalVersion],
+                                      };
+    
+    NSString* query = [queryDictionary adURLFormEncode];
+    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", brokerScheme, query]];
     
     [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];;
     
@@ -2122,9 +2137,7 @@ additionalHeaders:headerKeyValuePair
 +(BOOL) isResponseFromBroker:(NSString*) sourceApplication
                     response:(NSURL*) response
 {
-    return sourceApplication && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
-    response &&
-    [NSString adSame:[response path] toString:@"broker"];
+    return response && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
 }
 
 
@@ -2226,6 +2239,32 @@ additionalHeaders:headerKeyValuePair
 }
 
 
+- (BOOL) respondsToUrl:(NSString*)url
+{
+    BOOL schemeIsInPlist = NO; // find out if the sceme is in the plist file.
+    NSBundle* mainBundle = [NSBundle mainBundle];
+    NSArray* cfBundleURLTypes = [mainBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"];
+    if ([cfBundleURLTypes isKindOfClass:[NSArray class]] && [cfBundleURLTypes lastObject]) {
+        NSDictionary* cfBundleURLTypes0 = [cfBundleURLTypes objectAtIndex:0];
+        if ([cfBundleURLTypes0 isKindOfClass:[NSDictionary class]]) {
+            NSArray* cfBundleURLSchemes = [cfBundleURLTypes0 objectForKey:@"CFBundleURLSchemes"];
+            if ([cfBundleURLSchemes isKindOfClass:[NSArray class]]) {
+                for (NSString* scheme in cfBundleURLSchemes) {
+                    if ([scheme isKindOfClass:[NSString class]] && [url hasPrefix:scheme]) {
+                        schemeIsInPlist = YES;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    BOOL canOpenUrl = [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString: url]];
+    
+    return schemeIsInPlist && canOpenUrl;
+}
+
+
 - (void) callBrokerForAuthority:(NSString*) authority
                        resource: (NSString*) resource
                        clientId: (NSString*)clientId
@@ -2235,13 +2274,34 @@ additionalHeaders:headerKeyValuePair
                 completionBlock: (ADAuthenticationCallback)completionBlock
 {
     AD_LOG_INFO(@"Invoking broker for authentication", nil);
-    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+    
     ADAuthenticationError* error = nil;
+    if(![self respondsToUrl:[redirectUri absoluteString]])
+    {
+        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
+                                                       protocolCode:nil
+                                                       errorDetails:ADRedirectUriInvalidError];
+        completionBlock([ADAuthenticationResult resultFromError:error]);
+        return;
+    }
+    
+    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
     
-    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, base64UrlKey];
+    NSDictionary* queryDictionary = @{
+                                      @"authority": _authority,
+                                      @"resource" : resource,
+                                      @"client_id": clientId,
+                                      @"redirect_uri": redirectUri.absoluteString,
+                                      @"username": userId,
+                                      @"correlation_id": correlationId,
+                                      @"broker_key": base64UrlKey,
+                                      @"client_version": [ADLogger getAdalVersion],
+                                      };
+    
+    NSString* query = [queryDictionary adURLFormEncode];
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", brokerScheme, query]];
     
     [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];
