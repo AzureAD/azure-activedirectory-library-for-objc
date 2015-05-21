@@ -86,7 +86,7 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
 {
     @autoreleasepool
     {
-        __block NSMutableString* log = [NSMutableString new];
+        __block NSMutableString* log = [NSMutableString string];
         NSDate* end = [NSDate dateWithTimeIntervalSinceNow:sMaxLoggerThreadsDuration];
         while([(NSDate*)[NSDate dateWithTimeIntervalSinceNow:0] compare:end] != NSOrderedDescending)//Runs for sMaxLoggerThreadsDuration seconds
         {
