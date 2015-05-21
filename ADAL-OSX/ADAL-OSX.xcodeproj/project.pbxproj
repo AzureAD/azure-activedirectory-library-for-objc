@@ -110,6 +110,7 @@
 		97EEE7CE1A52110600D003F8 /* ADNTLMHandlerOSX.m in Sources */ = {isa = PBXBuildFile; fileRef = 97EEE7CD1A52110600D003F8 /* ADNTLMHandlerOSX.m */; };
 		97EEE7D31A52758A00D003F8 /* ADCredentialCollectionController.h in Headers */ = {isa = PBXBuildFile; fileRef = 97EEE7D11A52758A00D003F8 /* ADCredentialCollectionController.h */; };
 		97EEE7D41A52758A00D003F8 /* ADCredentialCollectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 97EEE7D21A52758A00D003F8 /* ADCredentialCollectionController.m */; };
+		D6E242941B0E9B6600CC2904 /* ADAuthenticationBroker+Test.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E242921B0E9B6600CC2904 /* ADAuthenticationBroker+Test.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -236,6 +237,7 @@
 		97EEE7D11A52758A00D003F8 /* ADCredentialCollectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADCredentialCollectionController.h; sourceTree = "<group>"; };
 		97EEE7D21A52758A00D003F8 /* ADCredentialCollectionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADCredentialCollectionController.m; sourceTree = "<group>"; };
 		D6E2428F1B0E593A00CC2904 /* adal__common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = adal__common.xcconfig; sourceTree = "<group>"; };
+		D6E242921B0E9B6600CC2904 /* ADAuthenticationBroker+Test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADAuthenticationBroker+Test.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -397,6 +399,7 @@
 			isa = PBXGroup;
 			children = (
 				97D685A51A0E158100EE816C /* ADClientMetricsTests.m */,
+				D6E242921B0E9B6600CC2904 /* ADAuthenticationBroker+Test.m */,
 				8BE8681518D7BA5100D95ABB /* ADAuthenticationContextTests.m */,
 				8BE8681618D7BA5100D95ABB /* ADAuthenticationErrorTests.m */,
 				8BE8681718D7BA5100D95ABB /* ADAuthenticationParametersTests.m */,
@@ -636,6 +639,7 @@
 				4C60D60718C697E500F9EAAE /* ADOAuth2Constants.m in Sources */,
 				4C8AB1C518E2336B005F241A /* ADAuthenticationBrokerOSX.m in Sources */,
 				4C60D5F218C697E500F9EAAE /* ADAuthenticationResult.m in Sources */,
+				D6E242941B0E9B6600CC2904 /* ADAuthenticationBroker+Test.m in Sources */,
 				4C60D5EE18C697E500F9EAAE /* ADAuthenticationParameters.m in Sources */,
 				4C60D60518C697E500F9EAAE /* ADLogger.m in Sources */,
 			);
