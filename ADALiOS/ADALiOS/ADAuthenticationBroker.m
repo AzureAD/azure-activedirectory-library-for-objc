@@ -179,7 +179,7 @@ refreshTokenCredential:(NSString*)refreshTokenCredential
 #if TARGET_OS_IPHONE
 parentController:(UIViewController *)parent
 #endif // TARGET_OS_IPHONE
-      webView:(WebViewType *)webView
+      webView:(ADWebView *)webView
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID *)correlationId
    completion:(ADBrokerCallback)completionBlock

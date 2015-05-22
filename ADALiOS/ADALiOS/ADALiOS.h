@@ -29,12 +29,6 @@
 #import "NSDictionary+ADExtensions.h"
 #import "NSURL+ADExtensions.h"
 
-#if TARGET_OS_IPHONE
-#define ADWebView UIWebView
-#else
-#define ADWebView WebView
-#endif
-
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \
 NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u", __PRETTY_FUNCTION__, __LINE__]

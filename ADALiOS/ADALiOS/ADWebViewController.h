@@ -18,6 +18,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class ADWebView;
+
 @protocol ADWebViewDelegate <NSObject>
 
 - (BOOL)shouldStartLoadWithRequest:(NSURLRequest *)request;
