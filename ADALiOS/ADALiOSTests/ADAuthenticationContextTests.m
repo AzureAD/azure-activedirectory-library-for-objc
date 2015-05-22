@@ -436,7 +436,8 @@ const int sAsyncContextTimeout = 10;
     item.authority = mAuthority;
     item.clientId = mClientId;
     ADAuthenticationError* error;
-    item.userInformation = [ADUserInformation userInformationWithUserId:mUserId error:&error];    return item;
+    item.userInformation = [ADUserInformation userInformationWithUserId:mUserId error:&error];
+    return item;
 }
 
 -(void) testAcquireTokenBadCompletionBlock

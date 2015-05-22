@@ -70,6 +70,22 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     return all.count;
 }
 
+
+-(void) testKeychainAttributesWithKeyNonAsciiUserId
+{
+    SEL aSelector = NSSelectorFromString(@"keychainAttributesWithKey:userId:error:");
+    NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[mStore methodSignatureForSelector:aSelector]];
+    [inv setSelector:aSelector];
+    [inv setTarget:mStore];
+    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    [inv setArgument:&item atIndex:2];
+    NSString* userid = @"юзер@екзампл.ком";
+    [inv setArgument:&userid atIndex:3];
+//    [inv setArgument:nil atIndex:4];
+    [inv invoke];
+    
+}
+
 //A wrapper around addOrUpdateItem, checks automatically for errors.
 //Works on single threaded environment only, as it checks the counts:
 -(void) addOrUpdateItem: (ADTokenCacheStoreItem*) item expectAdd: (BOOL) expectAdd

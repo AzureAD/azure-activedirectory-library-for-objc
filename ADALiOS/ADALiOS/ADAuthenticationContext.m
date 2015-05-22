@@ -185,7 +185,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 {
     return //sourceApplication && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
     response &&
-    [NSString adSame:[response path] toString:@"/broker"];
+    [NSString adSame:sourceApplication toString:@"com.microsoft.azureauthenticator"];
 }
 
 + (void)handleBrokerResponse:(NSURL*)response
