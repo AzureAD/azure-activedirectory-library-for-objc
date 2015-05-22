@@ -168,10 +168,11 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  requests and the responses from the server. If nil, a new UUID is generated on every request. */
 @property (strong, getter=getCorrelationId, setter=setCorrelationId:) NSUUID* correlationId;
 
+#if TARGET_OS_IPHONE
 /*! The parent view controller for the authentication view controller UI. This property will be used only if
  a custom web view is NOT specified. */
 @property (weak) UIViewController* parentController;
-
+#endif // TARGET_OS_IPHONE
 
 /*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
  when needed, leveraging the parentController property. */
