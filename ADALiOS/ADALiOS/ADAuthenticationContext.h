@@ -26,13 +26,13 @@
 #import "ADTokenCacheStoreKey.h"
 #import "ADErrorCodes.h"
 
+@class UIViewController;
+
 #if TARGET_OS_IPHONE
 #define ADWebView UIWebView
 #else
 #define ADWebView WebView
 #endif
-
-@class UIViewController;
 
 typedef enum
 {

@@ -17,8 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-
-@class ADWebView;
+#import "ADAuthenticationContext.h"
 
 @protocol ADWebViewDelegate <NSObject>
 

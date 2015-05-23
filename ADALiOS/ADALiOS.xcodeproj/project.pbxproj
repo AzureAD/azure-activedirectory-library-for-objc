@@ -249,6 +249,7 @@
 		949296461B0A908D009780CA /* ADWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWindowController.h; sourceTree = "<group>"; };
 		94A73A931B0FE0CB001E03A0 /* ADWebViewControlleriOS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebViewControlleriOS.m; sourceTree = "<group>"; };
 		94A73A951B0FE156001E03A0 /* ADWindowControlleriOS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWindowControlleriOS.m; sourceTree = "<group>"; };
+		94A73A981B0FFF5A001E03A0 /* adal__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__common.xcconfig; sourceTree = "<group>"; };
 		971C56BC1AF2278C0034820F /* ADBrokerNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerNotificationManager.h; sourceTree = "<group>"; };
 		971C56BD1AF2278C0034820F /* ADBrokerNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerNotificationManager.m; sourceTree = "<group>"; };
 		971C573F1AFA9BD10034820F /* ADALiOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ADALiOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -345,6 +346,7 @@
 				8BFEF063182DA57800122C0C /* ADALiOSBundle */,
 				971C57401AFA9BD10034820F /* ADALiOSFramework */,
 				971C574D1AFA9BD10034820F /* ADALiOSFrameworkTests */,
+				94A73A971B0FFF34001E03A0 /* xcconfig */,
 				8B0965AC17F25770002BDFB8 /* Frameworks */,
 				8B0965AB17F25770002BDFB8 /* Products */,
 			);
@@ -572,6 +574,14 @@
 				94A73A931B0FE0CB001E03A0 /* ADWebViewControlleriOS.m */,
 			);
 			path = ios;
+			sourceTree = "<group>";
+		};
+		94A73A971B0FFF34001E03A0 /* xcconfig */ = {
+			isa = PBXGroup;
+			children = (
+				94A73A981B0FFF5A001E03A0 /* adal__common.xcconfig */,
+			);
+			path = xcconfig;
 			sourceTree = "<group>";
 		};
 		971C57401AFA9BD10034820F /* ADALiOSFramework */ = {
@@ -927,6 +937,7 @@
 /* Begin XCBuildConfiguration section */
 		8B0965CB17F25770002BDFB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 94A73A981B0FFF5A001E03A0 /* adal__common.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = YES;
@@ -967,6 +978,7 @@
 		};
 		8B0965CC17F25770002BDFB8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 94A73A981B0FFF5A001E03A0 /* adal__common.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = YES;
@@ -1104,6 +1116,7 @@
 		};
 		8B41A1E81888C6350027EE1E /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 94A73A981B0FFF5A001E03A0 /* adal__common.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = YES;
