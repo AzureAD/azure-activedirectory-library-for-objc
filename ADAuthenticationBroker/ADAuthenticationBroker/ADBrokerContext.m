@@ -245,7 +245,7 @@ return; \
                             rawIdToken = result.tokenCacheStoreItem.userInformation.rawIdToken;
                         }
                         
-                        response = [NSString stringWithFormat:@"authority=%@&client_id=%@&resource=%@&user_id=%@&correlation_id=%@&access_token=%@&refresh_token=%@&id_token=%@",
+                        response = [NSString stringWithFormat:@"authority=%@&client_id=%@&resource=%@&user_id=%@&correlation_id=%@&access_token=%@&refresh_token=%@&id_token=%@&expires_on=%f",
                                     [queryParamsMap valueForKey:AUTHORITY],
                                     [queryParamsMap valueForKey:OAUTH2_CLIENT_ID],
                                     [queryParamsMap valueForKey:OAUTH2_RESOURCE],
@@ -253,7 +253,8 @@ return; \
                                     [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE],
                                     result.accessToken,
                                     result.tokenCacheStoreItem.refreshToken,
-                                    rawIdToken];
+                                    rawIdToken,
+                                    [result.tokenCacheStoreItem.expiresOn timeIntervalSince1970]];
                         
                         NSString* brokerKey = [queryParamsMap valueForKey:BROKER_KEY];
                         NSData *decodedKey = [NSString Base64DecodeData:brokerKey];
