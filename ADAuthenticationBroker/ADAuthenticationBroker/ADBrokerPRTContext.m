@@ -141,8 +141,19 @@ NSString* userPrincipalIdentifier;
                                       break;
                                   }
                               }
+                              
+                              if(!brokerRefreshToken)
+                              {
+                                  error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REFRESH_TOKEN
+                                        protocolCode:nil errorDetails:@"NO Refresh token found for broker client id"];
+                                  callback(nil, error);
+                                  return;
+                              }
+                              
                               //use the RT to get PRT
                               //create JWT
+                              
+                              AD_LOG_INFO(@"Acquiring PRT using broker refresh token", nil);
                               NSString* jwtToken = [self createPRTRequestJWTUsingBrokerRT:brokerRefreshToken];
                               NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                                    @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
@@ -162,6 +173,8 @@ NSString* userPrincipalIdentifier;
                                                                           requestCorrelationId:[ctx getCorrelationId]];
                                   if(prtResult.status == AD_SUCCEEDED)
                                   {
+                                      
+                                      AD_LOG_INFO(@"Acquired PRT successfully", nil);
                                       ADAuthenticationError* err;
                                       //persist PRT cache item
                                       [ctx.tokenCacheStore addOrUpdateItem:item
@@ -254,6 +267,7 @@ NSString* userPrincipalIdentifier;
                     //if id_token is not returned, Use id_token from PRT entry
                     if([response valueForKey:OAUTH2_ID_TOKEN])
                     {
+                        AD_LOG_INFO(@"id_token not returned with access token. Using PRT id_token instead.", nil);
                         [response setValue:[prtItem.userInformation rawIdToken]
                                     forKey:OAUTH2_ID_TOKEN];
                     }
@@ -338,7 +352,7 @@ NSString* userPrincipalIdentifier;
                                              prtItem:(ADBrokerPRTCacheItem*) prtItem
                                      completionBlock:(ADAuthenticationCallback) completionBlock
 {
-    
+    API_ENTRY;
     
     NSString* refreshTokenCredential = [self createRefreshTokenCredentialJWT:prtItem];
     
