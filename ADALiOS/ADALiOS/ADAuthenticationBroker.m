@@ -25,23 +25,27 @@
 #import "ADAuthenticationBroker.h"
 #import "ADAuthenticationSettings.h"
 #import "ADCustomHeaderHandler.h"
-#import "ADWindowController.h"
+#import "ADAuthenticationWindowController.h"
 #import "ADNTLMHandler.h"
 
 // Private interface declaration
 @interface ADAuthenticationBroker () <ADAuthenticationDelegate>
 
 @property (retain) ADAuthenticationWebViewController* authenticationWebViewController;
-@property (retain) ADWindowController* windowController;
+@property (retain) ADAuthenticationWindowController* windowController;
+@property (retain) NSString* refreshTokenCredential;
 
 @end
 
 // Implementation
 @implementation ADAuthenticationBroker
 {
-    ADWindowController *                _windowController;
+    ADAuthenticationWindowController *  _windowController;
     ADAuthenticationWebViewController * _authenticationWebViewController;
+    
     BOOL                                _ntlmSession;
+    NSString*                           _refreshTokenCredential;
+    
     
     NSLock *                            _completionLock;
     
@@ -50,6 +54,7 @@
 
 @synthesize authenticationWebViewController = _authenticationWebViewController;
 @synthesize windowController = _windowController;
+@synthesize refreshTokenCredential = _refreshTokenCredential;
 
 #pragma mark Shared Instance Methods
 
@@ -172,6 +177,28 @@ static NSString *_resourcePath = nil;
     return bundle;
 }
 
+- (void)authWindowWillShow:(NSNotification*)notification
+{
+#pragma unused (notification)
+    _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
+    if (_ntlmSession)
+    {
+        AD_LOG_INFO(@"Authorization UI", @"NTLM support enabled.");
+    }
+    
+    if(![NSString adIsStringNilOrBlank:_refreshTokenCredential])
+    {
+        [ADCustomHeaderHandler addCustomHeaderValue:_refreshTokenCredential
+                                       forHeaderKey:@"x-ms-RefreshTokenCredential"
+                                       forSingleUse:YES];
+        [self setRefreshTokenCredential:nil];
+    }
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:ADAuthenticationWindowWillShowNotification
+                                                  object:[notification object]];
+}
+
 
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
@@ -218,25 +245,19 @@ correlationId:(NSUUID *)correlationId
     }
     else
     {
-        _windowController = [[ADWindowController alloc] init];
+        _windowController = [[ADAuthenticationWindowController alloc] init];
         if (_windowController)
         {
 #if TARGET_OS_IPHONE
             [_windowController setParentController:parent];
             [_windowController setFullScreen:fullScreen];
 #endif // TARGET_OS_IPHONE
-            _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
-            if (_ntlmSession)
-            {
-                AD_LOG_INFO(@"Authorization UI", @"NTLM support enabled.");
-            }
             
-            if(![NSString adIsStringNilOrBlank:refreshTokenCredential])
-            {
-                [ADCustomHeaderHandler addCustomHeaderValue:refreshTokenCredential
-                                               forHeaderKey:@"x-ms-RefreshTokenCredential"
-                                               forSingleUse:YES];
-            }
+            [self setRefreshTokenCredential:refreshTokenCredential];
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(authWindowWillShow:)
+                                                         name:ADAuthenticationWindowWillShowNotification
+                                                       object:_windowController];
             
             error = [_windowController showWindowWithStartURL:startURL
                                                        endURL:endURL];

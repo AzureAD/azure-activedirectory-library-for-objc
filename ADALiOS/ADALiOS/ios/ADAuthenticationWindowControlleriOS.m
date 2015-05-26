@@ -16,7 +16,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADWindowController.h"
+#import "ADAuthenticationWindowController.h"
 
 #import "ADNTLMHandler.h"
 #import "UIApplication+ADExtensions.h"
@@ -24,13 +24,14 @@
 #import "ADAuthenticationViewController.h"
 #import "ADAuthenticationBroker.h"
 
-static NSString *const AD_IPAD_STORYBOARD = @"ADAL_iPad_Storyboard";
-static NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
+static NSString * const AD_IPAD_STORYBOARD = @"ADAL_iPad_Storyboard";
+static NSString * const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 
-NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
-NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
+NSString * const ADAuthenticationWindowWillShowNotification = @"ADAuthenticationWindowWillShowNotification";
+NSString * const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
+NSString * const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
 
-@implementation ADWindowController
+@implementation ADAuthenticationWindowController
 {
     BOOL                                _fullScreen;
     
@@ -74,7 +75,7 @@ NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could n
 - (BOOL)unpackStoryboard
 {
     // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
-    UINavigationController* navigationController = [[ADWindowController storyboard] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
+    UINavigationController* navigationController = [[ADAuthenticationWindowController storyboard] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
     
     if (!navigationController)
         return NO;
@@ -116,6 +117,10 @@ NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could n
     
     // Show the authentication view
     dispatch_async( dispatch_get_main_queue(), ^{
+        // Let observers know that we're about to pop up the window.
+        [[NSNotificationCenter defaultCenter] postNotificationName:ADAuthenticationWindowWillShowNotification
+                                                            object:self];
+        
         [_parent presentViewController:_navigationController animated:YES completion:^{
         // Instead of loading the URL immediately on completion, get the UI on the screen
         // and then dispatch the call to load the authorization URL

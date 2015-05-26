@@ -74,7 +74,7 @@
 		8BFEF07C182DB15E00122C0C /* ADAL_iPhone_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04B182D906700122C0C /* ADAL_iPhone_Storyboard.storyboard */; };
 		8BFEF07D182DB15E00122C0C /* ADAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04C182D906700122C0C /* ADAL_iPad_Storyboard.storyboard */; };
 		94A73A941B0FE0CB001E03A0 /* ADWebViewControlleriOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A73A931B0FE0CB001E03A0 /* ADWebViewControlleriOS.m */; };
-		94A73A961B0FE156001E03A0 /* ADWindowControlleriOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A73A951B0FE156001E03A0 /* ADWindowControlleriOS.m */; };
+		94A73A961B0FE156001E03A0 /* ADAuthenticationWindowControlleriOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A73A951B0FE156001E03A0 /* ADAuthenticationWindowControlleriOS.m */; };
 		971C56BE1AF2278C0034820F /* ADBrokerNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 971C56BD1AF2278C0034820F /* ADBrokerNotificationManager.m */; };
 		971C57441AFA9BD10034820F /* ADALiOSFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = 971C57431AFA9BD10034820F /* ADALiOSFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		971C575A1AFA9C0D0034820F /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AA17F25770002BDFB8 /* libADALiOS.a */; };
@@ -246,9 +246,9 @@
 		8BFEF067182DA57800122C0C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BFEF069182DA57800122C0C /* ADALiOSBundle-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADALiOSBundle-Prefix.pch"; sourceTree = "<group>"; };
 		949296401B07F800009780CA /* ADWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWebViewController.h; sourceTree = "<group>"; };
-		949296461B0A908D009780CA /* ADWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWindowController.h; sourceTree = "<group>"; };
+		949296461B0A908D009780CA /* ADAuthenticationWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationWindowController.h; sourceTree = "<group>"; };
 		94A73A931B0FE0CB001E03A0 /* ADWebViewControlleriOS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebViewControlleriOS.m; sourceTree = "<group>"; };
-		94A73A951B0FE156001E03A0 /* ADWindowControlleriOS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWindowControlleriOS.m; sourceTree = "<group>"; };
+		94A73A951B0FE156001E03A0 /* ADAuthenticationWindowControlleriOS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationWindowControlleriOS.m; sourceTree = "<group>"; };
 		94A73A981B0FFF5A001E03A0 /* adal__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__common.xcconfig; sourceTree = "<group>"; };
 		971C56BC1AF2278C0034820F /* ADBrokerNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerNotificationManager.h; sourceTree = "<group>"; };
 		971C56BD1AF2278C0034820F /* ADBrokerNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerNotificationManager.m; sourceTree = "<group>"; };
@@ -516,7 +516,7 @@
 				97EEE7BA1A4C97A400D003F8 /* UIAlertView+Additions.m */,
 				971C57C71AFFFE010034820F /* ADCustomHeaderHandler.h */,
 				971C57C81AFFFE010034820F /* ADCustomHeaderHandler.m */,
-				949296461B0A908D009780CA /* ADWindowController.h */,
+				949296461B0A908D009780CA /* ADAuthenticationWindowController.h */,
 			);
 			name = IPAL;
 			sourceTree = "<group>";
@@ -570,7 +570,7 @@
 		94A73A921B0FE09F001E03A0 /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				94A73A951B0FE156001E03A0 /* ADWindowControlleriOS.m */,
+				94A73A951B0FE156001E03A0 /* ADAuthenticationWindowControlleriOS.m */,
 				94A73A931B0FE0CB001E03A0 /* ADWebViewControlleriOS.m */,
 			);
 			path = ios;
@@ -832,7 +832,7 @@
 				D6E43A731B040ED5000F5BE2 /* ADAuthenticationContext+WebRequest.m in Sources */,
 				8B34343D183304B1002DE1DC /* NSURL+ADExtensions.m in Sources */,
 				8BB8345C18074A58007F9F0D /* ADAuthenticationContext.m in Sources */,
-				94A73A961B0FE156001E03A0 /* ADWindowControlleriOS.m in Sources */,
+				94A73A961B0FE156001E03A0 /* ADAuthenticationWindowControlleriOS.m in Sources */,
 				8B343443183304FE002DE1DC /* ADWebRequest.m in Sources */,
 				9722232E19A2C9F900092E85 /* ADRegistrationInformation.m in Sources */,
 				8B59893E180DE8A100744AEE /* ADUserInformation.m in Sources */,

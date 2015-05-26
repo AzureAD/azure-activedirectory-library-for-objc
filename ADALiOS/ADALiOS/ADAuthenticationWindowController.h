@@ -18,10 +18,11 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString *const AD_FAILED_NO_CONTROLLER;
-extern NSString *const AD_FAILED_NO_RESOURCES;
+extern NSString * const AD_FAILED_NO_CONTROLLER;
+extern NSString * const AD_FAILED_NO_RESOURCES;
+extern NSString * const ADAuthenticationWindowWillShowNotification;
 
-@interface ADWindowController : NSObject
+@interface ADAuthenticationWindowController : NSObject
 
 #if TARGET_OS_IPHONE
 - (void)setParentController:(UIViewController*)parentController;

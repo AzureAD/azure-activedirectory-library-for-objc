@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 @class ADAuthenticationError;
-@class ADWindowController;
+@class ADAuthenticationWindowController;
 
 #import "ADAuthenticationContext.h"
 
