@@ -85,6 +85,12 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                     
                     // Dig out the app delegate (if there is one)
                     __strong id appDelegate = [[UIApplication sharedApplication] delegate];
+                    
+                    // There's not much we can do if there's no app delegate and there might be scenarios where
+                    // that is valid...
+                    if (appDelegate == nil)
+                        return;
+                    
                     if ([appDelegate respondsToSelector:sel])
                     {
                         Method m = class_getInstanceMethod([appDelegate class], sel);
