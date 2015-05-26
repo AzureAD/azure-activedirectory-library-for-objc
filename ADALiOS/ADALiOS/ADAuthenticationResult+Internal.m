@@ -107,7 +107,8 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     ADAuthenticationError* error;
     ADAuthenticationResult* result;
     ADTokenCacheStoreItem* item = nil;
-    if([response valueForKey:OAUTH2_ERROR_DESCRIPTION]){
+    if([response valueForKey:OAUTH2_ERROR_DESCRIPTION])
+    {
         error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADBrokerResponseErrorDomain code:0 userInfo:nil] errorDetails:[response valueForKey:OAUTH2_ERROR_DESCRIPTION]];
     }
     else
@@ -128,8 +129,40 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         }
     }
     
-    BOOL isMRRT = item.resource && item.refreshToken;
+    result.tokenCacheStoreItem.accessTokenType = @"Bearer";
+    // Token response
+    id expires_in = [response objectForKey:@"expires_on"];
+    NSDate *expires    = nil;
     
+    if ( expires_in != nil )
+    {
+        if ( [expires_in isKindOfClass:[NSString class]] )
+        {
+            NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+            
+            expires = [NSDate dateWithTimeIntervalSinceNow:[formatter numberFromString:expires_in].longValue];
+        }
+        else if ( [expires_in isKindOfClass:[NSNumber class]] )
+        {
+            expires = [NSDate dateWithTimeIntervalSinceNow:((NSNumber *)expires_in).longValue];
+        }
+        else
+        {
+            AD_LOG_WARN_F(@"Unparsable time", @"The response value for the access token expiration cannot be parsed: %@", expires);
+            // Unparseable, use default value
+            expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//1 hour
+        }
+    }
+    else
+    {
+        AD_LOG_WARN(@"Missing expiration time.", @"The server did not return the expiration time for the access token.");
+        expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//Assume 1hr expiration
+    }
+    
+    result.tokenCacheStoreItem.expiresOn = expires;
+    
+    
+    BOOL isMRRT = item.resource && item.refreshToken;
     if(error)
     {
         result = [ADAuthenticationResult resultFromError:error];

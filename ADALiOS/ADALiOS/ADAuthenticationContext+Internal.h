@@ -52,9 +52,11 @@ extern NSString* const ADRedirectUriInvalidError;
 + (BOOL)checkAndHandleBadArgument:(NSObject*) argumentValue
                      argumentName:(NSString*) argumentName
                   completionBlock:(ADAuthenticationCallback)completionBlock;
+
 + (BOOL)handleNilOrEmptyAsResult:(NSObject*)argumentValue
                     argumentName:(NSString*)argumentName
             authenticationResult:(ADAuthenticationResult**)authenticationResult;
+
 + (ADAuthenticationError*)errorFromDictionary:(NSDictionary*)dictionary
                                     errorCode:(ADErrorCode)errorCode;
 
@@ -62,6 +64,7 @@ extern NSString* const ADRedirectUriInvalidError;
 + (BOOL)isFinalResult:(ADAuthenticationResult*)result;
 
 + (NSString*)getPromptParameter:(ADPromptBehavior)prompt;
+
 + (BOOL)isForcedAuthorization:(ADPromptBehavior)prompt;
 
 - (ADAuthenticationResult*)updateResult:(ADAuthenticationResult*)result
