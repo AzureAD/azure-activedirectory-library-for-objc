@@ -42,4 +42,7 @@ correlationId:(NSUUID*)correlationId
 
 - (void)cancel;
 
+
+- (void)cancelForError:(ADAuthenticationError *)error;
+
 @end

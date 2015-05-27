@@ -327,6 +327,11 @@ correlationId:(NSUUID *)correlationId
     [self webAuthenticationDidCancel];
 }
 
+- (void)cancelForError:(ADAuthenticationError *)error
+{
+    [self webAuthenticationDidCancelForError:error];
+}
+
 #pragma mark - Private Methods
 
 - (void)dispatchCompletionBlock:(ADAuthenticationError *)error URL:(NSURL *)url
@@ -366,7 +371,12 @@ correlationId:(NSUUID *)correlationId
     // Dispatch the completion block
 
     ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation];
-    
+    [self webAuthenticationDidCancelForError:error];
+}
+
+
+- (void)webAuthenticationDidCancelForError:(ADAuthenticationError*) error
+{
     if ( nil != _authenticationViewController)
     {
         // Dismiss the authentication view and dispatch the completion block
