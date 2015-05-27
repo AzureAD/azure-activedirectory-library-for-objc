@@ -60,8 +60,12 @@
 
 + (void)internalHandleBrokerResponse:(NSURL *)response
 {
-    THROW_ON_NIL_ARGUMENT([ADBrokerNotificationManager sharedInstance].callbackForBroker);
     ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].callbackForBroker;
+    if (!completionBlock)
+    {
+        return;
+    }
+    
     HANDLE_ARGUMENT(response);
     
     NSString *qp = [response query];
