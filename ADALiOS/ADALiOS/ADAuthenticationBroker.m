@@ -327,9 +327,12 @@ correlationId:(NSUUID *)correlationId
     [self webAuthenticationDidCancel];
 }
 
-- (void)cancelForError:(ADAuthenticationError *)error
+- (void)cancelForErrorcode:(int) errorcode
+                andDetails:(NSString*)details
 {
-    [self webAuthenticationDidCancelForError:error];
+    [self webAuthenticationDidCancelForError:[ADAuthenticationError errorFromAuthenticationError:errorcode
+                                                                                    protocolCode:nil
+                                                                                    errorDetails:details]];
 }
 
 #pragma mark - Private Methods
