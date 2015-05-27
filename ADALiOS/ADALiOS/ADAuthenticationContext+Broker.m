@@ -113,6 +113,36 @@
     
     if (AD_SUCCEEDED == result.status)
     {
+        result.tokenCacheStoreItem.accessTokenType = @"Bearer";
+        // Token response
+        id expires_on = [queryParamsMap objectForKey:@"expires_on"];
+        NSDate *expires    = nil;
+        if ( expires_on != nil )
+        {
+            if ( [expires_on isKindOfClass:[NSString class]] )
+            {
+                NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+                
+                expires = [NSDate dateWithTimeIntervalSince1970:[formatter numberFromString:expires_on].longValue];
+            }
+            else if ( [expires_on isKindOfClass:[NSNumber class]] )
+            {
+                expires = [NSDate dateWithTimeIntervalSince1970:((NSNumber *)expires_on).longValue];
+            }
+            else
+            {
+                AD_LOG_WARN_F(@"Unparsable time", @"The response value for the access token expiration cannot be parsed: %@", expires);
+                // Unparseable, use default value
+                expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//1 hour
+            }
+        }
+        else
+        {
+            AD_LOG_WARN(@"Missing expiration time.", @"The server did not return the expiration time for the access token.");
+            expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//Assume 1hr expiration
+        }
+        
+        result.tokenCacheStoreItem.expiresOn = expires;
         ADAuthenticationContext* ctx = [ADAuthenticationContext
                                         authenticationContextWithAuthority:result.tokenCacheStoreItem.authority
                                         error:nil];
