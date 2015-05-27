@@ -184,6 +184,11 @@
                completionBlock:(ADAuthenticationCallback)completionBlock
 
 {
+    CHECK_FOR_NIL(authority);
+    CHECK_FOR_NIL(resource);
+    CHECK_FOR_NIL(clientId);
+    CHECK_FOR_NIL(correlationId);
+    
     ADAuthenticationError* error = nil;
     if(![ADAuthenticationContext respondsToUrl:[redirectUri absoluteString]])
     {
@@ -199,17 +204,23 @@
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    NSString* redirectUriStr = [redirectUri absoluteString];
+    NSString* adalVersion = [ADLogger getAdalVersion];
+    
+    CHECK_FOR_NIL(base64UrlKey);
+    CHECK_FOR_NIL(redirectUriStr);
+    CHECK_FOR_NIL(adalVersion);
     
     NSDictionary* queryDictionary = @{
                                       @"authority": authority,
                                       @"resource" : resource,
                                       @"client_id": clientId,
-                                      @"redirect_uri": redirectUri.absoluteString,
-                                      @"username": userId,
+                                      @"redirect_uri": redirectUriStr,
+                                      @"username": userId ? userId : @"",
                                       @"correlation_id": correlationId,
                                       @"broker_key": base64UrlKey,
-                                      @"client_version": [ADLogger getAdalVersion],
-                                      @"extra_qp": queryParams,
+                                      @"client_version": adalVersion,
+                                      @"extra_qp": queryParams ? queryParams : @"",
                                       };
     
     NSString* query = [queryDictionary adURLFormEncode];
@@ -241,6 +252,9 @@
                          correlationId:(NSUUID*)correlationId
                        completionBlock:(ADAuthenticationCallback)completionBlock
 {
+    CHECK_FOR_NIL(resource);
+    CHECK_FOR_NIL(clientId);
+    CHECK_FOR_NIL(redirectUri);
     
     ADAuthenticationError* error = nil;
     if(![ADAuthenticationContext respondsToUrl:[redirectUri absoluteString]])
@@ -256,17 +270,26 @@
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    NSString* adalVersion = [ADLogger getAdalVersion];
+    NSString* redirectUriStr = [redirectUri absoluteString];
+    NSString* correlationIdStr = [correlationId UUIDString];
+    NSString* authority = self.authority;
+    
+    CHECK_FOR_NIL(base64UrlKey);
+    CHECK_FOR_NIL(redirectUriStr);
+    CHECK_FOR_NIL(adalVersion);
+    CHECK_FOR_NIL(authority);
     
     NSDictionary* queryDictionary = @{
-                                      @"authority": self.authority,
+                                      @"authority": authority,
                                       @"resource" : resource,
                                       @"client_id": clientId,
-                                      @"redirect_uri": redirectUri.absoluteString,
-                                      @"username": userId,
-                                      @"correlation_id": [correlationId UUIDString],
+                                      @"redirect_uri": redirectUriStr,
+                                      @"username": userId ? userId : @"",
+                                      @"correlation_id": correlationIdStr,
                                       @"broker_key": base64UrlKey,
-                                      @"client_version": [ADLogger getAdalVersion],
-                                      @"extra_qp": queryParams,
+                                      @"client_version": adalVersion,
+                                      @"extra_qp": queryParams ? queryParams : @"",
                                       };
     NSString* query = [queryDictionary adURLFormEncode];
     
