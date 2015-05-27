@@ -327,10 +327,10 @@ correlationId:(NSUUID *)correlationId
     [self webAuthenticationDidCancel];
 }
 
-- (void)cancelForErrorcode:(int) errorcode
-                andDetails:(NSString*)details
+- (void)cancelWithError:(int)errorcode
+                details:(NSString*)details
 {
-    [self webAuthenticationDidCancelForError:[ADAuthenticationError errorFromAuthenticationError:errorcode
+    [self webAuthenticationDidCancelWithError:[ADAuthenticationError errorFromAuthenticationError:errorcode
                                                                                     protocolCode:nil
                                                                                     errorDetails:details]];
 }
@@ -374,11 +374,11 @@ correlationId:(NSUUID *)correlationId
     // Dispatch the completion block
 
     ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation];
-    [self webAuthenticationDidCancelForError:error];
+    [self webAuthenticationDidCancelWithError:error];
 }
 
 
-- (void)webAuthenticationDidCancelForError:(ADAuthenticationError*) error
+- (void)webAuthenticationDidCancelWithError:(ADAuthenticationError*) error
 {
     if ( nil != _authenticationViewController)
     {
