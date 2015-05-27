@@ -12,7 +12,9 @@ script:
   - find ~/Library/Developer/Xcode/DerivedData/ -not -path "*x86_64*" -not -path "*ADALiOSTests*" -not -path "*MyTestiOSApp*" -name "*.gcno" -exec cp -v '{}' . \;
   - find ~/Library/Developer/Xcode/DerivedData/ -not -path "*x86_64*" -not -path "*ADALiOSTests*" -not -path "*MyTestiOSApp*" -name "*.gcda" -exec cp -v '{}' . \;
   #- coveralls -e ADALiOS/ADALiOSTests
-
+    
+  - xcodebuild -workspace ADALiOS.xcworkspace -scheme ADAL-OSX -configuration Debug
+  - xcodebuild test -workspace ADALiOS.xcworkspace -scheme ADAL-OSX -configuration Debug
 after_success:
 
 

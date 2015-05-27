@@ -60,6 +60,8 @@ additionalHeaders:(NSDictionary *)additionalHeaders
      completion:( void (^)(NSDictionary *) )completionBlock
 {
 #pragma unused(authorizationServer)
+#pragma unused(isHandlingPKeyAuthChallenge)
+#pragma unused(additionalHeaders)
     ++mNumRequests;
     if (mNumRequests > 2 || (!mAllowTwoRequests && mNumRequests > 1))
     {

@@ -31,7 +31,10 @@
     self = [super init];
     if(self)
     {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [NSBundle loadNibNamed:@"ADCredentialViewController" owner:self];
+#pragma clang diagnostic pop
 //        loaded = [[NSBundle mainBundle] loadNibNamed:@"ADCredentialViewController" owner:self topLevelObjects:nil];
     }
     

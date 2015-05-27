@@ -46,12 +46,15 @@
 #import "WorkPlaceJoinConstants.h"
 #endif
 
+#define CHECK_FOR_NIL(_val) \
+if (!_val) { completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"" #_val " is nil!"]]); return; }
+
 NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call acquireToken with 'promptBehavior' not set to AD_PROMPT_NEVER";
 NSString* const serverError = @"The authentication server returned an error: %@.";
 
-NSString* const brokerAppIdentifier = @"com.microsoft.broker";
-NSString* const brokerURL = @"msauth://";
+NSString* const brokerAppIdentifier = @"com.microsoft.azureauthenticator";
+NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to invoke the application. Update your redirect URI to be of  <app-scheme>://<bundle-id> format";
 
 //Used for the callback of obtaining the OAuth2 code:
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
@@ -92,15 +95,19 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
 #if TARGET_OS_IPHONE
 + (void) load
 {
-    __block id observer = nil;
-    
+    __block __weak id observer;
     observer = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification
                                                                  object:nil
                                                                   queue:nil
                                                              usingBlock:^(NSNotification* notification)
                 {
                     // We don't want to swizzle multiple times so remove the observer
-                    [[NSNotificationCenter defaultCenter] removeObserver:observer name:UIApplicationDidFinishLaunchingNotification object:nil];
+                    if (observer)
+                    {
+                        [[NSNotificationCenter defaultCenter] removeObserver:observer
+                                                                        name:UIApplicationDidFinishLaunchingNotification
+                                                                      object:nil];
+                    }
                     
                     SEL sel = @selector(application:openURL:sourceApplication:annotation:);
                     
@@ -123,7 +130,6 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
                         // have to add a retain here to make sure it doesn't turn into a zombie
                         [[UIApplication sharedApplication] setDelegate:(__bridge id)CFRetain((__bridge CFTypeRef)appDelegate)];
                     }
-                    
                 }];
     
 }
@@ -1063,6 +1069,7 @@ return; \
                             clientId: clientId
                          redirectUri: redirectUri
                               userId: userId
+                extraQueryParameters: queryParams
                        correlationId: [correlationId UUIDString]
                      completionBlock:completionBlock
          ];
@@ -1097,6 +1104,7 @@ return; \
                                              clientId:clientId
                                           redirectUri:redirectUri
                                                userId:userId
+                                 extraQueryParameters:queryParams
                                         correlationId:correlationId
                                       completionBlock:completionBlock];
              }
@@ -1132,25 +1140,53 @@ return; \
                               clientId: (NSString*) clientId
                            redirectUri: (NSURL*) redirectUri
                                 userId: (NSString*) userId
+                  extraQueryParameters: (NSString*)queryParams
                          correlationId: (NSUUID*) correlationId
                        completionBlock: (ADAuthenticationCallback)completionBlock
 {
-    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+    CHECK_FOR_NIL(resource);
+    CHECK_FOR_NIL(clientId);
+    CHECK_FOR_NIL(redirectUri);
+    
     ADAuthenticationError* error = nil;
+    if(![self respondsToUrl:[redirectUri absoluteString]])
+    {
+        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
+                                                       protocolCode:nil
+                                                       errorDetails:ADRedirectUriInvalidError];
+        completionBlock([ADAuthenticationResult resultFromError:error]);
+        return;
+    }
+    
+    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    NSString* adalVersion = [ADLogger getAdalVersion];
+    NSString* redirectUriStr = [redirectUri absoluteString];
+    NSString* correlationIdStr = [correlationId UUIDString];
+    NSString* authority = self.authority;
     
-    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&correlation_id=%@&broker_key=%@",
-                       _authority,
-                       resource,
-                       clientId,
-                       redirectUri.absoluteString,
-                       [correlationId UUIDString],
-                       base64UrlKey];
+    CHECK_FOR_NIL(base64UrlKey);
+    CHECK_FOR_NIL(redirectUriStr);
+    CHECK_FOR_NIL(adalVersion);
+    CHECK_FOR_NIL(authority);
+    
+    NSDictionary* queryDictionary = @{
+                                      @"authority": authority,
+                                      @"resource" : resource,
+                                      @"client_id": clientId,
+                                      @"redirect_uri": redirectUriStr,
+                                      @"username": userId ? userId : @"",
+                                      @"correlation_id": correlationIdStr,
+                                      @"broker_key": base64UrlKey,
+                                      @"client_version": adalVersion,
+                                      @"extra_qp": queryParams ? queryParams : @"",
+                                      };
+    NSString* query = [queryDictionary adURLFormEncode];
+    
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@&%@", urlString, query]];
-    
-    [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];;
+    [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];
     
     if([[UIApplication sharedApplication] canOpenURL:appUrl])
     {
@@ -1164,22 +1200,20 @@ return; \
         NSString* qp = [appUrl query];
         NSDictionary* qpDict = [NSDictionary adURLFormDecode:qp];
         NSString* url = [qpDict valueForKey:@"app_link"];
-        url = [url adBase64UrlDecode];
-        [self saveToPasteBoard:appUrl.absoluteString];
+        [self saveToPasteBoard:appUrl];
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:url]];
         });
     }
 }
 
-- (void)saveToPasteBoard:(NSString*) url
+- (void)saveToPasteBoard:(NSURL*) url
 {
     UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
                                                             create:YES];
     appPasteBoard.persistent = YES;
-    NSData *data = [url dataUsingEncoding:NSUTF8StringEncoding];
-    [appPasteBoard setData:data
-         forPasteboardType:@"com.microsoft.broker"];
+    url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication",[[NSBundle mainBundle] bundleIdentifier]]];
+    [appPasteBoard setURL:url];
 }
 
 #endif
@@ -2122,9 +2156,7 @@ additionalHeaders:headerKeyValuePair
 +(BOOL) isResponseFromBroker:(NSString*) sourceApplication
                     response:(NSURL*) response
 {
-    return sourceApplication && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
-    response &&
-    [NSString adSame:[response path] toString:@"broker"];
+    return response && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
 }
 
 
@@ -2226,22 +2258,82 @@ additionalHeaders:headerKeyValuePair
 }
 
 
+- (BOOL) respondsToUrl:(NSString*)url
+{
+    BOOL schemeIsInPlist = NO; // find out if the sceme is in the plist file.
+    NSBundle* mainBundle = [NSBundle mainBundle];
+    NSArray* cfBundleURLTypes = [mainBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"];
+    if ([cfBundleURLTypes isKindOfClass:[NSArray class]] && [cfBundleURLTypes lastObject]) {
+        NSDictionary* cfBundleURLTypes0 = [cfBundleURLTypes objectAtIndex:0];
+        if ([cfBundleURLTypes0 isKindOfClass:[NSDictionary class]]) {
+            NSArray* cfBundleURLSchemes = [cfBundleURLTypes0 objectForKey:@"CFBundleURLSchemes"];
+            if ([cfBundleURLSchemes isKindOfClass:[NSArray class]]) {
+                for (NSString* scheme in cfBundleURLSchemes) {
+                    if ([scheme isKindOfClass:[NSString class]] && [url hasPrefix:scheme]) {
+                        schemeIsInPlist = YES;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    BOOL canOpenUrl = [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString: url]];
+    
+    return schemeIsInPlist && canOpenUrl;
+}
+
+
 - (void) callBrokerForAuthority:(NSString*) authority
                        resource: (NSString*) resource
                        clientId: (NSString*)clientId
                     redirectUri: (NSURL*) redirectUri
                          userId: (NSString*) userId
+           extraQueryParameters: (NSString*)queryParams
                   correlationId: (NSString*) correlationId
                 completionBlock: (ADAuthenticationCallback)completionBlock
 {
+    CHECK_FOR_NIL(authority);
+    CHECK_FOR_NIL(resource);
+    CHECK_FOR_NIL(clientId);
+    CHECK_FOR_NIL(correlationId);
+    
+    ADAuthenticationError* error = nil;
+    if(![self respondsToUrl:[redirectUri absoluteString]])
+    {
+        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
+                                                       protocolCode:nil
+                                                       errorDetails:ADRedirectUriInvalidError];
+        completionBlock([ADAuthenticationResult resultFromError:error]);
+        return;
+    }
+    
     AD_LOG_INFO(@"Invoking broker for authentication", nil);
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
-    ADAuthenticationError* error = nil;
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    NSString* redirectUriStr = [redirectUri absoluteString];
+    NSString* adalVersion = [ADLogger getAdalVersion];
     
-    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, base64UrlKey];
+    CHECK_FOR_NIL(base64UrlKey);
+    CHECK_FOR_NIL(redirectUriStr);
+    CHECK_FOR_NIL(adalVersion);
+    
+    NSDictionary* queryDictionary = @{
+                                      @"authority": authority,
+                                      @"resource" : resource,
+                                      @"client_id": clientId,
+                                      @"redirect_uri": redirectUriStr,
+                                      @"username": userId ? userId : @"",
+                                      @"correlation_id": correlationId,
+                                      @"broker_key": base64UrlKey,
+                                      @"client_version": adalVersion,
+                                      @"extra_qp": queryParams ? queryParams : @"",
+                                      };
+    
+    NSString* query = [queryDictionary adURLFormEncode];
+    
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", brokerScheme, query]];
     
     [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];
@@ -2249,6 +2341,7 @@ additionalHeaders:headerKeyValuePair
     dispatch_async(dispatch_get_main_queue(), ^{
         [[UIApplication sharedApplication] openURL:appUrl];
     });
+
 }
 #endif
 

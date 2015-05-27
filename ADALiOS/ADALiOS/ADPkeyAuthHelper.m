@@ -25,6 +25,7 @@
 #import "ADLogger.h"
 #import "ADErrorCodes.h"
 
+#if TARGET_OS_IPHONE
 @implementation ADPkeyAuthHelper
 
 + (NSString*) computeThumbprint:(NSData*) data{
@@ -160,7 +161,7 @@
 #endif
 }
 
-+(NSData *) sign: (SecKeyRef) privateKey
++ (NSData *)sign:(SecKeyRef) privateKey
             data:(NSData *) plainData
 {
     NSData* signedHash = nil;
@@ -260,3 +261,4 @@
 }
 
 @end
+#endif

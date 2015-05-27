@@ -328,6 +328,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  */
 -(void) acquireTokenByRefreshToken: (NSString*) refreshToken
                           clientId: (NSString*) clientId
+                       redirectUri: (NSString*) redirectUri
                    completionBlock: (ADAuthenticationCallback) completionBlock;
 
 /*! Follows the OAuth2 protocol (RFC 6749). Uses the refresh token to obtain an access token (and another refresh token). The method
@@ -340,6 +341,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  */
 -(void) acquireTokenByRefreshToken: (NSString*) refreshToken
                           clientId: (NSString*) clientId
+                       redirectUri: (NSString*) redirectUri
                           resource: (NSString*) resource
                    completionBlock: (ADAuthenticationCallback) completionBlock;
 #endif

@@ -105,38 +105,37 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 +(ADAuthenticationResult*) resultFromBrokerResponse: (NSDictionary*) response
 {
     ADAuthenticationError* error = nil;
-    ADAuthenticationResult* result = nil;
     ADTokenCacheStoreItem* item = nil;
-    if([response valueForKey:OAUTH2_ERROR_DESCRIPTION]){
-        error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADBrokerResponseErrorDomain code:0 userInfo:nil] errorDetails:[response valueForKey:OAUTH2_ERROR_DESCRIPTION]];
-    }
-    else
+    if([response valueForKey:OAUTH2_ERROR_DESCRIPTION])
     {
-        item = [ADTokenCacheStoreItem new];
-        item.authority =  [response valueForKey:OAUTH2_AUTHORITY];
-        item.resource = [response valueForKey:OAUTH2_RESOURCE];
-        item.clientId = [response valueForKey:OAUTH2_CLIENT_ID];
-        item.accessToken = [response valueForKey:OAUTH2_ACCESS_TOKEN];
-        item.refreshToken = [response valueForKey:OAUTH2_REFRESH_TOKEN];
-        if([response valueForKey:OAUTH2_ID_TOKEN])
+        error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADBrokerResponseErrorDomain code:0 userInfo:nil] errorDetails:[response valueForKey:OAUTH2_ERROR_DESCRIPTION]];
+        return [ADAuthenticationResult resultFromError:error];
+    }
+
+    item = [ADTokenCacheStoreItem new];
+    item.authority =  [response valueForKey:OAUTH2_AUTHORITY];
+    item.resource = [response valueForKey:OAUTH2_RESOURCE];
+    item.clientId = [response valueForKey:OAUTH2_CLIENT_ID];
+    item.accessToken = [response valueForKey:OAUTH2_ACCESS_TOKEN];
+    item.refreshToken = [response valueForKey:OAUTH2_REFRESH_TOKEN];
+    if([response valueForKey:OAUTH2_ID_TOKEN])
+    {
+        ADUserInformation* info = [ADUserInformation userInformationWithIdToken:[response valueForKey:OAUTH2_ID_TOKEN] error:&error];
+        if(!error)
         {
-            ADUserInformation* info = [ADUserInformation userInformationWithIdToken:[response valueForKey:OAUTH2_ID_TOKEN] error:&error];
-            if(!error)
-            {
-                item.userInformation = info;
-            }
+            item.userInformation = info;
+        }
+        else
+        {
+            SAFE_ARC_RELEASE(item);
+            return [ADAuthenticationResult resultFromError:error];
         }
     }
-    if(error)
-    {
-        result = [ADAuthenticationResult resultFromError:error];
-    }
-    else
-    {
-        result = [[ADAuthenticationResult alloc ]initWithItem:item multiResourceRefreshToken:NO];
-    }
     
-    return result;
+    ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:NO];
+    SAFE_ARC_RELEASE(item);
+
+    return SAFE_ARC_AUTORELEASE(result);
 }
 
 @end
