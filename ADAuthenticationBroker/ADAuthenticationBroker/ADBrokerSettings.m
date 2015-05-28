@@ -53,24 +53,37 @@
 }
 
 
+-(NSString*) graphResourceEndpoint
+{
+    {
+        NSString *graph = nil;
+        switch (self.wpjEnvironment)
+        {
+            case PROD:
+                graph = @"https://graph.windows.net";
+                break;
+                
+            case PPE:
+                graph = @"https://graph.ppe.windows.net";
+                break;
+        }
+        
+        return graph;
+    }
+}
+
 -(NSString*) authority
 {
     {
         NSString *authEndpoint = nil;
         switch (self.wpjEnvironment)
         {
-                
-            case NONE:
             case PROD:
                 authEndpoint = @"https://login.windows.net/common";
                 break;
                 
             case PPE:
                 authEndpoint = @"https://login.windows-ppe.net/common";
-                break;
-                
-            case INT:
-                authEndpoint = @"https://login.windows-int.net/common";
                 break;
         }
         
