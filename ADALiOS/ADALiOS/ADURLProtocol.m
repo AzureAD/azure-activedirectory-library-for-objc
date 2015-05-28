@@ -122,7 +122,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     }
     
 	[ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
-    return request;
+    return mutableRequest;
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
