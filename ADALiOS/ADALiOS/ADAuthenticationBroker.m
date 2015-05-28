@@ -40,9 +40,9 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 // Implementation
 @implementation ADAuthenticationBroker
 {
-    UIViewController* parentController;
-    ADAuthenticationViewController    *_authenticationViewController;
-    ADAuthenticationWebViewController *_authenticationWebViewController;
+    UIViewController*                   _parentController;
+    ADAuthenticationViewController*     _authenticationViewController;
+    ADAuthenticationWebViewController*  _authenticationWebViewController;
     
     BOOL                               _ntlmSession;
     NSLock                             *_completionLock;
@@ -272,7 +272,7 @@ correlationId:(NSUUID *)correlationId
                                                forSingleUse:YES];
             }
             
-            parentController = parent;
+            _parentController = parent;
             // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
             UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
             
@@ -327,12 +327,13 @@ correlationId:(NSUUID *)correlationId
     [self webAuthenticationDidCancel];
 }
 
-- (void)cancelWithError:(int)errorcode
+- (BOOL)cancelWithError:(int)errorcode
                 details:(NSString*)details
 {
-    [self webAuthenticationDidCancelWithError:[ADAuthenticationError errorFromAuthenticationError:errorcode
-                                                                                    protocolCode:nil
-                                                                                    errorDetails:details]];
+    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:errorcode
+                                                                          protocolCode:nil
+                                                                          errorDetails:details];
+    return [self endWebAuthenticationWithError:error orURL:nil];
 }
 
 #pragma mark - Private Methods
@@ -366,6 +367,34 @@ correlationId:(NSUUID *)correlationId
 
 #pragma mark - ADAuthenticationDelegate
 
+- (BOOL)endWebAuthenticationWithError:(ADAuthenticationError*) error
+                                orURL:(NSURL*)endURL
+{
+    if ( nil != _authenticationViewController && nil != _parentController)
+    {
+        // Dismiss the authentication view and dispatch the completion block
+        [_parentController dismissViewControllerAnimated:YES completion:^{
+            [self dispatchCompletionBlock:error URL:endURL];
+        }];
+    }
+    else if (nil != _authenticationWebViewController)
+    {
+        [_authenticationWebViewController stop];
+        [self dispatchCompletionBlock:error URL:endURL];
+    }
+    else
+    {
+        return NO;
+    }
+    
+    _parentController = nil;
+    _authenticationViewController    = nil;
+    _authenticationWebViewController = nil;
+    
+    return YES;
+}
+
+
 // The user cancelled authentication
 - (void)webAuthenticationDidCancel
 {
@@ -374,49 +403,14 @@ correlationId:(NSUUID *)correlationId
     // Dispatch the completion block
 
     ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation];
-    [self webAuthenticationDidCancelWithError:error];
-}
-
-
-- (void)webAuthenticationDidCancelWithError:(ADAuthenticationError*) error
-{
-    if ( nil != _authenticationViewController)
-    {
-        // Dismiss the authentication view and dispatch the completion block
-        [parentController dismissViewControllerAnimated:YES completion:^{
-            [self dispatchCompletionBlock:error URL:nil];
-        }];
-    }
-    else
-    {
-        [_authenticationWebViewController stop];
-        [self dispatchCompletionBlock:error URL:nil];
-    }
-    
-    _authenticationViewController    = nil;
-    _authenticationWebViewController = nil;
+    [self endWebAuthenticationWithError:error orURL:nil];
 }
 
 // Authentication completed at the end URL
 - (void)webAuthenticationDidCompleteWithURL:(NSURL *)endURL
 {
     DebugLog();
-    
-    if ( nil != _authenticationViewController)
-    {
-        // Dismiss the authentication view and dispatch the completion block
-        [parentController dismissViewControllerAnimated:YES completion:^{
-            [self dispatchCompletionBlock:nil URL:endURL];
-        }];
-    }
-    else
-    {
-        [_authenticationWebViewController stop];
-        [self dispatchCompletionBlock:nil URL:endURL];
-    }
-    
-    _authenticationViewController    = nil;
-    _authenticationWebViewController = nil;
+    [self endWebAuthenticationWithError:nil orURL:endURL];
 }
 
 // Authentication failed somewhere
@@ -425,21 +419,7 @@ correlationId:(NSUUID *)correlationId
     // Dispatch the completion block
     ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription];
     
-    if ( nil != _authenticationViewController)
-    {
-        // Dismiss the authentication view and dispatch the completion block
-        [parentController dismissViewControllerAnimated:YES completion:^{
-            [self dispatchCompletionBlock:adError URL:nil];
-        }];
-    }
-    else
-    {
-        [_authenticationWebViewController stop];
-        [self dispatchCompletionBlock:adError URL:nil];
-    }
-    
-    _authenticationViewController    = nil;
-    _authenticationWebViewController = nil;
+    [self endWebAuthenticationWithError:adError orURL:nil];
 }
 
 @end
