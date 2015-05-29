@@ -28,7 +28,7 @@ extern NSString* const CLIENT_ADAL_VERSION;
 extern NSString *const EXTRA_QUERY_PARAMETERS;
 
 extern NSString* const BROKER_CLIENT_ID;
-extern NSString* const BROKER_RESOURCE;
+
 extern NSString* const BROKER_REDIRECT_URI;
 extern NSString* const DEFAULT_FIRST_PARTY_CLIENT_ID;
 

@@ -35,6 +35,8 @@
 
 #define AD_BROKER_FORCE_CANCEL_CODE -2
 
+NSString* const ADBrokerContextDidReturnToAppNotification = @"ADBrokerContextDidReturnToAppNotification";
+
 @interface ADAuthenticationContext ()
 
 - (void)internalAcquireTokenWithResource:(NSString*)resource
@@ -89,6 +91,12 @@ return; \
     }
     
     return self;
+}
+
+static dispatch_semaphore_t s_cancelSemaphore;
++ (void)initialize
+{
+    s_cancelSemaphore = dispatch_semaphore_create(0);
 }
 
 
@@ -189,13 +197,27 @@ return; \
 {
     API_ENTRY;
     
-    [[ADAuthenticationBroker sharedInstance] cancelWithError:AD_BROKER_FORCE_CANCEL_CODE details:@"Forcing previous session to cancel."];
-    
-    // We need to give the cancel a chance to process before we attempt the rest of invokeBroker.
-    dispatch_async(dispatch_get_main_queue(), ^{
+    BOOL fSessionCancelled = [[ADAuthenticationBroker sharedInstance] cancelWithError:AD_BROKER_FORCE_CANCEL_CODE
+                                                                              details:@"Forcing previous session to cancel."];
+    if (!fSessionCancelled)
+    {
+        // If there was nothing to cancel then we can call the impl immediately
         [ADBrokerContext invokeBrokerImpl:requestPayload
                         sourceApplication:sourceApplication
                                       upn:upn];
+        return;
+    }
+    
+    // If we had to cancel a previously running ADAL session then kick over to a background thread and block waiting on the
+    // semaphore to be signalled. Once that happens we'll jump back onto the main thread and continue onwards.
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_semaphore_wait(s_cancelSemaphore, DISPATCH_TIME_FOREVER);
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [ADBrokerContext invokeBrokerImpl:requestPayload
+                            sourceApplication:sourceApplication
+                                          upn:upn];
+        });
     });
 }
 + (void)invokeBrokerImpl:(NSString *)requestPayload
@@ -229,7 +251,7 @@ return; \
             error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
                                                            protocolCode:nil
                                                            errorDetails:@"source application bundle identifier should be same as the redirect URI domain"];
-            AD_LOG_ERROR_F(@"source application does not match redirect uri host", error.protocolCode , @"Invalid source app: %@", error.errorDetails);
+            AD_LOG_ERROR_F(@"source application does not match redirect uri host", (int)error.protocolCode , @"Invalid source app: %@", error.errorDetails);
             NSString* response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@",
                                    [error.protocolCode adUrlFormEncode],
                                    [error.errorDetails adUrlFormEncode],
@@ -254,6 +276,7 @@ return; \
                 ADAuthenticationError* error = result.error;
                 if (error != nil && error.code == AD_BROKER_FORCE_CANCEL_CODE)
                 {
+                    dispatch_semaphore_signal(s_cancelSemaphore);
                     // In this case we had to cancel this session, don't go back to the app.
                     return;
                 }
@@ -294,6 +317,8 @@ return; \
                     }
                     
                     [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI] response:response];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:ADBrokerContextDidReturnToAppNotification
+                                                                        object:self];
                     return;
                 }
             };
@@ -331,7 +356,7 @@ return; \
                                      onResultBlock:^(NSError *error) {
                                          if(!error)
                                          {
-                                             AD_LOG_INFO(@"WPJ succeeded. Getting the token initally requested.", nil);
+                                             AD_LOG_INFO(@"WPJ succeeded. Getting the token initially requested.", nil);
                                              [ctx acquireAccount:[queryParamsMap valueForKey:AUTHORITY]
                                                           userId:[err.userInfo valueForKey:@"username"]
                                                         clientId:[queryParamsMap valueForKey:OAUTH2_CLIENT_ID]
@@ -448,7 +473,12 @@ return; \
     // the default token in the case in case there is a single user.
     BOOL forceUI = [NSString adIsStringNilOrBlank:upn];
     
-    NSString* qp = [NSString stringWithFormat:@"%@&%@", @"brkr=1", queryParams];
+    
+    NSString* qp = @"brkr=1";
+    if(queryParams)
+    {
+        qp = [NSString stringWithFormat:@"%@&%@", @"brkr=1", queryParams];
+    }
     
     //callback implementation
     ADAuthenticationCallback defaultCallback = ^(ADAuthenticationResult *result) {
@@ -561,7 +591,7 @@ return; \
     [self acquireAccount:_authority
                   userId:upn
                 clientId:BROKER_CLIENT_ID
-                resource:BROKER_RESOURCE
+                resource:[ADBrokerSettings sharedInstance].graphResourceEndpoint
              redirectUri:BROKER_REDIRECT_URI
     extraQueryParameters:nil
                   appKey:DEFAULT_GUID_FOR_NIL

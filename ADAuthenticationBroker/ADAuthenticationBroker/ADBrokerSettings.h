@@ -29,4 +29,6 @@
 
 - (NSString*) authority;
 
+-(NSString*) graphResourceEndpoint;
+
 @end

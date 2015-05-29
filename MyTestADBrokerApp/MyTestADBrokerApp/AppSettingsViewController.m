@@ -35,7 +35,7 @@ WPJEnvironment env = PROD;
     [super viewDidLoad];
     
     // Do any additional setup after loading the view, typically from a nib.
-    NSArray *array = [[NSArray alloc] initWithObjects:@"PROD", @"PPE", @"INT", nil ];
+    NSArray *array = [[NSArray alloc] initWithObjects:@"PROD", @"PPE", nil ];
     self.pickerData = array;
  
     
@@ -71,10 +71,6 @@ WPJEnvironment env = PROD;
             env = PPE;
             break;
             
-        case 2:
-            env = INT;
-            break;
-            
         default:
             break;
     }
@@ -90,9 +86,7 @@ WPJEnvironment env = PROD;
         case PPE:
             value = 1;
             break;
-        case INT:
-            value = 2;
-            break;
+            
         default:
             break;
     }

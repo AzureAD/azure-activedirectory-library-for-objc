@@ -18,6 +18,7 @@
 
 
 #import "AppDelegate.h"
+#import <ADALiOS/ADAuthenticationBroker.h>
 #import <ADAuthenticationBroker/ADBrokerContext.h>
 #import "ADLogHandler.h"
 
@@ -51,10 +52,10 @@
     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"])
     {
         UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ" create:NO];
-        if(appPasteBoard && [appPasteBoard URL])
+        if(appPasteBoard && [appPasteBoard URL] && [[[appPasteBoard URL] absoluteString] isEqualToString:@"msauth"])
         {
             self._url = [appPasteBoard URL];
-            [appPasteBoard setURL:nil];
+            [appPasteBoard setURL:[[NSURL alloc] initWithString:@"https://microsoft.com"]];
             NSArray* parts = [[self._url absoluteString] componentsSeparatedByString: @"sourceApplication="];
             self._sourceApplication  = [parts objectAtIndex: 1];
             
@@ -76,6 +77,8 @@
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+  //  [[ADAuthenticationBroker sharedInstance] cancel];
+    
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
