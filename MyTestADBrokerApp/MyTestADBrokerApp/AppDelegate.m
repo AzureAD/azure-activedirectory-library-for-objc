@@ -52,10 +52,10 @@
     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"])
     {
         UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ" create:NO];
-        if(appPasteBoard && [appPasteBoard URL])
+        if(appPasteBoard && [appPasteBoard URL] && [[[appPasteBoard URL] absoluteString] isEqualToString:@"msauth"])
         {
             self._url = [appPasteBoard URL];
-            [appPasteBoard setURL:nil];
+            [appPasteBoard setURL:[[NSURL alloc] initWithString:@"https://microsoft.com"]];
             NSArray* parts = [[self._url absoluteString] componentsSeparatedByString: @"sourceApplication="];
             self._sourceApplication  = [parts objectAtIndex: 1];
             
