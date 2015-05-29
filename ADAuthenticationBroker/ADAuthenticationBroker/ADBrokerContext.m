@@ -33,6 +33,8 @@
 #import "ADBrokerSettings.h"
 #import "ADLogger+Broker.h"
 
+#define AD_BROKER_FORCE_CANCEL_CODE -2
+
 @interface ADAuthenticationContext ()
 
 - (void)internalAcquireTokenWithResource:(NSString*)resource
@@ -187,6 +189,21 @@ return; \
 {
     API_ENTRY;
     
+    [[ADAuthenticationBroker sharedInstance] cancelWithError:AD_BROKER_FORCE_CANCEL_CODE details:@"Forcing previous session to cancel."];
+    
+    // We need to give the cancel a chance to process before we attempt the rest of invokeBroker.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [ADBrokerContext invokeBrokerImpl:requestPayload
+                        sourceApplication:sourceApplication
+                                      upn:upn];
+    });
+}
++ (void)invokeBrokerImpl:(NSString *)requestPayload
+       sourceApplication:(NSString *)sourceApplication
+                     upn:(NSString *)upn
+{
+    API_ENTRY;
+    
     ADAuthenticationError* error = nil;
     
     THROW_ON_NIL_ARGUMENT(requestPayload);
@@ -234,6 +251,13 @@ return; \
         {
             ADAuthenticationCallback takeMeBack = ^(ADAuthenticationResult *result)
             {
+                ADAuthenticationError* error = result.error;
+                if (error != nil && error.code == AD_BROKER_FORCE_CANCEL_CODE)
+                {
+                    // In this case we had to cancel this session, don't go back to the app.
+                    return;
+                }
+                
                 if(![NSString adSame:sourceApplication toString:DEFAULT_GUID_FOR_NIL])
                 {
                     NSString* response = nil;
