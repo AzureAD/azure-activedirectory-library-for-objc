@@ -212,7 +212,7 @@ return; \
             error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
                                                            protocolCode:nil
                                                            errorDetails:@"source application bundle identifier should be same as the redirect URI domain"];
-            AD_LOG_ERROR_F(@"source application does not match redirect uri host", error.protocolCode , @"Invalid source app: %@", error.errorDetails);
+            AD_LOG_ERROR_F(@"source application does not match redirect uri host", (int)error.protocolCode , @"Invalid source app: %@", error.errorDetails);
             NSString* response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@",
                                    [error.protocolCode adUrlFormEncode],
                                    [error.errorDetails adUrlFormEncode],
@@ -307,7 +307,7 @@ return; \
                                      onResultBlock:^(NSError *error) {
                                          if(!error)
                                          {
-                                             AD_LOG_INFO(@"WPJ succeeded. Getting the token initally requested.", nil);
+                                             AD_LOG_INFO(@"WPJ succeeded. Getting the token initially requested.", nil);
                                              [ctx acquireAccount:[queryParamsMap valueForKey:AUTHORITY]
                                                           userId:[err.userInfo valueForKey:@"username"]
                                                         clientId:[queryParamsMap valueForKey:OAUTH2_CLIENT_ID]
@@ -424,7 +424,12 @@ return; \
     // the default token in the case in case there is a single user.
     BOOL forceUI = [NSString adIsStringNilOrBlank:upn];
     
-    NSString* qp = [NSString stringWithFormat:@"%@&%@", @"brkr=1", queryParams];
+    
+    NSString* qp = @"brkr=1";
+    if(queryParams)
+    {
+        qp = [NSString stringWithFormat:@"%@&%@", @"brkr=1", queryParams];
+    }
     
     //callback implementation
     ADAuthenticationCallback defaultCallback = ^(ADAuthenticationResult *result) {
@@ -537,7 +542,7 @@ return; \
     [self acquireAccount:_authority
                   userId:upn
                 clientId:BROKER_CLIENT_ID
-                resource:BROKER_RESOURCE
+                resource:[ADBrokerSettings sharedInstance].graphResourceEndpoint
              redirectUri:BROKER_REDIRECT_URI
     extraQueryParameters:nil
                   appKey:DEFAULT_GUID_FOR_NIL

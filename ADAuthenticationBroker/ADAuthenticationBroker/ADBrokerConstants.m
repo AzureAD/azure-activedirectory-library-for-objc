@@ -29,7 +29,6 @@ NSString *const EXTRA_QUERY_PARAMETERS = @"extra_qp";
 
 
 NSString* const BROKER_CLIENT_ID = @"29d9ed98-a469-4536-ade2-f981bc1d605e";
-NSString* const BROKER_RESOURCE = @"https://graph.windows.net";
 NSString* const BROKER_REDIRECT_URI = @"ms-appx-web://Microsoft.AAD.BrokerPlugin";
 NSString* const DEFAULT_FIRST_PARTY_CLIENT_ID = @"";
 
