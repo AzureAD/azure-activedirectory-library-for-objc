@@ -24,6 +24,8 @@
 
 @class ADAuthenticationResult;
 
+extern NSString* const ADBrokerContextDidReturnToAppNotification;
+
 /*! The completion block declarations. */
 typedef void(^ADOnResultCallback)(NSError* error);
 
