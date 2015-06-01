@@ -141,8 +141,13 @@ static dispatch_semaphore_t s_cancelSemaphore;
 {
     
     API_ENTRY;
-    BOOL isBrokerRequest = requestPayloadUrl && [[requestPayloadUrl host] isEqualToString:@"broker"];
     *returnUpn = nil;
+    if (requestPayloadUrl == nil)
+        return NO;
+    
+    NSString* host = [requestPayloadUrl host];
+    
+    BOOL isBrokerRequest = [host isEqualToString:@"broker"] || [host isEqualToString:@"wpj"];
     if(isBrokerRequest)
     {
         NSArray * parts = [[requestPayloadUrl absoluteString] componentsSeparatedByString:@"?"];
