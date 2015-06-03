@@ -71,6 +71,11 @@ NSString * const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could 
     return nil;
 }
 
+- (void)setDelegate:(id<ADAuthenticationDelegate>)delegate
+{
+    [_authenticationViewController setDelegate:delegate];
+}
+
 - (BOOL)unpackStoryboard
 {
     // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view

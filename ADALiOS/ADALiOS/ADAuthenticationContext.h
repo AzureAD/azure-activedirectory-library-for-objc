@@ -29,8 +29,10 @@
 @class UIViewController;
 
 #if TARGET_OS_IPHONE
+@class UIWebView;
 #define ADWebView UIWebView
 #else
+@class WebView;
 #define ADWebView WebView
 #endif
 
