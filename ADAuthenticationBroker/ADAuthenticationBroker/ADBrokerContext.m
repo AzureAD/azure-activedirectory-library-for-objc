@@ -503,6 +503,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                 AD_LOG_INFO(@"acquireAccount - FAILED", @"Workplace joined = true. Attempt to get token using PRT");
                 ADAuthenticationError* error = nil;
                 ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
+                                                                           authority:authority
                                                                        correlationId:_correlationId
                                                                                error:&error];
                 [prtCtx acquireTokenUsingPRTForResource:resource
@@ -673,18 +674,18 @@ static dispatch_semaphore_t s_cancelSemaphore;
                                                   {
                                                     AD_LOG_INFO(@"WPJ device registration succeeded. Attempt to get Primary Refresh Token", nil);
                                                       //do PRT work
-                                                      ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc]
-                                                                                    initWithUpn:upn
-                                                                                    correlationId:self.correlationId
-                                                                                    error:&error];
+                                                      ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
+                                                                                                                 authority:[svcInfo oauthAuthCodeEndpoint]
+                                                                                                             correlationId:self.correlationId
+                                                                                                                     error:&error];
                                                       [prtCtx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error) {
                                                           if(error)
                                                           {
                                                               AD_LOG_ERROR_F(@"Primary Refresh Token request FAILED. Attempting again...", error.code, error.description, nil);
-                                                              ADBrokerPRTContext* newCtx = [[ADBrokerPRTContext alloc]
-                                                                                            initWithUpn:upn
-                                                                correlationId:self.correlationId
-                                                                                            error:&error];
+                                                              ADBrokerPRTContext* newCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
+                                                                                                                         authority:[svcInfo oauthAuthCodeEndpoint]
+                                                                                                                     correlationId:self.correlationId
+                                                                                                                             error:&error];
                                                               [NSThread sleepForTimeInterval:[ADBrokerSettings sharedInstance].prtRequestWaitInSeconds];
                                                               [newCtx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error){
                                                                   if(error)
@@ -755,6 +756,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                                                         completionBlock:^(NSError *error)
          {
              ADBrokerPRTContext* brokerCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
+                                                                           authority:nil
                                                                        correlationId:self.correlationId
                                                                                error:nil];
              [brokerCtx deletePRT];
