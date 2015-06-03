@@ -70,7 +70,7 @@ BOOL validBase64Characters(const byte* data, const int size)
         return nil;
     }
     
-    NSData      *encodedBytes = [encodedString dataUsingEncoding:NSASCIIStringEncoding];
+    NSData      *encodedBytes = [encodedString dataUsingEncoding:NSUTF8StringEncoding];
     const byte  *pbEncoded    = [encodedBytes bytes];
     const int    cbEncoded    = (int)[encodedBytes length];
     if (!validBase64Characters(pbEncoded, cbEncoded))
