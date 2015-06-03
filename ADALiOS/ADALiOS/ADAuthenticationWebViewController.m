@@ -29,36 +29,21 @@
 #import "ADAuthenticationSettings.h"
 #import "ADNTLMHandler.h"
 #import "ADBrokerKeyHelper.h"
-#import "ADAuthenticationBroker.h"
-
-@interface ADAuthenticationWebViewController ()
-
-@property (copy) NSURL* startURL;
-@property (copy) NSString* endURL;
-@property (retain) ADWebViewController* controller;
-
-@end
 
 @implementation ADAuthenticationWebViewController
 {
-    ADWebViewController* _controller;
+    __weak UIWebView *_webView;
     
-    NSURL *     _startURL;
-    NSString *  _endURL;
-    BOOL        _complete;
-    float       _timeout;
+    NSURL    *_startURL;
+    NSString *_endURL;
+    BOOL      _complete;
+    float _timeout;
 }
-
-@synthesize startURL = _startURL;
-@synthesize endURL = _endURL;
-@synthesize controller = _controller;
 
 #pragma mark - Initialization
 NSTimer *timer;
 
-- (id)initWithWebView:(ADWebView*)webView
-             startURL:(NSURL *)startURL
-               endURL:(NSURL *)endURL
+- (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
     if ( nil == startURL || nil == endURL )
         return nil;
@@ -66,21 +51,16 @@ NSTimer *timer;
     if ( nil == webView )
         return nil;
     
-    ADWebViewController* controller = [[ADWebViewController alloc] initWithWebView:webView];
-    if (controller == nil)
-        return nil;
-    
-    if ( ( self = [super init] ) == nil )
-        return nil;
-    
-    [self setStartURL:startURL];
-    [self setEndURL:[endURL absoluteString]];
-    _complete  = NO;
-    _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
-    _controller = controller;
-    [_controller setDelegate:self];
-    
-    [ADNTLMHandler setCancellationUrl:[_startURL absoluteString]];
+    if ( ( self = [super init] ) != nil )
+    {
+        _startURL  = [startURL copy];
+        _endURL    = [endURL absoluteString];
+        _complete  = NO;
+        _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
+        _webView          = webView;
+        _webView.delegate = self;
+        [ADNTLMHandler setCancellationUrl:[_startURL absoluteString]];
+    }
     
     return self;
 }
@@ -91,17 +71,16 @@ NSTimer *timer;
     // UIWebView that it is managing is released in the hosted case and
     // so it is important that to stop listening for events from the
     // UIWebView when we are released.
-    [self setController:nil];
+    _webView.delegate = nil;
+    _webView          = nil;
 }
 
 #pragma mark - Public Methods
 
 - (void)start
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:ADAuthenticationWillStartNotification
-                                                        object:self];
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
-    [_controller loadRequest:request];
+    [_webView loadRequest:request];
 }
 
 - (void)stop
@@ -127,14 +106,16 @@ NSTimer *timer;
     
     [responseUrl setValue:pKeyAuthHeaderVersion forHTTPHeaderField: pKeyAuthHeader];
     [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
-    [_controller loadRequest:responseUrl];
+    [_webView loadRequest:responseUrl];
 }
 
 
 #pragma mark - UIWebViewDelegate Protocol
 
-- (BOOL)shouldStartLoadWithRequest:(NSURLRequest *)request
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+#pragma unused(webView)
+#pragma unused(navigationType)
     
     if([ADNTLMHandler isChallengeCancelled]){
         _complete = YES;
@@ -190,23 +171,25 @@ NSTimer *timer;
     return YES;
 }
 
-- (void)didStartLoad
+- (void)webViewDidStartLoad:(UIWebView *)webView
 {
     if (timer != nil){
         [timer invalidate];
     }
-    
+#pragma unused(webView)
     timer = [NSTimer scheduledTimerWithTimeInterval:_timeout target:self selector:@selector(failWithTimeout) userInfo:nil repeats:NO];
 }
 
-- (void)didFinishLoad
+- (void)webViewDidFinishLoad:(UIWebView *)webView
 {
+#pragma unused(webView)
     [timer invalidate];
     timer = nil;
 }
 
-- (void)didFailLoadWithError:(NSError *)error
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
+#pragma unused(webView)
     if(timer && [timer isValid]){
         [timer invalidate];
         timer = nil;
@@ -247,13 +230,12 @@ NSTimer *timer;
     }
 }
 
-- (void) failWithTimeout
-{
+- (void) failWithTimeout{
     
     AD_LOG_ERROR(@"Request load timeout", NSURLErrorTimedOut, nil);
-    [self didFailLoadWithError:[NSError errorWithDomain:NSURLErrorDomain
-                                                   code:NSURLErrorTimedOut
-                                               userInfo:nil]];
+    [self webView:_webView didFailLoadWithError:[NSError errorWithDomain:NSURLErrorDomain
+                                                                    code:NSURLErrorTimedOut
+                                                                userInfo:nil]];
 }
 
 @end

@@ -1,1 +1,0 @@
-OTHER_CFLAGS = $(inherited) -Werror -Wno-arc-bridge-casts-disallowed-in-nonarc

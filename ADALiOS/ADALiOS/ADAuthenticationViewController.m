@@ -85,7 +85,7 @@
 - (BOOL)startWithURL:(NSURL *)startURL
             endAtURL:(NSURL *)endURL
 {
-    _webAuthenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:_webView startURL:startURL endURL:endURL];
+    _webAuthenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:_webView startAtURL:startURL endAtURL:endURL];
     
     if ( _webAuthenticationWebViewController )
     {
@@ -136,7 +136,7 @@
 #pragma unused(navigationType)
     
     // Forward to the UIWebView controller
-    return [_webAuthenticationWebViewController shouldStartLoadWithRequest:request];
+    return [_webAuthenticationWebViewController webView:webView shouldStartLoadWithRequest:request navigationType:navigationType];
 }
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
@@ -152,7 +152,7 @@
                                     repeats:NO];
     
     // Forward to the UIWebView controller
-    [_webAuthenticationWebViewController didStartLoad];
+    [_webAuthenticationWebViewController webViewDidStartLoad:webView];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
@@ -164,7 +164,7 @@
     [_activityIndicator stopAnimating];
     
     // Forward to the UIWebView controller
-    [_webAuthenticationWebViewController didFinishLoad];
+    [_webAuthenticationWebViewController webViewDidFinishLoad:webView];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
@@ -176,7 +176,7 @@
     [_activityIndicator stopAnimating];
 
     // Forward to the UIWebView controller
-    [_webAuthenticationWebViewController didFailLoadWithError:error];
+    [_webAuthenticationWebViewController webView:webView didFailLoadWithError:error];
 }
 
 @end

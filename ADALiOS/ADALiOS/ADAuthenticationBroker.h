@@ -17,18 +17,14 @@
 // governing permissions and limitations under the License.
 
 @class ADAuthenticationError;
-@class ADAuthenticationWindowController;
 
 #import "ADAuthenticationContext.h"
-
-extern NSString * const ADAuthenticationWillStartNotification;
 
 typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 @interface ADAuthenticationBroker : NSObject
 
 + (NSString *)resourcePath;
 + (void)setResourcePath:(NSString *)resourcePath;
-+ (NSBundle *)frameworkBundle;
 
 + (ADAuthenticationBroker *)sharedInstance;
 
@@ -38,10 +34,8 @@ typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
 refreshTokenCredential:(NSString*)refreshTokenCredential
-#if TARGET_OS_IPHONE
 parentController:(UIViewController *)parent
-#endif // TARGET_OS_IPHONE
-      webView:(ADWebView*)webView
+      webView:(WebViewType*)webView
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID*)correlationId
    completion: (ADBrokerCallback) completionBlock;
@@ -50,11 +44,5 @@ correlationId:(NSUUID*)correlationId
 
 - (BOOL)cancelWithError:(int)errorcode
                 details:(NSString*)details;
-
-@end
-
-@interface ADAuthenticationBroker (Platform)
-
-- (void)dismissControllerAnimated:(BOOL)animated completion:(void(^)())completion;
 
 @end

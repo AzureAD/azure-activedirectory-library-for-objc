@@ -17,12 +17,6 @@
 // governing permissions and limitations under the License.
 
 
-#if TARGET_OS_IPHONE
-#define ADWebView UIWebView
-#else
-#define ADWebView WebView
-#endif
-
 #import "ADLogger.h"
 #import "ADAuthenticationContext.h"
 #import "ADTokenCacheStoring.h"

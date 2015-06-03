@@ -50,14 +50,13 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                   message: (NSString*) message
 {
     //The pragmas here are copied directly from the XCTAssertNotNil:
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#pragma clang diagnostic ignored "-Wformat-security"
+    _Pragma("clang diagnostic push")
+    _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"")//Temporarily remove the compiler warning
     if ([NSString adIsStringNilOrBlank:text])
     {
         _XCTFailureHandler(self, YES, __FILE__, __LINE__, text, message);
     }
-#pragma clang diagnostic pop
+    _Pragma("clang diagnostic pop")//Restore the compiler warning
 }
 
 /* See header for details. */
@@ -427,7 +426,7 @@ extern void __gcov_flush(void);
             //Cast to the scalar to double and ensure it is far from 0 (default)
             
             double dValue = [(NSNumber*)value doubleValue];
-            if (fabs(dValue) < 0.0001)
+            if (abs(dValue) < 0.0001)
             {
                 XCTFail("The value of the property %@ is 0. Please update the initialization method to set it.", propertyName);
             }
@@ -480,7 +479,7 @@ extern void __gcov_flush(void);
             //Scalar type, simply cast to double:
             double dValue1 = [(NSNumber*)value1 doubleValue];
             double dValue2 = [(NSNumber*)value2 doubleValue];
-            if (fabs(dValue1 - dValue2) > 0.0001)
+            if (abs(dValue1 - dValue2) > 0.0001)
             {
                 XCTFail("The value of the property %@ is different. Value1: %@; Value2: %@", propertyName, value1, value2);
             }
@@ -489,7 +488,7 @@ extern void __gcov_flush(void);
         {
             //The framework is flaky with deserialization of NSDate classes:
             NSTimeInterval delta = [(NSDate*)value1 timeIntervalSinceDate:(NSDate*)value2];
-            if (fabs(delta) >= 1)//Sub-second tollerance
+            if (abs(delta) >= 1)//Sub-second tollerance
             {
                 XCTFail("The value of the property %@ is not the same. Value1: %@; Value2: %@", propertyName, value1, value2);
             }
