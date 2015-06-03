@@ -76,23 +76,6 @@
 		94A73A941B0FE0CB001E03A0 /* ADWebViewControlleriOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A73A931B0FE0CB001E03A0 /* ADWebViewControlleriOS.m */; };
 		94A73A961B0FE156001E03A0 /* ADAuthenticationWindowControlleriOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A73A951B0FE156001E03A0 /* ADAuthenticationWindowControlleriOS.m */; };
 		971C56BE1AF2278C0034820F /* ADBrokerNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 971C56BD1AF2278C0034820F /* ADBrokerNotificationManager.m */; };
-		971C57441AFA9BD10034820F /* ADALiOSFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = 971C57431AFA9BD10034820F /* ADALiOSFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		971C575A1AFA9C0D0034820F /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AA17F25770002BDFB8 /* libADALiOS.a */; };
-		971C575B1AFA9C270034820F /* ADAL_iPhone_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04B182D906700122C0C /* ADAL_iPhone_Storyboard.storyboard */; };
-		971C575C1AFA9C2F0034820F /* ADAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04C182D906700122C0C /* ADAL_iPad_Storyboard.storyboard */; };
-		971C575D1AFA9C380034820F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF066182DA57800122C0C /* InfoPlist.strings */; };
-		971C575E1AFA9C510034820F /* ADUserInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B59893C180DE8A100744AEE /* ADUserInformation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		971C575F1AFA9CA30034820F /* ADAL.h in Headers */ = {isa = PBXBuildFile; fileRef = 97DFE4661AE37B42008109E1 /* ADAL.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		971C57601AFA9CA30034820F /* ADAuthenticationContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BB8345A18074A58007F9F0D /* ADAuthenticationContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		971C57611AFA9CA30034820F /* ADAuthenticationError.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B59894F1811A3DB00744AEE /* ADAuthenticationError.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		971C57621AFA9CA30034820F /* ADAuthenticationParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BB8346018074CFA007F9F0D /* ADAuthenticationParameters.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		971C57631AFA9CA30034820F /* ADAuthenticationResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BB8345D18074B74007F9F0D /* ADAuthenticationResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		971C57641AFA9CA30034820F /* ADAuthenticationSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BB83463180764B6007F9F0D /* ADAuthenticationSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		971C57651AFA9CA30034820F /* ADErrorCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B598946180DF6F000744AEE /* ADErrorCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		971C57661AFA9CA30034820F /* ADLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B92DB6E181B2335004AAB0E /* ADLogger.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		971C57671AFA9CA30034820F /* ADTokenCacheStoreItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B59894C1810BEAC00744AEE /* ADTokenCacheStoreItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		971C57681AFA9CA30034820F /* ADTokenCacheStoreKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B5989531811B89800744AEE /* ADTokenCacheStoreKey.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		971C57691AFA9CA30034820F /* ADTokenCacheStoring.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B5989561811BEC500744AEE /* ADTokenCacheStoring.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		971C57C91AFFFE010034820F /* ADCustomHeaderHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 971C57C81AFFFE010034820F /* ADCustomHeaderHandler.m */; };
 		9722232E19A2C9F900092E85 /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722232819A2C9F900092E85 /* ADRegistrationInformation.m */; };
 		9722232F19A2C9F900092E85 /* ADWorkPlaceJoin.m in Sources */ = {isa = PBXBuildFile; fileRef = 9722232A19A2C9F900092E85 /* ADWorkPlaceJoin.m */; };
@@ -252,7 +235,6 @@
 		94A73A981B0FFF5A001E03A0 /* adal__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__common.xcconfig; sourceTree = "<group>"; };
 		971C56BC1AF2278C0034820F /* ADBrokerNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerNotificationManager.h; sourceTree = "<group>"; };
 		971C56BD1AF2278C0034820F /* ADBrokerNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerNotificationManager.m; sourceTree = "<group>"; };
-		971C573F1AFA9BD10034820F /* ADALiOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ADALiOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		971C57421AFA9BD10034820F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		971C57431AFA9BD10034820F /* ADALiOSFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADALiOSFramework.h; sourceTree = "<group>"; };
 		971C574F1AFA9BD10034820F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -327,14 +309,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		971C573B1AFA9BD10034820F /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				971C575A1AFA9C0D0034820F /* libADALiOS.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -358,7 +332,6 @@
 				8B0965AA17F25770002BDFB8 /* libADALiOS.a */,
 				8B0965BA17F25770002BDFB8 /* ADALiOSTests.xctest */,
 				8BFEF05C182DA57800122C0C /* ADALiOS.bundle */,
-				971C573F1AFA9BD10034820F /* ADALiOS.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -634,29 +607,6 @@
 		};
 /* End PBXGroup section */
 
-/* Begin PBXHeadersBuildPhase section */
-		971C573C1AFA9BD10034820F /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				971C57681AFA9CA30034820F /* ADTokenCacheStoreKey.h in Headers */,
-				971C57671AFA9CA30034820F /* ADTokenCacheStoreItem.h in Headers */,
-				971C575F1AFA9CA30034820F /* ADAL.h in Headers */,
-				971C57621AFA9CA30034820F /* ADAuthenticationParameters.h in Headers */,
-				971C57631AFA9CA30034820F /* ADAuthenticationResult.h in Headers */,
-				971C57601AFA9CA30034820F /* ADAuthenticationContext.h in Headers */,
-				971C57611AFA9CA30034820F /* ADAuthenticationError.h in Headers */,
-				971C57441AFA9BD10034820F /* ADALiOSFramework.h in Headers */,
-				971C57641AFA9CA30034820F /* ADAuthenticationSettings.h in Headers */,
-				971C57691AFA9CA30034820F /* ADTokenCacheStoring.h in Headers */,
-				971C575E1AFA9C510034820F /* ADUserInformation.h in Headers */,
-				971C57651AFA9CA30034820F /* ADErrorCodes.h in Headers */,
-				971C57661AFA9CA30034820F /* ADLogger.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
 /* Begin PBXNativeTarget section */
 		8B0965A917F25770002BDFB8 /* ADALiOS */ = {
 			isa = PBXNativeTarget;
@@ -711,24 +661,6 @@
 			productReference = 8BFEF05C182DA57800122C0C /* ADALiOS.bundle */;
 			productType = "com.apple.product-type.bundle";
 		};
-		971C573E1AFA9BD10034820F /* ADALiOSFramework */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 971C57521AFA9BD10034820F /* Build configuration list for PBXNativeTarget "ADALiOSFramework" */;
-			buildPhases = (
-				971C573A1AFA9BD10034820F /* Sources */,
-				971C573B1AFA9BD10034820F /* Frameworks */,
-				971C573C1AFA9BD10034820F /* Headers */,
-				971C573D1AFA9BD10034820F /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = ADALiOSFramework;
-			productName = ADALiOSFramework;
-			productReference = 971C573F1AFA9BD10034820F /* ADALiOS.framework */;
-			productType = "com.apple.product-type.framework";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -737,11 +669,6 @@
 			attributes = {
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "MS Open Tech";
-				TargetAttributes = {
-					971C573E1AFA9BD10034820F = {
-						CreatedOnToolsVersion = 6.3;
-					};
-				};
 			};
 			buildConfigurationList = 8B0965A517F25770002BDFB8 /* Build configuration list for PBXProject "ADALiOS" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -758,7 +685,6 @@
 				8B0965A917F25770002BDFB8 /* ADALiOS */,
 				8B0965B917F25770002BDFB8 /* ADALiOSTests */,
 				8BFEF05B182DA57800122C0C /* ADALiOSBundle */,
-				971C573E1AFA9BD10034820F /* ADALiOSFramework */,
 			);
 		};
 /* End PBXProject section */
@@ -781,16 +707,6 @@
 				8BFEF07B182DB15E00122C0C /* InfoPlist.strings in Resources */,
 				8BFEF07C182DB15E00122C0C /* ADAL_iPhone_Storyboard.storyboard in Resources */,
 				8BFEF07D182DB15E00122C0C /* ADAL_iPad_Storyboard.storyboard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		971C573D1AFA9BD10034820F /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				971C575B1AFA9C270034820F /* ADAL_iPhone_Storyboard.storyboard in Resources */,
-				971C575D1AFA9C380034820F /* InfoPlist.strings in Resources */,
-				971C575C1AFA9C2F0034820F /* ADAL_iPad_Storyboard.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -892,13 +808,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		8BFEF058182DA57800122C0C /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		971C573A1AFA9BD10034820F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1283,93 +1192,6 @@
 			};
 			name = Release;
 		};
-		971C57531AFA9BD10034820F /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = ADALiOSFramework/Info.plist;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_NAME = ADALiOS;
-				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Debug;
-		};
-		971C57541AFA9BD10034820F /* CodeCoverage */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = ADALiOSFramework/Info.plist;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_NAME = ADALiOS;
-				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = CodeCoverage;
-		};
-		971C57551AFA9BD10034820F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = ADALiOSFramework/Info.plist;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_NAME = ADALiOS;
-				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1409,16 +1231,6 @@
 				8BFEF06B182DA57900122C0C /* Debug */,
 				8B41A1EB1888C6350027EE1E /* CodeCoverage */,
 				8BFEF06C182DA57900122C0C /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		971C57521AFA9BD10034820F /* Build configuration list for PBXNativeTarget "ADALiOSFramework" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				971C57531AFA9BD10034820F /* Debug */,
-				971C57541AFA9BD10034820F /* CodeCoverage */,
-				971C57551AFA9BD10034820F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

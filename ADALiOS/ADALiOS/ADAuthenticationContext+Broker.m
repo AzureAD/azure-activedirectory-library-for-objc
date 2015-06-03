@@ -60,8 +60,12 @@
 
 + (void)internalHandleBrokerResponse:(NSURL *)response
 {
-    THROW_ON_NIL_ARGUMENT([ADBrokerNotificationManager sharedInstance].callbackForBroker);
     ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].callbackForBroker;
+    if (!completionBlock)
+    {
+        return;
+    }
+    
     HANDLE_ARGUMENT(response);
     
     NSString *qp = [response query];
@@ -113,6 +117,36 @@
     
     if (AD_SUCCEEDED == result.status)
     {
+        result.tokenCacheStoreItem.accessTokenType = @"Bearer";
+        // Token response
+        id expires_on = [queryParamsMap objectForKey:@"expires_on"];
+        NSDate *expires    = nil;
+        if ( expires_on != nil )
+        {
+            if ( [expires_on isKindOfClass:[NSString class]] )
+            {
+                NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+                
+                expires = [NSDate dateWithTimeIntervalSince1970:[formatter numberFromString:expires_on].longValue];
+            }
+            else if ( [expires_on isKindOfClass:[NSNumber class]] )
+            {
+                expires = [NSDate dateWithTimeIntervalSince1970:((NSNumber *)expires_on).longValue];
+            }
+            else
+            {
+                AD_LOG_WARN_F(@"Unparsable time", @"The response value for the access token expiration cannot be parsed: %@", expires);
+                // Unparseable, use default value
+                expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//1 hour
+            }
+        }
+        else
+        {
+            AD_LOG_WARN(@"Missing expiration time.", @"The server did not return the expiration time for the access token.");
+            expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//Assume 1hr expiration
+        }
+        
+        result.tokenCacheStoreItem.expiresOn = expires;
         ADAuthenticationContext* ctx = [ADAuthenticationContext
                                         authenticationContextWithAuthority:result.tokenCacheStoreItem.authority
                                         error:nil];
@@ -154,6 +188,11 @@
                completionBlock:(ADAuthenticationCallback)completionBlock
 
 {
+    CHECK_FOR_NIL(authority);
+    CHECK_FOR_NIL(resource);
+    CHECK_FOR_NIL(clientId);
+    CHECK_FOR_NIL(correlationId);
+    
     ADAuthenticationError* error = nil;
     if(![ADAuthenticationContext respondsToUrl:[redirectUri absoluteString]])
     {
@@ -169,17 +208,23 @@
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    NSString* redirectUriStr = [redirectUri absoluteString];
+    NSString* adalVersion = [ADLogger getAdalVersion];
+    
+    CHECK_FOR_NIL(base64UrlKey);
+    CHECK_FOR_NIL(redirectUriStr);
+    CHECK_FOR_NIL(adalVersion);
     
     NSDictionary* queryDictionary = @{
                                       @"authority": authority,
                                       @"resource" : resource,
                                       @"client_id": clientId,
-                                      @"redirect_uri": redirectUri.absoluteString,
-                                      @"username": userId,
+                                      @"redirect_uri": redirectUriStr,
+                                      @"username": userId ? userId : @"",
                                       @"correlation_id": correlationId,
                                       @"broker_key": base64UrlKey,
-                                      @"client_version": [ADLogger getAdalVersion],
-                                      @"extra_qp": queryParams,
+                                      @"client_version": adalVersion,
+                                      @"extra_qp": queryParams ? queryParams : @"",
                                       };
     
     NSString* query = [queryDictionary adURLFormEncode];
@@ -211,6 +256,9 @@
                          correlationId:(NSUUID*)correlationId
                        completionBlock:(ADAuthenticationCallback)completionBlock
 {
+    CHECK_FOR_NIL(resource);
+    CHECK_FOR_NIL(clientId);
+    CHECK_FOR_NIL(redirectUri);
     
     ADAuthenticationError* error = nil;
     if(![ADAuthenticationContext respondsToUrl:[redirectUri absoluteString]])
@@ -226,17 +274,26 @@
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    NSString* adalVersion = [ADLogger getAdalVersion];
+    NSString* redirectUriStr = [redirectUri absoluteString];
+    NSString* correlationIdStr = [correlationId UUIDString];
+    NSString* authority = self.authority;
+    
+    CHECK_FOR_NIL(base64UrlKey);
+    CHECK_FOR_NIL(redirectUriStr);
+    CHECK_FOR_NIL(adalVersion);
+    CHECK_FOR_NIL(authority);
     
     NSDictionary* queryDictionary = @{
-                                      @"authority": self.authority,
+                                      @"authority": authority,
                                       @"resource" : resource,
                                       @"client_id": clientId,
-                                      @"redirect_uri": redirectUri.absoluteString,
-                                      @"username": userId,
-                                      @"correlation_id": [correlationId UUIDString],
+                                      @"redirect_uri": redirectUriStr,
+                                      @"username": userId ? userId : @"",
+                                      @"correlation_id": correlationIdStr,
                                       @"broker_key": base64UrlKey,
-                                      @"client_version": [ADLogger getAdalVersion],
-                                      @"extra_qp": queryParams,
+                                      @"client_version": adalVersion,
+                                      @"extra_qp": queryParams ? queryParams : @"",
                                       };
     NSString* query = [queryDictionary adURLFormEncode];
     

@@ -46,6 +46,9 @@ correlationId:(NSUUID*)correlationId
 
 - (void)cancel;
 
+- (BOOL)cancelWithError:(int)errorcode
+                details:(NSString*)details;
+
 @end
 
 @interface ADAuthenticationBroker (Platform)

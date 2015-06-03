@@ -25,6 +25,9 @@
     return; \
     }
 
+#define CHECK_FOR_NIL(_val) \
+    if (!_val) { completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"" #_val " is nil!"]]); return; }
+
 #import "ADALiOS.h"
 
 #import "ADAuthenticationContext.h"
@@ -52,9 +55,11 @@ extern NSString* const ADRedirectUriInvalidError;
 + (BOOL)checkAndHandleBadArgument:(NSObject*) argumentValue
                      argumentName:(NSString*) argumentName
                   completionBlock:(ADAuthenticationCallback)completionBlock;
+
 + (BOOL)handleNilOrEmptyAsResult:(NSObject*)argumentValue
                     argumentName:(NSString*)argumentName
             authenticationResult:(ADAuthenticationResult**)authenticationResult;
+
 + (ADAuthenticationError*)errorFromDictionary:(NSDictionary*)dictionary
                                     errorCode:(ADErrorCode)errorCode;
 
@@ -62,6 +67,7 @@ extern NSString* const ADRedirectUriInvalidError;
 + (BOOL)isFinalResult:(ADAuthenticationResult*)result;
 
 + (NSString*)getPromptParameter:(ADPromptBehavior)prompt;
+
 + (BOOL)isForcedAuthorization:(ADPromptBehavior)prompt;
 
 - (ADAuthenticationResult*)updateResult:(ADAuthenticationResult*)result
