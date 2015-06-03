@@ -16,18 +16,21 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADWebViewController.h"
+#import <Foundation/Foundation.h>
 
-@interface ADAuthenticationWebViewController : NSObject <ADWebViewDelegate, NSURLConnectionDelegate>
+extern NSString * const AD_FAILED_NO_CONTROLLER;
+extern NSString * const AD_FAILED_NO_RESOURCES;
 
-@property (weak, nonatomic) id<ADAuthenticationDelegate> delegate;
+@interface ADAuthenticationWindowController : NSObject
 
-- (id)initWithWebView:(ADWebView*)webView
-             startURL:(NSURL *)startURL
-               endURL:(NSURL *)endURL;
+#if TARGET_OS_IPHONE
+- (void)setParentController:(UIViewController*)parentController;
+- (void)setFullScreen:(BOOL)fullScreen;
+#endif //TARGET_OS_IPHONE
 
-- (void)start;
-- (void)stop;
-- (void)handlePKeyAuthChallenge:(NSString *)challengeUrl;
+- (ADAuthenticationError*)showWindowWithStartURL:(NSURL*)startURL
+                                          endURL:(NSURL*)endURL;
+- (void)dismissAnimated:(BOOL)animated
+             completion:(void(^)())completion;
 
 @end

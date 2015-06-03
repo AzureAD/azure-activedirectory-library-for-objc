@@ -26,17 +26,13 @@
 #import "ADTokenCacheStoreKey.h"
 #import "ADErrorCodes.h"
 
-#if TARGET_OS_IPHONE
-//iOS:
-#   include <UIKit/UIKit.h>
-typedef UIWebView WebViewType;
-#else
-//OS X:
-#   include <WebKit/WebKit.h>
-typedef WebView   WebViewType;
-#endif
-
 @class UIViewController;
+
+#if TARGET_OS_IPHONE
+#define ADWebView UIWebView
+#else
+#define ADWebView WebView
+#endif
 
 typedef enum
 {
@@ -168,14 +164,15 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  requests and the responses from the server. If nil, a new UUID is generated on every request. */
 @property (strong, getter=getCorrelationId, setter=setCorrelationId:) NSUUID* correlationId;
 
+#if TARGET_OS_IPHONE
 /*! The parent view controller for the authentication view controller UI. This property will be used only if
  a custom web view is NOT specified. */
 @property (weak) UIViewController* parentController;
-
+#endif // TARGET_OS_IPHONE
 
 /*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
  when needed, leveraging the parentController property. */
-@property (weak) WebViewType* webView;
+@property (weak) ADWebView* webView;
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,

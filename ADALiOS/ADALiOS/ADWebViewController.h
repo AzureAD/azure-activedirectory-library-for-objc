@@ -16,18 +16,25 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADWebViewController.h"
+#import <Foundation/Foundation.h>
+#import "ADAuthenticationContext.h"
 
-@interface ADAuthenticationWebViewController : NSObject <ADWebViewDelegate, NSURLConnectionDelegate>
+@protocol ADWebViewDelegate <NSObject>
 
-@property (weak, nonatomic) id<ADAuthenticationDelegate> delegate;
+- (BOOL)shouldStartLoadWithRequest:(NSURLRequest *)request;
+- (void)didStartLoad;
+- (void)didFinishLoad;
+- (void)didFailLoadWithError:(NSError*)error;
 
-- (id)initWithWebView:(ADWebView*)webView
-             startURL:(NSURL *)startURL
-               endURL:(NSURL *)endURL;
+@end
 
-- (void)start;
-- (void)stop;
-- (void)handlePKeyAuthChallenge:(NSString *)challengeUrl;
+@interface ADWebViewController : NSObject
+
+@property (retain) id<ADWebViewDelegate> delegate;
+
+- (id)initWithWebView:(ADWebView*)webView;
+- (void)setDelegate:(id<ADWebViewDelegate>)delegate;
+
+- (void)loadRequest:(NSURLRequest*)request;
 
 @end

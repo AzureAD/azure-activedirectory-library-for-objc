@@ -26,6 +26,8 @@
 #import "ADErrorCodes.h"
 #import "ADAuthenticationError.h"
 #import "NSString+ADHelperMethods.h"
+#import "NSDictionary+ADExtensions.h"
+#import "NSURL+ADExtensions.h"
 
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \

@@ -35,6 +35,12 @@
     return;
 }
 
+-(void) removeAllForUser: (NSString*) userId
+                   error: (ADAuthenticationError* __autoreleasing*) error
+{
+    return;
+}
+
 -(void) removeAllWithError:(ADAuthenticationError *__autoreleasing *)error
 {
     return;
