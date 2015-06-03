@@ -17,6 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
+#import "ADAuthenticationDelegate.h"
 
 extern NSString * const AD_FAILED_NO_CONTROLLER;
 extern NSString * const AD_FAILED_NO_RESOURCES;
@@ -32,5 +33,7 @@ extern NSString * const AD_FAILED_NO_RESOURCES;
                                           endURL:(NSURL*)endURL;
 - (void)dismissAnimated:(BOOL)animated
              completion:(void(^)())completion;
+
+- (void)setDelegate:(id<ADAuthenticationDelegate>)delegate;
 
 @end

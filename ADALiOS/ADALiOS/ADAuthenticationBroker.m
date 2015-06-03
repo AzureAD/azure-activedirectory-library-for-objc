@@ -253,6 +253,7 @@ correlationId:(NSUUID *)correlationId
             [_windowController setParentController:parent];
             [_windowController setFullScreen:fullScreen];
 #endif // TARGET_OS_IPHONE
+            [_windowController setDelegate:self];
             
             [self setRefreshTokenCredential:refreshTokenCredential];
             error = [_windowController showWindowWithStartURL:startURL
