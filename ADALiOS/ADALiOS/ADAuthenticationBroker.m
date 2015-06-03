@@ -28,6 +28,8 @@
 #import "ADAuthenticationWindowController.h"
 #import "ADNTLMHandler.h"
 
+NSString * const ADAuthenticationWillStartNotification = @"ADAuthenticationWillStartNotification";
+
 // Private interface declaration
 @interface ADAuthenticationBroker () <ADAuthenticationDelegate>
 
@@ -107,13 +109,16 @@
 
 - (id)init
 {
-    self = [super init];
+    if (!(self = [super init]))
+        return nil;
     
-    if ( self )
-    {
-        _completionLock = [[NSLock alloc] init];
-        _ntlmSession = NO;
-    }
+    _completionLock = [[NSLock alloc] init];
+    _ntlmSession = NO;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(authWindowWillShow:)
+                                                 name:ADAuthenticationWillStartNotification
+                                               object:nil];
     
     return self;
 }
@@ -193,10 +198,6 @@ static NSString *_resourcePath = nil;
                                        forSingleUse:YES];
         [self setRefreshTokenCredential:nil];
     }
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:ADAuthenticationWindowWillShowNotification
-                                                  object:[notification object]];
 }
 
 
@@ -254,11 +255,6 @@ correlationId:(NSUUID *)correlationId
 #endif // TARGET_OS_IPHONE
             
             [self setRefreshTokenCredential:refreshTokenCredential];
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(authWindowWillShow:)
-                                                         name:ADAuthenticationWindowWillShowNotification
-                                                       object:_windowController];
-            
             error = [_windowController showWindowWithStartURL:startURL
                                                        endURL:endURL];
         }

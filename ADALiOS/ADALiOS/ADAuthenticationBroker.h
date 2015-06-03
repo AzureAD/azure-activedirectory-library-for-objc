@@ -21,6 +21,8 @@
 
 #import "ADAuthenticationContext.h"
 
+extern NSString * const ADAuthenticationWillStartNotification;
+
 typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 @interface ADAuthenticationBroker : NSObject
 

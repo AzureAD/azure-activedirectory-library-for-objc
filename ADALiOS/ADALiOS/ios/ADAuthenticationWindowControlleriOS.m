@@ -27,7 +27,6 @@
 static NSString * const AD_IPAD_STORYBOARD = @"ADAL_iPad_Storyboard";
 static NSString * const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 
-NSString * const ADAuthenticationWindowWillShowNotification = @"ADAuthenticationWindowWillShowNotification";
 NSString * const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
 NSString * const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
 
@@ -118,9 +117,6 @@ NSString * const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could 
     // Show the authentication view
     dispatch_async( dispatch_get_main_queue(), ^{
         // Let observers know that we're about to pop up the window.
-        [[NSNotificationCenter defaultCenter] postNotificationName:ADAuthenticationWindowWillShowNotification
-                                                            object:self];
-        
         [_parent presentViewController:_navigationController animated:YES completion:^{
         // Instead of loading the URL immediately on completion, get the UI on the screen
         // and then dispatch the call to load the authorization URL

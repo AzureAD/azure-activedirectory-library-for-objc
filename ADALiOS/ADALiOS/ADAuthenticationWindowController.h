@@ -20,7 +20,6 @@
 
 extern NSString * const AD_FAILED_NO_CONTROLLER;
 extern NSString * const AD_FAILED_NO_RESOURCES;
-extern NSString * const ADAuthenticationWindowWillShowNotification;
 
 @interface ADAuthenticationWindowController : NSObject
 

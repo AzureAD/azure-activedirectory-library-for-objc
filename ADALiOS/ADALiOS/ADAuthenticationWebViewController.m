@@ -29,6 +29,7 @@
 #import "ADAuthenticationSettings.h"
 #import "ADNTLMHandler.h"
 #import "ADBrokerKeyHelper.h"
+#import "ADAuthenticationBroker.h"
 
 @interface ADAuthenticationWebViewController ()
 
@@ -97,6 +98,8 @@ NSTimer *timer;
 
 - (void)start
 {
+    [[NSNotificationCenter defaultCenter] postNotificationName:ADAuthenticationWillStartNotification
+                                                        object:self];
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
     [_controller loadRequest:request];
 }
