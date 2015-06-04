@@ -84,6 +84,7 @@
 - (IBAction)deletePRTPressed:(id)sender
 {
     ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.upn.text
+                                                            authority:nil
                                                         correlationId:[NSUUID UUID]
                                                                 error:nil];
     [ctx deletePRT];
@@ -104,7 +105,9 @@
 
 - (IBAction)getPRTPressed:(id)sender
 {
-    ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.account.userInformation.upn correlationId:[NSUUID UUID] error:nil];
+    ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.account.userInformation.upn
+                                                            authority:nil
+                                                        correlationId:[NSUUID UUID] error:nil];
     [ctx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error) {
         if(error)
         {                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to get PRT"
@@ -225,6 +228,7 @@
 //        }];
     
         ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.account.userInformation.upn
+                                                                authority:nil
                                                             correlationId:[NSUUID UUID]
                                                                     error:nil];
         [ctx acquireTokenUsingPRTForResource:self.resource.text

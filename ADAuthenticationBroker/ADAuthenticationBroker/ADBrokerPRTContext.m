@@ -34,46 +34,54 @@
 #import "ADAuthenticationContext+BrokerSDK.h"
 
 @implementation ADBrokerPRTContext
-
-ADAuthenticationContext* ctx;
-NSString* userPrincipalIdentifier;
-
--(id) initWithUpn:(NSString*) upn
-    correlationId:(NSUUID*) correlationId
-            error: (ADAuthenticationError* __autoreleasing *) error
 {
-    self = [super init];
-    
-    if(self)
-    {
-        ADAuthenticationError* error = nil;
-        ctx = [[ADAuthenticationContext alloc] initWithAuthority:[ADBrokerSettings sharedInstance].authority
-                                               validateAuthority:YES
-                                                 tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:DEFAULT_GUID_FOR_NIL]
-                                                           error:&error];
-        [ctx setCorrelationId:correlationId];
-        if(!error)
-        {
-            userPrincipalIdentifier = upn;
-            return self;
-        }
-    }
-    
-    return nil;
+    ADAuthenticationContext* _ctx;
+    NSString* _userPrincipalIdentifier;
+    NSString* _authority;
 }
 
--(void) deletePRT
+- (id)initWithUpn:(NSString*)upn
+        authority:(NSString*)authority
+    correlationId:(NSUUID*)correlationId
+            error:(ADAuthenticationError* __autoreleasing *)error
+{
+    ADAuthenticationContext* ctx = nil;
+    if (!authority)
+    {
+        authority = [ADBrokerSettings sharedInstance].authority;
+    }
+    
+    ctx = [[ADAuthenticationContext alloc] initWithAuthority:authority
+                                           validateAuthority:YES
+                                             tokenCacheStore:[[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:DEFAULT_GUID_FOR_NIL]
+                                                       error:error];
+    if (!ctx)
+        return nil;
+    
+    [ctx setCorrelationId:correlationId];
+    
+    if (!(self = [super init]))
+        return nil;
+    
+    _userPrincipalIdentifier = upn;
+    _ctx = ctx;
+    _authority = authority;
+
+    return self;
+}
+
+- (void)deletePRT
 {
     ADAuthenticationError* error = nil;
     //get PRT from cache
     id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:DEFAULT_GUID_FOR_NIL];
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:[ADBrokerSettings sharedInstance].authority
+    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:_authority
                                                               resource:nil
                                                               clientId:DEFAULT_GUID_FOR_NIL
                                                                  error:&error];
     //TODO figure out error case
     [cacheStore removeItemWithKey:key
-                           userId:userPrincipalIdentifier
+                           userId:_userPrincipalIdentifier
                             error:&error];
     if(error)
     {
@@ -81,17 +89,17 @@ NSString* userPrincipalIdentifier;
     }
 }
 
--(void) acquirePRTForUPN: (ADPRTResultCallback)callback
+- (void)acquirePRTForUPN:(ADPRTResultCallback)callback
 {
     ADAuthenticationError* error = nil;
     //get PRT from cache
     id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:DEFAULT_GUID_FOR_NIL];
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:[ADBrokerSettings sharedInstance].authority
+    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:_authority
                                                               resource:nil
                                                               clientId:DEFAULT_GUID_FOR_NIL
                                                                  error:&error];
     ADBrokerPRTCacheItem* item = (ADBrokerPRTCacheItem*)[cacheStore getItemWithKey:key
-                                                                            userId:userPrincipalIdentifier
+                                                                            userId:_userPrincipalIdentifier
                                                                              error:&error];
     if(!error && item && !item.isExpired)
     {
@@ -104,15 +112,15 @@ NSString* userPrincipalIdentifier;
     
     AD_LOG_INFO(@"Valid PRT NOT found in cache... Acquiring new PRT", nil);
     // get broker client ID token
-    [ctx validatedAcquireTokenWithResource:[ADBrokerSettings sharedInstance].graphResourceEndpoint
+    [_ctx validatedAcquireTokenWithResource:[ADBrokerSettings sharedInstance].graphResourceEndpoint
                                   clientId:BROKER_CLIENT_ID
                                redirectUri:[NSURL URLWithString:BROKER_REDIRECT_URI]
                             promptBehavior:AD_PROMPT_AUTO
                                     silent:NO
-                                    userId:userPrincipalIdentifier
+                                    userId:_userPrincipalIdentifier
                                      scope:@"openid"
                       extraQueryParameters:@"nux=1"
-                             correlationId:[ctx getCorrelationId]
+                             correlationId:[_ctx getCorrelationId]
                            completionBlock:^(ADAuthenticationResult *result) {
                                ADAuthenticationError* error;
                                if(result.status == AD_SUCCEEDED)
@@ -130,14 +138,14 @@ NSString* userPrincipalIdentifier;
                                        // we have a fresh AT and RT. Get RT from cache as it is not returned
                                        // in the result.
                                        
-                                       NSArray* items = [ctx.tokenCacheStore getItemsWithKey:key
+                                       NSArray* items = [_ctx.tokenCacheStore getItemsWithKey:key
                                                                                        error:&error];
                                        NSString* brokerRefreshToken = nil;
                                        for(ADTokenCacheStoreItem* item in items)
                                        {
                                            if (item.refreshToken
                                                && item.userInformation
-                                               && [NSString adSame:userPrincipalIdentifier
+                                               && [NSString adSame:_userPrincipalIdentifier
                                                           toString:item.userInformation.upn] && !item.isExpired)
                                            {
                                                brokerRefreshToken = item.refreshToken;
@@ -173,14 +181,14 @@ NSString* userPrincipalIdentifier;
                                            ADAuthenticationResult* prtResult = [self processPRTResponse:response
                                                                                                 forItem:item
                                                                                             fromRefresh:NO
-                                                                                   requestCorrelationId:[ctx getCorrelationId]];
+                                                                                   requestCorrelationId:[_ctx getCorrelationId]];
                                            if(prtResult.status == AD_SUCCEEDED)
                                            {
                                                
                                                AD_LOG_INFO(@"Acquired PRT successfully", nil);
                                                ADAuthenticationError* err;
                                                //persist PRT cache item
-                                               [ctx.tokenCacheStore addOrUpdateItem:item
+                                               [_ctx.tokenCacheStore addOrUpdateItem:item
                                                                               error:&err];
                                                callback(item, err);
                                            }
@@ -191,9 +199,9 @@ NSString* userPrincipalIdentifier;
                                        };
                                        
                                        //send JWT to token endpoint
-                                       [ctx requestWithServer:[ADBrokerSettings sharedInstance].authority
+                                       [_ctx requestWithServer:_authority
                                                   requestData:request_data
-                                         requestCorrelationId:[ctx getCorrelationId]
+                                         requestCorrelationId:[_ctx getCorrelationId]
                                               handledPkeyAuth:NO
                                             additionalHeaders:request_data
                                             returnRawResponse:NO
@@ -209,10 +217,10 @@ NSString* userPrincipalIdentifier;
 
 
 /*! Gets token for a client Id using PRT. If expired, the PRT is refreshed via webview.*/
--(void) acquireTokenUsingPRTForResource:(NSString*) resource
-                               clientId:(NSString*) clientId
-                            redirectUri:(NSString*) redirectUri
-                                 appKey:(NSString*) appKey
+- (void)acquireTokenUsingPRTForResource:(NSString*)resource
+                               clientId:(NSString*)clientId
+                            redirectUri:(NSString*)redirectUri
+                                 appKey:(NSString*)appKey
                         completionBlock:(ADAuthenticationCallback) completionBlock
 {
     [self acquireTokenUsingPRTForResource:resource
@@ -225,10 +233,10 @@ NSString* userPrincipalIdentifier;
 
 
 /*! Gets token for a client Id using PRT. If expired, the PRT is refreshed via webview.*/
--(void) acquireTokenUsingPRTForResource:(NSString*) resource
-                               clientId:(NSString*) clientId
-                            redirectUri:(NSString*) redirectUri
-                                 appKey:(NSString*) appKey
+- (void)acquireTokenUsingPRTForResource:(NSString*)resource
+                               clientId:(NSString*)clientId
+                            redirectUri:(NSString*)redirectUri
+                                 appKey:(NSString*)appKey
                        attemptPRTUpdate:(BOOL)attemptPRTUpdate
                         completionBlock:(ADAuthenticationCallback) completionBlock
 {
@@ -251,9 +259,9 @@ NSString* userPrincipalIdentifier;
                                                   nil];
              
              //send JWT to token endpoint
-             [ctx requestWithServer:[ADBrokerSettings sharedInstance].authority
+             [_ctx requestWithServer:_authority
                         requestData:request_data
-               requestCorrelationId:[ctx getCorrelationId]
+               requestCorrelationId:[_ctx getCorrelationId]
                     handledPkeyAuth:NO
                   additionalHeaders:nil
                   returnRawResponse:YES
@@ -279,21 +287,21 @@ NSString* userPrincipalIdentifier;
                   ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
                   item.resource = resource;
                   item.clientId = clientId;
-                  ADAuthenticationResult* result = [ctx processTokenResponse:response
+                  ADAuthenticationResult* result = [_ctx processTokenResponse:response
                                                                      forItem:item
                                                                  fromRefresh:NO
-                                                        requestCorrelationId:[ctx getCorrelationId]];
+                                                        requestCorrelationId:[_ctx getCorrelationId]];
                   
                   if(result.status == AD_SUCCEEDED)
                   {
                       //save AT and RT in the app key specific cache
                       id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:appKey];
-                      [ctx updateCacheToResult:result
+                      [_ctx updateCacheToResult:result
                                  cacheInstance:cacheStore
                                      cacheItem:nil
                               withRefreshToken:nil];
-                      result = [ctx updateResult:result
-                                          toUser:userPrincipalIdentifier];
+                      result = [_ctx updateResult:result
+                                          toUser:_userPrincipalIdentifier];
                   } else{
                       if(attemptPRTUpdate)
                       {
@@ -359,15 +367,15 @@ NSString* userPrincipalIdentifier;
     
     NSString* refreshTokenCredential = [self createRefreshTokenCredentialJWT:prtItem];
     
-    [ctx requestCodeByResource: resource
+    [_ctx requestCodeByResource: resource
                       clientId: clientId
                    redirectUri: [NSURL URLWithString:redirectUri]
                          scope: @"openid"
-                        userId: userPrincipalIdentifier
+                        userId: _userPrincipalIdentifier
                 promptBehavior: AD_PROMPT_AUTO
           extraQueryParameters: @"nux=1"
         refreshTokenCredential: refreshTokenCredential
-                 correlationId: ctx.getCorrelationId
+                 correlationId: _ctx.getCorrelationId
                     completion:^(NSString *code, ADAuthenticationError *authError) {
                         if(authError)
                         {
@@ -389,9 +397,9 @@ NSString* userPrincipalIdentifier;
                                                                  nil];
                             
                             //send JWT to token endpoint
-                            [ctx requestWithServer:[ADBrokerSettings sharedInstance].authority
+                            [_ctx requestWithServer:_authority
                                        requestData:request_data
-                              requestCorrelationId:[ctx getCorrelationId]
+                              requestCorrelationId:[_ctx getCorrelationId]
                                    handledPkeyAuth:NO
                                  additionalHeaders:nil
                                  returnRawResponse:YES
@@ -415,21 +423,21 @@ NSString* userPrincipalIdentifier;
                                             ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
                                             item.resource = resource;
                                             item.clientId = clientId;
-                                            ADAuthenticationResult* result = [ctx processTokenResponse:response
+                                            ADAuthenticationResult* result = [_ctx processTokenResponse:response
                                                                                                forItem:item
                                                                                            fromRefresh:NO
-                                                                                  requestCorrelationId:[ctx getCorrelationId]];
+                                                                                  requestCorrelationId:[_ctx getCorrelationId]];
                                             
                                             if(result.status == AD_SUCCEEDED)
                                             {
                                                 //save AT and RT in the app key specific cache
                                                 id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:appKey];
-                                                [ctx updateCacheToResult:result
+                                                [_ctx updateCacheToResult:result
                                                            cacheInstance:cacheStore
                                                                cacheItem:nil
                                                         withRefreshToken:nil];
-                                                result = [ctx updateResult:result
-                                                                    toUser:userPrincipalIdentifier];
+                                                result = [_ctx updateResult:result
+                                                                    toUser:_userPrincipalIdentifier];
                                             }
                                             completionBlock(result);
                                         }];
@@ -460,7 +468,7 @@ NSString* userPrincipalIdentifier;
 }
 
 
--(NSString*) createPRTRequestJWTUsingAuthCode:(ADBrokerPRTCacheItem*) item
+- (NSString*)createPRTRequestJWTUsingAuthCode:(ADBrokerPRTCacheItem*) item
                                      resource:(NSString*) resource
                                      clientId:(NSString*) clientId
                                          code:(NSString*) code
@@ -485,7 +493,7 @@ NSString* userPrincipalIdentifier;
                               @"exp" : [NSNumber numberWithInteger:iat],
                               @"scope" : @"openid",
                               @"grant_type" : grantType,
-                              @"aud" : [ADBrokerSettings sharedInstance].authority
+                              @"aud" : _authority
                               };
     
     NSString* returnValue = [ADBrokerJwtHelper createSignedJWTUsingKeyDerivation:header
@@ -495,7 +503,7 @@ NSString* userPrincipalIdentifier;
     return returnValue;
 }
 
--(NSString*) createAccessTokenRequestJWTUsingPRT:(ADBrokerPRTCacheItem*) item
+- (NSString*)createAccessTokenRequestJWTUsingPRT:(ADBrokerPRTCacheItem*) item
                                         resource:(NSString*) resource
                                         clientId:(NSString*) clientId
 {
@@ -519,7 +527,7 @@ NSString* userPrincipalIdentifier;
                               @"exp" : [NSNumber numberWithInteger:iat],
                               @"scope" : @"openid",
                               @"grant_type" : grantType,
-                              @"aud" : [ADBrokerSettings sharedInstance].authority
+                              @"aud" : _authority
                               };
     
     NSString* returnValue = [ADBrokerJwtHelper createSignedJWTUsingKeyDerivation:header
@@ -530,7 +538,7 @@ NSString* userPrincipalIdentifier;
 }
 
 
--(NSString*) createPRTRequestJWTUsingBrokerRT:(NSString*) brokerRefreshToken
+- (NSString*)createPRTRequestJWTUsingBrokerRT:(NSString*)brokerRefreshToken
 {
     RegistrationInformation* identity = [[WorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation:nil];
     NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];
@@ -555,10 +563,10 @@ NSString* userPrincipalIdentifier;
 
 
 //Understands and processes the access token response:
-- (ADAuthenticationResult *) processPRTResponse: (NSDictionary *)response
-                                        forItem: (ADBrokerPRTCacheItem*)item
-                                    fromRefresh: (BOOL) fromRefreshTokenWorkflow
-                           requestCorrelationId: (NSUUID*) requestCorrelationId
+- (ADAuthenticationResult *)processPRTResponse:(NSDictionary *)response
+                                       forItem:(ADBrokerPRTCacheItem*)item
+                                   fromRefresh:(BOOL)fromRefreshTokenWorkflow
+                          requestCorrelationId:(NSUUID*)requestCorrelationId
 {
     THROW_ON_NIL_ARGUMENT(response);
     THROW_ON_NIL_ARGUMENT(item);
@@ -593,7 +601,7 @@ NSString* userPrincipalIdentifier;
     if (![NSString adIsStringNilOrBlank:refreshToken])
     {
         item.primaryRefreshToken    = refreshToken;
-        item.authority = [ADBrokerSettings sharedInstance].authority;
+        item.authority = _authority;
         
         // Token response
         id      expires_in = [response objectForKey:OAUTH2_EXPIRES_IN];
