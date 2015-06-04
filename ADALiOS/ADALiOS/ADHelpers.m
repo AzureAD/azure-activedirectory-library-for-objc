@@ -249,12 +249,16 @@
 + (NSURL*)addClientVersionToURL:(NSURL*)url
 {
     if (!url)
+    {
         return nil;
+    }
     
     // Pull apart the request URL and add the ADAL Client version to the query parameters
     NSURLComponents* components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
     if (!components)
+    {
         return nil;
+    }
     
     static NSString* adalClient = nil;
     if (!adalClient)
@@ -263,12 +267,18 @@
     NSString* query = [components query];
     // Don't bother adding it if it's already there
     if (query && [query containsString:ADAL_ID_VERSION])
+    {
         return url;
+    }
     
     if (query)
+    {
         [components setQuery:[query stringByAppendingString:adalClient]];
+    }
     else
+    {
         [components setQuery:adalClient];
+    }
     
     return [components URL];
 }
