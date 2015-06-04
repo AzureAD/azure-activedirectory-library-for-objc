@@ -194,10 +194,9 @@ additionalInformation: (NSString*) additionalInformation
     return requestCorrelationId;
 }
 
-
 +(NSString*) getAdalVersion
 {
-    return [NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH];
+    return ADAL_VERSION_NSSTRING;
 }
 
 +(void) logToken: (NSString*) token

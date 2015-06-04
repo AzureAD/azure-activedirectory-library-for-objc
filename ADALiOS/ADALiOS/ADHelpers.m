@@ -25,6 +25,7 @@
 #import <CommonCrypto/CommonDigest.h>
 
 #include "ADOauth2Constants.h"
+#include "ADALiOS.h"
 
 @implementation ADHelpers
 
@@ -245,5 +246,39 @@
     return tmpFixedInput;
 }
 
++ (NSURL*)addClientVersionToURL:(NSURL*)url
+{
+    if (!url)
+        return nil;
+    
+    // Pull apart the request URL and add the ADAL Client version to the query parameters
+    NSURLComponents* components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
+    if (!components)
+        return nil;
+    
+    static NSString* adalClient = nil;
+    if (!adalClient)
+        adalClient = [NSString stringWithFormat:@"%@=%@", ADAL_ID_VERSION, ADAL_VERSION_NSSTRING];
+    
+    NSString* query = [components query];
+    // Don't bother adding it if it's already there
+    if (query && [query containsString:ADAL_ID_VERSION])
+        return url;
+    
+    if (query)
+        [components setQuery:[query stringByAppendingString:adalClient]];
+    else
+        [components setQuery:adalClient];
+    
+    return [components URL];
+}
+
++ (NSString*)addClientVersionToURLString:(NSString*)url
+{
+    if (url == nil)
+        return nil;
+    
+    return [[self addClientVersionToURL:[NSURL URLWithString:url]] absoluteString];
+}
 
 @end
