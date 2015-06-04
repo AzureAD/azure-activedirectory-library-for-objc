@@ -46,8 +46,10 @@
             error:(ADAuthenticationError* __autoreleasing *)error
 {
     ADAuthenticationContext* ctx = nil;
-    if (authority == nil)
+    if (!authority)
+    {
         authority = [ADBrokerSettings sharedInstance].authority;
+    }
     
     ctx = [[ADAuthenticationContext alloc] initWithAuthority:authority
                                            validateAuthority:YES
