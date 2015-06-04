@@ -260,10 +260,6 @@
         return nil;
     }
     
-    static NSString* adalClient = nil;
-    if (!adalClient)
-        adalClient = [NSString stringWithFormat:@"%@=%@", ADAL_ID_VERSION, ADAL_VERSION_NSSTRING];
-    
     NSString* query = [components query];
     // Don't bother adding it if it's already there
     if (query && [query containsString:ADAL_ID_VERSION])
@@ -273,11 +269,11 @@
     
     if (query)
     {
-        [components setQuery:[query stringByAppendingString:adalClient]];
+        [components setQuery:[query stringByAppendingString:[NSString stringWithFormat:@"&%@=%@", ADAL_ID_VERSION, ADAL_VERSION_NSSTRING]]];
     }
     else
     {
-        [components setQuery:adalClient];
+        [components setQuery:[NSString stringWithFormat:@"%@=%@", ADAL_ID_VERSION, ADAL_VERSION_NSSTRING]];
     }
     
     return [components URL];
@@ -286,7 +282,9 @@
 + (NSString*)addClientVersionToURLString:(NSString*)url
 {
     if (url == nil)
+    {
         return nil;
+    }
     
     return [[self addClientVersionToURL:[NSURL URLWithString:url]] absoluteString];
 }
