@@ -42,4 +42,7 @@
 
 + (void) removeNullStringFrom:(NSDictionary*) dict;
 
++ (NSURL*)addClientVersionToURL:(NSURL*)url;
++ (NSString*)addClientVersionToURLString:(NSString*)url;
+
 @end

@@ -24,6 +24,7 @@
 #import "ADWebRequest.h"
 #import "ADWebResponse.h"
 #import "ADAuthenticationSettings.h"
+#import "ADHelpers.h"
 
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
@@ -163,9 +164,12 @@ static NSOperationQueue *s_queue;
         [_requestHeaders setValue:[NSString stringWithFormat:@"%ld", (unsigned long)_requestData.length] forKey:@"Content-Length"];
     }
     
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_requestURL
+    NSURL* requestURL = [ADHelpers addClientVersionToURL:_requestURL];
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:requestURL
                                                                 cachePolicy:NSURLRequestReloadIgnoringCacheData
                                                             timeoutInterval:_timeout];
+    
     request.HTTPMethod          = _requestMethod;
     request.allHTTPHeaderFields = _requestHeaders;
     request.HTTPBody            = _requestData;
@@ -237,9 +241,12 @@ static NSOperationQueue *s_queue;
 {
 #pragma unused(connection)
 #pragma unused(redirectResponse)
+    NSURL* requestURL = [request URL];
+    NSURL* modifiedURL = [ADHelpers addClientVersionToURL:requestURL];
+    if (modifiedURL == requestURL)
+        return request;
     
-    // Allow redirects
-    return request;
+    return [NSURLRequest requestWithURL:modifiedURL];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
