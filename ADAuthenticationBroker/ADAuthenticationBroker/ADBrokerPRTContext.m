@@ -46,10 +46,13 @@
             error:(ADAuthenticationError* __autoreleasing *)error
 {
     ADAuthenticationContext* ctx = nil;
-    if (!authority)
-    {
+    
+    // TODO: Currently if we talk to anying other then the common endpoint we get an "Unsupported URL
+    
+    //if (!authority)
+    //{
         authority = [ADBrokerSettings sharedInstance].authority;
-    }
+    //}
     
     ctx = [[ADAuthenticationContext alloc] initWithAuthority:authority
                                            validateAuthority:YES
