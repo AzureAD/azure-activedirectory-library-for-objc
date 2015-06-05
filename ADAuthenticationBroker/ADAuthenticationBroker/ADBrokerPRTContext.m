@@ -46,10 +46,14 @@
             error:(ADAuthenticationError* __autoreleasing *)error
 {
     ADAuthenticationContext* ctx = nil;
-    if (!authority)
-    {
+    
+    // TODO: Currently if we talk to anying other then the common endpoint we get an "Unsupported URL" error.
+    //       Use only the common endpoint for now.
+    
+    //if (!authority)
+    //{
         authority = [ADBrokerSettings sharedInstance].authority;
-    }
+    //}
     
     ctx = [[ADAuthenticationContext alloc] initWithAuthority:authority
                                            validateAuthority:YES
@@ -169,6 +173,8 @@
                                        NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                                             @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
                                                                             jwtToken, @"request",
+                                                                            BROKER_CLIENT_ID, @"client_id",
+                                                                            OAUTH2_CODE, OAUTH2_RESPONSE_TYPE,
                                                                             nil];
                                        
                                        void (^prtProcessCallback)(NSDictionary *response) =  ^(NSDictionary *response) {
