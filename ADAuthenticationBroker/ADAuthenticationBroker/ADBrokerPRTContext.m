@@ -169,6 +169,8 @@
                                        NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                                             @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
                                                                             jwtToken, @"request",
+                                                                            BROKER_CLIENT_ID, @"client_id",
+                                                                            OAUTH2_CODE, OAUTH2_RESPONSE_TYPE,
                                                                             nil];
                                        
                                        void (^prtProcessCallback)(NSDictionary *response) =  ^(NSDictionary *response) {
