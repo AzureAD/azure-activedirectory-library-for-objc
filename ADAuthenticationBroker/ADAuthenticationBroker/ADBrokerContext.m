@@ -65,6 +65,10 @@ NSString* const ADBrokerContextDidReturnToAppNotification = @"ADBrokerContextDid
 @end
 
 @implementation ADBrokerContext
+{
+    int _wpjRetryAttempt;
+    NSDate* _initialAttemptTime;
+}
 
 //A wrapper around checkAndHandleBadArgument. Assumes that "completionMethod" is in scope:
 #define HANDLE_ARGUMENT(ARG) \
@@ -503,6 +507,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                 AD_LOG_INFO(@"acquireAccount - FAILED", @"Workplace joined = true. Attempt to get token using PRT");
                 ADAuthenticationError* error = nil;
                 ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
+                                                                           authority:authority
                                                                        correlationId:_correlationId
                                                                                error:&error];
                 [prtCtx acquireTokenUsingPRTForResource:resource
@@ -622,8 +627,8 @@ static dispatch_semaphore_t s_cancelSemaphore;
          completionBlock:completionBlock];
 }
 
-- (void) doWorkPlaceJoinForUpn: (NSString*) upn
-                 onResultBlock:(WPJCallback) onResultBlock
+- (void) doWorkPlaceJoinForUpn:(NSString*)upn
+                 onResultBlock:(WPJCallback)onResultBlock
 {
     
     API_ENTRY;
@@ -668,51 +673,24 @@ static dispatch_semaphore_t s_cancelSemaphore;
                                          registrationEndpoint:[svcInfo registrationEndpoint]
                                    registrationServiceVersion:[svcInfo registrationServiceVersion]
                                                 correlationId:self.correlationId
-                                              completionBlock:^(NSError *error) {
-                                                  if(!error)
-                                                  {
-                                                    AD_LOG_INFO(@"WPJ device registration succeeded. Attempt to get Primary Refresh Token", nil);
-                                                      //do PRT work
-                                                      ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc]
-                                                                                    initWithUpn:upn
-                                                                                    correlationId:self.correlationId
-                                                                                    error:&error];
-                                                      [prtCtx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error) {
-                                                          if(error)
-                                                          {
-                                                              AD_LOG_ERROR_F(@"Primary Refresh Token request FAILED. Attempting again...", error.code, error.description, nil);
-                                                              ADBrokerPRTContext* newCtx = [[ADBrokerPRTContext alloc]
-                                                                                            initWithUpn:upn
-                                                                correlationId:self.correlationId
-                                                                                            error:&error];
-                                                              [NSThread sleepForTimeInterval:[ADBrokerSettings sharedInstance].prtRequestWaitInSeconds];
-                                                              [newCtx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error){
-                                                                  if(error)
-                                                                  {
-                                                                  AD_LOG_ERROR_F(@"Primary Refresh Token request re-attempt FAILED. Attempting again...", error.code, error.description, nil);
-                                                                  } else
-                                                                  {
-                                                                      AD_LOG_INFO(@"Primary Refresh Token request re-attempt succeeded.", nil);
-                                                                  }
-                                                                  onResultBlock(error);
-                                                              }];
-                                                              return;
-                                                          }
-                                                          else
-                                                          {
-                                                              AD_LOG_INFO(@"Primary Refresh Token acquired successfully.", nil);
-                                                              onResultBlock(error);
-                                                              return;
-                                                          }
-                                                      }];
-                                                  }
-                                                  else
-                                                  {
-                                                      AD_LOG_ERROR_F(@"WPJ request FAILED", error.code, error.description, nil);
-                                                      onResultBlock(error);
-                                                      return;
-                                                  }
-                                              }];
+                                              completionBlock:^(NSError *error)
+                      {
+                          if(!error)
+                          {
+                              AD_LOG_INFO(@"WPJ device registration succeeded.", nil);
+                              [self acquirePRTForUPN:upn
+                                   serviceInformation:svcInfo
+                                        onResultBlock:onResultBlock];
+							  return;
+                          }
+                          else
+                          {
+                              AD_LOG_ERROR_F(@"WPJ request FAILED", error.code, error.description, nil);
+                              onResultBlock(error);
+                              return;
+                          }
+                      }];
+					  return;
                   }
                   else
                   {
@@ -722,6 +700,57 @@ static dispatch_semaphore_t s_cancelSemaphore;
                   }
               }];
          
+     }];
+}
+
+- (void)acquirePRTForUPN:(NSString*)upn
+       serviceInformation:(ServiceInformation*)svcInfo
+            onResultBlock:(WPJCallback)onResultBlock
+{
+    AD_LOG_INFO(@"Attempting to get Primary Refresh Token", nil);
+    
+    ADAuthenticationError* error;
+    //do PRT work
+    ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
+                                                               authority:[svcInfo oauthAuthCodeEndpoint]
+                                                           correlationId:self.correlationId
+                                                                   error:&error];
+    if (!prtCtx)
+    {
+        onResultBlock(error);
+        return;
+    }
+    
+    if (!_initialAttemptTime)
+    {
+        _initialAttemptTime = [NSDate date];
+    }
+    
+    [prtCtx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error)
+     {
+         if(!error)
+         {
+             AD_LOG_INFO(@"Primary Refresh Token acquired successfully.", nil);
+             _initialAttemptTime = nil;
+             onResultBlock(error);
+             return;
+         }
+         
+         ++_wpjRetryAttempt;
+         if ([_initialAttemptTime timeIntervalSinceNow] < -[[ADBrokerSettings sharedInstance] prtRetryTimeout])
+         {
+             AD_LOG_ERROR_F(@"Primary Refresh Token request attempt %d FAILED. Timeout reached. Failing.", error.code, error.description, _wpjRetryAttempt);
+             _initialAttemptTime = nil;
+             onResultBlock(error);
+             return;
+         }
+         
+         AD_LOG_ERROR_F(@"Primary Refresh Token request attempt %d FAILED. Attempting again in 5 seconds...", error.code, error.description, _wpjRetryAttempt);
+         [NSThread sleepForTimeInterval:5.0];
+         
+         [self acquirePRTForUPN:upn
+              serviceInformation:svcInfo
+                   onResultBlock:onResultBlock];
      }];
 }
 
@@ -755,6 +784,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                                                         completionBlock:^(NSError *error)
          {
              ADBrokerPRTContext* brokerCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
+                                                                           authority:nil
                                                                        correlationId:self.correlationId
                                                                                error:nil];
              [brokerCtx deletePRT];
@@ -809,5 +839,5 @@ static dispatch_semaphore_t s_cancelSemaphore;
     }
 }
 
-
 @end
+
