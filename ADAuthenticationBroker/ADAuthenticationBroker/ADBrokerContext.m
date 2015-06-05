@@ -731,6 +731,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
          if(!error)
          {
              AD_LOG_INFO(@"Primary Refresh Token acquired successfully.", nil);
+             _initialAttemptTime = nil;
              onResultBlock(error);
              return;
          }
@@ -739,6 +740,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
          if ([_initialAttemptTime timeIntervalSinceNow] < -[[ADBrokerSettings sharedInstance] prtRetryTimeout])
          {
              AD_LOG_ERROR_F(@"Primary Refresh Token request attempt %d FAILED. Timeout reached. Failing.", error.code, error.description, _wpjRetryAttempt);
+             _initialAttemptTime = nil;
              onResultBlock(error);
              return;
          }
