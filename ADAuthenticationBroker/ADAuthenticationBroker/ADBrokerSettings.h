@@ -23,9 +23,9 @@
 /*! The static instance of the singleton settings class*/
 +(ADBrokerSettings*) sharedInstance;
 
-@property int prtRequestWaitInSeconds;
 @property WPJEnvironment wpjEnvironment;
 @property (readonly) id<ADTokenCacheStoring> defaultCacheInstance;
+@property float prtRetryTimeout;
 
 - (NSString*) authority;
 

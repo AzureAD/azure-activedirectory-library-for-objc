@@ -30,8 +30,8 @@
     if (self)
     {
         //Initialize the defaults here:
-        self.prtRequestWaitInSeconds = 5;
         self.wpjEnvironment = PROD;
+        self.prtRetryTimeout = 120.0;
         _defaultCacheInstance = [ADBrokerKeychainTokenCacheStore new];
     }
     return self;
