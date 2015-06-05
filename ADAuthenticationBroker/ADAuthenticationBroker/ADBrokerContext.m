@@ -736,7 +736,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
          }
          
          ++_wpjRetryAttempt;
-         if ([_initialAttemptTime timeIntervalSinceNow] > [[ADBrokerSettings sharedInstance] prtRetryTimeout])
+         if ([_initialAttemptTime timeIntervalSinceNow] < -[[ADBrokerSettings sharedInstance] prtRetryTimeout])
          {
              AD_LOG_ERROR_F(@"Primary Refresh Token request attempt %d FAILED. Timeout reached. Failing.", error.code, error.description, _wpjRetryAttempt);
              onResultBlock(error);
@@ -746,7 +746,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
          AD_LOG_ERROR_F(@"Primary Refresh Token request attempt %d FAILED. Attempting again in 5 seconds...", error.code, error.description, _wpjRetryAttempt);
          [NSThread sleepForTimeInterval:5.0];
          
-         [self acquirePRTWithUPN:upn
+         [self acquirePRTForUPN:upn
               serviceInformation:svcInfo
                    onResultBlock:onResultBlock];
      }];
