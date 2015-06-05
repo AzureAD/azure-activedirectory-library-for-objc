@@ -678,9 +678,10 @@ static dispatch_semaphore_t s_cancelSemaphore;
                           if(!error)
                           {
                               AD_LOG_INFO(@"WPJ device registration succeeded.", nil);
-                              [self acquirePRTWithUPN:upn
+                              [self acquirePRTForUPN:upn
                                    serviceInformation:svcInfo
                                         onResultBlock:onResultBlock];
+							  return;
                           }
                           else
                           {
@@ -689,6 +690,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                               return;
                           }
                       }];
+					  return;
                   }
                   else
                   {
@@ -701,7 +703,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
      }];
 }
 
-- (void)acquirePRTWithUPN:(NSString*)upn
+- (void)acquirePRTForUPN:(NSString*)upn
        serviceInformation:(ServiceInformation*)svcInfo
             onResultBlock:(WPJCallback)onResultBlock
 {
