@@ -47,7 +47,8 @@
 {
     ADAuthenticationContext* ctx = nil;
     
-    // TODO: Currently if we talk to anying other then the common endpoint we get an "Unsupported URL
+    // TODO: Currently if we talk to anying other then the common endpoint we get an "Unsupported URL" error.
+    //       Use only the common endpoint for now.
     
     //if (!authority)
     //{
