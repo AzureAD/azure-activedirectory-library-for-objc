@@ -57,6 +57,19 @@
                     correlationId: (NSUUID*) correlationId
                   completionBlock: (ADAuthenticationCallback)completionBlock;
 
+// This version allows "silent" requests where it will attempt to make the network call and fail if any user interaction
+// is required
+- (void) requestTokenWithResource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                      redirectUri: (NSURL*) redirectUri
+                   promptBehavior: (ADPromptBehavior) promptBehavior
+                      allowSilent: (BOOL) allowSilent
+                           userId: (NSString*) userId
+                            scope: (NSString*) scope
+             extraQueryParameters: (NSString*) queryParams
+                    correlationId: (NSUUID*) correlationId
+                  completionBlock: (ADAuthenticationCallback)completionBlock;
+
 // Generic OAuth2 Authorization Request, obtains a token from an authorization code.
 - (void)requestTokenByCode:(NSString *)code
                   resource:(NSString *)resource

@@ -65,4 +65,16 @@
                 correlationId:(NSUUID*)correlationId
                    completion:(ADAuthorizationCodeCallback)completionBlock;
 
+- (void)requestCodeByResource:(NSString*)resource
+                     clientId:(NSString*)clientId
+                  redirectUri:(NSURL*)redirectUri
+                        scope:(NSString*)scope /*for future use */
+                       userId:(NSString*)userId
+               promptBehavior:(ADPromptBehavior)promptBehavior
+         extraQueryParameters:(NSString*)queryParams
+       refreshTokenCredential:(NSString*)refreshTokenCredential
+                       silent:(BOOL)silent
+                correlationId:(NSUUID*)correlationId
+                   completion:(ADAuthorizationCodeCallback)completionBlock;
+
 @end
