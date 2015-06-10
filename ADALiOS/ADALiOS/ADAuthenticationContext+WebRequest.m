@@ -124,6 +124,8 @@
                 [response setObject:responseCorrelationId forKey:OAUTH2_CORRELATION_ID_RESPONSE];//Add it to the dictionary to be logged and checked later.
             }
             
+            [response setObject:webResponse.URL forKey:@"url"];
+            
             switch (webResponse.statusCode)
             {
                 case 200:
@@ -185,6 +187,15 @@
                                  forKey:AUTH_NON_PROTOCOL_ERROR];
                 }
             }
+        }
+        else if (error && [[error domain] isEqualToString:@"NSURLErrorDomain"] && [error code] == -1002)
+        {
+            // Unsupported URL Error
+            // This can happen because the redirect URI isn't a valid URI, or we've tried to jump out of the app with a URL scheme handler
+            // It's worth peeking into this error to see if we have useful information anyways.
+            
+            NSString* url = [[error userInfo] objectForKey:@"NSErrorFailingURLKey"];
+            [response setObject:url forKey:@"url"];
         }
         else
         {
@@ -331,6 +342,7 @@ static volatile int sDialogInProgress = 0;
                  promptBehavior:promptBehavior
            extraQueryParameters:queryParams
          refreshTokenCredential:nil
+                         silent:NO
                   correlationId:correlationId
                      completion:completionBlock];
 
@@ -348,6 +360,32 @@ static volatile int sDialogInProgress = 0;
                 correlationId:(NSUUID*)correlationId
                    completion:(ADAuthorizationCodeCallback)completionBlock
 {
+    [self requestCodeByResource:resource clientId:clientId
+                    redirectUri:redirectUri
+                          scope:scope
+                         userId:userId
+                 promptBehavior:promptBehavior
+           extraQueryParameters:queryParams
+         refreshTokenCredential:refreshTokenCredential
+                         silent:NO
+                  correlationId:correlationId
+                     completion:completionBlock];
+}
+
+
+//Requests an OAuth2 code to be used for obtaining a token:
+- (void)requestCodeByResource:(NSString*)resource
+                     clientId:(NSString*)clientId
+                  redirectUri:(NSURL*)redirectUri
+                        scope:(NSString*)scope /*for future use */
+                       userId:(NSString*)userId
+               promptBehavior:(ADPromptBehavior)promptBehavior
+         extraQueryParameters:(NSString*)queryParams
+       refreshTokenCredential:(NSString*)refreshTokenCredential
+                       silent:(BOOL)silent
+                correlationId:(NSUUID*)correlationId
+                   completion:(ADAuthorizationCodeCallback)completionBlock
+{
     THROW_ON_NIL_ARGUMENT(completionBlock);
     if(!correlationId){
         completionBlock(nil, [ADAuthenticationError errorFromArgument:correlationId argumentName:@"correlationId"]);
@@ -355,7 +393,7 @@ static volatile int sDialogInProgress = 0;
     }
     
     AD_LOG_VERBOSE_F(@"Requesting authorization code.", @"Requesting authorization code for resource: %@", resource);
-    if (![self takeExclusionLockWithCallback:completionBlock])
+    if (!silent && ![self takeExclusionLockWithCallback:completionBlock])
     {
         return;
     }
@@ -370,16 +408,12 @@ static volatile int sDialogInProgress = 0;
                                         promptBehavior:promptBehavior
                                   extraQueryParameters:queryParams];
     
-    [[ADAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
-                                               end:[NSURL URLWithString:[redirectUri absoluteString]]
-                            refreshTokenCredential:refreshTokenCredential
-                                  parentController:self.parentController
-                                           webView:self.webView
-                                        fullScreen:settings.enableFullScreen
-                                     correlationId:correlationId
-                                        completion:^( ADAuthenticationError *error, NSURL *end )
-     {
-         [self releaseExclusionLock]; // Allow other operations that use the UI for credentials.
+    void(^requestCompletion)(ADAuthenticationError *error, NSURL *end) = ^void(ADAuthenticationError *error, NSURL *end)
+    {
+         if (!silent)
+         {
+             [self releaseExclusionLock]; // Allow other operations that use the UI for credentials.
+         }
          
          NSString* code = nil;
          if (!error)
@@ -426,7 +460,54 @@ static volatile int sDialogInProgress = 0;
          }
          
          completionBlock(code, error);
-     }];
+     };
+    
+    if (!silent)
+    {
+        [[ADAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
+                                                   end:[NSURL URLWithString:[redirectUri absoluteString]]
+                                refreshTokenCredential:refreshTokenCredential
+                                      parentController:self.parentController
+                                               webView:self.webView
+                                            fullScreen:settings.enableFullScreen
+                                         correlationId:correlationId
+                                            completion:requestCompletion];
+    }
+    else
+    {
+        NSMutableDictionary* requestData = nil;
+        requestData = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                       clientId, OAUTH2_CLIENT_ID,
+                       [redirectUri absoluteString], OAUTH2_REDIRECT_URI,
+                       resource, OAUTH2_RESOURCE,
+                       OAUTH2_CODE, OAUTH2_RESPONSE_TYPE, nil];
+        
+        if (scope)
+        {
+            [requestData setObject:scope forKey:OAUTH2_SCOPE];
+        }
+        
+        [self requestWithServer:[self.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]
+                    requestData:requestData
+           requestCorrelationId:correlationId
+                handledPkeyAuth:NO
+              additionalHeaders:nil
+                     completion:^(NSDictionary * parameters)
+         {
+             
+             NSURL* endURL = nil;
+             ADAuthenticationError* error = nil;
+             
+             //OAuth2 error may be passed by the server
+             endURL = [parameters objectForKey:@"url"];
+             if (!endURL)
+             {
+                 error = [ADAuthenticationContext errorFromDictionary:parameters errorCode:AD_ERROR_AUTHENTICATION];
+             }
+             
+             requestCompletion(error, endURL);
+         }];
+    }
 }
 
 - (void) handlePKeyAuthChallenge:(NSString *)authorizationServer

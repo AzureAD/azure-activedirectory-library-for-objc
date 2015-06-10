@@ -156,6 +156,7 @@
                     correlationId: (NSUUID*) correlationId
                   completionBlock: (ADAuthenticationCallback)completionBlock
 {
+#if !AD_BROKER
     if (silent)
     {
         //The cache lookup and refresh token attempt have been unsuccessful,
@@ -169,7 +170,32 @@
         completionBlock(result);
         return;
     }
+#endif
     
+    [self requestTokenWithResource:resource
+                          clientId:clientId
+                       redirectUri:redirectUri
+                    promptBehavior:promptBehavior
+                       allowSilent:silent
+                            userId:userId
+                             scope:scope
+              extraQueryParameters:queryParams
+                     correlationId:correlationId
+                   completionBlock:completionBlock];
+}
+
+- (void) requestTokenWithResource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                      redirectUri: (NSURL*) redirectUri
+                   promptBehavior: (ADPromptBehavior) promptBehavior
+                      allowSilent: (BOOL) allowSilent
+                           userId: (NSString*) userId
+                            scope: (NSString*) scope
+             extraQueryParameters: (NSString*) queryParams
+                    correlationId: (NSUUID*) correlationId
+                  completionBlock: (ADAuthenticationCallback)completionBlock
+{
+#if !AD_BROKER
     //call the broker.
     if([ADAuthenticationContext canUseBroker]){
         [self callBrokerForAuthority:self.authority
@@ -183,6 +209,7 @@
          ];
         return;
     }
+#endif
     
     //Get the code first:
     [self requestCodeByResource:resource
@@ -192,6 +219,8 @@
                          userId:userId
                  promptBehavior:promptBehavior
            extraQueryParameters:queryParams
+         refreshTokenCredential:nil
+                         silent:allowSilent
                   correlationId:correlationId
                      completion:^(NSString * code, ADAuthenticationError *error)
      {
