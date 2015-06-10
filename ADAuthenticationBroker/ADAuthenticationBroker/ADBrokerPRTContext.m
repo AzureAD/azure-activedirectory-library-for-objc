@@ -116,16 +116,17 @@
     
     AD_LOG_INFO(@"Valid PRT NOT found in cache... Acquiring new PRT", nil);
     // get broker client ID token
-    [_ctx validatedAcquireTokenWithResource:[ADBrokerSettings sharedInstance].graphResourceEndpoint
-                                  clientId:BROKER_CLIENT_ID
-                               redirectUri:[NSURL URLWithString:BROKER_REDIRECT_URI]
-                            promptBehavior:AD_PROMPT_AUTO
-                                    silent:NO
-                                    userId:_userPrincipalIdentifier
-                                     scope:@"openid"
-                      extraQueryParameters:@"nux=1"
-                             correlationId:[_ctx getCorrelationId]
-                           completionBlock:^(ADAuthenticationResult *result) {
+    [_ctx requestTokenWithResource:[ADBrokerSettings sharedInstance].graphResourceEndpoint
+                          clientId:BROKER_CLIENT_ID
+                       redirectUri:[NSURL URLWithString:BROKER_REDIRECT_URI]
+                    promptBehavior:AD_PROMPT_AUTO
+                       allowSilent:YES
+                            userId:_userPrincipalIdentifier
+                             scope:@"openid"
+              extraQueryParameters:@"nux=1"
+                     correlationId:[_ctx getCorrelationId]
+                   completionBlock:^(ADAuthenticationResult *result)
+    {
                                ADAuthenticationError* error;
                                if(result.status == AD_SUCCEEDED)
                                {
@@ -174,7 +175,7 @@
                                                                             @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
                                                                             jwtToken, @"request",
                                                                             BROKER_CLIENT_ID, @"client_id",
-                                                                            OAUTH2_CODE, OAUTH2_RESPONSE_TYPE,
+                                                                            OAUTH2_REFRESH_TOKEN, OAUTH2_RESPONSE_TYPE,
                                                                             nil];
                                        
                                        void (^prtProcessCallback)(NSDictionary *response) =  ^(NSDictionary *response) {
