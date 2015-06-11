@@ -813,14 +813,20 @@ static dispatch_semaphore_t s_cancelSemaphore;
         //remove WPJ as well
         [ self removeWorkPlaceJoinRegistration:^(NSError *error) {
             //do nothing
+            [self deleteFromCache:[ADBrokerKeychainTokenCacheStore new]
+                              upn:upn];
+            onResultBlock(error);
         }];
         
         regInfo = nil;
     }
+    else
+    {
+        [self deleteFromCache:[ADBrokerKeychainTokenCacheStore new]
+                          upn:upn];
+        onResultBlock(nil);
+    }
     
-    [self deleteFromCache:[ADBrokerKeychainTokenCacheStore new]
-                      upn:upn];
-    onResultBlock(nil);
 }
 
 -(void) deleteFromCache:(id<ADTokenCacheStoring>) cache
