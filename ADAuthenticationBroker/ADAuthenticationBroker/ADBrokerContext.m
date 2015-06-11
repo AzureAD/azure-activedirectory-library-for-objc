@@ -800,6 +800,14 @@ static dispatch_semaphore_t s_cancelSemaphore;
 {
     API_ENTRY;
     RegistrationInformation* regInfo = [ADBrokerContext getWorkPlaceJoinInformation];
+    
+    NSHTTPCookieStorage* storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSArray* cookies = [storage cookies];
+    for (NSHTTPCookie* cookie in cookies)
+    {
+        [storage deleteCookie:cookie];
+    }
+    
     if(regInfo && [NSString adSame:upn toString:regInfo.userPrincipalName])
     {
         //remove WPJ as well
