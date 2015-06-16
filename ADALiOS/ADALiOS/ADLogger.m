@@ -109,9 +109,6 @@ NSUUID* requestCorrelationId;
     
     if (logLevel <= sLogLevel)
     {
-        if (!info)
-            info = @"";
-        
         NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
         [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
         [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
