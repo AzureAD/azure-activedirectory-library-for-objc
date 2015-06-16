@@ -93,16 +93,6 @@
     ADAssertLogsContainValue(TEST_LOG_INFO, parameterValue);
 }
 
--(void)testErrorFromUnauthorizedResponseBadDetails
-{
-    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_MISSING_AUTHENTICATE_HEADER errorDetails:nil],
-                                 NSException, NSInvalidArgumentException, "Nil argument name should throw.");
-    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_MISSING_AUTHENTICATE_HEADER errorDetails:@""],
-                                 NSException, NSInvalidArgumentException, "Nil argument name should throw.");
-    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_MISSING_AUTHENTICATE_HEADER errorDetails:@" \t"],
-                                 NSException, NSInvalidArgumentException, "Nil argument name should throw.");
-}
-
 -(void)testErrorFromUnauthorizedResponseNormal
 {
     NSString* details = @"Some details";
