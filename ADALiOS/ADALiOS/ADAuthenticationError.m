@@ -54,18 +54,26 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
             (long)self.code, self.domain, self.protocolCode, self.errorDetails, superDescription];
 }
 
--(id) initInternalWithDomain: (NSString*) domain
-                        code: (NSInteger) code
-                protocolCode: (NSString*) protocolCode
-                errorDetails: (NSString*) details
-                    userInfo: (NSDictionary*) userInfo
+-(id) initInternalWithDomain:(NSString*)domain
+                        code:(NSInteger)code
+                protocolCode:(NSString*)protocolCode
+                errorDetails:(NSString*)details
+                    userInfo:(NSDictionary*)userInfo
+                       quiet:(BOOL)quiet
 {
     THROW_ON_NIL_EMPTY_ARGUMENT(domain);
-    THROW_ON_NIL_EMPTY_ARGUMENT(details);
-    
+    if (!quiet)
     {
         NSString* message = [NSString stringWithFormat:@"Error raised: %lu", (long)code];
-        NSString* info = [NSString stringWithFormat:@"Domain: %@ ProtocolCode:%@ Details:%@", domain, protocolCode, details];
+        NSMutableString* info = [[NSMutableString alloc] initWithFormat:@"Domain: %@", domain];
+        if (protocolCode)
+        {
+            [info appendFormat:@" ProtocolCode: %@", protocolCode];
+        }
+        if (details)
+        {
+            [info appendFormat:@" Details: %@", details];
+        }
         AD_LOG_ERROR(message, code, info);
     }
     
@@ -88,11 +96,12 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                            code:code
                                    protocolCode:protocolCode
                                    errorDetails:details
-                                       userInfo:userInfo];
+                                       userInfo:userInfo
+                                          quiet:NO];
 }
 
-+(ADAuthenticationError*) errorFromArgument: (id) argumentValue
-                               argumentName: (NSString*)argumentName
++(ADAuthenticationError*) errorFromArgument:(id)argumentValue
+                               argumentName:(NSString*)argumentName
 {
     THROW_ON_NIL_EMPTY_ARGUMENT(argumentName);
     
@@ -105,10 +114,9 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                 userInfo:nil];
 }
 
-+(ADAuthenticationError*) errorFromUnauthorizedResponse: (NSInteger) responseCode
-                                           errorDetails: (NSString*) errorDetails
++ (ADAuthenticationError*)errorFromUnauthorizedResponse:(NSInteger) responseCode
+                                           errorDetails:(NSString*) errorDetails
 {
-    THROW_ON_NIL_EMPTY_ARGUMENT(errorDetails);
     return [self errorWithDomainInternal:ADUnauthorizedResponseErrorDomain
                                     code:responseCode
                        protocolErrorCode:nil
@@ -116,9 +124,9 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                 userInfo:nil];
 }
 
-+(ADAuthenticationError*) errorFromNSError: (NSError*) error errorDetails: (NSString*) errorDetails
++ (ADAuthenticationError*)errorFromNSError:(NSError*)error
+                              errorDetails:(NSString*)errorDetails
 {
-    THROW_ON_NIL_EMPTY_ARGUMENT(errorDetails);
     return [self errorWithDomainInternal:error.domain
                                     code:error.code
                        protocolErrorCode:nil
@@ -126,11 +134,10 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                 userInfo:error.userInfo];
 }
 
-+(ADAuthenticationError*) errorFromAuthenticationError: (NSInteger) code
-                                          protocolCode: (NSString*) protocolCode
-                                          errorDetails: (NSString*) errorDetails
++ (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
+                                          protocolCode:(NSString*)protocolCode
+                                          errorDetails:(NSString*)errorDetails
 {
-    THROW_ON_NIL_EMPTY_ARGUMENT(errorDetails);
     return [self errorWithDomainInternal:ADAuthenticationErrorDomain
                                     code:code
                        protocolErrorCode:protocolCode
@@ -138,15 +145,26 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                 userInfo:nil];
 }
 
-+(ADAuthenticationError*) unexpectedInternalError: (NSString*) errorDetails
++ (ADAuthenticationError*)errorQuietWithAuthenticationError:(NSInteger)code
+                                               protocolCode:(NSString*)protocolCode
+                                               errorDetails:(NSString*)errorDetails
 {
-    THROW_ON_NIL_EMPTY_ARGUMENT(errorDetails);
+    return [[ADAuthenticationError alloc] initInternalWithDomain:ADAuthenticationErrorDomain
+                                                            code:code
+                                                    protocolCode:protocolCode
+                                                    errorDetails:errorDetails
+                                                        userInfo:nil
+                                                           quiet:YES];
+}
+
++ (ADAuthenticationError*)unexpectedInternalError:(NSString*)errorDetails
+{
     return [self errorFromAuthenticationError:AD_ERROR_UNEXPECTED
                                  protocolCode:nil
                                  errorDetails:errorDetails];
 }
 
-+(ADAuthenticationError*) errorFromCancellation
++ (ADAuthenticationError*)errorFromCancellation
 {
     return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_CANCEL
                                                   protocolCode:nil

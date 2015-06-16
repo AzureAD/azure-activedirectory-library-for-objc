@@ -94,10 +94,10 @@ NSUUID* requestCorrelationId;
     }
 }
 
-+(void) log: (ADAL_LOG_LEVEL)logLevel
-    message: (NSString*) message
-  errorCode: (NSInteger) errorCode
-additionalInformation: (NSString*) additionalInformation
++ (void)log:(ADAL_LOG_LEVEL)logLevel
+    message:(NSString*)message
+  errorCode:(NSInteger)errorCode
+       info:(NSString*)info
 {
     //Note that the logging should not throw, as logging is heavily used in error conditions.
     //Hence, the checks below would rather swallow the error instead of throwing and changing the
@@ -115,17 +115,30 @@ additionalInformation: (NSString*) additionalInformation
         if (sNSLogging)
         {
             //NSLog is documented as thread-safe:
-            NSLog([self formatStringPerLevel:logLevel], [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message, additionalInformation, errorCode);
+            NSLog([self formatStringPerLevel:logLevel], [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message, info, errorCode);
         }
         
         @synchronized(self)//Guard against thread-unsafe callback and modification of sLogCallback after the check
         {
             if (sLogCallback)
             {
-                sLogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@ - %@] %@", [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message], additionalInformation, errorCode);
+                sLogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@ - %@] %@", [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message], info, errorCode);
             }
         }
     }
+}
+
++ (void)log:(ADAL_LOG_LEVEL)level
+    message:(NSString*)message
+  errorCode:(NSInteger)code
+     format:(NSString*)format, ...
+{
+    va_list args;
+    va_start(args, format);
+    NSString* info = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+    
+    [self log:level message:message errorCode:code info:info];
 }
 
 //Extracts the CPU information according to the constants defined in

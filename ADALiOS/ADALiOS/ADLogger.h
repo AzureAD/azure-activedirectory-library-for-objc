@@ -45,10 +45,16 @@ typedef enum
  @param additionalInformation: Full details. May contain parameter names, stack traces, etc. May be nil.
  @param errorCode: if an explicit error has occurred, this code will contain its code.
  */
-+(void) log: (ADAL_LOG_LEVEL)logLevel
-    message: (NSString*) message
-  errorCode: (NSInteger) errorCode
-additionalInformation: (NSString*) additionalInformation;
++(void) log:(ADAL_LOG_LEVEL)logLevel
+    message:(NSString*)message
+  errorCode:(NSInteger)errorCode
+       info:(NSString*)additionalInformation;
+
+/*! Convience logging fucntion. Allows the creation of additionalInformation strings using format strings. */
++ (void)log:(ADAL_LOG_LEVEL)level
+    message:(NSString*)message
+  errorCode:(NSInteger)code
+     format:(NSString*)format, ... __attribute__((format(__NSString__, 4, 5)));
 
 /*! Logs obtaining of a token. The method does not log the actual token, only its hash.
  @param token: the token to log.
@@ -104,46 +110,23 @@ typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
 @end
 
 //A simple macro for single-line logging:
-#define AD_LOG(level, msg, code, info) \
-{ \
-            [ADLogger log: level \
-                  message: msg \
-                errorCode: code \
-    additionalInformation: info]; \
-}
+#define AD_LOG(_level, _msg, _code, _info) [ADLogger log:_level message:_msg errorCode:_code info:_info]
 
 #define FIRST_ARG(ARG,...) ARG
 
 //Allows formatting, e.g. AD_LOG_FORMAT(ADAL_LOG_LEVEL_INFO, "Something", "Check this: %@ and this: %@", this1, this2)
 //If we make this a method, we will lose the warning when the string formatting parameters do not match the actual parameters.
-#define AD_LOG_FORMAT(level, msg, code, info...) \
-{ \
-    if (FIRST_ARG(info))/*Avoid crash in logging*/ \
-    { \
-        NSString* logInfo = [NSString stringWithFormat:info]; \
-        [ADLogger log: level \
-              message: msg \
-            errorCode: code \
-additionalInformation: logInfo]; \
-    } \
-    else \
-    { \
-        [ADLogger log: level \
-              message: msg \
-            errorCode: code \
-additionalInformation: @"Bad logging: nil info specified."]; \
-    } \
-}
+#define AD_LOG_F(_level, _msg, _code, _fmt, ...) [ADLogger log:_level message:_msg errorCode:_code format:_fmt, ##__VA_ARGS__ ]
 
-#define AD_LOG_ERROR(message, code, info) AD_LOG(ADAL_LOG_LEVEL_ERROR, message, code, info)
-#define AD_LOG_WARN(message, info) AD_LOG(ADAL_LOG_LEVEL_WARN, message, AD_ERROR_SUCCEEDED, info)
-#define AD_LOG_INFO(message, info) AD_LOG(ADAL_LOG_LEVEL_INFO, message, AD_ERROR_SUCCEEDED, info)
-#define AD_LOG_VERBOSE(message, info) AD_LOG(ADAL_LOG_LEVEL_VERBOSE, message, AD_ERROR_SUCCEEDED, info)
+#define AD_LOG_ERROR(_message, _code, _info)    AD_LOG(ADAL_LOG_LEVEL_ERROR, _message, _code, _info)
+#define AD_LOG_WARN(_message, _info)            AD_LOG(ADAL_LOG_LEVEL_WARN, _message, AD_ERROR_SUCCEEDED, _info)
+#define AD_LOG_INFO(_message, _info)            AD_LOG(ADAL_LOG_LEVEL_INFO, _message, AD_ERROR_SUCCEEDED, _info)
+#define AD_LOG_VERBOSE(_message, _info)         AD_LOG(ADAL_LOG_LEVEL_VERBOSE, _message, AD_ERROR_SUCCEEDED, _info)
 
-#define AD_LOG_ERROR_F(message, code, info...) AD_LOG_FORMAT(ADAL_LOG_LEVEL_ERROR, message, code, info)
-#define AD_LOG_WARN_F(message, info...) AD_LOG_FORMAT(ADAL_LOG_LEVEL_WARN, message, AD_ERROR_SUCCEEDED, info)
-#define AD_LOG_INFO_F(message, info...) AD_LOG_FORMAT(ADAL_LOG_LEVEL_INFO, message, AD_ERROR_SUCCEEDED, info)
-#define AD_LOG_VERBOSE_F(message, info...) AD_LOG_FORMAT(ADAL_LOG_LEVEL_VERBOSE, message, AD_ERROR_SUCCEEDED, info)
+#define AD_LOG_ERROR_F(_msg, _code, _fmt, ...)        AD_LOG_F(ADAL_LOG_LEVEL_ERROR, _msg, _code, _fmt, ##__VA_ARGS__)
+#define AD_LOG_WARN_F(_msg, _fmt, ...)                AD_LOG_F(ADAL_LOG_LEVEL_WARN, _msg, AD_ERROR_SUCCEEDED, _fmt, ##__VA_ARGS__)
+#define AD_LOG_INFO_F(_msg, _fmt, ...)                AD_LOG_F(ADAL_LOG_LEVEL_INFO, _msg, AD_ERROR_SUCCEEDED, _fmt, ##__VA_ARGS__)
+#define AD_LOG_VERBOSE_F(_msg, _fmt, ...)             AD_LOG_F(ADAL_LOG_LEVEL_VERBOSE, _msg, AD_ERROR_SUCCEEDED, _fmt, ##__VA_ARGS__)
 
 #ifndef DebugLog
 #ifdef DEBUG

@@ -327,12 +327,8 @@ correlationId:(NSUUID *)correlationId
     [self webAuthenticationDidCancel];
 }
 
-- (BOOL)cancelWithError:(int)errorcode
-                details:(NSString*)details
+- (BOOL)cancelWithError:(ADAuthenticationError*)error
 {
-    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:errorcode
-                                                                          protocolCode:nil
-                                                                          errorDetails:details];
     return [self endWebAuthenticationWithError:error orURL:nil];
 }
 
