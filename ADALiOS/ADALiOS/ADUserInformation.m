@@ -203,6 +203,8 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
         _uniqueId = self.subject;
     }
     
+    _uniqueId = [ADUserInformation normalizeUserId:_uniqueId];
+    
     return self;
 }
 

@@ -20,6 +20,7 @@
 #import "ADUserIdentifier.h"
 #import "ADLogger.h"
 #import "ADErrorCodes.h"
+#import "ADUserInformation.h"
 
 #define DEFAULT_USER_TYPE RequiredDisplayableId
 
@@ -40,7 +41,7 @@
         return nil;
     }
     
-    identifier->_userId = userId;
+    identifier->_userId = [ADUserInformation normalizeUserId:userId];
     identifier->_type = DEFAULT_USER_TYPE;
     
     return identifier;
@@ -55,7 +56,7 @@
         return nil;
     }
     
-    identifier->_userId = userId;
+    identifier->_userId = [ADUserInformation normalizeUserId:userId];
     identifier->_type = type;
     
     return identifier;
@@ -70,10 +71,48 @@
         return nil;
     }
     
-    identifier->_userId = userId;
+    identifier->_userId = [ADUserInformation normalizeUserId:userId];
     identifier->_type = [ADUserIdentifier typeFromString:type];
     
     return identifier;
+}
+
++ (BOOL)identifier:(ADUserIdentifier*)identifier
+       matchesInfo:(ADUserInformation*)info
+{
+    if (!identifier)
+    {
+        return YES;
+    }
+    
+    ADUserIdentifierType type = [identifier type];
+    if (type == OptionalDisplayableId)
+    {
+        return YES;
+    }
+    
+    if (!info)
+    {
+        return NO;
+    }
+    
+    
+    
+    NSString* log = [NSString stringWithFormat:@"Unrecognized type on identifier match: %d", type];
+    AD_LOG_ERROR(log, AD_ERROR_UNEXPECTED, nil);
+    return NO;
+}
+
+- (NSString*)userIdMatchString:(ADUserInformation*)info
+{
+    switch(_type)
+    {
+        case UniqueId: return info.uniqueId;
+        case OptionalDisplayableId: return nil;
+        case RequiredDisplayableId: return info.userId;
+    }
+    
+    return nil;
 }
 
 #define ENUM_TO_STRING_CASE(_val) case _val: return @#_val;

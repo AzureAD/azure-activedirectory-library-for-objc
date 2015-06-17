@@ -131,32 +131,12 @@ static BOOL isCorrelationIdUserProvided = NO;
         return result;
     }
     
-    NSString* normalizedUserId = [ADUserInformation normalizeUserId:userId.userId];
-    NSString* actualUser = nil;
-    
     ADUserInformation* userInfo = [[result tokenCacheStoreItem] userInformation];
     
-    switch (userId.type) {
-        // This case should already be handled above, but I don't want the compiler to complain
-        case OptionalDisplayableId:
-            break;
-        case RequiredDisplayableId:
-            actualUser = [userInfo userId];
-            break;
-        case UniqueId:
-            actualUser = [userInfo uniqueId];
-            break;
-    }
-    if (!actualUser)
-    {
-        return result;
-    }
-    actualUser = [ADUserInformation normalizeUserId:actualUser];
-    
-    if (![normalizedUserId isEqualToString:actualUser])
+    if (![ADUserIdentifier identifier:userId matchesInfo:userInfo])
     {
         NSString* errorText = [NSString stringWithFormat:@"Different user was authenticated. Expected: '%@'; Actual: '%@'. Either the user entered credentials for different user, or cookie for different logged user is present. Consider calling acquireToken with AD_PROMPT_ALWAYS to ignore the cookie.",
-                               userId, actualUser];
+                               userId.userId, [userId userIdMatchString:userInfo]];
         
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_WRONG_USER
