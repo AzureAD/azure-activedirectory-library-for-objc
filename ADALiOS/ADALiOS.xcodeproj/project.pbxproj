@@ -94,6 +94,8 @@
 		D6E43A701B040A9C000F5BE2 /* ADAuthenticationContext+AcquireAssertion.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E43A6F1B040A9C000F5BE2 /* ADAuthenticationContext+AcquireAssertion.m */; };
 		D6E43A731B040ED5000F5BE2 /* ADAuthenticationContext+WebRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E43A721B040ED5000F5BE2 /* ADAuthenticationContext+WebRequest.m */; };
 		D6E43A761B04142C000F5BE2 /* ADAuthenticationContext+Broker.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E43A751B04142C000F5BE2 /* ADAuthenticationContext+Broker.m */; };
+		D6FB3E3C1B30D3630032F883 /* ADUserIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */; };
+		D6FB3E3D1B30FF510032F883 /* ADUserIdentifier.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D6FB3E3A1B30D3630032F883 /* ADUserIdentifier.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,6 +106,13 @@
 			remoteGlobalIDString = 8B0965A917F25770002BDFB8;
 			remoteInfo = ADALiOS;
 		};
+		D6FB3E3E1B3101150032F883 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8B0965B917F25770002BDFB8;
+			remoteInfo = ADALiOSTests;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -113,6 +122,7 @@
 			dstPath = "Headers/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				D6FB3E3D1B30FF510032F883 /* ADUserIdentifier.h in Copy Files */,
 				97DFE4671AE38903008109E1 /* ADAL.h in Copy Files */,
 				8BBE6FAE193EA1C60039C23E /* ADAuthenticationBroker.h in Copy Files */,
 				8B79592118F5ECA700EBF96E /* ADLogger.h in Copy Files */,
@@ -272,6 +282,8 @@
 		D6E43A721B040ED5000F5BE2 /* ADAuthenticationContext+WebRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADAuthenticationContext+WebRequest.m"; sourceTree = "<group>"; };
 		D6E43A741B04142C000F5BE2 /* ADAuthenticationContext+Broker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationContext+Broker.h"; sourceTree = "<group>"; };
 		D6E43A751B04142C000F5BE2 /* ADAuthenticationContext+Broker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADAuthenticationContext+Broker.m"; sourceTree = "<group>"; };
+		D6FB3E3A1B30D3630032F883 /* ADUserIdentifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADUserIdentifier.h; sourceTree = "<group>"; };
+		D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADUserIdentifier.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -411,6 +423,8 @@
 				9727D4D21A8753C300774236 /* ADJwtHelper.m */,
 				971C56BC1AF2278C0034820F /* ADBrokerNotificationManager.h */,
 				971C56BD1AF2278C0034820F /* ADBrokerNotificationManager.m */,
+				D6FB3E3A1B30D3630032F883 /* ADUserIdentifier.h */,
+				D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */,
 			);
 			path = ADALiOS;
 			sourceTree = "<group>";
@@ -592,6 +606,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D6FB3E3F1B3101150032F883 /* PBXTargetDependency */,
 			);
 			name = ADALiOS;
 			productName = ADALiOS;
@@ -730,6 +745,7 @@
 				D6E43A671B04015A000F5BE2 /* ADAuthenticationContext+AcquireToken.m in Sources */,
 				8BB8346218074CFA007F9F0D /* ADAuthenticationParameters.m in Sources */,
 				8B8FD79B188223770070B1BE /* ADKeychainTokenCacheStore.m in Sources */,
+				D6FB3E3C1B30D3630032F883 /* ADUserIdentifier.m in Sources */,
 				8B92DB70181B2335004AAB0E /* ADLogger.m in Sources */,
 				8B5989551811B89800744AEE /* ADTokenCacheStoreKey.m in Sources */,
 				8B0DA7DE182AD01100CF5E1E /* ADAuthenticationResult+Internal.m in Sources */,
@@ -791,6 +807,11 @@
 			isa = PBXTargetDependency;
 			target = 8B0965A917F25770002BDFB8 /* ADALiOS */;
 			targetProxy = 8B0965C017F25770002BDFB8 /* PBXContainerItemProxy */;
+		};
+		D6FB3E3F1B3101150032F883 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8B0965B917F25770002BDFB8 /* ADALiOSTests */;
+			targetProxy = D6FB3E3E1B3101150032F883 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

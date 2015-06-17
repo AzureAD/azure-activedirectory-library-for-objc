@@ -47,7 +47,7 @@
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
                         scope:(NSString*)scope /*for future use */
-                       userId:(NSString*)userId
+                       userId:(ADUserIdentifier*)userId
                promptBehavior:(ADPromptBehavior)promptBehavior
          extraQueryParameters:(NSString*)queryParams
                 correlationId:(NSUUID*)correlationId
@@ -58,7 +58,7 @@
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
                         scope:(NSString*)scope /*for future use */
-                       userId:(NSString*)userId
+                       userId:(ADUserIdentifier*)userId
                promptBehavior:(ADPromptBehavior)promptBehavior
          extraQueryParameters:(NSString*)queryParams
        refreshTokenCredential:(NSString*)refreshTokenCredential
@@ -69,7 +69,7 @@
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
                         scope:(NSString*)scope /*for future use */
-                       userId:(NSString*)userId
+                       userId:(ADUserIdentifier*)userId
                promptBehavior:(ADPromptBehavior)promptBehavior
          extraQueryParameters:(NSString*)queryParams
        refreshTokenCredential:(NSString*)refreshTokenCredential

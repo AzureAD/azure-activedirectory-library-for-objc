@@ -19,13 +19,14 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "ADOAuth2Constants.h"
 #import "ADHelpers.h"
+#import "ADUserIdentifier.h"
 
 @implementation ADAuthenticationContext (TokenCaching)
 
 //Gets an item from the cache, where userId may be nil. Raises error, if items for multiple users
 //are present and user id is not specified.
 - (ADTokenCacheStoreItem*)extractCacheItemWithKey:(ADTokenCacheStoreKey*)key
-                                           userId:(NSString*)userId
+                                           userId:(ADUserIdentifier*)userId
                                             error:(ADAuthenticationError* __autoreleasing*)error
 {
     if (!key || !self.tokenCacheStore)
@@ -34,7 +35,7 @@
     }
     
     ADAuthenticationError* localError;
-    ADTokenCacheStoreItem* item = [self.tokenCacheStore getItemWithKey:key userId:userId error:&localError];
+    ADTokenCacheStoreItem* item = [self.tokenCacheStore getItemWithKey:key userId:userId.userId error:&localError];
     if (!item && !localError && userId)
     {//ADFS fix, where the userId is not received by the server, but can be passed to the API:
         //We didn't find element with the userId, try finding an item with nil userId:
@@ -60,7 +61,7 @@
 //Checks the cache for item that can be used to get directly or indirectly an access token.
 //Checks the multi-resource refresh tokens too.
 - (ADTokenCacheStoreItem*)findCacheItemWithKey:(ADTokenCacheStoreKey*) key
-                                        userId:(NSString*) userId
+                                        userId:(ADUserIdentifier*)userId
                                 useAccessToken:(BOOL*) useAccessToken
                                          error:(ADAuthenticationError* __autoreleasing*) error
 {
@@ -93,7 +94,7 @@
         else
         {
             //We have a cache item that cannot be used anymore, remove it from the cache:
-            [self.tokenCacheStore removeItemWithKey:key userId:userId error:nil];
+            [self.tokenCacheStore removeItemWithKey:key userId:userId.userId error:nil];
         }
     }
     *useAccessToken = false;//No item with suitable access token exists
@@ -133,7 +134,7 @@
                      resource:(NSString*)resource
                      clientId:(NSString*)clientId
                   redirectUri:(NSString*)redirectUri
-                       userId:(NSString*)userId
+                       userId:(ADUserIdentifier*)userId
                 correlationId:(NSUUID*)correlationId
               completionBlock:(ADAuthenticationCallback)completionBlock
 {
@@ -165,7 +166,7 @@
                                     clientId:clientId
                                  redirectUri: (NSString*) redirectUri
                                     resource:resource
-                                      userId:item.userInformation.userId
+                                      userId:userId
                                    cacheItem:item
                            validateAuthority:NO /* Done by the caller. */
                                correlationId:correlationId
@@ -241,7 +242,7 @@
                   redirectUri: (NSURL*) redirectUri
                promptBehavior: (ADPromptBehavior) promptBehavior
                        silent: (BOOL) silent
-                       userId: (NSString*) userId
+                       userId: (ADUserIdentifier*)userId
          extraQueryParameters: (NSString*) queryParams
                 correlationId: (NSUUID*) correlationId
               completionBlock: (ADAuthenticationCallback)completionBlock
@@ -274,7 +275,7 @@
                                     clientId:clientId
                                  redirectUri:[redirectUri absoluteString]
                                     resource:resource
-                                      userId:item.userInformation.userId
+                                      userId:userId
                                    cacheItem:item
                            validateAuthority:NO /* Done by the caller. */
                                correlationId:correlationId

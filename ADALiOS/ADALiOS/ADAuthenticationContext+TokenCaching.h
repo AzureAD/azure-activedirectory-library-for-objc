@@ -27,7 +27,7 @@
                      resource:(NSString*)resource
                      clientId:(NSString*)clientId
                   redirectUri:(NSString*)redirectUri
-                       userId:(NSString*)userId
+                       userId:(ADUserIdentifier*)userId
                 correlationId:(NSUUID*)correlationId
               completionBlock:(ADAuthenticationCallback)completionBlock;
 
@@ -40,7 +40,7 @@
                   redirectUri:(NSURL*)redirectUri
                promptBehavior:(ADPromptBehavior)promptBehavior
                        silent:(BOOL)silent
-                       userId:(NSString*)userId
+                       userId:(ADUserIdentifier*)userId
          extraQueryParameters:(NSString*)queryParams
                 correlationId:(NSUUID*)correlationId
               completionBlock:(ADAuthenticationCallback)completionBlock;
@@ -54,7 +54,7 @@
 //Checks the cache for item that can be used to get directly or indirectly an access token.
 //Checks the multi-resource refresh tokens too.
 - (ADTokenCacheStoreItem*)findCacheItemWithKey:(ADTokenCacheStoreKey*) key
-                                        userId:(NSString*) userId
+                                        userId:(ADUserIdentifier*)userId
                                 useAccessToken:(BOOL*) useAccessToken
                                          error:(ADAuthenticationError* __autoreleasing*) error;
 
@@ -67,5 +67,9 @@
               cacheInstance:(id<ADTokenCacheStoring>)tokenCacheStoreInstance
                   cacheItem:(ADTokenCacheStoreItem*)cacheItem
            withRefreshToken:(NSString*)refreshToken;
+
+- (ADTokenCacheStoreItem*)extractCacheItemWithKey:(ADTokenCacheStoreKey*)key
+                                           userId:(ADUserIdentifier*)userId
+                                            error:(ADAuthenticationError* __autoreleasing*)error;
 
 @end

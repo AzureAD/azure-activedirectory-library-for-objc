@@ -38,6 +38,8 @@
 /*! Determines whether userId is displayable */
 @property (readonly) BOOL userIdDisplayable;
 
+@property (readonly) NSString* uniqueId;
+
 /*! May be null */
 @property (readonly, getter = getGivenName) NSString* givenName;
 

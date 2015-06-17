@@ -17,6 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADAuthenticationContext+Internal.h"
+#import "ADUserIdentifier.h"
 
 NSString* const ADUnknownError = @"Uknown error.";
 NSString* const ADCredentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
@@ -113,7 +114,7 @@ static BOOL isCorrelationIdUserProvided = NO;
 //the user for the obtained tokens (if provided by the server). If the user is different,
 //an error result is returned. Returns the same result, if no issues are found.
 - (ADAuthenticationResult*)updateResult:(ADAuthenticationResult*)result
-                                 toUser:(NSString*) userId
+                                 toUser:(ADUserIdentifier*)userId
 {
     if (!result)
     {
@@ -124,16 +125,35 @@ static BOOL isCorrelationIdUserProvided = NO;
         return [ADAuthenticationResult resultFromError:error];
     }
     
-    userId = [ADUserInformation normalizeUserId:userId];
-    NSString* actualUser = result.tokenCacheStoreItem.userInformation.userId;
-    if (!userId || AD_SUCCEEDED != result.status || !actualUser)
+    if (AD_SUCCEEDED != result.status || !userId || [NSString adIsStringNilOrBlank:userId.userId] || userId.type == OptionalDisplayableId)
     {
         //No user to compare - either no specific user id requested, or no specific userId obtained:
         return result;
     }
     
+    NSString* normalizedUserId = [ADUserInformation normalizeUserId:userId.userId];
+    NSString* actualUser = nil;
     
-    if (![userId isEqualToString:actualUser])
+    ADUserInformation* userInfo = [[result tokenCacheStoreItem] userInformation];
+    
+    switch (userId.type) {
+        // This case should already be handled above, but I don't want the compiler to complain
+        case OptionalDisplayableId:
+            break;
+        case RequiredDisplayableId:
+            actualUser = [userInfo userId];
+            break;
+        case UniqueId:
+            actualUser = [userInfo uniqueId];
+            break;
+    }
+    if (!actualUser)
+    {
+        return result;
+    }
+    actualUser = [ADUserInformation normalizeUserId:actualUser];
+    
+    if (![normalizedUserId isEqualToString:actualUser])
     {
         NSString* errorText = [NSString stringWithFormat:@"Different user was authenticated. Expected: '%@'; Actual: '%@'. Either the user entered credentials for different user, or cookie for different logged user is present. Consider calling acquireToken with AD_PROMPT_ALWAYS to ignore the cookie.",
                                userId, actualUser];

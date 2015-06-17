@@ -27,6 +27,7 @@
 #import "ADAuthenticationBroker.h"
 #import "ADHelpers.h"
 #import "NSURL+ADExtensions.h"
+#import "ADUserIdentifier.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -278,7 +279,7 @@ static volatile int sDialogInProgress = 0;
                             clientId:(NSString*)clientId
                          redirectUri:(NSURL*)redirectUri
                                scope:(NSString*)scope /* for future use */
-                              userId:(NSString*)userId
+                              userId:(ADUserIdentifier*)userId
                          requestType:(NSString*)requestType
                       promptBehavior:(ADPromptBehavior)promptBehavior
                 extraQueryParameters:(NSString*)queryParams
@@ -295,9 +296,9 @@ static volatile int sDialogInProgress = 0;
     
     [startUrl appendFormat:@"&%@", [[ADLogger adalId] adURLFormEncode]];
     
-    if (![NSString adIsStringNilOrBlank:userId])
+    if (![NSString adIsStringNilOrBlank:userId.userId])
     {
-        [startUrl appendFormat:@"&%@=%@", OAUTH2_LOGIN_HINT, [userId adUrlFormEncode]];
+        [startUrl appendFormat:@"&%@=%@", OAUTH2_LOGIN_HINT, [userId.userId adUrlFormEncode]];
     }
     NSString* promptParam = [ADAuthenticationContext getPromptParameter:promptBehavior];
     if (promptParam)
@@ -328,7 +329,7 @@ static volatile int sDialogInProgress = 0;
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
                         scope:(NSString*)scope /*for future use */
-                       userId:(NSString*)userId
+                       userId:(ADUserIdentifier*)userId
                promptBehavior:(ADPromptBehavior)promptBehavior
          extraQueryParameters:(NSString*)queryParams
                 correlationId:(NSUUID*)correlationId
@@ -353,7 +354,7 @@ static volatile int sDialogInProgress = 0;
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
                         scope:(NSString*)scope /*for future use */
-                       userId:(NSString*)userId
+                       userId:(ADUserIdentifier*)userId
                promptBehavior:(ADPromptBehavior)promptBehavior
          extraQueryParameters:(NSString*)queryParams
        refreshTokenCredential:(NSString*)refreshTokenCredential
@@ -378,7 +379,7 @@ static volatile int sDialogInProgress = 0;
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
                         scope:(NSString*)scope /*for future use */
-                       userId:(NSString*)userId
+                       userId:(ADUserIdentifier*)userId
                promptBehavior:(ADPromptBehavior)promptBehavior
          extraQueryParameters:(NSString*)queryParams
        refreshTokenCredential:(NSString*)refreshTokenCredential

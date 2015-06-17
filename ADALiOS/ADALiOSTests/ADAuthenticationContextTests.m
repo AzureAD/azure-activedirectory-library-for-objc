@@ -17,7 +17,8 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
-#import "../ADALiOS/ADAuthenticationContext.h"
+#import "../ADALiOS/ADAL.h"
+#import "../ADALiOS/ADAuthenticationContext+Internal.h"
 #import "ADTestTokenCacheStore.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
@@ -28,26 +29,11 @@
 #import "../ADALiOS/ADKeychainTokenCacheStore.h"
 
 const int sAsyncContextTimeout = 10;
-
-//A simple protocol to expose private methods:
-@protocol ADAuthenticationContextProtocol <NSObject>
-
--(ADTokenCacheStoreItem*) extractCacheItemWithKey: (ADTokenCacheStoreKey*) key
-                                           userId: (NSString*) userId
-                                            error: (ADAuthenticationError* __autoreleasing*) error;
-
--(ADTokenCacheStoreItem*) findCacheItemWithKey: (ADTokenCacheStoreKey*) key
-                                        userId: (NSString*) userId
-                                useAccessToken: (BOOL*) useAccessToken
-                                         error: (ADAuthenticationError* __autoreleasing*) error;
-@end
-
 @interface ADAuthenticationContextTests : XCTestCase
 {
 @private
     //The source:
     ADAuthenticationContext* mContext;
-    id<ADAuthenticationContextProtocol> mProtocolContext; //Originally set same as above, provided for simplicity.
     ADKeychainTokenCacheStore* mDefaultTokenCache;
     NSString* mAuthority;
     NSString* mResource;
@@ -94,7 +80,6 @@ const int sAsyncContextTimeout = 10;
     ADAssertNoError;
     XCTAssertNotNil(testContext, "Cannot create the context in setUp.");
     mContext = testContext;
-    mProtocolContext = (id<ADAuthenticationContextProtocol>)mContext;
     [testContext->mExpectedRequest1 setObject:OAUTH2_REFRESH_TOKEN forKey:OAUTH2_GRANT_TYPE];
     [testContext->mExpectedRequest1 setObject:mResource forKey:OAUTH2_RESOURCE];
     [testContext->mExpectedRequest1 setObject:mClientId forKey:OAUTH2_CLIENT_ID];
@@ -1022,11 +1007,17 @@ const int sAsyncContextTimeout = 10;
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     //Nil key
-    XCTAssertNil([mProtocolContext extractCacheItemWithKey:nil userId:nil error:nil]);
+    XCTAssertNil([mContext extractCacheItemWithKey:nil
+                                            userId:nil
+                                             error:nil]);
     BOOL useAccessToken;
-    XCTAssertNil([mProtocolContext findCacheItemWithKey:nil userId:nil useAccessToken:&useAccessToken error:nil]);
+    XCTAssertNil([mContext findCacheItemWithKey:nil
+                                         userId:nil
+                                 useAccessToken:&useAccessToken
+                                          error:nil]);
     
     ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    ADUserIdentifier* userId = [ADUserIdentifier identifierWithId:item.userInformation.userId];
     ADAuthenticationError* error;
     ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
     XCTAssertNotNil(key);
@@ -1038,18 +1029,28 @@ const int sAsyncContextTimeout = 10;
     ADAssertNoError;
     
     error = nil;
-    ADTokenCacheStoreItem* extracted = [mProtocolContext extractCacheItemWithKey:key userId:item.userInformation.userId error:&error];
+    ADTokenCacheStoreItem* extracted = [mContext extractCacheItemWithKey:key
+                                                                  userId:userId
+                                                                   error:&error];
     ADAssertNoError;
-    [self adVerifySameWithItem:item item2:extracted];
+    XCTAssertEqualObjects(item, extracted);
     error = nil;
-    ADTokenCacheStoreItem* found = [mProtocolContext findCacheItemWithKey:key userId:item.userInformation.userId useAccessToken:&useAccessToken error:&error];
+    ADTokenCacheStoreItem* found = [mContext findCacheItemWithKey:key
+                                                           userId:userId
+                                                   useAccessToken:&useAccessToken
+                                                            error:&error];
     ADAssertNoError;
     XCTAssertTrue(useAccessToken);
-    [self adVerifySameWithItem:item item2:found];
+    XCTAssertEqualObjects(item, found);
     
     mContext.tokenCacheStore = nil;//Set the authority to not use the cache:
-    XCTAssertNil([mProtocolContext extractCacheItemWithKey:nil userId:nil error:nil]);
-    XCTAssertNil([mProtocolContext findCacheItemWithKey:key userId:item.userInformation.userId useAccessToken:&useAccessToken error:&error]);
+    XCTAssertNil([mContext extractCacheItemWithKey:nil
+                                            userId:nil
+                                             error:nil]);
+    XCTAssertNil([mContext findCacheItemWithKey:key
+                                         userId:userId
+                                 useAccessToken:&useAccessToken
+                                          error:&error]);
 }
 
 -(void) testBadAuthorityWithValidation
