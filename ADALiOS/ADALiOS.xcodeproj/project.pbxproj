@@ -106,13 +106,6 @@
 			remoteGlobalIDString = 8B0965A917F25770002BDFB8;
 			remoteInfo = ADALiOS;
 		};
-		D6FB3E3E1B3101150032F883 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8B0965B917F25770002BDFB8;
-			remoteInfo = ADALiOSTests;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -606,7 +599,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D6FB3E3F1B3101150032F883 /* PBXTargetDependency */,
 			);
 			name = ADALiOS;
 			productName = ADALiOS;
@@ -807,11 +799,6 @@
 			isa = PBXTargetDependency;
 			target = 8B0965A917F25770002BDFB8 /* ADALiOS */;
 			targetProxy = 8B0965C017F25770002BDFB8 /* PBXContainerItemProxy */;
-		};
-		D6FB3E3F1B3101150032F883 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8B0965B917F25770002BDFB8 /* ADALiOSTests */;
-			targetProxy = D6FB3E3E1B3101150032F883 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

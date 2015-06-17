@@ -63,6 +63,9 @@ typedef enum ADUserIdentifierType
 + (ADUserIdentifier*)identifierWithId:(NSString*)userId
                                  type:(ADUserIdentifierType)type;
 
++ (ADUserIdentifier*)identifierWithId:(NSString *)userId
+                       typeFromString:(NSString*)type;
+
 - (NSString*)typeAsString;
 
 @end
