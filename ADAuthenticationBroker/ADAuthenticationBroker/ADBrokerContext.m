@@ -194,7 +194,6 @@ static dispatch_semaphore_t s_cancelSemaphore;
 + (void) invokeBroker: (NSString*) requestPayload
                         sourceApplication: (NSString*) sourceApplication
 {
-    API_ENTRY;
     [ADBrokerContext invokeBroker:requestPayload
                 sourceApplication:sourceApplication
                               upn:nil];
@@ -204,10 +203,12 @@ static dispatch_semaphore_t s_cancelSemaphore;
     sourceApplication: (NSString*) sourceApplication
                   upn: (NSString*) upn
 {
-    API_ENTRY;
-    
-    BOOL fSessionCancelled = [[ADAuthenticationBroker sharedInstance] cancelWithError:AD_BROKER_FORCE_CANCEL_CODE
-                                                                              details:@"Forcing previous session to cancel."];
+    NSString* msg = [NSString stringWithFormat:@"Broker invoked from %@", sourceApplication];
+    AD_LOG_INFO_F(msg, @"upn: %@, requestPayload: %@", upn, requestPayload);
+    ADAuthenticationError* cancelError = [ADAuthenticationError errorQuietWithAuthenticationError:AD_BROKER_FORCE_CANCEL_CODE
+                                                                                     protocolCode:nil
+                                                                                     errorDetails:@"Broker forcing ADAL to cancel."];
+    BOOL fSessionCancelled = [[ADAuthenticationBroker sharedInstance] cancelWithError:cancelError];
     if (!fSessionCancelled)
     {
         // If there was nothing to cancel then we can call the impl immediately
@@ -217,6 +218,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
         return;
     }
     
+    AD_LOG_INFO(@"Previous ADAL session was cancelled.", nil);
     // If we had to cancel a previously running ADAL session then kick over to a background thread and block waiting on the
     // semaphore to be signalled. Once that happens we'll jump back onto the main thread and continue onwards.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -285,6 +287,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                 ADAuthenticationError* error = result.error;
                 if (error != nil && error.code == AD_BROKER_FORCE_CANCEL_CODE)
                 {
+                    AD_LOG_INFO(@"Previous ADAL Session Cancelled", nil);
                     dispatch_semaphore_signal(s_cancelSemaphore);
                     // In this case we had to cancel this session, don't go back to the app.
                     return;
@@ -295,7 +298,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                     NSString* response = nil;
                     
                     if(result.status == AD_SUCCEEDED){
-                        AD_LOG_INFO(@"acquireToken succeeded. Taking user back to client app", nil);
+                        AD_LOG_INFO_F(@"acquireToken succeeded.", @"Found token for %@", result.tokenCacheStoreItem.userInformation.getUpn);
                         NSString* rawIdToken = @"";
                         if(result.tokenCacheStoreItem.userInformation){
                             rawIdToken = result.tokenCacheStoreItem.userInformation.rawIdToken;
@@ -321,10 +324,12 @@ static dispatch_semaphore_t s_cancelSemaphore;
                         
                         response = [NSString stringWithFormat:@"response=%@&hash=%@", [[NSString Base64EncodeData: responseData] adUrlFormEncode], [ADBrokerHelpers computeHash:plainData]];
                     } else{
-                        AD_LOG_INFO(@"acquireToken failed with error:%@. Taking user back to client app", result.error.errorDetails);
+                        AD_LOG_ERROR_F(@"acquireToken failed.", result.error.code, @"error details: %@", result.error.errorDetails);
                         response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@", [result.error.protocolCode adUrlFormEncode], [result.error.errorDetails adUrlFormEncode], [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
                     }
                     
+                    NSString* returnMsg = [NSString stringWithFormat:@"Returning to app (%@)", [queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]];
+                    AD_LOG_INFO_F(returnMsg, @"response: %@", response);
                     [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI] response:response];
                     [[NSNotificationCenter defaultCenter] postNotificationName:ADBrokerContextDidReturnToAppNotification
                                                                         object:self];
@@ -341,7 +346,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
             }
             
             
-            AD_LOG_INFO_F(@"Client App parameters", @"authority=%@; client_id=%@; resource=%@; redirect_uri=%@; client_adal_version=%@; upn_provided=%d;",[queryParamsMap valueForKey:AUTHORITY],
+            AD_LOG_INFO_F(@"Client App parameters", @"authority=%@; client_id=%@; resource=%@; redirect_uri=%@; client_adal_version=%@; upn_provided=%d;", [queryParamsMap valueForKey:AUTHORITY],
                         [queryParamsMap valueForKey:OAUTH2_CLIENT_ID],
                         [queryParamsMap valueForKey:OAUTH2_RESOURCE],
                         [queryParamsMap valueForKey:OAUTH2_REDIRECT_URI],
@@ -739,13 +744,13 @@ static dispatch_semaphore_t s_cancelSemaphore;
          ++_wpjRetryAttempt;
          if ([_initialAttemptTime timeIntervalSinceNow] < -[[ADBrokerSettings sharedInstance] prtRetryTimeout])
          {
-             AD_LOG_ERROR_F(@"Primary Refresh Token request attempt %d FAILED. Timeout reached. Failing.", error.code, error.description, _wpjRetryAttempt);
+             AD_LOG_ERROR_F(@"PRT Acquisition Timedout", error.code, @"Failed after %d attempts. (%@) Timeout reached.", _wpjRetryAttempt, error.description);
              _initialAttemptTime = nil;
              onResultBlock(error);
              return;
          }
          
-         AD_LOG_ERROR_F(@"Primary Refresh Token request attempt %d FAILED. Attempting again in 5 seconds...", error.code, error.description, _wpjRetryAttempt);
+         AD_LOG_ERROR_F(@"PRT Acquisition Failed, Retrying.", error.code, @"Request attempt %d failed. (%@) Attempting again in 5.0 seconds...", _wpjRetryAttempt, error.description);
          [NSThread sleepForTimeInterval:5.0];
          
          [self acquirePRTForUPN:upn
