@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7531" systemVersion="14D136" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="rQl-PL-IFJ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="rQl-PL-IFJ">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7520"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
     </dependencies>
     <scenes>
         <!--Test Main View Controller-->
@@ -32,7 +32,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hp0-J2-wnv">
-                                <rect key="frame" x="52" y="81" width="76" height="30"/>
+                                <rect key="frame" x="20" y="63" width="76" height="30"/>
                                 <state key="normal" title="End to End">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -41,7 +41,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kmh-k3-Gc8">
-                                <rect key="frame" x="52" y="119" width="85" height="30"/>
+                                <rect key="frame" x="20" y="101" width="85" height="30"/>
                                 <state key="normal" title="Clear Cache">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -50,8 +50,8 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xkk-Hs-VRK">
-                                <rect key="frame" x="52" y="151" width="118" height="30"/>
-                                <state key="normal" title="Get logged users">
+                                <rect key="frame" x="20" y="133" width="68" height="30"/>
+                                <state key="normal" title=" get users">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
@@ -65,7 +65,7 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eED-F4-K6i">
-                                <rect key="frame" x="52" y="259" width="140" height="30"/>
+                                <rect key="frame" x="20" y="241" width="140" height="30"/>
                                 <state key="normal" title="Acquire Token Silent">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -75,7 +75,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cvg-hR-arT">
-                                <rect key="frame" x="52" y="189" width="64" height="30"/>
+                                <rect key="frame" x="20" y="171" width="64" height="30"/>
                                 <state key="normal" title="Expire All">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -84,7 +84,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lDc-ZK-ov7" userLabel="Button - Promp Always">
-                                <rect key="frame" x="52" y="227" width="118" height="30"/>
+                                <rect key="frame" x="20" y="209" width="118" height="30"/>
                                 <state key="normal" title="Prompt Always">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -92,6 +92,33 @@
                                     <action selector="promptAlways:" destination="rQl-PL-IFJ" eventType="touchUpInside" id="zeu-t5-AFy"/>
                                 </connections>
                             </button>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="2Uz-WV-uIs">
+                                <rect key="frame" x="138" y="78" width="166" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="6Hi-cK-CSj">
+                                <rect key="frame" x="138" y="117" width="166" height="29"/>
+                                <segments>
+                                    <segment title="unq"/>
+                                    <segment title="opt"/>
+                                    <segment title="req"/>
+                                </segments>
+                            </segmentedControl>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="bwY-ER-l8D">
+                                <rect key="frame" x="138" y="153" width="166" height="29"/>
+                                <segments>
+                                    <segment title="auto"/>
+                                    <segment title="alwys"/>
+                                    <segment title="rfrsh"/>
+                                </segments>
+                            </segmentedControl>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="user id:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UKM-c9-hpF">
+                                <rect key="frame" x="145" y="49" width="57" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="0.25" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
@@ -100,7 +127,10 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="resultLabel" destination="wT8-Bz-vLQ" id="Ai6-LW-Ilf"/>
+                        <outlet property="_resultView" destination="wT8-Bz-vLQ" id="iue-DJ-Rkg"/>
+                        <outlet property="_scPromptBehavior" destination="bwY-ER-l8D" id="V82-F3-6gU"/>
+                        <outlet property="_scUserType" destination="6Hi-cK-CSj" id="N8B-s5-fED"/>
+                        <outlet property="_tfUserId" destination="2Uz-WV-uIs" id="r7Z-NL-zv4"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="h4L-l5-tyG" sceneMemberID="firstResponder"/>

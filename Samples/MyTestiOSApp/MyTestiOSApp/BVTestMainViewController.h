@@ -24,6 +24,10 @@
 
 @interface BVTestMainViewController : UIViewController <BVTestFlipsideViewControllerDelegate, UIPopoverControllerDelegate>
 {
+    IBOutlet UITextView*            _resultView;
+    IBOutlet UITextField*           _tfUserId;
+    IBOutlet UISegmentedControl*    _scUserType;
+    IBOutlet UISegmentedControl*    _scPromptBehavior;
     @protected
     BVSettings* mTestData;
     BVTestInstance* mAADInstance;

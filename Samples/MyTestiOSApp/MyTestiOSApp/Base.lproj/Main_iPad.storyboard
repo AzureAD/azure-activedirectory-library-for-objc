@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7531" systemVersion="14D136" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="aVO-UE-KGo">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="aVO-UE-KGo">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7520"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
     </dependencies>
     <scenes>
         <!--Test Main View Controller-->
@@ -29,49 +29,112 @@
                                     </navigationItem>
                                 </items>
                             </navigationBar>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="QBA-Jf-dIr">
+                                <rect key="frame" x="412" y="77" width="266" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="userId:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jOj-Kw-dLc">
+                                <rect key="frame" x="344" y="77" width="53" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" name="controlLightHighlightColor" catalog="System" colorSpace="catalog"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="userType:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tqx-tf-XKh">
+                                <rect key="frame" x="323" y="115" width="74" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="2" translatesAutoresizingMaskIntoConstraints="NO" id="28s-Ay-hJH">
+                                <rect key="frame" x="412" y="115" width="266" height="29"/>
+                                <segments>
+                                    <segment title="unique"/>
+                                    <segment title="optional"/>
+                                    <segment title="required"/>
+                                </segments>
+                            </segmentedControl>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="prompt:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7pX-2t-vQz">
+                                <rect key="frame" x="339" y="156" width="61" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="BuY-Ru-0Wn">
+                                <rect key="frame" x="412" y="151" width="266" height="29"/>
+                                <segments>
+                                    <segment title="Auto"/>
+                                    <segment title="Always"/>
+                                    <segment title="Refresh"/>
+                                </segments>
+                            </segmentedControl>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rs5-sx-tir">
-                                <rect key="frame" x="175" y="72" width="76" height="30"/>
+                                <rect key="frame" x="90" y="77" width="76" height="30"/>
                                 <state key="normal" title="End to End">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="pressMeAction:" destination="aVO-UE-KGo" eventType="touchUpInside" id="2pv-st-Yhh"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Yyp-w6-IDf">
-                                <rect key="frame" x="175" y="250" width="140" height="30"/>
+                                <rect key="frame" x="90" y="255" width="140" height="30"/>
                                 <state key="normal" title="Acquire Token Silent">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="acquireTokenSilentAction:" destination="aVO-UE-KGo" eventType="touchUpInside" id="ZzC-gS-OkP"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hh2-Lg-JjF">
-                                <rect key="frame" x="175" y="110" width="85" height="30"/>
+                                <rect key="frame" x="90" y="115" width="85" height="30"/>
                                 <state key="normal" title="Clear Cache">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="clearCachePressed:" destination="aVO-UE-KGo" eventType="touchUpInside" id="gvX-mR-Ilc"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vR7-U5-PHm">
-                                <rect key="frame" x="175" y="142" width="118" height="30"/>
+                                <rect key="frame" x="90" y="147" width="118" height="30"/>
                                 <state key="normal" title="Get logged users">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="getUsersPressed:" destination="aVO-UE-KGo" eventType="touchUpInside" id="VaK-ZP-m74"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eja-p2-Vem">
-                                <rect key="frame" x="175" y="180" width="64" height="30"/>
+                                <rect key="frame" x="90" y="185" width="64" height="30"/>
                                 <state key="normal" title="Expire All">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="expireAllPressed:" destination="aVO-UE-KGo" eventType="touchUpInside" id="t8l-Rz-cNf"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WvT-Ws-WRP" userLabel="Button - Promp Always">
-                                <rect key="frame" x="175" y="218" width="118" height="30"/>
+                                <rect key="frame" x="90" y="223" width="118" height="30"/>
                                 <state key="normal" title="Prompt Always">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="promptAlways:" destination="aVO-UE-KGo" eventType="touchUpInside" id="9ah-BR-r0x"/>
+                                </connections>
                             </button>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="characterWrap" numberOfLines="6" baselineAdjustment="alignBaselines" minimumFontSize="9" preferredMaxLayoutWidth="588" translatesAutoresizingMaskIntoConstraints="NO" id="riI-9j-1cj">
-                                <rect key="frame" x="90" y="347" width="588" height="493"/>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uyB-vR-SeS">
+                                <rect key="frame" x="16" y="309" width="736" height="695"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="aEk-sC-PfV">
+                                <rect key="frame" x="465" y="245" width="161" height="29"/>
+                                <segments>
+                                    <segment title="Embedded"/>
+                                    <segment title="Broker"/>
+                                </segments>
+                            </segmentedControl>
                         </subviews>
                         <color key="backgroundColor" white="0.25" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
@@ -81,7 +144,10 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="resultLabel" destination="riI-9j-1cj" id="fRe-C2-UX0"/>
+                        <outlet property="_resultView" destination="uyB-vR-SeS" id="61t-df-gjy"/>
+                        <outlet property="_scPromptBehavior" destination="BuY-Ru-0Wn" id="F2h-Mb-gpJ"/>
+                        <outlet property="_scUserType" destination="28s-Ay-hJH" id="8xO-HI-c3b"/>
+                        <outlet property="_tfUserId" destination="QBA-Jf-dIr" id="dN1-Nk-0f9"/>
                         <segue destination="FTa-do-hRx" kind="modal" identifier="showAlternate" modalTransitionStyle="flipHorizontal" id="pXF-iP-W5x"/>
                     </connections>
                 </viewController>
