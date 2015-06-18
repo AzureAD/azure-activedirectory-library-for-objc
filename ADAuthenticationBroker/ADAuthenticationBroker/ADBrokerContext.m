@@ -32,37 +32,12 @@
 #import "ADBrokerUserAccount.h"
 #import "ADBrokerSettings.h"
 #import "ADLogger+Broker.h"
+#import "ADUserIdentifier.h"
+#import "ADAuthenticationContext+Internal.h"
 
 #define AD_BROKER_FORCE_CANCEL_CODE -2
 
 NSString* const ADBrokerContextDidReturnToAppNotification = @"ADBrokerContextDidReturnToAppNotification";
-
-@interface ADAuthenticationContext ()
-
-- (void)internalAcquireTokenWithResource:(NSString*)resource
-                                clientId:(NSString*)clientId
-                             redirectUri:(NSURL*)redirectUri
-                          promptBehavior:(ADPromptBehavior)promptBehavior
-                                  silent:(BOOL)silent /* Do not show web UI for authorization. */
-                                  userId:(NSString*)userId
-                                   scope:(NSString*)scope
-                    extraQueryParameters:(NSString*)queryParams
-                       validateAuthority:(BOOL)validateAuthority
-                           correlationId:(NSUUID*)correlationId
-                         completionBlock:(ADAuthenticationCallback)completionBlock;
-
-- (void) requestTokenWithResource: (NSString*) resource
-                         clientId: (NSString*) clientId
-                      redirectUri: (NSURL*) redirectUri
-                   promptBehavior: (ADPromptBehavior) promptBehavior
-                           silent: (BOOL) silent /* Do not show web UI for authorization. */
-                           userId: (NSString*) userId
-                            scope: (NSString*) scope
-             extraQueryParameters: (NSString*) queryParams
-                    correlationId: (NSUUID*) correlationId
-                  completionBlock: (ADAuthenticationCallback)completionBlock;
-
-@end
 
 @implementation ADBrokerContext
 {
@@ -231,7 +206,67 @@ static dispatch_semaphore_t s_cancelSemaphore;
         });
     });
 }
-+ (void)invokeBrokerImpl:(NSString *)requestPayload
+
++ (void)takeMeBack:(ADAuthenticationResult*)result
+ sourceApplication:(NSString*)sourceApplication
+               upn:(NSString*)upn
+       queryParams:(NSDictionary*)queryParamsMap
+{
+    ADAuthenticationError* error = result.error;
+    if (error != nil && error.code == AD_BROKER_FORCE_CANCEL_CODE)
+    {
+        AD_LOG_INFO(@"Previous ADAL Session Cancelled", nil);
+        dispatch_semaphore_signal(s_cancelSemaphore);
+        // In this case we had to cancel this session, don't go back to the app.
+        return;
+    }
+    
+    if([NSString adSame:sourceApplication toString:DEFAULT_GUID_FOR_NIL])
+    {
+        AD_LOG_INFO(@"Not flipping back, source application was nil", nil);
+        return;
+    }
+    
+    NSString* response = nil;
+
+    if(result.status == AD_SUCCEEDED)
+    {
+        AD_LOG_INFO_F(@"acquireToken succeeded.", @"Found token for %@", result.tokenCacheStoreItem.userInformation.getUpn);
+        NSString* rawIdToken = @"";
+        if(result.tokenCacheStoreItem.userInformation){
+            rawIdToken = result.tokenCacheStoreItem.userInformation.rawIdToken;
+        }
+        
+        response = [NSString stringWithFormat:@"authority=%@&client_id=%@&resource=%@&user_id=%@&correlation_id=%@&access_token=%@&refresh_token=%@&id_token=%@&expires_on=%f",
+                    [queryParamsMap valueForKey:AUTHORITY],
+                    [queryParamsMap valueForKey:OAUTH2_CLIENT_ID],
+                    [queryParamsMap valueForKey:OAUTH2_RESOURCE],
+                    upn,
+                    [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE],
+                    result.accessToken,
+                    result.tokenCacheStoreItem.refreshToken,
+                    rawIdToken,
+                    [result.tokenCacheStoreItem.expiresOn timeIntervalSince1970]];
+        
+        NSString* brokerKey = [queryParamsMap valueForKey:BROKER_KEY];
+        NSData *decodedKey = [NSString Base64DecodeData:brokerKey];
+        NSString *decodedKeyString = [[NSString alloc] initWithData:decodedKey encoding:0];
+        
+        NSData *plainData = [response dataUsingEncoding:NSUTF8StringEncoding];
+        NSData* responseData = [ADBrokerHelpers encryptData:plainData key:decodedKeyString];
+        
+        response = [NSString stringWithFormat:@"response=%@&hash=%@", [[NSString Base64EncodeData: responseData] adUrlFormEncode], [ADBrokerHelpers computeHash:plainData]];
+    } else{
+        AD_LOG_ERROR_F(@"acquireToken failed.", result.error.code, @"error details: %@", result.error.errorDetails);
+        response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@", [result.error.protocolCode adUrlFormEncode], [result.error.errorDetails adUrlFormEncode], [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
+    }
+    
+    NSString* returnMsg = [NSString stringWithFormat:@"Returning to app (%@)", [queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]];
+    AD_LOG_INFO_F(returnMsg, @"response: %@", response);
+    [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI] response:response];
+}
+
++ (BOOL)invokeBrokerImpl:(NSString *)requestPayload
        sourceApplication:(NSString *)sourceApplication
                      upn:(NSString *)upn
 {
@@ -239,6 +274,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
     
     ADAuthenticationError* error = nil;
     
+    // TODO: These REALLY shouldn't be throws. That'll just cause the application to crash and with no useful information at all.
     THROW_ON_NIL_ARGUMENT(requestPayload);
     THROW_ON_NIL_ARGUMENT(sourceApplication);
     
@@ -253,151 +289,127 @@ static dispatch_semaphore_t s_cancelSemaphore;
     THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:BROKER_KEY]);
     THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:CLIENT_ADAL_VERSION]);
     
-    if(!error)
+    if (error)
     {
-        //validate source application against redirect uri
-        NSURL *redirectUri = [[NSURL alloc] initWithString:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]];
-        if(![NSString adSame:sourceApplication toString:[redirectUri host]]){
-            
-            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
-                                                           protocolCode:nil
-                                                           errorDetails:@"source application bundle identifier should be same as the redirect URI domain"];
-            AD_LOG_ERROR_F(@"source application does not match redirect uri host", (int)error.protocolCode , @"Invalid source app: %@", error.errorDetails);
-            NSString* response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@",
-                                   [error.protocolCode adUrlFormEncode],
-                                   [error.errorDetails adUrlFormEncode],
-                                   [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
-            [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI] response:response];
-            return;
-        }
-        
-        [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
-        ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:AUTHORITY];
-        
-        //update version after creating ADBrokerContext instance because the instance creation
-        //sets the client ADAL version to 0.0.0
-        [ADLogger setAdalVersion:[queryParamsMap valueForKey:CLIENT_ADAL_VERSION]];
-        ctx.correlationId = [[NSUUID alloc]
-                             initWithUUIDString:[queryParamsMap
-                                                 valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
-        if(ctx)
-        {
-            ADAuthenticationCallback takeMeBack = ^(ADAuthenticationResult *result)
-            {
-                ADAuthenticationError* error = result.error;
-                if (error != nil && error.code == AD_BROKER_FORCE_CANCEL_CODE)
-                {
-                    AD_LOG_INFO(@"Previous ADAL Session Cancelled", nil);
-                    dispatch_semaphore_signal(s_cancelSemaphore);
-                    // In this case we had to cancel this session, don't go back to the app.
-                    return;
-                }
-                
-                if(![NSString adSame:sourceApplication toString:DEFAULT_GUID_FOR_NIL])
-                {
-                    NSString* response = nil;
-                    
-                    if(result.status == AD_SUCCEEDED){
-                        AD_LOG_INFO_F(@"acquireToken succeeded.", @"Found token for %@", result.tokenCacheStoreItem.userInformation.getUpn);
-                        NSString* rawIdToken = @"";
-                        if(result.tokenCacheStoreItem.userInformation){
-                            rawIdToken = result.tokenCacheStoreItem.userInformation.rawIdToken;
-                        }
-                        
-                        response = [NSString stringWithFormat:@"authority=%@&client_id=%@&resource=%@&user_id=%@&correlation_id=%@&access_token=%@&refresh_token=%@&id_token=%@&expires_on=%f",
-                                    [queryParamsMap valueForKey:AUTHORITY],
-                                    [queryParamsMap valueForKey:OAUTH2_CLIENT_ID],
-                                    [queryParamsMap valueForKey:OAUTH2_RESOURCE],
-                                    upn,
-                                    [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE],
-                                    result.accessToken,
-                                    result.tokenCacheStoreItem.refreshToken,
-                                    rawIdToken,
-                                    [result.tokenCacheStoreItem.expiresOn timeIntervalSince1970]];
-                        
-                        NSString* brokerKey = [queryParamsMap valueForKey:BROKER_KEY];
-                        NSData *decodedKey = [NSString Base64DecodeData:brokerKey];
-                        NSString *decodedKeyString = [[NSString alloc] initWithData:decodedKey encoding:0];
-                        
-                        NSData *plainData = [response dataUsingEncoding:NSUTF8StringEncoding];
-                        NSData* responseData = [ADBrokerHelpers encryptData:plainData key:decodedKeyString];
-                        
-                        response = [NSString stringWithFormat:@"response=%@&hash=%@", [[NSString Base64EncodeData: responseData] adUrlFormEncode], [ADBrokerHelpers computeHash:plainData]];
-                    } else{
-                        AD_LOG_ERROR_F(@"acquireToken failed.", result.error.code, @"error details: %@", result.error.errorDetails);
-                        response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@", [result.error.protocolCode adUrlFormEncode], [result.error.errorDetails adUrlFormEncode], [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
-                    }
-                    
-                    NSString* returnMsg = [NSString stringWithFormat:@"Returning to app (%@)", [queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]];
-                    AD_LOG_INFO_F(returnMsg, @"response: %@", response);
-                    [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI] response:response];
-                    [[NSNotificationCenter defaultCenter] postNotificationName:ADBrokerContextDidReturnToAppNotification
-                                                                        object:self];
-                    return;
-                }
-            };
-            
-            NSString* extraQP =[queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS];
-            NSDictionary* extraQpDictionary = [NSDictionary adURLFormDecode:extraQP];
-            extraQP = nil;
-            if([extraQpDictionary valueForKey:@"mamver"])
-            {
-                extraQP = [NSString stringWithFormat:@"mamver=%@", [extraQpDictionary valueForKey:@"mamver"]];
-            }
-            
-            
-            AD_LOG_INFO_F(@"Client App parameters", @"authority=%@; client_id=%@; resource=%@; redirect_uri=%@; client_adal_version=%@; upn_provided=%d;", [queryParamsMap valueForKey:AUTHORITY],
-                        [queryParamsMap valueForKey:OAUTH2_CLIENT_ID],
-                        [queryParamsMap valueForKey:OAUTH2_RESOURCE],
-                        [queryParamsMap valueForKey:OAUTH2_REDIRECT_URI],
-                        [queryParamsMap valueForKey:CLIENT_ADAL_VERSION],
-                        ![NSString adIsStringNilOrBlank:upn]);
-            
-            [ctx acquireAccount:[queryParamsMap valueForKey:AUTHORITY]
-                         userId:upn
-                       clientId:[queryParamsMap valueForKey:OAUTH2_CLIENT_ID]
-                       resource:[queryParamsMap valueForKey:OAUTH2_RESOURCE]
-                    redirectUri:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]
-           extraQueryParameters:extraQP
-                         appKey:[queryParamsMap valueForKey:BROKER_KEY]
-                completionBlock:^(ADAuthenticationResult *result) {
-                    
-                    if(result.status != AD_SUCCEEDED && result.error.code == AD_ERROR_WPJ_REQUIRED)
-                    {
-                        AD_LOG_INFO(@"acquireAccount returned AD_ERROR_WPJ_REQUIRED error", nil);
-                        ADAuthenticationError* err = result.error;
-                        [ctx doWorkPlaceJoinForUpn:[err.userInfo valueForKey:@"username"]
-                                     onResultBlock:^(NSError *error) {
-                                         if(!error)
-                                         {
-                                             AD_LOG_INFO(@"WPJ succeeded. Getting the token initially requested.", nil);
-                                             [ctx acquireAccount:[queryParamsMap valueForKey:AUTHORITY]
-                                                          userId:[err.userInfo valueForKey:@"username"]
-                                                        clientId:[queryParamsMap valueForKey:OAUTH2_CLIENT_ID]
-                                                        resource:[queryParamsMap valueForKey:OAUTH2_RESOURCE]
-                                                     redirectUri:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]
-                                            extraQueryParameters:extraQP
-                                                          appKey:[queryParamsMap valueForKey:BROKER_KEY]
-                                                 completionBlock:takeMeBack];
-                                         }
-                                         else
-                                         {
-                                             AD_LOG_ERROR(@"WPJ failed.", error.code, error.description);
-                                             takeMeBack([ADAuthenticationResult resultFromError:[ADAuthenticationError errorFromNSError:error errorDetails:error.description]]);
-                                             return;
-                                         }
-                                     }];
-                    }
-                    else
-                    {
-                        //either succeeded or a non-WPJ failure. Take the user back
-                        //to the calling app.
-                        takeMeBack(result);
-                        return;
-                    }
-                }];
-        }
+        // TODO: This is almost certainly insufficient to ensure we don't end up in a screwy situation...
+        return NO;
     }
+    
+    //validate source application against redirect uri
+    NSURL *redirectUri = [[NSURL alloc] initWithString:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]];
+    if(![NSString adSame:sourceApplication toString:[redirectUri host]]){
+        
+        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
+                                                       protocolCode:nil
+                                                       errorDetails:@"source application bundle identifier should be same as the redirect URI domain"];
+        AD_LOG_ERROR_F(@"source application does not match redirect uri host", (int)error.protocolCode , @"Invalid source app: %@", error.errorDetails);
+        NSString* response =  [NSString stringWithFormat:@"code=%@&error_description=%@&correlation_id=%@",
+                               [error.protocolCode adUrlFormEncode],
+                               [error.errorDetails adUrlFormEncode],
+                               [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
+        [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI] response:response];
+        return NO;
+    }
+    
+    ADAuthenticationCallback takeMeBack = ^(ADAuthenticationResult *result)
+    {
+        [ADBrokerContext takeMeBack:result sourceApplication:sourceApplication upn:upn queryParams:queryParamsMap];
+        [[NSNotificationCenter defaultCenter] postNotificationName:ADBrokerContextDidReturnToAppNotification
+                                                            object:self];
+    };
+    
+    NSString* authority = [queryParamsMap valueForKey:AUTHORITY];
+    NSString* userType = [queryParamsMap valueForKey:@"usertype"];
+    NSString* clientId = [queryParamsMap valueForKey:OAUTH2_CLIENT_ID];
+    NSString* resource = [queryParamsMap valueForKey:OAUTH2_RESOURCE];
+    NSString* clientAdalVer = [queryParamsMap valueForKey:CLIENT_ADAL_VERSION];
+    BOOL force = NO;
+    NSNumber* nsForce = [queryParamsMap valueForKey:@"force"];
+    if (nsForce && [nsForce isKindOfClass:[NSNumber class]])
+    {
+        force = [nsForce boolValue];
+    }
+    ADUserIdentifier* userId = [ADUserIdentifier identifierWithId:upn typeFromString:userType];
+    
+    [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
+    ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:AUTHORITY];
+    
+    if (!ctx)
+    {
+        AD_LOG_ERROR_F(@"Failed to create broker context", AD_FAILED, @"broker context failed with authority: %@", AUTHORITY);
+        takeMeBack([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"failed to create broker context."]]);
+        return NO;
+    }
+    
+    //update version after creating ADBrokerContext instance because the instance creation
+    //sets the client ADAL version to 0.0.0
+    [ADLogger setAdalVersion:clientAdalVer];
+    ctx.correlationId = [[NSUUID alloc]
+                         initWithUUIDString:[queryParamsMap
+                                             valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
+    
+    NSString* extraQP = [queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS];
+    NSDictionary* extraQpDictionary = [NSDictionary adURLFormDecode:extraQP];
+    extraQP = nil;
+    if([extraQpDictionary valueForKey:@"mamver"])
+    {
+        extraQP = [NSString stringWithFormat:@"mamver=%@", [extraQpDictionary valueForKey:@"mamver"]];
+    }
+    
+    AD_LOG_INFO_F(@"Client App parameters", @"authority=%@; client_id=%@; resource=%@; redirect_uri=%@; client_adal_version=%@; usertype=%@; upn_provided=%@;",
+                  authority, clientId, resource, redirectUri, clientAdalVer, userType, ![NSString adIsStringNilOrBlank:upn] ? @"YES" : @"NO");
+    
+    [ctx acquireAccount:authority
+                 userId:userId
+               clientId:clientId
+               resource:resource
+            redirectUri:[redirectUri absoluteString]
+   extraQueryParameters:extraQP
+                 appKey:[queryParamsMap valueForKey:BROKER_KEY]
+                  force:force
+        completionBlock:^(ADAuthenticationResult *result)
+     {
+         
+         if(result.status != AD_SUCCEEDED && result.error.code == AD_ERROR_WPJ_REQUIRED)
+         {
+             AD_LOG_INFO(@"acquireAccount returned AD_ERROR_WPJ_REQUIRED error", nil);
+             ADAuthenticationError* err = result.error;
+             NSString* upn = [err.userInfo valueForKey:@"username"];
+             __block ADUserIdentifier* userId = [ADUserIdentifier identifierWithId:upn];
+             [ctx doWorkPlaceJoinForIdentifier:userId
+                                 onResultBlock:^(NSError *error)
+              {
+                  if(!error)
+                  {
+                      AD_LOG_INFO(@"WPJ succeeded. Getting the token initially requested.", nil);
+                      [ctx acquireAccount:[queryParamsMap valueForKey:AUTHORITY]
+                                   userId:userId
+                                 clientId:[queryParamsMap valueForKey:OAUTH2_CLIENT_ID]
+                                 resource:[queryParamsMap valueForKey:OAUTH2_RESOURCE]
+                              redirectUri:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]
+                     extraQueryParameters:extraQP
+                                   appKey:[queryParamsMap valueForKey:BROKER_KEY]
+                                    force:force
+                          completionBlock:takeMeBack];
+                  }
+                  else
+                  {
+                      AD_LOG_ERROR(@"WPJ failed.", error.code, error.description);
+                      takeMeBack([ADAuthenticationResult resultFromError:[ADAuthenticationError errorFromNSError:error errorDetails:error.description]]);
+                      return;
+                  }
+              }];
+         }
+         else
+         {
+             //either succeeded or a non-WPJ failure. Take the user back
+             //to the calling app.
+             takeMeBack(result);
+             return;
+         }
+     }];
+    
+    return YES;
 }
 
 +(void)openAppInBackground:(NSString *)application
@@ -464,12 +476,13 @@ static dispatch_semaphore_t s_cancelSemaphore;
 
 
 - (void) acquireAccount:(NSString*) authority
-                 userId:(NSString*) upn
+                 userId:(ADUserIdentifier*) identifier
                clientId:(NSString*) clientId
                resource:(NSString*) resource
             redirectUri:(NSString*) redirectUri
    extraQueryParameters:(NSString*) queryParams
                  appKey:(NSString*) appKey
+                  force:(BOOL) force
         completionBlock:(ADAuthenticationCallback) completionBlock
 {
     ADAuthenticationError* error = nil;
@@ -485,7 +498,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
     
     // if UPN is blank, do not use acquire token silent as it will return
     // the default token in the case in case there is a single user.
-    BOOL forceUI = [NSString adIsStringNilOrBlank:upn];
+    BOOL forceUI = [NSString adIsStringNilOrBlank:identifier.userId] || force;
     
     
     NSString* qp = @"brkr=1";
@@ -507,14 +520,14 @@ static dispatch_semaphore_t s_cancelSemaphore;
         else
         {
             //call failed. check if the user is WPJ.
-            if([self isWorkplaceJoined:upn])
+            if([self isWorkplaceJoined:identifier.userId])
             {
                 AD_LOG_INFO(@"acquireAccount - FAILED", @"Workplace joined = true. Attempt to get token using PRT");
                 ADAuthenticationError* error = nil;
-                ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
-                                                                           authority:authority
-                                                                       correlationId:_correlationId
-                                                                               error:&error];
+                ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc] initWithIdentifier:identifier
+                                                                                  authority:authority
+                                                                              correlationId:_correlationId
+                                                                                      error:&error];
                 [prtCtx acquireTokenUsingPRTForResource:resource
                                                clientId:clientId
                                             redirectUri:redirectUri
@@ -534,7 +547,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
             }
             else
             {
-                if(![NSString adIsStringNilOrBlank:upn])
+                if(![NSString adIsStringNilOrBlank:identifier.userId])
                 {
                     AD_LOG_INFO(@"acquireAccount - FAILED", @"Workplace joined = FALSE. UPN was provided and silent cache lookup failed. Get a new token via UI.");
                     [ctx requestTokenWithResource:resource
@@ -542,7 +555,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                                               redirectUri:[NSURL URLWithString:redirectUri]
                                            promptBehavior:AD_PROMPT_AUTO
                                                    silent:NO
-                                                   userId:upn
+                                                   userId:identifier
                                                     scope:nil
                                      extraQueryParameters:qp
                                             correlationId:ctx.getCorrelationId
@@ -576,7 +589,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                                   redirectUri:[NSURL URLWithString:redirectUri]
                                promptBehavior:AD_PROMPT_ALWAYS
                                        silent:NO
-                                       userId:upn
+                               userIdentifier:identifier
                                         scope:nil
                          extraQueryParameters:@"brkr=1"
                             validateAuthority:YES
@@ -592,30 +605,31 @@ static dispatch_semaphore_t s_cancelSemaphore;
         [ctx acquireTokenSilentWithResource:resource
                                    clientId:clientId
                                 redirectUri:[NSURL URLWithString:redirectUri]
-                                     userId:upn
+                                     userId:identifier.userId
                             completionBlock:defaultCallback];
     }
     
 }
 
 
-- (void) acquireAccount:(NSString*) upn
+- (void) acquireAccount:(ADUserIdentifier*) identifier
         completionBlock:(ADAuthenticationCallback) completionBlock
 {
     API_ENTRY;
     [self acquireAccount:_authority
-                  userId:upn
+                  userId:identifier
                 clientId:BROKER_CLIENT_ID
                 resource:[ADBrokerSettings sharedInstance].graphResourceEndpoint
              redirectUri:BROKER_REDIRECT_URI
     extraQueryParameters:nil
                   appKey:DEFAULT_GUID_FOR_NIL
+                   force:NO
          completionBlock:completionBlock];
 }
 
 
 // to be used when user invokes add account flow from the app
-- (void) acquireAccount:(NSString*) upn
+- (void) acquireAccount:(ADUserIdentifier*) identifier
                clientId:(NSString*) clientId
                resource:(NSString*) resource
             redirectUri:(NSString*) redirectUri
@@ -623,17 +637,18 @@ static dispatch_semaphore_t s_cancelSemaphore;
 {
     API_ENTRY;
     [self acquireAccount:_authority
-                  userId:upn
+                  userId:identifier
                 clientId:clientId
                 resource:resource
              redirectUri:redirectUri
     extraQueryParameters:nil
                   appKey:DEFAULT_GUID_FOR_NIL
+                   force:YES
          completionBlock:completionBlock];
 }
 
-- (void) doWorkPlaceJoinForUpn:(NSString*)upn
-                 onResultBlock:(WPJCallback)onResultBlock
+- (void) doWorkPlaceJoinForIdentifier:(ADUserIdentifier*)identifier
+                        onResultBlock:(WPJCallback)onResultBlock
 {
     
     API_ENTRY;
@@ -648,7 +663,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
     
     
     AD_LOG_INFO_F(@"WPJ Discovery", @"do discovery in %u", [ADBrokerSettings sharedInstance].wpjEnvironment);
-    [workPlaceJoinApi doDiscoveryForUpn:upn
+    [workPlaceJoinApi doDiscoveryForUpn:identifier.userId
                           correlationId:self.correlationId
                         completionBlock:^(ServiceInformation *svcInfo, NSError *error)
      {
@@ -663,17 +678,18 @@ static dispatch_semaphore_t s_cancelSemaphore;
          AD_LOG_INFO(@"WPJ discovery succeeded. Acquiring token for broker client id and DRS resource", nil);
          //find an access token or refresh token for the UPN.
          [self acquireAccount:[svcInfo oauthAuthCodeEndpoint]
-                       userId:upn
+                       userId:identifier
                      clientId:BROKER_CLIENT_ID
                      resource:[svcInfo registrationResourceId]
                   redirectUri:BROKER_REDIRECT_URI
          extraQueryParameters:nil
                        appKey:DEFAULT_GUID_FOR_NIL
+                        force:NO
               completionBlock:^(ADAuthenticationResult *result) {
                   if(result.status == AD_SUCCEEDED)
                   {
                       AD_LOG_INFO(@"acquireToken for broker client id and DRS resource succeeded", nil);
-                      [workPlaceJoinApi registerDeviceForUser:upn
+                      [workPlaceJoinApi registerDeviceForUser:identifier.userId
                                                         token:result.accessToken
                                          registrationEndpoint:[svcInfo registrationEndpoint]
                                    registrationServiceVersion:[svcInfo registrationServiceVersion]
@@ -683,9 +699,9 @@ static dispatch_semaphore_t s_cancelSemaphore;
                           if(!error)
                           {
                               AD_LOG_INFO(@"WPJ device registration succeeded.", nil);
-                              [self acquirePRTForUPN:upn
-                                   serviceInformation:svcInfo
-                                        onResultBlock:onResultBlock];
+                              [self acquirePRTForIdentifier:identifier
+                                         serviceInformation:svcInfo
+                                              onResultBlock:onResultBlock];
 							  return;
                           }
                           else
@@ -708,18 +724,18 @@ static dispatch_semaphore_t s_cancelSemaphore;
      }];
 }
 
-- (void)acquirePRTForUPN:(NSString*)upn
-       serviceInformation:(ServiceInformation*)svcInfo
-            onResultBlock:(WPJCallback)onResultBlock
+- (void)acquirePRTForIdentifier:(ADUserIdentifier*)identifier
+             serviceInformation:(ServiceInformation*)svcInfo
+                  onResultBlock:(WPJCallback)onResultBlock
 {
     AD_LOG_INFO(@"Attempting to get Primary Refresh Token", nil);
     
     ADAuthenticationError* error;
     //do PRT work
-    ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
-                                                               authority:[svcInfo oauthAuthCodeEndpoint]
-                                                           correlationId:self.correlationId
-                                                                   error:&error];
+    ADBrokerPRTContext* prtCtx = [[ADBrokerPRTContext alloc] initWithIdentifier:identifier
+                                                                      authority:[svcInfo oauthAuthCodeEndpoint]
+                                                                  correlationId:self.correlationId
+                                                                          error:&error];
     if (!prtCtx)
     {
         onResultBlock(error);
@@ -753,7 +769,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
          AD_LOG_ERROR_F(@"PRT Acquisition Failed, Retrying.", error.code, @"Request attempt %d failed. (%@) Attempting again in 5.0 seconds...", _wpjRetryAttempt, error.description);
          [NSThread sleepForTimeInterval:5.0];
          
-         [self acquirePRTForUPN:upn
+         [self acquirePRTForIdentifier:identifier
               serviceInformation:svcInfo
                    onResultBlock:onResultBlock];
      }];
@@ -788,10 +804,10 @@ static dispatch_semaphore_t s_cancelSemaphore;
         [ [WorkPlaceJoin WorkPlaceJoinManager] leaveWithCorrelationId:self.correlationId
                                                         completionBlock:^(NSError *error)
          {
-             ADBrokerPRTContext* brokerCtx = [[ADBrokerPRTContext alloc] initWithUpn:upn
-                                                                           authority:nil
-                                                                       correlationId:self.correlationId
-                                                                               error:nil];
+             ADBrokerPRTContext* brokerCtx = [[ADBrokerPRTContext alloc] initWithIdentifier:[ADUserIdentifier identifierWithId:upn]
+                                                                                  authority:nil
+                                                                              correlationId:self.correlationId
+                                                                                      error:nil];
              [brokerCtx deletePRT];
          }];
         

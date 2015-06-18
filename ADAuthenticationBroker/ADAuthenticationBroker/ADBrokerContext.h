@@ -23,6 +23,7 @@
 #import "ADBrokerPRTContext.h"
 
 @class ADAuthenticationResult;
+@class ADUserIdentifier;
 
 extern NSString* const ADBrokerContextDidReturnToAppNotification;
 
@@ -64,7 +65,7 @@ typedef void(^ADOnResultCallback)(NSError* error);
 - (void) removeAccount: (NSString*) upn
          onResultBlock:(ADOnResultCallback) onResultBlock;
 
-- (void) doWorkPlaceJoinForUpn:(NSString*) upn
+- (void) doWorkPlaceJoinForIdentifier:(ADUserIdentifier*) identifier
                  onResultBlock:(WPJCallback) onResultBlock;
 
 + (RegistrationInformation*) getWorkPlaceJoinInformation;
