@@ -32,12 +32,15 @@
                                            error: (ADAuthenticationError* __autoreleasing*) error;
 
 /* This is the only unique property, as it is used in the key generation for the cache.
- Two ADUserInformation objects are considered the same if this property is the same. */
+ Two ADUserInformation objects are considered the same if this property is the same. Using RequiredDisplayableId
+ will validate against this property. */
 @property (readonly) NSString* userId;
 
 /*! Determines whether userId is displayable */
 @property (readonly) BOOL userIdDisplayable;
 
+/*! This property will be the userObjectId if it exists, or the subject if it does not. It is typically a GUID
+    and not displayable. Using UniqueId as the ADUserIdentifierType will validate against this property. */
 @property (readonly) NSString* uniqueId;
 
 /*! May be null */
