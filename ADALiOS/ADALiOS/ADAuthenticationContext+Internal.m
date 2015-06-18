@@ -96,6 +96,7 @@ static BOOL isCorrelationIdUserProvided = NO;
 {
     switch (prompt) {
         case AD_PROMPT_ALWAYS:
+        case AD_FORCE_PROMPT:
             return @"login";
         case AD_PROMPT_REFRESH_SESSION:
             return @"refresh_session";

@@ -231,6 +231,7 @@
                             resource:resource
                             clientId:clientId
                          redirectUri:redirectUri
+                      promptBehavior:promptBehavior
                               userId:userId
                 extraQueryParameters:queryParams
                        correlationId:[correlationId UUIDString]

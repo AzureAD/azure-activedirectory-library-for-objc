@@ -26,6 +26,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                       resource:(NSString*)resource
                       clientId:(NSString*)clientId
                    redirectUri:(NSURL*)redirectUri
+                promptBehavior:(ADPromptBehavior)promptBehavior
                         userId:(ADUserIdentifier*)userId
           extraQueryParameters:(NSString*)queryParams
                  correlationId:(NSString*)correlationId

@@ -169,6 +169,7 @@
                       resource:(NSString*)resource
                       clientId:(NSString*)clientId
                    redirectUri:(NSURL*)redirectUri
+                promptBehavior:(ADPromptBehavior)promptBehavior
                         userId:(ADUserIdentifier*)userId
           extraQueryParameters:(NSString*)queryParams
                  correlationId:(NSString*)correlationId
@@ -209,6 +210,7 @@
                                       @"redirect_uri": redirectUriStr,
                                       @"username_type": userId ? [userId typeAsString] : @"",
                                       @"username": userId.userId ? userId.userId : @"",
+                                      @"force" : promptBehavior == AD_FORCE_PROMPT ? @YES : @NO,
                                       @"correlation_id": correlationId,
                                       @"broker_key": base64UrlKey,
                                       @"client_version": adalVersion,
