@@ -24,6 +24,7 @@
 #import "NSString+ADHelperMethods.h"
 #import "ADPkeyAuthHelper.h"
 #import "ADHelpers.h"
+#import "ADUserIdentifier.h"
 
 @implementation ADAuthenticationContext (Broker)
 
@@ -151,27 +152,13 @@
                                         authenticationContextWithAuthority:result.tokenCacheStoreItem.authority
                                         error:nil];
         
-        SEL selector = @selector(updateCacheToResult:cacheItem:withRefreshToken:);
-        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[ctx methodSignatureForSelector:selector]];
-        [inv setSelector:selector];
-        [inv setTarget:ctx];
-        [inv setArgument:&result atIndex:2];
-        [inv invoke];
+        [ctx updateCacheToResult:result
+                       cacheItem:nil
+                withRefreshToken:nil];
         
         NSString* userId = [queryParamsMap valueForKey:@"user_id"];
-        selector = nil;
-        selector = @selector(updateResult:toUser:);
-        inv = nil;
-        inv = [NSInvocation invocationWithMethodSignature:[ctx methodSignatureForSelector:selector]];
-        [inv setSelector:selector];
-        [inv setTarget:ctx];
-        [inv setArgument:&result atIndex:2];
-        if(userId)
-        {
-            [inv setArgument:&userId atIndex:3];
-        }
-        
-        [inv invoke];
+        [ctx updateResult:result
+                   toUser:[ADUserIdentifier identifierWithId:userId]];
     }
     
     completionBlock(result);
@@ -182,7 +169,7 @@
                       resource:(NSString*)resource
                       clientId:(NSString*)clientId
                    redirectUri:(NSURL*)redirectUri
-                        userId:(NSString*)userId
+                        userId:(ADUserIdentifier*)userId
           extraQueryParameters:(NSString*)queryParams
                  correlationId:(NSString*)correlationId
                completionBlock:(ADAuthenticationCallback)completionBlock
@@ -220,7 +207,8 @@
                                       @"resource" : resource,
                                       @"client_id": clientId,
                                       @"redirect_uri": redirectUriStr,
-                                      @"username": userId ? userId : @"",
+                                      @"username_type": userId ? [userId typeAsString] : @"",
+                                      @"username": userId.userId ? userId.userId : @"",
                                       @"correlation_id": correlationId,
                                       @"broker_key": base64UrlKey,
                                       @"client_version": adalVersion,
@@ -251,7 +239,7 @@
                               resource:(NSString*)resource
                               clientId:(NSString*)clientId
                            redirectUri:(NSURL*)redirectUri
-                                userId:(NSString*)userId
+                                userId:(ADUserIdentifier*)userId
                   extraQueryParameters:(NSString*)queryParams
                          correlationId:(NSUUID*)correlationId
                        completionBlock:(ADAuthenticationCallback)completionBlock
@@ -289,7 +277,8 @@
                                       @"resource" : resource,
                                       @"client_id": clientId,
                                       @"redirect_uri": redirectUriStr,
-                                      @"username": userId ? userId : @"",
+                                      @"username_type": userId ? [userId typeAsString] : @"",
+                                      @"username": userId.userId ? userId.userId : @"",
                                       @"correlation_id": correlationIdStr,
                                       @"broker_key": base64UrlKey,
                                       @"client_version": adalVersion,

@@ -29,3 +29,4 @@
 #import "ADAuthenticationBroker.h"
 #import "ADErrorCodes.h"
 #import "ADAuthenticationParameters.h"
+#import "ADUserIdentifier.h"

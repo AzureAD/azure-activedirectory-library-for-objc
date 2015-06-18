@@ -194,6 +194,17 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     _userId = [self.class normalizeUserId:_userId];
     
+    if (![NSString adIsStringNilOrBlank:self.userObjectId])
+    {
+        _uniqueId = self.userObjectId;
+    }
+    else if (![NSString adIsStringNilOrBlank:self.subject])
+    {
+        _uniqueId = self.subject;
+    }
+    
+    _uniqueId = [ADUserInformation normalizeUserId:_uniqueId];
+    
     return self;
 }
 

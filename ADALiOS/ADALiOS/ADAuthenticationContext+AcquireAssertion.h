@@ -29,6 +29,17 @@
                            correlationId:(NSUUID*)correlationId
                          completionBlock:(ADAuthenticationCallback)completionBlock;
 
+- (void)internalAcquireTokenForAssertion:(NSString*)samlAssertion
+                                clientId:(NSString*)clientId
+                             redirectUri:(NSString*)redirectUri
+                                resource:(NSString*)resource
+                           assertionType:(ADAssertionType)assertionType
+                          userIdentifier:(ADUserIdentifier*)userId
+                                   scope:(NSString*)scope
+                       validateAuthority:(BOOL)validateAuthority
+                           correlationId:(NSUUID*)correlationId
+                         completionBlock:(ADAuthenticationCallback)completionBlock;
+
 // Generic OAuth2 Authorization Request, obtains a token from a SAML assertion.
 - (void)requestTokenByAssertion:(NSString *)samlAssertion
                   assertionType:(ADAssertionType)assertionType

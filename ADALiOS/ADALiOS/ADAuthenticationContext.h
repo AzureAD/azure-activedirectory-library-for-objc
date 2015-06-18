@@ -36,6 +36,7 @@ typedef UIWebView WebViewType;
 typedef WebView   WebViewType;
 #endif
 
+@class ADUserIdentifier;
 @class UIViewController;
 
 typedef enum
@@ -270,6 +271,24 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                       redirectUri: (NSURL*) redirectUri
                    promptBehavior: (ADPromptBehavior) promptBehavior
                            userId: (NSString*) userId
+             extraQueryParameters: (NSString*) queryParams
+                  completionBlock: (ADAuthenticationCallback) completionBlock;
+
+/*! Follows the OAuth2 protocol (RFC 6749). The behavior is controlled by the promptBehavior parameter on whether to re-authorize the
+ resource usage (through webview credentials UI) or attempt to use the cached tokens first.
+ @param resource the resource for whom token is needed.
+ @param clientId the client identifier
+ @param redirectUri The redirect URI according to OAuth2 protocol
+ @param promptBehavior controls if any credentials UI will be shown.
+ @param userId An ADUserIdentifier object describing the user being authenticated
+ @param extraQueryParameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
+ @param completionBlock the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+-(void)  acquireTokenWithResource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                      redirectUri: (NSURL*) redirectUri
+                   promptBehavior: (ADPromptBehavior) promptBehavior
+                   userIdentifier: (ADUserIdentifier*) userId
              extraQueryParameters: (NSString*) queryParams
                   completionBlock: (ADAuthenticationCallback) completionBlock;
 

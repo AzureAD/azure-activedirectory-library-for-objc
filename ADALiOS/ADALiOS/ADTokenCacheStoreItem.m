@@ -128,4 +128,37 @@
     return self;
 }
 
+- (BOOL)isEqual:(id)object
+{
+    if (!object)
+        return NO;
+    
+    if (![object isKindOfClass:[ADTokenCacheStoreItem class]])
+        return NO;
+    
+    ADTokenCacheStoreItem* item = (ADTokenCacheStoreItem*)object;
+    
+    if (self.resource && (!item.resource || ![self.resource isEqualToString:item.resource]))
+    {
+        return NO;
+    }
+    
+    if (![self.authority isEqualToString:item.authority])
+    {
+        return NO;
+    }
+    
+    if (![self.clientId isEqualToString:item.clientId])
+    {
+        return NO;
+    }
+    
+    if (![self isSameUser:item])
+    {
+        return NO;
+    }
+    
+    return YES;
+}
+
 @end
