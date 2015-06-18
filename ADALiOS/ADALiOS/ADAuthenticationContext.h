@@ -51,27 +51,39 @@ typedef enum
 
 typedef enum
 {
-    /*! Default option. Users will be prompted only if their attention is needed. First the cache will
-     be checked for a suitable access token (non-expired). If none is found, the cache will be checked
-     for a suitable refresh token to be used for obtaining a new access token. If this attempt fails
-     too, it depends on the acquireToken method being called.
-     acquireTokenWithResource methods will prompt the user to re-authorize the resource usage by providing
-     credentials. If user login cookies are present from previous authorization, the webview will be
-     displayed and automatically dismiss itself without asking the user to re-enter credentials.
-     acquireTokenSilentWithResource methods will not show UI in this case, but fail with error code
-     AD_ERROR_USER_INPUT_NEEDED. */
+    /*!
+        Default option. Users will be prompted only if their attention is needed. First the cache will
+        be checked for a suitable access token (non-expired). If none is found, the cache will be checked
+        for a suitable refresh token to be used for obtaining a new access token. If this attempt fails
+        too, it depends on the acquireToken method being called.
+        acquireTokenWithResource methods will prompt the user to re-authorize the resource usage by providing
+        credentials. If user login cookies are present from previous authorization, the webview will be
+        displayed and automatically dismiss itself without asking the user to re-enter credentials.
+        acquireTokenSilentWithResource methods will not show UI in this case, but fail with error code
+        AD_ERROR_USER_INPUT_NEEDED.
+     */
     AD_PROMPT_AUTO,
     
-    /*! The user will be prompted explicitly for credentials, consent or any other prompts. This option
-     is useful in multi-user scenarios. Example is authenticating for the same e-mail service with different
-     user. */
+    /*!
+        The user will be prompted explicitly for credentials, consent or any other prompts, except when the
+        user has Azure Authenticator installed. This option is useful in multi-user scenarios. Example is
+        authenticating for the same e-mail service with different user.
+     */
     AD_PROMPT_ALWAYS,
     
-    /*! Re-authorizes (through displaying webview) the resource usage, making sure that the resulting access
-     token contains updated claims. If user logon cookies are available, the user will not be asked for
-     credentials again and the logon dialog will dismiss automatically. This is equivalent to passing
-     prompt=refresh_session as an extra query parameter during the authorization. */
+    /*!
+        Re-authorizes (through displaying webview) the resource usage, making sure that the resulting access
+        token contains updated claims. If user logon cookies are available, the user will not be asked for
+        credentials again and the logon dialog will dismiss automatically. This is equivalent to passing
+        prompt=refresh_session as an extra query parameter during the authorization.
+     */
     AD_PROMPT_REFRESH_SESSION,
+    
+    /*!
+        If Azure Authenticator is installed forces it to prompt the user, otherwise has the same behavior as
+        AD_PROMPT_ALWAYS.
+     */
+    AD_FORCE_PROMPT,
 } ADPromptBehavior;
 
 @class ADAuthenticationResult;
