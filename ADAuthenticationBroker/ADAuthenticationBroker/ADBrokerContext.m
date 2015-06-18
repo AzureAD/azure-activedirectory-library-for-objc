@@ -33,37 +33,11 @@
 #import "ADBrokerSettings.h"
 #import "ADLogger+Broker.h"
 #import "ADUserIdentifier.h"
+#import "ADAuthenticationContext+Internal.h"
 
 #define AD_BROKER_FORCE_CANCEL_CODE -2
 
 NSString* const ADBrokerContextDidReturnToAppNotification = @"ADBrokerContextDidReturnToAppNotification";
-
-@interface ADAuthenticationContext ()
-
-- (void)internalAcquireTokenWithResource:(NSString*)resource
-                                clientId:(NSString*)clientId
-                             redirectUri:(NSURL*)redirectUri
-                          promptBehavior:(ADPromptBehavior)promptBehavior
-                                  silent:(BOOL)silent /* Do not show web UI for authorization. */
-                                  userId:(NSString*)userId
-                                   scope:(NSString*)scope
-                    extraQueryParameters:(NSString*)queryParams
-                       validateAuthority:(BOOL)validateAuthority
-                           correlationId:(NSUUID*)correlationId
-                         completionBlock:(ADAuthenticationCallback)completionBlock;
-
-- (void) requestTokenWithResource: (NSString*) resource
-                         clientId: (NSString*) clientId
-                      redirectUri: (NSURL*) redirectUri
-                   promptBehavior: (ADPromptBehavior) promptBehavior
-                           silent: (BOOL) silent /* Do not show web UI for authorization. */
-                           userId: (NSString*) userId
-                            scope: (NSString*) scope
-             extraQueryParameters: (NSString*) queryParams
-                    correlationId: (NSUUID*) correlationId
-                  completionBlock: (ADAuthenticationCallback)completionBlock;
-
-@end
 
 @implementation ADBrokerContext
 {
@@ -349,6 +323,12 @@ static dispatch_semaphore_t s_cancelSemaphore;
     NSString* clientId = [queryParamsMap valueForKey:OAUTH2_CLIENT_ID];
     NSString* resource = [queryParamsMap valueForKey:OAUTH2_RESOURCE];
     NSString* clientAdalVer = [queryParamsMap valueForKey:CLIENT_ADAL_VERSION];
+    BOOL force = NO;
+    NSNumber* nsForce = [queryParamsMap valueForKey:@"force"];
+    if (nsForce && [nsForce isKindOfClass:[NSNumber class]])
+    {
+        force = [nsForce boolValue];
+    }
     ADUserIdentifier* userId = [ADUserIdentifier identifierWithId:upn typeFromString:userType];
     
     [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
@@ -386,6 +366,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
             redirectUri:[redirectUri absoluteString]
    extraQueryParameters:extraQP
                  appKey:[queryParamsMap valueForKey:BROKER_KEY]
+                  force:force
         completionBlock:^(ADAuthenticationResult *result)
      {
          
@@ -408,6 +389,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                               redirectUri:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]
                      extraQueryParameters:extraQP
                                    appKey:[queryParamsMap valueForKey:BROKER_KEY]
+                                    force:force
                           completionBlock:takeMeBack];
                   }
                   else
@@ -500,6 +482,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
             redirectUri:(NSString*) redirectUri
    extraQueryParameters:(NSString*) queryParams
                  appKey:(NSString*) appKey
+                  force:(BOOL) force
         completionBlock:(ADAuthenticationCallback) completionBlock
 {
     ADAuthenticationError* error = nil;
@@ -515,7 +498,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
     
     // if UPN is blank, do not use acquire token silent as it will return
     // the default token in the case in case there is a single user.
-    BOOL forceUI = [NSString adIsStringNilOrBlank:identifier.userId];
+    BOOL forceUI = [NSString adIsStringNilOrBlank:identifier.userId] || force;
     
     
     NSString* qp = @"brkr=1";
@@ -606,7 +589,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                                   redirectUri:[NSURL URLWithString:redirectUri]
                                promptBehavior:AD_PROMPT_ALWAYS
                                        silent:NO
-                                       userId:identifier
+                               userIdentifier:identifier
                                         scope:nil
                          extraQueryParameters:@"brkr=1"
                             validateAuthority:YES
@@ -640,6 +623,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
              redirectUri:BROKER_REDIRECT_URI
     extraQueryParameters:nil
                   appKey:DEFAULT_GUID_FOR_NIL
+                   force:NO
          completionBlock:completionBlock];
 }
 
@@ -659,6 +643,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
              redirectUri:redirectUri
     extraQueryParameters:nil
                   appKey:DEFAULT_GUID_FOR_NIL
+                   force:YES
          completionBlock:completionBlock];
 }
 
@@ -699,6 +684,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                   redirectUri:BROKER_REDIRECT_URI
          extraQueryParameters:nil
                        appKey:DEFAULT_GUID_FOR_NIL
+                        force:NO
               completionBlock:^(ADAuthenticationResult *result) {
                   if(result.status == AD_SUCCEEDED)
                   {
