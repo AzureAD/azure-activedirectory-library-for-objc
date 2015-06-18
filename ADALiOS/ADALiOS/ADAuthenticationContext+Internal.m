@@ -133,6 +133,12 @@ static BOOL isCorrelationIdUserProvided = NO;
     
     ADUserInformation* userInfo = [[result tokenCacheStoreItem] userInformation];
     
+    if (!userInfo || ![userId userIdMatchString:userInfo])
+    {
+        // TODO: This behavior is questionable. Look into removing.
+        return result;
+    }
+    
     if (![ADUserIdentifier identifier:userId matchesInfo:userInfo])
     {
         NSString* errorText = [NSString stringWithFormat:@"Different user was authenticated. Expected: '%@'; Actual: '%@'. Either the user entered credentials for different user, or cookie for different logged user is present. Consider calling acquireToken with AD_PROMPT_ALWAYS to ignore the cookie.",

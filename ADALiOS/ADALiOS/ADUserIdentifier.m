@@ -96,10 +96,12 @@
         return NO;
     }
     
+    NSString* matchString = [identifier userIdMatchString:info];
+    if (!matchString || [matchString isEqualToString:identifier.userId])
+    {
+        return YES;
+    }
     
-    
-    NSString* log = [NSString stringWithFormat:@"Unrecognized type on identifier match: %d", type];
-    AD_LOG_ERROR(log, AD_ERROR_UNEXPECTED, nil);
     return NO;
 }
 
@@ -111,6 +113,9 @@
         case OptionalDisplayableId: return nil;
         case RequiredDisplayableId: return info.userId;
     }
+    
+    NSString* log = [NSString stringWithFormat:@"Unrecognized type on identifier match: %d", _type];
+    AD_LOG_ERROR(log, AD_ERROR_UNEXPECTED, nil);
     
     return nil;
 }
