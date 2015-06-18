@@ -19,6 +19,8 @@
 #import <Foundation/Foundation.h>
 @class ADBrokerPRTCacheItem;
 
+@class ADUserIdentifier;
+
 typedef void(^ADPRTResultCallback)(ADBrokerPRTCacheItem* item, NSError* error);
 typedef void(^ADOnResultCallback)(NSError* error);
 @interface ADBrokerPRTContext : NSObject

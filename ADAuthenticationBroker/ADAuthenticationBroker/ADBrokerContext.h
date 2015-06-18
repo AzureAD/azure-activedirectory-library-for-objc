@@ -23,6 +23,7 @@
 #import "ADBrokerPRTContext.h"
 
 @class ADAuthenticationResult;
+@class ADUserIdentifier;
 
 extern NSString* const ADBrokerContextDidReturnToAppNotification;
 
