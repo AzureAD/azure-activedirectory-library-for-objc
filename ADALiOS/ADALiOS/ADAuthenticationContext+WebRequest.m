@@ -296,7 +296,7 @@ static volatile int sDialogInProgress = 0;
     
     [startUrl appendFormat:@"&%@", [[ADLogger adalId] adURLFormEncode]];
     
-    if (![NSString adIsStringNilOrBlank:userId.userId])
+    if (userId && [userId isDisplayable] && ![NSString adIsStringNilOrBlank:userId.userId])
     {
         [startUrl appendFormat:@"&%@=%@", OAUTH2_LOGIN_HINT, [userId.userId adUrlFormEncode]];
     }

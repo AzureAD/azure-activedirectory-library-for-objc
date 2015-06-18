@@ -132,6 +132,11 @@
     }
 }
 
+- (BOOL)isDisplayable
+{
+    return (_type == RequiredDisplayableId || _type == OptionalDisplayableId);
+}
+
 #define CHECK_TYPE(_type) if( [@#_type isEqualToString:type] ) { return _type; }
 + (ADUserIdentifierType)typeFromString:(NSString*)type
 {

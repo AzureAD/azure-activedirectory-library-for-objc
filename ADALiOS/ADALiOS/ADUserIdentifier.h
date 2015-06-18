@@ -75,4 +75,6 @@ typedef enum ADUserIdentifierType
 
 - (NSString*)typeAsString;
 
+- (BOOL)isDisplayable;
+
 @end
