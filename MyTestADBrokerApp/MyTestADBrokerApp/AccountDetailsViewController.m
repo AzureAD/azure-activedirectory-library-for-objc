@@ -83,10 +83,11 @@
 
 - (IBAction)deletePRTPressed:(id)sender
 {
-    ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.upn.text
-                                                            authority:nil
-                                                        correlationId:[NSUUID UUID]
-                                                                error:nil];
+    ADUserIdentifier* identifier = [ADUserIdentifier identifierWithId: self.upn.text];
+    ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithIdentifier:identifier
+                                                                   authority:nil
+                                                               correlationId:[NSUUID UUID]
+                                                                       error:nil];
     [ctx deletePRT];
 }
 
@@ -105,19 +106,25 @@
 
 - (IBAction)getPRTPressed:(id)sender
 {
-    ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.account.userInformation.upn
-                                                            authority:nil
-                                                        correlationId:[NSUUID UUID] error:nil];
-    [ctx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error) {
-        if(error)
-        {                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to get PRT"
-                                                                         message:error.description
-                                                                        delegate:self
-                                                               cancelButtonTitle:@"OK"
-                                                               otherButtonTitles:nil];
-            [alert show];
-        }
-    }];
+    ADUserIdentifier* identifier = [ADUserIdentifier identifierWithId:self.account.userInformation.upn];
+    ADBrokerPRTContext* ctx = nil;
+    ctx = [[ADBrokerPRTContext alloc] initWithIdentifier:identifier
+                                               authority:nil
+                                           correlationId:[NSUUID UUID]
+                                                   error:nil];
+    
+    [ctx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error)
+     {
+         if(error)
+         {
+             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to get PRT"
+                                                             message:error.description
+                                                            delegate:self
+                                                   cancelButtonTitle:@"OK"
+                                                   otherButtonTitles:nil];
+             [alert show];
+         }
+     }];
 }
 
 - (IBAction)wpjSwitchPressed:(id)sender
@@ -127,7 +134,8 @@
     if(!self.wpjEnabled.isOn)
     {
         //user wants to remove WPJ
-        [ctx removeWorkPlaceJoinRegistration:^(NSError *error) {
+        [ctx removeWorkPlaceJoinRegistration:^(NSError *error)
+        {
             if(error)
             {
                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failed to remove WPJ"
@@ -138,17 +146,20 @@
                 dispatch_async(dispatch_get_main_queue(),^{
                     [alert show];
                 });
-            } else
-            {            dispatch_async(dispatch_get_main_queue(),^{
-                [self.navigationController popViewControllerAnimated:YES];
-            });
+            }
+            else
+            {
+                dispatch_async(dispatch_get_main_queue(),^
+                {
+                    [self.navigationController popViewControllerAnimated:YES];
+                });
             }
         }];
     }
     else
     {
         //user wants to do WPJ
-        [ctx doWorkPlaceJoinForUpn:self.account.userInformation.upn
+        [ctx doWorkPlaceJoinForIdentifier:[ADUserIdentifier identifierWithId:self.account.userInformation.upn]
                      onResultBlock:^(NSError *error) {
                          if(error)
                          {
@@ -226,39 +237,40 @@
 //                                                      otherButtonTitles:nil];
 //            }
 //        }];
-    
-        ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithUpn:self.account.userInformation.upn
-                                                                authority:nil
-                                                            correlationId:[NSUUID UUID]
-                                                                    error:nil];
-        [ctx acquireTokenUsingPRTForResource:self.resource.text
-                                    clientId:self.clientId.text
-                                 redirectUri:self.redirectUri.text
-                                      appKey:DEFAULT_GUID_FOR_NIL
-                             completionBlock:^(ADAuthenticationResult *result) {
-                                 if(result.status != AD_SUCCEEDED)
-                                 {
-                                     alert = [[UIAlertView alloc] initWithTitle:@"FAILED to get token"
-                                                                        message:result.error.description
-                                                                       delegate:self
-                                                              cancelButtonTitle:@"OK"
-                                                              otherButtonTitles:nil];
-                                     dispatch_async(dispatch_get_main_queue(),^{
-                                         [alert show];
-                                     });
-                                 }
-                                 else
-                                 {
-                                     alert = [[UIAlertView alloc] initWithTitle:@"Acquired token using PRT!"
-                                                                        message:[NSString stringWithFormat:@"%@ - %@",result.tokenCacheStoreItem.clientId, result.tokenCacheStoreItem.resource ]
-                                                                       delegate:self
-                                                              cancelButtonTitle:@"OK"
-                                                              otherButtonTitles:nil];
-                                     dispatch_async(dispatch_get_main_queue(),^{
-                                         [alert show];
-                                     });
-                                 }
-                             }];
+    ADUserIdentifier* identifier = [ADUserIdentifier identifierWithId:self.account.userInformation.upn];
+    ADBrokerPRTContext* ctx = [[ADBrokerPRTContext alloc] initWithIdentifier:identifier
+                                                                   authority:nil
+                                                               correlationId:[NSUUID UUID]
+                                                                       error:nil];
+    [ctx acquireTokenUsingPRTForResource:self.resource.text
+                                clientId:self.clientId.text
+                             redirectUri:self.redirectUri.text
+                                  appKey:DEFAULT_GUID_FOR_NIL
+                         completionBlock:^(ADAuthenticationResult *result)
+    {
+        if(result.status != AD_SUCCEEDED)
+        {
+            alert = [[UIAlertView alloc] initWithTitle:@"FAILED to get token"
+                                               message:result.error.description
+                                              delegate:self
+                                     cancelButtonTitle:@"OK"
+                                     otherButtonTitles:nil];
+            dispatch_async(dispatch_get_main_queue(),^{
+                [alert show];
+            });
+        }
+        else
+        {
+            alert = [[UIAlertView alloc] initWithTitle:@"Acquired token using PRT!"
+                                               message:[NSString stringWithFormat:@"%@ - %@",result.tokenCacheStoreItem.clientId, result.tokenCacheStoreItem.resource ]
+                                              delegate:self
+                                     cancelButtonTitle:@"OK"
+                                     otherButtonTitles:nil];
+            dispatch_async(dispatch_get_main_queue(),^{
+                [alert show];
+            });
+        }
+    }];
 }
 
 @end
