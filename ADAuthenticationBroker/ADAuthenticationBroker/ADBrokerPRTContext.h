@@ -23,10 +23,10 @@ typedef void(^ADPRTResultCallback)(ADBrokerPRTCacheItem* item, NSError* error);
 typedef void(^ADOnResultCallback)(NSError* error);
 @interface ADBrokerPRTContext : NSObject
 
-- (id)initWithUpn:(NSString*)upn
-        authority:(NSString*)authority
-    correlationId:(NSUUID*)correlationId
-            error:(ADAuthenticationError* __autoreleasing *) error;
+- (id)initWithIdentifier:(ADUserIdentifier*)identifier
+               authority:(NSString*)authority
+           correlationId:(NSUUID*)correlationId
+                   error:(ADAuthenticationError* __autoreleasing *) error;
 
 /*! Gets PRT using Broker Token. Assumes that the device was successfully WPJ.*/
 - (void)acquirePRTForUPN:(ADPRTResultCallback)callback;
