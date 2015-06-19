@@ -401,10 +401,10 @@ static dispatch_semaphore_t s_cancelSemaphore;
         }
     }
     BOOL force = NO;
-    NSNumber* nsForce = [queryParamsMap valueForKey:@"force"];
-    if (nsForce && [nsForce isKindOfClass:[NSNumber class]])
+    NSString* nsForce = [queryParamsMap valueForKey:@"force"];
+    if (nsForce && [nsForce isKindOfClass:[NSString class]])
     {
-        force = [nsForce boolValue];
+        force = [nsForce isEqualToString:@"YES"];
     }
     ADUserIdentifier* userId = [ADUserIdentifier identifierWithId:upn typeFromString:userType];
     
