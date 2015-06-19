@@ -2232,7 +2232,7 @@ additionalHeaders:headerKeyValuePair
         [inv setArgument:&result atIndex:2];
         [inv invoke];
         
-        NSString* userId = [queryParamsMap valueForKey:@"user_id"];
+        NSString* userId = [[[result tokenCacheStoreItem] userInformation] userId];
         selector = nil;
         selector = @selector(updateResult:toUser:);
         inv = nil;
