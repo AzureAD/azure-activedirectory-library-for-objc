@@ -841,7 +841,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
     RegistrationInformation* regInfo = [ADBrokerContext getWorkPlaceJoinInformation];
     if (!regInfo)
     {
-        // TODO: Craft an error
+        AD_LOG_ERROR(@"No WPJ registration to remove!", AD_FAILED, 0);
         onResultBlock(nil);
         return;
     }
