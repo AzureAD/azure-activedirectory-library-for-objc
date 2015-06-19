@@ -160,7 +160,7 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
                                  error:(ADAuthenticationError* __autoreleasing*) error
 {
     NSData* keyData = [self getBrokerKey: error];
-    NSString *key = [[NSString alloc] initWithData:keyData encoding:NSUTF8StringEncoding];
+    NSString *key = [[NSString alloc] initWithData:keyData encoding:NSASCIIStringEncoding];
     
     
     // 'key' should be 32 bytes for AES256, will be null-padded otherwise

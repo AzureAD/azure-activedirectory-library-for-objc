@@ -132,7 +132,7 @@
                 case 200:
                     if(returnRawResponse)
                     {
-                        [response setObject:[[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding]
+                        [response setObject:[[NSString alloc] initWithData:webResponse.body encoding:NSASCIIStringEncoding]
                                      forKey:@"raw_response"];
                         break;
                     }
