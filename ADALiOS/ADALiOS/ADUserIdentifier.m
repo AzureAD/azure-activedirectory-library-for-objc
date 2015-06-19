@@ -124,7 +124,12 @@
 
 - (NSString*)typeAsString
 {
-    switch (_type)
+    return [ADUserIdentifier stringForType:_type];
+}
+
++ (NSString*)stringForType:(ADUserIdentifierType)type
+{
+    switch (type)
     {
         ENUM_TO_STRING_CASE(UniqueId);
         ENUM_TO_STRING_CASE(OptionalDisplayableId);
