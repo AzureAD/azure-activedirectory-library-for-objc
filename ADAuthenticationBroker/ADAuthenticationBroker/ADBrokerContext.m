@@ -391,7 +391,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
     }
     
     
-    NSString* userType = [queryParamsMap valueForKey:@"usertype"];
+    NSString* userType = [queryParamsMap valueForKey:@"username_type"];
     if ([NSString adIsStringNilOrBlank:userType])
     {
         NSString* loginHint = [extraQpDictionary valueForKey:@"login_hint"];
