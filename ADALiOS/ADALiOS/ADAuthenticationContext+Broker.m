@@ -210,7 +210,7 @@
                                       @"redirect_uri": redirectUriStr,
                                       @"username_type": userId ? [userId typeAsString] : @"",
                                       @"username": userId.userId ? userId.userId : @"",
-                                      @"force" : promptBehavior == AD_FORCE_PROMPT ? @YES : @NO,
+                                      @"force" : promptBehavior == AD_FORCE_PROMPT ? @"YES" : @"NO",
                                       @"correlation_id": correlationId,
                                       @"broker_key": base64UrlKey,
                                       @"client_version": adalVersion,
