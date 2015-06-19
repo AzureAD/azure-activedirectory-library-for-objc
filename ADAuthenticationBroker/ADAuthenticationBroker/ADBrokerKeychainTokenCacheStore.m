@@ -19,6 +19,7 @@
 #import "NSString+ADHelperMethods.h"
 #import "ADBrokerKeychainTokenCacheStore.h"
 #import "ADBrokerConstants.h"
+#import "ADUserInformation.h"
 
 NSString* const delimiter = @"|";
 @implementation ADBrokerKeychainTokenCacheStore
@@ -72,6 +73,8 @@ NSString* const delimiter = @"|";
 
     ADAuthenticationError* adError;
     
+    userId = [ADUserInformation normalizeUserId:userId];
+    
     @synchronized(self)
     {
         NSMutableDictionary* toDelete = [NSMutableDictionary new];
@@ -82,7 +85,8 @@ NSString* const delimiter = @"|";
             for(NSDictionary* attributes in all.allValues)
             {
                 ADTokenCacheStoreItem* item = [self readCacheItemWithAttributes:attributes error:&adError];//The error is always logged internally.
-                if([item userInformation] && [NSString adSame:userId toString:item.userInformation.userId])
+                NSString* itemUserId = [ADUserInformation normalizeUserId:[[item userInformation] userId]];
+                if((!userId && !itemUserId) || [userId isEqualToString:itemUserId])
                 {
                     [toDelete setObject:attributes forKey:[[NSUUID UUID] UUIDString]];
                 }
