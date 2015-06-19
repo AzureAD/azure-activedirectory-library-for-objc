@@ -122,25 +122,44 @@ static dispatch_semaphore_t s_cancelSemaphore;
 {
     
     API_ENTRY;
-    *returnUpn = nil;
+    NSString* upn = nil;
     if (requestPayloadUrl == nil)
         return NO;
     
     NSString* host = [requestPayloadUrl host];
     
     BOOL isBrokerRequest = [host isEqualToString:@"broker"] || [host isEqualToString:@"wpj"];
-    if(isBrokerRequest)
+    if (!isBrokerRequest)
     {
-        NSArray * parts = [[requestPayloadUrl absoluteString] componentsSeparatedByString:@"?"];
-        NSString *qp = [parts objectAtIndex:1];
-        NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
-        if(![NSString adIsStringNilOrBlank:[queryParamsMap valueForKey:USERNAME]])
+        return NO;
+    }
+
+    NSArray * parts = [[requestPayloadUrl absoluteString] componentsSeparatedByString:@"?"];
+    NSString *qp = [parts objectAtIndex:1];
+    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    if(![NSString adIsStringNilOrBlank:[queryParamsMap valueForKey:USERNAME]])
+    {
+        upn = [queryParamsMap valueForKey:USERNAME];
+    }
+    
+    // If we didn't get the UPN from the USERNAME param check if login_hint is being passed in
+    if ([NSString adIsStringNilOrBlank:upn])
+    {
+        NSString* extraQP = [queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS];
+        NSDictionary* extraQpDictionary = [NSDictionary adURLFormDecode:extraQP];
+        NSString* loginHint = [extraQpDictionary valueForKey:@"login_hint"];
+        if (![NSString adIsStringNilOrBlank:loginHint])
         {
-            *returnUpn = [queryParamsMap valueForKey:USERNAME];
+            upn = loginHint;
         }
     }
     
-    return isBrokerRequest;
+    if (returnUpn)
+    {
+        *returnUpn = upn;
+    }
+    
+    return YES;
 }
 
 
@@ -346,15 +365,6 @@ static dispatch_semaphore_t s_cancelSemaphore;
                                                             object:self];
     };
     
-    NSString* userType = [queryParamsMap valueForKey:@"usertype"];
-    BOOL force = NO;
-    NSNumber* nsForce = [queryParamsMap valueForKey:@"force"];
-    if (nsForce && [nsForce isKindOfClass:[NSNumber class]])
-    {
-        force = [nsForce boolValue];
-    }
-	ADUserIdentifier* userId = [ADUserIdentifier identifierWithId:upn typeFromString:userType];
-    
     [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
     ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:AUTHORITY];
     
@@ -379,6 +389,24 @@ static dispatch_semaphore_t s_cancelSemaphore;
     {
         extraQP = [NSString stringWithFormat:@"mamver=%@", [extraQpDictionary valueForKey:@"mamver"]];
     }
+    
+    
+    NSString* userType = [queryParamsMap valueForKey:@"usertype"];
+    if ([NSString adIsStringNilOrBlank:userType])
+    {
+        NSString* loginHint = [extraQpDictionary valueForKey:@"login_hint"];
+        if (![NSString adIsStringNilOrBlank:loginHint])
+        {
+            userType = [ADUserIdentifier stringForType:OptionalDisplayableId];
+        }
+    }
+    BOOL force = NO;
+    NSNumber* nsForce = [queryParamsMap valueForKey:@"force"];
+    if (nsForce && [nsForce isKindOfClass:[NSNumber class]])
+    {
+        force = [nsForce boolValue];
+    }
+    ADUserIdentifier* userId = [ADUserIdentifier identifierWithId:upn typeFromString:userType];
     
     AD_LOG_INFO_F(@"Client App parameters", @"authority=%@; client_id=%@; resource=%@; redirect_uri=%@; client_adal_version=%@; usertype=%@; upn_provided=%@;",
                   authority, clientId, resource, redirectUri, clientAdalVer, userType, ![NSString adIsStringNilOrBlank:upn] ? @"YES" : @"NO");
