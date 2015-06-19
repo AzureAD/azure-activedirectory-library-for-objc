@@ -25,7 +25,25 @@
 @class ADAuthenticationResult;
 @class ADUserIdentifier;
 
+/*!
+    Alerts the Authenticator that the broker is finished and about to return back to the calling app.
+ */
 extern NSString* const ADBrokerContextDidReturnToAppNotification;
+
+/*! 
+    This notification posts with a userInfo dictionary with an NSNumber containing the failure
+    code in the @"errorcode" key and a (non-localized) string with more information in the
+    @"errordetails" key. The broker failed to make a request and cannot return back to the
+    calling app.
+*/
+extern NSString* const ADBrokerFailedNotification;
+
+typedef enum ADBrokerFailureCode
+{
+    ADBrokerMissingParameterError,
+    ADBrokerMissingRequestParameterError,
+    ADBrokerMalformedRequestParameterError,
+} ADBrokerFailureCode;
 
 /*! The completion block declarations. */
 typedef void(^ADOnResultCallback)(NSError* error);

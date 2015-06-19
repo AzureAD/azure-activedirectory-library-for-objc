@@ -38,6 +38,7 @@
 #define AD_BROKER_FORCE_CANCEL_CODE -2
 
 NSString* const ADBrokerContextDidReturnToAppNotification = @"ADBrokerContextDidReturnToAppNotification";
+NSString* const ADBrokerFailedNotification = @"ADBrokerFailedNotification";
 
 @implementation ADBrokerContext
 {
@@ -45,14 +46,6 @@ NSString* const ADBrokerContextDidReturnToAppNotification = @"ADBrokerContextDid
     NSDate* _initialAttemptTime;
 }
 
-//A wrapper around checkAndHandleBadArgument. Assumes that "completionMethod" is in scope:
-#define HANDLE_ARGUMENT(ARG) \
-if (![self checkAndHandleBadArgument:ARG \
-argumentName:TO_NSSTRING(#ARG) \
-completionBlock:completionBlock]) \
-{ \
-return; \
-}
 - (id) init
 {
     [self doesNotRecognizeSelector:_cmd];
@@ -76,6 +69,15 @@ static dispatch_semaphore_t s_cancelSemaphore;
 + (void)initialize
 {
     s_cancelSemaphore = dispatch_semaphore_create(0);
+}
+
++ (void)openAppInBackground:(NSString *)application
+                   response:(NSString *)response
+{
+    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@/broker?%@", application, response]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[UIApplication sharedApplication] openURL:appUrl];
+    });
 }
 
 
@@ -266,39 +268,65 @@ static dispatch_semaphore_t s_cancelSemaphore;
     [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI] response:response];
 }
 
+#define BROKER_FAILURE(_details, _code) {\
+    AD_LOG_ERROR(_details, AD_FAILED, nil); \
+    NSDictionary* _failInfo = @{ @"errorcode" : [NSNumber numberWithInteger:_code], @"errordetails" : _details }; \
+    [[NSNotificationCenter defaultCenter] postNotificationName:ADBrokerFailedNotification object:nil userInfo:_failInfo]; \
+    return NO; \
+}
+
+#define BROKER_VALIDATE_PARAM(_field) {\
+    if (!_field) { \
+        NSString* _details = @#_field " was not provided. Broker unable to continue."; \
+        BROKER_FAILURE(_details, ADBrokerMissingParameterError); \
+    } \
+}
+
+#define BROKER_VALIDATE_QUERYPARAM(_qp, _key, _field) { \
+    _field = [_qp valueForKey:_key]; \
+    if (!_field) { \
+        NSString* _details = [NSString stringWithFormat:@"Malformed message. \"%@\" missing from broker query parameters.", _key]; \
+        BROKER_FAILURE(_details, ADBrokerMissingRequestParameterError); \
+    } else if (![_field isKindOfClass:[NSString class]]) {\
+        NSString* _details = [NSString stringWithFormat:@"\"%@\" is the wrong type, expected NSString, actual %@", _key, NSStringFromClass([_field class])]; \
+        BROKER_FAILURE(_details, ADBrokerMalformedRequestParameterError); \
+        return NO; \
+    } \
+}
+
 + (BOOL)invokeBrokerImpl:(NSString *)requestPayload
        sourceApplication:(NSString *)sourceApplication
                      upn:(NSString *)upn
 {
     API_ENTRY;
     
-    ADAuthenticationError* error = nil;
     
-    // TODO: These REALLY shouldn't be throws. That'll just cause the application to crash and with no useful information at all.
-    THROW_ON_NIL_ARGUMENT(requestPayload);
-    THROW_ON_NIL_ARGUMENT(sourceApplication);
+    BROKER_VALIDATE_PARAM(requestPayload);
+    BROKER_VALIDATE_PARAM(sourceApplication);
     
     NSArray * parts = [requestPayload componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
-
-    THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:AUTHORITY]);
-    THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_CLIENT_ID]);
-    THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]);
-    THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]);
-    THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:BROKER_KEY]);
-    THROW_ON_NIL_ARGUMENT([queryParamsMap valueForKey:CLIENT_ADAL_VERSION]);
     
-    if (error)
-    {
-        // TODO: This is almost certainly insufficient to ensure we don't end up in a screwy situation...
-        return NO;
-    }
+    NSString* authority = [queryParamsMap valueForKey:AUTHORITY];
+    NSString* clientId = [queryParamsMap valueForKey:OAUTH2_CLIENT_ID];
+    NSString* resource = [queryParamsMap valueForKey:OAUTH2_RESOURCE];
+    NSString* redirectUri = [queryParamsMap valueForKey:OAUTH2_REDIRECT_URI];
+    NSString* brokerKey = [queryParamsMap valueForKey:BROKER_KEY];
+    NSString* clientAdalVer = [queryParamsMap valueForKey:CLIENT_ADAL_VERSION];
+    
+    BROKER_VALIDATE_QUERYPARAM(queryParamsMap, AUTHORITY, authority);
+    BROKER_VALIDATE_QUERYPARAM(queryParamsMap, OAUTH2_CLIENT_ID, clientId);
+    BROKER_VALIDATE_QUERYPARAM(queryParamsMap, OAUTH2_RESOURCE, resource);
+    BROKER_VALIDATE_QUERYPARAM(queryParamsMap, OAUTH2_REDIRECT_URI, redirectUri);
+    BROKER_VALIDATE_QUERYPARAM(queryParamsMap, BROKER_KEY, brokerKey);
+    BROKER_VALIDATE_QUERYPARAM(queryParamsMap, CLIENT_ADAL_VERSION, clientAdalVer);
     
     //validate source application against redirect uri
-    NSURL *redirectUri = [[NSURL alloc] initWithString:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI]];
-    if(![NSString adSame:sourceApplication toString:[redirectUri host]]){
-        
+    NSURL *redirectURL = [[NSURL alloc] initWithString:redirectUri];
+    if(![NSString adSame:sourceApplication toString:[redirectURL host]])
+    {
+        ADAuthenticationError* error = nil;
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
                                                        protocolCode:nil
                                                        errorDetails:@"source application bundle identifier should be same as the redirect URI domain"];
@@ -307,7 +335,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                                [error.protocolCode adUrlFormEncode],
                                [error.errorDetails adUrlFormEncode],
                                [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
-        [ADBrokerContext openAppInBackground:[queryParamsMap valueForKey:OAUTH2_REDIRECT_URI] response:response];
+        [ADBrokerContext openAppInBackground:redirectUri response:response];
         return NO;
     }
     
@@ -318,18 +346,14 @@ static dispatch_semaphore_t s_cancelSemaphore;
                                                             object:self];
     };
     
-    NSString* authority = [queryParamsMap valueForKey:AUTHORITY];
     NSString* userType = [queryParamsMap valueForKey:@"usertype"];
-    NSString* clientId = [queryParamsMap valueForKey:OAUTH2_CLIENT_ID];
-    NSString* resource = [queryParamsMap valueForKey:OAUTH2_RESOURCE];
-    NSString* clientAdalVer = [queryParamsMap valueForKey:CLIENT_ADAL_VERSION];
     BOOL force = NO;
     NSNumber* nsForce = [queryParamsMap valueForKey:@"force"];
     if (nsForce && [nsForce isKindOfClass:[NSNumber class]])
     {
         force = [nsForce boolValue];
     }
-    ADUserIdentifier* userId = [ADUserIdentifier identifierWithId:upn typeFromString:userType];
+	ADUserIdentifier* userId = [ADUserIdentifier identifierWithId:upn typeFromString:userType];
     
     [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
     ADBrokerContext* ctx = [[ADBrokerContext alloc] initWithAuthority:AUTHORITY];
@@ -363,9 +387,9 @@ static dispatch_semaphore_t s_cancelSemaphore;
                  userId:userId
                clientId:clientId
                resource:resource
-            redirectUri:[redirectUri absoluteString]
+            redirectUri:redirectUri
    extraQueryParameters:extraQP
-                 appKey:[queryParamsMap valueForKey:BROKER_KEY]
+                 appKey:brokerKey
                   force:force
         completionBlock:^(ADAuthenticationResult *result)
      {
@@ -411,16 +435,6 @@ static dispatch_semaphore_t s_cancelSemaphore;
     
     return YES;
 }
-
-+(void)openAppInBackground:(NSString *)application
-                  response:(NSString *)response
-{
-    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@/broker?%@", application, response]];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[UIApplication sharedApplication] openURL:appUrl];
-    });
-}
-
 
 + (NSArray*) getAllAccounts:(ADAuthenticationError*) error
 {
