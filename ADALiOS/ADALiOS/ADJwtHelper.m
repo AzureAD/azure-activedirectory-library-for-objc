@@ -57,7 +57,7 @@
     }
     
     [bits setLength:keyBufferSize];
-    return [[NSString alloc] initWithData:bits encoding:0];
+    return [[NSString alloc] initWithData:bits encoding:NSUTF8StringEncoding];
 }
 
 
