@@ -156,7 +156,7 @@
                        cacheItem:nil
                 withRefreshToken:nil];
         
-        NSString* userId = [queryParamsMap valueForKey:@"user_id"];
+        NSString* userId = [[[result tokenCacheStoreItem] userInformation] userId];
         [ctx updateResult:result
                    toUser:[ADUserIdentifier identifierWithId:userId]];
     }
