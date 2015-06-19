@@ -811,22 +811,25 @@ static dispatch_semaphore_t s_cancelSemaphore;
 {
     API_ENTRY;
     RegistrationInformation* regInfo = [ADBrokerContext getWorkPlaceJoinInformation];
-    NSString* upn = regInfo.userPrincipalName;
-    if(regInfo)
+    if (!regInfo)
     {
-        //remove WPJ as well
-        [ [WorkPlaceJoin WorkPlaceJoinManager] leaveWithCorrelationId:self.correlationId
-                                                        completionBlock:^(NSError *error)
-         {
-             ADBrokerPRTContext* brokerCtx = [[ADBrokerPRTContext alloc] initWithIdentifier:[ADUserIdentifier identifierWithId:upn]
-                                                                                  authority:nil
-                                                                              correlationId:self.correlationId
-                                                                                      error:nil];
-             [brokerCtx deletePRT];
-         }];
-        
-        regInfo = nil;
+        // TODO: Craft an error
+        onResultBlock(nil);
+        return;
     }
+    
+    __block NSString* upn = regInfo.userPrincipalName;
+    //remove WPJ as well
+    [ [WorkPlaceJoin WorkPlaceJoinManager] leaveWithCorrelationId:self.correlationId
+                                                  completionBlock:^(NSError *error)
+     {
+         ADBrokerPRTContext* brokerCtx = [[ADBrokerPRTContext alloc] initWithIdentifier:[ADUserIdentifier identifierWithId:upn]
+                                                                              authority:nil
+                                                                          correlationId:self.correlationId
+                                                                                  error:nil];
+         [brokerCtx deletePRT];
+         onResultBlock(error);
+     }];
 }
 
 
