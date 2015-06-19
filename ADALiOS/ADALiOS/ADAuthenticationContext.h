@@ -77,12 +77,6 @@ typedef enum
      credentials again and the logon dialog will dismiss automatically. This is equivalent to passing
      prompt=refresh_session as an extra query parameter during the authorization. */
     AD_PROMPT_REFRESH_SESSION,
-    
-    /*!
-     If Azure Authenticator is installed forces it to prompt the user, otherwise has the same behavior as
-     AD_PROMPT_ALWAYS.
-     */
-    AD_FORCE_PROMPT,
 } ADPromptBehavior;
 
 @class ADAuthenticationResult;

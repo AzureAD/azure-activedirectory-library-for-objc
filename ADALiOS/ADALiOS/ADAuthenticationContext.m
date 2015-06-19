@@ -216,7 +216,6 @@ return; \
 {
     switch (prompt) {
         case AD_PROMPT_ALWAYS:
-        case AD_FORCE_PROMPT:
             return @"login";
         case AD_PROMPT_REFRESH_SESSION:
             return @"refresh_session";
@@ -1070,7 +1069,6 @@ return; \
                             clientId: clientId
                          redirectUri: redirectUri
                               userId: userId
-                      promptBehavior: promptBehavior
                 extraQueryParameters: queryParams
                        correlationId: [correlationId UUIDString]
                      completionBlock:completionBlock
@@ -2294,7 +2292,6 @@ additionalHeaders:headerKeyValuePair
                        clientId: (NSString*)clientId
                     redirectUri: (NSURL*) redirectUri
                          userId: (NSString*) userId
-                 promptBehavior: (ADPromptBehavior)promptBehavior
            extraQueryParameters: (NSString*)queryParams
                   correlationId: (NSString*) correlationId
                 completionBlock: (ADAuthenticationCallback)completionBlock
@@ -2332,7 +2329,6 @@ additionalHeaders:headerKeyValuePair
                                       @"client_id": clientId,
                                       @"redirect_uri": redirectUriStr,
                                       @"username": userId ? userId : @"",
-                                      @"force": promptBehavior == AD_FORCE_PROMPT ? @YES : @NO,
                                       @"correlation_id": correlationId,
                                       @"broker_key": base64UrlKey,
                                       @"client_version": adalVersion,
