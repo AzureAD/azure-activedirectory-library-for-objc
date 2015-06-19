@@ -505,6 +505,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
         }
         if (![users containsObject:user.userId])
         {
+            AD_LOG_INFO_F(@"Found Broker User", @"%@", user.userId);
             [users addObject:user.userId];
             [accountsArray addObject:[[ADBrokerUserAccount alloc] init:user
                                                      isWorkplaceJoined:[NSString adSame:user.userId
