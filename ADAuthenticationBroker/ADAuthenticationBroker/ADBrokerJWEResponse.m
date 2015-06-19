@@ -41,7 +41,7 @@
         
         NSString* header = [[jwePieces objectAtIndex:0] adBase64UrlDecode];
         NSError   *jsonError  = nil;
-        id         jsonObject = [NSJSONSerialization JSONObjectWithData:[header dataUsingEncoding:0]
+        id         jsonObject = [NSJSONSerialization JSONObjectWithData:[header dataUsingEncoding:NSASCIIStringEncoding]
                                                                 options:0
                                                                   error:&jsonError];
         

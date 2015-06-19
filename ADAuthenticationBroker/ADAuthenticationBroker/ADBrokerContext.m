@@ -271,7 +271,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
         
         NSString* brokerKey = [queryParamsMap valueForKey:BROKER_KEY];
         NSData *decodedKey = [NSString Base64DecodeData:brokerKey];
-        NSString *decodedKeyString = [[NSString alloc] initWithData:decodedKey encoding:0];
+        NSString *decodedKeyString = [[NSString alloc] initWithData:decodedKey encoding:NSASCIIStringEncoding];
         
         NSData *plainData = [response dataUsingEncoding:NSUTF8StringEncoding];
         NSData* responseData = [ADBrokerHelpers encryptData:plainData key:decodedKeyString];
