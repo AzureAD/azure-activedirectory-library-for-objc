@@ -379,5 +379,27 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                              completionBlock:completionBlock];
 }
 
+-(void)  acquireTokenWithResource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                      redirectUri: (NSURL*) redirectUri
+                   promptBehavior: (ADPromptBehavior) promptBehavior
+                   userIdentifier: (ADUserIdentifier*) userId
+             extraQueryParameters: (NSString*) queryParams
+                  completionBlock: (ADAuthenticationCallback) completionBlock
+{
+    API_ENTRY;
+    [self internalAcquireTokenWithResource:resource
+                                  clientId:clientId
+                               redirectUri:redirectUri
+                            promptBehavior:promptBehavior
+                                    silent:NO
+                            userIdentifier:userId
+                                     scope:nil
+                      extraQueryParameters:queryParams
+                         validateAuthority:self.validateAuthority
+                             correlationId:[self getCorrelationId]
+                           completionBlock:completionBlock];
+}
+
 @end
 

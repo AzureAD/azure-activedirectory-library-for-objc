@@ -18,6 +18,7 @@
 
 #import "ADAuthenticationContext+Internal.h"
 #import "ADInstanceDiscovery.h"
+#import "ADUserIdentifier.h"
 
 @implementation ADAuthenticationContext (AcquireAssertion)
 
@@ -27,6 +28,30 @@
                                 resource:(NSString*)resource
                            assertionType:(ADAssertionType)assertionType
                                   userId:(NSString*)userId
+                                   scope:(NSString*)scope
+                       validateAuthority:(BOOL)validateAuthority
+                           correlationId:(NSUUID*)correlationId
+                         completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    ADUserIdentifier* identifier = [ADUserIdentifier identifierWithId:userId];
+    
+    [self internalAcquireTokenForAssertion:samlAssertion
+                                  clientId:clientId
+                               redirectUri:redirectUri
+                                  resource:resource
+                             assertionType:assertionType
+                            userIdentifier:identifier
+                                     scope:scope
+                         validateAuthority:validateAuthority
+                             correlationId:correlationId
+                           completionBlock:completionBlock];
+}
+- (void)internalAcquireTokenForAssertion:(NSString*)samlAssertion
+                                clientId:(NSString*)clientId
+                             redirectUri:(NSString*)redirectUri
+                                resource:(NSString*)resource
+                           assertionType:(ADAssertionType)assertionType
+                          userIdentifier:(ADUserIdentifier*)userId
                                    scope:(NSString*)scope
                        validateAuthority:(BOOL)validateAuthority
                            correlationId:(NSUUID*)correlationId
@@ -81,7 +106,7 @@
                                redirectUri: (NSString*) redirectUri
                                   resource: (NSString*) resource
                              assertionType: (ADAssertionType) assertionType
-                                    userId: (NSString*) userId
+                                    userId: (ADUserIdentifier*)userId
                                      scope: (NSString*) scope
                              correlationId: (NSUUID*) correlationId
                            completionBlock: (ADAuthenticationCallback)completionBlock

@@ -26,7 +26,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                       resource:(NSString*)resource
                       clientId:(NSString*)clientId
                    redirectUri:(NSURL*)redirectUri
-                        userId:(NSString*)userId
+                promptBehavior:(ADPromptBehavior)promptBehavior
+                        userId:(ADUserIdentifier*)userId
           extraQueryParameters:(NSString*)queryParams
                  correlationId:(NSString*)correlationId
                completionBlock:(ADAuthenticationCallback)completionBlock;
@@ -35,7 +36,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                               resource:(NSString*)resource
                               clientId:(NSString*)clientId
                            redirectUri:(NSURL*)redirectUri
-                                userId:(NSString*)userId
+                                userId:(ADUserIdentifier*)userId
                   extraQueryParameters:(NSString*)queryParams
                          correlationId:(NSUUID*)correlationId
                        completionBlock:(ADAuthenticationCallback)completionBlock;

@@ -36,6 +36,7 @@ typedef UIWebView WebViewType;
 typedef WebView   WebViewType;
 #endif
 
+@class ADUserIdentifier;
 @class UIViewController;
 
 typedef enum
@@ -50,27 +51,39 @@ typedef enum
 
 typedef enum
 {
-    /*! Default option. Users will be prompted only if their attention is needed. First the cache will
-     be checked for a suitable access token (non-expired). If none is found, the cache will be checked
-     for a suitable refresh token to be used for obtaining a new access token. If this attempt fails
-     too, it depends on the acquireToken method being called.
-     acquireTokenWithResource methods will prompt the user to re-authorize the resource usage by providing
-     credentials. If user login cookies are present from previous authorization, the webview will be
-     displayed and automatically dismiss itself without asking the user to re-enter credentials.
-     acquireTokenSilentWithResource methods will not show UI in this case, but fail with error code
-     AD_ERROR_USER_INPUT_NEEDED. */
+    /*!
+        Default option. Users will be prompted only if their attention is needed. First the cache will
+        be checked for a suitable access token (non-expired). If none is found, the cache will be checked
+        for a suitable refresh token to be used for obtaining a new access token. If this attempt fails
+        too, it depends on the acquireToken method being called.
+        acquireTokenWithResource methods will prompt the user to re-authorize the resource usage by providing
+        credentials. If user login cookies are present from previous authorization, the webview will be
+        displayed and automatically dismiss itself without asking the user to re-enter credentials.
+        acquireTokenSilentWithResource methods will not show UI in this case, but fail with error code
+        AD_ERROR_USER_INPUT_NEEDED.
+     */
     AD_PROMPT_AUTO,
     
-    /*! The user will be prompted explicitly for credentials, consent or any other prompts. This option
-     is useful in multi-user scenarios. Example is authenticating for the same e-mail service with different
-     user. */
+    /*!
+        The user will be prompted explicitly for credentials, consent or any other prompts, except when the
+        user has Azure Authenticator installed. This option is useful in multi-user scenarios. Example is
+        authenticating for the same e-mail service with different user.
+     */
     AD_PROMPT_ALWAYS,
     
-    /*! Re-authorizes (through displaying webview) the resource usage, making sure that the resulting access
-     token contains updated claims. If user logon cookies are available, the user will not be asked for
-     credentials again and the logon dialog will dismiss automatically. This is equivalent to passing
-     prompt=refresh_session as an extra query parameter during the authorization. */
+    /*!
+        Re-authorizes (through displaying webview) the resource usage, making sure that the resulting access
+        token contains updated claims. If user logon cookies are available, the user will not be asked for
+        credentials again and the logon dialog will dismiss automatically. This is equivalent to passing
+        prompt=refresh_session as an extra query parameter during the authorization.
+     */
     AD_PROMPT_REFRESH_SESSION,
+    
+    /*!
+        If Azure Authenticator is installed forces it to prompt the user, otherwise has the same behavior as
+        AD_PROMPT_ALWAYS.
+     */
+    AD_FORCE_PROMPT,
 } ADPromptBehavior;
 
 @class ADAuthenticationResult;
@@ -270,6 +283,24 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                       redirectUri: (NSURL*) redirectUri
                    promptBehavior: (ADPromptBehavior) promptBehavior
                            userId: (NSString*) userId
+             extraQueryParameters: (NSString*) queryParams
+                  completionBlock: (ADAuthenticationCallback) completionBlock;
+
+/*! Follows the OAuth2 protocol (RFC 6749). The behavior is controlled by the promptBehavior parameter on whether to re-authorize the
+ resource usage (through webview credentials UI) or attempt to use the cached tokens first.
+ @param resource the resource for whom token is needed.
+ @param clientId the client identifier
+ @param redirectUri The redirect URI according to OAuth2 protocol
+ @param promptBehavior controls if any credentials UI will be shown.
+ @param userId An ADUserIdentifier object describing the user being authenticated
+ @param extraQueryParameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
+ @param completionBlock the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+-(void)  acquireTokenWithResource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                      redirectUri: (NSURL*) redirectUri
+                   promptBehavior: (ADPromptBehavior) promptBehavior
+                   userIdentifier: (ADUserIdentifier*) userId
              extraQueryParameters: (NSString*) queryParams
                   completionBlock: (ADAuthenticationCallback) completionBlock;
 

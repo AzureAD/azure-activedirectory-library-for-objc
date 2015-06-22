@@ -27,7 +27,6 @@
 ADAuthenticationContext* context = nil;
 
 @interface BVTestMainViewController ()
-@property (weak, nonatomic) IBOutlet UITextView *resultLabel;
 - (IBAction)pressMeAction:(id)sender;
 - (IBAction)clearCachePressed:(id)sender;
 - (IBAction)getUsersPressed:(id)sender;
@@ -36,13 +35,25 @@ ADAuthenticationContext* context = nil;
 - (IBAction)acquireTokenSilentAction:(id)sender;
 @end
 
+static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
+{
+    switch (level)
+    {
+        case ADAL_LOG_LEVEL_ERROR : return @"ERR";
+        case ADAL_LOG_LEVEL_INFO : return @"INF";
+        case ADAL_LOG_LEVEL_VERBOSE : return @"VER";
+        case ADAL_LOG_LEVEL_WARN : return @"WAR";
+        default:
+            return @"???";
+    }
+}
+
 @implementation BVTestMainViewController
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
     //settings.credentialsType = AD_CREDENTIALS_EMBEDDED;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(consumeToken)
@@ -53,28 +64,64 @@ ADAuthenticationContext* context = nil;
     
     mTestData = [BVSettings new];
     mAADInstance = mTestData.testAuthorities[sAADTestInstance];
+    
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInformation, NSInteger errorCode)
+    {
+        NSString* logLine = nil;
+        if (errorCode == AD_ERROR_SUCCEEDED)
+        {
+            logLine = [NSString stringWithFormat:@"%@ %@ - %@", _StringForLevel(logLevel), message, additionalInformation];
+        }
+        else
+        {
+            logLine = [NSString stringWithFormat:@"%@ (error: %d) %@ - %@", _StringForLevel(logLevel), errorCode, message, additionalInformation];
+        }
+        NSLog(@"%@", logLine);
+        [self appendToResults:logLine];
+    }];
     //[ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
-    self.resultLabel.text = @"-- Response Goes Here --";
+}
+- (void)clearResults
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+       _resultView.text = @"";
+    });
 }
 
--(void) dealloc
+- (void)appendToResults:(NSString*)message
+{
+    dispatch_async(dispatch_get_main_queue(), ^
+    {
+        NSTextStorage* storage = _resultView.textStorage;
+        [storage appendAttributedString:[[NSAttributedString alloc] initWithString:[message stringByAppendingString:@"\n"]]];
+    });
+}
+
+- (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [ADLogger setLogCallBack:nil];
 }
 
 -(void) consumeToken
 {
     BVApplicationData* data = [BVApplicationData getInstance];
-    if(data.result){
-        if(data.result.status == AD_SUCCEEDED)
-        {
-        self.resultLabel.text = [NSString stringWithFormat:@"-- TOKEN FROM BROKER --\n%@", data.result.accessToken];
-        }
-        else
-        {
-            self.resultLabel.text = [NSString stringWithFormat:@"-- ERROR FROM BROKER --\n%@", data.result.error.errorDetails];
-        }
+    if(!data.result)
+    {
+        return;
     }
+    
+    NSString* resultString = nil;
+    if(data.result.status == AD_SUCCEEDED)
+    {
+        resultString = [NSString stringWithFormat:@"-- TOKEN FROM BROKER --\n%@", data.result.accessToken];
+    }
+    else
+    {
+        resultString = [NSString stringWithFormat:@"-- ERROR FROM BROKER --\n%@", data.result.error.errorDetails];
+    }
+    
+    [self appendToResults:resultString];
 }
 
 - (void)didReceiveMemoryWarning
@@ -116,69 +163,57 @@ ADAuthenticationContext* context = nil;
     }
 }
 
--(void) setStatus: (NSString*) status
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.resultLabel setText:status];
-    });
-}
-
 - (IBAction)pressMeAction:(id)sender
 {
-    BVTestMainViewController* __weak weakSelf = self;
-    [self.resultLabel setText:@"Starting 401 challenge."];
+    NSString* authority = mAADInstance.authority;//params.authority;
+    NSString* clientId = mAADInstance.clientId;
+    NSString* resourceString = mAADInstance.resource;
+    NSString* redirectUri = mAADInstance.redirectUri;
+    NSString* userId = [_tfUserId text];
+    ADAuthenticationError* error = nil;
+    //[weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
+    context = [ADAuthenticationContext authenticationContextWithAuthority:authority
+                                                        validateAuthority:mAADInstance.validateAuthority
+                                                                    error:&error];
+    if (!context)
+    {
+        [self appendToResults:error.errorDetails];
+        return;
+    }
+    context.parentController = self;
     
-    //TODO: implement the 401 challenge response in the test Azure app. Temporarily using another one:
-    NSString* __block resourceString = @"http://testapi007.azurewebsites.net/api/WorkItem";
-    NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
-    [ADAuthenticationParameters parametersFromResourceUrl:resource completionBlock:^(ADAuthenticationParameters * params, ADAuthenticationError * error)
-     {
-//         if (!params)
-//         {
-//             [weakSelf setStatus:error.errorDetails];
-//             return;
-//         }
-         
-         //401 worked, now try to acquire the token:
-         //TODO: replace the authority here with the one that comes back from 'params'
-         NSString* authority = mAADInstance.authority;//params.authority;
-         NSString* clientId = mAADInstance.clientId;
-         resourceString = mAADInstance.resource;
-         NSString* redirectUri = mAADInstance.redirectUri;
-         NSString* userId = mAADInstance.userId;
-         //[weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
-         context = [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                                             validateAuthority:mAADInstance.validateAuthority
-                                                                         error:&error];
-         if (!context)
-         {
-             [weakSelf setStatus:error.errorDetails];
-             return;
-         }
-         context.parentController = self;
-         
-         [context acquireTokenWithResource:resourceString
-                                  clientId:clientId
-                               redirectUri:[NSURL URLWithString:redirectUri]
-                                    userId:userId
-                      extraQueryParameters:mAADInstance.extraQueryParameters
-                           completionBlock:^(ADAuthenticationResult *result) {
-                               if (result.status != AD_SUCCEEDED)
-                               {
-                                   [weakSelf setStatus:result.error.errorDetails];
-                                   return;
-                               }
-                               
-                               [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
-                           }];
-     }];
+    ADUserIdentifier* adUserId = [ADUserIdentifier identifierWithId:userId type:(ADUserIdentifierType)[_scUserType selectedSegmentIndex]];
+    [context acquireTokenWithResource:resourceString
+                             clientId:clientId
+                          redirectUri:[NSURL URLWithString:redirectUri]
+                       promptBehavior:[_scPromptBehavior selectedSegmentIndex]
+                       userIdentifier:adUserId
+                 extraQueryParameters:nil
+                      completionBlock:^(ADAuthenticationResult *result)
+    {
+        if (result.status != AD_SUCCEEDED)
+        {
+            [self appendToResults:result.error.errorDetails];
+            return;
+        }
+        
+        ADUserInformation* userInfo = result.tokenCacheStoreItem.userInformation;
+        if (!userInfo)
+        {
+            [self appendToResults:@"Succesfully signed in but no user info?"];
+            return;
+        }
+        
+        [self appendToResults:[NSString stringWithFormat:@"Successfully logged in as %@", userInfo.userId]];
+        [self appendToResults:[NSString stringWithFormat:@"allclaims=%@", userInfo.allClaims]];
+    }];
 }
 
 
 - (IBAction)acquireTokenSilentAction:(id)sender
 {
-    BVTestMainViewController* __weak weakSelf = self;
-    [self.resultLabel setText:@"Starting Acquire Token Silent."];
+    [self clearResults];
+    [self appendToResults:@"Starting Acquire Token Silent."];
     
     //TODO: implement the 401 challenge response in the test Azure app. Temporarily using another one:
     NSString* __block resourceString = @"http://testapi007.azurewebsites.net/api/WorkItem";
@@ -192,12 +227,12 @@ ADAuthenticationContext* context = nil;
     NSString* userId = mAADInstance.userId;
     //NSString* __block resourceString = mAADInstance.resource;
     NSString* redirectUri = mAADInstance.redirectUri;
-    [weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", authority]];
+    [self appendToResults:[NSString stringWithFormat:@"Authority: %@", authority]];
     context = [ADAuthenticationContext authenticationContextWithAuthority:authority
                                                                     error:&error];
     if (!context)
     {
-        [weakSelf setStatus:error.errorDetails];
+        [self appendToResults:error.errorDetails];
         return;
     }
     context.parentController = self;
@@ -209,22 +244,23 @@ ADAuthenticationContext* context = nil;
                             completionBlock:^(ADAuthenticationResult *result) {
         if (result.status != AD_SUCCEEDED)
         {
-            [weakSelf setStatus:result.error.errorDetails];
+            [self appendToResults:result.error.errorDetails];
             return;
         }
         
-        [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+        [self appendToResults:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
     }];
 }
 
 - (IBAction)clearCachePressed:(id)sender
 {
+    [self clearResults];
     ADAuthenticationError* error;
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     NSArray* allItems = [cache allItemsWithError:&error];
     if (error)
     {
-        [self setStatus:error.errorDetails];
+        [self appendToResults:error.errorDetails];
         return;
     }
     NSString* status = nil;
@@ -254,17 +290,18 @@ ADAuthenticationContext* context = nil;
         }
         status = [status stringByAppendingString:@" Cookies cleared."];
     }
-    [self setStatus:status];
+    [self appendToResults:status];
 }
 
 - (IBAction)getUsersPressed:(id)sender
 {
+    [self clearResults];
     ADAuthenticationError* error;
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     NSArray* array = [cache allItemsWithError:&error];
     if (error)
     {
-        [self setStatus:error.errorDetails];
+        [self appendToResults:error.errorDetails];
         return;
     }
     NSMutableSet* users = [NSMutableSet new];
@@ -283,7 +320,7 @@ ADAuthenticationContext* context = nil;
             [usersStr appendFormat:@"%@: %@ %@", user.userId, user.givenName, user.familyName];
         }
     }
-    [self setStatus:usersStr];
+    [self appendToResults:usersStr];
 }
 
 -(NSString*) processAccessToken: (NSString*) accessToken
@@ -295,12 +332,13 @@ ADAuthenticationContext* context = nil;
 - (IBAction)expireAllPressed:(id)sender
 {
     ADAuthenticationError* error;
-    [self setStatus:@"Attempt to expire..."];
+    [self clearResults];
+    [self appendToResults:@"Attempt to expire..."];
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     NSArray* array = [cache allItemsWithError:&error];
     if (error)
     {
-        [self setStatus:error.errorDetails];
+        [self appendToResults:error.errorDetails];
         return;
     }
     for(ADTokenCacheStoreItem* item in array)
@@ -310,28 +348,28 @@ ADAuthenticationContext* context = nil;
     }
     if (error)
     {
-        [self setStatus:error.errorDetails];
+        [self appendToResults:error.errorDetails];
     }
     else
     {
-        [self setStatus:@"Done."];
+        [self appendToResults:@"Done."];
     }
 }
 
 - (IBAction)promptAlways:(id)sender
 {
-    [self setStatus:@"Setting prompt always..."];
+    [self clearResults];
+    [self appendToResults:@"Setting prompt always..."];
     ADAuthenticationError* error;
     context = [ADAuthenticationContext authenticationContextWithAuthority:mAADInstance.authority
                                                         validateAuthority:mAADInstance.validateAuthority
                                                                     error:&error];
     if (!context)
     {
-        [self setStatus:error.errorDetails];
+        [self appendToResults:error.errorDetails];
         return;
     }
     
-    BVTestMainViewController* __weak weakSelf = self;
     [context acquireTokenWithResource:mAADInstance.resource
                              clientId:mAADInstance.clientId
                           redirectUri:[NSURL URLWithString:mAADInstance.redirectUri]
@@ -342,11 +380,11 @@ ADAuthenticationContext* context = nil;
      {
          if (result.status != AD_SUCCEEDED)
          {
-             [weakSelf setStatus:result.error.errorDetails];
+             [self appendToResults:result.error.errorDetails];
              return;
          }
          
-         [weakSelf setStatus:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+         [self appendToResults:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
          NSLog(@"Access token: %@", result.accessToken);
      }];
     

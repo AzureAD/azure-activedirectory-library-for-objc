@@ -47,7 +47,7 @@
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
                         scope:(NSString*)scope /*for future use */
-                       userId:(NSString*)userId
+                       userId:(ADUserIdentifier*)userId
                promptBehavior:(ADPromptBehavior)promptBehavior
          extraQueryParameters:(NSString*)queryParams
                 correlationId:(NSUUID*)correlationId
@@ -58,10 +58,22 @@
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
                         scope:(NSString*)scope /*for future use */
-                       userId:(NSString*)userId
+                       userId:(ADUserIdentifier*)userId
                promptBehavior:(ADPromptBehavior)promptBehavior
          extraQueryParameters:(NSString*)queryParams
        refreshTokenCredential:(NSString*)refreshTokenCredential
+                correlationId:(NSUUID*)correlationId
+                   completion:(ADAuthorizationCodeCallback)completionBlock;
+
+- (void)requestCodeByResource:(NSString*)resource
+                     clientId:(NSString*)clientId
+                  redirectUri:(NSURL*)redirectUri
+                        scope:(NSString*)scope /*for future use */
+                       userId:(ADUserIdentifier*)userId
+               promptBehavior:(ADPromptBehavior)promptBehavior
+         extraQueryParameters:(NSString*)queryParams
+       refreshTokenCredential:(NSString*)refreshTokenCredential
+                       silent:(BOOL)silent
                 correlationId:(NSUUID*)correlationId
                    completion:(ADAuthorizationCodeCallback)completionBlock;
 

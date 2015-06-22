@@ -90,17 +90,9 @@ typedef enum
 //Creates a sample user information object
 -(ADUserInformation*) adCreateUserInformation;
 
-//Ensures that two cache items are the same:
--(void) adVerifySameWithItem: (ADTokenCacheStoreItem*) item1
-                     item2: (ADTokenCacheStoreItem*) item2;
 //Ensures that all properties return non-default values. Useful to ensure that
 //the tests cover all properties of the tested objects:
 -(void) adVerifyPropertiesAreSet: (NSObject*) object;
-
-//Ensures that all properties of the first object are the same as the ones in the
-//second. Useful to ensure that copying/unpersisting operates on all object data:
--(void) adVerifyPropertiesAreSame: (NSObject*) object1
-                           second: (NSObject*) object2;
 
 -(NSString*) adLogLevelLogs;
 -(NSString*) adMessagesLogs;

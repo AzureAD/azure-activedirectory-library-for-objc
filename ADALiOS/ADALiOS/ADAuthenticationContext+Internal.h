@@ -30,6 +30,8 @@
 
 #import "ADALiOS.h"
 
+@class ADUserIdentifier;
+
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationContext+AcquireToken.h"
 #import "ADAuthenticationContext+AcquireAssertion.h"
@@ -41,7 +43,6 @@
 #import "ADOAuth2Constants.h"
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
-
 
 extern NSString* const ADUnknownError;
 extern NSString* const ADCredentialsNeeded;
@@ -71,7 +72,7 @@ extern NSString* const ADRedirectUriInvalidError;
 + (BOOL)isForcedAuthorization:(ADPromptBehavior)prompt;
 
 - (ADAuthenticationResult*)updateResult:(ADAuthenticationResult*)result
-                                 toUser:(NSString*) userId;
+                                 toUser:(ADUserIdentifier*)userId;
 
 - (NSUUID*)getCorrelationId;
 - (void)setCorrelationId:(NSUUID*)correlationId;

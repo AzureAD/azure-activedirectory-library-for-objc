@@ -32,13 +32,25 @@
                            correlationId:(NSUUID*)correlationId
                          completionBlock:(ADAuthenticationCallback)completionBlock;
 
+- (void)internalAcquireTokenWithResource:(NSString*)resource
+                                clientId:(NSString*)clientId
+                             redirectUri:(NSURL*)redirectUri
+                          promptBehavior:(ADPromptBehavior)promptBehavior
+                                  silent:(BOOL)silent /* Do not show web UI for authorization. */
+                          userIdentifier:(ADUserIdentifier*)userId
+                                   scope:(NSString*)scope
+                    extraQueryParameters:(NSString*)queryParams
+                       validateAuthority:(BOOL)validateAuthority
+                           correlationId:(NSUUID*)correlationId
+                         completionBlock:(ADAuthenticationCallback)completionBlock;
+
 // For use after the authority has been validated
 - (void)validatedAcquireTokenWithResource:(NSString*)resource
                                  clientId:(NSString*)clientId
                               redirectUri:(NSURL*)redirectUri
                            promptBehavior:(ADPromptBehavior)promptBehavior
                                    silent:(BOOL)silent /* Do not show web UI for authorization. */
-                                   userId:(NSString*)userId
+                                   userId:(ADUserIdentifier*)userId
                                     scope:(NSString*)scope
                      extraQueryParameters:(NSString*)queryParams
                             correlationId:(NSUUID*)correlationId
@@ -51,7 +63,20 @@
                       redirectUri: (NSURL*) redirectUri
                    promptBehavior: (ADPromptBehavior) promptBehavior
                            silent: (BOOL) silent /* Do not show web UI for authorization. */
-                           userId: (NSString*) userId
+                           userId: (ADUserIdentifier*)userId
+                            scope: (NSString*) scope
+             extraQueryParameters: (NSString*) queryParams
+                    correlationId: (NSUUID*) correlationId
+                  completionBlock: (ADAuthenticationCallback)completionBlock;
+
+// This version allows "silent" requests where it will attempt to make the network call and fail if any user interaction
+// is required
+- (void) requestTokenWithResource: (NSString*) resource
+                         clientId: (NSString*) clientId
+                      redirectUri: (NSURL*) redirectUri
+                   promptBehavior: (ADPromptBehavior) promptBehavior
+                      allowSilent: (BOOL) allowSilent
+                           userId: (ADUserIdentifier*)userId
                             scope: (NSString*) scope
              extraQueryParameters: (NSString*) queryParams
                     correlationId: (NSUUID*) correlationId
@@ -71,7 +96,7 @@
                                   clientId:(NSString*)clientId
                                redirectUri:(NSString*)redirectUri
                                   resource:(NSString*)resource
-                                    userId:(NSString*)userId
+                                    userId:(ADUserIdentifier*)userId
                                  cacheItem:(ADTokenCacheStoreItem*)cacheItem
                          validateAuthority:(BOOL)validateAuthority
                              correlationId:(NSUUID*)correlationId

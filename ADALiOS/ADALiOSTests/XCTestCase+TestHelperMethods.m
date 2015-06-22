@@ -426,7 +426,7 @@ extern void __gcov_flush(void);
             //Cast to the scalar to double and ensure it is far from 0 (default)
             
             double dValue = [(NSNumber*)value doubleValue];
-            if (abs(dValue) < 0.0001)
+            if (fabs(dValue) < 0.0001)
             {
                 XCTFail("The value of the property %@ is 0. Please update the initialization method to set it.", propertyName);
             }
@@ -436,99 +436,6 @@ extern void __gcov_flush(void);
             XCTAssertNotNil(value, "The value of the property %@ is nil. Please update the initialization method to set it.", propertyName);
         }
     }
-}
-
--(void) adVerifyPropertiesAreSame: (NSObject*) object1
-                           second: (NSObject*) object2
-{
-    if ((nil == object1) != (nil == object1))
-    {
-        XCTFail("Objects are different.");
-        return;//One is nil, avoid crashing below
-    }
-    if (!object1)
-    {
-        return;//Both nil, return to avoid crashing below
-    }
-    
-    if ([object1 class] != [object2 class])
-    {
-        XCTFail("Objects are instances of different classes.");
-        return;//Different classes
-    }
-    
-    //Enumerate all properties and ensure that they are set to non-default values:
-    unsigned int propertyCount;
-    objc_property_t* properties = class_copyPropertyList([object1 class], &propertyCount);
-    
-    for (int i = 0; i < propertyCount; ++i)
-    {
-        NSString* propertyName = [NSString stringWithCString:property_getName(properties[i])
-                                                    encoding:NSUTF8StringEncoding];
-        
-        id value1 = [object1 valueForKey:propertyName];
-        id value2 = [object2 valueForKey:propertyName];
-        //Special case the types of interest. We do not want to test every single type of property,
-        //as we may get a circular or runtime types:
-        if (!value1)
-        {
-            XCTAssertNil(value2, "The value of the property %@ is not the same.", propertyName);
-        }
-        else if ([value1 isKindOfClass:[NSNumber class]])
-        {
-            //Scalar type, simply cast to double:
-            double dValue1 = [(NSNumber*)value1 doubleValue];
-            double dValue2 = [(NSNumber*)value2 doubleValue];
-            if (abs(dValue1 - dValue2) > 0.0001)
-            {
-                XCTFail("The value of the property %@ is different. Value1: %@; Value2: %@", propertyName, value1, value2);
-            }
-        }
-        else if ([value1 isKindOfClass:[NSDate class]])
-        {
-            //The framework is flaky with deserialization of NSDate classes:
-            NSTimeInterval delta = [(NSDate*)value1 timeIntervalSinceDate:(NSDate*)value2];
-            if (abs(delta) >= 1)//Sub-second tollerance
-            {
-                XCTFail("The value of the property %@ is not the same. Value1: %@; Value2: %@", propertyName, value1, value2);
-            }
-        }
-        else if ([value1 isKindOfClass:[NSString class]])
-        {
-            if (![value1 isEqual:value2])
-            {
-                //Convenient to put breakpoint here:
-                XCTFail("The value of the property %@ is not the same. Value1: %@; Value2: %@", propertyName, value1, value2);
-            }
-        }
-        else if ([value1 isKindOfClass:[ADUserInformation class]])
-        {
-            [self adVerifyPropertiesAreSame:value1 second:value2];
-        }
-        else if ([value1 isKindOfClass:[NSDictionary class]])
-        {
-            if (![value1 isEqual:value2])
-            {
-                //Convenient to put breakpoint here:
-                XCTFail("The value of the property %@ is not the same. Value1: %@; Value2: %@", propertyName, value1, value2);
-            }
-        }
-        else
-        {
-            XCTFail("Unsupported property. Please fix this test code accordingly. ");
-        }
-    }
-    free(properties);
-}
-
-//Ensures that two items are the same:
--(void) adVerifySameWithItem: (ADTokenCacheStoreItem*) item1
-                       item2: (ADTokenCacheStoreItem*) item2
-{
-    XCTAssertNotNil(item1);
-    XCTAssertNotNil(item2);
-    
-    [self adVerifyPropertiesAreSame:item1 second:item2];
 }
 
 -(void) adCallAndWaitWithFile: (NSString*) file

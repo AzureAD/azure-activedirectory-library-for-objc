@@ -42,7 +42,6 @@ correlationId:(NSUUID*)correlationId
 
 - (void)cancel;
 
-- (BOOL)cancelWithError:(int)errorcode
-                details:(NSString*)details;
+- (BOOL)cancelWithError:(ADAuthenticationError*)error;
 
 @end

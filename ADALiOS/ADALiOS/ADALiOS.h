@@ -18,9 +18,16 @@
 
 //iOS does not support resources in client libraries. Hence putting the
 //version in static define until we identify a better place:
-#define ADAL_VER_HIGH   2
-#define ADAL_VER_LOW    0
-#define ADAL_VER_PATCH  0
+#define ADAL_VER_HIGH       2
+#define ADAL_VER_LOW        0
+#define ADAL_VER_PATCH      0
+
+#define STR_ADAL_VER_HIGH   "2"
+#define STR_ADAL_VER_LOW    "0"
+#define STR_ADAL_VER_PATCH  "0"
+
+#define ADAL_VERSION_STRING     STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH
+#define ADAL_VERSION_NSSTRING   @"" STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH
 
 #import "ADLogger.h"
 #import "ADErrorCodes.h"

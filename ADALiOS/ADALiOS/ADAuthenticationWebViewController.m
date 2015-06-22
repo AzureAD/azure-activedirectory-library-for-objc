@@ -29,6 +29,7 @@
 #import "ADAuthenticationSettings.h"
 #import "ADNTLMHandler.h"
 #import "ADBrokerKeyHelper.h"
+#import "ADHelpers.h"
 
 @implementation ADAuthenticationWebViewController
 {
@@ -79,7 +80,7 @@ NSTimer *timer;
 
 - (void)start
 {
-    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:_startURL]];
     [_webView loadRequest:request];
 }
 
@@ -95,7 +96,7 @@ NSTimer *timer;
     NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
-    NSString* value = [queryParamsMap valueForKey:@"SubmitUrl"];
+    NSString* value = [ADHelpers addClientVersionToURLString:[queryParamsMap valueForKey:@"SubmitUrl"]];
     
     NSArray * authorityParts = [value componentsSeparatedByString:@"?"];
     NSString *authority = [authorityParts objectAtIndex:0];

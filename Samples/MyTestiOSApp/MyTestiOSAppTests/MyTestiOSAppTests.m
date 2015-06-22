@@ -203,7 +203,7 @@ const int sTokenWorkflowTimeout     = 20;
                                             interactive: (BOOL) interactive
                                            keepSignedIn: (BOOL) keepSignedIn
                                           expectSuccess: (BOOL) expectSuccess
-                                                 userId: (NSString*) userId /*requested userid, may be different from entered*/
+                                                 userId: (ADUserIdentifier*)userId /*requested userid, may be different from entered*/
                                                    line: (int) sourceLine
 {
     XCTAssertNotNil(instance, "Internal test failure.");

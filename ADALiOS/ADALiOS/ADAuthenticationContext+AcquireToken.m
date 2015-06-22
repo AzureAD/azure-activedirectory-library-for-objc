@@ -19,22 +19,51 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "ADInstanceDiscovery.h"
 #import "ADHelpers.h"
+#import "ADUserIdentifier.h"
 
 @implementation ADAuthenticationContext (AcquireToken)
 
 #pragma mark -
 #pragma mark AcquireToken
-- (void)internalAcquireTokenWithResource: (NSString*) resource
-                                clientId: (NSString*) clientId
-                             redirectUri: (NSURL*) redirectUri
-                          promptBehavior: (ADPromptBehavior) promptBehavior
-                                  silent: (BOOL) silent /* Do not show web UI for authorization. */
-                                  userId: (NSString*) userId
-                                   scope: (NSString*) scope
-                    extraQueryParameters: (NSString*) queryParams
-                       validateAuthority: (BOOL) validateAuthority
-                           correlationId: (NSUUID*) correlationId
-                         completionBlock: (ADAuthenticationCallback)completionBlock
+- (void)internalAcquireTokenWithResource:(NSString*)resource
+                                clientId:(NSString*)clientId
+                             redirectUri:(NSURL*)redirectUri
+                          promptBehavior:(ADPromptBehavior)promptBehavior
+                                  silent:(BOOL)silent /* Do not show web UI for authorization. */
+                                  userId:(NSString*)userId
+                                   scope:(NSString*)scope
+                    extraQueryParameters:(NSString*)queryParams
+                       validateAuthority:(BOOL)validateAuthority
+                           correlationId:(NSUUID*)correlationId
+                         completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    ADUserIdentifier* identifier = [ADUserIdentifier identifierWithId:userId
+                                                                 type:RequiredDisplayableId];
+    [self internalAcquireTokenWithResource:resource
+                                  clientId:clientId
+                               redirectUri:redirectUri
+                            promptBehavior:promptBehavior
+                                    silent:silent
+                            userIdentifier:identifier
+                                     scope:scope
+                      extraQueryParameters:queryParams
+                         validateAuthority:validateAuthority
+                             correlationId:correlationId
+                           completionBlock:completionBlock];
+    
+}
+
+- (void)internalAcquireTokenWithResource:(NSString*)resource
+                                clientId:(NSString*)clientId
+                             redirectUri:(NSURL*)redirectUri
+                          promptBehavior:(ADPromptBehavior)promptBehavior
+                                  silent:(BOOL)silent /* Do not show web UI for authorization. */
+                          userIdentifier:(ADUserIdentifier*)userId
+                                   scope:(NSString*)scope
+                    extraQueryParameters:(NSString*)queryParams
+                       validateAuthority:(BOOL)validateAuthority
+                           correlationId:(NSUUID*)correlationId
+                         completionBlock:(ADAuthenticationCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
     HANDLE_ARGUMENT(resource);
@@ -84,7 +113,7 @@
                               redirectUri:(NSURL*)redirectUri
                            promptBehavior:(ADPromptBehavior)promptBehavior
                                    silent:(BOOL)silent /* Do not show web UI for authorization. */
-                                   userId:(NSString*)userId
+                                   userId:(ADUserIdentifier*)userId
                                     scope:(NSString*)scope
                      extraQueryParameters:(NSString*)queryParams
                             correlationId:(NSUUID*)correlationId
@@ -145,17 +174,18 @@
                    completionBlock:completionBlock];
 }
 
-- (void) requestTokenWithResource: (NSString*) resource
-                         clientId: (NSString*) clientId
-                      redirectUri: (NSURL*) redirectUri
-                   promptBehavior: (ADPromptBehavior) promptBehavior
-                           silent: (BOOL) silent /* Do not show web UI for authorization. */
-                           userId: (NSString*) userId
-                            scope: (NSString*) scope
-             extraQueryParameters: (NSString*) queryParams
-                    correlationId: (NSUUID*) correlationId
-                  completionBlock: (ADAuthenticationCallback)completionBlock
+- (void) requestTokenWithResource:(NSString*)resource
+                         clientId:(NSString*)clientId
+                      redirectUri:(NSURL*)redirectUri
+                   promptBehavior:(ADPromptBehavior)promptBehavior
+                           silent:(BOOL)silent /* Do not show web UI for authorization. */
+                           userId:(ADUserIdentifier*)userId
+                            scope:(NSString*)scope
+             extraQueryParameters:(NSString*)queryParams
+                    correlationId:(NSUUID*)correlationId
+                  completionBlock:(ADAuthenticationCallback)completionBlock
 {
+#if !AD_BROKER
     if (silent)
     {
         //The cache lookup and refresh token attempt have been unsuccessful,
@@ -169,13 +199,39 @@
         completionBlock(result);
         return;
     }
+#endif
     
+    [self requestTokenWithResource:resource
+                          clientId:clientId
+                       redirectUri:redirectUri
+                    promptBehavior:promptBehavior
+                       allowSilent:silent
+                            userId:userId
+                             scope:scope
+              extraQueryParameters:queryParams
+                     correlationId:correlationId
+                   completionBlock:completionBlock];
+}
+
+- (void) requestTokenWithResource:(NSString*) resource
+                         clientId:(NSString*) clientId
+                      redirectUri:(NSURL*) redirectUri
+                   promptBehavior:(ADPromptBehavior) promptBehavior
+                      allowSilent:(BOOL) allowSilent
+                           userId:(ADUserIdentifier*)userId
+                            scope:(NSString*) scope
+             extraQueryParameters:(NSString*) queryParams
+                    correlationId:(NSUUID*) correlationId
+                  completionBlock:(ADAuthenticationCallback)completionBlock
+{
+#if !AD_BROKER
     //call the broker.
     if([ADAuthenticationContext canUseBroker]){
         [self callBrokerForAuthority:self.authority
                             resource:resource
                             clientId:clientId
                          redirectUri:redirectUri
+                      promptBehavior:promptBehavior
                               userId:userId
                 extraQueryParameters:queryParams
                        correlationId:[correlationId UUIDString]
@@ -183,6 +239,7 @@
          ];
         return;
     }
+#endif
     
     //Get the code first:
     [self requestCodeByResource:resource
@@ -192,6 +249,8 @@
                          userId:userId
                  promptBehavior:promptBehavior
            extraQueryParameters:queryParams
+         refreshTokenCredential:nil
+                         silent:allowSilent
                   correlationId:correlationId
                      completion:^(NSString * code, ADAuthenticationError *error)
      {
@@ -245,7 +304,7 @@
                                   clientId:(NSString*)clientId
                                redirectUri:(NSString*)redirectUri
                                   resource:(NSString*)resource
-                                    userId:(NSString*)userId
+                                    userId:(ADUserIdentifier*)userId
                                  cacheItem:(ADTokenCacheStoreItem*)cacheItem
                          validateAuthority:(BOOL)validateAuthority
                              correlationId:(NSUUID*)correlationId
@@ -291,14 +350,14 @@
                               completionBlock:completionBlock];
 }
 
-- (void) validatedAcquireTokenByRefreshToken: (NSString*) refreshToken
-                                    clientId: (NSString*) clientId
-                                 redirectUri: (NSString*) redirectUri
-                                    resource: (NSString*) resource
-                                      userId: (NSString*) userId
-                                   cacheItem: (ADTokenCacheStoreItem*) cacheItem
-                               correlationId: correlationId
-                             completionBlock: (ADAuthenticationCallback)completionBlock
+- (void) validatedAcquireTokenByRefreshToken:(NSString*) refreshToken
+                                    clientId:(NSString*) clientId
+                                 redirectUri:(NSString*) redirectUri
+                                    resource:(NSString*) resource
+                                      userId:(ADUserIdentifier*)userId
+                                   cacheItem:(ADTokenCacheStoreItem*) cacheItem
+                               correlationId:(NSUUID*)correlationId
+                             completionBlock:(ADAuthenticationCallback)completionBlock
 {
     [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:nil];
     //Fill the data for the token refreshing:

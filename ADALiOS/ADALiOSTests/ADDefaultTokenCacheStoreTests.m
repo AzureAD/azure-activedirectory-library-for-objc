@@ -88,66 +88,45 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 //A wrapper around addOrUpdateItem, checks automatically for errors.
 //Works on single threaded environment only, as it checks the counts:
--(void) addOrUpdateItem: (ADTokenCacheStoreItem*) item expectAdd: (BOOL) expectAdd
-{
-    ADAuthenticationError* error;
-    long count = [self count];
-    [mStore addOrUpdateItem:item error:&error];
-    ADAssertNoError;
-    if (expectAdd)
-    {
-        ADAssertLongEquals(count + 1, [self count]);
-    }
-    else
-    {
-        ADAssertLongEquals(count, [self count]);
-    }
-    [self verifyCacheContainsItem:item];
+#define ADD_OR_UPDATE_ITEM(_item, _expectAdd) \
+{\
+    ADAuthenticationError* error; \
+    long count = [self count]; \
+    [mStore addOrUpdateItem:_item error:&error]; \
+    ADAssertNoError; \
+    if (_expectAdd) { ADAssertLongEquals(count + 1, [self count]); } \
+    else { ADAssertLongEquals(count, [self count]); } \
+    [self verifyCacheContainsItem:_item]; \
 }
 
 //Esnures that two keys are the same:
--(void) verifySameWithKey: (ADTokenCacheStoreKey*) key1
-                     key2: (ADTokenCacheStoreKey*) key2
-{
-    XCTAssertNotNil(key1);
-    XCTAssertNotNil(key2);
-    ADAssertStringEquals(key1.authority, key2.authority);
-    ADAssertStringEquals(key1.resource, key2.resource);
-    ADAssertStringEquals(key1.clientId, key2.clientId);
-    XCTAssertTrue([key1 isEqual:key2]);
+#define VERIFY_SAME_WITH_KEY(_key1, _key2) \
+{\
+    XCTAssertNotNil(_key1);\
+    XCTAssertNotNil(_key2);\
+    ADAssertStringEquals(_key1.authority, _key2.authority);\
+    ADAssertStringEquals(_key1.resource, _key2.resource);\
+    ADAssertStringEquals(_key1.clientId, _key2.clientId);\
+    XCTAssertTrue([_key1 isEqual:_key2]);\
 }
 
 //Creates a copy of item changing only the user:
--(ADTokenCacheStoreItem*) copyItem: (ADTokenCacheStoreItem*) item
-                       withNewUser: (NSString*) newUser
-{
-    ADTokenCacheStoreItem* newItem = [item copy];
-    XCTAssertNotNil(newItem);
-    XCTAssertNotEqualObjects(newItem, item, "Not copied.");
-    [self adVerifySameWithItem:item item2:newItem];
-    XCTAssertNotEqualObjects(item.userInformation, newItem.userInformation, "Not a deep copy");
-    if (newUser)
-    {
-        ADAuthenticationError* error;
-        newItem.userInformation = [ADUserInformation userInformationWithUserId:newUser error:&error];
-        ADAssertNoError;
-    }
-    else
-    {
-        newItem.userInformation = nil;
-    }
-    
-    return newItem;
-}
-
-//Verifies consistency and copying between what was passed from the cache,
-//what is stored and what is returned:
-- (void)verifyCopyingWithItem: (ADTokenCacheStoreItem*) original
-                         copy: (ADTokenCacheStoreItem*) copy
-{
-    XCTAssertNotEqualObjects(original, copy, "The item was not copied.");
-    [self adVerifySameWithItem:original item2:copy];
-}
+#define COPY_ITEM_WITH_NEW_USER(_newItem, _item, _newUser) \
+{ \
+    _newItem = [_item copy]; \
+    XCTAssertNotNil(_newItem); \
+    XCTAssertEqualObjects(_item, _newItem); \
+    if (_newUser) \
+    { \
+        ADAuthenticationError* error; \
+        _newItem.userInformation = [ADUserInformation userInformationWithUserId:_newUser error:&error]; \
+        ADAssertNoError; \
+    } \
+    else \
+    { \
+        _newItem.userInformation = nil; \
+    } \
+} \
 
 //Verifies that the items in the cache are copied, so that the developer
 //cannot accidentally modify them. The method tests the getters too.
@@ -157,7 +136,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     ADTokenCacheStoreItem* item = [self adCreateCacheItem];
     ADAuthenticationError* error;
-    [self addOrUpdateItem:item expectAdd:YES];
+    ADD_OR_UPDATE_ITEM(item, YES);
 
     //getItemWithKey:userId
     ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
@@ -165,23 +144,23 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertNotNil(key);
     ADTokenCacheStoreItem* exact = [mStore getItemWithKey:key userId:item.userInformation.userId error:&error];
     ADAssertNoError;
-    [self verifyCopyingWithItem:item copy:exact];
+    XCTAssertEqualObjects(item, exact);
 
     //getItemsWithKey:userId and nil userId:
     ADTokenCacheStoreItem* returnedItemForNil = [mStore getItemWithKey:key userId:nil error:&error];
     ADAssertNoError;
     XCTAssertNotNil(returnedItemForNil);
-    [self verifyCopyingWithItem:item copy:returnedItemForNil];
-    [self verifyCopyingWithItem:exact copy:returnedItemForNil];
-
+    XCTAssertEqualObjects(item, returnedItemForNil);
+    XCTAssertEqualObjects(exact, returnedItemForNil);
+    
     //getItemsWithKey:
     NSArray* items = [mStore getItemsWithKey:key error:&error];
     ADAssertNoError;
     XCTAssertTrue(items.count == 1);
     ADTokenCacheStoreItem* returnedFromArray = [items objectAtIndex:0];
     XCTAssertNotNil(returnedFromArray);
-    [self verifyCopyingWithItem:item copy:returnedFromArray];
-    [self verifyCopyingWithItem:returnedItemForNil copy:returnedFromArray];
+    XCTAssertEqualObjects(item, returnedFromArray);
+    XCTAssertEqualObjects(returnedItemForNil, returnedFromArray);
     
     //allItems:
     NSArray* allItems = [mStore allItemsWithError:&error];
@@ -189,69 +168,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertTrue(items.count == 1);
     ADTokenCacheStoreItem* returnedFromAll = [allItems objectAtIndex:0];
     XCTAssertNotNil(returnedFromAll);
-    [self verifyCopyingWithItem:item copy:returnedFromAll];
-    [self verifyCopyingWithItem:returnedFromArray copy:returnedFromAll];
-}
-
-- (void)verifyTwoItems: (ADTokenCacheStoreItem*) item1
-                 item2: (ADTokenCacheStoreItem*) item2
-                 array: (NSArray*) array
-{
-    XCTAssertNotNil(array);
-    XCTAssertTrue(array.count == 2);
-    for(ADTokenCacheStoreItem* item in array)
-    {
-        XCTAssertNotEqualObjects(item, item1);
-        XCTAssertNotEqualObjects(item, item2);
-        if ([item.userInformation.userId isEqualToString:item1.userInformation.userId])
-        {
-            [self verifyCopyingWithItem:item1 copy:item];
-        }
-        else
-        {
-            ADAssertStringEquals(item2.userInformation.userId, item.userInformation.userId);
-            [self verifyCopyingWithItem:item2 copy:item];
-        }
-    }
-}
-
-//Adds more than one object for a given key and verifies that extraction copies correctly
-//Tests al of the getters:
--(void) testCopyMultipleObjects
-{
-    XCTAssertTrue([self count] == 0, "Start empty.");
-    
-    ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
-    ADAuthenticationError* error;
-    ADTokenCacheStoreKey* key = [item1 extractKeyWithError:&error];
-    ADAssertNoError;
-    [self addOrUpdateItem:item1 expectAdd:YES];
-    
-    ADTokenCacheStoreItem* item2 = [self copyItem:item1 withNewUser:@"  another user  "];
-    //We will use the otherKey later to ensure that the getters work with any proper key object.
-    ADTokenCacheStoreKey* otherKey = [item2 extractKeyWithError:&error];
-    ADAssertNoError;
-    [self verifySameWithKey:key key2:otherKey];
-    [self addOrUpdateItem:item2 expectAdd:YES];
-    
-    //getItemsWithKey
-    NSArray* allWithKey = [mStore getItemsWithKey:otherKey error:&error];
-    ADAssertNoError;
-    [self verifyTwoItems:item1 item2:item2 array:allWithKey];
-
-    //Individual items with the userId:
-    ADTokenCacheStoreItem* item1Return = [mStore getItemWithKey:key userId:item1.userInformation.userId error:&error];
-    ADAssertNoError;
-    [self verifyCopyingWithItem:item1 copy:item1Return];
-    ADTokenCacheStoreItem* item2Return = [mStore getItemWithKey:otherKey userId:item2.userInformation.userId error:&error];
-    ADAssertNoError;
-    [self verifyCopyingWithItem:item2 copy:item2Return];
-
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    //get item with id of nil:
-    ADTokenCacheStoreItem* itemReturn = [mStore getItemWithKey:otherKey userId:nil error:&error];
-    ADAssertLongEquals(AD_ERROR_MULTIPLE_USERS, error.code);
-    XCTAssertNil(itemReturn);
+    XCTAssertEqualObjects(item, returnedFromAll);
+    XCTAssertEqualObjects(returnedFromArray, returnedFromAll);
 }
 
 -(void) testComplex
@@ -264,28 +182,30 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
     
     //one item:
-    [self addOrUpdateItem:item1 expectAdd:YES];
+    ADD_OR_UPDATE_ITEM(item1, YES);
     
     //add the same item and ensure that the counts do not change:
-    [self addOrUpdateItem:item1 expectAdd:NO];
+    ADD_OR_UPDATE_ITEM(item1, NO);
     
     //Add an item with different key:
     ADTokenCacheStoreItem* item2 = [self adCreateCacheItem];
     item2.resource = @"another authority";
-    [self addOrUpdateItem:item2 expectAdd:YES];
+    ADD_OR_UPDATE_ITEM(item2, YES);
     
     //add an item with the same key, but some other change:
     ADTokenCacheStoreItem* item3 = [self adCreateCacheItem];
     item3.accessToken = @"another token";
-    [self addOrUpdateItem:item3 expectAdd:NO];
+    ADD_OR_UPDATE_ITEM(item3, NO);
 
     //Add an item with the same key, but different user:
-    ADTokenCacheStoreItem* item4 = [self copyItem:item1 withNewUser:@"   another user   "];
-    [self addOrUpdateItem:item4 expectAdd:YES];
+    ADTokenCacheStoreItem* item4 = nil;
+    COPY_ITEM_WITH_NEW_USER(item4, item1, @"   another user   ");
+    ADD_OR_UPDATE_ITEM(item4, YES);
     
     //Add an item with nil user:
-    ADTokenCacheStoreItem* item5 = [self copyItem:item1 withNewUser:nil];
-    [self addOrUpdateItem:item5 expectAdd:YES];
+    ADTokenCacheStoreItem* item5 = nil;
+    COPY_ITEM_WITH_NEW_USER(item5, item1, nil);
+    ADD_OR_UPDATE_ITEM(item5, YES);
     
     ADTokenCacheStoreKey* key = [item1 extractKeyWithError:&error];
     ADAssertNoError;
@@ -383,7 +303,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
                 ADAssertNoError;
                 if (return1)//may not return if deleted in another thread
                 {
-                    [self adVerifySameWithItem:item1 item2:return1];
+                    XCTAssertEqualObjects(item1, return1);
                 }
                 ADTokenCacheStoreItem* badUser = [mStore getItemWithKey:key123 userId:@"not real" error:&error];
                 ADAssertNoError;
@@ -392,7 +312,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
                 ADAssertNoError;
                 if (return4)
                 {
-                    [self adVerifySameWithItem:item4 item2:return4];
+                    XCTAssertEqualObjects(item4, return4);
                 }
 
                 badUser = [mStore getItemWithKey:key4 userId:@"not real" error:&error];
@@ -448,7 +368,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     for (long i = 0; i < numItems; ++i)
     {
         NSString* user = [NSString stringWithFormat:@"User: %ld", i];
-        ADTokenCacheStoreItem* item = [self copyItem:original withNewUser:user];
+        ADTokenCacheStoreItem* item = nil;
+        COPY_ITEM_WITH_NEW_USER(item, original, user);
         [allItems addObject:item];
     }
 
@@ -493,7 +414,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
         }
     }
     ADAssertNoError;
-    [self adVerifySameWithItem:item item2:read];
+    XCTAssertEqualObjects(item, read);
 }
 
 -(void) testInitializer

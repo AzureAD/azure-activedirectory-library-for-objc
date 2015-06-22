@@ -228,6 +228,19 @@ correlationId:(NSUUID *)correlationId
     // Save the completion block
     _completionBlock = [completionBlock copy];
     ADAuthenticationError* error = nil;
+    
+    _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
+    if (_ntlmSession)
+    {
+        AD_LOG_INFO(@"Authorization UI", @"NTLM support enabled.");
+    }
+    
+	if(![NSString adIsStringNilOrBlank:refreshTokenCredential])
+    {
+        [ADCustomHeaderHandler addCustomHeaderValue:refreshTokenCredential
+                                       forHeaderKey:@"x-ms-RefreshTokenCredential"
+                                       forSingleUse:YES];
+    }
 
     if (webView)
     {
@@ -259,19 +272,6 @@ correlationId:(NSUUID *)correlationId
         
         if (parent)
         {
-            _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
-            if (_ntlmSession)
-            {
-                AD_LOG_INFO(@"Authorization UI", @"NTLM support enabled.");
-            }
-            
-            if(![NSString adIsStringNilOrBlank:refreshTokenCredential])
-            {
-                [ADCustomHeaderHandler addCustomHeaderValue:refreshTokenCredential
-                                               forHeaderKey:@"x-ms-RefreshTokenCredential"
-                                               forSingleUse:YES];
-            }
-            
             _parentController = parent;
             // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
             UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
@@ -327,12 +327,8 @@ correlationId:(NSUUID *)correlationId
     [self webAuthenticationDidCancel];
 }
 
-- (BOOL)cancelWithError:(int)errorcode
-                details:(NSString*)details
+- (BOOL)cancelWithError:(ADAuthenticationError*)error
 {
-    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:errorcode
-                                                                          protocolCode:nil
-                                                                          errorDetails:details];
     return [self endWebAuthenticationWithError:error orURL:nil];
 }
 
