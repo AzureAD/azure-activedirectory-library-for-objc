@@ -28,7 +28,8 @@
 {
     ADAuthenticationWebViewController *_webAuthenticationWebViewController;
 
-    BOOL      _loading;
+    BOOL        _loading;
+    NSTimer*    _loadingTimer;
 }
 
 #pragma mark - UIViewController Methods
@@ -144,24 +145,40 @@
 #pragma unused(webView)
 
     // Start the activity indicator after 2 second delay
-    _loading = YES;
-    [NSTimer scheduledTimerWithTimeInterval:2.0
-                                     target:self
-                                   selector:@selector(onStartActivityIndicator:)
-                                   userInfo:nil
-                                    repeats:NO];
+    if (!_loading)
+    {
+        _loading = YES;
+        _loadingTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
+                                                         target:self
+                                                       selector:@selector(onStartActivityIndicator:)
+                                                       userInfo:nil
+                                                        repeats:NO];
+    }
+    
     
     // Forward to the UIWebView controller
     [_webAuthenticationWebViewController webViewDidStartLoad:webView];
 }
 
+- (void)stopSpinner
+{
+    if (!_loading)
+        return;
+    
+    _loading = NO;
+    if (_loadingTimer)
+    {
+        [_loadingTimer invalidate];
+        _loadingTimer = nil;
+    }
+    
+    [_activityIndicator stopAnimating];
+}
+
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
-
-    // Disable the activity indicator
-    _loading = NO;
-    [_activityIndicator stopAnimating];
+    [self stopSpinner];
     
     // Forward to the UIWebView controller
     [_webAuthenticationWebViewController webViewDidFinishLoad:webView];
@@ -170,11 +187,8 @@
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
 #pragma unused(webView)
+    [self stopSpinner];
     
-    // Disable the activity indicator
-    _loading = NO;
-    [_activityIndicator stopAnimating];
-
     // Forward to the UIWebView controller
     [_webAuthenticationWebViewController webView:webView didFailLoadWithError:error];
 }
