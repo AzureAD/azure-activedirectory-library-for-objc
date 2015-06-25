@@ -43,6 +43,7 @@ typedef enum ADBrokerFailureCode
     ADBrokerMissingParameterError,
     ADBrokerMissingRequestParameterError,
     ADBrokerMalformedRequestParameterError,
+    ADBrokerUpdateNeededError,
 } ADBrokerFailureCode;
 
 /*! The completion block declarations. */
