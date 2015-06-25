@@ -112,7 +112,7 @@
 		8B0965A817F25770002BDFB8 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
-			dstPath = "Headers/$(PRODUCT_NAME)";
+			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
 				D6FB3E3D1B30FF510032F883 /* ADUserIdentifier.h in Copy Files */,
@@ -594,7 +594,6 @@
 				8B0965A817F25770002BDFB8 /* Copy Files */,
 				8B0965A617F25770002BDFB8 /* Sources */,
 				8B0965A717F25770002BDFB8 /* Frameworks */,
-				8B19339718BAEDE4008FD93A /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -690,23 +689,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		8B19339718BAEDE4008FD93A /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Create the folder structure for a Framework\necho \"Creating Framework folder structure at ${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}\"\n\n# Ensure failure if any simple command fails\nset -e\n\n# Create the directory layout\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/A/Headers\"\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/A/Resources\"\n\n# Link the \"Current\" version to \"A\"\n/bin/ln -sfh A \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/Current\"\n/bin/ln -sfh Versions/Current/Headers \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Headers\"\n/bin/ln -sfh Versions/Current/Resources \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Resources\"\n/bin/ln -sfh \"Versions/Current/${PRODUCT_NAME}\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/${PRODUCT_NAME}\"\n\n# The -a ensures that the headers maintain the source modification date so that we don't constantly\n# cause propagating rebuilds of files that import these headers.\necho \"Copying public headers from $TARGET_BUILD_DIR/$PUBLIC_HEADERS_FOLDER_PATH/\"\n/bin/cp -a \"${TARGET_BUILD_DIR}/${PUBLIC_HEADERS_FOLDER_PATH}/\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/A/Headers\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8B0965A617F25770002BDFB8 /* Sources */ = {
