@@ -404,14 +404,9 @@ static dispatch_semaphore_t s_cancelSemaphore;
                          initWithUUIDString:[queryParamsMap
                                              valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
     
-    NSString* extraQP = [queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS];
-    NSDictionary* extraQpDictionary = [NSDictionary adURLFormDecode:extraQP];
-    extraQP = nil;
-    if([extraQpDictionary valueForKey:@"mamver"])
-    {
-        extraQP = [NSString stringWithFormat:@"mamver=%@", [extraQpDictionary valueForKey:@"mamver"]];
-    }
-    
+    NSString* reqExtraQP = [queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS];
+    NSDictionary* extraQpDictionary = [NSDictionary adURLFormDecode:reqExtraQP];
+    NSString* extraQP = [self filteredQPString:extraQpDictionary];
     
     NSString* userType = [queryParamsMap valueForKey:@"username_type"];
     if ([NSString adIsStringNilOrBlank:userType])
@@ -484,6 +479,30 @@ static dispatch_semaphore_t s_cancelSemaphore;
      }];
     
     return YES;
+}
+
++ (NSString*)filteredQPString:(NSDictionary*)queryParams
+{
+    NSArray* allowedQPs = @[ @"mamver", @"msafed" ];
+    
+    NSMutableString* qpString = nil;
+    for ( NSString* allowedQP in allowedQPs )
+    {
+        NSString* qpVal = [queryParams valueForKey:allowedQP];
+        if (qpVal)
+        {
+            if (qpString)
+            {
+                [qpString appendFormat:@"&%@=%@", allowedQP, qpVal];
+            }
+            else
+            {
+                qpString = [NSMutableString stringWithFormat:@"%@=%@", allowedQP, qpVal];
+            }
+        }
+    }
+    
+    return qpString;
 }
 
 + (NSArray*) getAllAccounts:(ADAuthenticationError*) error
