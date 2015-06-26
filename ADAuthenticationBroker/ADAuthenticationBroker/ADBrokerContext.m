@@ -37,6 +37,8 @@
 
 #define AD_BROKER_FORCE_CANCEL_CODE -2
 
+#define CURRENT_BROKER_VERSION 1
+
 NSString* const ADBrokerContextDidReturnToAppNotification = @"ADBrokerContextDidReturnToAppNotification";
 NSString* const ADBrokerFailedNotification = @"ADBrokerFailedNotification";
 
@@ -341,6 +343,26 @@ static dispatch_semaphore_t s_cancelSemaphore;
     BROKER_VALIDATE_QUERYPARAM(queryParamsMap, BROKER_KEY, brokerKey);
     BROKER_VALIDATE_QUERYPARAM(queryParamsMap, CLIENT_ADAL_VERSION, clientAdalVer);
     
+    // Allow for future versions of ADAL to pass in a minimum broker version that we can check against to
+    // see if we need to to force an update
+    NSString* minBrokerVerStr = [queryParamsMap valueForKey:MINIMUM_BROKER_VERSION];
+    if (minBrokerVerStr && [minBrokerVerStr isKindOfClass:[NSString class]])
+    {
+        NSInteger minBrokerVer = [minBrokerVerStr integerValue];
+        if (minBrokerVer == 0 && ![minBrokerVerStr isEqualToString:@"0"])
+        {
+            // -[NSString integerValue] returns 0 if the string did not represent a valid integer. Check for that and log
+            // a sensical error message.
+            NSString* log = [NSString stringWithFormat:@"Received bad minimum broker version \"%@\"", minBrokerVerStr];
+            BROKER_FAILURE(log, ADBrokerMalformedRequestParameterError);
+        }
+        else if (minBrokerVer > CURRENT_BROKER_VERSION)
+        {
+            NSString* log = [NSString stringWithFormat:@"Received request for unsupported broker version (%ld), only support up to (%d)", (long)minBrokerVer, CURRENT_BROKER_VERSION];
+            BROKER_FAILURE(log, ADBrokerUpdateNeededError);
+        }
+    }
+    
     //validate source application against redirect uri
     NSURL *redirectURL = [[NSURL alloc] initWithString:redirectUri];
     if(![NSString adSame:sourceApplication toString:[redirectURL host]])
@@ -382,14 +404,9 @@ static dispatch_semaphore_t s_cancelSemaphore;
                          initWithUUIDString:[queryParamsMap
                                              valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
     
-    NSString* extraQP = [queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS];
-    NSDictionary* extraQpDictionary = [NSDictionary adURLFormDecode:extraQP];
-    extraQP = nil;
-    if([extraQpDictionary valueForKey:@"mamver"])
-    {
-        extraQP = [NSString stringWithFormat:@"mamver=%@", [extraQpDictionary valueForKey:@"mamver"]];
-    }
-    
+    NSString* reqExtraQP = [queryParamsMap valueForKey:EXTRA_QUERY_PARAMETERS];
+    NSDictionary* extraQpDictionary = [NSDictionary adURLFormDecode:reqExtraQP];
+    NSString* extraQP = [self filteredQPString:extraQpDictionary];
     
     NSString* userType = [queryParamsMap valueForKey:@"username_type"];
     if ([NSString adIsStringNilOrBlank:userType])
@@ -462,6 +479,30 @@ static dispatch_semaphore_t s_cancelSemaphore;
      }];
     
     return YES;
+}
+
++ (NSString*)filteredQPString:(NSDictionary*)queryParams
+{
+    NSArray* allowedQPs = @[ @"mamver", @"msafed" ];
+    
+    NSMutableString* qpString = nil;
+    for ( NSString* allowedQP in allowedQPs )
+    {
+        NSString* qpVal = [queryParams valueForKey:allowedQP];
+        if (qpVal)
+        {
+            if (qpString)
+            {
+                [qpString appendFormat:@"&%@=%@", allowedQP, qpVal];
+            }
+            else
+            {
+                qpString = [NSMutableString stringWithFormat:@"%@=%@", allowedQP, qpVal];
+            }
+        }
+    }
+    
+    return qpString;
 }
 
 + (NSArray*) getAllAccounts:(ADAuthenticationError*) error

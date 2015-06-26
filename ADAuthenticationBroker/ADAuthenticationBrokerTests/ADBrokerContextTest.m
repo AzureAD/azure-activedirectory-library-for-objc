@@ -18,8 +18,16 @@
 
 #import <XCTest/XCTest.h>
 #import "ADBrokerContext.h"
+#import "NSString+ADHelperMethods.h"
+#import "NSDictionary+ADExtensions.h"
 
 @interface ADBrokerContextTest : XCTestCase
+
+@end
+
+@interface ADBrokerContext()
+
++ (NSString*)filteredQPString:(NSDictionary*)queryParams;
 
 @end
 
@@ -35,8 +43,21 @@
     [super tearDown];
 }
 
-- (void)testExample {
+- (void)testQPFilter
+{
+    NSString* filteredQP = nil;
     
+    NSString* allAllowedQP = @"mamver=2&msafed=0";
+    filteredQP = [ADBrokerContext filteredQPString:[NSDictionary adURLFormDecode:allAllowedQP]];
+    XCTAssertEqualObjects(allAllowedQP, filteredQP);
+    
+    NSString* allDisallowedQP = @"sajkdfhasoikjsaaklsdasklda=njkanlsdfawkdjla&asjkdbnakljsdnlaksda=asjdnaskjldnasd";
+    filteredQP = [ADBrokerContext filteredQPString:[NSDictionary adURLFormDecode:allDisallowedQP]];
+    XCTAssertTrue([NSString adIsStringNilOrBlank:filteredQP]);
+    
+    NSString* mixedQP = @"asddsfsdfdsfsd=sadfasdfasdas&msafed=0&asdkjlsjdjkl=sjkhdkas&dsffsdjkfndskjfds=sdfdsfsd";
+    filteredQP = [ADBrokerContext filteredQPString:[NSDictionary adURLFormDecode:mixedQP]];
+    XCTAssertEqualObjects(filteredQP, @"msafed=0");
 }
 
 @end
