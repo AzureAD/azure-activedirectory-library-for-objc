@@ -19,6 +19,19 @@
 #import "ADTestAuthenticationContext.h"
 #import "../ADALiOS/ADALiOS.h"
 #import "../ADALiOS/ADOAuth2Constants.h"
+#import "../ADALiOS/ADAuthenticationRequest.h"
+#import "../ADALiOS/ADAuthenticationResult+Internal.h"
+
+@interface ADTestAuthenticationRequest : ADAuthenticationRequest
+
+- (void)requestWithServer:(NSString *)authorizationServer
+              requestData:(NSDictionary *)request_data
+          handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
+        additionalHeaders:(NSDictionary *)additionalHeaders
+        returnRawResponse:(BOOL)returnRawResponse
+               completion:( void (^)(NSDictionary *) )completionBlock;
+
+@end
 
 @implementation ADTestAuthenticationContext
 
@@ -51,7 +64,6 @@
     return (mNumRequests == 1) ? mResponse1 : mResponse2;
 }
 
-//Override of the parent's request to allow testing of the class behavior.
 - (void)requestWithServer:(NSString *)authorizationServer
               requestData:(NSDictionary *)request_data
      requestCorrelationId:(NSUUID*)requestCorrelationId
@@ -131,5 +143,47 @@
     completionBlock(responce);
 }
 
+- (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
+                                             clientId:(NSString*)clientId
+                                             resource:(NSString*)resource
+                                      completionBlock:(ADAuthenticationCallback)completionBlock
+
+{
+    ADAuthenticationError* error = nil;
+    
+    ADAuthenticationRequest* request = [ADTestAuthenticationRequest requestWithContext:self
+                                                                       redirectUri:redirectUri
+                                                                          clientId:clientId
+                                                                          resource:resource
+                                                                             error:&error];
+    
+    if (!request)
+    {
+        completionBlock([ADAuthenticationResult resultFromError:error]);
+    }
+    
+    return request;
+}
+
 @end
 
+@implementation ADTestAuthenticationRequest
+
+//Override of the parent's request to allow testing of the class behavior.
+- (void)requestWithServer:(NSString *)authorizationServer
+              requestData:(NSDictionary *)request_data
+          handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
+        additionalHeaders:(NSDictionary *)additionalHeaders
+        returnRawResponse:(BOOL)returnRawResponse
+               completion:( void (^)(NSDictionary *) )completionBlock
+{
+    [(ADTestAuthenticationContext*)_context requestWithServer:authorizationServer
+                                                  requestData:request_data
+                                         requestCorrelationId:_correlationId
+                                              handledPkeyAuth:isHandlingPKeyAuthChallenge
+                                            additionalHeaders:additionalHeaders
+                                                   completion:completionBlock];
+}
+
+
+@end

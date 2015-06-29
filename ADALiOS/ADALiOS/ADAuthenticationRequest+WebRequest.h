@@ -16,65 +16,31 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@interface ADAuthenticationContext (WebRequest)
+@interface ADAuthenticationRequest (WebRequest)
 
 - (void)executeRequest:(NSString *)authorizationServer
            requestData:(NSDictionary *)request_data
-              resource:(NSString *) resource
-              clientId:(NSString*) clientId
-  requestCorrelationId:(NSUUID*) requestCorrelationId
        handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
      additionalHeaders:(NSDictionary *)additionalHeaders
             completion:(ADAuthenticationCallback)completionBlock;
 
 - (void)requestWithServer:(NSString *)authorizationServer
               requestData:(NSDictionary *)request_data
-     requestCorrelationId:(NSUUID*)requestCorrelationId
           handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
         additionalHeaders:(NSDictionary *)additionalHeaders
                completion:( void (^)(NSDictionary *) )completionBlock;
 
 - (void)requestWithServer:(NSString *)authorizationServer
               requestData:(NSDictionary *)request_data
-     requestCorrelationId:(NSUUID*)requestCorrelationId
           handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
         additionalHeaders:(NSDictionary *)additionalHeaders
         returnRawResponse:(BOOL)returnRawResponse
                completion:( void (^)(NSDictionary *) )completionBlock;
 
 //Requests an OAuth2 code to be used for obtaining a token:
-- (void)requestCodeByResource:(NSString*)resource
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-                        scope:(NSString*)scope /*for future use */
-                       userId:(ADUserIdentifier*)userId
-               promptBehavior:(ADPromptBehavior)promptBehavior
-         extraQueryParameters:(NSString*)queryParams
-                correlationId:(NSUUID*)correlationId
-                   completion:(ADAuthorizationCodeCallback)completionBlock;
+- (void)requestCode:(ADAuthorizationCodeCallback)completionBlock;
 
-//Requests an OAuth2 code to be used for obtaining a token:
-- (void)requestCodeByResource:(NSString*)resource
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-                        scope:(NSString*)scope /*for future use */
-                       userId:(ADUserIdentifier*)userId
-               promptBehavior:(ADPromptBehavior)promptBehavior
-         extraQueryParameters:(NSString*)queryParams
-       refreshTokenCredential:(NSString*)refreshTokenCredential
-                correlationId:(NSUUID*)correlationId
-                   completion:(ADAuthorizationCodeCallback)completionBlock;
-
-- (void)requestCodeByResource:(NSString*)resource
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-                        scope:(NSString*)scope /*for future use */
-                       userId:(ADUserIdentifier*)userId
-               promptBehavior:(ADPromptBehavior)promptBehavior
-         extraQueryParameters:(NSString*)queryParams
-       refreshTokenCredential:(NSString*)refreshTokenCredential
-                       silent:(BOOL)silent
-                correlationId:(NSUUID*)correlationId
-                   completion:(ADAuthorizationCodeCallback)completionBlock;
+- (void)requestCodeWithRefreshTokenCredential:(NSString*)refreshTokenCredential
+                              completionBlock:(ADAuthorizationCodeCallback)completionBlock;
 
 @end

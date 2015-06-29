@@ -16,37 +16,23 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@interface ADAuthenticationContext (AcquireAssertion)
+@interface ADAuthenticationRequest (AcquireAssertion)
 
-- (void)internalAcquireTokenForAssertion:(NSString*)samlAssertion
-                                clientId:(NSString*)clientId
-                             redirectUri:(NSString*)redirectUri
-                                resource:(NSString*)resource
-                           assertionType:(ADAssertionType)assertionType
-                                  userId:(NSString*)userId
-                                   scope:(NSString*)scope
-                       validateAuthority:(BOOL)validateAuthority
-                           correlationId:(NSUUID*)correlationId
-                         completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)acquireTokenForAssertion:(NSString*)samlAssertion
+                   assertionType:(ADAssertionType)assertionType
+                 completionBlock:(ADAuthenticationCallback)completionBlock;
 
-- (void)internalAcquireTokenForAssertion:(NSString*)samlAssertion
-                                clientId:(NSString*)clientId
-                             redirectUri:(NSString*)redirectUri
-                                resource:(NSString*)resource
-                           assertionType:(ADAssertionType)assertionType
-                          userIdentifier:(ADUserIdentifier*)userId
-                                   scope:(NSString*)scope
-                       validateAuthority:(BOOL)validateAuthority
-                           correlationId:(NSUUID*)correlationId
-                         completionBlock:(ADAuthenticationCallback)completionBlock;
+/*Attemps to use the cache. Returns YES if an attempt was successful or if an
+ internal asynchronous call will proceed the processing. */
+- (void)attemptToUseCacheItem:(ADTokenCacheStoreItem*)item
+               useAccessToken:(BOOL)useAccessToken
+                samlAssertion:(NSString*)samlAssertion
+                assertionType:(ADAssertionType)assertionType
+              completionBlock:(ADAuthenticationCallback)completionBlock;
 
 // Generic OAuth2 Authorization Request, obtains a token from a SAML assertion.
 - (void)requestTokenByAssertion:(NSString *)samlAssertion
                   assertionType:(ADAssertionType)assertionType
-                       resource:(NSString *)resource
-                       clientId:(NSString*)clientId
-                          scope:(NSString*)scope //For future use
-                  correlationId:(NSUUID*)correlationId
                      completion:(ADAuthenticationCallback)completionBlock;
 
 @end

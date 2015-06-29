@@ -17,28 +17,14 @@
 // governing permissions and limitations under the License.
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
-@interface ADAuthenticationContext (Broker)
+@interface ADAuthenticationRequest (Broker)
 
 + (BOOL)canUseBroker;
 + (void)internalHandleBrokerResponse:(NSURL*)response;
 
-- (void)callBrokerForAuthority:(NSString*)authority
-                      resource:(NSString*)resource
-                      clientId:(NSString*)clientId
-                   redirectUri:(NSURL*)redirectUri
-                promptBehavior:(ADPromptBehavior)promptBehavior
-                        userId:(ADUserIdentifier*)userId
-          extraQueryParameters:(NSString*)queryParams
-                 correlationId:(NSString*)correlationId
-               completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)callBroker:(ADAuthenticationCallback)completionBlock;
 
 - (void)handleBrokerFromWebiewResponse:(NSString*)urlString
-                              resource:(NSString*)resource
-                              clientId:(NSString*)clientId
-                           redirectUri:(NSURL*)redirectUri
-                                userId:(ADUserIdentifier*)userId
-                  extraQueryParameters:(NSString*)queryParams
-                         correlationId:(NSUUID*)correlationId
                        completionBlock:(ADAuthenticationCallback)completionBlock;
 
 @end
