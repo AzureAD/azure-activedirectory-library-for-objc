@@ -1049,8 +1049,7 @@ return; \
                   completionBlock: (ADAuthenticationCallback)completionBlock
 {
     if (silent)
-    {
-        //The cache lookup and refresh token attempt have been unsuccessful,
+    { 
         //so credentials are needed to get an access token:
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_INPUT_NEEDED
@@ -2170,13 +2169,11 @@ additionalHeaders:headerKeyValuePair
     
     HANDLE_ARGUMENT(response);
     
-    
     NSString *qp = [response query];
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
     ADAuthenticationResult* result;
-    //response=encrypted_response&hash=hash_value
-    //code=some_code&error_details=message
+    
     if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION]){
         result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     }
@@ -2196,7 +2193,7 @@ additionalHeaders:headerKeyValuePair
         
         if(!error)
         {
-            decryptedString =[[NSString alloc] initWithData:decrypted encoding:0];
+            decryptedString =[[NSString alloc] initWithData:decrypted encoding:NSASCIIStringEncoding];
             //now compute the hash on the unencrypted data
             if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES]]){
                 //create response from the decrypted payload
@@ -2221,36 +2218,51 @@ additionalHeaders:headerKeyValuePair
     
     if (AD_SUCCEEDED == result.status)
     {
+        result.tokenCacheStoreItem.accessTokenType = @"Bearer";
+        // Token response
+        id expires_on = [queryParamsMap objectForKey:@"expires_on"];
+        NSDate *expires    = nil;
+        if ( expires_on != nil )
+        {
+            if ( [expires_on isKindOfClass:[NSString class]] )
+            {
+                NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+                
+                expires = [NSDate dateWithTimeIntervalSince1970:[formatter numberFromString:expires_on].longValue];
+            }
+            else if ( [expires_on isKindOfClass:[NSNumber class]] )
+            {
+                expires = [NSDate dateWithTimeIntervalSince1970:((NSNumber *)expires_on).longValue];
+            }
+            else
+            {
+                AD_LOG_WARN_F(@"Unparsable time", @"The response value for the access token expiration cannot be parsed: %@", expires);
+                // Unparseable, use default value
+                expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//1 hour
+            }
+        }
+        else
+        {
+            AD_LOG_WARN(@"Missing expiration time.", @"The server did not return the expiration time for the access token.");
+            expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//Assume 1hr expiration
+        }
+        
+        result.tokenCacheStoreItem.expiresOn = expires;
         ADAuthenticationContext* ctx = [ADAuthenticationContext
                                         authenticationContextWithAuthority:result.tokenCacheStoreItem.authority
                                         error:nil];
         
-        SEL selector = @selector(updateCacheToResult:cacheItem:withRefreshToken:);
-        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[ctx methodSignatureForSelector:selector]];
-        [inv setSelector:selector];
-        [inv setTarget:ctx];
-        [inv setArgument:&result atIndex:2];
-        [inv invoke];
+        [ctx updateCacheToResult:result
+                       cacheItem:nil
+                withRefreshToken:nil];
         
         NSString* userId = [[[result tokenCacheStoreItem] userInformation] userId];
-        selector = nil;
-        selector = @selector(updateResult:toUser:);
-        inv = nil;
-        inv = [NSInvocation invocationWithMethodSignature:[ctx methodSignatureForSelector:selector]];
-        [inv setSelector:selector];
-        [inv setTarget:ctx];
-        [inv setArgument:&result atIndex:2];
-        if(userId)
-        {
-            [inv setArgument:&userId atIndex:3];
-        }
-        
-        [inv invoke];
+        [ctx updateResult:result
+                   toUser:userId];
     }
     
     completionBlock(result);
     [ADBrokerNotificationManager sharedInstance].callbackForBroker = nil;
-    
 }
 
 - (BOOL) canUseBroker
