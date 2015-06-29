@@ -58,6 +58,8 @@ extern NSString* const ADBrokerResponseErrorDomain;
 /*! Generates an error when an unexpected internal library conditions occurs. */
 + (ADAuthenticationError*)unexpectedInternalError:(NSString*)errorDetails;
 
++ (ADAuthenticationError*)invalidArgumentError:(NSString*)details;
+
 /*! Generates an error from cancel operations. E.g. the user pressed "Cancel" button
  on the authorization UI page. */
 + (ADAuthenticationError*)errorFromCancellation;

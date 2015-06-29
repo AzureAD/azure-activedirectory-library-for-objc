@@ -96,6 +96,11 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return [result initWithError:error status:AD_FAILED];
 }
 
++ (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
+{
+    return [[ADAuthenticationResult alloc] initWithError:[ADAuthenticationError invalidArgumentError:details] status:AD_FAILED];
+}
+
 +(ADAuthenticationResult*) resultFromCancellation
 {
     ADAuthenticationResult* result = [ADAuthenticationResult alloc];

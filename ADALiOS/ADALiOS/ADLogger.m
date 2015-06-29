@@ -204,6 +204,9 @@ NSUUID* requestCorrelationId;
 
 +(NSUUID*) getCorrelationId
 {
+    if (requestCorrelationId == nil)
+        requestCorrelationId = [NSUUID UUID];
+    
     return requestCorrelationId;
 }
 

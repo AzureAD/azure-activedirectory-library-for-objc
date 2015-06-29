@@ -25,8 +25,9 @@
 #import "ADPkeyAuthHelper.h"
 #import "ADHelpers.h"
 #import "ADUserIdentifier.h"
+#import "ADAuthenticationRequest.h"
 
-@implementation ADAuthenticationContext (Broker)
+@implementation ADAuthenticationRequest (Broker)
 
 + (BOOL)canUseBroker
 {
@@ -34,7 +35,7 @@
     [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", brokerScheme]]];
 }
 
-+ (BOOL) respondsToUrl:(NSString*)url
++ (BOOL)respondsToUrl:(NSString*)url
 {
     BOOL schemeIsInPlist = NO; // find out if the sceme is in the plist file.
     NSBundle* mainBundle = [NSBundle mainBundle];
@@ -165,24 +166,16 @@
     [ADBrokerNotificationManager sharedInstance].callbackForBroker = nil;
 }
 
-- (void)callBrokerForAuthority:(NSString*)authority
-                      resource:(NSString*)resource
-                      clientId:(NSString*)clientId
-                   redirectUri:(NSURL*)redirectUri
-                promptBehavior:(ADPromptBehavior)promptBehavior
-                        userId:(ADUserIdentifier*)userId
-          extraQueryParameters:(NSString*)queryParams
-                 correlationId:(NSString*)correlationId
-               completionBlock:(ADAuthenticationCallback)completionBlock
+- (void)callBroker:(ADAuthenticationCallback)completionBlock
 
 {
-    CHECK_FOR_NIL(authority);
-    CHECK_FOR_NIL(resource);
-    CHECK_FOR_NIL(clientId);
-    CHECK_FOR_NIL(correlationId);
+    CHECK_FOR_NIL(_context.authority);
+    CHECK_FOR_NIL(_resource);
+    CHECK_FOR_NIL(_clientId);
+    CHECK_FOR_NIL(_correlationId);
     
     ADAuthenticationError* error = nil;
-    if(![ADAuthenticationContext respondsToUrl:[redirectUri absoluteString]])
+    if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
     {
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
                                                        protocolCode:nil
@@ -196,25 +189,23 @@
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
-    NSString* redirectUriStr = [redirectUri absoluteString];
     NSString* adalVersion = [ADLogger getAdalVersion];
     
     CHECK_FOR_NIL(base64UrlKey);
-    CHECK_FOR_NIL(redirectUriStr);
     CHECK_FOR_NIL(adalVersion);
     
     NSDictionary* queryDictionary = @{
-                                      @"authority": authority,
-                                      @"resource" : resource,
-                                      @"client_id": clientId,
-                                      @"redirect_uri": redirectUriStr,
-                                      @"username_type": userId ? [userId typeAsString] : @"",
-                                      @"username": userId.userId ? userId.userId : @"",
-                                      @"force" : promptBehavior == AD_FORCE_PROMPT ? @"YES" : @"NO",
-                                      @"correlation_id": correlationId,
+                                      @"authority": _context.authority,
+                                      @"resource" : _resource,
+                                      @"client_id": _clientId,
+                                      @"redirect_uri": _redirectUri,
+                                      @"username_type": _identifier ? [_identifier typeAsString] : @"",
+                                      @"username": _identifier.userId ? _identifier.userId : @"",
+                                      @"force" : _promptBehavior == AD_FORCE_PROMPT ? @"YES" : @"NO",
+                                      @"correlation_id": _correlationId,
                                       @"broker_key": base64UrlKey,
                                       @"client_version": adalVersion,
-                                      @"extra_qp": queryParams ? queryParams : @"",
+                                      @"extra_qp": _queryParams ? _queryParams : @"",
                                       };
     
     NSString* query = [queryDictionary adURLFormEncode];
@@ -238,20 +229,12 @@
 }
 
 - (void)handleBrokerFromWebiewResponse:(NSString*)urlString
-                              resource:(NSString*)resource
-                              clientId:(NSString*)clientId
-                           redirectUri:(NSURL*)redirectUri
-                                userId:(ADUserIdentifier*)userId
-                  extraQueryParameters:(NSString*)queryParams
-                         correlationId:(NSUUID*)correlationId
                        completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    CHECK_FOR_NIL(resource);
-    CHECK_FOR_NIL(clientId);
-    CHECK_FOR_NIL(redirectUri);
+    CHECK_FOR_NIL(_resource);
     
     ADAuthenticationError* error = nil;
-    if(![ADAuthenticationContext respondsToUrl:[redirectUri absoluteString]])
+    if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
     {
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
                                                        protocolCode:nil
@@ -265,26 +248,24 @@
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
     NSString* adalVersion = [ADLogger getAdalVersion];
-    NSString* redirectUriStr = [redirectUri absoluteString];
-    NSString* correlationIdStr = [correlationId UUIDString];
-    NSString* authority = self.authority;
+    NSString* correlationIdStr = [_correlationId UUIDString];
+    NSString* authority = _context.authority;
     
     CHECK_FOR_NIL(base64UrlKey);
-    CHECK_FOR_NIL(redirectUriStr);
     CHECK_FOR_NIL(adalVersion);
     CHECK_FOR_NIL(authority);
     
     NSDictionary* queryDictionary = @{
-                                      @"authority": authority,
-                                      @"resource" : resource,
-                                      @"client_id": clientId,
-                                      @"redirect_uri": redirectUriStr,
-                                      @"username_type": userId ? [userId typeAsString] : @"",
-                                      @"username": userId.userId ? userId.userId : @"",
+                                      @"authority": _context.authority,
+                                      @"resource" : _resource,
+                                      @"client_id": _clientId,
+                                      @"redirect_uri": _redirectUri,
+                                      @"username_type": _identifier ? [_identifier typeAsString] : @"",
+                                      @"username": _identifier.userId ? _identifier.userId : @"",
                                       @"correlation_id": correlationIdStr,
                                       @"broker_key": base64UrlKey,
                                       @"client_version": adalVersion,
-                                      @"extra_qp": queryParams ? queryParams : @"",
+                                      @"extra_qp": _queryParams ? _queryParams : @"",
                                       };
     NSString* query = [queryDictionary adURLFormEncode];
     
