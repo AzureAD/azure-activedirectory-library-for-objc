@@ -161,4 +161,12 @@
     return YES;
 }
 
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"(authority=%@ clientId=%@ accessToken=%@ accessTokenType=%@ refreshToken=%@ resource=%@)",
+            _authority, _clientId,
+            [NSString adIsStringNilOrBlank:_accessToken] ? @"(nil)" : @"(present)", _accessTokenType,
+            [NSString adIsStringNilOrBlank:_refreshToken] ? @"(nil)" : @"(present)", _resource];
+}
+
 @end

@@ -42,4 +42,22 @@
     return self.tokenCacheStoreItem.accessToken;
 }
 
+#define STATUS_ENUM_CASE(_enum) case _enum: return @#_enum;
+
++ (NSString*)stringForResultStatus:(ADAuthenticationResultStatus)status
+{
+    switch (status)
+    {
+            STATUS_ENUM_CASE(AD_FAILED);
+            STATUS_ENUM_CASE(AD_SUCCEEDED);
+            STATUS_ENUM_CASE(AD_USER_CANCELLED);
+    }
+}
+
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"(error=%@, mrrt=%@, status=%@, item=%@)",
+            _error, _multiResourceRefreshToken ? @"YES" : @"NO", [ADAuthenticationResult stringForResultStatus:_status], _tokenCacheStoreItem];
+}
+
 @end
