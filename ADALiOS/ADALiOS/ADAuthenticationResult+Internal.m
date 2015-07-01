@@ -109,32 +109,54 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 
 +(ADAuthenticationResult*) resultFromBrokerResponse: (NSDictionary*) response
 {
-    ADAuthenticationError* error;
-    ADAuthenticationResult* result;
+    ADAuthenticationResult* result = nil;
     ADTokenCacheStoreItem* item = nil;
-    if([response valueForKey:OAUTH2_ERROR_DESCRIPTION])
+    
+    if(!response || [response valueForKey:OAUTH2_ERROR_DESCRIPTION])
     {
-        error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADBrokerResponseErrorDomain code:0 userInfo:nil] errorDetails:[response valueForKey:OAUTH2_ERROR_DESCRIPTION]];
-    }
-    else
-    {
-        item = [ADTokenCacheStoreItem new];
-        item.authority =  [response valueForKey:OAUTH2_AUTHORITY];
-        item.resource = [response valueForKey:OAUTH2_RESOURCE];
-        item.clientId = [response valueForKey:OAUTH2_CLIENT_ID];
-        item.accessToken = [response valueForKey:OAUTH2_ACCESS_TOKEN];
-        item.refreshToken = [response valueForKey:OAUTH2_REFRESH_TOKEN];
-        if([response valueForKey:OAUTH2_ID_TOKEN])
+        ADAuthenticationError* error = nil;
+        NSString* errorDetails = nil;
+        NSInteger errorCode = 0;
+        if (response)
         {
-            ADUserInformation* info = [ADUserInformation userInformationWithIdToken:[response valueForKey:OAUTH2_ID_TOKEN] error:&error];
-            if(!error)
+            errorDetails = [response valueForKey:OAUTH2_ERROR_DESCRIPTION];
+            errorCode = [[response valueForKey:@"error_code"] integerValue];
+            
+            if (!errorDetails)
             {
-                item.userInformation = info;
+                errorDetails = @"Broker did not provide any details";
             }
+        }
+        else
+        {
+            errorDetails = @"No broker response received.";
+        }
+        
+        error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADBrokerResponseErrorDomain code:errorCode userInfo:nil] errorDetails:errorDetails];
+        
+        return [ADAuthenticationResult resultFromError:error];
+    }
+    
+    ADUserInformation* info = nil;
+    if([response valueForKey:OAUTH2_ID_TOKEN])
+    {
+        ADAuthenticationError* error = nil;
+        info = [ADUserInformation userInformationWithIdToken:[response valueForKey:OAUTH2_ID_TOKEN] error:&error];
+        if (error)
+        {
+            return [ADAuthenticationResult resultFromError:error];
         }
     }
     
-    result.tokenCacheStoreItem.accessTokenType = @"Bearer";
+    item = [ADTokenCacheStoreItem new];
+    item.userInformation = info;
+    item.authority =  [response valueForKey:OAUTH2_AUTHORITY];
+    item.resource = [response valueForKey:OAUTH2_RESOURCE];
+    item.clientId = [response valueForKey:OAUTH2_CLIENT_ID];
+    item.accessToken = [response valueForKey:OAUTH2_ACCESS_TOKEN];
+    item.refreshToken = [response valueForKey:OAUTH2_REFRESH_TOKEN];
+    item.accessTokenType = @"Bearer";
+    
     // Token response
     id expires_in = [response objectForKey:@"expires_on"];
     NSDate *expires    = nil;
@@ -164,20 +186,11 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//Assume 1hr expiration
     }
     
-    result.tokenCacheStoreItem.expiresOn = expires;
-    
+    item.expiresOn = expires;
     
     BOOL isMRRT = item.resource && item.refreshToken;
-    if(error)
-    {
-        result = [ADAuthenticationResult resultFromError:error];
-    }
-    else
-    {
-        result = [[ADAuthenticationResult alloc ]initWithItem:item multiResourceRefreshToken:isMRRT];
-    }
     
-    return result;
+    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:isMRRT];
 }
 
 @end
