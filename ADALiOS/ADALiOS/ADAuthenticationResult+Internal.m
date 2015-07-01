@@ -152,7 +152,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     item.accessToken = [response valueForKey:OAUTH2_ACCESS_TOKEN];
     item.refreshToken = [response valueForKey:OAUTH2_REFRESH_TOKEN];
     
-    result.tokenCacheStoreItem.accessTokenType = @"Bearer";
+    item.accessTokenType = @"Bearer";
     // Token response
     id expires_in = [response objectForKey:@"expires_on"];
     NSDate *expires    = nil;
@@ -183,7 +183,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//Assume 1hr expiration
     }
     
-    result.tokenCacheStoreItem.expiresOn = expires;
+    item.expiresOn = expires;
     
     
     BOOL isMRRT = item.resource && item.refreshToken;
