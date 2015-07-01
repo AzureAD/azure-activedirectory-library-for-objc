@@ -20,6 +20,7 @@
 #import "ADUserInformation.h"
 #import "ADAuthenticationSettings.h"
 #import "ADTokenCacheStoreKey.h"
+#import "NSString+ADHelperMethods.h"
 
 @implementation ADTokenCacheStoreItem
 
@@ -148,6 +149,14 @@
         self.userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
     }
     return self;
+}
+
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"(authority=%@ clientId=%@ accessToken=%@ accessTokenType=%@ refreshToken=%@ resource=%@)",
+            _authority, _clientId,
+            [NSString adIsStringNilOrBlank:_accessToken] ? @"(nil)" : @"(present)", _accessTokenType,
+            [NSString adIsStringNilOrBlank:_refreshToken] ? @"(nil)" : @"(present)", _resource];
 }
 
 @end

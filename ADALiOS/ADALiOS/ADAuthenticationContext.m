@@ -2282,6 +2282,11 @@ additionalHeaders:headerKeyValuePair
                    toUser:userId];
     }
     
+    // Log out the result object
+    NSString* resultString = [NSString stringWithFormat:@"%@", result];
+    AD_LOG_INFO(resultString, nil);
+
+    
     completionBlock(result);
     [ADBrokerNotificationManager sharedInstance].callbackForBroker = nil;
 }
