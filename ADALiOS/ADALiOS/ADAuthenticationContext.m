@@ -926,6 +926,27 @@ return; \
     THROW_ON_NIL_ARGUMENT(completionBlock);
     HANDLE_ARGUMENT(resource);
     
+    NSString* promptBehaviorLog = nil;
+    if (promptBehavior == AD_PROMPT_ALWAYS)
+    {
+        promptBehaviorLog = @"ALWAYS";
+    }
+    else if (promptBehavior == AD_PROMPT_AUTO)
+    {
+        promptBehaviorLog = @"AUTO";
+    }
+    else if (promptBehavior == AD_PROMPT_REFRESH_SESSION)
+    {
+        promptBehaviorLog = @"REFRESH";
+    }
+    else
+    {
+        promptBehaviorLog = @"UNKONWN";
+    }
+    
+    NSString* log = [NSString stringWithFormat:@"acquireToken: (resource: \"%@\" | clientId: %@ | redirectUri: %@ | promptBehavior: %@ | silent: %@ | extraQueryParams: \"%@\")", resource, clientId, redirectUri, promptBehaviorLog, silent ? @"YES" : @"NO", queryParams];
+    AD_LOG_INFO(log, nil);
+    
     [self updateCorrelationId:&correlationId];
     
     if (validateAuthority)
