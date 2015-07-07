@@ -485,7 +485,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
 {
     NSArray* allowedQPs = @[ @"mamver", @"msafed" ];
     
-    NSMutableString* qpString = nil;
+    NSMutableString* qpString = [NSMutableString stringWithString:@"nux=1"];
     for ( NSString* allowedQP in allowedQPs )
     {
         NSString* qpVal = [queryParams valueForKey:allowedQP];
@@ -549,8 +549,8 @@ static dispatch_semaphore_t s_cancelSemaphore;
             AD_LOG_INFO_F(@"Found Broker User", @"%@", user.userId);
             [users addObject:user.userId];
             [accountsArray addObject:[[ADBrokerUserAccount alloc] init:user
-                                                     isWorkplaceJoined:[NSString adSame:user.userId
-                                                                               toString:wpjUpn]
+                                                     isWorkplaceJoined:[NSString adSame:[user.userId lowercaseString]
+                                                                               toString:[wpjUpn lowercaseString]]
                                                           isNGCEnabled:NO]];
         }
     }
@@ -675,7 +675,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                                        silent:NO
                                userIdentifier:identifier
                                         scope:nil
-                         extraQueryParameters:@"brkr=1"
+                         extraQueryParameters:@"nux=1&brkr=1"
                             validateAuthority:YES
                                 correlationId:ctx.getCorrelationId
                               completionBlock:defaultCallback];
@@ -705,7 +705,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                 clientId:BROKER_CLIENT_ID
                 resource:[ADBrokerSettings sharedInstance].graphResourceEndpoint
              redirectUri:BROKER_REDIRECT_URI
-    extraQueryParameters:nil
+    extraQueryParameters:@"nux=1"
                   appKey:DEFAULT_GUID_FOR_NIL
                    force:NO
          completionBlock:completionBlock];
@@ -725,7 +725,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                 clientId:clientId
                 resource:resource
              redirectUri:redirectUri
-    extraQueryParameters:nil
+    extraQueryParameters:@"nux=1"
                   appKey:DEFAULT_GUID_FOR_NIL
                    force:YES
          completionBlock:completionBlock];
@@ -766,7 +766,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
                      clientId:BROKER_CLIENT_ID
                      resource:[svcInfo registrationResourceId]
                   redirectUri:BROKER_REDIRECT_URI
-         extraQueryParameters:nil
+         extraQueryParameters:@"nux=1"
                        appKey:DEFAULT_GUID_FOR_NIL
                         force:NO
               completionBlock:^(ADAuthenticationResult *result) {
@@ -812,6 +812,17 @@ static dispatch_semaphore_t s_cancelSemaphore;
              serviceInformation:(ServiceInformation*)svcInfo
                   onResultBlock:(WPJCallback)onResultBlock
 {
+    [self acquirePRTForIdentifier:identifier
+               serviceInformation:svcInfo
+                      allowSilent:YES
+                    onResultBlock:onResultBlock];
+}
+
+- (void)acquirePRTForIdentifier:(ADUserIdentifier*)identifier
+             serviceInformation:(ServiceInformation*)svcInfo
+                    allowSilent:(BOOL)allowSilent
+                  onResultBlock:(WPJCallback)onResultBlock
+{
     AD_LOG_INFO(@"Attempting to get Primary Refresh Token", nil);
     
     ADAuthenticationError* error;
@@ -831,7 +842,8 @@ static dispatch_semaphore_t s_cancelSemaphore;
         _initialAttemptTime = [NSDate date];
     }
     
-    [prtCtx acquirePRTForUPN:^(ADBrokerPRTCacheItem *item, NSError *error)
+    [prtCtx acquirePRTForUPN:allowSilent
+                    callback:^(ADBrokerPRTCacheItem *item, NSError *error)
      {
          if(!error)
          {
@@ -855,6 +867,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
          
          [self acquirePRTForIdentifier:identifier
               serviceInformation:svcInfo
+                           allowSilent:NO
                    onResultBlock:onResultBlock];
      }];
 }
@@ -866,7 +879,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
     BOOL result = NO;
     if(regInfo)
     {
-        result = [NSString adSame:upn toString:[regInfo userPrincipalName]];
+        result = [NSString adSame:[upn lowercaseString] toString:[[regInfo userPrincipalName] lowercaseString]];
     }
     return result;
 }
@@ -916,7 +929,7 @@ static dispatch_semaphore_t s_cancelSemaphore;
         [storage deleteCookie:cookie];
     }
     
-    if(regInfo && [NSString adSame:upn toString:regInfo.userPrincipalName])
+    if(regInfo && [NSString adSame:[upn lowercaseString] toString:[regInfo.userPrincipalName lowercaseString]])
     {
         //remove WPJ as well
         [ self removeWorkPlaceJoinRegistration:^(NSError *error) {

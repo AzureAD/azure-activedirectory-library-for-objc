@@ -95,6 +95,12 @@
 
 - (void)acquirePRTForUPN:(ADPRTResultCallback)callback
 {
+    [self acquirePRTForUPN:YES callback:callback];
+}
+
+- (void)acquirePRTForUPN:(BOOL)allowSilent
+                callback:(ADPRTResultCallback)callback
+{
     ADAuthenticationError* error = nil;
     //get PRT from cache
     id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:DEFAULT_GUID_FOR_NIL];
@@ -120,7 +126,7 @@
                           clientId:BROKER_CLIENT_ID
                        redirectUri:[NSURL URLWithString:BROKER_REDIRECT_URI]
                     promptBehavior:AD_PROMPT_AUTO
-                       allowSilent:YES
+                       allowSilent:allowSilent
                             userId:_identifier
                              scope:@"openid"
               extraQueryParameters:@"nux=1"

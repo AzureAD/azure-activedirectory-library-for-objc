@@ -33,6 +33,8 @@ typedef void(^ADOnResultCallback)(NSError* error);
 /*! Gets PRT using Broker Token. Assumes that the device was successfully WPJ.*/
 - (void)acquirePRTForUPN:(ADPRTResultCallback)callback;
 
+- (void)acquirePRTForUPN:(BOOL)allowSilent
+                callback:(ADPRTResultCallback)callback;
 
 /*! Gets token for a client Id using PRT. If expired, the PRT is refreshed via webview.*/
 - (void)acquireTokenUsingPRTForResource:(NSString*) resource
