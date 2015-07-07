@@ -76,8 +76,10 @@
             handledPkeyAuth:isHandlingPKeyAuthChallenge
           additionalHeaders:additionalHeaders
           returnRawResponse:NO
+               isGetRequest:NO
                  completion:completionBlock];
 }
+
 
 - (void)requestWithServer:(NSString *)authorizationServer
               requestData:(NSDictionary *)request_data
@@ -87,16 +89,63 @@
         returnRawResponse:(BOOL)returnRawResponse
                completion:( void (^)(NSDictionary *) )completionBlock
 {
+    [self requestWithServer:authorizationServer
+                requestData:request_data
+       requestCorrelationId:requestCorrelationId
+            handledPkeyAuth:isHandlingPKeyAuthChallenge
+          additionalHeaders:additionalHeaders
+          returnRawResponse:returnRawResponse
+               isGetRequest:NO
+                 completion:completionBlock];
+}
+
+- (void)requestWithServer:(NSString *)authorizationServer
+              requestData:(NSDictionary *)request_data
+     requestCorrelationId:(NSUUID*)requestCorrelationId
+          handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
+        additionalHeaders:(NSDictionary *)additionalHeaders
+        returnRawResponse:(BOOL)returnRawResponse
+             isGetRequest:(BOOL)isGetRequest
+               completion:( void (^)(NSDictionary *) )completionBlock
+{
     NSString* endPoint = authorizationServer;
     
-    if(!isHandlingPKeyAuthChallenge){
+    if(!isHandlingPKeyAuthChallenge && !isGetRequest){
         endPoint = [authorizationServer stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
     }
     
-    ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
+    NSURL *endpointUrl = [NSURL URLWithString:endPoint];
+    
+    if(isGetRequest)
+    {
+        NSURLComponents *components = [[NSURLComponents alloc] initWithString:endPoint];
+        NSString* query = [components query];
+        
+        if (query)
+        {
+            [components setQuery:[query stringByAppendingString:[request_data adURLFormEncode]]];
+        }
+        else
+        {
+            [components setQuery:[request_data adURLFormEncode]];
+        }
+        
+        endpointUrl = [components URL];
+    }
+    
+    ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:endpointUrl
                                                    correlationId:requestCorrelationId];
     
-    webRequest.method = HTTPPost;
+    if(isGetRequest)
+    {
+        webRequest.method = HTTPGet;
+    }
+    else
+    {
+        webRequest.method = HTTPPost;
+        webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
+    }
+    
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
@@ -108,7 +157,6 @@
     
     AD_LOG_VERBOSE_F(@"Post request", @"Sending POST request to %@ with client-request-id %@", endPoint, [requestCorrelationId UUIDString]);
     
-    webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
     [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[requestCorrelationId UUIDString] requestHeader:webRequest.headers];
     
     [webRequest send:^( NSError *error, ADWebResponse *webResponse ) {
@@ -481,7 +529,8 @@ static volatile int sDialogInProgress = 0;
                        clientId, OAUTH2_CLIENT_ID,
                        [redirectUri absoluteString], OAUTH2_REDIRECT_URI,
                        resource, OAUTH2_RESOURCE,
-                       OAUTH2_CODE, OAUTH2_RESPONSE_TYPE, nil];
+                       OAUTH2_CODE, OAUTH2_RESPONSE_TYPE,
+                       @"1", @"nux", nil];
         
         if (scope)
         {
@@ -493,6 +542,8 @@ static volatile int sDialogInProgress = 0;
            requestCorrelationId:correlationId
                 handledPkeyAuth:NO
               additionalHeaders:nil
+              returnRawResponse:NO
+                   isGetRequest:YES
                      completion:^(NSDictionary * parameters)
          {
              

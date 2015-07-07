@@ -146,8 +146,6 @@ static NSOperationQueue *s_queue;
 
 - (void)send
 {
-    // Add default HTTP Headers to the request: Host
-    [_requestHeaders setValue:[_requestURL adAuthority] forKey:@"Host"];
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
     //Correlation id:
     if (_correlationId)
