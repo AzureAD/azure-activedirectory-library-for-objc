@@ -155,7 +155,14 @@
         }
     }
     
-    AD_LOG_VERBOSE_F(@"Post request", @"Sending POST request to %@ with client-request-id %@", endPoint, [requestCorrelationId UUIDString]);
+    if (isGetRequest)
+    {
+        AD_LOG_VERBOSE_F(@"Get request", @"Sending GET request to %@ with client-request-id %@", endPoint, [requestCorrelationId UUIDString]);
+    }
+    else
+    {
+        AD_LOG_VERBOSE_F(@"Post request", @"Sending POST request to %@ with client-request-id %@", endPoint, [requestCorrelationId UUIDString]);
+    }
     
     [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[requestCorrelationId UUIDString] requestHeader:webRequest.headers];
     
