@@ -20,6 +20,7 @@
 #import "ADOAuth2Constants.h"
 #import "ADHelpers.h"
 #import "ADUserIdentifier.h"
+#import "ADTokenCacheStoreItem+Internal.h"
 
 @implementation ADAuthenticationContext (TokenCaching)
 
@@ -163,74 +164,10 @@
     NSString* accessToken = [response objectForKey:OAUTH2_ACCESS_TOKEN];
     if (![NSString adIsStringNilOrBlank:accessToken])
     {
-        item.authority = self.authority;
-        item.accessToken = accessToken;
-        
-        // Token response
-        id      expires_in = [response objectForKey:@"expires_in"];
-        NSDate *expires    = nil;
-        
-        if ( expires_in != nil )
-        {
-            if ( [expires_in isKindOfClass:[NSString class]] )
-            {
-                NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
-                
-                expires = [NSDate dateWithTimeIntervalSinceNow:[formatter numberFromString:expires_in].longValue];
-            }
-            else if ( [expires_in isKindOfClass:[NSNumber class]] )
-            {
-                expires = [NSDate dateWithTimeIntervalSinceNow:((NSNumber *)expires_in).longValue];
-            }
-            else
-            {
-                AD_LOG_WARN_F(@"Unparsable time", @"The response value for the access token expiration cannot be parsed: %@", expires);
-                // Unparseable, use default value
-                expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//1 hour
-            }
-        }
-        else
-        {
-            AD_LOG_WARN(@"Missing expiration time.", @"The server did not return the expiration time for the access token.");
-            expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//Assume 1hr expiration
-        }
-        
-        item.accessTokenType = [response objectForKey:OAUTH2_TOKEN_TYPE];
-        item.expiresOn       = expires;
-        [ADLogger logToken:accessToken tokenType:@"access token" expiresOn:expires correlationId:responseUUID];
-        
-        if([response objectForKey:OAUTH2_REFRESH_TOKEN]){
-            item.refreshToken    = [response objectForKey:OAUTH2_REFRESH_TOKEN];
-        }
-        
-        NSString* resource   = [response objectForKey:OAUTH2_RESOURCE];
-        BOOL multiResourceRefreshToken = NO;
-        if (![NSString adIsStringNilOrBlank:resource])
-        {
-            if (item.resource && ![item.resource isEqualToString:resource])
-            {
-                AD_LOG_WARN_F(@"Wrong resource returned by the server.", @"Expected resource: '%@'; Server returned: '%@'", item.resource, resource);
-            }
-            //Currently, if the server has returned a "resource" parameter and we have a refresh token,
-            //this token is a multi-resource refresh token:
-            multiResourceRefreshToken = ![NSString adIsStringNilOrBlank:item.refreshToken];
-        }
-        [ADLogger logToken:item.refreshToken
-                 tokenType:multiResourceRefreshToken ? @"multi-resource refresh token": @"refresh token"
-                 expiresOn:nil
-             correlationId:responseUUID];
-        
-        NSString* idToken = [response objectForKey:OAUTH2_ID_TOKEN];
-        if (idToken)
-        {
-            ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idToken error:nil];
-            if (userInfo)
-            {
-                item.userInformation = userInfo;
-            }
-        }
-        
-        return [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:multiResourceRefreshToken];
+        [item setAuthority:self.authority];
+        [item fillItemWithResponse:response error:&error];
+        [item logWithCorrelationId:responseUUID];
+        return [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:item.multiResourceRefreshToken];
     }
     
     //No access token and no error, we assume that there was another kind of error (connection, server down, etc.).

@@ -20,7 +20,7 @@
 #import "ADALiOS.h"
 #import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
-#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheStoreItem+Internal.h"
 #import "ADOAuth2Constants.h"
 #import "ADUserInformation.h"
 
@@ -109,7 +109,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 
 +(ADAuthenticationResult*) resultFromBrokerResponse: (NSDictionary*) response
 {
-    ADAuthenticationResult* result = nil;
     ADTokenCacheStoreItem* item = nil;
     
     if(!response || [response valueForKey:OAUTH2_ERROR_DESCRIPTION])
@@ -137,60 +136,20 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         return [ADAuthenticationResult resultFromError:error];
     }
     
-    ADUserInformation* info = nil;
-    if([response valueForKey:OAUTH2_ID_TOKEN])
-    {
-        ADAuthenticationError* error = nil;
-        info = [ADUserInformation userInformationWithIdToken:[response valueForKey:OAUTH2_ID_TOKEN] error:&error];
-        if (error)
-        {
-            return [ADAuthenticationResult resultFromError:error];
-        }
-    }
-    
+    ADAuthenticationError* error = nil;
     item = [ADTokenCacheStoreItem new];
-    item.userInformation = info;
-    item.authority =  [response valueForKey:OAUTH2_AUTHORITY];
-    item.resource = [response valueForKey:OAUTH2_RESOURCE];
-    item.clientId = [response valueForKey:OAUTH2_CLIENT_ID];
-    item.accessToken = [response valueForKey:OAUTH2_ACCESS_TOKEN];
-    item.refreshToken = [response valueForKey:OAUTH2_REFRESH_TOKEN];
-    item.accessTokenType = @"Bearer";
-    
-    // Token response
-    id expires_in = [response objectForKey:@"expires_on"];
-    NSDate *expires    = nil;
-    
-    if ( expires_in != nil )
+    [item setAccessTokenType:@"Bearer"];
+    [item fillItemWithResponse:response
+                         error:&error];
+    if (error)
     {
-        if ( [expires_in isKindOfClass:[NSString class]] )
-        {
-            NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
-            
-            expires = [NSDate dateWithTimeIntervalSinceNow:[formatter numberFromString:expires_in].longValue];
-        }
-        else if ( [expires_in isKindOfClass:[NSNumber class]] )
-        {
-            expires = [NSDate dateWithTimeIntervalSinceNow:((NSNumber *)expires_in).longValue];
-        }
-        else
-        {
-            AD_LOG_WARN_F(@"Unparsable time", @"The response value for the access token expiration cannot be parsed: %@", expires);
-            // Unparseable, use default value
-            expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//1 hour
-        }
+        return [ADAuthenticationResult resultFromError:error];
     }
-    else
-    {
-        AD_LOG_WARN(@"Missing expiration time.", @"The server did not return the expiration time for the access token.");
-        expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//Assume 1hr expiration
-    }
+    NSString* responseIdString = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
+    NSUUID* responseId = [[NSUUID alloc] initWithUUIDString:responseIdString];
+    [item logWithCorrelationId:responseId];
     
-    item.expiresOn = expires;
-    
-    BOOL isMRRT = item.resource && item.refreshToken;
-    
-    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:isMRRT];
+    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:item.multiResourceRefreshToken];
 }
 
 @end
