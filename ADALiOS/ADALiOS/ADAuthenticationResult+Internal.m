@@ -20,7 +20,7 @@
 #import "ADALiOS.h"
 #import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
-#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheStoreItem+Internal.h"
 #import "ADOAuth2Constants.h"
 #import "ADUserInformation.h"
 
@@ -109,75 +109,37 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 
 +(ADAuthenticationResult*) resultFromBrokerResponse: (NSDictionary*) response
 {
-    ADAuthenticationError* error;
-    ADAuthenticationResult* result;
     ADTokenCacheStoreItem* item = nil;
-    if([response valueForKey:OAUTH2_ERROR_DESCRIPTION])
-    {
-        error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADBrokerResponseErrorDomain code:0 userInfo:nil] errorDetails:[response valueForKey:OAUTH2_ERROR_DESCRIPTION]];
-    }
-    else
-    {
-        item = [ADTokenCacheStoreItem new];
-        item.authority =  [response valueForKey:OAUTH2_AUTHORITY];
-        item.resource = [response valueForKey:OAUTH2_RESOURCE];
-        item.clientId = [response valueForKey:OAUTH2_CLIENT_ID];
-        item.accessToken = [response valueForKey:OAUTH2_ACCESS_TOKEN];
-        item.refreshToken = [response valueForKey:OAUTH2_REFRESH_TOKEN];
-        if([response valueForKey:OAUTH2_ID_TOKEN])
-        {
-            ADUserInformation* info = [ADUserInformation userInformationWithIdToken:[response valueForKey:OAUTH2_ID_TOKEN] error:&error];
-            if(!error)
-            {
-                item.userInformation = info;
-            }
-        }
-    }
     
-    result.tokenCacheStoreItem.accessTokenType = @"Bearer";
-    // Token response
-    id expires_in = [response objectForKey:@"expires_on"];
-    NSDate *expires    = nil;
-    
-    if ( expires_in != nil )
+    if(!response || [response valueForKey:OAUTH2_ERROR_DESCRIPTION])
     {
-        if ( [expires_in isKindOfClass:[NSString class]] )
+        ADAuthenticationError* error = nil;
+        NSString* errorDetails = nil;
+        NSInteger errorCode = 0;
+        if (response)
         {
-            NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+            errorDetails = [response valueForKey:OAUTH2_ERROR_DESCRIPTION];
+            errorCode = [[response valueForKey:@"error_code"] integerValue];
             
-            expires = [NSDate dateWithTimeIntervalSinceNow:[formatter numberFromString:expires_in].longValue];
-        }
-        else if ( [expires_in isKindOfClass:[NSNumber class]] )
-        {
-            expires = [NSDate dateWithTimeIntervalSinceNow:((NSNumber *)expires_in).longValue];
+            if (!errorDetails)
+            {
+                errorDetails = @"Broker did not provide any details";
+            }
         }
         else
         {
-            AD_LOG_WARN_F(@"Unparsable time", @"The response value for the access token expiration cannot be parsed: %@", expires);
-            // Unparseable, use default value
-            expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//1 hour
+            errorDetails = @"No broker response received.";
         }
-    }
-    else
-    {
-        AD_LOG_WARN(@"Missing expiration time.", @"The server did not return the expiration time for the access token.");
-        expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//Assume 1hr expiration
-    }
-    
-    result.tokenCacheStoreItem.expiresOn = expires;
-    
-    
-    BOOL isMRRT = item.resource && item.refreshToken;
-    if(error)
-    {
-        result = [ADAuthenticationResult resultFromError:error];
-    }
-    else
-    {
-        result = [[ADAuthenticationResult alloc ]initWithItem:item multiResourceRefreshToken:isMRRT];
+        
+        error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADBrokerResponseErrorDomain code:errorCode userInfo:nil] errorDetails:errorDetails];
+        
+        return [ADAuthenticationResult resultFromError:error];
     }
     
-    return result;
+    item = [ADTokenCacheStoreItem new];
+    [item setAccessTokenType:@"Bearer"];
+    BOOL isMRRT = [item fillItemWithResponse:response];
+    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:isMRRT];
 }
 
 @end
