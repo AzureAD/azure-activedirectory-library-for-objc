@@ -165,9 +165,8 @@
     if (![NSString adIsStringNilOrBlank:accessToken])
     {
         [item setAuthority:self.authority];
-        [item fillItemWithResponse:response error:&error];
-        [item logWithCorrelationId:responseUUID];
-        return [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:item.multiResourceRefreshToken];
+        BOOL isMrrt = [item fillItemWithResponse:response];
+        return [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:isMrrt];
     }
     
     //No access token and no error, we assume that there was another kind of error (connection, server down, etc.).

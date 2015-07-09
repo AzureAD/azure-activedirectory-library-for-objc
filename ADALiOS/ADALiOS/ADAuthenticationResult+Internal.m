@@ -136,20 +136,10 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         return [ADAuthenticationResult resultFromError:error];
     }
     
-    ADAuthenticationError* error = nil;
     item = [ADTokenCacheStoreItem new];
     [item setAccessTokenType:@"Bearer"];
-    [item fillItemWithResponse:response
-                         error:&error];
-    if (error)
-    {
-        return [ADAuthenticationResult resultFromError:error];
-    }
-    NSString* responseIdString = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
-    NSUUID* responseId = [[NSUUID alloc] initWithUUIDString:responseIdString];
-    [item logWithCorrelationId:responseId];
-    
-    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:item.multiResourceRefreshToken];
+    BOOL isMRRT = [item fillItemWithResponse:response];
+    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:isMRRT];
 }
 
 @end

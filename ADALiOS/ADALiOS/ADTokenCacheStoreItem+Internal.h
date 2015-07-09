@@ -23,8 +23,11 @@
 
 @interface ADTokenCacheStoreItem (Internal)
 
-- (void)fillItemWithResponse:(NSDictionary*)responseDictionary
-                       error:(ADAuthenticationError* __autoreleasing *)error;
-- (void)logWithCorrelationId:(NSUUID*)correlationId;
+/*!
+    Fills out the cache item with the given response dictionary
+ 
+    @return Whether the resulting item is a Multi Resource Refresh Token
+ */
+- (BOOL)fillItemWithResponse:(NSDictionary*)responseDictionary;
 
 @end

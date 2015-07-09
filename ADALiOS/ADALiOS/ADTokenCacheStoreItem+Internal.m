@@ -22,61 +22,38 @@
 #import "ADOAuth2Constants.h"
 #import "ADUserInformation.h"
 #import "ADLogger.h"
+#import "NSString+ADHelperMethods.h"
 
 @implementation ADTokenCacheStoreItem (Internal)
 
 #define CHECK_ERROR(_CHECK, _ERR) { if (_CHECK) { if (error) {*error = _ERR;} return; } }
 
 - (void)fillUserInformation:(NSString*)idToken
-                      error:(ADAuthenticationError* __autoreleasing *)error
 {
     if (!idToken)
     {
+        // If there's no id token we still continue onwards
         return;
     }
     
     ADUserInformation* info = nil;
-    ADAuthenticationError* adError = nil;
     info = [ADUserInformation userInformationWithIdToken:idToken
-                                                   error:&adError];
-    
-    CHECK_ERROR(adError, adError);
+                                                   error:nil];
     
     self.userInformation = info;
 }
 
-#define FILL_FIELD(_FIELD, _KEY) { id _val = [responseDictionary valueForKey:_KEY]; if (_val) { self._FIELD = _val; } }
-
-- (void)fillItemWithResponse:(NSDictionary*)responseDictionary
-                       error:(ADAuthenticationError* __autoreleasing *)error
+- (void)fillExpiration:(NSDictionary*)responseDictionary
 {
-    ADAuthenticationError* adError = nil;
-    CHECK_ERROR(!responseDictionary, [ADAuthenticationError errorFromArgument:responseDictionary
-                                                                 argumentName:@"responseDictionary"]);
-    
-    if (self.userInformation == nil)
+    id expires_in = [responseDictionary objectForKey:@"expires_on"];
+    if (!expires_in)
     {
-        [self fillUserInformation:[responseDictionary valueForKey:OAUTH2_ID_TOKEN]
-                            error:&adError];
-        
-        if (error)
-        {
-            *error = adError;
-        }
+        expires_in = [responseDictionary objectForKey:@"expires_in"];
     }
     
-    FILL_FIELD(authority, OAUTH2_AUTHORITY);
-    FILL_FIELD(resource, OAUTH2_RESOURCE);
-    FILL_FIELD(clientId, OAUTH2_CLIENT_ID);
-    FILL_FIELD(accessToken, OAUTH2_ACCESS_TOKEN);
-    FILL_FIELD(refreshToken, OAUTH2_REFRESH_TOKEN);
-    FILL_FIELD(accessTokenType, OAUTH2_TOKEN_TYPE);
-    
-    // Token response
-    id expires_in = [responseDictionary objectForKey:@"expires_on"];
     NSDate *expires    = nil;
     
-    if ( expires_in != nil )
+    if (expires_in)
     {
         if ( [expires_in isKindOfClass:[NSString class]] )
         {
@@ -104,23 +81,53 @@
     self.expiresOn = expires;
 }
 
-- (void)logWithCorrelationId:(NSUUID*)correlationId
+- (void)logWithCorrelationId:(NSString*)correlationId
+                        mrrt:(BOOL)isMRRT
 {
+    NSUUID* correlationUUID = [[NSUUID alloc] initWithUUIDString:correlationId];
     if (self.accessToken)
     {
         [ADLogger logToken:self.accessToken
                  tokenType:self.accessTokenType
                  expiresOn:self.expiresOn
-             correlationId:correlationId];
+             correlationId:correlationUUID];
     }
     
     if (self.refreshToken)
     {
         [ADLogger logToken:self.refreshToken
-                 tokenType:self.multiResourceRefreshToken ? @"multi-resource refresh token" : @"refresh token"
+                 tokenType:isMRRT ? @"multi-resource refresh token" : @"refresh token"
                  expiresOn:nil
-             correlationId:correlationId];
+             correlationId:correlationUUID];
     }
+}
+
+
+#define FILL_FIELD(_FIELD, _KEY) { id _val = [responseDictionary valueForKey:_KEY]; if (_val) { self._FIELD = _val; } }
+
+- (BOOL)fillItemWithResponse:(NSDictionary*)responseDictionary
+{
+    if (!responseDictionary)
+    {
+        return NO;
+    }
+    
+    [self fillUserInformation:[responseDictionary valueForKey:OAUTH2_ID_TOKEN]];
+    
+    FILL_FIELD(authority, OAUTH2_AUTHORITY);
+    FILL_FIELD(resource, OAUTH2_RESOURCE);
+    FILL_FIELD(clientId, OAUTH2_CLIENT_ID);
+    FILL_FIELD(accessToken, OAUTH2_ACCESS_TOKEN);
+    FILL_FIELD(refreshToken, OAUTH2_REFRESH_TOKEN);
+    FILL_FIELD(accessTokenType, OAUTH2_TOKEN_TYPE);
+    
+    [self fillExpiration:responseDictionary];
+    
+    BOOL isMRRT = ![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_RESOURCE]] && ![NSString adIsStringNilOrBlank:self.refreshToken];
+    
+    [self logWithCorrelationId:[responseDictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE] mrrt:isMRRT];
+    
+    return isMRRT;
 }
 
 
