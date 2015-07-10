@@ -110,7 +110,7 @@
 		97EEE7CE1A52110600D003F8 /* ADNTLMHandlerOSX.m in Sources */ = {isa = PBXBuildFile; fileRef = 97EEE7CD1A52110600D003F8 /* ADNTLMHandlerOSX.m */; };
 		97EEE7D31A52758A00D003F8 /* ADCredentialCollectionController.h in Headers */ = {isa = PBXBuildFile; fileRef = 97EEE7D11A52758A00D003F8 /* ADCredentialCollectionController.h */; };
 		97EEE7D41A52758A00D003F8 /* ADCredentialCollectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 97EEE7D21A52758A00D003F8 /* ADCredentialCollectionController.m */; };
-		D6E242941B0E9B6600CC2904 /* ADAuthenticationBroker+Test.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E242921B0E9B6600CC2904 /* ADAuthenticationBroker+Test.m */; };
+		9858B5C01B5037E900A5F3BA /* ADAuthenticationBroker+Test.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E242921B0E9B6600CC2904 /* ADAuthenticationBroker+Test.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -639,7 +639,6 @@
 				4C60D60718C697E500F9EAAE /* ADOAuth2Constants.m in Sources */,
 				4C8AB1C518E2336B005F241A /* ADAuthenticationBrokerOSX.m in Sources */,
 				4C60D5F218C697E500F9EAAE /* ADAuthenticationResult.m in Sources */,
-				D6E242941B0E9B6600CC2904 /* ADAuthenticationBroker+Test.m in Sources */,
 				4C60D5EE18C697E500F9EAAE /* ADAuthenticationParameters.m in Sources */,
 				4C60D60518C697E500F9EAAE /* ADLogger.m in Sources */,
 			);
@@ -652,6 +651,7 @@
 				8BE8682618D7BA5100D95ABB /* ADAuthenticationParametersTests.m in Sources */,
 				8BE8681118D7B60C00D95ABB /* NSURLExtensionsTests.m in Sources */,
 				8BE8682A18D7BA5100D95ABB /* ADLoggerTests.m in Sources */,
+				9858B5C01B5037E900A5F3BA /* ADAuthenticationBroker+Test.m in Sources */,
 				8BE8682F18D7BA5100D95ABB /* ADTokenCacheStoreKeyTests.m in Sources */,
 				8BE8682918D7BA5100D95ABB /* ADInstanceDiscoveryTests.m in Sources */,
 				8BE8683018D7BA5100D95ABB /* ADUserInformationTests.m in Sources */,
