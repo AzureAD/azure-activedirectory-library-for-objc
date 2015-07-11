@@ -26,8 +26,7 @@
     See the key extraction function for details on how the keys are constructed. */
 @interface ADTokenCacheStoreItem : NSObject<NSCopying , NSSecureCoding>
 
-/*! Applicable resource. Should be nil, in case the item stores multi-resource refresh token. */
-@property NSString* resource;
+@property NSSet* scopes;
 
 @property (copy) NSString* authority;
 

@@ -46,19 +46,17 @@
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                    redirectUri:(NSString*)redirectUri
                                       clientId:(NSString*)clientId
-                                      resource:(NSString*)resource
                                          error:(ADAuthenticationError* __autoreleasing *)error
 {
     ERROR_RETURN_IF_NIL(context);
     ERROR_RETURN_IF_NIL(clientId);
     
-    return [[self.class alloc] initWithContext:context redirectUri:redirectUri clientId:clientId resource:resource];
+    return [[self.class alloc] initWithContext:context redirectUri:redirectUri clientId:clientId];
 }
 
 - (id)initWithContext:(ADAuthenticationContext*)context
           redirectUri:(NSString*)redirectUri
              clientId:(NSString*)clientId
-             resource:(NSString*)resource
 {
     RETURN_IF_NIL(context);
     RETURN_IF_NIL(clientId);
@@ -69,7 +67,6 @@
     _context = context;
     _redirectUri = [redirectUri adTrimmedString];
     _clientId = [clientId adTrimmedString];
-    _resource = [resource adTrimmedString];
     
     _promptBehavior = AD_PROMPT_AUTO;
     
@@ -87,10 +84,22 @@
     } \
 }
 
-- (void)setScope:(NSString *)scope
+- (void)setScopes:(NSArray *)scopes
 {
     CHECK_REQUEST_STARTED;
-    _scope = scope;
+    _scopes = [NSSet setWithArray:scopes];
+}
+
+- (void)setAdditionalScopes:(NSArray *)additionalScopes
+{
+    CHECK_REQUEST_STARTED;
+    _additionalScopes = [NSSet setWithArray:additionalScopes];
+}
+
+- (void)setPolicy:(NSString *)policy
+{
+    CHECK_REQUEST_STARTED;
+    _policy = policy;
 }
 
 - (void)setExtraQueryParameters:(NSString *)queryParams

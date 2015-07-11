@@ -59,9 +59,5 @@ typedef enum
 /*! The error that occurred or nil, if the operation was successful */
 @property (readonly) ADAuthenticationError* error;
 
-/*! Set to YES, if part of the result contains a refresh token, which is a multi-resource
- refresh token. */
-@property (readonly) BOOL multiResourceRefreshToken;
-
 @end
 

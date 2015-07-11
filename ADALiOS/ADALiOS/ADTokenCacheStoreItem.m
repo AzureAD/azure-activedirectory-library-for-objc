@@ -25,22 +25,10 @@
 
 @implementation ADTokenCacheStoreItem
 
-@synthesize multiResourceRefreshToken;
-
-//Multi-resource refresh tokens are stored separately, as they apply to all resources. As such,
-//we create a special, "broad" cache item, with nil resource and access token:
--(BOOL) isMultiResourceRefreshToken
-{
-    return [NSString adIsStringNilOrBlank:self.resource]
-        && [NSString adIsStringNilOrBlank:self.accessToken]
-       && ![NSString adIsStringNilOrBlank:self.refreshToken];
-}
-
--(id) copyWithZone:(NSZone*) zone
+- (id)copyWithZone:(NSZone*)zone
 {
     ADTokenCacheStoreItem* item = [[self.class allocWithZone:zone] init];
     
-    item.resource = [self.resource copyWithZone:zone];
     item.authority = [self.authority copyWithZone:zone];
     item.clientId = [self.clientId copyWithZone:zone];
     item.accessToken = [self.accessToken copyWithZone:zone];
@@ -53,10 +41,9 @@
     return item;
 }
 
--(ADTokenCacheStoreKey*) extractKeyWithError: (ADAuthenticationError* __autoreleasing *) error
+-(ADTokenCacheStoreKey*) extractKeyWithError: (ADAuthenticationError* __autoreleasing *)error
 {
     return [ADTokenCacheStoreKey keyWithAuthority:self.authority
-                                         resource:self.resource
                                          clientId:self.clientId
                                             error:error];
 }
@@ -97,7 +84,6 @@
 //Serializer:
 -(void) encodeWithCoder:(NSCoder *)aCoder
 {
-    [aCoder encodeObject:self.resource forKey:@"resource"];
     [aCoder encodeObject:self.authority forKey:@"authority"];
     [aCoder encodeObject:self.clientId forKey:@"clientId"];
     [aCoder encodeObject:self.accessToken forKey:@"accessToken"];
@@ -114,7 +100,6 @@
     self = [super init];
     if (self)
     {
-        self.resource = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"resource"];
         self.authority = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"authority"];
         self.clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
         self.accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
@@ -138,7 +123,7 @@
     
     ADTokenCacheStoreItem* item = (ADTokenCacheStoreItem*)object;
     
-    if (self.resource && (!item.resource || ![self.resource isEqualToString:item.resource]))
+    if (![_scopes isEqualToSet:item.scopes])
     {
         return NO;
     }
@@ -163,10 +148,10 @@
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"(authority=%@ clientId=%@ accessToken=%@ accessTokenType=%@ refreshToken=%@ resource=%@)",
+    return [NSString stringWithFormat:@"(authority=%@ clientId=%@ accessToken=%@ accessTokenType=%@ refreshToken=%@ scopes=%@)",
             _authority, _clientId,
             [NSString adIsStringNilOrBlank:_accessToken] ? @"(nil)" : @"(present)", _accessTokenType,
-            [NSString adIsStringNilOrBlank:_refreshToken] ? @"(nil)" : @"(present)", _resource];
+            [NSString adIsStringNilOrBlank:_refreshToken] ? @"(nil)" : @"(present)", _scopes];
 }
 
 @end

@@ -28,15 +28,16 @@
     NSUInteger hash;
 }
 
-/*! Creates a key
- @param authority: Required. The authentication authority used.
- @param resource: Optional. The resource used for the token. Multi-resource refresh token items can be extracted by specifying nil.
- @param scope: Optional, can be nil. The OAuth2 scope.
+/*!
+    Creates a key
+ 
+    @param authority        Required. The authentication authority used.
+    @param resource         Optional. The resource used for the token. Multi-resource refresh token items can be extracted
+                            by specifying nil.
  */
-+(ADTokenCacheStoreKey*) keyWithAuthority: (NSString*) authority
-                                 resource: (NSString*) resource
-                                 clientId: (NSString*)clientId
-                                    error: (ADAuthenticationError* __autoreleasing*) error;
++ (ADTokenCacheStoreKey*)keyWithAuthority:(NSString*)authority
+                                 clientId:(NSString*)clientId
+                                    error:(ADAuthenticationError* __autoreleasing*)error;
 
 /*! The authority that issues access tokens */
 @property (readonly) NSString* authority;

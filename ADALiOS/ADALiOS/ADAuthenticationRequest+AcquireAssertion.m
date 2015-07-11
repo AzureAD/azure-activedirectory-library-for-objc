@@ -29,7 +29,6 @@
 {
     
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    AD_REQUEST_CHECK_PROPERTY(_resource);
     AD_REQUEST_CHECK_ARGUMENT(samlAssertion);
     [self ensureRequest];
 
@@ -63,7 +62,6 @@
     //We are explicitly creating a key first to ensure indirectly that all of the required arguments are correct.
     //This is the safest way to guarantee it, it will raise an error, if the the any argument is not correct:
     ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:_context.authority
-                                                              resource:_resource
                                                               clientId:_clientId error:&error];
     if (!key)
     {
@@ -115,7 +113,6 @@
     //All of these should be set before calling this method:
     THROW_ON_NIL_ARGUMENT(completionBlock);
     HANDLE_ARGUMENT(item);
-    AD_REQUEST_CHECK_PROPERTY(_resource);
     AD_REQUEST_CHECK_PROPERTY(_clientId);
     [self ensureRequest];
     
@@ -123,7 +120,7 @@
     {
         //Access token is good, just use it:
         [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:nil];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:NO];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item];
         completionBlock(result);
         return;
     }
@@ -150,7 +147,9 @@
          //Try other means of getting access token result:
          if (!item.multiResourceRefreshToken)//Try multi-resource refresh token if not currently trying it
          {
-             ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:_context.authority resource:nil clientId:_clientId error:nil];
+             ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:_context.authority
+                                                                            clientId:_clientId
+                                                                               error:nil];
              if (broadKey)
              {
                  BOOL useAccessToken;
@@ -210,7 +209,7 @@
                      completion:(ADAuthenticationCallback)completionBlock
 {
     [self ensureRequest];
-    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code for resource: %@", _resource);
+    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code with scopes: %@", _scopes);
     
     //samlAssertion = [NSString samlAssertion adBase64];
     NSData *encodeData = [samlAssertion dataUsingEncoding:NSUTF8StringEncoding];
@@ -220,7 +219,6 @@
                                          [self getAssertionTypeGrantValue:assertionType], OAUTH2_GRANT_TYPE,
                                          base64String, OAUTH2_ASSERTION,
                                          _clientId, OAUTH2_CLIENT_ID,
-                                         _resource, OAUTH2_RESOURCE,
                                          nil];
     [self executeRequest:_context.authority
              requestData:request_data

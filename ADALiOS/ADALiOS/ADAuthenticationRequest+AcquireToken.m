@@ -30,7 +30,6 @@
 - (void)acquireToken:(ADAuthenticationCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    AD_REQUEST_CHECK_ARGUMENT(_resource);
     [self ensureRequest];
     
     if (!_context.validateAuthority)
@@ -64,7 +63,6 @@
     //We are explicitly creating a key first to ensure indirectly that all of the required arguments are correct.
     //This is the safest way to guarantee it, it will raise an error, if the the any argument is not correct:
     ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:_context.authority
-                                                              resource:_resource
                                                               clientId:_clientId
                                                                  error:&error];
     if (!key)
@@ -108,7 +106,6 @@
     //All of these should be set before calling this method:
     THROW_ON_NIL_ARGUMENT(completionBlock);
     AD_REQUEST_CHECK_ARGUMENT(item);
-    AD_REQUEST_CHECK_PROPERTY(_resource);
     AD_REQUEST_CHECK_PROPERTY(_clientId);
     
     [self ensureRequest];
@@ -117,7 +114,7 @@
     {
         //Access token is good, just use it:
         [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:nil];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:NO];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item];
         completionBlock(result);
         return;
     }
@@ -144,7 +141,9 @@
          //Try other means of getting access token result:
          if (!item.multiResourceRefreshToken)//Try multi-resource refresh token if not currently trying it
          {
-             ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:_context.authority resource:nil clientId:_clientId error:nil];
+             ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:_context.authority
+                                                                            clientId:_clientId
+                                                                               error:nil];
              if (broadKey)
              {
                  BOOL useAccessToken;
@@ -186,7 +185,7 @@
 {
     [self ensureRequest];
     
-#if !AD_BROKER
+#if !AD_BROKER && BROKER_ENABLED
     if (_silent && !_allowSilent)
     {
         //The cache lookup and refresh token attempt have been unsuccessful,
@@ -220,13 +219,14 @@
          }
          else
          {
-             
+#if BROKER_ENABLED
              if([code hasPrefix:@"msauth://"])
              {
                  [self handleBrokerFromWebiewResponse:code
                                       completionBlock:completionBlock];
              }
              else
+#endif // BROKER_ENABLED
              {
                  [self requestTokenByCode:code
                           completionBlock:^(ADAuthenticationResult *result)
@@ -257,7 +257,7 @@
     
     [self ensureRequest];
     
-    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", @"Resource: %@", _resource);
+    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", @"scopes: %@", _scopes);
     
     if (!_context.validateAuthority)
     {
@@ -313,12 +313,9 @@
                         nil];
     }
     
-    if (![NSString adIsStringNilOrBlank:_resource])
-    {
-        [request_data setObject:_resource forKey:OAUTH2_RESOURCE];
-    }
+    // TODO: Add scopes to request_data
     
-    AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@';", _clientId, _resource);
+    AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; scopes: '%@';", _clientId, _scopes);
     [self requestWithServer:_context.authority
                 requestData:request_data
             handledPkeyAuth:NO
@@ -329,7 +326,9 @@
          
          //Always ensure that the cache item has all of these set, especially in the broad token case, where the passed item
          //may have empty "resource" property:
-         resultItem.resource = _resource;
+         
+         // TODO:
+         
          resultItem.clientId = _clientId;
          resultItem.authority = _context.authority;
          
@@ -359,8 +358,9 @@
                              };
     
     NSInteger iat = round([[NSDate date] timeIntervalSince1970]);
+    
+    // TODO: Add scopes
     NSDictionary *payload = @{
-                              @"resource" : _resource,
                               @"client_id" : _clientId,
                               @"refresh_token" : cacheItem.refreshToken,
                               @"iat" : [NSNumber numberWithInteger:iat],
@@ -384,7 +384,7 @@
 {
     HANDLE_ARGUMENT(code);
     [self ensureRequest];
-    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code for resource: %@", _resource);
+    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code for scopes: %@", _scopes);
     
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -393,10 +393,13 @@
                                          _clientId, OAUTH2_CLIENT_ID,
                                          _redirectUri, OAUTH2_REDIRECT_URI,
                                          nil];
-    if(![NSString adIsStringNilOrBlank:_scope])
-    {
-        [request_data setValue:_scope forKey:OAUTH2_SCOPE];
-    }
+    
+
+    // TODO: Add scopes
+//    if(![NSString adIsStringNilOrBlank:_scope])
+//    {
+//        [request_data setValue:_scope forKey:OAUTH2_SCOPE];
+//    }
     
     [self executeRequest:_context.authority
              requestData:request_data

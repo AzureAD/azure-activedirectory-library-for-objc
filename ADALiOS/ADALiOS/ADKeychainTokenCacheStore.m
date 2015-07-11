@@ -176,7 +176,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 -(void) LogItem: (ADTokenCacheStoreItem*) item
         message: (NSString*) additionalMessage
 {
-    AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. Resource: %@ Access token hash: %@; Refresh token hash: %@", item.resource,additionalMessage, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
+    AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. scopes: %@ Access token hash: %@; Refresh token hash: %@", additionalMessage, item.scopes, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
 }
 
 //Updates the keychain item. "attributes" parameter should ALWAYS come from previous

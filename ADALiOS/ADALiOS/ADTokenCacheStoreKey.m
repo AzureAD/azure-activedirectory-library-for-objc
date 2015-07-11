@@ -25,56 +25,54 @@
 
 @implementation ADTokenCacheStoreKey
 
--(id) init
+- (id)init
 {
     //Use the custom init instead. This one will throw.
     [self doesNotRecognizeSelector:_cmd];
     return nil;
 }
 
--(id) initWithAuthority: (NSString*) authority
-               resource: (NSString*) resource
-               clientId: (NSString*) clientId
+- (id)initWithAuthority:(NSString*)authority
+               clientId:(NSString*)clientId
 {
-    self = [super init];
-    if (self)
+    if (!(self = [super init]))
     {
-        //As the object is immutable we precalculate the hash:
-        hash = [[NSString stringWithFormat:@"##%@##%@##%@##", authority, resource, clientId]
-                    hash];
-        _authority = authority;
-        _resource = resource;
-        _clientId = clientId;
+        return nil;
     }
+    
+    //As the object is immutable we precalculate the hash:
+    hash = [[NSString stringWithFormat:@"##%@##%@##", authority, clientId]
+                hash];
+    _authority = authority;
+    _clientId = clientId;
     
     return self;
 }
 
-+(id) keyWithAuthority: (NSString*) authority
-              resource: (NSString*) resource
-              clientId: (NSString*) clientId
-                 error: (ADAuthenticationError* __autoreleasing*) error
++ (id)keyWithAuthority:(NSString*)authority
+              clientId:(NSString*)clientId
+                 error:(ADAuthenticationError* __autoreleasing*)error
 {
     API_ENTRY;
     //Trimm first for faster nil or empty checks. Also lowercase and trimming is
     //needed to ensure that the cache handles correctly same items with different
     //character case:
     authority = [ADInstanceDiscovery canonicalizeAuthority:authority];
-    resource = resource.adTrimmedString.lowercaseString;
     clientId = clientId.adTrimmedString.lowercaseString;
     RETURN_NIL_ON_NIL_ARGUMENT(authority);//Canonicalization will return nil on empty or bad URL.
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(clientId);
     
     ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey alloc];
-    return [key initWithAuthority:authority resource:resource clientId:clientId];
+    return [key initWithAuthority:authority
+                         clientId:clientId];
 }
 
--(NSUInteger) hash
+- (NSUInteger)hash
 {
     return hash;
 }
 
--(BOOL) isEqual:(id)object
+- (BOOL)isEqual:(id)object
 {
     ADTokenCacheStoreKey* key = object;
     if (!key)
@@ -91,10 +89,9 @@
         return [self.resource isEqualToString:key.resource];
 }
 
--(id) copyWithZone:(NSZone*) zone
+- (id)copyWithZone:(NSZone*) zone
 {
     return [[self.class allocWithZone:zone] initWithAuthority:[self.authority copyWithZone:zone]
-                                                     resource:[self.resource copyWithZone:zone]
                                                      clientId:[self.clientId copyWithZone:zone]];
 }
 

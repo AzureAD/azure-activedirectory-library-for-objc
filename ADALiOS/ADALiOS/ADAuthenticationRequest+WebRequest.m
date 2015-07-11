@@ -48,7 +48,6 @@
      {
          //Prefill the known elements in the item. These can be overridden by the response:
          ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
-         item.resource = _resource;
          item.clientId = _clientId;
          completionBlock([_context processTokenResponse:response
                                                 forItem:item
@@ -264,7 +263,7 @@ static volatile int sDialogInProgress = 0;
 // Encodes the state parameter for a protocol message
 - (NSString *)encodeProtocolState
 {
-    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:_context.authority, @"a", _resource, @"r", _scope, @"s", nil]
+    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:_context.authority, @"a", [_scopes adSpaceDeliminatedString], @"s", nil]
              adURLFormEncode] adBase64UrlEncode];
 }
 
@@ -278,7 +277,7 @@ static volatile int sDialogInProgress = 0;
                                  [_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX],
                                  OAUTH2_RESPONSE_TYPE, requestType,
                                  OAUTH2_CLIENT_ID, [_clientId adUrlFormEncode],
-                                 OAUTH2_RESOURCE, [_resource adUrlFormEncode],
+                                 OAUTH2_SCOPE, [[_combinedScopes adSpaceDeliminatedString] adUrlFormEncode],
                                  OAUTH2_REDIRECT_URI, [_redirectUri adUrlFormEncode],
                                  OAUTH2_STATE, state];
     
@@ -325,7 +324,7 @@ static volatile int sDialogInProgress = 0;
     THROW_ON_NIL_ARGUMENT(completionBlock);
     [self ensureRequest];
     
-    AD_LOG_VERBOSE_F(@"Requesting authorization code.", @"Requesting authorization code for resource: %@", _resource);
+    AD_LOG_VERBOSE_F(@"Requesting authorization code.", @"Requesting authorization code for scopes: %@", _combinedScopes);
     if (!_silent && ![self takeExclusionLockWithCallback:completionBlock])
     {
         return;
@@ -405,12 +404,11 @@ static volatile int sDialogInProgress = 0;
         requestData = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                        _clientId, OAUTH2_CLIENT_ID,
                        _redirectUri, OAUTH2_REDIRECT_URI,
-                       _resource, OAUTH2_RESOURCE,
                        OAUTH2_CODE, OAUTH2_RESPONSE_TYPE, nil];
         
-        if (_scope)
+        if (_scopes)
         {
-            [requestData setObject:_scope forKey:OAUTH2_SCOPE];
+            [requestData setObject:[[_combinedScopes adSpaceDeliminatedString] adUrlFormEncode] forKey:OAUTH2_SCOPE];
         }
         
         [self requestWithServer:[_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]

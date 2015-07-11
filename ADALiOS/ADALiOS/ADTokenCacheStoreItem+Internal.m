@@ -115,7 +115,6 @@
     [self fillUserInformation:[responseDictionary valueForKey:OAUTH2_ID_TOKEN]];
     
     FILL_FIELD(authority, OAUTH2_AUTHORITY);
-    FILL_FIELD(resource, OAUTH2_RESOURCE);
     FILL_FIELD(clientId, OAUTH2_CLIENT_ID);
     FILL_FIELD(accessToken, OAUTH2_ACCESS_TOKEN);
     FILL_FIELD(refreshToken, OAUTH2_REFRESH_TOKEN);
