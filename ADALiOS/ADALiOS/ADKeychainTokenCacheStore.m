@@ -31,6 +31,8 @@ NSString* const sKeyChainlog = @"Keychain token cache store";
 NSString* const sMultiUserError = @"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used.";
 NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
 
+static NSString* const s_kDefaultADALServiceKey = @"MSOpenTech.ADAL";
+
 const long sKeychainVersion = 1;//will need to increase when we break the forward compatibility
 
 static dispatch_queue_t s_keychainQueue = NULL;
@@ -53,6 +55,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
 @implementation ADKeychainTokenCacheStore
 {
     NSString* _sharedGroup;
+    NSString* _serviceKey;
 }
 
 - (id)init
@@ -69,6 +72,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     }
 
     _sharedGroup = sharedGroup;
+    _serviceKey = s_kDefaultADALServiceKey;
     
     return self;
 }
@@ -126,7 +130,20 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. scopes: %@ Access token hash: %@; Refresh token hash: %@", additionalMessage, item.scopes, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
 }
 
+- (void)setServiceKey:(NSString*)serviceKey
+{
+    _serviceKey = serviceKey;
+}
+
 #pragma mark Keychain Helper Methods
+
+- (ADKeychainQuery*)createBaseQuery
+{
+    ADKeychainQuery* query = [[ADKeychainQuery alloc] init];
+    [query setAccessGroup:_sharedGroup];
+    [query setServiceKey:_serviceKey];
+    return query;
+}
 
 - (OSStatus)copyDictionary:(CFMutableDictionaryRef *)outKeychainItems
                     userId:(NSString*)userId
@@ -186,7 +203,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
         return;
     }
     
-    ADKeychainQuery* writeQuery = [[ADKeychainQuery alloc] init];
+    ADKeychainQuery* writeQuery = [self createBaseQuery];
     [writeQuery setUserId:userId];
     
     const void * keys[] = { kSecAttrGeneric };
@@ -205,8 +222,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
                    error:(ADAuthenticationError* __autoreleasing*)error
 {
     adkeychain_dispatch_if_needed(^{
-        ADKeychainQuery* keychainQuery = [[ADKeychainQuery alloc] init];
-        [keychainQuery setAccessGroup:_sharedGroup];
+        ADKeychainQuery* keychainQuery = [self createBaseQuery];
         [keychainQuery setUserId:userId];
         OSStatus err = SecItemDelete([keychainQuery queryDictionary]);
         [ADKeychainTokenCacheStore handleKeychainCode:err operation:@"removeAllForUser" error:error];
@@ -329,8 +345,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
 - (void)removeAllWithError:(ADAuthenticationError *__autoreleasing *)error
 {
     adkeychain_dispatch_if_needed(^{
-        ADKeychainQuery* keychainQuery = [[ADKeychainQuery alloc] init];
-        [keychainQuery setAccessGroup:_sharedGroup];
+        ADKeychainQuery* keychainQuery = [self createBaseQuery];
         OSStatus err = SecItemDelete([keychainQuery queryDictionary]);
         [ADKeychainTokenCacheStore handleKeychainCode:err operation:@"removeAll" error:error];
     });

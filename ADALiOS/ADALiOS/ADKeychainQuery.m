@@ -9,8 +9,6 @@
 #import "ADKeychainQuery.h"
 #import "ADUserInformation.h"
 
-static const CFStringRef s_kADALServiceKey = CFSTR("MSOpenTech.ADAL");
-
 @implementation ADKeychainQuery
 
 - (id)init
@@ -21,7 +19,6 @@ static const CFStringRef s_kADALServiceKey = CFSTR("MSOpenTech.ADAL");
     }
     
     _cfmdKeychainQuery = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-    CFDictionaryAddValue(_cfmdKeychainQuery, kSecAttrService, s_kADALServiceKey);
     CFDictionaryAddValue(_cfmdKeychainQuery, kSecClass, kSecClassGenericPassword);
     
     return self;
@@ -30,6 +27,11 @@ static const CFStringRef s_kADALServiceKey = CFSTR("MSOpenTech.ADAL");
 - (void)dealloc
 {
     CFRelease(_cfmdKeychainQuery);
+}
+
+- (void)setServiceKey:(NSString*)serviceKey
+{
+    CFDictionaryAddValue(_cfmdKeychainQuery, kSecAttrService, (__bridge const void *)(serviceKey));
 }
 
 - (void)setAccessGroup:(NSString*)accessGroup

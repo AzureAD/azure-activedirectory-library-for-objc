@@ -39,4 +39,7 @@
 /*! The shared keychain group used in Keychain for all ADAL entries. Setting this value to 'nil' will turn off keychain sharing. */
 @property NSString* sharedGroup;
 
+/*! The service key used for all keychain entries. */
+@property NSString* serviceKey;
+
 @end

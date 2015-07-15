@@ -15,6 +15,7 @@
 
 - (id)init;
 
+- (void)setServiceKey:(NSString*)serviceKey;
 - (void)setAccessGroup:(NSString*)accessGroup;
 - (void)setUserId:(NSString*)userId;
 - (void)setCopyData;
