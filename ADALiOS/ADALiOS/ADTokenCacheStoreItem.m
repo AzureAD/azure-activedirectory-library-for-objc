@@ -37,6 +37,7 @@
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.userInformation = [self.userInformation copyWithZone:zone];
     item.sessionKey = [self.sessionKey copyWithZone:zone];
+    item.scopes = [self.scopes copyWithZone:zone];
     
     return item;
 }
@@ -48,6 +49,7 @@
                                            userId:self.userInformation.userId
                                          uniqueId:self.userInformation.uniqueId
                                            idType:self.identifierType
+                                           scopes:self.scopes
                                             error:error];
 }
 

@@ -176,6 +176,7 @@
                                            userId:userId
                                          uniqueId:uniqueId
                                            idType:_identifier.type
+                                           scopes:_scopes
                                             error:error];
 }
 
