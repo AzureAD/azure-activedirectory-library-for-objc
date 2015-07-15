@@ -155,4 +155,28 @@
     _requestStarted = YES;
 }
 
+- (ADTokenCacheStoreKey*)cacheStoreKey:(ADAuthenticationError* __autoreleasing *)error
+{
+    NSString* userId = nil;
+    NSString* uniqueId = nil;
+    
+    switch (_identifier.type)
+    {
+        case OptionalDisplayableId:
+        case RequiredDisplayableId:
+            userId = _identifier.userId;
+            break;
+        case UniqueId:
+            uniqueId = _identifier.userId;
+            break;
+    }
+    
+    return [ADTokenCacheStoreKey keyWithAuthority:_context.authority
+                                         clientId:_clientId
+                                           userId:userId
+                                         uniqueId:uniqueId
+                                           idType:_identifier.type
+                                            error:error];
+}
+
 @end

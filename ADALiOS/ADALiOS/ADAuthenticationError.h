@@ -46,6 +46,9 @@ extern NSString* const ADBrokerResponseErrorDomain;
 + (ADAuthenticationError*)errorFromNSError:(NSError*)error
                               errorDetails:(NSString*)errorDetails;
 
++ (ADAuthenticationError*)errorFromKeychainError:(OSStatus)errCode
+                                    errorDetails:(NSString*)errorDetails;
+
 /*! Genearates an error from the code and details of an authentication error */
 + (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
                                           protocolCode:(NSString*)protocolCode

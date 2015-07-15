@@ -21,6 +21,8 @@
 @class ADTokenCacheStoreKey;
 @class ADAuthenticationError;
 
+#import "ADUserIdentifier.h"
+
 /*! Contains all cached elements for a given request for a token.
     Objects of this class are used in the key-based token cache store.
     See the key extraction function for details on how the keys are constructed. */
@@ -45,25 +47,25 @@
 
 @property ADUserInformation* userInformation;
 
-/*! If true, the cache store item does not store actual access token, but instead a refresh token that can be
- used to obtain access token for any resource within the same user, authority and client id. This property is calculated
- from the value of other properties: it is true if: resource is nil, accessToken is nil and refresh token is not nil or empty.*/
-@property (readonly, getter = isMultiResourceRefreshToken) BOOL multiResourceRefreshToken;
+/*! The identifier in userInformation to use for caching purposes */
+@property ADUserIdentifierType identifierType;
 
 /*! Obtains a key to be used for the internal cache from the full cache item.
  @param error: if a key cannot be extracted, the method will return nil and if this parameter is not nil,
  it will be filled with the appropriate error information.*/
--(ADTokenCacheStoreKey*) extractKeyWithError: (ADAuthenticationError* __autoreleasing *) error;
+- (ADTokenCacheStoreKey*)extractKeyWithError: (ADAuthenticationError* __autoreleasing *) error;
+
+- (NSString*)userCacheKey;
 
 /*! Compares expiresOn with the current time. If expiresOn is not nil, the function returns the
  comparison of expires on and the current time. If expiresOn is nil, the function returns NO,
  so that the cached token can be tried first.*/
--(BOOL) isExpired;
+- (BOOL)isExpired;
 
 /*! Returns YES if the user is not not set. */
--(BOOL) isEmptyUser;
+- (BOOL)isEmptyUser;
 
 /*! Verifies if the user (as defined by userId) is the same between the two items. */
--(BOOL) isSameUser: (ADTokenCacheStoreItem*) other;
+- (BOOL)isSameUser: (ADTokenCacheStoreItem*)other;
 
 @end

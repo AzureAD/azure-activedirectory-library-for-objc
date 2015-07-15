@@ -35,22 +35,25 @@
         return nil;//Nothing to return
     }
     
-    ADAuthenticationError* localError;
-    ADTokenCacheStoreItem* item = [self.tokenCacheStore getItemWithKey:key userId:userId.userId error:&localError];
+    ADAuthenticationError* localError = nil;
+    ADTokenCacheStoreItem* item = [self.tokenCacheStore getItemWithKey:key error:&localError];
     if (!item && !localError && userId)
-    {//ADFS fix, where the userId is not received by the server, but can be passed to the API:
-        //We didn't find element with the userId, try finding an item with nil userId:
-        NSArray* items = [self.tokenCacheStore getItemsWithKey:key error:&localError];
-        if(items.count) {
-            item = items.firstObject;
-        }else{
-            item = nil;
-        }
+    {
+        // TODO: ADFS isn't supported for convergence, but we'll probably want to rethink this fix...
         
-        if (item && item.userInformation)
-        {
-            item = nil;//Different user id, just clear.
-        }
+        //ADFS fix, where the userId is not received by the server, but can be passed to the API:
+//        //We didn't find element with the userId, try finding an item with nil userId:
+//        NSArray* items = [self.tokenCacheStore getItemsWithKey:key error:&localError];
+//        if(items.count) {
+//            item = items.firstObject;
+//        }else{
+//            item = nil;
+//        }
+//        
+//        if (item && item.userInformation)
+//        {
+//            item = nil;//Different user id, just clear.
+//        }
     }
     if (error && localError)
     {
@@ -95,33 +98,34 @@
         else
         {
             //We have a cache item that cannot be used anymore, remove it from the cache:
-            [self.tokenCacheStore removeItemWithKey:key userId:userId.userId error:nil];
+            [self.tokenCacheStore removeItemWithKey:key error:nil];
         }
     }
     *useAccessToken = false;//No item with suitable access token exists
-    
-    if (![NSString adIsStringNilOrBlank:key.resource])
-    {
-        //The request came for specific resource. Try returning a multi-resource refresh token:
-        ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:self.authority
-                                                                       clientId:key.clientId
-                                                                          error:&localError];
-        if (!broadKey)
-        {
-            AD_LOG_WARN(@"Unexpected error", localError.errorDetails);
-            return nil;//Recover
-        }
-        ADTokenCacheStoreItem* broadItem = [self extractCacheItemWithKey:broadKey userId:userId error:&localError];
-        if (localError)
-        {
-            if (error)
-            {
-                *error = localError;
-            }
-            return nil;
-        }
-        return broadItem;
-    }
+
+    // TODO: MRRT
+//    if (![NSString adIsStringNilOrBlank:key.resource])
+//    {
+//        //The request came for specific resource. Try returning a multi-resource refresh token:
+//        ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:self.authority
+//                                                                       clientId:key.clientId
+//                                                                          error:&localError];
+//        if (!broadKey)
+//        {
+//            AD_LOG_WARN(@"Unexpected error", localError.errorDetails);
+//            return nil;//Recover
+//        }
+//        ADTokenCacheStoreItem* broadItem = [self extractCacheItemWithKey:broadKey userId:userId error:&localError];
+//        if (localError)
+//        {
+//            if (error)
+//            {
+//                *error = localError;
+//            }
+//            return nil;
+//        }
+//        return broadItem;
+//    }
     return nil;//Nothing suitable
 }
 
@@ -231,31 +235,32 @@
             ADTokenCacheStoreKey* exactKey = [cacheItem extractKeyWithError:nil];
             if (exactKey)
             {
-                ADTokenCacheStoreItem* existing = [tokenCacheStoreInstance getItemWithKey:exactKey userId:cacheItem.userInformation.userId error:nil];
+                ADTokenCacheStoreItem* existing = [tokenCacheStoreInstance getItemWithKey:exactKey error:nil];
                 if ([refreshToken isEqualToString:existing.refreshToken])//If still there, attempt to remove
                 {
                     AD_LOG_VERBOSE_F(@"Token cache store", @"Removing cache for scopes: %@", cacheItem.scopes);
-                    [tokenCacheStoreInstance removeItemWithKey:exactKey userId:existing.userInformation.userId error:nil];
+                    [tokenCacheStoreInstance removeItemWithKey:exactKey error:nil];
                     removed = YES;
                 }
             }
             
-            if (!removed)
-            {
-                //Now try finding a broad refresh token in the cache and remove it accordingly
-                ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:self.authority
-                                                                               clientId:cacheItem.clientId
-                                                                                  error:nil];
-                if (broadKey)
-                {
-                    ADTokenCacheStoreItem* broadItem = [tokenCacheStoreInstance getItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
-                    if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
-                    {
-                        AD_LOG_VERBOSE_F(@"Token cache store", @"Removing multi-resource refresh token for authority: %@", self.authority);
-                        [tokenCacheStoreInstance removeItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
-                    }
-                }
-            }
+            // TODO: MRRT
+//            if (!removed)
+//            {
+//                //Now try finding a broad refresh token in the cache and remove it accordingly
+//                ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:self.authority
+//                                                                               clientId:cacheItem.clientId
+//                                                                                  error:nil];
+//                if (broadKey)
+//                {
+//                    ADTokenCacheStoreItem* broadItem = [tokenCacheStoreInstance getItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
+//                    if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
+//                    {
+//                        AD_LOG_VERBOSE_F(@"Token cache store", @"Removing multi-resource refresh token for authority: %@", self.authority);
+//                        [tokenCacheStoreInstance removeItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
+//                    }
+//                }
+//            }
         }
     }
 }

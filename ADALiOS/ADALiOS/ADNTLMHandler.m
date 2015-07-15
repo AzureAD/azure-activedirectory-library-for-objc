@@ -20,7 +20,6 @@
 #import "ADAuthenticationSettings.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADErrorCodes.h"
-#import "ADKeyChainHelper.h"
 #import "ADALiOS.h"
 #import "ADURLProtocol.h"
 #import "UIAlertView+Additions.h"

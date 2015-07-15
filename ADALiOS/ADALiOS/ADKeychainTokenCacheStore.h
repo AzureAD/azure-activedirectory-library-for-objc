@@ -22,17 +22,21 @@
 
 /* Initializes the token cache store with default shared group value.
  */
--(id) init;
-/*! Initializes the token cache store.
- @param: sharedGroup: Optional. If the application needs to share the cached tokens
- with other applications from the same vendor, the app will need to specify the 
- shared group here and add the necessary entitlements to the application.
- See Apple's keychain services documentation for details. */
--(id) initWithGroup: (NSString*) sharedGroup;
+- (id)init;
 
-/* The shared keychain group, where the ADAL library will keep the tokens.
- May be nil. The cache items from the previous keychain group are not transferred
- automatically. */
-@property (getter = getSharedGroup, setter = setSharedGroup:) NSString* sharedGroup;
+/*!
+    Initializes the token cache store.
+ 
+    @param sharedGroup      Optional. If the application needs to share the cached tokens
+                            with other applications from the same vendor, the app will need
+                            to specify the shared group here and add the necessary entitlements
+                            to the application. See Apple's keychain services documentation for
+                            details.
+ */
+
+- (id)initWithGroup: (NSString*) sharedGroup;
+
+/*! The shared keychain group used in Keychain for all ADAL entries. Setting this value to 'nil' will turn off keychain sharing. */
+@property NSString* sharedGroup;
 
 @end

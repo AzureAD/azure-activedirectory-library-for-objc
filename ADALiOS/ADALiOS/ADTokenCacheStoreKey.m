@@ -34,6 +34,9 @@
 
 - (id)initWithAuthority:(NSString*)authority
                clientId:(NSString*)clientId
+                 userId:(NSString*)userId
+               uniqueId:(NSString*)uniqueId
+                 idType:(ADUserIdentifierType)idType
 {
     if (!(self = [super init]))
     {
@@ -41,17 +44,23 @@
     }
     
     //As the object is immutable we precalculate the hash:
-    hash = [[NSString stringWithFormat:@"##%@##%@##", authority, clientId]
-                hash];
+    _key = [[NSString alloc] initWithFormat:@"%@##%@", authority, clientId];
+    _hash = [_key hash];
     _authority = authority;
     _clientId = clientId;
+    _userId = userId;
+    _uniqueId = uniqueId;
+    _identifierType = idType;
     
     return self;
 }
 
-+ (id)keyWithAuthority:(NSString*)authority
-              clientId:(NSString*)clientId
-                 error:(ADAuthenticationError* __autoreleasing*)error
++ (ADTokenCacheStoreKey*)keyWithAuthority:(NSString*)authority
+                                 clientId:(NSString*)clientId
+                                   userId:(NSString*)userId
+                                 uniqueId:(NSString*)uniqueId
+                                   idType:(ADUserIdentifierType)idType
+                                    error:(ADAuthenticationError* __autoreleasing*)error
 {
     API_ENTRY;
     //Trimm first for faster nil or empty checks. Also lowercase and trimming is
@@ -62,14 +71,16 @@
     RETURN_NIL_ON_NIL_ARGUMENT(authority);//Canonicalization will return nil on empty or bad URL.
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(clientId);
     
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey alloc];
-    return [key initWithAuthority:authority
-                         clientId:clientId];
+    return [[ADTokenCacheStoreKey alloc] initWithAuthority:authority
+                                                  clientId:clientId
+                                                    userId:userId
+                                                  uniqueId:uniqueId
+                                                    idType:idType];
 }
 
 - (NSUInteger)hash
 {
-    return hash;
+    return _hash;
 }
 
 - (BOOL)isEqual:(id)object
@@ -77,22 +88,41 @@
     ADTokenCacheStoreKey* key = object;
     if (!key)
         return NO;
-    //First check the fields which cannot be nil:
-    if (![self.authority isEqualToString:key.authority] ||
-        ![self.clientId isEqualToString:key.clientId])
+    
+    if (_hash != key->_hash)
         return NO;
     
-    //Now handle the case of nil resource:
-    if (!self.resource)
-        return !key.resource;//Both should be nil to be equal
-    else
-        return [self.resource isEqualToString:key.resource];
+    //First check the fields which cannot be nil:
+    if (![_authority isEqualToString:key->_authority] ||
+        ![_clientId isEqualToString:key->_clientId])
+        return NO;
+    
+    return YES;
 }
 
 - (id)copyWithZone:(NSZone*) zone
 {
     return [[self.class allocWithZone:zone] initWithAuthority:[self.authority copyWithZone:zone]
-                                                     clientId:[self.clientId copyWithZone:zone]];
+                                                     clientId:[self.clientId copyWithZone:zone]
+                                                       userId:[self.userId copyWithZone:zone]
+                                                     uniqueId:[self.uniqueId copyWithZone:zone]
+                                                       idType:self.identifierType];
+}
+
+- (NSString*)userCacheKey
+{
+    switch (_identifierType)
+    {
+        case OptionalDisplayableId:
+        case RequiredDisplayableId:
+            return _userId;
+            
+        case UniqueId:
+            return _uniqueId;
+    }
+    
+    AD_LOG_ERROR_F(@"Unkonwn user identifier type in ADTokenCacheStoreKey", AD_ERROR_CACHE_PERSISTENCE, @"erorr: %d", (int)_identifierType);
+    return nil;
 }
 
 @end

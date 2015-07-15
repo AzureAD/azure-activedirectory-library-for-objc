@@ -25,7 +25,7 @@
  a new key is required. Keys can be created or extracted from existing ADTokenCacheStoreItem objects. */
 @interface ADTokenCacheStoreKey : NSObject<NSCopying>
 {
-    NSUInteger hash;
+    NSUInteger _hash;
 }
 
 /*!
@@ -37,16 +37,26 @@
  */
 + (ADTokenCacheStoreKey*)keyWithAuthority:(NSString*)authority
                                  clientId:(NSString*)clientId
+                                   userId:(NSString*)userId
+                                 uniqueId:(NSString*)uniqueId
+                                   idType:(ADUserIdentifierType)idType
                                     error:(ADAuthenticationError* __autoreleasing*)error;
 
 /*! The authority that issues access tokens */
 @property (readonly) NSString* authority;
 
-/*! The resouce to which the access tokens are issued. May be nil in case of multi-resource refresh token. */
-@property (readonly) NSString* resource;
-
 /*! The application client identifier */
 @property (readonly) NSString* clientId;
 
+/*! The combined keystring of the properties in this class. */
+@property (readonly) NSString* key;
+
+@property (readonly) NSString* userId;
+
+@property (readonly) NSString* uniqueId;
+
+@property (readonly) ADUserIdentifierType identifierType;
+
+- (NSString*)userCacheKey;
 
 @end

@@ -41,10 +41,13 @@
     return item;
 }
 
--(ADTokenCacheStoreKey*) extractKeyWithError: (ADAuthenticationError* __autoreleasing *)error
+- (ADTokenCacheStoreKey*)extractKeyWithError:(ADAuthenticationError* __autoreleasing *)error
 {
     return [ADTokenCacheStoreKey keyWithAuthority:self.authority
                                          clientId:self.clientId
+                                           userId:self.userInformation.userId
+                                         uniqueId:self.userInformation.uniqueId
+                                           idType:self.identifierType
                                             error:error];
 }
 
@@ -92,6 +95,8 @@
     [aCoder encodeObject:self.sessionKey forKey:@"sessionKey"];
     [aCoder encodeObject:self.expiresOn forKey:@"expiresOn"];
     [aCoder encodeObject:self.userInformation forKey:@"userInformation"];
+    [aCoder encodeObject:self.scopes forKey:@"scopes"];
+    [aCoder encodeObject:[ADUserIdentifier stringForType:self.identifierType] forKey:@"identifierType"];
 }
 
 //Deserializer:
@@ -108,7 +113,9 @@
         self.sessionKey = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"sessionKey"];
         self.refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
         self.expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
+        self.scopes = [aDecoder decodeObjectOfClass:[NSSet class] forKey:@"scopes"];
         self.userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
+        self.identifierType = [ADUserIdentifier typeFromString:[aDecoder decodeObjectOfClass:[NSString class] forKey:@"identifierType"]];
     }
     return self;
 }
@@ -152,6 +159,22 @@
             _authority, _clientId,
             [NSString adIsStringNilOrBlank:_accessToken] ? @"(nil)" : @"(present)", _accessTokenType,
             [NSString adIsStringNilOrBlank:_refreshToken] ? @"(nil)" : @"(present)", _scopes];
+}
+
+ - (NSString*)userCacheKey
+{
+    switch (_identifierType)
+    {
+        case OptionalDisplayableId:
+        case RequiredDisplayableId:
+            return _userInformation.userId;
+            
+        case UniqueId:
+            return _userInformation.uniqueId;
+    }
+    
+    AD_LOG_ERROR_F(@"Unkonwn user identifier type in ADTokenCacheStoreItem", AD_ERROR_CACHE_PERSISTENCE, @"erorr: %d", (int)_identifierType);
+    return nil;
 }
 
 @end

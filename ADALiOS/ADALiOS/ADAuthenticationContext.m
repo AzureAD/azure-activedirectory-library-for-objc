@@ -34,7 +34,6 @@
 #import "ADWorkPlaceJoin.h"
 #import "ADPkeyAuthHelper.h"
 #import "ADWorkPlaceJoinConstants.h"
-#import "ADKeyChainHelper.h"
 #import "ADBrokerKeyHelper.h"
 #import "ADClientMetrics.h"
 #import "NSString+ADHelperMethods.h"

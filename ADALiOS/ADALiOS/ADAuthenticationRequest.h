@@ -90,6 +90,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 - (void)setAllowSilentRequests:(BOOL)allowSilent;
 #endif
 
+- (ADTokenCacheStoreKey*)cacheStoreKey:(ADAuthenticationError* __autoreleasing *)error;
 @end
 
 #import "ADAuthenticationRequest+AcquireAssertion.h"

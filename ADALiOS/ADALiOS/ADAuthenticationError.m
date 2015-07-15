@@ -180,5 +180,15 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                                   errorDetails:ADCancelError];
 }
 
++ (ADAuthenticationError*)errorFromKeychainError:(OSStatus)errCode
+                                    errorDetails:(NSString*)errorDetails
+{
+    return [self errorWithDomainInternal:ADAuthenticationErrorDomain
+                                    code:AD_ERROR_CACHE_PERSISTENCE
+                       protocolErrorCode:[NSString stringWithFormat:@"%d", (int)errCode]
+                            errorDetails:errorDetails
+                                userInfo:nil];
+}
+
 
 @end
