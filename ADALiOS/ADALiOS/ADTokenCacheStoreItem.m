@@ -122,6 +122,11 @@
     return self;
 }
 
++ (ADTokenCacheStoreItem*)itemFromData:(NSData *)data
+{
+    return (ADTokenCacheStoreItem*)[NSKeyedUnarchiver unarchiveObjectWithData:data];
+}
+
 - (BOOL)isEqual:(id)object
 {
     if (!object)
@@ -177,6 +182,11 @@
     
     AD_LOG_ERROR_F(@"Unkonwn user identifier type in ADTokenCacheStoreItem", AD_ERROR_CACHE_PERSISTENCE, @"erorr: %d", (int)_identifierType);
     return nil;
+}
+
+- (NSData*)copyDataForItem
+{
+    return [NSKeyedArchiver archivedDataWithRootObject:self];
 }
 
 @end

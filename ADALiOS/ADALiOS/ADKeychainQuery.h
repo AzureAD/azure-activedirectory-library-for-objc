@@ -19,6 +19,8 @@
 - (void)setAccessGroup:(NSString*)accessGroup;
 - (void)setUserId:(NSString*)userId;
 - (void)setCopyData;
+- (void)setCopyAttributes;
+- (void)setMatchAll;
 
 - (CFDictionaryRef)queryDictionary;
 

@@ -28,6 +28,9 @@
     See the key extraction function for details on how the keys are constructed. */
 @interface ADTokenCacheStoreItem : NSObject<NSCopying , NSSecureCoding>
 
++ (ADTokenCacheStoreItem*)itemFromData:(NSData*)data;
+- (NSData*)copyDataForItem;
+
 @property NSSet* scopes;
 
 @property (copy) NSString* authority;

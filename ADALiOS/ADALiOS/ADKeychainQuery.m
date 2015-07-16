@@ -20,6 +20,7 @@
     
     _cfmdKeychainQuery = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
     CFDictionaryAddValue(_cfmdKeychainQuery, kSecClass, kSecClassGenericPassword);
+    CFDictionaryAddValue(_cfmdKeychainQuery, kSecAttrAccessible, kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly);
     
     return self;
 }
