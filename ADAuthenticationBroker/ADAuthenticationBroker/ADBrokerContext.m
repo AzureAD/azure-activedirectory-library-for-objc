@@ -542,7 +542,8 @@ static dispatch_semaphore_t s_cancelSemaphore;
         ADUserInformation *user = item.userInformation;
         if (!item.userInformation)
         {
-            user = [ADUserInformation userInformationWithUserId:@"Unknown user" error:nil];
+            AD_LOG_INFO_F(@"Cache item with no user information found. Ignoring.", @"authority=%@ resource=%@", item.authority, item.resource);
+            continue;
         }
         if (![users containsObject:user.userId])
         {
