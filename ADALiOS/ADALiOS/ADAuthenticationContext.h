@@ -363,7 +363,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 - (void)acquireTokenSilentForScopes:(NSArray*)scopes
                            clientId:(NSString*)clientId
                         redirectUri:(NSURL*)redirectUri
-                     userIdentifier:(ADUserIdentifier*)identifier
+                         identifier:(ADUserIdentifier*)identifier
                     completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
@@ -382,7 +382,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 - (void)acquireTokenSilentForScopes:(NSArray*)scopes
                            clientId:(NSString*)clientId
                         redirectUri:(NSURL*)redirectUri
-                     userIdentifier:(ADUserIdentifier*)identifier
+                         identifier:(ADUserIdentifier*)identifier
                              policy:(NSString*)policy
                     completionBlock:(ADAuthenticationCallback)completionBlock;
 

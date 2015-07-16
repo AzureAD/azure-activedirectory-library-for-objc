@@ -18,6 +18,7 @@
 
 
 #import <Foundation/Foundation.h>
+#import "ADUserIdentifier.h"
 
 @class ADAuthenticationError;
 
