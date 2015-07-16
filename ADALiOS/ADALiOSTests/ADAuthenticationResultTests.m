@@ -94,12 +94,12 @@
 -(void) testResultFromTokenCacheStoreItem
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil multiResourceRefreshToken:NO];
+    ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil];
     [self verifyErrorResult:nilItemResult errorCode:AD_ERROR_UNEXPECTED];
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
-    item.resource = @"resource";
+    //item.resource = @"resource";
     item.authority = @"https://login.windows.net/mytennant.com";
     item.clientId = @"clientId";
     item.accessToken = @"accessToken";
@@ -111,20 +111,20 @@
     ADAssertNoError;
     
     //Copy the item to ensure that it is not modified withing the method call below:
-    ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
+    ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy]];
     [self verifyResult:resultFromValidItem item:item];
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Nil access token:
-    item.resource = @"resource";//Restore
+    //item.resource = @"resource";//Restore
     item.accessToken = nil;
-    ADAuthenticationResult* resultFromNilAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
+    ADAuthenticationResult* resultFromNilAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy]];
     [self verifyErrorResult:resultFromNilAccessToken errorCode:AD_ERROR_UNEXPECTED];
 
     //Empty access token:
-    item.resource = @"resource";//Restore
+    //item.resource = @"resource";//Restore
     item.accessToken = @"   ";
-    ADAuthenticationResult* resultFromEmptyAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
+    ADAuthenticationResult* resultFromEmptyAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy]];
     [self verifyErrorResult:resultFromEmptyAccessToken errorCode:AD_ERROR_UNEXPECTED];
 }
 

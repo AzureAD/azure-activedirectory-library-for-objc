@@ -125,28 +125,6 @@
     [self verifySameUser:@"test user" userId2:@"test user"];
 }
 
--(void) testMultiRefreshTokens
-{
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
-    XCTAssertFalse(item.multiResourceRefreshToken);
-    item.resource = nil;
-    XCTAssertFalse(item.multiResourceRefreshToken);
-    
-    //Valid:
-    item.accessToken = nil;
-    XCTAssertTrue(item.multiResourceRefreshToken);
-    
-    //Invalidate through refresh token:
-    item.refreshToken = nil;
-    XCTAssertFalse(item.multiResourceRefreshToken, "nil refresh token");
-    item.refreshToken = @"  ";
-    XCTAssertFalse(item.multiResourceRefreshToken, "Empty resource token");
-    
-    //Restore:
-    item.refreshToken = @"refresh token";
-    XCTAssertTrue(item.multiResourceRefreshToken);
-}
-
 -(void) testSupportsSecureCoding
 {
     XCTAssertTrue([ADTokenCacheStoreItem supportsSecureCoding], "Ensure that the unarchiving is secure.");

@@ -257,7 +257,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     [self clearResults];
     ADAuthenticationError* error;
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
-    NSArray* allItems = [cache allItemsWithError:&error];
+    NSArray* allItems = [cache allItems:&error];
     if (error)
     {
         [self appendToResults:error.errorDetails];
@@ -266,7 +266,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     NSString* status = nil;
     if (allItems.count > 0)
     {
-        [cache removeAllWithError:&error];
+        [cache removeAll:&error];
         if (error)
         {
             status = error.errorDetails;
@@ -298,7 +298,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     [self clearResults];
     ADAuthenticationError* error;
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
-    NSArray* array = [cache allItemsWithError:&error];
+    NSArray* array = [cache allItems:&error];
     if (error)
     {
         [self appendToResults:error.errorDetails];
@@ -335,7 +335,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     [self clearResults];
     [self appendToResults:@"Attempt to expire..."];
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
-    NSArray* array = [cache allItemsWithError:&error];
+    NSArray* array = [cache allItems:&error];
     if (error)
     {
         [self appendToResults:error.errorDetails];

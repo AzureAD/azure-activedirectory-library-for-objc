@@ -46,15 +46,16 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     
-    mStore = (ADKeychainTokenCacheStore*)[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    mStore = [[ADKeychainTokenCacheStore alloc] init];
+    [mStore setServiceKey:@"MSOpenTech.ADAL.test"];
+    
     XCTAssertNotNil(mStore, "Default store cannot be nil.");
-    XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
-    [mStore removeAllWithError:nil];//Start clean before each test
+    [mStore removeAll:nil];//Start clean before each test
 }
 
 - (void)tearDown
 {
-    [mStore removeAllWithError:nil];//Attempt to clear the junk from the keychain
+    [mStore removeAll:nil];//Attempt to clear the junk from the keychain
     mStore = nil;
     
     [self adTestEnd];
@@ -64,7 +65,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 -(long) count
 {
     ADAuthenticationError* error;
-    NSArray* all = [mStore allItemsWithError:&error];
+    NSArray* all = [mStore allItems:&error];
     ADAssertNoError;
     XCTAssertNotNil(all);
     return all.count;
@@ -142,34 +143,16 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
     ADAssertNoError;
     XCTAssertNotNil(key);
-    ADTokenCacheStoreItem* exact = [mStore getItemWithKey:key userId:item.userInformation.userId error:&error];
+    ADTokenCacheStoreItem* exact = [mStore getItemWithKey:key error:&error];
     ADAssertNoError;
     XCTAssertEqualObjects(item, exact);
-
-    //getItemsWithKey:userId and nil userId:
-    ADTokenCacheStoreItem* returnedItemForNil = [mStore getItemWithKey:key userId:nil error:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(returnedItemForNil);
-    XCTAssertEqualObjects(item, returnedItemForNil);
-    XCTAssertEqualObjects(exact, returnedItemForNil);
-    
-    //getItemsWithKey:
-    NSArray* items = [mStore getItemsWithKey:key error:&error];
-    ADAssertNoError;
-    XCTAssertTrue(items.count == 1);
-    ADTokenCacheStoreItem* returnedFromArray = [items objectAtIndex:0];
-    XCTAssertNotNil(returnedFromArray);
-    XCTAssertEqualObjects(item, returnedFromArray);
-    XCTAssertEqualObjects(returnedItemForNil, returnedFromArray);
     
     //allItems:
-    NSArray* allItems = [mStore allItemsWithError:&error];
+    NSArray* allItems = [mStore allItems:&error];
     ADAssertNoError;
-    XCTAssertTrue(items.count == 1);
     ADTokenCacheStoreItem* returnedFromAll = [allItems objectAtIndex:0];
     XCTAssertNotNil(returnedFromAll);
     XCTAssertEqualObjects(item, returnedFromAll);
-    XCTAssertEqualObjects(returnedFromArray, returnedFromAll);
 }
 
 -(void) testComplex
@@ -177,7 +160,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertTrue([self count] == 0, "Start empty.");
     
     ADAuthenticationError* error;
-    XCTAssertNotNil([mStore allItemsWithError:&error]);
+    XCTAssertNotNil([mStore allItems:&error]);
     ADAssertNoError;
     ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
     
@@ -186,11 +169,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     //add the same item and ensure that the counts do not change:
     ADD_OR_UPDATE_ITEM(item1, NO);
-    
-    //Add an item with different key:
-    ADTokenCacheStoreItem* item2 = [self adCreateCacheItem];
-    item2.resource = @"another authority";
-    ADD_OR_UPDATE_ITEM(item2, YES);
     
     //add an item with the same key, but some other change:
     ADTokenCacheStoreItem* item3 = [self adCreateCacheItem];
@@ -212,149 +190,34 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Now few getters:
-    ADTokenCacheStoreItem* itemReturn5 = [mStore getItemWithKey:key userId:nil error:&error];
+    ADTokenCacheStoreItem* itemReturn5 = [mStore getItemWithKey:key error:&error];
     ADAssertLongEquals(AD_ERROR_MULTIPLE_USERS, error.code);
     XCTAssertNil(itemReturn5);
     error = nil;//Clear
     [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     
-    NSArray* array = [mStore getItemsWithKey:key error:&error];
+    NSArray* array = [mStore allItems:&error];
     ADAssertNoError;
     XCTAssertTrue(array.count == 3);
     
     //Now test the removers:
-    [mStore removeItemWithKey:key userId:item4.userInformation.userId error:&error];//Specific user
+    [mStore removeItemWithKey:key error:&error];//Specific user
     ADAssertNoError;
-    XCTAssertTrue(array.count == 3);
+    
+    array = [mStore allItems:&error];
+    XCTAssertTrue(array.count == 2);
     
     //This will remove two elements, as the userId is not specified:
-    [mStore removeItemWithKey:key userId:nil error:&error];
+    [mStore removeItemWithKey:key error:&error];
     ADAssertNoError;
     XCTAssertTrue([self count]  == 1);
     
-    [mStore removeAllWithError:&error];
+    [mStore removeAll:&error];
     ADAssertNoError;
-    array = [mStore allItemsWithError:&error];
+    array = [mStore allItems:&error];
     ADAssertNoError;
     XCTAssertNotNil(array);
     XCTAssertTrue(array.count == 0);
-}
-
--(void) threadProc
-{
-    @autoreleasepool//Autorelease pool for the whole thread. Required.
-    {
-        //Create as much date as possible outside of the run loop to cause the most
-        //thread contentions in the loop:
-        ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
-        ADAuthenticationError* error;
-        item1.userInformation = [ADUserInformation userInformationWithUserId:@"foo" error:nil];
-        ADAssertNoError;
-        ADTokenCacheStoreItem* item2 = [self adCreateCacheItem];
-        item2.userInformation = [ADUserInformation userInformationWithUserId:@"bar" error:nil];
-        ADAssertNoError;
-        ADTokenCacheStoreItem* item3 = [self adCreateCacheItem];
-        item3.userInformation = nil;
-        ADTokenCacheStoreKey* key123 = [item3 extractKeyWithError:&error];
-        ADAssertNoError;
-
-        ADTokenCacheStoreItem* item4 = [self adCreateCacheItem];
-        item4.authority = @"https://www.authority.com/tenant.com";
-        ADTokenCacheStoreKey* key4 = [item4 extractKeyWithError:&error];
-        ADAssertNoError;
-        
-        NSDate* end = [NSDate dateWithTimeIntervalSinceNow:sThreadsRunTime];//few seconds into the future
-        NSDate* now;
-        do
-        {
-            @autoreleasepool//The cycle will create constantly objects, so it needs its own autorelease pool
-            {
-                ADAuthenticationError* error;//Keep it local
-                [mStore removeAllWithError:&error];
-                ADAssertNoError;
-                [mStore addOrUpdateItem:item1 error:&error];
-                ADAssertNoError;
-                [mStore addOrUpdateItem:item2 error:&error];
-                ADAssertNoError;
-                [mStore addOrUpdateItem:item3 error:&error];
-                ADAssertNoError;
-                [mStore addOrUpdateItem:item4 error:&error];
-                ADAssertNoError;
-                //We are intentionally not testing all getters here, as the goal
-                //is to have as many writes as reads in the dictionary for higher chance of thread collisions
-                //Implementing
-                //all possible get combinations will skew the test towards reads:
-                NSArray* array = [mStore getItemsWithKey:key123 error:&error];
-                ADAssertNoError;
-                XCTAssertNotNil(array);
-                array = [mStore allItemsWithError:&error];
-                ADAssertNoError;
-                XCTAssertNotNil(array);
-                array = [mStore getItemsWithKey:key4 error:&error];
-                ADAssertNoError;
-                XCTAssertNotNil(array);
-                [mStore getItemWithKey:key123 userId:nil error:&error];
-                if (error)//can error or not, depending on the state of deletions
-                {
-                    ADAssertLongEquals(AD_ERROR_MULTIPLE_USERS, error.code);
-                    error = nil;
-                }
-                ADTokenCacheStoreItem* return1 = [mStore getItemWithKey:key123 userId:item1.userInformation.userId error:&error];
-                ADAssertNoError;
-                if (return1)//may not return if deleted in another thread
-                {
-                    XCTAssertEqualObjects(item1, return1);
-                }
-                ADTokenCacheStoreItem* badUser = [mStore getItemWithKey:key123 userId:@"not real" error:&error];
-                ADAssertNoError;
-                XCTAssertNil(badUser);
-                ADTokenCacheStoreItem* return4 = [mStore getItemWithKey:key4 userId:nil error:&error];//Always exactly 1 or 0 elements for this key
-                ADAssertNoError;
-                if (return4)
-                {
-                    XCTAssertEqualObjects(item4, return4);
-                }
-
-                badUser = [mStore getItemWithKey:key4 userId:@"not real" error:&error];
-                ADAssertNoError;
-                XCTAssertNil(badUser);
-                [mStore removeItemWithKey:key123 userId:item1.userInformation.userId error:&error];
-                ADAssertNoError;
-                [mStore removeItemWithKey:key123 userId:item2.userInformation.userId error:&error];
-                ADAssertNoError;
-                [mStore removeItemWithKey:key123 userId:nil error:&error];
-                ADAssertNoError;
-                [mStore removeItemWithKey:key4 userId:nil error:&error];
-                ADAssertNoError;
-                
-                now = [NSDate dateWithTimeIntervalSinceNow:0];
-            }//Inner authorelease pool
-        }
-        while ([end compare:now] == NSOrderedDescending);
-        if (OSAtomicIncrement32(&sThreadsFinished) == sMaxThreads)
-        {
-            //The last one finished, signal completion:
-            dispatch_semaphore_signal(sThreadsSemaphore);
-        }
-    }//@autorealease pool. End of the method
-}
-
--(void) testMultipleThreads
-{
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];//Multi-user errors
-    //The signal to denote completion:
-    sThreadsSemaphore = dispatch_semaphore_create(0);
-    sThreadsFinished = 0;
-    XCTAssertTrue(sThreadsSemaphore, "Failed to create a semaphore");
-
-    for(int i = 0; i < sMaxThreads; ++i)
-    {
-        [self performSelectorInBackground:@selector(threadProc) withObject:self];
-    }
-    if (dispatch_semaphore_wait(sThreadsSemaphore, dispatch_time(DISPATCH_TIME_NOW, (sThreadsRunTime + 5)*NSEC_PER_SEC)))
-    {
-        XCTFail("Timeout. Most likely one or more of the threads have crashed or hanged.");
-    }
 }
 
 //Add large number of items to the cache. Acts as a mini-stress test too
@@ -381,7 +244,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     }
 
     //Restore:
-    [mStore removeAllWithError:&error];
+    [mStore removeAll:&error];
     ADAssertNoError;
 }
 
@@ -392,27 +255,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
     ADAssertNoError;
     
-    ADTokenCacheStoreItem* read = nil;
-    if (item.userInformation)
-    {
-        read = [mStore getItemWithKey:key userId:item.userInformation.userId error:&error];
-    }
-    else
-    {
-        //Find the one (if any) that has userId equal to nil:
-        NSArray* all = [mStore getItemsWithKey:key error:&error];
-        ADAssertNoError;
-        XCTAssertNotNil(all);
-        for(ADTokenCacheStoreItem* i in all)
-        {
-            XCTAssertNotNil(i);
-            if (!i.userInformation)
-            {
-                XCTAssertNil(read);
-                read = i;
-            }
-        }
-    }
+    ADTokenCacheStoreItem* read = [mStore getItemWithKey:key error:&error];
     ADAssertNoError;
     XCTAssertEqualObjects(item, read);
 }
@@ -453,7 +296,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     keychainStore.sharedGroup = nil;
     XCTAssertNil(keychainStore.sharedGroup);
     XCTAssertNil(settings.sharedCacheKeychainGroup);
-    [mStore removeAllWithError:&error];
+    [mStore removeAll:&error];
     ADAssertNoError;
     ADAssertLongEquals(0, [self count]);
 }

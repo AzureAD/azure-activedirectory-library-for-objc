@@ -152,10 +152,9 @@
     ADAuthenticationError* error = nil;
     
     ADAuthenticationRequest* request = [ADTestAuthenticationRequest requestWithContext:self
-                                                                       redirectUri:redirectUri
-                                                                          clientId:clientId
-                                                                          resource:resource
-                                                                             error:&error];
+                                                                           redirectUri:redirectUri
+                                                                              clientId:clientId
+                                                                                 error:&error];
     
     if (!request)
     {

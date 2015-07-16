@@ -131,7 +131,7 @@ const int sTokenWorkflowTimeout     = 20;
 -(void) clearCache
 {
     ADAuthenticationError* error;
-    [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore removeAllWithError:&error];
+    [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore removeAll:&error];
     XCTAssertNil(error.errorDetails);
 }
 
@@ -428,7 +428,7 @@ const int sTokenWorkflowTimeout     = 20;
 {
     id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     ADAuthenticationError* error;
-    NSArray* all = [cache allItemsWithError:&error];
+    NSArray* all = [cache allItems:&error];
     XCTAssertNotNil(all);
     XCTAssertNil(error.errorDetails);
     return all.count;

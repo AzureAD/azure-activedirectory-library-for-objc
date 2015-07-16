@@ -38,7 +38,7 @@
     return;
 }
 
--(void) removeAllWithError:(ADAuthenticationError *__autoreleasing *)error
+-(void) removeAll:(ADAuthenticationError *__autoreleasing *)error
 {
     return;
 }
@@ -71,7 +71,7 @@
     return nil;
 }
 
--(ADTokenCacheStoreItem*) allItemsWithError: (ADAuthenticationError* __autoreleasing*) error;
+-(ADTokenCacheStoreItem*) allItems: (ADAuthenticationError* __autoreleasing*) error;
 {
     return nil;
 }

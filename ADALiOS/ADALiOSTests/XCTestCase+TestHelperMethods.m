@@ -46,7 +46,7 @@ NSString* const sIDTokenHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
 volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 /*! See header for comments */
--(void) adAssertValidText: (NSString*) text
+- (void)adAssertValidText: (NSString*) text
                   message: (NSString*) message
 {
     //The pragmas here are copied directly from the XCTAssertNotNil:
@@ -334,10 +334,11 @@ extern void __gcov_flush(void);
 
 //Creates an new item with all of the properties having correct
 //values
--(ADTokenCacheStoreItem*) adCreateCacheItem
+- (ADTokenCacheStoreItem*)adCreateCacheItem
 {
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
-    item.resource = @"resource";
+    //item.resource = @"resource";
+    item.scopes = [NSSet setWithObjects:@"mail.read", @"planetarydefense.target.acquire", @"planetarydefense.fire", nil];
     item.authority = @"https://login.windows.net/sometenant.com";
     item.clientId = @"client id";
     item.accessToken = @"access token";
@@ -353,7 +354,7 @@ extern void __gcov_flush(void);
     return item;
 }
 
--(ADUserInformation*) adCreateUserInformation
+- (ADUserInformation*)adCreateUserInformation
 {
     ADAuthenticationError* error = nil;
     //This one sets the "userId" property:
