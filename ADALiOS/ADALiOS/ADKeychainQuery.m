@@ -29,6 +29,11 @@
     CFRelease(_cfmdKeychainQuery);
 }
 
+- (void)setMatchAll
+{
+    CFDictionaryAddValue(_cfmdKeychainQuery, kSecMatchLimit, kSecMatchLimitAll);
+}
+
 - (void)setServiceKey:(NSString*)serviceKey
 {
     CFDictionaryAddValue(_cfmdKeychainQuery, kSecAttrService, (__bridge const void *)(serviceKey));
@@ -47,6 +52,11 @@
 - (void)setCopyData
 {
     CFDictionaryAddValue(_cfmdKeychainQuery, kSecReturnData, kCFBooleanTrue);
+}
+
+- (void)setCopyAttributes
+{
+    CFDictionaryAddValue(_cfmdKeychainQuery, kSecReturnAttributes, kCFBooleanTrue);
 }
 
 - (void)setUserId:(NSString *)userId

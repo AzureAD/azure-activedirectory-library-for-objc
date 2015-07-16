@@ -26,6 +26,9 @@
  */
 @protocol ADTokenCacheStoring
 
+
+- (NSArray*)allItems:(ADAuthenticationError* __autoreleasing*)error;
+
 /*!
     May return nil, if no cache item corresponds to the requested key
  
@@ -63,6 +66,6 @@
                     error:(ADAuthenticationError* __autoreleasing*)error;
 
 /*! Clears the whole cache store. The method does not raise an error if there are no items in the cache. */
-- (void)removeAllWithError:(ADAuthenticationError* __autoreleasing*)error;
+- (void)removeAll:(ADAuthenticationError* __autoreleasing*)error;
 
 @end

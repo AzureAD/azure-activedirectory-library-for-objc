@@ -70,7 +70,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     {
         return nil;
     }
-
+    
     _sharedGroup = sharedGroup;
     _serviceKey = s_kDefaultADALServiceKey;
     
@@ -86,8 +86,10 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     s_keychainQueue = dispatch_queue_create(s_keychainQueueLabel, DISPATCH_QUEUE_CONCURRENT);
 }
 
+#define CHECK_OSSTATUS(_err) if ([ADKeychainTokenCacheStore handleKeychainCode:_err operation:__PRETTY_FUNCTION__ error:error]) { return; }
+
 + (BOOL)handleKeychainCode:(OSStatus)errCode
-                 operation:(NSString*)operation
+                 operation:(const char*)operation
                      error:(ADAuthenticationError* __autoreleasing *)error
 {
     if (error)
@@ -97,7 +99,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     
     if (errCode == errSecSuccess)
     {
-        NSString* log = [NSString stringWithFormat:@"ADAL Keychain \"%@\" operation succeeded.", operation];
+        NSString* log = [NSString stringWithFormat:@"ADAL Keychain \"%s\" operation succeeded.", operation];
         AD_LOG_INFO(log, nil);
         return NO;
     }
@@ -106,12 +108,12 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     {
         // If we didn't find anything we don't log it as an error as there's usually a number of cases where that's expected
         // and we don't want to send up red herrings.
-        NSString* log = [NSString stringWithFormat:@"ADAL Keychain \"%@\" found no matching items.", operation];
+        NSString* log = [NSString stringWithFormat:@"ADAL Keychain \"%s\" found no matching items.", operation];
         AD_LOG_INFO(log, nil);
         return YES;
     }
     
-    NSString* log = [NSString stringWithFormat:@"ADAL Keychain \"%@\" operation failed with error code %d.", operation, (int)errCode];
+    NSString* log = [NSString stringWithFormat:@"ADAL Keychain \"%s\" operation failed with error code %d.", operation, (int)errCode];
     // Creating the ADError object will cause the error to get logged.
     ADAuthenticationError* adError = [ADAuthenticationError errorFromKeychainError:errCode errorDetails:log];
     
@@ -128,11 +130,6 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
         message:(NSString*)additionalMessage
 {
     AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. scopes: %@ Access token hash: %@; Refresh token hash: %@", additionalMessage, item.scopes, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
-}
-
-- (void)setServiceKey:(NSString*)serviceKey
-{
-    _serviceKey = serviceKey;
 }
 
 #pragma mark Keychain Helper Methods
@@ -161,14 +158,13 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     
     *outKeychainItems = NULL;
     
-    ADKeychainQuery* retrieveQuery = [[ADKeychainQuery alloc] init];
-    [retrieveQuery setAccessGroup:_sharedGroup];
+    ADKeychainQuery* retrieveQuery = [self createBaseQuery];
     [retrieveQuery setUserId:userId];
     [retrieveQuery setCopyData];
     
     CFTypeRef data = NULL;
     OSStatus err = SecItemCopyMatching([retrieveQuery queryDictionary], &data);
-    if (![ADKeychainTokenCacheStore handleKeychainCode:err operation:@"removeItemWithKey" error:error])
+    if (err != errSecSuccess)
     {
         return err;
     }
@@ -191,16 +187,21 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     *outKeychainItems = cfmdKeychainItem;
     return errSecSuccess;
 }
-- (void)writeDictionary:(CFDictionaryRef)dictionary
+- (OSStatus)writeDictionary:(CFDictionaryRef)dictionary
                  userId:(NSString*)userId
 {
     
     CFErrorRef cfError = NULL;
-    CFDataRef data = CFPropertyListCreateData(NULL, dictionary, kCFPropertyListBinaryFormat_v1_0, 0, &cfError);
     
-    if (data == NULL)
+    if (!dictionary)
     {
-        return;
+        return errSecParam;
+    }
+    
+    CFDataRef data = CFPropertyListCreateData(NULL, dictionary, kCFPropertyListBinaryFormat_v1_0, 0, &cfError);
+    if (!data)
+    {
+        return errSecAllocate;
     }
     
     ADKeychainQuery* writeQuery = [self createBaseQuery];
@@ -211,11 +212,18 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     
     // Create an attributes dictionary for the generic data on the specified item
     CFDictionaryRef attributes = CFDictionaryCreate(NULL, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CFRelease(data);
+    if (!attributes)
+    {
+        return errSecAllocate;
+    }
     
     // Write it out ot keychain
-    SecItemUpdate([writeQuery queryDictionary], attributes);
+    OSStatus err = SecItemUpdate([writeQuery queryDictionary], attributes);
     
     CFRelease(attributes);
+    
+    return err;
 }
 
 - (void)removeAllForUser:(NSString*)userId
@@ -225,13 +233,77 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
         ADKeychainQuery* keychainQuery = [self createBaseQuery];
         [keychainQuery setUserId:userId];
         OSStatus err = SecItemDelete([keychainQuery queryDictionary]);
-        [ADKeychainTokenCacheStore handleKeychainCode:err operation:@"removeAllForUser" error:error];
+        CHECK_OSSTATUS(err);
     });
 }
 
 
 
 #pragma mark ADTokenCacheStoring methods
+
+- (NSArray*)allItems:(ADAuthenticationError *__autoreleasing *)error
+{
+    __block NSArray* returnItems = nil;
+    
+    adkeychain_dispatch_if_needed(^{
+        ADKeychainQuery* query = [self createBaseQuery];
+        [query setCopyAttributes];
+        [query setMatchAll];
+        
+        CFArrayRef cfaItems = NULL;
+        OSStatus err = SecItemCopyMatching([query queryDictionary], (CFTypeRef*)&cfaItems);
+        CHECK_OSSTATUS(err);
+        
+        NSMutableArray* cacheItems = [NSMutableArray new];
+        
+        for (NSDictionary* attrs in (__bridge NSArray*)cfaItems)
+        {
+            if (![attrs isKindOfClass:[NSDictionary class]])
+            {
+                continue;
+            }
+            
+            NSString* account = [attrs objectForKey:(__bridge id)(kSecAttrAccount)];
+            if (account && ![account isKindOfClass:[NSString class]])
+            {
+                continue;
+            }
+            
+            AD_LOG_INFO_F(@"Found account in keychain", @"account: %@", account);
+            
+            CFMutableDictionaryRef keychainItems = NULL;
+            OSStatus err = [self copyDictionary:&keychainItems
+                                         userId:account
+                                          error:error];
+            if (err != errSecSuccess)
+            {
+                return;
+            }
+            
+            [(__bridge NSDictionary*)keychainItems enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop)
+            {
+                NSData* itemData = (NSData*)obj;
+                ADTokenCacheStoreItem* cacheItem = [ADTokenCacheStoreItem itemFromData:itemData];
+                if (!cacheItem)
+                {
+                    return;
+                }
+            }];
+            CFRelease(keychainItems);
+        }
+        
+        CFRelease(cfaItems);
+        
+        returnItems = cacheItems;
+    });
+    
+    if ([returnItems count] == 0)
+    {
+        AD_LOG_INFO(@"No accounts found in keychain.", nil);
+    }
+    
+    return returnItems;
+}
 
 - (ADTokenCacheStoreItem*)getItemWithKey:(ADTokenCacheStoreKey*)key
                                    error:(ADAuthenticationError *__autoreleasing *)error
@@ -257,7 +329,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
             return;
         }
         
-        item = [NSKeyedUnarchiver unarchiveObjectWithData:(__bridge NSData *)(data)];
+        item = [ADTokenCacheStoreItem itemFromData:(__bridge NSData *)(data)];
     });
     
     
@@ -296,7 +368,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
             return;
         }
         
-        CFDictionarySetValue(cfmdKeychainDict, (__bridge const void *)([key key]), (__bridge const void *)([NSKeyedArchiver archivedDataWithRootObject:item]));
+        CFDictionarySetValue(cfmdKeychainDict, (__bridge const void *)([key key]), (__bridge const void *)([item copyDataForItem]));
     });
 }
 
@@ -324,8 +396,8 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
         {
             [self removeAllForUser:[key userCacheKey]
                              error:nil];
-            return;
         }
+        CHECK_OSSTATUS(err);
         
         // If the item we're looking for isn't even in the dictionary then we're already done.
         if (!CFDictionaryContainsKey(cfmdKeychainItem, (__bridge const void *)([key key])))
@@ -342,12 +414,12 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     });
 }
 
-- (void)removeAllWithError:(ADAuthenticationError *__autoreleasing *)error
+- (void)removeAll:(ADAuthenticationError *__autoreleasing *)error
 {
     adkeychain_dispatch_if_needed(^{
         ADKeychainQuery* keychainQuery = [self createBaseQuery];
         OSStatus err = SecItemDelete([keychainQuery queryDictionary]);
-        [ADKeychainTokenCacheStore handleKeychainCode:err operation:@"removeAll" error:error];
+        CHECK_OSSTATUS(err);
     });
 }
 
