@@ -545,6 +545,11 @@ static dispatch_semaphore_t s_cancelSemaphore;
             AD_LOG_INFO_F(@"Cache item with no user information found. Ignoring.", @"authority=%@ resource=%@", item.authority, item.resource);
             continue;
         }
+        else if (!item.userInformation.userIdDisplayable)
+        {
+            AD_LOG_INFO_F(@"user found without a displayable id.", @"userinfo=%@ authority=%@ resource=%@", item.userInformation, item.authority, item.resource);
+            continue;
+        }
         if (![users containsObject:user.userId])
         {
             AD_LOG_INFO_F(@"Found Broker User", @"%@", user.userId);
