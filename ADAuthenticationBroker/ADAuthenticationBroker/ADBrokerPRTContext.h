@@ -19,18 +19,22 @@
 #import <Foundation/Foundation.h>
 @class ADBrokerPRTCacheItem;
 
+@class ADUserIdentifier;
+
 typedef void(^ADPRTResultCallback)(ADBrokerPRTCacheItem* item, NSError* error);
 typedef void(^ADOnResultCallback)(NSError* error);
 @interface ADBrokerPRTContext : NSObject
 
-- (id)initWithUpn:(NSString*)upn
-        authority:(NSString*)authority
-    correlationId:(NSUUID*)correlationId
-            error:(ADAuthenticationError* __autoreleasing *) error;
+- (id)initWithIdentifier:(ADUserIdentifier*)identifier
+               authority:(NSString*)authority
+           correlationId:(NSUUID*)correlationId
+                   error:(ADAuthenticationError* __autoreleasing *) error;
 
 /*! Gets PRT using Broker Token. Assumes that the device was successfully WPJ.*/
 - (void)acquirePRTForUPN:(ADPRTResultCallback)callback;
 
+- (void)acquirePRTForUPN:(BOOL)allowSilent
+                callback:(ADPRTResultCallback)callback;
 
 /*! Gets token for a client Id using PRT. If expired, the PRT is refreshed via webview.*/
 - (void)acquireTokenUsingPRTForResource:(NSString*) resource

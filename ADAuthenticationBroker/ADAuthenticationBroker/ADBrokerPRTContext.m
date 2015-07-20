@@ -36,14 +36,14 @@
 @implementation ADBrokerPRTContext
 {
     ADAuthenticationContext* _ctx;
-    NSString* _userPrincipalIdentifier;
+    ADUserIdentifier* _identifier;
     NSString* _authority;
 }
 
-- (id)initWithUpn:(NSString*)upn
-        authority:(NSString*)authority
-    correlationId:(NSUUID*)correlationId
-            error:(ADAuthenticationError* __autoreleasing *)error
+- (id)initWithIdentifier:(ADUserIdentifier*)identifier
+               authority:(NSString*)authority
+           correlationId:(NSUUID*)correlationId
+                   error:(ADAuthenticationError* __autoreleasing *)error
 {
     ADAuthenticationContext* ctx = nil;
     
@@ -67,7 +67,7 @@
     if (!(self = [super init]))
         return nil;
     
-    _userPrincipalIdentifier = upn;
+    _identifier = identifier;
     _ctx = ctx;
     _authority = authority;
 
@@ -85,7 +85,7 @@
                                                                  error:&error];
     //TODO figure out error case
     [cacheStore removeItemWithKey:key
-                           userId:_userPrincipalIdentifier
+                           userId:_identifier.userId
                             error:&error];
     if(error)
     {
@@ -95,6 +95,12 @@
 
 - (void)acquirePRTForUPN:(ADPRTResultCallback)callback
 {
+    [self acquirePRTForUPN:YES callback:callback];
+}
+
+- (void)acquirePRTForUPN:(BOOL)allowSilent
+                callback:(ADPRTResultCallback)callback
+{
     ADAuthenticationError* error = nil;
     //get PRT from cache
     id<ADTokenCacheStoring> cacheStore = [[ADBrokerKeychainTokenCacheStore alloc] initWithAppKey:DEFAULT_GUID_FOR_NIL];
@@ -103,7 +109,7 @@
                                                               clientId:DEFAULT_GUID_FOR_NIL
                                                                  error:&error];
     ADBrokerPRTCacheItem* item = (ADBrokerPRTCacheItem*)[cacheStore getItemWithKey:key
-                                                                            userId:_userPrincipalIdentifier
+                                                                            userId:_identifier.userId
                                                                              error:&error];
     if(!error && item && !item.isExpired)
     {
@@ -116,109 +122,108 @@
     
     AD_LOG_INFO(@"Valid PRT NOT found in cache... Acquiring new PRT", nil);
     // get broker client ID token
-    [_ctx validatedAcquireTokenWithResource:[ADBrokerSettings sharedInstance].graphResourceEndpoint
-                                  clientId:BROKER_CLIENT_ID
-                               redirectUri:[NSURL URLWithString:BROKER_REDIRECT_URI]
-                            promptBehavior:AD_PROMPT_AUTO
-                                    silent:NO
-                                    userId:_userPrincipalIdentifier
-                                     scope:@"openid"
-                      extraQueryParameters:@"nux=1"
-                             correlationId:[_ctx getCorrelationId]
-                           completionBlock:^(ADAuthenticationResult *result) {
-                               ADAuthenticationError* error;
-                               if(result.status == AD_SUCCEEDED)
-                               {
-                                   ADTokenCacheStoreKey* accessTokenKey = [result.tokenCacheStoreItem extractKeyWithError:nil];
-                                   ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:accessTokenKey.authority
-                                                                                             resource:nil
-                                                                                             clientId:BROKER_CLIENT_ID
-                                                                                                error:&error];
-                                   if(error)
-                                   {
-                                       callback(nil, error);
-                                       return;
-                                   }else{
-                                       // we have a fresh AT and RT. Get RT from cache as it is not returned
-                                       // in the result.
-                                       
-                                       NSArray* items = [_ctx.tokenCacheStore getItemsWithKey:key
-                                                                                       error:&error];
-                                       NSString* brokerRefreshToken = nil;
-                                       for(ADTokenCacheStoreItem* item in items)
-                                       {
-                                           if (item.refreshToken
-                                               && item.userInformation
-                                               && [NSString adSame:_userPrincipalIdentifier
-                                                          toString:item.userInformation.upn] && !item.isExpired)
-                                           {
-                                               brokerRefreshToken = item.refreshToken;
-                                               break;
-                                           }
-                                       }
-                                       
-                                       if(!brokerRefreshToken)
-                                       {
-                                           error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REFRESH_TOKEN
-                                                                                          protocolCode:nil errorDetails:@"NO Refresh token found for broker client id"];
-                                           callback(nil, error);
-                                           return;
-                                       }
-                                       
-                                       //use the RT to get PRT
-                                       //create JWT
-                                       
-                                       AD_LOG_INFO(@"Acquiring PRT using broker refresh token", nil);
-                                       NSString* jwtToken = [self createPRTRequestJWTUsingBrokerRT:brokerRefreshToken];
-                                       NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                                                            @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
-                                                                            jwtToken, @"request",
-                                                                            BROKER_CLIENT_ID, @"client_id",
-                                                                            OAUTH2_CODE, OAUTH2_RESPONSE_TYPE,
-                                                                            nil];
-                                       
-                                       void (^prtProcessCallback)(NSDictionary *response) =  ^(NSDictionary *response) {
-                                           
-                                           ADBrokerPRTCacheItem* item = [ADBrokerPRTCacheItem new];
-                                           item.userInformation = nil;
-                                           item.clientId = DEFAULT_GUID_FOR_NIL;
-                                           
-                                           //create result for PRT and populate cache item object
-                                           ADAuthenticationResult* prtResult = [self processPRTResponse:response
-                                                                                                forItem:item
-                                                                                            fromRefresh:NO
-                                                                                   requestCorrelationId:[_ctx getCorrelationId]];
-                                           if(prtResult.status == AD_SUCCEEDED)
-                                           {
-                                               
-                                               AD_LOG_INFO(@"Acquired PRT successfully", nil);
-                                               ADAuthenticationError* err;
-                                               //persist PRT cache item
-                                               [_ctx.tokenCacheStore addOrUpdateItem:item
-                                                                              error:&err];
-                                               callback(item, err);
-                                           }
-                                           else
-                                           {
-                                               callback(nil, prtResult.error);
-                                           }
-                                       };
-                                       
-                                       //send JWT to token endpoint
-                                       [_ctx requestWithServer:_authority
-                                                  requestData:request_data
-                                         requestCorrelationId:[_ctx getCorrelationId]
-                                              handledPkeyAuth:NO
-                                            additionalHeaders:request_data
-                                            returnRawResponse:NO
-                                                   completion:prtProcessCallback];
-                                   }
-                                   
-                               }else{
-                                   //failed to get token for broker client id.
-                                   callback(nil, result.error);
-                               }
-                           }];
+    [_ctx requestTokenWithResource:[ADBrokerSettings sharedInstance].graphResourceEndpoint
+                          clientId:BROKER_CLIENT_ID
+                       redirectUri:[NSURL URLWithString:BROKER_REDIRECT_URI]
+                    promptBehavior:AD_PROMPT_AUTO
+                       allowSilent:allowSilent
+                            userId:_identifier
+                             scope:@"openid"
+              extraQueryParameters:@"nux=1"
+                     correlationId:[_ctx getCorrelationId]
+                   completionBlock:^(ADAuthenticationResult *result)
+    {
+        ADAuthenticationError* error;
+        if (result.status != AD_SUCCEEDED)
+        {
+            //failed to get token for broker client id.
+            callback(nil, result.error);
+            return;
+        }
+        
+        ADTokenCacheStoreKey* accessTokenKey = [result.tokenCacheStoreItem extractKeyWithError:nil];
+        ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:accessTokenKey.authority
+                                                                  resource:nil
+                                                                  clientId:BROKER_CLIENT_ID
+                                                                     error:&error];
+        
+        if(error)
+        {
+            callback(nil, error);
+            return;
+        }
+        
+        // we have a fresh AT and RT. Get RT from cache as it is not returned
+        // in the result.
+        
+        NSArray* items = [_ctx.tokenCacheStore getItemsWithKey:key
+                                                         error:&error];
+        NSString* brokerRefreshToken = nil;
+        for(ADTokenCacheStoreItem* item in items)
+        {
+            if (item.refreshToken && item.userInformation && [ADUserIdentifier identifier:_identifier matchesInfo:item.userInformation] && !item.isExpired)
+            {
+                brokerRefreshToken = item.refreshToken;
+                break;
+            }
+        }
+        
+        if(!brokerRefreshToken)
+        {
+            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REFRESH_TOKEN
+                                                           protocolCode:nil errorDetails:@"NO Refresh token found for broker client id"];
+            callback(nil, error);
+            return;
+        }
+        
+        //use the RT to get PRT
+        //create JWT
+        
+        AD_LOG_INFO(@"Acquiring PRT using broker refresh token", nil);
+        NSString* jwtToken = [self createPRTRequestJWTUsingBrokerRT:brokerRefreshToken];
+        NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                             @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
+                                             jwtToken, @"request",
+                                             BROKER_CLIENT_ID, @"client_id",
+                                             OAUTH2_REFRESH_TOKEN, OAUTH2_RESPONSE_TYPE,
+                                             nil];
+        
+        void (^prtProcessCallback)(NSDictionary *response) =  ^(NSDictionary *response) {
+            
+            ADBrokerPRTCacheItem* item = [ADBrokerPRTCacheItem new];
+            item.userInformation = nil;
+            item.clientId = DEFAULT_GUID_FOR_NIL;
+            
+            //create result for PRT and populate cache item object
+            ADAuthenticationResult* prtResult = [self processPRTResponse:response
+                                                                 forItem:item
+                                                             fromRefresh:NO
+                                                    requestCorrelationId:[_ctx getCorrelationId]];
+            if(prtResult.status == AD_SUCCEEDED)
+            {
+                
+                AD_LOG_INFO(@"Acquired PRT successfully", nil);
+                ADAuthenticationError* err;
+                //persist PRT cache item
+                [_ctx.tokenCacheStore addOrUpdateItem:item
+                                                error:&err];
+                callback(item, err);
+            }
+            else
+            {
+                callback(nil, prtResult.error);
+            }
+        };
+        
+        //send JWT to token endpoint
+        [_ctx requestWithServer:_authority
+                    requestData:request_data
+           requestCorrelationId:[_ctx getCorrelationId]
+                handledPkeyAuth:NO
+              additionalHeaders:request_data
+              returnRawResponse:NO
+                     completion:prtProcessCallback];
+    }];
 }
 
 
@@ -307,7 +312,7 @@
                                      cacheItem:nil
                               withRefreshToken:nil];
                       result = [_ctx updateResult:result
-                                          toUser:_userPrincipalIdentifier];
+                                          toUser:_identifier];
                   } else{
                       if(attemptPRTUpdate)
                       {
@@ -377,7 +382,7 @@
                       clientId: clientId
                    redirectUri: [NSURL URLWithString:redirectUri]
                          scope: @"openid"
-                        userId: _userPrincipalIdentifier
+                        userId: _identifier
                 promptBehavior: AD_PROMPT_AUTO
           extraQueryParameters: @"nux=1"
         refreshTokenCredential: refreshTokenCredential
@@ -443,7 +448,7 @@
                                                                cacheItem:nil
                                                         withRefreshToken:nil];
                                                 result = [_ctx updateResult:result
-                                                                    toUser:_userPrincipalIdentifier];
+                                                                    toUser:_identifier];
                                             }
                                             completionBlock(result);
                                         }];

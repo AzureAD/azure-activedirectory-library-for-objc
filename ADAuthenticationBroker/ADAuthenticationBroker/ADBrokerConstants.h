@@ -26,6 +26,7 @@ extern NSString* const USERNAME;
 extern NSString* const AUTHORITY;
 extern NSString* const CLIENT_ADAL_VERSION;
 extern NSString *const EXTRA_QUERY_PARAMETERS;
+extern NSString* const MINIMUM_BROKER_VERSION;
 
 extern NSString* const BROKER_CLIENT_ID;
 
