@@ -35,7 +35,7 @@ NSString* const delimiter = @"|";
 
 -(id) initWithAppKey: (NSString *)appKey
 {
-    if (self = [super initWithGroup:nil])
+    if (self = [super initWithGroup:@"com.microsoft.azureauthenticator"])
     {
         appKeyHash = [appKey adComputeSHA256];
     }
