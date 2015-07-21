@@ -117,6 +117,10 @@ ADAL_VERSION; \
 AD_LOG_VERBOSE(__adalVersion, __where); \
 }
 
+#define API_ENTRY_F(_fmt, ...) { \
+    NSString* _API_STR = [NSString stringWithFormat:@"%s", __PRETTY_FUNCTION__]; \
+    AD_LOG_INFO_F(_API_STR, _fmt, ##__VA_ARGS__); \
+}
 
 
 

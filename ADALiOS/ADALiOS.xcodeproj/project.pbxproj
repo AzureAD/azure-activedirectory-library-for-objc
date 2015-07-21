@@ -74,6 +74,7 @@
 		8BFEF07D182DB15E00122C0C /* ADAL_iPad_Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF04C182D906700122C0C /* ADAL_iPad_Storyboard.storyboard */; };
 		94351AA01B3F67FB00CD5F5E /* NSUUID+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 94351A9F1B3F67FB00CD5F5E /* NSUUID+ADExtensions.m */; };
 		9453EF061B53070C007EF5E8 /* ADKeychainQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453EF051B53070C007EF5E8 /* ADKeychainQuery.m */; };
+		9453EF091B581C73007EF5E8 /* NSArray+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453EF081B581C73007EF5E8 /* NSArray+ADExtensions.m */; };
 		949B3A9C1B3DEAAD00381438 /* ADAuthenticationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 949B3A9B1B3DEAAD00381438 /* ADAuthenticationRequest.m */; };
 		971C56BE1AF2278C0034820F /* ADBrokerNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 971C56BD1AF2278C0034820F /* ADBrokerNotificationManager.m */; };
 		971C57C91AFFFE010034820F /* ADCustomHeaderHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 971C57C81AFFFE010034820F /* ADCustomHeaderHandler.m */; };
@@ -235,6 +236,8 @@
 		94351A9F1B3F67FB00CD5F5E /* NSUUID+ADExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSUUID+ADExtensions.m"; sourceTree = "<group>"; };
 		9453EF041B53070C007EF5E8 /* ADKeychainQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADKeychainQuery.h; sourceTree = "<group>"; };
 		9453EF051B53070C007EF5E8 /* ADKeychainQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeychainQuery.m; sourceTree = "<group>"; };
+		9453EF071B581C73007EF5E8 /* NSArray+ADExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+ADExtensions.h"; sourceTree = "<group>"; };
+		9453EF081B581C73007EF5E8 /* NSArray+ADExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+ADExtensions.m"; sourceTree = "<group>"; };
 		949B3A9A1B3DEAAD00381438 /* ADAuthenticationRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthenticationRequest.h; sourceTree = "<group>"; };
 		949B3A9B1B3DEAAD00381438 /* ADAuthenticationRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationRequest.m; sourceTree = "<group>"; };
 		971C56BC1AF2278C0034820F /* ADBrokerNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerNotificationManager.h; sourceTree = "<group>"; };
@@ -438,6 +441,8 @@
 				94351A9F1B3F67FB00CD5F5E /* NSUUID+ADExtensions.m */,
 				D6BD014E1B50A194008AB2B0 /* NSSet+ADExtensions.h */,
 				D6BD014F1B50A194008AB2B0 /* NSSet+ADExtensions.m */,
+				9453EF071B581C73007EF5E8 /* NSArray+ADExtensions.h */,
+				9453EF081B581C73007EF5E8 /* NSArray+ADExtensions.m */,
 			);
 			path = ADALiOS;
 			sourceTree = "<group>";
@@ -745,6 +750,7 @@
 				8B34344F183305A6002DE1DC /* ADAuthenticationViewController.m in Sources */,
 				94351AA01B3F67FB00CD5F5E /* NSUUID+ADExtensions.m in Sources */,
 				971C57C91AFFFE010034820F /* ADCustomHeaderHandler.m in Sources */,
+				9453EF091B581C73007EF5E8 /* NSArray+ADExtensions.m in Sources */,
 				8B611401186E517D007759C2 /* ADInstanceDiscovery.m in Sources */,
 				8B34343718330474002DE1DC /* NSDictionary+ADExtensions.m in Sources */,
 				97A522491A1A752D001D77CE /* ADClientMetrics.m in Sources */,

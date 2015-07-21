@@ -277,7 +277,7 @@ static volatile int sDialogInProgress = 0;
                                  [_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX],
                                  OAUTH2_RESPONSE_TYPE, requestType,
                                  OAUTH2_CLIENT_ID, [_clientId adUrlFormEncode],
-                                 OAUTH2_SCOPE, [[_combinedScopes adSpaceDeliminatedString] adUrlFormEncode],
+                                 OAUTH2_SCOPE, [[self combinedScopes] adUrlFormEncode],
                                  OAUTH2_REDIRECT_URI, [_redirectUri adUrlFormEncode],
                                  OAUTH2_STATE, state];
     
@@ -324,7 +324,7 @@ static volatile int sDialogInProgress = 0;
     THROW_ON_NIL_ARGUMENT(completionBlock);
     [self ensureRequest];
     
-    AD_LOG_VERBOSE_F(@"Requesting authorization code.", @"Requesting authorization code for scopes: %@", _combinedScopes);
+    AD_LOG_VERBOSE_F(@"Requesting authorization code.", @"Requesting authorization code for scopes: %@", [self combinedScopes]);
     if (!_silent && ![self takeExclusionLockWithCallback:completionBlock])
     {
         return;
@@ -408,7 +408,8 @@ static volatile int sDialogInProgress = 0;
         
         if (_scopes)
         {
-            [requestData setObject:[[_combinedScopes adSpaceDeliminatedString] adUrlFormEncode] forKey:OAUTH2_SCOPE];
+            
+            [requestData setObject:[[self combinedScopes] adUrlFormEncode] forKey:OAUTH2_SCOPE];
         }
         
         [self requestWithServer:[_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]

@@ -16,9 +16,9 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "NSSet+ADExtensions.h"
+#import "NSArray+ADExtensions.h"
 
-@implementation NSSet (ADExtensions)
+@implementation NSArray (ADExtensions)
 
 - (NSString*)adSpaceDeliminatedString
 {
@@ -26,7 +26,7 @@
     
     __block BOOL first = YES;
     
-    [self enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    [self enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if (![obj isKindOfClass:[NSString class]])
         {
             return;

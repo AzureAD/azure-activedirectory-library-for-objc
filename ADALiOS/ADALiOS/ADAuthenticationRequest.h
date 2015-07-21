@@ -53,7 +53,6 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     
     NSSet* _scopes;
     NSSet* _additionalScopes;
-    NSSet* _combinedScopes;
     
     NSString* _policy;
     
@@ -89,6 +88,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 #if AD_BROKER
 - (void)setAllowSilentRequests:(BOOL)allowSilent;
 #endif
+
+- (NSSet*)combinedScopes;
 
 - (ADTokenCacheStoreKey*)cacheStoreKey:(ADAuthenticationError* __autoreleasing *)error;
 @end

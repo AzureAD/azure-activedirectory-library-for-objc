@@ -25,6 +25,19 @@
 
 @implementation ADTokenCacheStoreItem
 
+- (id)init
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    // Default identifier type
+    _identifierType = RequiredDisplayableId;
+    
+    return self;
+}
+
 - (id)copyWithZone:(NSZone*)zone
 {
     ADTokenCacheStoreItem* item = [[self.class allocWithZone:zone] init];

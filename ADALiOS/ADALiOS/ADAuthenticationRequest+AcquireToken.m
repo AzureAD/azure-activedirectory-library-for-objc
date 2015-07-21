@@ -184,7 +184,7 @@
 {
     [self ensureRequest];
     
-#if !AD_BROKER && BROKER_ENABLED
+#if !AD_BROKER
     if (_silent && !_allowSilent)
     {
         //The cache lookup and refresh token attempt have been unsuccessful,
@@ -198,13 +198,15 @@
         completionBlock(result);
         return;
     }
-    
+
+#if BROKER_ENABLED
     //call the broker.
     if([ADAuthenticationRequest canUseBroker])
     {
         [self callBroker:completionBlock];
         return;
     }
+#endif
 #endif
     
     //Get the code first:

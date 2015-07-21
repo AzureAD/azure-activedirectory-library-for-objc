@@ -160,19 +160,28 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     
     ADKeychainQuery* retrieveQuery = [self createBaseQuery];
     [retrieveQuery setUserId:userId];
-    [retrieveQuery setCopyData];
+    [retrieveQuery setCopyAttributes];
     
-    CFTypeRef data = NULL;
-    OSStatus err = SecItemCopyMatching([retrieveQuery queryDictionary], &data);
+    CFDictionaryRef cfdKeychainItem = NULL;
+    OSStatus err = SecItemCopyMatching([retrieveQuery queryDictionary], (CFTypeRef*)&cfdKeychainItem);
     if (err != errSecSuccess)
     {
         return err;
     }
     
+    CFDataRef data = NULL;
+    data = CFDictionaryGetValue(cfdKeychainItem, kSecAttrGeneric);
+    if (data == NULL)
+    {
+        CFRelease(cfdKeychainItem);
+        return errSecItemNotFound;
+    }
+    
     CFErrorRef cfError = NULL;
     // If this keychain entry is bad, we might as well zap the whole thing, rather then let the user get stuck in a bad, unrecoverable state
-    CFMutableDictionaryRef cfmdKeychainItem = (CFMutableDictionaryRef)CFPropertyListCreateWithData(NULL, (CFDataRef)data, kCFPropertyListMutableContainers, NULL, &cfError);
-    if (!cfmdKeychainItem)
+    CFMutableDictionaryRef adalDictionary = (CFMutableDictionaryRef)CFPropertyListCreateWithData(NULL, (CFDataRef)data, kCFPropertyListMutableContainers, NULL, &cfError);
+    CFRelease(cfdKeychainItem);
+    if (!adalDictionary)
     {
         ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:(__bridge NSError*)cfError
                                                                     errorDetails:@"failure deserializing data from keychain."];
@@ -184,11 +193,11 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
         return errSecDecode;
     }
     
-    *outKeychainItems = cfmdKeychainItem;
+    *outKeychainItems = adalDictionary;
     return errSecSuccess;
 }
 - (OSStatus)writeDictionary:(CFDictionaryRef)dictionary
-                 userId:(NSString*)userId
+                     userId:(NSString*)userId
 {
     
     CFErrorRef cfError = NULL;
@@ -205,7 +214,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     }
     
     ADKeychainQuery* writeQuery = [self createBaseQuery];
-    [writeQuery setUserId:userId];
+    [writeQuery setUserId:userId ? userId : @""];
     
     const void * keys[] = { kSecAttrGeneric };
     const void * values[] = { data };
@@ -220,6 +229,11 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     
     // Write it out ot keychain
     OSStatus err = SecItemUpdate([writeQuery queryDictionary], attributes);
+    if (err == errSecItemNotFound)
+    {
+        [writeQuery setGenericPasswordData:data];
+        err = SecItemAdd([writeQuery queryDictionary], NULL);
+    }
     
     CFRelease(attributes);
     
@@ -271,13 +285,16 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
             
             AD_LOG_INFO_F(@"Found account in keychain", @"account: %@", account);
             
-            CFMutableDictionaryRef keychainItems = NULL;
-            OSStatus err = [self copyDictionary:&keychainItems
-                                         userId:account
-                                          error:error];
-            if (err != errSecSuccess)
+            NSData* genericData = [attrs objectForKey:(__bridge id)(kSecAttrGeneric)];
+            if (!genericData)
             {
-                return;
+                continue;
+            }
+            CFDictionaryRef keychainItems = CFPropertyListCreateWithData(NULL, (__bridge CFDataRef)(genericData), 0, NULL, NULL);
+            if (!keychainItems)
+            {
+                AD_LOG_INFO_F(@"Invalid generic password data found in keychain.", @"for account:%@", account);
+                continue;
             }
             
             [(__bridge NSDictionary*)keychainItems enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop)
@@ -288,6 +305,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
                 {
                     return;
                 }
+                [cacheItems addObject:cacheItem];
             }];
             CFRelease(keychainItems);
         }
@@ -308,7 +326,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
 - (ADTokenCacheStoreItem*)getItemWithKey:(ADTokenCacheStoreKey*)key
                                    error:(ADAuthenticationError *__autoreleasing *)error
 {
-    API_ENTRY;
+    API_ENTRY_F(@"key: %@", key);
     
     __block ADTokenCacheStoreItem* item = nil;
     
@@ -318,14 +336,12 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
                                 userId:[key userCacheKey]
                                  error:error];
         
-        if (err != errSecSuccess)
-        {
-            return;
-        }
+        CHECK_OSSTATUS(err);
         
         CFDataRef data = CFDictionaryGetValue(cfmdKeychainItems, (__bridge const void *)([key key]));
         if (!data)
         {
+            AD_LOG_INFO(@"Did not find matching item in keychain", nil);
             return;
         }
         
@@ -347,9 +363,12 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
 - (void)addOrUpdateItem:(ADTokenCacheStoreItem*)item
                   error:(ADAuthenticationError* __autoreleasing*)error
 {
+    API_ENTRY_F(@"item: %@", item);
+    
     ADTokenCacheStoreKey* key = [item extractKeyWithError:error];
     if (!key)
     {
+        AD_LOG_ERROR_F(@"failed to extract key", AD_ERROR_CACHE_PERSISTENCE, @"%@", item);
         return;
     }
     
@@ -365,17 +384,19 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
         }
         else if (err != errSecSuccess)
         {
-            return;
+            CHECK_OSSTATUS(err);
         }
         
         CFDictionarySetValue(cfmdKeychainDict, (__bridge const void *)([key key]), (__bridge const void *)([item copyDataForItem]));
+        err = [self writeDictionary:cfmdKeychainDict userId:[item userCacheKey]];
+        CHECK_OSSTATUS(err);
     });
 }
 
 - (void)removeItemWithKey:(ADTokenCacheStoreKey*)key
                     error:(ADAuthenticationError* __autoreleasing* )error
 {
-    API_ENTRY;
+    API_ENTRY_F(@"key: %@", key);
     
     if (!key)
     {

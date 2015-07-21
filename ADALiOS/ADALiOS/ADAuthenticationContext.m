@@ -466,7 +466,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
     [request setSilent:YES];
-    
+    [request setScopes:scopes];
     [request acquireToken:completionBlock];
 }
 
@@ -485,10 +485,12 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 - (void)acquireTokenSilentForScopes:(NSArray*)scopes
                            clientId:(NSString*)clientId
                         redirectUri:(NSURL*)redirectUri
-                     userIdentifier:(ADUserIdentifier*)identifier
+                         identifier:(ADUserIdentifier*)identifier
                     completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    API_ENTRY;
+    
+    API_ENTRY_F(@"\nscopes: %@\nclientId:%@\nredirectUri:%@\nidentifier:%@\n", scopes, clientId, redirectUri, identifier);
+    
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
     [request setSilent:YES];
@@ -514,7 +516,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 - (void)acquireTokenSilentForScopes:(NSArray*)scopes
                            clientId:(NSString*)clientId
                         redirectUri:(NSURL*)redirectUri
-                     userIdentifier:(ADUserIdentifier*)identifier
+                         identifier:(ADUserIdentifier*)identifier
                              policy:(NSString*)policy
                     completionBlock:(ADAuthenticationCallback)completionBlock
 {

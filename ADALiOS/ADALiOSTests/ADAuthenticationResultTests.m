@@ -31,12 +31,10 @@
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
 }
 
 - (void)tearDown
 {
-    [self adTestEnd];
     [super tearDown];
 }
 
@@ -64,14 +62,12 @@
 
 -(void) testResultFromCancellation
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromCancellation];
     [self verifyErrorResult:result errorCode:AD_ERROR_USER_CANCEL];
 }
 
 -(void) testResultFromError
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"something"];
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error];
     [self verifyErrorResult:result errorCode:AD_ERROR_UNEXPECTED];
@@ -93,11 +89,9 @@
 
 -(void) testResultFromTokenCacheStoreItem
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil];
     [self verifyErrorResult:nilItemResult errorCode:AD_ERROR_UNEXPECTED];
     
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
     //item.resource = @"resource";
     item.authority = @"https://login.windows.net/mytennant.com";
@@ -114,7 +108,6 @@
     ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy]];
     [self verifyResult:resultFromValidItem item:item];
     
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Nil access token:
     //item.resource = @"resource";//Restore
     item.accessToken = nil;

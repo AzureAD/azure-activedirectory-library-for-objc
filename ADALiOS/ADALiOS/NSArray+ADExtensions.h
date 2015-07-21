@@ -16,40 +16,11 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "NSSet+ADExtensions.h"
+#import <Foundation/Foundation.h>
 
-@implementation NSSet (ADExtensions)
+@interface NSArray (ADExtensions)
 
-- (NSString*)adSpaceDeliminatedString
-{
-    NSMutableString* string = [NSMutableString new];
-    
-    __block BOOL first = YES;
-    
-    [self enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
-        if (![obj isKindOfClass:[NSString class]])
-        {
-            return;
-        }
-        
-        if (!first)
-        {
-            [string appendString:@" "];
-        }
-        else
-        {
-            first = NO;
-        }
-        
-        [string appendString:obj];
-    }];
-    
-    return string;
-}
-
-- (NSString*)adUrlFormEncode
-{
-    return [[self adSpaceDeliminatedString] adUrlFormEncode];
-}
+- (NSString*)adSpaceDeliminatedString;
+- (NSString*)adUrlFormEncode;
 
 @end

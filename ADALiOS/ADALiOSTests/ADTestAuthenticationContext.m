@@ -35,33 +35,30 @@
 
 @implementation ADTestAuthenticationContext
 
--(ADTestAuthenticationContext*) initWithAuthority: (NSString*) authority
-                                validateAuthority: (BOOL) validateAuthority
-                                  tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
-                                            error: (ADAuthenticationError* __autoreleasing *) error
+- (ADTestAuthenticationContext*)initWithAuthority:(NSString*)authority
+                                validateAuthority:(BOOL)validateAuthority
+                                  tokenCacheStore:(id<ADTokenCacheStoring>)tokenCache
+                                            error:(ADAuthenticationError* __autoreleasing *)error
 {
-    self = [super initWithAuthority:authority validateAuthority:validateAuthority tokenCacheStore:tokenCache error:error];
-    if (self)
+    if (!(self = [super initWithAuthority:authority
+                        validateAuthority:validateAuthority
+                           tokenCacheStore:tokenCache
+                                    error:error]))
     {
-        mResponse1 = [NSMutableDictionary new];
-        mResponse2 = [NSMutableDictionary new];
-        mExpectedRequest1 = [NSMutableDictionary new];
-        mExpectedRequest2 = [NSMutableDictionary new];
-        mAllowTwoRequests = NO;
-        mNumRequests = 0;
-        mReturnState = YES;
+        return nil;
     }
+    
+    _expectedRequests = [NSMutableArray new];
+    _responses = [NSMutableArray new];
+    
     return self;
 }
 
--(NSMutableDictionary*) getExpectedRequest
+- (void)queueExpectedRequest:(NSDictionary*)expectedRequest
+                    response:(NSDictionary*)response
 {
-    return (mNumRequests == 1) ? mExpectedRequest1 : mExpectedRequest2;
-}
-
--(NSMutableDictionary*) getResponse
-{
-    return (mNumRequests == 1) ? mResponse1 : mResponse2;
+    [_expectedRequests addObject:expectedRequest];
+    [_responses addObject:response];
 }
 
 - (void)requestWithServer:(NSString *)authorizationServer
@@ -72,75 +69,93 @@
                completion:( void (^)(NSDictionary *) )completionBlock
 {
     ++mNumRequests;
-    if (mNumRequests > 2 || (!mAllowTwoRequests && mNumRequests > 1))
+    
+    if ([_expectedRequests count] == 0 || [_responses count] == 0)
     {
-        mErrorMessage = @"Too many server requests per single acquireToken.";
+        _errorMessage = @"Missing expected request and response!";
+        completionBlock(nil);
+        return;
     }
+    
+    NSDictionary* expectedRequest = [_expectedRequests firstObject];
+    [_expectedRequests removeObjectAtIndex:0];
+    
+    NSDictionary* response = [_responses firstObject];
+    [_responses removeObjectAtIndex:0];
+    
     if (!requestCorrelationId)
     {
-        mErrorMessage = @"Missing request correlation id.";
-        completionBlock([self getResponse]);
+        _errorMessage = @"Missing request correlation id.";
+        completionBlock(response);
         return;
     }
     if (!request_data || !request_data.count)
     {
-        mErrorMessage = @"Nil or empty request send to the server.";
-        completionBlock([self getResponse]);
+       _errorMessage = @"Nil or empty request send to the server.";
+        completionBlock(response);
         return;
     }
     
-    NSString* state;
-    if (1 == mNumRequests)
-    {
-        mCorrelationId1 = requestCorrelationId;
-        state = mRequestedState1 = [request_data objectForKey:OAUTH2_STATE];
-    }
-    else
-    {
-        mCorrelationId2 = requestCorrelationId;
-        state = mRequestedState2 = [request_data objectForKey:OAUTH2_STATE];
-    }
+//    NSString* state;
+//    if (1 == mNumRequests)
+//    {
+//        mCorrelationId1 = requestCorrelationId;
+//        state = mRequestedState1 = [request_data objectForKey:OAUTH2_STATE];
+//    }
+//    else
+//    {
+//        mCorrelationId2 = requestCorrelationId;
+//        state = mRequestedState2 = [request_data objectForKey:OAUTH2_STATE];
+//    }
     
     
     //Verify the data sent to the server:
     //The expected list will be modified in the loop below
-    NSMutableDictionary* expectedRequest = [NSMutableDictionary dictionaryWithDictionary:[self getExpectedRequest]];
-    for(NSString* key in [expectedRequest allKeys])
+    __block NSMutableArray* missingHeaders = [NSMutableArray new];
+    
+    [expectedRequest enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop)
     {
-        NSString* expected = [expectedRequest objectForKey:key];
+        NSString* expected = (NSString*)obj;
         NSString* result = [request_data objectForKey:key];
+        if (!result)
+        {
+            [missingHeaders addObject:key];
+            return;
+        }
+        
         if (![result isKindOfClass:[NSString class]])
         {
-            mErrorMessage = [NSString stringWithFormat:@"Requested data: Unexpected type for the key (%@): %@", key, result];
-            completionBlock([self getResponse]);
+            _errorMessage = [NSString stringWithFormat:@"%@ in request_data is not a NSString! (actual: %@)", key, NSStringFromClass([result class])];
+            *stop = YES;
             return;
         }
-        if (expected.length && ![expected isEqualToString:result])//We pass empty string, when the value is not known, but the key is expected
+        
+        // We pass empty string, when the value is not known, but the key is expected
+        if (result.length > 0 && ![expected isEqualToString:result])
         {
-            mErrorMessage = [NSString stringWithFormat:@"Requested data: Unexpected value for the key (%@): Expected: '%@'; Actual: '%@'", key, expected, result];
-            completionBlock([self getResponse]);
+            _errorMessage = [NSString stringWithFormat:@"Requested data: Unexpected value for the key (%@): Expected: '%@'; Actual: '%@'", key, expected, result];
+            *stop = YES;
             return;
         }
-        else if (expected)
-        {
-            //The expected value was found; remove it from the expected list
-            [expectedRequest removeObjectForKey:key];
-        }
-    }
-    if (expectedRequest.count)
+        
+    }];
+    
+    if (_errorMessage)
     {
-        //Some of the expected value were not present in the request:
-        mErrorMessage = [NSString stringWithFormat:@"Request data: Missing expected headers: %@", expectedRequest];
+        completionBlock(response);
+        return;
     }
     
-    NSMutableDictionary* responce = [self getResponse];
-    if (mReturnState && state)
+    if (missingHeaders.count)
     {
-        [responce setObject:state forKey:OAUTH2_STATE];
+        //Some of the expected value were not present in the request:
+        _errorMessage = [NSString stringWithFormat:@"Request data: Missing expected headers: %@", missingHeaders];
+        completionBlock(response);
+        return;
     }
 
     //If everything is ok, pass over the desired response:
-    completionBlock(responce);
+    completionBlock(response);
 }
 
 - (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
@@ -162,6 +177,11 @@
     }
     
     return request;
+}
+
+- (NSString*)errorMessage
+{
+    return _errorMessage;
 }
 
 @end

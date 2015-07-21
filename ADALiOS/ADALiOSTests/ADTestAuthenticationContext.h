@@ -22,33 +22,27 @@
 //and intended to be directly manipulated by the tests.
 @interface ADTestAuthenticationContext : ADAuthenticationContext
 {
-@public
+@private
     /* Each key-value pair of this dictionary is verified to be present in the
      request sent to the server. */
-    NSMutableDictionary* mExpectedRequest1;
-    /* Responds with this dictionary, if the communication is intercepted. */
-    NSMutableDictionary* mResponse1;
-    NSString* mRequestedState1;
+    NSMutableArray* _responses;
+    NSMutableArray* _expectedRequests;
+    NSMutableArray* _states;
     
-    /* We have cases, when we do two requests to the server. This object is used for the second request. */
-    NSMutableDictionary* mExpectedRequest2;
-    NSMutableDictionary* mResponse2;
-    NSString* mRequestedState2;
+    NSString* _errorMessage;
     
-    NSUUID* mCorrelationId1;
-    NSUUID* mCorrelationId2;
-    
-    /* If any error occurs during the verification, it will be stored in this string. */
-    NSString* mErrorMessage;
-    BOOL mAllowTwoRequests;
     int mNumRequests;
-    BOOL mReturnState;//If set returns the state, exactly as requested.
 }
 
--(ADTestAuthenticationContext*) initWithAuthority: (NSString*) authority
-                                validateAuthority: (BOOL) validateAuthority
-                                  tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
-                                            error: (ADAuthenticationError* __autoreleasing *) error;
+- (void)queueExpectedRequest:(NSDictionary*)expectedRequest
+                    response:(NSDictionary*)response;
+
+- (NSString*)errorMessage;
+
+- (ADTestAuthenticationContext*)initWithAuthority:(NSString*)authority
+                                validateAuthority:(BOOL)validateAuthority
+                                  tokenCacheStore:(id<ADTokenCacheStoring>)tokenCache
+                                            error:(ADAuthenticationError* __autoreleasing *) error;
 
 //Override of the parent's request to allow testing of the class behavior.
 - (void)requestWithServer:(NSString *)authorizationServer

@@ -51,7 +51,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     NSString* normalized = [userId adTrimmedString].lowercaseString;
         
-    return normalized.length ? normalized : nil;
+    return normalized;
 }
 
 -(id) initWithUserId: (NSString*) userId

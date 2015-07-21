@@ -87,7 +87,6 @@ const int sAsyncTimeout = 10;//in seconds
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     [ADAuthenticationSettings sharedInstance].requestTimeOut = 10;
     mValidated = NO;
     mInstanceDiscovery = [ADInstanceDiscovery sharedInstance];
@@ -113,7 +112,6 @@ const int sAsyncTimeout = 10;//in seconds
     [mValidatedAuthorities addObjectsFromArray:[mValidatedAuthoritiesCopy allObjects]];//Restore the state
     mInstanceDiscovery = nil;
     mValidatedAuthorities = nil;
-    [self adTestEnd];
     [super tearDown];
 }
 
@@ -125,9 +123,7 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testSharedInstance
 {
-    [self adClearLogs];
     XCTAssertEqualObjects(mInstanceDiscovery, [ADInstanceDiscovery sharedInstance]);
-    ADAssertLogsContain(TEST_LOG_INFO, @"sharedInstance");
 }
 
 -(void) testGetValidatedAuthorities
@@ -137,7 +133,6 @@ const int sAsyncTimeout = 10;//in seconds
     XCTAssertNotEqual(validatedAuthorities, mValidatedAuthorities);
     XCTAssertEqualObjects(validatedAuthorities, mValidatedAuthorities);
     XCTAssertFalse([validatedAuthorities isKindOfClass:[NSMutableSet class]], "Read-only class should be returned.");
-    ADAssertLogsContain(TEST_LOG_INFO, @"getValidatedAuthorities");
     
     //Modify and test again:
     NSString* newAuthority = @"https://testGetValidatedAuthorities.com";
@@ -148,8 +143,6 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testExtractBaseBadAuthority
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-
     //Nil:
     ADAuthenticationError* error;
     NSString* result = [mTestInstanceDiscovery extractHost:nil correlationId:nil error:&error];
@@ -158,11 +151,8 @@ const int sAsyncTimeout = 10;//in seconds
     error = nil;//Cleanup
     
     //Do not pass error object. Make sure error is logged.
-    [self adClearLogs];
     result = [mTestInstanceDiscovery extractHost:nil correlationId:nil error:nil];
     XCTAssertNil(result);
-    ADAssertLogsContain(TEST_LOG_MESSAGE, "Error");
-    ADAssertLogsContain(TEST_LOG_INFO, "authority");
     error = nil;
     
     //White space string:
@@ -222,7 +212,6 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testIsAuthorityValidated
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     XCTAssertThrows([mTestInstanceDiscovery isAuthorityValidated:nil]);
     XCTAssertThrows([mTestInstanceDiscovery isAuthorityValidated:@"  "]);
     NSString* anotherHost = @"https://somedomain.com";
@@ -234,7 +223,6 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testSetAuthorityValidation
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     XCTAssertThrows([mTestInstanceDiscovery setAuthorityValidation:nil]);
     XCTAssertThrows([mTestInstanceDiscovery setAuthorityValidation:@"  "]);
     //Test that re-adding is ok. This can happen in multi-threaded scenarios:
@@ -331,7 +319,6 @@ const int sAsyncTimeout = 10;//in seconds
 //Does not call the server, just passes invalid authority
 -(void) testValidateAuthorityError
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     [self validateAuthority:@"http://invalidscheme.com" correlationId:[NSUUID UUID] line:__LINE__];
     XCTAssertNotNil(mError);
     
@@ -349,7 +336,6 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testCanonicalizeAuthority
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Nil or empty:
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:nil]);
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@""]);
@@ -395,7 +381,7 @@ const int sAsyncTimeout = 10;//in seconds
 }
 
 //Tests a real authority
--(void) testNormalFlow
+- (void)testNormalFlow
 {
     [mValidatedAuthorities removeAllObjects];//Clear, as "login.windows.net" is already cached.
     [self validateAuthority:@"https://Login.Windows.Net/MSOpenTechBV.onmicrosoft.com" correlationId:nil line:__LINE__];
@@ -423,7 +409,6 @@ const int sAsyncTimeout = 10;//in seconds
 //Ensures that an invalid authority is not approved
 -(void) testNonValidatedAuthority
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     NSUUID* correlationId = [NSUUID UUID];
     [self validateAuthority:@"https://MyFakeAuthority.microsoft.com/MSOpenTechBV.onmicrosoft.com" correlationId:correlationId line:__LINE__];
     XCTAssertFalse(mValidated);
@@ -433,7 +418,6 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testUnreachableServer
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
     {

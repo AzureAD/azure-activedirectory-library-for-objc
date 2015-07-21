@@ -129,4 +129,10 @@
     return nil;
 }
 
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"{ ADTokenCacheStoreKey authority=%@ clientId=%@ userId=%@ uniqueId=%@ idType=%@ scopes=%@ }",
+            _authority, _clientId, _userId, _uniqueId, [ADUserIdentifier stringForType:_identifierType], _scopes];
+}
+
 @end

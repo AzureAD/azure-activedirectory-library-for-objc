@@ -23,6 +23,7 @@
 #import "BVApplicationData.h"
 #import <ADALiOS/ADAuthenticationContext.h>
 #import <ADALiOS/ADAuthenticationResult.h>
+#import <ADALiOS/ADAuthenticationSettings.h>
 
 @implementation BVTestAppDelegate
 
@@ -45,6 +46,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
     BVTestMainViewController *controller = (BVTestMainViewController *)self.window.rootViewController;
     controller.managedObjectContext = self.managedObjectContext;
     return YES;

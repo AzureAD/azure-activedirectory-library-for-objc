@@ -44,7 +44,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     
     mStore = [[ADKeychainTokenCacheStore alloc] init];
     [mStore setServiceKey:@"MSOpenTech.ADAL.test"];
@@ -58,46 +57,30 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [mStore removeAll:nil];//Attempt to clear the junk from the keychain
     mStore = nil;
     
-    [self adTestEnd];
     [super tearDown];
 }
 
--(long) count
-{
-    ADAuthenticationError* error;
-    NSArray* all = [mStore allItems:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(all);
-    return all.count;
-}
-
-
--(void) testKeychainAttributesWithKeyNonAsciiUserId
-{
-    SEL aSelector = NSSelectorFromString(@"keychainAttributesWithKey:userId:error:");
-    NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[mStore methodSignatureForSelector:aSelector]];
-    [inv setSelector:aSelector];
-    [inv setTarget:mStore];
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
-    [inv setArgument:&item atIndex:2];
-    NSString* userid = @"юзер@екзампл.ком";
-    [inv setArgument:&userid atIndex:3];
-//    [inv setArgument:nil atIndex:4];
-    [inv invoke];
-    
+#define VERIFY_CACHE_COUNT(_count) { \
+    ADAuthenticationError* err = nil; \
+    NSArray* _ALL = [mStore allItems:&err]; \
+    XCTAssertNil(err); \
+    XCTAssertEqual(_ALL.count, _count); \
 }
 
 //A wrapper around addOrUpdateItem, checks automatically for errors.
 //Works on single threaded environment only, as it checks the counts:
 #define ADD_OR_UPDATE_ITEM(_item, _expectAdd) \
 {\
-    ADAuthenticationError* error; \
-    long count = [self count]; \
+    ADAuthenticationError* error = nil; \
+    NSUInteger _COUNT = [mStore allItems:nil].count; \
     [mStore addOrUpdateItem:_item error:&error]; \
     ADAssertNoError; \
-    if (_expectAdd) { ADAssertLongEquals(count + 1, [self count]); } \
-    else { ADAssertLongEquals(count, [self count]); } \
-    [self verifyCacheContainsItem:_item]; \
+    VERIFY_CACHE_COUNT(_expectAdd ? _COUNT + 1 : _COUNT); \
+    ADTokenCacheStoreKey* key = [_item extractKeyWithError:&error]; \
+    ADAssertNoError; \
+    ADTokenCacheStoreItem* read = [mStore getItemWithKey:key error:&error]; \
+    ADAssertNoError; \
+    XCTAssertEqualObjects(_item, read); \
 }
 
 //Esnures that two keys are the same:
@@ -133,11 +116,14 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 //cannot accidentally modify them. The method tests the getters too.
 -(void) testCopySingleObject
 {
-    XCTAssertTrue([self count] == 0, "Start empty.");
+    VERIFY_CACHE_COUNT(0);
     
     ADTokenCacheStoreItem* item = [self adCreateCacheItem];
-    ADAuthenticationError* error;
-    ADD_OR_UPDATE_ITEM(item, YES);
+    ADAuthenticationError* error = nil;
+    [mStore addOrUpdateItem:item
+                      error:&error];
+    ADAssertNoError;
+    VERIFY_CACHE_COUNT(1);
 
     //getItemWithKey:userId
     ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
@@ -155,13 +141,10 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqualObjects(item, returnedFromAll);
 }
 
--(void) testComplex
+- (void)testComplex
 {
-    XCTAssertTrue([self count] == 0, "Start empty.");
-    
-    ADAuthenticationError* error;
-    XCTAssertNotNil([mStore allItems:&error]);
-    ADAssertNoError;
+    ADAuthenticationError* error = nil;
+    VERIFY_CACHE_COUNT(0);
     ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
     
     //one item:
@@ -181,43 +164,23 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADD_OR_UPDATE_ITEM(item4, YES);
     
     //Add an item with nil user:
-    ADTokenCacheStoreItem* item5 = nil;
-    COPY_ITEM_WITH_NEW_USER(item5, item1, nil);
-    ADD_OR_UPDATE_ITEM(item5, YES);
-    
+//    ADTokenCacheStoreItem* item5 = nil;
+//    COPY_ITEM_WITH_NEW_USER(item5, item1, nil);
+//    ADD_OR_UPDATE_ITEM(item5, YES);
+//    
     ADTokenCacheStoreKey* key = [item1 extractKeyWithError:&error];
     ADAssertNoError;
     
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    //Now few getters:
-    ADTokenCacheStoreItem* itemReturn5 = [mStore getItemWithKey:key error:&error];
-    ADAssertLongEquals(AD_ERROR_MULTIPLE_USERS, error.code);
-    XCTAssertNil(itemReturn5);
-    error = nil;//Clear
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
-    
-    NSArray* array = [mStore allItems:&error];
-    ADAssertNoError;
-    XCTAssertTrue(array.count == 3);
+    VERIFY_CACHE_COUNT(2);
     
     //Now test the removers:
     [mStore removeItemWithKey:key error:&error];//Specific user
     ADAssertNoError;
-    
-    array = [mStore allItems:&error];
-    XCTAssertTrue(array.count == 2);
-    
-    //This will remove two elements, as the userId is not specified:
-    [mStore removeItemWithKey:key error:&error];
-    ADAssertNoError;
-    XCTAssertTrue([self count]  == 1);
+    VERIFY_CACHE_COUNT(1);
     
     [mStore removeAll:&error];
     ADAssertNoError;
-    array = [mStore allItems:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(array);
-    XCTAssertTrue(array.count == 0);
+    VERIFY_CACHE_COUNT(0);
 }
 
 //Add large number of items to the cache. Acts as a mini-stress test too
@@ -248,21 +211,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAssertNoError;
 }
 
--(void) verifyCacheContainsItem: (ADTokenCacheStoreItem*) item
+- (void)testInitializer
 {
-    XCTAssertNotNil(item);
-    ADAuthenticationError* error;
-    ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
-    ADAssertNoError;
-    
-    ADTokenCacheStoreItem* read = [mStore getItemWithKey:key error:&error];
-    ADAssertNoError;
-    XCTAssertEqualObjects(item, read);
-}
-
--(void) testInitializer
-{
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADKeychainTokenCacheStore* simple = [ADKeychainTokenCacheStore new];
     XCTAssertNotNil(simple);
     XCTAssertNotNil(simple.sharedGroup);
@@ -271,34 +221,31 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertNotNil(withGroup);
 }
 
--(void) testsharedKeychainGroupProperty
-{
-    //Put an item in the cache:
-    ADAssertLongEquals(0, [self count]);
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
-    ADAuthenticationError* error = nil;
-    [mStore addOrUpdateItem:item error:&error];
-    ADAssertNoError;
-    ADAssertLongEquals(1, [self count]);
-    
-    //Test the property:
-    ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
-    ADKeychainTokenCacheStore* keychainStore = (ADKeychainTokenCacheStore*)mStore;
-    XCTAssertNotNil(settings.sharedCacheKeychainGroup);
-    XCTAssertNotNil(keychainStore.sharedGroup);
-    NSString* groupName = @"com.microsoft.ADAL";
-    settings.sharedCacheKeychainGroup = groupName;
-    ADAssertStringEquals(settings.sharedCacheKeychainGroup, groupName);
-    XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
-    ADAssertStringEquals(keychainStore.sharedGroup, groupName);
-    
-    //Restore back to default
-    keychainStore.sharedGroup = nil;
-    XCTAssertNil(keychainStore.sharedGroup);
-    XCTAssertNil(settings.sharedCacheKeychainGroup);
-    [mStore removeAll:&error];
-    ADAssertNoError;
-    ADAssertLongEquals(0, [self count]);
-}
+//- (void)testsharedKeychainGroupProperty
+//{
+//    //Put an item in the cache:
+//    ADAssertLongEquals(0, [self count]);
+//    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+//    ADAuthenticationError* error = nil;
+//    [mStore addOrUpdateItem:item error:&error];
+//    ADAssertNoError;
+//    ADAssertLongEquals(1, [self count]);
+//    
+//    //Test the property:
+//    ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
+//    ADKeychainTokenCacheStore* keychainStore = (ADKeychainTokenCacheStore*)mStore;
+//    XCTAssertNotNil(settings.sharedCacheKeychainGroup);
+//    XCTAssertNotNil(keychainStore.sharedGroup);
+//    NSString* groupName = @"com.microsoft.ADAL";
+//    settings.sharedCacheKeychainGroup = groupName;
+//    ADAssertStringEquals(settings.sharedCacheKeychainGroup, groupName);
+//    
+//    //Restore back to default
+//    keychainStore.sharedGroup = nil;
+//    XCTAssertNil(keychainStore.sharedGroup);
+//    [mStore removeAll:&error];
+//    ADAssertNoError;
+//    ADAssertLongEquals(0, [self count]);
+//}
 
 @end

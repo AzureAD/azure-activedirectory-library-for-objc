@@ -50,13 +50,11 @@
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     [self reset];
 }
 
 - (void)tearDown
 {
-    [self adTestEnd];
     [super tearDown];
 }
 
@@ -78,7 +76,6 @@
     ADAssertNoError;
     XCTAssertNotNil(key);
     
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Bad authority:
     error = nil;
     ADTokenCacheStoreKey* badKey = [ADTokenCacheStoreKey keyWithAuthority:nil

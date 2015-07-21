@@ -180,4 +180,21 @@
                                             error:error];
 }
 
+- (NSSet*)combinedScopes
+{
+    if (!_scopes)
+    {
+        return nil;
+    }
+    
+    if (!_additionalScopes)
+    {
+        return _scopes;
+    }
+    
+    NSMutableSet* set = [_scopes mutableCopy];
+    [set unionSet:_additionalScopes];
+    return set;
+}
+
 @end

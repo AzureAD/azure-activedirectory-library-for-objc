@@ -32,7 +32,6 @@
 }
 
 -(void) removeItemWithKey: (ADTokenCacheStoreKey*) key
-                   userId:(NSString *)userId
                     error:(ADAuthenticationError *__autoreleasing *)error
 {
     return;
