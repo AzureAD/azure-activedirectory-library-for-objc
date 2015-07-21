@@ -84,7 +84,7 @@
     XCTAssertEqual(item.accessToken, resultFromItem.tokenCacheStoreItem.accessToken);
     XCTAssertEqual(item.expiresOn, resultFromItem.tokenCacheStoreItem.expiresOn);
     XCTAssertEqual(item.userInformation.tenantId, resultFromItem.tokenCacheStoreItem.userInformation.tenantId);
-    ADAssertStringEquals(item.userInformation.userId, resultFromItem.tokenCacheStoreItem.userInformation.userId);
+    XCTAssertEqualObjects(item.userInformation.userId, resultFromItem.tokenCacheStoreItem.userInformation.userId);
 }
 
 -(void) testResultFromTokenCacheStoreItem

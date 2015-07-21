@@ -70,7 +70,7 @@
     //nil value:
     ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:nil argumentName:parameter];
     XCTAssertNotNil(error, "No error for nil prameter");
-    [self adValidateForInvalidArgument:parameter error:error];
+    ADAssertArgumentError(parameter, error);
     XCTAssertTrue([error.errorDetails adContainsString:@"(null)"], "'null' should be part of the text");
 }
 
@@ -81,7 +81,7 @@
     ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:parameterValue argumentName:parameter];
     XCTAssertNotNil(error, "No error for valid prameter");
     
-    [self adValidateForInvalidArgument:parameter error:error];
+    ADAssertArgumentError(parameter, error);
     XCTAssertTrue([error.errorDetails adContainsString:parameterValue], "Value should be part of the text");
 }
 
@@ -97,10 +97,10 @@
     NSString* details = @"Some details";
     NSString* protocolCode = @"procol code";
     ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:protocolCode errorDetails:details];
-    ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
+    XCTAssertEqualObjects(error.domain, ADAuthenticationErrorDomain);
     ADAssertLongEquals(error.code, AD_ERROR_AUTHENTICATION);
-    ADAssertStringEquals(error.protocolCode, protocolCode);
-    ADAssertStringEquals(error.errorDetails, details);
+    XCTAssertEqualObjects(error.protocolCode, protocolCode);
+    XCTAssertEqualObjects(error.errorDetails, details);
 }
 
 -(void) testDescription

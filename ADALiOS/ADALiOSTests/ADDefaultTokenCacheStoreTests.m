@@ -88,9 +88,9 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 {\
     XCTAssertNotNil(_key1);\
     XCTAssertNotNil(_key2);\
-    ADAssertStringEquals(_key1.authority, _key2.authority);\
-    ADAssertStringEquals(_key1.resource, _key2.resource);\
-    ADAssertStringEquals(_key1.clientId, _key2.clientId);\
+    XCTAssertEqualObjects(_key1.authority, _key2.authority);\
+    XCTAssertEqualObjects(_key1.resource, _key2.resource);\
+    XCTAssertEqualObjects(_key1.clientId, _key2.clientId);\
     XCTAssertTrue([_key1 isEqual:_key2]);\
 }
 
@@ -238,7 +238,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 //    XCTAssertNotNil(keychainStore.sharedGroup);
 //    NSString* groupName = @"com.microsoft.ADAL";
 //    settings.sharedCacheKeychainGroup = groupName;
-//    ADAssertStringEquals(settings.sharedCacheKeychainGroup, groupName);
+//    XCTAssertEqualObjects(settings.sharedCacheKeychainGroup, groupName);
 //    
 //    //Restore back to default
 //    keychainStore.sharedGroup = nil;

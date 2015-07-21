@@ -221,7 +221,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 {
     XCTAssertNil(error, "No error should be raised here. Error: %@", error.errorDetails);
     XCTAssertNotNil(_context, "Context should be valid in this case.");
-    ADAssertStringEquals(authority, _context.authority);
+    XCTAssertEqualObjects(authority, _context.authority);
     XCTAssertEqual(validate, _context.validateAuthority, "Unexpected validate authority value.");
     XCTAssertEqualObjects(tokenCacheStore, _context.tokenCacheStore, "Unexpected token cache store.");
 }
@@ -347,7 +347,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
         XCTAssertNil(_error, "Error should be nil on success. Error: %@", _error.errorDetails);
         XCTAssertNotNil(_result.accessToken);
         XCTAssertNotNil(_result.tokenCacheStoreItem.accessToken);
-        ADAssertStringEquals(_result.accessToken, _result.tokenCacheStoreItem.accessToken);
+        XCTAssertEqualObjects(_result.accessToken, _result.tokenCacheStoreItem.accessToken);
     }
 }
 
@@ -438,26 +438,25 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 {
     _scopes = nil;
     acquireTokenAsync;
-    [self adValidateForInvalidArgument:@"scopes" error:_error];
-    
+    ADAssertArgumentError(@"scopes", _error);
     _scopes = @[];
     acquireTokenAsync;
-    [self adValidateForInvalidArgument:@"scopes" error:_error];
+    ADAssertArgumentError(@"scopes", _error);
     
     _scopes = @[@"", @"    "];
     acquireTokenAsync;
-    [self adValidateForInvalidArgument:@"scopes" error:_error];
+    ADAssertArgumentError(@"scopes", _error);
 }
 
 - (void)testAcquireTokenBadClientId
 {
     _clientId = nil;
     acquireTokenAsync;
-    [self adValidateForInvalidArgument:@"clientId" error:_error];
+    ADAssertArgumentError(@"clientId", _error);
     
     _clientId = @"    ";
     acquireTokenAsync;
-    [self adValidateForInvalidArgument:@"clientId" error:_error];
+    ADAssertArgumentError(@"clientId", _error);
 }
 
 - (void)addCacheWithToken:(NSString*)accessToken
@@ -555,7 +554,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSString* someTokenValue = @"someToken value";
     [self addCacheWithToken:someTokenValue refreshToken:nil];
     acquireTokenForAssertionAsync;
-    ADAssertStringEquals(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
     
     //Expire the cache item:
     [s_testCacheStore removeAll:&error];
@@ -579,8 +578,8 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     
     acquireTokenForAssertionAsync;
     XCTAssertEqual(_result.status, AD_SUCCEEDED);
-    ADAssertStringEquals(_result.accessToken, anotherAccessToken);
-    ADAssertStringEquals(_result.tokenCacheStoreItem.refreshToken, refreshToken);
+    XCTAssertEqualObjects(_result.accessToken, anotherAccessToken);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.refreshToken, refreshToken);
 }
 
 
@@ -589,7 +588,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSString* someTokenValue = @"someToken value";
     [self addCacheWithToken:someTokenValue refreshToken:nil];
     acquireTokenAsync;
-    ADAssertStringEquals(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
     NSUUID* corrId = [_context getCorrelationId];
     
     NSMutableDictionary* request = [NSMutableDictionary dictionaryWithDictionary:[self defaultRequest]];
@@ -600,16 +599,16 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSString* nilUserTokenValue = @"nil user value";
     [self addCacheWithToken:nilUserTokenValue refreshToken:nil userId:nil];
     acquireTokenAsync;
-    ADAssertStringEquals(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
     XCTAssertNotEqual([corrId UUIDString], [[_context getCorrelationId] UUIDString]);
     corrId = [NSUUID UUID];
     [_context setCorrelationId:corrId];
     acquireTokenAsync;
-    ADAssertStringEquals(_result.tokenCacheStoreItem.accessToken, someTokenValue);
-    ADAssertStringEquals([corrId UUIDString], [[_context getCorrelationId] UUIDString]);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects([corrId UUIDString], [[_context getCorrelationId] UUIDString]);
     acquireTokenAsync;
-    ADAssertStringEquals(_result.tokenCacheStoreItem.accessToken, someTokenValue);
-    ADAssertStringEquals([corrId UUIDString], [[_context getCorrelationId] UUIDString]);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects([corrId UUIDString], [[_context getCorrelationId] UUIDString]);
 }
 
 -(void) testAcquireTokenWithUserCache
@@ -617,19 +616,19 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSString* someTokenValue = @"someToken value";
     [self addCacheWithToken:someTokenValue refreshToken:nil];
     acquireTokenAsync;
-    ADAssertStringEquals(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
 
     //Cache a token for nil user:
     NSString* nilUserTokenValue = @"nil user value";
     [self addCacheWithToken:nilUserTokenValue refreshToken:nil userId:nil];
     acquireTokenAsync;
-    ADAssertStringEquals(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
     
     //Cache a token for another user:
     NSString* anotherUserTokenValue = @"another user token value";
     [self addCacheWithToken:anotherUserTokenValue refreshToken:nil userId:@"another user"];
     acquireTokenAsync;
-    ADAssertStringEquals(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
 }
 
 //Tests the scenario where we have a cached item with nil user:
@@ -641,7 +640,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSString* nilUserTokenValue = @"nil user token";
     [self addCacheWithToken:nilUserTokenValue refreshToken:nil userId:nil];
     acquireTokenAsync;
-    ADAssertStringEquals(_result.tokenCacheStoreItem.accessToken, nilUserTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, nilUserTokenValue);
     
     //Adds a cache for a real user:
     NSString* someUserTokenValue = @"Some user token";
@@ -669,7 +668,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     _userId = user1;
     acquireTokenAsync;
     XCTAssertEqual(_result.status, AD_SUCCEEDED);
-    ADAssertStringEquals(_result.tokenCacheStoreItem.accessToken, user1TokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, user1TokenValue);
     
     _userId = nil;
     //Try the same, but with refresh tokens only:
@@ -681,38 +680,33 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADAssertLongEquals(_result.error.code, AD_ERROR_MULTIPLE_USERS);
 }
 
-//Ensures that a cache item with the specified properties exists and returns it if found.
-- (ADTokenCacheStoreItem*)verifyCacheForScopes:(NSArray*)scopes
-                                   accessToken:(NSString*)accessToken
-                                  refreshToken:(NSString*)refreshToken
-                                          line:(int)line
+- (ADTokenCacheStoreItem*)getItemWithScopes:(NSArray*)scopes
+                                      error:(ADAuthenticationError* __autoreleasing *)error
 {
-    ADAuthenticationError* error;
     ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:_authority
                                                               clientId:_clientId
                                                                 userId:_userId
                                                               uniqueId:nil
                                                                 idType:RequiredDisplayableId
                                                                 scopes:[NSSet setWithArray:scopes]
-                                                                 error:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(key);
-    
-    ADTokenCacheStoreItem* item = [s_testCacheStore getItemWithKey:key error:&error];
-    if (error)
+                                                                 error:error];
+    if (!key)
     {
-        [self recordFailureWithDescription:error.errorDetails inFile:@"" __FILE__ atLine:line expected:NO];
-        return nil;
-    }
-    if (!item)
-    {
-        [self recordFailureWithDescription:@"Item not present." inFile:@"" __FILE__ atLine:line expected:NO];
         return nil;
     }
     
-    [self adAssertStringEquals:item.accessToken stringExpression:@"item.accessToken" expected:accessToken file:__FILE__ line:line];
-    [self adAssertStringEquals:item.refreshToken stringExpression:@"item.refreshToken" expected:refreshToken file:__FILE__ line:line];
+    ADTokenCacheStoreItem* item = [s_testCacheStore getItemWithKey:key error:error];
     return item;
+}
+
+#define VERIFY_CACHE_FOR_SCOPES(_SCOPES, _ACCESS_TOKEN, _REFRESH_TOKEN) { \
+    ADAuthenticationError* _ERROR = nil; \
+    ADTokenCacheStoreItem* _ITEM = [self getItemWithScopes:_SCOPES error:&_ERROR]; \
+    XCTAssertNotNil(_ITEM, @"failed to retrieve item: %@", _ERROR.errorDetails); \
+    if (_ITEM) { \
+        XCTAssertEqualObjects(_ACCESS_TOKEN, _ITEM.accessToken, @"accessTokens do not match, expected (%@) actual (%@)", _ACCESS_TOKEN, _ITEM.accessToken); \
+        XCTAssertEqualObjects(_REFRESH_TOKEN, _ITEM.refreshToken, @"refreshTokens do not match, expected (%@) actual (%@)", _REFRESH_TOKEN, _ITEM.refreshToken); \
+    } \
 }
 
 - (void)testAcquireTokenSilent
@@ -729,7 +723,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSString* someTokenValue = @"someToken value";
     [self addCacheWithToken:someTokenValue refreshToken:nil];
     acquireTokenAsync;
-    ADAssertStringEquals(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
     
     //Expire the cache item:
     NSArray* allItems = [s_testCacheStore allItems:&error];
@@ -821,8 +815,12 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     acquireTokenAsync;
     XCTAssertEqual(_result.status, AD_SUCCEEDED);
     XCTAssertEqual([self cacheCount], 1);
-    ADTokenCacheStoreItem* exactItem = [self verifyCacheForScopes:_scopes accessToken:accessToken refreshToken:refreshToken line:__LINE__];
-    XCTAssertEqualWithAccuracy(exactItem.expiresOn.timeIntervalSinceNow, 3500, 10);
+    VERIFY_CACHE_FOR_SCOPES(_scopes, accessToken, refreshToken);
+    ADTokenCacheStoreItem* exactItem = [self getItemWithScopes:_scopes error:nil];
+    if (exactItem)
+    {
+        XCTAssertEqualWithAccuracy(exactItem.expiresOn.timeIntervalSinceNow, 3500, 10);
+    }
     
     // expire the access token and ensure that the server does not accept the exact refresh token
     exactItem.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
@@ -847,7 +845,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     XCTAssertEqual(_result.status, AD_SUCCEEDED);
     //Now verify the cache:
     XCTAssertEqual([self cacheCount], 1);
-    [self verifyCacheForScopes:_scopes accessToken:accessToken2 refreshToken:refreshToken2 line:__LINE__];
+    VERIFY_CACHE_FOR_SCOPES(_scopes, accessToken2, refreshToken2);
     
     //#3: Use another resource with the broad refresh token. This time do not provide a new refresh token:
     NSString* accessToken3 = @"yet another access token";
@@ -858,27 +856,30 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     acquireTokenAsync;
     XCTAssertEqual(_result.status, AD_SUCCEEDED);
     ADAssertLongEquals(1, [self cacheCount]);
-    ADTokenCacheStoreItem* newItem = [self verifyCacheForScopes:_scopes accessToken:accessToken3 refreshToken:nil line:__LINE__];
-    
-    //#4: Now try failing from both the exact and the broad refresh token to ensure that this code path
-    //works. Both items should be removed from the cache. Also ensures that the credentials ask is attempted in this case.
-    _silent = YES;
-    newItem.refreshToken = @"new non-working refresh token";
-    newItem.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
-    [s_testCacheStore addOrUpdateItem:newItem error:&error];
-    
-    request = [self requestWithOverrides:OAUTH2_REFRESH_TOKEN, newItem.refreshToken, nil];
-    response = @{ OAUTH2_ERROR : @"bad_refresh_token" };
-    [_testContext queueExpectedRequest:request response:response];
-    
-    ADAssertNoError;
-    acquireTokenAsync;
-    XCTAssertEqual(_result.status, AD_FAILED);
-    ADAssertLongEquals(_result.error.code, AD_ERROR_USER_INPUT_NEEDED);
-    ADAssertLongEquals(0, [self cacheCount]);
+    VERIFY_CACHE_FOR_SCOPES(_scopes, accessToken3, nil);
+    ADTokenCacheStoreItem* newItem = [self getItemWithScopes:_scopes error:nil];
+    if (newItem)
+    {
+        //#4: Now try failing from both the exact and the broad refresh token to ensure that this code path
+        //works. Both items should be removed from the cache. Also ensures that the credentials ask is attempted in this case.
+        _silent = YES;
+        newItem.refreshToken = @"new non-working refresh token";
+        newItem.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
+        [s_testCacheStore addOrUpdateItem:newItem error:&error];
+        
+        request = [self requestWithOverrides:OAUTH2_REFRESH_TOKEN, newItem.refreshToken, nil];
+        response = @{ OAUTH2_ERROR : @"bad_refresh_token" };
+        [_testContext queueExpectedRequest:request response:response];
+        
+        ADAssertNoError;
+        acquireTokenAsync;
+        XCTAssertEqual(_result.status, AD_FAILED);
+        ADAssertLongEquals(_result.error.code, AD_ERROR_USER_INPUT_NEEDED);
+        ADAssertLongEquals(0, [self cacheCount]);
+    }
 }
 
--(void) testWrongUser
+- (void)testWrongUser
 {
     ADAuthenticationError* error;
     NSString* idToken = @"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiJjM2M3ZjVlNS03MTUzLTQ0ZDQtOTBlNi0zMjk2ODZkNDhkNzYiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82ZmQxZjVjZC1hOTRjLTQzMzUtODg5Yi02YzU5OGU2ZDgwNDgvIiwiaWF0IjoxMzg3MjI0MTY5LCJuYmYiOjEzODcyMjQxNjksImV4cCI6MTM4NzIyNzc2OSwidmVyIjoiMS4wIiwidGlkIjoiNmZkMWY1Y2QtYTk0Yy00MzM1LTg4OWItNmM1OThlNmQ4MDQ4Iiwib2lkIjoiNTNjNmFjZjItMjc0Mi00NTM4LTkxOGQtZTc4MjU3ZWM4NTE2IiwidXBuIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInVuaXF1ZV9uYW1lIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IjBEeG5BbExpMTJJdkdMX2RHM2RETWszenA2QVFIbmpnb2d5aW01QVdwU2MiLCJmYW1pbHlfbmFtZSI6IlZpZG9sb3Z2IiwiZ2l2ZW5fbmFtZSI6IkJvcmlzcyJ9.";

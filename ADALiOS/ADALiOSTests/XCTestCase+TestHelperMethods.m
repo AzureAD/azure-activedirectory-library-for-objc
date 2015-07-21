@@ -39,38 +39,6 @@ NSString* const sIDTokenHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
 
 volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
-/*! See header for comments */
-- (void)adAssertValidText: (NSString*) text
-                  message: (NSString*) message
-{
-    //The pragmas here are copied directly from the XCTAssertNotNil:
-    _Pragma("clang diagnostic push")
-    _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"")//Temporarily remove the compiler warning
-    if ([NSString adIsStringNilOrBlank:text])
-    {
-        _XCTFailureHandler(self, YES, __FILE__, __LINE__, text, message);
-    }
-    _Pragma("clang diagnostic pop")//Restore the compiler warning
-}
-
-/* See header for details. */
--(void) adValidateForInvalidArgument: (NSString*) argument
-                               error: (ADAuthenticationError*) error
-{
-    XCTAssertNotNil(argument, "Internal test error: please specify the expected parameter.");
-    
-    
-    XCTAssertNotNil(error, "Error should be raised for the invalid argument '%@'", argument);
-    XCTAssertNotNil(error.domain, "Error domain is nil.");
-    XCTAssertEqual(error.domain, ADInvalidArgumentDomain, "Incorrect error domain.");
-    XCTAssertNil(error.protocolCode, "The protocol code should not be set. Instead protocolCode ='%@'.", error.protocolCode);
-    
-    [self adAssertValidText:error.errorDetails message:@"The error should have details."];
-    BOOL found = [error.errorDetails adContainsString:argument];
-    XCTAssertTrue(found, "The parameter is not specified in the error details. Error details:%@", error.errorDetails);
-}
-
-
 /* See header for details.*/
 -(void) adValidateFactoryForInvalidArgument: (NSString*) argument
                              returnedObject: (id) returnedObject
@@ -78,7 +46,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 {
     XCTAssertNil(returnedObject, "Creator should have returned nil. Object: %@", returnedObject);
     
-    [self adValidateForInvalidArgument:argument error:error];
+    //[self adValidateForInvalidArgument:argument error:error];
 }
 #ifdef AD_CODE_COVERAGE
 extern void __gcov_flush(void);
@@ -88,20 +56,6 @@ extern void __gcov_flush(void);
 #ifdef AD_CODE_COVERAGE
     __gcov_flush();
 #endif
-}
-
--(void) adAssertStringEquals: (NSString*) actual
-            stringExpression: (NSString*) expression
-                    expected: (NSString*) expected
-                        file: (const char*) file
-                        line: (int) line
-{
-    if (!actual && !expected)//Both nil, so they are equal
-        return;
-    if (![expected isEqualToString:actual])
-    {
-        _XCTFailureHandler(self, YES, file, line, @"Strings.", @"" "The strings are different: '%@' = '%@', expected '%@'", expression, actual, expected);
-    }
 }
 
 //Creates an new item with all of the properties having correct
@@ -138,25 +92,25 @@ extern void __gcov_flush(void);
     XCTAssertNotNil(userInfo, "Nil user info returned.");
     
     //Check the standard properties:
-    ADAssertStringEquals(userInfo.userId, @"boris@msopentechbv.onmicrosoft.com");
-    ADAssertStringEquals(userInfo.givenName, @"Boriss");
-    ADAssertStringEquals(userInfo.familyName, @"Vidolovv");
-    ADAssertStringEquals(userInfo.subject, @"0DxnAlLi12IvGL_dG3dDMk3zp6AQHnjgogyim5AWpSc");
-    ADAssertStringEquals(userInfo.tenantId, @"6fd1f5cd-a94c-4335-889b-6c598e6d8048");
-    ADAssertStringEquals(userInfo.upn, @"boris@MSOpenTechBV.onmicrosoft.com");
-    ADAssertStringEquals(userInfo.uniqueName, @"boris@MSOpenTechBV.onmicrosoft.com");
-    ADAssertStringEquals(userInfo.eMail, @"fake e-mail");
-    ADAssertStringEquals(userInfo.identityProvider, @"Fake IDP");
-    ADAssertStringEquals(userInfo.userObjectId, @"53c6acf2-2742-4538-918d-e78257ec8516");
-    ADAssertStringEquals(userInfo.guestId, @"Some Guest id");
+    XCTAssertEqualObjects(userInfo.userId, @"boris@msopentechbv.onmicrosoft.com");
+    XCTAssertEqualObjects(userInfo.givenName, @"Boriss");
+    XCTAssertEqualObjects(userInfo.familyName, @"Vidolovv");
+    XCTAssertEqualObjects(userInfo.subject, @"0DxnAlLi12IvGL_dG3dDMk3zp6AQHnjgogyim5AWpSc");
+    XCTAssertEqualObjects(userInfo.tenantId, @"6fd1f5cd-a94c-4335-889b-6c598e6d8048");
+    XCTAssertEqualObjects(userInfo.upn, @"boris@MSOpenTechBV.onmicrosoft.com");
+    XCTAssertEqualObjects(userInfo.uniqueName, @"boris@MSOpenTechBV.onmicrosoft.com");
+    XCTAssertEqualObjects(userInfo.eMail, @"fake e-mail");
+    XCTAssertEqualObjects(userInfo.identityProvider, @"Fake IDP");
+    XCTAssertEqualObjects(userInfo.userObjectId, @"53c6acf2-2742-4538-918d-e78257ec8516");
+    XCTAssertEqualObjects(userInfo.guestId, @"Some Guest id");
     
     //Check unmapped claims:
-    ADAssertStringEquals([userInfo.allClaims objectForKey:@"aud"], @"c3c7f5e5-7153-44d4-90e6-329686d48d76");
-    ADAssertStringEquals([userInfo.allClaims objectForKey:@"iss"], @"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/");
+    XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"aud"], @"c3c7f5e5-7153-44d4-90e6-329686d48d76");
+    XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"iss"], @"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/");
     XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"iat"], [NSNumber numberWithLong:1387224169]);
     XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"nbf"], [NSNumber numberWithLong:1387224170]);
     XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"exp"], [NSNumber numberWithLong:1387227769]);
-    ADAssertStringEquals([userInfo.allClaims objectForKey:@"ver"], @"1.0");
+    XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"ver"], @"1.0");
     
     //This will check absolutely all properties, so that if we add a new one later
     //it will fail if it is not set:

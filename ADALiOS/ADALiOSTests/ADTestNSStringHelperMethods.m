@@ -88,10 +88,10 @@
 
 -(void) testTrimmedString
 {
-    ADAssertStringEquals([@" \t\r\n  test" adTrimmedString], @"test");
-    ADAssertStringEquals([@"test  \t\r\n  " adTrimmedString], @"test");
-    ADAssertStringEquals([@"test  \t\r\n  test" adTrimmedString], @"test  \t\r\n  test");
-    ADAssertStringEquals([@"  \t\r\n  test  \t\r\n  test  \t\r\n  " adTrimmedString], @"test  \t\r\n  test");
+    XCTAssertEqualObjects([@" \t\r\n  test" adTrimmedString], @"test");
+    XCTAssertEqualObjects([@"test  \t\r\n  " adTrimmedString], @"test");
+    XCTAssertEqualObjects([@"test  \t\r\n  test" adTrimmedString], @"test  \t\r\n  test");
+    XCTAssertEqualObjects([@"  \t\r\n  test  \t\r\n  test  \t\r\n  " adTrimmedString], @"test  \t\r\n  test");
 }
 
 
@@ -232,17 +232,17 @@
 {
     NSString* encoded = [original adBase64UrlEncode];
     NSString* decoded = [encoded adBase64UrlDecode];
-    ADAssertStringEquals(encoded, expected);
-    ADAssertStringEquals(decoded, original);
+    XCTAssertEqualObjects(encoded, expected);
+    XCTAssertEqualObjects(decoded, original);
 }
 
 -(void) testBase64
 {
     NSString* encodeEmpty = [@"" adBase64UrlEncode];
-    ADAssertStringEquals(encodeEmpty, @"");
+    XCTAssertEqualObjects(encodeEmpty, @"");
     
     NSString* decodeEmpty = [@"" adBase64UrlDecode];
-    ADAssertStringEquals(decodeEmpty, @"");
+    XCTAssertEqualObjects(decodeEmpty, @"");
     
     //15 characters, aka 3k:
     NSString* test1 = @"1$)=- \t\r\nfoo%^!";
@@ -271,8 +271,8 @@
     NSString* testString = @"Some interesting test/+-)(*&^%$#@!~|";
     NSString* encoded = [testString adUrlFormEncode];
 
-    ADAssertStringEquals(encoded, @"Some+interesting+test%2F%2B-%29%28%2A%26%5E%25%24%23%40%21~%7C");
-    ADAssertStringEquals([encoded adUrlFormDecode], testString);
+    XCTAssertEqualObjects(encoded, @"Some+interesting+test%2F%2B-%29%28%2A%26%5E%25%24%23%40%21~%7C");
+    XCTAssertEqualObjects([encoded adUrlFormDecode], testString);
 }
 
 -(void) testAdSame

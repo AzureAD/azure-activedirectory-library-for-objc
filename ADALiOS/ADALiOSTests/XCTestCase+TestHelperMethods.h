@@ -25,16 +25,6 @@
 
 @interface XCTestCase (HelperMethods)
 
-/*! Verifies that the text is not nil, empty or containing only spaces */
--(void) adAssertValidText: (NSString*) text
-                message: (NSString*) message;
-
--(void) adAssertStringEquals: (NSString*) actual
-          stringExpression: (NSString*) expression
-                  expected: (NSString*) expected
-                      file: (const char*) file
-                      line: (int) line;
-
 /*! Used with the class factory methods that create class objects. Verifies
  the expectations when the passed argument is invalid:
  - The creator should return nil.
@@ -43,20 +33,15 @@
                            returnedObject: (id) returnedObject
                                     error: (ADAuthenticationError*) error;
 
-/*! Verifies that the correct error is returned when any method was passed invalid arguments.
- */
--(void) adValidateForInvalidArgument: (NSString*) argument
-                             error: (ADAuthenticationError*) error;
-
 //Creates a new item with all of the properties having correct values
--(ADTokenCacheStoreItem*) adCreateCacheItem;
+- (ADTokenCacheStoreItem*)adCreateCacheItem;
 
 //Creates a sample user information object
--(ADUserInformation*) adCreateUserInformation;
+- (ADUserInformation*)adCreateUserInformation;
 
 //Ensures that all properties return non-default values. Useful to ensure that
 //the tests cover all properties of the tested objects:
--(void) adVerifyPropertiesAreSet: (NSObject*) object;
+- (void)adVerifyPropertiesAreSet: (NSObject*) object;
 
 /* A special helper, which invokes the 'block' parameter in the UI thread and waits for its internal
  callback block to complete.
@@ -90,19 +75,15 @@
     XCTAssertThrowsSpecificNamed((EXP), NSException, NSInvalidArgumentException, "Exception expected for %s", #EXP); \
 }
 
-//Usage: ADAssertStringEquals(resultString, "Blah");
-#define ADAssertStringEquals(actualParam, expectedParam) \
-{ \
-    [self adAssertStringEquals:actualParam \
-              stringExpression:@"" #actualParam \
-                      expected:expectedParam \
-                           file:__FILE__ \
-                           line:__LINE__]; \
-}
-
 //Fixes the problem with the test framework not able to compare dates:
 #define ADAssertDateEquals(actualParam, expectedParam) XCTAssertTrue([expectedParam compare:actualParam] == NSOrderedSame)
 
 //Verifes that "error" local variable is nil. If not prints the error
 #define ADAssertNoError XCTAssertNil(error, "Unexpected error occurred: %@", error.errorDetails)
+
+#define ADAssertArgumentError(_argument, _ERROR) { \
+    XCTAssertNotNil(_ERROR); \
+    XCTAssertEqual(_ERROR.domain, ADInvalidArgumentDomain, "Incorrect error domain."); \
+    XCTAssertTrue([_ERROR.errorDetails rangeOfString:_argument options:NSCaseInsensitiveSearch].location != NSNotFound, @"\"%@\" not found in error details.", _argument); \
+}
 
