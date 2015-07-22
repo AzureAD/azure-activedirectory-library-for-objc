@@ -83,7 +83,9 @@
 
 #define ADAssertArgumentError(_argument, _ERROR) { \
     XCTAssertNotNil(_ERROR); \
-    XCTAssertEqual(_ERROR.domain, ADInvalidArgumentDomain, "Incorrect error domain."); \
-    XCTAssertTrue([_ERROR.errorDetails rangeOfString:_argument options:NSCaseInsensitiveSearch].location != NSNotFound, @"\"%@\" not found in error details.", _argument); \
+    if (_ERROR) { \
+        XCTAssertEqual(_ERROR.domain, ADInvalidArgumentDomain, "Incorrect error domain."); \
+        XCTAssertTrue([_ERROR.errorDetails rangeOfString:_argument options:NSCaseInsensitiveSearch].location != NSNotFound, @"\"%@\" not found in error details.", _argument); \
+    } \
 }
 
