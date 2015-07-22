@@ -89,6 +89,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 - (void)setAllowSilentRequests:(BOOL)allowSilent;
 #endif
 
+- (BOOL)validateProperties:(ADAuthenticationCallback)completionBlock;
+
 - (NSSet*)combinedScopes;
 
 - (ADTokenCacheStoreKey*)cacheStoreKey:(ADAuthenticationError* __autoreleasing *)error;

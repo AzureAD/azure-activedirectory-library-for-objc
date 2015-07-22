@@ -197,4 +197,15 @@
     return set;
 }
 
+- (BOOL)validateProperties:(ADAuthenticationCallback)completionBlock
+{
+    if (!_scopes || [NSString adIsStringNilOrBlank:[_scopes adSpaceDeliminatedString]])
+    {
+        completionBlock([ADAuthenticationResult resultFromParameterError:@"The scopes argument is required"]);
+        return NO;
+    }
+    
+    return YES;
+}
+
 @end

@@ -32,6 +32,11 @@
     THROW_ON_NIL_ARGUMENT(completionBlock);
     [self ensureRequest];
     
+    if (![self validateProperties:completionBlock])
+    {
+        return;
+    }
+    
     if (!_context.validateAuthority)
     {
         [self validatedAcquireToken:completionBlock];
