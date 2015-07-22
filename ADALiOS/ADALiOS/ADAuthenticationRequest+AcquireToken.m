@@ -113,7 +113,7 @@
     
     [self ensureRequest];
     
-    if (useAccessToken)
+    if (useAccessToken && [item containsScopes:_scopes])
     {
         //Access token is good, just use it:
         [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:nil];
@@ -140,43 +140,6 @@
              completionBlock(result);
              return;
          }
-         
-         // TODO: MRRT
-         //Try other means of getting access token result:
-//         if (!item.multiResourceRefreshToken)//Try multi-resource refresh token if not currently trying it
-//         {
-//             ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:_context.authority
-//                                                                            clientId:_clientId
-//                                                                               error:nil];
-//             if (broadKey)
-//             {
-//                 BOOL useAccessToken;
-//                 ADAuthenticationError* error;
-//                 ADTokenCacheStoreItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
-//                 if (error)
-//                 {
-//                     completionBlock([ADAuthenticationResult resultFromError:error]);
-//                     return;
-//                 }
-//                 
-//                 if (broadItem)
-//                 {
-//                     if (!broadItem.multiResourceRefreshToken)
-//                     {
-//                         AD_LOG_WARN(@"Unexpected", @"Multi-resource refresh token expected here.");
-//                         //Recover (avoid infinite recursion):
-//                         completionBlock(result);
-//                         return;
-//                     }
-//                     
-//                     //Call recursively with the cache item containing a multi-resource refresh token:
-//                     [self attemptToUseCacheItem:broadItem
-//                                  useAccessToken:NO
-//                                 completionBlock:completionBlock];
-//                     return;//The call above takes over, no more processing
-//                 }//broad item
-//             }//key
-//         }//!item.multiResourceRefreshToken
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
@@ -316,6 +279,7 @@
                         OAUTH2_REFRESH_TOKEN, OAUTH2_GRANT_TYPE,
                         refreshToken, OAUTH2_REFRESH_TOKEN,
                         _clientId, OAUTH2_CLIENT_ID,
+                        [_scopes adSpaceDeliminatedString], OAUTH2_SCOPE,
                         nil];
     }
     

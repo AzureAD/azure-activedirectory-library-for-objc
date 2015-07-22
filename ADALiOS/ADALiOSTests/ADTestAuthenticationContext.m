@@ -131,11 +131,32 @@
         }
         
         // We pass empty string, when the value is not known, but the key is expected
-        if (result.length > 0 && ![expected isEqualToString:result])
+        if (expected.length == 0 && result.length > 0)
         {
-            _errorMessage = [NSString stringWithFormat:@"Requested data: Unexpected value for the key (%@): Expected: '%@'; Actual: '%@'", key, expected, result];
-            *stop = YES;
             return;
+        }
+        
+        // Scopes are a set, and the order does not matter, so rebuild them into a set before comparing
+        if ([key isEqualToString:@"scope"])
+        {
+            NSSet* expectedSet = [NSSet setWithArray:[[expected adUrlFormDecode] componentsSeparatedByString:@" "]];
+            NSSet* actualSet = [NSSet setWithArray:[[result adUrlFormDecode] componentsSeparatedByString:@" "]];
+            
+            if (![expectedSet isEqualToSet:actualSet])
+            {
+                _errorMessage = [NSString stringWithFormat:@"Mismatch scopes, expected: (%@) actual: (%@)", expectedSet, actualSet];
+                *stop = YES;
+                return;
+            }
+        }
+        else if (![expected isEqualToString:result])
+        {
+            if ([key isEqualToString:@"scope"])
+            {
+                _errorMessage = [NSString stringWithFormat:@"Requested data: Unexpected value for the key (%@): Expected: '%@'; Actual: '%@'", key, expected, result];
+                *stop = YES;
+                return;
+            }
         }
         
     }];
@@ -160,7 +181,6 @@
 
 - (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
                                              clientId:(NSString*)clientId
-                                             resource:(NSString*)resource
                                       completionBlock:(ADAuthenticationCallback)completionBlock
 
 {

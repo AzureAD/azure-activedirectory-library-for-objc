@@ -201,4 +201,9 @@
     return [NSKeyedArchiver archivedDataWithRootObject:self];
 }
 
+- (BOOL)containsScopes:(NSSet *)scopes
+{
+    return [scopes isSubsetOfSet:_scopes];
+}
+
 @end

@@ -220,7 +220,10 @@
                                          [self getAssertionTypeGrantValue:assertionType], OAUTH2_GRANT_TYPE,
                                          base64String, OAUTH2_ASSERTION,
                                          _clientId, OAUTH2_CLIENT_ID,
+                                         [_scopes adSpaceDeliminatedString], OAUTH2_SCOPE,
                                          nil];
+    // TODO: Policy
+    
     [self executeRequest:_context.authority
              requestData:request_data
          handledPkeyAuth:NO

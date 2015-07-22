@@ -71,4 +71,6 @@
 /*! Verifies if the user (as defined by userId) is the same between the two items. */
 - (BOOL)isSameUser: (ADTokenCacheStoreItem*)other;
 
+- (BOOL)containsScopes:(NSSet*)scopes;
+
 @end

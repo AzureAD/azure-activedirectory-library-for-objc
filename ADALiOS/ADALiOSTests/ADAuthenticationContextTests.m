@@ -499,7 +499,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 {
     return @{ OAUTH2_GRANT_TYPE : OAUTH2_REFRESH_TOKEN,
               OAUTH2_CLIENT_ID : _clientId,
-              OAUTH2_SCOPE : [_scopes adUrlFormEncode] };
+              OAUTH2_SCOPE : [_scopes adSpaceDeliminatedString] };
 }
 
 - (NSDictionary*)requestWithOverrides:(id)obj, ... __attribute__((sentinel))
@@ -569,11 +569,12 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSMutableDictionary* request = [NSMutableDictionary dictionaryWithDictionary:[self defaultRequest]];
     
     // Override the grant type to make it an assertion request
-    [request setObject:OAUTH2_SAML11_BEARER_VALUE forKey:OAUTH2_SAML11_BEARER_VALUE];
+    [request setObject:OAUTH2_SAML11_BEARER_VALUE forKey:OAUTH2_GRANT_TYPE];
     [request setObject:_assertion forKey:OAUTH2_ASSERTION];
     
-    NSDictionary* response = @{ anotherAccessToken : OAUTH2_ACCESS_TOKEN,
-                                refreshToken : OAUTH2_REFRESH_TOKEN };
+    NSDictionary* response = @{ OAUTH2_ACCESS_TOKEN : anotherAccessToken,
+                                OAUTH2_REFRESH_TOKEN : refreshToken,
+                                OAUTH2_SCOPE : [_scopes adSpaceDeliminatedString] };
     
     [_testContext queueExpectedRequest:request response:response];
     
@@ -696,6 +697,12 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     }
     
     ADTokenCacheStoreItem* item = [s_testCacheStore getItemWithKey:key error:error];
+    NSSet* setScopes = [NSSet setWithArray:scopes];
+    if (![setScopes isSubsetOfSet:[item scopes]])
+    {
+        return nil;
+    }
+    
     return item;
 }
 
@@ -797,88 +804,6 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     XCTAssertTrue([self cacheCount] == 0, "Bad refresh token should be removed.");
 }
 
-- (void)testSingleUserExpiration
-{
-    NSDictionary* request = nil;
-    NSDictionary* response = nil;
-    
-    NSString* accessToken = @"testSingleUserExpiration access token";
-    NSString* refreshToken = @"testSingleUserExpiration refresh token";
-    
-    // Set up an initial response to populate the cache.
-    response = @{ OAUTH2_ACCESS_TOKEN : accessToken,
-                  @"expires_in" : @"3500",
-                  OAUTH2_REFRESH_TOKEN : refreshToken,
-                  OAUTH2_SCOPE : [_scopes adUrlFormEncode] };
-    
-    [_testContext queueExpectedRequest:[self defaultRequest] response:response];
-    acquireTokenAsync;
-    XCTAssertEqual(_result.status, AD_SUCCEEDED);
-    XCTAssertEqual([self cacheCount], 1);
-    VERIFY_CACHE_FOR_SCOPES(_scopes, accessToken, refreshToken);
-    ADTokenCacheStoreItem* exactItem = [self getItemWithScopes:_scopes error:nil];
-    if (exactItem)
-    {
-        XCTAssertEqualWithAccuracy(exactItem.expiresOn.timeIntervalSinceNow, 3500, 10);
-    }
-    
-    // expire the access token and ensure that the server does not accept the exact refresh token
-    exactItem.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
-    ADAuthenticationError* error;
-    [s_testCacheStore addOrUpdateItem:exactItem error:&error];
-    ADAssertNoError;
-    //First request should be made with the specific refresh token:
-    request = [self requestWithOverrides:OAUTH2_REFRESH_TOKEN, refreshToken, nil];
-    response = @{ OAUTH2_ERROR : @"bad_refresh_token" };
-    [_testContext queueExpectedRequest:request response:response];
-    
-    //Second request should be made for the broad token, as the first one fails:
-    //Respond with another broad token:
-    NSString* refreshToken2 = @"testBroadRefreshToken another refresh token";
-    NSString* accessToken2 = @"testBroadRefreshToken another access token";
-    response = @{ OAUTH2_REFRESH_TOKEN : refreshToken2,
-                  @"expires_in" : @"3500",
-                  OAUTH2_ACCESS_TOKEN : accessToken2,
-                  OAUTH2_SCOPE : [_scopes adUrlFormEncode] };
-    [_testContext queueExpectedRequest:[self defaultRequest] response:response];
-    acquireTokenAsync;
-    XCTAssertEqual(_result.status, AD_SUCCEEDED);
-    //Now verify the cache:
-    XCTAssertEqual([self cacheCount], 1);
-    VERIFY_CACHE_FOR_SCOPES(_scopes, accessToken2, refreshToken2);
-    
-    //#3: Use another resource with the broad refresh token. This time do not provide a new refresh token:
-    NSString* accessToken3 = @"yet another access token";
-    request = [self requestWithOverrides:OAUTH2_REFRESH_TOKEN, refreshToken2, nil];
-    response = @{ OAUTH2_ACCESS_TOKEN : accessToken3,
-                  OAUTH2_SCOPE : [_scopes adUrlFormEncode] };
-    [_testContext queueExpectedRequest:request response:response];
-    acquireTokenAsync;
-    XCTAssertEqual(_result.status, AD_SUCCEEDED);
-    ADAssertLongEquals(1, [self cacheCount]);
-    VERIFY_CACHE_FOR_SCOPES(_scopes, accessToken3, nil);
-    ADTokenCacheStoreItem* newItem = [self getItemWithScopes:_scopes error:nil];
-    if (newItem)
-    {
-        //#4: Now try failing from both the exact and the broad refresh token to ensure that this code path
-        //works. Both items should be removed from the cache. Also ensures that the credentials ask is attempted in this case.
-        _silent = YES;
-        newItem.refreshToken = @"new non-working refresh token";
-        newItem.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
-        [s_testCacheStore addOrUpdateItem:newItem error:&error];
-        
-        request = [self requestWithOverrides:OAUTH2_REFRESH_TOKEN, newItem.refreshToken, nil];
-        response = @{ OAUTH2_ERROR : @"bad_refresh_token" };
-        [_testContext queueExpectedRequest:request response:response];
-        
-        ADAssertNoError;
-        acquireTokenAsync;
-        XCTAssertEqual(_result.status, AD_FAILED);
-        ADAssertLongEquals(_result.error.code, AD_ERROR_USER_INPUT_NEEDED);
-        ADAssertLongEquals(0, [self cacheCount]);
-    }
-}
-
 - (void)testWrongUser
 {
     ADAuthenticationError* error;
@@ -889,23 +814,29 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSString* requestUser = @"testWrongUser requestUser";
     NSDictionary* response = nil;
     
+    NSArray* cachedScopes = @[@"planetarydefense.target"];
+    
     //#1: access token exists in the cache for different user, make sure that the library attempts to use UI
-    [self addCacheWithToken:accessToken refreshToken:nil userId:_userId scopes:[NSSet setWithArray:_scopes]];
+    [self addCacheWithToken:accessToken refreshToken:exactRefreshToken userId:_userId scopes:[NSSet setWithArray:cachedScopes]];
+    _scopes = cachedScopes;
     _userId = requestUser;
     acquireTokenAsync;
     ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, _result.error.code);
     
-    //#2: Only exact refresh token
     [s_testCacheStore removeAll:&error];
     ADAssertNoError;
-    [self addCacheWithToken:nil refreshToken:exactRefreshToken userId:requestUser scopes:[NSSet setWithArray:_scopes]];
     
+    // Add into cache a token with just the targetting scope
+    [self addCacheWithToken:accessToken refreshToken:exactRefreshToken userId:requestUser scopes:[NSSet setWithArray:cachedScopes]];
+    
+    // Now request both target and fire, this should cause a scope mismatch and trigger a request using the RT.
+    _scopes = @[@"planetarydefense.target", @"planetarydefense.fire"];
     response = @{ OAUTH2_ID_TOKEN : idToken,
                   OAUTH2_ACCESS_TOKEN : accessToken };
     [_testContext queueExpectedRequest:[self defaultRequest] response:response];
     acquireTokenAsync;
     ADAssertLongEquals(AD_ERROR_WRONG_USER, _result.error.code);
-    ADAssertLongEquals(2, [self cacheCount]);//The new token should be added to the cache
+    ADAssertLongEquals(2, [self cacheCount]); // The new user gets cached as well
 }
 
 //Additional tests for the cases that are not covered by the broader scenario tests.
@@ -1022,21 +953,6 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADAssertLongEquals(1, [self cacheCount]);
     
     acquireTokenAsync;//Will attempt to use the refresh token and fail.
-    ADAssertLongEquals(0, [self cacheCount]);
-    
-    //Broad refresh token:
-    [self addCacheWithToken:nil refreshToken:@"invalid broad refresh token" userId:_userId scopes:nil];
-    ADAssertLongEquals(1, [self cacheCount]);
-    
-    acquireTokenAsync;//Will attempt to use the broad refresh token and fail.
-    ADAssertLongEquals(0, [self cacheCount]);
-    
-    //Both exact and broad refresh token:
-    [self addCacheWithToken:nil refreshToken:@"another invalid refresh token"];
-    [self addCacheWithToken:nil refreshToken:@"another invalid broad refresh token" userId:_userId scopes:nil];
-    ADAssertLongEquals(2, [self cacheCount]);
-    
-    acquireTokenAsync;//Will attempt to use the broad refresh token and fail.
     ADAssertLongEquals(0, [self cacheCount]);
 }
 
