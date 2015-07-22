@@ -972,20 +972,18 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADAssertLongEquals(AD_ERROR_AUTHORITY_VALIDATION, _error.code);
 }
 
-//Used when the framework needs to display an UI and cannot, raising an error
--(void) validateUIError
-{
-    XCTAssertNotNil(_context);
-    
-    //UI is not available in the test framework, so we indirectly test
-    //scenarios when we cannot invoke the web view:
-    acquireTokenAsync;
-    XCTAssertNotNil(_error);
-    ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, _error.code);
-    XCTAssertTrue([_error.errorDetails adContainsString:@"ViewController"]);
+// Used when the framework needs to display an UI and cannot, raising an error
+// UI is not available in the test framework, so we indirectly test
+// scenarios when we cannot invoke the web view:
+#define VALIDATE_UI_ERROR { \
+    XCTAssertNotNil(_context); \
+    acquireTokenAsync; \
+    XCTAssertNotNil(_error); \
+    ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, _error.code); \
+    XCTAssertTrue([_error.errorDetails adContainsString:@"ViewController"]); \
 }
 
--(void) testUIError
+- (void)testUIError
 {
     ADAuthenticationError* error;
     
@@ -994,13 +992,13 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADAssertNoError;
     _context = [ADAuthenticationContext authenticationContextWithAuthority:_authority error:&error];
     ADAssertNoError;
-    [self validateUIError];
+    VALIDATE_UI_ERROR;
 
     //Cache disabled, should always try to open UI for credentials
     error = nil;
     _context = [ADAuthenticationContext authenticationContextWithAuthority:_authority tokenCacheStore:nil error:&error];
     ADAssertNoError;
-    [self validateUIError];
+    VALIDATE_UI_ERROR;
 
     //Cache item present, but force prompt:
     error = nil;
@@ -1008,10 +1006,10 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADAssertNoError;
     [self addCacheWithToken:@"access" refreshToken:nil];
     _promptBehavior = AD_PROMPT_ALWAYS;
-    [self validateUIError];
+    VALIDATE_UI_ERROR;
 }
  
--(void) testBadRefreshToken
+- (void)testBadRefreshToken
 {
     //Create a normal authority (not a test one):
     ADAuthenticationError* error;
