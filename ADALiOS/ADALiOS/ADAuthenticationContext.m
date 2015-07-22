@@ -266,7 +266,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                       identifier:(ADUserIdentifier*)identifier
                  completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    API_ENTRY;
+    API_ENTRY_F(@"assertion:%lu assertiontype:%@ scopes:%@ additionalscopes:%@ clientId:%@ identifier:%@",
+                (unsigned long)[assertion hash], assertionType == AD_SAML1_1 ? @"v1.1" : @"v2.0", scopes, additionalScopes, clientId, identifier);
     REQUEST_WITH_REDIRECT_STRING(nil, clientId);
     
     
@@ -298,7 +299,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                   redirectUri:(NSURL*)redirectUri
               completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    API_ENTRY;
+    API_ENTRY_F(@"scopes:%@ additionalScopes:%@ clientId:%@ redirectUri:%@", scopes, additionalScopes, clientId, redirectUri);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
     [request acquireToken:completionBlock];
@@ -328,7 +329,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                    identifier:(ADUserIdentifier*)identifier
               completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    API_ENTRY;
+    API_ENTRY_F(@"scopes:%@ additionalScopes:%@ clientId:%@ redirectUri:%@ identifier:%@",
+                scopes, additionalScopes, clientId, redirectUri, identifier);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
     [request setUserIdentifier:identifier];
@@ -364,7 +366,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
          extraQueryParameters:(NSString*)queryParams
               completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    API_ENTRY;
+    API_ENTRY_F(@"scopes:%@ additionalScopes:%@ clientId:%@ redirectUri:%@ identifier:%@ queryParams:%@",
+                scopes, additionalScopes, clientId, redirectUri, identifier, queryParams);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
 
     [request setSilent:YES];
@@ -400,7 +403,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
          extraQueryParameters:(NSString*)queryParams
               completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    API_ENTRY;
+    API_ENTRY_F(@"scopes:%@ additionalScopes:%@ clientId:%@ redirectUri:%@ identifier:%@ queryParams:%@",
+                scopes, additionalScopes, clientId, redirectUri, identifier, queryParams);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
     [request setUserIdentifier:identifier];
@@ -434,7 +438,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                        policy:(NSString*)policy
               completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    API_ENTRY;
+    API_ENTRY_F(@"scopes:%@ additionalScopes:%@ clientId:%@ redirectUri:%@ identifier:%@ queryParams:%@ policy:%@",
+               scopes, additionalScopes, clientId, redirectUri, identifier, queryParams, policy);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
     [request setUserIdentifier:identifier];
@@ -462,7 +467,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                         redirectUri:(NSURL*)redirectUri
                     completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    API_ENTRY;
+    API_ENTRY_F(@"scopes:%@ clientId:%@ redirectUri:%@", scopes, clientId, redirectUri);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
     [request setSilent:YES];
@@ -489,7 +494,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                     completionBlock:(ADAuthenticationCallback)completionBlock
 {
     
-    API_ENTRY_F(@"\nscopes: %@\nclientId:%@\nredirectUri:%@\nidentifier:%@\n", scopes, clientId, redirectUri, identifier);
+    API_ENTRY_F(@"scopes:%@ clientId:%@ redirectUri:%@ identifier:%@", scopes, clientId, redirectUri, identifier);
     
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
