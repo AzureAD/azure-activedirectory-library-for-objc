@@ -76,7 +76,7 @@ const int sTokenWorkflowTimeout     = 20;
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class:
     
-    [ADLogger setLevel:ADAL_LOG_LEVEL_ERROR];//Meaningful log size
+    [ADLogger setLevel:ADAL_LOG_LEVEL_INFO]; //Meaningful log size
     
     //Start clean:
     [self clearCookies];

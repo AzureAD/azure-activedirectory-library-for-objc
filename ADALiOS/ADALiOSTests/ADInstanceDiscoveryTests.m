@@ -287,6 +287,7 @@ const int sAsyncTimeout = 10;//in seconds
     {
         XCTFail("Timed out. The threads did not complete smoothly. If the applicaiton has not crashed, this is an indication of a deadlock.");
     }
+    [ADLogger setLevel:ADAL_LOG_LEVEL_INFO];
 }
 
 //Calls the asynchronous "validateAuthority" method and waits for completion.

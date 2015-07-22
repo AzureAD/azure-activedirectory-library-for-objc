@@ -65,6 +65,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 - (void)setUp
 {
     [super setUp];
+    [ADLogger setLevel:ADAL_LOG_LEVEL_INFO];
     if (!s_testCacheStore)
     {
         s_testCacheStore = [[ADKeychainTokenCacheStore alloc] init];
