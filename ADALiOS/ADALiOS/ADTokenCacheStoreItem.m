@@ -62,7 +62,6 @@
                                            userId:self.userInformation.userId
                                          uniqueId:self.userInformation.uniqueId
                                            idType:self.identifierType
-                                           scopes:self.scopes
                                             error:error];
 }
 

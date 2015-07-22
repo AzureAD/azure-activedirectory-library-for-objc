@@ -688,7 +688,6 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                                                                 userId:_userId
                                                               uniqueId:nil
                                                                 idType:RequiredDisplayableId
-                                                                scopes:[NSSet setWithArray:scopes]
                                                                  error:error];
     if (!key)
     {

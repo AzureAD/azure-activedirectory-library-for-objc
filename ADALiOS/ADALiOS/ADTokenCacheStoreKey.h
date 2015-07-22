@@ -41,7 +41,6 @@
                                    userId:(NSString*)userId
                                  uniqueId:(NSString*)uniqueId
                                    idType:(ADUserIdentifierType)idType
-                                   scopes:(NSSet*)scopes
                                     error:(ADAuthenticationError* __autoreleasing*)error;
 
 /*! The authority that issues access tokens */
@@ -58,8 +57,6 @@
 @property (readonly) NSString* uniqueId;
 
 @property (readonly) ADUserIdentifierType identifierType;
-
-@property (readonly) NSSet* scopes;
 
 - (NSString*)userCacheKey;
 

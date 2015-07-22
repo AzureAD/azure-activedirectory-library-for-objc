@@ -65,7 +65,6 @@
                                            userId:mUserId
                                          uniqueId:mUniqueId
                                            idType:mIdType
-                                           scopes:mScopes
                                             error:error];
 }
 
@@ -83,7 +82,6 @@
                                                                    userId:nil
                                                                  uniqueId:nil
                                                                    idType:RequiredDisplayableId
-                                                                   scopes:nil
                                                                     error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority"
                              returnedObject:badKey
@@ -94,7 +92,6 @@
                                              userId:nil
                                            uniqueId:nil
                                              idType:RequiredDisplayableId
-                                             scopes:nil
                                               error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority"
                              returnedObject:badKey
@@ -107,7 +104,6 @@
                                              userId:nil
                                            uniqueId:nil
                                              idType:RequiredDisplayableId
-                                             scopes:nil
                                               error:&error];
     [self adValidateFactoryForInvalidArgument:@"clientId"
                              returnedObject:badKey
@@ -118,7 +114,6 @@
                                              userId:nil
                                            uniqueId:nil
                                              idType:RequiredDisplayableId
-                                             scopes:nil
                                               error:&error];
     [self adValidateFactoryForInvalidArgument:@"clientId"
                              returnedObject:badKey
@@ -130,7 +125,6 @@
                                                                    userId:nil
                                                                  uniqueId:nil
                                                                    idType:RequiredDisplayableId
-                                                                   scopes:nil
                                                                     error:&error];
     ADAssertNoError;
     XCTAssertNotNil(normal);

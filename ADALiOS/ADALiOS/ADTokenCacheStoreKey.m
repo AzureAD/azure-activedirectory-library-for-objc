@@ -37,7 +37,6 @@
                  userId:(NSString*)userId
                uniqueId:(NSString*)uniqueId
                  idType:(ADUserIdentifierType)idType
-                 scopes:(NSSet*)scopes
 {
     if (!(self = [super init]))
     {
@@ -61,7 +60,6 @@
                                    userId:(NSString*)userId
                                  uniqueId:(NSString*)uniqueId
                                    idType:(ADUserIdentifierType)idType
-                                   scopes:(NSSet*)scopes
                                     error:(ADAuthenticationError* __autoreleasing*)error
 {
     API_ENTRY;
@@ -77,8 +75,7 @@
                                                   clientId:clientId
                                                     userId:userId
                                                   uniqueId:uniqueId
-                                                    idType:idType
-                                                    scopes:scopes];
+                                                    idType:idType];
 }
 
 - (NSUInteger)hash
@@ -109,8 +106,7 @@
                                                      clientId:[self.clientId copyWithZone:zone]
                                                        userId:[self.userId copyWithZone:zone]
                                                      uniqueId:[self.uniqueId copyWithZone:zone]
-                                                       idType:self.identifierType
-                                                       scopes:[self.scopes copyWithZone:zone]];
+                                                       idType:self.identifierType];
 }
 
 - (NSString*)userCacheKey
@@ -131,8 +127,8 @@
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"{ ADTokenCacheStoreKey authority=%@ clientId=%@ userId=%@ uniqueId=%@ idType=%@ scopes=%@ }",
-            _authority, _clientId, _userId, _uniqueId, [ADUserIdentifier stringForType:_identifierType], _scopes];
+    return [NSString stringWithFormat:@"{ ADTokenCacheStoreKey authority=%@ clientId=%@ userId=%@ uniqueId=%@ idType=%@ }",
+            _authority, _clientId, _userId, _uniqueId, [ADUserIdentifier stringForType:_identifierType]];
 }
 
 @end
