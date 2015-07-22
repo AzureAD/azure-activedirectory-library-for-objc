@@ -83,7 +83,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     // While it's still possible (albeit unlikely) that another process could slip in and alter the keychain underneath
     // us while we're running, this will keep the same process from stomping on itself.
     
-    s_keychainQueue = dispatch_queue_create(s_keychainQueueLabel, DISPATCH_QUEUE_CONCURRENT);
+    s_keychainQueue = dispatch_queue_create(s_keychainQueueLabel, DISPATCH_QUEUE_SERIAL);
 }
 
 #define CHECK_OSSTATUS(_err) if ([ADKeychainTokenCacheStore handleKeychainCode:_err operation:__PRETTY_FUNCTION__ error:error]) { return; }
@@ -113,9 +113,25 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
         return YES;
     }
     
+    // If we already have an error object just pass that along
+    if (error && *error)
+    {
+        return YES;
+    }
+    
     NSString* log = [NSString stringWithFormat:@"ADAL Keychain \"%s\" operation failed with error code %d.", operation, (int)errCode];
     // Creating the ADError object will cause the error to get logged.
-    ADAuthenticationError* adError = [ADAuthenticationError errorFromKeychainError:errCode errorDetails:log];
+    ADAuthenticationError* adError = nil;
+    if (errCode == errSecDuplicateItem)
+    {
+        adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
+                                                         protocolCode:nil
+                                                         errorDetails:sMultiUserError];
+    }
+    else
+    {
+        adError = [ADAuthenticationError errorFromKeychainError:errCode errorDetails:log];
+    }
     
     if (error)
     {
@@ -161,26 +177,47 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     ADKeychainQuery* retrieveQuery = [self createBaseQuery];
     [retrieveQuery setUserId:userId];
     [retrieveQuery setCopyAttributes];
+    [retrieveQuery setMatchAll];
     
-    CFDictionaryRef cfdKeychainItem = NULL;
-    OSStatus err = SecItemCopyMatching([retrieveQuery queryDictionary], (CFTypeRef*)&cfdKeychainItem);
+    
+    CFArrayRef cfaItems = NULL;
+    OSStatus err = SecItemCopyMatching([retrieveQuery queryDictionary], (CFTypeRef*)&cfaItems);
     if (err != errSecSuccess)
     {
         return err;
     }
     
+    if (CFArrayGetCount(cfaItems) > 1)
+    {
+        CFRelease(cfaItems);
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
+                                                                                protocolCode:nil
+                                                                                errorDetails:sMultiUserError];
+        if (error)
+        {
+            *error = adError;
+        }
+        
+        return errSecDuplicateItem;
+    }
+    
+    CFDictionaryRef cfdKeychainItem = NULL;
+    cfdKeychainItem = CFArrayGetValueAtIndex(cfaItems, 0);
     CFDataRef data = NULL;
     data = CFDictionaryGetValue(cfdKeychainItem, kSecAttrGeneric);
     if (data == NULL)
     {
-        CFRelease(cfdKeychainItem);
+        CFRelease(cfaItems);
         return errSecItemNotFound;
     }
     
     CFErrorRef cfError = NULL;
     // If this keychain entry is bad, we might as well zap the whole thing, rather then let the user get stuck in a bad, unrecoverable state
     CFMutableDictionaryRef adalDictionary = (CFMutableDictionaryRef)CFPropertyListCreateWithData(NULL, (CFDataRef)data, kCFPropertyListMutableContainers, NULL, &cfError);
-    CFRelease(cfdKeychainItem);
+    CFRelease(cfaItems);
+    cfaItems = NULL;
+    cfdKeychainItem = NULL;
+    
     if (!adalDictionary)
     {
         ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:(__bridge NSError*)cfError
