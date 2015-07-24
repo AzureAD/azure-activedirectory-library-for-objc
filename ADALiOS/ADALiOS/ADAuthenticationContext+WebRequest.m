@@ -114,24 +114,12 @@
         endPoint = [authorizationServer stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
     }
     
-    NSURL *endpointUrl = [NSURL URLWithString:endPoint];
-    
     if(isGetRequest)
     {
-        NSURLComponents *components = [[NSURLComponents alloc] initWithString:endPoint];
-        NSString* query = [components query];
-        
-        if (query)
-        {
-            [components setQuery:[query stringByAppendingString:[request_data adURLFormEncode]]];
-        }
-        else
-        {
-            [components setQuery:[request_data adURLFormEncode]];
-        }
-        
-        endpointUrl = [components URL];
+        endPoint = [NSString stringWithFormat:@"%@?%@", endPoint, [request_data adURLFormEncode]];
     }
+    
+    NSURL *endpointUrl = [NSURL URLWithString:endPoint];
     
     ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:endpointUrl
                                                    correlationId:requestCorrelationId];
