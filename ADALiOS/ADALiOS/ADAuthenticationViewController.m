@@ -16,6 +16,8 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#if !TARGET_OS_WATCH
+
 #import "ADAuthenticationDelegate.h"
 #import "ADAuthenticationWebViewController.h"
 #import "ADAuthenticationViewController.h"
@@ -179,3 +181,5 @@
 }
 
 @end
+
+#endif

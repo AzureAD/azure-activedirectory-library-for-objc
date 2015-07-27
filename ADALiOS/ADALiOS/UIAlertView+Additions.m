@@ -1,5 +1,7 @@
 #import <objc/runtime.h>
 
+#if !TARGET_OS_WATCH
+
 @implementation UIAlertView (Additions)
 
 static const char *HANDLER_KEY = "com.microsoft.adal.alertviewHandler";
@@ -39,3 +41,5 @@ static UIAlertView *alert;
 }
 
 @end
+
+#endif

@@ -106,8 +106,10 @@ return; \
 +(NSString*) getPromptParameter: (ADPromptBehavior) prompt
 {
     switch (prompt) {
+#if !TARGET_OS_WATCH // Not available for Watch
         case AD_PROMPT_ALWAYS:
             return @"login";
+#endif
         case AD_PROMPT_REFRESH_SESSION:
             return @"refresh_session";
         default:
@@ -240,6 +242,7 @@ return; \
                                   completionBlock:completionBlock];
 }
 
+
 -(void) acquireTokenWithResource: (NSString*) resource
                         clientId: (NSString*) clientId
                      redirectUri: (NSURL*) redirectUri
@@ -284,6 +287,7 @@ return; \
                            completionBlock:completionBlock];
 }
 
+
 -(void) acquireTokenSilentWithResource: (NSString*) resource
                               clientId: (NSString*) clientId
                            redirectUri: (NSURL*) redirectUri
@@ -293,7 +297,7 @@ return; \
     return [self internalAcquireTokenWithResource:resource
                                          clientId:clientId
                                       redirectUri:redirectUri
-                                   promptBehavior:AD_PROMPT_AUTO
+                                   promptBehavior:AD_PROMPT_REFRESH_SESSION
                                            silent:YES
                                            userId:nil
                                             scope:nil
@@ -314,7 +318,7 @@ return; \
     return [self internalAcquireTokenWithResource:resource
                                          clientId:clientId
                                       redirectUri:redirectUri
-                                   promptBehavior:AD_PROMPT_AUTO
+                                   promptBehavior:AD_PROMPT_REFRESH_SESSION
                                            silent:YES
                                            userId:userId
                                             scope:nil
@@ -1055,6 +1059,7 @@ return; \
     }
 }
 
+
 //Obtains an access token from the passed refresh token. If "cacheItem" is passed, updates it with the additional
 //information and updates the cache:
 -(void) internalAcquireTokenByRefreshToken: (NSString*) refreshToken
@@ -1417,6 +1422,8 @@ return; \
     return NO;
 }
 
+
+
 //Requests an OAuth2 code to be used for obtaining a token:
 -(void) requestCodeByResource: (NSString*) resource
                      clientId: (NSString*) clientId
@@ -1450,6 +1457,8 @@ return; \
                                         promptBehavior:promptBehavior
                                   extraQueryParameters:queryParams];
     
+    
+    #if !TARGET_OS_WATCH // interactive acquireToken calls are not supported on Apple Watch
     [[ADAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
                                                end:[NSURL URLWithString:[redirectUri absoluteString]]
                                   parentController:self.parentController
@@ -1488,7 +1497,10 @@ return; \
          
          completionBlock(code, error);
      }];
+    
+    #endif
 }
+
 
 
 

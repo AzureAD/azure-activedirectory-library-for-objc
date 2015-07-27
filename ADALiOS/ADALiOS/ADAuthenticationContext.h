@@ -24,14 +24,17 @@
 #import "ADUserInformation.h"
 #import "ADTokenCacheStoreKey.h"
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS // Should be TARGET_OS_IOS which is = 0 on Apple Watch. TARGET_OS_IPHONE returns 1 which is not what we want.
 //iOS:
-#   include <UIKit/UIKit.h>
+#import <UIKit/UIKit.h>
 typedef UIWebView WebViewType;
-#else
+#elif TARGET_OS_MAC
 //OS X:
-#   include <WebKit/WebKit.h>
-typedef WebView   WebViewType;
+//#import <WebKit/WebKit.h>
+//typedef WebView   WebViewType;
+#elif TARGET_OS_WATCH
+// Apple Watch
+#import <WatchKit/WatchKit.h>
 #endif
 
 @class UIViewController;
@@ -48,6 +51,9 @@ typedef enum
 
 typedef enum
 {
+    
+
+    
     /*! Default option. Users will be prompted only if their attention is needed. First the cache will
      be checked for a suitable access token (non-expired). If none is found, the cache will be checked
      for a suitable refresh token to be used for obtaining a new access token. If this attempt fails
@@ -63,6 +69,8 @@ typedef enum
      is useful in multi-user scenarios. Example is authenticating for the same e-mail service with different
      user. */
     AD_PROMPT_ALWAYS,
+    
+
     
     /*! Re-authorizes (through displaying webview) the resource usage, making sure that the resulting access
      token contains updated claims. If user logon cookies are available, the user will not be asked for
@@ -158,10 +166,15 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  a custom web view is NOT specified. */
 @property (weak) UIViewController* parentController;
 
+#if !TARGET_OS_WATCH // interactive acquireToken calls are not supported on Apple Watch
 
 /*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
  when needed, leveraging the parentController property. */
 @property (weak) WebViewType* webView;
+
+#endif
+
+
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
@@ -258,6 +271,8 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                            userId: (NSString*) userId
              extraQueryParameters: (NSString*) queryParams
                   completionBlock: (ADAuthenticationCallback) completionBlock;
+
+
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,

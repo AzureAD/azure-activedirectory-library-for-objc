@@ -21,14 +21,20 @@
 #import "ADWorkPlaceJoinConstants.h"
 #import "ADRegistrationInformation.h"
 #import <UIKit/UIKit.h>
-#import <MessageUI/MessageUI.h>
 
+#if !TARGET_OS_WATCH
+#import <MessageUI/MessageUI.h>
+#endif
 
 @implementation ADWorkPlaceJoin
 
 NSArray *_upnParts;
 NSString *_userPrincipalName;
+
+#if !TARGET_OS_WATCH
 UIViewController * _callingViewController;
+
+#endif
 
 static ADWorkPlaceJoin* wpjManager;
 

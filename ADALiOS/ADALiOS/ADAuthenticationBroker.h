@@ -20,6 +20,7 @@
 
 #import "ADAuthenticationContext.h"
 
+#if !TARGET_OS_WATCH
 typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 @interface ADAuthenticationBroker : NSObject
 
@@ -42,3 +43,5 @@ correlationId:(NSUUID*)correlationId
 - (void)cancel;
 
 @end
+
+#endif

@@ -16,6 +16,8 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#if !TARGET_OS_WATCH
+
 @interface ADAuthenticationWebViewController : NSObject <UIWebViewDelegate, NSURLConnectionDelegate>
 
 @property (weak, nonatomic) id<ADAuthenticationDelegate> delegate;
@@ -26,3 +28,6 @@
 - (void) handlePKeyAuthChallenge:(NSString *)challengeUrl;
 
 @end
+
+#endif
+

@@ -18,6 +18,8 @@
 
 @protocol ADAuthenticationDelegate;
 
+#if !TARGET_OS_WATCH
+
 @interface ADAuthenticationViewController : UIViewController
 
 @property (weak, nonatomic)   id<ADAuthenticationDelegate>     delegate;
@@ -29,3 +31,5 @@
 - (BOOL)startWithURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
 
 @end
+
+#endif

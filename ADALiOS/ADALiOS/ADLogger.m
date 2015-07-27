@@ -151,6 +151,8 @@ additionalInformation: (NSString*) additionalInformation
 
 +(NSDictionary*) adalId
 {
+    
+#if TARGET_OS_IOS
     UIDevice* device = [UIDevice currentDevice];
     NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
     @{
@@ -165,6 +167,33 @@ additionalInformation: (NSString*) additionalInformation
         [result setObject:CPUVer forKey:ADAL_ID_CPU];
     }
     return result;
+    
+#elif TARGET_OS_WATCH
+    
+
+
+  // No UIDevice on Apple Watch 2 as of July
+  // @see: https://forums.developer.apple.com/thread/6966
+  // So just stubbing
+    
+    NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
+                                   @{
+                                     ADAL_ID_PLATFORM:@"AppleWatch",
+                                     ADAL_ID_VERSION:[ADLogger getAdalVersion],
+                                    // ADAL_ID_OS_VER:device.systemVersion,
+                                    // ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
+                                     }];
+    NSString* CPUVer = [self getCPUInfo];
+    if (![NSString adIsStringNilOrBlank:CPUVer])
+    {
+        [result setObject:CPUVer forKey:ADAL_ID_CPU];
+    }
+    return result;
+    
+    
+#endif
+    
+    
 }
 
 +(NSString*) getHash: (NSString*) input

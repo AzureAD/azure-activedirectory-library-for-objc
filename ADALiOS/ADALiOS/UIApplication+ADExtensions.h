@@ -16,8 +16,11 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#if !TARGET_OS_WATCH
 @interface UIApplication ( internal )
 
 + (UIViewController *)adCurrentViewController;
 
 @end
+
+#endif
