@@ -804,8 +804,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos watchos";
+				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchsimulator watchos";
 			};
 			name = Debug;
 		};
@@ -838,8 +838,8 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos watchos";
+				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchsimulator watchos";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -864,6 +864,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = "Headers/$(PROJECT_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
+				SDKROOT = watchos;
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -889,6 +890,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = "Headers/$(PROJECT_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
+				SDKROOT = watchos;
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -920,6 +922,7 @@
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
@@ -943,6 +946,7 @@
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
@@ -983,8 +987,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos watchos";
+				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchsimulator watchos";
 			};
 			name = CodeCoverage;
 		};
@@ -1008,6 +1012,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = "Headers/$(PROJECT_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
+				SDKROOT = watchos;
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1040,6 +1045,7 @@
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = CodeCoverage;
@@ -1063,7 +1069,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "$(PROJECT_NAME)";
-				SDKROOT = iphoneos7.0;
+				SDKROOT = watchos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = bundle;
 			};
@@ -1075,6 +1081,7 @@
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = watchos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = CodeCoverage;
@@ -1098,7 +1105,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "$(PROJECT_NAME)";
-				SDKROOT = iphoneos7.0;
+				SDKROOT = watchos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = bundle;
 			};
@@ -1120,7 +1127,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "$(PROJECT_NAME)";
-				SDKROOT = iphoneos7.0;
+				SDKROOT = watchos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = bundle;
 			};
@@ -1132,6 +1139,7 @@
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = watchos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1142,6 +1150,7 @@
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = watchos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
