@@ -34,7 +34,7 @@
 		8B5989551811B89800744AEE /* ADTokenCacheStoreKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B5989541811B89800744AEE /* ADTokenCacheStoreKey.m */; };
 		8B5989591811BFBA00744AEE /* ADTokenCacheStoreKey.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B5989531811B89800744AEE /* ADTokenCacheStoreKey.h */; };
 		8B59895A1811BFCB00744AEE /* ADTokenCacheStoreItem.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B59894C1810BEAC00744AEE /* ADTokenCacheStoreItem.h */; };
-		8B598961181710FD00744AEE /* ADDefaultTokenCacheStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B598960181710FD00744AEE /* ADDefaultTokenCacheStoreTests.m */; };
+		8B598961181710FD00744AEE /* ADKeychainCacheStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B598960181710FD00744AEE /* ADKeychainCacheStoreTests.m */; };
 		8B598963181739AA00744AEE /* ADAuthenticationErrorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B598962181739AA00744AEE /* ADAuthenticationErrorTests.m */; };
 		8B6113FE1868C59E007759C2 /* ADTestAuthenticationContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B6113FD1868C59E007759C2 /* ADTestAuthenticationContext.m */; };
 		8B611401186E517D007759C2 /* ADInstanceDiscovery.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B611400186E517D007759C2 /* ADInstanceDiscovery.m */; };
@@ -184,7 +184,7 @@
 		8B5989531811B89800744AEE /* ADTokenCacheStoreKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTokenCacheStoreKey.h; sourceTree = "<group>"; };
 		8B5989541811B89800744AEE /* ADTokenCacheStoreKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheStoreKey.m; sourceTree = "<group>"; };
 		8B5989561811BEC500744AEE /* ADTokenCacheStoring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTokenCacheStoring.h; sourceTree = "<group>"; };
-		8B598960181710FD00744AEE /* ADDefaultTokenCacheStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADDefaultTokenCacheStoreTests.m; sourceTree = "<group>"; };
+		8B598960181710FD00744AEE /* ADKeychainCacheStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeychainCacheStoreTests.m; sourceTree = "<group>"; };
 		8B598962181739AA00744AEE /* ADAuthenticationErrorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationErrorTests.m; sourceTree = "<group>"; };
 		8B6113FC1868C59E007759C2 /* ADTestAuthenticationContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAuthenticationContext.h; sourceTree = "<group>"; };
 		8B6113FD1868C59E007759C2 /* ADTestAuthenticationContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAuthenticationContext.m; sourceTree = "<group>"; };
@@ -463,7 +463,7 @@
 				8BB8346A1807BE3F007F9F0D /* ADAuthenticationContextTests.m */,
 				8BB8346C1807C5F5007F9F0D /* ADAuthenticationParametersTests.m */,
 				8B0965C417F25770002BDFB8 /* Supporting Files */,
-				8B598960181710FD00744AEE /* ADDefaultTokenCacheStoreTests.m */,
+				8B598960181710FD00744AEE /* ADKeychainCacheStoreTests.m */,
 				8B598962181739AA00744AEE /* ADAuthenticationErrorTests.m */,
 				8B81CE3218188728005CFD65 /* ADTestTokenCacheStore.h */,
 				8B81CE3318188728005CFD65 /* ADTestTokenCacheStore.m */,
@@ -802,7 +802,7 @@
 				8B598963181739AA00744AEE /* ADAuthenticationErrorTests.m in Sources */,
 				8B92DB74181C9196004AAB0E /* ADLoggerTests.m in Sources */,
 				8B92DB5F1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m in Sources */,
-				8B598961181710FD00744AEE /* ADDefaultTokenCacheStoreTests.m in Sources */,
+				8B598961181710FD00744AEE /* ADKeychainCacheStoreTests.m in Sources */,
 				8BB8346B1807BE3F007F9F0D /* ADAuthenticationContextTests.m in Sources */,
 				8BBF6788183588EC004E0F4D /* ADTokenCacheStoreItemTest.m in Sources */,
 				8B6613B518346080008BDD3F /* ADAuthenticationResultTests.m in Sources */,
