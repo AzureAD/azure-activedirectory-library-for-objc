@@ -230,7 +230,7 @@
                 return;
             }
             
-            BOOL removed = NO;
+            //BOOL removed = NO;
             //The refresh token didn't work. We need to clear this refresh item from the cache.
             ADTokenCacheStoreKey* exactKey = [cacheItem extractKeyWithError:nil];
             if (exactKey)
@@ -240,7 +240,7 @@
                 {
                     AD_LOG_VERBOSE_F(@"Token cache store", @"Removing cache for scopes: %@", cacheItem.scopes);
                     [tokenCacheStoreInstance removeItemWithKey:exactKey error:nil];
-                    removed = YES;
+                    //removed = YES;
                 }
             }
             
