@@ -52,6 +52,7 @@
     _userId = userId;
     _uniqueId = uniqueId;
     _identifierType = idType;
+    _scopes = scopes;
     
     return self;
 }
