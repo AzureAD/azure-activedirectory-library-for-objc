@@ -1,0 +1,3 @@
+dependencies: \
+  /Volumes/Development\ HD/SDKs/azure-activedirectory-library-for-objc/ADALiOS/ADALiOS/ADAuthenticationOperation.m \
+  /Volumes/Development\ HD/SDKs/azure-activedirectory-library-for-objc/ADALiOS/ADALiOS/ADAuthenticationOperation.h

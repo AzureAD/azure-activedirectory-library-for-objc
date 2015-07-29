@@ -74,6 +74,11 @@ extern NSString* const sKeyChainlog;
         [attributes setObject:_sharedGroup forKey:(__bridge id)kSecAttrAccessGroup];
 #endif
     }
+    //Apps are not signed on the simulator, so the shared group doesn't apply there.
+#if !(TARGET_WATCH_SIMULATOR)
+    [attributes setObject:_sharedGroup forKey:(__bridge id)kSecAttrAccessGroup];
+#endif
+}
 }
 
 //Given a set of attributes, deletes the matching keychain keys:
