@@ -137,7 +137,26 @@
 
 + (ADTokenCacheStoreItem*)itemFromData:(NSData *)data
 {
-    return (ADTokenCacheStoreItem*)[NSKeyedUnarchiver unarchiveObjectWithData:data];
+    if (!data)
+    {
+        return nil;
+    }
+    
+    if (![data isKindOfClass:[NSData class]])
+    {
+        AD_LOG_ERROR(@"Invalid Keychain Data. Unable to decode NSData into cache item.", AD_ERROR_CACHE_PERSISTENCE, nil);
+        return nil;
+    }
+    
+    ADTokenCacheStoreItem* item = (ADTokenCacheStoreItem*)[NSKeyedUnarchiver unarchiveObjectWithData:data];
+    
+    if (!item)
+    {
+        AD_LOG_ERROR(@"Invalid Keychain Data. Unable to decode NSData into cache item.", AD_ERROR_CACHE_PERSISTENCE, nil);
+        return nil;
+    }
+    
+    return item;
 }
 
 - (BOOL)isEqual:(id)object
