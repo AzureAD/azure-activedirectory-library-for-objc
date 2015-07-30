@@ -53,6 +53,7 @@ const NSString* REQUEST_TIMEOUT = @"RequestTimeout";
     self->_resource             = [contents objectForKey:RESOURCE];
     self->_redirectUri          = [contents objectForKey:REDIRECT_URI];
     self->_userId               = [contents objectForKey:USER_ID];
+    self->_scopes               = [contents objectForKey:SCOPES];
     self->_password             = [contents objectForKey:PASSWORD];
     NSString* va = [contents objectForKey:SUPPORTS_VALIDATION];
     self->_validateAuthority    = [va boolValue];

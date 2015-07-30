@@ -33,6 +33,7 @@ extern const NSString* SUPPORTS_VALIDATION;
 extern const NSString* EXTRA_QUERYPARAMETERS;
 extern const NSString* ENABLE_FULLSCREEN;
 extern const NSString* REQUEST_TIMEOUT;
+extern const NSString* SCOPES;
 
 -(void) updateValues: (NSDictionary*) contents;
 -(void) restoreDefaults;
@@ -48,6 +49,7 @@ extern const NSString* REQUEST_TIMEOUT;
 @property NSString* userId;
 @property NSString* password;//used for automation in the tests
 @property NSString* extraQueryParameters;//Typically null and set by tests when needed
+@property NSArray*  scopes;
 @property int      requestTimeout;
 
 @end

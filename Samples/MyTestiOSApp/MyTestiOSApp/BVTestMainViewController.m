@@ -167,7 +167,6 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
 {
     NSString* authority = mAADInstance.authority;//params.authority;
     NSString* clientId = mAADInstance.clientId;
-    NSString* resourceString = mAADInstance.resource;
     NSString* redirectUri = mAADInstance.redirectUri;
     NSString* userId = [_tfUserId text];
     ADAuthenticationError* error = nil;
@@ -183,13 +182,14 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     context.parentController = self;
     
     ADUserIdentifier* adUserId = [ADUserIdentifier identifierWithId:userId type:(ADUserIdentifierType)[_scUserType selectedSegmentIndex]];
-    [context acquireTokenWithResource:resourceString
-                             clientId:clientId
-                          redirectUri:[NSURL URLWithString:redirectUri]
-                       promptBehavior:[_scPromptBehavior selectedSegmentIndex]
-                       userIdentifier:adUserId
-                 extraQueryParameters:nil
-                      completionBlock:^(ADAuthenticationResult *result)
+    [context acquireTokenForScopes:mAADInstance.scopes
+                  additionalScopes:nil
+                          clientId:clientId
+                       redirectUri:[NSURL URLWithString:redirectUri]
+                    promptBehavior:[_scPromptBehavior selectedSegmentIndex]
+                        identifier:adUserId
+              extraQueryParameters:nil
+                   completionBlock:^(ADAuthenticationResult *result)
     {
         if (result.status != AD_SUCCEEDED)
         {
@@ -237,11 +237,12 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     }
     context.parentController = self;
     
-    [context acquireTokenSilentWithResource:resourceString
-                                   clientId:clientId
-                                redirectUri:[NSURL URLWithString:redirectUri]
-                                     userId:userId
-                            completionBlock:^(ADAuthenticationResult *result) {
+    [context acquireTokenSilentForScopes:mAADInstance.scopes
+                                clientId:clientId
+                             redirectUri:[NSURL URLWithString:redirectUri]
+                              identifier:[ADUserIdentifier identifierWithId:userId]
+                         completionBlock:^(ADAuthenticationResult *result)
+    {
         if (result.status != AD_SUCCEEDED)
         {
             [self appendToResults:result.error.errorDetails];
@@ -370,13 +371,14 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
         return;
     }
     
-    [context acquireTokenWithResource:mAADInstance.resource
-                             clientId:mAADInstance.clientId
-                          redirectUri:[NSURL URLWithString:mAADInstance.redirectUri]
-                       promptBehavior:AD_PROMPT_ALWAYS
-                               userId:mAADInstance.userId
-                 extraQueryParameters:mAADInstance.extraQueryParameters
-                      completionBlock:^(ADAuthenticationResult *result)
+    [context acquireTokenForScopes:mAADInstance.scopes
+                  additionalScopes:nil
+                          clientId:mAADInstance.clientId
+                       redirectUri:[NSURL URLWithString:mAADInstance.redirectUri]
+                    promptBehavior:AD_PROMPT_ALWAYS
+                            userId:mAADInstance.userId
+              extraQueryParameters:mAADInstance.extraQueryParameters
+                   completionBlock:^(ADAuthenticationResult *result)
      {
          if (result.status != AD_SUCCEEDED)
          {
