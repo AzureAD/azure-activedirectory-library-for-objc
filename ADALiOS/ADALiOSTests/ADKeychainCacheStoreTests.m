@@ -78,9 +78,9 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     VERIFY_CACHE_COUNT(_expectAdd ? _COUNT + 1 : _COUNT); \
     ADTokenCacheStoreKey* key = [_item extractKeyWithError:&error]; \
     ADAssertNoError; \
-    ADTokenCacheStoreItem* read = [mStore getItemWithKey:key error:&error]; \
+    ADTokenCacheStoreItem* _read = [mStore getItemWithKey:key error:&error]; \
     ADAssertNoError; \
-    XCTAssertEqualObjects(_item, read); \
+    XCTAssertEqualObjects(_item, _read); \
 }
 
 //Esnures that two keys are the same:
@@ -181,6 +181,44 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [mStore removeAll:&error];
     ADAssertNoError;
     VERIFY_CACHE_COUNT(0);
+}
+
+- (void)testScopeEscalationAndIntersection
+{
+    VERIFY_CACHE_COUNT(0);
+    
+    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    item.scopes = [NSSet setWithObjects:@"scope1", nil];
+    ADD_OR_UPDATE_ITEM(item, YES);
+    
+    item.scopes = [NSSet setWithObjects:@"scope2", nil];
+    ADD_OR_UPDATE_ITEM(item, YES);
+    
+    item.scopes = [NSSet setWithObjects:@"scope3", nil];
+    ADD_OR_UPDATE_ITEM(item, YES);
+    
+    // This item should replace 2 of the items in cache...
+    item.scopes = [NSSet setWithObjects:@"scope1", @"scope3", nil];
+    ADAuthenticationError* error = nil;
+    [mStore addOrUpdateItem:item error:&error];
+    ADAssertNoError;
+    ADTokenCacheStoreItem* read = [mStore getItemWithKey:[item extractKeyWithError:nil] error:&error];
+    ADAssertNoError;
+    XCTAssertEqualObjects(item, read);
+    VERIFY_CACHE_COUNT(2);
+    
+    item.scopes = [NSSet setWithObjects:@"scope4", @"scope5", nil];
+    ADD_OR_UPDATE_ITEM(item, YES);
+    VERIFY_CACHE_COUNT(3);
+    
+    // This one should intersect with all of the items in cache replacing them all
+    item.scopes = [NSSet setWithObjects:@"scope1", @"scope2", @"scope5", nil];
+    [mStore addOrUpdateItem:item error:&error];
+    ADAssertNoError;
+    read = [mStore getItemWithKey:[item extractKeyWithError:nil] error:&error];
+    ADAssertNoError;
+    XCTAssertEqualObjects(item, read);
+    VERIFY_CACHE_COUNT(1);
 }
 
 //Add large number of items to the cache. Acts as a mini-stress test too
