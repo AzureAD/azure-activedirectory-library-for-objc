@@ -57,6 +57,11 @@ NSTimer *timer;
         _complete  = NO;
         _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
         _webView          = webView;
+        
+        //Storing the previous webview delegate since we are replacing it
+        if(webView.delegate)
+            _customDelegate = _webView.delegate;
+        
         _webView.delegate = self;
         [ADNTLMHandler setCancellationUrl:[_startURL absoluteString]];
     }
@@ -116,6 +121,10 @@ NSTimer *timer;
 #pragma unused(webView)
 #pragma unused(navigationType)
     
+    if(_customDelegate){
+        [_customDelegate webView:webView shouldStartLoadWithRequest:request navigationType:navigationType];
+    }
+    
     if([ADNTLMHandler isChallengeCancelled]){
         _complete = YES;
         dispatch_async( dispatch_get_main_queue(), ^{[_delegate webAuthenticationDidCancel];});
@@ -166,6 +175,10 @@ NSTimer *timer;
     if (timer != nil){
         [timer invalidate];
     }
+    if(_customDelegate){
+        [_customDelegate webViewDidStartLoad:webView];
+    }
+
 #pragma unused(webView)
     timer = [NSTimer scheduledTimerWithTimeInterval:_timeout target:self selector:@selector(failWithTimeout) userInfo:nil repeats:NO];
 }
@@ -175,6 +188,10 @@ NSTimer *timer;
 #pragma unused(webView)
     [timer invalidate];
     timer = nil;
+    
+    if(_customDelegate){
+        [_customDelegate webViewDidFinishLoad:webView];
+    }
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
