@@ -118,13 +118,16 @@ NSTimer *timer;
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+    if(_customDelegate){
+        if ([_customDelegate respondsToSelector:@selector(webView: shouldStartLoadWithRequest: navigationType:)]) {
+            [_customDelegate webView:webView shouldStartLoadWithRequest:request navigationType:navigationType];
+        }
+    }
+    
 #pragma unused(webView)
 #pragma unused(navigationType)
     
-    if(_customDelegate){
-        [_customDelegate webView:webView shouldStartLoadWithRequest:request navigationType:navigationType];
-    }
-    
+
     if([ADNTLMHandler isChallengeCancelled]){
         _complete = YES;
         dispatch_async( dispatch_get_main_queue(), ^{[_delegate webAuthenticationDidCancel];});
@@ -176,7 +179,9 @@ NSTimer *timer;
         [timer invalidate];
     }
     if(_customDelegate){
-        [_customDelegate webViewDidStartLoad:webView];
+        if ([_customDelegate respondsToSelector:@selector(webViewDidStartLoad:)]) {
+            [_customDelegate webViewDidStartLoad:webView];
+        }
     }
 
 #pragma unused(webView)
@@ -185,17 +190,25 @@ NSTimer *timer;
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
+    
+    if(_customDelegate){
+        if ([_customDelegate respondsToSelector:@selector(webViewDidFinishLoad:)]) {
+            [_customDelegate webViewDidFinishLoad:webView];
+        }
+    }
 #pragma unused(webView)
     [timer invalidate];
     timer = nil;
-    
-    if(_customDelegate){
-        [_customDelegate webViewDidFinishLoad:webView];
-    }
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
+    if(_customDelegate){
+        if ([_customDelegate respondsToSelector:@selector(webView: didFailLoadWithError:)]) {
+            [_customDelegate webViewDidFinishLoad:webView];
+        }
+    }
+    
 #pragma unused(webView)
     if(timer && [timer isValid]){
         [timer invalidate];
