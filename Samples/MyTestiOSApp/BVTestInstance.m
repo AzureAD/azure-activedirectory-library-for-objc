@@ -31,6 +31,7 @@ const NSString* SUPPORTS_VALIDATION= @"SupportsValidation";
 const NSString* EXTRA_QUERYPARAMETERS= @"ExtraQueryParameters";
 const NSString* ENABLE_FULLSCREEN= @"FullScreen";
 const NSString* REQUEST_TIMEOUT = @"RequestTimeout";
+const NSString* SCOPES = @"Scopes";
 
 + (id) getInstance: (NSDictionary*) contents
 {

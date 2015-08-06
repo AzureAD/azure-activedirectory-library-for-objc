@@ -215,8 +215,6 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     [self clearResults];
     [self appendToResults:@"Starting Acquire Token Silent."];
     
-    //TODO: implement the 401 challenge response in the test Azure app. Temporarily using another one:
-    NSString* __block resourceString = @"http://testapi007.azurewebsites.net/api/WorkItem";
     //    NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     ADAuthenticationError * error;
     
@@ -376,7 +374,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
                           clientId:mAADInstance.clientId
                        redirectUri:[NSURL URLWithString:mAADInstance.redirectUri]
                     promptBehavior:AD_PROMPT_ALWAYS
-                            userId:mAADInstance.userId
+                        identifier:[ADUserIdentifier identifierWithId:mAADInstance.userId]
               extraQueryParameters:mAADInstance.extraQueryParameters
                    completionBlock:^(ADAuthenticationResult *result)
      {
