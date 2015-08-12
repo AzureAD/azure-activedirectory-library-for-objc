@@ -18,18 +18,34 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString* const sAADTestInstance;
-
 //A helper class for reading the test authorities, usernames, etc.
 //Reads the authorities from the TestData.plist file.
-@interface BVSettings : NSObject
+@interface ADTestAppSettings : NSObject
 
-//Returns a dictionary with the name of the test instances as keys.
-//The values are instances of BVTestInstance class.
-@property (readonly) NSDictionary* testAuthorities;
++ (ADTestAppSettings*)defaultSettings;
 
-//In case of code coverage build, stores the code coverage data.
-//The method does nothing in the other configurations.
--(void) flushCodeCoverage;
+- (id)objectForKey:(NSString*)key;
+- (void)setValue:(id)value forKey:(NSString *)key;
+
+- (NSString*)stringForKey:(NSString*)key;
+- (NSArray*)arrayForKey:(NSString*)key;
+- (NSNumber*)numberForKey:(NSString*)key;
+- (BOOL)boolForKey:(NSString*)key;
+
+- (void)populateControl:(UIControl*)control;
+
+// Convenience methods for commonly retrieved values
+- (NSString*)authority;
+- (NSString*)clientId;
+- (NSString*)userId;
+- (NSString*)redirectUri;
+- (NSString*)extraQueryParams;
+- (NSArray*)scopes;
+- (NSArray*)additionalScopes;
+- (BOOL)validateAuthority;
+- (BOOL)fullScreen;
+- (int)timeout;
+
+- (void)reset;
 
 @end

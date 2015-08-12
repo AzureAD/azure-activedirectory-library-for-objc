@@ -16,21 +16,31 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "BVApplicationData.h"
 
-@implementation BVApplicationData
+#import "ADTestAppLogger.h"
 
-+ (id) getInstance
+static void (^s_logCallback)(NSString* message, TALogType type) = nil;
+
+@implementation ADTestAppLogger
+
+
++ (void)logMessage:(NSString*)message
+              type:(TALogType)type
 {
-    static BVApplicationData *instance = nil;
-    static dispatch_once_t onceToken;
-    
-    dispatch_once(&onceToken, ^{
-        instance = [[self alloc] init];
-    });
-    
-    return instance;
+    if (!s_logCallback)
+    {
+        NSLog(@"%@", message);
+    }
+    else
+    {
+        s_logCallback(message, type);
+    }
 }
 
-@end
++ (void)registerLogCallback:(void (^)(NSString* message, TALogType type))callback
+{
+    s_logCallback = callback;
+}
 
+
+@end

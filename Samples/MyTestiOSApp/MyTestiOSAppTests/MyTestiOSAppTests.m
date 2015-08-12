@@ -18,11 +18,11 @@
 
 #import <XCTest/XCTest.h>
 #import <ADALiOS/ADAuthenticationContext.h>
-#import "BVTestAppDelegate.h"
+#import "ADTestAppDelegate.h"
 #import <ADAliOS/ADAuthenticationSettings.h>
 #import <ADALiOS/ADLogger.h>
 #import "BVTestInstance.h"
-#import "BVSettings.h"
+#import "ADTestAppSettings.h"
 #import <ADALiOS/ADErrorCodes.h>
 
 //Timeouts in seconds. They are inflated to accumulate cloud-based
@@ -37,7 +37,7 @@ const int sTokenWorkflowTimeout     = 20;
 
 @interface MyTestiOSAppTests : XCTestCase
 {
-    BVSettings* mTestSettings;
+    ADTestAppSettings* mTestSettings;
 }
 
 @end
@@ -83,7 +83,7 @@ const int sTokenWorkflowTimeout     = 20;
     [self clearCache];
     
     //Load test data:
-    mTestSettings = [BVSettings new];
+    mTestSettings = [ADTestAppSettings new];
 }
 
 - (void)tearDown

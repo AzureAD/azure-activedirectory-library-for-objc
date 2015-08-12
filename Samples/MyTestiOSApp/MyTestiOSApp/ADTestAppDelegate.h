@@ -16,13 +16,11 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import <ADALiOS/ADAuthenticationResult.h>
 
-@interface BVApplicationData : NSObject
+#import <UIKit/UIKit.h>
 
-@property ADAuthenticationResult* result;
+@interface ADTestAppDelegate : UIResponder <UIApplicationDelegate>
 
-+(id) getInstance;
+@property (strong, nonatomic) UIWindow *window;
 
 @end

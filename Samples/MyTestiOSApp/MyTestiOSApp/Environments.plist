@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>DefaultEnvironment</key>
+	<dict>
+		<key>authority</key>
+		<string>https://login.windows-ppe.net/common</string>
+		<key>client_id</key>
+		<string>b67b2169-6966-4597-b3e4-f698dc5df864</string>
+		<key>resource</key>
+		<string>https://graph.windows.net</string>
+		<key>redirect_uri</key>
+		<string>urn:ietf:wg:oauth:2.0:oob</string>
+		<key>user_id</key>
+		<string></string>
+		<key>identifier_type</key>
+		<string></string>
+		<key>timeout</key>
+		<integer>30</integer>
+		<key>validate_authority</key>
+		<true/>
+		<key>full_screen</key>
+		<true/>
+		<key>scopes</key>
+		<array>
+			<string>https://outlook.office.com/Mail.Read</string>
+			<string>offline_access</string>
+			<string>openid</string>
+		</array>
+		<key>extra_query_parameters</key>
+		<string>nux=1&amp;slice=testslice&amp;msaproxy=true</string>
+	</dict>
+</dict>
+</plist>

@@ -18,11 +18,11 @@
 
 #import <UIKit/UIKit.h>
 
-#import "BVTestAppDelegate.h"
+#import "ADTestAppDelegate.h"
 
 int main(int argc, char * argv[])
 {
     @autoreleasepool{
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([BVTestAppDelegate class]));
+        return UIApplicationMain(argc, argv, nil, NSStringFromClass([ADTestAppDelegate class]));
     }
 }

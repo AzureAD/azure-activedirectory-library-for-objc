@@ -17,24 +17,12 @@
 // governing permissions and limitations under the License.
 
 
-#import "BVTestFlipsideViewController.h"
+#import <UIKit/UIKit.h>
 
-@class BVSettings;
-@class BVTestInstance;
+@class ADTestAppSettingsViewController;
 
-@interface BVTestMainViewController : UIViewController <BVTestFlipsideViewControllerDelegate, UIPopoverControllerDelegate>
-{
-    IBOutlet UITextView*            _resultView;
-    IBOutlet UITextField*           _tfUserId;
-    IBOutlet UISegmentedControl*    _scUserType;
-    IBOutlet UISegmentedControl*    _scPromptBehavior;
-    @protected
-    BVSettings* mTestData;
-    BVTestInstance* mAADInstance;
-}
+@interface ADTestAppSettingsViewController : UIViewController
 
-@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
-
-@property (strong, nonatomic) UIPopoverController *flipsidePopoverController;
+- (IBAction)restoreDefaults:(id)sender;
 
 @end
