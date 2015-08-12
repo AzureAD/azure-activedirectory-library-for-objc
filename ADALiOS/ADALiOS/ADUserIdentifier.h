@@ -44,7 +44,7 @@ typedef enum ADUserIdentifierType
     RequiredDisplayableId,
 } ADUserIdentifierType;
 
-@class ADUserInformation;
+@class ADProfileInfo;
 
 @interface ADUserIdentifier : NSObject
 
@@ -69,9 +69,9 @@ typedef enum ADUserIdentifierType
                        typeFromString:(NSString*)type;
 
 + (BOOL)identifier:(ADUserIdentifier*)identifier
-       matchesInfo:(ADUserInformation*)info;
+       matchesInfo:(ADProfileInfo*)info;
 
-- (NSString*)userIdMatchString:(ADUserInformation*)info;
+- (NSString*)userIdMatchString:(ADProfileInfo*)info;
 
 - (NSString*)typeAsString;
 + (NSString*)stringForType:(ADUserIdentifierType)type;

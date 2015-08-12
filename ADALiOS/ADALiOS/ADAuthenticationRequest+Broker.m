@@ -133,7 +133,7 @@
                        cacheItem:nil
                 withRefreshToken:nil];
         
-        NSString* userId = [[[result tokenCacheStoreItem] userInformation] userId];
+        NSString* userId = [[[result tokenCacheStoreItem] profileInfo] userId];
         [ctx updateResult:result
                    toUser:[ADUserIdentifier identifierWithId:userId]];
     }

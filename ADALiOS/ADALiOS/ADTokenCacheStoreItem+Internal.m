@@ -20,28 +20,13 @@
 #import "ADTokenCacheStoreItem+Internal.h"
 #import "ADAuthenticationError.h"
 #import "ADOAuth2Constants.h"
-#import "ADUserInformation.h"
+#import "ADProfileInfo.h"
 #import "ADLogger.h"
 #import "NSString+ADHelperMethods.h"
 
 @implementation ADTokenCacheStoreItem (Internal)
 
 #define CHECK_ERROR(_CHECK, _ERR) { if (_CHECK) { if (error) {*error = _ERR;} return; } }
-
-- (void)fillUserInformation:(NSString*)idToken
-{
-    if (!idToken)
-    {
-        // If there's no id token we still continue onwards
-        return;
-    }
-    
-    ADUserInformation* info = nil;
-    info = [ADUserInformation userInformationWithIdToken:idToken
-                                                   error:nil];
-    
-    self.userInformation = info;
-}
 
 - (void)fillExpiration:(NSDictionary*)responseDictionary
 {
@@ -112,7 +97,10 @@
         return NO;
     }
     
-    [self fillUserInformation:[responseDictionary valueForKey:OAUTH2_ID_TOKEN]];
+    self.profileInfo = [ADProfileInfo profileInfoWithEncodedString:[responseDictionary objectForKey:OAUTH2_PROFILE_INFO]
+                                                             error:nil];
+    NSArray* scopes = [[responseDictionary objectForKey:OAUTH2_SCOPE] componentsSeparatedByString:@" "];
+    self.scopes = [NSSet setWithArray:scopes];
     
     FILL_FIELD(authority, OAUTH2_AUTHORITY);
     FILL_FIELD(clientId, OAUTH2_CLIENT_ID);

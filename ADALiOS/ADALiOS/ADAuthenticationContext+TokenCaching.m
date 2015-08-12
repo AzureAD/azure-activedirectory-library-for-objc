@@ -50,7 +50,7 @@
 //            item = nil;
 //        }
 //        
-//        if (item && item.userInformation)
+//        if (item && item.profileInfo)
 //        {
 //            item = nil;//Different user id, just clear.
 //        }
@@ -253,11 +253,11 @@
 //                                                                                  error:nil];
 //                if (broadKey)
 //                {
-//                    ADTokenCacheStoreItem* broadItem = [tokenCacheStoreInstance getItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
+//                    ADTokenCacheStoreItem* broadItem = [tokenCacheStoreInstance getItemWithKey:broadKey userId:cacheItem.profileInfo.userId error:nil];
 //                    if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
 //                    {
 //                        AD_LOG_VERBOSE_F(@"Token cache store", @"Removing multi-resource refresh token for authority: %@", self.authority);
-//                        [tokenCacheStoreInstance removeItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
+//                        [tokenCacheStoreInstance removeItemWithKey:broadKey userId:cacheItem.profileInfo.userId error:nil];
 //                    }
 //                }
 //            }

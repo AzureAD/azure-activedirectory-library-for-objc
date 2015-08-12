@@ -30,7 +30,7 @@
 #import "ADInstanceDiscovery.h"
 #import "ADTokenCacheStoreItem.h"
 #import "ADTokenCacheStoreKey.h"
-#import "ADUserInformation.h"
+#import "ADProfileInfo.h"
 #import "ADWorkPlaceJoin.h"
 #import "ADPkeyAuthHelper.h"
 #import "ADWorkPlaceJoinConstants.h"

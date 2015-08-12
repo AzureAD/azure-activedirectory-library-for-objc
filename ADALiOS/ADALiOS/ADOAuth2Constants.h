@@ -47,6 +47,7 @@ extern NSString *const OAUTH2_INSTANCE_DISCOVERY_SUFFIX;
 extern NSString *const OAUTH2_TOKEN_TYPE;
 extern NSString *const OAUTH2_LOGIN_HINT;
 extern NSString *const OAUTH2_ID_TOKEN;
+extern NSString *const OAUTH2_PROFILE_INFO;
 extern NSString *const OAUTH2_CORRELATION_ID_RESPONSE;
 extern NSString *const OAUTH2_CORRELATION_ID_REQUEST;
 extern NSString *const OAUTH2_CORRELATION_ID_REQUEST_VALUE;

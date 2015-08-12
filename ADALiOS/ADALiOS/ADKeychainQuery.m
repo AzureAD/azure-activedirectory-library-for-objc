@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADKeychainQuery.h"
-#import "ADUserInformation.h"
+#import "ADProfileInfo.h"
 
 @implementation ADKeychainQuery
 
@@ -75,7 +75,7 @@
     {
         return;
     }
-    userId = [ADUserInformation normalizeUserId:userId];
+    userId = [ADProfileInfo normalizeUserId:userId];
     CFDictionaryAddValue(_cfmdKeychainQuery, kSecAttrAccount, (__bridge const void *)(userId));
 }
 

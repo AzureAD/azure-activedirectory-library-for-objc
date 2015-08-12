@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 #import <Foundation/Foundation.h>
 
-@class ADUserInformation;
+@class ADProfileInfo;
 @class ADTokenCacheStoreKey;
 @class ADAuthenticationError;
 
@@ -48,9 +48,9 @@
 
 @property NSDate* expiresOn;
 
-@property ADUserInformation* userInformation;
+@property ADProfileInfo* profileInfo;
 
-/*! The identifier in userInformation to use for caching purposes */
+/*! The identifier in profileInfo to use for caching purposes */
 @property ADUserIdentifierType identifierType;
 
 /*! Obtains a key to be used for the internal cache from the full cache item.

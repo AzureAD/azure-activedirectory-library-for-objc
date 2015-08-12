@@ -22,7 +22,7 @@
 #import "ADTokenCacheStoreItem.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADTokenCacheStoreKey.h"
-#import "ADUserInformation.h"
+#import "ADProfileInfo.h"
 #import "ADKeychainQuery.h"
 
 

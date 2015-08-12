@@ -21,7 +21,7 @@
 #import "../ADALiOS/ADALiOS.h"
 
 @class ADTokenCacheStoreItem;
-@class ADUserInformation;
+@class ADProfileInfo;
 
 @interface XCTestCase (HelperMethods)
 
@@ -32,16 +32,6 @@
 -(void) adValidateFactoryForInvalidArgument: (NSString*) argument
                            returnedObject: (id) returnedObject
                                     error: (ADAuthenticationError*) error;
-
-//Creates a new item with all of the properties having correct values
-- (ADTokenCacheStoreItem*)adCreateCacheItem;
-
-//Creates a sample user information object
-- (ADUserInformation*)adCreateUserInformation;
-
-//Ensures that all properties return non-default values. Useful to ensure that
-//the tests cover all properties of the tested objects:
-- (void)adVerifyPropertiesAreSet: (NSObject*) object;
 
 /* A special helper, which invokes the 'block' parameter in the UI thread and waits for its internal
  callback block to complete.

@@ -24,6 +24,7 @@
 #import <libkern/OSAtomic.h>
 #import "ADWebRequest.h"
 #import "ADTestAuthenticationContext.h"
+#import "ADTestUtils.h"
 #import "../ADALiOS/ADOAuth2Constants.h"
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADKeychainTokenCacheStore.h"
@@ -421,13 +422,14 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 //Local override, using class iVars:
 - (ADTokenCacheStoreItem*)adCreateCacheItem
 {
-    ADTokenCacheStoreItem* item = [super adCreateCacheItem];
-    //item.resource = mResource;
-    item.authority = _authority;
-    item.clientId = _clientId;
-    ADAuthenticationError* error;
-    item.userInformation = [ADUserInformation userInformationWithUserId:_userId error:&error];
-    return item;
+    ADTestUtils* testUtils = [[ADTestUtils alloc] init];
+    [testUtils setAuthority:_authority];
+    [testUtils setClientId:_clientId];
+    [testUtils setUsername:_userId];
+    [testUtils setScopes:_scopes];
+    
+    NSString* errorDetails = nil;
+    return [testUtils createCacheItem:&errorDetails];
 }
 
 - (void)testAcquireTokenBadCompletionBlock
@@ -472,7 +474,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
     item.authority = _authority;
     item.clientId = _clientId;
-    item.userInformation = [ADUserInformation userInformationWithUserId:userId error:nil];
+    item.profileInfo = [ADProfileInfo profileInfoWithUsername:userId error:nil];
     [_testContext.tokenCacheStore addOrUpdateItem:item error:nil];
 }
 
@@ -808,7 +810,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 - (void)testWrongUser
 {
     ADAuthenticationError* error;
-    NSString* idToken = @"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiJjM2M3ZjVlNS03MTUzLTQ0ZDQtOTBlNi0zMjk2ODZkNDhkNzYiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82ZmQxZjVjZC1hOTRjLTQzMzUtODg5Yi02YzU5OGU2ZDgwNDgvIiwiaWF0IjoxMzg3MjI0MTY5LCJuYmYiOjEzODcyMjQxNjksImV4cCI6MTM4NzIyNzc2OSwidmVyIjoiMS4wIiwidGlkIjoiNmZkMWY1Y2QtYTk0Yy00MzM1LTg4OWItNmM1OThlNmQ4MDQ4Iiwib2lkIjoiNTNjNmFjZjItMjc0Mi00NTM4LTkxOGQtZTc4MjU3ZWM4NTE2IiwidXBuIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInVuaXF1ZV9uYW1lIjoiYm9yaXNATVNPcGVuVGVjaEJWLm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IjBEeG5BbExpMTJJdkdMX2RHM2RETWszenA2QVFIbmpnb2d5aW01QVdwU2MiLCJmYW1pbHlfbmFtZSI6IlZpZG9sb3Z2IiwiZ2l2ZW5fbmFtZSI6IkJvcmlzcyJ9.";
+    NSString* profileInfo = [[ADTestUtils defaultUtils] rawProfileInfo];
 
     NSString* accessToken = @"testWrongUser some access token";
     NSString* exactRefreshToken = @"testWrongUser exact refresh token";
@@ -832,8 +834,9 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     
     // Now request both target and fire, this should cause a scope mismatch and trigger a request using the RT.
     _scopes = @[@"planetarydefense.target", @"planetarydefense.fire"];
-    response = @{ OAUTH2_ID_TOKEN : idToken,
-                  OAUTH2_ACCESS_TOKEN : accessToken };
+    response = @{ OAUTH2_PROFILE_INFO : profileInfo,
+                  OAUTH2_ACCESS_TOKEN : accessToken,
+                  OAUTH2_SCOPE : [_scopes adSpaceDeliminatedString]};
     [_testContext queueExpectedRequest:[self defaultRequest] response:response];
     acquireTokenAsync;
     ADAssertLongEquals(AD_ERROR_WRONG_USER, _result.error.code);
@@ -854,7 +857,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                                           error:nil]);
     
     ADTokenCacheStoreItem* item = [self adCreateCacheItem];
-    ADUserIdentifier* userId = [ADUserIdentifier identifierWithId:item.userInformation.userId];
+    ADUserIdentifier* userId = [ADUserIdentifier identifierWithId:item.profileInfo.username];
     ADAuthenticationError* error;
     ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
     XCTAssertNotNil(key);
@@ -958,7 +961,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 }
 
 //Creates the context with
--(void) testUnreachableAuthority
+- (void)testUnreachableAuthority
 {
     //Create a normal authority (not a test one):
     ADAuthenticationError* error;

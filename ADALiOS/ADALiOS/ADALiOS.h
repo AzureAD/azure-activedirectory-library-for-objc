@@ -122,6 +122,8 @@ AD_LOG_VERBOSE(__adalVersion, __where); \
     AD_LOG_INFO_F(_API_STR, _fmt, ##__VA_ARGS__); \
 }
 
-
-
-
+#define RETURN_NIL_ERROR(_error, _code, _details) { \
+    ADAuthenticationError* _adError = [ADAuthenticationError errorFromAuthenticationError:_code protocolCode:nil errorDetails:_details]; \
+    if (_error) { *_error = _adError; } \
+    return nil; \
+}

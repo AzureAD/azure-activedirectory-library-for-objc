@@ -18,7 +18,7 @@
 
 #import "ADALiOS.h"
 #import "ADTokenCacheStoreItem.h"
-#import "ADUserInformation.h"
+#import "ADProfileInfo.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
 #import "ADTokenCacheStoreKey.h"
@@ -48,7 +48,7 @@
     item.accessTokenType = [self.accessTokenType copyWithZone:zone];
     item.refreshToken = [self.refreshToken copyWithZone:zone];
     item.expiresOn = [self.expiresOn copyWithZone:zone];
-    item.userInformation = [self.userInformation copyWithZone:zone];
+    item.profileInfo = [self.profileInfo copyWithZone:zone];
     item.sessionKey = [self.sessionKey copyWithZone:zone];
     item.scopes = [self.scopes copyWithZone:zone];
     
@@ -59,8 +59,8 @@
 {
     return [ADTokenCacheStoreKey keyWithAuthority:self.authority
                                          clientId:self.clientId
-                                           userId:self.userInformation.userId
-                                         uniqueId:self.userInformation.uniqueId
+                                           userId:self.profileInfo.username
+                                         uniqueId:self.profileInfo.subject
                                            idType:self.identifierType
                                            scopes:self.scopes
                                             error:error];
@@ -77,30 +77,36 @@
     return [self.expiresOn compare:[NSDate dateWithTimeIntervalSinceNow:expirationBuffer]] == NSOrderedAscending;
 }
 
--(BOOL) isEmptyUser
+- (BOOL)isEmptyUser
 {
-    //The userInformation object cannot be constructed with empty or blank string,
+    //The profileInfo object cannot be constructed with empty or blank string,
     //so its presence guarantees that the user is not empty:
-    return !self.userInformation;
+    return !self.profileInfo;
 }
 
 /*! Verifies if the user (as defined by userId) is the same between the two items. */
--(BOOL) isSameUser: (ADTokenCacheStoreItem*) other
+- (BOOL)isSameUser:(ADTokenCacheStoreItem*)other
 {
-    THROW_ON_NIL_ARGUMENT(other);
+    if (!other)
+    {
+        return NO;
+    }
     
     if ([self isEmptyUser])
+    {
         return [other isEmptyUser];
-    return (nil != other.userInformation && [self.userInformation.userId isEqualToString:other.userInformation.userId]);
+    }
+    
+    return [self.profileInfo.username isEqualToString:other.profileInfo.username];
 }
 
-+(BOOL) supportsSecureCoding
++ (BOOL)supportsSecureCoding
 {
     return YES;
 }
 
 //Serializer:
--(void) encodeWithCoder:(NSCoder *)aCoder
+- (void)encodeWithCoder:(NSCoder *)aCoder
 {
     [aCoder encodeObject:self.authority forKey:@"authority"];
     [aCoder encodeObject:self.clientId forKey:@"clientId"];
@@ -109,13 +115,13 @@
     [aCoder encodeObject:self.refreshToken forKey:@"refreshToken"];
     [aCoder encodeObject:self.sessionKey forKey:@"sessionKey"];
     [aCoder encodeObject:self.expiresOn forKey:@"expiresOn"];
-    [aCoder encodeObject:self.userInformation forKey:@"userInformation"];
+    [aCoder encodeObject:self.profileInfo forKey:@"profileInfo"];
     [aCoder encodeObject:self.scopes forKey:@"scopes"];
     [aCoder encodeObject:[ADUserIdentifier stringForType:self.identifierType] forKey:@"identifierType"];
 }
 
 //Deserializer:
--(id) initWithCoder:(NSCoder *)aDecoder
+- (id)initWithCoder:(NSCoder *)aDecoder
 {
     self = [super init];
     if (self)
@@ -129,7 +135,7 @@
         self.refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
         self.expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
         self.scopes = [aDecoder decodeObjectOfClass:[NSSet class] forKey:@"scopes"];
-        self.userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
+        self.profileInfo = [aDecoder decodeObjectOfClass:[ADProfileInfo class] forKey:@"profileInfo"];
         self.identifierType = [ADUserIdentifier typeFromString:[aDecoder decodeObjectOfClass:[NSString class] forKey:@"identifierType"]];
     }
     return self;
@@ -206,10 +212,10 @@
     {
         case OptionalDisplayableId:
         case RequiredDisplayableId:
-            return _userInformation.userId;
+            return _profileInfo.username;
             
         case UniqueId:
-            return _userInformation.uniqueId;
+            return _profileInfo.subject;
     }
     
     AD_LOG_ERROR_F(@"Unkonwn user identifier type in ADTokenCacheStoreItem", AD_ERROR_CACHE_PERSISTENCE, @"erorr: %d", (int)_identifierType);

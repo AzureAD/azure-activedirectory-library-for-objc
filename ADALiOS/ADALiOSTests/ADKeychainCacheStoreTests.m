@@ -18,6 +18,7 @@
 
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
+#import "ADTestUtils.h"
 #import <libkern/OSAtomic.h>
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADAuthenticationContext.h"
@@ -103,22 +104,25 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     if (_newUser) \
     { \
         ADAuthenticationError* error; \
-        _newItem.userInformation = [ADUserInformation userInformationWithUserId:_newUser error:&error]; \
+        _newItem.profileInfo = [ADUserInformation profileInfoWithUserId:_newUser error:&error]; \
         ADAssertNoError; \
     } \
     else \
     { \
-        _newItem.userInformation = nil; \
+        _newItem.profileInfo = nil; \
     } \
 } \
 
 //Verifies that the items in the cache are copied, so that the developer
 //cannot accidentally modify them. The method tests the getters too.
--(void) testCopySingleObject
+- (void)testCopySingleObject
 {
     VERIFY_CACHE_COUNT(0);
     
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    NSString* errorDetails = nil;
+    ADTokenCacheStoreItem* item = [[ADTestUtils defaultUtils] createCacheItem:&errorDetails];
+    XCTAssertNotNil(item, @"Failed to create item: %@", errorDetails);
+    
     ADAuthenticationError* error = nil;
     [mStore addOrUpdateItem:item
                       error:&error];
@@ -145,7 +149,12 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 {
     ADAuthenticationError* error = nil;
     VERIFY_CACHE_COUNT(0);
-    ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
+    
+    ADTestUtils* utils = [[ADTestUtils alloc] init];
+    
+    NSString* errorDetails = nil;
+    ADTokenCacheStoreItem* item1 = [utils createCacheItem:&errorDetails];
+    XCTAssertNotNil(item1, @"Failed to create item: %@", errorDetails);
     
     //one item:
     ADD_OR_UPDATE_ITEM(item1, YES);
@@ -154,13 +163,15 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADD_OR_UPDATE_ITEM(item1, NO);
     
     //add an item with the same key, but some other change:
-    ADTokenCacheStoreItem* item3 = [self adCreateCacheItem];
-    item3.accessToken = @"another token";
+    [utils setAccessToken:@"another token"];
+    ADTokenCacheStoreItem* item3 = [utils createCacheItem:&errorDetails];
+    XCTAssertNotNil(item3, @"Failed to create item: %@", errorDetails);
     ADD_OR_UPDATE_ITEM(item3, NO);
 
     //Add an item with the same key, but different user:
-    ADTokenCacheStoreItem* item4 = nil;
-    COPY_ITEM_WITH_NEW_USER(item4, item1, @"   another user   ");
+    [utils setUsername:@"another user"];
+    ADTokenCacheStoreItem* item4 = [utils createCacheItem:&errorDetails];
+    XCTAssertNotNil(item4, @"Failed to create item: %@", errorDetails);
     ADD_OR_UPDATE_ITEM(item4, YES);
     
     //Add an item with nil user:
@@ -187,7 +198,9 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 {
     VERIFY_CACHE_COUNT(0);
     
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    NSString* errorDetails = nil;
+    ADTokenCacheStoreItem* item = [[ADTestUtils defaultUtils] createCacheItem:&errorDetails];
+    XCTAssertNotNil(item, @"Failed to create item: %@", errorDetails);
     item.scopes = [NSSet setWithObjects:@"scope1", nil];
     ADD_OR_UPDATE_ITEM(item, YES);
     
@@ -224,16 +237,20 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 //Add large number of items to the cache. Acts as a mini-stress test too
 //Checks that the persistence catches up and that the number of persistence operations is
 //disproportionately smaller than the cache updates:
--(void) testBulkPersistence
+- (void)testBulkPersistence
 {
     long numItems = 500;//Keychain is relatively slow
-    ADTokenCacheStoreItem* original = [self adCreateCacheItem];
+    NSString* errorDetails = nil;
+    ADTestUtils* utils = [[ADTestUtils alloc] init];
+    ADTokenCacheStoreItem* original = [utils createCacheItem:&errorDetails];
+    XCTAssertNotNil(original, @"Failed to create item: %@", errorDetails);
     NSMutableArray* allItems = [NSMutableArray new];
     for (long i = 0; i < numItems; ++i)
     {
         NSString* user = [NSString stringWithFormat:@"User: %ld", i];
-        ADTokenCacheStoreItem* item = nil;
-        COPY_ITEM_WITH_NEW_USER(item, original, user);
+        [utils setUsername:user];
+        ADTokenCacheStoreItem* item = [utils createCacheItem:&errorDetails];
+        XCTAssertNotNil(item, @"Failed to create item: %@", errorDetails);
         [allItems addObject:item];
     }
 

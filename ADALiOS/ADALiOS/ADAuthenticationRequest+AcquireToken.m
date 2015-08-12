@@ -283,8 +283,6 @@
                         nil];
     }
     
-    // TODO: Add scopes to request_data
-    
     AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; scopes: '%@';", _clientId, _scopes);
     [self requestWithServer:_context.authority
                 requestData:request_data
@@ -297,11 +295,10 @@
          //Always ensure that the cache item has all of these set, especially in the broad token case, where the passed item
          //may have empty "resource" property:
          
-         // TODO:
+         // TODO: add scopes to result
          
          resultItem.clientId = _clientId;
          resultItem.authority = _context.authority;
-         
          
          ADAuthenticationResult *result = [_context processTokenResponse:response forItem:resultItem fromRefresh:YES requestCorrelationId:_correlationId];
          if (cacheItem)//The request came from the cache item, update it:
@@ -316,7 +313,7 @@
      }];
 }
 
--(NSString*) createAccessTokenRequestJWTUsingRT:(ADTokenCacheStoreItem*)cacheItem
+- (NSString*)createAccessTokenRequestJWTUsingRT:(ADTokenCacheStoreItem*)cacheItem
 {
     NSString* grantType = @"refresh_token";
     
@@ -329,14 +326,13 @@
     
     NSInteger iat = round([[NSDate date] timeIntervalSince1970]);
     
-    // TODO: Add scopes
     NSDictionary *payload = @{
                               @"client_id" : _clientId,
                               @"refresh_token" : cacheItem.refreshToken,
                               @"iat" : [NSNumber numberWithInteger:iat],
                               @"nbf" : [NSNumber numberWithInteger:iat],
                               @"exp" : [NSNumber numberWithInteger:iat],
-                              @"scope" : @"openid",
+                              @"scope" : [_scopes adSpaceDeliminatedString],
                               @"grant_type" : grantType,
                               @"aud" : _context.authority
                               };
@@ -363,13 +359,6 @@
                                          _clientId, OAUTH2_CLIENT_ID,
                                          _redirectUri, OAUTH2_REDIRECT_URI,
                                          nil];
-    
-
-    // TODO: Add scopes
-//    if(![NSString adIsStringNilOrBlank:_scope])
-//    {
-//        [request_data setValue:_scope forKey:OAUTH2_SCOPE];
-//    }
     
     [self executeRequest:_context.authority
              requestData:request_data

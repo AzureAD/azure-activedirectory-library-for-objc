@@ -22,7 +22,7 @@
 #import "ADAuthenticationResult+Internal.h"
 #import "ADTokenCacheStoreItem+Internal.h"
 #import "ADOAuth2Constants.h"
-#import "ADUserInformation.h"
+#import "ADProfileInfo.h"
 
 @implementation ADAuthenticationResult (Internal)
 

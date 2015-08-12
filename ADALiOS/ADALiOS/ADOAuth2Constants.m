@@ -47,6 +47,7 @@ NSString *const OAUTH2_INSTANCE_DISCOVERY_SUFFIX = @"common/discovery/instance";
 NSString *const OAUTH2_TOKEN_TYPE         = @"token_type";
 NSString *const OAUTH2_LOGIN_HINT         = @"login_hint";
 NSString *const OAUTH2_ID_TOKEN           = @"id_token";
+NSString *const OAUTH2_PROFILE_INFO       = @"profile_info";
 NSString *const OAUTH2_CORRELATION_ID_RESPONSE  = @"correlation_id";
 NSString *const OAUTH2_CORRELATION_ID_REQUEST   = @"return-client-request-id";
 NSString *const OAUTH2_CORRELATION_ID_REQUEST_VALUE = @"client-request-id";
