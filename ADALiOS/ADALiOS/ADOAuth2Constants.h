@@ -24,6 +24,7 @@ extern NSString *const OAUTH2_AUTHORIZATION_CODE;
 extern NSString *const OAUTH2_AUTHORIZATION_URI;
 extern NSString *const OAUTH2_AUTHORITY;
 extern NSString *const OAUTH2_AUTHORIZE_SUFFIX;
+extern NSString *const OAUTH2_AUTHORIZE_V1_SUFFIX;
 extern NSString *const OAUTH2_BEARER;
 extern NSString *const OAUTH2_CLIENT_ID;
 extern NSString *const OAUTH2_CLIENT_SECRET;
