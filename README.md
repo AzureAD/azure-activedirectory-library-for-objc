@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/AzureAD/azure-activedirectory-library-for-objc.png?label=ready&title=Ready)](https://waffle.io/AzureAD/azure-activedirectory-library-for-objc)
 #Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and OSX
 =====================================
 
