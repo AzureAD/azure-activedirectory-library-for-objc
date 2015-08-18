@@ -76,24 +76,100 @@
     return self;
 }
 
-#define CHECK_REQUEST_STARTED { \
+#define CHECK_REQUEST_STARTED_R(_return) { \
     if (_requestStarted) { \
         NSString* _details = [NSString stringWithFormat:@"call to %s after the request started. call has no effect.", __PRETTY_FUNCTION__]; \
         AD_LOG_WARN(_details, nil); \
-        return; \
+        return _return; \
     } \
 }
 
-- (void)setScopes:(NSArray *)scopes
+#define CHECK_REQUEST_STARTED CHECK_REQUEST_STARTED_R()
+
+static NSArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* context, ADAuthenticationError* __autoreleasing * error)
 {
-    CHECK_REQUEST_STARTED;
-    _scopes = [NSSet setWithArray:scopes];
+    if (!strings || ![strings count])
+    {
+        ADAuthenticationError* adError = [ADAuthenticationError invalidArgumentError:@"%@ cannot be nil or empty", context];
+        if (error)
+        {
+            *error = adError;
+        }
+        return nil;
+        
+    }
+    NSMutableArray* lowercase = [[NSMutableArray alloc] initWithCapacity:[strings count]];
+    
+    for (NSString* string in strings)
+    {
+        if (![string isKindOfClass:[NSString class]])
+        {
+            ADAuthenticationError* adError = [ADAuthenticationError invalidArgumentError:@"%@ contains non-string objects.", context];
+            if (error)
+            {
+                *error = adError;
+            }
+            
+            return nil;
+        }
+        
+        [lowercase addObject:[string lowercaseString]];
+    }
+    
+    return lowercase;
 }
 
-- (void)setAdditionalScopes:(NSArray *)additionalScopes
+static ADAuthenticationError* _validateScopes(NSArray* scopes)
 {
-    CHECK_REQUEST_STARTED;
-    _additionalScopes = [NSSet setWithArray:additionalScopes];
+    if ([scopes containsObject:@"openid"] || [scopes containsObject:@"offline_access"])
+    {
+        return [ADAuthenticationError invalidArgumentError:@"Can not pass in \"openid\" or \"offline_access\" scopes"];
+    }
+    
+    return nil;
+}
+
+- (ADAuthenticationError*)setScopes:(NSArray *)scopes
+{
+    CHECK_REQUEST_STARTED_R(nil);
+    
+    ADAuthenticationError* error = nil;
+    NSArray* lowercaseScopes = _arrayOfLowercaseStrings(scopes, @"scopes", &error);
+    if (!lowercaseScopes)
+    {
+        return error;
+    }
+    
+    RETURN_IF_NOT_NIL(_validateScopes(lowercaseScopes));
+    
+    _scopes = [NSSet setWithArray:scopes];
+    
+    return nil;
+}
+
+- (ADAuthenticationError*)setAdditionalScopes:(NSArray *)additionalScopes
+{
+    CHECK_REQUEST_STARTED_R(nil);
+    
+    // It's okay for additional scopes to be empty
+    if (!additionalScopes)
+    {
+        _additionalScopes = nil;
+        return nil;
+    }
+    
+    ADAuthenticationError* error = nil;
+    NSArray* lowercaseScopes = _arrayOfLowercaseStrings(additionalScopes, @"additionalScopes", &error);
+    if (!lowercaseScopes)
+    {
+        return error;
+    }
+    
+    RETURN_IF_NOT_NIL(_validateScopes(lowercaseScopes));
+    
+    _additionalScopes = [NSSet setWithArray:lowercaseScopes];
+    
+    return nil;
 }
 
 - (void)setPolicy:(NSString *)policy

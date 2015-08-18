@@ -114,8 +114,13 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                 userInfo:nil];
 }
 
-+ (ADAuthenticationError*)invalidArgumentError:(NSString *)details
++ (ADAuthenticationError*)invalidArgumentError:(NSString *)detailsFmt, ...
 {
+    va_list args;
+    va_start(args, detailsFmt);
+    NSString* details = [[NSString alloc] initWithFormat:detailsFmt arguments:args];
+    va_end(args);
+    
     return [self errorWithDomainInternal:ADInvalidArgumentDomain
                                     code:AD_ERROR_INVALID_ARGUMENT
                        protocolErrorCode:nil

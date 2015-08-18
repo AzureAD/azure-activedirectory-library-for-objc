@@ -270,8 +270,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                 (unsigned long)[assertion hash], assertionType == AD_SAML1_1 ? @"v1.1" : @"v2.0", scopes, additionalScopes, clientId, identifier);
     REQUEST_WITH_REDIRECT_STRING(nil, clientId);
     
-    [request setScopes:scopes];
-    [request setAdditionalScopes:additionalScopes];
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
+    CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
     [request setUserIdentifier:identifier];
     
     [request acquireTokenForAssertion:assertion
@@ -302,8 +302,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     API_ENTRY_F(@"scopes:%@ additionalScopes:%@ clientId:%@ redirectUri:%@", scopes, additionalScopes, clientId, redirectUri);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
-    [request setScopes:scopes];
-    [request setAdditionalScopes:additionalScopes];
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
+    CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
     
     [request acquireToken:completionBlock];
 }
@@ -336,8 +336,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                 scopes, additionalScopes, clientId, redirectUri, identifier);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
-    [request setScopes:scopes];
-    [request setAdditionalScopes:additionalScopes];
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
+    CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
     [request setUserIdentifier:identifier];
     
     [request acquireToken:completionBlock];
@@ -373,8 +373,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                 scopes, additionalScopes, clientId, redirectUri, identifier, queryParams);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
 
-    [request setScopes:scopes];
-    [request setAdditionalScopes:additionalScopes];
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
+    CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
     [request setUserIdentifier:identifier];
     [request setExtraQueryParameters:queryParams];
 
@@ -409,8 +409,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                 scopes, additionalScopes, clientId, redirectUri, identifier, queryParams);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
-    [request setScopes:scopes];
-    [request setAdditionalScopes:additionalScopes];
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
+    CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
     [request setPromptBehavior:promptBehavior];
     [request setUserIdentifier:identifier];
     [request setExtraQueryParameters:queryParams];
@@ -448,8 +448,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                scopes, additionalScopes, clientId, redirectUri, identifier, queryParams, policy);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
-    [request setScopes:scopes];
-    [request setAdditionalScopes:additionalScopes];
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
+    CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
     [request setUserIdentifier:identifier];
     [request setExtraQueryParameters:queryParams];
     [request setPolicy:policy];
@@ -479,7 +479,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
     [request setSilent:YES];
-    [request setScopes:scopes];
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
     [request acquireToken:completionBlock];
 }
 
@@ -507,7 +507,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
     [request setSilent:YES];
-    [request setScopes:scopes];
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
     [request setUserIdentifier:identifier];
     
     [request acquireToken:completionBlock];
@@ -538,7 +538,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     
     
     [request setSilent:YES];
-    [request setScopes:scopes];
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
     [request setUserIdentifier:identifier];
     [request setPolicy:policy];
     

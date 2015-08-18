@@ -93,7 +93,7 @@
 
 + (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
 {
-    return [[ADAuthenticationResult alloc] initWithError:[ADAuthenticationError invalidArgumentError:details] status:AD_FAILED];
+    return [[ADAuthenticationResult alloc] initWithError:[ADAuthenticationError invalidArgumentError:@"%@", details] status:AD_FAILED];
 }
 
 + (ADAuthenticationResult*)resultFromCancellation

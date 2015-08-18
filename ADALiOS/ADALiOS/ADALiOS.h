@@ -127,3 +127,5 @@ AD_LOG_VERBOSE(__adalVersion, __where); \
     if (_error) { *_error = _adError; } \
     return nil; \
 }
+
+#define RETURN_IF_NOT_NIL(_EXPR) { id _VAL = _EXPR; if (_VAL) { return _VAL; } }

@@ -77,8 +77,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 - (void)ensureRequest;
 
 // These can only be set before the request gets sent out.
-- (void)setScopes:(NSArray*)scopes;
-- (void)setAdditionalScopes:(NSArray*)additionalScopes;
+- (ADAuthenticationError*)setScopes:(NSArray*)scopes;
+- (ADAuthenticationError*)setAdditionalScopes:(NSArray*)additionalScopes;
 - (void)setPolicy:(NSString*)policy;
 - (void)setExtraQueryParameters:(NSString*)queryParams;
 - (void)setUserIdentifier:(ADUserIdentifier*)identifier;
