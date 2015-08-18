@@ -45,13 +45,26 @@ We've made it easy for you to have multiple options to use this library in your 
 
 ###Option 1: Source Zip
 
-To download a copy of the source code, click "Download ZIP" on the right side of the page or click [here](https://github.com/AzureAD/azure-activedirectory-library-for-objc/archive/1.0.0.tar.gz).
+To download a copy of the source code, click "Download ZIP" on the right side of the page or click [here](https://github.com/AzureAD/azure-activedirectory-library-for-objc/archive/1.2.4.tar.gz).
 
 ###Option 2: Cocoapods
 
-    pod 'ADALiOS', '~> 1.0.2'
+    pod 'ADALiOS', '~> 1.2.4'
 
 ## Usage
+
+### Set up Keychain Sharing Entitlements in your Xcode Project ###
+
+Click on your project in the Navigator pane in Xcode. Click on your application target and
+then the "Capabilities" tab. Scroll down to "Keychain Sharing" and flip the switch on. Add
+"com.microsoft.adalcache" to that list.
+
+Alternatively you can disable keychain sharing by setting the keychain sharing group to
+your application's bundle id.
+
+```Objective-C
+    [[ADAuthenticationSettings sharedInstance] setSharedCacheKeychainGroup:@"<your.bundle.id.here>"];
+```
 
 ### ADAuthenticationContext
 
@@ -149,53 +162,94 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
 
 ### Diagnostics
 
-The following are the primary sources of information for diagnosing issues:
-
-+ NSError
-+ Logs
-+ Network traces
-
-Also, note that correlation IDs are central to the diagnostics in the library. You can set your correlation IDs on a per request basis if you want to correlate an ADAL request with other operations in your code. If you don't set a correlations id then ADAL will generate a random one and all log messages and network calls will be stamped with the correlation id. The self generated id changes on each request.
-
-#### NSError
-
-This is obviously the first diagnostic. We try to provide helpful error messages. If you find one that is not helpful please file an issue and let us know. Please also provide device information such as model and SDK#. The error message is returned as a part of the ADAuthenticationResult where the status is set to AD_FAILED.
 
 #### Logs
 
-You can configure the library to generate log messages that you can use to help diagnose issues. ADAL uses NSLog by default to log the messages. Each API method call is decorated with API version and every other message is decorated with correlation id and UTC timestamp. This data is important to look of server side diagnostics. SDK also exposes the ability to provide a custom Logger callback as follows.
+ADAL relies heavily on logging to diagnose issues. It is highly recommended that you set
+an ADAL logging callback and provide a way for users to submit logs when they are having
+authentication issues. 
+
+##### Logging Callback
+
+You can set a callback to capture ADAL logging and incorporate it in your own application's
+logging:
+
 ```Objective-C
     [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInformation, NSInteger errorCode) {
         //HANDLE LOG MESSAGE HERE
     }]
 ```
 
-##### Logging Levels
-+ No_Log(Disable all logging)
-+ Error(Exceptions. Set as default)
-+ Warn(Warning)
-+ Info(Information purposes)
-+ Verbose(More details)
+Otherwise ADAL outputs to NSLog by default, which will print messages on the console.
 
-You set the log level like this:
+##### Example Log Message
+
+The message portion of ADAL iOS are in the format of ADALiOS [timestamp - correlation_id] message
+
+```
+ADALiOS [2015-06-22 19:42:53 - 1030CB25-798F-4A6F-97DF-04A3A3E9DFF2] ADAL API call [Version - 1.2.4]
+```
+
+Providing correlation IDs and timestamps are tremendously in tracking down issues. The only
+reliable place to retrieve them is from ADAL logging.
+
+
+##### Logging Levels
+
++ ADAL_LOG_LEVEL_NO_LOG (Disable all logging)
++ ADAL_LOG_LEVEL_ERROR (Default level, prints out information only when errors occur)
++ ADAL_LOG_LEVEL_WARNING (Warning)
++ ADAL_LOG_LEVEL_INFO (Library entry points, with parameters and various keychain operations)
++ ADAL_LOG_LEVEL_Verbose (API tracing )
+
+
+To set the logging level in your application call +[ADLogger setLevel:]
+
 ```Objective-C
 [ADLogger setLevel:ADAL_LOG_LEVEL_INFO]
  ```
  
 #### Network Traces
 
-You can use various tools to capture the HTTP traffic that ADAL generates.  This is most useful if you are familiar with the OAuth protocol or if you need to provide diagnostic information to Microsoft or other support channels.
+You can use various tools to capture the HTTP traffic that ADAL generates.  This is most
+useful if you are familiar with the OAuth protocol or if you need to provide diagnostic
+information to Microsoft or other support channels.
 
-Charles is the easiest HTTP tracing tool in OSX.  Use the following links to setup it up to correctly record ADAL network traffic.  In order to be useful it is necessary to configure Charles, to record unencrypted SSL traffic.  NOTE: Traces generated in this way may contain highly privileged information such as access tokens, usernames and passwords.  If you are using production accounts, do not share these traces with 3rd parties.  If you need to supply a trace to someone in order to get support, reproduce the issue with a temporary account with usernames and passwords that you don't mind sharing.
+Charles is the easiest HTTP tracing tool in OSX.  Use the following links to setup it up
+to correctly record ADAL network traffic.  In order to be useful it is necessary to
+configure Charles, to record unencrypted SSL traffic.  NOTE: Traces generated in this way
+may contain highly privileged information such as access tokens, usernames and passwords.  
+If you are using production accounts, do not share these traces with 3rd parties. 
+If you need to supply a trace to someone in order to get support, reproduce the issue with
+a temporary account with usernames and passwords that you don't mind sharing.
 
 + [Setting Up SSL For iOS Simulator or Devices](http://www.charlesproxy.com/documentation/faqs/ssl-connections-from-within-iphone-applications/)
 
+#### ADAuthenticationError
 
+ADAuthenticationErrors are provided in all callbacks in the ADAuthenticationResult's error
+property when an error occurs. They can be used to have the application display more
+more informative errors to the user, however ADAL Error messages are not localized. All
+ADAuthenticationErrors are logged with the ADAL logger as well.
 
 ##Common problems
 
-**Application, using the ADAL library crashes with the following exception:**<br/> *** Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: '+[NSString isStringNilOrBlank:]: unrecognized selector sent to class 0x13dc800'<br/>
-**Solution:** Make sure that you add the -ObjC flag to "Other Linker Flags" build setting of the application. For more information, see Apple documentation for using static libraries:<br/> https://developer.apple.com/library/ios/technotes/iOSStaticLibraries/Articles/configuration.html#//apple_ref/doc/uid/TP40012554-CH3-SW1.
+**Application, using the ADAL library crashes with the following exception:**<br/> 
+*** Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: '+[NSString isStringNilOrBlank:]: unrecognized selector sent to class 0x13dc800'<br/>
+
+**Solution:** Make sure that you add the -ObjC flag to "Other Linker Flags" build setting
+of the application. For more information, see Apple documentation for using static
+libraries:<br/> https://developer.apple.com/library/ios/technotes/iOSStaticLibraries/Articles/configuration.html#//apple_ref/doc/uid/TP40012554-CH3-SW1.
+
+**Log ins are not persisting, Cache always returns empty**<br/>
+
+**Solution:** Either add the "com.microsoft.adalcache" keychain sharing entitlement to
+your application, or disable keychain sharing by passing in your application's bundle id
+in ADAuthenticationSettings:
+
+```Objective-C
+    [[ADAuthenticationSettings sharedInstance] setSharedCacheKeychainGroup:@"<your.bundle.id.here>"];
+```
 
 ## License
 
