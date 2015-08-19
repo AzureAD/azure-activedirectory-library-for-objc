@@ -19,6 +19,7 @@
 @interface ADAuthenticationWebViewController : NSObject <UIWebViewDelegate, NSURLConnectionDelegate>
 
 @property (weak, nonatomic) id<ADAuthenticationDelegate> delegate;
+@property (weak, nonatomic) id<UIWebViewDelegate> customDelegate;
 
 - (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
 - (void)start;

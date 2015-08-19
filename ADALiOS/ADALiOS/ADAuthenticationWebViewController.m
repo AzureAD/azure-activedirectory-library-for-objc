@@ -57,6 +57,11 @@ NSTimer *timer;
         _complete  = NO;
         _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
         _webView          = webView;
+        
+        //Storing the previous webview delegate since we are replacing it
+        if(webView.delegate)
+            _customDelegate = _webView.delegate;
+        
         _webView.delegate = self;
         [ADNTLMHandler setCancellationUrl:[_startURL absoluteString]];
     }
@@ -113,9 +118,16 @@ NSTimer *timer;
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+    if(_customDelegate){
+        if ([_customDelegate respondsToSelector:@selector(webView: shouldStartLoadWithRequest: navigationType:)]) {
+            [_customDelegate webView:webView shouldStartLoadWithRequest:request navigationType:navigationType];
+        }
+    }
+    
 #pragma unused(webView)
 #pragma unused(navigationType)
     
+
     if([ADNTLMHandler isChallengeCancelled]){
         _complete = YES;
         dispatch_async( dispatch_get_main_queue(), ^{[_delegate webAuthenticationDidCancel];});
@@ -166,12 +178,24 @@ NSTimer *timer;
     if (timer != nil){
         [timer invalidate];
     }
+    if(_customDelegate){
+        if ([_customDelegate respondsToSelector:@selector(webViewDidStartLoad:)]) {
+            [_customDelegate webViewDidStartLoad:webView];
+        }
+    }
+
 #pragma unused(webView)
     timer = [NSTimer scheduledTimerWithTimeInterval:_timeout target:self selector:@selector(failWithTimeout) userInfo:nil repeats:NO];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
+    
+    if(_customDelegate){
+        if ([_customDelegate respondsToSelector:@selector(webViewDidFinishLoad:)]) {
+            [_customDelegate webViewDidFinishLoad:webView];
+        }
+    }
 #pragma unused(webView)
     [timer invalidate];
     timer = nil;
@@ -179,6 +203,12 @@ NSTimer *timer;
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
+    if(_customDelegate){
+        if ([_customDelegate respondsToSelector:@selector(webView: didFailLoadWithError:)]) {
+            [_customDelegate webViewDidFinishLoad:webView];
+        }
+    }
+    
 #pragma unused(webView)
     if(timer && [timer isValid]){
         [timer invalidate];
