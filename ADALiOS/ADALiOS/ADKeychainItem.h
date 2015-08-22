@@ -29,6 +29,8 @@
 @property NSString* refreshToken;
 @property ADProfileInfo* profileInfo;
 
++ (ADKeychainItem*)itemForData:(NSData*)data;
+
 - (ADTokenCacheStoreItem*)tokenItemForScopes:(NSSet*)scopes;
 - (void)updateForTokenItem:(ADTokenCacheStoreItem*)item;
 

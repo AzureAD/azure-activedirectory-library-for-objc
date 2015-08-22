@@ -29,7 +29,15 @@
 
 - (void)encodeWithCoder:(NSCoder*)aCoder
 {
-    
+    [aCoder encodeObject:_scopes forKey:@"scopes"];
+    [aCoder encodeObject:_accessToken forKey:@"accessToken"];
+    [aCoder encodeObject:_accessTokenType forKey:@"accessTokenType"];
+    [aCoder encodeObject:_expiresOn forKey:@"expiresOn"];
+}
+
++ (BOOL)supportsSecureCoding
+{
+    return YES;
 }
 
 - (void)addToTokenItem:(ADTokenCacheStoreItem*)item

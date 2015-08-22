@@ -24,6 +24,7 @@
 #import "ADTokenCacheStoreKey.h"
 #import "ADProfileInfo.h"
 #import "ADKeychainQuery.h"
+#import "ADKeychainItem.h"
 
 
 /************************************************************************************************
@@ -352,28 +353,21 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
             
             [(__bridge NSDictionary*)keychainItems enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop)
             {
-                NSArray* items = (NSArray*)obj;
-                if (![items isKindOfClass:[NSArray class]])
+                NSData* itemData = (NSData*)obj;
+                if (![itemData isKindOfClass:[NSData class]])
                 {
-                    AD_LOG_ERROR(@"Invalid Keychain Data. Expected an NSArray.", AD_ERROR_CACHE_PERSISTENCE, nil);
+                    AD_LOG_ERROR(@"Invalid Keychain Data. Expected NSData.", AD_ERROR_CACHE_PERSISTENCE, nil);
                     return;
                 }
-                [items enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                    NSData* itemData = (NSData*)obj;
-                    if (![itemData isKindOfClass:[NSData class]])
-                    {
-                        AD_LOG_ERROR(@"Invalid Keychain Data. Expected an NSData.", AD_ERROR_CACHE_PERSISTENCE, nil);
-                        return;
-                    }
-                    
-                    ADTokenCacheStoreItem* cacheItem = [ADTokenCacheStoreItem itemFromData:itemData];
-                    if (!cacheItem)
-                    {
-                        AD_LOG_ERROR(@"Invalid Keychain Data. Unable to decode NSData into cache item.", AD_ERROR_CACHE_PERSISTENCE, nil);
-                        return;
-                    }
-                    [cacheItems addObject:cacheItem];
-                }];
+                
+                ADKeychainItem* keychainItem = [ADKeychainItem itemForData:itemData];
+                if (!keychainItem)
+                {
+                    AD_LOG_ERROR(@"Failed to decode keychain item data.", AD_ERROR_CACHE_PERSISTENCE, nil);
+                    return;
+                }
+                
+                [cacheItems addObjectsFromArray:[keychainItem allItems]];
             }];
             CFRelease(keychainItems);
         }
@@ -406,30 +400,27 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
         
         CHECK_OSSTATUS(err);
         
-        CFArrayRef items = CFDictionaryGetValue(cfmdKeychainItems, (__bridge const void *)([key key]));
-        if (!items)
+        CFDataRef keychainData = CFDictionaryGetValue(cfmdKeychainItems, (__bridge const void *)([key key]));
+        if (!keychainData)
         {
             AD_LOG_INFO(@"Did not find matching item in keychain", nil);
             return;
         }
         
-        if (CFGetTypeID(items) != CFArrayGetTypeID())
+        if (CFGetTypeID(keychainData) != CFDataGetTypeID())
         {
             AD_LOG_ERROR(@"Invalid Keychain Data. Expected an NSData.", AD_ERROR_CACHE_PERSISTENCE, nil);
             return;
         }
         
-        // We need to go through the list looking for a token cache store item that matches the provided requests scopes in
-        // the key
-        for (CFIndex idx = 0; idx < CFArrayGetCount(items); idx++)
+        ADKeychainItem* keychainItem = [ADKeychainItem itemForData:(__bridge NSData *)(keychainData)];
+        if (!keychainItem)
         {
-            ADTokenCacheStoreItem* idxItem = [ADTokenCacheStoreItem itemFromData:(__bridge NSData *)(CFArrayGetValueAtIndex(items, idx))];
-            if ([[idxItem scopes] isSubsetOfSet:[key scopes]])
-            {
-                item = idxItem;
-                return;
-            }
+            AD_LOG_ERROR(@"Unable to decode keychain item.", AD_ERROR_CACHE_PERSISTENCE, nil);
+            return;
         }
+        
+        item = [keychainItem tokenItemForScopes:[key scopes]];
     });
     
     
@@ -473,13 +464,14 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
         
         const void* keychainKey = (__bridge const void *)([key key]);
         
+        NSData* itemData = CFDictionaryGetValue(cfmdKeychainDict, keychainKey);
         
-        NSMutableArray* items = (__bridge NSMutableArray*)CFDictionaryGetValue(cfmdKeychainDict, keychainKey);
-        
-        // If we don't have an array yet for this item create one and add out item.
-        if (!items)
+        // If we don't have a KeychainItem yet create one
+        if (!itemData)
         {
-            CFDictionarySetValue(cfmdKeychainDict, keychainKey, (__bridge const void *)([NSArray arrayWithObject:[item copyDataForItem]]));
+            ADKeychainItem* keychainItem = [[ADKeychainItem alloc] init];
+            [keychainItem updateForTokenItem:item];
+            CFDictionarySetValue([keychainItem data], keychainKey, (__bridge const void *)([NSArray arrayWithObject:[item copyDataForItem]]));
             err = [self writeDictionary:cfmdKeychainDict userId:[item userCacheKey]];
             CHECK_OSSTATUS(err);
             return;
