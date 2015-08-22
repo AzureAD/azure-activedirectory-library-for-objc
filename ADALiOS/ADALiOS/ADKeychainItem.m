@@ -72,6 +72,11 @@
     return item;
 }
 
++ (BOOL)supportsSecureCoding
+{
+    return YES;
+}
+
 - (id)init
 {
     if (!(self = [super init]))
@@ -173,12 +178,10 @@
 - (ADTokenCacheStoreItem*)tokenItemForScopes:(NSSet*)scopes
 {
     ADKeychainToken* token = [self tokenForScopes:scopes];
-    if (!token)
-    {
-        return nil;
-    }
-    
     ADTokenCacheStoreItem* item = [self tokenItem];
+    
+    // If no token was found then this is a no-op. We still want to return an item as the
+    // refresh token might still be usable.
     [token addToTokenItem:item];
     
     return item;
