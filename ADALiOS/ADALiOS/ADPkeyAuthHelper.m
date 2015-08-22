@@ -67,7 +67,7 @@
     ADRegistrationInformation *info = [[ADWorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
     if (![info isWorkPlaceJoined])
     {
-        AD_LOG_ERROR(@"Attempting to creaate device auth response while not workplace joined.", AD_ERROR_WPJ_REQUIRED, nil);
+        AD_LOG_ERROR(@"Attempting to create device auth response while not workplace joined.", AD_ERROR_WPJ_REQUIRED, nil);
         return nil;
     }
     NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
@@ -88,7 +88,7 @@
         NSString* expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
         if (![NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]])
         {
-            AD_LOG_ERROR(@"Certifiacet Thumbprint does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
+            AD_LOG_ERROR(@"Certificate Thumbprint does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
             return nil;
         }
     }
