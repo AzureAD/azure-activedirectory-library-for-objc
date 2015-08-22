@@ -61,37 +61,44 @@
 }
 
 
-+ (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
-                         challengeData:(NSDictionary*) challengeData
-                         challengeType: (ADChallengeType) challengeType
++ (NSString*)createDeviceAuthResponse:(NSString*)authorizationServer
+                        challengeData:(NSDictionary*) challengeData
 {
     ADRegistrationInformation *info = [[ADWorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
-    NSString* authHeaderTemplate = @"PKeyAuth %@ Context=\"%@\", Version=\"%@\"";
-    NSString* pKeyAuthHeader = @"";
-    BOOL challengeSuccessful = false;
+    if (![info isWorkPlaceJoined])
+    {
+        AD_LOG_ERROR(@"Attempting to create device auth response while not workplace joined.", AD_ERROR_WPJ_REQUIRED, nil);
+        return nil;
+    }
+    NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
     
-    if ([info isWorkPlaceJoined]) {
-        if(challengeType == AD_ISSUER){
-            
-            NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
-            certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
-                                                                               withString:@""];
-            NSString* issuerOU = [ADPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
-            challengeSuccessful = [self isValidIssuer:certAuths keychainCertIssuer:issuerOU];
-        }else{
-            NSString* expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
-            if(expectedThumbprint){
-                challengeSuccessful = [NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]];
-            }
+    if (certAuths)
+    {
+        certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
+                                                                           withString:@""];
+        NSString* issuerOU = [ADPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
+        if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
+        {
+            AD_LOG_ERROR(@"Certificate Authority specified by device auth request does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
+            return nil;
         }
     }
-    if(challengeSuccessful){
-        pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
+    else if ([challengeData valueForKey:@"CertThumbprint"])
+    {
+        NSString* expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
+        if (![NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]])
+        {
+            AD_LOG_ERROR(@"Certificate Thumbprint does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
+            return nil;
+        }
     }
+    
+    
+    NSString* pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
     
     [info releaseData];
     info = nil;
-    return [NSString stringWithFormat:authHeaderTemplate, pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
+    return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
 }
 
 

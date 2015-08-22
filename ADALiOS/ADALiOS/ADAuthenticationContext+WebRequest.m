@@ -573,7 +573,8 @@ static volatile int sDialogInProgress = 0;
         NSArray* pair = [headerPairs[i] componentsSeparatedByString:@"="];
         [headerKeyValuePair setValue:pair[1] forKey:[pair[0] adTrimmedString]];
     }
-    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer challengeData:headerKeyValuePair challengeType:AD_THUMBPRINT];
+    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer
+                                                        challengeData:headerKeyValuePair];
     [headerKeyValuePair removeAllObjects];
     [headerKeyValuePair setObject:authHeader forKey:@"Authorization"];
     
