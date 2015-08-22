@@ -33,6 +33,7 @@
 
 - (ADTokenCacheStoreItem*)tokenItemForScopes:(NSSet*)scopes;
 - (void)updateForTokenItem:(ADTokenCacheStoreItem*)item;
+- (NSData*)data;
 
 /*! @return An array of ADTokenCacheStoreItem(s) for all the access tokens store in this keychain item */
 - (NSArray*)allItems;

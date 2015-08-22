@@ -56,6 +56,34 @@
     NSMutableArray* _accessTokens;
 }
 
++ (ADKeychainItem*)itemForData:(NSData *)data
+{
+    if (!data)
+    {
+        return nil;
+    }
+    
+    id item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    if (![item isKindOfClass:[ADKeychainItem class]])
+    {
+        return nil;
+    }
+    
+    return item;
+}
+
+- (id)init
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    _accessTokens = [NSMutableArray new];
+    
+    return self;
+}
+
 - (id)initWithCoder:(NSCoder*)aDecoder
 {
     if (!(self = [super init]))
@@ -82,6 +110,11 @@
     [aCoder encodeObject:_refreshToken forKey:@"refreshToken"];
     [aCoder encodeObject:_profileInfo forKey:@"profileInfo"];
     [aCoder encodeObject:_accessTokens forKey:@"accessTokens"];
+}
+
+- (NSData*)data
+{
+    return [NSKeyedArchiver archivedDataWithRootObject:self];
 }
 
 - (ADKeychainToken*)tokenForScopes:(NSSet*)scopes
@@ -167,7 +200,7 @@
             continue;
         }
         
-        if ([scopes isSubsetOfSet:token.scopes])
+        if ([scopes intersectsSet:token.scopes])
         {
             [toRemove addIndex:i];
         }

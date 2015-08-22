@@ -465,40 +465,18 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
         const void* keychainKey = (__bridge const void *)([key key]);
         
         NSData* itemData = CFDictionaryGetValue(cfmdKeychainDict, keychainKey);
+        ADKeychainItem* keychainItem = [ADKeychainItem itemForData:itemData];
         
-        // If we don't have a KeychainItem yet create one
-        if (!itemData)
+        // If we don't have a KeychainItem create one
+        if (!keychainItem)
         {
-            ADKeychainItem* keychainItem = [[ADKeychainItem alloc] init];
-            [keychainItem updateForTokenItem:item];
-            CFDictionarySetValue([keychainItem data], keychainKey, (__bridge const void *)([NSArray arrayWithObject:[item copyDataForItem]]));
-            err = [self writeDictionary:cfmdKeychainDict userId:[item userCacheKey]];
-            CHECK_OSSTATUS(err);
-            return;
+            keychainItem = [[ADKeychainItem alloc] init];
         }
         
-        // Start by finding any cache items that intersect with the key we're looking for.
-        NSMutableIndexSet* intersecting = [NSMutableIndexSet new];
-        [items enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            ADTokenCacheStoreItem* cacheItem = [ADTokenCacheStoreItem itemFromData:(NSData*)obj];
-            if (!cacheItem)
-            {
-                return;
-            }
-            
-            if ([[cacheItem scopes] intersectsSet:[key scopes]])
-            {
-                [intersecting addIndex:idx];
-            }
-        }];
-        // Remove any intersecting items from the cache
-        [items removeObjectsAtIndexes:intersecting];
-        
-        // Now add the new item
-        [items addObject:[item copyDataForItem]];
-        
+        [keychainItem updateForTokenItem:item];
+
         // And set the array to the dictionary value
-        CFDictionarySetValue(cfmdKeychainDict, (__bridge const void *)([key key]), (__bridge const void *)(items));
+        CFDictionarySetValue(cfmdKeychainDict, keychainKey, (__bridge const void *)([keychainItem data]));
         err = [self writeDictionary:cfmdKeychainDict userId:[item userCacheKey]];
         CHECK_OSSTATUS(err);
     });
