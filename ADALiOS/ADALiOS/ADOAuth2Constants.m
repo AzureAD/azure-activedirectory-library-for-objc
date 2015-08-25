@@ -33,6 +33,7 @@ NSString *const OAUTH2_ERROR              = @"error";
 NSString *const OAUTH2_ERROR_DESCRIPTION  = @"error_description";
 NSString *const OAUTH2_EXPIRES_IN         = @"expires_in";
 NSString *const OAUTH2_GRANT_TYPE         = @"grant_type";
+NSString *const OAUTH2_POLICY             = @"p";
 NSString *const OAUTH2_PLATFORM_ID        = @"platform_id";
 NSString *const OAUTH2_REALM              = @"realm";
 NSString *const OAUTH2_REDIRECT_URI       = @"redirect_uri";

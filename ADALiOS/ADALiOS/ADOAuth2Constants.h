@@ -34,6 +34,7 @@ extern NSString *const OAUTH2_ERROR_DESCRIPTION;
 extern NSString *const OAUTH2_EXPIRES_IN;
 extern NSString *const OAUTH2_GRANT_TYPE;
 extern NSString *const OAUTH2_PLATFORM_ID;
+extern NSString *const OAUTH2_POLICY;
 extern NSString *const OAUTH2_REALM;
 extern NSString *const OAUTH2_REDIRECT_URI;
 extern NSString *const OAUTH2_REFRESH_TOKEN;

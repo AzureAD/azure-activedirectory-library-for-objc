@@ -283,6 +283,11 @@
                         nil];
     }
     
+    if (_policy)
+    {
+        [request_data setObject:_policy forKey:OAUTH2_POLICY];
+    }
+    
     AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; scopes: '%@';", _clientId, _scopes);
     [self requestWithServer:_context.authority
                 requestData:request_data

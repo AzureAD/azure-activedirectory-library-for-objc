@@ -43,6 +43,7 @@ const int sAsyncContextTimeout = 10;
     NSString* _clientId;
     NSURL* _redirectURL;
     NSString* _userId;
+    NSString* _policy;
     ADPromptBehavior _promptBehavior;
     NSString* _assertion;
     ADAssertionType _assertionType;
@@ -692,6 +693,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                                                                 userId:_userId
                                                               uniqueId:nil
                                                                 idType:RequiredDisplayableId
+                                                                policy:_policy
                                                                 scopes:[NSSet setWithArray:scopes]
                                                                  error:error];
     if (!key)
@@ -839,6 +841,9 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                   OAUTH2_SCOPE : [_scopes adSpaceDeliminatedString]};
     [_testContext queueExpectedRequest:[self defaultRequest] response:response];
     acquireTokenAsync;
+    
+    // Testing note: If you're seeing this return back 17 (AD_ERROR_NO_MAIN_VIEW_CONTROLLER) instead of 19, that usually means that
+    // the cache did not match, it didn't find a refresh token, and went on to try to get a code.
     ADAssertLongEquals(AD_ERROR_WRONG_USER, _result.error.code);
     ADAssertLongEquals(2, [self cacheCount]); // The new user gets cached as well
 }

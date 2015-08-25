@@ -115,6 +115,7 @@
                                                        userId:[self.userId copyWithZone:zone]
                                                      uniqueId:[self.uniqueId copyWithZone:zone]
                                                        idType:self.identifierType
+                                                       policy:self.policy
                                                        scopes:[self.scopes copyWithZone:zone]];
 }
 

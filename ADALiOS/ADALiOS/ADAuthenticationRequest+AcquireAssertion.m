@@ -222,7 +222,11 @@
                                          _clientId, OAUTH2_CLIENT_ID,
                                          [_scopes adSpaceDeliminatedString], OAUTH2_SCOPE,
                                          nil];
-    // TODO: Policy
+    
+    if (_policy)
+    {
+        [request_data setObject:_policy forKey:OAUTH2_POLICY];
+    }
     
     [self executeRequest:_context.authority
              requestData:request_data

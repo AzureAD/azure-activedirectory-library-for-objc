@@ -420,7 +420,8 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
             return;
         }
         
-        item = [keychainItem tokenItemForScopes:[key scopes]];
+        item = [keychainItem tokenItemForPolicy:[key policy]
+                                         scopes:[key scopes]];
     });
     
     
@@ -473,7 +474,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
             keychainItem = [[ADKeychainItem alloc] init];
         }
         
-        [keychainItem updateForTokenItem:item];
+        [keychainItem updateToTokenItem:item];
 
         // And set the array to the dictionary value
         CFDictionarySetValue(cfmdKeychainDict, keychainKey, (__bridge const void *)([keychainItem data]));
