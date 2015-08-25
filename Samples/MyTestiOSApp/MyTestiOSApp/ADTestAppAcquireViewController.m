@@ -163,7 +163,7 @@ ADAuthenticationContext* context = nil;
         }
         else
         {
-            [self setStatus:[NSString stringWithFormat:@"Successfully logged in as %@", userInfo.userId] type:TALogSuccess];
+            [self setStatus:[NSString stringWithFormat:@"Successfully logged in as %@", userInfo.username] type:TALogSuccess];
             [ADTestAppLogger logMessage:[NSString stringWithFormat:@"allclaims=%@", userInfo.allClaims] type:TALogInformation];
         }
     }];

@@ -41,6 +41,7 @@
                                    userId:(NSString*)userId
                                  uniqueId:(NSString*)uniqueId
                                    idType:(ADUserIdentifierType)idType
+                                   policy:(NSString*)policy
                                    scopes:(NSSet*)scopes
                                     error:(ADAuthenticationError* __autoreleasing*)error;
 
@@ -52,6 +53,8 @@
 
 /*! The combined keystring of the properties in this class. */
 @property (readonly) NSString* key;
+
+@property (readonly) NSString* policy;
 
 @property (readonly) NSString* userId;
 
