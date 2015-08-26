@@ -20,6 +20,7 @@
 
 @class ADProfileInfo;
 @class ADTokenCacheStoreItem;
+@class ADTokenCacheStoreKey;
 
 @interface ADTestUtils : NSObject
 
@@ -29,6 +30,7 @@
 @property NSString* tid;
 @property NSString* profileVersion;
 @property NSString* extra_claim;
+@property NSString* policy;
 
 @property NSString* authority;
 @property NSString* clientId;
@@ -43,6 +45,6 @@
 - (NSString*)rawProfileInfo;
 - (ADProfileInfo*)createProfileInfo:(NSString* __autoreleasing *)errorDetails;
 - (ADTokenCacheStoreItem*)createCacheItem:(NSString* __autoreleasing *)errorDetails;
-
+- (ADTokenCacheStoreKey*)createKey;
 
 @end

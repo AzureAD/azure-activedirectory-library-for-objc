@@ -303,4 +303,69 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 //    ADAssertLongEquals(0, [self count]);
 //}
 
+- (void)testMultiplePolicies
+{
+    // RTs should be keyed off of the policy, ATs off both scope and policy.
+    
+    ADTestUtils* utils = [ADTestUtils new];
+    NSString* errorDetails = nil;
+    ADAuthenticationError* error = nil;
+    ADTokenCacheStoreItem* item = nil;
+    
+    // Start by verifying that cache is empty
+    NSArray* allItems = [mStore allItems:&error];
+    ADAssertNoError;
+    XCTAssertEqual([allItems count], 0, @"Expected the cache to be empty, cache contents: %@", allItems);
+    
+    // Create an item in cache with no policy
+    [utils setRefreshToken:@"nopolicy"];
+    ADTokenCacheStoreItem* noPolicyItem = [utils createCacheItem:&errorDetails];
+    XCTAssertNotNil(noPolicyItem, @"Failed to create no policy cache item: %@", errorDetails);
+    [mStore addOrUpdateItem:noPolicyItem error:&error];
+    ADAssertNoError;
+    
+    // Verify we can pull it out of cache
+    ADTokenCacheStoreKey* noPolicyKey = [utils createKey];
+    item = [mStore getItemWithKey:noPolicyKey error:nil];
+    XCTAssertNotNil(item);
+    XCTAssertEqualObjects(item, noPolicyItem);
+    
+    // Add another item with a policy
+    [utils setRefreshToken:@"policy1"];
+    [utils setPolicy:@"policy1"];
+    ADTokenCacheStoreItem* policy1Item = [utils createCacheItem:&errorDetails];
+    XCTAssertNotNil(policy1Item, @"Failed to create policy 1 cache item: %@", errorDetails);
+    [mStore addOrUpdateItem:noPolicyItem error:&error];
+    ADAssertNoError;
+    
+    // Verify that it's there too
+    ADTokenCacheStoreKey* policy1Key = [utils createKey];
+    item = [mStore getItemWithKey:policy1Key error:nil];
+    XCTAssertNotNil(item);
+    XCTAssertEqualObjects(item, policy1Item);
+    
+    // And that the previous item is still there
+    item = [mStore getItemWithKey:noPolicyKey error:nil];
+    XCTAssertNotNil(item);
+    XCTAssertEqualObjects(item, noPolicyItem);
+    
+    // Update the first item
+    [utils setPolicy:nil];
+    [utils setRefreshToken:@"updatedRefreshToken"];
+    noPolicyItem = [utils createCacheItem:&errorDetails];
+    XCTAssertNotNil(noPolicyItem, @"Failed to create no policy cache item: %@", errorDetails);
+    [mStore addOrUpdateItem:noPolicyItem error:&error];
+    ADAssertNoError;
+    
+    // Verify it's updated
+    item = [mStore getItemWithKey:noPolicyKey error:nil];
+    XCTAssertNotNil(item);
+    XCTAssertEqualObjects(item, noPolicyItem);
+    
+    // Verify that the second item was not modified
+    item = [mStore getItemWithKey:policy1Key error:nil];
+    XCTAssertNotNil(item);
+    XCTAssertEqualObjects(item, policy1Item);
+}
+
 @end
