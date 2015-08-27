@@ -335,7 +335,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [utils setPolicy:@"policy1"];
     ADTokenCacheStoreItem* policy1Item = [utils createCacheItem:&errorDetails];
     XCTAssertNotNil(policy1Item, @"Failed to create policy 1 cache item: %@", errorDetails);
-    [mStore addOrUpdateItem:noPolicyItem error:&error];
+    [mStore addOrUpdateItem:policy1Item error:&error];
     ADAssertNoError;
     
     // Verify that it's there too
