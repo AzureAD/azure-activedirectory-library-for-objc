@@ -252,6 +252,7 @@ static ADAuthenticationError* _validateScopes(NSArray* scopes)
                                            userId:userId
                                          uniqueId:uniqueId
                                            idType:_identifier.type
+                                           policy:_policy
                                            scopes:_scopes
                                             error:error];
 }

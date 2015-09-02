@@ -21,6 +21,7 @@
 #import <ADALiOS/ADProfileInfo.h>
 #import <ADALiOS/ADAuthenticationError.h>
 #import <ADALiOS/ADTokenCacheStoreItem.h>
+#import <ADALiOS/ADTokenCacheStoreKey.h>
 
 static NSString* const s_profileHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
 
@@ -55,6 +56,7 @@ static NSString* const s_profileHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
     _refreshToken = @"refresh token";
     _expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
     
+    _scopes = @[@"mail.read", @"planetarydefense.target.acquire", @"planetarydefense.fire"];
     return self;
 }
 
@@ -119,17 +121,30 @@ static NSString* const s_profileHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
     
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
     //item.resource = @"resource";
-    item.scopes = [NSSet setWithObjects:@"mail.read", @"planetarydefense.target.acquire", @"planetarydefense.fire", nil];
+    item.scopes = [NSSet setWithArray:_scopes];
     item.authority = _authority;
     item.clientId = _clientId;
     item.accessToken = _accessToken;
     item.refreshToken = _refreshToken;
     item.sessionKey = nil;
+    item.policy = _policy;
     //1hr into the future:
     item.expiresOn = _expiresOn;
     item.profileInfo = profileInfo;
     item.accessTokenType = _accessTokenType;
     return item;
+}
+
+- (ADTokenCacheStoreKey*)createKey
+{
+    return [ADTokenCacheStoreKey keyWithAuthority:_authority
+                                         clientId:_clientId
+                                           userId:_username
+                                         uniqueId:_subject
+                                           idType:RequiredDisplayableId
+                                           policy:_policy
+                                           scopes:[NSSet setWithArray:_scopes]
+                                            error:nil];
 }
 
 @end

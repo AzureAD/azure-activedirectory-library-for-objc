@@ -28,6 +28,7 @@
     NSString* mClientId;
     NSString* mUserId;
     NSString* mUniqueId;
+    NSString* _policy;
     ADUserIdentifierType mIdType;
     NSSet* mScopes;
 }
@@ -65,6 +66,7 @@
                                            userId:mUserId
                                          uniqueId:mUniqueId
                                            idType:mIdType
+                                           policy:_policy
                                            scopes:mScopes
                                             error:error];
 }
@@ -83,6 +85,7 @@
                                                                    userId:nil
                                                                  uniqueId:nil
                                                                    idType:RequiredDisplayableId
+                                                                   policy:nil
                                                                    scopes:nil
                                                                     error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority"
@@ -94,6 +97,7 @@
                                              userId:nil
                                            uniqueId:nil
                                              idType:RequiredDisplayableId
+                                             policy:nil
                                              scopes:nil
                                               error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority"
@@ -107,6 +111,7 @@
                                              userId:nil
                                            uniqueId:nil
                                              idType:RequiredDisplayableId
+                                             policy:nil
                                              scopes:nil
                                               error:&error];
     [self adValidateFactoryForInvalidArgument:@"clientId"
@@ -118,6 +123,7 @@
                                              userId:nil
                                            uniqueId:nil
                                              idType:RequiredDisplayableId
+                                             policy:nil
                                              scopes:nil
                                               error:&error];
     [self adValidateFactoryForInvalidArgument:@"clientId"
@@ -130,6 +136,7 @@
                                                                    userId:nil
                                                                  uniqueId:nil
                                                                    idType:RequiredDisplayableId
+                                                                   policy:nil
                                                                    scopes:nil
                                                                     error:&error];
     ADAssertNoError;

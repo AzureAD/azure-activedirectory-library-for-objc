@@ -10,6 +10,27 @@
 #import "ADTokenCacheStoreItem+Internal.h"
 #import "ADProfileInfo.h"
 
+@interface ADKeychainToken : NSObject <NSCoding, NSSecureCoding>
+
+@property NSSet* scopes;
+
+@property NSString* accessToken;
+@property NSString* accessTokenType;
+@property NSDate* expiresOn;
+
+- (void)addToTokenItem:(ADTokenCacheStoreItem*)item;
+
+@end
+
+@interface ADKeychainPolicyItem : NSObject <NSCoding, NSSecureCoding>
+
+@property NSString* refreshToken;
+
+- (void)addAccessTokenWithScopes:(NSSet*)scopes
+                          toItem:(ADTokenCacheStoreItem*)item;
+
+@end
+
 @implementation ADKeychainToken
 
 - (id)initWithCoder:(NSCoder*)aDecoder
@@ -49,12 +70,158 @@
     item.expiresOn = _expiresOn;
 }
 
+- (void)updateToTokenItem:(ADTokenCacheStoreItem*)item
+{
+    _scopes = item.scopes;
+    _accessToken = item.accessToken;
+    _accessTokenType = item.accessTokenType;
+    _expiresOn = item.expiresOn;
+}
+
 @end
+
+@implementation ADKeychainPolicyItem
+{
+    @public
+    NSMutableArray* _accessTokens;
+}
+
+- (id)init
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    _accessTokens = [NSMutableArray new];
+    
+    return self;
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    NSArray* accessTokens = [aDecoder decodeObjectOfClass:[NSArray class] forKey:@"accessTokens"];
+    if (accessTokens)
+    {
+        // Verify everything in here matches the expected class
+        for (id accessToken in accessTokens)
+        {
+            if (![accessToken isKindOfClass:[ADKeychainToken class]])
+            {
+                return nil;
+            }
+        }
+        
+        _accessTokens = [NSMutableArray arrayWithArray:accessTokens];
+    }
+    else
+    {
+        _accessTokens = [NSMutableArray new];
+    }
+    
+    _refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [aCoder encodeObject:_refreshToken forKey:@"refreshToken"];
+    [aCoder encodeObject:_accessTokens forKey:@"accessTokens"];
+}
+
++ (BOOL)supportsSecureCoding
+{
+    return YES;
+}
+
+- (ADKeychainToken*)tokenForScopes:(NSSet*)scopes
+{
+    for (ADKeychainToken* token in _accessTokens)
+    {
+        // Ignore anything in the keychain item that's not the correct class.
+        if (![token isKindOfClass:[ADKeychainToken class]])
+        {
+            continue;
+        }
+        
+        if ([scopes isSubsetOfSet:token.scopes])
+        {
+            return token;
+        }
+    }
+    
+    return nil;
+}
+
+- (void)addAccessTokenWithScopes:(NSSet*)scopes
+                          toItem:(ADTokenCacheStoreItem*)item
+{
+    item.refreshToken = _refreshToken;
+    
+    ADKeychainToken* token = [self tokenForScopes:scopes];
+    [token addToTokenItem:item];
+}
+
+- (void)removeIntersectingTokens:(NSSet*)scopes
+{
+    NSMutableIndexSet* toRemove = [NSMutableIndexSet indexSet];
+    
+    NSUInteger cTokens = [_accessTokens count];
+    
+    for (NSUInteger i = 0; i < cTokens; i++)
+    {
+        ADKeychainToken* token = _accessTokens[i];
+        
+        // Ignore anything in the keychain item that's not the correct class.
+        if (![token isKindOfClass:[ADKeychainToken class]])
+        {
+            continue;
+        }
+        
+        if ([scopes intersectsSet:token.scopes])
+        {
+            [toRemove addIndex:i];
+        }
+    }
+    
+    [_accessTokens removeObjectsAtIndexes:toRemove];
+}
+
+- (void)updateToTokenItem:(ADTokenCacheStoreItem*)item
+{
+    _refreshToken = item.refreshToken;
+    
+    NSSet* scopes = item.scopes;
+    [self removeIntersectingTokens:scopes];
+    
+    ADKeychainToken* token = [ADKeychainToken new];
+    [token updateToTokenItem:item];
+    [_accessTokens addObject:token];
+}
+
+@end
+
+@interface ADKeychainItem ()
+
+@property NSString* authority;
+@property NSString* clientId;
+@property NSData* sessionKey;
+@property ADProfileInfo* profileInfo;
+
+@end
+
 
 @implementation ADKeychainItem
 {
-    NSMutableArray* _accessTokens;
+    NSMutableDictionary* _policies;
 }
+
+
 
 + (ADKeychainItem*)itemForData:(NSData *)data
 {
@@ -84,7 +251,7 @@
         return nil;
     }
     
-    _accessTokens = [NSMutableArray new];
+    _policies = [NSMutableDictionary new];
     
     return self;
 }
@@ -99,10 +266,9 @@
     _authority = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"authority"];
     _clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
     _sessionKey = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"sessionKey"];
-    _refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     _profileInfo = [aDecoder decodeObjectOfClass:[ADProfileInfo class] forKey:@"profileInfo"];
     
-    _accessTokens = [aDecoder decodeObjectOfClass:[NSArray class] forKey:@"accessTokens"];
+    _policies = [aDecoder decodeObjectOfClass:[NSArray class] forKey:@"policies"];
     
     return self;
 }
@@ -112,33 +278,13 @@
     [aCoder encodeObject:_authority forKey:@"authority"];
     [aCoder encodeObject:_clientId forKey:@"clientId"];
     [aCoder encodeObject:_sessionKey forKey:@"sessionKey"];
-    [aCoder encodeObject:_refreshToken forKey:@"refreshToken"];
     [aCoder encodeObject:_profileInfo forKey:@"profileInfo"];
-    [aCoder encodeObject:_accessTokens forKey:@"accessTokens"];
+    [aCoder encodeObject:_policies forKey:@"policies"];
 }
 
 - (NSData*)data
 {
     return [NSKeyedArchiver archivedDataWithRootObject:self];
-}
-
-- (ADKeychainToken*)tokenForScopes:(NSSet*)scopes
-{
-    for (ADKeychainToken* token in _accessTokens)
-    {
-        // Ignore anything in the keychain item that's not the correct class.
-        if (![token isKindOfClass:[ADKeychainToken class]])
-        {
-            continue;
-        }
-        
-        if ([scopes isSubsetOfSet:token.scopes])
-        {
-            return token;
-        }
-    }
-    
-    return nil;
 }
 
 - (ADTokenCacheStoreItem*)tokenItem
@@ -150,86 +296,71 @@
     item.clientId = _clientId;
     item.sessionKey = _sessionKey;
     item.profileInfo = _profileInfo;
-    item.refreshToken = _refreshToken;
     
     return item;
 }
 
 - (NSArray*)allItems
 {
-    if (!_accessTokens.count)
+    if (!_policies.count)
     {
         return nil;
     }
     
-    NSMutableArray* items = [[NSMutableArray alloc] initWithCapacity:_accessTokens.count];
+    NSMutableArray* items = [NSMutableArray new];
     
-    for (ADKeychainToken* token in _accessTokens)
+    for (id policyKey in _policies)
     {
-        ADTokenCacheStoreItem* item = [self tokenItem];
-        [token addToTokenItem:item];
-        
-        [items addObject:item];
+        ADKeychainPolicyItem* policy = [_policies objectForKey:policyKey];
+        for (ADKeychainToken* token in policy->_accessTokens)
+        {
+            ADTokenCacheStoreItem* item = [self tokenItem];
+            [token addToTokenItem:item];
+            
+            [items addObject:item];
+        }
     }
+    
     
     return items;
 }
 
-- (ADTokenCacheStoreItem*)tokenItemForScopes:(NSSet*)scopes
+- (ADKeychainPolicyItem*)itemForPolicy:(NSString*)policy
+                                create:(BOOL)create
 {
-    ADKeychainToken* token = [self tokenForScopes:scopes];
+    id policyKey = policy ? policy : [NSNull null];
+    ADKeychainPolicyItem* item = [_policies objectForKey:policyKey];
+    if (!item && create)
+    {
+        item = [ADKeychainPolicyItem new];
+        [_policies setObject:item forKey:policyKey];
+    }
+    return item;
+}
+
+- (ADTokenCacheStoreItem*)tokenItemForPolicy:(NSString*)policy
+                                      scopes:(NSSet*)scopes
+{
     ADTokenCacheStoreItem* item = [self tokenItem];
     
     // If no token was found then this is a no-op. We still want to return an item as the
     // refresh token might still be usable.
-    [token addToTokenItem:item];
+    ADKeychainPolicyItem* policyItem = [self itemForPolicy:policy create:NO];
+    [policyItem addAccessTokenWithScopes:scopes toItem:item];
     
     return item;
 }
 
-- (void)removeIntersectingTokens:(NSSet*)scopes
-{
-    NSMutableIndexSet* toRemove = [NSMutableIndexSet indexSet];
-    
-    NSUInteger cTokens = [_accessTokens count];
-    
-    for (NSUInteger i = 0; i < cTokens; i++)
-    {
-        ADKeychainToken* token = _accessTokens[i];
-        
-        // Ignore anything in the keychain item that's not the correct class.
-        if (![token isKindOfClass:[ADKeychainToken class]])
-        {
-            continue;
-        }
-        
-        if ([scopes intersectsSet:token.scopes])
-        {
-            [toRemove addIndex:i];
-        }
-    }
-    
-    [_accessTokens removeObjectsAtIndexes:toRemove];
-}
 
-- (void)updateForTokenItem:(ADTokenCacheStoreItem*)item
+- (void)updateToTokenItem:(ADTokenCacheStoreItem*)item
 {
-    _refreshToken = item.refreshToken;
     _authority = item.authority;
     _clientId = item.clientId;
     _sessionKey = item.sessionKey;
     _profileInfo = item.profileInfo;
     
-    NSSet* scopes = item.scopes;
-    [self removeIntersectingTokens:scopes];
-    
-    ADKeychainToken* token = [ADKeychainToken new];
-    token.accessToken = item.accessToken;
-    token.accessTokenType = item.accessTokenType;
-    token.expiresOn = item.expiresOn;
-    token.scopes = scopes;
-    
-    [_accessTokens addObject:token];
+    ADKeychainPolicyItem* policyItem = [self itemForPolicy:item.policy create:YES];
+    [policyItem updateToTokenItem:item];
 }
 
 @end

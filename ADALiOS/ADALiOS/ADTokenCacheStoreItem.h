@@ -44,6 +44,8 @@
 
 @property NSString* refreshToken;
 
+@property NSString* policy;
+
 @property NSData* sessionKey;
 
 @property NSDate* expiresOn;

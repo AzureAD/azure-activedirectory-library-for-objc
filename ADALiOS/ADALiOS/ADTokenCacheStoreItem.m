@@ -62,6 +62,7 @@
                                            userId:self.profileInfo.username
                                          uniqueId:self.profileInfo.subject
                                            idType:self.identifierType
+                                           policy:self.policy
                                            scopes:self.scopes
                                             error:error];
 }

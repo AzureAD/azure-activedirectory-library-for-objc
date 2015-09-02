@@ -37,6 +37,7 @@
                  userId:(NSString*)userId
                uniqueId:(NSString*)uniqueId
                  idType:(ADUserIdentifierType)idType
+                 policy:(NSString*)policy
                  scopes:(NSSet*)scopes
 {
     if (!(self = [super init]))
@@ -52,6 +53,7 @@
     _userId = userId;
     _uniqueId = uniqueId;
     _identifierType = idType;
+    _policy = policy;
     _scopes = scopes;
     
     return self;
@@ -62,6 +64,7 @@
                                    userId:(NSString*)userId
                                  uniqueId:(NSString*)uniqueId
                                    idType:(ADUserIdentifierType)idType
+                                   policy:(NSString*)policy
                                    scopes:(NSSet*)scopes
                                     error:(ADAuthenticationError* __autoreleasing*)error
 {
@@ -79,6 +82,7 @@
                                                     userId:userId
                                                   uniqueId:uniqueId
                                                     idType:idType
+                                                    policy:policy
                                                     scopes:scopes];
 }
 
@@ -111,6 +115,7 @@
                                                        userId:[self.userId copyWithZone:zone]
                                                      uniqueId:[self.uniqueId copyWithZone:zone]
                                                        idType:self.identifierType
+                                                       policy:self.policy
                                                        scopes:[self.scopes copyWithZone:zone]];
 }
 
