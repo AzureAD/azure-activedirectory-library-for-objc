@@ -20,7 +20,14 @@
 
 @interface ADTestRequestResponse : NSObject
 
++ (ADTestRequestResponse*)requestURLString:(NSString*)requestUrlString
+                         responseURLString:(NSString*)responseUrlString
+                              responseCode:(NSInteger)responseCode
+                          httpHeaderFields:(NSDictionary*)headerFields
+                          dictionaryAsJSON:(NSDictionary*)data;
+
 + (ADTestRequestResponse*)request:(NSURLRequest*)request
+                         response:(NSURLResponse*)response
                       reponseData:(NSData*)data;
 
 + (ADTestRequestResponse*)request:(NSURLRequest *)request

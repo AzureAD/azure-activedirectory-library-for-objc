@@ -25,6 +25,7 @@
 #import "ADWebRequest.h"
 #import "ADTestAuthenticationContext.h"
 #import "ADTestUtils.h"
+#import "ADTestURLConnection.h"
 #import "../ADALiOS/ADOAuth2Constants.h"
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADKeychainTokenCacheStore.h"
@@ -905,6 +906,16 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     _context = [ADAuthenticationContext authenticationContextWithAuthority:_authority error:&error];
     XCTAssertNotNil(_context);
     ADAssertNoError;
+    
+    ADTestRequestResponse* response = [ADTestRequestResponse requestURLString:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=https://myfakeauthority.microsoft.com/msopentechbv.onmicrosoft.com/oauth2/authorize&x-client-Ver=2.0.0"
+                                                            responseURLString:@"https://idontknowwhatthisshouldbe.com"
+                                                                 responseCode:400
+                                                             httpHeaderFields:@{}
+                                                             dictionaryAsJSON:@{OAUTH2_ERROR : @"I'm an OAUTH server error!",
+                                                                                OAUTH2_ERROR_DESCRIPTION : @" I'm an OAUTH error description!"}];
+    
+    [ADTestURLConnection addExpectedRequestResponse:response];
+                                       
     
     acquireTokenAsync;
     XCTAssertNotNil(_result);

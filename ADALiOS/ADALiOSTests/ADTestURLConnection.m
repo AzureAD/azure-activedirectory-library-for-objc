@@ -29,11 +29,13 @@
 }
 
 + (ADTestRequestResponse*)request:(NSURLRequest*)request
+                         response:(NSURLResponse*)urlResponse
                       reponseData:(NSData*)data
 {
     ADTestRequestResponse* response = [ADTestRequestResponse new];
     
     response->_request = request;
+    response->_response = urlResponse;
     response->_responseData = data;
     
     return response;
@@ -59,6 +61,24 @@
     response->_error = error;
     
     return response;
+}
+
++ (ADTestRequestResponse*)requestURLString:(NSString*)requestUrlString
+                         responseURLString:(NSString*)responseUrlString
+                              responseCode:(NSInteger)responseCode
+                          httpHeaderFields:(NSDictionary*)headerFields
+                          dictionaryAsJSON:(NSDictionary*)data
+{
+    NSURLRequest* request = [NSURLRequest requestWithURL:[NSURL URLWithString:requestUrlString]];
+    NSHTTPURLResponse* response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:responseUrlString]
+                                                              statusCode:responseCode
+                                                             HTTPVersion:@"1.1"
+                                                            headerFields:headerFields];
+    NSData* responseData = [NSJSONSerialization dataWithJSONObject:data options:0 error:nil];
+    
+    return [ADTestRequestResponse request:request
+                                 response:response
+                              reponseData:responseData];
 }
 
 @end
@@ -120,7 +140,7 @@ static NSMutableArray* s_responses = nil;
         {
             response = (ADTestRequestResponse*)obj;
             
-            if ([response->_request isEqual:request])
+            if ([[response->_request URL] isEqual:[request URL]])
             {
                 [s_responses removeObjectAtIndex:i];
                 return response;
@@ -170,6 +190,17 @@ static NSMutableArray* s_responses = nil;
     _delegateQueue = queue;
 }
 
+- (void)dispatchIfNeed:(void (^)(void))block
+{
+    if (_delegateQueue) {
+        [_delegateQueue addOperationWithBlock:block];
+    }
+    else
+    {
+        block();
+    }
+}
+
 - (void)start
 {
     ADTestRequestResponse* response = [ADTestURLConnection removeResponseForRequest:_request];
@@ -177,28 +208,47 @@ static NSMutableArray* s_responses = nil;
     if (!response)
     {
         AD_LOG_ERROR_F(@"No matching response found.", NSURLErrorNotConnectedToInternet, @"request url = %@", [_request URL]);
-        [_delegate connection:(NSURLConnection*)self didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorNotConnectedToInternet userInfo:nil]];
+        [self dispatchIfNeed:^{
+            NSError* error = [NSError errorWithDomain:NSURLErrorDomain
+                                                 code:NSURLErrorNotConnectedToInternet
+                                             userInfo:nil];
+            
+            [_delegate connection:(NSURLConnection*)self
+                 didFailWithError:error];
+        }];
+        
         return;
     }
     
     if (response->_error)
     {
-        [_delegate connection:(NSURLConnection*)self
-             didFailWithError:response->_error];
+        [self dispatchIfNeed:^{
+            [_delegate connection:(NSURLConnection*)self
+                 didFailWithError:response->_error];
+        }];
         return;
+    }
+    
+    if (response->_response)
+    {
+        [self dispatchIfNeed:^{
+            [_delegate connection:(NSURLConnection*)self
+               didReceiveResponse:response->_response];
+        }];
     }
     
     if (response->_responseData)
     {
-        [_delegate connection:(NSURLConnection*)self
-               didReceiveData:response->_responseData];
+        [self dispatchIfNeed:^{
+            [_delegate connection:(NSURLConnection*)self
+                   didReceiveData:response->_responseData];
+        }];
     }
-    else if (response->_response)
-    {
-        [_delegate connection:(NSURLConnection*)self
-           didReceiveResponse:response->_response];
-    }
-    [_delegate connectionDidFinishLoading:(NSURLConnection*)self];
+    
+    [self dispatchIfNeed:^{
+        [_delegate connectionDidFinishLoading:(NSURLConnection*)self];
+    }];
+    
     return;
 }
 
