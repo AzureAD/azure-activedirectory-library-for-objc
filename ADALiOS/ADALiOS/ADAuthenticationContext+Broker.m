@@ -102,7 +102,7 @@
         
         if(!error)
         {
-            decryptedString =[[NSString alloc] initWithData:decrypted encoding:NSASCIIStringEncoding];
+            decryptedString = [[NSString alloc] initWithData:decrypted encoding:protocolVersion > 1 ? NSUTF8StringEncoding : NSASCIIStringEncoding];
             //now compute the hash on the unencrypted data
             if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES]]){
                 //create response from the decrypted payload
