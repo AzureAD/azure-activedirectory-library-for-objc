@@ -83,12 +83,21 @@
         
         NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
         NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
+        NSString* brokerProtocolVer = [queryParamsMap valueForKey:BROKER_PROTOCOL_VERSION];
+        NSInteger protocolVersion = 1;
+        
+        if (brokerProtocolVer)
+        {
+            protocolVersion = [brokerProtocolVer integerValue];
+        }
         
         //decrypt response first
         ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
         ADAuthenticationError* error;
         NSData *encryptedResponse = [NSString Base64DecodeData:encryptedBase64Response ];
-        NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse error:&error];
+        NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
+                                                        version:protocolVersion
+                                                          error:&error];
         NSString* decryptedString = nil;
         
         if(!error)

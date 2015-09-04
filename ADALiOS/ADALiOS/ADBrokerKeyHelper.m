@@ -49,7 +49,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 }
 
 
--(void) createBrokerKey: (ADAuthenticationError* __autoreleasing*) error
+- (void)createBrokerKey:(ADAuthenticationError* __autoreleasing*)error
 {
     OSStatus sanityCheck = noErr;
     uint8_t * symmetricKey = NULL;
@@ -115,11 +115,12 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 
 -(NSData*) getBrokerKey: (ADAuthenticationError* __autoreleasing*) error
 {
-    return [self getBrokerKey:error createKeyIfDoesNotExist:YES];
+    return [self getBrokerKey:error
+      createKeyIfDoesNotExist:YES];
 }
 
--(NSData*) getBrokerKey: (ADAuthenticationError* __autoreleasing*) error
-createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
+- (NSData*)getBrokerKey:(ADAuthenticationError* __autoreleasing*)error
+createKeyIfDoesNotExist:(BOOL)createKeyIfDoesNotExist
 {
     OSStatus sanityCheck = noErr;
     NSData* symmetricKeyReturn = nil;
@@ -156,19 +157,28 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
 }
 
 
--(NSData*) decryptBrokerResponse: (NSData*) response
-                                 error:(ADAuthenticationError* __autoreleasing*) error
+- (NSData*)decryptBrokerResponse:(NSData*)response
+                         version:(NSInteger)version
+                          error:(ADAuthenticationError* __autoreleasing*)error
 {
-    NSData* keyData = [self getBrokerKey: error];
-    NSString *key = [[NSString alloc] initWithData:keyData encoding:NSASCIIStringEncoding];
-    
+    NSData* keyData = [self getBrokerKey:error];
+    const void* keyBytes = nil;
     
     // 'key' should be 32 bytes for AES256, will be null-padded otherwise
     char keyPtr[kCCKeySizeAES256+1]; // room for terminator (unused)
-    bzero(keyPtr, sizeof(keyPtr)); // fill with zeroes (for padding)
     
-    // fetch key data
-    [key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
+    if (version > 1)
+    {
+        keyBytes = [keyData bytes];
+    }
+    else
+    {
+        NSString *key = [[NSString alloc] initWithData:keyData encoding:NSASCIIStringEncoding];
+        bzero(keyPtr, sizeof(keyPtr)); // fill with zeroes (for padding)
+        // fetch key data
+        [key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
+        keyBytes = keyPtr;
+    }
     
     NSUInteger dataLength = [response length];
     
@@ -186,7 +196,7 @@ createKeyIfDoesNotExist: (BOOL) createKeyIfDoesNotExist
     
     size_t numBytesDecrypted = 0;
     CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding,
-                                          keyPtr, kCCKeySizeAES256,
+                                          keyBytes, kCCKeySizeAES256,
                                           NULL /* initialization vector (optional) */,
                                           [response bytes], dataLength, /* input */
                                           buffer, bufferSize, /* output */
