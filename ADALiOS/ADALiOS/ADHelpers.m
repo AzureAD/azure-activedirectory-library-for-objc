@@ -121,13 +121,13 @@
     NSData* derivedKey = [ADHelpers computeKDFInCounterMode:symmetricKey
                                                     context:[context dataUsingEncoding:NSUTF8StringEncoding]];
     
-    const char *cData = [signingInput cStringUsingEncoding:NSASCIIStringEncoding];
+    NSData* data = [signingInput dataUsingEncoding:NSUTF8StringEncoding];
     unsigned char cHMAC[CC_SHA256_DIGEST_LENGTH];
     CCHmac(kCCHmacAlgSHA256,
            derivedKey.bytes,
            derivedKey.length,
-           cData,
-           strlen(cData),
+           [data bytes],
+           [data length],
            cHMAC);
     NSData* signedData = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
     NSString* signedEncodedDataString = [NSString Base64EncodeData: signedData];
