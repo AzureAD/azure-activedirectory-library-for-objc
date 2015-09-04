@@ -223,6 +223,7 @@
                                       @"correlation_id": correlationId,
                                       @"broker_key": base64UrlKey,
                                       @"client_version": adalVersion,
+                                      BROKER_PROTOCOL_VERSION : @"2",
                                       @"extra_qp": queryParams ? queryParams : @"",
                                       };
     
