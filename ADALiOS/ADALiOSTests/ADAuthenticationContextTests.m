@@ -972,6 +972,13 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     [self addCacheWithToken:nil refreshToken:@"invalid refresh token"];
     ADAssertLongEquals(1, [self cacheCount]);
     
+    ADTestRequestResponse* response = [ADTestRequestResponse requestURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=2.0.0"
+                                                            responseURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=2.0.0"
+                                                                 responseCode:400
+                                                             httpHeaderFields:@{ } // maybe shoehorn correlation ID here
+                                                             dictionaryAsJSON:@{ OAUTH2_ERROR : @"invalid_grant",
+                                                                                 OAUTH2_ERROR_DESCRIPTION : @"AADSTS70000: Authentication failed: Refresh Token is malformed or invalid." }];
+    
     acquireTokenAsync;//Will attempt to use the refresh token and fail.
     ADAssertLongEquals(0, [self cacheCount]);
 }
