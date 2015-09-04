@@ -113,6 +113,11 @@ NSString *const HTTPPost = @"POST";
 // Cleans up and then calls the completion handler
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response
 {
+    if ( _completionHandler != nil )
+    {
+        _completionHandler( error, response );
+    }
+    
     // Cleanup
     _requestURL     = nil;
     _requestMethod  = nil;
@@ -124,10 +129,7 @@ NSString *const HTTPPost = @"POST";
     
     _connection     = nil;
     
-    if ( _completionHandler != nil )
-    {
-        _completionHandler( error, response );
-    }
+    _completionHandler = nil;
 }
 
 - (void)send:(void (^)(NSError *, ADWebResponse *))completionHandler
