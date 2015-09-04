@@ -959,7 +959,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     _promptBehavior = AD_PROMPT_ALWAYS;
     VALIDATE_UI_ERROR;
 }
- 
+
 - (void)testBadRefreshToken
 {
     //Create a normal authority (not a test one):
@@ -978,6 +978,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                                                              httpHeaderFields:@{ } // maybe shoehorn correlation ID here
                                                              dictionaryAsJSON:@{ OAUTH2_ERROR : @"invalid_grant",
                                                                                  OAUTH2_ERROR_DESCRIPTION : @"AADSTS70000: Authentication failed: Refresh Token is malformed or invalid." }];
+    [ADTestURLConnection addExpectedRequestResponse:response];
     
     acquireTokenAsync;//Will attempt to use the refresh token and fail.
     ADAssertLongEquals(0, [self cacheCount]);
