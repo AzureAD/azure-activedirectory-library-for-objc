@@ -37,13 +37,16 @@ enum {
 
 static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 
--(id) initHelper
+- (id)init
 {
-    if (self = [super init])
+    if (!(self = [super init]))
     {
-        // Tag data to search for keys.
-        _symmetricTag = [[NSData alloc] initWithBytes:symmetricKeyIdentifier length:sizeof(symmetricKeyIdentifier)];
+        return nil;
     }
+    
+    // Tag data to search for keys.
+    _symmetricTag = [[NSData alloc] initWithBytes:symmetricKeyIdentifier length:sizeof(symmetricKeyIdentifier)];
+
     
     return self;
 }

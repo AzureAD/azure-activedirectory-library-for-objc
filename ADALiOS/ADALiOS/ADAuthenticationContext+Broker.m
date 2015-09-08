@@ -92,7 +92,7 @@
         }
         
         //decrypt response first
-        ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+        ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
         ADAuthenticationError* error;
         NSData *encryptedResponse = [NSString Base64DecodeData:encryptedBase64Response ];
         NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
@@ -201,7 +201,7 @@
     }
     
     AD_LOG_INFO(@"Invoking broker for authentication", nil);
-    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
@@ -270,7 +270,7 @@
         return;
     }
     
-    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];

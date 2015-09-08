@@ -31,7 +31,7 @@
 @property (nonatomic, retain) NSData * symmetricTag;
 @property (nonatomic, retain) NSData * symmetricKeyRef;
 
-- (id)initHelper;
+- (id)init;
 
 - (void)createBrokerKey:(ADAuthenticationError* __autoreleasing*)error;
 
