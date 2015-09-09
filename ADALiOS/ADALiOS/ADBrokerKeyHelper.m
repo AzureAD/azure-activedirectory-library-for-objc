@@ -23,6 +23,7 @@
 #import "ADKeyChainHelper.h"
 #import <CommonCrypto/CommonCryptor.h>
 #import <Security/Security.h>
+#import "ADLogger.h"
 
 @implementation ADBrokerKeyHelper
 
@@ -36,6 +37,12 @@ enum {
 @synthesize symmetricKeyRef = _symmetricKeyRef;
 
 static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
+
+#define UNEXPECTED_KEY_ERROR { \
+    if (error) { \
+        *error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:@"Could not create broker key." code:AD_ERROR_UNEXPECTED userInfo:nil] errorDetails:nil]; \
+    } \
+}
 
 - (id)init
 {
@@ -51,11 +58,39 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     return self;
 }
 
-
 - (void)createBrokerKey:(ADAuthenticationError* __autoreleasing*)error
 {
-    OSStatus sanityCheck = noErr;
     uint8_t * symmetricKey = NULL;
+    OSStatus err = errSecSuccess;
+    
+    symmetricKey = malloc( kChosenCipherKeySize * sizeof(uint8_t));
+    if (!symmetricKey)
+    {
+        UNEXPECTED_KEY_ERROR;
+        return;
+    }
+    
+    memset((void *)symmetricKey, 0x0, kChosenCipherKeySize);
+    
+    err = SecRandomCopyBytes(kSecRandomDefault, kChosenCipherKeySize, symmetricKey);
+    if (err != errSecSuccess)
+    {
+        AD_LOG_ERROR(@"Failed to copy random bytes for broker key.", err, nil);
+        UNEXPECTED_KEY_ERROR;
+        free(symmetricKey);
+        return;
+    }
+    
+    NSData* keyData = [[NSData alloc] initWithBytes:symmetricKey length:kChosenCipherKeySize * sizeof(uint8_t)];
+    free(symmetricKey);
+    
+    [self createBrokerKeyWithBytes:keyData error:error];
+}
+
+- (void)createBrokerKeyWithBytes:(NSData*)bytes
+                           error:(ADAuthenticationError* __autoreleasing*)error
+{
+    OSStatus err = noErr;
     
     // First delete current symmetric key.
     [self deleteSymmetricKey:error];
@@ -70,32 +105,21 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     [symmetricKeyAttr setObject:[NSNumber numberWithUnsignedInt:(unsigned int)(kChosenCipherKeySize << 3)]  forKey:(__bridge id)kSecAttrEffectiveKeySize];
     [symmetricKeyAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecAttrCanEncrypt];
     [symmetricKeyAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecAttrCanDecrypt];
+    [symmetricKeyAttr setObject:bytes forKey:(__bridge id)kSecValueData];
     
-    symmetricKey = malloc( kChosenCipherKeySize * sizeof(uint8_t) );
-    memset((void *)symmetricKey, 0x0, kChosenCipherKeySize);
+    err = SecItemAdd((__bridge CFDictionaryRef) symmetricKeyAttr, NULL);
     
-    sanityCheck = SecRandomCopyBytes(kSecRandomDefault, kChosenCipherKeySize, symmetricKey);
-    if(sanityCheck == errSecSuccess){
-        self.symmetricKeyRef = [[NSData alloc] initWithBytes:(const void *)symmetricKey length:kChosenCipherKeySize];
-        // Add the wrapped key data to the container dictionary.
-        [symmetricKeyAttr setObject:_symmetricKeyRef
-                             forKey:(__bridge id)kSecValueData];
-        // Add the symmetric key to the keychain.
-        sanityCheck = SecItemAdd((__bridge CFDictionaryRef) symmetricKeyAttr, NULL);
-    }
-    
-    if(sanityCheck != errSecSuccess){
-         *error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:@"Could not create broker key." code:AD_ERROR_UNEXPECTED userInfo:nil] errorDetails:nil];
-    }
-    
-    if (symmetricKey)
+    if(err != errSecSuccess)
     {
-        free(symmetricKey);
+        UNEXPECTED_KEY_ERROR;
     }
+    
+    _symmetricKeyRef = bytes;
 }
 
-- (void)deleteSymmetricKey: (ADAuthenticationError* __autoreleasing*) error {
-    OSStatus sanityCheck = noErr;
+- (void)deleteSymmetricKey: (ADAuthenticationError* __autoreleasing*) error
+{
+    OSStatus err = noErr;
     
     NSMutableDictionary * querySymmetricKey = [[NSMutableDictionary alloc] init];
     
@@ -105,9 +129,9 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     [querySymmetricKey setObject:[NSNumber numberWithUnsignedInt:CSSM_ALGID_AES] forKey:(__bridge id)kSecAttrKeyType];
     
     // Delete the symmetric key.
-    sanityCheck = SecItemDelete((__bridge CFDictionaryRef)querySymmetricKey);
+    err = SecItemDelete((__bridge CFDictionaryRef)querySymmetricKey);
     
-    if(sanityCheck != errSecSuccess){
+    if(err != errSecSuccess){
         *error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:@"Could not delete broker key." code:AD_ERROR_UNEXPECTED userInfo:nil] errorDetails:@"Could not delete broker key."];
     }
     
@@ -116,47 +140,45 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     }
 }
 
--(NSData*) getBrokerKey: (ADAuthenticationError* __autoreleasing*) error
+- (NSData*)getBrokerKey:(ADAuthenticationError* __autoreleasing*)error
 {
     return [self getBrokerKey:error
-      createKeyIfDoesNotExist:YES];
+                       create:YES];
 }
 
 - (NSData*)getBrokerKey:(ADAuthenticationError* __autoreleasing*)error
-createKeyIfDoesNotExist:(BOOL)createKeyIfDoesNotExist
+                 create:(BOOL)createKeyIfDoesNotExist
 {
-    OSStatus sanityCheck = noErr;
-    NSData* symmetricKeyReturn = nil;
-    CFDataRef symmetricKeyReturnRef;
-    if (self.symmetricKeyRef == nil) {
-        NSMutableDictionary * querySymmetricKey = [[NSMutableDictionary alloc] init];
-        
-        // Set the private key query dictionary.
-        [querySymmetricKey setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
-        [querySymmetricKey setObject:_symmetricTag forKey:(__bridge id)kSecAttrApplicationTag];
-        [querySymmetricKey setObject:[NSNumber numberWithUnsignedInt:CSSM_ALGID_AES] forKey:(__bridge id)kSecAttrKeyType];
-        [querySymmetricKey setObject:[NSNumber numberWithBool:YES] forKey:(__bridge id)kSecReturnData];
-        
-        // Get the key bits.
-        sanityCheck = SecItemCopyMatching((__bridge CFDictionaryRef)querySymmetricKey, (CFTypeRef *)&symmetricKeyReturnRef);
-        
-        if(sanityCheck != errSecSuccess && createKeyIfDoesNotExist)
-        {
-            [self createBrokerKey:error];
-            symmetricKeyReturn = self.symmetricKeyRef;
-        } else {
-            symmetricKeyReturn = (__bridge NSData *)symmetricKeyReturnRef;
-            if (sanityCheck == noErr && symmetricKeyReturn != nil) {
-                self.symmetricKeyRef = symmetricKeyReturn;
-            } else {
-                self.symmetricKeyRef = nil;
-            }
-        }
-    } else {
-        symmetricKeyReturn = self.symmetricKeyRef;
+    OSStatus err = noErr;
+    
+    if (_symmetricKeyRef)
+    {
+        return _symmetricKeyRef;
     }
     
-    return symmetricKeyReturn;
+    NSMutableDictionary * querySymmetricKey = [[NSMutableDictionary alloc] init];
+    
+    // Set the private key query dictionary.
+    [querySymmetricKey setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
+    [querySymmetricKey setObject:_symmetricTag forKey:(__bridge id)kSecAttrApplicationTag];
+    [querySymmetricKey setObject:[NSNumber numberWithUnsignedInt:CSSM_ALGID_AES] forKey:(__bridge id)kSecAttrKeyType];
+    [querySymmetricKey setObject:[NSNumber numberWithBool:YES] forKey:(__bridge id)kSecReturnData];
+    
+    // Get the key bits.
+    CFDataRef symmetricKey = nil;
+    err = SecItemCopyMatching((__bridge CFDictionaryRef)querySymmetricKey, (CFTypeRef *)&symmetricKey);
+    if (err == errSecSuccess)
+    {
+        _symmetricKeyRef = CFBridgingRelease(symmetricKey);
+        return _symmetricKeyRef;
+    }
+    
+    if (createKeyIfDoesNotExist)
+    {
+        [self createBrokerKey:error];
+    }
+    
+    return _symmetricKeyRef;
 }
 
 
@@ -166,6 +188,7 @@ createKeyIfDoesNotExist:(BOOL)createKeyIfDoesNotExist
 {
     NSData* keyData = [self getBrokerKey:error];
     const void* keyBytes = nil;
+    size_t keySize = 0;
     
     // 'key' should be 32 bytes for AES256, will be null-padded otherwise
     char keyPtr[kCCKeySizeAES256+1]; // room for terminator (unused)
@@ -173,6 +196,7 @@ createKeyIfDoesNotExist:(BOOL)createKeyIfDoesNotExist
     if (version > 1)
     {
         keyBytes = [keyData bytes];
+        keySize = [keyData length];
     }
     else
     {
@@ -181,8 +205,17 @@ createKeyIfDoesNotExist:(BOOL)createKeyIfDoesNotExist
         // fetch key data
         [key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
         keyBytes = keyPtr;
+        keySize = kCCKeySizeAES256;
     }
     
+    return [self decryptBrokerResponse:response key:keyBytes size:keySize error:error];
+}
+
+- (NSData*)decryptBrokerResponse:(NSData *)response
+                             key:(const void*)key
+                            size:(size_t)size
+                           error:(ADAuthenticationError *__autoreleasing *)error
+{
     NSUInteger dataLength = [response length];
     
     //See the doc: For block ciphers, the output size will always be less than or
@@ -193,13 +226,14 @@ createKeyIfDoesNotExist:(BOOL)createKeyIfDoesNotExist
     
     if(!buffer){
         *error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UNEXPECTED userInfo:nil]
-                                           errorDetails:@"Failed to allocate memory for decryption"];
+                                            errorDetails:@"Failed to allocate memory for decryption"];
         return nil;
     }
+
     
     size_t numBytesDecrypted = 0;
     CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding,
-                                          keyBytes, kCCKeySizeAES256,
+                                          key, size,
                                           NULL /* initialization vector (optional) */,
                                           [response bytes], dataLength, /* input */
                                           buffer, bufferSize, /* output */
@@ -210,7 +244,8 @@ createKeyIfDoesNotExist:(BOOL)createKeyIfDoesNotExist
         return [NSData dataWithBytesNoCopy:buffer length:numBytesDecrypted];
     }
     
-    free(buffer); //free the buffer;
+    free(buffer);
+    
     return nil;
 }
 
