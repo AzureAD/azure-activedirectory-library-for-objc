@@ -62,6 +62,9 @@ typedef enum
 /*! Used for the webView. Default is YES.*/
 @property BOOL enableFullScreen;
 
+/*! Used for determining if we change the flows for B2C. Default is NO.*/
+@property NSString* policy;
+
 /*! The dispatch queue to be used for the asynchronous calls. */
 @property dispatch_queue_t dispatchQueue;
 

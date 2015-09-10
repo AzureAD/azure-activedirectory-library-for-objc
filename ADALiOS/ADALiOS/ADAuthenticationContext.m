@@ -377,44 +377,6 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
     [request setUserIdentifier:identifier];
     [request setExtraQueryParameters:queryParams];
-
-    [request acquireToken:completionBlock];
-}
-
-
-/*!
-    Follows the OAuth2 protocol (RFC 6749). The behavior is controlled by the promptBehavior parameter on whether to re-authorize
-    the resource usage (through webview credentials UI) or attempt to use the cached tokens first.
- 
-    @param scopes               An array of NSStrings specifying the scopes required for the request
-    @param additionalScopes     An array of NSStrings of any additional scopes to ask the user consent for
-    @param clientId             the client identifier
-    @param redirectUri          The redirect URI according to OAuth2 protocol
-    @param promptBehavior       controls if any credentials UI will be shown
-    @param identifier           A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
-    @param extraQueryParameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
-    @param completionBlock      the block to execute upon completion. You can use embedded block, e.g.
-                                "^(ADAuthenticationResult res){ <your logic here> }"
- */
-- (void)acquireTokenForScopes:(NSArray*)scopes
-             additionalScopes:(NSArray*)additionalScopes
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-               promptBehavior:(ADPromptBehavior)promptBehavior
-                   identifier:(ADUserIdentifier*)identifier
-         extraQueryParameters:(NSString*)queryParams
-              completionBlock:(ADAuthenticationCallback)completionBlock
-{
-    API_ENTRY_F(@"scopes:%@ additionalScopes:%@ clientId:%@ redirectUri:%@ identifier:%@ queryParams:%@",
-                scopes, additionalScopes, clientId, redirectUri, identifier, queryParams);
-    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
-    
-    CALLBACK_ON_ERROR([request setScopes:scopes]);
-    CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
-    [request setPromptBehavior:promptBehavior];
-    [request setUserIdentifier:identifier];
-    [request setExtraQueryParameters:queryParams];
-    
     [request acquireToken:completionBlock];
 }
 
@@ -453,7 +415,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     [request setUserIdentifier:identifier];
     [request setExtraQueryParameters:queryParams];
     [request setPolicy:policy];
-    
+    [ADAuthenticationSettings sharedInstance].policy = policy;
     [request acquireToken:completionBlock];
 }
 

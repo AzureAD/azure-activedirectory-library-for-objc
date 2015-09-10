@@ -74,13 +74,13 @@
         //Bad item, return error:
         return [ADAuthenticationResult resultFromError:error];
     }
-    if ([NSString adIsStringNilOrBlank:item.accessToken])
-    {
-        //Bad item, the access token should be accurate, else an error should be
-        //reported instead of this creator:
-        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult created from item with no access token."];
-        return [ADAuthenticationResult resultFromError:error];
-    }
+//    if ([NSString adIsStringNilOrBlank:item.idToken])
+//    {
+//        //Bad item, the access token should be accurate, else an error should be
+//        //reported instead of this creator:
+//        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult created from item with no id token."];
+//        return [ADAuthenticationResult resultFromError:error];
+//    }
     //The item can be used, just use it:
     return [[ADAuthenticationResult alloc] initWithItem:item];
 }

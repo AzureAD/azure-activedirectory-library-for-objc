@@ -165,7 +165,8 @@
     }
     
     NSString* accessToken = [response objectForKey:OAUTH2_ACCESS_TOKEN];
-    if (![NSString adIsStringNilOrBlank:accessToken])
+    NSString* idToken = [response objectForKey:OAUTH2_ID_TOKEN];
+    if (![NSString adIsStringNilOrBlank:accessToken] || ![NSString adIsStringNilOrBlank:idToken])
     {
         [item setAuthority:self.authority];
         [item fillItemWithResponse:response];

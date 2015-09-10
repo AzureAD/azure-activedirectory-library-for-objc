@@ -129,12 +129,35 @@ static ADAuthenticationError* _validateScopes(NSArray* scopes)
     return nil;
 }
 
+//static BOOL isClientID(NSString* scope)
+//{
+    
+  //  NSError *error;
+    
+ //   NSRegularExpression *regex =
+ //   [NSRegularExpression regularExpressionWithPattern:@"\\A\\{[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}\\}\\Z"
+                                 //             options:NSRegularExpressionAnchorsMatchLines
+                                 //               error:&error];
+ //   NSPredicate *testGUID = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
+    
+    
+    
+ //   if ([testGUID evaluateWithObject: scope]) {
+        
+   //     return YES;
+        
+  //  } else {
+        
+  //      return NO;
+  //  }
+//}
+
 - (ADAuthenticationError*)setScopes:(NSArray *)scopes
 {
     CHECK_REQUEST_STARTED_R(nil);
     
     ADAuthenticationError* error = nil;
-    NSArray* lowercaseScopes = _arrayOfLowercaseStrings(scopes, @"scopes", &error);
+    NSMutableArray* lowercaseScopes = _arrayOfLowercaseStrings(scopes, @"scopes", &error);
     if (!lowercaseScopes)
     {
         return error;
@@ -142,7 +165,24 @@ static ADAuthenticationError* _validateScopes(NSArray* scopes)
     
     RETURN_IF_NOT_NIL(_validateScopes(lowercaseScopes));
     
-    _scopes = [NSSet setWithArray:scopes];
+    for (NSString* scope in lowercaseScopes) {
+        
+        if ([scope isEqualToString:_clientId]) {
+            
+            // first, remove the Client ID from scopes. It has served it's holy purpose.
+            
+            [lowercaseScopes removeObject:scope];
+            
+            // next, let's add the scopes that we need to get an id_token
+            
+            [lowercaseScopes addObject:@"openid"];
+            [lowercaseScopes addObject:@"offline_access"];
+            
+        }
+        
+    }
+    
+    _scopes = [NSSet setWithArray:lowercaseScopes];
     
     return nil;
 }
@@ -284,5 +324,6 @@ static ADAuthenticationError* _validateScopes(NSArray* scopes)
     
     return YES;
 }
+
 
 @end
