@@ -104,7 +104,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     if (_newUser) \
     { \
         ADAuthenticationError* error; \
-        _newItem.profileInfo = [ADProfileInfo profileInfoWithUserId:_newUser error:&error]; \
+        _newItem.profileInfo = [ADUserInformation profileInfoWithUserId:_newUser error:&error]; \
         ADAssertNoError; \
     } \
     else \

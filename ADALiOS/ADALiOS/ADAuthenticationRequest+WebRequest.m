@@ -29,7 +29,6 @@
 #import "NSURL+ADExtensions.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
-#import "ADPolicyItem.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -49,15 +48,7 @@
      {
          //Prefill the known elements in the item. These can be overridden by the response:
          ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
-         ADAuthenticationSettings* data = [ADAuthenticationSettings sharedInstance];
          item.clientId = _clientId;
-
-         if (data.policy){
-             
-             item.policy = data.policy;
-             
-             
-         }
          NSArray* scopes = [[response objectForKey:@"scope"] componentsSeparatedByString:@" "];
          item.scopes = [NSSet setWithArray:scopes];
          completionBlock([_context processTokenResponse:response
@@ -98,12 +89,6 @@
         endPoint = [_context.authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
     }
     
-    if (_policy) {
-    
-      endPoint = [endPoint stringByAppendingString:@"?p="];
-      endPoint = [endPoint stringByAppendingString:_policy];
-    }
-
     ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
                                                    correlationId:_correlationId];
     
@@ -123,7 +108,7 @@
     [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[_correlationId UUIDString] requestHeader:webRequest.headers];
     
     [webRequest send:^( NSError *error, ADWebResponse *webResponse ) {
-        // Request completion callbackThe server returned without providing an error
+        // Request completion callback
         NSMutableDictionary *response = [NSMutableDictionary new];
         
         if ( error == nil )
@@ -429,8 +414,6 @@ static volatile int sDialogInProgress = 0;
             [requestData setObject:[[self combinedScopes] adUrlFormEncode] forKey:OAUTH2_SCOPE];
         }
         
-        
-        
         [self requestWithServer:[_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]
                     requestData:requestData
                 handledPkeyAuth:NO
@@ -478,25 +461,6 @@ static volatile int sDialogInProgress = 0;
           additionalHeaders:headerKeyValuePair
                  completion:completionBlock];
 }
-
-
-+(NSDictionary*) convertPolicyToDictionary:(ADPolicyItem*)policy
-{
-    NSMutableDictionary* dictionary = [[NSMutableDictionary alloc]init];
-    
-    // Using UUID for nonce. Not recommended.
-    
-    
-    if (policy.policyID){
-        [dictionary setValue:policy.policyID forKey:@"p"];
-        // [dictionary setValue:@"openid" forKey:@"scope"];
-        // [dictionary setValue:UUID forKey:@"nonce"];
-        //  [dictionary setValue:@"query" forKey:@"response_mode"];
-    }
-    
-    return dictionary;
-}
-
 
 
 @end
