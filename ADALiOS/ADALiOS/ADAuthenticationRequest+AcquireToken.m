@@ -21,7 +21,7 @@
 #import "ADInstanceDiscovery.h"
 #import "ADHelpers.h"
 #import "ADUserIdentifier.h"
-#import "../ADALiOS/NSSet+ADExtensions.h"
+#import "NSSet+ADExtensions.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 

@@ -22,6 +22,7 @@
 #import "NSString+ADHelperMethods.h"
 
 static NSString* const PROFILE_INFO_SUBJECT = @"sub";
+static NSString* const PROFILE_INFO_OBJID = @"oid";
 static NSString* const PROFILE_INFO_TENANTID = @"tid";
 static NSString* const PROFILE_INFO_PREFERRED_USERNAME = @"preferred_username";
 static NSString* const PROFILE_INFO_FRIENDLY_NAME = @"name";
@@ -112,9 +113,12 @@ static ADAuthenticationError* _errorFromInfo(const char* cond, NSString* profile
     CHECK_PROFILE_INFO_ERROR(parts.count > 0);
     
     NSString* type = nil;
-    for (NSString* part in parts)
+    for (int i = 1; i < (parts.count - 1); i++)
+        
+        // Since we are parsing id_token instead of profile_info, we must not parse the last part[i] as that will contain raw key sig that can't be decoded.
+        // I am keeping this in this C++ state because eventually the profile_info will have the full claim set and we can then use that.
     {
-        NSString* decoded = [part adBase64UrlDecode];
+        NSString* decoded = [parts[i] adBase64UrlDecode];
         CHECK_PROFILE_INFO_ERROR(![NSString adIsStringNilOrBlank:decoded]);
         
         NSError* jsonError  = nil;
@@ -124,7 +128,7 @@ static ADAuthenticationError* _errorFromInfo(const char* cond, NSString* profile
         if (jsonError)
         {
             ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:jsonError
-                                                                        errorDetails:[NSString stringWithFormat:@"Failed to deserialize the profile_info contents: %@", part]];
+                                                                        errorDetails:[NSString stringWithFormat:@"Failed to deserialize the profile_info contents: %@", parts[i]]];
             if (error)
             {
                 *error = adError;
@@ -156,9 +160,9 @@ static ADAuthenticationError* _errorFromInfo(const char* cond, NSString* profile
         AD_LOG_WARN(@"The id_token type is missing.", @"Assuming JWT type.");
     }
     
-    if (![allClaims objectForKey:PROFILE_INFO_TENANTID])
+    if (![allClaims objectForKey:PROFILE_INFO_OBJID])
     {
-        RETURN_NIL_ERROR(error, AD_ERROR_AUTHENTICATION, @"Profile info is missing the 'preferred_username' claim");
+        RETURN_NIL_ERROR(error, AD_ERROR_AUTHENTICATION, @"Profile info is missing the 'oid' claim");
     }
     
     //Create a read-only dictionary object. Note that the properties checked below are calculated off this dictionary:
@@ -177,7 +181,7 @@ static ADAuthenticationError* _errorFromInfo(const char* cond, NSString* profile
 PROFILE_INFO_PROPERTY_GETTER(subject, PROFILE_INFO_SUBJECT);
 PROFILE_INFO_PROPERTY_GETTER(tenantId, PROFILE_INFO_TENANTID);
 PROFILE_INFO_PROPERTY_GETTER(friendlyName, PROFILE_INFO_FRIENDLY_NAME);
-PROFILE_INFO_PROPERTY_GETTER(username, PROFILE_INFO_TENANTID);
+PROFILE_INFO_PROPERTY_GETTER(username, PROFILE_INFO_OBJID);
 
 + (ADProfileInfo*)profileInfoWithUsername:(NSString*)username
                                     error:(ADAuthenticationError* __autoreleasing*)error
