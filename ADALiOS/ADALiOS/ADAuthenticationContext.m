@@ -255,6 +255,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     @param additionalScopes An array of NSStrings of any additional scopes to ask the user consent for
     @param clientId         the client identifier
     @param identifier       A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
+    @param promptBehavior       controls if any credentials UI will be shown
     @param completionBlock: the block to execute upon completion. You can use embedded block, e.g.
                             "^(ADAuthenticationResult res){ <your logic here> }"
  */
@@ -264,6 +265,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                 additionalScopes:(NSArray*)additionalScopes
                         clientId:(NSString*)clientId
                       identifier:(ADUserIdentifier*)identifier
+                  promptBehavior:(ADPromptBehavior)promptBehavior
                  completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY_F(@"assertion:%lu assertiontype:%@ scopes:%@ additionalscopes:%@ clientId:%@ identifier:%@",
@@ -273,6 +275,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     CALLBACK_ON_ERROR([request setScopes:scopes]);
     CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
     [request setUserIdentifier:identifier];
+    [request setPromptBehavior:promptBehavior];
     
     [request acquireTokenForAssertion:assertion
                         assertionType:assertionType
@@ -290,12 +293,14 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
     @param resource: the resource whose token is needed.
     @param clientId: the client identifier
+    @param promptBehavior       controls if any credentials UI will be shown
     @param redirectUri: The redirect URI according to OAuth2 protocol.
     @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenWithScopes:(NSArray*)scopes
              additionalScopes:(NSArray*)additionalScopes
                      clientId:(NSString*)clientId
+                promptBehavior:(ADPromptBehavior)promptBehavior
                   redirectUri:(NSURL*)redirectUri
               completionBlock:(ADAuthenticationCallback)completionBlock
 {
@@ -305,6 +310,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     CALLBACK_ON_ERROR([request setScopes:scopes]);
     CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
     
+    [request setPromptBehavior:promptBehavior];
     [request acquireToken:completionBlock];
 }
 
@@ -322,6 +328,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     @param clientId         the client identifier
     @param redirectUri      The redirect URI according to OAuth2 protocol
     @param identifier       A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
+    @param promptBehavior       controls if any credentials UI will be shown
     @param completionBlock  the block to execute upon completion. You can use embedded block, e.g.
                             "^(ADAuthenticationResult res){ <your logic here> }"
  */
@@ -330,6 +337,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
                    identifier:(ADUserIdentifier*)identifier
+                promptBehavior:(ADPromptBehavior)promptBehavior
               completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY_F(@"scopes:%@ additionalScopes:%@ clientId:%@ redirectUri:%@ identifier:%@",
@@ -339,6 +347,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     CALLBACK_ON_ERROR([request setScopes:scopes]);
     CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
     [request setUserIdentifier:identifier];
+    [request setPromptBehavior:promptBehavior];
     
     [request acquireToken:completionBlock];
 }
@@ -357,6 +366,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     @param clientId             The client identifier
     @param redirectUri          The redirect URI according to OAuth2 protocol
     @param identifier           A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
+    @param promptBehavior       controls if any credentials UI will be shown
     @param extraQueryParameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
     @param completionBlock      the block to execute upon completion. You can use embedded block, e.g.
                                 "^(ADAuthenticationResult res){ <your logic here> }"
@@ -366,6 +376,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
                    identifier:(ADUserIdentifier*)identifier
+            promptBehavior:(ADPromptBehavior)promptBehavior
          extraQueryParameters:(NSString*)queryParams
               completionBlock:(ADAuthenticationCallback)completionBlock
 {
@@ -376,6 +387,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     CALLBACK_ON_ERROR([request setScopes:scopes]);
     CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
     [request setUserIdentifier:identifier];
+    [request setPromptBehavior:promptBehavior];
     [request setExtraQueryParameters:queryParams];
     [request acquireToken:completionBlock];
 }
@@ -389,8 +401,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     @param additionalScopes     An array of NSStrings of any additional scopes to ask the user consent for
     @param clientId             the client identifier
     @param redirectUri          The redirect URI according to OAuth2 protocol
-    @param promptBehavior       controls if any credentials UI will be shown
     @param identifier           A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
+    @param promptBehavior       controls if any credentials UI will be shown
     @param extraQueryParameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
     @param policy               ??????
     @param completionBlock      the block to execute upon completion. You can use embedded block, e.g.
@@ -402,6 +414,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
                    identifier:(ADUserIdentifier*)identifier
+                promptBehavior:(ADPromptBehavior)promptBehavior
          extraQueryParameters:(NSString*)queryParams
                        policy:(NSString*)policy
               completionBlock:(ADAuthenticationCallback)completionBlock
@@ -413,6 +426,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     CALLBACK_ON_ERROR([request setScopes:scopes]);
     CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
     [request setUserIdentifier:identifier];
+    [request setPromptBehavior:promptBehavior];
     [request setExtraQueryParameters:queryParams];
     [request setPolicy:policy];
     [ADAuthenticationSettings sharedInstance].policy = policy;
