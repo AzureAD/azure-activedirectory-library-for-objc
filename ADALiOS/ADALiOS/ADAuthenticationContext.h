@@ -229,7 +229,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param redirectUri: The redirect URI according to OAuth2 protocol.
     @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenForScopes:(NSArray*)scopes
+- (void)acquireTokenWithScopes:(NSArray*)scopes
              additionalScopes:(NSArray*)additionalScopes
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
@@ -251,7 +251,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param completionBlock  the block to execute upon completion. You can use embedded block, e.g.
                             "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenForScopes:(NSArray*)scopes
+- (void)acquireTokenWithScopes:(NSArray*)scopes
              additionalScopes:(NSArray*)additionalScopes
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
@@ -275,7 +275,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param completionBlock      the block to execute upon completion. You can use embedded block, e.g.
                                 "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenForScopes:(NSArray*)scopes
+- (void)acquireTokenWithScopes:(NSArray*)scopes
              additionalScopes:(NSArray*)additionalScopes
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
@@ -299,7 +299,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                                 "^(ADAuthenticationResult res){ <your logic here> }"
  */
 
-- (void)acquireTokenForScopes:(NSArray*)scopes
+- (void)acquireTokenWithScopes:(NSArray*)scopes
              additionalScopes:(NSArray*)additionalScopes
                      clientId:(NSString*)clientId
                   redirectUri:(NSURL*)redirectUri
@@ -320,7 +320,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param completionBlock  the block to execute upon completion. You can use embedded block, e.g.
                             "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenSilentForScopes:(NSArray*)scopes
+- (void)acquireTokenSilentWithScopes:(NSArray*)scopes
                            clientId:(NSString*)clientId
                         redirectUri:(NSURL*)redirectUri
                     completionBlock:(ADAuthenticationCallback)completionBlock;
@@ -337,7 +337,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param identifier       An ADUserIdentifier object specifying the semantics
     @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenSilentForScopes:(NSArray*)scopes
+- (void)acquireTokenSilentWithScopes:(NSArray*)scopes
                            clientId:(NSString*)clientId
                         redirectUri:(NSURL*)redirectUri
                          identifier:(ADUserIdentifier*)identifier
@@ -356,7 +356,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param policy           ?????
     @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenSilentForScopes:(NSArray*)scopes
+- (void)acquireTokenSilentWithScopes:(NSArray*)scopes
                            clientId:(NSString*)clientId
                         redirectUri:(NSURL*)redirectUri
                          identifier:(ADUserIdentifier*)identifier

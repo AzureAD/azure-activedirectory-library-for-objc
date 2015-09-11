@@ -156,7 +156,7 @@ static ADAuthenticationError* _errorFromInfo(const char* cond, NSString* profile
         AD_LOG_WARN(@"The id_token type is missing.", @"Assuming JWT type.");
     }
     
-    if (![allClaims objectForKey:PROFILE_INFO_PREFERRED_USERNAME])
+    if (![allClaims objectForKey:PROFILE_INFO_TENANTID])
     {
         RETURN_NIL_ERROR(error, AD_ERROR_AUTHENTICATION, @"Profile info is missing the 'preferred_username' claim");
     }
@@ -177,7 +177,7 @@ static ADAuthenticationError* _errorFromInfo(const char* cond, NSString* profile
 PROFILE_INFO_PROPERTY_GETTER(subject, PROFILE_INFO_SUBJECT);
 PROFILE_INFO_PROPERTY_GETTER(tenantId, PROFILE_INFO_TENANTID);
 PROFILE_INFO_PROPERTY_GETTER(friendlyName, PROFILE_INFO_FRIENDLY_NAME);
-PROFILE_INFO_PROPERTY_GETTER(username, PROFILE_INFO_PREFERRED_USERNAME);
+PROFILE_INFO_PROPERTY_GETTER(username, PROFILE_INFO_TENANTID);
 
 + (ADProfileInfo*)profileInfoWithUsername:(NSString*)username
                                     error:(ADAuthenticationError* __autoreleasing*)error

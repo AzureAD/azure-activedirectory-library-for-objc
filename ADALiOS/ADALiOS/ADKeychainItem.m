@@ -139,7 +139,7 @@
     return YES;
 }
 
-- (ADKeychainToken*)tokenForScopes:(NSSet*)scopes
+- (ADKeychainToken*)tokenWithScopes:(NSSet*)scopes
 {
     for (ADKeychainToken* token in _accessTokens)
     {
@@ -163,7 +163,7 @@
 {
     item.refreshToken = _refreshToken;
     
-    ADKeychainToken* token = [self tokenForScopes:scopes];
+    ADKeychainToken* token = [self tokenWithScopes:scopes];
     [token addToTokenItem:item];
 }
 
