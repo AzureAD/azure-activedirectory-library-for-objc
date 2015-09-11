@@ -17,6 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "NSSet+ADExtensions.h"
+#import "NSString+ADExtentions.h"
 
 @implementation NSSet (ADExtensions)
 
