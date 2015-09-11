@@ -29,6 +29,7 @@
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADKeychainTokenCacheStore.h"
 #import "../ADALiOS/NSArray+ADExtensions.h"
+#import "../ADALiOS/NSSet+ADExtensions.h"
 
 const int sAsyncContextTimeout = 10;
 @interface ADAuthenticationContextTests : XCTestCase

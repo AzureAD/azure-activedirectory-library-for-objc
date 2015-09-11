@@ -104,6 +104,7 @@
 		D6FB3E3C1B30D3630032F883 /* ADUserIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */; };
 		D6FB3E3D1B30FF510032F883 /* ADUserIdentifier.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D6FB3E3A1B30D3630032F883 /* ADUserIdentifier.h */; };
 		FB4C7C1E1BA0DF5F003B93C5 /* ADPolicyItem.m in Sources */ = {isa = PBXBuildFile; fileRef = FB4C7C1D1BA0DF5F003B93C5 /* ADPolicyItem.m */; settings = {ASSET_TAGS = (); }; };
+		FB538EF01BA32BEE003ABD9A /* NSString+ADExtentions.m in Sources */ = {isa = PBXBuildFile; fileRef = FB538EEF1BA32BEE003ABD9A /* NSString+ADExtentions.m */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -301,6 +302,8 @@
 		D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADUserIdentifier.m; sourceTree = "<group>"; };
 		FB4C7C1C1BA0DF5F003B93C5 /* ADPolicyItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADPolicyItem.h; sourceTree = "<group>"; };
 		FB4C7C1D1BA0DF5F003B93C5 /* ADPolicyItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADPolicyItem.m; sourceTree = "<group>"; };
+		FB538EEE1BA32BEE003ABD9A /* NSString+ADExtentions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+ADExtentions.h"; sourceTree = "<group>"; };
+		FB538EEF1BA32BEE003ABD9A /* NSString+ADExtentions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+ADExtentions.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -456,6 +459,8 @@
 				9453EF081B581C73007EF5E8 /* NSArray+ADExtensions.m */,
 				FB4C7C1C1BA0DF5F003B93C5 /* ADPolicyItem.h */,
 				FB4C7C1D1BA0DF5F003B93C5 /* ADPolicyItem.m */,
+				FB538EEE1BA32BEE003ABD9A /* NSString+ADExtentions.h */,
+				FB538EEF1BA32BEE003ABD9A /* NSString+ADExtentions.m */,
 			);
 			path = ADALiOS;
 			sourceTree = "<group>";
@@ -788,6 +793,7 @@
 				8B5989551811B89800744AEE /* ADTokenCacheStoreKey.m in Sources */,
 				8B0DA7DE182AD01100CF5E1E /* ADAuthenticationResult+Internal.m in Sources */,
 				972A58A81A4AB5580054BE11 /* ADNTLMHandler.m in Sources */,
+				FB538EF01BA32BEE003ABD9A /* NSString+ADExtentions.m in Sources */,
 				FB4C7C1E1BA0DF5F003B93C5 /* ADPolicyItem.m in Sources */,
 				8B5989511811A3DB00744AEE /* ADAuthenticationError.m in Sources */,
 				D6E43A6A1B04026D000F5BE2 /* ADAuthenticationContext+Internal.m in Sources */,

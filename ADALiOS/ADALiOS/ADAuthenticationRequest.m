@@ -27,6 +27,7 @@
 #import "NSURL+ADExtensions.h"
 #import "ADBrokerKeyHelper.h"
 #import "ADAuthenticationRequest+WebRequest.h"
+#import "NSString+ADExtentions.h"
 
 #include <libkern/OSAtomic.h>
 

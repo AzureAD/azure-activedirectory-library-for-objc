@@ -30,6 +30,7 @@
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
 #import "ADPolicyItem.h"
+#import "NSSet+ADExtensions.h"
 
 #import <libkern/OSAtomic.h>
 
