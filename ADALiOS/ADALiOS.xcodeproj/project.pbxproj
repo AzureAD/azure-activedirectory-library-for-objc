@@ -105,6 +105,62 @@
 		D6FB3E3D1B30FF510032F883 /* ADUserIdentifier.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D6FB3E3A1B30D3630032F883 /* ADUserIdentifier.h */; };
 		FB4C7C1E1BA0DF5F003B93C5 /* ADPolicyItem.m in Sources */ = {isa = PBXBuildFile; fileRef = FB4C7C1D1BA0DF5F003B93C5 /* ADPolicyItem.m */; settings = {ASSET_TAGS = (); }; };
 		FB538EF01BA32BEE003ABD9A /* NSString+ADExtentions.m in Sources */ = {isa = PBXBuildFile; fileRef = FB538EEF1BA32BEE003ABD9A /* NSString+ADExtentions.m */; settings = {ASSET_TAGS = (); }; };
+		FB538EF21BA34299003ABD9A /* ADAL.h in Headers */ = {isa = PBXBuildFile; fileRef = 97DFE4661AE37B42008109E1 /* ADAL.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538EF31BA34299003ABD9A /* ADPkeyAuthHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 97345B90199160BD0044B1A6 /* ADPkeyAuthHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538EF41BA34299003ABD9A /* ADRegistrationInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = 9722232719A2C9F900092E85 /* ADRegistrationInformation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538EF51BA34299003ABD9A /* ADWorkPlaceJoin.h in Headers */ = {isa = PBXBuildFile; fileRef = 9722232919A2C9F900092E85 /* ADWorkPlaceJoin.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538EF61BA34299003ABD9A /* ADWorkPlaceJoinConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 9722232B19A2C9F900092E85 /* ADWorkPlaceJoinConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538EF71BA34299003ABD9A /* ADWorkPlaceJoinUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 9722232C19A2C9F900092E85 /* ADWorkPlaceJoinUtil.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538EF81BA34299003ABD9A /* ADAuthenticationContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BB8345A18074A58007F9F0D /* ADAuthenticationContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538EF91BA34299003ABD9A /* ADAuthenticationContext+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = D6E43A681B04026D000F5BE2 /* ADAuthenticationContext+Internal.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538EFA1BA34299003ABD9A /* ADAuthenticationContext+TokenCaching.h in Headers */ = {isa = PBXBuildFile; fileRef = D6E43A6B1B040603000F5BE2 /* ADAuthenticationContext+TokenCaching.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538EFB1BA34299003ABD9A /* ADAuthenticationError.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B59894F1811A3DB00744AEE /* ADAuthenticationError.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538EFC1BA34299003ABD9A /* ADAuthenticationOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B598938180DE00300744AEE /* ADAuthenticationOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538EFD1BA34299003ABD9A /* ADAuthenticationParameters+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BD14617182189C800796E79 /* ADAuthenticationParameters+Internal.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538EFE1BA34299003ABD9A /* ADAuthenticationParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BB8346018074CFA007F9F0D /* ADAuthenticationParameters.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538EFF1BA34299003ABD9A /* ADAuthenticationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 949B3A9A1B3DEAAD00381438 /* ADAuthenticationRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F001BA34299003ABD9A /* ADAuthenticationRequest+AcquireAssertion.h in Headers */ = {isa = PBXBuildFile; fileRef = D6E43A6E1B040A9C000F5BE2 /* ADAuthenticationRequest+AcquireAssertion.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F011BA34299003ABD9A /* ADAuthenticationRequest+AcquireToken.h in Headers */ = {isa = PBXBuildFile; fileRef = D6E43A651B04015A000F5BE2 /* ADAuthenticationRequest+AcquireToken.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F021BA34299003ABD9A /* ADAuthenticationRequest+Broker.h in Headers */ = {isa = PBXBuildFile; fileRef = D6E43A741B04142C000F5BE2 /* ADAuthenticationRequest+Broker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F031BA34299003ABD9A /* ADAuthenticationRequest+WebRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D6E43A711B040ED5000F5BE2 /* ADAuthenticationRequest+WebRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F041BA34299003ABD9A /* ADAuthenticationResult+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B0DA7DC182AD01100CF5E1E /* ADAuthenticationResult+Internal.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F051BA34299003ABD9A /* ADAuthenticationResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BB8345D18074B74007F9F0D /* ADAuthenticationResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F061BA34299003ABD9A /* ADAuthenticationSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BB83463180764B6007F9F0D /* ADAuthenticationSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F071BA3429A003ABD9A /* ADErrorCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B598946180DF6F000744AEE /* ADErrorCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F081BA3429A003ABD9A /* ADInstanceDiscovery.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B6113FF186E517D007759C2 /* ADInstanceDiscovery.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F091BA3429A003ABD9A /* ADKeychainQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 9453EF041B53070C007EF5E8 /* ADKeychainQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F0A1BA3429A003ABD9A /* ADLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B92DB6E181B2335004AAB0E /* ADLogger.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F0B1BA3429A003ABD9A /* ADOAuth2Constants.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B7E6FC61856A1E8000DC3C8 /* ADOAuth2Constants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F0C1BA3429A003ABD9A /* ADTokenCacheStoreItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B59894C1810BEAC00744AEE /* ADTokenCacheStoreItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F0D1BA3429A003ABD9A /* ADTokenCacheStoreItem+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = D6BD01481B4C7D7F008AB2B0 /* ADTokenCacheStoreItem+Internal.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F0E1BA3429A003ABD9A /* ADTokenCacheStoreKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B5989531811B89800744AEE /* ADTokenCacheStoreKey.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F0F1BA3429A003ABD9A /* ADTokenCacheStoring.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B5989561811BEC500744AEE /* ADTokenCacheStoring.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F101BA3429A003ABD9A /* ADKeychainItem.h in Headers */ = {isa = PBXBuildFile; fileRef = D68D582A1B83B3A6000C15A3 /* ADKeychainItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F111BA3429A003ABD9A /* ADKeychainTokenCacheStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B8FD799188223770070B1BE /* ADKeychainTokenCacheStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F121BA3429A003ABD9A /* ADProfileInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B59893C180DE8A100744AEE /* ADProfileInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F131BA3429A003ABD9A /* ADNTLMHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 972A58A61A4AB5580054BE11 /* ADNTLMHandler.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F141BA3429A003ABD9A /* UIApplication+ADExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B3434451833057F002DE1DC /* UIApplication+ADExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F151BA3429A003ABD9A /* ADAuthenticationBroker.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B34344818330591002DE1DC /* ADAuthenticationBroker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F161BA3429A003ABD9A /* ADAuthenticationViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B34344B183305A6002DE1DC /* ADAuthenticationViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F171BA3429A003ABD9A /* ADAuthenticationWebViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B34344D183305A6002DE1DC /* ADAuthenticationWebViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F181BA3429A003ABD9A /* NSDictionary+ADExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B34343518330474002DE1DC /* NSDictionary+ADExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F191BA3429A003ABD9A /* NSURL+ADExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B34343B183304B1002DE1DC /* NSURL+ADExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F1A1BA3429A003ABD9A /* ADAuthenticationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B34343E183304C9002DE1DC /* ADAuthenticationDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F1B1BA3429B003ABD9A /* ADWebRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B34343F183304FE002DE1DC /* ADWebRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F1C1BA3429B003ABD9A /* ADWebResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B343441183304FE002DE1DC /* ADWebResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F1D1BA3429B003ABD9A /* UIAlertView+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 97EEE7B91A4C97A400D003F8 /* UIAlertView+Additions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F1E1BA3429B003ABD9A /* ADCustomHeaderHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 971C57C71AFFFE010034820F /* ADCustomHeaderHandler.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F1F1BA3429B003ABD9A /* NSString+ADHelperMethods.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B92DB6A181ADE44004AAB0E /* NSString+ADHelperMethods.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F201BA3429B003ABD9A /* ADBrokerKeyHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 97D685B11A107F1E00EE816C /* ADBrokerKeyHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F211BA3429B003ABD9A /* ADHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 97A5224A1A1A7583001D77CE /* ADHelpers.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F221BA3429B003ABD9A /* ADJwtHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 9727D4D11A8753C300774236 /* ADJwtHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F231BA3429B003ABD9A /* ADBrokerNotificationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 971C56BC1AF2278C0034820F /* ADBrokerNotificationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F241BA3429B003ABD9A /* ADUserIdentifier.h in Headers */ = {isa = PBXBuildFile; fileRef = D6FB3E3A1B30D3630032F883 /* ADUserIdentifier.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F251BA3429B003ABD9A /* NSUUID+ADExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 94351A9E1B3F67FB00CD5F5E /* NSUUID+ADExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F261BA3429B003ABD9A /* NSSet+ADExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D6BD014E1B50A194008AB2B0 /* NSSet+ADExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F271BA3429B003ABD9A /* NSArray+ADExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 9453EF071B581C73007EF5E8 /* NSArray+ADExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F281BA3429B003ABD9A /* ADPolicyItem.h in Headers */ = {isa = PBXBuildFile; fileRef = FB4C7C1C1BA0DF5F003B93C5 /* ADPolicyItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB538F291BA3429C003ABD9A /* NSString+ADExtentions.h in Headers */ = {isa = PBXBuildFile; fileRef = FB538EEE1BA32BEE003ABD9A /* NSString+ADExtentions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -631,6 +687,72 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		FB538EF11BA34215003ABD9A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FB538EF21BA34299003ABD9A /* ADAL.h in Headers */,
+				FB538EF31BA34299003ABD9A /* ADPkeyAuthHelper.h in Headers */,
+				FB538EF41BA34299003ABD9A /* ADRegistrationInformation.h in Headers */,
+				FB538EF51BA34299003ABD9A /* ADWorkPlaceJoin.h in Headers */,
+				FB538EF61BA34299003ABD9A /* ADWorkPlaceJoinConstants.h in Headers */,
+				FB538EF71BA34299003ABD9A /* ADWorkPlaceJoinUtil.h in Headers */,
+				FB538EF81BA34299003ABD9A /* ADAuthenticationContext.h in Headers */,
+				FB538EF91BA34299003ABD9A /* ADAuthenticationContext+Internal.h in Headers */,
+				FB538EFA1BA34299003ABD9A /* ADAuthenticationContext+TokenCaching.h in Headers */,
+				FB538EFB1BA34299003ABD9A /* ADAuthenticationError.h in Headers */,
+				FB538EFC1BA34299003ABD9A /* ADAuthenticationOperation.h in Headers */,
+				FB538EFD1BA34299003ABD9A /* ADAuthenticationParameters+Internal.h in Headers */,
+				FB538EFE1BA34299003ABD9A /* ADAuthenticationParameters.h in Headers */,
+				FB538EFF1BA34299003ABD9A /* ADAuthenticationRequest.h in Headers */,
+				FB538F001BA34299003ABD9A /* ADAuthenticationRequest+AcquireAssertion.h in Headers */,
+				FB538F011BA34299003ABD9A /* ADAuthenticationRequest+AcquireToken.h in Headers */,
+				FB538F021BA34299003ABD9A /* ADAuthenticationRequest+Broker.h in Headers */,
+				FB538F031BA34299003ABD9A /* ADAuthenticationRequest+WebRequest.h in Headers */,
+				FB538F041BA34299003ABD9A /* ADAuthenticationResult+Internal.h in Headers */,
+				FB538F051BA34299003ABD9A /* ADAuthenticationResult.h in Headers */,
+				FB538F061BA34299003ABD9A /* ADAuthenticationSettings.h in Headers */,
+				FB538F071BA3429A003ABD9A /* ADErrorCodes.h in Headers */,
+				FB538F081BA3429A003ABD9A /* ADInstanceDiscovery.h in Headers */,
+				FB538F091BA3429A003ABD9A /* ADKeychainQuery.h in Headers */,
+				FB538F0A1BA3429A003ABD9A /* ADLogger.h in Headers */,
+				FB538F0B1BA3429A003ABD9A /* ADOAuth2Constants.h in Headers */,
+				FB538F0C1BA3429A003ABD9A /* ADTokenCacheStoreItem.h in Headers */,
+				FB538F0D1BA3429A003ABD9A /* ADTokenCacheStoreItem+Internal.h in Headers */,
+				FB538F0E1BA3429A003ABD9A /* ADTokenCacheStoreKey.h in Headers */,
+				FB538F0F1BA3429A003ABD9A /* ADTokenCacheStoring.h in Headers */,
+				FB538F101BA3429A003ABD9A /* ADKeychainItem.h in Headers */,
+				FB538F111BA3429A003ABD9A /* ADKeychainTokenCacheStore.h in Headers */,
+				FB538F121BA3429A003ABD9A /* ADProfileInfo.h in Headers */,
+				FB538F131BA3429A003ABD9A /* ADNTLMHandler.h in Headers */,
+				FB538F141BA3429A003ABD9A /* UIApplication+ADExtensions.h in Headers */,
+				FB538F151BA3429A003ABD9A /* ADAuthenticationBroker.h in Headers */,
+				FB538F161BA3429A003ABD9A /* ADAuthenticationViewController.h in Headers */,
+				FB538F171BA3429A003ABD9A /* ADAuthenticationWebViewController.h in Headers */,
+				FB538F181BA3429A003ABD9A /* NSDictionary+ADExtensions.h in Headers */,
+				FB538F191BA3429A003ABD9A /* NSURL+ADExtensions.h in Headers */,
+				FB538F1A1BA3429A003ABD9A /* ADAuthenticationDelegate.h in Headers */,
+				FB538F1B1BA3429B003ABD9A /* ADWebRequest.h in Headers */,
+				FB538F1C1BA3429B003ABD9A /* ADWebResponse.h in Headers */,
+				FB538F1D1BA3429B003ABD9A /* UIAlertView+Additions.h in Headers */,
+				FB538F1E1BA3429B003ABD9A /* ADCustomHeaderHandler.h in Headers */,
+				FB538F1F1BA3429B003ABD9A /* NSString+ADHelperMethods.h in Headers */,
+				FB538F201BA3429B003ABD9A /* ADBrokerKeyHelper.h in Headers */,
+				FB538F211BA3429B003ABD9A /* ADHelpers.h in Headers */,
+				FB538F221BA3429B003ABD9A /* ADJwtHelper.h in Headers */,
+				FB538F231BA3429B003ABD9A /* ADBrokerNotificationManager.h in Headers */,
+				FB538F241BA3429B003ABD9A /* ADUserIdentifier.h in Headers */,
+				FB538F251BA3429B003ABD9A /* NSUUID+ADExtensions.h in Headers */,
+				FB538F261BA3429B003ABD9A /* NSSet+ADExtensions.h in Headers */,
+				FB538F271BA3429B003ABD9A /* NSArray+ADExtensions.h in Headers */,
+				FB538F281BA3429B003ABD9A /* ADPolicyItem.h in Headers */,
+				FB538F291BA3429C003ABD9A /* NSString+ADExtentions.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
 		8B0965A917F25770002BDFB8 /* ADALiOS */ = {
 			isa = PBXNativeTarget;
@@ -640,6 +762,7 @@
 				8B0965A617F25770002BDFB8 /* Sources */,
 				8B0965A717F25770002BDFB8 /* Frameworks */,
 				8B19339718BAEDE4008FD93A /* ShellScript */,
+				FB538EF11BA34215003ABD9A /* Headers */,
 			);
 			buildRules = (
 			);
