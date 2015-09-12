@@ -54,6 +54,11 @@ typedef enum
  case of error.*/
 @property (readonly) NSString* accessToken;
 
+/*! A valid access token, if the results indicates success. The property is
+ calculated from the tokenCacheStoreItem one. The property is nil, in
+ case of error.*/
+@property (readonly) NSString* idToken;
+
 @property (readonly) ADTokenCacheStoreItem* tokenCacheStoreItem;
 
 /*! The error that occurred or nil, if the operation was successful */

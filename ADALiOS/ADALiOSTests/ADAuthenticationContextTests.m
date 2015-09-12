@@ -29,6 +29,7 @@
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADKeychainTokenCacheStore.h"
 #import "../ADALiOS/NSArray+ADExtensions.h"
+#import "../ADALiOS/NSSet+ADExtensions.h"
 
 const int sAsyncContextTimeout = 10;
 @interface ADAuthenticationContextTests : XCTestCase
@@ -112,7 +113,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     [super tearDown];
 }
 
-- (NSString*)encodedStringForScopes
+- (NSString*)encodedStringWithScopes
 {
     return [_scopes adUrlFormEncode];
 }
@@ -398,7 +399,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
          };
          if (_silent)
          {
-             [_context acquireTokenSilentForScopes:_scopes
+             [_context acquireTokenSilentWithScopes:_scopes
                                           clientId:_clientId
                                        redirectUri:_redirectURL
                                        identifier:[ADUserIdentifier identifierWithId:_userId type:RequiredDisplayableId]
@@ -406,11 +407,10 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
          }
          else
          {
-             [_context acquireTokenForScopes:_scopes
+             [_context acquireTokenWithScopes:_scopes
                             additionalScopes:nil
                                        clientId:_clientId
                                     redirectUri:_redirectURL
-                                 promptBehavior:_promptBehavior
                                   identifier:[ADUserIdentifier identifierWithId:_userId type:RequiredDisplayableId]
                            extraQueryParameters:nil
                                 completionBlock:callback];
@@ -435,7 +435,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 
 - (void)testAcquireTokenBadCompletionBlock
 {
-    ADAssertThrowsArgument([_context acquireTokenForScopes:_scopes additionalScopes:nil clientId:_clientId redirectUri:_redirectURL completionBlock:nil]);
+    ADAssertThrowsArgument([_context acquireTokenWithScopes:_scopes additionalScopes:nil clientId:_clientId redirectUri:_redirectURL completionBlock:nil]);
 }
 
 - (void)testAcquireTokenBadScopes
@@ -1007,7 +1007,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
-         [_context acquireTokenForScopes:_scopes
+         [_context acquireTokenWithScopes:_scopes
                         additionalScopes:nil
                                    clientId:_clientId
                                 redirectUri:_redirectURL
@@ -1018,7 +1018,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
-         [_context acquireTokenForScopes:_scopes
+         [_context acquireTokenWithScopes:_scopes
                         additionalScopes:nil
                                 clientId:_clientId
                              redirectUri:_redirectURL
@@ -1030,7 +1030,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
-         [_context acquireTokenForScopes:_scopes
+         [_context acquireTokenWithScopes:_scopes
                         additionalScopes:nil
                                 clientId:_clientId
                              redirectUri:_redirectURL
