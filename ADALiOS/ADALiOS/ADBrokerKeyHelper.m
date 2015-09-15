@@ -134,7 +134,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     // Try to delete something that doesn't exist isn't really an error
     if(err != errSecSuccess && err != errSecItemNotFound)
     {
-        NSString* details = [NSString stringWithFormat:@"Failed to delete broker key with error: %d", err];
+        NSString* details = [NSString stringWithFormat:@"Failed to delete broker key with error: %d", (int)err];
         NSError* nserror = [NSError errorWithDomain:@"Could not delete broker key."
                                                code:AD_ERROR_UNEXPECTED
                                            userInfo:nil];
