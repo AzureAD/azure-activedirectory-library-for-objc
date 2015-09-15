@@ -131,13 +131,18 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     // Delete the symmetric key.
     err = SecItemDelete((__bridge CFDictionaryRef)querySymmetricKey);
     
-    if(err != errSecSuccess){
-        *error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:@"Could not delete broker key." code:AD_ERROR_UNEXPECTED userInfo:nil] errorDetails:@"Could not delete broker key."];
+    // Try to delete something that doesn't exist isn't really an error
+    if(err != errSecSuccess && err != errSecItemNotFound)
+    {
+        NSString* details = [NSString stringWithFormat:@"Failed to delete broker key with error: %d", err];
+        NSError* nserror = [NSError errorWithDomain:@"Could not delete broker key."
+                                               code:AD_ERROR_UNEXPECTED
+                                           userInfo:nil];
+        *error = [ADAuthenticationError errorFromNSError:nserror
+                                            errorDetails:details];
     }
     
-    if(_symmetricKeyRef){
-        CFRelease((__bridge CFTypeRef)(_symmetricKeyRef));
-    }
+    _symmetricKeyRef = nil;
 }
 
 - (NSData*)getBrokerKey:(ADAuthenticationError* __autoreleasing*)error
