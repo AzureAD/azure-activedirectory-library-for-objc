@@ -25,16 +25,22 @@
 #import "ADPkeyAuthHelper.h"
 #import "ADHelpers.h"
 #import "ADUserIdentifier.h"
+#import "ADAuthenticationRequest.h"
 
-@implementation ADAuthenticationContext (Broker)
+@implementation ADAuthenticationRequest (Broker)
 
 + (BOOL)canUseBroker
 {
+#if BROKER_ENABLED
     return [[ADAuthenticationSettings sharedInstance] credentialsType] == AD_CREDENTIALS_AUTO &&
     [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", brokerScheme]]];
+#else // !BROKER_ENABLED
+    return NO;
+#endif // BROKER_ENABLED
 }
 
-+ (BOOL) respondsToUrl:(NSString*)url
+#if BROKER_ENABLED
++ (BOOL)respondsToUrl:(NSString*)url
 {
     BOOL schemeIsInPlist = NO; // find out if the sceme is in the plist file.
     NSBundle* mainBundle = [NSBundle mainBundle];
@@ -127,36 +133,6 @@
     
     if (AD_SUCCEEDED == result.status)
     {
-        result.tokenCacheStoreItem.accessTokenType = @"Bearer";
-        // Token response
-        id expires_on = [queryParamsMap objectForKey:@"expires_on"];
-        NSDate *expires    = nil;
-        if ( expires_on != nil )
-        {
-            if ( [expires_on isKindOfClass:[NSString class]] )
-            {
-                NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
-                
-                expires = [NSDate dateWithTimeIntervalSince1970:[formatter numberFromString:expires_on].longValue];
-            }
-            else if ( [expires_on isKindOfClass:[NSNumber class]] )
-            {
-                expires = [NSDate dateWithTimeIntervalSince1970:((NSNumber *)expires_on).longValue];
-            }
-            else
-            {
-                AD_LOG_WARN_F(@"Unparsable time", @"The response value for the access token expiration cannot be parsed: %@", expires);
-                // Unparseable, use default value
-                expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//1 hour
-            }
-        }
-        else
-        {
-            AD_LOG_WARN(@"Missing expiration time.", @"The server did not return the expiration time for the access token.");
-            expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//Assume 1hr expiration
-        }
-        
-        result.tokenCacheStoreItem.expiresOn = expires;
         ADAuthenticationContext* ctx = [ADAuthenticationContext
                                         authenticationContextWithAuthority:result.tokenCacheStoreItem.authority
                                         error:nil];
@@ -174,24 +150,16 @@
     [ADBrokerNotificationManager sharedInstance].callbackForBroker = nil;
 }
 
-- (void)callBrokerForAuthority:(NSString*)authority
-                      resource:(NSString*)resource
-                      clientId:(NSString*)clientId
-                   redirectUri:(NSURL*)redirectUri
-                promptBehavior:(ADPromptBehavior)promptBehavior
-                        userId:(ADUserIdentifier*)userId
-          extraQueryParameters:(NSString*)queryParams
-                 correlationId:(NSString*)correlationId
-               completionBlock:(ADAuthenticationCallback)completionBlock
+- (void)callBroker:(ADAuthenticationCallback)completionBlock
 
 {
-    CHECK_FOR_NIL(authority);
-    CHECK_FOR_NIL(resource);
-    CHECK_FOR_NIL(clientId);
-    CHECK_FOR_NIL(correlationId);
+    CHECK_FOR_NIL(_context.authority);
+    CHECK_FOR_NIL(_resource);
+    CHECK_FOR_NIL(_clientId);
+    CHECK_FOR_NIL(_correlationId);
     
     ADAuthenticationError* error = nil;
-    if(![ADAuthenticationContext respondsToUrl:[redirectUri absoluteString]])
+    if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
     {
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
                                                        protocolCode:nil
@@ -205,26 +173,24 @@
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
-    NSString* redirectUriStr = [redirectUri absoluteString];
     NSString* adalVersion = [ADLogger getAdalVersion];
     
     CHECK_FOR_NIL(base64UrlKey);
-    CHECK_FOR_NIL(redirectUriStr);
     CHECK_FOR_NIL(adalVersion);
     
     NSDictionary* queryDictionary = @{
-                                      @"authority": authority,
-                                      @"resource" : resource,
-                                      @"client_id": clientId,
-                                      @"redirect_uri": redirectUriStr,
-                                      @"username_type": userId ? [userId typeAsString] : @"",
-                                      @"username": userId.userId ? userId.userId : @"",
-                                      @"force" : promptBehavior == AD_FORCE_PROMPT ? @"YES" : @"NO",
-                                      @"correlation_id": correlationId,
+                                      @"authority": _context.authority,
+                                      @"resource" : _resource,
+                                      @"client_id": _clientId,
+                                      @"redirect_uri": _redirectUri,
+                                      @"username_type": _identifier ? [_identifier typeAsString] : @"",
+                                      @"username": _identifier.userId ? _identifier.userId : @"",
+                                      @"force" : _promptBehavior == AD_FORCE_PROMPT ? @"YES" : @"NO",
+                                      @"correlation_id": _correlationId,
                                       @"broker_key": base64UrlKey,
                                       @"client_version": adalVersion,
-                                      BROKER_PROTOCOL_VERSION : @"2",
-                                      @"extra_qp": queryParams ? queryParams : @"",
+									  BROKER_PROTOCOL_VERSION : @"2",
+                                      @"extra_qp": _queryParams ? _queryParams : @"",
                                       };
     
     NSString* query = [queryDictionary adURLFormEncode];
@@ -248,20 +214,12 @@
 }
 
 - (void)handleBrokerFromWebiewResponse:(NSString*)urlString
-                              resource:(NSString*)resource
-                              clientId:(NSString*)clientId
-                           redirectUri:(NSURL*)redirectUri
-                                userId:(ADUserIdentifier*)userId
-                  extraQueryParameters:(NSString*)queryParams
-                         correlationId:(NSUUID*)correlationId
                        completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    CHECK_FOR_NIL(resource);
-    CHECK_FOR_NIL(clientId);
-    CHECK_FOR_NIL(redirectUri);
+    CHECK_FOR_NIL(_resource);
     
     ADAuthenticationError* error = nil;
-    if(![ADAuthenticationContext respondsToUrl:[redirectUri absoluteString]])
+    if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
     {
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
                                                        protocolCode:nil
@@ -275,26 +233,24 @@
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
     NSString* adalVersion = [ADLogger getAdalVersion];
-    NSString* redirectUriStr = [redirectUri absoluteString];
-    NSString* correlationIdStr = [correlationId UUIDString];
-    NSString* authority = self.authority;
+    NSString* correlationIdStr = [_correlationId UUIDString];
+    NSString* authority = _context.authority;
     
     CHECK_FOR_NIL(base64UrlKey);
-    CHECK_FOR_NIL(redirectUriStr);
     CHECK_FOR_NIL(adalVersion);
     CHECK_FOR_NIL(authority);
     
     NSDictionary* queryDictionary = @{
-                                      @"authority": authority,
-                                      @"resource" : resource,
-                                      @"client_id": clientId,
-                                      @"redirect_uri": redirectUriStr,
-                                      @"username_type": userId ? [userId typeAsString] : @"",
-                                      @"username": userId.userId ? userId.userId : @"",
+                                      @"authority": _context.authority,
+                                      @"resource" : _resource,
+                                      @"client_id": _clientId,
+                                      @"redirect_uri": _redirectUri,
+                                      @"username_type": _identifier ? [_identifier typeAsString] : @"",
+                                      @"username": _identifier.userId ? _identifier.userId : @"",
                                       @"correlation_id": correlationIdStr,
                                       @"broker_key": base64UrlKey,
                                       @"client_version": adalVersion,
-                                      @"extra_qp": queryParams ? queryParams : @"",
+                                      @"extra_qp": _queryParams ? _queryParams : @"",
                                       };
     NSString* query = [queryDictionary adURLFormEncode];
     
@@ -319,5 +275,6 @@
         });
     }
 }
+#endif // BROKER_ENABLED
 
 @end

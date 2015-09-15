@@ -72,8 +72,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     XCTAssertNil(error.protocolCode, "The protocol code should not be set. Instead protocolCode ='%@'.", error.protocolCode);
     
     [self adAssertValidText:error.errorDetails message:@"The error should have details."];
-    NSString* argumentString = [NSString stringWithFormat:@"'%@'", argument];
-    BOOL found = [error.errorDetails adContainsString:argumentString];
+    BOOL found = [error.errorDetails adContainsString:argument];
     XCTAssertTrue(found, "The parameter is not specified in the error details. Error details:%@", error.errorDetails);
 }
 

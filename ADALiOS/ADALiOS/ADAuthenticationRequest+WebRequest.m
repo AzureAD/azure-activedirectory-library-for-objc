@@ -28,35 +28,32 @@
 #import "ADHelpers.h"
 #import "NSURL+ADExtensions.h"
 #import "ADUserIdentifier.h"
+#import "ADAuthenticationRequest.h"
 
 #import <libkern/OSAtomic.h>
 
-@implementation ADAuthenticationContext (WebRequest)
+@implementation ADAuthenticationRequest (WebRequest)
 
 - (void)executeRequest:(NSString *)authorizationServer
            requestData:(NSDictionary *)request_data
-              resource:(NSString *) resource
-              clientId:(NSString*) clientId
-  requestCorrelationId:(NSUUID*) requestCorrelationId
        handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
      additionalHeaders:(NSDictionary *)additionalHeaders
             completion:(ADAuthenticationCallback)completionBlock
 {
     [self requestWithServer:authorizationServer
                 requestData:request_data
-       requestCorrelationId:requestCorrelationId
             handledPkeyAuth:isHandlingPKeyAuthChallenge
           additionalHeaders:additionalHeaders
                  completion:^(NSDictionary *response)
      {
          //Prefill the known elements in the item. These can be overridden by the response:
          ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
-         item.resource = resource;
-         item.clientId = clientId;
-         completionBlock([self processTokenResponse:response
-                                            forItem:item
-                                        fromRefresh:NO
-                               requestCorrelationId:requestCorrelationId]);
+         item.resource = _resource;
+         item.clientId = _clientId;
+         completionBlock([_context processTokenResponse:response
+                                                forItem:item
+                                            fromRefresh:NO
+                                   requestCorrelationId:_correlationId]);
      }];
 }
 
@@ -65,14 +62,12 @@
 // If the request generates an HTTP error, the method adds details to the "error" parameters of the dictionary.
 - (void)requestWithServer:(NSString *)authorizationServer
               requestData:(NSDictionary *)request_data
-     requestCorrelationId:(NSUUID*)requestCorrelationId
           handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
         additionalHeaders:(NSDictionary *)additionalHeaders
                completion:( void (^)(NSDictionary *) )completionBlock
 {
     [self requestWithServer:authorizationServer
                 requestData:request_data
-       requestCorrelationId:requestCorrelationId
             handledPkeyAuth:isHandlingPKeyAuthChallenge
           additionalHeaders:additionalHeaders
           returnRawResponse:NO
@@ -83,7 +78,6 @@
 
 - (void)requestWithServer:(NSString *)authorizationServer
               requestData:(NSDictionary *)request_data
-     requestCorrelationId:(NSUUID*)requestCorrelationId
           handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
         additionalHeaders:(NSDictionary *)additionalHeaders
         returnRawResponse:(BOOL)returnRawResponse
@@ -108,21 +102,16 @@
              isGetRequest:(BOOL)isGetRequest
                completion:( void (^)(NSDictionary *) )completionBlock
 {
-    NSString* endPoint = authorizationServer;
+    [self ensureRequest];
+    NSString* endPoint = _context.authority;
     
-    if(!isHandlingPKeyAuthChallenge && !isGetRequest){
-        endPoint = [authorizationServer stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
+    if(!isHandlingPKeyAuthChallenge && !isGetRequest)
+	{
+        endPoint = [_context.authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
     }
     
-    if(isGetRequest)
-    {
-        endPoint = [NSString stringWithFormat:@"%@?%@", endPoint, [request_data adURLFormEncode]];
-    }
-    
-    NSURL *endpointUrl = [NSURL URLWithString:endPoint];
-    
-    ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:endpointUrl
-                                                   correlationId:requestCorrelationId];
+    ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
+                                                   correlationId:_correlationId];
     
     if(isGetRequest)
     {
@@ -145,14 +134,15 @@
     
     if (isGetRequest)
     {
-        AD_LOG_VERBOSE_F(@"Get request", @"Sending GET request to %@ with client-request-id %@", endPoint, [requestCorrelationId UUIDString]);
+        AD_LOG_VERBOSE_F(@"Get request", @"Sending GET request to %@ with client-request-id %@", endPoint, [_correlationId UUIDString]);
     }
     else
     {
-        AD_LOG_VERBOSE_F(@"Post request", @"Sending POST request to %@ with client-request-id %@", endPoint, [requestCorrelationId UUIDString]);
+        AD_LOG_VERBOSE_F(@"Post request", @"Sending POST request to %@ with client-request-id %@", endPoint, [_correlationId UUIDString]);
     }
     
-    [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[requestCorrelationId UUIDString] requestHeader:webRequest.headers];
+    webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
+    [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[_correlationId UUIDString] requestHeader:webRequest.headers];
     
     [webRequest send:^( NSError *error, ADWebResponse *webResponse ) {
         // Request completion callback
@@ -188,7 +178,6 @@
                             [self handlePKeyAuthChallenge:endPoint
                                        wwwAuthHeaderValue:wwwAuthValue
                                               requestData:request_data
-                                     requestCorrelationId:requestCorrelationId
                                                completion:completionBlock];
                             return;
                         }
@@ -311,47 +300,41 @@ static volatile int sDialogInProgress = 0;
 }
 
 // Encodes the state parameter for a protocol message
-- (NSString *)encodeProtocolStateWithResource:(NSString *)resource scope:(NSString *)scope
+- (NSString *)encodeProtocolState
 {
-    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:self.authority, @"a", resource, @"r", scope, @"s", nil]
+    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:_context.authority, @"a", _resource, @"r", _scope, @"s", nil]
              adURLFormEncode] adBase64UrlEncode];
 }
 
 //Generates the query string, encoding the state:
-- (NSString*)queryStringFromResource:(NSString*)resource
-                            clientId:(NSString*)clientId
-                         redirectUri:(NSURL*)redirectUri
-                               scope:(NSString*)scope /* for future use */
-                              userId:(ADUserIdentifier*)userId
-                         requestType:(NSString*)requestType
-                      promptBehavior:(ADPromptBehavior)promptBehavior
-                extraQueryParameters:(NSString*)queryParams
+- (NSString*)generateQueryStringForRequestType:(NSString*)requestType
 {
-    NSString *state    = [self encodeProtocolStateWithResource:resource scope:scope];
+    NSString* state = [self encodeProtocolState];
+    NSString* queryParams = nil;
     // Start the web navigation process for the Implicit grant profile.
-    NSMutableString *startUrl = [NSMutableString stringWithFormat:@"%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
-                                 [self.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX],
+    NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
+                                 [_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX],
                                  OAUTH2_RESPONSE_TYPE, requestType,
-                                 OAUTH2_CLIENT_ID, [clientId adUrlFormEncode],
-                                 OAUTH2_RESOURCE, [resource adUrlFormEncode],
-                                 OAUTH2_REDIRECT_URI, [[redirectUri absoluteString] adUrlFormEncode],
+                                 OAUTH2_CLIENT_ID, [_clientId adUrlFormEncode],
+                                 OAUTH2_RESOURCE, [_resource adUrlFormEncode],
+                                 OAUTH2_REDIRECT_URI, [_redirectUri adUrlFormEncode],
                                  OAUTH2_STATE, state];
     
     [startUrl appendFormat:@"&%@", [[ADLogger adalId] adURLFormEncode]];
     
-    if (userId && [userId isDisplayable] && ![NSString adIsStringNilOrBlank:userId.userId])
+    if (_identifier && [_identifier isDisplayable] && ![NSString adIsStringNilOrBlank:_identifier.userId])
     {
-        [startUrl appendFormat:@"&%@=%@", OAUTH2_LOGIN_HINT, [userId.userId adUrlFormEncode]];
+        [startUrl appendFormat:@"&%@=%@", OAUTH2_LOGIN_HINT, [_identifier.userId adUrlFormEncode]];
     }
-    NSString* promptParam = [ADAuthenticationContext getPromptParameter:promptBehavior];
+    NSString* promptParam = [ADAuthenticationContext getPromptParameter:_promptBehavior];
     if (promptParam)
     {
         //Force the server to ignore cookies, by specifying explicitly the prompt behavior:
         [startUrl appendString:[NSString stringWithFormat:@"&prompt=%@", promptParam]];
     }
-    if (![NSString adIsStringNilOrBlank:queryParams])
+    if (![NSString adIsStringNilOrBlank:_queryParams])
     {//Append the additional query parameters if specified:
-        queryParams = queryParams.adTrimmedString;
+        queryParams = _queryParams.adTrimmedString;
         
         //Add the '&' for the additional params if not there already:
         if ([queryParams hasPrefix:@"&"])
@@ -368,93 +351,30 @@ static volatile int sDialogInProgress = 0;
 }
 
 //Requests an OAuth2 code to be used for obtaining a token:
-- (void)requestCodeByResource:(NSString*)resource
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-                        scope:(NSString*)scope /*for future use */
-                       userId:(ADUserIdentifier*)userId
-               promptBehavior:(ADPromptBehavior)promptBehavior
-         extraQueryParameters:(NSString*)queryParams
-                correlationId:(NSUUID*)correlationId
-                   completion:(ADAuthorizationCodeCallback)completionBlock
+- (void)requestCode:(ADAuthorizationCodeCallback)completionBlock
 {
-    [self requestCodeByResource:resource
-                       clientId:clientId
-                    redirectUri:redirectUri
-                          scope:scope
-                         userId:userId
-                 promptBehavior:promptBehavior
-           extraQueryParameters:queryParams
-         refreshTokenCredential:nil
-                         silent:NO
-                  correlationId:correlationId
-                     completion:completionBlock];
+    [self requestCodeWithRefreshTokenCredential:nil completionBlock:completionBlock];
 
 }
-
 //Requests an OAuth2 code to be used for obtaining a token:
-- (void)requestCodeByResource:(NSString*)resource
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-                        scope:(NSString*)scope /*for future use */
-                       userId:(ADUserIdentifier*)userId
-               promptBehavior:(ADPromptBehavior)promptBehavior
-         extraQueryParameters:(NSString*)queryParams
-       refreshTokenCredential:(NSString*)refreshTokenCredential
-                correlationId:(NSUUID*)correlationId
-                   completion:(ADAuthorizationCodeCallback)completionBlock
-{
-    [self requestCodeByResource:resource clientId:clientId
-                    redirectUri:redirectUri
-                          scope:scope
-                         userId:userId
-                 promptBehavior:promptBehavior
-           extraQueryParameters:queryParams
-         refreshTokenCredential:refreshTokenCredential
-                         silent:NO
-                  correlationId:correlationId
-                     completion:completionBlock];
-}
-
-
-//Requests an OAuth2 code to be used for obtaining a token:
-- (void)requestCodeByResource:(NSString*)resource
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-                        scope:(NSString*)scope /*for future use */
-                       userId:(ADUserIdentifier*)userId
-               promptBehavior:(ADPromptBehavior)promptBehavior
-         extraQueryParameters:(NSString*)queryParams
-       refreshTokenCredential:(NSString*)refreshTokenCredential
-                       silent:(BOOL)silent
-                correlationId:(NSUUID*)correlationId
-                   completion:(ADAuthorizationCodeCallback)completionBlock
+- (void)requestCodeWithRefreshTokenCredential:(NSString*)refreshTokenCredential
+                              completionBlock:(ADAuthorizationCodeCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    if(!correlationId){
-        completionBlock(nil, [ADAuthenticationError errorFromArgument:correlationId argumentName:@"correlationId"]);
-        return;
-    }
+    [self ensureRequest];
     
-    AD_LOG_VERBOSE_F(@"Requesting authorization code.", @"Requesting authorization code for resource: %@", resource);
-    if (!silent && ![self takeExclusionLockWithCallback:completionBlock])
+    AD_LOG_VERBOSE_F(@"Requesting authorization code.", @"Requesting authorization code for resource: %@", _resource);
+    if (!_silent && ![self takeExclusionLockWithCallback:completionBlock])
     {
         return;
     }
     
     ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
-    NSString* startUrl = [self queryStringFromResource:resource
-                                              clientId:clientId
-                                           redirectUri:redirectUri
-                                                 scope:scope
-                                                userId:userId
-                                           requestType:OAUTH2_CODE
-                                        promptBehavior:promptBehavior
-                                  extraQueryParameters:queryParams];
+    NSString* startUrl = [self generateQueryStringForRequestType:OAUTH2_CODE];
     
     void(^requestCompletion)(ADAuthenticationError *error, NSURL *end) = ^void(ADAuthenticationError *error, NSURL *end)
     {
-         if (!silent)
+         if (!_silent)
          {
              [self releaseExclusionLock]; // Allow other operations that use the UI for credentials.
          }
@@ -506,39 +426,37 @@ static volatile int sDialogInProgress = 0;
          completionBlock(code, error);
      };
     
-    if (!silent)
+    if (!_silent)
     {
         [[ADAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
-                                                   end:[NSURL URLWithString:[redirectUri absoluteString]]
+                                                   end:[NSURL URLWithString:_redirectUri]
                                 refreshTokenCredential:refreshTokenCredential
-                                      parentController:self.parentController
-                                               webView:self.webView
+                                      parentController:_context.parentController
+                                               webView:_context.webView
                                             fullScreen:settings.enableFullScreen
-                                         correlationId:correlationId
+                                         correlationId:_correlationId
                                             completion:requestCompletion];
     }
     else
     {
         NSMutableDictionary* requestData = nil;
         requestData = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                       clientId, OAUTH2_CLIENT_ID,
-                       [redirectUri absoluteString], OAUTH2_REDIRECT_URI,
-                       resource, OAUTH2_RESOURCE,
+                       _clientId, OAUTH2_CLIENT_ID,
+                       _redirectUri, OAUTH2_REDIRECT_URI,
+                       _resource, OAUTH2_RESOURCE,
                        OAUTH2_CODE, OAUTH2_RESPONSE_TYPE,
-                       @"1", @"nux", nil];
+					   @"1", @"nux", nil];
         
-        if (scope)
+        if (_scope)
         {
-            [requestData setObject:scope forKey:OAUTH2_SCOPE];
+            [requestData setObject:_scope forKey:OAUTH2_SCOPE];
         }
         
-        [self requestWithServer:[self.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]
+        [self requestWithServer:[_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]
                     requestData:requestData
-           requestCorrelationId:correlationId
                 handledPkeyAuth:NO
               additionalHeaders:nil
-              returnRawResponse:NO
-                   isGetRequest:YES
+				   isGetRequest:YES
                      completion:^(NSDictionary * parameters)
          {
              
@@ -560,7 +478,6 @@ static volatile int sDialogInProgress = 0;
 - (void) handlePKeyAuthChallenge:(NSString *)authorizationServer
               wwwAuthHeaderValue:(NSString *)wwwAuthHeaderValue
                      requestData:(NSDictionary *)request_data
-            requestCorrelationId: (NSUUID*) requestCorrelationId
                       completion:( void (^)(NSDictionary *) )completionBlock
 {
     //pkeyauth word length=8 + 1 whitespace
@@ -580,7 +497,6 @@ static volatile int sDialogInProgress = 0;
     
     [self requestWithServer:authorizationServer
                 requestData:request_data
-       requestCorrelationId:requestCorrelationId
             handledPkeyAuth:TRUE
           additionalHeaders:headerKeyValuePair
                  completion:completionBlock];

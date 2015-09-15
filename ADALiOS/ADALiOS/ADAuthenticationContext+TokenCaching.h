@@ -18,33 +18,6 @@
 
 @interface ADAuthenticationContext (TokenCaching)
 
-/*Attemps to use the cache. Returns YES if an attempt was successful or if an
- internal asynchronous call will proceed the processing. */
-- (void)attemptToUseCacheItem:(ADTokenCacheStoreItem*)item
-               useAccessToken:(BOOL)useAccessToken
-                samlAssertion:(NSString*)samlAssertion
-                assertionType:(ADAssertionType)assertionType
-                     resource:(NSString*)resource
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSString*)redirectUri
-                       userId:(ADUserIdentifier*)userId
-                correlationId:(NSUUID*)correlationId
-              completionBlock:(ADAuthenticationCallback)completionBlock;
-
-/*Attemps to use the cache. Returns YES if an attempt was successful or if an
- internal asynchronous call will proceed the processing. */
-- (void)attemptToUseCacheItem:(ADTokenCacheStoreItem*)item
-               useAccessToken:(BOOL)useAccessToken
-                     resource:(NSString*)resource
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-               promptBehavior:(ADPromptBehavior)promptBehavior
-                       silent:(BOOL)silent
-                       userId:(ADUserIdentifier*)userId
-         extraQueryParameters:(NSString*)queryParams
-                correlationId:(NSUUID*)correlationId
-              completionBlock:(ADAuthenticationCallback)completionBlock;
-
 //Understands and processes the access token response:
 - (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
                                          forItem:(ADTokenCacheStoreItem*)item

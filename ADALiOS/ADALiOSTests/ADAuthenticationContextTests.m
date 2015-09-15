@@ -785,7 +785,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqual(mResult.status, AD_SUCCEEDED);
     XCTAssertFalse(mResult.multiResourceRefreshToken);
     //Now verify the cache contents for the new broad refresh token and the access token:
-    XCTAssertTrue([self cacheCount] == 2);
+    XCTAssertEqual([self cacheCount], 2);
     ADTokenCacheStoreItem* exactItem = [self verifyCacheWithResource:mResource accessToken:accessToken refreshToken:exactRefreshToken line:__LINE__];
     NSDate* expiration = exactItem.expiresOn;
     NSDate* minExpiration = [NSDate dateWithTimeIntervalSinceNow:(3500 - 10)];
@@ -942,9 +942,6 @@ const int sAsyncContextTimeout = 10;
     NSUUID* second = [NSUUID UUID];
     mContext.correlationId = second;
     XCTAssertEqual(mContext.correlationId, second);
-    
-    mContext.correlationId = nil;
-    XCTAssertNil(mContext.correlationId);
 }
 
 -(void) testCorrelationIdRefreshToken

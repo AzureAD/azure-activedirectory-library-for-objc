@@ -33,12 +33,7 @@
 @class ADUserIdentifier;
 
 #import "ADAuthenticationContext.h"
-#import "ADAuthenticationContext+AcquireToken.h"
-#import "ADAuthenticationContext+AcquireAssertion.h"
 #import "ADAuthenticationContext+TokenCaching.h"
-#import "ADAuthenticationContext+Broker.h"
-#import "ADAuthenticationContext+WebRequest.h"
-
 #import "ADAuthenticationResult+Internal.h"
 #import "ADOAuth2Constants.h"
 
@@ -74,6 +69,7 @@ extern NSString* const ADRedirectUriInvalidError;
 - (ADAuthenticationResult*)updateResult:(ADAuthenticationResult*)result
                                  toUser:(ADUserIdentifier*)userId;
 
+- (BOOL)hasCacheStore;
 - (NSUUID*)getCorrelationId;
 - (void)setCorrelationId:(NSUUID*)correlationId;
 

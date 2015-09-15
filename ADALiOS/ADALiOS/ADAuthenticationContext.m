@@ -41,13 +41,13 @@
 #import "ADHelpers.h"
 #import "ADBrokerNotificationManager.h"
 #import "ADOAuth2Constants.h"
+#import "ADAuthenticationRequest.h"
 
 #import "ADAuthenticationContext+Internal.h"
 
 #import <objc/runtime.h>
 
-
-
+#if BROKER_ENABLED
 typedef BOOL (*applicationOpenURLPtr)(id, SEL, UIApplication*, NSURL*, NSString*, id);
 IMP __original_ApplicationOpenURL = NULL;
 
@@ -64,11 +64,13 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
     [ADAuthenticationContext handleBrokerResponse:url];
     return YES;
 }
+#endif // BROKER_ENABLED
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 @implementation ADAuthenticationContext
 
+#if BROKER_ENABLED
 + (void) load
 {
     __block id observer = nil;
@@ -112,6 +114,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                 }];
     
 }
+#endif // BROKER_ENABLED
 
 - (id)init
 {
@@ -140,30 +143,63 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 }
 
 
-+(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                                                         error: (ADAuthenticationError* __autoreleasing *) error
+- (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
+                                             clientId:(NSString*)clientId
+                                             resource:(NSString*)resource
+                                      completionBlock:(ADAuthenticationCallback)completionBlock
+
+{
+    ADAuthenticationError* error = nil;
+    
+    ADAuthenticationRequest* request = [ADAuthenticationRequest requestWithContext:self
+                                                                       redirectUri:redirectUri
+                                                                          clientId:clientId
+                                                                          resource:resource
+                                                                             error:&error];
+    
+    if (!request)
+    {
+        completionBlock([ADAuthenticationResult resultFromError:error]);
+    }
+    
+    return request;
+}
+
+- (ADAuthenticationRequest*)requestWithRedirectUrl:(NSURL*)redirectUri
+                                          clientId:(NSString*)clientId
+                                          resource:(NSString*)resource
+                                   completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    return [self requestWithRedirectString:[redirectUri absoluteString]
+                                  clientId:clientId
+                                  resource:resource
+                           completionBlock:completionBlock];
+}
+
++ (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
+                                                         error:(ADAuthenticationError* __autoreleasing *)error
 {
     API_ENTRY;
-    return [self authenticationContextWithAuthority: authority
-                                  validateAuthority: YES
-                                    tokenCacheStore: [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
-                                              error: error];
+    return [self authenticationContextWithAuthority:authority
+                                  validateAuthority:YES
+                                    tokenCacheStore:[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
+                                              error:error];
 }
 
-+(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                                             validateAuthority: (BOOL) bValidate
-                                                         error: (ADAuthenticationError* __autoreleasing *) error
++ (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
+                                             validateAuthority:(BOOL)bValidate
+                                                         error:(ADAuthenticationError* __autoreleasing *)error
 {
     API_ENTRY
-    return [self authenticationContextWithAuthority: authority
-                                  validateAuthority: bValidate
-                                    tokenCacheStore: [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
-                                              error: error];
+    return [self authenticationContextWithAuthority:authority
+                                  validateAuthority:bValidate
+                                    tokenCacheStore:[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
+                                              error:error];
 }
 
-+(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                                               tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
-                                                         error: (ADAuthenticationError* __autoreleasing *) error
++ (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
+                                               tokenCacheStore:(id<ADTokenCacheStoring>)tokenCache
+                                                         error:(ADAuthenticationError* __autoreleasing *)error
 {
     API_ENTRY;
     return [self authenticationContextWithAuthority:authority
@@ -172,10 +208,10 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                                               error:error];
 }
 
-+(ADAuthenticationContext*) authenticationContextWithAuthority: (NSString*) authority
-                                             validateAuthority: (BOOL)bValidate
-                                               tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
-                                                         error: (ADAuthenticationError* __autoreleasing *) error
++ (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
+                                             validateAuthority:(BOOL)bValidate
+                                               tokenCacheStore:(id<ADTokenCacheStoring>)tokenCache
+                                                         error:(ADAuthenticationError* __autoreleasing *)error
 {
     API_ENTRY;
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(authority);
@@ -194,10 +230,20 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     [NSString adSame:sourceApplication toString:@"com.microsoft.azureauthenticator"];
 }
 
+#if BROKER_ENABLED
 + (void)handleBrokerResponse:(NSURL*)response
 {
-    [ADAuthenticationContext internalHandleBrokerResponse:response];
+    [ADAuthenticationRequest internalHandleBrokerResponse:response];
 }
+#endif // BROKER_ENABLED
+
+#define REQUEST_WITH_REDIRECT_STRING(_redirect, _clientId, _resource) \
+    ADAuthenticationRequest* request = [self requestWithRedirectString:_redirect clientId:_clientId resource:_resource completionBlock:completionBlock]; \
+    if (!request) { return; }
+
+#define REQUEST_WITH_REDIRECT_URL(_redirect, _clientId, _resource) \
+    ADAuthenticationRequest* request = [self requestWithRedirectUrl:_redirect clientId:_clientId resource:_resource completionBlock:completionBlock]; \
+    if (!request) { return; }
 
 - (void)acquireTokenForAssertion:(NSString*)assertion
                    assertionType:(ADAssertionType)assertionType
@@ -207,16 +253,11 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                  completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
-    return [self internalAcquireTokenForAssertion:assertion
-                                         clientId:clientId
-                                      redirectUri:nil
-                                         resource:resource
-                                    assertionType:assertionType
-                                           userId:userId
-                                            scope:nil
-                                validateAuthority:self.validateAuthority
-                                    correlationId:[self getCorrelationId]
-                                  completionBlock:completionBlock];
+    REQUEST_WITH_REDIRECT_STRING(nil, clientId, resource);
+    
+    [request acquireTokenForAssertion:assertion
+                        assertionType:assertionType
+                      completionBlock:completionBlock];
     
 }
 
@@ -227,98 +268,64 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                  completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
-    return [self internalAcquireTokenWithResource:resource
-                                         clientId:clientId
-                                      redirectUri:redirectUri
-                                   promptBehavior:AD_PROMPT_AUTO
-                                           silent:NO
-                                           userId:nil
-                                            scope:nil
-                             extraQueryParameters:nil
-                                validateAuthority:self.validateAuthority
-                                    correlationId:[self getCorrelationId]
-                                  completionBlock:completionBlock];
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+    
+    [request acquireToken:completionBlock];
 }
 
--(void) acquireTokenWithResource: (NSString*) resource
-                        clientId: (NSString*) clientId
-                     redirectUri: (NSURL*) redirectUri
-                          userId: (NSString*) userId
-                 completionBlock: (ADAuthenticationCallback) completionBlock
+- (void)acquireTokenWithResource:(NSString*)resource
+                        clientId:(NSString*)clientId
+                     redirectUri:(NSURL*)redirectUri
+                          userId:(NSString*)userId
+                 completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
-    [self internalAcquireTokenWithResource:resource
-                                  clientId:clientId
-                               redirectUri:redirectUri
-                            promptBehavior:AD_PROMPT_AUTO
-                                    silent:NO
-                                    userId:userId
-                                     scope:nil
-                      extraQueryParameters:nil
-                         validateAuthority:self.validateAuthority
-                             correlationId:[self getCorrelationId]
-                           completionBlock:completionBlock];
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+    
+    [request setUserId:userId];
+    [request acquireToken:completionBlock];
 }
 
 
--(void) acquireTokenWithResource: (NSString*) resource
-                        clientId: (NSString*)clientId
-                     redirectUri: (NSURL*) redirectUri
-                          userId: (NSString*) userId
-            extraQueryParameters: (NSString*) queryParams
-                 completionBlock: (ADAuthenticationCallback) completionBlock
+- (void)acquireTokenWithResource:(NSString*)resource
+                        clientId:(NSString*)clientId
+                     redirectUri:(NSURL*)redirectUri
+                          userId:(NSString*)userId
+            extraQueryParameters:(NSString*)queryParams
+                 completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
-    [self internalAcquireTokenWithResource:resource
-                                  clientId:clientId
-                               redirectUri:redirectUri
-                            promptBehavior:AD_PROMPT_AUTO
-                                    silent:NO
-                                    userId:userId
-                                     scope:nil
-                      extraQueryParameters:queryParams
-                         validateAuthority:self.validateAuthority
-                             correlationId:[self getCorrelationId]
-                           completionBlock:completionBlock];
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+    
+    [request setUserId:userId];
+    [request setExtraQueryParameters:queryParams];
+    [request acquireToken:completionBlock];
 }
 
--(void) acquireTokenSilentWithResource: (NSString*) resource
-                              clientId: (NSString*) clientId
-                           redirectUri: (NSURL*) redirectUri
-                       completionBlock: (ADAuthenticationCallback) completionBlock
+- (void)acquireTokenSilentWithResource:(NSString*)resource
+                              clientId:(NSString*)clientId
+                           redirectUri:(NSURL*)redirectUri
+                       completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
-    return [self internalAcquireTokenWithResource:resource
-                                         clientId:clientId
-                                      redirectUri:redirectUri
-                                   promptBehavior:AD_PROMPT_AUTO
-                                           silent:YES
-                                           userId:nil
-                                            scope:nil
-                             extraQueryParameters:nil
-                                validateAuthority:self.validateAuthority
-                                    correlationId:[self getCorrelationId]
-                                  completionBlock:completionBlock];
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+    
+    [request setSilent:YES];
+    [request acquireToken:completionBlock];
 }
 
--(void) acquireTokenSilentWithResource: (NSString*) resource
-                              clientId: (NSString*) clientId
-                           redirectUri: (NSURL*) redirectUri
-                                userId: (NSString*) userId
-                       completionBlock: (ADAuthenticationCallback) completionBlock
+- (void)acquireTokenSilentWithResource:(NSString*)resource
+                              clientId:(NSString*)clientId
+                           redirectUri:(NSURL*)redirectUri
+                                userId:(NSString*)userId
+                       completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
-    return [self internalAcquireTokenWithResource:resource
-                                         clientId:clientId
-                                      redirectUri:redirectUri
-                                   promptBehavior:AD_PROMPT_AUTO
-                                           silent:YES
-                                           userId:userId
-                                            scope:nil
-                             extraQueryParameters:nil
-                                validateAuthority:self.validateAuthority
-                                    correlationId:[self getCorrelationId]
-                                  completionBlock:completionBlock];
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+    
+    [request setUserId:userId];
+    [request setSilent:YES];
+    [request acquireToken:completionBlock];
 }
 
 - (void)acquireTokenWithResource:(NSString*)resource
@@ -330,75 +337,55 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                  completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
-    THROW_ON_NIL_ARGUMENT(completionBlock);//The only argument that throws
-    [self internalAcquireTokenWithResource:resource
-                                  clientId:clientId
-                               redirectUri:redirectUri
-                            promptBehavior:promptBehavior
-                                    silent:NO
-                                    userId:userId
-                                     scope:nil
-                      extraQueryParameters:queryParams
-                         validateAuthority:self.validateAuthority
-                             correlationId:[self getCorrelationId]
-                           completionBlock:completionBlock];
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+    
+    [request setUserId:userId];
+    [request setPromptBehavior:promptBehavior];
+    [request setExtraQueryParameters:queryParams];
+    [request acquireToken:completionBlock];
 }
 
--(void) acquireTokenByRefreshToken: (NSString*)refreshToken
-                          clientId: (NSString*)clientId
-                       redirectUri: (NSString*)redirectUri
-                   completionBlock: (ADAuthenticationCallback)completionBlock
+- (void)acquireTokenByRefreshToken:(NSString*)refreshToken
+                          clientId:(NSString*)clientId
+                       redirectUri:(NSString*)redirectUri
+                   completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
-    [self internalAcquireTokenByRefreshToken:refreshToken
-                                    clientId:clientId
-                                 redirectUri:redirectUri
-                                    resource:nil
-                                      userId:nil
-                                   cacheItem:nil
-                           validateAuthority:self.validateAuthority
-                               correlationId:[self getCorrelationId]
-                             completionBlock:completionBlock];
+    REQUEST_WITH_REDIRECT_STRING(redirectUri, clientId, nil);
+    
+    [request acquireTokenByRefreshToken:refreshToken
+                              cacheItem:nil
+                        completionBlock:completionBlock];
 }
 
--(void) acquireTokenByRefreshToken:(NSString*)refreshToken
+- (void)acquireTokenByRefreshToken:(NSString*)refreshToken
                           clientId:(NSString*)clientId
                        redirectUri:(NSString*)redirectUri
                           resource:(NSString*)resource
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
-    [self internalAcquireTokenByRefreshToken:refreshToken
-                                    clientId:clientId
-                                 redirectUri:redirectUri
-                                    resource:resource
-                                      userId:nil
-                                   cacheItem:nil
-                           validateAuthority:self.validateAuthority
-                               correlationId:[self getCorrelationId]
-                             completionBlock:completionBlock];
+    REQUEST_WITH_REDIRECT_STRING(redirectUri, clientId, resource);
+    
+    [request acquireTokenByRefreshToken:refreshToken
+                              cacheItem:nil
+                        completionBlock:completionBlock];
 }
 
--(void)  acquireTokenWithResource: (NSString*) resource
-                         clientId: (NSString*) clientId
-                      redirectUri: (NSURL*) redirectUri
-                   promptBehavior: (ADPromptBehavior) promptBehavior
-                   userIdentifier: (ADUserIdentifier*) userId
-             extraQueryParameters: (NSString*) queryParams
-                  completionBlock: (ADAuthenticationCallback) completionBlock
+- (void)acquireTokenWithResource:(NSString*)resource
+                        clientId:(NSString*)clientId
+                     redirectUri:(NSURL*)redirectUri
+                  promptBehavior:(ADPromptBehavior)promptBehavior
+                  userIdentifier:(ADUserIdentifier*)userId
+            extraQueryParameters:(NSString*)queryParams
+                 completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY;
-    [self internalAcquireTokenWithResource:resource
-                                  clientId:clientId
-                               redirectUri:redirectUri
-                            promptBehavior:promptBehavior
-                                    silent:NO
-                            userIdentifier:userId
-                                     scope:nil
-                      extraQueryParameters:queryParams
-                         validateAuthority:self.validateAuthority
-                             correlationId:[self getCorrelationId]
-                           completionBlock:completionBlock];
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+    
+    [request setPromptBehavior:promptBehavior];
+    [request setUserIdentifier:userId];
+    [request acquireToken:completionBlock];
 }
 
 @end

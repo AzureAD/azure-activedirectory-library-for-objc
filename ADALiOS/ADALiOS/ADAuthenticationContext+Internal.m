@@ -111,6 +111,11 @@ static BOOL isCorrelationIdUserProvided = NO;
     return [ADAuthenticationContext getPromptParameter:prompt] != nil;
 }
 
+- (BOOL)hasCacheStore
+{
+    return self.tokenCacheStore != nil;
+}
+
 //Used in the flows, where developer requested an explicit user. The method compares
 //the user for the obtained tokens (if provided by the server). If the user is different,
 //an error result is returned. Returns the same result, if no issues are found.
