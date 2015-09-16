@@ -28,6 +28,7 @@ static NSString* const PROFILE_INFO_PREFERRED_USERNAME = @"preferred_username";
 static NSString* const PROFILE_INFO_FRIENDLY_NAME = @"name";
 static NSString* const PROFILE_INFO_TYPE = @"typ";
 static NSString* const PROFILE_INFO_JWT_TYPE = @"JWT";
+static NSString* const PROFILE_INFO_VER = @"ver";
 
 @implementation ADProfileInfo
 
@@ -181,6 +182,7 @@ static ADAuthenticationError* _errorFromInfo(const char* cond, NSString* profile
 PROFILE_INFO_PROPERTY_GETTER(subject, PROFILE_INFO_SUBJECT);
 PROFILE_INFO_PROPERTY_GETTER(tenantId, PROFILE_INFO_TENANTID);
 PROFILE_INFO_PROPERTY_GETTER(friendlyName, PROFILE_INFO_FRIENDLY_NAME);
+PROFILE_INFO_PROPERTY_GETTER(version, PROFILE_INFO_VER);
 PROFILE_INFO_PROPERTY_GETTER(username, PROFILE_INFO_OBJID);
 
 + (ADProfileInfo*)profileInfoWithUsername:(NSString*)username
