@@ -268,7 +268,7 @@
     _sessionKey = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"sessionKey"];
     _profileInfo = [aDecoder decodeObjectOfClass:[ADProfileInfo class] forKey:@"profileInfo"];
     
-    _policies = [aDecoder decodeObjectOfClass:[NSArray class] forKey:@"policies"];
+    _policies = [[aDecoder decodeObjectOfClass:[NSDictionary class] forKey:@"policies"] mutableCopy];
     
     return self;
 }
