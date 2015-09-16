@@ -155,7 +155,6 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                                                tokenCacheStore:(id<ADTokenCacheStoring>)tokenCache
                                                          error:(ADAuthenticationError* __autoreleasing *)error;
 
-#if BROKER_ENABLED
 /*!
  */
 + (BOOL)isResponseFromBroker:(NSString*)sourceApplication
@@ -164,7 +163,6 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 /*!
  */
 + (void)handleBrokerResponse:(NSURL*)response;
-#endif // BROKER_ENABLED
 
 /*! Represents the authority used by the context. */
 @property (readonly) NSString* authority;

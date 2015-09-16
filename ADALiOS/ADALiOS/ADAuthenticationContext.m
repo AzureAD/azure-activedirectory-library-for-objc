@@ -47,7 +47,6 @@
 
 #import <objc/runtime.h>
 
-#if BROKER_ENABLED
 typedef BOOL (*applicationOpenURLPtr)(id, SEL, UIApplication*, NSURL*, NSString*, id);
 IMP __original_ApplicationOpenURL = NULL;
 
@@ -64,13 +63,11 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
     [ADAuthenticationContext handleBrokerResponse:url];
     return YES;
 }
-#endif // BROKER_ENABLED
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 @implementation ADAuthenticationContext
 
-#if BROKER_ENABLED
 + (void) load
 {
     __block id observer = nil;
@@ -114,7 +111,6 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                 }];
     
 }
-#endif // BROKER_ENABLED
 
 - (id)init
 {
@@ -230,12 +226,10 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     [NSString adSame:sourceApplication toString:@"com.microsoft.azureauthenticator"];
 }
 
-#if BROKER_ENABLED
 + (void)handleBrokerResponse:(NSURL*)response
 {
     [ADAuthenticationRequest internalHandleBrokerResponse:response];
 }
-#endif // BROKER_ENABLED
 
 #define REQUEST_WITH_REDIRECT_STRING(_redirect, _clientId, _resource) \
     ADAuthenticationRequest* request = [self requestWithRedirectString:_redirect clientId:_clientId resource:_resource completionBlock:completionBlock]; \

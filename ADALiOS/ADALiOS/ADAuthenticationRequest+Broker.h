@@ -21,13 +21,11 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 + (BOOL)canUseBroker;
 
-#if BROKER_ENABLED
 + (void)internalHandleBrokerResponse:(NSURL*)response;
 
 - (void)callBroker:(ADAuthenticationCallback)completionBlock;
 
 - (void)handleBrokerFromWebiewResponse:(NSString*)urlString
                        completionBlock:(ADAuthenticationCallback)completionBlock;
-#endif // BROKER_ENABLED
 
 @end

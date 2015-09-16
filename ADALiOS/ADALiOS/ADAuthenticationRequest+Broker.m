@@ -31,15 +31,10 @@
 
 + (BOOL)canUseBroker
 {
-#if BROKER_ENABLED
     return [[ADAuthenticationSettings sharedInstance] credentialsType] == AD_CREDENTIALS_AUTO &&
     [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", brokerScheme]]];
-#else // !BROKER_ENABLED
-    return NO;
-#endif // BROKER_ENABLED
 }
 
-#if BROKER_ENABLED
 + (BOOL)respondsToUrl:(NSString*)url
 {
     BOOL schemeIsInPlist = NO; // find out if the sceme is in the plist file.
@@ -275,6 +270,5 @@
         });
     }
 }
-#endif // BROKER_ENABLED
 
 @end
