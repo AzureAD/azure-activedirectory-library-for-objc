@@ -38,6 +38,8 @@
 
 @property (readonly) NSString* friendlyName;
 
+@property (readonly) NSString* version;
+
 @property (readonly) NSString* tenantId;
 
 /*! The raw id_token claim string. */
