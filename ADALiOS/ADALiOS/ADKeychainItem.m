@@ -1,16 +1,26 @@
+// Copyright © Microsoft Open Technologies, Inc.
 //
-//  ADKeychainItem.m
-//  ADALiOS
+// All Rights Reserved
 //
-//  Created by Ryan Pangrle on 8/18/15.
-//  Copyright (c) 2015 MS Open Tech. All rights reserved.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
+// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
+// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
+// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
+//
+// See the Apache License, Version 2.0 for the specific language
+// governing permissions and limitations under the License.
 
 #import "ADKeychainItem.h"
 #import "ADTokenCacheStoreItem+Internal.h"
 #import "ADProfileInfo.h"
 
-@interface ADKeychainToken : NSObject <NSCoding, NSSecureCoding>
+@interface Token : NSObject <NSCoding, NSSecureCoding>
 
 @property NSSet* scopes;
 
@@ -31,7 +41,7 @@
 
 @end
 
-@implementation ADKeychainToken
+@implementation Token
 
 - (id)initWithCoder:(NSCoder*)aDecoder
 {
@@ -110,7 +120,7 @@
         // Verify everything in here matches the expected class
         for (id accessToken in accessTokens)
         {
-            if (![accessToken isKindOfClass:[ADKeychainToken class]])
+            if (![accessToken isKindOfClass:[Token class]])
             {
                 return nil;
             }
@@ -139,12 +149,12 @@
     return YES;
 }
 
-- (ADKeychainToken*)tokenWithScopes:(NSSet*)scopes
+- (Token*)tokenWithScopes:(NSSet*)scopes
 {
-    for (ADKeychainToken* token in _accessTokens)
+    for (Token* token in _accessTokens)
     {
         // Ignore anything in the keychain item that's not the correct class.
-        if (![token isKindOfClass:[ADKeychainToken class]])
+        if (![token isKindOfClass:[Token class]])
         {
             continue;
         }
@@ -163,7 +173,7 @@
 {
     item.refreshToken = _refreshToken;
     
-    ADKeychainToken* token = [self tokenWithScopes:scopes];
+    Token* token = [self tokenWithScopes:scopes];
     [token addToTokenItem:item];
 }
 
@@ -175,10 +185,10 @@
     
     for (NSUInteger i = 0; i < cTokens; i++)
     {
-        ADKeychainToken* token = _accessTokens[i];
+        Token* token = _accessTokens[i];
         
         // Ignore anything in the keychain item that's not the correct class.
-        if (![token isKindOfClass:[ADKeychainToken class]])
+        if (![token isKindOfClass:[Token class]])
         {
             continue;
         }
@@ -199,7 +209,7 @@
     NSSet* scopes = item.scopes;
     [self removeIntersectingTokens:scopes];
     
-    ADKeychainToken* token = [ADKeychainToken new];
+    Token* token = [Token new];
     [token updateToTokenItem:item];
     [_accessTokens addObject:token];
 }
@@ -268,7 +278,7 @@
     _sessionKey = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"sessionKey"];
     _profileInfo = [aDecoder decodeObjectOfClass:[ADProfileInfo class] forKey:@"profileInfo"];
     
-    _policies = [aDecoder decodeObjectOfClass:[NSArray class] forKey:@"policies"];
+    _policies = [aDecoder decodeObjectOfClass:[NSSet class] forKey:@"policies"];
     
     return self;
 }
@@ -312,7 +322,7 @@
     for (id policyKey in _policies)
     {
         ADKeychainPolicyItem* policy = [_policies objectForKey:policyKey];
-        for (ADKeychainToken* token in policy->_accessTokens)
+        for (Token* token in policy->_accessTokens)
         {
             ADTokenCacheStoreItem* item = [self tokenItem];
             [token addToTokenItem:item];

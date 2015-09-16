@@ -22,7 +22,6 @@
 #import "NSString+ADHelperMethods.h"
 
 static NSString* const PROFILE_INFO_SUBJECT = @"sub";
-static NSString* const PROFILE_INFO_OBJID = @"oid";
 static NSString* const PROFILE_INFO_TENANTID = @"tid";
 static NSString* const PROFILE_INFO_PREFERRED_USERNAME = @"preferred_username";
 static NSString* const PROFILE_INFO_FRIENDLY_NAME = @"name";

@@ -170,11 +170,11 @@ static ADAuthenticationError* _validateScopes(NSArray* scopes)
         
         if ([scope isEqualToString:_clientId]) {
             
-            // first, remove the Client ID from scopes. It has served it's holy purpose.
+            // first, remove all scopes as if Client ID is present there can only be the claims below.
             
-            [lowercaseScopes removeObject:scope];
+            [lowercaseScopes removeAllObjects];
             
-            // next, let's add the scopes that we need to get an id_token
+            // next, let's add the scopes that we need to get an id_token. These will be the only scopes.
             
             [lowercaseScopes addObject:@"openid"];
             [lowercaseScopes addObject:@"offline_access"];
