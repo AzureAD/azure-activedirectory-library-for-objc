@@ -85,7 +85,6 @@
 {
     [self requestWithServer:authorizationServer
                 requestData:request_data
-       requestCorrelationId:requestCorrelationId
             handledPkeyAuth:isHandlingPKeyAuthChallenge
           additionalHeaders:additionalHeaders
           returnRawResponse:returnRawResponse
@@ -95,7 +94,6 @@
 
 - (void)requestWithServer:(NSString *)authorizationServer
               requestData:(NSDictionary *)request_data
-     requestCorrelationId:(NSUUID*)requestCorrelationId
           handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
         additionalHeaders:(NSDictionary *)additionalHeaders
         returnRawResponse:(BOOL)returnRawResponse
@@ -456,6 +454,7 @@ static volatile int sDialogInProgress = 0;
                     requestData:requestData
                 handledPkeyAuth:NO
               additionalHeaders:nil
+              returnRawResponse:NO
 				   isGetRequest:YES
                      completion:^(NSDictionary * parameters)
          {

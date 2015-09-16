@@ -37,6 +37,14 @@
         returnRawResponse:(BOOL)returnRawResponse
                completion:( void (^)(NSDictionary *) )completionBlock;
 
+- (void)requestWithServer:(NSString *)authorizationServer
+              requestData:(NSDictionary *)request_data
+          handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
+        additionalHeaders:(NSDictionary *)additionalHeaders
+        returnRawResponse:(BOOL)returnRawResponse
+             isGetRequest:(BOOL)isGetRequest
+               completion:( void (^)(NSDictionary *) )completionBlock;
+
 //Requests an OAuth2 code to be used for obtaining a token:
 - (void)requestCode:(ADAuthorizationCodeCallback)completionBlock;
 
