@@ -82,6 +82,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 - (void)setUserId:(NSString*)userId;
 - (void)setPromptBehavior:(ADPromptBehavior)promptBehavior;
 - (void)setSilent:(BOOL)silent;
+- (void)setCorrelationId:(NSUUID*)correlationId;
 #if AD_BROKER
 - (void)setAllowSilentRequests:(BOOL)allowSilent;
 #endif

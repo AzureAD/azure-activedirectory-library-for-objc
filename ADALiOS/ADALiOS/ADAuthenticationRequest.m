@@ -123,6 +123,12 @@
     _silent = silent;
 }
 
+- (void)setCorrelationId:(NSUUID*)correlationId
+{
+    CHECK_REQUEST_STARTED;
+    _correlationId = correlationId;
+}
+
 #if AD_BROKER
 - (void)setAllowSilentRequests:(BOOL)allowSilent
 {
