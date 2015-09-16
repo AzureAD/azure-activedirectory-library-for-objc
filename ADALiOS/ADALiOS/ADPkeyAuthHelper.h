@@ -29,8 +29,7 @@ typedef enum
 @interface ADPkeyAuthHelper : NSObject
 
 + (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
-                         challengeData:(NSDictionary*) challengeData
-                       challengeType: (ADChallengeType) challengeType;
+                         challengeData:(NSDictionary*) challengeData;
 
 
 + (NSString*) computeThumbprint:(NSData*) data isSha2:(BOOL) isSha2;
