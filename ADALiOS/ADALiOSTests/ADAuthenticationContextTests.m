@@ -412,6 +412,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                                        clientId:_clientId
                                     redirectUri:_redirectURL
                                   identifier:[ADUserIdentifier identifierWithId:_userId type:RequiredDisplayableId]
+                               promptBehavior:AD_PROMPT_AUTO
                            extraQueryParameters:nil
                                 completionBlock:callback];
          }
@@ -435,7 +436,12 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 
 - (void)testAcquireTokenBadCompletionBlock
 {
-    ADAssertThrowsArgument([_context acquireTokenWithScopes:_scopes additionalScopes:nil clientId:_clientId redirectUri:_redirectURL completionBlock:nil]);
+    ADAssertThrowsArgument([_context acquireTokenWithScopes:_scopes
+                                           additionalScopes:nil
+                                                   clientId:_clientId
+                                                redirectUri:_redirectURL
+                                             promptBehavior:AD_PROMPT_AUTO
+                                            completionBlock:nil]);
 }
 
 - (void)testAcquireTokenBadScopes
@@ -1008,10 +1014,11 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
          [_context acquireTokenWithScopes:_scopes
-                        additionalScopes:nil
-                                   clientId:_clientId
-                                redirectUri:_redirectURL
-                            completionBlock:innerCallback];
+                         additionalScopes:nil
+                                 clientId:_clientId
+                              redirectUri:_redirectURL
+                           promptBehavior:AD_PROMPT_AUTO
+                          completionBlock:innerCallback];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, _result.status);
@@ -1019,11 +1026,12 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
          [_context acquireTokenWithScopes:_scopes
-                        additionalScopes:nil
-                                clientId:_clientId
-                             redirectUri:_redirectURL
-                              identifier:_userId ? [ADUserIdentifier identifierWithId:_userId type:RequiredDisplayableId] : nil
-                         completionBlock:innerCallback];
+                         additionalScopes:nil
+                                 clientId:_clientId
+                              redirectUri:_redirectURL
+                               identifier:_userId ? [ADUserIdentifier identifierWithId:_userId type:RequiredDisplayableId] : nil
+                           promptBehavior:AD_PROMPT_AUTO
+                          completionBlock:innerCallback];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, _result.status);
@@ -1031,12 +1039,13 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
          [_context acquireTokenWithScopes:_scopes
-                        additionalScopes:nil
-                                clientId:_clientId
-                             redirectUri:_redirectURL
-                              identifier:_userId ? [ADUserIdentifier identifierWithId:_userId type:RequiredDisplayableId] : nil
-                    extraQueryParameters:@"extraQueryParams=somevalue"
-                         completionBlock:innerCallback];
+                         additionalScopes:nil
+                                 clientId:_clientId
+                              redirectUri:_redirectURL
+                               identifier:_userId ? [ADUserIdentifier identifierWithId:_userId type:RequiredDisplayableId] : nil
+                           promptBehavior:AD_PROMPT_AUTO
+                     extraQueryParameters:@"extraQueryParams=somevalue"
+                          completionBlock:innerCallback];
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, _result.status);
