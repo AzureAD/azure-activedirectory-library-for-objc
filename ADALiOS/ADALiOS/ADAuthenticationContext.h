@@ -213,7 +213,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                 additionalScopes:(NSArray*)additionalScopes
                         clientId:(NSString*)clientId
                       identifier:(ADUserIdentifier*)identifier
-                  promptBehavior:(ADPromptBehavior*)promptBehavior
+                  promptBehavior:(ADPromptBehavior)promptBehavior
                  completionBlock:(ADAuthenticationCallback)completionBlock;
 
 
@@ -232,11 +232,11 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenWithScopes:(NSArray*)scopes
-             additionalScopes:(NSArray*)additionalScopes
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-                promptBehavior:(ADPromptBehavior*)promptBehavior
-              completionBlock:(ADAuthenticationCallback)completionBlock;
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                promptBehavior:(ADPromptBehavior)promptBehavior
+               completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
     Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
@@ -256,12 +256,12 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                             "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenWithScopes:(NSArray*)scopes
-             additionalScopes:(NSArray*)additionalScopes
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-                   identifier:(ADUserIdentifier*)identifier
-                promptBehavior:(ADPromptBehavior*)promptBehavior
-              completionBlock:(ADAuthenticationCallback)completionBlock;
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                    identifier:(ADUserIdentifier*)identifier
+                promptBehavior:(ADPromptBehavior)promptBehavior
+               completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
     Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
@@ -282,13 +282,13 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                                 "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenWithScopes:(NSArray*)scopes
-             additionalScopes:(NSArray*)additionalScopes
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-                   identifier:(ADUserIdentifier*)identifier
-                promptBehavior:(ADPromptBehavior*)promptBehavior
-         extraQueryParameters:(NSString*)queryParams
-              completionBlock:(ADAuthenticationCallback)completionBlock;
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                    identifier:(ADUserIdentifier*)identifier
+                promptBehavior:(ADPromptBehavior)promptBehavior
+          extraQueryParameters:(NSString*)queryParams
+               completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
     Follows the OAuth2 protocol (RFC 6749). The behavior is controlled by the promptBehavior parameter on whether to re-authorize
@@ -308,14 +308,14 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  */
 
 - (void)acquireTokenWithScopes:(NSArray*)scopes
-             additionalScopes:(NSArray*)additionalScopes
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-                   identifier:(ADUserIdentifier*)identifier
-                promptBehavior:(ADPromptBehavior*)promptBehavior
-         extraQueryParameters:(NSString*)queryParams
-                       policy:(NSString*)policy
-              completionBlock:(ADAuthenticationCallback)completionBlock;
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                    identifier:(ADUserIdentifier*)identifier
+                promptBehavior:(ADPromptBehavior)promptBehavior
+          extraQueryParameters:(NSString*)queryParams
+                        policy:(NSString*)policy
+               completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
     Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
@@ -331,10 +331,10 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                             "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenSilentWithScopes:(NSArray*)scopes
-                           clientId:(NSString*)clientId
-                        redirectUri:(NSURL*)redirectUri
-                        promptBehavior:(ADPromptBehavior*)promptBehavior
-                    completionBlock:(ADAuthenticationCallback)completionBlock;
+                            clientId:(NSString*)clientId
+                         redirectUri:(NSURL*)redirectUri
+                      promptBehavior:(ADPromptBehavior)promptBehavior
+                     completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
     Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
@@ -350,11 +350,11 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenSilentWithScopes:(NSArray*)scopes
-                           clientId:(NSString*)clientId
-                        redirectUri:(NSURL*)redirectUri
-                         identifier:(ADUserIdentifier*)identifier
-                        promptBehavior:(ADPromptBehavior*)promptBehavior
-                    completionBlock:(ADAuthenticationCallback)completionBlock;
+                            clientId:(NSString*)clientId
+                         redirectUri:(NSURL*)redirectUri
+                          identifier:(ADUserIdentifier*)identifier
+                      promptBehavior:(ADPromptBehavior)promptBehavior
+                     completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
     Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
@@ -371,12 +371,12 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenSilentWithScopes:(NSArray*)scopes
-                           clientId:(NSString*)clientId
-                        redirectUri:(NSURL*)redirectUri
-                         identifier:(ADUserIdentifier*)identifier
-                        promptBehavior:(ADPromptBehavior*)promptBehavior
-                             policy:(NSString*)policy
-                    completionBlock:(ADAuthenticationCallback)completionBlock;
+                            clientId:(NSString*)clientId
+                         redirectUri:(NSURL*)redirectUri
+                          identifier:(ADUserIdentifier*)identifier
+                      promptBehavior:(ADPromptBehavior)promptBehavior
+                              policy:(NSString*)policy
+                     completionBlock:(ADAuthenticationCallback)completionBlock;
 
 @end
 
