@@ -356,6 +356,28 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                       promptBehavior:(ADPromptBehavior)promptBehavior
                      completionBlock:(ADAuthenticationCallback)completionBlock;
 
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. This method will not show UI for the user to reauthorize resource usage.
+    If reauthorization is needed, the method will return an error with code AD_ERROR_USER_INPUT_NEEDED.
+
+    @param scopes           An array of NSString* specifying the scopes required for the request
+    @param clientId         the client identifier
+    @param redirectUri      The redirect URI according to OAuth2 protocol
+    @param identifier       An ADUserIdentifier object specifying the semantics
+    @param promptBehavior       controls if any credentials UI will be shown
+    @param policy           ?????
+    @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenSilentWithScopes:(NSArray*)scopes
+                            clientId:(NSString*)clientId
+                         redirectUri:(NSURL*)redirectUri
+                          identifier:(ADUserIdentifier*)identifier
+                      promptBehavior:(ADPromptBehavior)promptBehavior
+                              policy:(NSString*)policy
+                     completionBlock:(ADAuthenticationCallback)completionBlock;
+
 @end
 
 
