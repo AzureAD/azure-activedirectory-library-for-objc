@@ -87,7 +87,7 @@
 
 #define CHECK_REQUEST_STARTED CHECK_REQUEST_STARTED_R()
 
-static NSArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* context, ADAuthenticationError* __autoreleasing * error)
+static NSMutableArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* context, ADAuthenticationError* __autoreleasing * error)
 {
     if (!strings || ![strings count])
     {
