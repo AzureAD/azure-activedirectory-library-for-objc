@@ -213,7 +213,6 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                 additionalScopes:(NSArray*)additionalScopes
                         clientId:(NSString*)clientId
                       identifier:(ADUserIdentifier*)identifier
-                  promptBehavior:(ADPromptBehavior)promptBehavior
                  completionBlock:(ADAuthenticationCallback)completionBlock;
 
 

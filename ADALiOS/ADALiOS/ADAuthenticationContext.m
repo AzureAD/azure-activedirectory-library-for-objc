@@ -265,7 +265,6 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                 additionalScopes:(NSArray*)additionalScopes
                         clientId:(NSString*)clientId
                       identifier:(ADUserIdentifier*)identifier
-                  promptBehavior:(ADPromptBehavior)promptBehavior
                  completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY_F(@"assertion:%lu assertiontype:%@ scopes:%@ additionalscopes:%@ clientId:%@ identifier:%@",
@@ -275,7 +274,6 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     CALLBACK_ON_ERROR([request setScopes:scopes]);
     CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
     [request setUserIdentifier:identifier];
-    [request setPromptBehavior:promptBehavior];
     
     [request acquireTokenForAssertion:assertion
                         assertionType:assertionType
