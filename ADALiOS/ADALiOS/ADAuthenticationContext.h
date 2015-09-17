@@ -326,14 +326,12 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param scopes           An array of NSString* specifying the scopes required for the request
     @param clientId         the client identifier
     @param redirectUri      The redirect URI according to OAuth2 protocol.
-    @param promptBehavior       controls if any credentials UI will be shown
     @param completionBlock  the block to execute upon completion. You can use embedded block, e.g.
                             "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenSilentWithScopes:(NSArray*)scopes
                             clientId:(NSString*)clientId
                          redirectUri:(NSURL*)redirectUri
-                      promptBehavior:(ADPromptBehavior)promptBehavior
                      completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
@@ -346,14 +344,12 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param clientId         the client identifier
     @param redirectUri      The redirect URI according to OAuth2 protocol
     @param identifier       An ADUserIdentifier object specifying the semantics
-    @param promptBehavior       controls if any credentials UI will be shown
     @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenSilentWithScopes:(NSArray*)scopes
                             clientId:(NSString*)clientId
                          redirectUri:(NSURL*)redirectUri
                           identifier:(ADUserIdentifier*)identifier
-                      promptBehavior:(ADPromptBehavior)promptBehavior
                      completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
@@ -374,7 +370,6 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                             clientId:(NSString*)clientId
                          redirectUri:(NSURL*)redirectUri
                           identifier:(ADUserIdentifier*)identifier
-                      promptBehavior:(ADPromptBehavior)promptBehavior
                               policy:(NSString*)policy
                      completionBlock:(ADAuthenticationCallback)completionBlock;
 
