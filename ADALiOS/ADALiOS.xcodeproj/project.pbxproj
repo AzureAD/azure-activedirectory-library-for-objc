@@ -103,7 +103,7 @@
 		D6E43A761B04142C000F5BE2 /* ADAuthenticationRequest+Broker.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E43A751B04142C000F5BE2 /* ADAuthenticationRequest+Broker.m */; };
 		D6FB3E3C1B30D3630032F883 /* ADUserIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */; };
 		D6FB3E3D1B30FF510032F883 /* ADUserIdentifier.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D6FB3E3A1B30D3630032F883 /* ADUserIdentifier.h */; };
-		FB538EF01BA32BEE003ABD9A /* NSString+ADExtentions.m in Sources */ = {isa = PBXBuildFile; fileRef = FB538EEF1BA32BEE003ABD9A /* NSString+ADExtentions.m */; settings = {ASSET_TAGS = (); }; };
+		FB538EF01BA32BEE003ABD9A /* NSString+ADExtentions.m in Sources */ = {isa = PBXBuildFile; fileRef = FB538EEF1BA32BEE003ABD9A /* NSString+ADExtentions.m */; };
 		FB538EF21BA34299003ABD9A /* ADAL.h in Headers */ = {isa = PBXBuildFile; fileRef = 97DFE4661AE37B42008109E1 /* ADAL.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FB538EF31BA34299003ABD9A /* ADPkeyAuthHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 97345B90199160BD0044B1A6 /* ADPkeyAuthHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FB538EF41BA34299003ABD9A /* ADRegistrationInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = 9722232719A2C9F900092E85 /* ADRegistrationInformation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1018,6 +1018,7 @@
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -1052,6 +1053,7 @@
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -1195,6 +1197,7 @@
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
