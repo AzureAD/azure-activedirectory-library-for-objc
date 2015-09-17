@@ -97,7 +97,6 @@ static NSMutableArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* cont
             *error = adError;
         }
         return nil;
-        
     }
     NSMutableArray* lowercase = [[NSMutableArray alloc] initWithCapacity:[strings count]];
     
@@ -114,44 +113,48 @@ static NSMutableArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* cont
             return nil;
         }
         
-        [lowercase addObject:[string lowercaseString]];
+        NSString* trimmedString = [[string lowercaseString] adTrimmedString];
+        if (![NSString adIsStringNilOrBlank:trimmedString])
+        {
+            [lowercase addObject:trimmedString];
+        }
+    }
+    
+    if ([lowercase count] == 0)
+    {
+        ADAuthenticationError* adError = [ADAuthenticationError invalidArgumentError:@"%@ cannot be nil or empty", context];
+        if (error)
+        {
+            *error = adError;
+        }
+        return nil;
     }
     
     return lowercase;
 }
 
-static ADAuthenticationError* _validateScopes(NSArray* scopes)
+- (ADAuthenticationError*)validateScopes:(NSArray*)scopes
+                              additional:(BOOL)additional
 {
     if ([scopes containsObject:@"openid"] || [scopes containsObject:@"offline_access"])
     {
         return [ADAuthenticationError invalidArgumentError:@"Can not pass in \"openid\" or \"offline_access\" scopes"];
     }
     
+    if ([scopes containsObject:_clientId])
+    {
+        if (additional)
+        {
+            return [ADAuthenticationError invalidArgumentError:@"Client ID may not be passed in as an additional scopes"];
+        }
+        if ([scopes count] > 1)
+        {
+            return [ADAuthenticationError invalidArgumentError:@"If the client ID is being passed in as a scope it is the only allowed scope."];
+        }
+    }
+    
     return nil;
 }
-
-//static BOOL isClientID(NSString* scope)
-//{
-    
-  //  NSError *error;
-    
- //   NSRegularExpression *regex =
- //   [NSRegularExpression regularExpressionWithPattern:@"\\A\\{[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}\\}\\Z"
-                                 //             options:NSRegularExpressionAnchorsMatchLines
-                                 //               error:&error];
- //   NSPredicate *testGUID = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
-    
-    
-    
- //   if ([testGUID evaluateWithObject: scope]) {
-        
-   //     return YES;
-        
-  //  } else {
-        
-  //      return NO;
-  //  }
-//}
 
 - (ADAuthenticationError*)setScopes:(NSArray *)scopes
 {
@@ -164,23 +167,12 @@ static ADAuthenticationError* _validateScopes(NSArray* scopes)
         return error;
     }
     
-    RETURN_IF_NOT_NIL(_validateScopes(lowercaseScopes));
+    RETURN_IF_NOT_NIL([self validateScopes:lowercaseScopes additional:NO]);
     
-    for (NSString* scope in lowercaseScopes) {
-        
-        if ([scope isEqualToString:_clientId]) {
-            
-            // first, remove all scopes as if Client ID is present there can only be the claims below.
-            
-            [lowercaseScopes removeAllObjects];
-            
-            // next, let's add the scopes that we need to get an id_token. These will be the only scopes.
-            
-            [lowercaseScopes addObject:@"openid"];
-            [lowercaseScopes addObject:@"offline_access"];
-            
-        }
-        
+    if (![lowercaseScopes containsObject:_clientId])
+    {
+        [lowercaseScopes addObject:@"openid"];
+        [lowercaseScopes addObject:@"offline_access"];
     }
     
     _scopes = [NSSet setWithArray:lowercaseScopes];
@@ -206,7 +198,7 @@ static ADAuthenticationError* _validateScopes(NSArray* scopes)
         return error;
     }
     
-    RETURN_IF_NOT_NIL(_validateScopes(lowercaseScopes));
+    RETURN_IF_NOT_NIL([self validateScopes:lowercaseScopes additional:YES]);
     
     _additionalScopes = [NSSet setWithArray:lowercaseScopes];
     
