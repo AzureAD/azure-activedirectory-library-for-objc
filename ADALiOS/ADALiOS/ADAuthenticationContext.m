@@ -298,11 +298,11 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenWithScopes:(NSArray*)scopes
-             additionalScopes:(NSArray*)additionalScopes
-                     clientId:(NSString*)clientId
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
                 promptBehavior:(ADPromptBehavior)promptBehavior
-                  redirectUri:(NSURL*)redirectUri
-              completionBlock:(ADAuthenticationCallback)completionBlock
+               completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY_F(@"scopes:%@ additionalScopes:%@ clientId:%@ redirectUri:%@", scopes, additionalScopes, clientId, redirectUri);
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
@@ -333,12 +333,12 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                             "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenWithScopes:(NSArray*)scopes
-             additionalScopes:(NSArray*)additionalScopes
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-                   identifier:(ADUserIdentifier*)identifier
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                    identifier:(ADUserIdentifier*)identifier
                 promptBehavior:(ADPromptBehavior)promptBehavior
-              completionBlock:(ADAuthenticationCallback)completionBlock
+               completionBlock:(ADAuthenticationCallback)completionBlock
 {
     API_ENTRY_F(@"scopes:%@ additionalScopes:%@ clientId:%@ redirectUri:%@ identifier:%@",
                 scopes, additionalScopes, clientId, redirectUri, identifier);
