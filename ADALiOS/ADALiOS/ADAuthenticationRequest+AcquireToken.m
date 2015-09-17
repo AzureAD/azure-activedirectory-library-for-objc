@@ -301,8 +301,6 @@
          //Always ensure that the cache item has all of these set, especially in the broad token case, where the passed item
          //may have empty "resource" property:
          
-         // TODO: add scopes to result
-         
          resultItem.clientId = _clientId;
          resultItem.authority = _context.authority;
          

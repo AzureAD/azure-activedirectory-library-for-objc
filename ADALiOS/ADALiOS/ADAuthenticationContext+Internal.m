@@ -141,7 +141,6 @@ static BOOL isCorrelationIdUserProvided = NO;
     
     if (!userInfo || ![userId userIdMatchString:userInfo])
     {
-        // TODO: This behavior is questionable. Look into removing.
         return result;
     }
     
