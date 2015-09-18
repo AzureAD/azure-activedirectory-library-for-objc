@@ -42,25 +42,21 @@
 -(void) testFragmentParameters
 {
     //Missing or invalid fragment:
-    XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com"]).adFragmentParameters);
-    XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar"]).adFragmentParameters);
-    XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com#bar=foo#"]).adFragmentParameters);
-    XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo#foo=bar"]).adFragmentParameters);
-    XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo#foo=bar#"]).adFragmentParameters);
-    XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#        "]).adFragmentParameters);
+    XCTAssertEqual([[[NSURL URLWithString:@"https://stuff.com"] adFragmentParameters] count], 0);
+    XCTAssertEqual([[[NSURL URLWithString:@"https://stuff.com?foo=bar"] adFragmentParameters] count], 0);
     
     //Valid fragment, but missing/invalid parameters:
     NSDictionary* empty = [NSDictionary new];
-    XCTAssertEqualObjects(empty, ((NSURL*)[NSURL URLWithString:@"https://stuff.com#bar"]).adFragmentParameters);
-    XCTAssertEqualObjects(empty, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar"]).adFragmentParameters);
-    XCTAssertEqualObjects(empty, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo=bar"]).adFragmentParameters);
+    XCTAssertEqualObjects(empty, [NSURL URLWithString:@"https://stuff.com#bar"].adFragmentParameters);
+    XCTAssertEqualObjects(empty, [NSURL URLWithString:@"https://stuff.com?foo=bar#bar"].adFragmentParameters);
+    XCTAssertEqualObjects(empty, [NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo=bar"].adFragmentParameters);
     
     //At least some of the parameters are valid:
     NSDictionary* simple = @{@"foo1":@"bar1", @"foo2":@"bar2"};
-    XCTAssertEqualObjects(simple, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#foo1=bar1&foo2=bar2"]).adFragmentParameters);
-    XCTAssertEqualObjects(simple, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#foo1=bar1&foo2=bar2&foo2=bar2"]).adFragmentParameters);
-    XCTAssertEqualObjects(simple, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#foo1=bar1&foo2=bar2&&&"]).adFragmentParameters);
-    XCTAssertEqualObjects(simple, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#foo1=bar1&foo2=bar2&foo3=bar3=foo3"]).adFragmentParameters);
+    XCTAssertEqualObjects(simple, [NSURL URLWithString:@"https://stuff.com?foo=bar#foo1=bar1&foo2=bar2"].adFragmentParameters);
+    XCTAssertEqualObjects(simple, [NSURL URLWithString:@"https://stuff.com?foo=bar#foo1=bar1&foo2=bar2&foo2=bar2"].adFragmentParameters);
+    XCTAssertEqualObjects(simple, [NSURL URLWithString:@"https://stuff.com?foo=bar#foo1=bar1&foo2=bar2&&&"].adFragmentParameters);
+    XCTAssertEqualObjects(simple, [NSURL URLWithString:@"https://stuff.com?foo=bar#foo1=bar1&foo2=bar2&foo3=bar3=foo3"].adFragmentParameters);
 }
 
 //As both fragment and query parameters are extracted
@@ -68,7 +64,7 @@
 -(void) testQueryParameters
 {
     //Negative:
-    XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com"]).adQueryParameters);
+    XCTAssertEqual([NSURL URLWithString:@"https://stuff.com"].adQueryParameters.count, 0);
     
     //Positive:
     NSDictionary* simple = @{@"foo1":@"bar1", @"foo2":@"bar2"};
