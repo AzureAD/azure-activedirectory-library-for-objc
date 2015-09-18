@@ -62,11 +62,14 @@ static NSString* const s_profileHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
 
 - (NSString*)rawProfileInfo
 {
-    NSString* claims = [NSString stringWithFormat:@"{\"ver\":\"%@\",\"tid\":\"%@\","
-                                                     "\"preferred_username\":\"%@\",\"sub\":\"%@\","
-                                                     "\"name\":\"%@\",\"extra_claim\":\"%@\"}",
-                        _profileVersion, _tid, _username, _subject, _friendlyName, _extra_claim];
-    return [NSString stringWithFormat:@"%@.%@", [s_profileHeader adBase64UrlEncode], [claims adBase64UrlEncode]];
+    NSDictionary* claimsDict = @{@"ver" : _profileVersion,
+                                 @"tid" : _tid,
+                                 @"preferred_username" : _username,
+                                 @"sub" : _subject,
+                                 @"name" : _friendlyName,
+                                 @"extra_claim" : _extra_claim,};
+    NSString* claims = [[NSJSONSerialization dataWithJSONObject:claimsDict options:0 error:nil] base64EncodedStringWithOptions:0];
+    return [NSString stringWithFormat:@"%@.%@", [s_profileHeader adBase64UrlEncode], claims];
 }
 
 #define VERIFY_PROPERTY(_property) \
