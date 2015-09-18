@@ -113,7 +113,7 @@ static ADAuthenticationError* _errorFromInfo(const char* cond, NSString* profile
     CHECK_PROFILE_INFO_ERROR(parts.count > 0);
     
     NSString* type = nil;
-    for (int i = 1; i < parts.count; i++)
+    for (int i = 0; i < parts.count; i++)
     {
         NSString* decoded = [parts[i] adBase64UrlDecode];
         CHECK_PROFILE_INFO_ERROR(![NSString adIsStringNilOrBlank:decoded]);

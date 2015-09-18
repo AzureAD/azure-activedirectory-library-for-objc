@@ -97,7 +97,7 @@
         return NO;
     }
     
-    self.profileInfo = [ADProfileInfo profileInfoWithEncodedString:[responseDictionary objectForKey:OAUTH2_ID_TOKEN]
+    self.profileInfo = [ADProfileInfo profileInfoWithEncodedString:[responseDictionary objectForKey:OAUTH2_PROFILE_INFO]
                                                              error:nil];
     NSArray* scopes = [[responseDictionary objectForKey:OAUTH2_SCOPE] componentsSeparatedByString:@" "];
     self.scopes = [NSSet setWithArray:scopes];
