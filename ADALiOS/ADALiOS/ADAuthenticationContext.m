@@ -531,7 +531,6 @@ return; \
                  }//broad item
              }//key
          }//!item.multiResourceRefreshToken
-         
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
          [self requestTokenWithResource: resource
@@ -2173,18 +2172,19 @@ additionalHeaders:headerKeyValuePair
 
 
 
-+(BOOL) isResponseFromBroker:(NSString*) sourceApplication
-                    response:(NSURL*) response
++ (BOOL)isResponseFromBroker:(NSString*)sourceApplication
+                    response:(NSURL*)response
 {
     return response && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
 }
 
 
-+(void) handleBrokerResponse:(NSURL*) response
++ (void)handleBrokerResponse:(NSURL*) response
 {
     ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].callbackForBroker;
     if (!completionBlock)
     {
+        AD_LOG_WARN(@"Received broker response, but no completion block.", nil);
         return;
     }
     
@@ -2214,9 +2214,11 @@ additionalHeaders:headerKeyValuePair
         
         if(!error)
         {
-            decryptedString =[[NSString alloc] initWithData:decrypted encoding:NSASCIIStringEncoding];
+            decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
             //now compute the hash on the unencrypted data
-            if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES]]){
+            AD_LOG_INFO_F(@"Received broker reponse", @"reponse = %@", decrypted);
+            if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES]])
+            {
                 //create response from the decrypted payload
                 queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
                 [ADHelpers removeNullStringFrom:queryParamsMap];
