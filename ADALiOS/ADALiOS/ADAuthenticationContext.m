@@ -1693,7 +1693,7 @@ additionalHeaders:nil
 {
     if ( !OSAtomicCompareAndSwapInt( 1, 0, &sDialogInProgress) )
     {
-        AD_LOG_WARN(@"UI Locking", @"The UI lock has already been released.")
+        AD_LOG_WARN(@"UI Locking", @"The UI lock has already been released.");
     }
 }
 
