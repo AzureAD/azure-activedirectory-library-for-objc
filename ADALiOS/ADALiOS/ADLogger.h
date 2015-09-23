@@ -34,10 +34,10 @@ typedef enum
 /*! Sets the logging level for the internal logging messages. Messages with
  priority lower than the specified level will be ignored.
  @param logLevel: desired logging level. The higher the number, the more logging information is included. */
-+(void) setLevel: (ADAL_LOG_LEVEL)logLevel;
++ (void)setLevel:(ADAL_LOG_LEVEL)logLevel;
 
 /*! Returns the current log level. See setLevel for details */
-+(ADAL_LOG_LEVEL) getLevel;
++ (ADAL_LOG_LEVEL)getLevel;
 
 /*! Main logging function. Macros like ADAL_LOG_ERROR are provided on top for convenience
  @param logLevel: The applicable priority of the logged message. Use AD_LOG_LEVEL_NO_LOG to disable all logging.
@@ -45,7 +45,7 @@ typedef enum
  @param additionalInformation: Full details. May contain parameter names, stack traces, etc. May be nil.
  @param errorCode: if an explicit error has occurred, this code will contain its code.
  */
-+(void) log:(ADAL_LOG_LEVEL)logLevel
++ (void)log:(ADAL_LOG_LEVEL)logLevel
     message:(NSString*)message
   errorCode:(NSInteger)errorCode
        info:(NSString*)additionalInformation;
@@ -63,49 +63,49 @@ typedef enum
  @param correlationId: In case the token was just obtained from the server, the correlation id of the call.
  This parameter can be nil.
  */
-+(void) logToken: (NSString*) token
-       tokenType: (NSString*) tokenType
-       expiresOn: (NSDate*) expiresOn
-   correlationId: (NSUUID*) correlationId;
++ (void)logToken:(NSString*)token
+       tokenType:(NSString*)tokenType
+       expiresOn:(NSDate*)expiresOn
+   correlationId:(NSUUID*)correlationId;
 
 
 //The block declaration. Needs to be weak to ensure that the pointer does not hold static reference
 //to the parent class of the callback.
-typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
-                            NSString* message,
-                            NSString* additionalInformation,
-                            NSInteger errorCode);
+typedef void (^ADLogCallback)(ADAL_LOG_LEVEL logLevel,
+                              NSString* message,
+                              NSString* additionalInformation,
+                              NSInteger errorCode);
 
 /*! Provided block will be called when the logged messages meet the priority threshold
  @param callback: The block to be executed when suitable messages are logged. By default, when
  callback is set, messages will contingue to be logged through NSLog. Such logging can be disabled
  through setNSLogging. */
-+(void) setLogCallBack: (LogCallback) callback;
++ (void) setLogCallBack:(ADLogCallback) callback;
 
 /*! Returns previously set callback call or nil, if the user has not set such callback. */
-+(LogCallback) getLogCallBack;
++ (ADLogCallback)getLogCallBack;
 
 /*! By default, logging sends messages through standard NSLog. This function allows to disable this
  behavior. Disabling is useful if faster logging is implemented through the callback. */
-+(void) setNSLogging: (BOOL) nslogging;
++ (void)setNSLogging:(BOOL)nslogging;
 
 /*! YES if the messages are logged through NSLog.*/
-+(BOOL) getNSLogging;
++ (BOOL)getNSLogging;
 
 /*! Returns diagnostic trace data to be sent to the Auzure Active Directory servers. */
-+(NSDictionary*) adalId;
++ (NSDictionary*)adalId;
 
 /*! Calculates a hash of the passed string. Useful for logging tokens, where we do not log
  the actual contents, but still want to log something that can be correlated. */
-+(NSString*) getHash: (NSString*) input;
++ (NSString*)getHash:(NSString*)input;
 
 /*! Sets correlation id to be used in the requests sent to server. */
-+(void) setCorrelationId: (NSUUID*) correlationId;
++ (void)setCorrelationId:(NSUUID*)correlationId;
 
 /*! Gets correlation Id. */
-+(NSUUID*) getCorrelationId;
++ (NSUUID*)getCorrelationId;
 
-+(NSString*) getAdalVersion;
++ (NSString*)getAdalVersion;
 
 @end
 

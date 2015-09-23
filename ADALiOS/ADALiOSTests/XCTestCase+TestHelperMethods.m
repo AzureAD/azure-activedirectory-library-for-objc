@@ -117,7 +117,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
         [sErrorCodesLog appendString:sTestBegin];
     }
     
-    LogCallback logCallback = ^(ADAL_LOG_LEVEL logLevel,
+    ADLogCallback logCallback = ^(ADAL_LOG_LEVEL logLevel,
                                 NSString* message,
                                 NSString* additionalInformation,
                                 NSInteger errorCode)
