@@ -87,10 +87,10 @@ extern NSString* const sKeyChainlog;
     
     if (block != nil)
     {
-        SecAccessRef access = block((__bridge CFStringRef)[attributes objectForKey:kSecAttrLabel]);
+        SecAccessRef access = block((__bridge CFStringRef)[attributes objectForKey:(id)kSecAttrLabel]);
         if (access != NULL)
         {
-            [attributes setObject:(id)access forKey:kSecAttrAccess];
+            [attributes setObject:(id)access forKey:(id)kSecAttrAccess];
             CFRelease(access);
         }
     }
@@ -98,8 +98,8 @@ extern NSString* const sKeyChainlog;
 #endif // !TARGET_OS_IPHONE
     
 #if !TARGET_OS_IPHONE
-    [attributes removeObjectForKey:kSecAttrCreationDate];
-    [attributes removeObjectForKey:kSecAttrModificationDate];
+    [attributes removeObjectForKey:(id)kSecAttrCreationDate];
+    [attributes removeObjectForKey:(id)kSecAttrModificationDate];
 #endif
     
     [attributes setObject:_classValue forKey:(__bridge id)kSecClass];

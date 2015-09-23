@@ -32,7 +32,7 @@ typedef WebView   WebViewType;
 #if TARGET_OS_IPHONE
     : NSObject <UIWebViewDelegate>
 #else
-    : NSObject
+    : NSObject <WebResourceLoadDelegate, WebPolicyDelegate, WebFrameLoadDelegate>
 #endif
 {
 // OSX Universal Compatibility
