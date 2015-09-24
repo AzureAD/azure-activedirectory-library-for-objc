@@ -129,36 +129,7 @@ static NSString *_resourcePath = nil;
 // cannot be loaded.
 + (NSBundle *)frameworkBundle
 {
-    static NSBundle       *bundle     = nil;
-    static dispatch_once_t predicate;
-    
-    @synchronized(self)
-    {
-        dispatch_once( &predicate,
-                      ^{
-
-                          NSString* mainBundlePath      = [[NSBundle mainBundle] resourcePath];
-                          AD_LOG_VERBOSE_F(@"Resources Loading", @"Attempting to load resources from: %@", mainBundlePath);
-                          NSString* frameworkBundlePath = nil;
-                          
-                          if ( _resourcePath != nil )
-                          {
-                              frameworkBundlePath = [[mainBundlePath stringByAppendingPathComponent:_resourcePath] stringByAppendingPathComponent:@"ADALiOS.bundle"];
-                          }
-                          else
-                          {
-                              frameworkBundlePath = [mainBundlePath stringByAppendingPathComponent:@"ADALiOS.bundle"];
-                          }
-                          
-                          bundle = [NSBundle bundleWithPath:frameworkBundlePath];
-                          if (!bundle)
-                          {
-                              AD_LOG_INFO_F(@"Resource Loading", @"Failed to load framework bundle. Application main bundle will be attempted.");
-                          }
-                      });
-    }
-    
-    return bundle;
+	return [NSBundle bundleForClass:[self class]];
 }
 
 +(NSString*) getStoryboardName
