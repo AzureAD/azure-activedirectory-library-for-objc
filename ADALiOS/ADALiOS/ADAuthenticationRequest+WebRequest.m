@@ -101,11 +101,16 @@
                completion:( void (^)(NSDictionary *) )completionBlock
 {
     [self ensureRequest];
-    NSString* endPoint = _context.authority;
+    NSString* endPoint = authorizationServer;
     
-    if(!isHandlingPKeyAuthChallenge && !isGetRequest)
+    if (!isHandlingPKeyAuthChallenge && !isGetRequest)
 	{
         endPoint = [_context.authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
+    }
+    
+    if (isGetRequest)
+    {
+        endPoint = [NSString stringWithFormat:@"%@?%@", endPoint, [request_data adURLFormEncode]];
     }
     
     ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
@@ -348,34 +353,36 @@ static volatile int sDialogInProgress = 0;
     return startUrl;
 }
 
+- (void)launchWebView:(NSString*)startUrl
+      completionBlock:(void (^)(ADAuthenticationError*, NSURL*))completionBlock
+{
+    [[ADAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
+                                               end:[NSURL URLWithString:_redirectUri]
+                            refreshTokenCredential:_refreshTokenCredential
+                                  parentController:_context.parentController
+                                           webView:_context.webView
+                                        fullScreen:[ADAuthenticationSettings sharedInstance].enableFullScreen
+                                     correlationId:_correlationId
+                                        completion:completionBlock];
+}
+
 //Requests an OAuth2 code to be used for obtaining a token:
 - (void)requestCode:(ADAuthorizationCodeCallback)completionBlock
-{
-    [self requestCodeWithRefreshTokenCredential:nil completionBlock:completionBlock];
-
-}
-//Requests an OAuth2 code to be used for obtaining a token:
-- (void)requestCodeWithRefreshTokenCredential:(NSString*)refreshTokenCredential
-                              completionBlock:(ADAuthorizationCodeCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
     [self ensureRequest];
     
     AD_LOG_VERBOSE_F(@"Requesting authorization code.", @"Requesting authorization code for resource: %@", _resource);
-    if (!_silent && ![self takeExclusionLockWithCallback:completionBlock])
+    if (![self takeExclusionLockWithCallback:completionBlock])
     {
         return;
     }
     
-    ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
     NSString* startUrl = [self generateQueryStringForRequestType:OAUTH2_CODE];
     
     void(^requestCompletion)(ADAuthenticationError *error, NSURL *end) = ^void(ADAuthenticationError *error, NSURL *end)
     {
-         if (!_silent)
-         {
-             [self releaseExclusionLock]; // Allow other operations that use the UI for credentials.
-         }
+        [self releaseExclusionLock]; // Allow other operations that use the UI for credentials.
          
          NSString* code = nil;
          if (!error)
@@ -424,16 +431,12 @@ static volatile int sDialogInProgress = 0;
          completionBlock(code, error);
      };
     
-    if (!_silent)
+    // If this request doesn't allow us to attempt to grab a code silently (using
+    // a potential SSO cookie) then jump straight to the web view.
+    if (!_allowSilent)
     {
-        [[ADAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
-                                                   end:[NSURL URLWithString:_redirectUri]
-                                refreshTokenCredential:refreshTokenCredential
-                                      parentController:_context.parentController
-                                               webView:_context.webView
-                                            fullScreen:settings.enableFullScreen
-                                         correlationId:_correlationId
-                                            completion:requestCompletion];
+        [self launchWebView:startUrl
+            completionBlock:requestCompletion];
     }
     else
     {
@@ -466,6 +469,15 @@ static volatile int sDialogInProgress = 0;
              endURL = [parameters objectForKey:@"url"];
              if (!endURL)
              {
+                 // If the request was not silent only then launch the webview
+                 if (!_silent)
+                 {
+                     [self launchWebView:startUrl
+                         completionBlock:requestCompletion];
+                     return;
+                 }
+                 
+                 // Otherwise error out
                  error = [ADAuthenticationContext errorFromDictionary:parameters errorCode:AD_ERROR_AUTHENTICATION];
              }
              

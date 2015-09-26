@@ -135,6 +135,12 @@
     CHECK_REQUEST_STARTED;
     _allowSilent = allowSilent;
 }
+
+- (void)setRefreshTokenCredential:(NSString*)refreshTokenCredential
+{
+    CHECK_REQUEST_STARTED;
+    _refreshTokenCredential = refreshTokenCredential;
+}
 #endif
 
 - (void)ensureRequest

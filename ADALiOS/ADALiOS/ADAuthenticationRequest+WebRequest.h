@@ -48,7 +48,4 @@
 //Requests an OAuth2 code to be used for obtaining a token:
 - (void)requestCode:(ADAuthorizationCodeCallback)completionBlock;
 
-- (void)requestCodeWithRefreshTokenCredential:(NSString*)refreshTokenCredential
-                              completionBlock:(ADAuthorizationCodeCallback)completionBlock;
-
 @end

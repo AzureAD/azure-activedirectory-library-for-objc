@@ -56,6 +56,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     NSString* _scope;
     NSString* _queryParams;
     
+    NSString* _refreshTokenCredential;
+    
     BOOL _silent;
     BOOL _allowSilent;
     
@@ -85,6 +87,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 - (void)setCorrelationId:(NSUUID*)correlationId;
 #if AD_BROKER
 - (void)setAllowSilentRequests:(BOOL)allowSilent;
+- (void)setRefreshTokenCredential:(NSString*)refreshTokenCredential;
 #endif
 
 @end
