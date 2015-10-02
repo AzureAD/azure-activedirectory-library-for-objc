@@ -97,16 +97,18 @@
 {
     if (!response)
     {
-        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CONNECTION_MISSING_RESPONSE
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CONNECTION_MISSING_RESPONSE
                                                       protocolCode:nil
                                                       errorDetails:@"No valid response to parse for token."];
+        return [ADAuthenticationResult resultFromError:error];
     }
     
     if (!item)
     {
-        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
                                                       protocolCode:nil
                                                       errorDetails:@"No cache item to process token into. An errort must have occurred somewhere."];
+        return [ADAuthenticationResult resultFromError:error];
     }
     
     AD_LOG_VERBOSE(@"Token extraction", @"Attempt to extract the data from the server response.");
