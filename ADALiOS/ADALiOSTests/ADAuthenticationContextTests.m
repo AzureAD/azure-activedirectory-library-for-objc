@@ -495,21 +495,25 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                      scopes:[NSSet setWithArray:_scopes]];
 }
 
+- (NSArray*)scopesWithAddedByLibrary
+{
+    return [_scopes arrayByAddingObjectsFromArray:@[@"offline_access", @"openid"]];
+}
+
 - (void)addCacheWithToken:(NSString*)accessToken
              refreshToken:(NSString*)refreshToken
 {
     [self addCacheWithToken:accessToken
                refreshToken:refreshToken
                      userId:_userId
-                     scopes:[NSSet setWithArray:_scopes]];
+                     scopes:[NSSet setWithArray:[self scopesWithAddedByLibrary]]];
 }
 
 - (NSDictionary*)defaultRequest
 {
-    NSArray* expectedScopes = [_scopes arrayByAddingObjectsFromArray:@[@"offline_access", @"openid"]];
     return @{ OAUTH2_GRANT_TYPE : OAUTH2_REFRESH_TOKEN,
               OAUTH2_CLIENT_ID : _clientId,
-              OAUTH2_SCOPE : [expectedScopes adSpaceDeliminatedString] };
+              OAUTH2_SCOPE : [[self scopesWithAddedByLibrary] adSpaceDeliminatedString] };
 }
 
 - (NSDictionary*)requestWithOverrides:(id)obj, ... __attribute__((sentinel))
