@@ -95,8 +95,20 @@
                                      fromRefresh:(BOOL)fromRefreshTokenWorkflow
                             requestCorrelationId:(NSUUID*)requestCorrelationId
 {
-    THROW_ON_NIL_ARGUMENT(response);
-    THROW_ON_NIL_ARGUMENT(item);
+    if (!response)
+    {
+        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CONNECTION_MISSING_RESPONSE
+                                                      protocolCode:nil
+                                                      errorDetails:@"No valid response to parse for token."];
+    }
+    
+    if (!item)
+    {
+        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
+                                                      protocolCode:nil
+                                                      errorDetails:@"No cache item to process token into. An errort must have occurred somewhere."];
+    }
+    
     AD_LOG_VERBOSE(@"Token extraction", @"Attempt to extract the data from the server response.");
     
     NSString* responseId = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
