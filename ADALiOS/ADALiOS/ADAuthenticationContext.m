@@ -427,7 +427,6 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     [request setPromptBehavior:promptBehavior];
     [request setExtraQueryParameters:queryParams];
     [request setPolicy:policy];
-    [ADAuthenticationSettings sharedInstance].policy = policy;
     [request acquireToken:completionBlock];
 }
 
