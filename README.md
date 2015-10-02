@@ -2,7 +2,7 @@
 #Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and OSX
 =====================================
 
-##NOTE regarding iOS 9
+####NOTE regarding iOS 9
 
 Apple has released iOS 9 which includes support for App Transport Security (ATS). ATS restricts apps from accessing the internet unless they meet several security requirements incuding TLS 1.2 and SHA-256. While Microsoft's APIs support these standards some third party APIs and content delivery networks we use have yet to be upgraded. This means that any app that relies on Azure Active Directory or Microsoft Accounts will fail when compiled with iOS 9. For now our recommendation is to disable ATS, which reverts to iOS 8 functionality. Please refer to this [technote from Apple](https://developer.apple.com/library/prerelease/ios/technotes/App-Transport-Security-Technote/) for more informtaion.
 
