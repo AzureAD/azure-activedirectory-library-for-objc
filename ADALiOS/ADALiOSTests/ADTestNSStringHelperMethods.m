@@ -35,55 +35,51 @@
     [super tearDown];
 }
 
+#define VERIFY_EMPTY_STRING(_str) XCTAssertTrue([NSString adIsStringNilOrBlank:_str], "+adIsStringNilOrBlank: should return true for \"%@\"", _str)
+#define VERIFY_NOT_EMPTY_STRING(_str) XCTAssertFalse([NSString adIsStringNilOrBlank:_str], "+adIsStringNilOrBlank: should return false for \"%@\"", _str)
+
 - (void)testIsStringNilOrBlankNil
 {
-    XCTAssertTrue([NSString adIsStringNilOrBlank:nil], "Should return true for nil.");
+    VERIFY_EMPTY_STRING(nil);
 }
 
 - (void)testIsStringNilOrBlankSpace
 {
-    XCTAssertTrue([NSString adIsStringNilOrBlank:@" "], "Should return true for nil.");
+    VERIFY_EMPTY_STRING(@" ");
 }
 
 - (void)testIsStringNilOrBlankTab
 {
-    XCTAssertTrue([NSString adIsStringNilOrBlank:@"\t"], "Should return true for nil.");
+    VERIFY_EMPTY_STRING(@"\t");
 }
 
 - (void)testIsStringNilOrBlankEnter
 {
-    XCTAssertTrue([NSString adIsStringNilOrBlank:@"\r"], "Should return true for nil.");
-    XCTAssertTrue([NSString adIsStringNilOrBlank:@"\n"], "Should return true for nil.");
+    VERIFY_EMPTY_STRING(@"\r");
+    VERIFY_EMPTY_STRING(@"\n");
+    VERIFY_EMPTY_STRING(@"\r\n");
 }
 
 - (void)testIsStringNilOrBlankMixed
 {
-    XCTAssertTrue([NSString adIsStringNilOrBlank:@" \r\n\t  \t\r\n"], "Should return true for nil.");
+    VERIFY_EMPTY_STRING(@" \r\n\t  \t\r\n");
 }
 
 - (void)testIsStringNilOrBlankNonEmpty
 {
-    //Prefix by white space:
-    NSString* str = @"  text";
-    XCTAssertFalse([NSString adIsStringNilOrBlank:str], "Not an empty string %@", str);
-    str = @" \r\n\t  \t\r\n text";
-    XCTAssertFalse([NSString adIsStringNilOrBlank:str], "Not an empty string %@", str);
+    VERIFY_NOT_EMPTY_STRING(@"  text");
+    VERIFY_NOT_EMPTY_STRING(@" \r\n\t  \t\r\n text");
 
-    //Suffix with white space:
-    str = @"text  ";
-    XCTAssertFalse([NSString adIsStringNilOrBlank:str], "Not an empty string %@", str);
-    str = @"text \r\n\t  \t\r\n";
-    XCTAssertFalse([NSString adIsStringNilOrBlank:str], "Not an empty string %@", str);
+    VERIFY_NOT_EMPTY_STRING(@"text  ");
+    VERIFY_NOT_EMPTY_STRING(@"text \r\n\t  \t\r\n");
     
     //Surrounded by white space:
-    str = @"text  ";
-    XCTAssertFalse([NSString adIsStringNilOrBlank:str], "Not an empty string %@", str);
-    str = @" \r\n\t text  \t\r\n";
-    XCTAssertFalse([NSString adIsStringNilOrBlank:str], "Not an empty string %@", str);
+    VERIFY_NOT_EMPTY_STRING(@"  text  ");
+    VERIFY_NOT_EMPTY_STRING(@" \r\n\t text  \t\r\n");
 
     //No white space:
-    str = @"t";
-    XCTAssertFalse([NSString adIsStringNilOrBlank:str], "Not an empty string %@", str);
+    VERIFY_NOT_EMPTY_STRING(@"t");
+    VERIFY_NOT_EMPTY_STRING(@"0");
 }
 
 - (void)testTrimmedString
