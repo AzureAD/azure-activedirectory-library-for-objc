@@ -113,9 +113,9 @@ static ADAuthenticationError* _errorFromInfo(const char* cond, NSString* profile
     CHECK_PROFILE_INFO_ERROR(parts.count > 0);
     
     NSString* type = nil;
-    for (int i = 0; i < parts.count; i++)
+    for (NSString* part in parts)
     {
-        NSString* decoded = [parts[i] adBase64UrlDecode];
+        NSString* decoded = [part adBase64UrlDecode];
         CHECK_PROFILE_INFO_ERROR(![NSString adIsStringNilOrBlank:decoded]);
         
         NSError* jsonError  = nil;
@@ -125,7 +125,7 @@ static ADAuthenticationError* _errorFromInfo(const char* cond, NSString* profile
         if (jsonError)
         {
             ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:jsonError
-                                                                        errorDetails:[NSString stringWithFormat:@"Failed to deserialize the profile_info contents: %@", parts[i]]];
+                                                                        errorDetails:[NSString stringWithFormat:@"Failed to deserialize the profile_info contents: %@", part]];
             if (error)
             {
                 *error = adError;
@@ -155,6 +155,11 @@ static ADAuthenticationError* _errorFromInfo(const char* cond, NSString* profile
     if (!type)
     {
         AD_LOG_WARN(@"The id_token type is missing.", @"Assuming JWT type.");
+    }
+    
+    if (![allClaims objectForKey:PROFILE_INFO_PREFERRED_USERNAME])
+    {
+        RETURN_NIL_ERROR(error, AD_ERROR_AUTHENTICATION, @"Profile info is missing the 'preferred_username' claim");
     }
     
     //Create a read-only dictionary object. Note that the properties checked below are calculated off this dictionary:
