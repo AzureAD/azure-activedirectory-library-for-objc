@@ -52,7 +52,7 @@ static NSCharacterSet* _nonWhitespaceCharacterSet()
     }
    
     NSRange whitespace = [string rangeOfCharacterFromSet:_nonWhitespaceCharacterSet()];
-    return (whitespace.length != NSNotFound);
+    return (whitespace.location == NSNotFound);
 };
 
 - (BOOL)adContainsString:(NSString*)contained
