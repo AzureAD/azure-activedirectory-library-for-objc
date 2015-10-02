@@ -563,7 +563,10 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     
     _assertion = @"some assertion";
     NSString* someTokenValue = @"someToken value";
+    
+    // Add a token to the cache. It should return the token from the cache and not go out to the network.
     [self addCacheWithToken:someTokenValue refreshToken:nil];
+    
     acquireTokenForAssertionAsync;
     XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
     
