@@ -482,8 +482,20 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
     item.authority = _authority;
     item.clientId = _clientId;
-    item.profileInfo = [ADProfileInfo profileInfoWithUsername:userId error:nil];
-    [_testContext.tokenCacheStore addOrUpdateItem:item error:nil];
+    if (userId)
+    {
+        item.profileInfo = [ADProfileInfo profileInfoWithUsername:userId
+                                                            error:error];
+        if (!item.profileInfo)
+        {
+            return NO;
+        }
+    }
+    else
+    {
+        item.profileInfo = nil;
+    }
+    
     return [_testContext.tokenCacheStore addOrUpdateItem:item
                                                    error:error];
 }
@@ -499,6 +511,13 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                             scopes:[NSSet setWithArray:[self scopesWithAddedByLibrary]]
                              error:error];
 }
+
+#define ADD_AT_RT_USER_TO_CACHE(_at, _rt, _user) { \
+    ADAuthenticationError* _ERR = nil;\
+    XCTAssertTrue([self addCacheWithToken:_at \
+                             refreshToken:_rt \
+                                   userId:_user \
+                                    error:&_ERR], @"Failed to add token to cache: %@", _ERR.errorDetails); \
 }
 
 - (NSArray*)scopesWithAddedByLibrary
@@ -516,6 +535,12 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                             scopes:[NSSet setWithArray:[self scopesWithAddedByLibrary]]
                              error:error];
 }
+
+#define ADD_AT_RT_TO_CACHE(_at, _rt) { \
+    ADAuthenticationError* _ERR = nil;\
+    XCTAssertTrue([self addCacheWithToken:_at \
+                             refreshToken:_rt \
+                                    error:&_ERR], @"Failed to add token to cache: %@", _ERR.errorDetails); \
 }
 
 - (NSDictionary*)defaultRequest
@@ -578,7 +603,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSString* someTokenValue = @"someToken value";
     
     // Add a token to the cache. It should return the token from the cache and not go out to the network.
-    [self addCacheWithToken:someTokenValue refreshToken:nil];
+    ADD_AT_RT_TO_CACHE(someTokenValue, nil);
     
     acquireTokenForAssertionAsync;
     XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
@@ -614,7 +639,10 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 -(void) testAcquireTokenCorrelationId
 {
     NSString* someTokenValue = @"someToken value";
-    [self addCacheWithToken:someTokenValue refreshToken:nil];
+    ADAuthenticationError* error = nil;
+    XCTAssertTrue([self addCacheWithToken:someTokenValue
+                             refreshToken:nil
+                                    error:&error], @"failed to add token to cache: %@", error.errorDetails);
     acquireTokenAsync;
     XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
     NSUUID* corrId = [_context getCorrelationId];
@@ -625,7 +653,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     
     //Cache a token for nil user:
     NSString* nilUserTokenValue = @"nil user value";
-    [self addCacheWithToken:nilUserTokenValue refreshToken:nil userId:nil];
+    XCTAssertTrue([self addCacheWithToken:nilUserTokenValue refreshToken:nil userId:nil error:&error], @"failed to add token to cache: %@", error.errorDetails);
     acquireTokenAsync;
     XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
     XCTAssertNotEqual([corrId UUIDString], [[_context getCorrelationId] UUIDString]);
@@ -642,19 +670,19 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 -(void) testAcquireTokenWithUserCache
 {
     NSString* someTokenValue = @"someToken value";
-    [self addCacheWithToken:someTokenValue refreshToken:nil];
+    ADD_AT_RT_TO_CACHE(someTokenValue, nil);
     acquireTokenAsync;
     XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
 
     //Cache a token for nil user:
     NSString* nilUserTokenValue = @"nil user value";
-    [self addCacheWithToken:nilUserTokenValue refreshToken:nil userId:nil];
+    ADD_AT_RT_USER_TO_CACHE(nilUserTokenValue, nil, nil);
     acquireTokenAsync;
     XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
     
     //Cache a token for another user:
     NSString* anotherUserTokenValue = @"another user token value";
-    [self addCacheWithToken:anotherUserTokenValue refreshToken:nil userId:@"another user"];
+    ADD_AT_RT_USER_TO_CACHE(anotherUserTokenValue, nil, @"another user");
     acquireTokenAsync;
     XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
 }
@@ -666,13 +694,13 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     
     //Cache a token for nil user:
     NSString* nilUserTokenValue = @"nil user token";
-    [self addCacheWithToken:nilUserTokenValue refreshToken:nil userId:nil];
+    ADD_AT_RT_USER_TO_CACHE(nilUserTokenValue, nil, nil);
     acquireTokenAsync;
     XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, nilUserTokenValue);
     
     //Adds a cache for a real user:
     NSString* someUserTokenValue = @"Some user token";
-    [self addCacheWithToken:someUserTokenValue refreshToken:nil userId:@"some user"];
+    ADD_AT_RT_USER_TO_CACHE(someUserTokenValue, nil, @"some user");
     acquireTokenAsync;
     XCTAssertEqual(_result.status, AD_FAILED);
     ADAssertLongEquals(_result.error.code, AD_ERROR_MULTIPLE_USERS);
@@ -686,9 +714,9 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSString* user1 = @"user1";
     NSString* user2 = @"user2";
     NSString* user1TokenValue = @"user1 token";
-    [self addCacheWithToken:user1TokenValue refreshToken:nil userId:user1];
+    ADD_AT_RT_USER_TO_CACHE(user1TokenValue, nil, user1);
     NSString* user2TokenValue = @"user2 token";
-    [self addCacheWithToken:user2TokenValue refreshToken:nil userId:user2];
+    ADD_AT_RT_USER_TO_CACHE(user2TokenValue, nil, user2);
     acquireTokenAsync;
     XCTAssertEqual(_result.status, AD_FAILED);
     ADAssertLongEquals(_result.error.code, AD_ERROR_MULTIPLE_USERS);
@@ -700,8 +728,8 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     
     _userId = nil;
     //Try the same, but with refresh tokens only:
-    [self addCacheWithToken:nil refreshToken:@"refresh1" userId:user1];
-    [self addCacheWithToken:nil refreshToken:@"refresh2" userId:user2];
+    ADD_AT_RT_USER_TO_CACHE(nil, @"refresh1", user1);
+    ADD_AT_RT_USER_TO_CACHE(nil, @"refresh2", user2);
     ADAssertLongEquals(2, [self cacheCount]);
     acquireTokenAsync;
     XCTAssertEqual(_result.status, AD_FAILED);
@@ -756,7 +784,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     
     //Something in the cache, should work even with AD_PROMPT_NEVER:
     NSString* someTokenValue = @"someToken value";
-    [self addCacheWithToken:someTokenValue refreshToken:nil];
+    ADD_AT_RT_TO_CACHE(someTokenValue, nil);
     acquireTokenAsync;
     XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
     
@@ -776,7 +804,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     //Now add an item with a fake refresh token:
     XCTAssertTrue([self cacheCount] == 0, "Expired items should be removed from the cache");
     NSString* refreshToken = @"some refresh token";
-    [self addCacheWithToken:someTokenValue refreshToken:refreshToken];
+    ADD_AT_RT_TO_CACHE(someTokenValue, refreshToken);
     allItems = [s_testCacheStore allItems:&error];
     ADAssertNoError;
     XCTAssertTrue(allItems.count == 1);
@@ -796,7 +824,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     XCTAssertTrue([self cacheCount] == 0, "Bad refresh tokens should be removed from the cache");
     
     //Put a valid token in the cache, but set context token cache to nil:
-    [self addCacheWithToken:someTokenValue refreshToken:@"some refresh token"];
+    ADD_AT_RT_TO_CACHE(someTokenValue, @"some refresh token");
     _context.tokenCacheStore = nil;
     acquireTokenAsync;
     XCTAssertEqual(_result.status, AD_FAILED, "AcquireToken should fail, as the credentials are needed without cache.");
@@ -807,7 +835,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 {
     //Refresh token in the cache, but there is no connection to the server. We should not try to open a credentials web view:
     NSString* refreshToken = @"testGenericErrors refresh token";
-    [self addCacheWithToken:nil refreshToken:refreshToken];
+    ADD_AT_RT_TO_CACHE(nil, refreshToken);
     XCTAssertTrue([self cacheCount] == 1);
     int errorCode = 42;
     ADAuthenticationError* error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:NSPOSIXErrorDomain code:errorCode userInfo:nil] errorDetails:@"Bad connection"];
@@ -834,7 +862,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 
 - (void)testWrongUser
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     NSString* profileInfo = [[ADTestUtils defaultUtils] rawProfileInfo];
 
     NSString* accessToken = @"testWrongUser some access token";
@@ -842,11 +870,10 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSString* requestUser = @"testWrongUser requestUser";
     NSDictionary* response = nil;
     
-    NSArray* cachedScopes = @[@"planetarydefense.target"];
+    _scopes = @[@"planetarydefense.target"];
     
     //#1: access token exists in the cache for different user, make sure that the library attempts to use UI
-    [self addCacheWithToken:accessToken refreshToken:exactRefreshToken userId:_userId scopes:[NSSet setWithArray:cachedScopes]];
-    _scopes = cachedScopes;
+    ADD_AT_RT_TO_CACHE(accessToken, exactRefreshToken);
     _userId = requestUser;
     acquireTokenAsync;
     ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, _result.error.code);
@@ -855,13 +882,13 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADAssertNoError;
     
     // Add into cache a token with just the targetting scope
-    [self addCacheWithToken:accessToken refreshToken:exactRefreshToken userId:requestUser scopes:[NSSet setWithArray:cachedScopes]];
+    ADD_AT_RT_TO_CACHE(accessToken, exactRefreshToken);
     
     // Now request both target and fire, this should cause a scope mismatch and trigger a request using the RT.
     _scopes = @[@"planetarydefense.target", @"planetarydefense.fire"];
     response = @{ OAUTH2_PROFILE_INFO : profileInfo,
                   OAUTH2_ACCESS_TOKEN : accessToken,
-                  OAUTH2_SCOPE : [_scopes adSpaceDeliminatedString]};
+                  OAUTH2_SCOPE : [[_scopes arrayByAddingObjectsFromArray:@[@"openid", @"offline_access"]] adSpaceDeliminatedString]};
     [_testContext queueExpectedRequest:[self defaultRequest] response:response];
     acquireTokenAsync;
     
@@ -967,7 +994,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     error = nil;
     _context = [ADAuthenticationContext authenticationContextWithAuthority:_authority error:&error];
     ADAssertNoError;
-    [self addCacheWithToken:@"access" refreshToken:nil];
+    ADD_AT_RT_TO_CACHE(@"access", nil);
     _promptBehavior = AD_PROMPT_ALWAYS;
     VALIDATE_UI_ERROR;
 }
@@ -981,7 +1008,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADAssertNoError;
     
     //Exact refresh token:
-    [self addCacheWithToken:nil refreshToken:@"invalid refresh token"];
+    ADD_AT_RT_TO_CACHE(nil, @"invalid refresh token");
     ADAssertLongEquals(1, [self cacheCount]);
     
     acquireTokenAsync;//Will attempt to use the refresh token and fail.
@@ -999,7 +1026,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADAssertNoError;
     
     //Exact refresh token:
-    [self addCacheWithToken:nil refreshToken:@"invalid refresh token"];
+    ADD_AT_RT_TO_CACHE(nil, @"invalid refresh token");
     ADAssertLongEquals(1, [self cacheCount]);
     
     acquireTokenAsync;//Will attempt to use the refresh token and fail with system error.
@@ -1010,7 +1037,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 //overloads call the same one, just tests that the entry point.
 -(void) testAcquireTokenOverloads
 {
-    [self addCacheWithToken:@"cacheToken" refreshToken:nil];
+    ADD_AT_RT_TO_CACHE(@"cacheToken", nil);
 
     __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     ADAuthenticationCallback innerCallback = ^(ADAuthenticationResult* result)
