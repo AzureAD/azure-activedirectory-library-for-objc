@@ -412,7 +412,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                                        clientId:_clientId
                                     redirectUri:_redirectURL
                                   identifier:[ADUserIdentifier identifierWithId:_userId type:RequiredDisplayableId]
-                               promptBehavior:AD_PROMPT_AUTO
+                               promptBehavior:_promptBehavior
                            extraQueryParameters:nil
                                 completionBlock:callback];
          }
