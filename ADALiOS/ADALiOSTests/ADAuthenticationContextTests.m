@@ -469,10 +469,11 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADAssertArgumentError(@"clientId", _error);
 }
 
-- (void)addCacheWithToken:(NSString*)accessToken
+- (BOOL)addCacheWithToken:(NSString*)accessToken
              refreshToken:(NSString*)refreshToken
                    userId:(NSString*)userId
                    scopes:(NSSet*)scopes
+                    error:(ADAuthenticationError* __autoreleasing *)error
 {
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
     item.scopes = scopes;
@@ -483,16 +484,21 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     item.clientId = _clientId;
     item.profileInfo = [ADProfileInfo profileInfoWithUsername:userId error:nil];
     [_testContext.tokenCacheStore addOrUpdateItem:item error:nil];
+    return [_testContext.tokenCacheStore addOrUpdateItem:item
+                                                   error:error];
 }
 
-- (void)addCacheWithToken:(NSString*)accessToken
+- (BOOL)addCacheWithToken:(NSString*)accessToken
              refreshToken:(NSString*)refreshToken
                    userId:(NSString*)userId
+                    error:(ADAuthenticationError* __autoreleasing *)error
 {
-    [self addCacheWithToken:accessToken
-               refreshToken:refreshToken
-                     userId:userId
-                     scopes:[NSSet setWithArray:_scopes]];
+    return [self addCacheWithToken:accessToken
+                      refreshToken:refreshToken
+                            userId:userId
+                            scopes:[NSSet setWithArray:[self scopesWithAddedByLibrary]]
+                             error:error];
+}
 }
 
 - (NSArray*)scopesWithAddedByLibrary
@@ -500,13 +506,16 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     return [_scopes arrayByAddingObjectsFromArray:@[@"offline_access", @"openid"]];
 }
 
-- (void)addCacheWithToken:(NSString*)accessToken
+- (BOOL)addCacheWithToken:(NSString*)accessToken
              refreshToken:(NSString*)refreshToken
+                    error:(ADAuthenticationError* __autoreleasing *)error
 {
-    [self addCacheWithToken:accessToken
-               refreshToken:refreshToken
-                     userId:_userId
-                     scopes:[NSSet setWithArray:[self scopesWithAddedByLibrary]]];
+    return [self addCacheWithToken:accessToken
+                      refreshToken:refreshToken
+                            userId:_userId
+                            scopes:[NSSet setWithArray:[self scopesWithAddedByLibrary]]
+                             error:error];
+}
 }
 
 - (NSDictionary*)defaultRequest

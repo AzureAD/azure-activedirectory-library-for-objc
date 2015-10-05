@@ -436,7 +436,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
  @param error    in case of an error, if this parameter is not nil, it will be filled with
  the error details.
  */
-- (void)addOrUpdateItem:(ADTokenCacheStoreItem*)item
+- (BOOL)addOrUpdateItem:(ADTokenCacheStoreItem*)item
                   error:(ADAuthenticationError* __autoreleasing*)error
 {
     API_ENTRY_F(@"item: %@", item);
@@ -445,14 +445,16 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     if (!key)
     {
         AD_LOG_ERROR_F(@"failed to extract key", AD_ERROR_CACHE_PERSISTENCE, @"%@", item);
-        return;
+        return NO;
     }
+    
+    __block OSStatus err = errSecSuccess;
     
     adkeychain_dispatch_if_needed(^{
         CFMutableDictionaryRef cfmdKeychainDict = NULL;
-        OSStatus err = [self copyDictionary:&cfmdKeychainDict
-                                     userId:[item userCacheKey]
-                                      error:error];
+        err = [self copyDictionary:&cfmdKeychainDict
+                            userId:[item userCacheKey]
+                             error:error];
         
         if (err == errSecItemNotFound)
         {
@@ -481,6 +483,8 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
         err = [self writeDictionary:cfmdKeychainDict userId:[item userCacheKey]];
         CHECK_OSSTATUS(err);
     });
+    
+    return err == errSecSuccess;
 }
 
 - (void)removeItemWithKey:(ADTokenCacheStoreKey*)key
