@@ -43,53 +43,43 @@ static NSString* const kADTASettingKey = @"kADTASettingKey";
 
 @interface ADTestAppSettings ()
 {
+@protected
     NSDictionary* _defaultEnvironment;
-    NSString* _environmentKey;
 }
 
 @end
 
-static ADTestAppSettings* s_defaultSettings = nil;
+static ADUserDefaultsSettings* s_defaultSettings = nil;
+
+#define GET_STRING_PROPERTY(_property) - (NSString*)_property { return [self stringForKey:@""#_property]; }
+#define GET_STRING_PROPERTY_KEY(_property, _key) - (NSString*)_property { return [self stringForKey:@_key]; }
+#define GET_ARRAY_PROPERTY(_property) - (NSArray*)_property { return [self arrayForKey:@""#_property]; }
+#define GET_ARRAY_PROPERTY_KEY(_property, _key) - (NSArray*)_property { return [self arrayForKey:@_key]; }
+#define GET_BOOL_PROPERTY(_property) - (BOOL)_property { return [self boolForKey:@""#_property]; }
+#define GET_BOOL_PROPERTY_KEY(_property, _key) - (BOOL)_property { return [self boolForKey:@_key]; }
 
 @implementation ADTestAppSettings
 
-+ (void)initialize
-{
-    s_defaultSettings = [[ADTestAppSettings alloc] init];
-}
-
-+ (ADTestAppSettings*)defaultSettings
-{
-    return s_defaultSettings;
-}
-
 - (id)init
-{
-    if (!(self = [self initWithKey:nil]))
-    {
-        return nil;
-    }
-    
-    return self;
-}
-
-- (id)initWithKey:(NSString*)environmentKey
 {
     if (!(self = [super init]))
     {
         return nil;
     }
     
-    if (environmentKey == nil)
+    [self loadEnvironment];
+    
+    return self;
+}
+
+- (id)initWithDictionary:(NSDictionary*)dictionary
+{
+    if (!(self = [super init]))
     {
-        _environmentKey = @"DefaultEnvironment";
-    }
-    else
-    {
-        _environmentKey = environmentKey;
+        return nil;
     }
     
-    [self loadEnvironment];
+    _defaultEnvironment = dictionary;
     
     return self;
 }
@@ -99,7 +89,7 @@ static ADTestAppSettings* s_defaultSettings = nil;
     NSString* defaultsPath = [[NSBundle mainBundle] pathForResource:@"Environments" ofType:@"plist"];
     if (defaultsPath != nil)
     {
-        _defaultEnvironment = [[NSDictionary dictionaryWithContentsOfFile:defaultsPath] objectForKey:_environmentKey];
+        _defaultEnvironment = [[NSDictionary dictionaryWithContentsOfFile:defaultsPath] objectForKey:@"DefaultEnvironment"];
     }
     else
     {
@@ -107,39 +97,20 @@ static ADTestAppSettings* s_defaultSettings = nil;
     }
 }
 
-- (id)objectForKey:(NSString*)key
+- (ADMutableTestAppSettings*)mutableCopy
 {
-    id val = [[[NSUserDefaults standardUserDefaults] dictionaryForKey:_environmentKey] objectForKey:key];
-    if (val)
-    {
-        return val;
-    }
-    
-    return [_defaultEnvironment objectForKey:key];
+    return [[ADMutableTestAppSettings alloc] initWithDictionary:_defaultEnvironment];
 }
 
-- (void)setValue:(id)value forKey:(NSString *)key
+- (id)objectForKey:(NSString*)key
 {
-    NSMutableDictionary* env = [[[NSUserDefaults standardUserDefaults] dictionaryForKey:_environmentKey] mutableCopy];
-    if (!env)
-    {
-        env = [NSMutableDictionary new];
-    }
-    [env setObject:value forKey:key];
-    [[NSUserDefaults standardUserDefaults] setValue:env forKey:_environmentKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    return [_defaultEnvironment objectForKey:key];
 }
 
 - (id)objectForKey:(NSString*)key
              class:(Class)class
 {
-    id val = [[[NSUserDefaults standardUserDefaults] dictionaryForKey:_environmentKey] objectForKey:key];
-    if (val && [val isKindOfClass:class])
-    {
-        return val;
-    }
-    
-    val = [_defaultEnvironment objectForKey:key];
+    id val = [_defaultEnvironment objectForKey:key];
     if (!val || ![val isKindOfClass:class])
     {
         return nil;
@@ -168,60 +139,132 @@ static ADTestAppSettings* s_defaultSettings = nil;
     return [[self objectForKey:key class:[NSNumber class]] boolValue];
 }
 
-- (void)reset
-{
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:_environmentKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (NSString*)authority
-{
-    return [self stringForKey:@"authority"];
-}
-
-- (NSString*)clientId
-{
-    return [self stringForKey:@"client_id"];
-}
-
-- (NSString*)userId
-{
-    return [self stringForKey:@"user_id"];
-}
-
-- (NSString*)redirectUri
-{
-    return [self stringForKey:@"redirect_uri"];
-}
-
-- (NSString*)extraQueryParams
-{
-    return [self stringForKey:@"extra_query_parameters"];
-}
-
-- (NSArray*)scopes
-{
-    return [self arrayForKey:@"scopes"];
-}
-
-- (NSArray*)additionalScopes
-{
-    return [self arrayForKey:@"additional_scopes"];
-}
-
-- (BOOL)validateAuthority
-{
-    return [self boolForKey:@"validate_authority"];
-}
-
-- (BOOL)fullScreen
-{
-    return [self boolForKey:@"full_screen"];
-}
+GET_STRING_PROPERTY(authority)
+GET_STRING_PROPERTY_KEY(clientId, "client_id")
+GET_STRING_PROPERTY_KEY(redirectUri, "redirect_uri")
+GET_STRING_PROPERTY_KEY(extraQueryParameters, "extra_query_parameters")
+GET_STRING_PROPERTY_KEY(userId, "user_id")
+GET_STRING_PROPERTY(password)
+GET_ARRAY_PROPERTY(scopes)
+GET_ARRAY_PROPERTY_KEY(additionalScopes, "additional_scopes")
+GET_BOOL_PROPERTY_KEY(validateAuthority, "validate_authority")
+GET_BOOL_PROPERTY_KEY(fullScreen, "full_screen")
 
 - (int)timeout
 {
     return [self numberForKey:@"timeout"].intValue;
+}
+
+@end
+
+@implementation ADMutableTestAppSettings
+{
+    NSMutableDictionary* _mutableSettings;
+}
+
+- (id)init
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    _mutableSettings = [self->_defaultEnvironment mutableCopy];
+    self->_defaultEnvironment = _mutableSettings;
+    
+    return self;
+}
+
+- (id)initWithDictionary:(NSDictionary*)dictionary
+{
+    if (!(self = [super initWithDictionary:dictionary]))
+    {
+        return nil;
+    }
+    
+    return self;
+}
+
+- (void)setValue:(id)value forKey:(NSString *)key
+{
+    [_mutableSettings setValue:value forKey:key];
+}
+
+- (void)setAuthority:(NSString *)authority
+{
+    [self setValue:authority forKeyPath:@"authority"];
+}
+
+- (void)setValidateAuthority:(BOOL)validateAuthority
+{
+    [self setValue:[NSNumber numberWithBool:validateAuthority] forKey:@"validate_authority"];
+}
+
+- (void)setExtraQueryParameters:(NSString *)extraQueryParameters
+{
+    [self setValue:extraQueryParameters forKeyPath:@"extra_query_parameters"];
+}
+
+@end
+
+@implementation ADUserDefaultsSettings
+{
+    NSString* _environmentKey;
+}
+
++ (void)initialize
+{
+    s_defaultSettings = [[ADUserDefaultsSettings alloc] init];
+}
+
++ (ADTestAppSettings*)defaultSettings
+{
+    return s_defaultSettings;
+}
+
+- (id)init
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    _environmentKey = @"DefaultEnvironment";
+    
+    return self;
+}
+
+- (id)initWithKey:(NSString*)environmentKey
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    if (environmentKey == nil)
+    {
+        _environmentKey = @"DefaultEnvironment";
+    }
+    else
+    {
+        _environmentKey = environmentKey;
+    }
+    
+    return self;
+}
+
+- (void)setValue:(id)value forKey:(NSString *)key
+{
+    NSMutableDictionary* env = [[[NSUserDefaults standardUserDefaults] dictionaryForKey:_environmentKey] mutableCopy];
+    if (!env)
+    {
+        env = [NSMutableDictionary new];
+    }
+    [env setObject:value forKey:key];
+    [[NSUserDefaults standardUserDefaults] setValue:env forKey:_environmentKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    [super setValue:value forKeyPath:key];
 }
 
 - (void)populateControl:(UIControl*)control
@@ -245,7 +288,7 @@ static ADTestAppSettings* s_defaultSettings = nil;
         NSAssert(nil, @"unrecognized type %@", NSStringFromClass([control class]));
     }
 }
-         
+
 - (void)switchChanged:(UISwitch*)sender
 {
     NSString* settingKey = [sender settingKey];
@@ -256,6 +299,12 @@ static ADTestAppSettings* s_defaultSettings = nil;
 {
     NSString* settingKey = [textField settingKey];
     [self setValue:[textField text] forKey:settingKey];
+}
+
+- (void)reset
+{
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:_environmentKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 @end

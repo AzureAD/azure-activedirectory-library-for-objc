@@ -41,7 +41,7 @@
     
     for (UIControl* control in controls)
     {
-        [[ADTestAppSettings defaultSettings] populateControl:control];
+        [[ADUserDefaultsSettings defaultSettings] populateControl:control];
     }
 }
 
@@ -68,7 +68,7 @@
 
 - (IBAction)restoreDefaults:(id)sender
 {
-    [[ADTestAppSettings defaultSettings] reset];
+    [[ADUserDefaultsSettings defaultSettings] reset];
     [self updateControlValues];
 }
 
@@ -79,12 +79,12 @@
     if ([control isKindOfClass:[UITextField class]])
     {
         NSString* val = [(UITextField*)control text];
-        [[ADTestAppSettings defaultSettings] setValue:val forKey:settingKey];
+        [[ADUserDefaultsSettings defaultSettings] setValue:val forKey:settingKey];
     }
     else if ([control isKindOfClass:[UISwitch class]])
     {
         BOOL val = [(UISwitch*)control isOn];
-        [[ADTestAppSettings defaultSettings] setValue:[NSNumber numberWithBool:val] forKey:settingKey];
+        [[ADUserDefaultsSettings defaultSettings] setValue:[NSNumber numberWithBool:val] forKey:settingKey];
     }
     else
     {

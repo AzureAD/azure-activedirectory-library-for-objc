@@ -18,34 +18,54 @@
 
 #import <Foundation/Foundation.h>
 
+@class ADMutableTestAppSettings;
+
 //A helper class for reading the test authorities, usernames, etc.
 //Reads the authorities from the TestData.plist file.
 @interface ADTestAppSettings : NSObject
 
-+ (ADTestAppSettings*)defaultSettings;
-
 - (id)objectForKey:(NSString*)key;
-- (void)setValue:(id)value forKey:(NSString *)key;
+
+- (ADMutableTestAppSettings*)mutableCopy;
 
 - (NSString*)stringForKey:(NSString*)key;
 - (NSArray*)arrayForKey:(NSString*)key;
 - (NSNumber*)numberForKey:(NSString*)key;
 - (BOOL)boolForKey:(NSString*)key;
 
-- (void)populateControl:(UIControl*)control;
-
 // Convenience methods for commonly retrieved values
 - (NSString*)authority;
 - (NSString*)clientId;
 - (NSString*)userId;
+- (NSString*)password;
 - (NSString*)redirectUri;
-- (NSString*)extraQueryParams;
+- (NSString*)extraQueryParameters;
 - (NSArray*)scopes;
 - (NSArray*)additionalScopes;
 - (BOOL)validateAuthority;
 - (BOOL)fullScreen;
 - (int)timeout;
 
+@end
+
+@interface ADMutableTestAppSettings : ADTestAppSettings
+
+- (void)setValue:(id)value forKey:(NSString *)key;
+
+- (void)setAuthority:(NSString*)authority;
+- (void)setExtraQueryParameters:(NSString*)extraQueryParameters;
+- (void)setValidateAuthority:(BOOL)validateAuthority;
+
+@end
+
+
+@interface ADUserDefaultsSettings : ADMutableTestAppSettings
+
++ (ADUserDefaultsSettings*)defaultSettings;
+
+- (id)initWithKey:(NSString*)environmentKey;
+- (void)setValue:(id)value forKey:(NSString *)key;
+- (void)populateControl:(UIControl*)control;
 - (void)reset;
 
 @end

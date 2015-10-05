@@ -60,7 +60,7 @@ ADAuthenticationContext* context = nil;
 {
     [super viewDidLoad];
     
-    _settings = [ADTestAppSettings defaultSettings];
+    _settings = [ADUserDefaultsSettings defaultSettings];
     
     //settings.credentialsType = AD_CREDENTIALS_EMBEDDED;
     
@@ -140,14 +140,14 @@ ADAuthenticationContext* context = nil;
     [self setStatus:@"Acquiring Token" type:TALogStatus];
     
     ADUserIdentifier* adUserId = [ADUserIdentifier identifierWithId:userId type:(ADUserIdentifierType)[_scUserType selectedSegmentIndex]];
-    [context acquireTokenForScopes:scopes
-                  additionalScopes:additionalScopes
-                          clientId:clientId
-                       redirectUri:[NSURL URLWithString:redirectUri]
-                    promptBehavior:[_scPromptBehavior selectedSegmentIndex]
-                        identifier:adUserId
-              extraQueryParameters:nil
-                   completionBlock:^(ADAuthenticationResult *result)
+    [context acquireTokenWithScopes:scopes
+                   additionalScopes:additionalScopes
+                           clientId:clientId
+                        redirectUri:[NSURL URLWithString:redirectUri]
+                         identifier:adUserId
+                     promptBehavior:[_scPromptBehavior selectedSegmentIndex]
+               extraQueryParameters:nil
+                    completionBlock:^(ADAuthenticationResult *result)
     {
         if (result.status != AD_SUCCEEDED)
         {
@@ -195,7 +195,7 @@ ADAuthenticationContext* context = nil;
     }
     context.parentController = self;
     
-    [context acquireTokenSilentForScopes:[_settings scopes]
+    [context acquireTokenSilentWithScopes:[_settings scopes]
                                 clientId:clientId
                              redirectUri:[NSURL URLWithString:redirectUri]
                               identifier:[ADUserIdentifier identifierWithId:userId]
