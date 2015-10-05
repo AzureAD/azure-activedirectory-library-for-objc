@@ -127,12 +127,6 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
         return YES;
     }
     
-    // If we already have an error object just pass that along
-    if (error && *error)
-    {
-        return YES;
-    }
-    
     NSString* log = [NSString stringWithFormat:@"ADAL Keychain \"%s\" operation failed with error code %d.", operation, (int)errCode];
     // Creating the ADError object will cause the error to get logged.
     ADAuthenticationError* adError = nil;
