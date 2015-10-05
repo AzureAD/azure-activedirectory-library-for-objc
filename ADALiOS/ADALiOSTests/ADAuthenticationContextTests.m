@@ -1004,13 +1004,6 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     
     acquireTokenAsync;//Will attempt to use the refresh token and fail with system error.
     ADAssertLongEquals(1, [self cacheCount]);//Should not remove anything from cache, assuming that the server is unreachable
-    
-    //Ensure only broad token and retry the logic:
-    [s_testCacheStore removeAll:&error];
-    ADAssertNoError;
-    [self addCacheWithToken:nil refreshToken:@"invalid broad refresh token" userId:_userId scopes:nil];
-    acquireTokenAsync;//Will attempt to use the broad refresh token and fail.
-    ADAssertLongEquals(1, [self cacheCount]);//Again, shouldn't remove from cache
 }
 
 //Tests the additional overloads. The test doesn't go deep, as eventually all of these
