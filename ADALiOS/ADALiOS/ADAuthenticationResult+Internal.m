@@ -159,9 +159,9 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
     if ( expires_in != nil )
     {
-        if ( [expires_in respondsToSelector:@selector(longValue)] )
+        if ( [expires_in respondsToSelector:@selector(doubleValue)] )
         {
-            expires = [NSDate dateWithTimeIntervalSince1970:[expires_in longValue]];
+            expires = [NSDate dateWithTimeIntervalSince1970:[expires_in doubleValue]];
         }
         else
         {
