@@ -45,39 +45,33 @@
 
 - (void)fillExpiration:(NSDictionary*)responseDictionary
 {
-    id expires_in = [responseDictionary objectForKey:@"expires_on"];
-    if (!expires_in)
-    {
-        expires_in = [responseDictionary objectForKey:@"expires_in"];
-    }
+    id expires_in = [responseDictionary objectForKey:@"expires_in"];
+    id expires_on = [responseDictionary objectForKey:@"expires_on"];
+    
     
     NSDate *expires    = nil;
     
-    if (expires_in)
+    if (expires_in && [expires_in respondsToSelector:@selector(doubleValue)])
     {
-        if ( [expires_in isKindOfClass:[NSString class]] )
-        {
-            NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
-            
-            expires = [NSDate dateWithTimeIntervalSinceNow:[formatter numberFromString:expires_in].longValue];
-        }
-        else if ( [expires_in isKindOfClass:[NSNumber class]] )
-        {
-            expires = [NSDate dateWithTimeIntervalSinceNow:((NSNumber *)expires_in).longValue];
-        }
-        else
-        {
-            AD_LOG_WARN_F(@"Unparsable time", @"The response value for the access token expiration cannot be parsed: %@", expires);
-            // Unparseable, use default value
-            expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//1 hour
-        }
+        expires = [NSDate dateWithTimeIntervalSinceNow:[expires_in doubleValue]];
+    }
+    else if (expires_on && [expires_on respondsToSelector:@selector(doubleValue)])
+    {
+        expires = [NSDate dateWithTimeIntervalSince1970:[expires_on doubleValue]];
+    }
+    else if (expires_in || expires_on)
+    {
+        AD_LOG_WARN_F(@"Unparsable time", @"The response value for the access token expiration cannot be parsed: %@", expires);
     }
     else
     {
         AD_LOG_WARN(@"Missing expiration time.", @"The server did not return the expiration time for the access token.");
-        expires = [NSDate dateWithTimeIntervalSinceNow:3600.0];//Assume 1hr expiration
     }
     
+    if (!expires)
+    {
+        expires = [NSDate dateWithTimeIntervalSinceNow:3600.0]; //Assume 1hr expiration
+    }
     self.expiresOn = expires;
 }
 
