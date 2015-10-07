@@ -57,16 +57,6 @@
     XCTAssertThrows([[ADAuthenticationError alloc] initWithDomain:@"domain" code:123 userInfo:nil], @"Parameterless init should throw. At: '%s'", __PRETTY_FUNCTION__);
 }
 
--(void)testErrorFromArgumentNameNil
-{
-    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromArgument:@"val" argumentName:nil],
-                                 NSException, NSInvalidArgumentException, "Nil argument name should throw.");
-    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromArgument:@"" argumentName:nil],
-                                 NSException, NSInvalidArgumentException, "Nil argument name should throw.");
-    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromArgument:nil argumentName:nil],
-                                 NSException, NSInvalidArgumentException, "Nil argument name should throw.");
-}
-
 -(void)testErrorFromArgumentNil
 {
     NSString* parameter = @"parameter123456 %@";
@@ -91,16 +81,6 @@
     ADAssertLogsContain(TEST_LOG_INFO, "argument");
     ADAssertLogsContainValue(TEST_LOG_INFO, parameter);
     ADAssertLogsContainValue(TEST_LOG_INFO, parameterValue);
-}
-
--(void)testErrorFromUnauthorizedResponseBadDetails
-{
-    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_MISSING_AUTHENTICATE_HEADER errorDetails:nil],
-                                 NSException, NSInvalidArgumentException, "Nil argument name should throw.");
-    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_MISSING_AUTHENTICATE_HEADER errorDetails:@""],
-                                 NSException, NSInvalidArgumentException, "Nil argument name should throw.");
-    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_MISSING_AUTHENTICATE_HEADER errorDetails:@" \t"],
-                                 NSException, NSInvalidArgumentException, "Nil argument name should throw.");
 }
 
 -(void)testErrorFromUnauthorizedResponseNormal
