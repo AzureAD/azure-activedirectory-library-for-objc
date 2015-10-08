@@ -21,7 +21,5 @@
 @interface NSURL ( ADAL )
 
 @property (readonly, nonatomic) NSString     *adAuthority;
-@property (readonly, nonatomic) NSDictionary *adFragmentParameters;
-@property (readonly, nonatomic) NSDictionary *adQueryParameters;
 
 @end

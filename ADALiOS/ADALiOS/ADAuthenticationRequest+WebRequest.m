@@ -369,12 +369,11 @@ static volatile int sDialogInProgress = 0;
              }
              else
              {
+                 // NSURL compiles to RFC 1808, the redirect URI is RFC 3986, so bring it through NSURLComponents instead.
+                 NSURLComponents* uriComponents = [[NSURLComponents alloc] initWithURL:end resolvingAgainstBaseURL:NO];
+                 
                  //Try both the URL and the fragment parameters:
-                 NSDictionary *parameters = [end adFragmentParameters];
-                 if ( parameters.count == 0 )
-                 {
-                     parameters = [end adQueryParameters];
-                 }
+                 NSDictionary *parameters = [NSDictionary adURLFormDecode:[uriComponents percentEncodedQuery]];
                  
                  //OAuth2 error may be passed by the server:
                  error = [ADAuthenticationContext errorFromDictionary:parameters errorCode:AD_ERROR_AUTHENTICATION];
