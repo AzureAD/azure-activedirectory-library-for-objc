@@ -282,8 +282,22 @@ static volatile int sDialogInProgress = 0;
     NSString* state = [self encodeProtocolState];
     NSString* queryParams = nil;
     // Start the web navigation process for the Implicit grant profile.
-    NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
-                                 [_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX],
+    
+    NSMutableString* beginning = [NSMutableString stringWithFormat:@"%@%@", _context.authority, OAUTH2_AUTHORIZE_SUFFIX];
+    
+    if (_policy)
+    {
+        [beginning appendFormat:@"?p=%@&", _policy];
+    }
+    else
+    {
+        [beginning appendString:@"?"];
+    }
+    
+    
+    
+    NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@%@=%@&response_mode=query&%@=%@&%@=%@&%@=%@&%@=%@",
+                                 beginning,
                                  OAUTH2_RESPONSE_TYPE, requestType,
                                  OAUTH2_CLIENT_ID, [_clientId adUrlFormEncode],
                                  OAUTH2_SCOPE, [[self combinedScopes] adUrlFormEncode],
