@@ -121,12 +121,12 @@
 }
 
 /* validates a successful parameters extraction */
--(void) verifyWithAuthority: (NSString*) expectedAuthority
-{
-    XCTAssertNotNil(mParameters, "Valid parameters should have been extracted.");
-    XCTAssertNil(mError, "No error should be issued in this test. Details: %@", mError.errorDetails);
-    XCTAssertNotNil(mParameters.authority, "A valid authority should be returned");
-    XCTAssertEqualObjects(mParameters.authority, expectedAuthority);
+#define VERIFY_AUTHORITY(_expectedAuthority) \
+{ \
+    XCTAssertNotNil(mParameters, "Valid parameters should have been extracted."); \
+    XCTAssertNil(mError, "No error should be issued in this test. Details: %@", mError.errorDetails); \
+    XCTAssertNotNil(mParameters.authority, "A valid authority should be returned"); \
+    XCTAssertEqualObjects(mParameters.authority, _expectedAuthority); \
 }
 
 /* Verifies correct handling when the resource cannot be reached */
@@ -146,12 +146,12 @@
     //HTTP
     NSURL* resourceUrl = [[NSURL alloc] initWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     [self callAsynchronousCreator:resourceUrl line:__LINE__];
-    [self verifyWithAuthority:@"https://login.windows.net/omercantest.onmicrosoft.com"];
+    VERIFY_AUTHORITY(@"https://login.windows.net/omercantest.onmicrosoft.com");
 
     //HTTPS
     resourceUrl = [[NSURL alloc] initWithString:@"https://testapi007.azurewebsites.net/api/WorkItem"];
     [self callAsynchronousCreator:resourceUrl line:__LINE__];
-    [self verifyWithAuthority:@"https://login.windows.net/omercantest.onmicrosoft.com"];
+    VERIFY_AUTHORITY(@"https://login.windows.net/omercantest.onmicrosoft.com");
 }
 
 -(void) testParametersFromAnauthorizedResponseNilParameter
@@ -224,7 +224,7 @@
     ADAuthenticationError* error;//A local variable is needed for __autoreleasing reference pointers.
     mParameters = [ADAuthenticationParameters parametersFromResponse:response1 error:&error];
     XCTAssertNil(error);
-    [self verifyWithAuthority:@"https://www.example.com"];
+    VERIFY_AUTHORITY(@"https://www.example.com");
     
     NSDictionary* headerFields2 = [NSDictionary dictionaryWithObject:@"Bearer authorization_uri=\"https://www.example.com\""
                                                               forKey:@"www-AUTHEnticate"];//Capital
@@ -234,8 +234,7 @@
                                                              headerFields:headerFields2];
     mParameters = [ADAuthenticationParameters parametersFromResponse:response2 error:&error];
     XCTAssertNil(error);
-    [self verifyWithAuthority:@"https://www.example.com"];
-
+    VERIFY_AUTHORITY(@"https://www.example.com");
 }
 
 /* Checks that the correct error is returned when extractChallenge is called with an invalid header text */
