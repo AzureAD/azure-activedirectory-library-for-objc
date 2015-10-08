@@ -446,13 +446,6 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 
 - (void)testAcquireTokenBadScopes
 {
-    _scopes = nil;
-    acquireTokenAsync;
-    ADAssertArgumentError(@"scopes", _error);
-    _scopes = @[];
-    acquireTokenAsync;
-    ADAssertArgumentError(@"scopes", _error);
-    
     _scopes = @[@"", @"    "];
     acquireTokenAsync;
     ADAssertArgumentError(@"scopes", _error);

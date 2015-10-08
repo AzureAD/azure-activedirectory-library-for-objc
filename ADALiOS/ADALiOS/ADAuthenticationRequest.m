@@ -91,12 +91,7 @@ static NSMutableArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* cont
 {
     if (!strings || ![strings count])
     {
-        ADAuthenticationError* adError = [ADAuthenticationError invalidArgumentError:@"%@ cannot be nil or empty", context];
-        if (error)
-        {
-            *error = adError;
-        }
-        return nil;
+        return [NSMutableArray new];
     }
     NSMutableArray* lowercase = [[NSMutableArray alloc] initWithCapacity:[strings count]];
     
