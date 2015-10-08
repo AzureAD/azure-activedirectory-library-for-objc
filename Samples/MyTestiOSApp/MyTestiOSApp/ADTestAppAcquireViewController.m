@@ -28,9 +28,6 @@ ADAuthenticationContext* context = nil;
 @interface ADTestAppAcquireViewController ()
 - (IBAction)pressMeAction:(id)sender;
 - (IBAction)clearCachePressed:(id)sender;
-- (IBAction)getUsersPressed:(id)sender;
-- (IBAction)expireAllPressed:(id)sender;
-- (IBAction)promptAlways:(id)sender;
 - (IBAction)acquireTokenSilentAction:(id)sender;
 @end
 
@@ -157,7 +154,7 @@ ADAuthenticationContext* context = nil;
                            clientId:clientId
                         redirectUri:[NSURL URLWithString:redirectUri]
                          identifier:adUserId
-                     promptBehavior:[_scPromptBehavior selectedSegmentIndex]
+                     promptBehavior:(ADPromptBehavior)[_scPromptBehavior selectedSegmentIndex]
                extraQueryParameters:nil
                              policy:policy
                     completionBlock:^(ADAuthenticationResult *result)
