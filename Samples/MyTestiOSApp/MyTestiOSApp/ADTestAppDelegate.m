@@ -53,13 +53,13 @@
     
     
     // Fish out the log view controller so we can get it loaded early.
-    for (UIViewController* controller in [(UITabBarController*)self.window.rootViewController viewControllers])
-    {
-        if ([controller isKindOfClass:[ADTestAppLogViewController class]])
-        {
-            [controller view];
-        }
-    }
+//    for (UIViewController* controller in [(UITabBarController*)self.window.rootViewController viewControllers])
+//    {
+//        if ([controller isKindOfClass:[ADTestAppLogViewController class]])
+//        {
+//            [controller view];
+//        }
+//    }
     
     return YES;
 }

@@ -60,15 +60,24 @@ ADAuthenticationContext* context = nil;
 {
     [super viewDidLoad];
     
-    _settings = [ADUserDefaultsSettings defaultSettings];
-    
     //settings.credentialsType = AD_CREDENTIALS_EMBEDDED;
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(consumeToken)
-     name:UIApplicationWillEnterForegroundNotification object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self
+//                                             selector:@selector(consumeToken)
+//                                                 name:UIApplicationWillEnterForegroundNotification
+//                                               object:nil];
     
     // Do any additional setup after loading the view, typically from a nib.
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];//Log everything
+    
+    ADUserDefaultsSettings* settings = [ADUserDefaultsSettings defaultSettings];
+    [settings populateControl:_tfUserId];
+    [settings populateControl:_scPromptBehavior];
+    [settings populateControl:_scUserType];
+    
+    [_policies setDataSource:self];
+    [_policies setDelegate:self];
+    
     
         //[ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
 }
@@ -116,11 +125,13 @@ ADAuthenticationContext* context = nil;
 
 - (IBAction)pressMeAction:(id)sender
 {
-    NSString* authority = [_settings authority];
-    NSString* clientId = [_settings clientId];
-    NSString* redirectUri = [_settings redirectUri];
-    BOOL validateAuthority = [_settings validateAuthority];
-    NSString* userId = [_settings userId];
+    ADUserDefaultsSettings* settings = [ADUserDefaultsSettings defaultSettings];
+    
+    NSString* authority = [settings authority];
+    NSString* clientId = [settings clientId];
+    NSString* redirectUri = [settings redirectUri];
+    BOOL validateAuthority = [settings validateAuthority];
+    NSString* userId = [settings userId];
     
     ADAuthenticationError* error = nil;
     //[weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
@@ -134,12 +145,13 @@ ADAuthenticationContext* context = nil;
     }
     context.parentController = self;
     
-    NSArray* scopes = [_settings scopes];
-    NSArray* additionalScopes = [_settings additionalScopes];
+    NSArray* scopes = [settings scopes];
+    NSArray* additionalScopes = [settings additionalScopes];
     
     [self setStatus:@"Acquiring Token" type:TALogStatus];
     
     ADUserIdentifier* adUserId = [ADUserIdentifier identifierWithId:userId type:(ADUserIdentifierType)[_scUserType selectedSegmentIndex]];
+    NSString* policy = [[[ADUserDefaultsSettings defaultSettings] objectForKey:@"policies"] objectAtIndex:[_policies selectedRowInComponent:0]];
     [context acquireTokenWithScopes:scopes
                    additionalScopes:additionalScopes
                            clientId:clientId
@@ -147,6 +159,7 @@ ADAuthenticationContext* context = nil;
                          identifier:adUserId
                      promptBehavior:[_scPromptBehavior selectedSegmentIndex]
                extraQueryParameters:nil
+                             policy:policy
                     completionBlock:^(ADAuthenticationResult *result)
     {
         if (result.status != AD_SUCCEEDED)
@@ -178,13 +191,15 @@ ADAuthenticationContext* context = nil;
     //    NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     ADAuthenticationError * error;
     
+    ADUserDefaultsSettings* settings = [ADUserDefaultsSettings defaultSettings];
+    
     //401 worked, now try to acquire the token:
     //TODO: replace the authority here with the one that comes back from 'params'
-    NSString* authority = [_settings authority];//params.authority;
-    NSString* clientId = [_settings clientId];
-    NSString* userId = [_settings userId];
+    NSString* authority = [settings authority];//params.authority;
+    NSString* clientId = [settings clientId];
+    NSString* userId = [settings userId];
     //NSString* __block resourceString = mAADInstance.resource;
-    NSString* redirectUri = [_settings redirectUri];
+    NSString* redirectUri = [settings redirectUri];
     [ADTestAppLogger logMessage:[NSString stringWithFormat:@"Authority: %@", authority] type:TALogInformation];
     context = [ADAuthenticationContext authenticationContextWithAuthority:authority
                                                                     error:&error];
@@ -195,7 +210,7 @@ ADAuthenticationContext* context = nil;
     }
     context.parentController = self;
     
-    [context acquireTokenSilentWithScopes:[_settings scopes]
+    [context acquireTokenSilentWithScopes:[settings scopes]
                                 clientId:clientId
                              redirectUri:[NSURL URLWithString:redirectUri]
                               identifier:[ADUserIdentifier identifierWithId:userId]
@@ -254,5 +269,27 @@ ADAuthenticationContext* context = nil;
     return accessToken;
 }
 
+#pragma mark UIPickerViewDataSource
+
+// returns the number of 'columns' to display.
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView
+{
+    return 1;
+}
+
+// returns the # of rows in each component..
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
+{
+    return [[[ADUserDefaultsSettings defaultSettings] objectForKey:@"policies"] count];
+}
+
+#pragma mark UIPickerViewDelegate
+
+- (nullable NSString *)pickerView:(UIPickerView *)pickerView
+                      titleForRow:(NSInteger)row
+                     forComponent:(NSInteger)component
+{
+    return [[[ADUserDefaultsSettings defaultSettings] objectForKey:@"policies"] objectAtIndex:row];
+}
 
 @end

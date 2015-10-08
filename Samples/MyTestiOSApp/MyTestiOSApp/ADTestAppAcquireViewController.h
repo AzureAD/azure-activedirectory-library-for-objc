@@ -21,14 +21,13 @@
 
 @class ADTestAppSettings;
 
-@interface ADTestAppAcquireViewController : UIViewController <UIPopoverControllerDelegate>
+@interface ADTestAppAcquireViewController : UIViewController <UIPopoverControllerDelegate, UIPickerViewDataSource, UIPickerViewDelegate>
 {
     IBOutlet UILabel*               _statusLabel;
     IBOutlet UITextField*           _tfUserId;
     IBOutlet UISegmentedControl*    _scUserType;
     IBOutlet UISegmentedControl*    _scPromptBehavior;
-    
-    ADTestAppSettings* _settings;
+    IBOutlet UIPickerView*          _policies;
 }
 
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;

@@ -159,6 +159,7 @@ GET_BOOL_PROPERTY_KEY(fullScreen, "full_screen")
 
 @implementation ADMutableTestAppSettings
 {
+@protected
     NSMutableDictionary* _mutableSettings;
 }
 
@@ -217,21 +218,14 @@ GET_BOOL_PROPERTY_KEY(fullScreen, "full_screen")
     s_defaultSettings = [[ADUserDefaultsSettings alloc] init];
 }
 
-+ (ADTestAppSettings*)defaultSettings
++ (ADUserDefaultsSettings*)defaultSettings
 {
     return s_defaultSettings;
 }
 
 - (id)init
 {
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    _environmentKey = @"DefaultEnvironment";
-    
-    return self;
+    return [self initWithKey:@"DefaultEnvironment"];
 }
 
 - (id)initWithKey:(NSString*)environmentKey
@@ -250,6 +244,12 @@ GET_BOOL_PROPERTY_KEY(fullScreen, "full_screen")
         _environmentKey = environmentKey;
     }
     
+    NSDictionary* userOverrides = [[NSUserDefaults standardUserDefaults] dictionaryForKey:_environmentKey];
+    for (id key in userOverrides)
+    {
+        [_mutableSettings setValue:[userOverrides valueForKey:key] forKey:key];
+    }
+    
     return self;
 }
 
@@ -264,7 +264,7 @@ GET_BOOL_PROPERTY_KEY(fullScreen, "full_screen")
     [[NSUserDefaults standardUserDefaults] setValue:env forKey:_environmentKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
-    [super setValue:value forKeyPath:key];
+    [super setValue:value forKey:key];
 }
 
 - (void)populateControl:(UIControl*)control
@@ -280,8 +280,20 @@ GET_BOOL_PROPERTY_KEY(fullScreen, "full_screen")
     else if ([control isKindOfClass:[UISwitch class]])
     {
         UISwitch* uiSwitch = (UISwitch*)control;
-        [uiSwitch setOn:[self boolForKey:settingKey]];
+        if ([_defaultEnvironment valueForKey:settingKey])
+        {
+            [uiSwitch setOn:[self boolForKey:settingKey]];
+        }
         [uiSwitch addTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
+    }
+    else if ([control isKindOfClass:[UISegmentedControl class]])
+    {
+        UISegmentedControl* segmentedControl = (UISegmentedControl*)control;
+        if ([_defaultEnvironment valueForKey:settingKey])
+        {
+            [segmentedControl setSelectedSegmentIndex:[self numberForKey:settingKey].integerValue];
+        }
+        [segmentedControl addTarget:self action:@selector(selectionDidChange:) forControlEvents:UIControlEventValueChanged];
     }
     else
     {
@@ -299,6 +311,12 @@ GET_BOOL_PROPERTY_KEY(fullScreen, "full_screen")
 {
     NSString* settingKey = [textField settingKey];
     [self setValue:[textField text] forKey:settingKey];
+}
+
+- (void)selectionDidChange:(UISegmentedControl*)segmentedControl
+{
+    NSString* settingKey = [segmentedControl settingKey];
+    [self setValue:[NSNumber numberWithInteger:[segmentedControl selectedSegmentIndex]] forKey:settingKey];
 }
 
 - (void)reset
