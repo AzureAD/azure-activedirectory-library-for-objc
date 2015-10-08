@@ -40,7 +40,7 @@ static NSString* const PROFILE_INFO_VER = @"ver";
 
 + (NSString*)normalizeUserId: (NSString*) userId
 {
-    if (!userId)
+    if (!userId || [userId isKindOfClass:[NSNull class]])
     {
         return nil;//Quick exit;
     }
