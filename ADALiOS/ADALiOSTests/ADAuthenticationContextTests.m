@@ -1040,6 +1040,9 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
         _error = _result.error;
         dispatch_semaphore_signal(sem);
     };
+    
+    // NOTE: This test doesn't provide a user name, meaning it will search the cache with nil provided as the user id.
+    // The cache is expected to return any user if possible as long as there's only one.
 
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
