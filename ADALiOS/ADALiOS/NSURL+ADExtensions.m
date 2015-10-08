@@ -44,16 +44,4 @@ NSString* queryStringSeparator = @"?";
     return [NSString stringWithFormat:@"%@:%ld", self.host, (long)port];
 }
 
-// Decodes parameters contained in a URL fragment
-- (NSDictionary *)adFragmentParameters
-{
-    return [NSDictionary adURLFormDecode:[self fragment]];
-}
-
-// Decodes parameters contains in a URL query
-- (NSDictionary *)adQueryParameters
-{
-    return [NSDictionary adURLFormDecode:[self query]];
-}
-
 @end
