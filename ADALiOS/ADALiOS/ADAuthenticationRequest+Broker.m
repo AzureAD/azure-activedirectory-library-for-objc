@@ -31,9 +31,15 @@
 
 + (BOOL)canUseBroker
 {
+#if BROKER_ENABLED
     return [[ADAuthenticationSettings sharedInstance] credentialsType] == AD_CREDENTIALS_AUTO &&
     [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", brokerScheme]]];
+#else
+    return NO;
+#endif
 }
+
+#if BROKER_ENABLED
 
 + (BOOL)respondsToUrl:(NSString*)url
 {
@@ -127,7 +133,7 @@
                        cacheItem:nil
                 withRefreshToken:nil];
         
-        NSString* userId = [[[result tokenCacheStoreItem] userInformation] userId];
+        NSString* userId = [[[result tokenCacheStoreItem] profileInfo] userId];
         [ctx updateResult:result
                    toUser:[ADUserIdentifier identifierWithId:userId]];
     }
@@ -260,5 +266,7 @@
         });
     }
 }
+
+#endif // BROKER_ENABLED
 
 @end

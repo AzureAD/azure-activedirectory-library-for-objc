@@ -16,20 +16,31 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
 
-extern NSString* const sAADTestInstance;
+#import "ADTestAppLogger.h"
 
-//A helper class for reading the test authorities, usernames, etc.
-//Reads the authorities from the TestData.plist file.
-@interface BVSettings : NSObject
+static void (^s_logCallback)(NSString* message, TALogType type) = nil;
 
-//Returns a dictionary with the name of the test instances as keys.
-//The values are instances of BVTestInstance class.
-@property (readonly) NSDictionary* testAuthorities;
+@implementation ADTestAppLogger
 
-//In case of code coverage build, stores the code coverage data.
-//The method does nothing in the other configurations.
--(void) flushCodeCoverage;
+
++ (void)logMessage:(NSString*)message
+              type:(TALogType)type
+{
+    if (!s_logCallback)
+    {
+        NSLog(@"%@", message);
+    }
+    else
+    {
+        s_logCallback(message, type);
+    }
+}
+
++ (void)registerLogCallback:(void (^)(NSString* message, TALogType type))callback
+{
+    s_logCallback = callback;
+}
+
 
 @end

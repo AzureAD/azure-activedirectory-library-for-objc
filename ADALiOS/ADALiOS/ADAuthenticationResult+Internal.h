@@ -30,8 +30,7 @@
 + (ADAuthenticationResult*)resultFromParameterError:(NSString*)details;
 
 /*! Creates an instance of the result from a pre-setup token cache store item. */
-+ (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheStoreItem*)item
-                               multiResourceRefreshToken:(BOOL)multiResourceRefreshToken;
++ (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheStoreItem*)item;
 
 /*! Creates an authentication result from broker response. */
 + (ADAuthenticationResult*)resultFromBrokerResponse:(NSDictionary*)response;

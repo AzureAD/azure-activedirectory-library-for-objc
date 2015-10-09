@@ -36,7 +36,6 @@
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_ERROR];
     // Runs before each test case. Just in case, set them to nil.
     mParameters = nil;
     mError = nil;
@@ -48,7 +47,6 @@
     //Runs after each test case. Clean up to ensure that the memory is freed before the other test:
     mParameters = nil;
     mError = nil;
-    [self adTestEnd];
     [super tearDown];
 }
 
@@ -123,12 +121,12 @@
 }
 
 /* validates a successful parameters extraction */
--(void) verifyWithAuthority: (NSString*) expectedAuthority
-{
-    XCTAssertNotNil(mParameters, "Valid parameters should have been extracted.");
-    XCTAssertNil(mError, "No error should be issued in this test. Details: %@", mError.errorDetails);
-    XCTAssertNotNil(mParameters.authority, "A valid authority should be returned");
-    ADAssertStringEquals(mParameters.authority, expectedAuthority);
+#define VERIFY_AUTHORITY(_expectedAuthority) \
+{ \
+    XCTAssertNotNil(mParameters, "Valid parameters should have been extracted."); \
+    XCTAssertNil(mError, "No error should be issued in this test. Details: %@", mError.errorDetails); \
+    XCTAssertNotNil(mParameters.authority, "A valid authority should be returned"); \
+    XCTAssertEqualObjects(mParameters.authority, _expectedAuthority); \
 }
 
 /* Verifies correct handling when the resource cannot be reached */
@@ -139,22 +137,21 @@
     [self callAsynchronousCreator:resource line:__LINE__];
     XCTAssertNil(mParameters, "No parameters should be extracted from non-existing resource.");
     XCTAssertNotNil(mError, "Error should be set.");
-    [self adAssertValidText:mError.errorDetails message:@"The error should have details."];
+    XCTAssertFalse([NSString adIsStringNilOrBlank:mError.errorDetails], @"Error should provide details.");
 }
 
 
 - (void) testParametersFromResourceURLParametersPositiveCase
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     //HTTP
     NSURL* resourceUrl = [[NSURL alloc] initWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     [self callAsynchronousCreator:resourceUrl line:__LINE__];
-    [self verifyWithAuthority:@"https://login.windows.net/omercantest.onmicrosoft.com"];
+    VERIFY_AUTHORITY(@"https://login.windows.net/omercantest.onmicrosoft.com");
 
     //HTTPS
     resourceUrl = [[NSURL alloc] initWithString:@"https://testapi007.azurewebsites.net/api/WorkItem"];
     [self callAsynchronousCreator:resourceUrl line:__LINE__];
-    [self verifyWithAuthority:@"https://login.windows.net/omercantest.onmicrosoft.com"];
+    VERIFY_AUTHORITY(@"https://login.windows.net/omercantest.onmicrosoft.com");
 }
 
 -(void) testParametersFromAnauthorizedResponseNilParameter
@@ -216,7 +213,6 @@
 
 -(void)testParametersFromResponseDifferentHeaderCase
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     //HTTP headers are case-insensitive. This test validates that the underlying code is aware:
     NSURL *url = [NSURL URLWithString:@"http://www.example.com"];
     NSDictionary* headerFields1 = [NSDictionary dictionaryWithObject:@"Bearer authorization_uri=\"https://www.example.com\""
@@ -228,7 +224,7 @@
     ADAuthenticationError* error;//A local variable is needed for __autoreleasing reference pointers.
     mParameters = [ADAuthenticationParameters parametersFromResponse:response1 error:&error];
     XCTAssertNil(error);
-    [self verifyWithAuthority:@"https://www.example.com"];
+    VERIFY_AUTHORITY(@"https://www.example.com");
     
     NSDictionary* headerFields2 = [NSDictionary dictionaryWithObject:@"Bearer authorization_uri=\"https://www.example.com\""
                                                               forKey:@"www-AUTHEnticate"];//Capital
@@ -238,8 +234,7 @@
                                                              headerFields:headerFields2];
     mParameters = [ADAuthenticationParameters parametersFromResponse:response2 error:&error];
     XCTAssertNil(error);
-    [self verifyWithAuthority:@"https://www.example.com"];
-
+    VERIFY_AUTHORITY(@"https://www.example.com");
 }
 
 /* Checks that the correct error is returned when extractChallenge is called with an invalid header text */
@@ -273,70 +268,91 @@
     [self extractChallengeWithInvalidHeader:@"Bearer,, " line:__LINE__];
     [self extractChallengeWithInvalidHeader:@"Bearer test string" line:__LINE__];
 }
-
--(void) validateExtractChallenge: (NSString*) challenge
-                       authority: (NSString*) expectedAuthority
-                        resource: (NSString*) expectedResource
-                            line: (int) sourceLine
+- (NSString*)extract:(NSString*)key
+           challenge:(NSString*)challenge
+               error:(ADAuthenticationError* __autoreleasing *)error
 {
-    ADAuthenticationError* error;
-    NSDictionary* params = [ADAuthenticationParameters extractChallengeParameters:challenge error:&error];
-    if (params)
+    NSDictionary* params = [ADAuthenticationParameters extractChallengeParameters:challenge error:error];
+    if (!params)
     {
-        [self adAssertStringEquals:[params objectForKey:OAuth2_Authorization_Uri]
-                  stringExpression:@"extracted authority"
-                          expected:expectedAuthority
-                              file:__FILE__
-                              line:sourceLine];
-        [self adAssertStringEquals:[params objectForKey:OAuth2_Resource_Id]
-                  stringExpression:@"extracted resource"
-                          expected:expectedResource
-                              file:__FILE__
-                              line:sourceLine];
+        return nil;
     }
-    else
-    {
-        if (!error)
-        {
-            [self recordFailureWithDescription:@"Record should be returned here." inFile:@"" __FILE__ atLine:sourceLine expected:NO];
-        }
-        //init will return nil if the bearer format is incorrect:
-        if (expectedAuthority)
-        {
-            [self recordFailureWithDescription:@"Failed to parse the Bearer header." inFile:@"" __FILE__ atLine:sourceLine expected:NO];
-        }
-    }
+    
+    return [params objectForKey:key];
 }
 
--(void) testInternalInit
+- (void)testParameterlessInit
 {
     ADAuthenticationParameters* params = [ADAuthenticationParameters alloc];
     XCTAssertThrowsSpecificNamed([params initInternalWithParameters:0 error:nil],
                                  NSException, NSInvalidArgumentException, "Exception should be thrown in this case");
-    [self validateExtractChallenge:@"Bearerauthorization_uri=\"abc\", resource_id=\"foo\"" authority:nil resource:nil line:__LINE__];
-    [self validateExtractChallenge:@"Bearer foo" authority:nil resource:nil line:__LINE__];
-    [self validateExtractChallenge:@"Bearer foo=bar" authority:nil resource:nil line:__LINE__];
-    [self validateExtractChallenge:@"Bearer foo=\"bar\"" authority:nil resource:nil line:__LINE__];
-    [self validateExtractChallenge:@"Bearer foo=\"bar" authority:nil resource:nil line:__LINE__];//Missing second quote
-    [self validateExtractChallenge:@"Bearer foo=\"bar\"," authority:nil resource:nil line:__LINE__];
-    [self validateExtractChallenge:@"Bearer   authorization_uri=\"https://login.windows.net/common\""
-                                authority:@"https://login.windows.net/common" resource:nil line:__LINE__];
-    //More commas:
-    [self validateExtractChallenge:@"Bearer authorization_uri=\"https://login.windows.net/common\""
-                         authority:@"https://login.windows.net/common"
-                          resource:nil
-                              line:__LINE__];
-    [self validateExtractChallenge:@"Bearer authorization_uri=\"https://login.windows.net/common\",resource_id=\"foo\""
-                         authority:@"https://login.windows.net/common"
-                          resource:@"foo"
-                              line:__LINE__];
-    [self validateExtractChallenge:@"Bearer authorization_uri=\"\",resource_id=\"foo\"" authority:nil resource:@"foo" line:__LINE__];
+}
 
-    //Pass an attribute, whose value contains commas:
-    [self validateExtractChallenge:@"Bearer  error_descritpion=\"Make sure, that you handle commas, inside the text\",authorization_uri=\"https://login.windows.net/common\",resource_id=\"foo\""
-                         authority:@"https://login.windows.net/common"
-                          resource:@"foo"
-                              line:__LINE__];
+#define VALIDATE_EXTRACT(_challenge, _expected, _key, _friendlyKey) { \
+    ADAuthenticationError* _ERROR = nil; \
+    NSString* _extracted = [self extract:_key challenge:_challenge error:&_ERROR]; \
+    if (_expected) { XCTAssertNotNil(_extracted, @"expected a " #_friendlyKey " from " #_challenge ": %@", _challenge); } \
+    else { XCTAssertNil(_extracted, @"Did not expect a " #_friendlyKey" from " #_challenge ": %@", _challenge); }\
+    if (_extracted) { \
+        XCTAssertEqualObjects(_extracted, _expected, \
+                              @"failed to extract " #_friendlyKey " (%@) from " #_challenge " (%@) does not match expected " #_friendlyKey " (%@)", \
+                                _extracted, _challenge, _expected); \
+    } \
+}
+
+#define VALIDATE_EXTRACT_AUTHORITY(_challenge, _expectedAuthority) VALIDATE_EXTRACT(_challenge, _expectedAuthority, OAuth2_Authorization_Uri, authority)
+#define VALIDATE_EXTRACT_RESOURCE(_challenge, _expectedResource) VALIDATE_EXTRACT(_challenge, _expectedResource, OAuth2_Resource_Id, resource)
+
+- (void)testInvalidAuthorities
+{
+    NSString* invalidChallenge1 = @"Bearerauthorization_uri=\"abc\", resource_id=\"foo\"";
+    VALIDATE_EXTRACT_AUTHORITY(invalidChallenge1, nil);
+    VALIDATE_EXTRACT_RESOURCE(invalidChallenge1, nil);
+    
+    NSString* invalidChallenge2 = @"Bearer foo";
+    VALIDATE_EXTRACT_AUTHORITY(invalidChallenge2, nil);
+    VALIDATE_EXTRACT_RESOURCE(invalidChallenge2, nil);
+    
+    NSString* invalidChallenge3 = @"Bearer foo=bar";
+    VALIDATE_EXTRACT_AUTHORITY(invalidChallenge3, nil);
+    VALIDATE_EXTRACT_RESOURCE(invalidChallenge3, nil);
+    
+    NSString* invalidChallenge5 = @"Bearer foo=\"bar"; // Missing second quote
+    VALIDATE_EXTRACT_AUTHORITY(invalidChallenge5, nil);
+    VALIDATE_EXTRACT_RESOURCE(invalidChallenge5, nil);
+    
+    NSString* invalidChallenge6 = @"Bearer foo=\"bar\",";
+    VALIDATE_EXTRACT_AUTHORITY(invalidChallenge6, nil);
+    VALIDATE_EXTRACT_RESOURCE(invalidChallenge6, nil);
+}
+
+- (void)testValidAuthorityNoResource
+{
+    NSString* validAuthorityNoResource1 = @"Bearer   authorization_uri=\"https://login.windows.net/common\"";
+    VALIDATE_EXTRACT_AUTHORITY(validAuthorityNoResource1, @"https://login.windows.net/common");
+    VALIDATE_EXTRACT_RESOURCE(validAuthorityNoResource1, nil);
+    
+    NSString* validAuthorityNoResource2 = @"Bearer authorization_uri=\"https://login.windows.net/common\"";
+    VALIDATE_EXTRACT_AUTHORITY(validAuthorityNoResource2, @"https://login.windows.net/common");
+    VALIDATE_EXTRACT_RESOURCE(validAuthorityNoResource2, nil);
+}
+    
+- (void)testValidAuthorityAndResource
+{
+    NSString* validAuthorityAndResource1 = @"Bearer authorization_uri=\"https://login.windows.net/common\",resource_id=\"foo\"";
+    VALIDATE_EXTRACT_AUTHORITY(validAuthorityAndResource1, @"https://login.windows.net/common");
+    VALIDATE_EXTRACT_RESOURCE(validAuthorityAndResource1, @"foo");
+    
+    NSString* validAuthorityAndResource2 = @"Bearer  error_descritpion=\"Make sure, that you handle commas, inside the text\",authorization_uri=\"https://login.windows.net/common\",resource_id=\"foo\"";
+    VALIDATE_EXTRACT_AUTHORITY(validAuthorityAndResource2, @"https://login.windows.net/common");
+    VALIDATE_EXTRACT_RESOURCE(validAuthorityAndResource2, @"foo");
+}
+
+- (void)testValidResourceNoAuthority
+{
+    NSString* validResourceNoAuthority1 = @"Bearer authorization_uri=\"\",resource_id=\"foo\"";
+    VALIDATE_EXTRACT_AUTHORITY(validResourceNoAuthority1, nil);
+    VALIDATE_EXTRACT_RESOURCE(validResourceNoAuthority1, @"foo");
 }
 
 -(void) validateFactoryForBadHeader: (NSString *) header
@@ -358,18 +374,17 @@
 
 -(void) testParametersFromResponseAuthenticateHeaderValid
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     ADAuthenticationError* error;
     ADAuthenticationParameters* params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\"https://login.windows.net/common\", resource_uri=\"foo.com\", anotherParam=\"Indeed, another param=5\" "
                                                                             error:&error];
     XCTAssertNotNil(params);
     XCTAssertNil(error);
     XCTAssertNil(params.resource);
-    ADAssertStringEquals(params.authority, @"https://login.windows.net/common");
+    XCTAssertEqualObjects(params.authority, @"https://login.windows.net/common");
     
     NSDictionary* extractedParameters = [params getExtractedParameters];
     XCTAssertNotNil(extractedParameters);
-    ADAssertStringEquals([extractedParameters objectForKey:@"anotherParam"], @"Indeed, another param=5");
+    XCTAssertEqualObjects([extractedParameters objectForKey:@"anotherParam"], @"Indeed, another param=5");
 }
 
 -(void) testParametersFromResponseAuthenticateHeaderBadUrl

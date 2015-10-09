@@ -110,6 +110,8 @@ typedef enum
     /*! The redirect URI cannot be used for invoking broker. */
     AD_ERROR_INVALID_REDIRECT_URI = 23,
     
+    AD_ERROR_PARSING = 24,
+    
 } ADErrorCode;
 
 /* HTTP status codes used by the library */

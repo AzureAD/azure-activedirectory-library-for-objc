@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>DefaultEnvironment</key>
+	<dict>
+		<key>authority</key>
+		<string>https://login.microsoftonline.com/fabrikamb2c.onmicrosoft.com</string>
+		<key>client_id</key>
+		<string>90c0fe63-bcf2-44d5-8fb7-b8bbc0b29dc6</string>
+		<key>redirect_uri</key>
+		<string>urn:ietf:wg:oauth:2.0:oob</string>
+		<key>timeout</key>
+		<integer>30</integer>
+		<key>validate_authority</key>
+		<true/>
+		<key>full_screen</key>
+		<true/>
+		<key>scopes</key>
+		<array/>
+		<key>extra_query_parameters</key>
+		<string>nux=1</string>
+		<key>policy</key>
+		<string>b2c_1_sign_up</string>
+		<key>policies</key>
+		<array>
+			<string>b2c_1_sign_up</string>
+			<string>b2c_1_sign_in</string>
+			<string>b2c_1_edit_profile</string>
+		</array>
+	</dict>
+</dict>
+</plist>

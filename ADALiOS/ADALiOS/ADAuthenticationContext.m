@@ -30,11 +30,10 @@
 #import "ADInstanceDiscovery.h"
 #import "ADTokenCacheStoreItem.h"
 #import "ADTokenCacheStoreKey.h"
-#import "ADUserInformation.h"
+#import "ADProfileInfo.h"
 #import "ADWorkPlaceJoin.h"
 #import "ADPkeyAuthHelper.h"
 #import "ADWorkPlaceJoinConstants.h"
-#import "ADKeyChainHelper.h"
 #import "ADBrokerKeyHelper.h"
 #import "ADClientMetrics.h"
 #import "NSString+ADHelperMethods.h"
@@ -48,7 +47,7 @@
 #import <objc/runtime.h>
 
 
-
+#if BROKER_ENABLED
 typedef BOOL (*applicationOpenURLPtr)(id, SEL, UIApplication*, NSURL*, NSString*, id);
 IMP __original_ApplicationOpenURL = NULL;
 
@@ -65,11 +64,14 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
     [ADAuthenticationContext handleBrokerResponse:url];
     return YES;
 }
+#endif // BROKER_ENABLED
+
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 @implementation ADAuthenticationContext
 
+#if BROKER_ENABLED
 + (void) load
 {
     __block id observer = nil;
@@ -113,6 +115,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                 }];
     
 }
+#endif // BROKER_ENABLED
 
 - (id)init
 {
@@ -143,7 +146,6 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 - (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
                                              clientId:(NSString*)clientId
-                                             resource:(NSString*)resource
                                       completionBlock:(ADAuthenticationCallback)completionBlock
 
 {
@@ -152,7 +154,6 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     ADAuthenticationRequest* request = [ADAuthenticationRequest requestWithContext:self
                                                                        redirectUri:redirectUri
                                                                           clientId:clientId
-                                                                          resource:resource
                                                                              error:&error];
     
     if (!request)
@@ -165,12 +166,10 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 - (ADAuthenticationRequest*)requestWithRedirectUrl:(NSURL*)redirectUri
                                           clientId:(NSString*)clientId
-                                          resource:(NSString*)resource
                                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
     return [self requestWithRedirectString:[redirectUri absoluteString]
                                   clientId:clientId
-                                  resource:resource
                            completionBlock:completionBlock];
 }
 
@@ -220,6 +219,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                                      error: error];
 }
 
+#if BROKER_ENABLED
 + (BOOL)isResponseFromBroker:(NSString*)sourceApplication
                     response:(NSURL*)response
 {
@@ -232,155 +232,289 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 {
     [ADAuthenticationRequest internalHandleBrokerResponse:response];
 }
+#endif // BROKER_ENABLED
 
-#define REQUEST_WITH_REDIRECT_STRING(_redirect, _clientId, _resource) \
-    ADAuthenticationRequest* request = [self requestWithRedirectString:_redirect clientId:_clientId resource:_resource completionBlock:completionBlock]; \
+#define REQUEST_WITH_REDIRECT_STRING(_redirect, _clientId) \
+    ADAuthenticationRequest* request = [self requestWithRedirectString:_redirect clientId:_clientId completionBlock:completionBlock]; \
     if (!request) { return; }
 
-#define REQUEST_WITH_REDIRECT_URL(_redirect, _clientId, _resource) \
-    ADAuthenticationRequest* request = [self requestWithRedirectUrl:_redirect clientId:_clientId resource:_resource completionBlock:completionBlock]; \
+#define REQUEST_WITH_REDIRECT_URL(_redirect, _clientId) \
+    ADAuthenticationRequest* request = [self requestWithRedirectUrl:_redirect clientId:_clientId completionBlock:completionBlock]; \
     if (!request) { return; }
 
+
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. If neither of these attempts succeeds, the method will use
+    the provided assertion to get an access token from the service.
+ 
+    @param samlAssertion    the assertion representing the authenticated user.
+    @param assertionType    the assertion type of the user assertion.
+    @param scopes           An array of NSStrings specifying the scopes required for the request
+    @param additionalScopes An array of NSStrings of any additional scopes to ask the user consent for
+    @param clientId         the client identifier
+    @param identifier       A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
+    @param promptBehavior       controls if any credentials UI will be shown
+    @param completionBlock: the block to execute upon completion. You can use embedded block, e.g.
+                            "^(ADAuthenticationResult res){ <your logic here> }"
+ */
 - (void)acquireTokenForAssertion:(NSString*)assertion
                    assertionType:(ADAssertionType)assertionType
-                        resource:(NSString*)resource
+                          scopes:(NSArray*)scopes
+                additionalScopes:(NSArray*)additionalScopes
                         clientId:(NSString*)clientId
-                          userId:(NSString*)userId
+                      identifier:(ADUserIdentifier*)identifier
                  completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    API_ENTRY;
-    REQUEST_WITH_REDIRECT_STRING(nil, clientId, resource);
+    API_ENTRY_F(@"assertion:%lu assertiontype:%@ scopes:%@ additionalscopes:%@ clientId:%@ identifier:%@",
+                (unsigned long)[assertion hash], assertionType == AD_SAML1_1 ? @"v1.1" : @"v2.0", scopes, additionalScopes, clientId, identifier);
+    REQUEST_WITH_REDIRECT_STRING(nil, clientId);
+    
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
+    CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
+    [request setUserIdentifier:identifier];
     
     [request acquireTokenForAssertion:assertion
                         assertionType:assertionType
                       completionBlock:completionBlock];
-    
 }
 
 
-- (void)acquireTokenWithResource:(NSString*)resource
-                        clientId:(NSString*)clientId
-                     redirectUri:(NSURL*)redirectUri
-                 completionBlock:(ADAuthenticationCallback)completionBlock
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. If neither of these attempts succeeds, the method will display
+    credentials web UI for the user to re-authorize the resource usage. Logon cookie from previous authorization may be
+    leveraged by the web UI, so user may not be actuall prompted. Use the other overloads if a more precise control of the
+    UI displaying is desired.
+
+    @param resource: the resource whose token is needed.
+    @param clientId: the client identifier
+    @param promptBehavior       controls if any credentials UI will be shown
+    @param redirectUri: The redirect URI according to OAuth2 protocol.
+    @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenWithScopes:(NSArray*)scopes
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                promptBehavior:(ADPromptBehavior)promptBehavior
+               completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    API_ENTRY;
-    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+    API_ENTRY_F(@"scopes:%@ additionalScopes:%@ clientId:%@ redirectUri:%@", scopes, additionalScopes, clientId, redirectUri);
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
+    
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
+    CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
+    
+    [request setPromptBehavior:promptBehavior];
+    [request acquireToken:completionBlock];
+}
+
+
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. If neither of these attempts succeeds, the method will display
+    credentials web UI for the user to re-authorize the resource usage. Logon cookie from previous authorization may be
+    leveraged by the web UI, so user may not be actuall prompted. Use the other overloads if a more precise control of the
+    UI displaying is desired.
+ 
+    @param scopes           An array of NSStrings specifying the scopes required for the request
+    @param additionalScopes An array of NSStrings of any additional scopes to ask the user consent for
+    @param clientId         the client identifier
+    @param redirectUri      The redirect URI according to OAuth2 protocol
+    @param identifier       A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
+    @param promptBehavior       controls if any credentials UI will be shown
+    @param completionBlock  the block to execute upon completion. You can use embedded block, e.g.
+                            "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenWithScopes:(NSArray*)scopes
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                    identifier:(ADUserIdentifier*)identifier
+                promptBehavior:(ADPromptBehavior)promptBehavior
+               completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    API_ENTRY_F(@"scopes:%@ additionalScopes:%@ clientId:%@ redirectUri:%@ identifier:%@",
+                scopes, additionalScopes, clientId, redirectUri, identifier);
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
+    
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
+    CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
+    [request setUserIdentifier:identifier];
+    [request setPromptBehavior:promptBehavior];
     
     [request acquireToken:completionBlock];
 }
 
-- (void)acquireTokenWithResource:(NSString*)resource
-                        clientId:(NSString*)clientId
-                     redirectUri:(NSURL*)redirectUri
-                          userId:(NSString*)userId
-                 completionBlock:(ADAuthenticationCallback)completionBlock
-{
-    API_ENTRY;
-    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
-    
-    [request setUserId:userId];
-    [request acquireToken:completionBlock];
-}
 
-
-- (void)acquireTokenWithResource:(NSString*)resource
-                        clientId:(NSString*)clientId
-                     redirectUri:(NSURL*)redirectUri
-                          userId:(NSString*)userId
-            extraQueryParameters:(NSString*)queryParams
-                 completionBlock:(ADAuthenticationCallback)completionBlock
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. If neither of these attempts succeeds, the method will display
+    credentials web UI for the user to re-authorize the resource usage. Logon cookie from previous authorization may be
+    leveraged by the web UI, so user may not be actuall prompted. Use the other overloads if a more precise control of the
+    UI displaying is desired.
+ 
+    @param scopes               An array of NSStrings specifying the scopes required for the request
+    @param additionalScopes     An array of NSStrings of any additional scopes to ask the user consent for
+    @param clientId             The client identifier
+    @param redirectUri          The redirect URI according to OAuth2 protocol
+    @param identifier           A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
+    @param promptBehavior       controls if any credentials UI will be shown
+    @param extraQueryParameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
+    @param completionBlock      the block to execute upon completion. You can use embedded block, e.g.
+                                "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenWithScopes:(NSArray*)scopes
+             additionalScopes:(NSArray*)additionalScopes
+                     clientId:(NSString*)clientId
+                  redirectUri:(NSURL*)redirectUri
+                   identifier:(ADUserIdentifier*)identifier
+            promptBehavior:(ADPromptBehavior)promptBehavior
+         extraQueryParameters:(NSString*)queryParams
+              completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    API_ENTRY;
-    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
-    
-    [request setUserId:userId];
-    [request setExtraQueryParameters:queryParams];
-    [request acquireToken:completionBlock];
-}
+    API_ENTRY_F(@"scopes:%@ additionalScopes:%@ clientId:%@ redirectUri:%@ identifier:%@ queryParams:%@",
+                scopes, additionalScopes, clientId, redirectUri, identifier, queryParams);
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
 
-- (void)acquireTokenSilentWithResource:(NSString*)resource
-                              clientId:(NSString*)clientId
-                           redirectUri:(NSURL*)redirectUri
-                       completionBlock:(ADAuthenticationCallback)completionBlock
-{
-    API_ENTRY;
-    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
-    
-    [request setSilent:YES];
-    [request acquireToken:completionBlock];
-}
-
-- (void)acquireTokenSilentWithResource:(NSString*)resource
-                              clientId:(NSString*)clientId
-                           redirectUri:(NSURL*)redirectUri
-                                userId:(NSString*)userId
-                       completionBlock:(ADAuthenticationCallback)completionBlock
-{
-    API_ENTRY;
-    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
-    
-    [request setUserId:userId];
-    [request setSilent:YES];
-    [request acquireToken:completionBlock];
-}
-
-- (void)acquireTokenWithResource:(NSString*)resource
-                        clientId:(NSString*)clientId
-                     redirectUri:(NSURL*)redirectUri
-                  promptBehavior:(ADPromptBehavior)promptBehavior
-                          userId:(NSString*)userId
-            extraQueryParameters:(NSString*)queryParams
-                 completionBlock:(ADAuthenticationCallback)completionBlock
-{
-    API_ENTRY;
-    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
-    
-    [request setUserId:userId];
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
+    CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
+    [request setUserIdentifier:identifier];
     [request setPromptBehavior:promptBehavior];
     [request setExtraQueryParameters:queryParams];
     [request acquireToken:completionBlock];
 }
 
-- (void)acquireTokenByRefreshToken:(NSString*)refreshToken
-                          clientId:(NSString*)clientId
-                       redirectUri:(NSString*)redirectUri
-                   completionBlock:(ADAuthenticationCallback)completionBlock
-{
-    API_ENTRY;
-    REQUEST_WITH_REDIRECT_STRING(redirectUri, clientId, nil);
-    
-    [request acquireTokenByRefreshToken:refreshToken
-                              cacheItem:nil
-                        completionBlock:completionBlock];
-}
 
-- (void)acquireTokenByRefreshToken:(NSString*)refreshToken
-                          clientId:(NSString*)clientId
-                       redirectUri:(NSString*)redirectUri
-                          resource:(NSString*)resource
-                   completionBlock:(ADAuthenticationCallback)completionBlock
-{
-    API_ENTRY;
-    REQUEST_WITH_REDIRECT_STRING(redirectUri, clientId, resource);
-    
-    [request acquireTokenByRefreshToken:refreshToken
-                              cacheItem:nil
-                        completionBlock:completionBlock];
-}
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The behavior is controlled by the promptBehavior parameter on whether to re-authorize
+    the resource usage (through webview credentials UI) or attempt to use the cached tokens first.
+ 
+    @param scopes               An array of NSStrings specifying the scopes required for the request
+    @param additionalScopes     An array of NSStrings of any additional scopes to ask the user consent for
+    @param clientId             the client identifier
+    @param redirectUri          The redirect URI according to OAuth2 protocol
+    @param identifier           A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
+    @param promptBehavior       controls if any credentials UI will be shown
+    @param extraQueryParameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
+    @param policy               ??????
+    @param completionBlock      the block to execute upon completion. You can use embedded block, e.g.
+                                "^(ADAuthenticationResult res){ <your logic here> }"
+ */
 
-- (void)acquireTokenWithResource:(NSString*)resource
-                        clientId:(NSString*)clientId
-                     redirectUri:(NSURL*)redirectUri
-                  promptBehavior:(ADPromptBehavior)promptBehavior
-                  userIdentifier:(ADUserIdentifier*)userId
-            extraQueryParameters:(NSString*)queryParams
-                 completionBlock:(ADAuthenticationCallback)completionBlock
+- (void)acquireTokenWithScopes:(NSArray*)scopes
+             additionalScopes:(NSArray*)additionalScopes
+                     clientId:(NSString*)clientId
+                  redirectUri:(NSURL*)redirectUri
+                   identifier:(ADUserIdentifier*)identifier
+                promptBehavior:(ADPromptBehavior)promptBehavior
+         extraQueryParameters:(NSString*)queryParams
+                       policy:(NSString*)policy
+              completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    API_ENTRY;
-    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+    API_ENTRY_F(@"scopes:%@ additionalScopes:%@ clientId:%@ redirectUri:%@ identifier:%@ queryParams:%@ policy:%@",
+               scopes, additionalScopes, clientId, redirectUri, identifier, queryParams, policy);
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
     
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
+    CALLBACK_ON_ERROR([request setAdditionalScopes:additionalScopes]);
+    [request setUserIdentifier:identifier];
     [request setPromptBehavior:promptBehavior];
-    [request setUserIdentifier:userId];
+    [request setExtraQueryParameters:queryParams];
+    [request setPolicy:policy];
+    [request acquireToken:completionBlock];
+}
+
+
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. This method will not show UI for the user to reauthorize resource usage.
+    If reauthorization is needed, the method will return an error with code AD_ERROR_USER_INPUT_NEEDED.
+
+    @param scopes           An array of NSString* specifying the scopes required for the request
+    @param clientId         the client identifier
+    @param redirectUri      The redirect URI according to OAuth2 protocol.
+    @param completionBlock  the block to execute upon completion. You can use embedded block, e.g.
+                            "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenSilentWithScopes:(NSArray*)scopes
+                           clientId:(NSString*)clientId
+                        redirectUri:(NSURL*)redirectUri
+                    completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    API_ENTRY_F(@"scopes:%@ clientId:%@ redirectUri:%@", scopes, clientId, redirectUri);
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
+    
+    [request setSilent:YES];
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
+    [request acquireToken:completionBlock];
+}
+
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. This method will not show UI for the user to reauthorize resource usage.
+    If reauthorization is needed, the method will return an error with code AD_ERROR_USER_INPUT_NEEDED.
+
+    @param scopes           An array of NSString* specifying the scopes required for the request
+    @param clientId         the client identifier
+    @param redirectUri      The redirect URI according to OAuth2 protocol
+    @param identifier       An ADUserIdentifier object specifying the semantics
+    @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenSilentWithScopes:(NSArray*)scopes
+                           clientId:(NSString*)clientId
+                        redirectUri:(NSURL*)redirectUri
+                         identifier:(ADUserIdentifier*)identifier
+                    completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    
+    API_ENTRY_F(@"scopes:%@ clientId:%@ redirectUri:%@ identifier:%@", scopes, clientId, redirectUri, identifier);
+    
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
+    
+    [request setSilent:YES];
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
+    [request setUserIdentifier:identifier];
+    
+    [request acquireToken:completionBlock];
+}
+
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. This method will not show UI for the user to reauthorize resource usage.
+    If reauthorization is needed, the method will return an error with code AD_ERROR_USER_INPUT_NEEDED.
+
+    @param scopes           An array of NSString* specifying the scopes required for the request
+    @param clientId         the client identifier
+    @param redirectUri      The redirect URI according to OAuth2 protocol
+    @param identifier       An ADUserIdentifier object specifying the semantics
+    @param policy           ?????
+    @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenSilentWithScopes:(NSArray*)scopes
+                           clientId:(NSString*)clientId
+                        redirectUri:(NSURL*)redirectUri
+                         identifier:(ADUserIdentifier*)identifier
+                             policy:(NSString*)policy
+                    completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    API_ENTRY;
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId);
+    
+    
+    [request setSilent:YES];
+    CALLBACK_ON_ERROR([request setScopes:scopes]);
+    [request setUserIdentifier:identifier];
+    [request setPolicy:policy];
+    
     [request acquireToken:completionBlock];
 }
 

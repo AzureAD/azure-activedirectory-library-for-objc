@@ -22,7 +22,7 @@
 #import "ADAuthenticationError.h"
 #import "ADAuthenticationResult.h"
 #import "ADTokenCacheStoreItem.h"
-#import "ADUserInformation.h"
+#import "ADProfileInfo.h"
 #import "ADTokenCacheStoreKey.h"
 #import "ADErrorCodes.h"
 
@@ -155,6 +155,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                                                tokenCacheStore:(id<ADTokenCacheStoring>)tokenCache
                                                          error:(ADAuthenticationError* __autoreleasing *)error;
 
+#if BROKER_ENABLED
 /*!
  */
 + (BOOL)isResponseFromBroker:(NSString*)sourceApplication
@@ -163,6 +164,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 /*!
  */
 + (void)handleBrokerResponse:(NSURL*)response;
+#endif // BROKER_ENABLED
 
 
 /*! Represents the authority used by the context. */
@@ -190,150 +192,185 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  when needed, leveraging the parentController property. */
 @property (weak) WebViewType* webView;
 
-/*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
- expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
- the function will use the refresh token automatically. If neither of these attempts succeeds, the method will use the provided assertion to get an 
- access token from the service.
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. If neither of these attempts succeeds, the method will use
+    the provided assertion to get an access token from the service.
  
- @param samlAssertion: the assertion representing the authenticated user.
- @param assertionType: the assertion type of the user assertion.
- @param resource: the resource whose token is needed.
- @param clientId: the client identifier
- @param userId: the required user id of the authenticated user.
- @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+    @param samlAssertion    the assertion representing the authenticated user.
+    @param assertionType    the assertion type of the user assertion.
+    @param scopes           An array of NSStrings specifying the scopes required for the request
+    @param additionalScopes An array of NSStrings of any additional scopes to ask the user consent for
+    @param clientId         the client identifier
+    @param identifier       A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
+    @param completionBlock: the block to execute upon completion. You can use embedded block, e.g.
+                            "^(ADAuthenticationResult res){ <your logic here> }"
  */
 - (void)acquireTokenForAssertion:(NSString*)assertion
                    assertionType:(ADAssertionType)assertionType
-                        resource:(NSString*)resource
+                          scopes:(NSArray*)scopes
+                additionalScopes:(NSArray*)additionalScopes
                         clientId:(NSString*)clientId
-                          userId:(NSString*)userId
+                      identifier:(ADUserIdentifier*)identifier
                  completionBlock:(ADAuthenticationCallback)completionBlock;
 
 
-/*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
- expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
- the function will use the refresh token automatically. If neither of these attempts succeeds, the method will display
- credentials web UI for the user to re-authorize the resource usage. Logon cookie from previous authorization may be
- leveraged by the web UI, so user may not be actuall prompted. Use the other overloads if a more precise control of the
- UI displaying is desired.
- @param resource: the resource whose token is needed.
- @param clientId: the client identifier
- @param redirectUri: The redirect URI according to OAuth2 protocol.
- @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
- */
-- (void)acquireTokenWithResource:(NSString*)resource
-                        clientId:(NSString*)clientId
-                     redirectUri:(NSURL*)redirectUri
-                 completionBlock:(ADAuthenticationCallback)completionBlock;
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. If neither of these attempts succeeds, the method will display
+    credentials web UI for the user to re-authorize the resource usage. Logon cookie from previous authorization may be
+    leveraged by the web UI, so user may not be actuall prompted. Use the other overloads if a more precise control of the
+    UI displaying is desired.
 
-/*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
- expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
- the function will use the refresh token automatically. If neither of these attempts succeeds, the method will display
- credentials web UI for the user to re-authorize the resource usage. Logon cookie from previous authorization may be
- leveraged by the web UI, so user may not be actuall prompted. Use the other overloads if a more precise control of the
- UI displaying is desired.
- @param resource: the resource whose token is needed.
- @param clientId: the client identifier
- @param redirectUri: The redirect URI according to OAuth2 protocol
- @param userId: The user to be prepopulated in the credentials form. Additionally, if token is found in the cache,
- it may not be used if it belongs to different token. This parameter can be nil.
- @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+    @param resource: the resource whose token is needed.
+    @param clientId: the client identifier
+    @param redirectUri: The redirect URI according to OAuth2 protocol.
+    @param promptBehavior       controls if any credentials UI will be shown
+    @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenWithResource:(NSString*)resource
-                        clientId:(NSString*)clientId
-                     redirectUri:(NSURL*)redirectUri
-                          userId:(NSString*)userId
-                 completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)acquireTokenWithScopes:(NSArray*)scopes
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                promptBehavior:(ADPromptBehavior)promptBehavior
+               completionBlock:(ADAuthenticationCallback)completionBlock;
 
-/*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
- expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
- the function will use the refresh token automatically. If neither of these attempts succeeds, the method will display
- credentials web UI for the user to re-authorize the resource usage. Logon cookie from previous authorization may be
- leveraged by the web UI, so user may not be actuall prompted. Use the other overloads if a more precise control of the
- UI displaying is desired.
- @param resource: the resource whose token is needed.
- @param clientId: the client identifier
- @param redirectUri: The redirect URI according to OAuth2 protocol
- @param userId: The user to be prepopulated in the credentials form. Additionally, if token is found in the cache,
- it may not be used if it belongs to different token. This parameter can be nil.
- @param extraQueryParameters: will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
- @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. If neither of these attempts succeeds, the method will display
+    credentials web UI for the user to re-authorize the resource usage. Logon cookie from previous authorization may be
+    leveraged by the web UI, so user may not be actuall prompted. Use the other overloads if a more precise control of the
+    UI displaying is desired.
+ 
+    @param scopes           An array of NSStrings specifying the scopes required for the request
+    @param additionalScopes An array of NSStrings of any additional scopes to ask the user consent for
+    @param clientId         the client identifier
+    @param redirectUri      The redirect URI according to OAuth2 protocol
+    @param identifier       A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
+    @param promptBehavior       controls if any credentials UI will be shown
+    @param completionBlock  the block to execute upon completion. You can use embedded block, e.g.
+                            "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenWithResource:(NSString*)resource
-                        clientId:(NSString*)clientId
-                     redirectUri:(NSURL*)redirectUri
-                          userId:(NSString*)userId
-            extraQueryParameters:(NSString*)queryParams
-                 completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)acquireTokenWithScopes:(NSArray*)scopes
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                    identifier:(ADUserIdentifier*)identifier
+                promptBehavior:(ADPromptBehavior)promptBehavior
+               completionBlock:(ADAuthenticationCallback)completionBlock;
 
-/*! Follows the OAuth2 protocol (RFC 6749). The behavior is controlled by the promptBehavior parameter on whether to re-authorize the
- resource usage (through webview credentials UI) or attempt to use the cached tokens first.
- @param resource: the resource for whom token is needed.
- @param clientId: the client identifier
- @param redirectUri: The redirect URI according to OAuth2 protocol
- @param userId: The user to be prepopulated in the credentials form. Additionally, if token is found in the cache,
- it may not be used if it belongs to different token. This parameter can be nil.
- @param extraQueryParameters: will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
- @param credentialsType: controls the way of obtaining client credentials if such are needed.
- @param promptBehavior: controls if any credentials UI will be shownt.
- @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. If neither of these attempts succeeds, the method will display
+    credentials web UI for the user to re-authorize the resource usage. Logon cookie from previous authorization may be
+    leveraged by the web UI, so user may not be actuall prompted. Use the other overloads if a more precise control of the
+    UI displaying is desired.
+ 
+    @param scopes               An array of NSStrings specifying the scopes required for the request
+    @param additionalScopes     An array of NSStrings of any additional scopes to ask the user consent for
+    @param clientId             The client identifier
+    @param redirectUri          The redirect URI according to OAuth2 protocol
+    @param identifier           A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
+    @param promptBehavior       controls if any credentials UI will be shown
+    @param extraQueryParameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
+    @param completionBlock      the block to execute upon completion. You can use embedded block, e.g.
+                                "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenWithResource:(NSString*)resource
-                        clientId:(NSString*)clientId
-                     redirectUri:(NSURL*)redirectUri
-                  promptBehavior:(ADPromptBehavior)promptBehavior
-                          userId:(NSString*)userId
-            extraQueryParameters:(NSString*)queryParams
-                 completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)acquireTokenWithScopes:(NSArray*)scopes
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                    identifier:(ADUserIdentifier*)identifier
+                promptBehavior:(ADPromptBehavior)promptBehavior
+          extraQueryParameters:(NSString*)queryParams
+               completionBlock:(ADAuthenticationCallback)completionBlock;
 
-/*! Follows the OAuth2 protocol (RFC 6749). The behavior is controlled by the promptBehavior parameter on whether to re-authorize the
- resource usage (through webview credentials UI) or attempt to use the cached tokens first.
- @param resource the resource for whom token is needed.
- @param clientId the client identifier
- @param redirectUri The redirect URI according to OAuth2 protocol
- @param promptBehavior controls if any credentials UI will be shown.
- @param userId An ADUserIdentifier object describing the user being authenticated
- @param extraQueryParameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
- @param completionBlock the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The behavior is controlled by the promptBehavior parameter on whether to re-authorize
+    the resource usage (through webview credentials UI) or attempt to use the cached tokens first.
+ 
+    @param scopes               An array of NSStrings specifying the scopes required for the request
+    @param additionalScopes     An array of NSStrings of any additional scopes to ask the user consent for
+    @param clientId             the client identifier
+    @param redirectUri          The redirect URI according to OAuth2 protocol
+    @param promptBehavior       controls if any credentials UI will be shown
+    @param identifier           A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
+    @param promptBehavior       controls if any credentials UI will be shown
+    @param extraQueryParameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
+    @param policy               ??????
+    @param completionBlock      the block to execute upon completion. You can use embedded block, e.g.
+                                "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenWithResource:(NSString*)resource
-                        clientId:(NSString*)clientId
-                     redirectUri:(NSURL*)redirectUri
-                  promptBehavior:(ADPromptBehavior)promptBehavior
-                  userIdentifier:(ADUserIdentifier*)userId
-            extraQueryParameters:(NSString*)queryParams
-                 completionBlock:(ADAuthenticationCallback)completionBlock;
 
-/*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
- expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
- the function will use the refresh token automatically. This method will not show UI for the user to reauthorize resource usage.
- If reauthorization is needed, the method will return an error with code AD_ERROR_USER_INPUT_NEEDED.
- @param resource: the resource whose token is needed.
- @param clientId: the client identifier
- @param redirectUri: The redirect URI according to OAuth2 protocol.
- @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
- */
-- (void)acquireTokenSilentWithResource:(NSString*)resource
-                              clientId:(NSString*)clientId
-                           redirectUri:(NSURL*)redirectUri
-                       completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)acquireTokenWithScopes:(NSArray*)scopes
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                    identifier:(ADUserIdentifier*)identifier
+                promptBehavior:(ADPromptBehavior)promptBehavior
+          extraQueryParameters:(NSString*)queryParams
+                        policy:(NSString*)policy
+               completionBlock:(ADAuthenticationCallback)completionBlock;
 
-/*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
- expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
- the function will use the refresh token automatically. This method will not show UI for the user to reauthorize resource usage.
- If reauthorization is needed, the method will return an error with code AD_ERROR_USER_INPUT_NEEDED.
- @param resource: the resource whose token is needed.
- @param clientId: the client identifier
- @param redirectUri: The redirect URI according to OAuth2 protocol
- @param userId: The user to be prepopulated in the credentials form. Additionally, if token is found in the cache,
- it may not be used if it belongs to different token. This parameter can be nil.
- @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. This method will not show UI for the user to reauthorize resource usage.
+    If reauthorization is needed, the method will return an error with code AD_ERROR_USER_INPUT_NEEDED.
+
+    @param scopes           An array of NSString* specifying the scopes required for the request
+    @param clientId         the client identifier
+    @param redirectUri      The redirect URI according to OAuth2 protocol.
+    @param completionBlock  the block to execute upon completion. You can use embedded block, e.g.
+                            "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenSilentWithResource:(NSString*)resource
-                              clientId:(NSString*)clientId
-                           redirectUri:(NSURL*)redirectUri
-                                userId:(NSString*)userId
-                       completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)acquireTokenSilentWithScopes:(NSArray*)scopes
+                            clientId:(NSString*)clientId
+                         redirectUri:(NSURL*)redirectUri
+                     completionBlock:(ADAuthenticationCallback)completionBlock;
+
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. This method will not show UI for the user to reauthorize resource usage.
+    If reauthorization is needed, the method will return an error with code AD_ERROR_USER_INPUT_NEEDED.
+
+    @param scopes           An array of NSString* specifying the scopes required for the request
+    @param clientId         the client identifier
+    @param redirectUri      The redirect URI according to OAuth2 protocol
+    @param identifier       An ADUserIdentifier object specifying the semantics
+    @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenSilentWithScopes:(NSArray*)scopes
+                            clientId:(NSString*)clientId
+                         redirectUri:(NSURL*)redirectUri
+                          identifier:(ADUserIdentifier*)identifier
+                     completionBlock:(ADAuthenticationCallback)completionBlock;
+
+/*!
+    Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
+    expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
+    the function will use the refresh token automatically. This method will not show UI for the user to reauthorize resource usage.
+    If reauthorization is needed, the method will return an error with code AD_ERROR_USER_INPUT_NEEDED.
+
+    @param scopes           An array of NSString* specifying the scopes required for the request
+    @param clientId         the client identifier
+    @param redirectUri      The redirect URI according to OAuth2 protocol
+    @param identifier       An ADUserIdentifier object specifying the semantics
+    @param promptBehavior       controls if any credentials UI will be shown
+    @param policy           ?????
+    @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenSilentWithScopes:(NSArray*)scopes
+                            clientId:(NSString*)clientId
+                         redirectUri:(NSURL*)redirectUri
+                          identifier:(ADUserIdentifier*)identifier
+                              policy:(NSString*)policy
+                     completionBlock:(ADAuthenticationCallback)completionBlock;
 
 @end
 

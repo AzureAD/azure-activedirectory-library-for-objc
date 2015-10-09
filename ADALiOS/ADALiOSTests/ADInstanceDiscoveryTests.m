@@ -87,7 +87,6 @@ const int sAsyncTimeout = 10;//in seconds
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     [ADAuthenticationSettings sharedInstance].requestTimeOut = 10;
     mValidated = NO;
     mInstanceDiscovery = [ADInstanceDiscovery sharedInstance];
@@ -113,7 +112,6 @@ const int sAsyncTimeout = 10;//in seconds
     [mValidatedAuthorities addObjectsFromArray:[mValidatedAuthoritiesCopy allObjects]];//Restore the state
     mInstanceDiscovery = nil;
     mValidatedAuthorities = nil;
-    [self adTestEnd];
     [super tearDown];
 }
 
@@ -125,9 +123,7 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testSharedInstance
 {
-    [self adClearLogs];
     XCTAssertEqualObjects(mInstanceDiscovery, [ADInstanceDiscovery sharedInstance]);
-    ADAssertLogsContain(TEST_LOG_INFO, @"sharedInstance");
 }
 
 -(void) testGetValidatedAuthorities
@@ -137,7 +133,6 @@ const int sAsyncTimeout = 10;//in seconds
     XCTAssertNotEqual(validatedAuthorities, mValidatedAuthorities);
     XCTAssertEqualObjects(validatedAuthorities, mValidatedAuthorities);
     XCTAssertFalse([validatedAuthorities isKindOfClass:[NSMutableSet class]], "Read-only class should be returned.");
-    ADAssertLogsContain(TEST_LOG_INFO, @"getValidatedAuthorities");
     
     //Modify and test again:
     NSString* newAuthority = @"https://testGetValidatedAuthorities.com";
@@ -148,51 +143,46 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testExtractBaseBadAuthority
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-
     //Nil:
     ADAuthenticationError* error;
     NSString* result = [mTestInstanceDiscovery extractHost:nil correlationId:nil error:&error];
     XCTAssertNil(result);
-    [self adValidateForInvalidArgument:@"authority" error:error];
+    ADAssertArgumentError(@"authority", error);
     error = nil;//Cleanup
     
     //Do not pass error object. Make sure error is logged.
-    [self adClearLogs];
     result = [mTestInstanceDiscovery extractHost:nil correlationId:nil error:nil];
     XCTAssertNil(result);
-    ADAssertLogsContain(TEST_LOG_MESSAGE, "Error");
-    ADAssertLogsContain(TEST_LOG_INFO, "authority");
     error = nil;
     
     //White space string:
     result = [mTestInstanceDiscovery extractHost:@"   " correlationId:nil error:&error];
     XCTAssertNil(result);
-    [self adValidateForInvalidArgument:@"authority" error:error];
+    ADAssertArgumentError(@"authority", error);
     error = nil;
     
     //Invalid URL:
     result = [mTestInstanceDiscovery extractHost:@"a sdfasdfasas;djfasd jfaosjd fasj;" correlationId:nil error:&error];
     XCTAssertNil(result);
-    [self adValidateForInvalidArgument:@"authority" error:error];
+    ADAssertArgumentError(@"authority", error);
     error = nil;
     
     //Invalid URL scheme (not using SSL):
     result = [mTestInstanceDiscovery extractHost:@"http://login.windows.net" correlationId:nil error:&error];
     XCTAssertNil(result);
-    [self adValidateForInvalidArgument:@"authority" error:error];
+    ADAssertArgumentError(@"authority", error);
     error = nil;
     
     //Path
     result = [mTestInstanceDiscovery extractHost:@"././login.windows.net" correlationId:nil error:&error];
     XCTAssertNil(result);
-    [self adValidateForInvalidArgument:@"authority" error:error];
+    ADAssertArgumentError(@"authority", error);
     error = nil;
     
     //Relative URL
     result = [mTestInstanceDiscovery extractHost:@"login" correlationId:nil error:&error];
     XCTAssertNil(result);
-    [self adValidateForInvalidArgument:@"authority" error:error];
+    ADAssertArgumentError(@"authority", error);
     error = nil;
 }
 
@@ -202,27 +192,26 @@ const int sAsyncTimeout = 10;//in seconds
     NSString* authority = @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize";
     NSString* result = [mTestInstanceDiscovery extractHost:authority correlationId:nil error:&error];
     ADAssertNoError;
-    ADAssertStringEquals(result, @"https://login.windows.net");
+    XCTAssertEqualObjects(result, @"https://login.windows.net");
     error = nil;//Cleanup
     
     //End with "/"
     authority = @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize/";
     result = [mTestInstanceDiscovery extractHost:authority correlationId:nil error:&error];
     ADAssertNoError;
-    ADAssertStringEquals(result, @"https://login.windows.net");
+    XCTAssertEqualObjects(result, @"https://login.windows.net");
     error = nil;
     
     //End with "/" and base only:
     authority = @"httpS://Login.Windows.Net/stuff";
     result = [mTestInstanceDiscovery extractHost:authority correlationId:[NSUUID UUID] error:&error];
     ADAssertNoError;
-    ADAssertStringEquals(result, @"https://login.windows.net");
+    XCTAssertEqualObjects(result, @"https://login.windows.net");
     error = nil;
 }
 
 -(void) testIsAuthorityValidated
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     XCTAssertThrows([mTestInstanceDiscovery isAuthorityValidated:nil]);
     XCTAssertThrows([mTestInstanceDiscovery isAuthorityValidated:@"  "]);
     NSString* anotherHost = @"https://somedomain.com";
@@ -234,7 +223,6 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testSetAuthorityValidation
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     XCTAssertThrows([mTestInstanceDiscovery setAuthorityValidation:nil]);
     XCTAssertThrows([mTestInstanceDiscovery setAuthorityValidation:@"  "]);
     //Test that re-adding is ok. This can happen in multi-threaded scenarios:
@@ -299,6 +287,7 @@ const int sAsyncTimeout = 10;//in seconds
     {
         XCTFail("Timed out. The threads did not complete smoothly. If the applicaiton has not crashed, this is an indication of a deadlock.");
     }
+    [ADLogger setLevel:ADAL_LOG_LEVEL_INFO];
 }
 
 //Calls the asynchronous "validateAuthority" method and waits for completion.
@@ -331,7 +320,6 @@ const int sAsyncTimeout = 10;//in seconds
 //Does not call the server, just passes invalid authority
 -(void) testValidateAuthorityError
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     [self validateAuthority:@"http://invalidscheme.com" correlationId:[NSUUID UUID] line:__LINE__];
     XCTAssertNotNil(mError);
     
@@ -349,7 +337,6 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testCanonicalizeAuthority
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Nil or empty:
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:nil]);
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@""]);
@@ -368,34 +355,34 @@ const int sAsyncTimeout = 10;//in seconds
     
     //Canonicalization to the supported extent:
     NSString* authority = @"    https://www.microsoft.com/foo.com/";
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:authority], @"https://www.microsoft.com/foo.com");
+    XCTAssertEqualObjects([ADInstanceDiscovery canonicalizeAuthority:authority], @"https://www.microsoft.com/foo.com");
 
     authority = @"https://www.microsoft.com/foo.com";
     //Without the trailing "/":
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://www.microsoft.com/foo.com"], authority);
+    XCTAssertEqualObjects([ADInstanceDiscovery canonicalizeAuthority:@"https://www.microsoft.com/foo.com"], authority);
     //Ending with non-white characters:
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://www.microsoft.com/foo.com   "], authority);
+    XCTAssertEqualObjects([ADInstanceDiscovery canonicalizeAuthority:@"https://www.microsoft.com/foo.com   "], authority);
     
     authority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
     //Test canonicalizing the endpoints:
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/MSOpenTechBV.onmicrosoft.com/OAuth2/Token"], authority);
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/MSOpenTechBV.onmicrosoft.com/OAuth2/Authorize"], authority);
+    XCTAssertEqualObjects([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/MSOpenTechBV.onmicrosoft.com/OAuth2/Token"], authority);
+    XCTAssertEqualObjects([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/MSOpenTechBV.onmicrosoft.com/OAuth2/Authorize"], authority);
     
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net"], "No tenant");
     XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/"], "No tenant");
 
     //Trimming beyond the tenant:
     authority = @"https://login.windows.net/foo.com";
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com/bar"], authority);
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com"], authority);
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com/"], authority);
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com#bar"], authority);
+    XCTAssertEqualObjects([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com/bar"], authority);
+    XCTAssertEqualObjects([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com"], authority);
+    XCTAssertEqualObjects([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com/"], authority);
+    XCTAssertEqualObjects([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/foo.com#bar"], authority);
     authority = @"https://login.windows.net/common";//Use "common" for a change
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.net/common?abc=123&vc=3"], authority);
+    XCTAssertEqualObjects([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.net/common?abc=123&vc=3"], authority);
 }
 
 //Tests a real authority
--(void) testNormalFlow
+- (void)testNormalFlow
 {
     [mValidatedAuthorities removeAllObjects];//Clear, as "login.windows.net" is already cached.
     [self validateAuthority:@"https://Login.Windows.Net/MSOpenTechBV.onmicrosoft.com" correlationId:nil line:__LINE__];
@@ -423,7 +410,6 @@ const int sAsyncTimeout = 10;//in seconds
 //Ensures that an invalid authority is not approved
 -(void) testNonValidatedAuthority
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     NSUUID* correlationId = [NSUUID UUID];
     [self validateAuthority:@"https://MyFakeAuthority.microsoft.com/MSOpenTechBV.onmicrosoft.com" correlationId:correlationId line:__LINE__];
     XCTAssertFalse(mValidated);
@@ -433,7 +419,6 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testUnreachableServer
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
     {

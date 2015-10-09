@@ -27,6 +27,10 @@
     #import <Foundation/Foundation.h>
     #import <UIKit/UIKit.h>
 
+#import "NSSet+ADExtensions.h"
+#import "NSString+ADHelperMethods.h"
+#import "NSDictionary+ADExtensions.h"
+
 #ifndef DebugLog
 #ifdef DEBUG
 #   define DebugLog(fmt, ...) NSLog((@"%s[%d][%@] " fmt), __PRETTY_FUNCTION__, __LINE__, [[NSThread currentThread] isEqual:[NSThread mainThread]] ? @"main" : @"work", ##__VA_ARGS__);

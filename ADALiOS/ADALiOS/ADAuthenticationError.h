@@ -46,6 +46,9 @@ extern NSString* const ADBrokerResponseErrorDomain;
 + (ADAuthenticationError*)errorFromNSError:(NSError*)error
                               errorDetails:(NSString*)errorDetails;
 
++ (ADAuthenticationError*)errorFromKeychainError:(OSStatus)errCode
+                                    errorDetails:(NSString*)errorDetails;
+
 /*! Genearates an error from the code and details of an authentication error */
 + (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
                                           protocolCode:(NSString*)protocolCode
@@ -58,7 +61,7 @@ extern NSString* const ADBrokerResponseErrorDomain;
 /*! Generates an error when an unexpected internal library conditions occurs. */
 + (ADAuthenticationError*)unexpectedInternalError:(NSString*)errorDetails;
 
-+ (ADAuthenticationError*)invalidArgumentError:(NSString*)details;
++ (ADAuthenticationError*)invalidArgumentError:(NSString*)detailsFmt, ... NS_FORMAT_FUNCTION(1, 2);
 
 /*! Generates an error from cancel operations. E.g. the user pressed "Cancel" button
  on the authorization UI page. */

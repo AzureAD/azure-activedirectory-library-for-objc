@@ -20,6 +20,7 @@
 #import "ADInstanceDiscovery.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
+#import "NSSet+ADExtensions.h"
 
 @implementation ADAuthenticationRequest (AcquireAssertion)
 
@@ -29,7 +30,6 @@
 {
     
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    AD_REQUEST_CHECK_PROPERTY(_resource);
     AD_REQUEST_CHECK_ARGUMENT(samlAssertion);
     [self ensureRequest];
 
@@ -60,11 +60,10 @@
     [self ensureRequest];
     //Check the cache:
     ADAuthenticationError* error = nil;
+    
     //We are explicitly creating a key first to ensure indirectly that all of the required arguments are correct.
     //This is the safest way to guarantee it, it will raise an error, if the the any argument is not correct:
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:_context.authority
-                                                              resource:_resource
-                                                              clientId:_clientId error:&error];
+    ADTokenCacheStoreKey* key = [self cacheStoreKey:&error];
     if (!key)
     {
         //If the key cannot be extracted, call the callback with the information:
@@ -115,7 +114,6 @@
     //All of these should be set before calling this method:
     THROW_ON_NIL_ARGUMENT(completionBlock);
     HANDLE_ARGUMENT(item);
-    AD_REQUEST_CHECK_PROPERTY(_resource);
     AD_REQUEST_CHECK_PROPERTY(_clientId);
     [self ensureRequest];
     
@@ -123,7 +121,7 @@
     {
         //Access token is good, just use it:
         [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:nil];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:NO];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item];
         completionBlock(result);
         return;
     }
@@ -146,42 +144,6 @@
              completionBlock(result);
              return;
          }
-         
-         //Try other means of getting access token result:
-         if (!item.multiResourceRefreshToken)//Try multi-resource refresh token if not currently trying it
-         {
-             ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:_context.authority resource:nil clientId:_clientId error:nil];
-             if (broadKey)
-             {
-                 BOOL useAccessToken;
-                 ADAuthenticationError* error = nil;
-                 ADTokenCacheStoreItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
-                 if (error)
-                 {
-                     completionBlock([ADAuthenticationResult resultFromError:error]);
-                     return;
-                 }
-                 
-                 if (broadItem)
-                 {
-                     if (!broadItem.multiResourceRefreshToken)
-                     {
-                         AD_LOG_WARN(@"Unexpected", @"Multi-resource refresh token expected here.");
-                         //Recover (avoid infinite recursion):
-                         completionBlock(result);
-                         return;
-                     }
-                     
-                     //Call recursively with the cache item containing a multi-resource refresh token:
-                     [self attemptToUseCacheItem:broadItem
-                                  useAccessToken:NO
-                                   samlAssertion:samlAssertion
-                                   assertionType:assertionType
-                                 completionBlock:completionBlock];
-                     return;//The call above takes over, no more processing
-                 }//broad item
-             }//key
-         }//!item.multiResourceRefreshToken
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
@@ -210,7 +172,7 @@
                      completion:(ADAuthenticationCallback)completionBlock
 {
     [self ensureRequest];
-    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code for resource: %@", _resource);
+    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code with scopes: %@", _scopes);
     
     //samlAssertion = [NSString samlAssertion adBase64];
     NSData *encodeData = [samlAssertion dataUsingEncoding:NSUTF8StringEncoding];
@@ -220,8 +182,14 @@
                                          [self getAssertionTypeGrantValue:assertionType], OAUTH2_GRANT_TYPE,
                                          base64String, OAUTH2_ASSERTION,
                                          _clientId, OAUTH2_CLIENT_ID,
-                                         _resource, OAUTH2_RESOURCE,
+                                         [_scopes adSpaceDeliminatedString], OAUTH2_SCOPE,
                                          nil];
+    
+    if (_policy)
+    {
+        [request_data setObject:_policy forKey:OAUTH2_POLICY];
+    }
+    
     [self executeRequest:_context.authority
              requestData:request_data
          handledPkeyAuth:NO

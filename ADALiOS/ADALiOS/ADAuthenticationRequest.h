@@ -51,9 +51,11 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     
     ADPromptBehavior _promptBehavior;
     
-    NSString* _resource;
+    NSSet* _scopes;
+    NSSet* _additionalScopes;
     
-    NSString* _scope;
+    NSString* _policy;
+    
     NSString* _queryParams;
     
     BOOL _silent;
@@ -68,7 +70,6 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                    redirectUri:(NSString*)redirectUri
                                       clientId:(NSString*)clientId
-                                      resource:(NSString*)resource
                                          error:(ADAuthenticationError* __autoreleasing *)error;
 
 // This message is sent before any stage of processing is done, it marks all the fields as un-editable and grabs the
@@ -76,7 +77,9 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 - (void)ensureRequest;
 
 // These can only be set before the request gets sent out.
-- (void)setScope:(NSString*)scope;
+- (ADAuthenticationError*)setScopes:(NSArray*)scopes;
+- (ADAuthenticationError*)setAdditionalScopes:(NSArray*)additionalScopes;
+- (void)setPolicy:(NSString*)policy;
 - (void)setExtraQueryParameters:(NSString*)queryParams;
 - (void)setUserIdentifier:(ADUserIdentifier*)identifier;
 - (void)setUserId:(NSString*)userId;
@@ -86,6 +89,12 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 - (void)setAllowSilentRequests:(BOOL)allowSilent;
 #endif
 
+- (BOOL)validateProperties:(ADAuthenticationCallback)completionBlock;
+//- (BOOL)isClientID:(NSString*)scope;
+
+- (NSSet*)combinedScopes;
+
+- (ADTokenCacheStoreKey*)cacheStoreKey:(ADAuthenticationError* __autoreleasing *)error;
 @end
 
 #import "ADAuthenticationRequest+AcquireAssertion.h"

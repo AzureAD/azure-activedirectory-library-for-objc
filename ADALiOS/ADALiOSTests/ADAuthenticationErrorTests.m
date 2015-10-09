@@ -30,20 +30,17 @@
     [super setUp];
     
     // Put setup code here; it will be run once, before the first test case.
-    [self adTestBegin:ADAL_LOG_LEVEL_ERROR];
 }
 
 - (void)tearDown
 {
     // Put teardown code here; it will be run once, after the last test case.
-    [self adTestEnd];
     
     [super tearDown];
 }
 
 - (void)testNew
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     XCTAssertThrows([ADAuthenticationError new], @"The new selector should not work due to requirement to use the parameterless init. At: '%s'", __PRETTY_FUNCTION__);
 }
 
@@ -73,10 +70,8 @@
     //nil value:
     ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:nil argumentName:parameter];
     XCTAssertNotNil(error, "No error for nil prameter");
-    [self adValidateForInvalidArgument:parameter error:error];
+    ADAssertArgumentError(parameter, error);
     XCTAssertTrue([error.errorDetails adContainsString:@"(null)"], "'null' should be part of the text");
-    ADAssertLogsContain(TEST_LOG_INFO, "argument");
-    ADAssertLogsContainValue(TEST_LOG_INFO, parameter);
 }
 
 -(void) testErrorFromArgumentNormal
@@ -86,11 +81,8 @@
     ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:parameterValue argumentName:parameter];
     XCTAssertNotNil(error, "No error for valid prameter");
     
-    [self adValidateForInvalidArgument:parameter error:error];
+    ADAssertArgumentError(parameter, error);
     XCTAssertTrue([error.errorDetails adContainsString:parameterValue], "Value should be part of the text");
-    ADAssertLogsContain(TEST_LOG_INFO, "argument");
-    ADAssertLogsContainValue(TEST_LOG_INFO, parameter);
-    ADAssertLogsContainValue(TEST_LOG_INFO, parameterValue);
 }
 
 -(void)testErrorFromUnauthorizedResponseNormal
@@ -98,8 +90,6 @@
     NSString* details = @"Some details";
     ADAuthenticationError* error = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_MISSING_AUTHENTICATE_HEADER errorDetails:details];
     XCTAssertNotNil(error, "Nil returned for valid case");
-    ADAssertLogsContain(TEST_LOG_INFO, "Unauthorized");
-    ADAssertLogsContainValue(TEST_LOG_INFO, details);
 }
 
 -(void) testErrorFromOAuthError
@@ -107,10 +97,10 @@
     NSString* details = @"Some details";
     NSString* protocolCode = @"procol code";
     ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:protocolCode errorDetails:details];
-    ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
+    XCTAssertEqualObjects(error.domain, ADAuthenticationErrorDomain);
     ADAssertLongEquals(error.code, AD_ERROR_AUTHENTICATION);
-    ADAssertStringEquals(error.protocolCode, protocolCode);
-    ADAssertStringEquals(error.errorDetails, details);
+    XCTAssertEqualObjects(error.protocolCode, protocolCode);
+    XCTAssertEqualObjects(error.errorDetails, details);
 }
 
 -(void) testDescription

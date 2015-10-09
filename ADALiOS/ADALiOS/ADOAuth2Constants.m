@@ -18,9 +18,10 @@
 
 #import "ADOAuth2Constants.h"
 
-NSString *const OAUTH2_ACCESS_TOKEN       = @"access_token";
+NSString *const OAUTH2_ACCESS_TOKEN       = @"id_token";
 NSString *const OAUTH2_AUTHORIZATION      = @"authorization";
-NSString *const OAUTH2_AUTHORIZE_SUFFIX   = @"/oauth2/authorize";
+NSString *const OAUTH2_AUTHORIZE_V1_SUFFIX = @"/oauth2/authorize";
+NSString *const OAUTH2_AUTHORIZE_SUFFIX   = @"/oauth2/v2.0/authorize";
 NSString *const OAUTH2_AUTHORITY           = @"authority";
 NSString *const OAUTH2_AUTHORIZATION_CODE = @"authorization_code";
 NSString *const OAUTH2_AUTHORIZATION_URI  = @"authorization_uri";
@@ -32,6 +33,7 @@ NSString *const OAUTH2_ERROR              = @"error";
 NSString *const OAUTH2_ERROR_DESCRIPTION  = @"error_description";
 NSString *const OAUTH2_EXPIRES_IN         = @"expires_in";
 NSString *const OAUTH2_GRANT_TYPE         = @"grant_type";
+NSString *const OAUTH2_POLICY             = @"p";
 NSString *const OAUTH2_PLATFORM_ID        = @"platform_id";
 NSString *const OAUTH2_REALM              = @"realm";
 NSString *const OAUTH2_REDIRECT_URI       = @"redirect_uri";
@@ -41,11 +43,12 @@ NSString *const OAUTH2_RESPONSE_TYPE      = @"response_type";
 NSString *const OAUTH2_SCOPE              = @"scope";
 NSString *const OAUTH2_STATE              = @"state";
 NSString *const OAUTH2_TOKEN              = @"token";
-NSString *const OAUTH2_TOKEN_SUFFIX       = @"/oauth2/token";
+NSString *const OAUTH2_TOKEN_SUFFIX       = @"/oauth2/v2.0/token";
 NSString *const OAUTH2_INSTANCE_DISCOVERY_SUFFIX = @"common/discovery/instance";
 NSString *const OAUTH2_TOKEN_TYPE         = @"token_type";
 NSString *const OAUTH2_LOGIN_HINT         = @"login_hint";
 NSString *const OAUTH2_ID_TOKEN           = @"id_token";
+NSString *const OAUTH2_PROFILE_INFO       = @"profile_info";
 NSString *const OAUTH2_CORRELATION_ID_RESPONSE  = @"correlation_id";
 NSString *const OAUTH2_CORRELATION_ID_REQUEST   = @"return-client-request-id";
 NSString *const OAUTH2_CORRELATION_ID_REQUEST_VALUE = @"client-request-id";

@@ -20,7 +20,7 @@
 #import "ADUserIdentifier.h"
 #import "ADLogger.h"
 #import "ADErrorCodes.h"
-#import "ADUserInformation.h"
+#import "ADProfileInfo.h"
 
 #define DEFAULT_USER_TYPE RequiredDisplayableId
 
@@ -41,7 +41,7 @@
         return nil;
     }
     
-    identifier->_userId = [ADUserInformation normalizeUserId:userId];
+    identifier->_userId = [ADProfileInfo normalizeUserId:userId];
     identifier->_type = DEFAULT_USER_TYPE;
     
     return identifier;
@@ -56,7 +56,7 @@
         return nil;
     }
     
-    identifier->_userId = [ADUserInformation normalizeUserId:userId];
+    identifier->_userId = [ADProfileInfo normalizeUserId:userId];
     identifier->_type = type;
     
     return identifier;
@@ -71,14 +71,14 @@
         return nil;
     }
     
-    identifier->_userId = [ADUserInformation normalizeUserId:userId];
+    identifier->_userId = [ADProfileInfo normalizeUserId:userId];
     identifier->_type = [ADUserIdentifier typeFromString:type];
     
     return identifier;
 }
 
 + (BOOL)identifier:(ADUserIdentifier*)identifier
-       matchesInfo:(ADUserInformation*)info
+       matchesInfo:(ADProfileInfo*)info
 {
     if (!identifier)
     {
@@ -105,13 +105,13 @@
     return NO;
 }
 
-- (NSString*)userIdMatchString:(ADUserInformation*)info
+- (NSString*)userIdMatchString:(ADProfileInfo*)info
 {
     switch(_type)
     {
-        case UniqueId: return info.uniqueId;
+        case UniqueId: return info.subject;
         case OptionalDisplayableId: return nil;
-        case RequiredDisplayableId: return info.userId;
+        case RequiredDisplayableId: return info.username;
     }
     
     NSString* log = [NSString stringWithFormat:@"Unrecognized type on identifier match: %d", _type];
@@ -140,6 +140,11 @@
 - (BOOL)isDisplayable
 {
     return (_type == RequiredDisplayableId || _type == OptionalDisplayableId);
+}
+
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"{ADUserIdentifier: %@ (%@)}", _userId, [ADUserIdentifier stringForType:_type]];
 }
 
 #define CHECK_TYPE(_type) if( [@#_type isEqualToString:type] ) { return _type; }

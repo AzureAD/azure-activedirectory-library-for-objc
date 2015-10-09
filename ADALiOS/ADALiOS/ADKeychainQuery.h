@@ -16,22 +16,23 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import <Foundation/Foundation.h>
 
-#import <UIKit/UIKit.h>
+@interface ADKeychainQuery : NSObject
+{
+    CFMutableDictionaryRef _cfmdKeychainQuery;
+}
 
-@class BVTestFlipsideViewController;
+- (id)init;
 
-@protocol BVTestFlipsideViewControllerDelegate
-- (void)flipsideViewControllerDidFinish:(BVTestFlipsideViewController *)controller;
-@end
+- (void)setServiceKey:(NSString*)serviceKey;
+- (void)setAccessGroup:(NSString*)accessGroup;
+- (void)setUserId:(NSString*)userId;
+- (void)setCopyAttributes;
+- (void)setMatchAll;
+- (void)setGenericPasswordDictionary:(CFDictionaryRef)dictionary;
+- (void)setGenericPasswordData:(CFDataRef)data;
 
-@interface BVTestFlipsideViewController : UIViewController
+- (CFDictionaryRef)queryDictionary;
 
-@property (weak, nonatomic) id <BVTestFlipsideViewControllerDelegate> delegate;
-
-- (IBAction)done:(id)sender;
-
-- (IBAction)restoreDefaults:(id)sender;
-
-- (IBAction)save:(id)sender;
 @end
