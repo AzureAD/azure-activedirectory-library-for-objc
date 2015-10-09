@@ -71,10 +71,11 @@
 
 - (void)setUserId:(NSString *)userId
 {
-    if (!userId)
+    if (!userId || [userId isKindOfClass:[NSNull class]])
     {
         return;
     }
+    
     userId = [ADProfileInfo normalizeUserId:userId];
     CFDictionaryAddValue(_cfmdKeychainQuery, kSecAttrAccount, (__bridge const void *)(userId));
 }

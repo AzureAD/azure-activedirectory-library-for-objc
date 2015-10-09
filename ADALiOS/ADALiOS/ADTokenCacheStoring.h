@@ -50,7 +50,7 @@
     @param error    in case of an error, if this parameter is not nil, it will be filled with
                     the error details.
  */
-- (void)addOrUpdateItem:(ADTokenCacheStoreItem*)item
+- (BOOL)addOrUpdateItem:(ADTokenCacheStoreItem*)item
                   error:(ADAuthenticationError* __autoreleasing*)error;
 
 /*!

@@ -29,6 +29,7 @@
 #import "NSURL+ADExtensions.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
+#import "NSSet+ADExtensions.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -89,6 +90,12 @@
         endPoint = [_context.authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
     }
     
+    if (_policy) {
+    
+      endPoint = [endPoint stringByAppendingString:@"?p="];
+      endPoint = [endPoint stringByAppendingString:_policy];
+    }
+
     ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
                                                    correlationId:_correlationId];
     
@@ -108,7 +115,7 @@
     [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[_correlationId UUIDString] requestHeader:webRequest.headers];
     
     [webRequest send:^( NSError *error, ADWebResponse *webResponse ) {
-        // Request completion callback
+        // Request completion callbackThe server returned without providing an error
         NSMutableDictionary *response = [NSMutableDictionary new];
         
         if ( error == nil )
@@ -275,8 +282,22 @@ static volatile int sDialogInProgress = 0;
     NSString* state = [self encodeProtocolState];
     NSString* queryParams = nil;
     // Start the web navigation process for the Implicit grant profile.
-    NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
-                                 [_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX],
+    
+    NSMutableString* beginning = [NSMutableString stringWithFormat:@"%@%@", _context.authority, OAUTH2_AUTHORIZE_SUFFIX];
+    
+    if (_policy)
+    {
+        [beginning appendFormat:@"?p=%@&", _policy];
+    }
+    else
+    {
+        [beginning appendString:@"?"];
+    }
+    
+    
+    
+    NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@%@=%@&response_mode=query&%@=%@&%@=%@&%@=%@&%@=%@",
+                                 beginning,
                                  OAUTH2_RESPONSE_TYPE, requestType,
                                  OAUTH2_CLIENT_ID, [_clientId adUrlFormEncode],
                                  OAUTH2_SCOPE, [[self combinedScopes] adUrlFormEncode],
@@ -362,12 +383,11 @@ static volatile int sDialogInProgress = 0;
              }
              else
              {
+                 // NSURL compiles to RFC 1808, the redirect URI is RFC 3986, so bring it through NSURLComponents instead.
+                 NSURLComponents* uriComponents = [[NSURLComponents alloc] initWithURL:end resolvingAgainstBaseURL:NO];
+                 
                  //Try both the URL and the fragment parameters:
-                 NSDictionary *parameters = [end adFragmentParameters];
-                 if ( parameters.count == 0 )
-                 {
-                     parameters = [end adQueryParameters];
-                 }
+                 NSDictionary *parameters = [NSDictionary adURLFormDecode:[uriComponents percentEncodedQuery]];
                  
                  //OAuth2 error may be passed by the server:
                  error = [ADAuthenticationContext errorFromDictionary:parameters errorCode:AD_ERROR_AUTHENTICATION];
@@ -413,6 +433,8 @@ static volatile int sDialogInProgress = 0;
             
             [requestData setObject:[[self combinedScopes] adUrlFormEncode] forKey:OAUTH2_SCOPE];
         }
+        
+        
         
         [self requestWithServer:[_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]
                     requestData:requestData
@@ -461,6 +483,7 @@ static volatile int sDialogInProgress = 0;
           additionalHeaders:headerKeyValuePair
                  completion:completionBlock];
 }
+
 
 
 @end

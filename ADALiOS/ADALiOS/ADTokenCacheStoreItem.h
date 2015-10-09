@@ -44,6 +44,8 @@
 
 @property NSString* refreshToken;
 
+@property NSString* idToken;
+
 @property NSString* policy;
 
 @property NSData* sessionKey;

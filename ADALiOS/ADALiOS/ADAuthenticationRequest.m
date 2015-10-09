@@ -27,6 +27,7 @@
 #import "NSURL+ADExtensions.h"
 #import "ADBrokerKeyHelper.h"
 #import "ADAuthenticationRequest+WebRequest.h"
+#import "NSSet+ADExtensions.h"
 
 #include <libkern/OSAtomic.h>
 
@@ -86,17 +87,11 @@
 
 #define CHECK_REQUEST_STARTED CHECK_REQUEST_STARTED_R()
 
-static NSArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* context, ADAuthenticationError* __autoreleasing * error)
+static NSMutableArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* context, ADAuthenticationError* __autoreleasing * error)
 {
     if (!strings || ![strings count])
     {
-        ADAuthenticationError* adError = [ADAuthenticationError invalidArgumentError:@"%@ cannot be nil or empty", context];
-        if (error)
-        {
-            *error = adError;
-        }
-        return nil;
-        
+        return [NSMutableArray new];
     }
     NSMutableArray* lowercase = [[NSMutableArray alloc] initWithCapacity:[strings count]];
     
@@ -113,17 +108,44 @@ static NSArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* context, AD
             return nil;
         }
         
-        [lowercase addObject:[string lowercaseString]];
+        NSString* trimmedString = [[string lowercaseString] adTrimmedString];
+        if (![NSString adIsStringNilOrBlank:trimmedString])
+        {
+            [lowercase addObject:trimmedString];
+        }
+    }
+    
+    if ([lowercase count] == 0)
+    {
+        ADAuthenticationError* adError = [ADAuthenticationError invalidArgumentError:@"%@ cannot be nil or empty", context];
+        if (error)
+        {
+            *error = adError;
+        }
+        return nil;
     }
     
     return lowercase;
 }
 
-static ADAuthenticationError* _validateScopes(NSArray* scopes)
+- (ADAuthenticationError*)validateScopes:(NSArray*)scopes
+                              additional:(BOOL)additional
 {
     if ([scopes containsObject:@"openid"] || [scopes containsObject:@"offline_access"])
     {
         return [ADAuthenticationError invalidArgumentError:@"Can not pass in \"openid\" or \"offline_access\" scopes"];
+    }
+    
+    if ([scopes containsObject:_clientId])
+    {
+        if (additional)
+        {
+            return [ADAuthenticationError invalidArgumentError:@"Client ID may not be passed in as an additional scopes"];
+        }
+        if ([scopes count] > 1)
+        {
+            return [ADAuthenticationError invalidArgumentError:@"If the client ID is being passed in as a scope it is the only allowed scope."];
+        }
     }
     
     return nil;
@@ -134,15 +156,21 @@ static ADAuthenticationError* _validateScopes(NSArray* scopes)
     CHECK_REQUEST_STARTED_R(nil);
     
     ADAuthenticationError* error = nil;
-    NSArray* lowercaseScopes = _arrayOfLowercaseStrings(scopes, @"scopes", &error);
+    NSMutableArray* lowercaseScopes = _arrayOfLowercaseStrings(scopes, @"scopes", &error);
     if (!lowercaseScopes)
     {
         return error;
     }
     
-    RETURN_IF_NOT_NIL(_validateScopes(lowercaseScopes));
+    RETURN_IF_NOT_NIL([self validateScopes:lowercaseScopes additional:NO]);
     
-    _scopes = [NSSet setWithArray:scopes];
+    if (![lowercaseScopes containsObject:_clientId])
+    {
+        [lowercaseScopes addObject:@"openid"];
+        [lowercaseScopes addObject:@"offline_access"];
+    }
+    
+    _scopes = [NSSet setWithArray:lowercaseScopes];
     
     return nil;
 }
@@ -165,7 +193,7 @@ static ADAuthenticationError* _validateScopes(NSArray* scopes)
         return error;
     }
     
-    RETURN_IF_NOT_NIL(_validateScopes(lowercaseScopes));
+    RETURN_IF_NOT_NIL([self validateScopes:lowercaseScopes additional:YES]);
     
     _additionalScopes = [NSSet setWithArray:lowercaseScopes];
     
@@ -284,5 +312,6 @@ static ADAuthenticationError* _validateScopes(NSArray* scopes)
     
     return YES;
 }
+
 
 @end

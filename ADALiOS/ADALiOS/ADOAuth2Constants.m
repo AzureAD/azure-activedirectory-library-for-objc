@@ -18,7 +18,7 @@
 
 #import "ADOAuth2Constants.h"
 
-NSString *const OAUTH2_ACCESS_TOKEN       = @"access_token";
+NSString *const OAUTH2_ACCESS_TOKEN       = @"id_token";
 NSString *const OAUTH2_AUTHORIZATION      = @"authorization";
 NSString *const OAUTH2_AUTHORIZE_V1_SUFFIX = @"/oauth2/authorize";
 NSString *const OAUTH2_AUTHORIZE_SUFFIX   = @"/oauth2/v2.0/authorize";

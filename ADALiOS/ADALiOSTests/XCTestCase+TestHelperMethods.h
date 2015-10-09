@@ -39,7 +39,7 @@
  static volatile int comletion  = 0;
  [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ completionSignal: &completion block:^
  {
-    [mAuthenticationContext acquireTokenForScopes:mScopes
+    [mAuthenticationContext acquireTokenWithScopes:mScopes
                                      completionBlock:^(ADAuthenticationResult* result)
     {
         //Inner block:

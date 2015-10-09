@@ -90,6 +90,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 #endif
 
 - (BOOL)validateProperties:(ADAuthenticationCallback)completionBlock;
+//- (BOOL)isClientID:(NSString*)scope;
 
 - (NSSet*)combinedScopes;
 

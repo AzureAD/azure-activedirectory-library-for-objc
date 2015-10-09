@@ -37,24 +37,7 @@
     
     ADAuthenticationError* localError = nil;
     ADTokenCacheStoreItem* item = [self.tokenCacheStore getItemWithKey:key error:&localError];
-    if (!item && !localError && userId)
-    {
-        // TODO: ADFS isn't supported for convergence, but we'll probably want to rethink this fix...
-        
-        //ADFS fix, where the userId is not received by the server, but can be passed to the API:
-//        //We didn't find element with the userId, try finding an item with nil userId:
-//        NSArray* items = [self.tokenCacheStore getItemsWithKey:key error:&localError];
-//        if(items.count) {
-//            item = items.firstObject;
-//        }else{
-//            item = nil;
-//        }
-//        
-//        if (item && item.profileInfo)
-//        {
-//            item = nil;//Different user id, just clear.
-//        }
-    }
+    
     if (error && localError)
     {
         *error = localError;
@@ -102,30 +85,7 @@
         }
     }
     *useAccessToken = false;//No item with suitable access token exists
-
-    // TODO: MRRT
-//    if (![NSString adIsStringNilOrBlank:key.resource])
-//    {
-//        //The request came for specific resource. Try returning a multi-resource refresh token:
-//        ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:self.authority
-//                                                                       clientId:key.clientId
-//                                                                          error:&localError];
-//        if (!broadKey)
-//        {
-//            AD_LOG_WARN(@"Unexpected error", localError.errorDetails);
-//            return nil;//Recover
-//        }
-//        ADTokenCacheStoreItem* broadItem = [self extractCacheItemWithKey:broadKey userId:userId error:&localError];
-//        if (localError)
-//        {
-//            if (error)
-//            {
-//                *error = localError;
-//            }
-//            return nil;
-//        }
-//        return broadItem;
-//    }
+    
     return nil;//Nothing suitable
 }
 
@@ -135,8 +95,22 @@
                                      fromRefresh:(BOOL)fromRefreshTokenWorkflow
                             requestCorrelationId:(NSUUID*)requestCorrelationId
 {
-    THROW_ON_NIL_ARGUMENT(response);
-    THROW_ON_NIL_ARGUMENT(item);
+    if (!response)
+    {
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CONNECTION_MISSING_RESPONSE
+                                                      protocolCode:nil
+                                                      errorDetails:@"No valid response to parse for token."];
+        return [ADAuthenticationResult resultFromError:error];
+    }
+    
+    if (!item)
+    {
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
+                                                      protocolCode:nil
+                                                      errorDetails:@"No cache item to process token into. An errort must have occurred somewhere."];
+        return [ADAuthenticationResult resultFromError:error];
+    }
+    
     AD_LOG_VERBOSE(@"Token extraction", @"Attempt to extract the data from the server response.");
     
     NSString* responseId = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
@@ -243,24 +217,6 @@
                     //removed = YES;
                 }
             }
-            
-            // TODO: MRRT
-//            if (!removed)
-//            {
-//                //Now try finding a broad refresh token in the cache and remove it accordingly
-//                ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:self.authority
-//                                                                               clientId:cacheItem.clientId
-//                                                                                  error:nil];
-//                if (broadKey)
-//                {
-//                    ADTokenCacheStoreItem* broadItem = [tokenCacheStoreInstance getItemWithKey:broadKey userId:cacheItem.profileInfo.userId error:nil];
-//                    if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
-//                    {
-//                        AD_LOG_VERBOSE_F(@"Token cache store", @"Removing multi-resource refresh token for authority: %@", self.authority);
-//                        [tokenCacheStoreInstance removeItemWithKey:broadKey userId:cacheItem.profileInfo.userId error:nil];
-//                    }
-//                }
-//            }
         }
     }
 }

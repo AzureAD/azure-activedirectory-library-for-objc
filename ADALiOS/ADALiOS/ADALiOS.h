@@ -18,11 +18,11 @@
 
 //iOS does not support resources in client libraries. Hence putting the
 //version in static define until we identify a better place:
-#define ADAL_VER_HIGH       2
+#define ADAL_VER_HIGH       3
 #define ADAL_VER_LOW        0
 #define ADAL_VER_PATCH      0
 
-#define STR_ADAL_VER_HIGH   "2"
+#define STR_ADAL_VER_HIGH   "3"
 #define STR_ADAL_VER_LOW    "0"
 #define STR_ADAL_VER_PATCH  "0"
 

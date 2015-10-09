@@ -227,13 +227,15 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param resource: the resource whose token is needed.
     @param clientId: the client identifier
     @param redirectUri: The redirect URI according to OAuth2 protocol.
+    @param promptBehavior       controls if any credentials UI will be shown
     @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenForScopes:(NSArray*)scopes
-             additionalScopes:(NSArray*)additionalScopes
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-              completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)acquireTokenWithScopes:(NSArray*)scopes
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                promptBehavior:(ADPromptBehavior)promptBehavior
+               completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
     Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
@@ -248,15 +250,17 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param clientId         the client identifier
     @param redirectUri      The redirect URI according to OAuth2 protocol
     @param identifier       A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
+    @param promptBehavior       controls if any credentials UI will be shown
     @param completionBlock  the block to execute upon completion. You can use embedded block, e.g.
                             "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenForScopes:(NSArray*)scopes
-             additionalScopes:(NSArray*)additionalScopes
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-                   identifier:(ADUserIdentifier*)identifier
-              completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)acquireTokenWithScopes:(NSArray*)scopes
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                    identifier:(ADUserIdentifier*)identifier
+                promptBehavior:(ADPromptBehavior)promptBehavior
+               completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
     Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
@@ -271,17 +275,19 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param clientId             The client identifier
     @param redirectUri          The redirect URI according to OAuth2 protocol
     @param identifier           A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
+    @param promptBehavior       controls if any credentials UI will be shown
     @param extraQueryParameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
     @param completionBlock      the block to execute upon completion. You can use embedded block, e.g.
                                 "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenForScopes:(NSArray*)scopes
-             additionalScopes:(NSArray*)additionalScopes
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-                   identifier:(ADUserIdentifier*)identifier
-         extraQueryParameters:(NSString*)queryParams
-              completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)acquireTokenWithScopes:(NSArray*)scopes
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                    identifier:(ADUserIdentifier*)identifier
+                promptBehavior:(ADPromptBehavior)promptBehavior
+          extraQueryParameters:(NSString*)queryParams
+               completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
     Follows the OAuth2 protocol (RFC 6749). The behavior is controlled by the promptBehavior parameter on whether to re-authorize
@@ -293,43 +299,22 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param redirectUri          The redirect URI according to OAuth2 protocol
     @param promptBehavior       controls if any credentials UI will be shown
     @param identifier           A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
-    @param extraQueryParameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
-    @param completionBlock      the block to execute upon completion. You can use embedded block, e.g.
-                                "^(ADAuthenticationResult res){ <your logic here> }"
- */
-- (void)acquireTokenForScopes:(NSArray*)scopes
-             additionalScopes:(NSArray*)additionalScopes
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-               promptBehavior:(ADPromptBehavior)promptBehavior
-                   identifier:(ADUserIdentifier*)identifier
-         extraQueryParameters:(NSString*)queryParams
-              completionBlock:(ADAuthenticationCallback)completionBlock;
-
-/*!
-    Follows the OAuth2 protocol (RFC 6749). The behavior is controlled by the promptBehavior parameter on whether to re-authorize
-    the resource usage (through webview credentials UI) or attempt to use the cached tokens first.
- 
-    @param scopes               An array of NSStrings specifying the scopes required for the request
-    @param additionalScopes     An array of NSStrings of any additional scopes to ask the user consent for
-    @param clientId             the client identifier
-    @param redirectUri          The redirect URI according to OAuth2 protocol
     @param promptBehavior       controls if any credentials UI will be shown
-    @param identifier           A ADUserIdentifier object describing the user being authenticated. This parameter can be nil.
     @param extraQueryParameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
     @param policy               ??????
     @param completionBlock      the block to execute upon completion. You can use embedded block, e.g.
                                 "^(ADAuthenticationResult res){ <your logic here> }"
  */
 
-- (void)acquireTokenForScopes:(NSArray*)scopes
-             additionalScopes:(NSArray*)additionalScopes
-                     clientId:(NSString*)clientId
-                  redirectUri:(NSURL*)redirectUri
-                   identifier:(ADUserIdentifier*)identifier
-         extraQueryParameters:(NSString*)queryParams
-                       policy:(NSString*)policy
-              completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)acquireTokenWithScopes:(NSArray*)scopes
+              additionalScopes:(NSArray*)additionalScopes
+                      clientId:(NSString*)clientId
+                   redirectUri:(NSURL*)redirectUri
+                    identifier:(ADUserIdentifier*)identifier
+                promptBehavior:(ADPromptBehavior)promptBehavior
+          extraQueryParameters:(NSString*)queryParams
+                        policy:(NSString*)policy
+               completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
     Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
@@ -343,10 +328,10 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param completionBlock  the block to execute upon completion. You can use embedded block, e.g.
                             "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenSilentForScopes:(NSArray*)scopes
-                           clientId:(NSString*)clientId
-                        redirectUri:(NSURL*)redirectUri
-                    completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)acquireTokenSilentWithScopes:(NSArray*)scopes
+                            clientId:(NSString*)clientId
+                         redirectUri:(NSURL*)redirectUri
+                     completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
     Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
@@ -360,11 +345,11 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param identifier       An ADUserIdentifier object specifying the semantics
     @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenSilentForScopes:(NSArray*)scopes
-                           clientId:(NSString*)clientId
-                        redirectUri:(NSURL*)redirectUri
-                         identifier:(ADUserIdentifier*)identifier
-                    completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)acquireTokenSilentWithScopes:(NSArray*)scopes
+                            clientId:(NSString*)clientId
+                         redirectUri:(NSURL*)redirectUri
+                          identifier:(ADUserIdentifier*)identifier
+                     completionBlock:(ADAuthenticationCallback)completionBlock;
 
 /*!
     Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
@@ -376,15 +361,16 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
     @param clientId         the client identifier
     @param redirectUri      The redirect URI according to OAuth2 protocol
     @param identifier       An ADUserIdentifier object specifying the semantics
+    @param promptBehavior       controls if any credentials UI will be shown
     @param policy           ?????
     @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
-- (void)acquireTokenSilentForScopes:(NSArray*)scopes
-                           clientId:(NSString*)clientId
-                        redirectUri:(NSURL*)redirectUri
-                         identifier:(ADUserIdentifier*)identifier
-                             policy:(NSString*)policy
-                    completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)acquireTokenSilentWithScopes:(NSArray*)scopes
+                            clientId:(NSString*)clientId
+                         redirectUri:(NSURL*)redirectUri
+                          identifier:(ADUserIdentifier*)identifier
+                              policy:(NSString*)policy
+                     completionBlock:(ADAuthenticationCallback)completionBlock;
 
 @end
 

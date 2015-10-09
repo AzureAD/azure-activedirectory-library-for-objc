@@ -26,9 +26,10 @@
     return nil;
 }
 
--(void) addOrUpdateItem: (ADTokenCacheStoreItem*) item
-                  error: (ADAuthenticationError* __autoreleasing*) error
+- (BOOL)addOrUpdateItem:(ADTokenCacheStoreItem*) item
+                  error:(ADAuthenticationError* __autoreleasing*) error
 {
+    return YES;
 }
 
 -(void) removeItemWithKey: (ADTokenCacheStoreKey*) key

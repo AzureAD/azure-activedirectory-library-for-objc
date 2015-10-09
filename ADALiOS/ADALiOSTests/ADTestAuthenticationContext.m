@@ -73,6 +73,7 @@
     if ([_expectedRequests count] == 0 || [_responses count] == 0)
     {
         _errorMessage = @"Missing expected request and response!";
+        @throw [NSException exceptionWithName:@"ADTestAuthenticationException" reason:@"Missing expected request and response!" userInfo:nil];
         completionBlock(nil);
         return;
     }

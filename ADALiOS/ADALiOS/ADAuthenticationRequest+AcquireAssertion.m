@@ -20,6 +20,7 @@
 #import "ADInstanceDiscovery.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
+#import "NSSet+ADExtensions.h"
 
 @implementation ADAuthenticationRequest (AcquireAssertion)
 
@@ -143,45 +144,6 @@
              completionBlock(result);
              return;
          }
-         
-         // TODO: MRRT
-         //Try other means of getting access token result:
-//         if (!item.multiResourceRefreshToken)//Try multi-resource refresh token if not currently trying it
-//         {
-//             ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:_context.authority
-//                                                                            clientId:_clientId
-//                                                                               error:nil];
-//             if (broadKey)
-//             {
-//                 BOOL useAccessToken;
-//                 ADAuthenticationError* error = nil;
-//                 ADTokenCacheStoreItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
-//                 if (error)
-//                 {
-//                     completionBlock([ADAuthenticationResult resultFromError:error]);
-//                     return;
-//                 }
-//                 
-//                 if (broadItem)
-//                 {
-//                     if (!broadItem.multiResourceRefreshToken)
-//                     {
-//                         AD_LOG_WARN(@"Unexpected", @"Multi-resource refresh token expected here.");
-//                         //Recover (avoid infinite recursion):
-//                         completionBlock(result);
-//                         return;
-//                     }
-//                     
-//                     //Call recursively with the cache item containing a multi-resource refresh token:
-//                     [self attemptToUseCacheItem:broadItem
-//                                  useAccessToken:NO
-//                                   samlAssertion:samlAssertion
-//                                   assertionType:assertionType
-//                                 completionBlock:completionBlock];
-//                     return;//The call above takes over, no more processing
-//                 }//broad item
-//             }//key
-//         }//!item.multiResourceRefreshToken
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
