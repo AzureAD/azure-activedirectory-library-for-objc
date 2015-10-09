@@ -950,7 +950,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     XCTAssertNotNil(_context);
     ADAssertNoError;
     
-    ADTestRequestResponse* response = [ADTestRequestResponse requestURLString:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=https://myfakeauthority.microsoft.com/msopentechbv.onmicrosoft.com/oauth2/authorize&x-client-Ver=2.0.0"
+    ADTestRequestResponse* response = [ADTestRequestResponse requestURLString:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=https://myfakeauthority.microsoft.com/msopentechbv.onmicrosoft.com/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING
                                                             responseURLString:@"https://idontknowwhatthisshouldbe.com"
                                                                  responseCode:400
                                                              httpHeaderFields:@{}
@@ -1015,8 +1015,8 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADD_AT_RT_TO_CACHE(nil, @"invalid refresh token");
     ADAssertLongEquals(1, [self cacheCount]);
     
-    ADTestRequestResponse* response = [ADTestRequestResponse requestURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=2.0.0"
-                                                            responseURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=2.0.0"
+    ADTestRequestResponse* response = [ADTestRequestResponse requestURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=" ADAL_VERSION_STRING
+                                                            responseURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=" ADAL_VERSION_STRING
                                                                  responseCode:400
                                                              httpHeaderFields:@{ } // maybe shoehorn correlation ID here
                                                              dictionaryAsJSON:@{ OAUTH2_ERROR : @"invalid_grant",
