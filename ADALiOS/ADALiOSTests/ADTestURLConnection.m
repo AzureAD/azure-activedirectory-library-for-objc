@@ -210,6 +210,30 @@ static NSMutableArray* s_responses = nil;
     
     if (!response)
     {
+        // This class is used in the test target only. If you're seeing this outside the test target that means you linked in the file wrong
+        // take it out!
+        //
+        // No unit tests are allowed to hit network. This is done to ensure reliability of the test code. Tests should run quickly and
+        // deterministically. If you're hitting this assert that means you need to add an expected request and response to ADTestURLConnection
+        // using the ADTestRequestReponse class and add it using -[ADTestURLConnection addExpectedRequestResponse:] if you have a single
+        // request/response or -[ADTestURLConnection addExpectedRequestsAndResponses:] if you have a series of network requests that you need
+        // to ensure happen in the proper order.
+        //
+        // Example:
+        //
+        // ADTestRequestResponse* response = [ADTestRequestResponse requestURLString:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=https://login.windows.net/omercantest.onmicrosoft.com/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING
+        //                                                         responseURLString:@"https://idontknowwhatthisshouldbe.com"
+        //                                                              responseCode:400
+        //                                                          httpHeaderFields:@{}
+        //                                                          dictionaryAsJSON:@{@"tenant_discovery_endpoint" : @"totally valid!"}];
+        //
+        //  [ADTestURLConnection addExpectedRequestResponse:response];
+        //
+        //
+        //  Consult the ADTestRequestResponse class for a list of helper methods for formulating requests and responses.
+        
+        NSAssert(response, @"did not find a matching response for %@", [_request URL]);
+        
         AD_LOG_ERROR_F(@"No matching response found.", NSURLErrorNotConnectedToInternet, @"request url = %@", [_request URL]);
         [self dispatchIfNeed:^{
             NSError* error = [NSError errorWithDomain:NSURLErrorDomain
