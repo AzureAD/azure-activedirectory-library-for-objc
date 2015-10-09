@@ -83,6 +83,8 @@
 
 @end
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-protocol-method-implementation"
 @implementation NSURLConnection (TestConnectionOverride)
 
 - (id)initWithRequest:(NSURLRequest *)request
@@ -101,6 +103,7 @@
 }
 
 @end
+#pragma clang diagnostic pop
 
 @implementation ADTestURLConnection
 {
