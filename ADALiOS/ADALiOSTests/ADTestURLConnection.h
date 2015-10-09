@@ -18,34 +18,43 @@
 
 #import <Foundation/Foundation.h>
 
-@interface ADTestRequestResponse : NSObject
+@interface ADTestURLResponse : NSObject
 
-+ (ADTestRequestResponse*)requestURLString:(NSString*)requestUrlString
-                         responseURLString:(NSString*)responseUrlString
-                              responseCode:(NSInteger)responseCode
-                          httpHeaderFields:(NSDictionary*)headerFields
-                          dictionaryAsJSON:(NSDictionary*)data;
++ (ADTestURLResponse*)requestURLString:(NSString*)requestUrlString
+                     responseURLString:(NSString*)responseUrlString
+                          responseCode:(NSInteger)responseCode
+                      httpHeaderFields:(NSDictionary*)headerFields
+                      dictionaryAsJSON:(NSDictionary*)data;
 
-+ (ADTestRequestResponse*)request:(NSURLRequest*)request
-                         response:(NSURLResponse*)response
-                      reponseData:(NSData*)data;
++ (ADTestURLResponse*)request:(NSURL*)request
+                     response:(NSURLResponse*)response
+                  reponseData:(NSData*)data;
 
-+ (ADTestRequestResponse*)request:(NSURLRequest *)request
-                          reponse:(NSURLResponse *)response;
++ (ADTestURLResponse*)request:(NSURL *)request
+                      reponse:(NSURLResponse *)response;
 
-+ (ADTestRequestResponse*)request:(NSURLRequest *)request
-                  repondWithError:(NSError*)error;
++ (ADTestURLResponse*)request:(NSURL *)request
+              repondWithError:(NSError*)error;
+
++ (ADTestURLResponse*)serverNotFoundResponseForURLString:(NSString*)requestURLString;
+
++ (ADTestURLResponse*)responseValidAuthority:(NSString*)authority;
++ (ADTestURLResponse*)responseInvalidAuthority:(NSString*)authority;
 
 @end
 
 @interface ADTestURLConnection : NSObject
 
 // This adds an expected request, and response to it.
-+ (void)addExpectedRequestResponse:(ADTestRequestResponse*)requestResponse;
++ (void)addResponse:(ADTestURLResponse*)response;
 
 // If you need to test a series of requests and responses use this API
-+ (void)addExpectedRequestsAndResponses:(NSArray*)requestsAndResponses;
++ (void)addResponses:(NSArray*)responses;
 
+// Helper methods for common responses
++ (void)addNotFoundResponseForURLString:(NSString*)URLString;
++ (void)addValidAuthorityResponse:(NSString*)authority;
++ (void)addInvalidAuthorityResponse:(NSString*)authority;
 
 - (id)initWithRequest:(NSURLRequest*)request
              delegate:(id)delegate

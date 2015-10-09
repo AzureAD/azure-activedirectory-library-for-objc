@@ -16,69 +16,182 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import "ADALiOS.h"
 #import "ADTestURLConnection.h"
 #import "ADLogger.h"
+#import "ADAuthenticationResult.h"
+#import "NSDictionary+ADExtensions.h"
+#import "ADOAuth2Constants.h"
 
-@implementation ADTestRequestResponse
+@implementation ADTestURLResponse
 {
-    @public
-    NSURLRequest* _request;
+@public
+    NSURL* _requestURL;
+    NSDictionary* _QPs;
+    NSDictionary* _expectedRequestHeaders;
     NSData* _responseData;
     NSURLResponse* _response;
     NSError* _error;
 }
 
-+ (ADTestRequestResponse*)request:(NSURLRequest*)request
++ (ADTestURLResponse*)request:(NSURL*)request
                          response:(NSURLResponse*)urlResponse
                       reponseData:(NSData*)data
 {
-    ADTestRequestResponse* response = [ADTestRequestResponse new];
+    ADTestURLResponse* response = [ADTestURLResponse new];
     
-    response->_request = request;
+    [response setRequestURL:request];
     response->_response = urlResponse;
     response->_responseData = data;
     
     return response;
 }
 
-+ (ADTestRequestResponse*)request:(NSURLRequest *)request
++ (ADTestURLResponse*)request:(NSURL *)request
                           reponse:(NSURLResponse *)urlResponse
 {
-    ADTestRequestResponse* response = [ADTestRequestResponse new];
+    ADTestURLResponse* response = [ADTestURLResponse new];
     
-    response->_request = request;
+    [response setRequestURL:request];
     response->_response = urlResponse;
     
     return response;
 }
 
-+ (ADTestRequestResponse*)request:(NSURLRequest *)request
++ (ADTestURLResponse*)request:(NSURL *)request
                   repondWithError:(NSError*)error
 {
-    ADTestRequestResponse* response = [ADTestRequestResponse new];
+    ADTestURLResponse* response = [ADTestURLResponse new];
     
-    response->_request = request;
+    [response setRequestURL:request];
     response->_error = error;
     
     return response;
 }
 
-+ (ADTestRequestResponse*)requestURLString:(NSString*)requestUrlString
++ (ADTestURLResponse*)serverNotFoundResponseForURLString:(NSString *)requestURLString
+{
+    NSURL* requestURL = [NSURL URLWithString:requestURLString];
+    ADTestURLResponse* response = [ADTestURLResponse request:requestURL
+                                                     repondWithError:[NSError errorWithDomain:NSURLErrorDomain
+                                                                                         code:NSURLErrorCannotFindHost
+                                                                                     userInfo:nil]];
+    return response;
+}
+
++ (ADTestURLResponse*)responseValidAuthority:(NSString *)authority
+{
+    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, authority];
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:authorityValidationURL
+                                                    responseURLString:@"https://idontmatter.com"
+                                                         responseCode:400
+                                                     httpHeaderFields:@{}
+                                                     dictionaryAsJSON:@{@"tenant_discovery_endpoint" : @"totally valid!"}];
+    
+    return response;
+}
+
++ (ADTestURLResponse*)responseInvalidAuthority:(NSString *)authority
+{
+    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, authority];
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:authorityValidationURL
+                                                    responseURLString:@"https://idontmatter.com"
+                                                         responseCode:400
+                                                     httpHeaderFields:@{}
+                                                     dictionaryAsJSON:@{OAUTH2_ERROR : @"I'm an OAUTH server error!",
+                                                                        OAUTH2_ERROR_DESCRIPTION : @" I'm an OAUTH error description!"}];
+    
+    return response;
+}
+
++ (ADTestURLResponse*)requestURLString:(NSString*)requestUrlString
+                            requestHeaders:(NSDictionary*)requestHeaders
                          responseURLString:(NSString*)responseUrlString
                               responseCode:(NSInteger)responseCode
                           httpHeaderFields:(NSDictionary*)headerFields
                           dictionaryAsJSON:(NSDictionary*)data
 {
-    NSURLRequest* request = [NSURLRequest requestWithURL:[NSURL URLWithString:requestUrlString]];
+    NSURL* requestURL = [NSURL URLWithString:requestUrlString];
     NSHTTPURLResponse* response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:responseUrlString]
                                                               statusCode:responseCode
                                                              HTTPVersion:@"1.1"
                                                             headerFields:headerFields];
-    NSData* responseData = [NSJSONSerialization dataWithJSONObject:data options:0 error:nil];
+    NSData* responseData = nil;
     
-    return [ADTestRequestResponse request:request
+    if (data)
+    {
+        responseData = [NSJSONSerialization dataWithJSONObject:data options:0 error:nil];
+    }
+    
+    return [ADTestURLResponse request:requestURL
                                  response:response
                               reponseData:responseData];
+}
+
++ (ADTestURLResponse*)requestURLString:(NSString*)requestUrlString
+                         responseURLString:(NSString*)responseUrlString
+                              responseCode:(NSInteger)responseCode
+                          httpHeaderFields:(NSDictionary*)headerFields
+                          dictionaryAsJSON:(NSDictionary*)data
+{
+    return [ADTestURLResponse requestURLString:requestUrlString
+                                    requestHeaders:nil
+                                 responseURLString:responseUrlString
+                                      responseCode:responseCode
+                                  httpHeaderFields:headerFields
+                                  dictionaryAsJSON:data];
+}
+
+- (void)setRequestURL:(NSURL*)url
+{
+    _requestURL = url;
+    NSString* query = [url query];
+    if (![NSString adIsStringNilOrBlank:query])
+    {
+        _QPs = [NSDictionary adURLFormDecode:query];
+    }
+    else
+    {
+        _QPs = nil;
+    }
+}
+
+- (BOOL)matchesURL:(NSURL*)url
+{
+    // Start with making sure the base URLs match up
+    if ([[url scheme] caseInsensitiveCompare:[_requestURL scheme]] != NSOrderedSame)
+    {
+        return NO;
+    }
+    
+    if ([[url host] caseInsensitiveCompare:[_requestURL host]] != NSOrderedSame)
+    {
+        return NO;
+    }
+    
+    // Then the relative portions
+    if ([[url relativePath] caseInsensitiveCompare:[_requestURL relativePath]] != NSOrderedSame)
+    {
+        return NO;
+    }
+    
+    // And lastly, the tricky part. Query Params can come in any order so we need to process them
+    // a bit instead of just a string compare
+    NSString* query = [url query];
+    if (![NSString adIsStringNilOrBlank:query])
+    {
+        NSDictionary* QPs = [NSDictionary adURLFormDecode:query];
+        if (![QPs isEqualToDictionary:_QPs])
+        {
+            return NO;
+        }
+    }
+    else if (_QPs)
+    {
+        return NO;
+    }
+    
+    return YES;
 }
 
 @end
@@ -119,31 +232,48 @@ static NSMutableArray* s_responses = nil;
     s_responses = [NSMutableArray new];
 }
 
-+ (void)addExpectedRequestResponse:(ADTestRequestResponse*)requestResponse
++ (void)addResponse:(ADTestURLResponse*)requestResponse
 {
     [s_responses addObject:requestResponse];
 }
 
 // If you need to test a series of requests and responses use this API
-+ (void)addExpectedRequestsAndResponses:(NSArray*)requestsAndResponses
++ (void)addResponses:(NSArray*)requestsAndResponses
 {
     [s_responses addObject:[requestsAndResponses mutableCopy]];
 }
 
-+ (ADTestRequestResponse*)removeResponseForRequest:(NSURLRequest*)request
++ (void)addNotFoundResponseForURLString:(NSString *)URLString
+{
+    [self addResponse:[ADTestURLResponse serverNotFoundResponseForURLString:URLString]];
+}
+
++ (void)addValidAuthorityResponse:(NSString *)authority
+{
+    [self addResponse:[ADTestURLResponse responseValidAuthority:authority]];
+}
+
++ (void)addInvalidAuthorityResponse:(NSString *)authority
+{
+    [self addResponse:[ADTestURLResponse responseInvalidAuthority:authority]];
+}
+
++ (ADTestURLResponse*)removeResponseForRequest:(NSURLRequest*)request
 {
     NSUInteger cResponses = [s_responses count];
+    
+    NSURL* requestURL = [request URL];
     
     for (NSUInteger i = 0; i < cResponses; i++)
     {
         id obj = [s_responses objectAtIndex:i];
-        ADTestRequestResponse* response = nil;
+        ADTestURLResponse* response = nil;
         
-        if ([obj isKindOfClass:[ADTestRequestResponse class]])
+        if ([obj isKindOfClass:[ADTestURLResponse class]])
         {
-            response = (ADTestRequestResponse*)obj;
+            response = (ADTestURLResponse*)obj;
             
-            if ([[response->_request URL] isEqual:[request URL]])
+            if ([response matchesURL:requestURL])
             {
                 [s_responses removeObjectAtIndex:i];
                 return response;
@@ -155,7 +285,7 @@ static NSMutableArray* s_responses = nil;
             NSMutableArray* subResponses = [s_responses objectAtIndex:i];
             response = [subResponses objectAtIndex:0];
             
-            if ([response->_request isEqual:request])
+            if ([response matchesURL:requestURL])
             {
                 [subResponses removeObjectAtIndex:0];
                 if ([subResponses count] == 0)
@@ -206,7 +336,7 @@ static NSMutableArray* s_responses = nil;
 
 - (void)start
 {
-    ADTestRequestResponse* response = [ADTestURLConnection removeResponseForRequest:_request];
+    ADTestURLResponse* response = [ADTestURLConnection removeResponseForRequest:_request];
     
     if (!response)
     {
@@ -231,8 +361,8 @@ static NSMutableArray* s_responses = nil;
         //
         //
         //  Consult the ADTestRequestResponse class for a list of helper methods for formulating requests and responses.
-        
-        NSAssert(response, @"did not find a matching response for %@", [_request URL]);
+        NSString* requestURLString = [[_request URL] absoluteString];
+        NSAssert(response, @"did not find a matching response for %@", requestURLString);
         
         AD_LOG_ERROR_F(@"No matching response found.", NSURLErrorNotConnectedToInternet, @"request url = %@", [_request URL]);
         [self dispatchIfNeed:^{
@@ -254,6 +384,38 @@ static NSMutableArray* s_responses = nil;
                  didFailWithError:response->_error];
         }];
         return;
+    }
+    
+    if (response->_expectedRequestHeaders)
+    {
+        BOOL failed = NO;
+        for (NSString* key in response->_expectedRequestHeaders)
+        {
+            NSString* value = [response->_expectedRequestHeaders objectForKey:key];
+            NSString* requestValue = [[_request allHTTPHeaderFields] objectForKey:key];
+            
+            if (!requestValue)
+            {
+                AD_LOG_ERROR_F(@"Missing request header", AD_FAILED, @"expected \"%@\" header", key);
+                failed = YES;
+            }
+            
+            if (![requestValue isEqualToString:value])
+            {
+                AD_LOG_ERROR_F(@"Mismatched request header", AD_FAILED, @"On \"%@\" header, expected:\"%@\" actual:\"%@\"", key, value, requestValue);
+                failed = YES;
+            }
+        }
+        
+        if (failed)
+        {
+            [self dispatchIfNeed:^{
+                [_delegate connection:(NSURLConnection*)self
+                     didFailWithError:[NSError errorWithDomain:NSURLErrorDomain
+                                                          code:NSURLErrorNotConnectedToInternet
+                                                      userInfo:nil]];
+            }];
+        }
     }
     
     if (response->_response)

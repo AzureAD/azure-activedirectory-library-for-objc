@@ -950,14 +950,14 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     XCTAssertNotNil(_context);
     ADAssertNoError;
     
-    ADTestRequestResponse* response = [ADTestRequestResponse requestURLString:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=https://myfakeauthority.microsoft.com/msopentechbv.onmicrosoft.com/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=https://myfakeauthority.microsoft.com/msopentechbv.onmicrosoft.com/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING
                                                             responseURLString:@"https://idontknowwhatthisshouldbe.com"
                                                                  responseCode:400
                                                              httpHeaderFields:@{}
                                                              dictionaryAsJSON:@{OAUTH2_ERROR : @"I'm an OAUTH server error!",
                                                                                 OAUTH2_ERROR_DESCRIPTION : @" I'm an OAUTH error description!"}];
     
-    [ADTestURLConnection addExpectedRequestResponse:response];
+    [ADTestURLConnection addResponse:response];
                                        
     
     acquireTokenAsync;
@@ -1015,13 +1015,13 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADD_AT_RT_TO_CACHE(nil, @"invalid refresh token");
     ADAssertLongEquals(1, [self cacheCount]);
     
-    ADTestRequestResponse* response = [ADTestRequestResponse requestURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=" ADAL_VERSION_STRING
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=" ADAL_VERSION_STRING
                                                             responseURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=" ADAL_VERSION_STRING
                                                                  responseCode:400
                                                              httpHeaderFields:@{ } // maybe shoehorn correlation ID here
                                                              dictionaryAsJSON:@{ OAUTH2_ERROR : @"invalid_grant",
                                                                                  OAUTH2_ERROR_DESCRIPTION : @"AADSTS70000: Authentication failed: Refresh Token is malformed or invalid." }];
-    [ADTestURLConnection addExpectedRequestResponse:response];
+    [ADTestURLConnection addResponse:response];
     
     acquireTokenAsync;//Will attempt to use the refresh token and fail.
     ADAssertLongEquals(0, [self cacheCount]);
@@ -1040,6 +1040,8 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     //Exact refresh token:
     ADD_AT_RT_TO_CACHE(nil, @"invalid refresh token");
     ADAssertLongEquals(1, [self cacheCount]);
+    
+    [ADTestURLConnection addNotFoundResponseForURLString:@"https://somevalidurlbutnonexistentdomain.com/sometenant.com/oauth2/v2.0/token?x-client-Ver=" ADAL_VERSION_STRING];
     
     acquireTokenAsync;//Will attempt to use the refresh token and fail with system error.
     ADAssertLongEquals(1, [self cacheCount]);//Should not remove anything from cache, assuming that the server is unreachable
