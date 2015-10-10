@@ -20,7 +20,7 @@
 #import "ADTokenCacheStoreItem+Internal.h"
 #import "ADProfileInfo.h"
 
-@interface Token : NSObject <NSCoding, NSSecureCoding>
+@interface ADKeychainToken : NSObject <NSCoding, NSSecureCoding>
 
 @property NSSet* scopes;
 
@@ -41,7 +41,7 @@
 
 @end
 
-@implementation Token
+@implementation ADKeychainToken
 
 - (id)initWithCoder:(NSCoder*)aDecoder
 {
@@ -120,7 +120,7 @@
         // Verify everything in here matches the expected class
         for (id accessToken in accessTokens)
         {
-            if (![accessToken isKindOfClass:[Token class]])
+            if (![accessToken isKindOfClass:[ADKeychainToken class]])
             {
                 return nil;
             }
@@ -149,12 +149,12 @@
     return YES;
 }
 
-- (Token*)tokenWithScopes:(NSSet*)scopes
+- (ADKeychainToken*)tokenWithScopes:(NSSet*)scopes
 {
-    for (Token* token in _accessTokens)
+    for (ADKeychainToken* token in _accessTokens)
     {
         // Ignore anything in the keychain item that's not the correct class.
-        if (![token isKindOfClass:[Token class]])
+        if (![token isKindOfClass:[ADKeychainToken class]])
         {
             continue;
         }
@@ -173,7 +173,7 @@
 {
     item.refreshToken = _refreshToken;
     
-    Token* token = [self tokenWithScopes:scopes];
+    ADKeychainToken* token = [self tokenWithScopes:scopes];
     [token addToTokenItem:item];
 }
 
@@ -185,10 +185,10 @@
     
     for (NSUInteger i = 0; i < cTokens; i++)
     {
-        Token* token = _accessTokens[i];
+        ADKeychainToken* token = _accessTokens[i];
         
         // Ignore anything in the keychain item that's not the correct class.
-        if (![token isKindOfClass:[Token class]])
+        if (![token isKindOfClass:[ADKeychainToken class]])
         {
             continue;
         }
@@ -209,7 +209,7 @@
     NSSet* scopes = item.scopes;
     [self removeIntersectingTokens:scopes];
     
-    Token* token = [Token new];
+    ADKeychainToken* token = [ADKeychainToken new];
     [token updateToTokenItem:item];
     [_accessTokens addObject:token];
 }
@@ -322,7 +322,7 @@
     for (id policyKey in _policies)
     {
         ADKeychainPolicyItem* policy = [_policies objectForKey:policyKey];
-        for (Token* token in policy->_accessTokens)
+        for (ADKeychainToken* token in policy->_accessTokens)
         {
             ADTokenCacheStoreItem* item = [self tokenItem];
             [token addToTokenItem:item];
