@@ -91,6 +91,7 @@
 		97A522501A1A8999001D77CE /* ADClientMetricsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */; };
 		97DFE4671AE38903008109E1 /* ADAL.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 97DFE4661AE37B42008109E1 /* ADAL.h */; };
 		97EEE7BB1A4C97A400D003F8 /* UIAlertView+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 97EEE7BA1A4C97A400D003F8 /* UIAlertView+Additions.m */; };
+		D650CAFD1B97C344002CEE70 /* ADTestURLConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D650CAFC1B97C344002CEE70 /* ADTestURLConnection.m */; };
 		D68D582C1B83B3A6000C15A3 /* ADKeychainItem.m in Sources */ = {isa = PBXBuildFile; fileRef = D68D582B1B83B3A6000C15A3 /* ADKeychainItem.m */; };
 		D6BD014A1B4C7D7F008AB2B0 /* ADTokenCacheStoreItem+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BD01491B4C7D7F008AB2B0 /* ADTokenCacheStoreItem+Internal.m */; };
 		D6BD01501B50A194008AB2B0 /* NSSet+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BD014F1B50A194008AB2B0 /* NSSet+ADExtensions.m */; };
@@ -334,6 +335,8 @@
 		97EEE7B41A4C0D6000D003F8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		97EEE7B91A4C97A400D003F8 /* UIAlertView+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+Additions.h"; sourceTree = "<group>"; };
 		97EEE7BA1A4C97A400D003F8 /* UIAlertView+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIAlertView+Additions.m"; sourceTree = "<group>"; };
+		D650CAFB1B97C344002CEE70 /* ADTestURLConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestURLConnection.h; sourceTree = "<group>"; };
+		D650CAFC1B97C344002CEE70 /* ADTestURLConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestURLConnection.m; sourceTree = "<group>"; };
 		D68D582A1B83B3A6000C15A3 /* ADKeychainItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADKeychainItem.h; sourceTree = "<group>"; };
 		D68D582B1B83B3A6000C15A3 /* ADKeychainItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeychainItem.m; sourceTree = "<group>"; };
 		D6BD01481B4C7D7F008AB2B0 /* ADTokenCacheStoreItem+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADTokenCacheStoreItem+Internal.h"; sourceTree = "<group>"; };
@@ -548,6 +551,8 @@
 				97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */,
 				947F53F61B79C75300877416 /* ADTestUtils.h */,
 				947F53F71B79C75300877416 /* ADTestUtils.m */,
+				D650CAFB1B97C344002CEE70 /* ADTestURLConnection.h */,
+				D650CAFC1B97C344002CEE70 /* ADTestURLConnection.m */,
 			);
 			path = ADALiOSTests;
 			sourceTree = "<group>";
@@ -934,6 +939,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D650CAFD1B97C344002CEE70 /* ADTestURLConnection.m in Sources */,
 				8BBF678618358544004E0F4D /* ADProfileInfoTests.m in Sources */,
 				8BB8346D1807C5F5007F9F0D /* ADAuthenticationParametersTests.m in Sources */,
 				8B7AD62118972E3D00652DDE /* NSURLExtensionsTests.m in Sources */,

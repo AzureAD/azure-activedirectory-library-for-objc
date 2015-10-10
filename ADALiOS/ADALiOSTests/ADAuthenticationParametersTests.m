@@ -21,6 +21,7 @@
 #import <ADALiOS/ADAuthenticationSettings.h>
 #import "XCTestCase+TestHelperMethods.h"
 #import "../ADALiOS/ADAuthenticationParameters+Internal.h"
+#import "ADTestURLConnection.h"
 
 @interface ADAuthenticationParametersTests : XCTestCase
 {
@@ -133,7 +134,7 @@
 - (void) testParametersFromResourceURLNoResponse
 {
     NSURL* resource = [[NSURL alloc] initWithString:@"https://noneistingurl12345676789.com"];
-    
+    [ADTestURLConnection addNotFoundResponseForURLString:@"https://noneistingurl12345676789.com?x-client-Ver=" ADAL_VERSION_STRING];
     [self callAsynchronousCreator:resource line:__LINE__];
     XCTAssertNil(mParameters, "No parameters should be extracted from non-existing resource.");
     XCTAssertNotNil(mError, "Error should be set.");
@@ -145,11 +146,15 @@
 {
     //HTTP
     NSURL* resourceUrl = [[NSURL alloc] initWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
-    [self callAsynchronousCreator:resourceUrl line:__LINE__];
-    VERIFY_AUTHORITY(@"https://login.windows.net/omercantest.onmicrosoft.com");
-
-    //HTTPS
-    resourceUrl = [[NSURL alloc] initWithString:@"https://testapi007.azurewebsites.net/api/WorkItem"];
+    
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"http://testapi007.azurewebsites.net/api/WorkItem?x-client-Ver=" ADAL_VERSION_STRING
+                                                            responseURLString:@"http://contoso.com"
+                                                                 responseCode:HTTP_UNAUTHORIZED
+                                                             httpHeaderFields:@{@"WWW-Authenticate" : @"Bearer authorization_uri=\"https://login.windows.net/omercantest.onmicrosoft.com\"" }
+                                                             dictionaryAsJSON:@{}];
+    
+    [ADTestURLConnection addResponse:response];
+    
     [self callAsynchronousCreator:resourceUrl line:__LINE__];
     VERIFY_AUTHORITY(@"https://login.windows.net/omercantest.onmicrosoft.com");
 }

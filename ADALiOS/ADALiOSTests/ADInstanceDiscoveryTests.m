@@ -21,6 +21,7 @@
 #import "ADInstanceDiscovery.h"
 #import <libkern/OSAtomic.h>
 #import <ADALiOS/ADAuthenticationSettings.h>
+#import "ADTestURLConnection.h"
 
 NSString* const sAlwaysTrusted = @"https://login.windows.net";
 
@@ -385,33 +386,32 @@ const int sAsyncTimeout = 10;//in seconds
 - (void)testNormalFlow
 {
     [mValidatedAuthorities removeAllObjects];//Clear, as "login.windows.net" is already cached.
-    [self validateAuthority:@"https://Login.Windows.Net/MSOpenTechBV.onmicrosoft.com" correlationId:nil line:__LINE__];
+    [ADTestURLConnection addValidAuthorityResponse:@"https://Login.Windows.Net/contoso.com"];
+    [self validateAuthority:@"https://Login.Windows.Net/contoso.com" correlationId:nil line:__LINE__];
     XCTAssertTrue(mValidated);
     XCTAssertNil(mError);
     XCTAssertTrue([mValidatedAuthorities containsObject:@"https://login.windows.net"]);
     
     //Now hit explicitly non-cached:
+    [ADTestURLConnection addValidAuthorityResponse:@"https://login.windows-ppe.net/common"];
     [self validateAuthority:@"https://login.windows-ppe.net/common" correlationId:nil line:__LINE__];
     XCTAssertTrue(mValidated);
     XCTAssertNil(mError);
     XCTAssertTrue([mValidatedAuthorities containsObject:@"https://login.windows-ppe.net"]);
 
     //Hit the one that was just cached and ensure that no server-side call is attempted:
-    ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
-    dispatch_queue_t savedQueue = settings.dispatchQueue;
-    settings.dispatchQueue = nil;//point nowhere, so that any attempt to a server call will crash.
     [self validateAuthority:@"https://login.windows-ppe.net/common" correlationId:[NSUUID UUID] line:__LINE__];
     XCTAssertTrue(mValidated);
     XCTAssertNil(mError);
     XCTAssertTrue([mValidatedAuthorities containsObject:@"https://login.windows-ppe.net"]);
-    settings.dispatchQueue = savedQueue;//Restore for the rest of the tests
 }
 
 //Ensures that an invalid authority is not approved
 -(void) testNonValidatedAuthority
 {
     NSUUID* correlationId = [NSUUID UUID];
-    [self validateAuthority:@"https://MyFakeAuthority.microsoft.com/MSOpenTechBV.onmicrosoft.com" correlationId:correlationId line:__LINE__];
+    [ADTestURLConnection addInvalidAuthorityResponse:@"https://MyFakeAuthority.microsoft.com/contoso.com"];
+    [self validateAuthority:@"https://MyFakeAuthority.microsoft.com/contoso.com" correlationId:correlationId line:__LINE__];
     XCTAssertFalse(mValidated);
     XCTAssertNotNil(mError);
     ADAssertLongEquals(AD_ERROR_AUTHORITY_VALIDATION, mError.code);
@@ -419,6 +419,7 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testUnreachableServer
 {
+    [ADTestURLConnection addNotFoundResponseForURLString:@"https://SomeValidURLButNotExistentInTheNet.com/common/discovery/instance?api-version=1.0&authorization_endpoint=https://login.windows.cn/MSOpenTechBV.onmicrosoft.com/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING];
     __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
     {

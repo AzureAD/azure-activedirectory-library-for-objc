@@ -29,8 +29,6 @@
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
 
-static NSOperationQueue *s_queue;
-
 @interface ADWebRequest () <NSURLConnectionDelegate>
 
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response;
@@ -48,14 +46,9 @@ static NSOperationQueue *s_queue;
     NSHTTPURLResponse   *_response;
     NSMutableData       *_responseData;
     NSUUID              *_correlationId;
+    NSOperationQueue    *_operationQueue;
     
     void (^_completionHandler)( NSError *, ADWebResponse *);
-}
-
-+ (void)initialize
-{
-    s_queue = [[NSOperationQueue alloc] init];
-    
 }
 
 #pragma mark - Properties
@@ -109,6 +102,9 @@ static NSOperationQueue *s_queue;
         
         _completionHandler = nil;
         _correlationId     = correlationId;
+        
+        _operationQueue    = [[NSOperationQueue alloc] init];
+        [_operationQueue setMaxConcurrentOperationCount:1];
     }
     
     return self;
@@ -117,6 +113,11 @@ static NSOperationQueue *s_queue;
 // Cleans up and then calls the completion handler
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response
 {
+    if ( _completionHandler != nil )
+    {
+        _completionHandler( error, response );
+    }
+    
     // Cleanup
     _requestURL     = nil;
     _requestMethod  = nil;
@@ -128,10 +129,7 @@ static NSOperationQueue *s_queue;
     
     _connection     = nil;
     
-    if ( _completionHandler != nil )
-    {
-        _completionHandler( error, response );
-    }
+    _completionHandler = nil;
 }
 
 - (void)send:(void (^)(NSError *, ADWebResponse *))completionHandler
@@ -175,7 +173,7 @@ static NSOperationQueue *s_queue;
     request.HTTPBody            = _requestData;
     
     _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
-    [_connection setDelegateQueue:s_queue];
+    [_connection setDelegateQueue:_operationQueue];
     [_connection start];
 }
 
