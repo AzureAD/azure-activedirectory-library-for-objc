@@ -25,57 +25,37 @@
 #import "ADURLProtocol.h"
 #import "UIAlertView+Additions.h"
 
-NSString* const AD_WPJ_LOG = @"ADNTLMHandler";
+static NSString* const AD_WPJ_LOG = @"ADNTLMHandler";
 @implementation ADNTLMHandler
 
-NSString *_username = nil;
-NSString *_password = nil;
-NSString *_cancellationUrl = nil;
-BOOL _challengeCancelled = NO;
-NSMutableURLRequest *_challengeUrl = nil;
-NSURLConnection *_conn = nil;
+static NSString *_username = nil;
+static NSString *_password = nil;
+static NSString *_cancellationUrl = nil;
+static BOOL _challengeCancelled = NO;
+static NSMutableURLRequest *_challengeUrl = nil;
+static NSURLConnection *_conn = nil;
 
++ (void)initialize
+{
+    [ADURLProtocol registerHandler:self
+                        authMethod:NSURLAuthenticationMethodNTLM];
+}
 
-+(void) setCancellationUrl:(NSString*) url
++ (void)setCancellationUrl:(NSString*) url
 {
     _cancellationUrl = url;
 }
 
-+(BOOL) isChallengeCancelled
++ (BOOL)isChallengeCancelled
 {
     return _challengeCancelled;
 }
 
-+(BOOL) startWebViewNTLMHandlerWithError: (ADAuthenticationError *__autoreleasing *) error
-{
-    @synchronized(self)//Protect the sAD_Identity_Ref from being cleared while used.
-    {
-        AD_LOG_VERBOSE(AD_WPJ_LOG, @"Attempting to start the NTLM session for webview.");
-        
-        BOOL succeeded = NO;
-        if ([NSURLProtocol registerClass:[ADURLProtocol class]])
-        {
-            succeeded = YES;
-            AD_LOG_VERBOSE(AD_WPJ_LOG, @"NTLM session started.");
-        }
-        else
-        {
-            ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Failed to register NSURLProtocol."];
-            if (error)
-            {
-                *error = adError;
-            }
-        }
-        return succeeded;
-    }
-}
-
 /* Stops the HTTPS interception. */
-+(void) endWebViewNTLMHandler
++ (void)resetHandler
 {
     @synchronized(self)//Protect the sAD_Identity_Ref from being cleared while used.
     {
-        [NSURLProtocol unregisterClass:[ADURLProtocol class]];
         _username = nil;
         _password = nil;
         _challengeUrl = nil;
@@ -86,47 +66,41 @@ NSURLConnection *_conn = nil;
     }
 }
 
-+(BOOL) handleNTLMChallenge:(NSURLAuthenticationChallenge *)challenge
-                 urlRequest:(NSURLRequest*) request
-             customProtocol:(NSURLProtocol*) protocol
++ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
+                request:(NSURLRequest*)request
+               protocol:(NSURLProtocol*)protocol
 {
     BOOL __block succeeded = NO;
-    if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodNTLM] == NSOrderedSame )
+    @synchronized(self)
     {
-        @synchronized(self)
-        {
-            if(_conn){
-                _conn = nil;
+        if(_conn){
+            _conn = nil;
+        }
+        // This is the NTLM challenge: use the identity to authenticate:
+        AD_LOG_VERBOSE_F(AD_WPJ_LOG, @"Attempting to handle NTLM challenge for host: %@", challenge.protectionSpace.host);
+        [UIAlertView presentCredentialAlert:^(NSUInteger index) {
+            if (index == 1)
+            {
+                UITextField *username = [[UIAlertView getAlertInstance] textFieldAtIndex:0];
+                _username = username.text;
+                UITextField *password = [[UIAlertView getAlertInstance] textFieldAtIndex:1];
+                _password = password.text;
+                
+                NSURLCredential *credential;
+                credential = [NSURLCredential
+                              credentialWithUser:_username
+                              password:_password
+                              persistence:NSURLCredentialPersistenceForSession];
+                [challenge.sender useCredential:credential
+                     forAuthenticationChallenge:challenge];
+            } else {
+                _challengeCancelled = YES;
+                [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
+                [protocol stopLoading];
             }
-            // This is the NTLM challenge: use the identity to authenticate:
-            AD_LOG_VERBOSE_F(AD_WPJ_LOG, @"Attempting to handle NTLM challenge for host: %@", challenge.protectionSpace.host);
-            [UIAlertView presentCredentialAlert:^(NSUInteger index) {
-                if (index == 1)
-                {
-                    UITextField *username = [[UIAlertView getAlertInstance] textFieldAtIndex:0];
-                    _username = username.text;
-                    UITextField *password = [[UIAlertView getAlertInstance] textFieldAtIndex:1];
-                    _password = password.text;
-                    
-                    NSURLCredential *credential;
-                    credential = [NSURLCredential
-                                  credentialWithUser:_username
-                                  password:_password
-                                  persistence:NSURLCredentialPersistenceForSession];
-                    [challenge.sender useCredential:credential
-                         forAuthenticationChallenge:challenge];
-                } else {
-                    _challengeCancelled = YES;
-                    [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
-                    [protocol stopLoading];
-                }
-            }];
-            succeeded = YES;
-        }//@synchronized
-    } else{
-        
-        AD_LOG_VERBOSE_F(AD_WPJ_LOG, @"Ignoring to handle challenge: %@", challenge.protectionSpace.authenticationMethod);
-    }//Challenge type
+        }];
+        succeeded = YES;
+    }//@synchronized
     
     return succeeded;
 }

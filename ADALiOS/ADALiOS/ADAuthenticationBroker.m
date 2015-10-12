@@ -44,7 +44,6 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
     ADAuthenticationViewController*     _authenticationViewController;
     ADAuthenticationWebViewController*  _authenticationWebViewController;
     
-    BOOL                               _ntlmSession;
     NSLock                             *_completionLock;
     
     void (^_completionBlock)( ADAuthenticationError *, NSURL *);
@@ -106,7 +105,6 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
     if ( self )
     {
         _completionLock = [[NSLock alloc] init];
-        _ntlmSession = NO;
     }
     
     return self;
@@ -229,11 +227,7 @@ correlationId:(NSUUID *)correlationId
     _completionBlock = [completionBlock copy];
     ADAuthenticationError* error = nil;
     
-    _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
-    if (_ntlmSession)
-    {
-        AD_LOG_INFO(@"Authorization UI", @"NTLM support enabled.");
-    }
+    [ADURLProtocol registerProtocol];
     
 	if(![NSString adIsStringNilOrBlank:refreshTokenCredential])
     {
@@ -343,10 +337,8 @@ correlationId:(NSUUID *)correlationId
     //       be resilient to this condition and should not generate
     //       two callbacks.
     [_completionLock lock];
-    if (_ntlmSession)
-    {
-        [ADNTLMHandler endWebViewNTLMHandler];
-    }
+    
+    [ADURLProtocol unregisterProtocol];
     
     if ( _completionBlock )
     {

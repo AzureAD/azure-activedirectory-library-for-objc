@@ -22,11 +22,52 @@
 #import "ADNTLMHandler.h"
 #import "ADCustomHeaderHandler.h"
 
-NSString* const sLog = @"HTTP Protocol";
+static NSString* const sLog = @"HTTP Protocol";
+static NSMutableDictionary* s_handlers = nil;
+
 
 @implementation ADURLProtocol
 {
     NSURLConnection *_connection;
+}
+
++ (void)registerHandler:(id)handler
+             authMethod:(NSString*)authMethod
+{
+    if (!handler || !authMethod)
+    {
+        return;
+    }
+    
+    @synchronized(self)
+    {
+        static dispatch_once_t once;
+        dispatch_once(&once, ^{
+            s_handlers = [NSMutableDictionary new];
+        });
+        
+        [s_handlers setValue:handler forKey:authMethod];
+    }
+}
+
+
++ (BOOL)registerProtocol
+{
+    return [NSURLProtocol registerClass:self];
+}
+
++ (void)unregisterProtocol
+{
+    [NSURLProtocol unregisterClass:self];
+    
+    @synchronized(self)
+    {
+        for (NSString* key in s_handlers)
+        {
+            Class<ADAuthMethodHandler> handler = [s_handlers objectForKey:key];
+            [handler resetHandler];
+        }
+    }
 }
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
@@ -93,9 +134,21 @@ NSString* const sLog = @"HTTP Protocol";
 -(void) connection:(NSURLConnection *)connection
 willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    AD_LOG_VERBOSE_F(sLog, @"connection:willSendRequestForAuthenticationChallenge: %@. Previous challenge failure count: %ld", challenge.protectionSpace.authenticationMethod, (long)challenge.previousFailureCount);
+    NSString* authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
     
-    if (![ADNTLMHandler handleNTLMChallenge:challenge urlRequest:[connection currentRequest] customProtocol:self])
+    AD_LOG_VERBOSE_F(sLog, @"connection:willSendRequestForAuthenticationChallenge: %@. Previous challenge failure count: %ld", authMethod, (long)challenge.previousFailureCount);
+    
+    BOOL handled = NO;
+    @synchronized([self class])
+    {
+        Class<ADAuthMethodHandler> handler = [s_handlers objectForKey:authMethod];
+        handled = [handler handleChallenge:challenge
+                                   request:[connection currentRequest]
+                                  protocol:self];
+        
+    }
+    
+    if (!handled)
     {
         // Do default handling
         [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
