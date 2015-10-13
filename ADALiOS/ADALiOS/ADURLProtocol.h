@@ -19,12 +19,13 @@
 #pragma once
 
 @class ADAuthenticationError;
+@class ADURLProtocol;
 
 @protocol ADAuthMethodHandler
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge*)challenge
                 request:(NSURLRequest*)request
-               protocol:(NSURLProtocol*)protocol;
+               protocol:(ADURLProtocol*)protocol;
 + (void)resetHandler;
 
 @end
@@ -38,5 +39,7 @@
 
 + (BOOL)registerProtocol;
 + (void)unregisterProtocol;
+
+- (void)startLoading:(NSURL*)url;
 
 @end

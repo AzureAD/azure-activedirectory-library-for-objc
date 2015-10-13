@@ -27,7 +27,7 @@
  if the challenge has been handled. */
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 request:(NSURLRequest*)request
-               protocol:(NSURLProtocol*)protocol;
+               protocol:(ADURLProtocol*)protocol;
 
 + (BOOL)isChallengeCancelled;
 

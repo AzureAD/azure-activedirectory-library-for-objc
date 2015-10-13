@@ -108,8 +108,14 @@ static NSMutableDictionary* s_handlers = nil;
         return;
     }
     
-    AD_LOG_VERBOSE_F(sLog, @"startLoading host: %@", [self.request.URL host] );
+    [self startLoading:self.request.URL];
+}
+
+- (void)startLoading:(NSURL*)url
+{
+    AD_LOG_VERBOSE_F(sLog, @"startLoading host: %@", [url host] );
     NSMutableURLRequest *mutableRequest = [self.request mutableCopy];
+    [mutableRequest setURL:url];
     [NSURLProtocol setProperty:@"YES" forKey:@"ADURLProtocol" inRequest:mutableRequest];
     _connection = [[NSURLConnection alloc] initWithRequest:mutableRequest
                                                   delegate:self

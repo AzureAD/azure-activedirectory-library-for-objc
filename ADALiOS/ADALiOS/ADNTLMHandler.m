@@ -68,7 +68,7 @@ static NSURLConnection *_conn = nil;
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 request:(NSURLRequest*)request
-               protocol:(NSURLProtocol*)protocol
+               protocol:(ADURLProtocol*)protocol
 {
     BOOL __block succeeded = NO;
     @synchronized(self)
