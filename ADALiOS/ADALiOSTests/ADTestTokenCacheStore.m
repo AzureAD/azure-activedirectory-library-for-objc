@@ -26,19 +26,19 @@
     return nil;
 }
 
--(void) addOrUpdateItem: (ADTokenCacheStoreItem*) item
-                  error: (ADAuthenticationError* __autoreleasing*) error
+- (BOOL)addOrUpdateItem:(ADTokenCacheStoreItem*) item
+                  error:(ADAuthenticationError* __autoreleasing*) error
 {
+    return YES;
 }
 
 -(void) removeItemWithKey: (ADTokenCacheStoreKey*) key
-                   userId:(NSString *)userId
                     error:(ADAuthenticationError *__autoreleasing *)error
 {
     return;
 }
 
--(void) removeAllWithError:(ADAuthenticationError *__autoreleasing *)error
+-(void) removeAll:(ADAuthenticationError *__autoreleasing *)error
 {
     return;
 }
@@ -71,7 +71,7 @@
     return nil;
 }
 
--(ADTokenCacheStoreItem*) allItemsWithError: (ADAuthenticationError* __autoreleasing*) error;
+-(ADTokenCacheStoreItem*) allItems: (ADAuthenticationError* __autoreleasing*) error;
 {
     return nil;
 }

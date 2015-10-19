@@ -137,11 +137,10 @@ static BOOL isCorrelationIdUserProvided = NO;
         return result;
     }
     
-    ADUserInformation* userInfo = [[result tokenCacheStoreItem] userInformation];
+    ADProfileInfo* userInfo = [[result tokenCacheStoreItem] profileInfo];
     
     if (!userInfo || ![userId userIdMatchString:userInfo])
     {
-        // TODO: This behavior is questionable. Look into removing.
         return result;
     }
     

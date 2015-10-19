@@ -21,6 +21,7 @@
 #import "ADInstanceDiscovery.h"
 #import "ADHelpers.h"
 #import "ADUserIdentifier.h"
+#import "NSSet+ADExtensions.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -30,8 +31,12 @@
 - (void)acquireToken:(ADAuthenticationCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    AD_REQUEST_CHECK_ARGUMENT(_resource);
     [self ensureRequest];
+    
+    if (![self validateProperties:completionBlock])
+    {
+        return;
+    }
     
     if (!_context.validateAuthority)
     {
@@ -60,13 +65,10 @@
     [self ensureRequest];
     
     //Check the cache:
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     //We are explicitly creating a key first to ensure indirectly that all of the required arguments are correct.
     //This is the safest way to guarantee it, it will raise an error, if the the any argument is not correct:
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:_context.authority
-                                                              resource:_resource
-                                                              clientId:_clientId
-                                                                 error:&error];
+    ADTokenCacheStoreKey* key = [self cacheStoreKey:&error];
     if (!key)
     {
         //If the key cannot be extracted, call the callback with the information:
@@ -108,16 +110,15 @@
     //All of these should be set before calling this method:
     THROW_ON_NIL_ARGUMENT(completionBlock);
     AD_REQUEST_CHECK_ARGUMENT(item);
-    AD_REQUEST_CHECK_PROPERTY(_resource);
     AD_REQUEST_CHECK_PROPERTY(_clientId);
     
     [self ensureRequest];
     
-    if (useAccessToken)
+    if (useAccessToken && [item containsScopes:_scopes])
     {
         //Access token is good, just use it:
         [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:nil];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:NO];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item];
         completionBlock(result);
         return;
     }
@@ -140,40 +141,6 @@
              completionBlock(result);
              return;
          }
-         
-         //Try other means of getting access token result:
-         if (!item.multiResourceRefreshToken)//Try multi-resource refresh token if not currently trying it
-         {
-             ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:_context.authority resource:nil clientId:_clientId error:nil];
-             if (broadKey)
-             {
-                 BOOL useAccessToken;
-                 ADAuthenticationError* error;
-                 ADTokenCacheStoreItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
-                 if (error)
-                 {
-                     completionBlock([ADAuthenticationResult resultFromError:error]);
-                     return;
-                 }
-                 
-                 if (broadItem)
-                 {
-                     if (!broadItem.multiResourceRefreshToken)
-                     {
-                         AD_LOG_WARN(@"Unexpected", @"Multi-resource refresh token expected here.");
-                         //Recover (avoid infinite recursion):
-                         completionBlock(result);
-                         return;
-                     }
-                     
-                     //Call recursively with the cache item containing a multi-resource refresh token:
-                     [self attemptToUseCacheItem:broadItem
-                                  useAccessToken:NO
-                                 completionBlock:completionBlock];
-                     return;//The call above takes over, no more processing
-                 }//broad item
-             }//key
-         }//!item.multiResourceRefreshToken
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
@@ -200,13 +167,15 @@
         completionBlock(result);
         return;
     }
-    
+
+#if BROKER_ENABLED
     //call the broker.
     if([ADAuthenticationRequest canUseBroker])
     {
         [self callBroker:completionBlock];
         return;
     }
+#endif
 #endif
     
     //Get the code first:
@@ -220,13 +189,14 @@
          }
          else
          {
-             
+#if BROKER_ENABLED
              if([code hasPrefix:@"msauth://"])
              {
                  [self handleBrokerFromWebiewResponse:code
                                       completionBlock:completionBlock];
              }
              else
+#endif // BROKER_ENABLED
              {
                  [self requestTokenByCode:code
                           completionBlock:^(ADAuthenticationResult *result)
@@ -257,7 +227,7 @@
     
     [self ensureRequest];
     
-    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", @"Resource: %@", _resource);
+    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", @"scopes: %@", _scopes);
     
     if (!_context.validateAuthority)
     {
@@ -310,15 +280,16 @@
                         OAUTH2_REFRESH_TOKEN, OAUTH2_GRANT_TYPE,
                         refreshToken, OAUTH2_REFRESH_TOKEN,
                         _clientId, OAUTH2_CLIENT_ID,
+                        [_scopes adSpaceDeliminatedString], OAUTH2_SCOPE,
                         nil];
     }
     
-    if (![NSString adIsStringNilOrBlank:_resource])
+    if (_policy)
     {
-        [request_data setObject:_resource forKey:OAUTH2_RESOURCE];
+        [request_data setObject:_policy forKey:OAUTH2_POLICY];
     }
     
-    AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@';", _clientId, _resource);
+    AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; scopes: '%@';", _clientId, _scopes);
     [self requestWithServer:_context.authority
                 requestData:request_data
             handledPkeyAuth:NO
@@ -329,10 +300,9 @@
          
          //Always ensure that the cache item has all of these set, especially in the broad token case, where the passed item
          //may have empty "resource" property:
-         resultItem.resource = _resource;
+         
          resultItem.clientId = _clientId;
          resultItem.authority = _context.authority;
-         
          
          ADAuthenticationResult *result = [_context processTokenResponse:response forItem:resultItem fromRefresh:YES requestCorrelationId:_correlationId];
          if (cacheItem)//The request came from the cache item, update it:
@@ -347,7 +317,7 @@
      }];
 }
 
--(NSString*) createAccessTokenRequestJWTUsingRT:(ADTokenCacheStoreItem*)cacheItem
+- (NSString*)createAccessTokenRequestJWTUsingRT:(ADTokenCacheStoreItem*)cacheItem
 {
     NSString* grantType = @"refresh_token";
     
@@ -359,14 +329,14 @@
                              };
     
     NSInteger iat = round([[NSDate date] timeIntervalSince1970]);
+    
     NSDictionary *payload = @{
-                              @"resource" : _resource,
                               @"client_id" : _clientId,
                               @"refresh_token" : cacheItem.refreshToken,
                               @"iat" : [NSNumber numberWithInteger:iat],
                               @"nbf" : [NSNumber numberWithInteger:iat],
                               @"exp" : [NSNumber numberWithInteger:iat],
-                              @"scope" : @"openid",
+                              @"scope" : [_scopes adSpaceDeliminatedString],
                               @"grant_type" : grantType,
                               @"aud" : _context.authority
                               };
@@ -384,7 +354,7 @@
 {
     HANDLE_ARGUMENT(code);
     [self ensureRequest];
-    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code for resource: %@", _resource);
+    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code for scopes: %@", _scopes);
     
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -393,10 +363,6 @@
                                          _clientId, OAUTH2_CLIENT_ID,
                                          _redirectUri, OAUTH2_REDIRECT_URI,
                                          nil];
-    if(![NSString adIsStringNilOrBlank:_scope])
-    {
-        [request_data setValue:_scope forKey:OAUTH2_SCOPE];
-    }
     
     [self executeRequest:_context.authority
              requestData:request_data

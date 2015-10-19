@@ -35,7 +35,6 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
 {
     [super setUp];
     // Put setup code here; it will be run once, before the first test case.
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     [ADLogger setNSLogging:YES];//We disable it by default in the rest of the tests to limit the log files
     XCTAssertTrue([ADLogger getNSLogging]);
 }
@@ -43,39 +42,11 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
 - (void)tearDown
 {
     // Put teardown code here; it will be run once, after the last test case.
-    [self adTestEnd];
     [super tearDown];
-}
-
-- (void)testLevel
-{
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    for(int i = ADAL_LOG_LEVEL_NO_LOG; i < ADAL_LOG_LAST; ++i)
-    {
-        [ADLogger setLevel:i];
-        XCTAssertEqual(i, [ADLogger getLevel], "Level not set");
-        for(int j = ADAL_LOG_LEVEL_ERROR; j <= ADAL_LOG_LAST; ++j)
-        {
-            NSString* message = [NSString stringWithFormat:@"Test%dMessage%d %s", i, j, __PRETTY_FUNCTION__];
-            NSString* info = [NSString stringWithFormat:@"Test%dnfo%d %s", i, j, __PRETTY_FUNCTION__];
-            [ADLogger log:j message:message errorCode:1 info:info];
-            if (j <= i)//Meets the error bar
-            {
-                ADAssertLogsContainValue(TEST_LOG_MESSAGE, message);
-                ADAssertLogsContainValue(TEST_LOG_INFO, info);
-            }
-            else
-            {
-                ADAssertLogsDoNotContainValue(TEST_LOG_MESSAGE, message);
-                ADAssertLogsDoNotContainValue(TEST_LOG_INFO, info);
-            }
-        }
-    }
 }
 
 -(void) testMessageNoThrowing
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Neither of these calls should throw. See the method body for details:
     [ADLogger log:ADAL_LOG_LEVEL_NO_LOG message:@"Message" errorCode:AD_ERROR_SUCCEEDED info:@"info" ];
     [ADLogger log:ADAL_LOG_LEVEL_ERROR message:nil errorCode:AD_ERROR_SUCCEEDED info:@"info" ];

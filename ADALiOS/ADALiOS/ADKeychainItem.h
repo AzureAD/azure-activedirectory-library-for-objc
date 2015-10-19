@@ -17,12 +17,20 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import <ADALiOS/ADAuthenticationResult.h>
 
-@interface BVApplicationData : NSObject
+@class ADProfileInfo;
+@class ADTokenCacheStoreItem;
 
-@property ADAuthenticationResult* result;
+@interface ADKeychainItem : NSObject <NSCoding, NSSecureCoding>
 
-+(id) getInstance;
++ (ADKeychainItem*)itemForData:(NSData*)data;
+
+- (ADTokenCacheStoreItem*)tokenItemForPolicy:(NSString*)policy
+                                      scopes:(NSSet*)scopes;
+- (void)updateToTokenItem:(ADTokenCacheStoreItem*)item;
+- (NSData*)data;
+
+/*! @return An array of ADTokenCacheStoreItem(s) for all the access tokens store in this keychain item */
+- (NSArray*)allItems;
 
 @end

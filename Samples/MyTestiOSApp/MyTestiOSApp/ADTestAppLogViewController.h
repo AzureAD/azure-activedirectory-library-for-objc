@@ -16,21 +16,10 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "BVApplicationData.h"
 
-@implementation BVApplicationData
+#import <UIKit/UIKit.h>
 
-+ (id) getInstance
-{
-    static BVApplicationData *instance = nil;
-    static dispatch_once_t onceToken;
-    
-    dispatch_once(&onceToken, ^{
-        instance = [[self alloc] init];
-    });
-    
-    return instance;
-}
+@interface ADTestAppLogViewController : UIViewController
+
 
 @end
-

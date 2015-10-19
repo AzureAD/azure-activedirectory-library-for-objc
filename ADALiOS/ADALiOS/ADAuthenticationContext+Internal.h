@@ -28,6 +28,14 @@
 #define CHECK_FOR_NIL(_val) \
     if (!_val) { completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"" #_val " is nil!"]]); return; }
 
+#define CALLBACK_ON_ERROR(_err) { \
+    ADAuthenticationError* _ERROR = _err; \
+    if (_ERROR) { \
+        completionBlock([ADAuthenticationResult resultFromError:_ERROR]); \
+        return; \
+    } \
+}
+
 #import "ADALiOS.h"
 
 @class ADUserIdentifier;

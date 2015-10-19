@@ -114,8 +114,13 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                 userInfo:nil];
 }
 
-+ (ADAuthenticationError*)invalidArgumentError:(NSString *)details
++ (ADAuthenticationError*)invalidArgumentError:(NSString *)detailsFmt, ...
 {
+    va_list args;
+    va_start(args, detailsFmt);
+    NSString* details = [[NSString alloc] initWithFormat:detailsFmt arguments:args];
+    va_end(args);
+    
     return [self errorWithDomainInternal:ADInvalidArgumentDomain
                                     code:AD_ERROR_INVALID_ARGUMENT
                        protocolErrorCode:nil
@@ -178,6 +183,16 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
     return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_CANCEL
                                                   protocolCode:nil
                                                   errorDetails:ADCancelError];
+}
+
++ (ADAuthenticationError*)errorFromKeychainError:(OSStatus)errCode
+                                    errorDetails:(NSString*)errorDetails
+{
+    return [self errorWithDomainInternal:ADAuthenticationErrorDomain
+                                    code:AD_ERROR_CACHE_PERSISTENCE
+                       protocolErrorCode:[NSString stringWithFormat:@"%d", (int)errCode]
+                            errorDetails:errorDetails
+                                userInfo:nil];
 }
 
 

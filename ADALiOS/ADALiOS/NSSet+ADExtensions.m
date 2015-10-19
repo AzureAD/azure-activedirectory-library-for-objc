@@ -16,25 +16,41 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import "NSSet+ADExtensions.h"
+#import "NSString+ADExtentions.h"
 
-#import "BVTestFlipsideViewController.h"
+@implementation NSSet (ADExtensions)
 
-@class BVSettings;
-@class BVTestInstance;
-
-@interface BVTestMainViewController : UIViewController <BVTestFlipsideViewControllerDelegate, UIPopoverControllerDelegate>
+- (NSString*)adSpaceDeliminatedString
 {
-    IBOutlet UITextView*            _resultView;
-    IBOutlet UITextField*           _tfUserId;
-    IBOutlet UISegmentedControl*    _scUserType;
-    IBOutlet UISegmentedControl*    _scPromptBehavior;
-    @protected
-    BVSettings* mTestData;
-    BVTestInstance* mAADInstance;
+    NSMutableString* string = [NSMutableString new];
+    
+    __block BOOL first = YES;
+    
+    [self enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+        if (![obj isKindOfClass:[NSString class]])
+        {
+            return;
+        }
+        
+        if (!first)
+        {
+            [string appendString:@" "];
+        }
+        else
+        {
+            first = NO;
+        }
+        
+        [string appendString:obj];
+    }];
+    
+    return string;
 }
 
-@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
-
-@property (strong, nonatomic) UIPopoverController *flipsidePopoverController;
+- (NSString*)adUrlFormEncode
+{
+    return [[self adSpaceDeliminatedString] adUrlFormEncode];
+}
 
 @end

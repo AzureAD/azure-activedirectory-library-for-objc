@@ -18,6 +18,7 @@
 
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
+#import "ADTestUtils.h"
 #import "../ADALiOS/ADAuthenticationContext.h"
 
 @interface ADTokenCacheStoreItemTest : XCTestCase
@@ -29,19 +30,17 @@
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
 }
 
 - (void)tearDown
 {
-    [self adTestEnd];
     [super tearDown];
 }
 
 
--(void) testIsExpired
+- (void)testIsExpired
 {
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    ADTokenCacheStoreItem* item = [[ADTestUtils defaultUtils] createCacheItem:nil];
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
     XCTAssertTrue(item.isExpired, "When time is now, the item should expire.");
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:30];
@@ -57,64 +56,66 @@
 }
 - (void)testIsEmptyUser
 {
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    ADTokenCacheStoreItem* item = [[ADTestUtils defaultUtils] createCacheItem:nil];
     XCTAssertFalse(item.isEmptyUser);
-    item.userInformation = nil;
+    item.profileInfo = nil;
     XCTAssertTrue(item.isEmptyUser);
     item = [ADTokenCacheStoreItem new];
     XCTAssertTrue(item.isEmptyUser, "The default item should not have a user.");
 }
 
--(void) verifySameUser: (NSString*) userId1
-               userId2: (NSString*) userId2
+- (void)verifySameUser:(NSString*)userId1
+               userId2:(NSString*)userId2
 {
     ADAuthenticationError* error;
     
-    ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
+    ADTokenCacheStoreItem* item1 = [[ADTestUtils defaultUtils] createCacheItem:nil];
     if (userId1)
     {
-        item1.userInformation = [ADUserInformation userInformationWithUserId:userId1 error:&error];
+        item1.profileInfo = [ADProfileInfo profileInfoWithUsername:userId1 error:&error];
         ADAssertNoError;
-        XCTAssertNotNil(item1.userInformation);
+        XCTAssertNotNil(item1.profileInfo);
     }
     else
     {
-        item1.userInformation = nil;
+        item1.profileInfo = nil;
     }
     
-    ADTokenCacheStoreItem* item2 = [self adCreateCacheItem];
+    ADTokenCacheStoreItem* item2 = [[ADTestUtils defaultUtils] createCacheItem:nil];
     if (userId2)
     {
-        item2.userInformation = [ADUserInformation userInformationWithUserId:userId2 error:&error];
+        item2.profileInfo = [ADProfileInfo profileInfoWithUsername:userId2 error:&error];
         ADAssertNoError;
-        XCTAssertNotNil(item2.userInformation);
+        XCTAssertNotNil(item2.profileInfo);
     }
     else
     {
-        item2.userInformation = nil;
+        item2.profileInfo = nil;
     }
     
     XCTAssertTrue([item1 isSameUser:item2], "Should be the same: '%@' and '%@", userId1, userId2);
     XCTAssertTrue([item2 isSameUser:item1], "Should be the same: '%@' and '%@", userId1, userId2);
 }
 
--(void)testIsSameUser
+- (void)testIsSameUser
 {
     //Check the trivial cases:
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    NSString* errorDetails = nil;
+    ADTokenCacheStoreItem* item = [[ADTestUtils defaultUtils] createCacheItem:&errorDetails];
+    XCTAssertNotNil(item, @"Failed to create item: %@", errorDetails);
     XCTAssertTrue([item isSameUser:item]);//self
     ADTokenCacheStoreItem* copy = [item copy];
     XCTAssertTrue([item isSameUser:copy]);
     XCTAssertTrue([copy isSameUser:item]);
     
     ADAuthenticationError* error;
-    item.userInformation = [ADUserInformation userInformationWithUserId:@"Another user   " error:&error];
+    item.profileInfo = [ADProfileInfo profileInfoWithUsername:@"Another user   " error:&error];
     ADAssertNoError;
-    XCTAssertNotNil(item.userInformation);
+    XCTAssertNotNil(item.profileInfo);
     XCTAssertFalse([item isSameUser:copy]);
     XCTAssertFalse([copy isSameUser:item]);
     
-    copy.userInformation = nil;
+    copy.profileInfo = nil;
     XCTAssertFalse([item isSameUser:copy]);
     XCTAssertFalse([copy isSameUser:item]);
     
@@ -123,28 +124,6 @@
     [self verifySameUser:@" test user  " userId2:@"     test user     "];
     [self verifySameUser:@" test user" userId2:@"test user     "];
     [self verifySameUser:@"test user" userId2:@"test user"];
-}
-
--(void) testMultiRefreshTokens
-{
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
-    XCTAssertFalse(item.multiResourceRefreshToken);
-    item.resource = nil;
-    XCTAssertFalse(item.multiResourceRefreshToken);
-    
-    //Valid:
-    item.accessToken = nil;
-    XCTAssertTrue(item.multiResourceRefreshToken);
-    
-    //Invalidate through refresh token:
-    item.refreshToken = nil;
-    XCTAssertFalse(item.multiResourceRefreshToken, "nil refresh token");
-    item.refreshToken = @"  ";
-    XCTAssertFalse(item.multiResourceRefreshToken, "Empty resource token");
-    
-    //Restore:
-    item.refreshToken = @"refresh token";
-    XCTAssertTrue(item.multiResourceRefreshToken);
 }
 
 -(void) testSupportsSecureCoding
