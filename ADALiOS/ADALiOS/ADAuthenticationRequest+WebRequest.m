@@ -199,7 +199,21 @@
                         if (jsonError)
                         {
                             // Unrecognized JSON response
-                            NSString* bodyStr = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
+                            // We're often seeing the JSON parser being asked to parse whole HTML pages.
+                            // Logging out the whole thing is unhelpful as it contains no useful info.
+                            // If the body is > 1 KB then it's a pretty safe bet that it contains more
+                            // noise then would be helpful
+                            NSString* bodyStr = nil;
+                            
+                            if ([webResponse.body length] < 1024)
+                            {
+                                bodyStr = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
+                            }
+                            else
+                            {
+                                bodyStr = [[NSString alloc] initWithFormat:@"large response, probably HTML, <%lu bytes>", (unsigned long)[webResponse.body length]];
+                            }
+                            
                             AD_LOG_ERROR_F(@"JSON deserialization", jsonError.code, @"Error: %@. Body text: '%@'. HTTPS Code: %ld. Response correlation id: %@", jsonError.description, bodyStr, (long)webResponse.statusCode, responseCorrelationId);
                             adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
                         }
