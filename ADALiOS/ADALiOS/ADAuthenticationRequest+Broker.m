@@ -84,12 +84,12 @@
         
         NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
         NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
-        NSString* brokerProtocolVer = [queryParamsMap valueForKey:BROKER_PROTOCOL_VERSION];
+        NSString* msgVer = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
         NSInteger protocolVersion = 1;
         
-        if (brokerProtocolVer)
+        if (msgVer)
         {
-            protocolVersion = [brokerProtocolVer integerValue];
+            protocolVersion = [msgVer integerValue];
         }
         
         //decrypt response first
@@ -184,7 +184,7 @@
                                       @"correlation_id": _correlationId,
                                       @"broker_key": base64UrlKey,
                                       @"client_version": adalVersion,
-									  BROKER_PROTOCOL_VERSION : @"2",
+									  BROKER_MAX_VERSION : @"2",
                                       @"extra_qp": _queryParams ? _queryParams : @"",
                                       };
     
