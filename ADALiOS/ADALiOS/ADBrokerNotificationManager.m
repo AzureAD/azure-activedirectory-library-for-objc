@@ -68,20 +68,24 @@
 
 - (void)callbackCleanup
 {
-    if(_callbackForBroker)
-    {
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BROKER_RESPONSE_NOT_RECEIVED
-                                                                                protocolCode:nil
-                                                                                errorDetails:@"application did not receive response from broker."];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:adError];
-        ADAuthenticationCallback callback = _callbackForBroker;
-        callback(result);
-    }
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIApplicationDidBecomeActiveNotification
-                                                  object:nil];
-    _callbackForBroker = nil;
+    // We're not guaranteed the order that notifications happen in. Put this on the back of the main event queue so that
+    // launchURL might have a chance at the callback first.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if(_callbackForBroker)
+        {
+            ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BROKER_RESPONSE_NOT_RECEIVED
+                                                                                    protocolCode:nil
+                                                                                    errorDetails:@"application did not receive response from broker."];
+            ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:adError];
+            ADAuthenticationCallback callback = _callbackForBroker;
+            callback(result);
+        }
+        
+        [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                        name:UIApplicationDidBecomeActiveNotification
+                                                      object:nil];
+        _callbackForBroker = nil;
+    });
 }
 
 
