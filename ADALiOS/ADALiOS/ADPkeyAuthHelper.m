@@ -68,44 +68,36 @@
     if (![info isWorkPlaceJoined])
     {
         AD_LOG_ERROR(@"Attempting to create device auth response while not workplace joined.", AD_ERROR_WPJ_REQUIRED, nil);
+        return nil;
     }
-    else
+    NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
+    
+    if (certAuths)
     {
-        NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
+        certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
+                                                                           withString:@""];
+        NSString* issuerOU = [ADPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
+        if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
+        {
+            AD_LOG_ERROR(@"Certificate Authority specified by device auth request does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
+            return nil;
+        }
+    }
+    else if ([challengeData valueForKey:@"CertThumbprint"])
+    {
         NSString* expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
-        
-        if (certAuths)
+        if (![NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]])
         {
-            certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
-                                                                               withString:@""];
-            NSString* issuerOU = [ADPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
-            if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
-            {
-                AD_LOG_ERROR(@"Certificate Authority specified by device auth request does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
-                [info releaseData];
-                info = nil;
-            }
-        }
-        else if (expectedThumbprint)
-        {
-            if (![NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]])
-            {
-                AD_LOG_ERROR(@"Certificate Thumbprint does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
-                [info releaseData];
-                info = nil;
-            }
+            AD_LOG_ERROR(@"Certificate Thumbprint does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
+            return nil;
         }
     }
     
-    NSString* pKeyAuthHeader = @"CERTIFICATE NOT FOUND";
-    if (info)
-    {
-        pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
-        
-        [info releaseData];
-        info = nil;
-    }
     
+    NSString* pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
+    
+    [info releaseData];
+    info = nil;
     return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
 }
 
