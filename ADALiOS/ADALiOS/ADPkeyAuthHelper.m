@@ -97,7 +97,7 @@
         }
     }
     
-    NSString* pKeyAuthHeader = @"CERTIFICATE NOT FOUND";
+    NSString* pKeyAuthHeader = @"";
     if (info)
     {
         pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
