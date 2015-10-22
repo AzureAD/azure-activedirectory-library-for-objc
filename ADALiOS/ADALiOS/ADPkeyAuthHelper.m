@@ -67,7 +67,7 @@
     ADRegistrationInformation *info = [[ADWorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
     if (![info isWorkPlaceJoined])
     {
-        AD_LOG_ERROR(@"Attempting to create device auth response while not workplace joined.", AD_ERROR_WPJ_REQUIRED, nil);
+        AD_LOG_INFO(@"PKeyAuth: Received PKeyAuth request but no WPJ info.", nil);
     }
     else
     {
@@ -81,7 +81,7 @@
             NSString* issuerOU = [ADPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
-                AD_LOG_ERROR(@"Certificate Authority specified by device auth request does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
+                AD_LOG_ERROR(@"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
                 [info releaseData];
                 info = nil;
             }
@@ -90,7 +90,7 @@
         {
             if (![NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]])
             {
-                AD_LOG_ERROR(@"Certificate Thumbprint does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
+                AD_LOG_ERROR(@"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
                 [info releaseData];
                 info = nil;
             }
