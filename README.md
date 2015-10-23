@@ -1,4 +1,4 @@
-[![Stories in Ready](https://badge.waffle.io/AzureAD/azure-activedirectory-library-for-objc.png?label=ready&title=Ready)](https://waffle.io/AzureAD/azure-activedirectory-library-for-objc)
+
 #Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and OSX
 =====================================
 
@@ -14,13 +14,11 @@ Apple has released iOS 9 which includes support for App Transport Security (ATS)
 
 The ADAL SDK for iOS gives you the ability to add support for Work Accounts to your application with just a few lines of additional code. This SDK gives your application the full functionality of Microsoft Azure AD, including industry standard protocol support for OAuth2, Web API integration with user level consent, and two factor authentication support. Best of all, it’s FOSS (Free and Open Source Software) so that you can participate in the development process as we build these libraries. 
 
-**What is a Work Account?**
+## Contribution History
 
-A Work Account is an identity you use to get work done no matter if at your business or on a college campus. Anywhere you need to get access to your work life you'll use a Work Account. The Work Account can be tied to an Active Directory server running in your datacenter or live completely in the cloud like when you use Office365. A Work Account will be how your users know that they are accessing their important documents and data backed my Microsoft security.
+[![Stories in Ready](https://badge.waffle.io/AzureAD/azure-activedirectory-library-for-objc.png?label=ready&title=Ready)](https://waffle.io/AzureAD/azure-activedirectory-library-for-objc)
 
-## ADAL for iOS 1.0 Released!
-
-Thanks to your feedback, we have released the 1.0.0 version of iOS for ADAL  [You can grab the release here] (https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases/tag/1.0.1)
+[![Throughput Graph](https://graphs.waffle.io/AzureAD/azure-activedirectory-library-for-objc/throughput.svg)](https://waffle.io/AzureAD/azure-activedirectory-library-for-objc/metrics)
 
 ## Samples and Documentation
 
