@@ -209,11 +209,20 @@
     }
 #endif
     
+    __block BOOL silentRequest = _allowSilent;
+    
 // Get the code first:
     [self requestCode:^(NSString * code, ADAuthenticationError *error)
      {
          if (error)
          {
+             if (silentRequest)
+             {
+                 _allowSilent = NO;
+                 [self requestToken:completionBlock];
+                 return;
+             }
+             
              ADAuthenticationResult* result = (AD_ERROR_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation]
              : [ADAuthenticationResult resultFromError:error];
              completionBlock(result);
