@@ -28,12 +28,12 @@
 
 @implementation ADPkeyAuthHelper
 
-+ (NSString*) computeThumbprint:(NSData*) data{
++ (nonnull NSString*) computeThumbprint:(nonnull NSData*) data{
     return [ADPkeyAuthHelper computeThumbprint:data isSha2:NO];
 }
 
 
-+ (NSString*) computeThumbprint:(NSData*) data isSha2:(BOOL) isSha2{
++ (nonnull NSString*) computeThumbprint:(nonnull NSData*) data isSha2:(BOOL) isSha2{
     
     //compute SHA-1 thumbprint
     int length = CC_SHA1_DIGEST_LENGTH;
@@ -61,11 +61,16 @@
 }
 
 
-+ (NSString*)createDeviceAuthResponse:(NSString*)authorizationServer
-                        challengeData:(NSDictionary*) challengeData
++ (nonnull NSString*)createDeviceAuthResponse:(NSString*)authorizationServer
+                                challengeData:(NSDictionary*) challengeData
 {
     ADRegistrationInformation *info = [[ADWorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
-    if (![info isWorkPlaceJoined])
+    
+    if (!challengeData)
+    {
+        // Error should have been logged before this where there is more information on why the challenge data was bad
+    }
+    else if (![info isWorkPlaceJoined])
     {
         AD_LOG_INFO(@"PKeyAuth: Received PKeyAuth request but no WPJ info.", nil);
     }
@@ -76,8 +81,6 @@
         
         if (certAuths)
         {
-            certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
-                                                                               withString:@""];
             NSString* issuerOU = [ADPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
@@ -110,7 +113,8 @@
 }
 
 
-+ (NSString*) getOrgUnitFromIssuer:(NSString*) issuer{
++ (NSString*)getOrgUnitFromIssuer:(NSString*)issuer
+{
     NSString *regexString = @"[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:0 error:NULL];
     
@@ -124,8 +128,9 @@
     return nil;
 }
 
-+ (BOOL) isValidIssuer:(NSString*) certAuths
-    keychainCertIssuer:(NSString*) keychainCertIssuer{
++ (BOOL)isValidIssuer:(NSString*)certAuths
+   keychainCertIssuer:(NSString*)keychainCertIssuer
+{
     NSString *regexString = @"OU=[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
     keychainCertIssuer = [keychainCertIssuer uppercaseString];
     certAuths = [certAuths uppercaseString];
