@@ -185,8 +185,7 @@
 - (void)requestToken:(ADAuthenticationCallback)completionBlock
 {
     [self ensureRequest];
-    
-#if !AD_BROKER && BROKER_ENABLED
+
     if (_silent && !_allowSilent)
     {
         //The cache lookup and refresh token attempt have been unsuccessful,
@@ -200,7 +199,8 @@
         completionBlock(result);
         return;
     }
-    
+
+#if !AD_BROKER
     //call the broker.
     if([ADAuthenticationRequest canUseBroker])
     {
@@ -209,7 +209,7 @@
     }
 #endif
     
-    //Get the code first:
+// Get the code first:
     [self requestCode:^(NSString * code, ADAuthenticationError *error)
      {
          if (error)
@@ -220,14 +220,12 @@
          }
          else
          {
-#if BROKER_ENABLED
              if([code hasPrefix:@"msauth://"])
              {
                  [self handleBrokerFromWebiewResponse:code
                                       completionBlock:completionBlock];
              }
              else
-#endif // BROKER_ENABLED
              {
                  [self requestTokenByCode:code
                           completionBlock:^(ADAuthenticationResult *result)

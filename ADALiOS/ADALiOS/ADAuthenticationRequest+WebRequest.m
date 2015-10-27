@@ -71,8 +71,10 @@
             handledPkeyAuth:isHandlingPKeyAuthChallenge
           additionalHeaders:additionalHeaders
           returnRawResponse:NO
+               isGetRequest:NO
                  completion:completionBlock];
 }
+
 
 - (void)requestWithServer:(NSString *)authorizationServer
               requestData:(NSDictionary *)request_data
@@ -81,17 +83,49 @@
         returnRawResponse:(BOOL)returnRawResponse
                completion:( void (^)(NSDictionary *) )completionBlock
 {
+    [self requestWithServer:authorizationServer
+                requestData:request_data
+            handledPkeyAuth:isHandlingPKeyAuthChallenge
+          additionalHeaders:additionalHeaders
+          returnRawResponse:returnRawResponse
+               isGetRequest:NO
+                 completion:completionBlock];
+}
+
+- (void)requestWithServer:(NSString *)authorizationServer
+              requestData:(NSDictionary *)request_data
+          handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
+        additionalHeaders:(NSDictionary *)additionalHeaders
+        returnRawResponse:(BOOL)returnRawResponse
+             isGetRequest:(BOOL)isGetRequest
+               completion:( void (^)(NSDictionary *) )completionBlock
+{
     [self ensureRequest];
-    NSString* endPoint = _context.authority;
+    NSString* endPoint = authorizationServer;
     
-    if(!isHandlingPKeyAuthChallenge){
+    if (!isHandlingPKeyAuthChallenge && !isGetRequest)
+	{
         endPoint = [_context.authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
+    }
+    
+    if (isGetRequest)
+    {
+        endPoint = [NSString stringWithFormat:@"%@?%@", endPoint, [request_data adURLFormEncode]];
     }
     
     ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
                                                    correlationId:_correlationId];
     
-    webRequest.method = HTTPPost;
+    if(isGetRequest)
+    {
+        webRequest.method = HTTPGet;
+    }
+    else
+    {
+        webRequest.method = HTTPPost;
+        webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
+    }
+    
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
@@ -101,7 +135,14 @@
         }
     }
     
-    AD_LOG_VERBOSE_F(@"Post request", @"Sending POST request to %@ with client-request-id %@", endPoint, [_correlationId UUIDString]);
+    if (isGetRequest)
+    {
+        AD_LOG_VERBOSE_F(@"Get request", @"Sending GET request to %@ with client-request-id %@", endPoint, [_correlationId UUIDString]);
+    }
+    else
+    {
+        AD_LOG_VERBOSE_F(@"Post request", @"Sending POST request to %@ with client-request-id %@", endPoint, [_correlationId UUIDString]);
+    }
     
     webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
     [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[_correlationId UUIDString] requestHeader:webRequest.headers];
@@ -158,7 +199,21 @@
                         if (jsonError)
                         {
                             // Unrecognized JSON response
-                            NSString* bodyStr = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
+                            // We're often seeing the JSON parser being asked to parse whole HTML pages.
+                            // Logging out the whole thing is unhelpful as it contains no useful info.
+                            // If the body is > 1 KB then it's a pretty safe bet that it contains more
+                            // noise then would be helpful
+                            NSString* bodyStr = nil;
+                            
+                            if ([webResponse.body length] < 1024)
+                            {
+                                bodyStr = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
+                            }
+                            else
+                            {
+                                bodyStr = [[NSString alloc] initWithFormat:@"large response, probably HTML, <%lu bytes>", (unsigned long)[webResponse.body length]];
+                            }
+                            
                             AD_LOG_ERROR_F(@"JSON deserialization", jsonError.code, @"Error: %@. Body text: '%@'. HTTPS Code: %ld. Response correlation id: %@", jsonError.description, bodyStr, (long)webResponse.statusCode, responseCorrelationId);
                             adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
                         }
@@ -312,34 +367,36 @@ static volatile int sDialogInProgress = 0;
     return startUrl;
 }
 
+- (void)launchWebView:(NSString*)startUrl
+      completionBlock:(void (^)(ADAuthenticationError*, NSURL*))completionBlock
+{
+    [[ADAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
+                                               end:[NSURL URLWithString:_redirectUri]
+                            refreshTokenCredential:_refreshTokenCredential
+                                  parentController:_context.parentController
+                                           webView:_context.webView
+                                        fullScreen:[ADAuthenticationSettings sharedInstance].enableFullScreen
+                                     correlationId:_correlationId
+                                        completion:completionBlock];
+}
+
 //Requests an OAuth2 code to be used for obtaining a token:
 - (void)requestCode:(ADAuthorizationCodeCallback)completionBlock
-{
-    [self requestCodeWithRefreshTokenCredential:nil completionBlock:completionBlock];
-
-}
-//Requests an OAuth2 code to be used for obtaining a token:
-- (void)requestCodeWithRefreshTokenCredential:(NSString*)refreshTokenCredential
-                              completionBlock:(ADAuthorizationCodeCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
     [self ensureRequest];
     
     AD_LOG_VERBOSE_F(@"Requesting authorization code.", @"Requesting authorization code for resource: %@", _resource);
-    if (!_silent && ![self takeExclusionLockWithCallback:completionBlock])
+    if (![self takeExclusionLockWithCallback:completionBlock])
     {
         return;
     }
     
-    ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
     NSString* startUrl = [self generateQueryStringForRequestType:OAUTH2_CODE];
     
     void(^requestCompletion)(ADAuthenticationError *error, NSURL *end) = ^void(ADAuthenticationError *error, NSURL *end)
     {
-         if (!_silent)
-         {
-             [self releaseExclusionLock]; // Allow other operations that use the UI for credentials.
-         }
+        [self releaseExclusionLock]; // Allow other operations that use the UI for credentials.
          
          NSString* code = nil;
          if (!error)
@@ -388,16 +445,12 @@ static volatile int sDialogInProgress = 0;
          completionBlock(code, error);
      };
     
-    if (!_silent)
+    // If this request doesn't allow us to attempt to grab a code silently (using
+    // a potential SSO cookie) then jump straight to the web view.
+    if (!_allowSilent)
     {
-        [[ADAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
-                                                   end:[NSURL URLWithString:_redirectUri]
-                                refreshTokenCredential:refreshTokenCredential
-                                      parentController:_context.parentController
-                                               webView:_context.webView
-                                            fullScreen:settings.enableFullScreen
-                                         correlationId:_correlationId
-                                            completion:requestCompletion];
+        [self launchWebView:startUrl
+            completionBlock:requestCompletion];
     }
     else
     {
@@ -406,7 +459,8 @@ static volatile int sDialogInProgress = 0;
                        _clientId, OAUTH2_CLIENT_ID,
                        _redirectUri, OAUTH2_REDIRECT_URI,
                        _resource, OAUTH2_RESOURCE,
-                       OAUTH2_CODE, OAUTH2_RESPONSE_TYPE, nil];
+                       OAUTH2_CODE, OAUTH2_RESPONSE_TYPE,
+					   @"1", @"nux", nil];
         
         if (_scope)
         {
@@ -417,6 +471,8 @@ static volatile int sDialogInProgress = 0;
                     requestData:requestData
                 handledPkeyAuth:NO
               additionalHeaders:nil
+              returnRawResponse:NO
+				   isGetRequest:YES
                      completion:^(NSDictionary * parameters)
          {
              
@@ -427,6 +483,15 @@ static volatile int sDialogInProgress = 0;
              endURL = [parameters objectForKey:@"url"];
              if (!endURL)
              {
+                 // If the request was not silent only then launch the webview
+                 if (!_silent)
+                 {
+                     [self launchWebView:startUrl
+                         completionBlock:requestCompletion];
+                     return;
+                 }
+                 
+                 // Otherwise error out
                  error = [ADAuthenticationContext errorFromDictionary:parameters errorCode:AD_ERROR_AUTHENTICATION];
              }
              
@@ -450,7 +515,8 @@ static volatile int sDialogInProgress = 0;
         NSArray* pair = [headerPairs[i] componentsSeparatedByString:@"="];
         [headerKeyValuePair setValue:pair[1] forKey:[pair[0] adTrimmedString]];
     }
-    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer challengeData:headerKeyValuePair challengeType:AD_THUMBPRINT];
+    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer
+                                                        challengeData:headerKeyValuePair];
     [headerKeyValuePair removeAllObjects];
     [headerKeyValuePair setObject:authHeader forKey:@"Authorization"];
     

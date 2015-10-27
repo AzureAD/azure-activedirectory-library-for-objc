@@ -31,15 +31,10 @@
 
 + (BOOL)canUseBroker
 {
-#if BROKER_ENABLED
     return [[ADAuthenticationSettings sharedInstance] credentialsType] == AD_CREDENTIALS_AUTO &&
     [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", brokerScheme]]];
-#else // !BROKER_ENABLED
-    return NO;
-#endif // BROKER_ENABLED
 }
 
-#if BROKER_ENABLED
 + (BOOL)respondsToUrl:(NSString*)url
 {
     BOOL schemeIsInPlist = NO; // find out if the sceme is in the plist file.
@@ -89,17 +84,26 @@
         
         NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
         NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
+        NSString* brokerProtocolVer = [queryParamsMap valueForKey:BROKER_PROTOCOL_VERSION];
+        NSInteger protocolVersion = 1;
+        
+        if (brokerProtocolVer)
+        {
+            protocolVersion = [brokerProtocolVer integerValue];
+        }
         
         //decrypt response first
-        ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+        ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
         ADAuthenticationError* error;
         NSData *encryptedResponse = [NSString Base64DecodeData:encryptedBase64Response ];
-        NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse error:&error];
+        NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
+                                                        version:protocolVersion
+                                                          error:&error];
         NSString* decryptedString = nil;
         
         if(!error)
         {
-            decryptedString =[[NSString alloc] initWithData:decrypted encoding:NSASCIIStringEncoding];
+            decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
             //now compute the hash on the unencrypted data
             if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES]]){
                 //create response from the decrypted payload
@@ -160,7 +164,7 @@
     }
     
     AD_LOG_INFO(@"Invoking broker for authentication", nil);
-    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
@@ -180,6 +184,7 @@
                                       @"correlation_id": _correlationId,
                                       @"broker_key": base64UrlKey,
                                       @"client_version": adalVersion,
+									  BROKER_PROTOCOL_VERSION : @"2",
                                       @"extra_qp": _queryParams ? _queryParams : @"",
                                       };
     
@@ -218,7 +223,7 @@
         return;
     }
     
-    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
@@ -265,6 +270,5 @@
         });
     }
 }
-#endif // BROKER_ENABLED
 
 @end

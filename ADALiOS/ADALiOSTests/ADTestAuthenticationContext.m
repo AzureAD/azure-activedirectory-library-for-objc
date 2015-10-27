@@ -29,6 +29,7 @@
           handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
         additionalHeaders:(NSDictionary *)additionalHeaders
         returnRawResponse:(BOOL)returnRawResponse
+             isGetRequest:(BOOL)isGetRequest
                completion:( void (^)(NSDictionary *) )completionBlock;
 
 @end
@@ -175,6 +176,7 @@
           handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
         additionalHeaders:(NSDictionary *)additionalHeaders
         returnRawResponse:(BOOL)returnRawResponse
+             isGetRequest:(BOOL)isGetRequest
                completion:( void (^)(NSDictionary *) )completionBlock
 {
     [(ADTestAuthenticationContext*)_context requestWithServer:authorizationServer

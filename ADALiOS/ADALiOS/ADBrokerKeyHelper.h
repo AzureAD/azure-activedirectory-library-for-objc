@@ -31,13 +31,19 @@
 @property (nonatomic, retain) NSData * symmetricTag;
 @property (nonatomic, retain) NSData * symmetricKeyRef;
 
--(id) initHelper;
+- (id)init;
 
--(void) createBrokerKey: (ADAuthenticationError* __autoreleasing*) error;
-
--(NSData*) getBrokerKey: (ADAuthenticationError* __autoreleasing*) error;
-
--(NSData*) decryptBrokerResponse: (NSData*) response
-                                 error:(ADAuthenticationError* __autoreleasing*) error;
+- (void)createBrokerKey:(ADAuthenticationError* __autoreleasing*)error;
+- (void)createBrokerKeyWithBytes:(NSData*)bytes
+                           error:(ADAuthenticationError* __autoreleasing*)error;
+- (void)deleteSymmetricKey: (ADAuthenticationError* __autoreleasing*) error;
+- (NSData*)getBrokerKey:(ADAuthenticationError* __autoreleasing*)error;
+- (NSData*)decryptBrokerResponse:(NSData*)response
+                         version:(NSInteger)version
+                           error:(ADAuthenticationError* __autoreleasing*)error;
+- (NSData*)decryptBrokerResponse:(NSData *)response
+                             key:(const void*)key
+                            size:(size_t)size
+                           error:(ADAuthenticationError *__autoreleasing *)error;
 
 @end

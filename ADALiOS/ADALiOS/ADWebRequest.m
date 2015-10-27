@@ -29,8 +29,6 @@
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
 
-static NSOperationQueue *s_queue;
-
 @interface ADWebRequest () <NSURLConnectionDelegate>
 
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response;
@@ -49,13 +47,9 @@ static NSOperationQueue *s_queue;
     NSMutableData       *_responseData;
     NSUUID              *_correlationId;
     
-    void (^_completionHandler)( NSError *, ADWebResponse *);
-}
-
-+ (void)initialize
-{
-    s_queue = [[NSOperationQueue alloc] init];
+    NSOperationQueue    *_operationQueue;
     
+    void (^_completionHandler)( NSError *, ADWebResponse *);
 }
 
 #pragma mark - Properties
@@ -109,6 +103,9 @@ static NSOperationQueue *s_queue;
         
         _completionHandler = nil;
         _correlationId     = correlationId;
+        
+        _operationQueue = [[NSOperationQueue alloc] init];
+        [_operationQueue setMaxConcurrentOperationCount:1];
     }
     
     return self;
@@ -146,8 +143,6 @@ static NSOperationQueue *s_queue;
 
 - (void)send
 {
-    // Add default HTTP Headers to the request: Host
-    [_requestHeaders setValue:[_requestURL adAuthority] forKey:@"Host"];
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
     //Correlation id:
     if (_correlationId)
@@ -175,7 +170,7 @@ static NSOperationQueue *s_queue;
     request.HTTPBody            = _requestData;
     
     _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
-    [_connection setDelegateQueue:s_queue];
+    [_connection setDelegateQueue:_operationQueue];
     [_connection start];
 }
 
