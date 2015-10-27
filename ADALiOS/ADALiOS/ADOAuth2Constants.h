@@ -53,7 +53,7 @@ extern NSString *const OAUTH2_SAML11_BEARER_VALUE;
 extern NSString *const OAUTH2_SAML2_BEARER_VALUE;
 extern NSString *const OAUTH2_ASSERTION;
 
-extern NSString *const BROKER_MAX_VERSION;
+extern NSString *const BROKER_MAX_PROTOCOL_VERSION;
 extern NSString *const BROKER_MESSAGE_VERSION;
 extern NSString *const BROKER_RESPONSE_KEY;
 extern NSString *const BROKER_HASH_KEY;

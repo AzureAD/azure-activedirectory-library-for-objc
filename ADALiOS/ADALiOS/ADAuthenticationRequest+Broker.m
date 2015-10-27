@@ -184,7 +184,7 @@
                                       @"correlation_id": _correlationId,
                                       @"broker_key": base64UrlKey,
                                       @"client_version": adalVersion,
-									  BROKER_MAX_VERSION : @"2",
+									  BROKER_MAX_PROTOCOL_VERSION : @"2",
                                       @"extra_qp": _queryParams ? _queryParams : @"",
                                       };
     
