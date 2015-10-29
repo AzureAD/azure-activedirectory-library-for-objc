@@ -10,8 +10,6 @@ Apple has released iOS 9 which includes support for App Transport Security (ATS)
 
 
 [![Build Status](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc.png)](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc)
-[![Coverage Status](https://coveralls.io/repos/MSOpenTech/azure-activedirectory-library-for-ios/badge.png?branch=master)](https://coveralls.io/r/MSOpenTech/azure-activedirectory-library-for-ios?branch=master)
-
 The ADAL SDK for iOS gives you the ability to add support for Work Accounts to your application with just a few lines of additional code. This SDK gives your application the full functionality of Microsoft Azure AD, including industry standard protocol support for OAuth2, Web API integration with user level consent, and two factor authentication support. Best of all, it’s FOSS (Free and Open Source Software) so that you can participate in the development process as we build these libraries. 
 
 ## Contribution History
