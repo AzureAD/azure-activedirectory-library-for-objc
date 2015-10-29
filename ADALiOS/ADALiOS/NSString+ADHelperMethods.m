@@ -415,6 +415,16 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return toReturn;
 }
 
+
+// Decodes the parameters that come in the Authorization header. We expect them in the following
+// format:
+//
+// <key>="<value>", key="<value>", key="<value>"
+// i.e. version="1.0",CertAuthorities="OU=MyOrganization,CN=MyThingy,DN=windows,DN=net,Context="context!"
+//
+// This parser is lenient on whitespace, and on the presence of enclosing quotation marks. It also
+// will allow commented out quotation marks
+
 - (NSDictionary*)authHeaderParams
 {
     NSMutableDictionary* params = [NSMutableDictionary new];
