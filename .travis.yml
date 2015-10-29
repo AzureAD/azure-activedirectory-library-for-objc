@@ -16,5 +16,7 @@ script:
   - xcodebuild -workspace ADALiOS.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty -c
 
 after_success:
-# Slather sends codecov results to coveralls
+# Run slather once to have it print out the results in the travis log
+  - slather coverage -s ADALiOS/ADALiOS.xcodeproj
+# And again to send it to coveralls
   - slather
