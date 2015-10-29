@@ -292,4 +292,38 @@
     XCTAssertFalse([NSString adSame:nil toString:text]);
 }
 
+- (void)testAuthParams
+{
+    NSString* pkeyAuthString = @"nonce=\"I am a nonce!\", CertAuthorities=\"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net\", Version=\"1.0\", Context=\"Look at me! I'm a context!\"";
+    
+    NSDictionary* expected = @{ @"nonce" : @"I am a nonce!",
+                                @"CertAuthorities" : @"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net",
+                                @"Version" : @"1.0",
+                                @"Context" : @"Look at me! I'm a context!"
+                                };
+    
+    NSDictionary* authHeaders = [pkeyAuthString authHeaderParams];
+    
+    XCTAssertEqualObjects(expected, authHeaders);
+}
+
+- (void)testAuthParamErrors
+{
+    NSString* unterminatedString = @"key1=\"value1\",key2=\"value2";
+    XCTAssertNil([unterminatedString authHeaderParams]);
+    
+    NSString* tooManyCommas = @"key1=\"value1\",,,,,,,key2=\"value2\"";
+    XCTAssertNil([tooManyCommas authHeaderParams]);
+    
+    NSString* nothingButCommas = @",,,,,,,,,,,,";
+    XCTAssertNil([nothingButCommas authHeaderParams]);
+    
+    NSString* emptyString = @"";
+    // In this case we expect an empty dictionary back
+    XCTAssertEqualObjects([emptyString authHeaderParams], @{});
+    
+    NSString* noComma = @"key1=\"value1\"key2=\"value2\"";
+    XCTAssertNil([noComma authHeaderParams]);
+}
+
 @end

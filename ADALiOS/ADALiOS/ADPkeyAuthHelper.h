@@ -27,10 +27,10 @@ typedef enum
 
 @interface ADPkeyAuthHelper : NSObject
 
-+ (NSString*)createDeviceAuthResponse:(NSString*)authorizationServer
-                         challengeData:(NSDictionary*)challengeData;
++ (nonnull NSString*)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
+                                challengeData:(nullable NSDictionary*)challengeData;
 
-+ (NSString*)computeThumbprint:(NSData*)data
-                        isSha2:(BOOL)isSha2;
++ (nonnull NSString*)computeThumbprint:(nonnull NSData*)data
+                                isSha2:(BOOL)isSha2;
 
 @end

@@ -415,4 +415,126 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return toReturn;
 }
 
+- (NSDictionary*)authHeaderParams
+{
+    NSMutableDictionary* params = [NSMutableDictionary new];
+    
+    NSUInteger strLength = [self length];
+    NSRange currentRange = NSMakeRange(0, strLength);
+    NSCharacterSet* whiteChars = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+    NSCharacterSet* alphaNum = [NSCharacterSet alphanumericCharacterSet];
+    
+    while (currentRange.location < strLength)
+    {
+        // Eat up any whitepace at the beginning
+        while (currentRange.location < strLength && [whiteChars characterIsMember:[self characterAtIndex:currentRange.location]])
+        {
+            ++currentRange.location;
+            --currentRange.length;
+        }
+        
+        if (currentRange.location == strLength)
+        {
+            return params;
+        }
+        
+        if (![alphaNum characterIsMember:[self characterAtIndex:currentRange.location]])
+        {
+            // malformed string
+            return nil;
+        }
+        
+        // Find the key
+        NSUInteger found = [self rangeOfString:@"=" options:0 range:currentRange].location;
+        // If there are no keys left then exit out
+        if (found == NSNotFound)
+        {
+            // If there still is string left that means it's malformed
+            if (currentRange.length > 0)
+            {
+                return nil;
+            }
+            
+            // Otherwise we're at the end, return params
+            return params;
+        }
+        NSUInteger length = found - currentRange.location;
+        NSString* key = [self substringWithRange:NSMakeRange(currentRange.location, length)];
+        
+        // don't want the '='
+        ++length;
+        currentRange.location += length;
+        currentRange.length -= length;
+        
+        NSString* value = nil;
+        
+
+        if ([self characterAtIndex:currentRange.location] == '"')
+        {
+            ++currentRange.location;
+            --currentRange.length;
+            
+            found = currentRange.location;
+            
+            do {
+                NSRange range = NSMakeRange(found, strLength - found);
+                found = [self rangeOfString:@"\"" options:0 range:range].location;
+            } while (found != NSNotFound && [self characterAtIndex:found-1] == '\\');
+            
+            // If we couldn't find a matching closing quote then we have a malformed string and return NULL
+            if (found == NSNotFound)
+            {
+                return nil;
+            }
+            
+            length = found - currentRange.location;
+            value = [self substringWithRange:NSMakeRange(currentRange.location, length)];
+            
+            ++length;
+            currentRange.location += length;
+            currentRange.length -= length;
+            
+            // find the next comma
+            found = [self rangeOfString:@"," options:0 range:currentRange].location;
+            if (found != NSNotFound)
+            {
+                length = found - currentRange.location;
+            }
+            
+        }
+        else
+        {
+            found = [self rangeOfString:@"," options:0 range:currentRange].location;
+            // If we didn't find the comma that means we're at the end of the list
+            if (found == NSNotFound)
+            {
+                length = currentRange.length;
+            }
+            else
+            {
+                length = found - currentRange.location;
+            }
+            
+            value = [self substringWithRange:NSMakeRange(currentRange.location, length)];
+        }
+        
+        NSString* existingValue = [params valueForKey:key];
+        if (existingValue)
+        {
+            [params setValue:[existingValue stringByAppendingFormat:@".%@", value] forKey:key];
+        }
+        else
+        {
+            [params setValue:value forKey:key];
+        }
+        
+        ++length;
+        currentRange.location += length;
+        currentRange.length -= length;
+    }
+    
+    
+    return params;
+}
+
 @end
