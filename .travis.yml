@@ -1,7 +1,10 @@
 language: objective-c
 osx_image: xcode7.1
 
-before_install: gem install slather xcpretty -N
+# Set up our rubygems (slather and xcpretty, namely)
+before_install: rvm use $RVM_RUBY_VERSION
+install: bundle install --without=documentation --path ../travis_bundle_dir
+
 script: 
 # Start by nuking any lingering codecov files. These can cause issues when the xcode version changes
   - find . -name "*.gcda" -print0 | xargs -0 rm
