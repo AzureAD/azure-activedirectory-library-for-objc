@@ -53,7 +53,9 @@ NSString *const OAUTH2_ASSERTION = @"assertion";
 NSString *const OAUTH2_SAML11_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml1_1-bearer";
 NSString *const OAUTH2_SAML2_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml2-bearer";
 
-NSString *const BROKER_PROTOCOL_VERSION         = @"broker_protocol_ver";
+NSString *const BROKER_MAX_PROTOCOL_VERSION              = @"max_protocol_ver";
+
+NSString *const BROKER_MESSAGE_VERSION          = @"msg_protocol_ver";
 NSString *const BROKER_RESPONSE_KEY             = @"response";
 NSString *const BROKER_HASH_KEY                 = @"hash";
 

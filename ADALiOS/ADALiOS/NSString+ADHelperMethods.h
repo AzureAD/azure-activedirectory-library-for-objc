@@ -80,4 +80,6 @@
 
 - (NSString*) adComputeSHA256;
 
+- (NSDictionary*)authHeaderParams;
+
 @end

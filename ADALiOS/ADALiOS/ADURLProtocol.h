@@ -18,8 +18,28 @@
 
 #pragma once
 
+@class ADAuthenticationError;
+@class ADURLProtocol;
+
+@protocol ADAuthMethodHandler
+
++ (BOOL)handleChallenge:(NSURLAuthenticationChallenge*)challenge
+                request:(NSURLRequest*)request
+               protocol:(ADURLProtocol*)protocol;
++ (void)resetHandler;
+
+@end
+
 //Intercepts HTTPS protocol for the application in order to allow
 //NTLM with client-authentication. The class is not thread-safe.
 @interface ADURLProtocol : NSURLProtocol <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
+
++ (void)registerHandler:(Class<ADAuthMethodHandler>)handler
+             authMethod:(NSString*)authMethod;
+
++ (BOOL)registerProtocol;
++ (void)unregisterProtocol;
+
+- (void)startLoading:(NSURL*)url;
 
 @end
