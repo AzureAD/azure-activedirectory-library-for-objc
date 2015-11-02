@@ -147,16 +147,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     //XCTAssertEqual(logCallback, [ADLogger getLogCallBack], "Setting of logCallBack failed.");
 }
 
-#ifdef AD_CODE_COVERAGE
-extern void __gcov_flush(void);
-#endif
--(void) adFlushCodeCoverage
-{
-#ifdef AD_CODE_COVERAGE
-    __gcov_flush();
-#endif
-}
-
 /*! Clears logging and other infrastructure after a test */
 -(void) adTestEnd
 {
@@ -170,7 +160,6 @@ extern void __gcov_flush(void);
         [sErrorCodesLog appendString:sTestEnd];
     }
     XCTAssertNil([ADLogger getLogCallBack], "Clearing of logCallBack failed.");
-    [self adFlushCodeCoverage];
 }
 
 //Parses backwards the log to find the test begin prefix. Returns the beginning

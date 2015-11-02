@@ -1,0 +1,5 @@
+# .slather.yml
+
+coverage_service: coveralls
+xcodeproj: ADALiOS/ADALiOS.xcodeproj
+ignore: ADALiOS/ADALiOSTests/*
