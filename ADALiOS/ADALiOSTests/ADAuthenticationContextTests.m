@@ -153,55 +153,50 @@ const int sAsyncContextTimeout = 10;
 {
     //Authority only:
     ADAuthenticationError* error;
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     //Authority & validate:
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:YES error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:YES error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:NO error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:NO error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     //Authority and cache store:
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil tokenCacheStore:nil error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority tokenCacheStore:nil error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
                                                            tokenCacheStore:mDefaultTokenCache
                                                                      error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     //Authority, validate and cache store:
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
                                                          validateAuthority:NO //Non-default value.
                                                            tokenCacheStore:mDefaultTokenCache
                                                                      error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
                                                          validateAuthority:NO
                                                            tokenCacheStore:nil
                                                                      error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
                                                          validateAuthority:YES //Non-default value.
                                                            tokenCacheStore:mDefaultTokenCache
                                                                      error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
                                                          validateAuthority:YES
                                                            tokenCacheStore:nil
                                                                      error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
-                                                         validateAuthority:YES
-                                                           tokenCacheStore:nil
-                                                                     error:&error];
-    [self adValidateFactoryForInvalidArgument:@"authority" error:error];
 }
 
 /* Tests all of the static creators by passing authority as nil. Appropriate error should be returned in all cases. */
