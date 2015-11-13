@@ -379,6 +379,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     
     [request setPromptBehavior:promptBehavior];
     [request setUserIdentifier:userId];
+    [request setExtraQueryParameters:queryParams];
     [request acquireToken:completionBlock];
 }
 
