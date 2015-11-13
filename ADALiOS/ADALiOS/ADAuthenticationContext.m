@@ -77,6 +77,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                                                                   queue:nil
                                                              usingBlock:^(NSNotification* notification)
                 {
+                    (void)notification;
                     // We don't want to swizzle multiple times so remove the observer
                     [[NSNotificationCenter defaultCenter] removeObserver:observer name:UIApplicationDidFinishLaunchingNotification object:nil];
                     
@@ -248,6 +249,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 {
     API_ENTRY;
     REQUEST_WITH_REDIRECT_STRING(nil, clientId, resource);
+    [request setUserId:userId];
     
     [request acquireTokenForAssertion:assertion
                         assertionType:assertionType

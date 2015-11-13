@@ -27,7 +27,4 @@
 
 +(NSString*) decryptJWT:(NSData*) jwtData
           decrpytionKey:(SecKeyRef) decrpytionKey;
-
-+(NSDictionary*) deserializeJWTResponse:(NSString*)jwtResponse;
-
 @end

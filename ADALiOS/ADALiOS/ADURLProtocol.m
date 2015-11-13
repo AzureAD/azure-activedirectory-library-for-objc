@@ -133,6 +133,8 @@ static NSMutableDictionary* s_handlers = nil;
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
+    (void)connection;
+    
     AD_LOG_VERBOSE_F(sLog, @"connection:didFaileWithError: %@", error);
     [self.client URLProtocol:self didFailWithError:error];
 }
@@ -165,6 +167,8 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 
 - (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response
 {
+    (void)connection;
+    
     AD_LOG_VERBOSE_F(sLog, @"HTTPProtocol::connection:willSendRequest:. Redirect response: %@. New request:%@", response.URL, request.URL);
     //Ensure that the webview gets the redirect notifications:
     NSMutableURLRequest* mutableRequest = [request mutableCopy];
@@ -186,16 +190,22 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
+    (void)connection;
+    
     [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
+    (void)connection;
+    
     [self.client URLProtocol:self didLoadData:data];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
+    (void)connection;
+    
     [self.client URLProtocolDidFinishLoading:self];
     _connection = nil;
 }
