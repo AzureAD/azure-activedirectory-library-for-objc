@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADJwtHelper.h"
-#import "ADLogger.h"
+#import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "NSString+ADHelperMethods.h"
 #import <CommonCrypto/CommonDigest.h>

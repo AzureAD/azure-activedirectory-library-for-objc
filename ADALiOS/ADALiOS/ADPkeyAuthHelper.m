@@ -22,7 +22,7 @@
 #import "ADRegistrationInformation.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADWorkPlaceJoin.h"
-#import "ADLogger.h"
+#import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "ADJwtHelper.h"
 

@@ -23,7 +23,7 @@
 #import "ADKeyChainHelper.h"
 #import <CommonCrypto/CommonCryptor.h>
 #import <Security/Security.h>
-#import "ADLogger.h"
+#import "ADLogger+Internal.h"
 
 @implementation ADBrokerKeyHelper
 

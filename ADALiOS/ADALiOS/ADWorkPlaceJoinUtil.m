@@ -19,7 +19,7 @@
 #import "ADWorkPlaceJoinUtil.h"
 #import "ADRegistrationInformation.h"
 #import "ADWorkPlaceJoinConstants.h"
-#import "ADLogger.h"
+#import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 
 @implementation ADWorkPlaceJoinUtil

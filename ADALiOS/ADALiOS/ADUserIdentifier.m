@@ -18,7 +18,7 @@
 
 
 #import "ADUserIdentifier.h"
-#import "ADLogger.h"
+#import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "ADUserInformation.h"
 
