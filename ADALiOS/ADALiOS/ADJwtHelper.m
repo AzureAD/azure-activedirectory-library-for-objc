@@ -61,12 +61,6 @@
 }
 
 
-+(NSDictionary*) deserializeJWTResponse:(NSString*)jwtResponse
-{
-    return nil;
-}
-
-
 +(NSData *) sign: (SecKeyRef) privateKey
             data:(NSData *) plainData
 {
