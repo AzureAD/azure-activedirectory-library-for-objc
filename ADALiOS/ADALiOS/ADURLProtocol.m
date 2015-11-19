@@ -39,6 +39,8 @@ static NSMutableDictionary* s_handlers = nil;
         return;
     }
     
+    authMethod = [authMethod lowercaseString];
+    
     @synchronized(self)
     {
         static dispatch_once_t once;
@@ -149,7 +151,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     {
         Class<ADAuthMethodHandler> handler = [s_handlers objectForKey:authMethod];
         handled = [handler handleChallenge:challenge
-                                   request:[connection currentRequest]
+                                connection:connection
                                   protocol:self];
         
     }

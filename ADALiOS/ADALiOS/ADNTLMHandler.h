@@ -26,8 +26,8 @@
 /* Handles a client authentication NTLM challenge by collecting user credentials. Returns YES,
  if the challenge has been handled. */
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-                request:(NSURLRequest*)request
-               protocol:(ADURLProtocol*)protocol;
+             connection:(NSURLConnection *)connection
+               protocol:(ADURLProtocol *)protocol;
 
 + (BOOL)isChallengeCancelled;
 
