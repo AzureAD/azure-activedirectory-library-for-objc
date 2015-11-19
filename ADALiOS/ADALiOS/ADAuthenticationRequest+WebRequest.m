@@ -405,13 +405,21 @@ static volatile int sDialogInProgress = 0;
              if ([[[end scheme] lowercaseString] isEqualToString:@"msauth"]) {
 #if AD_BROKER
                  
-                 NSDictionary* userInfo = @{
-                                            @"username": [[NSDictionary adURLFormDecode:[end query]] valueForKey:@"username"],
-                                            };
-                 NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
-                                                    code:AD_ERROR_WPJ_REQUIRED
-                                                userInfo:userInfo];
-                 error = [ADAuthenticationError errorFromNSError:err errorDetails:@"work place join is required"];
+                 if ([[end host] isEqualToString:@"microsoft.aad.brokerplugin"])
+                 {
+                     NSDictionary* queryParams = [end adQueryParameters];
+                     code = [queryParams objectForKey:OAUTH2_CODE];
+                 }
+                 else
+                 {
+                     NSDictionary* userInfo = @{
+                                                @"username": [[NSDictionary adURLFormDecode:[end query]] valueForKey:@"username"],
+                                                };
+                     NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
+                                                        code:AD_ERROR_WPJ_REQUIRED
+                                                    userInfo:userInfo];
+                     error = [ADAuthenticationError errorFromNSError:err errorDetails:@"work place join is required"];
+                 }
 #else
                  code = end.absoluteString;
 #endif
