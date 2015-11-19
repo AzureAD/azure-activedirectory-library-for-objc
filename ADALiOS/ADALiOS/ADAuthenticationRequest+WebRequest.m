@@ -32,7 +32,14 @@
 
 #import <libkern/OSAtomic.h>
 
+static ADAuthenticationRequest* s_modalRequest = nil;
+
 @implementation ADAuthenticationRequest (WebRequest)
+
++ (ADAuthenticationRequest*)currentModalRequest
+{
+    return s_modalRequest;
+}
 
 - (void)executeRequest:(NSString *)authorizationServer
            requestData:(NSDictionary *)request_data
@@ -285,6 +292,8 @@ static volatile int sDialogInProgress = 0;
         completionBlock(nil, error);
         return NO;
     }
+    
+    s_modalRequest = self;
     return YES;
 }
 
@@ -295,6 +304,8 @@ static volatile int sDialogInProgress = 0;
     {
         AD_LOG_WARN(@"UI Locking", @"The UI lock has already been released.");
     }
+    
+    s_modalRequest = nil;
 }
 
 //Ensures that the state comes back in the response:

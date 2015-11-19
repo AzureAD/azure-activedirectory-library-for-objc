@@ -18,6 +18,10 @@
 
 @interface ADAuthenticationRequest (WebRequest)
 
+// If ADAL is curently in the middle of a modal Authentication request (ie. a webview is being displayed)
+// this method will return the matching request
++ (ADAuthenticationRequest*)currentModalRequest;
+
 - (void)executeRequest:(NSString *)authorizationServer
            requestData:(NSDictionary *)request_data
        handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
