@@ -280,7 +280,7 @@ static volatile int sDialogInProgress = 0;
 //Ensures that a single UI login dialog can be requested at a time.
 //Returns true if successfully acquired the lock. If not, calls the callback with
 //the error and returns false.
--(BOOL) takeExclusionLockWithCallback: (ADAuthorizationCodeCallback) completionBlock
+- (BOOL)takeExclusionLockWithCallback: (ADAuthorizationCodeCallback) completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
     if ( !OSAtomicCompareAndSwapInt( 0, 1, &sDialogInProgress) )
@@ -416,7 +416,8 @@ static volatile int sDialogInProgress = 0;
              if ([[[end scheme] lowercaseString] isEqualToString:@"msauth"]) {
 #if AD_BROKER
                  
-                 if ([[end host] isEqualToString:@"microsoft.aad.brokerplugin"])
+                 NSString* host = [end host];
+                 if ([host isEqualToString:@"microsoft.aad.brokerplugin"] || [host isEqualToString:@"c"])
                  {
                      NSDictionary* queryParams = [end adQueryParameters];
                      code = [queryParams objectForKey:OAUTH2_CODE];
