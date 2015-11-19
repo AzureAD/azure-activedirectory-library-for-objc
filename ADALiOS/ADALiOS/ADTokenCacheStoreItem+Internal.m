@@ -21,7 +21,7 @@
 #import "ADAuthenticationError.h"
 #import "ADOAuth2Constants.h"
 #import "ADUserInformation.h"
-#import "ADLogger.h"
+#import "ADLogger+Internal.h"
 #import "NSString+ADHelperMethods.h"
 
 @implementation ADTokenCacheStoreItem (Internal)

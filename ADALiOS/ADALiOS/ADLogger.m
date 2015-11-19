@@ -18,53 +18,80 @@
 
 #import "ADALiOS.h"
 #import "ADOAuth2Constants.h"
+#import "ADLogger+Internal.h"
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <mach/machine.h>
 #include <CommonCrypto/CommonDigest.h>
 
-ADAL_LOG_LEVEL sLogLevel = ADAL_LOG_LEVEL_ERROR;
-LogCallback sLogCallback;
-BOOL sNSLogging = YES;
-NSUUID* requestCorrelationId;
+static ADAL_LOG_LEVEL s_LogLevel = ADAL_LOG_LEVEL_ERROR;
+static LogCallback s_LogCallback = nil;
+static BOOL s_NSLogging = YES;
+static NSUUID* s_requestCorrelationId;
 
 @implementation ADLogger
 
-+(void) setLevel: (ADAL_LOG_LEVEL)logLevel
++ (void)setLevel: (ADAL_LOG_LEVEL)logLevel
 {
-    sLogLevel = logLevel;
+    s_LogLevel = logLevel;
 }
 
-+(ADAL_LOG_LEVEL) getLevel
++ (ADAL_LOG_LEVEL)getLevel
 {
-    return sLogLevel;
+    return s_LogLevel;
 }
 
-+(void) setLogCallBack: (LogCallback) callback
++ (void)setLogCallBack:(LogCallback)callback
 {
     @synchronized(self)//Avoid changing to null while attempting to call it.
     {
-        sLogCallback = [callback copy];
+        s_LogCallback = [callback copy];
     }
 }
 
-+(LogCallback) getLogCallBack
+
++ (void)setNSLogging:(BOOL)nslogging
 {
-    return sLogCallback;
+    s_NSLogging = nslogging;
 }
 
-
-+(void) setNSLogging: (BOOL) nslogging
++ (BOOL)getNSLogging
 {
-    sNSLogging = nslogging;
+    return s_NSLogging;
 }
 
-+(BOOL) getNSLogging
++ (void)setCorrelationId:(NSUUID*)correlationId
 {
-    return sNSLogging;
+    @synchronized(self)
+    {
+        s_requestCorrelationId = correlationId;
+    }
 }
 
-+(NSString*) formatStringPerLevel: (ADAL_LOG_LEVEL) level
++ (NSUUID*)getCorrelationId
+{
+    @synchronized(self)
+    {
+        if (s_requestCorrelationId == nil)
+            s_requestCorrelationId = [NSUUID UUID];
+        
+        return s_requestCorrelationId;
+    }
+}
+
+@end
+
+@implementation ADLogger (Internal)
+
++ (LogCallback)getLogCallBack
+{
+    @synchronized(self)
+    {
+        return s_LogCallback;
+    }
+}
+
++ (NSString*)formatStringPerLevel:(ADAL_LOG_LEVEL)level
 {
     {//Compile time check that all of the levels are covered below.
     int add_new_types_to_the_switch_below_to_fix_this_error[ADAL_LOG_LEVEL_VERBOSE - ADAL_LOG_LAST];
@@ -107,22 +134,22 @@ NSUUID* requestCorrelationId;
     if (!message)
         return;
     
-    if (logLevel <= sLogLevel)
+    @synchronized(self)//Guard against thread-unsafe callback and modification of sLogCallback after the check
     {
-        NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
-        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
-        [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-        if (sNSLogging)
+        if (logLevel <= s_LogLevel)
         {
-            //NSLog is documented as thread-safe:
-            NSLog([self formatStringPerLevel:logLevel], [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message, info, errorCode);
-        }
-        
-        @synchronized(self)//Guard against thread-unsafe callback and modification of sLogCallback after the check
-        {
-            if (sLogCallback)
+            NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
+            [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+            [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+            if (s_NSLogging)
             {
-                sLogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@ - %@] %@", [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message], info, errorCode);
+                //NSLog is documented as thread-safe:
+                NSLog([self formatStringPerLevel:logLevel], [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message, info, errorCode);
+            }
+            
+            if (s_LogCallback)
+            {
+                s_LogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@ - %@] %@", [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message], info, errorCode);
             }
         }
     }
@@ -144,7 +171,7 @@ NSUUID* requestCorrelationId;
 //Extracts the CPU information according to the constants defined in
 //machine.h file. The method prints minimal information - only if 32 or
 //64 bit CPU architecture is being used.
-+(NSString*) getCPUInfo
++ (NSString*)getCPUInfo
 {
     size_t structSize;
     cpu_type_t cpuType;
@@ -195,19 +222,6 @@ NSUUID* requestCorrelationId;
         [toReturn appendFormat:@"%02x", hash[i]];
     }
     return toReturn;
-}
-
-+(void) setCorrelationId: (NSUUID*) correlationId
-{
-    requestCorrelationId = correlationId;
-}
-
-+(NSUUID*) getCorrelationId
-{
-    if (requestCorrelationId == nil)
-        requestCorrelationId = [NSUUID UUID];
-    
-    return requestCorrelationId;
 }
 
 +(NSString*) getAdalVersion

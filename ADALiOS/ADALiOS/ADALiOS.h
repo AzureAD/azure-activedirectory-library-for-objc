@@ -29,7 +29,7 @@
 #define ADAL_VERSION_STRING     STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH
 #define ADAL_VERSION_NSSTRING   @"" STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH
 
-#import "ADLogger.h"
+#import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "ADAuthenticationError.h"
 #import "NSString+ADHelperMethods.h"
