@@ -52,4 +52,6 @@
 //Requests an OAuth2 code to be used for obtaining a token:
 - (void)requestCode:(ADAuthorizationCodeCallback)completionBlock;
 
+- (NSString*)generateQueryStringForRequestType:(NSString*)requestType;
+
 @end
