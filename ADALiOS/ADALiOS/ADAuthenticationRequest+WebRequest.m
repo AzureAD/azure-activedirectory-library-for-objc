@@ -417,7 +417,7 @@ static volatile int sDialogInProgress = 0;
 #if AD_BROKER
                  
                  NSString* host = [end host];
-                 if ([host isEqualToString:@"microsoft.aad.brokerplugin"] || [host isEqualToString:@"c"])
+                 if ([host isEqualToString:@"microsoft.aad.brokerplugin"] || [host isEqualToString:@"code"])
                  {
                      NSDictionary* queryParams = [end adQueryParameters];
                      code = [queryParams objectForKey:OAUTH2_CODE];
