@@ -135,6 +135,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
         _authority = extractedAuthority;
         _validateAuthority = bValidate;
         _tokenCacheStore = tokenCache;
+        _credentialsType = AD_CREDENTIALS_AUTO;
     }
     return self;
 }

@@ -203,7 +203,7 @@
 
 #if !AD_BROKER
     //call the broker.
-    if([ADAuthenticationRequest canUseBroker])
+    if([self canUseBroker])
     {
         [self callBroker:completionBlock];
         return;
