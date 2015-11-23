@@ -29,12 +29,6 @@
 
 @implementation ADAuthenticationRequest (Broker)
 
-+ (BOOL)canUseBroker
-{
-    return [[ADAuthenticationSettings sharedInstance] credentialsType] == AD_CREDENTIALS_AUTO &&
-    [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", brokerScheme]]];
-}
-
 + (BOOL)respondsToUrl:(NSString*)url
 {
     BOOL schemeIsInPlist = NO; // find out if the sceme is in the plist file.
@@ -143,6 +137,12 @@
     
     completionBlock(result);
     [ADBrokerNotificationManager sharedInstance].callbackForBroker = nil;
+}
+
+- (BOOL)canUseBroker
+{
+    return _context.credentialsType == AD_CREDENTIALS_AUTO &&
+    [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", brokerScheme]]];
 }
 
 - (void)callBroker:(ADAuthenticationCallback)completionBlock

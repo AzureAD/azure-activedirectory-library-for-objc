@@ -63,7 +63,6 @@ const int sAsyncContextTimeout = 10;
     [self adTestBegin:ADAL_LOG_LEVEL_ERROR];//Majority of the tests rely on errors
     mAuthority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
     mDefaultTokenCache = (ADKeychainTokenCacheStore*)([ADAuthenticationSettings sharedInstance].defaultTokenCacheStore);
-    [ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
     XCTAssertNotNil(mDefaultTokenCache);
     XCTAssertTrue([mDefaultTokenCache isKindOfClass:[ADKeychainTokenCacheStore class]]);
     mRedirectURL = [NSURL URLWithString:@"http://todolistclient/"];
@@ -87,6 +86,8 @@ const int sAsyncContextTimeout = 10;
     [testContext->mExpectedRequest2 setObject:OAUTH2_REFRESH_TOKEN forKey:OAUTH2_GRANT_TYPE];
     [testContext->mExpectedRequest2 setObject:mResource forKey:OAUTH2_RESOURCE];
     [testContext->mExpectedRequest2 setObject:mClientId forKey:OAUTH2_CLIENT_ID];
+    
+    testContext.credentialsType = AD_CREDENTIALS_EMBEDDED;
     
     //Clear the cache between the tests:
     [mDefaultTokenCache removeAllWithError:&error];

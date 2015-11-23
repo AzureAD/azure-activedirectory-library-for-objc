@@ -19,9 +19,9 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 @interface ADAuthenticationRequest (Broker)
 
-+ (BOOL)canUseBroker;
-
 + (void)internalHandleBrokerResponse:(NSURL*)response;
+
+- (BOOL)canUseBroker;
 
 - (void)callBroker:(ADAuthenticationCallback)completionBlock;
 

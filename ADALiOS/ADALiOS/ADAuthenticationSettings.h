@@ -18,26 +18,6 @@
 #import <Foundation/Foundation.h>
 
 @protocol ADTokenCacheStoring;
-/*!
- Controls where would the credentials dialog reside
- */
-typedef enum
-{
-    /*!
-     The SDK determines automatically the most suitable option, optimized for user experience.
-     E.g. it may invoke another application for a single sign on, if such application is present.
-     This is the default option.
-     */
-    AD_CREDENTIALS_AUTO,
-    
-    /*!
-     The SDK will present an embedded dialog within the application. It will not invoke external
-     application or browser.
-     */
-    AD_CREDENTIALS_EMBEDDED,
-    
-} ADCredentialsType;
-
 /*! The class stores global settings for the ADAL library. It is a singleton class
  and the alloc, init and new should not be called directly. The "sharedInstance" selector
  should be used instead to provide the settings instance. The class is not thread-safe.
@@ -46,9 +26,6 @@ typedef enum
 
 /*! The static instance of the singleton settings class*/
 +(ADAuthenticationSettings*) sharedInstance;
-
-/*! See the ADCredentialsType enumeration definition for details */
-@property ADCredentialsType credentialsType;
 
 /*! The timeout used for any of the web requests. Specified in seconds. */
 @property int requestTimeOut;

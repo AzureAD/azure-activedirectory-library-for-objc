@@ -30,7 +30,6 @@
     if (self)
     {
         //Initialize the defaults here:
-        self.credentialsType = AD_CREDENTIALS_AUTO;
         self.requestTimeOut = 300;//in seconds.
         self.expirationBuffer = 300;//in seconds, ensures catching of clock differences between the server and the device
         self.enableFullScreen = YES;
