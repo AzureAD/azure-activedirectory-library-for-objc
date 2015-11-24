@@ -43,6 +43,7 @@
                                               correlationId:_correlationId
                                             completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
+         (void)validated;
          if (error)
          {
              completionBlock([ADAuthenticationResult resultFromError:error]);
@@ -202,7 +203,7 @@
 
 #if !AD_BROKER
     //call the broker.
-    if([ADAuthenticationRequest canUseBroker])
+    if([self canUseBroker])
     {
         [self callBroker:completionBlock];
         return;
@@ -277,6 +278,7 @@
     
     [[ADInstanceDiscovery sharedInstance] validateAuthority:_context.authority correlationId:_correlationId completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
+         (void)validated;
          if (error)
          {
              completionBlock([ADAuthenticationResult resultFromError:error]);

@@ -86,6 +86,26 @@ typedef enum
     AD_FORCE_PROMPT,
 } ADPromptBehavior;
 
+/*!
+ Controls where would the credentials dialog reside
+ */
+typedef enum
+{
+    /*!
+     The SDK determines automatically the most suitable option, optimized for user experience.
+     E.g. it may invoke another application for a single sign on, if such application is present.
+     This is the default option.
+     */
+    AD_CREDENTIALS_AUTO,
+    
+    /*!
+     The SDK will present an embedded dialog within the application. It will not invoke external
+     application or browser.
+     */
+    AD_CREDENTIALS_EMBEDDED,
+    
+} ADCredentialsType;
+
 @class ADAuthenticationResult;
 
 /*! The completion block declaration. */
@@ -179,6 +199,9 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 /*! Unique identifier passed to the server and returned back with errors. Useful during investigations to correlate the
  requests and the responses from the server. If nil, a new UUID is generated on every request. */
 @property (strong, getter=getCorrelationId, setter=setCorrelationId:) NSUUID* correlationId;
+
+/*! See the ADCredentialsType enumeration definition for details */
+@property ADCredentialsType credentialsType;
 
 /*! The parent view controller for the authentication view controller UI. This property will be used only if
  a custom web view is NOT specified. */
