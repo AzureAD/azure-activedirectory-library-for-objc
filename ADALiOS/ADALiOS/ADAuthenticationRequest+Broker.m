@@ -142,6 +142,7 @@
 - (BOOL)canUseBroker
 {
     return _context.credentialsType == AD_CREDENTIALS_AUTO &&
+     _context.validateAuthority == YES &&
     [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", brokerScheme]]];
 }
 
