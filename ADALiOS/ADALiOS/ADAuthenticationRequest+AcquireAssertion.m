@@ -221,6 +221,7 @@
                                          base64String, OAUTH2_ASSERTION,
                                          _clientId, OAUTH2_CLIENT_ID,
                                          _resource, OAUTH2_RESOURCE,
+                                         OAUTH2_SCOPE_OPENID_VALUE, OAUTH2_SCOPE,
                                          nil];
     [self executeRequest:_context.authority
              requestData:request_data
