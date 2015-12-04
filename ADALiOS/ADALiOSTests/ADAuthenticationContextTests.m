@@ -522,6 +522,7 @@ const int sAsyncContextTimeout = 10;
     NSString* anotherAccessToken = @"another access token testAcquireTokenWithNoPrompt";
     
     [self.testContext->mExpectedRequest1 setObject:OAUTH2_SAML11_BEARER_VALUE forKey:OAUTH2_GRANT_TYPE];
+    [self.testContext->mExpectedRequest1 setObject:OAUTH2_SCOPE_OPENID_VALUE forKey:OAUTH2_SCOPE];
     
     [self.testContext->mResponse1 setObject:anotherAccessToken forKey:OAUTH2_ACCESS_TOKEN];
     [self.testContext->mResponse1 setObject:broadRefreshToken forKey:OAUTH2_REFRESH_TOKEN];

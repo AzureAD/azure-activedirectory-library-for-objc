@@ -51,6 +51,7 @@ extern NSString *const OAUTH2_CORRELATION_ID_REQUEST;
 extern NSString *const OAUTH2_CORRELATION_ID_REQUEST_VALUE;
 extern NSString *const OAUTH2_SAML11_BEARER_VALUE;
 extern NSString *const OAUTH2_SAML2_BEARER_VALUE;
+extern NSString *const OAUTH2_SCOPE_OPENID_VALUE;
 extern NSString *const OAUTH2_ASSERTION;
 
 extern NSString *const BROKER_MAX_PROTOCOL_VERSION;

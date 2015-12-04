@@ -52,6 +52,7 @@ NSString *const OAUTH2_CORRELATION_ID_REQUEST_VALUE = @"client-request-id";
 NSString *const OAUTH2_ASSERTION = @"assertion";
 NSString *const OAUTH2_SAML11_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml1_1-bearer";
 NSString *const OAUTH2_SAML2_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml2-bearer";
+NSString *const OAUTH2_SCOPE_OPENID_VALUE = @"openid";
 
 NSString *const BROKER_MAX_PROTOCOL_VERSION              = @"max_protocol_ver";
 
