@@ -130,6 +130,19 @@
 }
 
 #if AD_BROKER
+
+- (NSString*)redirectUri
+{
+    return _redirectUri;
+}
+
+- (void)setRedirectUri:(NSString *)redirectUri
+{
+    // We knowingly do this mid-request when we have to change auth types
+    // Thus no CHECK_REQUEST_STARTED
+    _redirectUri = redirectUri;
+}
+
 - (void)setAllowSilentRequests:(BOOL)allowSilent
 {
     CHECK_REQUEST_STARTED;

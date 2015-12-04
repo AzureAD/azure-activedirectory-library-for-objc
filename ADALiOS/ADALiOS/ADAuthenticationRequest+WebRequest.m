@@ -32,7 +32,14 @@
 
 #import <libkern/OSAtomic.h>
 
+static ADAuthenticationRequest* s_modalRequest = nil;
+
 @implementation ADAuthenticationRequest (WebRequest)
+
++ (ADAuthenticationRequest*)currentModalRequest
+{
+    return s_modalRequest;
+}
 
 - (void)executeRequest:(NSString *)authorizationServer
            requestData:(NSDictionary *)request_data
@@ -273,7 +280,7 @@ static volatile int sDialogInProgress = 0;
 //Ensures that a single UI login dialog can be requested at a time.
 //Returns true if successfully acquired the lock. If not, calls the callback with
 //the error and returns false.
--(BOOL) takeExclusionLockWithCallback: (ADAuthorizationCodeCallback) completionBlock
+- (BOOL)takeExclusionLockWithCallback: (ADAuthorizationCodeCallback) completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
     if ( !OSAtomicCompareAndSwapInt( 0, 1, &sDialogInProgress) )
@@ -285,6 +292,8 @@ static volatile int sDialogInProgress = 0;
         completionBlock(nil, error);
         return NO;
     }
+    
+    s_modalRequest = self;
     return YES;
 }
 
@@ -295,6 +304,8 @@ static volatile int sDialogInProgress = 0;
     {
         AD_LOG_WARN(@"UI Locking", @"The UI lock has already been released.");
     }
+    
+    s_modalRequest = nil;
 }
 
 //Ensures that the state comes back in the response:
@@ -405,13 +416,22 @@ static volatile int sDialogInProgress = 0;
              if ([[[end scheme] lowercaseString] isEqualToString:@"msauth"]) {
 #if AD_BROKER
                  
-                 NSDictionary* userInfo = @{
-                                            @"username": [[NSDictionary adURLFormDecode:[end query]] valueForKey:@"username"],
-                                            };
-                 NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
-                                                    code:AD_ERROR_WPJ_REQUIRED
-                                                userInfo:userInfo];
-                 error = [ADAuthenticationError errorFromNSError:err errorDetails:@"work place join is required"];
+                 NSString* host = [end host];
+                 if ([host isEqualToString:@"microsoft.aad.brokerplugin"] || [host isEqualToString:@"code"])
+                 {
+                     NSDictionary* queryParams = [end adQueryParameters];
+                     code = [queryParams objectForKey:OAUTH2_CODE];
+                 }
+                 else
+                 {
+                     NSDictionary* userInfo = @{
+                                                @"username": [[NSDictionary adURLFormDecode:[end query]] valueForKey:@"username"],
+                                                };
+                     NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
+                                                        code:AD_ERROR_WPJ_REQUIRED
+                                                    userInfo:userInfo];
+                     error = [ADAuthenticationError errorFromNSError:err errorDetails:@"work place join is required"];
+                 }
 #else
                  code = end.absoluteString;
 #endif

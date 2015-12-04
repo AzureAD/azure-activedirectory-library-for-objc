@@ -86,6 +86,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 - (void)setSilent:(BOOL)silent;
 - (void)setCorrelationId:(NSUUID*)correlationId;
 #if AD_BROKER
+- (NSString*)redirectUri;
+- (void)setRedirectUri:(NSString*)redirectUri;
 - (void)setAllowSilentRequests:(BOOL)allowSilent;
 - (void)setRefreshTokenCredential:(NSString*)refreshTokenCredential;
 #endif

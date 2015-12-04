@@ -24,7 +24,7 @@
 @protocol ADAuthMethodHandler
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge*)challenge
-                request:(NSURLRequest*)request
+             connection:(NSURLConnection*)connection
                protocol:(ADURLProtocol*)protocol;
 + (void)resetHandler;
 

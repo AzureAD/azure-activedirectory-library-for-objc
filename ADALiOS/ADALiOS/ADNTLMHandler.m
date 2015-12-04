@@ -35,7 +35,7 @@ static BOOL _challengeCancelled = NO;
 static NSMutableURLRequest *_challengeUrl = nil;
 static NSURLConnection *_conn = nil;
 
-+ (void)initialize
++ (void)load
 {
     [ADURLProtocol registerHandler:self
                         authMethod:NSURLAuthenticationMethodNTLM];
@@ -67,10 +67,10 @@ static NSURLConnection *_conn = nil;
 }
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-                request:(NSURLRequest*)request
+             connection:(NSURLConnection*)connection
                protocol:(ADURLProtocol*)protocol
 {
-    (void)request;
+    (void)connection;
     BOOL __block succeeded = NO;
     @synchronized(self)
     {
