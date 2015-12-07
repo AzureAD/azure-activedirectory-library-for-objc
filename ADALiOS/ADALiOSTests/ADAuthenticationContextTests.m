@@ -24,6 +24,7 @@
 #import <libkern/OSAtomic.h>
 #import "ADWebRequest.h"
 #import "ADTestAuthenticationContext.h"
+#import "ADTestURLConnection.h"
 #import "../ADALiOS/ADOAuth2Constants.h"
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADKeychainTokenCacheStore.h"
@@ -1060,6 +1061,8 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNotNil(mContext);
     ADAssertNoError;
     
+    [ADTestURLConnection addInvalidAuthorityResponse:mAuthority];
+    
     acquireTokenAsync;
     XCTAssertNotNil(mResult);
     ADAssertLongEquals(AD_FAILED, mResult.status);
@@ -1117,6 +1120,14 @@ const int sAsyncContextTimeout = 10;
     [self addCacheWithToken:nil refreshToken:@"invalid refresh token"];
     ADAssertLongEquals(1, [self cacheCount]);
     
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING
+                                                    responseURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING
+                                                         responseCode:400
+                                                     httpHeaderFields:@{ } // maybe shoehorn correlation ID here
+                                                     dictionaryAsJSON:@{ OAUTH2_ERROR : @"invalid_grant",
+                                                                         OAUTH2_ERROR_DESCRIPTION : @"AADSTS70000: Authentication failed: Refresh Token is malformed or invalid." }];
+    [ADTestURLConnection addResponse:response];
+    
     acquireTokenAsync;//Will attempt to use the refresh token and fail.
     ADAssertLongEquals(0, [self cacheCount]);
     
@@ -1124,6 +1135,7 @@ const int sAsyncContextTimeout = 10;
     [self addCacheWithToken:nil refreshToken:@"invalid broad refresh token" userId:mUserId resource:nil];
     ADAssertLongEquals(1, [self cacheCount]);
     
+    [ADTestURLConnection addResponse:response];
     acquireTokenAsync;//Will attempt to use the broad refresh token and fail.
     ADAssertLongEquals(0, [self cacheCount]);
     
@@ -1132,6 +1144,9 @@ const int sAsyncContextTimeout = 10;
     [self addCacheWithToken:nil refreshToken:@"another invalid broad refresh token" userId:mUserId resource:nil];
     ADAssertLongEquals(2, [self cacheCount]);
     
+    //Two responses are added as it will try to hit network twice trying the above two tokens 
+    [ADTestURLConnection addResponse:response];
+    [ADTestURLConnection addResponse:response];
     acquireTokenAsync;//Will attempt to use the broad refresh token and fail.
     ADAssertLongEquals(0, [self cacheCount]);
 }
@@ -1150,6 +1165,7 @@ const int sAsyncContextTimeout = 10;
     [self addCacheWithToken:nil refreshToken:@"invalid refresh token"];
     ADAssertLongEquals(1, [self cacheCount]);
     
+    [ADTestURLConnection addNotFoundResponseForURLString:@"https://somevalidurlbutnonexistentdomain.com/sometenant.com/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING];
     acquireTokenAsync;//Will attempt to use the refresh token and fail with system error.
     ADAssertLongEquals(1, [self cacheCount]);//Should not remove anything from cache, assuming that the server is unreachable
     
@@ -1157,6 +1173,8 @@ const int sAsyncContextTimeout = 10;
     [mDefaultTokenCache removeAllWithError:&error];
     ADAssertNoError;
     [self addCacheWithToken:nil refreshToken:@"invalid broad refresh token" userId:mUserId resource:nil];
+    
+    [ADTestURLConnection addNotFoundResponseForURLString:@"https://somevalidurlbutnonexistentdomain.com/sometenant.com/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING];
     acquireTokenAsync;//Will attempt to use the broad refresh token and fail.
     ADAssertLongEquals(1, [self cacheCount]);//Again, shouldn't remove from cache
 }

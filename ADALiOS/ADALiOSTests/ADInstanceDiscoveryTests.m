@@ -21,6 +21,7 @@
 #import "ADInstanceDiscovery.h"
 #import <libkern/OSAtomic.h>
 #import <ADALiOS/ADAuthenticationSettings.h>
+#import "ADTestURLConnection.h"
 
 NSString* const sAlwaysTrusted = @"https://login.windows.net";
 
@@ -307,6 +308,8 @@ const int sAsyncTimeout = 10;//in seconds
             correlationId: (NSUUID*)correlationId
                      line: (int) line
 {
+    //To be consistant with ADAL, where authority value is changed to lower case before calling validateAuthority
+    authority = [authority lowercaseString];
     mError = nil;//Reset
     __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     [self adCallAndWaitWithFile:@"" __FILE__ line:line semaphore:sem block:^
@@ -398,12 +401,14 @@ const int sAsyncTimeout = 10;//in seconds
 -(void) testNormalFlow
 {
     [mValidatedAuthorities removeAllObjects];//Clear, as "login.windows.net" is already cached.
+    [ADTestURLConnection addValidAuthorityResponse:@"https://Login.Windows.Net/MSOpenTechBV.onmicrosoft.com"];
     [self validateAuthority:@"https://Login.Windows.Net/MSOpenTechBV.onmicrosoft.com" correlationId:nil line:__LINE__];
     XCTAssertTrue(mValidated);
     XCTAssertNil(mError);
     XCTAssertTrue([mValidatedAuthorities containsObject:@"https://login.windows.net"]);
     
     //Now hit explicitly non-cached:
+    [ADTestURLConnection addValidAuthorityResponse:@"https://login.windows-ppe.net/common"];
     [self validateAuthority:@"https://login.windows-ppe.net/common" correlationId:nil line:__LINE__];
     XCTAssertTrue(mValidated);
     XCTAssertNil(mError);
@@ -425,6 +430,7 @@ const int sAsyncTimeout = 10;//in seconds
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     NSUUID* correlationId = [NSUUID UUID];
+    [ADTestURLConnection addInvalidAuthorityResponse:@"https://MyFakeAuthority.microsoft.com/MSOpenTechBV.onmicrosoft.com"];
     [self validateAuthority:@"https://MyFakeAuthority.microsoft.com/MSOpenTechBV.onmicrosoft.com" correlationId:correlationId line:__LINE__];
     XCTAssertFalse(mValidated);
     XCTAssertNotNil(mError);
@@ -434,6 +440,7 @@ const int sAsyncTimeout = 10;//in seconds
 -(void) testUnreachableServer
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    [ADTestURLConnection addNotFoundResponseForURLString:@"https://SomeValidURLButNotExistentInTheNet.com/common/discovery/instance?api-version=1.0&authorization_endpoint=https://login.windows.cn/MSOpenTechBV.onmicrosoft.com/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING];
     __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
     {
