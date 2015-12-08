@@ -62,7 +62,7 @@
 
 + (void)internalHandleBrokerResponse:(NSURL *)response
 {
-    ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].callbackForBroker;
+    ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].copyAndClearCallback;
     if (!completionBlock)
     {
         return;
@@ -142,7 +142,6 @@
     }
     
     completionBlock(result);
-    [ADBrokerNotificationManager sharedInstance].callbackForBroker = nil;
 }
 
 - (void)callBroker:(ADAuthenticationCallback)completionBlock

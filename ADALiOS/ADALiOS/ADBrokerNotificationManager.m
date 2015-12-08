@@ -19,6 +19,12 @@
 #import "ADBrokerNotificationManager.h"
 #import "ADAL.h"
 #import "ADAuthenticationResult+Internal.h"
+@interface ADBrokerNotificationManager ()
+{
+    ADAuthenticationCallback _callbackForBroker;
+}
+
+@end
 
 @implementation ADBrokerNotificationManager
 
@@ -33,13 +39,6 @@
 {
     self = [super init];
     return self;
-}
-
--(void) runCompletionBlock:(ADAuthenticationResult*) result
-{
-    ADAuthenticationCallback callback = _callbackForBroker;
-    callback(result);
-    _callbackForBroker = nil;
 }
 
 +(ADBrokerNotificationManager*)sharedInstance
@@ -66,25 +65,37 @@
     
 }
 
+- (ADAuthenticationCallback)copyAndClearCallback
+{
+    ADAuthenticationCallback callback = nil;
+    @synchronized(self)
+    {
+        callback = _callbackForBroker;
+        _callbackForBroker = nil;
+    }
+    
+    return callback;
+}
+
 - (void)callbackCleanup
 {
     // We're not guaranteed the order that notifications happen in. Put this on the back of the main event queue so that
     // launchURL might have a chance at the callback first.
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if(_callbackForBroker)
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        ADAuthenticationCallback callback = [self copyAndClearCallback];
+        
+        if(callback)
         {
             ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BROKER_RESPONSE_NOT_RECEIVED
                                                                                     protocolCode:nil
                                                                                     errorDetails:@"application did not receive response from broker."];
             ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:adError];
-            ADAuthenticationCallback callback = _callbackForBroker;
             callback(result);
         }
         
         [[NSNotificationCenter defaultCenter] removeObserver:self
                                                         name:UIApplicationDidBecomeActiveNotification
                                                       object:nil];
-        _callbackForBroker = nil;
     });
 }
 
