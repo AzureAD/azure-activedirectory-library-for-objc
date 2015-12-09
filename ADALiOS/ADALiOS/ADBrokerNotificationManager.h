@@ -23,7 +23,7 @@
 
 + (ADBrokerNotificationManager*)sharedInstance;
 
-- (void)enableOnActiveNotification:(ADAuthenticationCallback)callback;
+- (void)enableNotifications:(ADAuthenticationCallback)callback;
 
 - (ADAuthenticationCallback)copyAndClearCallback;
 
