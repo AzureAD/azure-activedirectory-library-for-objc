@@ -335,7 +335,7 @@
           additionalHeaders:nil
                  completion:^(NSDictionary *response)
      {
-         ADTokenCacheStoreItem* resultItem = (cacheItem) ? cacheItem : [ADTokenCacheStoreItem new];
+         ADTokenCacheStoreItem* resultItem = (cacheItem) ? [ADTokenCacheStoreItem initWithStoreItem:cacheItem] : [ADTokenCacheStoreItem new];
          
          //Always ensure that the cache item has all of these set, especially in the broad token case, where the passed item
          //may have empty "resource" property:

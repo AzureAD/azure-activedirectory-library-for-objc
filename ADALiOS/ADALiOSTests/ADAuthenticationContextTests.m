@@ -1151,6 +1151,37 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(0, [self cacheCount]);
 }
 
+-(void) testUnusualHttpResponse
+{
+    //Create a normal authority (not a test one):
+    ADAuthenticationError* error;
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority error:&error];
+    mSilent = YES;
+    XCTAssertNotNil(mContext);
+    ADAssertNoError;
+    
+    [self addCacheWithToken:nil refreshToken:@"valid refresh token"];
+    [self addCacheWithToken:nil refreshToken:@"valid broad refresh token" userId:mUserId resource:nil];
+    ADAssertLongEquals(2, [self cacheCount]);
+    
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING
+                                                    responseURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING
+                                                         responseCode:500
+                                                     httpHeaderFields:@{ } // maybe shoehorn correlation ID here
+                                                     dictionaryAsJSON:@{ OAUTH2_ERROR : @"server_error",
+                                                                         OAUTH2_ERROR_DESCRIPTION : @"AADSTS90036: Non-retryable error has occurred." }];
+    
+    //It should hit network twice trying the above two tokens, therefore two responses are added
+    //If there is an infinite retry, exception will be thrown becasuse there is not enough responses
+    [ADTestURLConnection addResponse:response];
+    [ADTestURLConnection addResponse:response];
+    
+    acquireTokenAsync;//Will attempt to use the refresh token, broad refresh token and fail.
+    //no token should be deleted
+    ADAssertLongEquals(2, [self cacheCount]);
+    
+}
+
 //Creates the context with
 -(void) testUnreachableAuthority
 {

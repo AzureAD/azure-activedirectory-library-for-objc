@@ -67,4 +67,7 @@
 /*! Verifies if the user (as defined by userId) is the same between the two items. */
 -(BOOL) isSameUser: (ADTokenCacheStoreItem*) other;
 
+/*! Init by copying an existing cache store item. */
++(id) initWithStoreItem:(ADTokenCacheStoreItem*) itemToBeCopied;
+
 @end
