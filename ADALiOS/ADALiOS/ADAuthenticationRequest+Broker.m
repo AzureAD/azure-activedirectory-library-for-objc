@@ -65,6 +65,7 @@
     ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].copyAndClearCallback;
     if (!completionBlock)
     {
+        AD_LOG_ERROR(@"Received broker response without a completionBlock.", AD_FAILED, nil);
         return;
     }
     
