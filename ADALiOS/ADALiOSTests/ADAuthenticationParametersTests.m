@@ -163,7 +163,7 @@
 
 -(void) testParametersFromAnauthorizedResponseNilParameter
 {
-    ADAuthenticationError* error;//A local variable is needed for __autoreleasing reference pointers.
+    ADAuthenticationError* error = nil;//A local variable is needed for __autoreleasing reference pointers.
     mParameters = [ADAuthenticationParameters parametersFromResponse:nil error:&error];
     [self adValidateFactoryForInvalidArgument:@"response" error:error];
     
@@ -208,7 +208,7 @@
 -(void)testParametersFromResponseMissingHeader
 {
     NSHTTPURLResponse* response = [NSHTTPURLResponse new];
-    ADAuthenticationError* error;//A local variable is needed for __autoreleasing reference pointers.
+    ADAuthenticationError* error = nil;//A local variable is needed for __autoreleasing reference pointers.
     mParameters = [ADAuthenticationParameters parametersFromResponse:response error:&error];
     XCTAssertNil(mParameters, "Parameters object returned on a missing header.");
     [self expectedError:error line:__LINE__];

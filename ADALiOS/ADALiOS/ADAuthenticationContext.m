@@ -2207,7 +2207,7 @@ additionalHeaders:headerKeyValuePair
         
         //decrypt response first
         ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
-        ADAuthenticationError* error;
+        ADAuthenticationError* error = nil;
         NSData *encryptedResponse = [NSString Base64DecodeData:encryptedBase64Response ];
         NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse error:&error];
         NSString* decryptedString = nil;
