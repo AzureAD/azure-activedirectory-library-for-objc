@@ -159,16 +159,9 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
     if ( expires_in != nil )
     {
-        if ( [expires_in isKindOfClass:[NSString class]] )
+        if ( [expires_in respondsToSelector:@selector(doubleValue)] )
         {
-            NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
-            SAFE_ARC_AUTORELEASE(formatter);
-            
-            expires = [NSDate dateWithTimeIntervalSinceNow:[formatter numberFromString:expires_in].longValue];
-        }
-        else if ( [expires_in isKindOfClass:[NSNumber class]] )
-        {
-            expires = [NSDate dateWithTimeIntervalSinceNow:((NSNumber *)expires_in).longValue];
+            expires = [NSDate dateWithTimeIntervalSince1970:[expires_in doubleValue]];
         }
         else
         {
