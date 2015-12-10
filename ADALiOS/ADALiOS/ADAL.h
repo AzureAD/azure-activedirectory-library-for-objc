@@ -32,7 +32,7 @@
 
 #define ADAL_VER_HIGH   2
 #define ADAL_VER_LOW    0
-#define ADAL_VER_PATCH  0
+#define ADAL_VER_PATCH  1
 
 #pragma mark - OSX Universal ARC compatibility macros
 
