@@ -58,7 +58,7 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
         {
             NSString* message = [NSString stringWithFormat:@"Test%dMessage%d %s", i, j, __PRETTY_FUNCTION__];
             NSString* info = [NSString stringWithFormat:@"Test%dnfo%d %s", i, j, __PRETTY_FUNCTION__];
-            [ADLogger log:j message:message errorCode:1 additionalInformation:info];
+            [ADLogger log:j message:message errorCode:1 info:info];
             if (j <= i)//Meets the error bar
             {
                 ADAssertLogsContainValue(TEST_LOG_MESSAGE, message);
@@ -77,9 +77,9 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Neither of these calls should throw. See the method body for details:
-    [ADLogger log:ADAL_LOG_LEVEL_NO_LOG message:@"Message" errorCode:AD_ERROR_SUCCEEDED additionalInformation:@"info" ];
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR message:nil errorCode:AD_ERROR_SUCCEEDED additionalInformation:@"info" ];
-    [ADLogger log:ADAL_LOG_LEVEL_ERROR message:@"message" errorCode:AD_ERROR_SUCCEEDED additionalInformation:nil];
+    [ADLogger log:ADAL_LOG_LEVEL_NO_LOG message:@"Message" errorCode:AD_ERROR_SUCCEEDED info:@"info" ];
+    [ADLogger log:ADAL_LOG_LEVEL_ERROR message:nil errorCode:AD_ERROR_SUCCEEDED info:@"info" ];
+    [ADLogger log:ADAL_LOG_LEVEL_ERROR message:@"message" errorCode:AD_ERROR_SUCCEEDED info:nil];
 }
 
 -(void) threadProc
@@ -93,12 +93,12 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
             @autoreleasepool//Needed, as the code inside the loop creates objects:
             {
                 [ADLogger setLogCallBack:nil];
-                [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"test" errorCode:1 additionalInformation:@"info"];
+                [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"test" errorCode:1 info:@"info"];
                 [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInformation, NSInteger errorCode)
                  {
                      [log appendFormat:@"%d; %@; %@; %ld;", logLevel, message, additionalInformation, (long)errorCode];
                  }];
-                [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"test1" errorCode:1 additionalInformation:@"info1"];
+                [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"test1" errorCode:1 info:@"info1"];
                 [ADLogger setLogCallBack:nil];
                 NSRange all = {0, log.length};
                 [log deleteCharactersInRange:all];//Clear to avoid memory spike

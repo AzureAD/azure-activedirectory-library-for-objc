@@ -21,34 +21,48 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <mach/machine.h>
+#include <CommonCrypto/CommonDigest.h>
 
-ADAL_LOG_LEVEL sLogLevel = ADAL_LOG_LEVEL_ERROR;
-LogCallback sLogCallback;
-BOOL sNSLogging = YES;
-NSUUID* requestCorrelationId;
+static ADAL_LOG_LEVEL sLogLevel = ADAL_LOG_LEVEL_ERROR;
+static ADLogCallback sLogCallback = nil;
+static BOOL sNSLogging = YES;
+static NSUUID* s_requestCorrelationId = nil;
+static NSDateFormatter* s_logDateFormatter = nil;
 
 @implementation ADLogger
 
-+(void) setLevel: (ADAL_LOG_LEVEL)logLevel
++ (void)initialize
+{
+    NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    
+    s_logDateFormatter = dateFormatter;
+}
+
++ (void)setLevel: (ADAL_LOG_LEVEL)logLevel
 {
     sLogLevel = logLevel;
 }
 
-+(ADAL_LOG_LEVEL) getLevel
++ (ADAL_LOG_LEVEL)getLevel
 {
     return sLogLevel;
 }
 
-+(void) setLogCallBack: (LogCallback) callback
++ (void)setLogCallBack:(ADLogCallback)callback
 {
     @synchronized(self)//Avoid changing to null while attempting to call it.
     {
-        if ( sLogCallback ) SAFE_ARC_BLOCK_RELEASE( sLogCallback );
+        if (sLogCallback)
+        {
+            SAFE_ARC_BLOCK_RELEASE( sLogCallback );
+        }
         sLogCallback = SAFE_ARC_BLOCK_COPY( callback );
     }
 }
 
-+(LogCallback) getLogCallBack
++ (ADLogCallback)getLogCallBack
 {
     return sLogCallback;
 }
@@ -64,40 +78,22 @@ NSUUID* requestCorrelationId;
     return sNSLogging;
 }
 
-+(NSString*) formatStringPerLevel: (ADAL_LOG_LEVEL) level
++ (NSString*)stringPerLevel:(ADAL_LOG_LEVEL) level
 {
-    {//Compile time check that all of the levels are covered below.
-    int add_new_types_to_the_switch_below_to_fix_this_error[ADAL_LOG_LEVEL_VERBOSE - ADAL_LOG_LAST];
-    #pragma unused(add_new_types_to_the_switch_below_to_fix_this_error)
-    }
-    
-    switch (level) {
-        case ADAL_LOG_LEVEL_ERROR:
-            return @"ADALiOS [%@ - %@] ERROR: %@. Additional Information: %@. ErrorCode: %u.";
-            break;
-            
-        case ADAL_LOG_LEVEL_WARN:
-            return @"ADALiOS [%@ - %@] WARNING: %@. Additional Information: %@. ErrorCode: %u.";
-            break;
-            
-        case ADAL_LOG_LEVEL_INFO:
-            return @"ADALiOS [%@ - %@] INFORMATION: %@. Additional Information: %@. ErrorCode: %u.";
-            break;
-            
-        case ADAL_LOG_LEVEL_VERBOSE:
-            return @"ADALiOS [%@ - %@] VERBOSE: %@. Additional Information: %@. ErrorCode: %u.";
-            break;
-            
-        default:
-            return @"ADALiOS [%@ - %@] UNKNOWN: %@. Additional Information: %@. ErrorCode: %u.";
-            break;
+    switch (level)
+    {
+        case ADAL_LOG_LEVEL_ERROR:      return @"ERROR";
+        case ADAL_LOG_LEVEL_WARN:       return @"WARNING";
+        case ADAL_LOG_LEVEL_INFO:       return @"INFO";
+        case ADAL_LOG_LEVEL_VERBOSE:    return @"VERBOSE";
+        default:    return @"UNKNOWN";
     }
 }
 
-+(void) log: (ADAL_LOG_LEVEL)logLevel
-    message: (NSString*) message
-  errorCode: (NSInteger) errorCode
-additionalInformation: (NSString*) additionalInformation
++ (void)log:(ADAL_LOG_LEVEL)logLevel
+    message:(NSString*)message
+  errorCode:(NSInteger)errorCode
+       info:(NSString*)info
 {
     //Note that the logging should not throw, as logging is heavily used in error conditions.
     //Hence, the checks below would rather swallow the error instead of throwing and changing the
@@ -109,25 +105,38 @@ additionalInformation: (NSString*) additionalInformation
     
     if (logLevel <= sLogLevel)
     {
-        NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
-        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
-        [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+        
+        NSString* dateString = [s_logDateFormatter stringFromDate:[NSDate date]];
+        NSString* correlationId = [[ADLogger getCorrelationId] UUIDString];
+        
         if (sNSLogging)
         {
             //NSLog is documented as thread-safe:
-            NSLog([self formatStringPerLevel:logLevel], [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message, additionalInformation, errorCode);
+            NSLog(@"ADALiOS [%@ - %@] %@: %@. Additional Information: %@. ErrorCode: %ld.", [self stringPerLevel:logLevel], dateString, correlationId, message, info, (long)errorCode);
         }
         
         @synchronized(self)//Guard against thread-unsafe callback and modification of sLogCallback after the check
         {
             if (sLogCallback)
             {
-                sLogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@ - %@] %@", [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message], additionalInformation, errorCode);
+                sLogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@ - %@] %@", dateString, correlationId, message], info, errorCode);
             }
         }
-        SAFE_ARC_RELEASE(dateFormatter);
-        dateFormatter = nil;
     }
+}
+
++ (void)log:(ADAL_LOG_LEVEL)level
+    message:(NSString*)message
+  errorCode:(NSInteger)code
+     format:(NSString*)format, ...
+{
+    va_list args;
+    va_start(args, format);
+    NSString* info = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+    
+    [self log:level message:message errorCode:code info:info];
+    SAFE_ARC_RELEASE(info);
 }
 
 //Extracts the CPU information according to the constants defined in
@@ -170,12 +179,12 @@ additionalInformation: (NSString*) additionalInformation
     //iOS:
     UIDevice* device = [UIDevice currentDevice];
     NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
-    @{
-      ADAL_ID_PLATFORM:@"iOS",
-      ADAL_ID_VERSION:[ADLogger getAdalVersion],
-      ADAL_ID_OS_VER:device.systemVersion,
-      ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
-      }];
+                                   @{
+                                     ADAL_ID_PLATFORM:@"iOS",
+                                     ADAL_ID_VERSION:[ADLogger getAdalVersion],
+                                     ADAL_ID_OS_VER:device.systemVersion,
+                                     ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
+                                     }];
 #else
     NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:
                                              @"/System/Library/CoreServices/SystemVersion.plist"];
@@ -194,16 +203,38 @@ additionalInformation: (NSString*) additionalInformation
     return result;
 }
 
-+(void) setCorrelationId: (NSUUID*) correlationId
++(NSString*) getHash: (NSString*) input
 {
-    SAFE_ARC_RELEASE(requestCorrelationId);
-    requestCorrelationId = correlationId;
-    SAFE_ARC_RETAIN(requestCorrelationId);
+    if (!input)
+    {
+        return nil;//Handle gracefully
+    }
+    const char* inputStr = [input UTF8String];
+    unsigned char hash[CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256(inputStr, (int)strlen(inputStr), hash);
+    NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
+    for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
+    {
+        [toReturn appendFormat:@"%02x", hash[i]];
+    }
+    return toReturn;
 }
 
-+(NSUUID*) getCorrelationId
++ (void)setCorrelationId:(NSUUID*)correlationId
 {
-    return requestCorrelationId;
+    SAFE_ARC_RELEASE(s_requestCorrelationId);
+    s_requestCorrelationId = correlationId;
+    SAFE_ARC_RETAIN(s_requestCorrelationId);
+}
+
++ (NSUUID*)getCorrelationId
+{
+    if (s_requestCorrelationId == nil)
+    {
+        s_requestCorrelationId = [NSUUID new];
+    }
+    
+    return s_requestCorrelationId;
 }
 
 +(NSString*) getAdalVersion
@@ -216,7 +247,7 @@ additionalInformation: (NSString*) additionalInformation
        expiresOn: (NSDate*) expiresOn
    correlationId: (NSUUID*) correlationId
 {
-    AD_LOG_VERBOSE_F(@"Token returned", @"Obtained %@ with hash %@, expiring on %@ and correlationId: %@", tokenType, [token adComputeSHA256], expiresOn, [correlationId UUIDString]);
+    AD_LOG_VERBOSE_F(@"Token returned", @"Obtained %@ with hash %@, expiring on %@ and correlationId: %@", tokenType, [self getHash:token], expiresOn, [correlationId UUIDString]);
 }
 
 @end

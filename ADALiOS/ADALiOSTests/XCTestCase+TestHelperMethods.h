@@ -203,3 +203,9 @@ typedef enum
 //Verifes that "error" local variable is nil. If not prints the error
 #define ADAssertNoError XCTAssertNil(error, "Unexpected error occurred: %@", error.errorDetails)
 
+#define ADTestWaitAndRunLoop(_sem) { \
+    while (dispatch_semaphore_wait(_sem, DISPATCH_TIME_NOW)) { \
+        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]]; \
+    } \
+}
+

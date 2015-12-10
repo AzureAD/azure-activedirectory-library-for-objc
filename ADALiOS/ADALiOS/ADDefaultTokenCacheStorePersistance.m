@@ -69,7 +69,7 @@ const int16_t LOWER_VERSION = 0;
             //A new, incompatible version of the cache is stored, ignore the cache:
             AD_LOG_ERROR_F(@"Future file format", AD_ERROR_CACHE_PERSISTENCE,
                            @"The version (%d.%d) of the cache file is not supported.",
-                           _upperVersion, _lowerVersion)
+                           _upperVersion, _lowerVersion);
             return nil;
         }
         

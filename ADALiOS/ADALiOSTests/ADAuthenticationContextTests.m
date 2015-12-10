@@ -949,9 +949,6 @@ const int sAsyncContextTimeout = 10;
     NSUUID* second = [NSUUID UUID];
     mContext.correlationId = second;
     XCTAssertEqual(mContext.correlationId, second);
-    
-    mContext.correlationId = nil;
-    XCTAssertNil(mContext.correlationId);
 }
 
 -(void) testCorrelationIdRefreshToken

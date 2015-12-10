@@ -20,7 +20,7 @@
 
 @protocol ADAuthenticationDelegate;
 
-@interface ADAuthenticationWindowController : NSWindowController <NSWindowDelegate>
+@interface ADAuthenticationWindowController : NSWindowController <NSWindowDelegate, WebResourceLoadDelegate>
 {
     IBOutlet WebView *_webView;
     __weak NSProgressIndicator *_progressIndicator;
