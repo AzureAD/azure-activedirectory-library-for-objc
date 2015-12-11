@@ -70,6 +70,7 @@ static NSURLConnection *_conn = nil;
              connection:(NSURLConnection*)connection
                protocol:(ADURLProtocol*)protocol
 {
+    (void)request;
     BOOL __block succeeded = NO;
     @synchronized(self)
     {
