@@ -1205,7 +1205,7 @@ return; \
     NSString* query = [queryDictionary adURLFormEncode];
     
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@&%@", urlString, query]];
-    [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];
+    [[ADBrokerNotificationManager sharedInstance] enableNotifications:completionBlock];
     
     if([[UIApplication sharedApplication] canOpenURL:appUrl])
     {
@@ -2181,7 +2181,7 @@ additionalHeaders:headerKeyValuePair
 
 + (void)handleBrokerResponse:(NSURL*) response
 {
-    ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].callbackForBroker;
+    ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].copyAndClearCallback;
     if (!completionBlock)
     {
         AD_LOG_WARN(@"Received broker response, but no completion block.", nil);
@@ -2257,10 +2257,8 @@ additionalHeaders:headerKeyValuePair
     // Log out the result object
     NSString* resultString = [NSString stringWithFormat:@"%@", result];
     AD_LOG_INFO(resultString, nil);
-
     
     completionBlock(result);
-    [ADBrokerNotificationManager sharedInstance].callbackForBroker = nil;
 }
 
 - (BOOL) canUseBroker
@@ -2349,7 +2347,7 @@ additionalHeaders:headerKeyValuePair
     
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", brokerScheme, query]];
     
-    [[ADBrokerNotificationManager sharedInstance] enableOnActiveNotification:completionBlock];
+    [[ADBrokerNotificationManager sharedInstance] enableNotifications:completionBlock];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [[UIApplication sharedApplication] openURL:appUrl];
