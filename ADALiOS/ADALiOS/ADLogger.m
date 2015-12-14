@@ -134,7 +134,9 @@ correlationId:(NSUUID*)correlationId
                 if (correlationId)
                 {
                     s_LogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@ - %@] %@", [dateFormatter stringFromDate:[NSDate date]], [correlationId UUIDString], message], info, errorCode);
-                } else {
+                }
+                else
+                {
                     s_LogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@] %@", [dateFormatter stringFromDate:[NSDate date]], message], info, errorCode);
                 }
             }
