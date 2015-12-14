@@ -57,7 +57,7 @@
     return instance;
 }
 
--(NSString*) getSharedCacheKeychainGroup
+-(NSString*) sharedCacheKeychainGroup
 {
     id store = self.defaultTokenCacheStore;
     if ([store isKindOfClass:[ADKeychainTokenCacheStore class]])

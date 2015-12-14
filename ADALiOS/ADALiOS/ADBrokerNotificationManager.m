@@ -19,6 +19,12 @@
 #import "ADBrokerNotificationManager.h"
 #import "ADAL.h"
 #import "ADAuthenticationResult+Internal.h"
+@interface ADBrokerNotificationManager ()
+{
+    ADAuthenticationCallback _callbackForBroker;
+}
+
+@end
 
 @implementation ADBrokerNotificationManager
 
@@ -33,13 +39,6 @@
 {
     self = [super init];
     return self;
-}
-
--(void) runCompletionBlock:(ADAuthenticationResult*) result
-{
-    ADAuthenticationCallback callback = _callbackForBroker;
-    callback(result);
-    _callbackForBroker = nil;
 }
 
 +(ADBrokerNotificationManager*)sharedInstance
@@ -57,35 +56,75 @@
 }
 
 
--(void) enableOnActiveNotification:(ADAuthenticationCallback) callback
+- (void)enableNotifications:(ADAuthenticationCallback)callback
 {
-    _callbackForBroker = callback;
+    @synchronized(self)
+    {
+        _callbackForBroker = callback;
+    }
+    
+    // UIApplicationDidBecomeActive can get hit after the iOS 9 "This app wants to open this other app"
+    // dialog is displayed. Because of the multitude of ways that notification can be sent we can't rely
+    // merely on it to be able to accurately decide when we need to clean up. According to Apple's
+    // documentation on the app lifecycle when receiving a URL we should be able to rely on openURL:
+    // occuring between ApplicationWillEnterForeground and ApplicationDidBecomeActive.
+    
+    // https://developer.apple.com/library/ios/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/Inter-AppCommunication/Inter-AppCommunication.html#//apple_ref/doc/uid/TP40007072-CH6-SW8
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(callbackCleanup)
-                                                 name:UIApplicationDidBecomeActiveNotification object:nil];
+                                             selector:@selector(onEnterForeground:)
+                                                 name:UIApplicationWillEnterForegroundNotification object:nil];
     
 }
 
-- (void)callbackCleanup
+- (void)onEnterForeground:(NSNotification*)aNotification
 {
-    // We're not guaranteed the order that notifications happen in. Put this on the back of the main event queue so that
-    // launchURL might have a chance at the callback first.
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if(_callbackForBroker)
-        {
-            ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BROKER_RESPONSE_NOT_RECEIVED
-                                                                                    protocolCode:nil
-                                                                                    errorDetails:@"application did not receive response from broker."];
-            ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:adError];
-            ADAuthenticationCallback callback = _callbackForBroker;
-            callback(result);
-        }
-        
-        [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                        name:UIApplicationDidBecomeActiveNotification
-                                                      object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationWillEnterForegroundNotification
+                                                  object:nil];
+    
+    // Now that we know we've just been woken up from having been in the background we can start listening for
+    // ApplicationDidBecomeActive without having to worry about something else causing it to get hit between
+    // now and openURL:, if we're indeed getting a URL.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(callbackCleanup:)
+                                                 name:UIApplicationDidBecomeActiveNotification object:nil];
+}
+
+- (ADAuthenticationCallback)copyAndClearCallback
+{
+    // Whoever calls this and takes the callback owns it. We don't want multiple listeners to
+    // inadvertantly take this callback.
+    ADAuthenticationCallback callback = nil;
+    @synchronized(self)
+    {
+        callback = _callbackForBroker;
         _callbackForBroker = nil;
-    });
+    }
+    
+    return callback;
+}
+
+- (void)callbackCleanup:(NSNotification*)aNotification
+{
+    (void)aNotification;
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationDidBecomeActiveNotification
+                                                  object:nil];
+    
+    ADAuthenticationCallback callback = [self copyAndClearCallback];
+
+    // If there's still a callback block it means the user opted not to continue with the authentication flow
+    // in the broker and we should let whoever is waiting on an ADAL response know it's not coming.
+    if(callback)
+    {
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BROKER_RESPONSE_NOT_RECEIVED
+                                                                                protocolCode:nil
+                                                                                errorDetails:@"application did not receive response from broker."];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:adError];
+        callback(result);
+    }
 }
 
 
