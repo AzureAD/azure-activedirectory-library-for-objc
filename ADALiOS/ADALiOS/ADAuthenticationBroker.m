@@ -137,7 +137,7 @@ static NSString *_resourcePath = nil;
                       ^{
 
                           NSString* mainBundlePath      = [[NSBundle mainBundle] resourcePath];
-                          AD_LOG_VERBOSE_F(@"Resources Loading", @"Attempting to load resources from: %@", mainBundlePath);
+                          AD_LOG_VERBOSE_F(@"Resources Loading", nil, @"Attempting to load resources from: %@", mainBundlePath);
                           NSString* frameworkBundlePath = nil;
                           
                           if ( _resourcePath != nil )
@@ -152,7 +152,7 @@ static NSString *_resourcePath = nil;
                           bundle = [NSBundle bundleWithPath:frameworkBundlePath];
                           if (!bundle)
                           {
-                              AD_LOG_INFO_F(@"Resource Loading", @"Failed to load framework bundle. Application main bundle will be attempted.");
+                              AD_LOG_INFO_F(@"Resource Loading", nil, @"Failed to load framework bundle. Application main bundle will be attempted.");
                           }
                       });
     }
@@ -238,7 +238,7 @@ correlationId:(NSUUID *)correlationId
 
     if (webView)
     {
-        AD_LOG_INFO(@"Authorization UI", @"Use the application provided WebView.");
+        AD_LOG_INFO(@"Authorization UI", @"Use the application provided WebView.", nil);
         // Use the application provided WebView
         _authenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL];
         

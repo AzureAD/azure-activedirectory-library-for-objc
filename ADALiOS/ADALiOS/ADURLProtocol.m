@@ -84,20 +84,20 @@ static NSMutableDictionary* s_handlers = nil;
         //for initialization
         if ( [NSURLProtocol propertyForKey:@"ADURLProtocol" inRequest:request] == nil )
         {
-            AD_LOG_VERBOSE_F(sLog, @"Requested handling of URL host: %@", [request.URL host]);
+            AD_LOG_VERBOSE_F(sLog, nil, @"Requested handling of URL host: %@", [request.URL host]);
 
             return YES;
         }
     }
     
-    AD_LOG_VERBOSE_F(sLog, @"Ignoring handling of URL host: %@", [request.URL host]);
+    AD_LOG_VERBOSE_F(sLog, nil, @"Ignoring handling of URL host: %@", [request.URL host]);
     
     return NO;
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
-    AD_LOG_VERBOSE_F(sLog, @"canonicalRequestForRequest host: %@", [request.URL host] );
+    AD_LOG_VERBOSE_F(sLog, nil, @"canonicalRequestForRequest host: %@", [request.URL host] );
     
     return request;
 }
@@ -106,7 +106,7 @@ static NSMutableDictionary* s_handlers = nil;
 {
     if (!self.request)
     {
-        AD_LOG_WARN(sLog, @"startLoading called without specifying the request.");
+        AD_LOG_WARN(sLog, @"startLoading called without specifying the request.", nil);
         return;
     }
     
@@ -115,7 +115,7 @@ static NSMutableDictionary* s_handlers = nil;
 
 - (void)startLoading:(NSURL*)url
 {
-    AD_LOG_VERBOSE_F(sLog, @"startLoading host: %@", [url host] );
+    AD_LOG_VERBOSE_F(sLog, nil, @"startLoading host: %@", [url host] );
     NSMutableURLRequest *mutableRequest = [self.request mutableCopy];
     [mutableRequest setURL:url];
     [NSURLProtocol setProperty:@"YES" forKey:@"ADURLProtocol" inRequest:mutableRequest];
@@ -126,7 +126,7 @@ static NSMutableDictionary* s_handlers = nil;
 
 - (void)stopLoading
 {
-    AD_LOG_VERBOSE_F(sLog, @"Stop loading");
+    AD_LOG_VERBOSE_F(sLog, nil, @"Stop loading");
     [_connection cancel];
     [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
 }
@@ -137,7 +137,7 @@ static NSMutableDictionary* s_handlers = nil;
 {
     (void)connection;
     
-    AD_LOG_VERBOSE_F(sLog, @"connection:didFaileWithError: %@", error);
+    AD_LOG_VERBOSE_F(sLog, nil, @"connection:didFaileWithError: %@", error);
     [self.client URLProtocol:self didFailWithError:error];
 }
 
@@ -146,7 +146,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 {
     NSString* authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
     
-    AD_LOG_VERBOSE_F(sLog, @"connection:willSendRequestForAuthenticationChallenge: %@. Previous challenge failure count: %ld", authMethod, (long)challenge.previousFailureCount);
+    AD_LOG_VERBOSE_F(sLog, nil, @"connection:willSendRequestForAuthenticationChallenge: %@. Previous challenge failure count: %ld", authMethod, (long)challenge.previousFailureCount);
     
     BOOL handled = NO;
     @synchronized([self class])
@@ -171,7 +171,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 {
     (void)connection;
     
-    AD_LOG_VERBOSE_F(sLog, @"HTTPProtocol::connection:willSendRequest:. Redirect response: %@. New request:%@", response.URL, request.URL);
+    AD_LOG_VERBOSE_F(sLog, nil, @"HTTPProtocol::connection:willSendRequest:. Redirect response: %@. New request:%@", response.URL, request.URL);
     //Ensure that the webview gets the redirect notifications:
     NSMutableURLRequest* mutableRequest = [request mutableCopy];
     if (response)

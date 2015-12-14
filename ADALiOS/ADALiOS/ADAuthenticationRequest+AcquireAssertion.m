@@ -166,7 +166,7 @@
                  {
                      if (!broadItem.multiResourceRefreshToken)
                      {
-                         AD_LOG_WARN(@"Unexpected", @"Multi-resource refresh token expected here.");
+                         AD_LOG_WARN(@"Unexpected", @"Multi-resource refresh token expected here.", _correlationId);
                          //Recover (avoid infinite recursion):
                          completionBlock(result);
                          return;
@@ -210,7 +210,7 @@
                      completion:(ADAuthenticationCallback)completionBlock
 {
     [self ensureRequest];
-    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code for resource: %@", _resource);
+    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", _correlationId, @"Requesting token by authorization code for resource: %@", _resource);
     
     //samlAssertion = [NSString samlAssertion adBase64];
     NSData *encodeData = [samlAssertion dataUsingEncoding:NSUTF8StringEncoding];

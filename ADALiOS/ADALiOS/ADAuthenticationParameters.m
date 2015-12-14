@@ -72,7 +72,7 @@
     {
         ADWebRequest* request = [[ADWebRequest alloc] initWithURL:resourceUrl correlationId:nil];
         request.method = HTTPGet;
-        AD_LOG_VERBOSE_F(@"Starting authorization challenge request", @"Resource: %@", resourceUrl);
+        AD_LOG_VERBOSE_F(@"Starting authorization challenge request", nil, @"Resource: %@", resourceUrl);
         
         [request send:^(NSError * error, ADWebResponse *response) {
             ADAuthenticationError* adError;
@@ -111,7 +111,7 @@
         return nil;
     }
     
-    AD_LOG_INFO(@"Retrieved authenticate header", authenticateHeader);
+    AD_LOG_INFO(@"Retrieved authenticate header", authenticateHeader, nil);
     return [self parametersFromResponseAuthenticateHeader:authenticateHeader error:error];
 }
 

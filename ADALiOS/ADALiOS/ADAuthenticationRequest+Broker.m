@@ -164,7 +164,7 @@
         return;
     }
     
-    AD_LOG_INFO(@"Invoking broker for authentication", nil);
+    AD_LOG_INFO(@"Invoking broker for authentication", nil, _correlationId);
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];

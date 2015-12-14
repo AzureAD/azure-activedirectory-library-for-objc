@@ -78,7 +78,7 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
         {
             [info appendFormat:@" Details: %@", details];
         }
-        AD_LOG_ERROR(message, code, info);
+        AD_LOG_ERROR(message, code, info, nil);
     }
     
     self = [super initWithDomain:domain code:code userInfo:userInfo];

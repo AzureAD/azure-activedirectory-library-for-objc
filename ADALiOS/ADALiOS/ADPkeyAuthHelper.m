@@ -72,7 +72,7 @@
     }
     else if (![info isWorkPlaceJoined])
     {
-        AD_LOG_INFO(@"PKeyAuth: Received PKeyAuth request but no WPJ info.", nil);
+        AD_LOG_INFO(@"PKeyAuth: Received PKeyAuth request but no WPJ info.", nil, nil);
     }
     else
     {
@@ -84,7 +84,7 @@
             NSString* issuerOU = [ADPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
-                AD_LOG_ERROR(@"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
+                AD_LOG_ERROR(@"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil, nil);
                 [info releaseData];
                 info = nil;
             }
@@ -93,7 +93,7 @@
         {
             if (![NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]])
             {
-                AD_LOG_ERROR(@"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
+                AD_LOG_ERROR(@"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil, nil);
                 [info releaseData];
                 info = nil;
             }
@@ -190,7 +190,7 @@
     }
     
     if (!CC_SHA256([plainData bytes], (CC_LONG)[plainData length], hashBytes)) {
-        [ADLogger log:ADAL_LOG_LEVEL_ERROR message:@"Could not compute SHA265 hash." errorCode:AD_ERROR_UNEXPECTED info:nil ];
+        [ADLogger log:ADAL_LOG_LEVEL_ERROR message:@"Could not compute SHA265 hash." errorCode:AD_ERROR_UNEXPECTED info:nil correlationId:nil];
         if (hashBytes)
             free(hashBytes);
         if (signedHashBytes)
@@ -205,7 +205,7 @@
                                     signedHashBytes,
                                     &signedHashBytesSize);
     
-    [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"Status returned from data signing - " errorCode:status info:nil ];
+    [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"Status returned from data signing - " errorCode:status info:nil correlationId:nil];
     signedHash = [NSData dataWithBytes:signedHashBytes
                                 length:(NSUInteger)signedHashBytesSize];
     
@@ -226,7 +226,7 @@
                                                        options:NSJSONWritingPrettyPrinted
                                                          error:&error];
     if (! jsonData) {
-        [ADLogger log:ADAL_LOG_LEVEL_ERROR message:[NSString stringWithFormat:@"Got an error: %@",error] errorCode:error.code info:nil ];
+        [ADLogger log:ADAL_LOG_LEVEL_ERROR message:[NSString stringWithFormat:@"Got an error: %@",error] errorCode:error.code info:nil correlationId:nil];
     } else {
         return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }

@@ -110,7 +110,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     NSString* type = nil;
     for (NSString* part in parts)
     {
-        AD_LOG_VERBOSE(@"Id_token part", part);
+        AD_LOG_VERBOSE(@"Id_token part", part, nil);
         NSString* decoded = [part adBase64UrlDecode];
         if (![NSString adIsStringNilOrBlank:decoded])
         {
@@ -144,7 +144,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
                     if (![ID_TOKEN_JWT_TYPE isEqualToString:type])
                     {
                         //Log it, but still try to use it as if it was a JWT token
-                        AD_LOG_WARN(@"Incompatible id_token type.", type);
+                        AD_LOG_WARN(@"Incompatible id_token type.", type, nil);
                     }
                 }
             }
@@ -154,7 +154,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     if (!type)
     {
-        AD_LOG_WARN(@"The id_token type is missing.", @"Assuming JWT type.");
+        AD_LOG_WARN(@"The id_token type is missing.", @"Assuming JWT type.", nil);
     }
     
     //Create a read-only dictionary object. Note that the properties checked below are calculated off this dictionary:
@@ -274,7 +274,7 @@ ID_TOKEN_PROPERTY_GETTER(GuestId, ID_TOKEN_GUEST_ID);
     if ([NSString adIsStringNilOrBlank:storedUserId])
     {
         //The userId should be valid:
-        AD_LOG_ERROR_F(@"Invalid user information", AD_ERROR_BAD_CACHE_FORMAT, @"Invalid userId: %@", storedUserId);
+        AD_LOG_ERROR_F(@"Invalid user information", AD_ERROR_BAD_CACHE_FORMAT, nil, @"Invalid userId: %@", storedUserId);
         
         return nil;
     }

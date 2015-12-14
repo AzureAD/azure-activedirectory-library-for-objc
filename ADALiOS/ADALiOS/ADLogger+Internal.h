@@ -19,23 +19,23 @@
 #import "ADLogger.h"
 
 //A simple macro for single-line logging:
-#define AD_LOG(_level, _msg, _code, _info) [ADLogger log:_level message:_msg errorCode:_code info:_info]
+#define AD_LOG(_level, _msg, _code, _info, _correlationId) [ADLogger log:_level message:_msg errorCode:_code info:_info correlationId:_correlationId]
 
 #define FIRST_ARG(ARG,...) ARG
 
 //Allows formatting, e.g. AD_LOG_FORMAT(ADAL_LOG_LEVEL_INFO, "Something", "Check this: %@ and this: %@", this1, this2)
 //If we make this a method, we will lose the warning when the string formatting parameters do not match the actual parameters.
-#define AD_LOG_F(_level, _msg, _code, _fmt, ...) [ADLogger log:_level message:_msg errorCode:_code format:_fmt, ##__VA_ARGS__ ]
+#define AD_LOG_F(_level, _msg, _code, _correlationId, _fmt, ...) [ADLogger log:_level message:_msg errorCode:_code correlationId:_correlationId format:_fmt, ##__VA_ARGS__ ]
 
-#define AD_LOG_ERROR(_message, _code, _info)    AD_LOG(ADAL_LOG_LEVEL_ERROR, _message, _code, _info)
-#define AD_LOG_WARN(_message, _info)            AD_LOG(ADAL_LOG_LEVEL_WARN, _message, AD_ERROR_SUCCEEDED, _info)
-#define AD_LOG_INFO(_message, _info)            AD_LOG(ADAL_LOG_LEVEL_INFO, _message, AD_ERROR_SUCCEEDED, _info)
-#define AD_LOG_VERBOSE(_message, _info)         AD_LOG(ADAL_LOG_LEVEL_VERBOSE, _message, AD_ERROR_SUCCEEDED, _info)
+#define AD_LOG_ERROR(_message, _code, _info, _correlationId)    AD_LOG(ADAL_LOG_LEVEL_ERROR, _message, _code, _info, _correlationId)
+#define AD_LOG_WARN(_message, _info, _correlationId)            AD_LOG(ADAL_LOG_LEVEL_WARN, _message, AD_ERROR_SUCCEEDED, _info, _correlationId)
+#define AD_LOG_INFO(_message, _info, _correlationId)            AD_LOG(ADAL_LOG_LEVEL_INFO, _message, AD_ERROR_SUCCEEDED, _info, _correlationId)
+#define AD_LOG_VERBOSE(_message, _info, _correlationId)         AD_LOG(ADAL_LOG_LEVEL_VERBOSE, _message, AD_ERROR_SUCCEEDED, _info, _correlationId)
 
-#define AD_LOG_ERROR_F(_msg, _code, _fmt, ...)        AD_LOG_F(ADAL_LOG_LEVEL_ERROR, _msg, _code, _fmt, ##__VA_ARGS__)
-#define AD_LOG_WARN_F(_msg, _fmt, ...)                AD_LOG_F(ADAL_LOG_LEVEL_WARN, _msg, AD_ERROR_SUCCEEDED, _fmt, ##__VA_ARGS__)
-#define AD_LOG_INFO_F(_msg, _fmt, ...)                AD_LOG_F(ADAL_LOG_LEVEL_INFO, _msg, AD_ERROR_SUCCEEDED, _fmt, ##__VA_ARGS__)
-#define AD_LOG_VERBOSE_F(_msg, _fmt, ...)             AD_LOG_F(ADAL_LOG_LEVEL_VERBOSE, _msg, AD_ERROR_SUCCEEDED, _fmt, ##__VA_ARGS__)
+#define AD_LOG_ERROR_F(_msg, _code, _correlationId, _fmt, ...)        AD_LOG_F(ADAL_LOG_LEVEL_ERROR, _msg, _code, _correlationId, _fmt, ##__VA_ARGS__)
+#define AD_LOG_WARN_F(_msg, _correlationId, _fmt, ...)                AD_LOG_F(ADAL_LOG_LEVEL_WARN, _msg, AD_ERROR_SUCCEEDED, _correlationId, _fmt, ##__VA_ARGS__)
+#define AD_LOG_INFO_F(_msg, _correlationId, _fmt, ...)                AD_LOG_F(ADAL_LOG_LEVEL_INFO, _msg, AD_ERROR_SUCCEEDED, _correlationId, _fmt, ##__VA_ARGS__)
+#define AD_LOG_VERBOSE_F(_msg, _correlationId, _fmt, ...)             AD_LOG_F(ADAL_LOG_LEVEL_VERBOSE, _msg, AD_ERROR_SUCCEEDED, _correlationId, _fmt, ##__VA_ARGS__)
 
 #ifndef DebugLog
 #ifdef DEBUG
@@ -70,13 +70,15 @@
 + (void)log:(ADAL_LOG_LEVEL)logLevel
     message:(NSString*)message
   errorCode:(NSInteger)errorCode
-       info:(NSString*)additionalInformation;
+       info:(NSString*)additionalInformation
+correlationId:(NSUUID*)correlationId;
 
 /*! Convience logging fucntion. Allows the creation of additionalInformation strings using format strings. */
 + (void)log:(ADAL_LOG_LEVEL)level
     message:(NSString*)message
   errorCode:(NSInteger)code
-     format:(NSString*)format, ... __attribute__((format(__NSString__, 4, 5)));
+correlationId:(NSUUID*)correlationId
+     format:(NSString*)format, ... __attribute__((format(__NSString__, 5, 6)));
 
 /*! Logs obtaining of a token. The method does not log the actual token, only its hash.
  @param token: the token to log.

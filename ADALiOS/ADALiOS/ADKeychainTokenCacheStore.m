@@ -153,7 +153,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         NSDictionary* first = [toReturn objectForKey:key];
         if (first != nil)
         {
-            AD_LOG_INFO_F(sKeyChainlog, @"Duplicated keychain cache entry: %@. Picking the newest...", key);
+            AD_LOG_INFO_F(sKeyChainlog, nil, @"Duplicated keychain cache entry: %@. Picking the newest...", key);
             //Note that this can happen if the application has multiple keychain groups and the keychain group is
             //not specified explicitly:
             //Recover by picking the newest (based on modification date):
@@ -176,7 +176,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 -(void) LogItem: (ADTokenCacheStoreItem*) item
         message: (NSString*) additionalMessage
 {
-    AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. Resource: %@ Access token hash: %@; Refresh token hash: %@", additionalMessage, item.resource, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
+    AD_LOG_VERBOSE_F(sKeyChainlog, nil, @"%@. Resource: %@ Access token hash: %@; Refresh token hash: %@", additionalMessage, item.resource, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
 }
 
 //Updates the keychain item. "attributes" parameter should ALWAYS come from previous
