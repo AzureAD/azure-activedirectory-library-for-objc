@@ -147,7 +147,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
     }
     
     NSString* message = [NSString stringWithFormat:@"Attempting to validate the authority: %@; CorrelationId: %@", authority, [correlationId UUIDString]];
-    AD_LOG_VERBOSE(@"Instance discovery", message, correlationId);
+    AD_LOG_VERBOSE(@"Instance discovery", correlationId, message);
     
     ADAuthenticationError* error;
     NSString* authorityHost = [self extractHost:authority correlationId:correlationId error:&error];
@@ -189,7 +189,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
     }
     
     NSString* message = [NSString stringWithFormat:@"Checking cache for '%@'. Result: %d", authorityHost, validated];
-    AD_LOG_VERBOSE(@"Authority Validation Cache", message, nil);
+    AD_LOG_VERBOSE(@"Authority Validation Cache", nil, message);
     return validated;
 }
 
@@ -204,7 +204,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
     }
     
     NSString* message = [NSString stringWithFormat:@"Setting validation set to YES for authority '%@'", authorityHost];
-    AD_LOG_VERBOSE(@"Authority Validation Cache", message, nil);
+    AD_LOG_VERBOSE(@"Authority Validation Cache", nil, message);
 }
 
 //Sends authority validation to the trustedAuthority by leveraging the instance discovery endpoint
@@ -229,7 +229,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
     
     NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data adURLFormEncode]];
     
-    AD_LOG_VERBOSE(@"Authority Validation Request", endPoint, correlationId);
+    AD_LOG_VERBOSE(@"Authority Validation Request", correlationId, endPoint);
     ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint] correlationId:correlationId];
     
     webRequest.method = HTTPGet;
@@ -259,7 +259,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
                      {
                          // Load the response
                          response = (NSDictionary *)jsonObject;
-                         AD_LOG_VERBOSE(@"Discovery response", response.description, correlationId);
+                         AD_LOG_VERBOSE(@"Discovery response", correlationId, response.description);
                          verified = ![NSString adIsStringNilOrBlank:[response objectForKey:sTenantDiscoveryEndpoint]];
                          if (verified)
                          {
@@ -300,14 +300,14 @@ NSString* const sValidationServerError = @"The authority validation server retur
                      // Request failure
                      NSString* logMessage = [NSString stringWithFormat:@"Server HTTP Status %ld", (long)webResponse.statusCode];
                      NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding]];
-                     AD_LOG_WARN(logMessage, errorData, correlationId);
+                     AD_LOG_WARN(logMessage, correlationId, errorData);
                      adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData];
                  }
              }
          }
          else
          {
-             AD_LOG_WARN(@"System error while making request.", error.description, correlationId);
+             AD_LOG_WARN(@"System error while making request.", correlationId, error.description);
              // System error
              adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription];
          }

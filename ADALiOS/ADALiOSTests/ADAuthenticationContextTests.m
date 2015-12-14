@@ -51,7 +51,7 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationResult* mResult;//Result of asynchronous operation;
 }
 
-@property (readonly, getter = testContext) ADTestAuthenticationContext* testContext;
+@property (readonly) ADTestAuthenticationContext* testContext;
 
 @end
 

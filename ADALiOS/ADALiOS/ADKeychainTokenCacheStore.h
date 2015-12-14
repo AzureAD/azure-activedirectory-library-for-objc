@@ -33,6 +33,6 @@
 /* The shared keychain group, where the ADAL library will keep the tokens.
  May be nil. The cache items from the previous keychain group are not transferred
  automatically. */
-@property (getter = sharedGroup, setter = setSharedGroup:) NSString* sharedGroup;
+@property NSString* sharedGroup;
 
 @end

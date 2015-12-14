@@ -35,7 +35,7 @@
 /*! The resource URI, as returned by the server. */
 @property (readonly) NSString* resource;
 
-@property (readonly, getter = extractedParameters) NSDictionary* extractedParameters;
+@property (readonly) NSDictionary* extractedParameters;
 
 /*! The completion block declaration. In case of success, NSException parameter is nil and ADAuthenticationParameters
  is a valid pointer. If an error occurs, ADAuthenticationParameters will be nil and the NSException parameter

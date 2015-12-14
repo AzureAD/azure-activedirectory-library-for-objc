@@ -106,7 +106,7 @@ static NSMutableDictionary* s_handlers = nil;
 {
     if (!self.request)
     {
-        AD_LOG_WARN(sLog, @"startLoading called without specifying the request.", nil);
+        AD_LOG_WARN(sLog, nil, @"startLoading called without specifying the request.");
         return;
     }
     

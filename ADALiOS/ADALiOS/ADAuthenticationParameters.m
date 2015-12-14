@@ -111,7 +111,7 @@
         return nil;
     }
     
-    AD_LOG_INFO(@"Retrieved authenticate header", authenticateHeader, nil);
+    AD_LOG_INFO(@"Retrieved authenticate header", nil, authenticateHeader);
     return [self parametersFromResponseAuthenticateHeader:authenticateHeader error:error];
 }
 

@@ -62,7 +62,7 @@ static NSURLConnection *_conn = nil;
         _cancellationUrl = nil;
         _conn = nil;
         _challengeCancelled = NO;
-        AD_LOG_VERBOSE(AD_WPJ_LOG, @"NTLM session ended", nil);
+        AD_LOG_VERBOSE(AD_WPJ_LOG, nil, @"NTLM session ended");
     }
 }
 

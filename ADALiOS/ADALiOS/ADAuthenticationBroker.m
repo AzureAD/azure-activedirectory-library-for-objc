@@ -238,7 +238,7 @@ correlationId:(NSUUID *)correlationId
 
     if (webView)
     {
-        AD_LOG_INFO(@"Authorization UI", @"Use the application provided WebView.", nil);
+        AD_LOG_INFO(@"Authorization UI", nil, @"Use the application provided WebView.");
         // Use the application provided WebView
         _authenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL];
         

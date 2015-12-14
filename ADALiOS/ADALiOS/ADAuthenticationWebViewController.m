@@ -212,14 +212,14 @@ NSTimer *timer;
     if ( _complete == YES )
     {
         //We expect to get an error here, as we intentionally fail to navigate to the final redirect URL.
-        AD_LOG_VERBOSE(@"Expected error", [error localizedDescription], nil);
+        AD_LOG_VERBOSE(@"Expected error", nil, [error localizedDescription]);
         return;
     }
     
     // Tell our delegate that we are done after an error.
     if (_delegate)
     {
-        AD_LOG_ERROR(@"authorization error", error.code, [error localizedDescription], nil);
+        AD_LOG_ERROR(@"authorization error", error.code, nil, [error localizedDescription]);
         if([ADNTLMHandler isChallengeCancelled]){
             dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCancel]; } );
         } else{
@@ -228,7 +228,7 @@ NSTimer *timer;
     }
     else
     {
-        AD_LOG_ERROR(@"Delegate object is lost", AD_ERROR_APPLICATION, @"The delegate object was lost, potentially due to another concurrent request.", nil);
+        AD_LOG_ERROR(@"Delegate object is lost", AD_ERROR_APPLICATION, nil, @"The delegate object was lost, potentially due to another concurrent request.");
     }
 }
 

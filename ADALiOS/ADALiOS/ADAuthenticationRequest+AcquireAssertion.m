@@ -166,7 +166,7 @@
                  {
                      if (!broadItem.multiResourceRefreshToken)
                      {
-                         AD_LOG_WARN(@"Unexpected", @"Multi-resource refresh token expected here.", _correlationId);
+                         AD_LOG_WARN(@"Unexpected", _correlationId, @"Multi-resource refresh token expected here.");
                          //Recover (avoid infinite recursion):
                          completionBlock(result);
                          return;

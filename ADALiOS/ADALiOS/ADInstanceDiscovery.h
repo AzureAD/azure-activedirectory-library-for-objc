@@ -30,7 +30,7 @@ typedef void(^ADDiscoveryCallback)(BOOL validated, ADAuthenticationError* error)
     NSMutableSet* mValidatedAuthorities;
 }
 
-@property (readonly, getter = validatedAuthorities) NSSet* validatedAuthorities;
+@property (readonly) NSSet* validatedAuthorities;
 
 /*! The shared instance of the class. Attempt to create the class with new or init will throw an exception.*/
 +(ADInstanceDiscovery*) sharedInstance;

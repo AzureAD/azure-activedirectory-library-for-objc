@@ -109,7 +109,7 @@
                                                                           error:&localError];
         if (!broadKey)
         {
-            AD_LOG_WARN(@"Unexpected error", localError.errorDetails, [self correlationId]);
+            AD_LOG_WARN(@"Unexpected error", [self correlationId], localError.errorDetails);
             return nil;//Recover
         }
         ADTokenCacheStoreItem* broadItem = [self extractCacheItemWithKey:broadKey userId:userId error:&localError];
@@ -134,7 +134,7 @@
 {
     THROW_ON_NIL_ARGUMENT(response);
     THROW_ON_NIL_ARGUMENT(item);
-    AD_LOG_VERBOSE(@"Token extraction", @"Attempt to extract the data from the server response.", [self correlationId]);
+    AD_LOG_VERBOSE(@"Token extraction", [self correlationId], @"Attempt to extract the data from the server response.");
     
     NSString* responseId = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
     NSUUID* responseUUID;

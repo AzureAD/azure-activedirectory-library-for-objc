@@ -65,7 +65,7 @@
     }
     else
     {
-        AD_LOG_WARN(@"Missing expiration time.", @"The server did not return the expiration time for the access token.", nil);
+        AD_LOG_WARN(@"Missing expiration time.", nil, @"The server did not return the expiration time for the access token.");
     }
     
     if (!expires)

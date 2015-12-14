@@ -44,34 +44,34 @@
 @property (readonly) NSString* uniqueId;
 
 /*! May be null */
-@property (readonly, getter = givenName) NSString* givenName;
+@property (readonly) NSString* givenName;
 
 /*! May be null */
-@property (readonly, getter = familyName) NSString* familyName;
+@property (readonly) NSString* familyName;
 
 /*! May be null */
-@property (readonly, getter = identityProvider) NSString* identityProvider;
+@property (readonly) NSString* identityProvider;
 
 /*! May be null */
-@property (readonly, getter = eMail) NSString* eMail;
+@property (readonly) NSString* eMail;
 
 /*! May be null */
-@property (readonly, getter = uniqueName) NSString* uniqueName;
+@property (readonly) NSString* uniqueName;
 
 /*! May be null */
-@property (readonly, getter = upn) NSString* upn;
+@property (readonly) NSString* upn;
 
 /*! May be null */
-@property (readonly, getter = tenantId) NSString* tenantId;
+@property (readonly) NSString* tenantId;
 
 /*! May be null */
-@property (readonly, getter = subject) NSString* subject;
+@property (readonly) NSString* subject;
 
 /*! Unique object id that identifies the user. Internal user representation. May be null. " */
-@property (readonly, getter = userObjectId) NSString* userObjectId;
+@property (readonly) NSString* userObjectId;
 
 /*! Internal representation for guest users to the tenants. May be null. */
-@property (readonly, getter = guestId) NSString* guestId;
+@property (readonly) NSString* guestId;
 
 /*! The raw id_token claim string. */
 @property (readonly) NSString* rawIdToken;

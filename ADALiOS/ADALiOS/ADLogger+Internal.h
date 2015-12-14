@@ -19,7 +19,7 @@
 #import "ADLogger.h"
 
 //A simple macro for single-line logging:
-#define AD_LOG(_level, _msg, _code, _info, _correlationId) [ADLogger log:_level message:_msg errorCode:_code info:_info correlationId:_correlationId]
+#define AD_LOG(_level, _msg, _code, _correlationId, _info) [ADLogger log:_level message:_msg errorCode:_code info:_info correlationId:_correlationId]
 
 #define FIRST_ARG(ARG,...) ARG
 
@@ -27,10 +27,10 @@
 //If we make this a method, we will lose the warning when the string formatting parameters do not match the actual parameters.
 #define AD_LOG_F(_level, _msg, _code, _correlationId, _fmt, ...) [ADLogger log:_level message:_msg errorCode:_code correlationId:_correlationId format:_fmt, ##__VA_ARGS__ ]
 
-#define AD_LOG_ERROR(_message, _code, _info, _correlationId)    AD_LOG(ADAL_LOG_LEVEL_ERROR, _message, _code, _info, _correlationId)
-#define AD_LOG_WARN(_message, _info, _correlationId)            AD_LOG(ADAL_LOG_LEVEL_WARN, _message, AD_ERROR_SUCCEEDED, _info, _correlationId)
-#define AD_LOG_INFO(_message, _info, _correlationId)            AD_LOG(ADAL_LOG_LEVEL_INFO, _message, AD_ERROR_SUCCEEDED, _info, _correlationId)
-#define AD_LOG_VERBOSE(_message, _info, _correlationId)         AD_LOG(ADAL_LOG_LEVEL_VERBOSE, _message, AD_ERROR_SUCCEEDED, _info, _correlationId)
+#define AD_LOG_ERROR(_message, _code, _correlationId, _info)    AD_LOG(ADAL_LOG_LEVEL_ERROR, _message, _code, _correlationId, _info)
+#define AD_LOG_WARN(_message, _correlationId, _info)            AD_LOG(ADAL_LOG_LEVEL_WARN, _message, AD_ERROR_SUCCEEDED, _correlationId, _info)
+#define AD_LOG_INFO(_message, _correlationId, _info)            AD_LOG(ADAL_LOG_LEVEL_INFO, _message, AD_ERROR_SUCCEEDED, _correlationId, _info)
+#define AD_LOG_VERBOSE(_message, _correlationId, _info)         AD_LOG(ADAL_LOG_LEVEL_VERBOSE, _message, AD_ERROR_SUCCEEDED, _correlationId, _info)
 
 #define AD_LOG_ERROR_F(_msg, _code, _correlationId, _fmt, ...)        AD_LOG_F(ADAL_LOG_LEVEL_ERROR, _msg, _code, _correlationId, _fmt, ##__VA_ARGS__)
 #define AD_LOG_WARN_F(_msg, _correlationId, _fmt, ...)                AD_LOG_F(ADAL_LOG_LEVEL_WARN, _msg, AD_ERROR_SUCCEEDED, _correlationId, _fmt, ##__VA_ARGS__)

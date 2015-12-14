@@ -237,7 +237,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                     // Request failure
                     NSString* body = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
                     NSString* errorData = [NSString stringWithFormat:@"Server HTTP status code: %ld. Full response %@", (long)webResponse.statusCode, body];
-                    AD_LOG_WARN(@"HTTP Error", errorData, _correlationId);
+                    AD_LOG_WARN(@"HTTP Error", _correlationId, errorData);
                     
                     //Now add the information to the dictionary, so that the parser can extract it:
                     [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:@(webResponse.statusCode).stringValue errorDetails:errorData]
@@ -256,7 +256,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         }
         else
         {
-            AD_LOG_WARN(@"System error while making request.", error.description, _correlationId);
+            AD_LOG_WARN(@"System error while making request.", _correlationId, error.description);
             // System error
             [response setObject:[ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription]
                          forKey:AUTH_NON_PROTOCOL_ERROR];
@@ -302,7 +302,7 @@ static volatile int sDialogInProgress = 0;
 {
     if ( !OSAtomicCompareAndSwapInt( 1, 0, &sDialogInProgress) )
     {
-        AD_LOG_WARN(@"UI Locking", @"The UI lock has already been released.", _correlationId);
+        AD_LOG_WARN(@"UI Locking", _correlationId, @"The UI lock has already been released.");
     }
     
     s_modalRequest = nil;

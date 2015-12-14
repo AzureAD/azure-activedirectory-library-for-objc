@@ -165,13 +165,13 @@
     
     if (!_correlationId)
     {
-        _correlationId = [self getCorrelationId];
+        _correlationId = [self correlationId];
     }
     
     _requestStarted = YES;
 }
 
-- (NSUUID*)getCorrelationId
+- (NSUUID*)correlationId
 {
     @synchronized(self)
     {
