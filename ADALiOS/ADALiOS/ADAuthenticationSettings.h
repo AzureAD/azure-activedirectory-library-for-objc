@@ -52,7 +52,7 @@
  is only given to the applications from the same vendor. If this property is not set, the behavior
  will depend on the values in the entitlements file (if such exists) and may not result in token
  sharing. The property has no effect if other cache mechanisms are used (non-keychain). */
-@property (getter = getSharedCacheKeychainGroup, setter = setSharedCacheKeychainGroup:) NSString* sharedCacheKeychainGroup;
+@property (getter = sharedCacheKeychainGroup, setter = setSharedCacheKeychainGroup:) NSString* sharedCacheKeychainGroup;
 
 /*! Some servers may require client authentication over TLS. The certificate will be stored in the
  shared keychain group, pointed by this property. */

@@ -49,7 +49,7 @@
     }
 }
 
--(NSDictionary*) getExtractedParameters
+-(NSDictionary*) extractedParameters
 {
     return [NSDictionary dictionaryWithDictionary:_extractedParameters];
 }

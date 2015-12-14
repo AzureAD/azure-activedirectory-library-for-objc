@@ -62,7 +62,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
 }
 
 /*! The getter of the public "validatedAuthorities" property. */
-- (NSSet*) getValidatedAuthorities
+- (NSSet*) validatedAuthorities
 {
     API_ENTRY;
     NSSet* copy;

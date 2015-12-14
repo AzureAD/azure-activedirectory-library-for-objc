@@ -565,7 +565,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     }
 }
 
--(NSString*) getSharedGroup
+-(NSString*) sharedGroup
 {
     return mHelper.sharedGroup;
 }

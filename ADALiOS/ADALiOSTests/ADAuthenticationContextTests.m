@@ -51,7 +51,7 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationResult* mResult;//Result of asynchronous operation;
 }
 
-@property (readonly, getter = getTestContext) ADTestAuthenticationContext* testContext;
+@property (readonly, getter = testContext) ADTestAuthenticationContext* testContext;
 
 @end
 
@@ -642,7 +642,7 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(mResult.error.code, AD_ERROR_MULTIPLE_USERS);
 }
 
--(ADTestAuthenticationContext*) getTestContext
+-(ADTestAuthenticationContext*) testContext
 {
     XCTAssertTrue([mContext isKindOfClass:[ADTestAuthenticationContext class]]);
     return (ADTestAuthenticationContext*)mContext;
