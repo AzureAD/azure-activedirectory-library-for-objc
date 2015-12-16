@@ -85,17 +85,17 @@ extern NSString* const sKeyChainlog;
     NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:attributes];
     [self addStandardAttributes:query];
     
-    AD_LOG_VERBOSE_F(sKeyChainlog, @"Attempting to remove items that match attributes: %@", attributes);
+    AD_LOG_VERBOSE_F(sKeyChainlog, nil, @"Attempting to remove items that match attributes: %@", attributes);
     
     OSStatus res = SecItemDelete((__bridge CFDictionaryRef)query);
     switch (res)
     {
         case errSecSuccess:
-            AD_LOG_VERBOSE_F(sKeyChainlog, @"Successfully removed any items that match: %@", attributes);
+            AD_LOG_VERBOSE_F(sKeyChainlog, nil, @"Successfully removed any items that match: %@", attributes);
             return YES;
         case errSecItemNotFound:
             //It is expected: the item may be removed in parallel by another app, so no raising of error.
-            AD_LOG_VERBOSE_F(sKeyChainlog, @"No items to remove. Searched for: %@", attributes);
+            AD_LOG_VERBOSE_F(sKeyChainlog, nil, @"No items to remove. Searched for: %@", attributes);
             break;
         default:
         {
@@ -183,7 +183,7 @@ extern NSString* const sKeyChainlog;
             //Success:
             return (__bridge_transfer NSArray*)all;
         case errSecItemNotFound:
-            AD_LOG_VERBOSE_F(sKeyChainlog, @"No cache items found.");
+            AD_LOG_VERBOSE_F(sKeyChainlog, nil, @"No cache items found.");
             return [NSArray new];//Empty one
         default:
         {
@@ -263,7 +263,7 @@ extern NSString* const sKeyChainlog;
         case errSecItemNotFound:
             //This can happen in the case of shared keychain groups, where the item can be deleted by another app
             //while this application is working on accessing it:
-            AD_LOG_WARN_F(sKeyChainlog, @"Cannot find item with attributes: %@", attributes);
+            AD_LOG_WARN_F(sKeyChainlog, nil, @"Cannot find item with attributes: %@", attributes);
             return NO;
         default:
         {

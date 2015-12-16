@@ -61,11 +61,11 @@
     }
     else if (expires_in || expires_on)
     {
-        AD_LOG_WARN_F(@"Unparsable time", @"The response value for the access token expiration cannot be parsed: %@", expires);
+        AD_LOG_WARN_F(@"Unparsable time", nil, @"The response value for the access token expiration cannot be parsed: %@", expires);
     }
     else
     {
-        AD_LOG_WARN(@"Missing expiration time.", @"The server did not return the expiration time for the access token.");
+        AD_LOG_WARN(@"Missing expiration time.", nil, @"The server did not return the expiration time for the access token.");
     }
     
     if (!expires)

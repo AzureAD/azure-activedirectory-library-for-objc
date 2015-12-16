@@ -382,7 +382,7 @@
     XCTAssertNil(params.resource);
     ADAssertStringEquals(params.authority, @"https://login.windows.net/common");
     
-    NSDictionary* extractedParameters = [params getExtractedParameters];
+    NSDictionary* extractedParameters = [params extractedParameters];
     XCTAssertNotNil(extractedParameters);
     ADAssertStringEquals([extractedParameters objectForKey:@"anotherParam"], @"Indeed, another param=5");
 }

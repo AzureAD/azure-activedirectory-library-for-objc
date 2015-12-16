@@ -32,7 +32,7 @@
 
 @implementation ADAuthenticationRequest
 
-#define RETURN_IF_NIL(_X) { if (!_X) { AD_LOG_ERROR(@#_X " must not be nil!", AD_FAILED, nil); return nil; } }
+#define RETURN_IF_NIL(_X) { if (!_X) { AD_LOG_ERROR(@#_X " must not be nil!", AD_FAILED, nil, nil); return nil; } }
 #define ERROR_RETURN_IF_NIL(_X) { \
     if (!_X) { \
         if (error) { \
@@ -82,7 +82,7 @@
 #define CHECK_REQUEST_STARTED { \
     if (_requestStarted) { \
         NSString* _details = [NSString stringWithFormat:@"call to %s after the request started. call has no effect.", __PRETTY_FUNCTION__]; \
-        AD_LOG_WARN(_details, nil); \
+        AD_LOG_WARN(_details, nil, nil); \
         return; \
     } \
 }
@@ -165,10 +165,30 @@
     
     if (!_correlationId)
     {
-        _correlationId = [ADLogger getCorrelationId];
+        _correlationId = [self correlationId];
     }
     
     _requestStarted = YES;
+}
+
+- (NSUUID*)correlationId
+{
+    @synchronized(self)
+    {
+        if (_correlationId == nil)
+        {
+            //if correlationId is set in context, use it
+            //if not, generate one
+            if ([_context correlationId])
+            {
+                _correlationId = [_context correlationId];
+            } else {
+                _correlationId = [NSUUID UUID];
+            }
+        }
+        
+        return _correlationId;
+    }
 }
 
 @end

@@ -59,7 +59,7 @@
     ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].copyAndClearCallback;
     if (!completionBlock)
     {
-        AD_LOG_ERROR(@"Received broker response without a completionBlock.", AD_FAILED, nil);
+        AD_LOG_ERROR(@"Received broker response without a completionBlock.", AD_FAILED, nil, nil);
         return;
     }
     
@@ -164,7 +164,7 @@
         return;
     }
     
-    AD_LOG_INFO(@"Invoking broker for authentication", nil);
+    AD_LOG_INFO(@"Invoking broker for authentication", _correlationId, nil);
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];

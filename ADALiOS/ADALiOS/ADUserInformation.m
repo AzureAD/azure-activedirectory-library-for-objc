@@ -110,7 +110,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     NSString* type = nil;
     for (NSString* part in parts)
     {
-        AD_LOG_VERBOSE(@"Id_token part", part);
+        AD_LOG_VERBOSE(@"Id_token part", nil, part);
         NSString* decoded = [part adBase64UrlDecode];
         if (![NSString adIsStringNilOrBlank:decoded])
         {
@@ -144,7 +144,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
                     if (![ID_TOKEN_JWT_TYPE isEqualToString:type])
                     {
                         //Log it, but still try to use it as if it was a JWT token
-                        AD_LOG_WARN(@"Incompatible id_token type.", type);
+                        AD_LOG_WARN(@"Incompatible id_token type.", nil, type);
                     }
                 }
             }
@@ -154,7 +154,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     if (!type)
     {
-        AD_LOG_WARN(@"The id_token type is missing.", @"Assuming JWT type.");
+        AD_LOG_WARN(@"The id_token type is missing.", nil, @"Assuming JWT type.");
     }
     
     //Create a read-only dictionary object. Note that the properties checked below are calculated off this dictionary:
@@ -210,21 +210,21 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 
 //Declares a propperty getter, which extracts the property from the claims dictionary
 #define ID_TOKEN_PROPERTY_GETTER(property, claimName) \
--(NSString*) get##property \
+-(NSString*) property \
 { \
     return [self.allClaims objectForKey:claimName]; \
 }
 
-ID_TOKEN_PROPERTY_GETTER(GivenName, ID_TOKEN_GIVEN_NAME);
-ID_TOKEN_PROPERTY_GETTER(FamilyName, ID_TOKEN_FAMILY_NAME);
-ID_TOKEN_PROPERTY_GETTER(Subject, ID_TOKEN_SUBJECT);
-ID_TOKEN_PROPERTY_GETTER(TenantId, ID_TOKEN_TENANTID);
-ID_TOKEN_PROPERTY_GETTER(Upn, ID_TOKEN_UPN);
-ID_TOKEN_PROPERTY_GETTER(UniqueName, ID_TOKEN_UNIQUE_NAME);
-ID_TOKEN_PROPERTY_GETTER(EMail, ID_TOKEN_EMAIL);
-ID_TOKEN_PROPERTY_GETTER(IdentityProvider, ID_TOKEN_IDENTITY_PROVIDER);
-ID_TOKEN_PROPERTY_GETTER(UserObjectId, ID_TOKEN_OBJECT_ID);
-ID_TOKEN_PROPERTY_GETTER(GuestId, ID_TOKEN_GUEST_ID);
+ID_TOKEN_PROPERTY_GETTER(givenName, ID_TOKEN_GIVEN_NAME);
+ID_TOKEN_PROPERTY_GETTER(familyName, ID_TOKEN_FAMILY_NAME);
+ID_TOKEN_PROPERTY_GETTER(subject, ID_TOKEN_SUBJECT);
+ID_TOKEN_PROPERTY_GETTER(tenantId, ID_TOKEN_TENANTID);
+ID_TOKEN_PROPERTY_GETTER(upn, ID_TOKEN_UPN);
+ID_TOKEN_PROPERTY_GETTER(uniqueName, ID_TOKEN_UNIQUE_NAME);
+ID_TOKEN_PROPERTY_GETTER(eMail, ID_TOKEN_EMAIL);
+ID_TOKEN_PROPERTY_GETTER(identityProvider, ID_TOKEN_IDENTITY_PROVIDER);
+ID_TOKEN_PROPERTY_GETTER(userObjectId, ID_TOKEN_OBJECT_ID);
+ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
 
 +(ADUserInformation*) userInformationWithUserId: (NSString*) userId
                                           error: (ADAuthenticationError* __autoreleasing*) error
@@ -274,7 +274,7 @@ ID_TOKEN_PROPERTY_GETTER(GuestId, ID_TOKEN_GUEST_ID);
     if ([NSString adIsStringNilOrBlank:storedUserId])
     {
         //The userId should be valid:
-        AD_LOG_ERROR_F(@"Invalid user information", AD_ERROR_BAD_CACHE_FORMAT, @"Invalid userId: %@", storedUserId);
+        AD_LOG_ERROR_F(@"Invalid user information", AD_ERROR_BAD_CACHE_FORMAT, nil, @"Invalid userId: %@", storedUserId);
         
         return nil;
     }

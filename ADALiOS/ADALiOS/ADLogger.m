@@ -60,25 +60,6 @@ static NSUUID* s_requestCorrelationId;
     return s_NSLogging;
 }
 
-+ (void)setCorrelationId:(NSUUID*)correlationId
-{
-    @synchronized(self)
-    {
-        s_requestCorrelationId = correlationId;
-    }
-}
-
-+ (NSUUID*)getCorrelationId
-{
-    @synchronized(self)
-    {
-        if (s_requestCorrelationId == nil)
-            s_requestCorrelationId = [NSUUID UUID];
-        
-        return s_requestCorrelationId;
-    }
-}
-
 @end
 
 @implementation ADLogger (Internal)
@@ -125,6 +106,7 @@ static NSUUID* s_requestCorrelationId;
     message:(NSString*)message
   errorCode:(NSInteger)errorCode
        info:(NSString*)info
+correlationId:(NSUUID*)correlationId
 {
     //Note that the logging should not throw, as logging is heavily used in error conditions.
     //Hence, the checks below would rather swallow the error instead of throwing and changing the
@@ -144,12 +126,19 @@ static NSUUID* s_requestCorrelationId;
             if (s_NSLogging)
             {
                 //NSLog is documented as thread-safe:
-                NSLog([self formatStringPerLevel:logLevel], [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message, info, errorCode);
+                NSLog([self formatStringPerLevel:logLevel], [dateFormatter stringFromDate:[NSDate date]], correlationId?[correlationId UUIDString]:@"", message, info, errorCode);
             }
             
             if (s_LogCallback)
             {
-                s_LogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@ - %@] %@", [dateFormatter stringFromDate:[NSDate date]], [[ADLogger getCorrelationId] UUIDString], message], info, errorCode);
+                if (correlationId)
+                {
+                    s_LogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@ - %@] %@", [dateFormatter stringFromDate:[NSDate date]], [correlationId UUIDString], message], info, errorCode);
+                }
+                else
+                {
+                    s_LogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@] %@", [dateFormatter stringFromDate:[NSDate date]], message], info, errorCode);
+                }
             }
         }
     }
@@ -158,6 +147,7 @@ static NSUUID* s_requestCorrelationId;
 + (void)log:(ADAL_LOG_LEVEL)level
     message:(NSString*)message
   errorCode:(NSInteger)code
+correlationId:(NSUUID*)correlationId
      format:(NSString*)format, ...
 {
     va_list args;
@@ -165,7 +155,7 @@ static NSUUID* s_requestCorrelationId;
     NSString* info = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
     
-    [self log:level message:message errorCode:code info:info];
+    [self log:level message:message errorCode:code info:info correlationId:correlationId];
 }
 
 //Extracts the CPU information according to the constants defined in
@@ -182,7 +172,7 @@ static NSUUID* s_requestCorrelationId;
     int result = sysctlbyname("hw.cputype", &cpuType, &structSize, NULL, 0);
     if (result)
     {
-        AD_LOG_WARN_F(@"Logging", @"Cannot extract cpu type. Error: %d", result);
+        AD_LOG_WARN_F(@"Logging", nil, @"Cannot extract cpu type. Error: %d", result);
         return nil;
     }
     
@@ -234,7 +224,7 @@ static NSUUID* s_requestCorrelationId;
        expiresOn: (NSDate*) expiresOn
    correlationId: (NSUUID*) correlationId
 {
-    AD_LOG_VERBOSE_F(@"Token returned", @"Obtained %@ with hash %@, expiring on %@ and correlationId: %@", tokenType, [self getHash:token], expiresOn, [correlationId UUIDString]);
+    AD_LOG_VERBOSE_F(@"Token returned", nil, @"Obtained %@ with hash %@, expiring on %@ and correlationId: %@", tokenType, [self getHash:token], expiresOn, [correlationId UUIDString]);
 }
 
 @end
