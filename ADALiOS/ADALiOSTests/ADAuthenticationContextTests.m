@@ -138,6 +138,8 @@ const int sAsyncContextTimeout = 10;
 /* Pass bad authority argument - nil, empty string, etc. */
 -(void) checkInvalidAuthorityHandling: (NSString*) authority
 {
+    (void)authority;
+    
     //Authority only:
     ADAuthenticationError* error;
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil error:&error];
