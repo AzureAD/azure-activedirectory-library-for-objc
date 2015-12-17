@@ -109,7 +109,7 @@
                                                                           error:&localError];
         if (!broadKey)
         {
-            AD_LOG_WARN(@"Unexpected error", localError.errorDetails);
+            AD_LOG_WARN(@"Unexpected error", [self correlationId], localError.errorDetails);
             return nil;//Recover
         }
         ADTokenCacheStoreItem* broadItem = [self extractCacheItemWithKey:broadKey userId:userId error:&localError];
@@ -164,7 +164,7 @@
         NSString* savedRefreshToken = cacheItem.refreshToken;
         if (result.multiResourceRefreshToken)
         {
-            AD_LOG_VERBOSE_F(@"Token cache store", @"Storing multi-resource refresh token for authority: %@", self.authority);
+            AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Storing multi-resource refresh token for authority: %@", self.authority);
             
             //If the server returned a multi-resource refresh token, we break
             //the item into two: one with the access token and no refresh token and
@@ -179,7 +179,7 @@
             [tokenCacheStoreInstance addOrUpdateItem:multiRefreshTokenItem error:nil];
         }
         
-        AD_LOG_VERBOSE_F(@"Token cache store", @"Storing access token for resource: %@", cacheItem.resource);
+        AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Storing access token for resource: %@", cacheItem.resource);
         [tokenCacheStoreInstance addOrUpdateItem:cacheItem error:nil];
         cacheItem.refreshToken = savedRefreshToken;//Restore for the result
     }
@@ -202,7 +202,7 @@
                 ADTokenCacheStoreItem* existing = [tokenCacheStoreInstance getItemWithKey:exactKey userId:cacheItem.userInformation.userId error:nil];
                 if ([refreshToken isEqualToString:existing.refreshToken])//If still there, attempt to remove
                 {
-                    AD_LOG_VERBOSE_F(@"Token cache store", @"Removing cache for resource: %@", cacheItem.resource);
+                    AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Removing cache for resource: %@", cacheItem.resource);
                     [tokenCacheStoreInstance removeItemWithKey:exactKey userId:existing.userInformation.userId error:nil];
                     removed = YES;
                 }
@@ -217,7 +217,7 @@
                     ADTokenCacheStoreItem* broadItem = [tokenCacheStoreInstance getItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
                     if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
                     {
-                        AD_LOG_VERBOSE_F(@"Token cache store", @"Removing multi-resource refresh token for authority: %@", self.authority);
+                        AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Removing multi-resource refresh token for authority: %@", self.authority);
                         [tokenCacheStoreInstance removeItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
                     }
                 }

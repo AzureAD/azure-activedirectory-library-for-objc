@@ -115,7 +115,7 @@
     }
     
     NSString* log = [NSString stringWithFormat:@"Unrecognized type on identifier match: %d", _type];
-    AD_LOG_ERROR(log, AD_ERROR_UNEXPECTED, nil);
+    AD_LOG_ERROR(log, AD_ERROR_UNEXPECTED, nil, nil);
     
     return nil;
 }
@@ -157,7 +157,7 @@
     
     // If it didn't match against a known type return default, but log an error
     NSString* log = [NSString stringWithFormat:@"Did not recognize type \"%@\"", type];
-    AD_LOG_ERROR(log, AD_ERROR_UNEXPECTED, nil);
+    AD_LOG_ERROR(log, AD_ERROR_UNEXPECTED, nil, nil);
     return DEFAULT_USER_TYPE;
 }
 

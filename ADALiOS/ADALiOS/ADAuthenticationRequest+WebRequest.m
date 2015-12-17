@@ -146,11 +146,11 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     
     if (isGetRequest)
     {
-        AD_LOG_VERBOSE_F(@"Get request", @"Sending GET request to %@ with client-request-id %@", endPoint, [_correlationId UUIDString]);
+        AD_LOG_VERBOSE_F(@"Get request", _correlationId, @"Sending GET request to %@ with client-request-id %@", endPoint, [_correlationId UUIDString]);
     }
     else
     {
-        AD_LOG_VERBOSE_F(@"Post request", @"Sending POST request to %@ with client-request-id %@", endPoint, [_correlationId UUIDString]);
+        AD_LOG_VERBOSE_F(@"Post request", _correlationId, @"Sending POST request to %@ with client-request-id %@", endPoint, [_correlationId UUIDString]);
     }
     
     webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
@@ -223,7 +223,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                                 bodyStr = [[NSString alloc] initWithFormat:@"large response, probably HTML, <%lu bytes>", (unsigned long)[webResponse.body length]];
                             }
                             
-                            AD_LOG_ERROR_F(@"JSON deserialization", jsonError.code, @"Error: %@. Body text: '%@'. HTTPS Code: %ld. Response correlation id: %@", jsonError.description, bodyStr, (long)webResponse.statusCode, responseCorrelationId);
+                            AD_LOG_ERROR_F(@"JSON deserialization", jsonError.code, _correlationId, @"Error: %@. Body text: '%@'. HTTPS Code: %ld. Response correlation id: %@", jsonError.description, bodyStr, (long)webResponse.statusCode, responseCorrelationId);
                             adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
                         }
                         else
@@ -239,7 +239,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                     // Request failure
                     NSString* body = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
                     NSString* errorData = [NSString stringWithFormat:@"Server HTTP status code: %ld. Full response %@", (long)webResponse.statusCode, body];
-                    AD_LOG_WARN(@"HTTP Error", errorData);
+                    AD_LOG_WARN(@"HTTP Error", _correlationId, errorData);
                     
                     //Now add the information to the dictionary, so that the parser can extract it:
                     [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:@(webResponse.statusCode).stringValue errorDetails:errorData]
@@ -258,7 +258,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         }
         else
         {
-            AD_LOG_WARN(@"System error while making request.", error.description);
+            AD_LOG_WARN(@"System error while making request.", _correlationId, error.description);
             // System error
             [response setObject:[ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription]
                          forKey:AUTH_NON_PROTOCOL_ERROR];
@@ -304,7 +304,7 @@ static volatile int sDialogInProgress = 0;
 {
     if ( !OSAtomicCompareAndSwapInt( 1, 0, &sDialogInProgress) )
     {
-        AD_LOG_WARN(@"UI Locking", @"The UI lock has already been released.");
+        AD_LOG_WARN(@"UI Locking", _correlationId, @"The UI lock has already been released.");
     }
     
     s_modalRequest = nil;
@@ -321,11 +321,11 @@ static volatile int sDialogInProgress = 0;
         
         if (![NSString adIsStringNilOrBlank:authorizationServer] && ![NSString adIsStringNilOrBlank:resource])
         {
-            AD_LOG_VERBOSE_F(@"State", @"The authorization server returned the following state: %@", state);
+            AD_LOG_VERBOSE_F(@"State", _correlationId, @"The authorization server returned the following state: %@", state);
             return YES;
         }
     }
-    AD_LOG_WARN_F(@"State error", @"Missing or invalid state returned: %@", state);
+    AD_LOG_WARN_F(@"State error", _correlationId, @"Missing or invalid state returned: %@", state);
     return NO;
 }
 
@@ -399,7 +399,7 @@ static volatile int sDialogInProgress = 0;
     THROW_ON_NIL_ARGUMENT(completionBlock);
     [self ensureRequest];
     
-    AD_LOG_VERBOSE_F(@"Requesting authorization code.", @"Requesting authorization code for resource: %@", _resource);
+    AD_LOG_VERBOSE_F(@"Requesting authorization code.", _correlationId, @"Requesting authorization code for resource: %@", _resource);
     if (![self takeExclusionLockWithCallback:completionBlock])
     {
         return;
@@ -534,7 +534,7 @@ static volatile int sDialogInProgress = 0;
     
     if (!authHeaderParams)
     {
-        AD_LOG_ERROR_F(@"Unparseable wwwAuthHeader received.", AD_ERROR_WPJ_REQUIRED, @"%@", wwwAuthHeaderValue);
+        AD_LOG_ERROR_F(@"Unparseable wwwAuthHeader received.", AD_ERROR_WPJ_REQUIRED, _correlationId, @"%@", wwwAuthHeaderValue);
     }
     
     NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer

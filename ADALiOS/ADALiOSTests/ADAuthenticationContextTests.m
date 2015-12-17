@@ -51,7 +51,7 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationResult* mResult;//Result of asynchronous operation;
 }
 
-@property (readonly, getter = getTestContext) ADTestAuthenticationContext* testContext;
+@property (readonly) ADTestAuthenticationContext* testContext;
 
 @end
 
@@ -545,21 +545,22 @@ const int sAsyncContextTimeout = 10;
     [self addCacheWithToken:someTokenValue refreshToken:nil];
     acquireTokenAsync;
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
-    NSUUID* corrId = [mContext getCorrelationId];
+    NSUUID* corrId = [mContext correlationId];
     //Cache a token for nil user:
     NSString* nilUserTokenValue = @"nil user value";
     [self addCacheWithToken:nilUserTokenValue refreshToken:nil userId:nil];
     acquireTokenAsync;
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
-    XCTAssertNotEqual([corrId UUIDString], [[mContext getCorrelationId] UUIDString]);
+    //Both should be nil because context is nil unless set manually
+    XCTAssertEqual([corrId UUIDString], [[mContext correlationId] UUIDString]);
     corrId = [NSUUID UUID];
     [mContext setCorrelationId:corrId];
     acquireTokenAsync;
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
-    ADAssertStringEquals([corrId UUIDString], [[mContext getCorrelationId] UUIDString]);
+    ADAssertStringEquals([corrId UUIDString], [[mContext correlationId] UUIDString]);
     acquireTokenAsync;
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
-    ADAssertStringEquals([corrId UUIDString], [[mContext getCorrelationId] UUIDString]);
+    ADAssertStringEquals([corrId UUIDString], [[mContext correlationId] UUIDString]);
 }
 
 -(void) testAcquireTokenWithUserCache
@@ -644,7 +645,7 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(mResult.error.code, AD_ERROR_MULTIPLE_USERS);
 }
 
--(ADTestAuthenticationContext*) getTestContext
+-(ADTestAuthenticationContext*) testContext
 {
     XCTAssertTrue([mContext isKindOfClass:[ADTestAuthenticationContext class]]);
     return (ADTestAuthenticationContext*)mContext;

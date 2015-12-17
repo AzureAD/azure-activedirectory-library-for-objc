@@ -366,7 +366,7 @@ static NSMutableArray* s_responses = nil;
         NSString* requestURLString = [[_request URL] absoluteString];
         NSAssert(response, @"did not find a matching response for %@", requestURLString);
         
-        AD_LOG_ERROR_F(@"No matching response found.", NSURLErrorNotConnectedToInternet, @"request url = %@", [_request URL]);
+        AD_LOG_ERROR_F(@"No matching response found.", NSURLErrorNotConnectedToInternet, nil, @"request url = %@", [_request URL]);
         [self dispatchIfNeed:^{
             NSError* error = [NSError errorWithDomain:NSURLErrorDomain
                                                  code:NSURLErrorNotConnectedToInternet
@@ -398,13 +398,13 @@ static NSMutableArray* s_responses = nil;
             
             if (!requestValue)
             {
-                AD_LOG_ERROR_F(@"Missing request header", AD_FAILED, @"expected \"%@\" header", key);
+                AD_LOG_ERROR_F(@"Missing request header", AD_FAILED, nil, @"expected \"%@\" header", key);
                 failed = YES;
             }
             
             if (![requestValue isEqualToString:value])
             {
-                AD_LOG_ERROR_F(@"Mismatched request header", AD_FAILED, @"On \"%@\" header, expected:\"%@\" actual:\"%@\"", key, value, requestValue);
+                AD_LOG_ERROR_F(@"Mismatched request header", AD_FAILED, nil, @"On \"%@\" header, expected:\"%@\" actual:\"%@\"", key, value, requestValue);
                 failed = YES;
             }
         }

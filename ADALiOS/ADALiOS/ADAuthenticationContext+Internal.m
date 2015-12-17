@@ -25,8 +25,6 @@ NSString* const ADServerError = @"The authentication server returned an error: %
 NSString* const ADBrokerAppIdentifier = @"com.microsoft.azureadauthenticator";
 NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to invoke the application. Update your redirect URI to be of  <app-scheme>://<bundle-id> format";
 
-static BOOL isCorrelationIdUserProvided = NO;
-
 @implementation ADAuthenticationContext (Internal)
 
 /*! Verifies that the string parameter is not nil or empty. If it is,
@@ -158,30 +156,6 @@ static BOOL isCorrelationIdUserProvided = NO;
     }
     
     return result;
-}
-
-//Makes sure that the correlation id contains a valid UUID.
-//Generates a new one if needed.
-- (void)updateCorrelationId:(NSUUID* __autoreleasing*)correlationId
-{
-    THROW_ON_NIL_ARGUMENT(correlationId);
-    if (!*correlationId || !isCorrelationIdUserProvided)
-    {
-        [ADLogger setCorrelationId:[NSUUID UUID]];
-        *correlationId = [self getCorrelationId];
-    }
-}
-
-
-- (NSUUID*)getCorrelationId
-{
-    return ADLogger.getCorrelationId;
-}
-
-- (void)setCorrelationId:(NSUUID*)correlationId
-{
-    [ADLogger setCorrelationId: correlationId];
-    isCorrelationIdUserProvided = YES;
 }
 
 @end

@@ -162,7 +162,7 @@
                  {
                      if (!broadItem.multiResourceRefreshToken)
                      {
-                         AD_LOG_WARN(@"Unexpected", @"Multi-resource refresh token expected here.");
+                         AD_LOG_WARN(@"Unexpected", _correlationId, @"Multi-resource refresh token expected here.");
                          //Recover (avoid infinite recursion):
                          completionBlock(result);
                          return;
@@ -267,7 +267,7 @@
     
     [self ensureRequest];
     
-    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", @"Resource: %@", _resource);
+    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", _correlationId, @"Resource: %@", _resource);
     
     if (!_context.validateAuthority)
     {
@@ -329,7 +329,7 @@
         [request_data setObject:_resource forKey:OAUTH2_RESOURCE];
     }
     
-    AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@';", _clientId, _resource);
+    AD_LOG_INFO_F(@"Sending request for refreshing token.", _correlationId, @"Client id: '%@'; resource: '%@';", _clientId, _resource);
     [self requestWithServer:_context.authority
                 requestData:request_data
             handledPkeyAuth:NO
@@ -395,7 +395,7 @@
 {
     HANDLE_ARGUMENT(code);
     [self ensureRequest];
-    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", @"Requesting token by authorization code for resource: %@", _resource);
+    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", _correlationId, @"Requesting token by authorization code for resource: %@", _resource);
     
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
