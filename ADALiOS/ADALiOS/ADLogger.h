@@ -60,11 +60,5 @@ typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
 /*! YES if the messages are logged through NSLog.*/
 + (BOOL)getNSLogging;
 
-/*! Sets correlation id to be used in the requests sent to server. */
-+ (void)setCorrelationId:(NSUUID*)correlationId;
-
-/*! Gets correlation Id. */
-+ (NSUUID*)getCorrelationId;
-
 @end
 

@@ -198,7 +198,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 
 /*! Unique identifier passed to the server and returned back with errors. Useful during investigations to correlate the
  requests and the responses from the server. If nil, a new UUID is generated on every request. */
-@property (strong, getter=getCorrelationId, setter=setCorrelationId:) NSUUID* correlationId;
+@property (strong) NSUUID* correlationId;
 
 /*! See the ADCredentialsType enumeration definition for details */
 @property ADCredentialsType credentialsType;

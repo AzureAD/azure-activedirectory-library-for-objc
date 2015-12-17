@@ -70,11 +70,5 @@ extern NSString* const ADRedirectUriInvalidError;
                                  toUser:(ADUserIdentifier*)userId;
 
 - (BOOL)hasCacheStore;
-- (NSUUID*)getCorrelationId;
-- (void)setCorrelationId:(NSUUID*)correlationId;
-
-//Makes sure that the correlation id contains a valid UUID.
-//Generates a new one if needed.
-- (void)updateCorrelationId:(NSUUID* __autoreleasing*)correlationId;
 
 @end

@@ -131,14 +131,14 @@ const int sAsyncTimeout = 10;//in seconds
     ADAssertLogsContain(TEST_LOG_INFO, @"sharedInstance");
 }
 
--(void) testGetValidatedAuthorities
+-(void) testValidatedAuthorities
 {
     //Test the property:
     NSSet* validatedAuthorities = mInstanceDiscovery.validatedAuthorities;
     XCTAssertNotEqual(validatedAuthorities, mValidatedAuthorities);
     XCTAssertEqualObjects(validatedAuthorities, mValidatedAuthorities);
     XCTAssertFalse([validatedAuthorities isKindOfClass:[NSMutableSet class]], "Read-only class should be returned.");
-    ADAssertLogsContain(TEST_LOG_INFO, @"getValidatedAuthorities");
+    ADAssertLogsContain(TEST_LOG_INFO, @"validatedAuthorities");
     
     //Modify and test again:
     NSString* newAuthority = @"https://testGetValidatedAuthorities.com";

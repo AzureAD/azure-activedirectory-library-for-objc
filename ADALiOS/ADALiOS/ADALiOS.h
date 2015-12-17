@@ -20,11 +20,11 @@
 //version in static define until we identify a better place:
 #define ADAL_VER_HIGH       2
 #define ADAL_VER_LOW        0
-#define ADAL_VER_PATCH      1
+#define ADAL_VER_PATCH      2
 
 #define STR_ADAL_VER_HIGH   "2"
 #define STR_ADAL_VER_LOW    "0"
-#define STR_ADAL_VER_PATCH  "1"
+#define STR_ADAL_VER_PATCH  "2"
 
 #define ADAL_VERSION_STRING     STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH
 #define ADAL_VERSION_NSSTRING   @"" STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH
@@ -47,7 +47,7 @@ NSString* __adalVersion = [NSString stringWithFormat:@"ADAL API call [Version - 
     if (CONDITION) \
     { \
         WHERE; \
-        AD_LOG_ERROR(@"InvalidArgumentException: " #ARG, AD_ERROR_INVALID_ARGUMENT, __where); \
+        AD_LOG_ERROR(@"InvalidArgumentException: " #ARG, AD_ERROR_INVALID_ARGUMENT, nil, __where); \
         @throw [NSException exceptionWithName: NSInvalidArgumentException \
                                        reason:@"Please provide a valid '" #ARG "' parameter." \
                                      userInfo:nil];  \
@@ -81,7 +81,7 @@ argumentName:@#ARG]; \
     if (CONDITION) \
     { \
         WHERE; \
-        AD_LOG_ERROR(@"InvalidArgumentError: " #ARG, AD_ERROR_INVALID_ARGUMENT, __where); \
+        AD_LOG_ERROR(@"InvalidArgumentError: " #ARG, AD_ERROR_INVALID_ARGUMENT, nil, __where); \
         FILL_PARAMETER_ERROR(ARG); \
         return RET; \
     } \
@@ -114,7 +114,7 @@ argumentName:@#ARG]; \
 { \
 WHERE; \
 ADAL_VERSION; \
-AD_LOG_VERBOSE(__adalVersion, __where); \
+AD_LOG_VERBOSE(__adalVersion, nil, __where); \
 }
 
 
