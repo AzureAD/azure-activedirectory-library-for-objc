@@ -140,7 +140,7 @@
     [self callAsynchronousCreator:resource line:__LINE__];
     XCTAssertNil(mParameters, "No parameters should be extracted from non-existing resource.");
     XCTAssertNotNil(mError, "Error should be set.");
-    [self adAssertValidText:mError.errorDetails message:@"The error should have details."];
+    XCTAssertFalse([NSString adIsStringNilOrBlank:mError.errorDetails], @"Error should have details.");
 }
 
 
