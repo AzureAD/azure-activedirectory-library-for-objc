@@ -79,6 +79,7 @@
 
 - (void)onEnterForeground:(NSNotification*)aNotification
 {
+    (void)aNotification;
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationWillEnterForegroundNotification
                                                   object:nil];
