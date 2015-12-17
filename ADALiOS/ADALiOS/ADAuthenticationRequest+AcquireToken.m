@@ -18,6 +18,7 @@
 
 #import "ADAuthenticationRequest.h"
 #import "ADAuthenticationContext+Internal.h"
+#import "ADTokenCacheStoreItem+Internal.h"
 #import "ADInstanceDiscovery.h"
 #import "ADHelpers.h"
 #import "ADUserIdentifier.h"
@@ -344,7 +345,7 @@
          resultItem.authority = _context.authority;
          
          
-         ADAuthenticationResult *result = [_context processTokenResponse:response forItem:resultItem fromRefresh:YES requestCorrelationId:_correlationId];
+         ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:_correlationId];
          if (cacheItem)//The request came from the cache item, update it:
          {
              [_context updateCacheToResult:result

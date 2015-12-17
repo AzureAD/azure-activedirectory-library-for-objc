@@ -18,12 +18,6 @@
 
 @interface ADAuthenticationContext (TokenCaching)
 
-//Understands and processes the access token response:
-- (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
-                                         forItem:(ADTokenCacheStoreItem*)item
-                                     fromRefresh:(BOOL)fromRefreshTokenWorkflow
-                            requestCorrelationId:(NSUUID*)requestCorrelationId;
-
 //Checks the cache for item that can be used to get directly or indirectly an access token.
 //Checks the multi-resource refresh tokens too.
 - (ADTokenCacheStoreItem*)findCacheItemWithKey:(ADTokenCacheStoreKey*) key
