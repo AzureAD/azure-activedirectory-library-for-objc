@@ -92,6 +92,7 @@
             //Found a promising item in the cache, try using it:
             [self attemptToUseCacheItem:cacheItem
                          useAccessToken:accessTokenUsable
+                     retryIfServerError:YES
                         completionBlock:completionBlock];
             return; //The tryRefreshingFromCacheItem has taken care of the token obtaining
         }
@@ -104,6 +105,7 @@
  internal asynchronous call will proceed the processing. */
 - (void)attemptToUseCacheItem:(ADTokenCacheStoreItem*)item
                useAccessToken:(BOOL)useAccessToken
+            retryIfServerError:(BOOL)retryIfServerError
               completionBlock:(ADAuthenticationCallback)completionBlock
 {
     //All of these should be set before calling this method:
@@ -170,11 +172,17 @@
                      //Call recursively with the cache item containing a multi-resource refresh token:
                      [self attemptToUseCacheItem:broadItem
                                   useAccessToken:NO
+                              retryIfServerError:YES
                                  completionBlock:completionBlock];
                      return;//The call above takes over, no more processing
                  }//broad item
              }//key
          }//!item.multiResourceRefreshToken
+         else if (retryIfServerError && [ADAuthenticationContext isServerError:result]) //retry once if fail with server-end error
+         {
+             [self retryMultiResourceRefreshToken:item completionBlock:completionBlock];
+             return;
+         }
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
@@ -182,6 +190,17 @@
      }];//End of the refreshing token completion block, executed asynchronously.
 }
 
+- (void)retryMultiResourceRefreshToken:(ADTokenCacheStoreItem*)item
+                       completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    //retry once after half second
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self attemptToUseCacheItem:item
+                     useAccessToken:NO
+                 retryIfServerError:NO
+                    completionBlock:completionBlock];
+    });
+}
 
 - (void)requestToken:(ADAuthenticationCallback)completionBlock
 {

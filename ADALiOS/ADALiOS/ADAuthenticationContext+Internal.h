@@ -62,6 +62,8 @@ extern NSString* const ADRedirectUriInvalidError;
 
 + (BOOL)isFinalResult:(ADAuthenticationResult*)result;
 
++ (BOOL)isServerError:(ADAuthenticationResult*)result;
+
 + (NSString*)getPromptParameter:(ADPromptBehavior)prompt;
 
 + (BOOL)isForcedAuthorization:(ADPromptBehavior)prompt;

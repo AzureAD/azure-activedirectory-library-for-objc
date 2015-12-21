@@ -28,6 +28,7 @@
                useAccessToken:(BOOL)useAccessToken
                 samlAssertion:(NSString*)samlAssertion
                 assertionType:(ADAssertionType)assertionType
+           retryIfServerError:(BOOL)retryIfServerError
               completionBlock:(ADAuthenticationCallback)completionBlock;
 
 // Generic OAuth2 Authorization Request, obtains a token from a SAML assertion.

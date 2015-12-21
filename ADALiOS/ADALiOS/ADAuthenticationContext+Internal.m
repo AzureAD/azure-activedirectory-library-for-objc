@@ -88,6 +88,14 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
     || (result.error && !result.error.protocolCode); //Connection is down, server is unreachable or DNS error. No need to try refresh tokens.
 }
 
+//Return YES if the failure is because of server error.
+//500 errors are the only ones that we explicitly retry
++ (BOOL)isServerError:(ADAuthenticationResult*)result
+{
+    return [result status]==AD_FAILED && [[[result error] protocolCode] isEqualToString:@"500"];
+}
+
+
 //Translates the ADPromptBehavior into prompt query parameter. May return nil, if such
 //parameter is not needed.
 + (NSString*)getPromptParameter:(ADPromptBehavior)prompt
