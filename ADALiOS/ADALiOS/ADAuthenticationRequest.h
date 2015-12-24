@@ -24,18 +24,18 @@
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
-#define AD_REQUEST_CHECK_ARGUMENT(_arg) { \
+#define AD_REQUEST_CHECK_ARGUMENT(_arg, _correlationId) { \
     if (!_arg || ([_arg isKindOfClass:[NSString class]] && [(NSString*)_arg isEqualToString:@""])) { \
         NSString* _details = @#_arg " must not be nil!"; \
-        completionBlock([ADAuthenticationResult resultFromParameterError:_details]); \
+        completionBlock([ADAuthenticationResult resultFromParameterError:_details correlationId:_correlationId]); \
         return; \
     } \
 }
 
-#define AD_REQUEST_CHECK_PROPERTY(_property) { \
+#define AD_REQUEST_CHECK_PROPERTY(_property, _correlationId) { \
     if (!_property || ([_property isKindOfClass:[NSString class]] && [(NSString*)_property isEqualToString:@""])) { \
         NSString* _details = @#_property " must not be nil!";\
-        completionBlock([ADAuthenticationResult resultFromParameterError:_details]); \
+        completionBlock([ADAuthenticationResult resultFromParameterError:_details correlationId:_correlationId]); \
         return; \
     } \
 }

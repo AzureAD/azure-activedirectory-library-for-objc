@@ -158,7 +158,7 @@
     ADAuthenticationError* error = [ADAuthenticationContext errorFromDictionary:response errorCode:(fromRefreshTokenWorkflow) ? AD_ERROR_INVALID_REFRESH_TOKEN : AD_ERROR_AUTHENTICATION];
     if (error)
     {
-        return [ADAuthenticationResult resultFromError:error];
+        return [ADAuthenticationResult resultFromError:error correlationId:requestCorrelationId];
     }
     
     NSString* accessToken = [response objectForKey:OAUTH2_ACCESS_TOKEN];
@@ -166,7 +166,7 @@
     {
         [item setAuthority:self.authority];
         BOOL isMrrt = [item fillItemWithResponse:response];
-        return [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:isMrrt];
+        return [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:isMrrt correlationId:requestCorrelationId];
     }
     
     //No access token and no error, we assume that there was another kind of error (connection, server down, etc.).
@@ -175,7 +175,7 @@
     error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
                                                    protocolCode:nil
                                                    errorDetails:errorMessage];
-    return [ADAuthenticationResult resultFromError:error];
+    return [ADAuthenticationResult resultFromError:error correlationId:requestCorrelationId];
 }
 
 //Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
@@ -195,7 +195,7 @@
                   cacheItem:(ADTokenCacheStoreItem*)cacheItem
            withRefreshToken:(NSString*)refreshToken
 {
-    if(![ADAuthenticationContext handleNilOrEmptyAsResult:result argumentName:@"result" authenticationResult:&result]){
+    if(![ADAuthenticationContext handleNilOrEmptyAsResult:result argumentName:@"result" authenticationResult:&result correlationId:[result correlationId]]){
         return;
     }
     
@@ -204,9 +204,9 @@
     
     if (AD_SUCCEEDED == result.status)
     {
-        if(![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheStoreItem argumentName:@"tokenCacheStoreItem" authenticationResult:&result]
-           || ![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheStoreItem.resource argumentName:@"resource" authenticationResult:&result]
-           || ![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheStoreItem.accessToken argumentName:@"accessToken" authenticationResult:&result])
+        if(![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheStoreItem argumentName:@"tokenCacheStoreItem" authenticationResult:&result correlationId:[result correlationId]]
+           || ![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheStoreItem.resource argumentName:@"resource" authenticationResult:&result correlationId:[result correlationId]]
+           || ![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheStoreItem.accessToken argumentName:@"accessToken" authenticationResult:&result correlationId:[result correlationId]])
         {
             return;
         }
@@ -239,9 +239,9 @@
     {
         if (AD_ERROR_INVALID_REFRESH_TOKEN == result.error.code)
         {//Bad refresh token. Remove it from the cache:
-            if(![ADAuthenticationContext handleNilOrEmptyAsResult:cacheItem argumentName:@"cacheItem" authenticationResult:&result]
-               || ![ADAuthenticationContext handleNilOrEmptyAsResult:cacheItem.resource argumentName:@"cacheItem.resource" authenticationResult:&result]
-               || ![ADAuthenticationContext handleNilOrEmptyAsResult:refreshToken argumentName:@"refreshToken" authenticationResult:&result])
+            if(![ADAuthenticationContext handleNilOrEmptyAsResult:cacheItem argumentName:@"cacheItem" authenticationResult:&result correlationId:[result correlationId]]
+               || ![ADAuthenticationContext handleNilOrEmptyAsResult:cacheItem.resource argumentName:@"cacheItem.resource" authenticationResult:&result correlationId:[result correlationId]]
+               || ![ADAuthenticationContext handleNilOrEmptyAsResult:refreshToken argumentName:@"refreshToken" authenticationResult:&result correlationId:[result correlationId]])
             {
                 return;
             }

@@ -22,16 +22,19 @@
 @interface ADAuthenticationResult (Internal)
 
 /*! Creates a result from a user or request cancellation condition. */
-+ (ADAuthenticationResult*)resultFromCancellation;
++ (ADAuthenticationResult*)resultFromCancellation:(NSUUID*)correlationId;
 
 /*! Creates an authentication result from an error condition. */
-+ (ADAuthenticationResult*)resultFromError:(ADAuthenticationError*)error;
++ (ADAuthenticationResult*)resultFromError:(ADAuthenticationError*)error
+                             correlationId:(NSUUID*)correlationId;
 
-+ (ADAuthenticationResult*)resultFromParameterError:(NSString*)details;
++ (ADAuthenticationResult*)resultFromParameterError:(NSString*)details
+                                      correlationId:(NSUUID*)correlationId;;
 
 /*! Creates an instance of the result from a pre-setup token cache store item. */
 + (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheStoreItem*)item
-                               multiResourceRefreshToken:(BOOL)multiResourceRefreshToken;
+                               multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
+                                           correlationId:(NSUUID*)correlationId;;
 
 /*! Creates an authentication result from broker response. */
 + (ADAuthenticationResult*)resultFromBrokerResponse:(NSDictionary*)response;

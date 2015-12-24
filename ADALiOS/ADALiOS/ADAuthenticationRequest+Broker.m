@@ -63,7 +63,7 @@
         return;
     }
     
-    HANDLE_ARGUMENT(response);
+    HANDLE_ARGUMENT(response, nil);
     
     NSString *qp = [response query];
     //expect to either response or error and description, AND correlation_id AND hash.
@@ -75,7 +75,11 @@
     }
     else
     {
-        HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
+        NSUUID* correlationId = [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
+                                [[NSUUID alloc] initWithUUIDString:[queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]]
+                                : nil;
+        
+        HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY], correlationId);
         
         NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
         NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
@@ -112,12 +116,13 @@
                 result = [ADAuthenticationResult resultFromError:[ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADAuthenticationErrorDomain
                                                                                                                              code:AD_ERROR_BROKER_RESPONSE_HASH_MISMATCH
                                                                                                                          userInfo:nil]
-                                                                                            errorDetails:@"Decrypted response does not match the hash"]];
+                                                                                            errorDetails:@"Decrypted response does not match the hash"]
+                                                    correlationId:correlationId];
             }
         }
         else
         {
-            result = [ADAuthenticationResult resultFromError:error];
+            result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
         }
     }
     
@@ -147,12 +152,11 @@
 }
 
 - (void)callBroker:(ADAuthenticationCallback)completionBlock
-
 {
-    CHECK_FOR_NIL(_context.authority);
-    CHECK_FOR_NIL(_resource);
-    CHECK_FOR_NIL(_clientId);
-    CHECK_FOR_NIL(_correlationId);
+    CHECK_FOR_NIL(_correlationId, _correlationId);
+    CHECK_FOR_NIL(_context.authority, _correlationId);
+    CHECK_FOR_NIL(_resource, _correlationId);
+    CHECK_FOR_NIL(_clientId, _correlationId);
     
     ADAuthenticationError* error = nil;
     if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
@@ -160,7 +164,7 @@
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
                                                        protocolCode:nil
                                                        errorDetails:ADRedirectUriInvalidError];
-        completionBlock([ADAuthenticationResult resultFromError:error]);
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
         return;
     }
     
@@ -171,8 +175,8 @@
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
     NSString* adalVersion = [ADLogger getAdalVersion];
     
-    CHECK_FOR_NIL(base64UrlKey);
-    CHECK_FOR_NIL(adalVersion);
+    CHECK_FOR_NIL(base64UrlKey, _correlationId);
+    CHECK_FOR_NIL(adalVersion, _correlationId);
     
     NSDictionary* queryDictionary = @{
                                       @"authority": _context.authority,
@@ -212,7 +216,7 @@
 - (void)handleBrokerFromWebiewResponse:(NSString*)urlString
                        completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    CHECK_FOR_NIL(_resource);
+    CHECK_FOR_NIL(_resource, _correlationId);
     
     ADAuthenticationError* error = nil;
     if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
@@ -220,7 +224,7 @@
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
                                                        protocolCode:nil
                                                        errorDetails:ADRedirectUriInvalidError];
-        completionBlock([ADAuthenticationResult resultFromError:error]);
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
         return;
     }
     
@@ -232,9 +236,9 @@
     NSString* correlationIdStr = [_correlationId UUIDString];
     NSString* authority = _context.authority;
     
-    CHECK_FOR_NIL(base64UrlKey);
-    CHECK_FOR_NIL(adalVersion);
-    CHECK_FOR_NIL(authority);
+    CHECK_FOR_NIL(base64UrlKey, _correlationId);
+    CHECK_FOR_NIL(adalVersion, _correlationId);
+    CHECK_FOR_NIL(authority, _correlationId);
     
     NSDictionary* queryDictionary = @{
                                       @"authority": _context.authority,

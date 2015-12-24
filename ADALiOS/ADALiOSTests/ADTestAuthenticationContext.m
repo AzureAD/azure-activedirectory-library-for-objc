@@ -160,7 +160,7 @@
     
     if (!request)
     {
-        completionBlock([ADAuthenticationResult resultFromError:error]);
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:[self correlationId]]);
     }
     
     return request;

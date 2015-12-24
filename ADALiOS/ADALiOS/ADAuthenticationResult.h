@@ -43,6 +43,7 @@ typedef enum
     ADTokenCacheStoreItem*          _tokenCacheStoreItem;
     ADAuthenticationResultStatus    _status;
     ADAuthenticationError*          _error;
+    NSUUID*                         _correlationId;
     BOOL                            _multiResourceRefreshToken;
 }
 
@@ -62,6 +63,8 @@ typedef enum
 /*! Set to YES, if part of the result contains a refresh token, which is a multi-resource
  refresh token. */
 @property (readonly) BOOL multiResourceRefreshToken;
+
+@property (readonly) NSUUID* correlationId;
 
 @end
 

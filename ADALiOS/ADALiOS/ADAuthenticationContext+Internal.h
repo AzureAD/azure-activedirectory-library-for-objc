@@ -17,16 +17,17 @@
 // governing permissions and limitations under the License.
 
 //A wrapper around checkAndHandleBadArgument. Assumes that "completionMethod" is in scope:
-#define HANDLE_ARGUMENT(ARG) \
+#define HANDLE_ARGUMENT(ARG, CORRELATION_ID) \
     if (![ADAuthenticationContext checkAndHandleBadArgument:ARG \
                                              argumentName:TO_NSSTRING(#ARG) \
+                                            correlationId:CORRELATION_ID\
                                           completionBlock:completionBlock]) \
     { \
     return; \
     }
 
-#define CHECK_FOR_NIL(_val) \
-    if (!_val) { completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"" #_val " is nil!"]]); return; }
+#define CHECK_FOR_NIL(_val, _correlationId) \
+    if (!_val) { completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"" #_val " is nil!"] correlationId:_correlationId]); return; }
 
 #import "ADALiOS.h"
 
@@ -50,11 +51,13 @@ extern NSString* const ADRedirectUriInvalidError;
 
 + (BOOL)checkAndHandleBadArgument:(NSObject*) argumentValue
                      argumentName:(NSString*) argumentName
+                    correlationId:(NSUUID*)correlationId
                   completionBlock:(ADAuthenticationCallback)completionBlock;
 
 + (BOOL)handleNilOrEmptyAsResult:(NSObject*)argumentValue
                     argumentName:(NSString*)argumentName
-            authenticationResult:(ADAuthenticationResult**)authenticationResult;
+            authenticationResult:(ADAuthenticationResult**)authenticationResult
+                   correlationId:(NSUUID*)correlationId;
 
 + (ADAuthenticationError*)errorFromDictionary:(NSDictionary*)dictionary
                                     errorCode:(ADErrorCode)errorCode;
