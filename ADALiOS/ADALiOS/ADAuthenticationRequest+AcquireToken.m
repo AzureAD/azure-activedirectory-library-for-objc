@@ -30,7 +30,7 @@
 - (void)acquireToken:(ADAuthenticationCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    AD_REQUEST_CHECK_ARGUMENT(_resource, _correlationId);
+    AD_REQUEST_CHECK_ARGUMENT(_resource);
     [self ensureRequest];
     
     if (!_context.validateAuthority)
@@ -108,9 +108,9 @@
 {
     //All of these should be set before calling this method:
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    AD_REQUEST_CHECK_ARGUMENT(item, _correlationId);
-    AD_REQUEST_CHECK_PROPERTY(_resource, _correlationId);
-    AD_REQUEST_CHECK_PROPERTY(_clientId, _correlationId);
+    AD_REQUEST_CHECK_ARGUMENT(item);
+    AD_REQUEST_CHECK_PROPERTY(_resource);
+    AD_REQUEST_CHECK_PROPERTY(_clientId);
     
     [self ensureRequest];
     
@@ -261,8 +261,8 @@
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    AD_REQUEST_CHECK_ARGUMENT(refreshToken, _correlationId);
-    AD_REQUEST_CHECK_PROPERTY(_clientId, _correlationId);
+    AD_REQUEST_CHECK_ARGUMENT(refreshToken);
+    AD_REQUEST_CHECK_PROPERTY(_clientId);
     
     [self ensureRequest];
     
@@ -392,7 +392,7 @@
 - (void)requestTokenByCode:(NSString *)code
            completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    HANDLE_ARGUMENT(code, _correlationId);
+    HANDLE_ARGUMENT(code);
     [self ensureRequest];
     AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", _correlationId, @"Requesting token by authorization code for resource: %@", _resource);
     

@@ -67,6 +67,12 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 /*! Creates an instance of the result from the cache store. */
 +(ADAuthenticationResult*) resultFromTokenCacheStoreItem: (ADTokenCacheStoreItem*) item
                                multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
+{
+    return [self resultFromTokenCacheStoreItem:item multiResourceRefreshToken:multiResourceRefreshToken correlationId:nil];
+}
+
++(ADAuthenticationResult*) resultFromTokenCacheStoreItem: (ADTokenCacheStoreItem*) item
+                               multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
                                            correlationId: (NSUUID*) correlationId
 {
     if (item)
@@ -96,6 +102,11 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 }
 
 +(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error
+{
+    return [self resultFromError:error correlationId:nil];
+}
+
++(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error
                              correlationId: (NSUUID*) correlationId
 {
     ADAuthenticationResult* result = [ADAuthenticationResult alloc];
@@ -103,9 +114,19 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 }
 
 + (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
+{
+    return [self resultFromParameterError:details correlationId:nil];
+}
+
++ (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
                                       correlationId: (NSUUID*) correlationId
 {
     return [[ADAuthenticationResult alloc] initWithError:[ADAuthenticationError invalidArgumentError:details] status:AD_FAILED correlationId:correlationId];
+}
+
++(ADAuthenticationResult*) resultFromCancellation
+{
+    return [self resultFromCancellation:nil];
 }
 
 +(ADAuthenticationResult*) resultFromCancellation: (NSUUID*) correlationId

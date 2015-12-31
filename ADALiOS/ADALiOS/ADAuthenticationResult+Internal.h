@@ -21,22 +21,27 @@
 /* Internally accessible methods.*/
 @interface ADAuthenticationResult (Internal)
 
-/*! Creates a result from a user or request cancellation condition. */
+/*! Creates a result from a user or request cancellation condition, with/without correlation id. */
++ (ADAuthenticationResult*)resultFromCancellation;
 + (ADAuthenticationResult*)resultFromCancellation:(NSUUID*)correlationId;
 
-/*! Creates an authentication result from an error condition. */
+/*! Creates an authentication result from an error condition, with/without correlation id. */
++ (ADAuthenticationResult*)resultFromError:(ADAuthenticationError*)error;
 + (ADAuthenticationResult*)resultFromError:(ADAuthenticationError*)error
                              correlationId:(NSUUID*)correlationId;
 
++ (ADAuthenticationResult*)resultFromParameterError:(NSString*)details;
 + (ADAuthenticationResult*)resultFromParameterError:(NSString*)details
-                                      correlationId:(NSUUID*)correlationId;;
+                                      correlationId:(NSUUID*)correlationId;
 
-/*! Creates an instance of the result from a pre-setup token cache store item. */
+/*! Creates an instance of the result from a pre-setup token cache store item, with/without correlation id. */
++ (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheStoreItem*)item
+                               multiResourceRefreshToken:(BOOL)multiResourceRefreshToken;
 + (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheStoreItem*)item
                                multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
-                                           correlationId:(NSUUID*)correlationId;;
+                                           correlationId:(NSUUID*)correlationId;
 
-/*! Creates an authentication result from broker response. */
+/*! Creates an authentication result from broker response, which can be with/without correlation id. */
 + (ADAuthenticationResult*)resultFromBrokerResponse:(NSDictionary*)response;
 
 @end

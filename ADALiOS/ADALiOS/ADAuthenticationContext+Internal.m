@@ -34,13 +34,12 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
  the calling method should return. */
 + (BOOL)checkAndHandleBadArgument:(NSObject*)argumentValue
                      argumentName:(NSString*)argumentName
-                    correlationId:(NSUUID*)correlationId
                   completionBlock:(ADAuthenticationCallback)completionBlock
 {
     if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString adIsStringNilOrBlank:(NSString*)argumentValue]))
     {
         ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:argumentError correlationId:correlationId];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:argumentError];
         completionBlock(result);//Call the callback to tell about the result
         return NO;
     }
@@ -53,12 +52,11 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
 + (BOOL)handleNilOrEmptyAsResult:(NSObject*)argumentValue
                     argumentName:(NSString*)argumentName
             authenticationResult:(ADAuthenticationResult**)authenticationResult
-                   correlationId:(NSUUID*)correlationId
 {
     if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString adIsStringNilOrBlank:(NSString*)argumentValue]))
     {
         ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName];
-        *authenticationResult = [ADAuthenticationResult resultFromError:argumentError correlationId:correlationId];
+        *authenticationResult = [ADAuthenticationResult resultFromError:argumentError];
         return NO;
     }
     

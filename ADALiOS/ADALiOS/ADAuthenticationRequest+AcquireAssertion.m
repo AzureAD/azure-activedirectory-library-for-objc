@@ -29,8 +29,8 @@
 {
     
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    AD_REQUEST_CHECK_PROPERTY(_resource, _correlationId);
-    AD_REQUEST_CHECK_ARGUMENT(samlAssertion, _correlationId);
+    AD_REQUEST_CHECK_PROPERTY(_resource);
+    AD_REQUEST_CHECK_ARGUMENT(samlAssertion);
     [self ensureRequest];
 
     [[ADInstanceDiscovery sharedInstance] validateAuthority:_context.authority
@@ -114,9 +114,9 @@
 {
     //All of these should be set before calling this method:
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    HANDLE_ARGUMENT(item, _correlationId);
-    AD_REQUEST_CHECK_PROPERTY(_resource, _correlationId);
-    AD_REQUEST_CHECK_PROPERTY(_clientId, _correlationId);
+    HANDLE_ARGUMENT(item);
+    AD_REQUEST_CHECK_PROPERTY(_resource);
+    AD_REQUEST_CHECK_PROPERTY(_clientId);
     [self ensureRequest];
     
     if (useAccessToken)

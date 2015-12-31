@@ -22,7 +22,6 @@
 @interface ADBrokerNotificationManager ()
 {
     ADAuthenticationCallback _callbackForBroker;
-    NSUUID* _correlationId;
 }
 
 @end
@@ -58,12 +57,10 @@
 
 
 - (void)enableNotifications:(ADAuthenticationCallback)callback
-              correlationId:(NSUUID*)correlationId
 {
     @synchronized(self)
     {
         _callbackForBroker = callback;
-        _correlationId = correlationId;
     }
     
     // UIApplicationDidBecomeActive can get hit after the iOS 9 "This app wants to open this other app"
@@ -125,7 +122,7 @@
         ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BROKER_RESPONSE_NOT_RECEIVED
                                                                                 protocolCode:nil
                                                                                 errorDetails:@"application did not receive response from broker."];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:adError correlationId:_correlationId];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:adError];
         callback(result);
     }
 }

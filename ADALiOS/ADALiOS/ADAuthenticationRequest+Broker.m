@@ -63,7 +63,7 @@
         return;
     }
     
-    HANDLE_ARGUMENT(response, nil);
+    HANDLE_ARGUMENT(response);
     
     NSString *qp = [response query];
     //expect to either response or error and description, AND correlation_id AND hash.
@@ -75,16 +75,16 @@
     }
     else
     {
-        NSUUID* correlationId = [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
-                                [[NSUUID alloc] initWithUUIDString:[queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]]
-                                : nil;
-        
-        HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY], correlationId);
+        HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
         
         NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
         NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
         NSString* msgVer = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
         NSInteger protocolVersion = 1;
+        
+        NSUUID* correlationId = [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
+        [[NSUUID alloc] initWithUUIDString:[queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]]
+        : nil;
         
         if (msgVer)
         {
@@ -153,10 +153,10 @@
 
 - (void)callBroker:(ADAuthenticationCallback)completionBlock
 {
-    CHECK_FOR_NIL(_correlationId, _correlationId);
-    CHECK_FOR_NIL(_context.authority, _correlationId);
-    CHECK_FOR_NIL(_resource, _correlationId);
-    CHECK_FOR_NIL(_clientId, _correlationId);
+    CHECK_FOR_NIL(_correlationId);
+    CHECK_FOR_NIL(_context.authority);
+    CHECK_FOR_NIL(_resource);
+    CHECK_FOR_NIL(_clientId);
     
     ADAuthenticationError* error = nil;
     if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
@@ -175,8 +175,8 @@
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
     NSString* adalVersion = [ADLogger getAdalVersion];
     
-    CHECK_FOR_NIL(base64UrlKey, _correlationId);
-    CHECK_FOR_NIL(adalVersion, _correlationId);
+    CHECK_FOR_NIL(base64UrlKey);
+    CHECK_FOR_NIL(adalVersion);
     
     NSDictionary* queryDictionary = @{
                                       @"authority": _context.authority,
@@ -216,7 +216,7 @@
 - (void)handleBrokerFromWebiewResponse:(NSString*)urlString
                        completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    CHECK_FOR_NIL(_resource, _correlationId);
+    CHECK_FOR_NIL(_resource);
     
     ADAuthenticationError* error = nil;
     if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
@@ -236,9 +236,9 @@
     NSString* correlationIdStr = [_correlationId UUIDString];
     NSString* authority = _context.authority;
     
-    CHECK_FOR_NIL(base64UrlKey, _correlationId);
-    CHECK_FOR_NIL(adalVersion, _correlationId);
-    CHECK_FOR_NIL(authority, _correlationId);
+    CHECK_FOR_NIL(base64UrlKey);
+    CHECK_FOR_NIL(adalVersion);
+    CHECK_FOR_NIL(authority);
     
     NSDictionary* queryDictionary = @{
                                       @"authority": _context.authority,
