@@ -64,6 +64,7 @@ typedef enum
  refresh token. */
 @property (readonly) BOOL multiResourceRefreshToken;
 
+/*! The correlation ID of the request(s) that get this result. */
 @property (readonly) NSUUID* correlationId;
 
 @end

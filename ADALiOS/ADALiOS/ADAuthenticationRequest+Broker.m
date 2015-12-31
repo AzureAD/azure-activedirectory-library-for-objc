@@ -153,10 +153,10 @@
 
 - (void)callBroker:(ADAuthenticationCallback)completionBlock
 {
-    CHECK_FOR_NIL(_correlationId);
     CHECK_FOR_NIL(_context.authority);
     CHECK_FOR_NIL(_resource);
     CHECK_FOR_NIL(_clientId);
+    CHECK_FOR_NIL(_correlationId);
     
     ADAuthenticationError* error = nil;
     if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
