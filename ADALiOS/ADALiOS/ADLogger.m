@@ -29,9 +29,13 @@ static LogCallback s_LogCallback = nil;
 static BOOL s_NSLogging = YES;
 static NSUUID* s_requestCorrelationId;
 
+static NSMutableDictionary* s_adalId = nil;
+
+static dispatch_once_t s_logOnce;
+
 @implementation ADLogger
 
-+ (void)setLevel: (ADAL_LOG_LEVEL)logLevel
++ (void)setLevel:(ADAL_LOG_LEVEL)logLevel
 {
     s_LogLevel = logLevel;
 }
@@ -179,25 +183,28 @@ correlationId:(NSUUID*)correlationId
     return (CPU_ARCH_ABI64 & cpuType) ? @"64" : @"32";
 }
 
-+(NSDictionary*) adalId
++ (NSDictionary*)adalId
 {
-    UIDevice* device = [UIDevice currentDevice];
-    NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
-    @{
-      ADAL_ID_PLATFORM:@"iOS",
-      ADAL_ID_VERSION:[ADLogger getAdalVersion],
-      ADAL_ID_OS_VER:device.systemVersion,
-      ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
-      }];
-    NSString* CPUVer = [self getCPUInfo];
-    if (![NSString adIsStringNilOrBlank:CPUVer])
-    {
-        [result setObject:CPUVer forKey:ADAL_ID_CPU];
-    }
-    return result;
+    dispatch_once(&s_logOnce, ^{
+        UIDevice* device = [UIDevice currentDevice];
+        s_adalId = [NSMutableDictionary dictionaryWithDictionary:
+                    @{
+                      ADAL_ID_PLATFORM:@"iOS",
+                      ADAL_ID_VERSION:[ADLogger getAdalVersion],
+                      ADAL_ID_OS_VER:device.systemVersion,
+                      ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
+                      }];
+        NSString* CPUVer = [self getCPUInfo];
+        if (![NSString adIsStringNilOrBlank:CPUVer])
+        {
+            [s_adalId setObject:CPUVer forKey:ADAL_ID_CPU];
+        }
+    });
+    
+    return s_adalId;
 }
 
-+(NSString*) getHash: (NSString*) input
++ (NSString*)getHash:(NSString*)input
 {
     if (!input)
     {
@@ -214,17 +221,25 @@ correlationId:(NSUUID*)correlationId
     return toReturn;
 }
 
-+(NSString*) getAdalVersion
++ (NSString*) getAdalVersion
 {
     return ADAL_VERSION_NSSTRING;
 }
 
-+(void) logToken: (NSString*) token
-       tokenType: (NSString*) tokenType
-       expiresOn: (NSDate*) expiresOn
-   correlationId: (NSUUID*) correlationId
++ (void)logToken:(NSString*)token
+       tokenType:(NSString*)tokenType
+       expiresOn:(NSDate*)expiresOn
+   correlationId:(NSUUID*)correlationId
 {
     AD_LOG_VERBOSE_F(@"Token returned", nil, @"Obtained %@ with hash %@, expiring on %@ and correlationId: %@", tokenType, [self getHash:token], expiresOn, [correlationId UUIDString]);
+}
+
++ (void)setIdValue:(NSString*)value
+            forKey:(NSString*)key
+{
+    [self adalId];
+    
+    [s_adalId setObject:value forKey:key];
 }
 
 @end
