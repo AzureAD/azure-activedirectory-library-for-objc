@@ -25,6 +25,7 @@ typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 
 + (NSString *)resourcePath;
 + (void)setResourcePath:(NSString *)resourcePath;
++ (NSBundle *)frameworkBundle;
 
 + (ADAuthenticationBroker *)sharedInstance;
 

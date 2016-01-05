@@ -117,7 +117,7 @@
     if (useAccessToken)
     {
         //Access token is good, just use it:
-        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:nil];
+        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:_correlationId];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:NO];
         completionBlock(result);
         return;
@@ -296,7 +296,7 @@
                                    cacheItem:(ADTokenCacheStoreItem*)cacheItem
                              completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:nil];
+    [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:_correlationId];
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = nil;
     

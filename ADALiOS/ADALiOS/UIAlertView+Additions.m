@@ -1,4 +1,5 @@
 #import <objc/runtime.h>
+#import "ADAuthenticationBroker.h"
 
 @implementation UIAlertView (Additions)
 
@@ -8,14 +9,20 @@ static UIAlertView *alert;
 
 + (void)presentCredentialAlert:(void (^)(NSUInteger))handler {
     
-    alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter your credentials", nil)
+    NSBundle* bundle = [ADAuthenticationBroker frameworkBundle];
+    if (!bundle)
+    {
+        bundle = [NSBundle mainBundle];
+    }
+    
+    alert = [[UIAlertView alloc] initWithTitle:NSLocalizedStringFromTableInBundle(@"Enter your credentials", nil, bundle, nil)
                                        message:nil
                                       delegate:nil
-                             cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
+                             cancelButtonTitle:NSLocalizedStringFromTableInBundle(@"Cancel", nil, bundle, nil)
                              otherButtonTitles: nil];
     
     alert.alertViewStyle = UIAlertViewStyleLoginAndPasswordInput;
-    [alert addButtonWithTitle:NSLocalizedString(@"Login", nil)];
+    [alert addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Login", nil, bundle, nil)];
     [alert setDelegate:alert];
     
     if (handler)
