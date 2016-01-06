@@ -94,7 +94,6 @@
                          useAccessToken:accessTokenUsable
                           samlAssertion:samlAssertion
                           assertionType:assertionType
-                     retryIfServerError:YES
                         completionBlock:completionBlock];
             return; //The tryRefreshingFromCacheItem has taken care of the token obtaining
         }
@@ -111,7 +110,6 @@
                useAccessToken:(BOOL)useAccessToken
                 samlAssertion:(NSString*)samlAssertion
                 assertionType:(ADAssertionType)assertionType
-           retryIfServerError:(BOOL)retryIfServerError
               completionBlock:(ADAuthenticationCallback)completionBlock
 {
     //All of these should be set before calling this method:
@@ -179,18 +177,21 @@
                                   useAccessToken:NO
                                    samlAssertion:samlAssertion
                                    assertionType:assertionType
-                              retryIfServerError:YES
                                  completionBlock:completionBlock];
                      return;//The call above takes over, no more processing
                  }//broad item
              }//key
          }//!item.multiResourceRefreshToken
-         else if (retryIfServerError && [ADAuthenticationContext isServerError:result]) //retry once if fail with server-end error
+         else if (_retryIfServerError && [ADAuthenticationContext isServerError:result]) //retry once after half second if fail with server-end error
          {
-             [self retryMultiResourceRefreshToken:item
-                                    samlAssertion:samlAssertion
-                                    assertionType:assertionType
-                                  completionBlock:completionBlock];
+             _retryIfServerError = NO;
+             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                 [self attemptToUseCacheItem:item
+                              useAccessToken:NO
+                               samlAssertion:samlAssertion
+                               assertionType:assertionType
+                             completionBlock:completionBlock];
+             });
              return;
          }
          
@@ -200,22 +201,6 @@
                          assertionType:assertionType
                             completion:completionBlock];
      }];//End of the refreshing token completion block, executed asynchronously.
-}
-
-- (void)retryMultiResourceRefreshToken:(ADTokenCacheStoreItem*)item
-                         samlAssertion:(NSString*)samlAssertion
-                         assertionType:(ADAssertionType)assertionType
-                       completionBlock:(ADAuthenticationCallback)completionBlock
-{
-    //retry once after half second
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self attemptToUseCacheItem:item
-                     useAccessToken:NO
-                      samlAssertion:samlAssertion
-                      assertionType:assertionType
-                 retryIfServerError:NO
-                    completionBlock:completionBlock];
-    });
 }
 
 - (NSString*) getAssertionTypeGrantValue:(ADAssertionType) assertionType

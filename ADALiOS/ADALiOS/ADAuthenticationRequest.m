@@ -76,6 +76,9 @@
     // This line is here to suppress a analyzer warning, has no effect
     _allowSilent = NO;
     
+    //HTTP status code 500 are the only server error that we explicitly retry
+    _retryIfServerError = YES;
+    
     return self;
 }
 

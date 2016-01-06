@@ -64,6 +64,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     NSUUID* _correlationId;
     
     BOOL _requestStarted;
+    
+    BOOL _retryIfServerError;
 }
 
 // The default constructor. All of the parameters are mandatory
