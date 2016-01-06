@@ -176,22 +176,19 @@
 
 - (NSUUID*)correlationId
 {
-    @synchronized(self)
+    if (_correlationId == nil)
     {
-        if (_correlationId == nil)
+        //if correlationId is set in context, use it
+        //if not, generate one
+        if ([_context correlationId])
         {
-            //if correlationId is set in context, use it
-            //if not, generate one
-            if ([_context correlationId])
-            {
-                _correlationId = [_context correlationId];
-            } else {
-                _correlationId = [NSUUID UUID];
-            }
+            _correlationId = [_context correlationId];
+        } else {
+            _correlationId = [NSUUID UUID];
         }
-        
-        return _correlationId;
     }
+    
+    return _correlationId;
 }
 
 @end

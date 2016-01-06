@@ -23,23 +23,32 @@
 -(ADTokenCacheStoreItem*) getItemWithKey:(ADTokenCacheStoreKey*)key
                                    error: (ADAuthenticationError* __autoreleasing*) error
 {
+    (void)key;
+    (void)error;
+    
     return nil;
 }
 
 -(void) addOrUpdateItem: (ADTokenCacheStoreItem*) item
                   error: (ADAuthenticationError* __autoreleasing*) error
 {
+    (void)item;
+    (void)error;
 }
 
 -(void) removeItemWithKey: (ADTokenCacheStoreKey*) key
                    userId:(NSString *)userId
                     error:(ADAuthenticationError *__autoreleasing *)error
 {
+    (void)key;
+    (void)userId;
+    (void)error;
     return;
 }
 
 -(void) removeAllWithError:(ADAuthenticationError *__autoreleasing *)error
 {
+    (void)error;
     return;
 }
 
@@ -50,12 +59,15 @@
 
 -(id) initWithCoder:(NSCoder*) aDecoder
 {
+    (void)aDecoder;
+    
     self = [super init];
     return self;
 }
 
 -(void) encodeWithCoder:(NSCoder*) aCoder
 {
+    (void)aCoder;
     //Nothing to store.
 }
 
@@ -63,16 +75,25 @@
                                   userId:(NSString *)userId
                                    error:(ADAuthenticationError *__autoreleasing *)error
 {
+    (void)key;
+    (void)userId;
+    (void)error;
+    
     return nil;
 }
 
 -(ADTokenCacheStoreItem*) getItemsWithKey: (ADTokenCacheStoreKey*) key error: (ADAuthenticationError* __autoreleasing*) error
 {
+    (void)key;
+    (void)error;
+    
     return nil;
 }
 
 -(ADTokenCacheStoreItem*) allItemsWithError: (ADAuthenticationError* __autoreleasing*) error;
 {
+    (void)error;
+    
     return nil;
 }
 

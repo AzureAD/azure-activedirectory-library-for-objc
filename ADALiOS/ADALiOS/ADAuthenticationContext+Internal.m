@@ -125,7 +125,7 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
 //Used in the flows, where developer requested an explicit user. The method compares
 //the user for the obtained tokens (if provided by the server). If the user is different,
 //an error result is returned. Returns the same result, if no issues are found.
-- (ADAuthenticationResult*)updateResult:(ADAuthenticationResult*)result
++ (ADAuthenticationResult*)updateResult:(ADAuthenticationResult*)result
                                  toUser:(ADUserIdentifier*)userId
 {
     if (!result)

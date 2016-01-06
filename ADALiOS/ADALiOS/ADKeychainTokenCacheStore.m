@@ -176,7 +176,54 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 -(void) LogItem: (ADTokenCacheStoreItem*) item
         message: (NSString*) additionalMessage
 {
-    AD_LOG_VERBOSE_F(sKeyChainlog, nil, @"%@. Resource: %@ Access token hash: %@; Refresh token hash: %@", additionalMessage, item.resource, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
+    AD_LOG_VERBOSE_F(sKeyChainlog, nil, @"%@ for resource <%@> + client <%@> + authority <%@>", additionalMessage, [item resource], [item clientId], [item authority]);
+}
+
+-(void) logItemRetrievalStatus: (NSArray*) items
+                           key: (ADTokenCacheStoreKey*) key
+                        userId: (NSString*) userId
+{
+    if ([items count] > 0)
+    {
+        AD_LOG_VERBOSE_F(sKeyChainlog, nil, @"Found %lu token(s) for user <%@> in keychain.", (unsigned long)[items count], userId);
+    }
+    else
+    {
+        //if resource is nil, this request is intending to find MRRT
+        if ([NSString adIsStringNilOrBlank:[key resource]]) {
+            AD_LOG_VERBOSE_F(sKeyChainlog, nil, @"No MRRT was found for resource <%@> + client <%@> + authority <%@>", [key resource], [key clientId], [key authority]);
+        }
+        else
+        {
+            AD_LOG_VERBOSE_F(sKeyChainlog, nil, @"No AT/RT was found for resource <%@> + client <%@> + authority <%@>", [key resource], [key clientId], [key authority]);
+        }
+    }
+}
+
+-(NSString*) getTokenNameForLog: (ADTokenCacheStoreItem*) item
+{
+    NSString* tokenName = @"unknown token";
+    if (![NSString adIsStringNilOrBlank:item.accessToken])
+    {
+        if (item.isExpired)
+        {
+            tokenName = @"expired AT";
+        }
+        else
+        {
+            tokenName = @"AT";
+        }
+        
+        if (![NSString adIsStringNilOrBlank:item.refreshToken])
+        {
+            [tokenName stringByAppendingString:@"+RT"];
+        }
+    }
+    else if (![NSString adIsStringNilOrBlank:item.refreshToken] && [NSString adIsStringNilOrBlank:item.resource])
+    {
+        tokenName = @"MRRF";
+    }
+    return tokenName;
 }
 
 //Updates the keychain item. "attributes" parameter should ALWAYS come from previous
@@ -246,7 +293,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
             return nil;
         }
         
-        [self LogItem:item message:@"Item successfully read"];
+        [self LogItem:item message:[NSString stringWithFormat:@"Found %@", [self getTokenNameForLog:item]]];
         return item;
     }
     else
@@ -461,6 +508,7 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     userId = [ADUserInformation normalizeUserId:userId];
     NSArray* items = [self readCacheItemsWithKey:key userId:userId allowMany:NO error:error];
     
+    [self logItemRetrievalStatus:items key:key userId:userId];
     return items.count ? items.firstObject : nil;
 }
 

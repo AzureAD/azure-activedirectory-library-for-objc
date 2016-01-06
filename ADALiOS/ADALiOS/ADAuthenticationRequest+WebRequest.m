@@ -29,6 +29,7 @@
 #import "NSURL+ADExtensions.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
+#import "ADTokenCacheStoreItem+Internal.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -57,10 +58,11 @@ static ADAuthenticationRequest* s_modalRequest = nil;
          ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
          item.resource = _resource;
          item.clientId = _clientId;
-         completionBlock([_context processTokenResponse:response
-                                                forItem:item
-                                            fromRefresh:NO
-                                   requestCorrelationId:_correlationId]);
+         item.authority = _context.authority;
+         ADAuthenticationResult* result = [item processTokenResponse:response
+                                                         fromRefresh:NO
+                                                requestCorrelationId:_correlationId];
+         completionBlock(result);
      }];
 }
 
