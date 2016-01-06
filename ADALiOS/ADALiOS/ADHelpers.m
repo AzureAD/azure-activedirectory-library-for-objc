@@ -130,7 +130,7 @@
            strlen(cData),
            cHMAC);
     NSData* signedData = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
-    NSString* signedEncodedDataString = [signedData base64EncodedStringWithOptions:0];
+    NSString* signedEncodedDataString = [NSString adBase64URLEncodeData: signedData];
     return [NSString stringWithFormat:@"%@.%@",
             signingInput,
             signedEncodedDataString];

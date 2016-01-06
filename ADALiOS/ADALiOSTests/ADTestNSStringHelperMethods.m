@@ -43,29 +43,29 @@
     VERIFY_EMPTY_STRING(nil);
 }
 
-- (void)testIsStringNilOrBlankSpace
+- (void) testIsStringNilOrBlankSpace
 {
     VERIFY_EMPTY_STRING(@" ");
 }
 
-- (void)testIsStringNilOrBlankTab
+- (void) testIsStringNilOrBlankTab
 {
     VERIFY_EMPTY_STRING(@"\t");
 }
 
-- (void)testIsStringNilOrBlankEnter
+- (void) testIsStringNilOrBlankEnter
 {
     VERIFY_EMPTY_STRING(@"\r");
     VERIFY_EMPTY_STRING(@"\n");
     VERIFY_EMPTY_STRING(@"\r\n");
 }
 
-- (void)testIsStringNilOrBlankMixed
+- (void) testIsStringNilOrBlankMixed
 {
     VERIFY_EMPTY_STRING(@" \r\n\t  \t\r\n");
 }
 
-- (void)testIsStringNilOrBlankNonEmpty
+- (void) testIsStringNilOrBlankNonEmpty
 {
     VERIFY_NOT_EMPTY_STRING(@"  text");
     VERIFY_NOT_EMPTY_STRING(@" \r\n\t  \t\r\n text");
@@ -82,7 +82,7 @@
     VERIFY_NOT_EMPTY_STRING(@"0");
 }
 
-- (void)testTrimmedString
+-(void) testTrimmedString
 {
     XCTAssertEqualObjects([@" \t\r\n  test" adTrimmedString], @"test");
     XCTAssertEqualObjects([@"test  \t\r\n  " adTrimmedString], @"test");
@@ -91,14 +91,14 @@
 }
 
 
-- (void)testContainsStringNil
+-(void) testContainsStringNil
 {
     NSString* someString = @"someString";
     someString = nil;
     XCTAssertFalse([someString adContainsString:@"test"], "Should work on nil self.");
 }
 
-- (void)testContainsStringEmpty
+-(void) testContainsStringEmpty
 {
     NSString* someString = @"someString";
     XCTAssertTrue([someString adContainsString:@""], "Empty string is always contained.");
@@ -107,7 +107,7 @@
     XCTAssertFalse([someString adContainsString:@"text"], "Empty string does not contain a real string.");
 }
 
-- (void)testContainsStringNormal
+-(void) testContainsStringNormal
 {
     NSString* someString = @"text1 text2 text3";
     XCTAssertTrue([someString adContainsString:@"text1"]);
@@ -121,7 +121,47 @@
     XCTAssertFalse([someString adContainsString:@"text1 text3"]);
 }
 
-- (void)testAdUrlFormDecode
+//Checks base64 URL encoding and decoding:
+-(void) verifyBase64:(NSString*) original
+            expected:(NSString*) expected
+{
+    NSString* encoded = [original adBase64UrlEncode];
+    NSString* decoded = [encoded adBase64UrlDecode];
+    XCTAssertEqualObjects(encoded, expected);
+    XCTAssertEqualObjects(decoded, original);
+}
+
+-(void) testBase64
+{
+    NSString* encodeEmpty = [@"" adBase64UrlEncode];
+    XCTAssertEqualObjects(encodeEmpty, @"");
+    
+    NSString* decodeEmpty = [@"" adBase64UrlDecode];
+    XCTAssertEqualObjects(decodeEmpty, @"");
+    
+    //15 characters, aka 3k:
+    NSString* test1 = @"1$)=- \t\r\nfoo%^!";
+    [self verifyBase64:test1 expected:@"MSQpPS0gCQ0KZm9vJV4h"];
+    
+    //16 characters, aka 3k + 1:
+    NSString* test2 = [test1 stringByAppendingString:@"@"];
+    [self verifyBase64:test2 expected:@"MSQpPS0gCQ0KZm9vJV4hQA"];
+    
+    //17 characters, aka 3k + 2:
+    NSString* test3 = [test2 stringByAppendingString:@"<"];
+    [self verifyBase64:test3 expected:@"MSQpPS0gCQ0KZm9vJV4hQDw"];
+    
+    //Ensure that URL encoded is in place through encoding correctly the '+' and '/' signs (just in case)
+    [self verifyBase64:@"++++/////" expected:@"KysrKy8vLy8v"];
+    
+    //Decode invalid:
+    XCTAssertFalse([@" " adBase64UrlDecode].length, "Contains non-suppurted character < 128");
+    XCTAssertFalse([@"™" adBase64UrlDecode].length, "Contains characters beyond 128");
+    XCTAssertFalse([@"денят" adBase64UrlDecode].length, "Contains unicode characters.");
+    
+}
+
+-(void) testAdUrlFormDecode
 {
     NSString* testString = @"Some interesting test/+-)(*&^%$#@!~|";
     NSString* encoded = [testString adUrlFormEncode];
@@ -130,7 +170,7 @@
     XCTAssertEqualObjects([encoded adUrlFormDecode], testString);
 }
 
-- (void)testAdSame
+-(void) testAdSame
 {
     NSString* text = @"a b";
     NSString* same = [NSString stringWithFormat:@"a %@", @"b"];//Generate it, just in case
