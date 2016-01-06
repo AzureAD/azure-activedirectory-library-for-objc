@@ -32,7 +32,7 @@
     NSString* signingInput = [NSString stringWithFormat:@"%@.%@", [[ADJwtHelper createJSONFromDictionary:header] adBase64UrlEncode], [[ADJwtHelper createJSONFromDictionary:payload] adBase64UrlEncode]];
     NSData* signedData = [ADJwtHelper sign:signingKey
                                       data:[signingInput dataUsingEncoding:NSUTF8StringEncoding]];
-    NSString* signedEncodedDataString = [signedData base64EncodedStringWithOptions:0];
+    NSString* signedEncodedDataString = [NSString adBase64URLEncodeData: signedData];
     
     return [NSString stringWithFormat:@"%@.%@", signingInput, signedEncodedDataString];
 }

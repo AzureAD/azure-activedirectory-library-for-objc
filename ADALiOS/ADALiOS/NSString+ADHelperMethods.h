@@ -26,13 +26,13 @@
 - (NSString *)adBase64UrlDecode;
 
 /*! Returns YES if the string is nil, or contains only white space */
-+ (BOOL)adIsStringNilOrBlank:(NSString*)string;
++ (BOOL) adIsStringNilOrBlank: (NSString*)string;
 
 /*! Returns YES if the passed string is contained. Throws if the passed
  argument is nil or empty string.
  @param cotnained:The string to search
  */
-- (BOOL)adContainsString:(NSString*)contained;
+- (BOOL) adContainsString: (NSString*) contained;
 
 /*! Returns the same string, but without the leading and trailing whitespace */
 - (NSString*)adTrimmedString;
@@ -44,8 +44,14 @@
 - (NSString *)adUrlFormEncode;
 
 /*! Compares two strings, returning YES, if they are both nil. */
-+ (BOOL)adSame:(NSString*)string1
-      toString:(NSString*)string2;
++ (BOOL) adSame: (NSString*) string1
+       toString: (NSString*) string2;
+
+/*! Converts base64 String to NSData */
++ (NSData *) adBase64URLDecodeData:(NSString *)encodedString;
+
+/*! Converts NSData to base64 String */
++ (NSString *) adBase64URLEncodeData:(NSData *)data;
 
 - (NSString*) adComputeSHA256;
 
