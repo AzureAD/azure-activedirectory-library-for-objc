@@ -132,7 +132,7 @@
                 withRefreshToken:nil];
         
         NSString* userId = [[[result tokenCacheStoreItem] userInformation] userId];
-        [ctx updateResult:result
+        [ADAuthenticationContext updateResult:result
                    toUser:[ADUserIdentifier identifierWithId:userId]];
     }
     

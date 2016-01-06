@@ -18,6 +18,7 @@
 
 #import "ADAuthenticationRequest.h"
 #import "ADAuthenticationContext+Internal.h"
+#import "ADTokenCacheStoreItem+Internal.h"
 #import "ADInstanceDiscovery.h"
 #import "ADHelpers.h"
 #import "ADUserIdentifier.h"
@@ -243,7 +244,7 @@
                       if (AD_SUCCEEDED == result.status)
                       {
                           [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
-                          result = [_context updateResult:result toUser:_identifier];
+                          result = [ADAuthenticationContext updateResult:result toUser:_identifier];
                       }
                       completionBlock(result);
                   }];
@@ -344,14 +345,14 @@
          resultItem.authority = _context.authority;
          
          
-         ADAuthenticationResult *result = [_context processTokenResponse:response forItem:resultItem fromRefresh:YES requestCorrelationId:_correlationId];
+         ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:_correlationId];
          if (cacheItem)//The request came from the cache item, update it:
          {
              [_context updateCacheToResult:result
                                  cacheItem:resultItem
                           withRefreshToken:refreshToken];
          }
-         result = [_context updateResult:result toUser:_identifier];//Verify the user (just in case)
+         result = [ADAuthenticationContext updateResult:result toUser:_identifier];//Verify the user (just in case)
          
          completionBlock(result);
      }];

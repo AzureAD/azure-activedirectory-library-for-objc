@@ -45,20 +45,6 @@ NSString* const sIDTokenHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
 
 volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
-/*! See header for comments */
--(void) adAssertValidText: (NSString*) text
-                  message: (NSString*) message
-{
-    //The pragmas here are copied directly from the XCTAssertNotNil:
-    _Pragma("clang diagnostic push")
-    _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"")//Temporarily remove the compiler warning
-    if ([NSString adIsStringNilOrBlank:text])
-    {
-        _XCTFailureHandler(self, YES, __FILE__, __LINE__, text, message);
-    }
-    _Pragma("clang diagnostic pop")//Restore the compiler warning
-}
-
 /* See header for details. */
 -(void) adValidateForInvalidArgument: (NSString*) argument
                                error: (ADAuthenticationError*) error
@@ -70,8 +56,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     XCTAssertNotNil(error.domain, "Error domain is nil.");
     XCTAssertEqual(error.domain, ADInvalidArgumentDomain, "Incorrect error domain.");
     XCTAssertNil(error.protocolCode, "The protocol code should not be set. Instead protocolCode ='%@'.", error.protocolCode);
-    
-    [self adAssertValidText:error.errorDetails message:@"The error should have details."];
+    XCTAssertFalse([NSString adIsStringNilOrBlank:error.errorDetails], @"Error should have details.");
     BOOL found = [error.errorDetails adContainsString:argument];
     XCTAssertTrue(found, "The parameter is not specified in the error details. Error details:%@", error.errorDetails);
 }
@@ -434,6 +419,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     THROW_ON_NIL_ARGUMENT(sem);
     THROW_ON_NIL_EMPTY_ARGUMENT(file);
     THROW_ON_NIL_ARGUMENT(block);
+    
+    (void)line;
     
     block();//Run the intended asynchronous method
     while (dispatch_semaphore_wait(sem, DISPATCH_TIME_NOW))

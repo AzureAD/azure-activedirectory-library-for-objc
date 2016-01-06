@@ -126,58 +126,6 @@
     return nil;//Nothing suitable
 }
 
-//Understands and processes the access token response:
-- (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
-                                         forItem:(ADTokenCacheStoreItem*)item
-                                     fromRefresh:(BOOL)fromRefreshTokenWorkflow
-                            requestCorrelationId:(NSUUID*)requestCorrelationId
-{
-    THROW_ON_NIL_ARGUMENT(response);
-    THROW_ON_NIL_ARGUMENT(item);
-    AD_LOG_VERBOSE(@"Token extraction", [self correlationId], @"Attempt to extract the data from the server response.");
-    
-    NSString* responseId = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
-    NSUUID* responseUUID;
-    if (![NSString adIsStringNilOrBlank:responseId])
-    {
-        responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
-        if (!responseUUID)
-        {
-            AD_LOG_INFO_F(@"Bad correlation id", responseUUID, @"The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, responseId);
-        }
-        else if (![requestCorrelationId isEqual:responseUUID])
-        {
-            AD_LOG_INFO_F(@"Correlation id mismatch", responseUUID, @"Mismatch between the sent correlation id and the received one. Sent: %@; Received: %@", requestCorrelationId, responseId);
-        }
-    }
-    else
-    {
-        AD_LOG_INFO_F(@"Missing correlation id", responseUUID, @"No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
-    }
-    
-    ADAuthenticationError* error = [ADAuthenticationContext errorFromDictionary:response errorCode:(fromRefreshTokenWorkflow) ? AD_ERROR_INVALID_REFRESH_TOKEN : AD_ERROR_AUTHENTICATION];
-    if (error)
-    {
-        return [ADAuthenticationResult resultFromError:error];
-    }
-    
-    NSString* accessToken = [response objectForKey:OAUTH2_ACCESS_TOKEN];
-    if (![NSString adIsStringNilOrBlank:accessToken])
-    {
-        [item setAuthority:self.authority];
-        BOOL isMrrt = [item fillItemWithResponse:response];
-        return [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:isMrrt];
-    }
-    
-    //No access token and no error, we assume that there was another kind of error (connection, server down, etc.).
-    //Note that for security reasons we log only the keys, not the values returned by the user:
-    NSString* errorMessage = [NSString stringWithFormat:@"The server returned without providing an error. Keys returned: %@", [response allKeys]];
-    error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
-                                                   protocolCode:nil
-                                                   errorDetails:errorMessage];
-    return [ADAuthenticationResult resultFromError:error];
-}
-
 //Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
 //the item to be stored.
 - (void)updateCacheToResult:(ADAuthenticationResult*)result

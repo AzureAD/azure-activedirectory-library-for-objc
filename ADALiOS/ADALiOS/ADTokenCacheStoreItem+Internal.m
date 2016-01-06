@@ -23,10 +23,83 @@
 #import "ADUserInformation.h"
 #import "ADLogger+Internal.h"
 #import "NSString+ADHelperMethods.h"
+#import "ADAuthenticationContext+Internal.h"
 
 @implementation ADTokenCacheStoreItem (Internal)
 
 #define CHECK_ERROR(_CHECK, _ERR) { if (_CHECK) { if (error) {*error = _ERR;} return; } }
+
+- (void)checkCorrelationId:(NSDictionary*)response
+      requestCorrelationId:(NSUUID*)requestCorrelationId
+{
+    AD_LOG_VERBOSE(@"Token extraction", requestCorrelationId, @"Attempt to extract the data from the server response.");
+    
+    NSString* responseId = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
+    NSUUID* responseUUID;
+    if (![NSString adIsStringNilOrBlank:responseId])
+    {
+        responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
+        if (!responseUUID)
+        {
+            AD_LOG_INFO_F(@"Bad correlation id", nil, @"The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, responseId);
+        }
+        else if (![requestCorrelationId isEqual:responseUUID])
+        {
+            AD_LOG_INFO_F(@"Correlation id mismatch", nil, @"Mismatch between the sent correlation id and the received one. Sent: %@; Received: %@", requestCorrelationId, responseId);
+        }
+    }
+    else
+    {
+        AD_LOG_INFO_F(@"Missing correlation id", nil, @"No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
+    }
+}
+
+- (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
+                                     fromRefresh:(BOOL)fromRefreshTokenWorkflow
+                            requestCorrelationId:(NSUUID*)requestCorrelationId
+{
+    return [self processTokenResponse:response
+                          fromRefresh:fromRefreshTokenWorkflow
+                 requestCorrelationId:requestCorrelationId
+                         fieldToCheck:OAUTH2_ACCESS_TOKEN];
+}
+
+- (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
+                                     fromRefresh:(BOOL)fromRefreshTokenWorkflow
+                            requestCorrelationId:(NSUUID*)requestCorrelationId
+                                    fieldToCheck:(NSString*)fieldToCheck
+{
+    if (!response)
+    {
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
+                                                                              protocolCode:@"adal cachce"
+                                                                              errorDetails:@"processTokenResponse called without a response dictionary"];
+        return [ADAuthenticationResult resultFromError:error];
+    }
+    
+    [self checkCorrelationId:response requestCorrelationId:requestCorrelationId];
+    
+    ADAuthenticationError* error = [ADAuthenticationContext errorFromDictionary:response errorCode:(fromRefreshTokenWorkflow) ? AD_ERROR_INVALID_REFRESH_TOKEN : AD_ERROR_AUTHENTICATION];
+    if (error)
+    {
+        return [ADAuthenticationResult resultFromError:error];
+    }
+    
+    NSString* value = [response objectForKey:fieldToCheck];
+    if (![NSString adIsStringNilOrBlank:value])
+    {
+        BOOL isMrrt = [self fillItemWithResponse:response];
+        return [ADAuthenticationResult resultFromTokenCacheStoreItem:self multiResourceRefreshToken:isMrrt];
+    }
+    
+    //No access token and no error, we assume that there was another kind of error (connection, server down, etc.).
+    //Note that for security reasons we log only the keys, not the values returned by the user:
+    NSString* errorMessage = [NSString stringWithFormat:@"The server returned without providing an error. Keys returned: %@", [response allKeys]];
+    error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
+                                                   protocolCode:nil
+                                                   errorDetails:errorMessage];
+    return [ADAuthenticationResult resultFromError:error];
+}
 
 - (void)fillUserInformation:(NSString*)idToken
 {
