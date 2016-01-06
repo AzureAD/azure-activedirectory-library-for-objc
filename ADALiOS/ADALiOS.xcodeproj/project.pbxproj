@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4CAE461D18F75F0900659400 /* ADKeyChainHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CAE461C18F75F0900659400 /* ADKeyChainHelper.m */; };
 		6071B5E41C14C0B0006F6CC2 /* ADTestURLConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 6071B5E31C14C0B0006F6CC2 /* ADTestURLConnection.m */; };
+		609EC5B71C3DAF9D00603EEF /* ADALFrameworkUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 609EC5B61C3DAF9D00603EEF /* ADALFrameworkUtils.m */; };
 		8B0965AE17F25770002BDFB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
 		8B0965B517F25770002BDFB8 /* ADALiOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B0965B417F25770002BDFB8 /* ADALiOS.m */; };
 		8B0965BC17F25770002BDFB8 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965BB17F25770002BDFB8 /* XCTest.framework */; };
@@ -146,6 +147,8 @@
 		4CAE461C18F75F0900659400 /* ADKeyChainHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeyChainHelper.m; sourceTree = "<group>"; };
 		6071B5E21C14C0B0006F6CC2 /* ADTestURLConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestURLConnection.h; sourceTree = "<group>"; };
 		6071B5E31C14C0B0006F6CC2 /* ADTestURLConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestURLConnection.m; sourceTree = "<group>"; };
+		609EC5B51C3DAB3E00603EEF /* ADALFrameworkUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADALFrameworkUtils.h; sourceTree = "<group>"; };
+		609EC5B61C3DAF9D00603EEF /* ADALFrameworkUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADALFrameworkUtils.m; sourceTree = "<group>"; };
 		8B0965AA17F25770002BDFB8 /* libADALiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libADALiOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B0965AD17F25770002BDFB8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8B0965B117F25770002BDFB8 /* ADALiOS-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADALiOS-Prefix.pch"; sourceTree = "<group>"; };
@@ -440,6 +443,8 @@
 				D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */,
 				94351A9E1B3F67FB00CD5F5E /* NSUUID+ADExtensions.h */,
 				94351A9F1B3F67FB00CD5F5E /* NSUUID+ADExtensions.m */,
+				609EC5B51C3DAB3E00603EEF /* ADALFrameworkUtils.h */,
+				609EC5B61C3DAF9D00603EEF /* ADALFrameworkUtils.m */,
 			);
 			path = ADALiOS;
 			sourceTree = "<group>";
@@ -764,6 +769,7 @@
 				9722232F19A2C9F900092E85 /* ADWorkPlaceJoin.m in Sources */,
 				9727D4D31A8753C300774236 /* ADJwtHelper.m in Sources */,
 				8BB8345F18074B74007F9F0D /* ADAuthenticationResult.m in Sources */,
+				609EC5B71C3DAF9D00603EEF /* ADALFrameworkUtils.m in Sources */,
 				97345B92199160BD0044B1A6 /* ADPkeyAuthHelper.m in Sources */,
 				97A5224C1A1A75B2001D77CE /* ADHelpers.m in Sources */,
 				D6E43A5E1B02D955000F5BE2 /* ADBrokerKeyHelper.m in Sources */,

@@ -1,5 +1,6 @@
 #import <objc/runtime.h>
 #import "ADAuthenticationBroker.h"
+#import "ADALFrameworkUtils.h"
 
 @implementation UIAlertView (Additions)
 
@@ -9,7 +10,7 @@ static UIAlertView *alert;
 
 + (void)presentCredentialAlert:(void (^)(NSUInteger))handler {
     
-    NSBundle* bundle = [ADAuthenticationBroker frameworkBundle];
+    NSBundle* bundle = [ADALFrameworkUtils frameworkBundle];
     if (!bundle)
     {
         bundle = [NSBundle mainBundle];
