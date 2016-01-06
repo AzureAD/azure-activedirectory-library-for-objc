@@ -63,7 +63,7 @@ BOOL validBase64Characters(const byte* data, const int size)
 /// See RFC 4648, Section 5 plus switch characters 62 and 63 and no padding.
 /// For a good overview of Base64 encoding, see http://en.wikipedia.org/wiki/Base64
 /// </remarks>
-+ (NSData *) Base64DecodeData:(NSString *)encodedString
++ (NSData *)adBase64URLDecodeData:(NSString *)encodedString
 {
     if ( nil == encodedString )
     {
@@ -160,7 +160,7 @@ BOOL validBase64Characters(const byte* data, const int size)
 
 - (NSString *)adBase64UrlDecode
 {
-    NSData *decodedData = [self.class Base64DecodeData:self];
+    NSData *decodedData = [self.class adBase64URLDecodeData:self];
     
     return [[NSString alloc] initWithData:decodedData encoding:NSUTF8StringEncoding];
 }
@@ -182,7 +182,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 /// See RFC 4648, Section 5 plus switch characters 62 and 63 and no padding.
 /// For a good overview of Base64 encoding, see http://en.wikipedia.org/wiki/Base64
 /// </remarks>
-+ (NSString *) Base64EncodeData:(NSData *)data
++ (NSString *)adBase64URLEncodeData:(NSData *)data
 {
     if ( nil == data )
         return nil;
@@ -258,15 +258,15 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 }
 
 // Base64 URL encodes a string
-- (NSString *) adBase64UrlEncode
+- (NSString *)adBase64UrlEncode
 {
     NSData *decodedData = [self dataUsingEncoding:NSUTF8StringEncoding];
     
-    return [self.class Base64EncodeData:decodedData];
+    return [self.class adBase64URLEncodeData:decodedData];
 }
 
 /* Caches statically the non-white characterset */
-+(NSCharacterSet*) nonWhiteCharSet
++ (NSCharacterSet*)nonWhiteCharSet
 {
     static NSCharacterSet* nonWhiteCharSet;//Cached instance
     static dispatch_once_t once;

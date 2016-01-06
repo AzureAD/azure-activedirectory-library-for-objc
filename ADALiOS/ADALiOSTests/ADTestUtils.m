@@ -68,7 +68,7 @@ static NSString* const s_profileHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
                                  @"sub" : _subject,
                                  @"name" : _friendlyName,
                                  @"extra_claim" : _extra_claim,};
-    NSString* claims = [NSString Base64EncodeData:[NSJSONSerialization dataWithJSONObject:claimsDict options:0 error:nil]];
+    NSString* claims = [NSString adBase64URLEncodeData:[NSJSONSerialization dataWithJSONObject:claimsDict options:0 error:nil]];
     return [NSString stringWithFormat:@"%@.%@", [s_profileHeader adBase64UrlEncode], claims];
 }
 
