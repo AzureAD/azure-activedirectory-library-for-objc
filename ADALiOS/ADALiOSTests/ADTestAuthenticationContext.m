@@ -72,6 +72,10 @@
         additionalHeaders:(NSDictionary *)additionalHeaders
                completion:( void (^)(NSDictionary *) )completionBlock
 {
+    (void)authorizationServer;
+    (void)isHandlingPKeyAuthChallenge;
+    (void)additionalHeaders;
+    
     ++mNumRequests;
     if (mNumRequests > 2 || (!mAllowTwoRequests && mNumRequests > 1))
     {
@@ -179,6 +183,9 @@
              isGetRequest:(BOOL)isGetRequest
                completion:( void (^)(NSDictionary *) )completionBlock
 {
+    (void)returnRawResponse;
+    (void)isGetRequest;
+    
     [(ADTestAuthenticationContext*)_context requestWithServer:authorizationServer
                                                   requestData:request_data
                                          requestCorrelationId:_correlationId

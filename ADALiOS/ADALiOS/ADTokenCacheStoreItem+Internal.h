@@ -23,6 +23,18 @@
 
 @interface ADTokenCacheStoreItem (Internal)
 
+- (void)checkCorrelationId:(NSDictionary*)response
+      requestCorrelationId:(NSUUID*)requestCorrelationId;
+
+- (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
+                                     fromRefresh:(BOOL)fromRefreshTokenWorkflow
+                            requestCorrelationId:(NSUUID*)requestCorrelationId
+                                    fieldToCheck:(NSString*)fieldToCheck;
+
+- (ADAuthenticationResult *)processTokenResponse:(NSDictionary *)response
+                                     fromRefresh:(BOOL)fromRefreshTokenWorkflow
+                            requestCorrelationId:(NSUUID*)requestCorrelationId;
+
 /*!
     Fills out the cache item with the given response dictionary
  
