@@ -33,10 +33,6 @@ typedef enum
 
 @interface XCTestCase (HelperMethods)
 
-/*! Verifies that the text is not nil, empty or containing only spaces */
--(void) adAssertValidText: (NSString*) text
-                message: (NSString*) message;
-
 -(void) adAssertStringEquals: (NSString*) actual
           stringExpression: (NSString*) expression
                   expected: (NSString*) expected

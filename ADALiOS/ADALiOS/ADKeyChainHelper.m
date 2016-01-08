@@ -183,7 +183,6 @@ extern NSString* const sKeyChainlog;
             //Success:
             return (__bridge_transfer NSArray*)all;
         case errSecItemNotFound:
-            AD_LOG_VERBOSE_F(sKeyChainlog, nil, @"No cache items found.");
             return [NSArray new];//Empty one
         default:
         {

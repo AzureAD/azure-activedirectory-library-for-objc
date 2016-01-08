@@ -92,4 +92,7 @@ correlationId:(NSUUID*)correlationId
        expiresOn:(NSDate*)expiresOn
    correlationId:(NSUUID*)correlationId;
 
++ (void)setIdValue:(NSString*)value
+            forKey:(NSString*)key;
+
 @end

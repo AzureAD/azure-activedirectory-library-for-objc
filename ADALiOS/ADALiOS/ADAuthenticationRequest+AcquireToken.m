@@ -18,6 +18,7 @@
 
 #import "ADAuthenticationRequest.h"
 #import "ADAuthenticationContext+Internal.h"
+#import "ADTokenCacheStoreItem+Internal.h"
 #import "ADInstanceDiscovery.h"
 #import "ADHelpers.h"
 #import "ADUserIdentifier.h"
@@ -117,7 +118,7 @@
     if (useAccessToken)
     {
         //Access token is good, just use it:
-        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:nil];
+        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:_correlationId];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:NO correlationId:_correlationId];
         completionBlock(result);
         return;
@@ -243,7 +244,7 @@
                       if (AD_SUCCEEDED == result.status)
                       {
                           [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
-                          result = [_context updateResult:result toUser:_identifier];
+                          result = [ADAuthenticationContext updateResult:result toUser:_identifier];
                       }
                       completionBlock(result);
                   }];
@@ -296,7 +297,7 @@
                                    cacheItem:(ADTokenCacheStoreItem*)cacheItem
                              completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:nil];
+    [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:_correlationId];
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = nil;
     
@@ -344,14 +345,14 @@
          resultItem.authority = _context.authority;
          
          
-         ADAuthenticationResult *result = [_context processTokenResponse:response forItem:resultItem fromRefresh:YES requestCorrelationId:_correlationId];
+         ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:_correlationId];
          if (cacheItem)//The request came from the cache item, update it:
          {
              [_context updateCacheToResult:result
                                  cacheItem:resultItem
                           withRefreshToken:refreshToken];
          }
-         result = [_context updateResult:result toUser:_identifier];//Verify the user (just in case)
+         result = [ADAuthenticationContext updateResult:result toUser:_identifier];//Verify the user (just in case)
          
          completionBlock(result);
      }];

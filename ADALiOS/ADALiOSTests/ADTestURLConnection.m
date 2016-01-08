@@ -111,6 +111,8 @@
                           httpHeaderFields:(NSDictionary*)headerFields
                           dictionaryAsJSON:(NSDictionary*)data
 {
+    // TODO: This probably should be used somewhere...
+    (void) requestHeaders;
     NSURL* requestURL = [NSURL URLWithString:requestUrlString];
     NSHTTPURLResponse* response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:responseUrlString]
                                                               statusCode:responseCode
