@@ -47,7 +47,7 @@
          (void)validated;
          if (error)
          {
-             completionBlock([ADAuthenticationResult resultFromError:error]);
+             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
          }
          else
          {
@@ -72,7 +72,7 @@
     if (!key)
     {
         //If the key cannot be extracted, call the callback with the information:
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
         completionBlock(result);
         return;
     }
@@ -84,7 +84,7 @@
         ADTokenCacheStoreItem* cacheItem = [_context findCacheItemWithKey:key userId:_identifier useAccessToken:&accessTokenUsable error:&error];
         if (error)
         {
-            completionBlock([ADAuthenticationResult resultFromError:error]);
+            completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
             return;
         }
         
@@ -119,15 +119,15 @@
     {
         //Access token is good, just use it:
         [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:_correlationId];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:NO];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:NO correlationId:_correlationId];
         completionBlock(result);
         return;
     }
     
     if ([NSString adIsStringNilOrBlank:item.refreshToken])
     {
-        completionBlock([ADAuthenticationResult resultFromError:
-                         [ADAuthenticationError unexpectedInternalError:@"Attempting to use an item without refresh token."]]);
+        completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"Attempting to use an item without refresh token."]
+                                                  correlationId:_correlationId]);
         return;
     }
     
@@ -154,7 +154,7 @@
                  ADTokenCacheStoreItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
                  if (error)
                  {
-                     completionBlock([ADAuthenticationResult resultFromError:error]);
+                     completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
                      return;
                  }
                  
@@ -197,7 +197,7 @@
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_INPUT_NEEDED
                                                protocolCode:nil
                                                errorDetails:ADCredentialsNeeded];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
         completionBlock(result);
         return;
     }
@@ -225,8 +225,8 @@
                  return;
              }
              
-             ADAuthenticationResult* result = (AD_ERROR_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation]
-             : [ADAuthenticationResult resultFromError:error];
+             ADAuthenticationResult* result = (AD_ERROR_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_correlationId]
+             : [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
              completionBlock(result);
          }
          else
@@ -282,7 +282,7 @@
          (void)validated;
          if (error)
          {
-             completionBlock([ADAuthenticationResult resultFromError:error]);
+             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
          }
          else
          {
