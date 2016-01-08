@@ -1174,9 +1174,11 @@ const int sAsyncContextTimeout = 10;
                                                      dictionaryAsJSON:@{ OAUTH2_ERROR : @"server_error",
                                                                          OAUTH2_ERROR_DESCRIPTION : @"AADSTS90036: Non-retryable error has occurred." }];
     
-    //It should hit network twice trying the above two tokens, then retry an extra time because it is an server error
-    //So totally 3 responses are added
+    //It should hit network twice for trying and retrying the refresh token because it is an server error
+    //Then hit network twice again for broad refresh token for the same reason
+    //So totally 4 responses are added
     //If there is an infinite retry, exception will be thrown becasuse there is not enough responses
+    [ADTestURLConnection addResponse:response];
     [ADTestURLConnection addResponse:response];
     [ADTestURLConnection addResponse:response];
     [ADTestURLConnection addResponse:response];

@@ -176,16 +176,6 @@
                  }//broad item
              }//key
          }//!item.multiResourceRefreshToken
-         else if (_retryIfServerError && [ADAuthenticationContext isServerError:result]) //retry once after half second if fail with server-end error
-         {
-             _retryIfServerError = NO;
-             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                 [self attemptToUseCacheItem:item
-                              useAccessToken:NO
-                             completionBlock:completionBlock];
-             });
-             return;
-         }
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken

@@ -30,6 +30,7 @@
         additionalHeaders:(NSDictionary *)additionalHeaders
         returnRawResponse:(BOOL)returnRawResponse
              isGetRequest:(BOOL)isGetRequest
+       retryIfServerError:(BOOL)retryIfServerError
                completion:( void (^)(NSDictionary *) )completionBlock;
 
 @end
@@ -181,10 +182,12 @@
         additionalHeaders:(NSDictionary *)additionalHeaders
         returnRawResponse:(BOOL)returnRawResponse
              isGetRequest:(BOOL)isGetRequest
+       retryIfServerError:(BOOL)retryIfServerError
                completion:( void (^)(NSDictionary *) )completionBlock
 {
     (void)returnRawResponse;
     (void)isGetRequest;
+    (void)retryIfServerError;
     
     [(ADTestAuthenticationContext*)_context requestWithServer:authorizationServer
                                                   requestData:request_data
