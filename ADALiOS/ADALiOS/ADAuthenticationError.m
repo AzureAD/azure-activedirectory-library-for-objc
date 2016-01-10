@@ -68,7 +68,7 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
     THROW_ON_NIL_EMPTY_ARGUMENT(domain);
     if (!quiet)
     {
-        NSString* message = [NSString stringWithFormat:@"Error raised: %lu", (long)code];
+        NSString* message = [NSString stringWithFormat:@"Error raised: %ld", (long)code];
         NSMutableString* info = [[NSMutableString alloc] initWithFormat:@"Domain: %@", domain];
         if (protocolCode)
         {

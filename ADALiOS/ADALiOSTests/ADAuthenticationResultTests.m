@@ -47,26 +47,23 @@
     XCTAssertThrows([ADAuthenticationResult new]);
 }
 
--(void) verifyErrorResult: (ADAuthenticationResult*) result
-                errorCode: (ADErrorCode) code
-{
-    XCTAssertNotNil(result);
-    ADAuthenticationResultStatus expected = (code == AD_ERROR_USER_CANCEL) ? AD_USER_CANCELLED : AD_FAILED;
-    XCTAssertEqual(result.status, expected, "Wrong status on cancellation");
-    XCTAssertNotNil(result.error, "Nil error");
-    ADAssertLongEquals(result.error.code, code);
-    XCTAssertNil(result.tokenCacheStoreItem.accessToken);
-    XCTAssertNil(result.tokenCacheStoreItem.accessTokenType);
-    XCTAssertNil(result.tokenCacheStoreItem.refreshToken);
-    XCTAssertNil(result.tokenCacheStoreItem.expiresOn);
-    XCTAssertNil(result.tokenCacheStoreItem.userInformation);
+#define VERIFY_RESULT(_result, _status, _code) { \
+    XCTAssertNotNil(_result); \
+    XCTAssertEqual(_result.status, _status, "Wrong status"); \
+    XCTAssertNotNil(_result.error, "Nil error"); \
+    ADAssertLongEquals(_result.error.code, _code); \
+    XCTAssertNil(_result.tokenCacheStoreItem.accessToken); \
+    XCTAssertNil(_result.tokenCacheStoreItem.accessTokenType); \
+    XCTAssertNil(_result.tokenCacheStoreItem.refreshToken); \
+    XCTAssertNil(_result.tokenCacheStoreItem.expiresOn); \
+    XCTAssertNil(_result.tokenCacheStoreItem.userInformation); \
 }
 
 -(void) testResultFromCancellation
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromCancellation];
-    [self verifyErrorResult:result errorCode:AD_ERROR_USER_CANCEL];
+    VERIFY_RESULT(result, AD_USER_CANCELLED, AD_ERROR_USER_CANCEL);
 }
 
 -(void) testResultFromError
@@ -74,7 +71,7 @@
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"something"];
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error];
-    [self verifyErrorResult:result errorCode:AD_ERROR_UNEXPECTED];
+    VERIFY_RESULT(result, AD_FAILED, AD_ERROR_UNEXPECTED);
     XCTAssertEqualObjects(result.error, error, "Different error object in the result.");
 }
 
@@ -91,11 +88,11 @@
     ADAssertStringEquals(item.userInformation.userId, resultFromItem.tokenCacheStoreItem.userInformation.userId);
 }
 
--(void) testResultFromTokenCacheStoreItem
+- (void)testResultFromTokenCacheStoreItem
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil multiResourceRefreshToken:NO];
-    [self verifyErrorResult:nilItemResult errorCode:AD_ERROR_UNEXPECTED];
+    VERIFY_RESULT(nilItemResult, AD_FAILED, AD_ERROR_UNEXPECTED);
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
@@ -113,19 +110,6 @@
     //Copy the item to ensure that it is not modified withing the method call below:
     ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
     [self verifyResult:resultFromValidItem item:item];
-    
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    //Nil access token:
-    item.resource = @"resource";//Restore
-    item.accessToken = nil;
-    ADAuthenticationResult* resultFromNilAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
-    [self verifyErrorResult:resultFromNilAccessToken errorCode:AD_ERROR_UNEXPECTED];
-
-    //Empty access token:
-    item.resource = @"resource";//Restore
-    item.accessToken = @"   ";
-    ADAuthenticationResult* resultFromEmptyAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
-    [self verifyErrorResult:resultFromEmptyAccessToken errorCode:AD_ERROR_UNEXPECTED];
 }
 
 - (void)testBrokerResponse

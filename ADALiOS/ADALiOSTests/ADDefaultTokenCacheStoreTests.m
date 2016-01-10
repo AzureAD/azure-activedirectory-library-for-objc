@@ -22,7 +22,7 @@
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADAuthenticationContext.h"
 #import "../ADALiOS/ADKeychainTokenCacheStore.h"
-
+#import "ADKeychainTokenCacheStore+InternalTest.h"
 dispatch_semaphore_t sThreadsSemaphore;//Will be signalled when the last thread is done. Should be initialized and cleared in the test.
 volatile int32_t sThreadsFinished;//The number of threads that are done. Should be set to 0 at the beginning of the test.
 const int sMaxThreads = 10;//The number of threads to spawn
@@ -49,12 +49,12 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     mStore = (ADKeychainTokenCacheStore*)[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     XCTAssertNotNil(mStore, "Default store cannot be nil.");
     XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
-    [mStore removeAllWithError:nil];//Start clean before each test
+    [mStore removeAll:nil];//Start clean before each test
 }
 
 - (void)tearDown
 {
-    [mStore removeAllWithError:nil];//Attempt to clear the junk from the keychain
+    [mStore removeAll:nil];//Attempt to clear the junk from the keychain
     mStore = nil;
     
     [self adTestEnd];
@@ -64,28 +64,11 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 -(long) count
 {
     ADAuthenticationError* error;
-    NSArray* all = [mStore allItemsWithError:&error];
+    NSArray* all = [mStore allItems:&error];
     ADAssertNoError;
     XCTAssertNotNil(all);
     return all.count;
 }
-
-
--(void) testKeychainAttributesWithKeyNonAsciiUserId
-{
-    SEL aSelector = NSSelectorFromString(@"keychainAttributesWithKey:userId:error:");
-    NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[mStore methodSignatureForSelector:aSelector]];
-    [inv setSelector:aSelector];
-    [inv setTarget:mStore];
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
-    [inv setArgument:&item atIndex:2];
-    NSString* userid = @"юзер@екзампл.ком";
-    [inv setArgument:&userid atIndex:3];
-//    [inv setArgument:nil atIndex:4];
-    [inv invoke];
-    
-}
-
 //A wrapper around addOrUpdateItem, checks automatically for errors.
 //Works on single threaded environment only, as it checks the counts:
 #define ADD_OR_UPDATE_ITEM(_item, _expectAdd) \
@@ -132,44 +115,17 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 //cannot accidentally modify them. The method tests the getters too.
 -(void) testCopySingleObject
 {
+    [mStore removeAll:nil];
+    
     XCTAssertTrue([self count] == 0, "Start empty.");
     
     ADTokenCacheStoreItem* item = [self adCreateCacheItem];
-    ADAuthenticationError* error;
-    ADD_OR_UPDATE_ITEM(item, YES);
-
-    //getItemWithKey:userId
-    ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(key);
-    ADTokenCacheStoreItem* exact = [mStore getItemWithKey:key userId:item.userInformation.userId error:&error];
-    ADAssertNoError;
-    XCTAssertEqualObjects(item, exact);
-
-    //getItemsWithKey:userId and nil userId:
-    ADTokenCacheStoreItem* returnedItemForNil = [mStore getItemWithKey:key userId:nil error:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(returnedItemForNil);
-    XCTAssertEqualObjects(item, returnedItemForNil);
-    XCTAssertEqualObjects(exact, returnedItemForNil);
+    [mStore addOrUpdateItem:item error:nil];
     
-    //getItemsWithKey:
-    NSArray* items = [mStore getItemsWithKey:key error:&error];
-    ADAssertNoError;
-    XCTAssertTrue(items.count == 1);
-    ADTokenCacheStoreItem* returnedFromArray = [items objectAtIndex:0];
-    XCTAssertNotNil(returnedFromArray);
-    XCTAssertEqualObjects(item, returnedFromArray);
-    XCTAssertEqualObjects(returnedItemForNil, returnedFromArray);
+    NSArray* allItems = [mStore allItems:nil];
     
-    //allItems:
-    NSArray* allItems = [mStore allItemsWithError:&error];
-    ADAssertNoError;
-    XCTAssertTrue(items.count == 1);
-    ADTokenCacheStoreItem* returnedFromAll = [allItems objectAtIndex:0];
-    XCTAssertNotNil(returnedFromAll);
-    XCTAssertEqualObjects(item, returnedFromAll);
-    XCTAssertEqualObjects(returnedFromArray, returnedFromAll);
+    XCTAssertEqual([allItems count], 1);
+    XCTAssertEqualObjects(item, allItems[0]);
 }
 
 -(void) testComplex
@@ -177,7 +133,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertTrue([self count] == 0, "Start empty.");
     
     ADAuthenticationError* error;
-    XCTAssertNotNil([mStore allItemsWithError:&error]);
+    XCTAssertNotNil([mStore allItems:&error]);
     ADAssertNoError;
     ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
     
@@ -207,7 +163,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     COPY_ITEM_WITH_NEW_USER(item5, item1, nil);
     ADD_OR_UPDATE_ITEM(item5, YES);
     
-    ADTokenCacheStoreKey* key = [item1 extractKeyWithError:&error];
+    ADTokenCacheStoreKey* key = [item1 extractKey:&error];
     ADAssertNoError;
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
@@ -220,24 +176,24 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     NSArray* array = [mStore getItemsWithKey:key error:&error];
     ADAssertNoError;
-    XCTAssertTrue(array.count == 3);
+    XCTAssertEqual(array.count, 3);
     
     //Now test the removers:
     [mStore removeItemWithKey:key userId:item4.userInformation.userId error:&error];//Specific user
     ADAssertNoError;
-    XCTAssertTrue(array.count == 3);
+    XCTAssertEqual(array.count, 3);
     
     //This will remove two elements, as the userId is not specified:
     [mStore removeItemWithKey:key userId:nil error:&error];
     ADAssertNoError;
-    XCTAssertTrue([self count]  == 1);
+    XCTAssertEqual([self count], 1);
     
-    [mStore removeAllWithError:&error];
+    [mStore removeAll:&error];
     ADAssertNoError;
-    array = [mStore allItemsWithError:&error];
+    array = [mStore allItems:&error];
     ADAssertNoError;
     XCTAssertNotNil(array);
-    XCTAssertTrue(array.count == 0);
+    XCTAssertEqual(array.count, 0);
 }
 
 -(void) threadProc
@@ -255,12 +211,12 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
         ADAssertNoError;
         ADTokenCacheStoreItem* item3 = [self adCreateCacheItem];
         item3.userInformation = nil;
-        ADTokenCacheStoreKey* key123 = [item3 extractKeyWithError:&error];
+        ADTokenCacheStoreKey* key123 = [item3 extractKey:&error];
         ADAssertNoError;
 
         ADTokenCacheStoreItem* item4 = [self adCreateCacheItem];
         item4.authority = @"https://www.authority.com/tenant.com";
-        ADTokenCacheStoreKey* key4 = [item4 extractKeyWithError:&error];
+        ADTokenCacheStoreKey* key4 = [item4 extractKey:&error];
         ADAssertNoError;
         
         NSDate* end = [NSDate dateWithTimeIntervalSinceNow:sThreadsRunTime];//few seconds into the future
@@ -270,7 +226,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
             @autoreleasepool//The cycle will create constantly objects, so it needs its own autorelease pool
             {
                 ADAuthenticationError* error;//Keep it local
-                [mStore removeAllWithError:&error];
+                [mStore removeAll:&error];
                 ADAssertNoError;
                 [mStore addOrUpdateItem:item1 error:&error];
                 ADAssertNoError;
@@ -287,7 +243,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
                 NSArray* array = [mStore getItemsWithKey:key123 error:&error];
                 ADAssertNoError;
                 XCTAssertNotNil(array);
-                array = [mStore allItemsWithError:&error];
+                array = [mStore allItems:&error];
                 ADAssertNoError;
                 XCTAssertNotNil(array);
                 array = [mStore getItemsWithKey:key4 error:&error];
@@ -381,7 +337,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     }
 
     //Restore:
-    [mStore removeAllWithError:&error];
+    [mStore removeAll:&error];
     ADAssertNoError;
 }
 
@@ -389,7 +345,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 {
     XCTAssertNotNil(item);
     ADAuthenticationError* error;
-    ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
+    ADTokenCacheStoreKey* key = [item extractKey:&error];
     ADAssertNoError;
     
     ADTokenCacheStoreItem* read = nil;
@@ -428,6 +384,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertNotNil(withGroup);
 }
 
+/*
 -(void) testsharedKeychainGroupProperty
 {
     //Put an item in the cache:
@@ -453,9 +410,10 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     keychainStore.sharedGroup = nil;
     XCTAssertNil(keychainStore.sharedGroup);
     XCTAssertNil(settings.sharedCacheKeychainGroup);
-    [mStore removeAllWithError:&error];
+    [mStore removeAll:&error];
     ADAssertNoError;
     ADAssertLongEquals(0, [self count]);
 }
+ */
 
 @end

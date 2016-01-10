@@ -17,10 +17,10 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
+#import "ADALiOS.h"
 #import "ADAuthenticationError.h"
 #import "ADErrorCodes.h"
 #import "ADBrokerKeyHelper.h"
-#import "ADKeyChainHelper.h"
 #import <CommonCrypto/CommonCryptor.h>
 #import <Security/Security.h>
 #import "ADLogger+Internal.h"
@@ -85,6 +85,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     free(symmetricKey);
     
     [self createBrokerKeyWithBytes:keyData error:error];
+    [keyData release];
 }
 
 - (void)createBrokerKeyWithBytes:(NSData*)bytes
@@ -108,6 +109,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     [symmetricKeyAttr setObject:bytes forKey:(__bridge id)kSecValueData];
     
     err = SecItemAdd((__bridge CFDictionaryRef) symmetricKeyAttr, NULL);
+    SAFE_ARC_RELEASE(symmetricKeyAttr);
     
     if(err != errSecSuccess)
     {
@@ -130,6 +132,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     
     // Delete the symmetric key.
     err = SecItemDelete((__bridge CFDictionaryRef)querySymmetricKey);
+    SAFE_ARC_RELEASE(querySymmetricKey);
     
     // Try to delete something that doesn't exist isn't really an error
     if(err != errSecSuccess && err != errSecItemNotFound)
@@ -172,6 +175,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     // Get the key bits.
     CFDataRef symmetricKey = nil;
     err = SecItemCopyMatching((__bridge CFDictionaryRef)querySymmetricKey, (CFTypeRef *)&symmetricKey);
+    SAFE_ARC_RELEASE(querySymmetricKey);
     if (err == errSecSuccess)
     {
         _symmetricKeyRef = CFBridgingRelease(symmetricKey);
@@ -209,6 +213,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
         bzero(keyPtr, sizeof(keyPtr)); // fill with zeroes (for padding)
         // fetch key data
         [key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
+        SAFE_ARC_RELEASE(key);
         keyBytes = keyPtr;
         keySize = kCCKeySizeAES256;
     }

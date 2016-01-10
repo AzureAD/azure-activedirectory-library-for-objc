@@ -91,6 +91,13 @@
         BOOL isMrrt = [self fillItemWithResponse:response];
         return [ADAuthenticationResult resultFromTokenCacheStoreItem:self multiResourceRefreshToken:isMrrt];
     }
+    else
+    {
+        // Bad item, the field we're looking for is missing.
+        NSString* details = [NSString stringWithFormat:@"Authentication response received without expected \"%@\"", fieldToCheck];
+        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:details];
+        return [ADAuthenticationResult resultFromError:error];
+    }
     
     //No access token and no error, we assume that there was another kind of error (connection, server down, etc.).
     //Note that for security reasons we log only the keys, not the values returned by the user:
