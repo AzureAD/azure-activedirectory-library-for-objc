@@ -89,7 +89,9 @@
     if (![NSString adIsStringNilOrBlank:value])
     {
         BOOL isMrrt = [self fillItemWithResponse:response];
-        return [ADAuthenticationResult resultFromTokenCacheStoreItem:self multiResourceRefreshToken:isMrrt];
+        return [ADAuthenticationResult resultFromTokenCacheStoreItem:self
+                                           multiResourceRefreshToken:isMrrt
+                                                       correlationId:[response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
     }
     else
     {

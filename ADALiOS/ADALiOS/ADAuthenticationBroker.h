@@ -23,9 +23,6 @@
 typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 @interface ADAuthenticationBroker : NSObject
 
-+ (NSString *)resourcePath;
-+ (void)setResourcePath:(NSString *)resourcePath;
-
 + (ADAuthenticationBroker *)sharedInstance;
 
 // Start the authentication process. Note that there are two different behaviours here dependent on whether the caller has provided

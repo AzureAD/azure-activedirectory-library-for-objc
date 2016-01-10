@@ -27,6 +27,7 @@
 #import "ADAuthenticationSettings.h"
 #import "ADNTLMHandler.h"
 #import "ADCustomHeaderHandler.h"
+#import "ADALFrameworkUtils.h"
 
 NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
 NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
@@ -112,54 +113,6 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 
 #pragma mark - Private Methods
 
-static NSString *_resourcePath = nil;
-
-+ (NSString *)resourcePath
-{
-    return _resourcePath;
-}
-
-+ (void)setResourcePath:(NSString *)resourcePath
-{
-    _resourcePath = resourcePath;
-}
-
-// Retrive the bundle containing the resources for the library. May return nil, if the bundle
-// cannot be loaded.
-+ (NSBundle *)frameworkBundle
-{
-    static NSBundle       *bundle     = nil;
-    static dispatch_once_t predicate;
-    
-    @synchronized(self)
-    {
-        dispatch_once( &predicate,
-                      ^{
-
-                          NSString* mainBundlePath      = [[NSBundle mainBundle] resourcePath];
-                          AD_LOG_VERBOSE_F(@"Resources Loading", nil, @"Attempting to load resources from: %@", mainBundlePath);
-                          NSString* frameworkBundlePath = nil;
-                          
-                          if ( _resourcePath != nil )
-                          {
-                              frameworkBundlePath = [[mainBundlePath stringByAppendingPathComponent:_resourcePath] stringByAppendingPathComponent:@"ADALiOS.bundle"];
-                          }
-                          else
-                          {
-                              frameworkBundlePath = [mainBundlePath stringByAppendingPathComponent:@"ADALiOS.bundle"];
-                          }
-                          
-                          bundle = [NSBundle bundleWithPath:frameworkBundlePath];
-                          if (!bundle)
-                          {
-                              AD_LOG_INFO_F(@"Resource Loading", nil, @"Failed to load framework bundle. Application main bundle will be attempted.");
-                          }
-                      });
-    }
-    
-    return bundle;
-}
-
 +(NSString*) getStoryboardName
 {
     return (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
@@ -172,7 +125,7 @@ static NSString *_resourcePath = nil;
 // Raises an error if both the library resources bundle and the application fail to locate resources.
 + (UIStoryboard *)storyboard: (ADAuthenticationError* __autoreleasing*) error
 {
-    NSBundle* bundle = [self frameworkBundle];//May be nil.
+    NSBundle* bundle = [ADALFrameworkUtils frameworkBundle];//May be nil.
     if (!bundle)
     {
         //The user did not use ADALiOS.bundle. The resources may be manually linked

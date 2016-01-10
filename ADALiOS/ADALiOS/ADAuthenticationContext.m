@@ -156,7 +156,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     
     if (!request)
     {
-        completionBlock([ADAuthenticationResult resultFromError:error]);
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
     }
     
     return request;

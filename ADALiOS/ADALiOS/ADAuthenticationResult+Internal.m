@@ -26,15 +26,16 @@
 
 @implementation ADAuthenticationResult (Internal)
 
--(id) initWithCancellation
+-(id) initWithCancellation: (NSUUID*) correlationId
 {
     ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation];
     
-    return [self initWithError:error status:AD_USER_CANCELLED];
+    return [self initWithError:error status:AD_USER_CANCELLED correlationId:correlationId];
 }
 
 -(id) initWithItem: (ADTokenCacheStoreItem*) item
 multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
+     correlationId: (NSUUID*) correlationId
 {
     self = [super init];
     if (self)
@@ -42,12 +43,14 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         _status = AD_SUCCEEDED;
         _tokenCacheStoreItem = item;
         _multiResourceRefreshToken = multiResourceRefreshToken;
+        _correlationId = correlationId;
     }
     return self;
 }
 
 -(id) initWithError: (ADAuthenticationError*)error
              status: (ADAuthenticationResultStatus) status
+      correlationId: (NSUUID*) correlationId
 {
     THROW_ON_NIL_ARGUMENT(error);
     
@@ -56,13 +59,14 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     {
         _status = status;
         _error = error;
+        _correlationId = correlationId;
     }
     return self;
 }
 
-/*! Creates an instance of the result from the cache store. */
-+(ADAuthenticationResult*) resultFromTokenCacheStoreItem: (ADTokenCacheStoreItem*) item
-                               multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
++ (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheStoreItem *)item
+                               multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
+                                           correlationId:(NSUUID *)correlationId
 {
     if (!item)
     {
@@ -70,37 +74,50 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         return [ADAuthenticationResult resultFromError:error];
     }
     
-    ADAuthenticationError* error = nil;
-    ADTokenCacheStoreKey* key = [item extractKey:&error];
-    if (!key)
-    {
-        //Bad item, return error:
-        return [ADAuthenticationResult resultFromError:error];
-    }
-    //The item can be used, just use it:
-    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:multiResourceRefreshToken];
+    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:multiResourceRefreshToken correlationId:correlationId];
 }
 
 +(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error
 {
+    return [self resultFromError:error correlationId:nil];
+}
+
++(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error
+                             correlationId: (NSUUID*) correlationId
+{
     ADAuthenticationResult* result = [ADAuthenticationResult alloc];
-    return [result initWithError:error status:AD_FAILED];
+    return [result initWithError:error status:AD_FAILED correlationId:correlationId];
 }
 
 + (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
 {
-    return [[ADAuthenticationResult alloc] initWithError:[ADAuthenticationError invalidArgumentError:details] status:AD_FAILED];
+    return [self resultFromParameterError:details correlationId:nil];
+}
+
++ (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
+                                      correlationId: (NSUUID*) correlationId
+{
+    return [[ADAuthenticationResult alloc] initWithError:[ADAuthenticationError invalidArgumentError:details] status:AD_FAILED correlationId:correlationId];
 }
 
 +(ADAuthenticationResult*) resultFromCancellation
 {
+    return [self resultFromCancellation:nil];
+}
+
++(ADAuthenticationResult*) resultFromCancellation: (NSUUID*) correlationId
+{
     ADAuthenticationResult* result = [ADAuthenticationResult alloc];
-    return [result initWithCancellation];
+    return [result initWithCancellation:correlationId];
 }
 
 +(ADAuthenticationResult*) resultFromBrokerResponse: (NSDictionary*) response
 {
     ADTokenCacheStoreItem* item = nil;
+    
+    NSUUID* correlationId = [response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
+                            [[NSUUID alloc] initWithUUIDString:[response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]]
+                            : nil;
     
     if(!response || [response valueForKey:OAUTH2_ERROR_DESCRIPTION])
     {
@@ -124,13 +141,13 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         
         error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADBrokerResponseErrorDomain code:errorCode userInfo:nil] errorDetails:errorDetails];
         
-        return [ADAuthenticationResult resultFromError:error];
+        return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
     }
     
     item = [ADTokenCacheStoreItem new];
     [item setAccessTokenType:@"Bearer"];
     BOOL isMRRT = [item fillItemWithResponse:response];
-    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:isMRRT];
+    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:isMRRT correlationId:correlationId];
 }
 
 @end

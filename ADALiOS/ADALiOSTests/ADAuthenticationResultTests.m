@@ -91,7 +91,7 @@
 - (void)testResultFromTokenCacheStoreItem
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil multiResourceRefreshToken:NO];
+    ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil multiResourceRefreshToken:NO correlationId:nil];
     VERIFY_RESULT(nilItemResult, AD_FAILED, AD_ERROR_UNEXPECTED);
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
@@ -108,7 +108,7 @@
     ADAssertNoError;
     
     //Copy the item to ensure that it is not modified withing the method call below:
-    ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO];
+    ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO correlationId:nil];
     [self verifyResult:resultFromValidItem item:item];
 }
 

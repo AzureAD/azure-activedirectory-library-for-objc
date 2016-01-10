@@ -34,8 +34,6 @@ static NSString* const s_delimiter = @"|";
 
 static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_VERSION);
 
-
-static NSString* const sKeyChainlog = @"Keychain token cache store";
 static NSString* const sMultiUserError = @"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used.";
 static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
 
@@ -81,13 +79,6 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
 -  (NSString*)sharedGroup
 {
     return _sharedGroup;
-}
-
-//Log operations that result in storing or reading cache item:
-- (void)logItem:(ADTokenCacheStoreItem *)item
-        message:(NSString *)additionalMessage
-{
-    AD_LOG_VERBOSE_F(sKeyChainlog, nil, @"%@. Resource: %@ Access token hash: %@; Refresh token hash: %@", additionalMessage, item.resource, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
 }
 
 #pragma mark -
@@ -138,7 +129,61 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
 }
 
 #pragma mark -
+#pragma mark Keychain Loggig
 
+//Log operations that result in storing or reading cache item:
+- (void)logItem:(ADTokenCacheStoreItem *)item
+        message:(NSString *)additionalMessage
+{
+    AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"%@ for resource <%@> + client <%@> + authority <%@>", additionalMessage, [item resource], [item clientId], [item authority]);
+}
+
+- (void)logItemRetrievalStatus:(NSArray *)items
+                           key:(ADTokenCacheStoreKey *)key
+                        userId:(NSString *)userId
+{
+    if ([items count] > 0)
+    {
+        AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"Found %lu token(s) for user <%@> in keychain.", (unsigned long)[items count], userId);
+    }
+    else
+    {
+        //if resource is nil, this request is intending to find MRRT
+        if ([NSString adIsStringNilOrBlank:[key resource]]) {
+            AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"No MRRT was found for resource <%@> + client <%@> + authority <%@>", [key resource], [key clientId], [key authority]);
+        }
+        else
+        {
+            AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"No AT/RT was found for resource <%@> + client <%@> + authority <%@>", [key resource], [key clientId], [key authority]);
+        }
+    }
+}
+
+- (NSString*)getTokenNameForLog:(ADTokenCacheStoreItem *)item
+{
+    NSString* tokenName = @"unknown token";
+    if (![NSString adIsStringNilOrBlank:item.accessToken])
+    {
+        if (item.isExpired)
+        {
+            tokenName = @"expired AT";
+        }
+        else
+        {
+            tokenName = @"AT";
+        }
+        
+        if (![NSString adIsStringNilOrBlank:item.refreshToken])
+        {
+            [tokenName stringByAppendingString:@"+RT"];
+        }
+    }
+    else if (![NSString adIsStringNilOrBlank:item.refreshToken] && [NSString adIsStringNilOrBlank:item.resource])
+    {
+        tokenName = @"MRRF";
+    }
+    return tokenName;
+}
 
 
 // Internal method: returns a dictionary with all items that match the criteria.
@@ -204,6 +249,7 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
     NSArray* items = [self keychainItemsWithKey:key userId:userId error:error];
     if (!items)
     {
+        [self logItemRetrievalStatus:nil key:key userId:userId];
         return nil;
     }
     
@@ -220,6 +266,7 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
         [tokenItems addObject:item];
     }
     
+    [self logItemRetrievalStatus:tokenItems key:key userId:userId];
     return tokenItems;
     
 }
