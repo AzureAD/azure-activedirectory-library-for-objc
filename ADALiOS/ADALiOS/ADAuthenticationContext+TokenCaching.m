@@ -196,7 +196,7 @@
             
             BOOL removed = NO;
             //The refresh token didn't work. We need to clear this refresh item from the cache.
-            ADTokenCacheStoreKey* exactKey = [cacheItem extractKeyWithError:nil];
+            ADTokenCacheStoreKey* exactKey = [cacheItem extractKey:nil];
             if (exactKey)
             {
                 ADTokenCacheStoreItem* existing = [tokenCacheStoreInstance getItemWithKey:exactKey userId:cacheItem.userInformation.userId error:nil];

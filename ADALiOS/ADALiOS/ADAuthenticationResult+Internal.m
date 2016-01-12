@@ -64,41 +64,17 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return self;
 }
 
-/*! Creates an instance of the result from the cache store. */
-+(ADAuthenticationResult*) resultFromTokenCacheStoreItem: (ADTokenCacheStoreItem*) item
-                               multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
++ (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheStoreItem *)item
+                               multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
+                                           correlationId:(NSUUID *)correlationId
 {
-    return [self resultFromTokenCacheStoreItem:item multiResourceRefreshToken:multiResourceRefreshToken correlationId:nil];
-}
-
-+(ADAuthenticationResult*) resultFromTokenCacheStoreItem: (ADTokenCacheStoreItem*) item
-                               multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
-                                           correlationId: (NSUUID*) correlationId
-{
-    if (item)
-    {
-        ADAuthenticationError* error;
-        [item extractKeyWithError:&error];
-        if (error)
-        {
-            //Bad item, return error:
-            return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
-        }
-        if ([NSString adIsStringNilOrBlank:item.accessToken])
-        {
-            //Bad item, the access token should be accurate, else an error should be
-            //reported instead of this creator:
-            ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult created from item with no access token."];
-            return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
-        }
-        //The item can be used, just use it:
-        return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:multiResourceRefreshToken correlationId:correlationId];
-    }
-    else
+    if (!item)
     {
         ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult created from nil token item."];
-        return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
+        return [ADAuthenticationResult resultFromError:error];
     }
+    
+    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:multiResourceRefreshToken correlationId:correlationId];
 }
 
 +(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error

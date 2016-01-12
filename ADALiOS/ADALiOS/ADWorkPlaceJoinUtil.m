@@ -21,6 +21,7 @@
 #import "ADWorkPlaceJoinConstants.h"
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
+#import "ADALiOS.h"
 
 @implementation ADWorkPlaceJoinUtil
 
@@ -58,6 +59,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
 #endif
     
     status = SecItemCopyMatching((__bridge CFDictionaryRef)privateKeyAttr, (CFTypeRef*)&item);
+    SAFE_ARC_RELEASE(privateKeyAttr);
     
     if(item != NULL)
     {
@@ -123,6 +125,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     // now get the identity out and use it.
     [identityAttr removeObjectForKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
     status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)&identity);
+    SAFE_ARC_RELEASE(identityAttr);
     
     //Get the identity
     if(status == errSecSuccess && identity)
@@ -141,6 +144,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
         status = SecIdentityCopyPrivateKey(identity, &privateKey);
         if (status != errSecSuccess)
         {
+            [certificateIssuer release];
             return nil;
         }
         
@@ -156,12 +160,15 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
                                                                                       certificateData:certificateData
                                                                                            privateKey:privateKey
                                                                                        privateKeyData:privateKeyData];
+        SAFE_ARC_RELEASE(certificateIssuer);
+        SAFE_ARC_AUTORELEASE(info);
         return info;
     }
     else
     {
         AD_LOG_VERBOSE_F(@"Unable to extract a workplace join identity for", nil, @"%@ shared access keychain",
-                         sharedAccessGroup);        
+                         sharedAccessGroup);
+        SAFE_ARC_RELEASE(certificateIssuer);
         return nil;
     }
 }
@@ -183,6 +190,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)identity);
     
     OSStatus status = SecIdentityCopyCertificate(*identity, clientCertificate );
+    SAFE_ARC_RELEASE(identityAttr);
     
     if (status == errSecSuccess)
     {

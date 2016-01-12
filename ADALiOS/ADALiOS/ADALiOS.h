@@ -117,6 +117,16 @@ ADAL_VERSION; \
 AD_LOG_VERBOSE(__adalVersion, nil, __where); \
 }
 
+#if __has_feature(objc_arc)
+#define SAFE_ARC_RELEASE(_obj)
+#define SAFE_ARC_RETAIN(_obj)
+#define SAFE_ARC_AUTORELEASE(_obj)
+#else
+#define SAFE_ARC_RELEASE(_obj) [_obj release];
+#define SAFE_ARC_RETAIN(_obj) [_obj retain];
+#define SAFE_ARC_AUTORELEASE(_obj) [_obj autorelease];
+#endif
+
 
 
 

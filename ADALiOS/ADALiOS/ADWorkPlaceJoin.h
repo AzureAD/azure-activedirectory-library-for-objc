@@ -29,7 +29,7 @@
 + (ADWorkPlaceJoin*) WorkPlaceJoinManager;
 
 /*! Represents the shared access group used by this api. */
-@property (readwrite) NSString* sharedGroup;
+@property (readwrite, retain) NSString* sharedGroup;
 
 /// Will look at the shared application keychain in search for a certificate
 /// Certificate found returns true

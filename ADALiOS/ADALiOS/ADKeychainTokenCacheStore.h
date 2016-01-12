@@ -18,21 +18,31 @@
 
 #import "ADTokenCacheStoring.h"
 
+@class ADKeyChainHelper;
+
 @interface ADKeychainTokenCacheStore : NSObject<ADTokenCacheStoring>
+
+@property (readonly) NSString* sharedGroup;
 
 /* Initializes the token cache store with default shared group value.
  */
--(id) init;
+- (id)init;
+
 /*! Initializes the token cache store.
  @param: sharedGroup: Optional. If the application needs to share the cached tokens
  with other applications from the same vendor, the app will need to specify the 
  shared group here and add the necessary entitlements to the application.
  See Apple's keychain services documentation for details. */
--(id) initWithGroup: (NSString*) sharedGroup;
+- (id)initWithGroup:(NSString *)sharedGroup;
 
-/* The shared keychain group, where the ADAL library will keep the tokens.
- May be nil. The cache items from the previous keychain group are not transferred
- automatically. */
-@property NSString* sharedGroup;
++ (BOOL)checkStatus:(OSStatus)status
+            details:(NSString*)details
+              error:(ADAuthenticationError* __autoreleasing *)error;
+
+- (NSMutableDictionary *)queryDictionaryForKey:(ADTokenCacheStoreKey *)key
+                                        userId:(NSString *)userId
+                                    additional:(NSDictionary*)additional;
+
+- (NSString*)keychainKeyFromCacheKey:(ADTokenCacheStoreKey *)itemKey;
 
 @end

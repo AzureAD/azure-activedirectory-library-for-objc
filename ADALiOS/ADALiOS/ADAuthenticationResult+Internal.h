@@ -34,9 +34,7 @@
 + (ADAuthenticationResult*)resultFromParameterError:(NSString*)details
                                       correlationId:(NSUUID*)correlationId;
 
-/*! Creates an instance of the result from a pre-setup token cache store item, with/without correlation id. */
-+ (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheStoreItem*)item
-                               multiResourceRefreshToken:(BOOL)multiResourceRefreshToken;
+/*! Creates an instance of the result from a pre-setup token cache store item */
 + (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheStoreItem*)item
                                multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
                                            correlationId:(NSUUID*)correlationId;

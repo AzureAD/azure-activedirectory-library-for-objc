@@ -89,7 +89,16 @@
     if (![NSString adIsStringNilOrBlank:value])
     {
         BOOL isMrrt = [self fillItemWithResponse:response];
-        return [ADAuthenticationResult resultFromTokenCacheStoreItem:self multiResourceRefreshToken:isMrrt];
+        return [ADAuthenticationResult resultFromTokenCacheStoreItem:self
+                                           multiResourceRefreshToken:isMrrt
+                                                       correlationId:[response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
+    }
+    else
+    {
+        // Bad item, the field we're looking for is missing.
+        NSString* details = [NSString stringWithFormat:@"Authentication response received without expected \"%@\"", fieldToCheck];
+        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:details];
+        return [ADAuthenticationResult resultFromError:error];
     }
     
     //No access token and no error, we assume that there was another kind of error (connection, server down, etc.).
