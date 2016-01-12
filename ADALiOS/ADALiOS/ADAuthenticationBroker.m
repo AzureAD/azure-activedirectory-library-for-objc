@@ -153,7 +153,13 @@ static NSString *_resourcePath = nil;
                           bundle = [NSBundle bundleWithPath:frameworkBundlePath];
                           if (!bundle)
                           {
-                              AD_LOG_INFO_F(@"Resource Loading", @"Failed to load framework bundle. Application main bundle will be attempted.");
+                              // If bundle can't be found try the framework in case pod was built as module
+                              bundle = [NSBundle bundleForClass:[ADAuthenticationBroker class]];
+                              
+                              if (!bundle)
+                              {
+                                  AD_LOG_INFO_F(@"Resource Loading", @"Failed to load framework bundle. Application main bundle will be attempted.");
+                              }
                           }
                       });
     }
