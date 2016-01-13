@@ -22,7 +22,7 @@
 
 /*! This protocol needs to be implemented by any token cache store.
  It is a key-based store, which stores 'AdTokenCacheStoreItem elements. */
-@protocol ADTokenCacheStoring
+@protocol ADTokenCacheEnumerator
 
 /*! Return a copy of all items. The array will contain ADTokenCacheStoreItem objects,
  containing all of the cached information. Returns an empty array, if no items are found.

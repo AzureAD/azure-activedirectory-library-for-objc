@@ -14,7 +14,7 @@
 #import "NSString+ADHelperMethods.h"
 #import "ADUserInformation.h"
 
-@interface ADTestSimpleStorage : NSObject <ADCacheStorage>
+@interface ADTestSimpleStorage : NSObject <ADCacheStorageDelegate>
 {
 @public
     BOOL _changed;

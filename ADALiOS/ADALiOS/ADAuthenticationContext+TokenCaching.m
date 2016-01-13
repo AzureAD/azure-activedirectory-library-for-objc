@@ -139,7 +139,7 @@
 }
 
 - (void)updateCacheToResult:(ADAuthenticationResult*)result
-              cacheInstance:(id<ADTokenCacheStoring>)tokenCacheStoreInstance
+              cacheInstance:(id<ADTokenCacheEnumerator>)tokenCacheStoreInstance
                   cacheItem:(ADTokenCacheStoreItem*)cacheItem
            withRefreshToken:(NSString*)refreshToken
 {

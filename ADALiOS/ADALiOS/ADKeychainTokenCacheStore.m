@@ -34,9 +34,6 @@ static NSString* const s_delimiter = @"|";
 
 static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_VERSION);
 
-static NSString* const sMultiUserError = @"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used.";
-static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
-
 @implementation ADKeychainTokenCacheStore
 {
     NSString* _sharedGroup;
@@ -46,7 +43,7 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
 // Shouldn't be called.
 - (id)init
 {
-    return [self initWithGroup:sKeychainSharedGroup];
+    return [self initWithGroup:@"com.microsoft.adalcache"];
 }
 
 - (id)initWithGroup:(NSString *)sharedGroup
@@ -54,11 +51,6 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
     if (!(self = [super init]))
     {
         return nil;
-    }
-    
-    if (!sharedGroup)
-    {
-        sharedGroup = [[NSBundle mainBundle] bundleIdentifier];
     }
     
     _sharedGroup = [[NSString alloc] initWithFormat:@"%@.%@", [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix], sharedGroup];

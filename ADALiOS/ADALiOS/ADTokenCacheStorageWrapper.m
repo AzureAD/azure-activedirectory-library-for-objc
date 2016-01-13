@@ -46,10 +46,10 @@
 @implementation ADTokenCacheStorageWrapper
 {
     NSDictionary* _cache;
-    id<ADCacheStorage> _storage;
+    id<ADCacheStorageDelegate> _storage;
 }
 
-- (id)initWithStorage:(id<ADCacheStorage>)storage
+- (id)initWithStorage:(id<ADCacheStorageDelegate>)storage
 {
     if (!storage)
     {

@@ -7,8 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ADTokenCacheEnumerator.h"
 
-@protocol ADCacheStorage <NSObject>
+@protocol ADCacheStorageDelegate <NSObject>
 
 /*!
     Called on initial storage retrieval
@@ -25,5 +26,12 @@
     Called by ADAL to update the cache storage
  */
 - (void)saveToStorage:(NSData*)data;
+
+@end
+
+
+@interface ADCacheStorage : NSObject
+
++ (id<ADTokenCacheEnumerator>)enumeratorForStorageDelegate:(id<ADCacheStorageDelegate>)delegate;
 
 @end

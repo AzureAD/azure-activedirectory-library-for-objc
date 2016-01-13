@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 #import <Foundation/Foundation.h>
 
-@protocol ADTokenCacheStoring;
+@protocol ADTokenCacheEnumerator;
 /*! The class stores global settings for the ADAL library. It is a singleton class
  and the alloc, init and new should not be called directly. The "sharedInstance" selector
  should be used instead to provide the settings instance. The class is not thread-safe.
@@ -43,7 +43,7 @@
 @property dispatch_queue_t dispatchQueue;
 
 /*! The default token cache store to be used by the ADAuthenticationContext instances. */
-@property id<ADTokenCacheStoring> defaultTokenCacheStore;
+@property id<ADTokenCacheEnumerator> defaultTokenCacheStore;
 
 /*! The name of the keychain group to be used if sharing of cache between applications
  is desired. Can be nil. The property sets the appropriate value of defaultTokenCacheStore

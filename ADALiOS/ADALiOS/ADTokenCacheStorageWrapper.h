@@ -7,11 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ADTokenCacheStoring.h"
+#import "ADTokenCacheEnumerator.h"
 #import "ADCacheStorage.h"
 
-@interface ADTokenCacheStorageWrapper : NSObject <ADTokenCacheStoring>
+@interface ADTokenCacheStorageWrapper : NSObject <ADTokenCacheEnumerator>
 
-- (id)initWithStorage:(id<ADCacheStorage>)storage;
+- (id)initWithStorage:(id<ADCacheStorageDelegate>)storage;
 
 @end

@@ -129,7 +129,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  */
 - (id)initWithAuthority:(NSString*)authority
       validateAuthority:(BOOL)validateAuthority
-                storage:(id<ADCacheStorage>)storage
+                storage:(id<ADCacheStorageDelegate>)storage
                   error:(ADAuthenticationError* __autoreleasing *)error;
 
 - (id)initWithAuthority:(NSString*)authority
@@ -164,7 +164,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
-                                                       storage:(id<ADCacheStorage>)storage
+                                                       storage:(id<ADCacheStorageDelegate>)storage
                                                          error:(ADAuthenticationError* __autoreleasing *)error;
 
 /*! Creates the object, setting the authority, desired cache and desired authority validation flag. In case of an error
@@ -177,7 +177,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  be nil. */
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
                                              validateAuthority:(BOOL)validate
-                                                       storage:(id<ADCacheStorage>)storage
+                                                       storage:(id<ADCacheStorageDelegate>)storage
                                                          error:(ADAuthenticationError* __autoreleasing *)error;
 
 /*!
@@ -199,7 +199,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 @property NSString* applicationURLScheme;
 
 /*! Provides access to the token cache used in this context. If null, tokens will not be cached. */
-@property id<ADCacheStorage> cacheStorage;
+@property id<ADCacheStorageDelegate> cacheStorage;
 
 /*! Unique identifier passed to the server and returned back with errors. Useful during investigations to correlate the
  requests and the responses from the server. If nil, a new UUID is generated on every request. */

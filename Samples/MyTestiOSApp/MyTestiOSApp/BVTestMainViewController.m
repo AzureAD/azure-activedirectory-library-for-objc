@@ -170,11 +170,17 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     NSString* resourceString = mAADInstance.resource;
     NSString* redirectUri = mAADInstance.redirectUri;
     NSString* userId = [_tfUserId text];
+    if (!userId || userId.length == 0)
+    {
+        userId = mAADInstance.userId;
+    }
+    
     ADAuthenticationError* error = nil;
     //[weakSelf setStatus:[NSString stringWithFormat:@"Authority: %@", params.authority]];
     context = [ADAuthenticationContext authenticationContextWithAuthority:authority
                                                         validateAuthority:mAADInstance.validateAuthority
                                                                     error:&error];
+    [context setCredentialsType:AD_CREDENTIALS_AUTO];
     if (!context)
     {
         [self appendToResults:error.errorDetails];
@@ -256,7 +262,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
 {
     [self clearResults];
     ADAuthenticationError* error;
-    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    id<ADTokenCacheEnumerator> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     NSArray* allItems = [cache allItemsWithError:&error];
     if (error)
     {
@@ -297,7 +303,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
 {
     [self clearResults];
     ADAuthenticationError* error;
-    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    id<ADTokenCacheEnumerator> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     NSArray* array = [cache allItemsWithError:&error];
     if (error)
     {
@@ -334,7 +340,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     ADAuthenticationError* error;
     [self clearResults];
     [self appendToResults:@"Attempt to expire..."];
-    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    id<ADTokenCacheEnumerator> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     NSArray* array = [cache allItemsWithError:&error];
     if (error)
     {

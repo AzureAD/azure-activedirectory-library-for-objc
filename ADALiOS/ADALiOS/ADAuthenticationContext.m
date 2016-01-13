@@ -43,6 +43,7 @@
 #import "ADAuthenticationRequest.h"
 #import "ADTokenCacheStorageWrapper.h"
 #import "ADKeychainTokenCacheStore.h"
+#import "ADKeychainCacheStorage.h"
 
 #import "ADAuthenticationContext+Internal.h"
 
@@ -69,7 +70,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 @implementation ADAuthenticationContext
 {
-    id <ADTokenCacheStoring> _tokenCacheStore;
+    id <ADTokenCacheEnumerator> _tokenCacheStore;
 }
 
 + (void) load
@@ -126,24 +127,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 - (id)initWithAuthority:(NSString*) authority
       validateAuthority:(BOOL)bValidate
-                storage:(id<ADCacheStorage>)storage
+                storage:(id<ADCacheStorageDelegate>)storage
                   error:(ADAuthenticationError* __autoreleasing *) error
-{
-    API_ENTRY;
-    
-    if (!(self = [self initWithAuthority:authority validateAuthority:bValidate error:error]))
-    {
-        return nil;
-    }
-    
-    [self setCacheStorage:storage];
-    
-    return self;
-}
-
-- (id)initWithAuthority:(NSString *)authority
-      validateAuthority:(BOOL)validateAuthority
-                  error:(ADAuthenticationError *__autoreleasing *)error
 {
     API_ENTRY;
     NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
@@ -155,12 +140,22 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     }
     
     _authority = extractedAuthority;
-    _validateAuthority = validateAuthority;
-    _credentialsType = AD_CREDENTIALS_EMBEDDED;
+    _validateAuthority = bValidate;
+    _credentialsType = AD_CREDENTIALS_EMBEDDED;;
     
-    _tokenCacheStore = [[ADKeychainTokenCacheStore alloc] init];
+    [self setCacheStorage:storage];
     
     return self;
+}
+
+- (id)initWithAuthority:(NSString *)authority
+      validateAuthority:(BOOL)validateAuthority
+                  error:(ADAuthenticationError *__autoreleasing *)error
+{
+    return [self initWithAuthority:authority
+                 validateAuthority:validateAuthority
+                           storage:[ADKeychainCacheStorage new]
+                             error:error];
 }
 
 - (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
@@ -216,7 +211,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 }
 
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
-                                               storage:(id<ADCacheStorage>)storage
+                                               storage:(id<ADCacheStorageDelegate>)storage
                                                          error:(ADAuthenticationError* __autoreleasing *)error
 {
     API_ENTRY;
@@ -228,7 +223,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
                                              validateAuthority:(BOOL)bValidate
-                                                       storage:(id<ADCacheStorage>)storage
+                                                       storage:(id<ADCacheStorageDelegate>)storage
                                                          error:(ADAuthenticationError* __autoreleasing *)error
 {
     API_ENTRY;
@@ -406,33 +401,16 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     [request acquireToken:completionBlock];
 }
 
-- (void)setCacheStorage:(id<ADCacheStorage>)cacheStorage
+- (void)setCacheStorage:(id<ADCacheStorageDelegate>)cacheStorage
 {
-    if (cacheStorage)
-    {
-        _tokenCacheStore = [[ADTokenCacheStorageWrapper alloc] initWithStorage:cacheStorage];
-    }
-    else
-    {
-        _tokenCacheStore = nil;
-    }
-}
-
-- (void)useKeychainCacheStore
-{
-    _tokenCacheStore = [[ADKeychainTokenCacheStore alloc] init];
-}
-
-- (void)useKeychainCacheStoreGroup:(NSString *)sharedGroup
-{
-    _tokenCacheStore = [[ADKeychainTokenCacheStore alloc] initWithGroup:sharedGroup];
+    _tokenCacheStore = [ADCacheStorage enumeratorForStorageDelegate:cacheStorage];
 }
 
 @end
 
 @implementation ADAuthenticationContext (CacheStorage)
 
-- (id<ADTokenCacheStoring>)tokenCacheStore
+- (id<ADTokenCacheEnumerator>)tokenCacheStore
 {
     return _tokenCacheStore;
 }
