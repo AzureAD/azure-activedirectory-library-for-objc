@@ -33,20 +33,20 @@ NSString* const sPersisted = @"successfully persisted";
 NSString* const sNoNeedForPersistence = @"No need for cache persistence.";
 NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
-@interface ADDefaultTokenCacheStoreTests : XCTestCase
+@interface ADKeychainTokenCacheStoreTests : XCTestCase
 {
     ADKeychainTokenCacheStore* mStore;
 }
 @end
 
-@implementation ADDefaultTokenCacheStoreTests
+@implementation ADKeychainTokenCacheStoreTests
 
 - (void)setUp
 {
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     
-    mStore = (ADKeychainTokenCacheStore*)[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    mStore = [[ADKeychainTokenCacheStore alloc] init];
     XCTAssertNotNil(mStore, "Default store cannot be nil.");
     XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
     [mStore removeAll:nil];//Start clean before each test

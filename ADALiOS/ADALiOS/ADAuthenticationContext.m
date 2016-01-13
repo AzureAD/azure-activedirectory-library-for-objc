@@ -41,6 +41,8 @@
 #import "ADBrokerNotificationManager.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationRequest.h"
+#import "ADTokenCacheStorageWrapper.h"
+#import "ADKeychainTokenCacheStore.h"
 
 #import "ADAuthenticationContext+Internal.h"
 
@@ -67,7 +69,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 @implementation ADAuthenticationContext
 {
-    id <ADTokenCacheStoring> _tokenCache;
+    id <ADTokenCacheStoring> _tokenCacheStore;
 }
 
 + (void) load
@@ -124,24 +126,42 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 - (id)initWithAuthority:(NSString*) authority
       validateAuthority:(BOOL)bValidate
-        tokenCacheStore:(id<ADTokenCacheStoring>)tokenCache
+                storage:(id<ADCacheStorage>)storage
                   error:(ADAuthenticationError* __autoreleasing *) error
+{
+    API_ENTRY;
+    
+    if (!(self = [self initWithAuthority:authority validateAuthority:bValidate error:error]))
+    {
+        return nil;
+    }
+    
+    [self setCacheStorage:storage];
+    
+    return self;
+}
+
+- (id)initWithAuthority:(NSString *)authority
+      validateAuthority:(BOOL)validateAuthority
+                  error:(ADAuthenticationError *__autoreleasing *)error
 {
     API_ENTRY;
     NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
     RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
     
-    self = [super init];
-    if (self)
+    if (!(self = [super init]))
     {
-        _authority = extractedAuthority;
-        _validateAuthority = bValidate;
-        _tokenCacheStore = tokenCache;
-        _credentialsType = AD_CREDENTIALS_EMBEDDED;
+        return nil;
     }
+    
+    _authority = extractedAuthority;
+    _validateAuthority = validateAuthority;
+    _credentialsType = AD_CREDENTIALS_EMBEDDED;
+    
+    _tokenCacheStore = [[ADKeychainTokenCacheStore alloc] init];
+    
     return self;
 }
-
 
 - (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
                                              clientId:(NSString*)clientId
@@ -182,7 +202,6 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     API_ENTRY;
     return [self authenticationContextWithAuthority:authority
                                   validateAuthority:YES
-                                    tokenCacheStore:[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
                                               error:error];
 }
 
@@ -191,26 +210,25 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                                                          error:(ADAuthenticationError* __autoreleasing *)error
 {
     API_ENTRY
-    return [self authenticationContextWithAuthority:authority
-                                  validateAuthority:bValidate
-                                    tokenCacheStore:[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore
-                                              error:error];
+    RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(authority);
+    
+    return [[self alloc] initWithAuthority:authority validateAuthority:bValidate error:error];
 }
 
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
-                                               tokenCacheStore:(id<ADTokenCacheStoring>)tokenCache
+                                               storage:(id<ADCacheStorage>)storage
                                                          error:(ADAuthenticationError* __autoreleasing *)error
 {
     API_ENTRY;
     return [self authenticationContextWithAuthority:authority
                                   validateAuthority:YES
-                                    tokenCacheStore:tokenCache
+                                            storage:storage
                                               error:error];
 }
 
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
                                              validateAuthority:(BOOL)bValidate
-                                               tokenCacheStore:(id<ADTokenCacheStoring>)tokenCache
+                                                       storage:(id<ADCacheStorage>)storage
                                                          error:(ADAuthenticationError* __autoreleasing *)error
 {
     API_ENTRY;
@@ -218,7 +236,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     
     return [[self alloc] initWithAuthority: authority
                          validateAuthority: bValidate
-                           tokenCacheStore: tokenCache
+                                   storage: storage
                                      error: error];
 }
 
@@ -390,16 +408,33 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 - (void)setCacheStorage:(id<ADCacheStorage>)cacheStorage
 {
-    
+    if (cacheStorage)
+    {
+        _tokenCacheStore = [[ADTokenCacheStorageWrapper alloc] initWithStorage:cacheStorage];
+    }
+    else
+    {
+        _tokenCacheStore = nil;
+    }
+}
+
+- (void)useKeychainCacheStore
+{
+    _tokenCacheStore = [[ADKeychainTokenCacheStore alloc] init];
+}
+
+- (void)useKeychainCacheStoreGroup:(NSString *)sharedGroup
+{
+    _tokenCacheStore = [[ADKeychainTokenCacheStore alloc] initWithGroup:sharedGroup];
 }
 
 @end
 
 @implementation ADAuthenticationContext (CacheStorage)
 
-- (id<ADTokenCacheStoring>)tokenCache
+- (id<ADTokenCacheStoring>)tokenCacheStore
 {
-    return _tokenCache;
+    return _tokenCacheStore;
 }
 
 @end

@@ -18,7 +18,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "ADTokenCacheStoring.h"
 #import "ADAuthenticationError.h"
 #import "ADAuthenticationResult.h"
 #import "ADTokenCacheStoreItem.h"
@@ -123,15 +122,20 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  are recommended due to their simplicity.
  @param authority: The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
  @param validateAuthority: Specifies if the authority should be validated.
- @param tokenCacheStore: Allows the user to specify a dictionary object that will implement the token caching. If this
- parameter is null, tokens will not be cached.
+ @param storage: A developer defined interface for persisting the token cache, if 'nil' is passed in tokens will not
+                 be cached
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil.
  */
 - (id)initWithAuthority:(NSString*)authority
       validateAuthority:(BOOL)validateAuthority
-        tokenCacheStore:(id<ADTokenCacheStoring>)tokenCache
+                storage:(id<ADCacheStorage>)storage
                   error:(ADAuthenticationError* __autoreleasing *)error;
+
+- (id)initWithAuthority:(NSString*)authority
+      validateAuthority:(BOOL)validateAuthority
+                  error:(ADAuthenticationError* __autoreleasing *)error;
+
 
 /*! Creates the object, setting the authority, default cache and enables the authority validation. In case of an error
  the function will return nil and if the error parameter is supplied, it will be filled with error details.
@@ -155,25 +159,25 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  the function will return nil and if the error parameter is supplied, it will be filled with error details.
  @param authority The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
  @param validateAuthority: Specifies if the authority should be validated.
- @param tokenCacheStore: Allows the user to specify a dictionary object that will implement the token caching. If this
- parameter is null, tokens will not be cached.
+ @param storage: A developer defined interface for persisting the token cache, if 'nil' is passed in tokens will not
+ be cached
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
-                                               tokenCacheStore:(id<ADTokenCacheStoring>)tokenCache
+                                                       storage:(id<ADCacheStorage>)storage
                                                          error:(ADAuthenticationError* __autoreleasing *)error;
 
 /*! Creates the object, setting the authority, desired cache and desired authority validation flag. In case of an error
  the function will return nil and if the error parameter is supplied, it will be filled with error details.
  @param authority The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
  @param validateAuthority Specifies if the authority should be validated.
- @param tokenCacheStore Allows the user to specify a dictionary object that will implement the token caching. If this
- parameter is null, the library will use a shared, internally implemented static instance instead.
+ @param storage: A developer defined interface for persisting the token cache, if 'nil' is passed in tokens will not
+ be cached
  @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
  be nil. */
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
                                              validateAuthority:(BOOL)validate
-                                               tokenCacheStore:(id<ADTokenCacheStoring>)tokenCache
+                                                       storage:(id<ADCacheStorage>)storage
                                                          error:(ADAuthenticationError* __autoreleasing *)error;
 
 /*!

@@ -47,7 +47,6 @@
 
 -(ADTestAuthenticationContext*) initWithAuthority: (NSString*) authority
                                 validateAuthority: (BOOL) validateAuthority
-                                  tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
                                             error: (ADAuthenticationError* __autoreleasing *) error;
 
 //Override of the parent's request to allow testing of the class behavior.

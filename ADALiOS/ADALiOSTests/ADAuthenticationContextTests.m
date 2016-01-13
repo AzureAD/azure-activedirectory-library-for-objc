@@ -76,7 +76,6 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError* error;
     ADTestAuthenticationContext* testContext = [[ADTestAuthenticationContext alloc] initWithAuthority:mAuthority
                                                                                     validateAuthority:YES
-                                                                                      tokenCacheStore:mDefaultTokenCache
                                                                                                 error:&error];
     ADAssertNoError;
     XCTAssertNotNil(testContext, "Cannot create the context in setUp.");
@@ -154,42 +153,29 @@ const int sAsyncContextTimeout = 10;
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     //Authority and cache store:
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil tokenCacheStore:nil error:&error];
-    [self adValidateFactoryForInvalidArgument:@"authority" error:error];
-    
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
-                                                           tokenCacheStore:mDefaultTokenCache
-                                                                     error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil storage:nil error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     //Authority, validate and cache store:
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
-                                                         validateAuthority:NO //Non-default value.
-                                                           tokenCacheStore:mDefaultTokenCache
-                                                                     error:&error];
-    [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
                                                          validateAuthority:NO
-                                                           tokenCacheStore:nil
+                                                           storage:nil
                                                                      error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
                                                          validateAuthority:YES //Non-default value.
-                                                           tokenCacheStore:mDefaultTokenCache
                                                                      error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
                                                          validateAuthority:YES
-                                                           tokenCacheStore:nil
                                                                      error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:nil
                                                          validateAuthority:YES
-                                                           tokenCacheStore:nil
                                                                      error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority" error:error];
 }
@@ -212,14 +198,12 @@ const int sAsyncContextTimeout = 10;
 
 -(void) checkContextObjectWithAuthority: (NSString*) authority
                                validate: (BOOL) validate
-                        tokenCacheStore: (id<ADTokenCacheStoring>) tokenCacheStore
                                   error: (ADAuthenticationError*) error;
 {
     XCTAssertNil(error, "No error should be raised here. Error: %@", error.errorDetails);
     XCTAssertNotNil(mContext, "Context should be valid in this case.");
     ADAssertStringEquals(authority, mContext.authority);
     XCTAssertEqual(validate, mContext.validateAuthority, "Unexpected validate authority value.");
-    XCTAssertEqualObjects(tokenCacheStore, mContext.tokenCacheStore, "Unexpected token cache store.");
 }
 
 -(void) testProperties
@@ -233,7 +217,6 @@ const int sAsyncContextTimeout = 10;
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
-                          tokenCacheStore:mDefaultTokenCache
                                     error:error];
     
     //Authority and validation:
@@ -242,7 +225,6 @@ const int sAsyncContextTimeout = 10;
                                                                      error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:NO
-                          tokenCacheStore:mDefaultTokenCache
                                     error:error];
     
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
@@ -250,61 +232,31 @@ const int sAsyncContextTimeout = 10;
                                                                      error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
-                          tokenCacheStore:mDefaultTokenCache
                                     error:error];
 
     //Authority and token cache store:
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                                           tokenCacheStore:nil
+                                                                   storage:nil
                                                                      error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
-                          tokenCacheStore:nil
                                     error:error];
 
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                                           tokenCacheStore:testStore
-                                                                     error:&error];
-    [self checkContextObjectWithAuthority:authority
-                                 validate:YES
-                          tokenCacheStore:testStore
-                                    error:error];
-    
     //Authority, validate and token cache store:
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
                                                          validateAuthority:NO
-                                                           tokenCacheStore:nil
+                                                                   storage:nil
                                                                      error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:NO
-                          tokenCacheStore:nil
-                                    error:error];
-    
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                                         validateAuthority:NO
-                                                           tokenCacheStore:testStore
-                                                                     error:&error];
-    [self checkContextObjectWithAuthority:authority
-                                 validate:NO
-                          tokenCacheStore:testStore
                                     error:error];
 
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
                                                          validateAuthority:YES
-                                                           tokenCacheStore:nil
+                                                                   storage:nil
                                                                      error:&error];
     [self checkContextObjectWithAuthority:authority
                                  validate:YES
-                          tokenCacheStore:nil
-                                    error:error];
-    
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                                         validateAuthority:YES
-                                                           tokenCacheStore:testStore
-                                                                     error:&error];
-    [self checkContextObjectWithAuthority:authority
-                                 validate:YES
-                          tokenCacheStore:testStore
                                     error:error];
 }
 
@@ -744,7 +696,7 @@ const int sAsyncContextTimeout = 10;
     
     //Put a valid token in the cache, but set context token cache to nil:
     [self addCacheWithToken:someTokenValue refreshToken:@"some refresh token"];
-    mContext.tokenCacheStore = nil;
+    mContext.cacheStorage = nil;
     acquireTokenAsync;
     XCTAssertEqual(mResult.status, AD_FAILED, "AcquireToken should fail, as the credentials are needed without cache.");
     ADAssertLongEquals(mResult.error.code, AD_ERROR_USER_INPUT_NEEDED);
@@ -1047,7 +999,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(useAccessToken);
     XCTAssertEqualObjects(item, found);
     
-    mContext.tokenCacheStore = nil;//Set the authority to not use the cache:
+    mContext.cacheStorage = nil;//Set the authority to not use the cache:
     XCTAssertNil([mContext extractCacheItemWithKey:nil
                                             userId:nil
                                              error:nil]);
@@ -1099,7 +1051,7 @@ const int sAsyncContextTimeout = 10;
 
     //Cache disabled, should always try to open UI for credentials
     error = nil;
-    mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority tokenCacheStore:nil error:&error];
+    mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority storage:nil error:&error];
     ADAssertNoError;
     [self validateUIError];
 

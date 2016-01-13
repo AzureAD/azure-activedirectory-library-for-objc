@@ -31,6 +31,7 @@
 #import "ADErrorCodes.h"
 #import "ADTokenCacheStoreKey.h"
 #import "ADTokenCacheStoreItem.h"
+#import "ADUserInformation.h"
 
 #define CURRENT_CACHE_VERSION 1
 
@@ -146,17 +147,126 @@
     return YES;
 }
 
-- (void)checkCache
+- (BOOL)checkCache:(ADAuthenticationError * __autoreleasing *)error
 {
+    NSData* update = [_storage retrieveIfUpdated];
+    if (update)
+    {
+        return [self updateCache:update error:error];
+    }
     
+    return YES;
 }
+
+#pragma mark -
+
+- (void)addToItems:(nonnull NSMutableArray *)items
+         forUserId:(nonnull NSString *)userId
+    fromDictionary:(nonnull NSDictionary *)dict
+{
+    NSDictionary* userDict = [dict objectForKey:userId];
+    if (!userDict)
+    {
+        return;
+    }
+    
+    ADUserInformation* userInfo = nil;
+    
+    NSArray* tokens = [userDict objectForKey:@"tokens"];
+    if (!tokens)
+    {
+        return;
+    }
+    
+    // Rehydrate the idtoken
+    NSString* idToken = [userDict objectForKey:@"idtoken"];
+    if (idToken)
+    {
+        userInfo = [ADUserInformation userInformationWithIdToken:idToken error:nil];
+    }
+    
+    // Go through all the cache items
+    for (ADTokenCacheStoreItem* item in tokens)
+    {
+        // Re-add the user information
+        item.userInformation = userInfo;
+        
+        [items addObject:item];
+    }
+}
+
+- (void)addToItems:(nonnull NSMutableArray *)items
+            forKey:(nonnull ADTokenCacheStoreKey *)key
+            userId:(nullable NSString *)userId
+{
+    NSDictionary* users = [_cache objectForKey:key];
+    if (!users)
+    {
+        return;
+    }
+    
+    if (userId)
+    {
+        [self addToItems:items forUserId:userId fromDictionary:users];
+    }
+    else
+    {
+        for (NSString* aUserId in users)
+        {
+            [self addToItems:items forUserId:aUserId fromDictionary:users];
+        }
+    }
+}
+
+- (NSArray<ADTokenCacheStoreItem *> *)getItemsWithKey:(nullable ADTokenCacheStoreKey *)key
+                                               userId:(nullable NSString *)userId
+                                                error:(ADAuthenticationError *__autoreleasing *)error
+{
+    @synchronized(self)
+    {
+        if (![self checkCache:error])
+        {
+            return nil;
+        }
+        
+        if (!_cache)
+        {
+            return nil;
+        }
+        
+        NSMutableArray* items = [NSMutableArray new];
+        
+        if (key)
+        {
+            // If a key is specified only pull up items for that key
+            [self addToItems:items
+                      forKey:key
+                      userId:userId];
+        }
+        else
+        {
+            // Otherwise go through the whole cache and add all items that match the userId
+            for (ADTokenCacheStoreKey* adKey in _cache)
+            {
+                [self addToItems:items
+                          forKey:adKey
+                          userId:userId];
+            }
+        }
+        
+        return items;
+    }
+}
+
+#pragma mark -
+#pragma mark ADTokenCacheStorage Protocol Implementation
 
 /*! Return a copy of all items. The array will contain ADTokenCacheStoreItem objects,
  containing all of the cached information. Returns an empty array, if no items are found.
  Returns nil in case of error. */
 - (NSArray<ADTokenCacheStoreItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
-
+    return [self getItemsWithKey:nil userId:nil error:error];
 }
 
 /*! May return nil, if no cache item corresponds to the requested key
@@ -167,10 +277,31 @@
  and we have tokens from multiple users. If the cache item is not present,
  the error will not be set. */
 - (ADTokenCacheStoreItem *)getItemWithKey:(ADTokenCacheStoreKey *)key
-                                  userId:(NSString *)userId
-                                   error:(ADAuthenticationError * __autoreleasing *)error
+                                   userId:(NSString *)userId
+                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
+    NSArray<ADTokenCacheStoreItem *> * items = [self getItemsWithKey:key userId:userId error:error];
+    if (!items || items.count == 0)
+    {
+        return nil;
+    }
+    
+    if (items.count == 1)
+    {
+        return items.firstObject;
+    }
+    
+    ADAuthenticationError* adError =
+    [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
+                                           protocolCode:nil
+                                           errorDetails:@"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used."];
+    if (error)
+    {
+        *error = adError;
+    }
+    
     return nil;
+
 }
 
 /*! Returns all of the items for a given key. Multiple items may present,
@@ -180,7 +311,7 @@
 - (NSArray<ADTokenCacheStoreItem *> *)getItemsWithKey:(ADTokenCacheStoreKey*)key
                                                 error:(ADAuthenticationError* __autoreleasing*)error
 {
-    return nil;
+    return [self getItemsWithKey:key userId:nil error:error];
 }
 
 /*! Extracts the key from the item and uses it to set the cache details. If another item with the

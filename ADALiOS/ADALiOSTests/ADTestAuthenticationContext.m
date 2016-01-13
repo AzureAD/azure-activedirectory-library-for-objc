@@ -38,10 +38,9 @@
 
 -(ADTestAuthenticationContext*) initWithAuthority: (NSString*) authority
                                 validateAuthority: (BOOL) validateAuthority
-                                  tokenCacheStore: (id<ADTokenCacheStoring>)tokenCache
                                             error: (ADAuthenticationError* __autoreleasing *) error
 {
-    self = [super initWithAuthority:authority validateAuthority:validateAuthority tokenCacheStore:tokenCache error:error];
+    self = [super initWithAuthority:authority validateAuthority:validateAuthority error:error];
     if (self)
     {
         mResponse1 = [NSMutableDictionary new];

@@ -16,6 +16,8 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import "ADTokenCacheStoring.h"
+
 @interface ADAuthenticationContext (TokenCaching)
 
 //Checks the cache for item that can be used to get directly or indirectly an access token.

@@ -304,7 +304,7 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
         ADAuthenticationError* adError =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
                                                protocolCode:nil
-                                               errorDetails:sMultiUserError];
+                                               errorDetails:@"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used."];
         if (error)
         {
             *error = adError;
