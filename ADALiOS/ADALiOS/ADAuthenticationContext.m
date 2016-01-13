@@ -66,6 +66,9 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 @implementation ADAuthenticationContext
+{
+    id <ADTokenCacheStoring> _tokenCache;
+}
 
 + (void) load
 {
@@ -383,6 +386,20 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
     [request acquireToken:completionBlock];
+}
+
+- (void)setCacheStorage:(id<ADCacheStorage>)cacheStorage
+{
+    
+}
+
+@end
+
+@implementation ADAuthenticationContext (CacheStorage)
+
+- (id<ADTokenCacheStoring>)tokenCache
+{
+    return _tokenCache;
 }
 
 @end

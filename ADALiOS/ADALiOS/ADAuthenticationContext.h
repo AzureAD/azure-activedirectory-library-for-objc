@@ -25,6 +25,7 @@
 #import "ADUserInformation.h"
 #import "ADTokenCacheStoreKey.h"
 #import "ADErrorCodes.h"
+#import "ADCacheStorage.h"
 
 #if TARGET_OS_IPHONE
 //iOS:
@@ -194,7 +195,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 @property NSString* applicationURLScheme;
 
 /*! Provides access to the token cache used in this context. If null, tokens will not be cached. */
-@property id<ADTokenCacheStoring> tokenCacheStore;
+@property id<ADCacheStorage> cacheStorage;
 
 /*! Unique identifier passed to the server and returned back with errors. Useful during investigations to correlate the
  requests and the responses from the server. If nil, a new UUID is generated on every request. */
