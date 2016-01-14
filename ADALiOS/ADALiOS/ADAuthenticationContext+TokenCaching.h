@@ -23,17 +23,21 @@
 - (ADTokenCacheStoreItem*)findCacheItemWithKey:(ADTokenCacheStoreKey*) key
                                         userId:(ADUserIdentifier*)userId
                                 useAccessToken:(BOOL*) useAccessToken
+                          requestCorrelationId:(NSUUID*) requestCorrelationId
                                          error:(ADAuthenticationError* __autoreleasing*) error;
 
 //Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
 //the item to be stored.
 - (void)updateCacheToResult:(ADAuthenticationResult*)result
                   cacheItem:(ADTokenCacheStoreItem*)cacheItem
-           withRefreshToken:(NSString*)refreshToken;
+           withRefreshToken:(NSString*)refreshToken
+       requestCorrelationId:(NSUUID*)requestCorrelationId;
+
 - (void)updateCacheToResult:(ADAuthenticationResult*)result
               cacheInstance:(id<ADTokenCacheStoring>)tokenCacheStoreInstance
                   cacheItem:(ADTokenCacheStoreItem*)cacheItem
-           withRefreshToken:(NSString*)refreshToken;
+           withRefreshToken:(NSString*)refreshToken
+       requestCorrelationId:(NSUUID*)requestCorrelationId;
 
 - (ADTokenCacheStoreItem*)extractCacheItemWithKey:(ADTokenCacheStoreKey*)key
                                            userId:(ADUserIdentifier*)userId

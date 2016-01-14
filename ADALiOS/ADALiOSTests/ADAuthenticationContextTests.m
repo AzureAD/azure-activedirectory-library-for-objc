@@ -1018,6 +1018,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil([mContext findCacheItemWithKey:nil
                                          userId:nil
                                  useAccessToken:&useAccessToken
+                           requestCorrelationId:nil
                                           error:nil]);
     
     ADTokenCacheStoreItem* item = [self adCreateCacheItem];
@@ -1042,6 +1043,7 @@ const int sAsyncContextTimeout = 10;
     ADTokenCacheStoreItem* found = [mContext findCacheItemWithKey:key
                                                            userId:userId
                                                    useAccessToken:&useAccessToken
+                                             requestCorrelationId:nil
                                                             error:&error];
     ADAssertNoError;
     XCTAssertTrue(useAccessToken);
@@ -1054,6 +1056,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil([mContext findCacheItemWithKey:key
                                          userId:userId
                                  useAccessToken:&useAccessToken
+                           requestCorrelationId:nil
                                           error:&error]);
 }
 

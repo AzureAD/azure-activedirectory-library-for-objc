@@ -80,6 +80,7 @@
         ADTokenCacheStoreItem* cacheItem = [_context findCacheItemWithKey:key
                                                                    userId:_identifier
                                                            useAccessToken:&accessTokenUsable
+                                                     requestCorrelationId:_correlationId
                                                                     error:&error];
         if (error)
         {
@@ -155,7 +156,7 @@
              {
                  BOOL useAccessToken;
                  ADAuthenticationError* error = nil;
-                 ADTokenCacheStoreItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
+                 ADTokenCacheStoreItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken requestCorrelationId:_correlationId error:&error];
                  if (error)
                  {
                      completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);

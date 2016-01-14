@@ -46,6 +46,13 @@
 
 @property (retain) ADUserInformation* userInformation;
 
+/*! Correlation ID of the request through which we get the token.
+ If the token is tombstoned, the value will be the correlation ID of the request that we got the error from.  */
+@property (retain) NSString* correlationId;
+
+/* Whether the token is tombstoned. */
+@property BOOL markAsDead;
+
 /*! If true, the cache store item does not store actual access token, but instead a refresh token that can be
  used to obtain access token for any resource within the same user, authority and client id. This property is calculated
  from the value of other properties: it is true if: resource is nil, accessToken is nil and refresh token is not nil or empty.*/

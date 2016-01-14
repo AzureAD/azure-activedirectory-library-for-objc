@@ -64,6 +64,7 @@
 - (ADTokenCacheStoreItem*)findCacheItemWithKey:(ADTokenCacheStoreKey*) key
                                         userId:(ADUserIdentifier*)userId
                                 useAccessToken:(BOOL*) useAccessToken
+                          requestCorrelationId:(NSUUID*) requestCorrelationId
                                          error:(ADAuthenticationError* __autoreleasing*) error
 {
     if (!key || !self.tokenCacheStore)
@@ -94,8 +95,8 @@
         }
         else
         {
-            //We have a cache item that cannot be used anymore, remove it from the cache:
-            [self.tokenCacheStore removeItemWithKey:key userId:userId.userId error:nil];
+            //We have a cache item that cannot be used anymore, mark it as dead in the cache:
+            [self.tokenCacheStore tombstoneItem:item requestCorrelationId:[requestCorrelationId UUIDString] error:nil];
         }
     }
     *useAccessToken = false;//No item with suitable access token exists
@@ -131,17 +132,20 @@
 - (void)updateCacheToResult:(ADAuthenticationResult*)result
                   cacheItem:(ADTokenCacheStoreItem*)cacheItem
            withRefreshToken:(NSString*)refreshToken
+       requestCorrelationId:(NSUUID*)requestCorrelationId
 {
     [self updateCacheToResult:result
                 cacheInstance:self.tokenCacheStore
                     cacheItem:cacheItem
-             withRefreshToken:refreshToken];
+             withRefreshToken:refreshToken
+         requestCorrelationId:requestCorrelationId];
 }
 
 - (void)updateCacheToResult:(ADAuthenticationResult*)result
               cacheInstance:(id<ADTokenCacheStoring>)tokenCacheStoreInstance
                   cacheItem:(ADTokenCacheStoreItem*)cacheItem
            withRefreshToken:(NSString*)refreshToken
+       requestCorrelationId:(NSUUID*)requestCorrelationId
 {
     if(![ADAuthenticationContext handleNilOrEmptyAsResult:result argumentName:@"result" authenticationResult:&result]){
         return;
@@ -195,15 +199,15 @@
             }
             
             BOOL removed = NO;
-            //The refresh token didn't work. We need to clear this refresh item from the cache.
+            //The refresh token didn't work. We need to mark this refresh item as dead in the cache.
             ADTokenCacheStoreKey* exactKey = [cacheItem extractKey:nil];
             if (exactKey)
             {
                 ADTokenCacheStoreItem* existing = [tokenCacheStoreInstance getItemWithKey:exactKey userId:cacheItem.userInformation.userId error:nil];
                 if ([refreshToken isEqualToString:existing.refreshToken])//If still there, attempt to remove
                 {
-                    AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Removing cache for resource: %@", cacheItem.resource);
-                    [tokenCacheStoreInstance removeItemWithKey:exactKey userId:existing.userInformation.userId error:nil];
+                    AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Tombstoning cache for resource: %@", cacheItem.resource);
+                    [tokenCacheStoreInstance tombstoneItem:cacheItem requestCorrelationId:[requestCorrelationId UUIDString] error:nil];
                     removed = YES;
                 }
             }
@@ -217,8 +221,8 @@
                     ADTokenCacheStoreItem* broadItem = [tokenCacheStoreInstance getItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
                     if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
                     {
-                        AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Removing multi-resource refresh token for authority: %@", self.authority);
-                        [tokenCacheStoreInstance removeItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
+                        AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Tombstoning multi-resource refresh token for authority: %@", self.authority);
+                        [tokenCacheStoreInstance tombstoneItem:broadItem requestCorrelationId:[requestCorrelationId UUIDString] error:nil];
                     }
                 }
             }

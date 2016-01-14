@@ -66,4 +66,27 @@
                    userId:(NSString *)userId
                     error:(ADAuthenticationError * __autoreleasing *)error;
 
+/*! Mark a cache item as dead instead of removing it.
+ @param item: the item being marked as dead. Key will be extracted from the item.
+ @param userId: The user for which the item will be removed. Can be nil, in which case items for all users with
+ the specified key will be removed.
+ @param error: in case of an error, if this parameter is not nil, it will be filled with
+ the error details. */
+- (void)tombstoneItem:(ADTokenCacheStoreItem *)item
+        requestCorrelationId:(NSString *)requestCorrelationId
+                error:(ADAuthenticationError * __autoreleasing *)error;
+
+/*! Returns all of the dead items for a given key. Multiple items may present,
+ if the same resource was accessed by more than one user. The returned
+ array should contain only ADTokenCacheStoreItem objects. Returns an empty array,
+ if no items are found. Returns nil (and sets the error parameter) in case of error.
+ @param key: the key of the cache item.
+ @param userId: The specific user whose item is needed.
+ @param error: in case of an error, if this parameter is not nil, it will be filled with
+ the error details.
+ */
+- (NSArray<ADTokenCacheStoreItem *> *)getTombstonedItemsWithKey:(ADTokenCacheStoreKey*)key
+                                                         userId:(NSString *)userId
+                                                error:(ADAuthenticationError* __autoreleasing*)error;
+
 @end
