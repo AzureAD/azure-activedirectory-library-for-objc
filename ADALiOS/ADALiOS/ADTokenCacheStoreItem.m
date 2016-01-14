@@ -49,6 +49,8 @@
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.userInformation = [self.userInformation copyWithZone:zone];
     item.sessionKey = [self.sessionKey copyWithZone:zone];
+    item.correlationId = [self.correlationId copyWithZone:zone];
+    item.markAsDead = [self markAsDead];
     
     return item;
 }
@@ -106,6 +108,8 @@
     [aCoder encodeObject:self.sessionKey forKey:@"sessionKey"];
     [aCoder encodeObject:self.expiresOn forKey:@"expiresOn"];
     [aCoder encodeObject:self.userInformation forKey:@"userInformation"];
+    [aCoder encodeObject:self.correlationId forKey:@"correlationId"];
+    [aCoder encodeBool:self.markAsDead forKey:@"markAsDead"];
 }
 
 //Deserializer:
@@ -124,6 +128,8 @@
         self.refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
         self.expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
         self.userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
+        self.correlationId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"correlationId"];
+        self.markAsDead = [aDecoder decodeBoolForKey:@"markAsDead"];
     }
     return self;
 }

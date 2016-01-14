@@ -146,6 +146,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
     item = [ADTokenCacheStoreItem new];
     [item setAccessTokenType:@"Bearer"];
+    [item setMarkAsDead:NO];
     BOOL isMRRT = [item fillItemWithResponse:response];
     return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:isMRRT correlationId:correlationId];
 }

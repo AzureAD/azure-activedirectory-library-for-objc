@@ -321,6 +321,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
     item.userInformation = [self adCreateUserInformation];
     item.accessTokenType = @"access token type";
+    item.correlationId = [[NSUUID UUID] UUIDString];
+    item.markAsDead = NO;
     
     [self adVerifyPropertiesAreSet:item];
     
@@ -377,7 +379,9 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     //Add here calculated properties that cannot be initialized and shouldn't be checked for initialization:
     NSDictionary* const exceptionProperties = @{
                                                 NSStringFromClass([ADTokenCacheStoreItem class]):[NSSet setWithObjects:@"multiResourceRefreshToken",
-                                                                                                  @"sessionKey",nil], };
+                                                                                                  @"sessionKey",
+                                                                                                  @"markAsDead",//it is BOOL, so exampt from the check
+                                                                                                  nil], };
     
     //Enumerate all properties and ensure that they are set to non-default values:
     unsigned int propertyCount;

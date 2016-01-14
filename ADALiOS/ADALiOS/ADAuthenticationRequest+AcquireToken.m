@@ -81,7 +81,7 @@
     {
         //Cache should be used in this case:
         BOOL accessTokenUsable;
-        ADTokenCacheStoreItem* cacheItem = [_context findCacheItemWithKey:key userId:_identifier useAccessToken:&accessTokenUsable error:&error];
+        ADTokenCacheStoreItem* cacheItem = [_context findCacheItemWithKey:key userId:_identifier useAccessToken:&accessTokenUsable requestCorrelationId:_correlationId error:&error];
         if (error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -151,7 +151,7 @@
              {
                  BOOL useAccessToken;
                  ADAuthenticationError* error;
-                 ADTokenCacheStoreItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
+                 ADTokenCacheStoreItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken requestCorrelationId:_correlationId error:&error];
                  if (error)
                  {
                      completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -243,7 +243,7 @@
                   {
                       if (AD_SUCCEEDED == result.status)
                       {
-                          [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
+                          [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil requestCorrelationId:_correlationId];
                           result = [ADAuthenticationContext updateResult:result toUser:_identifier];
                       }
                       completionBlock(result);
@@ -350,7 +350,8 @@
          {
              [_context updateCacheToResult:result
                                  cacheItem:resultItem
-                          withRefreshToken:refreshToken];
+                          withRefreshToken:refreshToken
+                      requestCorrelationId:_correlationId];
          }
          result = [ADAuthenticationContext updateResult:result toUser:_identifier];//Verify the user (just in case)
          

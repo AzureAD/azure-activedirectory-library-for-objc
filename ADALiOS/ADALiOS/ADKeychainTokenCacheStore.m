@@ -246,6 +246,17 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
                                                userId:(NSString *)userId
                                                 error:(ADAuthenticationError * __autoreleasing* )error
 {
+    return [self getItemsWithKey:key userId:userId fromGraveyard:NO error:error];
+    
+}
+
+//Retrieve normal cache items if "fromGraveyard" is NO;
+//Retrieve dead cache items from graveyard if it is YES.
+- (NSArray<ADTokenCacheStoreItem *> *)getItemsWithKey:(ADTokenCacheStoreKey *)key
+                                               userId:(NSString *)userId
+                                        fromGraveyard:(BOOL)fromGraveyard
+                                                error:(ADAuthenticationError * __autoreleasing* )error
+{
     NSArray* items = [self keychainItemsWithKey:key userId:userId error:error];
     if (!items)
     {
@@ -258,17 +269,26 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
     for (NSDictionary* attrs in items)
     {
         ADTokenCacheStoreItem* item = [self itemFromKeyhainAttributes:attrs];
-        if (!item)
+        if (item)
         {
-            continue;
+            BOOL validity =  fromGraveyard ? [item markAsDead] : ![item markAsDead];
+            if (validity)
+            {
+                [tokenItems addObject:item];
+            }
         }
-        
-        [tokenItems addObject:item];
     }
     
     [self logItemRetrievalStatus:tokenItems key:key userId:userId];
     return tokenItems;
     
+}
+
+- (NSArray<ADTokenCacheStoreItem *> *)getTombstonedItemsWithKey:(ADTokenCacheStoreKey*)key
+                                                         userId:(NSString *)userId
+                                                          error:(ADAuthenticationError* __autoreleasing*)error
+{
+    return [self getItemsWithKey:key userId:userId fromGraveyard:YES error:error];
 }
 
 #pragma mark -
@@ -416,6 +436,62 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
     NSMutableDictionary* query = [self queryDictionaryForKey:key userId:userId additional:nil];
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
     [ADKeychainTokenCacheStore checkStatus:status details:@"Failed to remove item from keychain" error:error];
+}
+
+/*! Mark a cache item as dead instead of removing it.
+ @param item: the item being marked as dead. Key will be extracted from the item.
+ @param userId: The user for which the item will be removed. Can be nil, in which case items for all users with
+ the specified key will be removed.
+ @param error: in case of an error, if this parameter is not nil, it will be filled with
+ the error details. */
+- (void)tombstoneItem:(ADTokenCacheStoreItem *)item
+        requestCorrelationId:(NSString *)requestCorrelationId
+                error:(ADAuthenticationError * __autoreleasing *)error
+{
+    if ([self cacheContainsItem:item])
+    {
+        ADTokenCacheStoreItem* tombstonedItem = [item copy];
+        
+        [tombstonedItem setMarkAsDead:YES];
+        [tombstonedItem setCorrelationId:requestCorrelationId];
+        
+        [self addOrUpdateItem:tombstonedItem error:error];
+        [tombstonedItem release];
+    }
+}
+
+- (BOOL)cacheContainsItem:(ADTokenCacheStoreItem *)item
+{
+    ADAuthenticationError* error;
+    ADTokenCacheStoreKey* key = [item extractKey:&error];
+    
+    ADTokenCacheStoreItem* read = nil;
+    if (item.userInformation)
+    {
+        read = [self getItemWithKey:key userId:item.userInformation.userId error:&error];
+    }
+    else
+    {
+        //Find the one (if any) that has userId equal to nil:
+        NSArray* all = [self getItemsWithKey:key error:&error];
+        for(ADTokenCacheStoreItem* i in all)
+        {
+            if (!i.userInformation)
+            {
+                read = i;
+                break;
+            }
+        }
+    }
+
+    if (read)
+    {
+        return YES;
+    }
+    else
+    {
+        return NO;
+    }
 }
 
 @end

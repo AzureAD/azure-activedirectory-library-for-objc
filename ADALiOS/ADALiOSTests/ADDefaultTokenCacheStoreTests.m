@@ -69,6 +69,15 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertNotNil(all);
     return all.count;
 }
+
+-(long) graveyardCount
+{
+    ADAuthenticationError* error;
+    NSArray* all = [mStore getTombstonedItemsWithKey:nil userId:nil error:&error];
+    ADAssertNoError;
+    XCTAssertNotNil(all);
+    return all.count;
+}
 //A wrapper around addOrUpdateItem, checks automatically for errors.
 //Works on single threaded environment only, as it checks the counts:
 #define ADD_OR_UPDATE_ITEM(_item, _expectAdd) \
@@ -194,6 +203,87 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAssertNoError;
     XCTAssertNotNil(array);
     XCTAssertEqual(array.count, 0);
+}
+
+-(void) testTombstone
+{
+    XCTAssertTrue([self count] == 0, "Start empty.");
+    
+    ADAuthenticationError* error;
+    XCTAssertNotNil([mStore allItems:&error]);
+    ADAssertNoError;
+    
+    //add three items:
+    ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
+    item1.resource = @"authority1";
+    ADD_OR_UPDATE_ITEM(item1, YES);
+    ADTokenCacheStoreItem* item2 = [self adCreateCacheItem];
+    item2.resource = @"authority2";
+    ADD_OR_UPDATE_ITEM(item2, YES);
+    ADTokenCacheStoreItem* item3 = [self adCreateCacheItem];
+    item3.resource = @"authority3";
+    ADD_OR_UPDATE_ITEM(item3, YES);
+    ADAssertNoError;
+    XCTAssertEqual([self count], 3);
+    
+    //tombstone item1
+    NSString* correlationId = [[NSUUID UUID] UUIDString];
+    [mStore tombstoneItem:item1 requestCorrelationId:correlationId error:nil];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 2);
+    XCTAssertEqual([self graveyardCount], 1);
+    item1.markAsDead = YES;
+    item1.correlationId = correlationId;
+    [self verifyGraveyardContainsItem:item1];
+    
+    //tombstone item2
+    correlationId = [[NSUUID UUID] UUIDString];
+    [mStore tombstoneItem:item2 requestCorrelationId:correlationId error:nil];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 1);
+    XCTAssertEqual([self graveyardCount], 2);
+    item2.markAsDead = YES;
+    item2.correlationId = correlationId;
+    [self verifyGraveyardContainsItem:item2];
+    
+    //tombstone an item which has already been tombstoned
+    correlationId = [[NSUUID UUID] UUIDString];
+    item2.markAsDead = NO;
+    [mStore tombstoneItem:item2 requestCorrelationId:correlationId error:nil];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 1);
+    XCTAssertEqual([self graveyardCount], 2);
+    item2.markAsDead = YES;
+    [self verifyGraveyardContainsItem:item2];
+    
+    //tombstone a non-exist item. Should have no change to cache
+    ADTokenCacheStoreItem* random1 = [self adCreateCacheItem];
+    random1.correlationId = [[NSUUID UUID] UUIDString];
+    [mStore tombstoneItem:random1 requestCorrelationId:correlationId error:nil];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 1);
+    XCTAssertEqual([self graveyardCount], 2);
+    [self verifyGraveyardContainsItem:item1];
+    [self verifyGraveyardContainsItem:item2];
+    [self verifyCacheContainsItem:item3];
+    
+    //tombstone item3
+    correlationId = [[NSUUID UUID] UUIDString];
+    [mStore tombstoneItem:item3 requestCorrelationId:correlationId error:nil];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 0);
+    XCTAssertEqual([self graveyardCount], 3);
+    item3.markAsDead = YES;
+    item3.correlationId = correlationId;
+    [self verifyGraveyardContainsItem:item3];
+    
+    //tombstone an item when cache is empty (except graveyard)
+    correlationId = [[NSUUID UUID] UUIDString];
+    item2.markAsDead = NO;
+    [mStore tombstoneItem:item3 requestCorrelationId:correlationId error:nil];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 0);
+    XCTAssertEqual([self graveyardCount], 3);
 }
 
 -(void) threadProc
@@ -369,6 +459,33 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
             }
         }
     }
+    ADAssertNoError;
+    XCTAssertEqualObjects(item, read);
+}
+
+-(void) verifyGraveyardContainsItem: (ADTokenCacheStoreItem*) item
+{
+    XCTAssertNotNil(item);
+    ADAuthenticationError* error;
+    ADTokenCacheStoreKey* key = [item extractKey:&error];
+    ADAssertNoError;
+    
+    ADTokenCacheStoreItem* read = nil;
+    NSString *userId = item.userInformation ? item.userInformation.userId : nil;
+    
+    NSArray* all = [mStore getTombstonedItemsWithKey:key userId:userId error:&error];
+    ADAssertNoError;
+    XCTAssertNotNil(all);
+    for(ADTokenCacheStoreItem* i in all)
+    {
+        XCTAssertNotNil(i);
+        if ([[i correlationId] isEqualToString:[item correlationId]])
+        {
+            read = i;
+            break;
+        }
+    }
+    
     ADAssertNoError;
     XCTAssertEqualObjects(item, read);
 }

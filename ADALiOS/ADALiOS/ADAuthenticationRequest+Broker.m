@@ -67,6 +67,10 @@
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
     ADAuthenticationResult* result;
     
+    NSUUID* correlationId = [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
+    [[NSUUID alloc] initWithUUIDString:[queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]]
+    : nil;
+    
     if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION]){
         result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     }
@@ -78,10 +82,6 @@
         NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
         NSString* msgVer = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
         NSInteger protocolVersion = 1;
-        
-        NSUUID* correlationId = [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
-        [[NSUUID alloc] initWithUUIDString:[queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]]
-        : nil;
         
         if (msgVer)
         {
@@ -131,7 +131,8 @@
         
         [ctx updateCacheToResult:result
                        cacheItem:nil
-                withRefreshToken:nil];
+                withRefreshToken:nil
+         requestCorrelationId:[correlationId UUIDString]];
         
         NSString* userId = [[[result tokenCacheStoreItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result
