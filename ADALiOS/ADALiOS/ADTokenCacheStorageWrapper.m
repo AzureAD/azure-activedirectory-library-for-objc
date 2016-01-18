@@ -12,13 +12,11 @@
 //
 //  root
 //    |- version - a NSString with a number specify the version of the cache
-//    |- cache   - a NSDictionary containing all the tokens
-//         |- [ADTokenCacheStoreKey] - A NSDictionary, keyed off of an ADTokenCacheStoreKey
-//                      |- <user id> - A NSDictionary, keyed with an NSString of the userID
-//                             |- idtoken - An NSString of the idtoken of the user
-//                             |- tokens  - An NSArray of ADTokenCacheStoreItems of all the tokens for that user)
-//                                              (the ADUserInformation on those items will be nil'd out to reduce space
-//                                               necessary, and rehydrated from the idtoken by this wrapper.)
+//    |- tokenCache - an NSDictionary
+//          |- tokens   - a NSDictionary containing all the tokens
+//          |     |- [<user_id> - an NSDictionary, keyed off of an NSString of the userId
+//          |            |- <ADTokenCacheStoreKey> - An ADTokenCacheStoreItem, keyed with an ADTokenCacheStoreKey
+//          |- idtokens - An NSDictionary containing all of the idtokens, keyed off of the userID
 //
 //
 //  Created by Ryan Pangrle on 1/12/16.
@@ -33,8 +31,6 @@
 #import "ADTokenCacheStoreItem.h"
 #import "ADUserInformation.h"
 
-#define CURRENT_CACHE_VERSION 1
-
 #define CHECK_ERROR(_cond, _code, _details) { \
     if (!(_cond)) { \
         ADAuthenticationError* _AD_ERROR = [ADAuthenticationError errorFromAuthenticationError:_code protocolCode:nil errorDetails:_details]; \
@@ -44,18 +40,9 @@
 }
 
 @implementation ADTokenCacheStorageWrapper
-{
-    NSDictionary* _cache;
-    id<ADCacheStorageDelegate> _storage;
-}
 
-- (id)initWithStorage:(id<ADCacheStorageDelegate>)storage
+- (instancetype)initWithStorage:(id<ADCacheStorageDelegate>)storage
 {
-    if (!storage)
-    {
-        return nil;
-    }
-    
     if (!(self = [super init]))
     {
         return nil;
@@ -63,7 +50,14 @@
     
     _storage = storage;
     
-    [self updateCache:[storage retrieveStorage] error:nil];
+    ADAuthenticationError* error = nil;
+    NSData* data = nil;
+    
+    if (_storage)
+    {
+        [_storage retrieveStorage:&data error:&error];
+        [self updateCache:data error:&error];
+    }
     
     return self;
 }
@@ -73,42 +67,45 @@
 {
     NSString* version = [dict objectForKey:@"version"];
     CHECK_ERROR(version, AD_ERROR_BAD_CACHE_FORMAT, @"Missing version number from cache.");
-    CHECK_ERROR([version integerValue] <= CURRENT_CACHE_VERSION, AD_ERROR_CACHE_PERSISTENCE, @"Cache is a future unsupported version.");
+    CHECK_ERROR([version floatValue] <= CURRENT_WRAPPER_CACHE_VERSION, AD_ERROR_CACHE_PERSISTENCE, @"Cache is a future unsupported version.");
     
     NSDictionary* cache = [dict objectForKey:@"tokenCache"];
     CHECK_ERROR(cache, AD_ERROR_BAD_CACHE_FORMAT, @"Missing token cache from data.");
-    CHECK_ERROR([cache isKindOfClass:[NSDictionary class]], AD_ERROR_BAD_CACHE_FORMAT, @"Cache is not a dictionary!");
+    CHECK_ERROR([cache isKindOfClass:[NSMutableDictionary class]], AD_ERROR_BAD_CACHE_FORMAT, @"Cache is not a dictionary!");
     
-    // Validate that all the objects are the classes we're expecting
-    for (id adkey in cache)
+    NSDictionary* tokens = [cache objectForKey:@"tokens"];
+    
+    if (tokens)
     {
-        // On the first level we're expecting NSDictionaries keyed off of ADTokenCacheStoreKey
-        CHECK_ERROR([adkey isKindOfClass:[ADTokenCacheStoreKey class]], AD_ERROR_BAD_CACHE_FORMAT, @"Key is not the expected class");
-        id keyDict = [cache objectForKey:adkey];
-        CHECK_ERROR(keyDict, AD_ERROR_BAD_CACHE_FORMAT, @"Expected a dictionary for the token cache key!");
-        CHECK_ERROR([keyDict isKindOfClass:[NSDictionary class]], AD_ERROR_BAD_CACHE_FORMAT, @"Keys should have dictionary objects below them");
-        
-        for (id userId in keyDict)
+        CHECK_ERROR([tokens isKindOfClass:[NSMutableDictionary class]], AD_ERROR_BAD_CACHE_FORMAT, @"tokens must be a mutable dictionary.");
+        for (id userId in tokens)
         {
             // On the second level we're expecting NSDictionaries keyed off of the user ids (an NSString*) or
             // NSNull if no userId was available.
             CHECK_ERROR([userId isKindOfClass:[NSString class]] || [userId isKindOfClass:[NSNull class]], AD_ERROR_BAD_CACHE_FORMAT, @"User ID key not the expected class type");
-            id userDict = [cache objectForKey:userId];
-            CHECK_ERROR(userDict, AD_ERROR_BAD_CACHE_FORMAT, @"Expected a dictionary for the user id!");
-            CHECK_ERROR([userDict isKindOfClass:[NSDictionary class]], AD_ERROR_BAD_CACHE_FORMAT, @"User IDs should have Dictionaries below them");
-            id idtoken = [cache objectForKey:@"idtoken"];
-            if (idtoken)
-            {
-                CHECK_ERROR([idtoken isKindOfClass:[NSString class]], AD_ERROR_BAD_CACHE_FORMAT, @"idtoken was not a string!");
-            }
-            id tokens = [cache objectForKey:@"tokens"];
-            CHECK_ERROR(tokens, AD_ERROR_BAD_CACHE_FORMAT, @"There should be tokens in the user dictionary");
-            CHECK_ERROR([tokens isKindOfClass:[NSArray class]], AD_ERROR_BAD_CACHE_FORMAT, @"tokens was not an NSArray!");
+            id userDict = [tokens objectForKey:userId];
+            CHECK_ERROR([userDict isKindOfClass:[NSMutableDictionary class]], AD_ERROR_BAD_CACHE_FORMAT, @"User ID should have mutable dictionaries in the cache");
             
-            for (id token in tokens)
+            for (id adkey in userDict)
             {
-                CHECK_ERROR([token isKindOfClass:[ADTokenCacheStoreItem class]], AD_ERROR_BAD_CACHE_FORMAT, @"token was not a token cache store item!");
+                // On the first level we're expecting NSDictionaries keyed off of ADTokenCacheStoreKey
+                CHECK_ERROR([adkey isKindOfClass:[ADTokenCacheStoreKey class]], AD_ERROR_BAD_CACHE_FORMAT, @"Key is not the expected class");
+                id token = [userDict objectForKey:adkey];
+                CHECK_ERROR([token isKindOfClass:[ADTokenCacheStoreItem class]], AD_ERROR_BAD_CACHE_FORMAT, @"Token is not of expected class type!");
             }
+        }
+    }
+    
+    
+    NSDictionary* idtokens = [cache objectForKey:@"idtokens"];
+    if (idtokens)
+    {
+        CHECK_ERROR([idtokens isKindOfClass:[NSMutableDictionary class]], AD_ERROR_BAD_CACHE_FORMAT, @"idtokens is not a dictionary!");
+        for (id idtoken_key in idtokens)
+        {
+            CHECK_ERROR([idtoken_key isKindOfClass:[NSString class]], AD_ERROR_BAD_CACHE_FORMAT, @"idtoken key is not a string!");
+            id idtoken = [idtokens objectForKey:idtoken_key];
+            CHECK_ERROR([idtoken isKindOfClass:[NSString class]], AD_ERROR_BAD_CACHE_FORMAT, @"idtoken is not a string!");
         }
     }
     
@@ -149,71 +146,87 @@
 
 - (BOOL)checkCache:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSData* update = [_storage retrieveIfUpdated];
-    if (update)
+    NSData* data = nil;
+    if (!_storage)
     {
-        return [self updateCache:update error:error];
+        return YES;
+    }
+    
+    if (![_storage retrieveIfUpdated:&data error:error])
+    {
+        return NO;
+    }
+    
+    if (data)
+    {
+        return [self updateCache:data error:error];
     }
     
     return YES;
 }
 
+- (BOOL)updateStorage:(ADAuthenticationError * __autoreleasing *)error
+{
+    if (!_storage)
+    {
+        return YES;
+    }
+    
+    NSDictionary* wrapper = @{ @"version" : @CURRENT_WRAPPER_CACHE_VERSION,
+                               @"tokenCache" : _cache };
+    
+    NSData* data = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+    return [_storage saveToStorage:data error:error];
+}
+
 #pragma mark -
 
 - (void)addToItems:(nonnull NSMutableArray *)items
-         forUserId:(nonnull NSString *)userId
-    fromDictionary:(nonnull NSDictionary *)dict
+    fromDictionary:(nonnull NSDictionary *)dictionary
+               key:(nonnull ADTokenCacheStoreKey *)key
+          userInfo:(ADUserInformation *)userInfo
 {
-    NSDictionary* userDict = [dict objectForKey:userId];
-    if (!userDict)
+    ADTokenCacheStoreItem* item = [dictionary objectForKey:key];
+    if (item)
     {
-        return;
-    }
-    
-    ADUserInformation* userInfo = nil;
-    
-    NSArray* tokens = [userDict objectForKey:@"tokens"];
-    if (!tokens)
-    {
-        return;
-    }
-    
-    // Rehydrate the idtoken
-    NSString* idToken = [userDict objectForKey:@"idtoken"];
-    if (idToken)
-    {
-        userInfo = [ADUserInformation userInformationWithIdToken:idToken error:nil];
-    }
-    
-    // Go through all the cache items
-    for (ADTokenCacheStoreItem* item in tokens)
-    {
-        // Re-add the user information
         item.userInformation = userInfo;
+        item = [item copy];
         
         [items addObject:item];
     }
 }
 
 - (void)addToItems:(nonnull NSMutableArray *)items
-            forKey:(nonnull ADTokenCacheStoreKey *)key
-            userId:(nullable NSString *)userId
+         forUserId:(nonnull NSString *)userId
+            tokens:(nonnull NSDictionary *)tokens
+          idtokens:(NSDictionary *)idtokens
+               key:(ADTokenCacheStoreKey *)key
 {
-    NSDictionary* users = [_cache objectForKey:key];
-    if (!users)
+    NSDictionary* userTokens = [tokens objectForKey:userId];
+    if (!userTokens)
     {
         return;
     }
     
-    if (userId)
+    NSString* idtoken = [idtokens objectForKey:userId];
+    ADUserInformation* userInfo = nil;
+    if (idtoken)
     {
-        [self addToItems:items forUserId:userId fromDictionary:users];
+        // If this fails the error will still get logged below, but that doesn't mean we
+        // won't necessarily not have valid tokens for the user.
+        userInfo = [ADUserInformation userInformationWithIdToken:idtoken error:nil];
+    }
+    
+    // Add items matching the key for this user
+    if (key)
+    {
+        [self addToItems:items fromDictionary:userTokens key:key userInfo:userInfo];
     }
     else
     {
-        for (NSString* aUserId in users)
+        for (id adkey in userTokens)
         {
-            [self addToItems:items forUserId:aUserId fromDictionary:users];
+            [self addToItems:items fromDictionary:userTokens key:adkey userInfo:userInfo];
         }
     }
 }
@@ -235,22 +248,25 @@
         }
         
         NSMutableArray* items = [NSMutableArray new];
-        
-        if (key)
+        NSDictionary* tokens = [_cache objectForKey:@"tokens"];
+        if (!tokens)
         {
-            // If a key is specified only pull up items for that key
-            [self addToItems:items
-                      forKey:key
-                      userId:userId];
+            return nil;
+        }
+        
+        
+        NSDictionary* idtokens = [_cache objectForKey:@"idtokens"];
+        if (userId)
+        {
+            // If we have a specified userId then we only look for that one
+            [self addToItems:items forUserId:userId tokens:tokens idtokens:idtokens key:key];
         }
         else
         {
-            // Otherwise go through the whole cache and add all items that match the userId
-            for (ADTokenCacheStoreKey* adKey in _cache)
+            // Otherwise we have to traverse all of the users in the cache
+            for (NSString* userId in tokens)
             {
-                [self addToItems:items
-                          forKey:adKey
-                          userId:userId];
+                [self addToItems:items forUserId:userId tokens:tokens idtokens:idtokens key:key];
             }
         }
         
@@ -322,7 +338,80 @@
 - (void)addOrUpdateItem:(ADTokenCacheStoreItem *)item
                   error:(ADAuthenticationError * __autoreleasing*)error
 {
+    if (![self checkCache:error])
+    {
+        return;
+    }
     
+    if (!item)
+    {
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromArgument:item argumentName:@"item"];
+        if (error)
+        {
+            *error = adError;
+        }
+        return;
+    }
+    
+    // Copy the item to make sure it doesn't change under us.
+    item = [item copy];
+    
+    ADTokenCacheStoreKey* key = [item extractKey:error];
+    if (!key)
+    {
+        return;
+    }
+    
+    NSMutableDictionary* tokens = nil;
+    NSMutableDictionary* idtokens = nil;
+    
+    if (!_cache)
+    {
+        // If we don't have a cache that means we need to create one.
+        _cache = [NSMutableDictionary new];
+        
+        tokens = [NSMutableDictionary new];
+        idtokens = [NSMutableDictionary new];
+        
+        [_cache setObject:tokens forKey:@"tokens"];
+        [_cache setObject:idtokens forKey:@"idtokens"];
+    }
+    else
+    {
+        tokens = [_cache objectForKey:@"tokens"];
+        idtokens = [_cache objectForKey:@"idtokens"];
+    }
+    
+    // Grab the userId first
+    id userId = item.userInformation.userId;
+    if (!userId)
+    {
+        // If we don't have one (ADFS case) then use an NSNull instead
+        userId = [NSNull null];
+    }
+    else
+    {
+        // Save away the idtoken
+        NSString* idtoken = item.userInformation.rawIdToken;
+        if (idtoken)
+        {
+            [idtokens setObject:idtoken forKey:userId];
+        }
+    }
+    
+    // Grab the token dictionary for this user id.
+    NSMutableDictionary* userDict = [tokens objectForKey:userId];
+    if (!userDict)
+    {
+        userDict = [NSMutableDictionary new];
+        [tokens setObject:userDict forKey:userId];
+    }
+    
+    // Nil out the user information
+    item.userInformation = nil;
+    
+    [userDict setObject:item forKey:key];
+    [self updateStorage:error];
 }
 
 /*! Clears token cache details for specific keys.
@@ -336,7 +425,43 @@
                    userId:(NSString *)userId
                     error:(ADAuthenticationError * __autoreleasing *)error
 {
+    if (![self checkCache:error])
+    {
+        return;
+    }
     
+    if (!userId)
+    {
+        userId = (NSString*)[NSNull null];
+    }
+    
+    NSMutableDictionary* tokens = [_cache objectForKey:@"tokens"];
+    if (!tokens)
+    {
+        return;
+    }
+    
+    NSMutableDictionary* userTokens = [tokens objectForKey:userId];
+    if (!userTokens)
+    {
+        return;
+    }
+    
+    if (![userTokens objectForKey:key])
+    {
+        return;
+    }
+    
+    [userTokens removeObjectForKey:key];
+    
+    // Check to see if we need to remove the idtoken
+    if (!userTokens.count)
+    {
+        [tokens removeObjectForKey:userId];
+        [[_cache objectForKey:@"idtokens"] removeObjectForKey:userId];
+    }
+    
+    [self updateStorage:error];
 }
 
 @end

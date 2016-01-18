@@ -53,34 +53,44 @@
 /*!
     Called on initial storage retrieval
  */
-- (NSData*)retrieveStorage
+- (BOOL)retrieveStorage:(NSData * __nonnull * __nullable)data
+                  error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
+    (void)data;
+    (void)error;
+    
     @throw @"Do not call any ADCacheStorageDelegate methods on ADKeychainCacheStorage.";
     
-    return nil;
+    return NO;
 }
 
 /*!
     Called when checking if the cache needs to be updated, return nil if nothing has changed since the last storage operation.
     Can be the same implementation as -retrieveStorage, however performance will suffer.
  */
-- (NSData*)retrieveIfUpdated
+- (BOOL)retrieveIfUpdated:(NSData * __nonnull * __nullable)data
+                    error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
+    (void)data;
+    (void)error;
+    
     @throw @"Do not call any ADCacheStorageDelegate methods on ADKeychainCacheStorage.";
     
-    return nil;
+    return NO;
 }
 
 /*!
     Called by ADAL to update the cache storage
  */
-- (void)saveToStorage:(NSData*)data
+- (BOOL)saveToStorage:(nullable NSData*)data
+                error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     (void)data;
+    (void)error;
     
     @throw @"Do not call any ADCacheStorageDelegate methods on ADKeychainCacheStorage.";
     
-    return;
+    return NO;
 }
 
 

@@ -24,8 +24,25 @@
 #import "ADTokenCacheStoreKey.h"
 
 @implementation ADTokenCacheStoreItem
+{
+    NSUInteger _hash;
+    NSString* _resource;
+    NSString* _authority;
+    NSString* _clientId;
+    ADUserInformation* _userInformation;
+}
 
 @synthesize multiResourceRefreshToken;
+
+- (NSUInteger)hash
+{
+    return _hash;
+}
+
+- (void)calculateHash
+{
+    _hash = [[NSString stringWithFormat:@"%@%@%@%@", _resource, _authority, _clientId, _userInformation.userId] hash];
+}
 
 //Multi-resource refresh tokens are stored separately, as they apply to all resources. As such,
 //we create a special, "broad" cache item, with nil resource and access token:
@@ -167,6 +184,50 @@
             _authority, _clientId,
             [NSString adIsStringNilOrBlank:_accessToken] ? @"(nil)" : @"(present)", _accessTokenType,
             [NSString adIsStringNilOrBlank:_refreshToken] ? @"(nil)" : @"(present)", _resource];
+}
+
+- (NSString *)clientId
+{
+    return _clientId;
+}
+
+- (void)setClientId:(NSString *)clientId
+{
+    _clientId = clientId;
+    [self calculateHash];
+}
+
+- (ADUserInformation *)userInformation
+{
+    return _userInformation;
+}
+
+- (void)setUserInformation:(ADUserInformation *)userInformation
+{
+    _userInformation = userInformation;
+    [self calculateHash];
+}
+
+- (NSString *)resource
+{
+    return _resource;
+}
+
+- (void)setResource:(NSString *)resource
+{
+    _resource = resource;
+    [self calculateHash];
+}
+
+- (NSString *)authority
+{
+    return _authority;
+}
+
+- (void)setAuthority:(NSString *)authority
+{
+    _authority = authority;
+    [self calculateHash];
 }
 
 @end

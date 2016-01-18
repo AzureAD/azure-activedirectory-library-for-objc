@@ -24,23 +24,26 @@
 #import "NSString+ADHelperMethods.h"
 
 @implementation ADTokenCacheStoreKey
+{
+    NSUInteger _hash;
+}
 
--(id) init
+- (id)init
 {
     //Use the custom init instead. This one will throw.
     [self doesNotRecognizeSelector:_cmd];
     return nil;
 }
 
--(id) initWithAuthority: (NSString*) authority
-               resource: (NSString*) resource
-               clientId: (NSString*) clientId
+- (id)initWithAuthority:(NSString *)authority
+               resource:(NSString *)resource
+               clientId:(NSString *)clientId
 {
     self = [super init];
     if (self)
     {
         //As the object is immutable we precalculate the hash:
-        hash = [[NSString stringWithFormat:@"##%@##%@##%@##", authority, resource, clientId]
+        _hash = [[NSString stringWithFormat:@"##%@##%@##%@##", authority, resource, clientId]
                     hash];
         _authority = authority;
         _resource = resource;
@@ -50,10 +53,10 @@
     return self;
 }
 
-+(id) keyWithAuthority: (NSString*) authority
-              resource: (NSString*) resource
-              clientId: (NSString*) clientId
-                 error: (ADAuthenticationError* __autoreleasing*) error
++ (id)keyWithAuthority:(NSString *)authority
+              resource:(NSString *)resource
+              clientId:(NSString *)clientId
+                 error:(ADAuthenticationError * __autoreleasing *)error
 {
     API_ENTRY;
     //Trimm first for faster nil or empty checks. Also lowercase and trimming is
@@ -69,29 +72,70 @@
     return [key initWithAuthority:authority resource:resource clientId:clientId];
 }
 
--(NSUInteger) hash
+- (NSUInteger)hash
 {
-    return hash;
+    return _hash;
 }
 
--(BOOL) isEqual:(id)object
+- (BOOL)isEqual:(id)object
 {
-    ADTokenCacheStoreKey* key = object;
-    if (!key)
+    if (!object)
+    {
         return NO;
+    }
+    
+    if (![object isKindOfClass:[ADTokenCacheStoreKey class]])
+    {
+        return NO;
+    }
+    
+    ADTokenCacheStoreKey* key = object;
+    
     //First check the fields which cannot be nil:
     if (![self.authority isEqualToString:key.authority] ||
         ![self.clientId isEqualToString:key.clientId])
+    {
         return NO;
+    }
     
     //Now handle the case of nil resource:
     if (!self.resource)
+    {
         return !key.resource;//Both should be nil to be equal
+    }
     else
+    {
         return [self.resource isEqualToString:key.resource];
+    }
 }
 
--(id) copyWithZone:(NSZone*) zone
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [aCoder encodeObject:self.authority forKey:@"authority"];
+    [aCoder encodeObject:self.resource forKey:@"resource"];
+    [aCoder encodeObject:self.clientId forKey:@"clientId"];
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    _authority = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"authority"];
+    _resource = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"resource"];
+    _clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
+    
+    return self;
+}
+
++ (BOOL)supportsSecureCoding
+{
+    return YES;
+}
+
+- (id)copyWithZone:(NSZone *) zone
 {
     return [[self.class allocWithZone:zone] initWithAuthority:[self.authority copyWithZone:zone]
                                                      resource:[self.resource copyWithZone:zone]

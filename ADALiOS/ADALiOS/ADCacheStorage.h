@@ -13,25 +13,38 @@
 
 /*!
     Called on initial storage retrieval
+ 
+    @param  data    A double pointer to the cached data, return nil if there is none.
+    @param  error   Optional error parameter to provide more error details
+ 
+    @return NO if an error occured
  */
-- (NSData*)retrieveStorage;
+- (BOOL)retrieveStorage:(NSData * __nonnull * __nullable)data
+                  error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 /*!
-    Called when checking if the cache needs to be updated, return nil if nothing has changed since the last storage operation.
-    Can be the same implementation as -retrieveStorage, however performance will suffer.
+    Called when checking if the cache needs to be updated,. Can be the same implementation as -retrieveStorage, however performance will suffer.
+ 
+    @param  data    A double pointer to return the cached data, return nil if there have been
+                    no changes since the cache has been read or updated.
+    @param  error   Optional error parameter to provide more error details
+ 
+    @return NO if an error occured
  */
-- (NSData*)retrieveIfUpdated;
+- (BOOL)retrieveIfUpdated:(NSData * __nonnull * __nullable)data
+                    error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 /*!
     Called by ADAL to update the cache storage
  */
-- (void)saveToStorage:(NSData*)data;
+- (BOOL)saveToStorage:(nullable NSData*)data
+                error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 @end
 
 
 @interface ADCacheStorage : NSObject
 
-+ (id<ADTokenCacheEnumerator>)enumeratorForStorageDelegate:(id<ADCacheStorageDelegate>)delegate;
++ (nullable id<ADTokenCacheEnumerator>)enumeratorForStorageDelegate:(nullable id<ADCacheStorageDelegate>)delegate;
 
 @end
