@@ -19,9 +19,11 @@
 //
 //  This class provides a ADTokenCacheStoring interface around the provided ADCacheStorage interface.
 //
-//  It serializes and deserializes the token from the data blob provided and validates cache format.
-//  Note, this class is only used on iOS if the developer provided a cache storage inteface, on Mac
-//  OS X this is the only way to persist tokens.
+//  This class deserializes the token cache from the data blob provided by the developer on a -deserialize
+//  call and validates cache format.
+//
+//  Note, this class is only used on Mac OS X. On iOS the only suppport caching interface is
+//  ADKeychainTokenCache.
 //
 //  The cache itself is a serialized collection of object and dictionaries in the following schema:
 //
@@ -51,27 +53,6 @@
 }
 
 @implementation ADTokenCache
-
-- (instancetype)initWithStorage:(id<ADCacheStorageDelegate>)storage
-{
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    _storage = storage;
-    
-    ADAuthenticationError* error = nil;
-    NSData* data = nil;
-    
-    if (_storage)
-    {
-        [_storage retrieveStorage:&data error:&error];
-        [self updateCache:data error:&error];
-    }
-    
-    return self;
-}
 
 - (BOOL)validateCache:(NSDictionary*)dict
                 error:(ADAuthenticationError * __autoreleasing *)error
@@ -158,6 +139,7 @@
 - (BOOL)checkCache:(ADAuthenticationError * __autoreleasing *)error
 {
     NSData* data = nil;
+#if TODO_STORAGE_DELEGATE
     if (!_storage)
     {
         return YES;
@@ -167,7 +149,7 @@
     {
         return NO;
     }
-    
+#endif
     if (data)
     {
         return [self updateCache:data error:error];
@@ -178,6 +160,7 @@
 
 - (BOOL)updateStorage:(ADAuthenticationError * __autoreleasing *)error
 {
+#if TODO_STORAGE_DELEGATE
     if (!_storage)
     {
         return YES;
@@ -188,6 +171,8 @@
     
     NSData* data = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
     return [_storage saveToStorage:data error:error];
+#endif
+    return NO;
 }
 
 #pragma mark -

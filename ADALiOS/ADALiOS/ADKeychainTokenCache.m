@@ -18,12 +18,13 @@
 
 #import <Security/Security.h>
 #import "ADALiOS.h"
-#import "ADKeychainTokenCacheStore.h"
+#import "ADKeychainTokenCache.h"
 #import "ADTokenCacheItem.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADTokenCacheStoreKey.h"
 #import "ADUserInformation.h"
 #import "ADWorkplaceJoinUtil.h"
+#import "ADAuthenticationSettings.h"
 
 #define KEYCHAIN_VERSION 1
 #define STRINGIFY(x) #x
@@ -34,7 +35,7 @@ static NSString* const s_delimiter = @"|";
 
 static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_VERSION);
 
-@implementation ADKeychainTokenCacheStore
+@implementation ADKeychainTokenCache
 {
     NSString* _sharedGroup;
     NSDictionary* _default;
@@ -43,7 +44,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 // Shouldn't be called.
 - (id)init
 {
-    return [self initWithGroup:@"com.microsoft.adalcache"];
+    return [self initWithGroup:[[ADAuthenticationSettings sharedInstance] defaultKeychainGroup]];
 }
 
 - (id)initWithGroup:(NSString *)sharedGroup
@@ -202,7 +203,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     }
     else if (status != errSecSuccess)
     {
-        [ADKeychainTokenCacheStore checkStatus:status details:@"Failed to run keychain query." error:error];
+        [ADKeychainTokenCache checkStatus:status details:@"Failed to run keychain query." error:error];
         return nil;
     }
     
@@ -369,7 +370,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
                                                          additional:nil];
         
         OSStatus status = SecItemDelete((CFDictionaryRef)query);
-        if ([ADKeychainTokenCacheStore checkStatus:status details:@"Failed to remove previous entry from the keychain." error:error])
+        if ([ADKeychainTokenCache checkStatus:status details:@"Failed to remove previous entry from the keychain." error:error])
         {
             return;
         }
@@ -379,7 +380,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
                                            (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly}];
         status = SecItemAdd((CFDictionaryRef)query, NULL);
         
-        [ADKeychainTokenCacheStore checkStatus:status details:@"Failed to add or update keychain entry." error:error];
+        [ADKeychainTokenCache checkStatus:status details:@"Failed to add or update keychain entry." error:error];
     }
 }
 
@@ -407,7 +408,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     
     NSMutableDictionary* query = [self queryDictionaryForKey:key userId:userId additional:nil];
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
-    [ADKeychainTokenCacheStore checkStatus:status details:@"Failed to remove item from keychain" error:error];
+    [ADKeychainTokenCache checkStatus:status details:@"Failed to remove item from keychain" error:error];
 }
 
 @end

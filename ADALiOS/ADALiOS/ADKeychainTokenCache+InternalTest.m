@@ -16,11 +16,11 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADKeychainTokenCacheStore+InternalTest.h"
+#import "ADKeychainTokenCache+InternalTest.h"
 #import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
 
-@implementation ADKeychainTokenCacheStore (InternalTest)
+@implementation ADKeychainTokenCache (InternalTest)
 
 - (void)removeAll:(ADAuthenticationError * __autoreleasing *)error
 {
@@ -28,7 +28,7 @@
     {
         NSMutableDictionary* query = [self queryDictionaryForKey:nil userId:nil additional:nil];
         OSStatus status = SecItemDelete((CFDictionaryRef)query);
-        [ADKeychainTokenCacheStore checkStatus:status details:@"Failed to remove all" error:error];
+        [ADKeychainTokenCache checkStatus:status details:@"Failed to remove all" error:error];
         
         NSArray* items = [self allItems:nil];
         if ([items count])

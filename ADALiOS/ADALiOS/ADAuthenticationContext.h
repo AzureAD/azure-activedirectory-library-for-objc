@@ -24,7 +24,6 @@
 #import "ADUserInformation.h"
 #import "ADTokenCacheStoreKey.h"
 #import "ADErrorCodes.h"
-#import "ADCacheStorage.h"
 
 #if TARGET_OS_IPHONE
 //iOS:
@@ -38,6 +37,7 @@ typedef WebView   WebViewType;
 
 @class ADUserIdentifier;
 @class UIViewController;
+@class ADTokenCache;
 
 typedef enum
 {
@@ -111,73 +111,100 @@ typedef enum
 /*! The completion block declaration. */
 typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 
-/*! The central class for managing multiple tokens. Usage: create one per AAD or ADFS authority.
- As authority is required, the class cannot be used with "new" or the parameterless "init" selectors.
- Attempt to call [ADAuthenticationContext new] or [[ADAuthenticationContext alloc] init] will throw an exception.
- @class ADAuthenticationContext
+/*!
+    @class ADAuthenticationContext
+ 
+    The central class for managing multiple tokens.
+ 
+    Usage: create one per AAD or ADFS authority. As authority is required, the class cannot be
+    used with "new" or the parameterless "init" selectors. Attempt to call
+    [ADAuthenticationContext new] or [[ADAuthenticationContext alloc] init] will throw an exception.
  */
 @interface ADAuthenticationContext : NSObject
 
-/*! The method allows subclassing of ADAuthenticationContext. For direct class usage, the static factory methods
- are recommended due to their simplicity.
- @param authority: The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
- @param validateAuthority: Specifies if the authority should be validated.
- @param storage: A developer defined interface for persisting the token cache, if 'nil' is passed in tokens will not
-                 be cached
- @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
- be nil.
+#if TARGET_OS_IPHONE
+/*!
+    Initializes an instance of ADAuthenticationContext with the provided parameters.
+ 
+    @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+    @param validateAuthority    Specifies if the authority should be validated.
+    @param sharedGroup          The keychain sharing group to use for the ADAL token cache (iOS Only)
+    @param error                (Optional) Any extra error details, if the method fails
+ 
+    @return An instance of ADAuthenticationContext, nil if it fails.
  */
-- (id)initWithAuthority:(NSString*)authority
+- (id)initWithAuthority:(NSString *)authority
       validateAuthority:(BOOL)validateAuthority
-                storage:(id<ADCacheStorageDelegate>)storage
-                  error:(ADAuthenticationError* __autoreleasing *)error;
+            sharedGroup:(NSString *)sharedGroup
+                  error:(ADAuthenticationError * __autoreleasing *)error;
+#endif
 
-- (id)initWithAuthority:(NSString*)authority
+/*!
+    Initializes an instance of ADAuthenticationContext with the provided parameters.
+ 
+    @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+    @param validateAuthority    Specifies if the authority should be validated.
+    @param error                (Optional) Any extra error details, if the method fails
+ 
+    @return An instance of ADAuthenticationContext, nil if it fails.
+ */
+- (id)initWithAuthority:(NSString *)authority
       validateAuthority:(BOOL)validateAuthority
-                  error:(ADAuthenticationError* __autoreleasing *)error;
+                  error:(ADAuthenticationError * __autoreleasing *)error;
 
 
-/*! Creates the object, setting the authority, default cache and enables the authority validation. In case of an error
- the function will return nil and if the error parameter is supplied, it will be filled with error details.
- @param authority: The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
- @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
- be nil. */
+/*!
+    Creates an instance of ADAuthenticationContext with the provided parameters.
+ 
+    @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+    @param error                (Optional) Any extra error details, if the method fails
+ 
+    @return An instance of ADAuthenticationContext, nil if it fails.
+ */
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
                                                          error:(ADAuthenticationError* __autoreleasing *)error;
 
-/*! Creates the object, setting the authority, default cache and desired authority validation flag. In case of an error
- the function will return nil and if the error parameter is supplied, it will be filled with error details.
- @param authority: The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
- @param validateAuthority: Specifies if the authority should be validated.
- @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
- be nil. */
+/*!
+    Creates an instance of ADAuthenticationContext with the provided parameters.
+ 
+    @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+    @param validateAuthority    Specifies if the authority should be validated.
+    @param error                (Optional) Any extra error details, if the method fails
+ 
+    @return An instance of ADAuthenticationContext, nil if it fails.
+ */
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
                                              validateAuthority:(BOOL)validate
                                                          error:(ADAuthenticationError* __autoreleasing *)error;
 
-/*! Creates the object, setting the authority, desired cache and enables the authority validation. In case of an error
- the function will return nil and if the error parameter is supplied, it will be filled with error details.
- @param authority The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
- @param validateAuthority: Specifies if the authority should be validated.
- @param storage: A developer defined interface for persisting the token cache, if 'nil' is passed in tokens will not
- be cached
- @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
- be nil. */
+#if TARGET_OS_IPHONE
+/*!
+    Creates an instance of ADAuthenticationContext with the provided parameters.
+ 
+    @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+    @param sharedGroup          The keychain sharing group to use for the ADAL token cache (iOS Only)
+    @param error                (Optional) Any extra error details, if the method fails
+ 
+    @return An instance of ADAuthenticationContext, nil if it fails.
+ */
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
-                                                       storage:(id<ADCacheStorageDelegate>)storage
+                                                   sharedGroup:(NSString*)sharedGroup
                                                          error:(ADAuthenticationError* __autoreleasing *)error;
+#endif
 
-/*! Creates the object, setting the authority, desired cache and desired authority validation flag. In case of an error
- the function will return nil and if the error parameter is supplied, it will be filled with error details.
- @param authority The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
- @param validateAuthority Specifies if the authority should be validated.
- @param storage: A developer defined interface for persisting the token cache, if 'nil' is passed in tokens will not
- be cached
- @param error: the method will fill this parameter with the error details, if such error occurs. This parameter can
- be nil. */
+/*!
+    Creates an instance of ADAuthenticationContext with the provided parameters.
+ 
+    @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+    @param validateAuthority    Specifies if the authority should be validated.
+    @param sharedGroup          The keychain sharing group to use for the ADAL token cache (iOS Only)
+    @param error                (Optional) Any extra error details, if the method fails
+ 
+    @return An instance of ADAuthenticationContext, nil if it fails.
+ */
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
                                              validateAuthority:(BOOL)validate
-                                                       storage:(id<ADCacheStorageDelegate>)storage
+                                                   sharedGroup:(NSString*)sharedGroup
                                                          error:(ADAuthenticationError* __autoreleasing *)error;
 
 /*!
@@ -198,9 +225,6 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 /*! Represents the URL scheme of the application. If nil, the API selects the first value in an array of URL schemes. */
 @property NSString* applicationURLScheme;
 
-/*! Provides access to the token cache used in this context. If null, tokens will not be cached. */
-@property id<ADCacheStorageDelegate> cacheStorage;
-
 /*! Unique identifier passed to the server and returned back with errors. Useful during investigations to correlate the
  requests and the responses from the server. If nil, a new UUID is generated on every request. */
 @property (strong) NSUUID* correlationId;
@@ -211,7 +235,6 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 /*! The parent view controller for the authentication view controller UI. This property will be used only if
  a custom web view is NOT specified. */
 @property (weak) UIViewController* parentController;
-
 
 /*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
  when needed, leveraging the parentController property. */

@@ -19,19 +19,28 @@
 
 #import <Foundation/Foundation.h>
 #import "ADTokenCacheEnumerator.h"
-#import "ADCacheStorage.h"
 
 #define CURRENT_WRAPPER_CACHE_VERSION 1.0
 
 @class ADAuthenticationError;
+@class ADTokenCache;
+
+@protocol ADTokenCacheDelegate <NSObject>
+
+- (void)willAccessCache:(nonnull ADTokenCache *)cache;
+- (void)didAccessCache:(nonnull ADTokenCache *)cache;
+- (void)willWriteCache:(nonnull ADTokenCache *)cache;
+- (void)didWriteCache:(nonnull ADTokenCache *)cache;
+
+@end
 
 @interface ADTokenCache : NSObject <ADTokenCacheEnumerator>
 {
     NSMutableDictionary* _cache;
-    id<ADCacheStorageDelegate> _storage;
+    id<ADTokenCacheDelegate> _delegate;
 }
 
-- (nullable instancetype)initWithStorage:(nullable id<ADCacheStorageDelegate>)storage;
+- (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate;
 
 - (nullable NSArray<ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheStoreKey *)key
                                                         userId:(nullable NSString *)userId

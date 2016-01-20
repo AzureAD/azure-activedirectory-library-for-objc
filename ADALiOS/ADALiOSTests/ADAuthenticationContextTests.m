@@ -27,7 +27,7 @@
 #import "ADTestURLConnection.h"
 #import "../ADALiOS/ADOAuth2Constants.h"
 #import "../ADALiOS/ADAuthenticationSettings.h"
-#import "../ADALiOS/ADKeychainTokenCacheStore.h"
+#import "../ADALiOS/ADKeychainTokenCache.h"
 #import "ADKeychainTokenCacheStore+InternalTest.h"
 
 const int sAsyncContextTimeout = 10;
@@ -36,7 +36,7 @@ const int sAsyncContextTimeout = 10;
 @private
     //The source:
     ADAuthenticationContext* mContext;
-    ADKeychainTokenCacheStore* mDefaultTokenCache;
+    ADKeychainTokenCache* mDefaultTokenCache;
     NSString* mAuthority;
     NSString* mResource;
     NSString* mClientId;
@@ -64,9 +64,9 @@ const int sAsyncContextTimeout = 10;
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_ERROR];//Majority of the tests rely on errors
     mAuthority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
-    mDefaultTokenCache = (ADKeychainTokenCacheStore*)([ADAuthenticationSettings sharedInstance].defaultTokenCacheStore);
+    mDefaultTokenCache = (ADKeychainTokenCache*)([ADAuthenticationSettings sharedInstance].defaultTokenCacheStore);
     XCTAssertNotNil(mDefaultTokenCache);
-    XCTAssertTrue([mDefaultTokenCache isKindOfClass:[ADKeychainTokenCacheStore class]]);
+    XCTAssertTrue([mDefaultTokenCache isKindOfClass:[ADKeychainTokenCache class]]);
     mRedirectURL = [NSURL URLWithString:@"http://todolistclient/"];
     mClientId = @"c3c7f5e5-7153-44d4-90e6-329686d48d76";
     mResource = @"http://localhost/TodoListService";

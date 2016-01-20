@@ -42,8 +42,7 @@
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationRequest.h"
 #import "ADTokenCache.h"
-#import "ADKeychainTokenCacheStore.h"
-#import "ADKeychainCacheStorage.h"
+#import "ADKeychainTokenCache.h"
 
 #import "ADAuthenticationContext+Internal.h"
 
@@ -127,7 +126,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 - (id)initWithAuthority:(NSString*) authority
       validateAuthority:(BOOL)bValidate
-                storage:(id<ADCacheStorageDelegate>)storage
+            sharedGroup:(NSString*)sharedGroup
                   error:(ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY;
@@ -143,7 +142,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     _validateAuthority = bValidate;
     _credentialsType = AD_CREDENTIALS_EMBEDDED;;
     
-    [self setCacheStorage:storage];
+    _tokenCacheStore = [[ADKeychainTokenCache alloc] initWithGroup:sharedGroup];
     
     return self;
 }
@@ -154,7 +153,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 {
     return [self initWithAuthority:authority
                  validateAuthority:validateAuthority
-                           storage:[ADKeychainCacheStorage new]
+                       sharedGroup:[[ADAuthenticationSettings sharedInstance] defaultKeychainGroup]
                              error:error];
 }
 
@@ -211,28 +210,28 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 }
 
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
-                                               storage:(id<ADCacheStorageDelegate>)storage
+                                                   sharedGroup:(NSString*)sharedGroup
                                                          error:(ADAuthenticationError* __autoreleasing *)error
 {
     API_ENTRY;
     return [self authenticationContextWithAuthority:authority
                                   validateAuthority:YES
-                                            storage:storage
+                                        sharedGroup:sharedGroup
                                               error:error];
 }
 
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
                                              validateAuthority:(BOOL)bValidate
-                                                       storage:(id<ADCacheStorageDelegate>)storage
+                                                   sharedGroup:(NSString*)sharedGroup
                                                          error:(ADAuthenticationError* __autoreleasing *)error
 {
     API_ENTRY;
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(authority);
     
-    return [[self alloc] initWithAuthority: authority
-                         validateAuthority: bValidate
-                                   storage: storage
-                                     error: error];
+    return [[self alloc] initWithAuthority:authority
+                         validateAuthority:bValidate
+                               sharedGroup:sharedGroup
+                                     error:error];
 }
 
 + (BOOL)isResponseFromBroker:(NSString*)sourceApplication
@@ -399,11 +398,6 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
     [request acquireToken:completionBlock];
-}
-
-- (void)setCacheStorage:(id<ADCacheStorageDelegate>)cacheStorage
-{
-    _tokenCacheStore = [ADCacheStorage enumeratorForStorageDelegate:cacheStorage];
 }
 
 @end

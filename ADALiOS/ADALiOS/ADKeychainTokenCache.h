@@ -20,7 +20,7 @@
 
 @class ADKeyChainHelper;
 
-@interface ADKeychainTokenCacheStore : NSObject<ADTokenCacheEnumerator>
+@interface ADKeychainTokenCache : NSObject<ADTokenCacheEnumerator>
 
 @property (readonly) NSString* sharedGroup;
 

@@ -21,7 +21,7 @@
 #import <libkern/OSAtomic.h>
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADAuthenticationContext.h"
-#import "../ADALiOS/ADKeychainTokenCacheStore.h"
+#import "../ADALiOS/ADKeychainTokenCache.h"
 #import "ADKeychainTokenCacheStore+InternalTest.h"
 dispatch_semaphore_t sThreadsSemaphore;//Will be signalled when the last thread is done. Should be initialized and cleared in the test.
 volatile int32_t sThreadsFinished;//The number of threads that are done. Should be set to 0 at the beginning of the test.
@@ -35,7 +35,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 @interface ADKeychainTokenCacheStoreTests : XCTestCase
 {
-    ADKeychainTokenCacheStore* mStore;
+    ADKeychainTokenCache* mStore;
 }
 @end
 
@@ -46,9 +46,9 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     
-    mStore = [[ADKeychainTokenCacheStore alloc] init];
+    mStore = [[ADKeychainTokenCache alloc] init];
     XCTAssertNotNil(mStore, "Default store cannot be nil.");
-    XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
+    XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCache class]]);
     [mStore removeAll:nil];//Start clean before each test
 }
 
@@ -376,11 +376,11 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 -(void) testInitializer
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    ADKeychainTokenCacheStore* simple = [ADKeychainTokenCacheStore new];
+    ADKeychainTokenCache* simple = [ADKeychainTokenCache new];
     XCTAssertNotNil(simple);
     XCTAssertNotNil(simple.sharedGroup);
     NSString* group = @"test";
-    ADKeychainTokenCacheStore* withGroup = [[ADKeychainTokenCacheStore alloc] initWithGroup:group];
+    ADKeychainTokenCache* withGroup = [[ADKeychainTokenCache alloc] initWithGroup:group];
     XCTAssertNotNil(withGroup);
 }
 

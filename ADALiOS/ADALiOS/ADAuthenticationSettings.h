@@ -42,9 +42,6 @@
 /*! The dispatch queue to be used for the asynchronous calls. */
 @property dispatch_queue_t dispatchQueue;
 
-/*! The default token cache store to be used by the ADAuthenticationContext instances. */
-@property id<ADTokenCacheEnumerator> defaultTokenCacheStore;
-
 /*! The name of the keychain group to be used if sharing of cache between applications
  is desired. Can be nil. The property sets the appropriate value of defaultTokenCacheStore
  object. See apple's documentation for keychain groups: such groups require certain
@@ -52,7 +49,7 @@
  is only given to the applications from the same vendor. If this property is not set, the behavior
  will depend on the values in the entitlements file (if such exists) and may not result in token
  sharing. The property has no effect if other cache mechanisms are used (non-keychain). */
-@property NSString* sharedCacheKeychainGroup;
+@property NSString* defaultKeychainGroup;
 
 /*! Some servers may require client authentication over TLS. The certificate will be stored in the
  shared keychain group, pointed by this property. */

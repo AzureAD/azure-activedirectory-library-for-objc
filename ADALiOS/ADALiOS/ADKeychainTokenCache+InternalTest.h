@@ -17,9 +17,9 @@
 // governing permissions and limitations under the License.
 
 
-#import "ADKeychainTokenCacheStore.h"
+#import "ADKeychainTokenCache.h"
 
-@interface ADKeychainTokenCacheStore (InternalTest)
+@interface ADKeychainTokenCache (InternalTest)
 
 - (void)removeAll:(ADAuthenticationError * __autoreleasing *)error;
 
