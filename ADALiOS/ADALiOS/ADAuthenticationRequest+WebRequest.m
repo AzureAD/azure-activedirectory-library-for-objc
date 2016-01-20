@@ -24,7 +24,8 @@
 #import "ADWebResponse.h"
 #import "ADPkeyAuthHelper.h"
 #import "ADAuthenticationSettings.h"
-#import "ADAuthenticationBroker.h"
+#import "ADWebAuthController.h"
+#import "ADWebAuthController+Internal.h"
 #import "ADHelpers.h"
 #import "NSURL+ADExtensions.h"
 #import "ADUserIdentifier.h"
@@ -383,7 +384,7 @@ static volatile int sDialogInProgress = 0;
 - (void)launchWebView:(NSString*)startUrl
       completionBlock:(void (^)(ADAuthenticationError*, NSURL*))completionBlock
 {
-    [[ADAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
+    [[ADWebAuthController sharedInstance] start:[NSURL URLWithString:startUrl]
                                                end:[NSURL URLWithString:_redirectUri]
                             refreshTokenCredential:_refreshTokenCredential
                                   parentController:_context.parentController

@@ -21,7 +21,7 @@
 #import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADOAuth2Constants.h"
-#import "ADAuthenticationBroker.h"
+#import "ADWebAuthController.h"
 #import "ADAuthenticationSettings.h"
 #import "NSURL+ADExtensions.h"
 #import "NSDictionary+ADExtensions.h"
