@@ -8,7 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import "ADCacheStorage.h"
-#import "ADTokenCacheStorageWrapper.h"
+#import "ADTokenCache.h"
 #import "ADTokenCacheItem.h"
 #import "ADTokenCacheStoreKey.h"
 #import "NSString+ADHelperMethods.h"
@@ -186,13 +186,13 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     return item;
 }
 
-@interface ADTokenCacheStorageWrapper (TestUtil)
+@interface ADTokenCache (TestUtil)
 
 - (void)setCache:(NSMutableDictionary*)cache;
 
 @end
 
-@implementation ADTokenCacheStorageWrapper (TestUtil)
+@implementation ADTokenCache (TestUtil)
 
 - (void)setCache:(NSMutableDictionary *)cache
 {
@@ -207,11 +207,11 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 @end
 
 
-@interface ADTokenCacheStorageWrapperTests : XCTestCase
+@interface ADTokenCacheTests : XCTestCase
 
 @end
 
-@implementation ADTokenCacheStorageWrapperTests
+@implementation ADTokenCacheTests
 
 - (void)setUp {
     [super setUp];
@@ -230,7 +230,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 - (void)testValidationNil
 {
     ADAuthenticationError* error = nil;
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
     
     // Even though tokenCache is empty we're still expecting this to come up good.
     XCTAssertFalse([wrapper validateCache:nil error:&error]);
@@ -241,7 +241,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 {
     NSDictionary* root = @{};
     ADAuthenticationError* error = nil;
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
     
     // Even though tokenCache is empty we're still expecting this to come up good.
     XCTAssertFalse([wrapper validateCache:root error:&error]);
@@ -253,7 +253,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     NSDictionary* root = @{ @"version" : @CURRENT_WRAPPER_CACHE_VERSION };
     
     ADAuthenticationError* error = nil;
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
     
     // Even though tokenCache is empty we're still expecting this to come up good.
     XCTAssertFalse([wrapper validateCache:root error:&error]);
@@ -267,7 +267,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
                             @"tokenCache" : [NSMutableDictionary new] };
     
     ADAuthenticationError* error = nil;
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
     
     // Even though tokenCache is empty we're still expecting this to come up good.
     XCTAssertTrue([wrapper validateCache:root error:&error]);
@@ -280,7 +280,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
                             @"tokenCache" : [NSDictionary new] };
     
     ADAuthenticationError* error = nil;
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
     
     // Even though tokenCache is empty we're still expecting this to come up good.
     XCTAssertFalse([wrapper validateCache:root error:&error]);
@@ -296,7 +296,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
                             @"tokenCache" : tokenCache };
     
     ADAuthenticationError* error = nil;
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
     
     // Still expecting these too come back as "good"
     XCTAssertTrue([wrapper validateCache:root error:&error]);
@@ -312,7 +312,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
                             @"tokenCache" : tokenCache };
     
     ADAuthenticationError* error = nil;
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
     
     // Still expecting these too come back as "good"
     XCTAssertFalse([wrapper validateCache:root error:&error]);
@@ -328,7 +328,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
                             @"tokenCache" : tokenCache };
     
     ADAuthenticationError* error = nil;
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
     
     // Still expecting these too come back as "good"
     XCTAssertFalse([wrapper validateCache:root error:&error]);
@@ -361,7 +361,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     NSDictionary* root = @{ @"version" : @CURRENT_WRAPPER_CACHE_VERSION,
                             @"tokenCache" : tokenCache };
     
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
     
     // Still expecting these too come back as "good"
     XCTAssertTrue([wrapper validateCache:root error:&error]);
@@ -372,7 +372,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 
 - (void)testGetItemWithKeyUserId
 {
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
     
     // Populate the cache dictionaries
     NSMutableDictionary* cartmanTokens = [NSMutableDictionary dictionaryWithDictionary:
@@ -396,7 +396,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 
 - (void)testAllItemsSingleItem
 {
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
     
     // Populate the cache dictionaries
     NSMutableDictionary* cartmanTokens = [NSMutableDictionary dictionaryWithDictionary:
@@ -419,7 +419,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 
 - (void)testAllItems
 {
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
 
     NSMutableDictionary* idtokens = [NSMutableDictionary dictionaryWithDictionary:
                                      @{ CartmanUserid() : CartmanIdtoken(),
@@ -458,7 +458,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 
 - (void)testGetItemsWithKey
 {
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
     NSMutableDictionary* idtokens = [NSMutableDictionary dictionaryWithDictionary:
                                      @{ CartmanUserid() : CartmanIdtoken(),
                                         ReginaUserid() : ReginaIdtoken()}];
@@ -487,7 +487,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 
 - (void)testAddItem
 {
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
     XCTAssertNil([wrapper cache]);
     
     ADAuthenticationError* error = nil;
@@ -511,7 +511,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 
 - (void)testRemoveItem
 {
-    ADTokenCacheStorageWrapper* wrapper = [[ADTokenCacheStorageWrapper alloc] init];
+    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
     
     // Populate the cache dictionaries
     NSMutableDictionary* cartmanTokens = [NSMutableDictionary dictionaryWithDictionary:
@@ -546,10 +546,10 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 {
     ADAuthenticationError* error = nil;
     ADTestSimpleStorage* storage1 = [[ADTestSimpleStorage alloc] init];
-    ADTokenCacheStorageWrapper* wrapper1 = [[ADTokenCacheStorageWrapper alloc] initWithStorage:storage1];
+    ADTokenCache* wrapper1 = [[ADTokenCache alloc] initWithStorage:storage1];
     
     ADTestSimpleStorage* storage2 = [[ADTestSimpleStorage alloc] init];
-    ADTokenCacheStorageWrapper* wrapper2 = [[ADTokenCacheStorageWrapper alloc] initWithStorage:storage2];
+    ADTokenCache* wrapper2 = [[ADTokenCache alloc] initWithStorage:storage2];
     
     
     // Make sure we've loaded up the storage but haven't checked for updates

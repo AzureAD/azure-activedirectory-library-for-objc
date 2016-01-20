@@ -1,6 +1,21 @@
+// Copyright © Microsoft Open Technologies, Inc.
 //
-//  ADTokenCacheStorageWrapper.m
-//  ADALiOS
+// All Rights Reserved
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
+// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
+// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
+// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
+//
+// See the Apache License, Version 2.0 for the specific language
+// governing permissions and limitations under the License.
+
 //
 //  This class provides a ADTokenCacheStoring interface around the provided ADCacheStorage interface.
 //
@@ -18,12 +33,8 @@
 //          |            |- <ADTokenCacheStoreKey> - An ADTokenCacheItem, keyed with an ADTokenCacheStoreKey
 //          |- idtokens - An NSDictionary containing all of the idtokens, keyed off of the userID
 //
-//
-//  Created by Ryan Pangrle on 1/12/16.
-//  Copyright © 2016 MS Open Tech. All rights reserved.
-//
 
-#import "ADTokenCacheStorageWrapper.h"
+#import "ADTokenCache.h"
 #import "ADAuthenticationError.h"
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
@@ -39,7 +50,7 @@
     } \
 }
 
-@implementation ADTokenCacheStorageWrapper
+@implementation ADTokenCache
 
 - (instancetype)initWithStorage:(id<ADCacheStorageDelegate>)storage
 {

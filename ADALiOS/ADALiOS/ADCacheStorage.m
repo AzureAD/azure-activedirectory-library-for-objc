@@ -9,7 +9,7 @@
 #import "ADCacheStorage.h"
 #import "ADKeychainCacheStorage.h"
 #import "ADKeychainTokenCacheStore.h"
-#import "ADTokenCacheStorageWrapper.h"
+#import "ADTokenCache.h"
 
 @implementation ADCacheStorage : NSObject
 
@@ -26,7 +26,7 @@
         return [[ADKeychainTokenCacheStore alloc] initWithGroup:[keychainDelegate sharedGroup]];
     }
     
-    return [[ADTokenCacheStorageWrapper alloc] initWithStorage:delegate];
+    return [[ADTokenCache alloc] initWithStorage:delegate];
 }
 
 @end

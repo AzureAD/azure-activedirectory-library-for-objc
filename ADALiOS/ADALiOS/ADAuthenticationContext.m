@@ -41,7 +41,7 @@
 #import "ADBrokerNotificationManager.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationRequest.h"
-#import "ADTokenCacheStorageWrapper.h"
+#import "ADTokenCache.h"
 #import "ADKeychainTokenCacheStore.h"
 #import "ADKeychainCacheStorage.h"
 
