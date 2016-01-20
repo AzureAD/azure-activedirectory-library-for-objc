@@ -22,7 +22,7 @@
 
 - (nullable instancetype)initWithStorage:(nullable id<ADCacheStorageDelegate>)storage;
 
-- (nullable NSArray<ADTokenCacheStoreItem *> *)getItemsWithKey:(nullable ADTokenCacheStoreKey *)key
+- (nullable NSArray<ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheStoreKey *)key
                                                         userId:(nullable NSString *)userId
                                                          error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 - (void)updateStorage;

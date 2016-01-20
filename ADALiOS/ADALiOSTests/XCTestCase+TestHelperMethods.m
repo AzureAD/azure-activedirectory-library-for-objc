@@ -308,9 +308,9 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 //Creates an new item with all of the properties having correct
 //values
--(ADTokenCacheStoreItem*) adCreateCacheItem
+-(ADTokenCacheItem*) adCreateCacheItem
 {
-    ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
+    ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
     item.resource = @"resource";
     item.authority = @"https://login.windows.net/sometenant.com";
     item.clientId = @"client id";
@@ -376,7 +376,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     
     //Add here calculated properties that cannot be initialized and shouldn't be checked for initialization:
     NSDictionary* const exceptionProperties = @{
-                                                NSStringFromClass([ADTokenCacheStoreItem class]):[NSSet setWithObjects:@"multiResourceRefreshToken",
+                                                NSStringFromClass([ADTokenCacheItem class]):[NSSet setWithObjects:@"multiResourceRefreshToken",
                                                                                                   @"sessionKey",nil], };
     
     //Enumerate all properties and ensure that they are set to non-default values:

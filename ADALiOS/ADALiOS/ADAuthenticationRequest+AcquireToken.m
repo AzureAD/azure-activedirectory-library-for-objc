@@ -18,7 +18,7 @@
 
 #import "ADAuthenticationRequest.h"
 #import "ADAuthenticationContext+Internal.h"
-#import "ADTokenCacheStoreItem+Internal.h"
+#import "ADTokenCacheItem+Internal.h"
 #import "ADInstanceDiscovery.h"
 #import "ADHelpers.h"
 #import "ADUserIdentifier.h"
@@ -81,7 +81,7 @@
     {
         //Cache should be used in this case:
         BOOL accessTokenUsable;
-        ADTokenCacheStoreItem* cacheItem = [_context findCacheItemWithKey:key userId:_identifier useAccessToken:&accessTokenUsable error:&error];
+        ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key userId:_identifier useAccessToken:&accessTokenUsable error:&error];
         if (error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -103,7 +103,7 @@
 
 /*Attemps to use the cache. Returns YES if an attempt was successful or if an
  internal asynchronous call will proceed the processing. */
-- (void)attemptToUseCacheItem:(ADTokenCacheStoreItem*)item
+- (void)attemptToUseCacheItem:(ADTokenCacheItem*)item
                useAccessToken:(BOOL)useAccessToken
               completionBlock:(ADAuthenticationCallback)completionBlock
 {
@@ -151,7 +151,7 @@
              {
                  BOOL useAccessToken;
                  ADAuthenticationError* error;
-                 ADTokenCacheStoreItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
+                 ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
                  if (error)
                  {
                      completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -258,7 +258,7 @@
 //Obtains an access token from the passed refresh token. If "cacheItem" is passed, updates it with the additional
 //information and updates the cache:
 - (void)acquireTokenByRefreshToken:(NSString*)refreshToken
-                         cacheItem:(ADTokenCacheStoreItem*)cacheItem
+                         cacheItem:(ADTokenCacheItem*)cacheItem
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
@@ -294,7 +294,7 @@
 }
 
 - (void) validatedAcquireTokenByRefreshToken:(NSString*)refreshToken
-                                   cacheItem:(ADTokenCacheStoreItem*)cacheItem
+                                   cacheItem:(ADTokenCacheItem*)cacheItem
                              completionBlock:(ADAuthenticationCallback)completionBlock
 {
     [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:_correlationId];
@@ -336,7 +336,7 @@
           additionalHeaders:nil
                  completion:^(NSDictionary *response)
      {
-         ADTokenCacheStoreItem* resultItem = (cacheItem) ? cacheItem : [ADTokenCacheStoreItem new];
+         ADTokenCacheItem* resultItem = (cacheItem) ? cacheItem : [ADTokenCacheItem new];
          
          //Always ensure that the cache item has all of these set, especially in the broad token case, where the passed item
          //may have empty "resource" property:
@@ -358,7 +358,7 @@
      }];
 }
 
--(NSString*) createAccessTokenRequestJWTUsingRT:(ADTokenCacheStoreItem*)cacheItem
+-(NSString*) createAccessTokenRequestJWTUsingRT:(ADTokenCacheItem*)cacheItem
 {
     NSString* grantType = @"refresh_token";
     

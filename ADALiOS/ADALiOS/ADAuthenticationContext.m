@@ -28,7 +28,7 @@
 #import "ADWebRequest.h"
 #import "ADWebResponse.h"
 #import "ADInstanceDiscovery.h"
-#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheItem.h"
 #import "ADTokenCacheStoreKey.h"
 #import "ADUserInformation.h"
 #import "ADWorkPlaceJoin.h"

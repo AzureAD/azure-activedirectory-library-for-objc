@@ -17,13 +17,13 @@
 // governing permissions and limitations under the License.
 
 #import "ADALiOS.h"
-#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
 #import "ADTokenCacheStoreKey.h"
 
-@implementation ADTokenCacheStoreItem
+@implementation ADTokenCacheItem
 {
     NSUInteger _hash;
     NSString* _resource;
@@ -55,7 +55,7 @@
 
 -(id) copyWithZone:(NSZone*) zone
 {
-    ADTokenCacheStoreItem* item = [[self.class allocWithZone:zone] init];
+    ADTokenCacheItem* item = [[self.class allocWithZone:zone] init];
     
     item.resource = [self.resource copyWithZone:zone];
     item.authority = [self.authority copyWithZone:zone];
@@ -97,7 +97,7 @@
 }
 
 /*! Verifies if the user (as defined by userId) is the same between the two items. */
--(BOOL) isSameUser: (ADTokenCacheStoreItem*) other
+-(BOOL) isSameUser: (ADTokenCacheItem*) other
 {
     THROW_ON_NIL_ARGUMENT(other);
     
@@ -150,10 +150,10 @@
     if (!object)
         return NO;
     
-    if (![object isKindOfClass:[ADTokenCacheStoreItem class]])
+    if (![object isKindOfClass:[ADTokenCacheItem class]])
         return NO;
     
-    ADTokenCacheStoreItem* item = (ADTokenCacheStoreItem*)object;
+    ADTokenCacheItem* item = (ADTokenCacheItem*)object;
     
     if (self.resource && (!item.resource || ![self.resource isEqualToString:item.resource]))
     {

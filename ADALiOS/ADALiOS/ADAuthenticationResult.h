@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 #import <Foundation/Foundation.h>
 
-@class ADTokenCacheStoreItem;
+@class ADTokenCacheItem;
 @class ADAuthenticationError;
 
 typedef enum
@@ -40,7 +40,7 @@ typedef enum
 {
 @protected
     //See the corresponding properties for details.
-    ADTokenCacheStoreItem*          _tokenCacheStoreItem;
+    ADTokenCacheItem*          _tokenCacheStoreItem;
     ADAuthenticationResultStatus    _status;
     ADAuthenticationError*          _error;
     NSUUID*                         _correlationId;
@@ -55,7 +55,7 @@ typedef enum
  case of error.*/
 @property (readonly) NSString* accessToken;
 
-@property (readonly) ADTokenCacheStoreItem* tokenCacheStoreItem;
+@property (readonly) ADTokenCacheItem* tokenCacheStoreItem;
 
 /*! The error that occurred or nil, if the operation was successful */
 @property (readonly) ADAuthenticationError* error;

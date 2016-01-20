@@ -17,12 +17,12 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheItem.h"
 
 @class ADAuthenticationError;
 @class ADAuthenticationResult;
 
-@interface ADTokenCacheStoreItem (Internal)
+@interface ADTokenCacheItem (Internal)
 
 - (void)checkCorrelationId:(NSDictionary*)response
       requestCorrelationId:(NSUUID*)requestCorrelationId;

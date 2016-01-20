@@ -371,9 +371,9 @@ const int sAsyncContextTimeout = 10;
 }
 
 //Local override, using class iVars:
--(ADTokenCacheStoreItem*) adCreateCacheItem
+-(ADTokenCacheItem*) adCreateCacheItem
 {
-    ADTokenCacheStoreItem* item = [super adCreateCacheItem];
+    ADTokenCacheItem* item = [super adCreateCacheItem];
     item.resource = mResource;
     item.authority = mAuthority;
     item.clientId = mClientId;
@@ -415,7 +415,7 @@ const int sAsyncContextTimeout = 10;
                    userId: (NSString*) userId
                  resource: (NSString*) resource
 {
-    ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
+    ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
     item.resource = resource;
     item.authority = mAuthority;
     item.clientId = mClientId;
@@ -605,7 +605,7 @@ const int sAsyncContextTimeout = 10;
 }
 
 //Ensures that a cache item with the specified properties exists and returns it if found.
--(ADTokenCacheStoreItem*) verifyCacheWithResource: (NSString*) resource
+-(ADTokenCacheItem*) verifyCacheWithResource: (NSString*) resource
                                     accessToken: (NSString*) accessToken
                                    refreshToken: (NSString*) refreshToken
                                            line: (int) line
@@ -615,7 +615,7 @@ const int sAsyncContextTimeout = 10;
     ADAssertNoError;
     XCTAssertNotNil(key);
     
-    ADTokenCacheStoreItem* item = [mDefaultTokenCache getItemWithKey:key userId:mUserId error:&error];
+    ADTokenCacheItem* item = [mDefaultTokenCache getItemWithKey:key userId:mUserId error:&error];
     if (error)
     {
         [self recordFailureWithDescription:error.errorDetails inFile:@"" __FILE__ atLine:line expected:NO];
@@ -652,7 +652,7 @@ const int sAsyncContextTimeout = 10;
     NSArray* allItems = [mDefaultTokenCache allItems:&error];
     ADAssertNoError;
     XCTAssertTrue(allItems.count == 1);
-    ADTokenCacheStoreItem* item = [allItems objectAtIndex:0];
+    ADTokenCacheItem* item = [allItems objectAtIndex:0];
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];//Expire it.
     [mDefaultTokenCache addOrUpdateItem:item error:&error];//Udpate the cache.
     ADAssertNoError;
@@ -745,7 +745,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertFalse(mResult.multiResourceRefreshToken);
     //Now verify the cache contents for the new broad refresh token and the access token:
     XCTAssertEqual([self cacheCount], 2);
-    ADTokenCacheStoreItem* exactItem = [self verifyCacheWithResource:mResource accessToken:accessToken refreshToken:exactRefreshToken line:__LINE__];
+    ADTokenCacheItem* exactItem = [self verifyCacheWithResource:mResource accessToken:accessToken refreshToken:exactRefreshToken line:__LINE__];
     NSDate* expiration = exactItem.expiresOn;
     NSDate* minExpiration = [NSDate dateWithTimeIntervalSinceNow:(3500 - 10)];
     ADAssertLongEquals(NSOrderedAscending, [minExpiration compare:expiration]);
@@ -801,7 +801,7 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(3, [self cacheCount]);
     [self verifyCacheWithResource:oldResource accessToken:accessToken2 refreshToken:nil line:__LINE__];
     [self verifyCacheWithResource:nil accessToken:nil refreshToken:broadToken2 line:__LINE__];
-    ADTokenCacheStoreItem* newItem = [self verifyCacheWithResource:mResource accessToken:accessToken3 refreshToken:nil line:__LINE__];
+    ADTokenCacheItem* newItem = [self verifyCacheWithResource:mResource accessToken:accessToken3 refreshToken:nil line:__LINE__];
     
     //#4: Now try failing from both the exact and the broad refresh token to ensure that this code path
     //works. Both items should be removed from the cache. Also ensures that the credentials ask is attempted in this case.
@@ -972,7 +972,7 @@ const int sAsyncContextTimeout = 10;
                                  useAccessToken:&useAccessToken
                                           error:nil]);
     
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    ADTokenCacheItem* item = [self adCreateCacheItem];
     ADUserIdentifier* userId = [ADUserIdentifier identifierWithId:item.userInformation.userId];
     ADAuthenticationError* error;
     ADTokenCacheStoreKey* key = [item extractKey:&error];
@@ -985,13 +985,13 @@ const int sAsyncContextTimeout = 10;
     ADAssertNoError;
     
     error = nil;
-    ADTokenCacheStoreItem* extracted = [mContext extractCacheItemWithKey:key
+    ADTokenCacheItem* extracted = [mContext extractCacheItemWithKey:key
                                                                   userId:userId
                                                                    error:&error];
     ADAssertNoError;
     XCTAssertEqualObjects(item, extracted);
     error = nil;
-    ADTokenCacheStoreItem* found = [mContext findCacheItemWithKey:key
+    ADTokenCacheItem* found = [mContext findCacheItemWithKey:key
                                                            userId:userId
                                                    useAccessToken:&useAccessToken
                                                             error:&error];

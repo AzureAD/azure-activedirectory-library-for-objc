@@ -77,7 +77,7 @@
     {
         //Cache should be used in this case:
         BOOL accessTokenUsable;
-        ADTokenCacheStoreItem* cacheItem = [_context findCacheItemWithKey:key
+        ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key
                                                                    userId:_identifier
                                                            useAccessToken:&accessTokenUsable
                                                                     error:&error];
@@ -106,7 +106,7 @@
 
 /*Attemps to use the cache. Returns YES if an attempt was successful or if an
  internal asynchronous call will proceed the processing. */
-- (void)attemptToUseCacheItem:(ADTokenCacheStoreItem*)item
+- (void)attemptToUseCacheItem:(ADTokenCacheItem*)item
                useAccessToken:(BOOL)useAccessToken
                 samlAssertion:(NSString*)samlAssertion
                 assertionType:(ADAssertionType)assertionType
@@ -155,7 +155,7 @@
              {
                  BOOL useAccessToken;
                  ADAuthenticationError* error = nil;
-                 ADTokenCacheStoreItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
+                 ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
                  if (error)
                  {
                      completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);

@@ -119,7 +119,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     XCTAssertTrue([self count] == 0, "Start empty.");
     
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    ADTokenCacheItem* item = [self adCreateCacheItem];
     [mStore addOrUpdateItem:item error:nil];
     
     NSArray* allItems = [mStore allItems:nil];
@@ -135,7 +135,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAuthenticationError* error;
     XCTAssertNotNil([mStore allItems:&error]);
     ADAssertNoError;
-    ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
+    ADTokenCacheItem* item1 = [self adCreateCacheItem];
     
     //one item:
     ADD_OR_UPDATE_ITEM(item1, YES);
@@ -144,22 +144,22 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADD_OR_UPDATE_ITEM(item1, NO);
     
     //Add an item with different key:
-    ADTokenCacheStoreItem* item2 = [self adCreateCacheItem];
+    ADTokenCacheItem* item2 = [self adCreateCacheItem];
     item2.resource = @"another authority";
     ADD_OR_UPDATE_ITEM(item2, YES);
     
     //add an item with the same key, but some other change:
-    ADTokenCacheStoreItem* item3 = [self adCreateCacheItem];
+    ADTokenCacheItem* item3 = [self adCreateCacheItem];
     item3.accessToken = @"another token";
     ADD_OR_UPDATE_ITEM(item3, NO);
 
     //Add an item with the same key, but different user:
-    ADTokenCacheStoreItem* item4 = nil;
+    ADTokenCacheItem* item4 = nil;
     COPY_ITEM_WITH_NEW_USER(item4, item1, @"   another user   ");
     ADD_OR_UPDATE_ITEM(item4, YES);
     
     //Add an item with nil user:
-    ADTokenCacheStoreItem* item5 = nil;
+    ADTokenCacheItem* item5 = nil;
     COPY_ITEM_WITH_NEW_USER(item5, item1, nil);
     ADD_OR_UPDATE_ITEM(item5, YES);
     
@@ -168,7 +168,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Now few getters:
-    ADTokenCacheStoreItem* itemReturn5 = [mStore getItemWithKey:key userId:nil error:&error];
+    ADTokenCacheItem* itemReturn5 = [mStore getItemWithKey:key userId:nil error:&error];
     ADAssertLongEquals(AD_ERROR_MULTIPLE_USERS, error.code);
     XCTAssertNil(itemReturn5);
     error = nil;//Clear
@@ -202,19 +202,19 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     {
         //Create as much date as possible outside of the run loop to cause the most
         //thread contentions in the loop:
-        ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
+        ADTokenCacheItem* item1 = [self adCreateCacheItem];
         ADAuthenticationError* error;
         item1.userInformation = [ADUserInformation userInformationWithUserId:@"foo" error:nil];
         ADAssertNoError;
-        ADTokenCacheStoreItem* item2 = [self adCreateCacheItem];
+        ADTokenCacheItem* item2 = [self adCreateCacheItem];
         item2.userInformation = [ADUserInformation userInformationWithUserId:@"bar" error:nil];
         ADAssertNoError;
-        ADTokenCacheStoreItem* item3 = [self adCreateCacheItem];
+        ADTokenCacheItem* item3 = [self adCreateCacheItem];
         item3.userInformation = nil;
         ADTokenCacheStoreKey* key123 = [item3 extractKey:&error];
         ADAssertNoError;
 
-        ADTokenCacheStoreItem* item4 = [self adCreateCacheItem];
+        ADTokenCacheItem* item4 = [self adCreateCacheItem];
         item4.authority = @"https://www.authority.com/tenant.com";
         ADTokenCacheStoreKey* key4 = [item4 extractKey:&error];
         ADAssertNoError;
@@ -255,16 +255,16 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
                     ADAssertLongEquals(AD_ERROR_MULTIPLE_USERS, error.code);
                     error = nil;
                 }
-                ADTokenCacheStoreItem* return1 = [mStore getItemWithKey:key123 userId:item1.userInformation.userId error:&error];
+                ADTokenCacheItem* return1 = [mStore getItemWithKey:key123 userId:item1.userInformation.userId error:&error];
                 ADAssertNoError;
                 if (return1)//may not return if deleted in another thread
                 {
                     XCTAssertEqualObjects(item1, return1);
                 }
-                ADTokenCacheStoreItem* badUser = [mStore getItemWithKey:key123 userId:@"not real" error:&error];
+                ADTokenCacheItem* badUser = [mStore getItemWithKey:key123 userId:@"not real" error:&error];
                 ADAssertNoError;
                 XCTAssertNil(badUser);
-                ADTokenCacheStoreItem* return4 = [mStore getItemWithKey:key4 userId:nil error:&error];//Always exactly 1 or 0 elements for this key
+                ADTokenCacheItem* return4 = [mStore getItemWithKey:key4 userId:nil error:&error];//Always exactly 1 or 0 elements for this key
                 ADAssertNoError;
                 if (return4)
                 {
@@ -319,18 +319,18 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 -(void) testBulkPersistence
 {
     long numItems = 500;//Keychain is relatively slow
-    ADTokenCacheStoreItem* original = [self adCreateCacheItem];
+    ADTokenCacheItem* original = [self adCreateCacheItem];
     NSMutableArray* allItems = [NSMutableArray new];
     for (long i = 0; i < numItems; ++i)
     {
         NSString* user = [NSString stringWithFormat:@"User: %ld", i];
-        ADTokenCacheStoreItem* item = nil;
+        ADTokenCacheItem* item = nil;
         COPY_ITEM_WITH_NEW_USER(item, original, user);
         [allItems addObject:item];
     }
 
     ADAuthenticationError* error = nil;
-    for(ADTokenCacheStoreItem* item in allItems)
+    for(ADTokenCacheItem* item in allItems)
     {
         [mStore addOrUpdateItem:item error:&error];
         ADAssertNoError;
@@ -341,14 +341,14 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAssertNoError;
 }
 
--(void) verifyCacheContainsItem: (ADTokenCacheStoreItem*) item
+-(void) verifyCacheContainsItem: (ADTokenCacheItem*) item
 {
     XCTAssertNotNil(item);
     ADAuthenticationError* error;
     ADTokenCacheStoreKey* key = [item extractKey:&error];
     ADAssertNoError;
     
-    ADTokenCacheStoreItem* read = nil;
+    ADTokenCacheItem* read = nil;
     if (item.userInformation)
     {
         read = [mStore getItemWithKey:key userId:item.userInformation.userId error:&error];
@@ -359,7 +359,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
         NSArray* all = [mStore getItemsWithKey:key error:&error];
         ADAssertNoError;
         XCTAssertNotNil(all);
-        for(ADTokenCacheStoreItem* i in all)
+        for(ADTokenCacheItem* i in all)
         {
             XCTAssertNotNil(i);
             if (!i.userInformation)
@@ -389,7 +389,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 {
     //Put an item in the cache:
     ADAssertLongEquals(0, [self count]);
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    ADTokenCacheItem* item = [self adCreateCacheItem];
     ADAuthenticationError* error = nil;
     [mStore addOrUpdateItem:item error:&error];
     ADAssertNoError;

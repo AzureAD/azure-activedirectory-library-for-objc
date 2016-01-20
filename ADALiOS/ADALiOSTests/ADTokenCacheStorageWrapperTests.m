@@ -9,7 +9,7 @@
 #import <XCTest/XCTest.h>
 #import "ADCacheStorage.h"
 #import "ADTokenCacheStorageWrapper.h"
-#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheItem.h"
 #import "ADTokenCacheStoreKey.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADUserInformation.h"
@@ -122,9 +122,9 @@ static NSString* ReginaIdtoken()
     return idtoken;
 }
 
-static ADTokenCacheStoreItem* ReginaItem(NSString* resource, BOOL includeUserInfo)
+static ADTokenCacheItem* ReginaItem(NSString* resource, BOOL includeUserInfo)
 {
-    ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
+    ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
     if (includeUserInfo)
     {
         item.userInformation = [ADUserInformation userInformationWithIdToken:ReginaIdtoken() error:nil];
@@ -169,9 +169,9 @@ static NSString* CartmanIdtoken()
     return idtoken;
 }
 
-static ADTokenCacheStoreItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
+static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 {
-    ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
+    ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
     item.resource = resource;
     item.authority = TEST_AUTHORITY;
     item.clientId = TEST_CLIENT_ID;
@@ -387,8 +387,8 @@ static ADTokenCacheStoreItem* CartmanItem(NSString* resource, BOOL includeUserIn
     [wrapper setCache:tokenCache];
     
     ADAuthenticationError* error = nil;
-    ADTokenCacheStoreItem* expectedItem = CartmanItem(@"mister_kitty", YES);
-    ADTokenCacheStoreItem* actualItem = [wrapper getItemWithKey:CacheKey(@"mister_kitty") userId:CartmanUserid() error:&error];
+    ADTokenCacheItem* expectedItem = CartmanItem(@"mister_kitty", YES);
+    ADTokenCacheItem* actualItem = [wrapper getItemWithKey:CacheKey(@"mister_kitty") userId:CartmanUserid() error:&error];
     XCTAssertNotNil(actualItem);
     XCTAssertNil(error);
     XCTAssertEqualObjects(expectedItem, actualItem);
@@ -570,7 +570,7 @@ static ADTokenCacheStoreItem* CartmanItem(NSString* resource, BOOL includeUserIn
     XCTAssertNil(storage2->_cache);
     [storage2 resetFlags];
     
-    ADTokenCacheStoreItem* item1 = ReginaItem(@"popularity", YES);
+    ADTokenCacheItem* item1 = ReginaItem(@"popularity", YES);
     // Add an item into wrapper 1
     
     [wrapper1 addOrUpdateItem:item1 error:&error];
@@ -602,7 +602,7 @@ static ADTokenCacheStoreItem* CartmanItem(NSString* resource, BOOL includeUserIn
     XCTAssertEqualObjects(items[0], item1);
     
     // Add a second item into the storage with the information as the first and make sure it shows up in all items.
-    ADTokenCacheStoreItem* item2 = [item1 copy];
+    ADTokenCacheItem* item2 = [item1 copy];
     
     // We're modifying item1 to make sure that it doesn't show up in the allItems array
     item1.resource = @"Stop";

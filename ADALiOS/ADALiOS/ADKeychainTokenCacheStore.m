@@ -19,7 +19,7 @@
 #import <Security/Security.h>
 #import "ADALiOS.h"
 #import "ADKeychainTokenCacheStore.h"
-#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheItem.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADTokenCacheStoreKey.h"
 #import "ADUserInformation.h"
@@ -124,7 +124,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 #pragma mark Keychain Loggig
 
 //Log operations that result in storing or reading cache item:
-- (void)logItem:(ADTokenCacheStoreItem *)item
+- (void)logItem:(ADTokenCacheItem *)item
         message:(NSString *)additionalMessage
 {
     AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"%@ for resource <%@> + client <%@> + authority <%@>", additionalMessage, [item resource], [item clientId], [item authority]);
@@ -151,7 +151,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     }
 }
 
-- (NSString*)getTokenNameForLog:(ADTokenCacheStoreItem *)item
+- (NSString*)getTokenNameForLog:(ADTokenCacheItem *)item
 {
     NSString* tokenName = @"unknown token";
     if (![NSString adIsStringNilOrBlank:item.accessToken])
@@ -210,7 +210,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 }
 
 
-- (ADTokenCacheStoreItem*)itemFromKeyhainAttributes:(NSDictionary*)attrs
+- (ADTokenCacheItem*)itemFromKeyhainAttributes:(NSDictionary*)attrs
 {
     NSData* data = [attrs objectForKey:(id)kSecValueData];
     if (!data)
@@ -219,13 +219,13 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         return nil;
     }
     
-    ADTokenCacheStoreItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    ADTokenCacheItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
     if (!item)
     {
         AD_LOG_WARN(@"Unable to decode item from data stored in keychain.", nil, nil);
         return nil;
     }
-    if (![item isKindOfClass:[ADTokenCacheStoreItem class]])
+    if (![item isKindOfClass:[ADTokenCacheItem class]])
     {
         AD_LOG_WARN(@"Unarchived Item was not of expected class", nil, nil);
         return nil;
@@ -234,7 +234,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     return item;
 }
 
-- (NSArray<ADTokenCacheStoreItem *> *)getItemsWithKey:(ADTokenCacheStoreKey *)key
+- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheStoreKey *)key
                                                userId:(NSString *)userId
                                                 error:(ADAuthenticationError * __autoreleasing* )error
 {
@@ -245,11 +245,11 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         return nil;
     }
     
-    NSMutableArray* tokenItems = [[NSMutableArray<ADTokenCacheStoreItem *> alloc] initWithCapacity:items.count];
+    NSMutableArray* tokenItems = [[NSMutableArray<ADTokenCacheItem *> alloc] initWithCapacity:items.count];
     SAFE_ARC_AUTORELEASE(tokenItems);
     for (NSDictionary* attrs in items)
     {
-        ADTokenCacheStoreItem* item = [self itemFromKeyhainAttributes:attrs];
+        ADTokenCacheItem* item = [self itemFromKeyhainAttributes:attrs];
         if (!item)
         {
             continue;
@@ -266,10 +266,10 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 #pragma mark -
 #pragma mark ADTokenCacheStoring implementation
 
-/*! Return a copy of all items. The array will contain ADTokenCacheStoreItem objects,
+/*! Return a copy of all items. The array will contain ADTokenCacheItem objects,
  containing all of the cached information. Returns an empty array, if no items are found.
  Returns nil in case of error. */
-- (NSArray<ADTokenCacheStoreItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
+- (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
     return [self getItemsWithKey:nil error:error];
 }
@@ -281,7 +281,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
  @param error: Will be set only in case of ambiguity. E.g. if userId is nil
  and we have tokens from multiple users. If the cache item is not present,
  the error will not be set. */
-- (ADTokenCacheStoreItem*)getItemWithKey:(ADTokenCacheStoreKey *)key
+- (ADTokenCacheItem*)getItemWithKey:(ADTokenCacheStoreKey *)key
                                   userId:(NSString *)userId
                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
@@ -311,9 +311,9 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 
 /*! Returns all of the items for a given key. Multiple items may present,
  if the same resource was accessed by more than one user. The returned
- array should contain only ADTokenCacheStoreItem objects. Returns an empty array,
+ array should contain only ADTokenCacheItem objects. Returns an empty array,
  if no items are found. Returns nil (and sets the error parameter) in case of error.*/
-- (NSArray<ADTokenCacheStoreItem *> *)getItemsWithKey:(ADTokenCacheStoreKey *)key
+- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheStoreKey *)key
                                                 error:(ADAuthenticationError * __autoreleasing *)error
 {
     return [self getItemsWithKey:key userId:nil error:error];
@@ -343,7 +343,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
  if an item already exists for the same key.
  @param error: in case of an error, if this parameter is not nil, it will be filled with
  the error details. */
-- (void)addOrUpdateItem:(ADTokenCacheStoreItem *)item
+- (void)addOrUpdateItem:(ADTokenCacheItem *)item
                   error:(ADAuthenticationError * __autoreleasing *)error
 {
     @synchronized(self)
@@ -384,7 +384,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 }
 
 /*! Clears token cache details for specific keys.
- @param key: the key of the cache item. Key can be extracted from the ADTokenCacheStoreItem using
+ @param key: the key of the cache item. Key can be extracted from the ADTokenCacheItem using
  the method 'extractKey'
  @param userId: The user for which the item will be removed. Can be nil, in which case items for all users with
  the specified key will be removed.

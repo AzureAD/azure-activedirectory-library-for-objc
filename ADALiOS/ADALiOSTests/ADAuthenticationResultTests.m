@@ -19,7 +19,7 @@
 #import <XCTest/XCTest.h>
 #import "../ADALiOS/ADAuthenticationContext.h"
 #import "../ADALiOS/ADAuthenticationResult+Internal.h"
-#import "../ADALiOS/ADTokenCacheStoreItem.h"
+#import "../ADALiOS/ADTokenCacheItem.h"
 #import "XCTestCase+TestHelperMethods.h"
 
 @interface ADAuthenticationResultTests : XCTestCase
@@ -76,7 +76,7 @@
 }
 
 -(void) verifyResult: (ADAuthenticationResult*) resultFromItem
-                item: (ADTokenCacheStoreItem*) item
+                item: (ADTokenCacheItem*) item
 {
     XCTAssertNotNil(resultFromItem);
     XCTAssertEqual(resultFromItem.status, AD_SUCCEEDED, "Result should be success.");
@@ -95,7 +95,7 @@
     VERIFY_RESULT(nilItemResult, AD_FAILED, AD_ERROR_UNEXPECTED);
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
-    ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
+    ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
     item.resource = @"resource";
     item.authority = @"https://login.windows.net/mytennant.com";
     item.clientId = @"clientId";

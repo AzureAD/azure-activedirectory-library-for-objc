@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADKeychainTokenCacheStore+InternalTest.h"
-#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
 
 @implementation ADKeychainTokenCacheStore (InternalTest)

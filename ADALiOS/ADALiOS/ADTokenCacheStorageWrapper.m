@@ -15,7 +15,7 @@
 //    |- tokenCache - an NSDictionary
 //          |- tokens   - a NSDictionary containing all the tokens
 //          |     |- [<user_id> - an NSDictionary, keyed off of an NSString of the userId
-//          |            |- <ADTokenCacheStoreKey> - An ADTokenCacheStoreItem, keyed with an ADTokenCacheStoreKey
+//          |            |- <ADTokenCacheStoreKey> - An ADTokenCacheItem, keyed with an ADTokenCacheStoreKey
 //          |- idtokens - An NSDictionary containing all of the idtokens, keyed off of the userID
 //
 //
@@ -28,7 +28,7 @@
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "ADTokenCacheStoreKey.h"
-#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
 
 #define CHECK_ERROR(_cond, _code, _details) { \
@@ -91,7 +91,7 @@
                 // On the first level we're expecting NSDictionaries keyed off of ADTokenCacheStoreKey
                 CHECK_ERROR([adkey isKindOfClass:[ADTokenCacheStoreKey class]], AD_ERROR_BAD_CACHE_FORMAT, @"Key is not the expected class");
                 id token = [userDict objectForKey:adkey];
-                CHECK_ERROR([token isKindOfClass:[ADTokenCacheStoreItem class]], AD_ERROR_BAD_CACHE_FORMAT, @"Token is not of expected class type!");
+                CHECK_ERROR([token isKindOfClass:[ADTokenCacheItem class]], AD_ERROR_BAD_CACHE_FORMAT, @"Token is not of expected class type!");
             }
         }
     }
@@ -186,7 +186,7 @@
                key:(nonnull ADTokenCacheStoreKey *)key
           userInfo:(ADUserInformation *)userInfo
 {
-    ADTokenCacheStoreItem* item = [dictionary objectForKey:key];
+    ADTokenCacheItem* item = [dictionary objectForKey:key];
     if (item)
     {
         item.userInformation = userInfo;
@@ -231,7 +231,7 @@
     }
 }
 
-- (NSArray<ADTokenCacheStoreItem *> *)getItemsWithKey:(nullable ADTokenCacheStoreKey *)key
+- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheStoreKey *)key
                                                userId:(nullable NSString *)userId
                                                 error:(ADAuthenticationError *__autoreleasing *)error
 {
@@ -277,10 +277,10 @@
 #pragma mark -
 #pragma mark ADTokenCacheStorage Protocol Implementation
 
-/*! Return a copy of all items. The array will contain ADTokenCacheStoreItem objects,
+/*! Return a copy of all items. The array will contain ADTokenCacheItem objects,
  containing all of the cached information. Returns an empty array, if no items are found.
  Returns nil in case of error. */
-- (NSArray<ADTokenCacheStoreItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
+- (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
     return [self getItemsWithKey:nil userId:nil error:error];
 }
@@ -292,11 +292,11 @@
  @param error: Will be set only in case of ambiguity. E.g. if userId is nil
  and we have tokens from multiple users. If the cache item is not present,
  the error will not be set. */
-- (ADTokenCacheStoreItem *)getItemWithKey:(ADTokenCacheStoreKey *)key
+- (ADTokenCacheItem *)getItemWithKey:(ADTokenCacheStoreKey *)key
                                    userId:(NSString *)userId
                                     error:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSArray<ADTokenCacheStoreItem *> * items = [self getItemsWithKey:key userId:userId error:error];
+    NSArray<ADTokenCacheItem *> * items = [self getItemsWithKey:key userId:userId error:error];
     if (!items || items.count == 0)
     {
         return nil;
@@ -322,9 +322,9 @@
 
 /*! Returns all of the items for a given key. Multiple items may present,
  if the same resource was accessed by more than one user. The returned
- array should contain only ADTokenCacheStoreItem objects. Returns an empty array,
+ array should contain only ADTokenCacheItem objects. Returns an empty array,
  if no items are found. Returns nil (and sets the error parameter) in case of error.*/
-- (NSArray<ADTokenCacheStoreItem *> *)getItemsWithKey:(ADTokenCacheStoreKey*)key
+- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheStoreKey*)key
                                                 error:(ADAuthenticationError* __autoreleasing*)error
 {
     return [self getItemsWithKey:key userId:nil error:error];
@@ -335,7 +335,7 @@
  if an item already exists for the same key.
  @param error: in case of an error, if this parameter is not nil, it will be filled with
  the error details. */
-- (void)addOrUpdateItem:(ADTokenCacheStoreItem *)item
+- (void)addOrUpdateItem:(ADTokenCacheItem *)item
                   error:(ADAuthenticationError * __autoreleasing*)error
 {
     if (![self checkCache:error])
@@ -415,7 +415,7 @@
 }
 
 /*! Clears token cache details for specific keys.
- @param key: the key of the cache item. Key can be extracted from the ADTokenCacheStoreItem using
+ @param key: the key of the cache item. Key can be extracted from the ADTokenCacheItem using
  the method 'extractKeyWithError'
  @param userId: The user for which the item will be removed. Can be nil, in which case items for all users with
  the specified key will be removed.

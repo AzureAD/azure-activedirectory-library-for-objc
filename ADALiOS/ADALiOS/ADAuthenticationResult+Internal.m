@@ -20,7 +20,7 @@
 #import "ADALiOS.h"
 #import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
-#import "ADTokenCacheStoreItem+Internal.h"
+#import "ADTokenCacheItem+Internal.h"
 #import "ADOAuth2Constants.h"
 #import "ADUserInformation.h"
 
@@ -33,7 +33,7 @@
     return [self initWithError:error status:AD_USER_CANCELLED correlationId:correlationId];
 }
 
--(id) initWithItem: (ADTokenCacheStoreItem*) item
+-(id) initWithItem: (ADTokenCacheItem*) item
 multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
      correlationId: (NSUUID*) correlationId
 {
@@ -64,7 +64,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return self;
 }
 
-+ (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheStoreItem *)item
++ (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheItem *)item
                                multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
                                            correlationId:(NSUUID *)correlationId
 {
@@ -113,7 +113,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 
 +(ADAuthenticationResult*) resultFromBrokerResponse: (NSDictionary*) response
 {
-    ADTokenCacheStoreItem* item = nil;
+    ADTokenCacheItem* item = nil;
     
     NSUUID* correlationId = [response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
                             [[NSUUID alloc] initWithUUIDString:[response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]]
@@ -144,7 +144,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
     }
     
-    item = [ADTokenCacheStoreItem new];
+    item = [ADTokenCacheItem new];
     [item setAccessTokenType:@"Bearer"];
     BOOL isMRRT = [item fillItemWithResponse:response];
     return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:isMRRT correlationId:correlationId];

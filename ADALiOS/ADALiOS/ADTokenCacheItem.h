@@ -24,7 +24,7 @@
 /*! Contains all cached elements for a given request for a token.
     Objects of this class are used in the key-based token cache store.
     See the key extraction function for details on how the keys are constructed. */
-@interface ADTokenCacheStoreItem : NSObject<NSCopying , NSSecureCoding>
+@interface ADTokenCacheItem : NSObject<NSCopying , NSSecureCoding>
 
 /*! Applicable resource. Should be nil, in case the item stores multi-resource refresh token. */
 @property (retain) NSString* resource;
@@ -65,6 +65,6 @@
 - (BOOL)isEmptyUser;
 
 /*! Verifies if the user (as defined by userId) is the same between the two items. */
-- (BOOL)isSameUser:(ADTokenCacheStoreItem *)other;
+- (BOOL)isSameUser:(ADTokenCacheItem *)other;
 
 @end

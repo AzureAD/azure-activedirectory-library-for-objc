@@ -28,7 +28,7 @@ typedef enum
     TEST_LOG_CODE,
 } ADLogPart;
 
-@class ADTokenCacheStoreItem;
+@class ADTokenCacheItem;
 @class ADUserInformation;
 
 @interface XCTestCase (HelperMethods)
@@ -81,7 +81,7 @@ typedef enum
                             line: (int) line;
 
 //Creates a new item with all of the properties having correct values
--(ADTokenCacheStoreItem*) adCreateCacheItem;
+-(ADTokenCacheItem*) adCreateCacheItem;
 
 //Creates a sample user information object
 -(ADUserInformation*) adCreateUserInformation;
