@@ -312,7 +312,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     }
     NSMutableSet* users = [NSMutableSet new];
     NSMutableString* usersStr = [NSMutableString new];
-    for(ADTokenCacheStoreItem* item in array)
+    for(ADTokenCacheItem* item in array)
     {
         ADUserInformation *user = item.userInformation;
         if (!item.userInformation)
@@ -347,7 +347,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
         [self appendToResults:error.errorDetails];
         return;
     }
-    for(ADTokenCacheStoreItem* item in array)
+    for(ADTokenCacheItem* item in array)
     {
         item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
         [cache addOrUpdateItem:item error:&error];
