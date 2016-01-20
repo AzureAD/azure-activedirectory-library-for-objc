@@ -14,13 +14,11 @@
 // PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
 //
 // See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
-
-#import "ADTokenCacheEnumerator.h"
+// governing permissions and limitations under the License
 
 @class ADKeyChainHelper;
 
-@interface ADKeychainTokenCache : NSObject<ADTokenCacheEnumerator>
+@interface ADKeychainTokenCache : NSObject
 
 @property (readonly) NSString* sharedGroup;
 
@@ -34,15 +32,5 @@
  shared group here and add the necessary entitlements to the application.
  See Apple's keychain services documentation for details. */
 - (id)initWithGroup:(NSString *)sharedGroup;
-
-+ (BOOL)checkStatus:(OSStatus)status
-            details:(NSString*)details
-              error:(ADAuthenticationError* __autoreleasing *)error;
-
-- (NSMutableDictionary *)queryDictionaryForKey:(ADTokenCacheStoreKey *)key
-                                        userId:(NSString *)userId
-                                    additional:(NSDictionary*)additional;
-
-- (NSString*)keychainKeyFromCacheKey:(ADTokenCacheStoreKey *)itemKey;
 
 @end

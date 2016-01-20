@@ -16,16 +16,21 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import "ADKeychainTokenCache.h"
+#import "ADTokenCacheAccessor.h"
 
-#import "ADLogger.h"
-#import "ADAuthenticationContext.h"
-#import "ADAuthenticationError.h"
-#import "ADAuthenticationResult.h"
-#import "ADTokenCacheItem.h"
-#import "ADUserInformation.h"
-#import "ADTokenCacheStoreKey.h"
-#import "ADAuthenticationSettings.h"
-#import "ADAuthenticationBroker.h"
-#import "ADErrorCodes.h"
-#import "ADAuthenticationParameters.h"
-#import "ADUserIdentifier.h"
+@class ADTokenCacheStoreKey;
+
+@interface ADKeychainTokenCache (Internal) <ADTokenCacheAccessor>
+
++ (BOOL)checkStatus:(OSStatus)status
+            details:(NSString*)details
+              error:(ADAuthenticationError* __autoreleasing *)error;
+
+- (NSMutableDictionary *)queryDictionaryForKey:(ADTokenCacheStoreKey *)key
+                                        userId:(NSString *)userId
+                                    additional:(NSDictionary*)additional;
+
+- (NSString*)keychainKeyFromCacheKey:(ADTokenCacheStoreKey *)itemKey;
+
+@end

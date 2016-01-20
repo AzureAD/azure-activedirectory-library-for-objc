@@ -38,19 +38,10 @@
     ADAuthenticationError* localError;
     ADTokenCacheItem* item = [self.tokenCacheStore getItemWithKey:key userId:userId.userId error:&localError];
     if (!item && !localError && userId)
-    {//ADFS fix, where the userId is not received by the server, but can be passed to the API:
-        //We didn't find element with the userId, try finding an item with nil userId:
-        NSArray* items = [self.tokenCacheStore getItemsWithKey:key error:&localError];
-        if(items.count) {
-            item = items.firstObject;
-        }else{
-            item = nil;
-        }
-        
-        if (item && item.userInformation)
-        {
-            item = nil;//Different user id, just clear.
-        }
+    {
+        //ADFS fix, where the userId is not received by the server, but can be passed to the API:
+        //We didn't find element with the userId, try finding an item with a blank userId:
+        item = [self.tokenCacheStore getItemWithKey:key userId:@"" error:&localError];
     }
     if (error && localError)
     {
@@ -95,7 +86,7 @@
         else
         {
             //We have a cache item that cannot be used anymore, remove it from the cache:
-            [self.tokenCacheStore removeItemWithKey:key userId:userId.userId error:nil];
+            [self.tokenCacheStore removeItem:item error:nil];
         }
     }
     *useAccessToken = false;//No item with suitable access token exists
@@ -139,7 +130,7 @@
 }
 
 - (void)updateCacheToResult:(ADAuthenticationResult*)result
-              cacheInstance:(id<ADTokenCacheEnumerator>)tokenCacheStoreInstance
+              cacheInstance:(id<ADTokenCacheAccessor>)tokenCacheStoreInstance
                   cacheItem:(ADTokenCacheItem*)cacheItem
            withRefreshToken:(NSString*)refreshToken
 {
@@ -203,7 +194,7 @@
                 if ([refreshToken isEqualToString:existing.refreshToken])//If still there, attempt to remove
                 {
                     AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Removing cache for resource: %@", cacheItem.resource);
-                    [tokenCacheStoreInstance removeItemWithKey:exactKey userId:existing.userInformation.userId error:nil];
+                    [tokenCacheStoreInstance removeItem:existing error:nil];
                     removed = YES;
                 }
             }
@@ -218,7 +209,7 @@
                     if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
                     {
                         AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Removing multi-resource refresh token for authority: %@", self.authority);
-                        [tokenCacheStoreInstance removeItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
+                        [tokenCacheStoreInstance removeItem:broadItem error:nil];
                     }
                 }
             }

@@ -18,12 +18,12 @@
 
 
 #import <Foundation/Foundation.h>
-#import "ADTokenCacheEnumerator.h"
 
 #define CURRENT_WRAPPER_CACHE_VERSION 1.0
 
 @class ADAuthenticationError;
 @class ADTokenCache;
+@class ADTokenCacheItem;
 
 @protocol ADTokenCacheDelegate <NSObject>
 
@@ -34,7 +34,7 @@
 
 @end
 
-@interface ADTokenCache : NSObject <ADTokenCacheEnumerator>
+@interface ADTokenCache : NSObject
 {
     NSMutableDictionary* _cache;
     id<ADTokenCacheDelegate> _delegate;
@@ -42,12 +42,12 @@
 
 - (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate;
 
-- (nullable NSArray<ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheStoreKey *)key
-                                                        userId:(nullable NSString *)userId
-                                                         error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
-- (void)updateStorage;
-- (BOOL)checkCache:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
-- (BOOL)validateCache:(nullable NSDictionary *)dict
-                error:(ADAuthenticationError * __nullable  __autoreleasing * __nullable)error;
+- (nullable NSData *)serialize:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (BOOL)deserialize:(nullable NSData*)data
+              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+
+- (nullable NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
+             error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 @end

@@ -42,7 +42,8 @@
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationRequest.h"
 #import "ADTokenCache.h"
-#import "ADKeychainTokenCache.h"
+#import "ADKeychainTokenCache+Internal.h"
+#import "ADTokenCacheAccessor.h"
 
 #import "ADAuthenticationContext+Internal.h"
 
@@ -69,7 +70,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 @implementation ADAuthenticationContext
 {
-    id <ADTokenCacheEnumerator> _tokenCacheStore;
+    id <ADTokenCacheAccessor> _tokenCacheStore;
 }
 
 + (void) load
@@ -404,7 +405,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 @implementation ADAuthenticationContext (CacheStorage)
 
-- (id<ADTokenCacheEnumerator>)tokenCacheStore
+- (id<ADTokenCacheAccessor>)tokenCacheStore
 {
     return _tokenCacheStore;
 }

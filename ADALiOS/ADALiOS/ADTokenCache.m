@@ -43,6 +43,7 @@
 #import "ADTokenCacheStoreKey.h"
 #import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
+#import "ADTokenCache+Internal.h"
 
 #define CHECK_ERROR(_cond, _code, _details) { \
     if (!(_cond)) { \
@@ -53,6 +54,21 @@
 }
 
 @implementation ADTokenCache
+
+- (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate
+{
+    _delegate = delegate;
+    _cache = nil;
+    
+    if (!delegate)
+    {
+        return;
+    }
+    
+    [_delegate willAccessCache:self];
+    
+    [_delegate didAccessCache:self];
+}
 
 - (BOOL)validateCache:(NSDictionary*)dict
                 error:(ADAuthenticationError * __autoreleasing *)error
@@ -417,35 +433,41 @@
  the specified key will be removed.
  The method does not raise an error, if the item is not found.
  */
-- (void)removeItemWithKey:(ADTokenCacheStoreKey *)key
-                   userId:(NSString *)userId
-                    error:(ADAuthenticationError * __autoreleasing *)error
+- (BOOL)removeItem:(ADTokenCacheItem *)item
+             error:(ADAuthenticationError * __autoreleasing *)error
 {
     if (![self checkCache:error])
     {
-        return;
+        return NO;
     }
     
+    ADTokenCacheStoreKey* key = [item extractKey:error];
+    if (!key)
+    {
+        return NO;
+    }
+    
+    NSString* userId = item.userInformation.userId;
     if (!userId)
     {
-        userId = (NSString*)[NSNull null];
+        userId = @"";
     }
     
     NSMutableDictionary* tokens = [_cache objectForKey:@"tokens"];
     if (!tokens)
     {
-        return;
+        return YES;
     }
     
     NSMutableDictionary* userTokens = [tokens objectForKey:userId];
     if (!userTokens)
     {
-        return;
+        return YES;
     }
     
     if (![userTokens objectForKey:key])
     {
-        return;
+        return YES;
     }
     
     [userTokens removeObjectForKey:key];
@@ -457,7 +479,7 @@
         [[_cache objectForKey:@"idtokens"] removeObjectForKey:userId];
     }
     
-    [self updateStorage:error];
+    return [self updateStorage:error];
 }
 
 @end

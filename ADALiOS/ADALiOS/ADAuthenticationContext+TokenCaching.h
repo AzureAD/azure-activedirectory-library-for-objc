@@ -16,7 +16,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADTokenCacheEnumerator.h"
+#import "ADTokenCacheAccessor.h"
 
 @interface ADAuthenticationContext (TokenCaching)
 
@@ -33,7 +33,7 @@
                   cacheItem:(ADTokenCacheItem*)cacheItem
            withRefreshToken:(NSString*)refreshToken;
 - (void)updateCacheToResult:(ADAuthenticationResult*)result
-              cacheInstance:(id<ADTokenCacheEnumerator>)tokenCacheStoreInstance
+              cacheInstance:(id<ADTokenCacheAccessor>)tokenCacheStoreInstance
                   cacheItem:(ADTokenCacheItem*)cacheItem
            withRefreshToken:(NSString*)refreshToken;
 

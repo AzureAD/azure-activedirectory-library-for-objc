@@ -17,7 +17,6 @@
 // governing permissions and limitations under the License.
 #import <Foundation/Foundation.h>
 
-@protocol ADTokenCacheEnumerator;
 /*! The class stores global settings for the ADAL library. It is a singleton class
  and the alloc, init and new should not be called directly. The "sharedInstance" selector
  should be used instead to provide the settings instance. The class is not thread-safe.
