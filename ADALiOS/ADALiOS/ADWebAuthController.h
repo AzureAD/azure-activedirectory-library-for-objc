@@ -22,11 +22,8 @@
 
 @interface ADWebAuthController : NSObject
 
-+ (ADWebAuthController *)sharedInstance;
-
 //Cancel the web authentication session which might be happening right now
 //Note that it only works if there's an active web authentication session going on
-- (void)cancelCurrentWebAuthSession;
-- (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError*)error;
++ (void)cancelCurrentWebAuthSession;
 
 @end

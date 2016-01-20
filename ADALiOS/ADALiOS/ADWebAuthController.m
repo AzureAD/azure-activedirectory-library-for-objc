@@ -112,9 +112,9 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
     return self;
 }
 
-- (void)cancelCurrentWebAuthSession
++ (void)cancelCurrentWebAuthSession
 {
-    [self webAuthenticationDidCancel];
+    [[ADWebAuthController sharedInstance] webAuthenticationDidCancel];
 }
 
 - (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError*)error

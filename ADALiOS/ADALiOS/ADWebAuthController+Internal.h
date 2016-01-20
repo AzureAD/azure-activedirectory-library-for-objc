@@ -23,6 +23,8 @@
 typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 @interface ADWebAuthController (Internal)
 
++ (ADWebAuthController *)sharedInstance;
+
 // Start the authentication process. Note that there are two different behaviours here dependent on whether the caller has provided
 // a WebView to host the browser interface. If no WebView is provided, then a full window is launched that hosts a WebView to run
 // the authentication process.
@@ -34,5 +36,9 @@ parentController:(UIViewController *)parent
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID*)correlationId
    completion: (ADBrokerCallback) completionBlock;
+
+//Cancel the web authentication session which might be happening right now
+//Note that it only works if there's an active web authentication session going on
+- (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError*)error;
 
 @end
