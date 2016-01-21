@@ -42,7 +42,7 @@
 
 - (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate;
 
-- (nullable NSData *)serialize:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (nullable NSData *)serialize;
 - (BOOL)deserialize:(nullable NSData*)data
               error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 

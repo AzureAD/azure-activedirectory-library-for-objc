@@ -21,14 +21,8 @@
 
 @interface ADTokenCache (Internal) <ADTokenCacheAccessor>
 
-- (void)updateStorage;
-- (BOOL)checkCache:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 - (BOOL)validateCache:(nullable NSDictionary *)dict
                 error:(ADAuthenticationError * __nullable  __autoreleasing * __nullable)error;
-
-- (nullable NSArray<ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheStoreKey *)key
-                                                   userId:(nullable NSString *)userId
-                                                    error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 @end
 
