@@ -140,4 +140,67 @@
     XCTAssertEqualObjects(result.tokenCacheItem.userInformation.userId, @"myfakeuser@contoso.com");
 }
 
+- (void)testBrokerOldErrorResponse
+{
+    // Older versions of the broker send the protocol code in "code", the error details in "error_details" and
+    // nothing else. Let's at least try to use all this info.
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    NSDictionary* response = @{
+                               @"code" : @"could_not_compute",
+                               @"error_description" : @"EXTERMINATE!!!!!!",
+                               @"correlation_id" : @"5EF4B8D0-A734-441B-887D-FBB8257C0784"
+                               };
+    
+    ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:response];
+    
+    XCTAssertNotNil(result);
+    XCTAssertNil(result.tokenCacheItem);
+    XCTAssertNotNil(result.error);
+    XCTAssertEqualObjects(result.error.errorDetails, @"EXTERMINATE!!!!!!");
+    XCTAssertEqualObjects(result.error.protocolCode, @"could_not_compute");
+    XCTAssertEqualObjects(result.correlationId, [[NSUUID alloc] initWithUUIDString:@"5EF4B8D0-A734-441B-887D-FBB8257C0784"]);
+    XCTAssertEqual(result.error.code, AD_ERROR_BROKER_UNKNOWN);
+}
+
+- (void)testBrokerFullErrorResponse
+{
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    NSDictionary* response = @{
+                               @"error_code" : @"5",
+                               @"protocol_code" : @"wibbly_wobbly",
+                               @"error_description" : @"timey wimey",
+                               @"correlation_id" : @"5EF4B8D0-A734-441B-887D-FBB8257C0784"
+                               };
+
+    ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:response];
+    
+    XCTAssertNotNil(result);
+    XCTAssertNil(result.tokenCacheItem);
+    XCTAssertNotNil(result.error);
+    XCTAssertEqualObjects(result.error.errorDetails, @"timey wimey");
+    XCTAssertEqualObjects(result.error.protocolCode, @"wibbly_wobbly");
+    XCTAssertEqual(result.error.code, 5);
+    XCTAssertEqualObjects(result.correlationId, [[NSUUID alloc] initWithUUIDString:@"5EF4B8D0-A734-441B-887D-FBB8257C0784"]);
+}
+
+- (void)testBrokerNonNetworkResponse
+{
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    NSDictionary* response = @{
+                               @"error_code" : @"6",
+                               @"error_description" : @"I can't find my pants.",
+                               @"correlation_id" : @"5EF4B8D0-A734-441B-887D-FBB8257C0784"
+                               };
+    
+    ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:response];
+    
+    XCTAssertNotNil(result);
+    XCTAssertNil(result.tokenCacheItem);
+    XCTAssertNotNil(result.error);
+    XCTAssertEqualObjects(result.error.errorDetails, @"I can't find my pants.");
+    XCTAssertNil(result.error.protocolCode);
+    XCTAssertEqual(result.error.code, 6);
+    XCTAssertEqualObjects(result.correlationId, [[NSUUID alloc] initWithUUIDString:@"5EF4B8D0-A734-441B-887D-FBB8257C0784"]);
+}
+
 @end

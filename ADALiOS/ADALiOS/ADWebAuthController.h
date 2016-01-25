@@ -16,16 +16,14 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+@class ADAuthenticationError;
 
-#import "ADLogger.h"
 #import "ADAuthenticationContext.h"
-#import "ADAuthenticationError.h"
-#import "ADAuthenticationResult.h"
-#import "ADTokenCacheItem.h"
-#import "ADUserInformation.h"
-#import "ADTokenCacheStoreKey.h"
-#import "ADAuthenticationSettings.h"
-#import "ADWebAuthController.h"
-#import "ADErrorCodes.h"
-#import "ADAuthenticationParameters.h"
-#import "ADUserIdentifier.h"
+
+@interface ADWebAuthController : NSObject
+
+//Cancel the web authentication session which might be happening right now
+//Note that it only works if there's an active web authentication session going on
++ (void)cancelCurrentWebAuthSession;
+
+@end

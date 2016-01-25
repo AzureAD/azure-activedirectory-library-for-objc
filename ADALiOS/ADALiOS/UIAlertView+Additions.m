@@ -1,5 +1,5 @@
 #import <objc/runtime.h>
-#import "ADAuthenticationBroker.h"
+#import "ADWebAuthController.h"
 #import "ADALFrameworkUtils.h"
 
 @implementation UIAlertView (Additions)

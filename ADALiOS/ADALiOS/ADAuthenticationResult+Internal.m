@@ -111,43 +111,88 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return [result initWithCancellation:correlationId];
 }
 
-+(ADAuthenticationResult*) resultFromBrokerResponse: (NSDictionary*) response
++ (ADAuthenticationResult*)resultForNoBrokerResponse
 {
-    ADTokenCacheItem* item = nil;
-    
-    NSUUID* correlationId = [response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
+    NSError* nsError = [NSError errorWithDomain:ADBrokerResponseErrorDomain
+                                           code:AD_ERROR_BROKER_UNKNOWN
+                                       userInfo:nil];
+    ADAuthenticationError* error = [ADAuthenticationError errorFromNSError:nsError
+                                                              errorDetails: @"No broker response received."];
+    return [ADAuthenticationResult resultFromError:error correlationId:nil];
+}
+
++ (ADAuthenticationResult*)resultForBrokerErrorResponse:(NSDictionary*)response
+{
+	NSUUID* correlationId = [response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
                             [[NSUUID alloc] initWithUUIDString:[response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]]
                             : nil;
     
-    if(!response || [response valueForKey:OAUTH2_ERROR_DESCRIPTION])
+    // Otherwise parse out the error condition
+    ADAuthenticationError* error = nil;
+    
+    NSString* errorDetails = [response valueForKey:OAUTH2_ERROR_DESCRIPTION];
+    if (!errorDetails)
     {
-        ADAuthenticationError* error = nil;
-        NSString* errorDetails = nil;
-        NSInteger errorCode = 0;
-        if (response)
-        {
-            errorDetails = [response valueForKey:OAUTH2_ERROR_DESCRIPTION];
-            errorCode = [[response valueForKey:@"error_code"] integerValue];
-            
-            if (!errorDetails)
-            {
-                errorDetails = @"Broker did not provide any details";
-            }
-        }
-        else
-        {
-            errorDetails = @"No broker response received.";
-        }
+        errorDetails = @"Broker did not provide any details";
+    }
         
-        error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADBrokerResponseErrorDomain code:errorCode userInfo:nil] errorDetails:errorDetails];
-        
-        return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
+    NSString* strErrorCode = [response valueForKey:@"error_code"];
+    NSInteger errorCode = AD_ERROR_BROKER_UNKNOWN;
+    if (strErrorCode && ![strErrorCode isEqualToString:@"0"])
+    {
+        errorCode = [strErrorCode integerValue];
     }
     
-    item = [ADTokenCacheItem new];
+    NSString* protocolCode = [response valueForKey:@"protocol_code"];
+    if (!protocolCode)
+    {
+        // Older brokers used to send the protocol code as "code" and the error code not at all
+        protocolCode = [response valueForKey:@"code"];
+    }
+    
+    if (![NSString adIsStringNilOrBlank:protocolCode])
+    {
+       
+        error = [ADAuthenticationError errorFromAuthenticationError:errorCode
+                                                       protocolCode:protocolCode
+                                                       errorDetails:errorDetails];
+    }
+    else
+    {
+        NSError* nsError = [NSError errorWithDomain:ADBrokerResponseErrorDomain
+                                               code:errorCode
+                                           userInfo:nil];
+        error = [ADAuthenticationError errorFromNSError:nsError errorDetails:errorDetails];
+    }
+    
+    return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
+
+}
+
++ (ADAuthenticationResult *)resultFromBrokerResponse:(NSDictionary *)response
+{
+    if (!response)
+    {
+        return [self resultForNoBrokerResponse];
+    }
+    
+    if ([response valueForKey:OAUTH2_ERROR_DESCRIPTION])
+    {
+        return [self resultForBrokerErrorResponse:response];
+    }
+    
+    NSUUID* correlationId =  nil;
+    NSString* correlationIdStr = [response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE];
+    if (correlationIdStr)
+    {
+        correlationId = [[NSUUID alloc] initWithUUIDString:correlationIdStr];
+    }
+
+    ADTokenCacheItem* item = [ADTokenCacheItem new];
     [item setAccessTokenType:@"Bearer"];
     BOOL isMRRT = [item fillItemWithResponse:response];
     return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:isMRRT correlationId:correlationId];
+    
 }
 
 @end
