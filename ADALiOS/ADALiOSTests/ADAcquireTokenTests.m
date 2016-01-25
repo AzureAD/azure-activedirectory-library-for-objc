@@ -19,7 +19,6 @@
 #import <XCTest/XCTest.h>
 #import "ADAL.h"
 #import "ADAuthenticationContext+Internal.h"
-#import "ADTestTokenCacheStore.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
 #import "ADWebRequest.h"
@@ -28,6 +27,7 @@
 #import "ADAuthenticationSettings.h"
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADTestURLConnection.h"
+#import "ADTokenCache+Internal.h"
 
 const int sAsyncContextTimeout = 10;
 

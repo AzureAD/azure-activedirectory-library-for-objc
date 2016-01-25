@@ -44,7 +44,6 @@
 		8B79592118F5ECA700EBF96E /* ADLogger.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B92DB6E181B2335004AAB0E /* ADLogger.h */; };
 		8B7AD62118972E3D00652DDE /* NSURLExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B7AD62018972E3D00652DDE /* NSURLExtensionsTests.m */; };
 		8B7E6FC81856A1E8000DC3C8 /* ADOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B7E6FC71856A1E8000DC3C8 /* ADOAuth2Constants.m */; };
-		8B81CE3418188728005CFD65 /* ADTestTokenCacheStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B81CE3318188728005CFD65 /* ADTestTokenCacheStore.m */; };
 		8B8FD79B188223770070B1BE /* ADKeychainTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B8FD79A188223770070B1BE /* ADKeychainTokenCache.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		8B92DB5F1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB5E1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m */; };
 		8B92DB671819FA61004AAB0E /* ADTestNSStringHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB661819FA61004AAB0E /* ADTestNSStringHelperMethods.m */; };
@@ -198,8 +197,6 @@
 		8B7AD62018972E3D00652DDE /* NSURLExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSURLExtensionsTests.m; sourceTree = "<group>"; };
 		8B7E6FC61856A1E8000DC3C8 /* ADOAuth2Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADOAuth2Constants.h; sourceTree = "<group>"; };
 		8B7E6FC71856A1E8000DC3C8 /* ADOAuth2Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADOAuth2Constants.m; sourceTree = "<group>"; };
-		8B81CE3218188728005CFD65 /* ADTestTokenCacheStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestTokenCacheStore.h; sourceTree = "<group>"; };
-		8B81CE3318188728005CFD65 /* ADTestTokenCacheStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestTokenCacheStore.m; sourceTree = "<group>"; };
 		8B8FD799188223770070B1BE /* ADKeychainTokenCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADKeychainTokenCache.h; sourceTree = "<group>"; };
 		8B8FD79A188223770070B1BE /* ADKeychainTokenCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeychainTokenCache.m; sourceTree = "<group>"; };
 		8B92DB5D1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCTestCase+TestHelperMethods.h"; sourceTree = "<group>"; };
@@ -476,8 +473,6 @@
 				8B0965C417F25770002BDFB8 /* Supporting Files */,
 				8B598960181710FD00744AEE /* ADKeychainTokenCacheStoreTests.m */,
 				8B598962181739AA00744AEE /* ADAuthenticationErrorTests.m */,
-				8B81CE3218188728005CFD65 /* ADTestTokenCacheStore.h */,
-				8B81CE3318188728005CFD65 /* ADTestTokenCacheStore.m */,
 				8B92DB5D1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.h */,
 				8B92DB5E1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m */,
 				8B92DB661819FA61004AAB0E /* ADTestNSStringHelperMethods.m */,
@@ -805,7 +800,6 @@
 				9430C3411C4631C200D6506D /* ADTokenCacheTests.m in Sources */,
 				8B3032231861347B00C61E7F /* ADTokenCacheStoreKeyTests.m in Sources */,
 				9430C34E1C54320400D6506D /* ADAuthenticationContextTests.m in Sources */,
-				8B81CE3418188728005CFD65 /* ADTestTokenCacheStore.m in Sources */,
 				8B6114031872127C007759C2 /* ADInstanceDiscoveryTests.m in Sources */,
 				8B92DB671819FA61004AAB0E /* ADTestNSStringHelperMethods.m in Sources */,
 				D6C38DCA1BA0E74F00D62ABF /* ADBrokerKeyHelperTests.m in Sources */,

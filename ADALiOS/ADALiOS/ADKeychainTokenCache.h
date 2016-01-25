@@ -38,7 +38,7 @@
 /*! Return a copy of all items. The array will contain ADTokenCacheItem objects,
  containing all of the cached information. Returns an empty array, if no items are found.
  Returns nil in case of error. */
-- (nullable NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error;
+- (nullable NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 - (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;

@@ -339,6 +339,14 @@
     return YES;
 }
 
+/*! Return a copy of all items. The array will contain ADTokenCacheItem objects,
+ containing all of the cached information. Returns an empty array, if no items are found.
+ Returns nil in case of error. */
+- (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
+{
+    return [self getItemsWithKey:nil userId:nil error:error];
+}
+
 @end
 
 
@@ -398,14 +406,6 @@
 
 #pragma mark -
 #pragma mark ADTokenCacheAccessor Protocol Implementation
-
-/*! Return a copy of all items. The array will contain ADTokenCacheItem objects,
- containing all of the cached information. Returns an empty array, if no items are found.
- Returns nil in case of error. */
-- (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
-{
-    return [self getItemsWithKey:nil userId:nil error:error];
-}
 
 /*! May return nil, if no cache item corresponds to the requested key
  @param key: The key of the item.

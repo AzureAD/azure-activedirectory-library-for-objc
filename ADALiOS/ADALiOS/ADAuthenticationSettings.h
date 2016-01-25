@@ -39,7 +39,7 @@
 @property BOOL enableFullScreen;
 
 /*! The dispatch queue to be used for the asynchronous calls. */
-@property dispatch_queue_t dispatchQueue;
+@property (retain) dispatch_queue_t dispatchQueue;
 
 /*! The name of the keychain group to be used if sharing of cache between applications
  is desired. Can be nil. The property sets the appropriate value of defaultTokenCacheStore
@@ -48,10 +48,10 @@
  is only given to the applications from the same vendor. If this property is not set, the behavior
  will depend on the values in the entitlements file (if such exists) and may not result in token
  sharing. The property has no effect if other cache mechanisms are used (non-keychain). */
-@property NSString* defaultKeychainGroup;
+@property (copy) NSString* defaultKeychainGroup;
 
 /*! Some servers may require client authentication over TLS. The certificate will be stored in the
  shared keychain group, pointed by this property. */
-@property NSString* clientTLSKeychainGroup;
+@property (copy) NSString* clientTLSKeychainGroup;
 
 @end
