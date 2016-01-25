@@ -54,6 +54,11 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         return nil;
     }
     
+    if (!sharedGroup)
+    {
+        sharedGroup = [[NSBundle mainBundle] bundleIdentifier];
+    }
+    
     _sharedGroup = [[NSString alloc] initWithFormat:@"%@.%@", [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix], sharedGroup];
     
     _default = @{
