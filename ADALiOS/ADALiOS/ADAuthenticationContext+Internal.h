@@ -76,6 +76,7 @@ extern NSString* const ADRedirectUriInvalidError;
 
 @interface ADAuthenticationContext (CacheStorage)
 
+- (void)setTokenCacheStore:(id<ADTokenCacheAccessor>)tokenCacheStore;
 - (id<ADTokenCacheAccessor>)tokenCacheStore;
 
 @end

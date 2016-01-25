@@ -132,7 +132,6 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     else
     {
         webRequest.method = HTTPPost;
-        webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
     }
     
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];

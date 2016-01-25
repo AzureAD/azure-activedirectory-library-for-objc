@@ -139,7 +139,7 @@
         return NO;
     }
     
-    _cache = cache;
+    _cache = [cache objectForKey:@"tokenCache"];
     return YES;
 }
 
@@ -512,8 +512,8 @@
     id userId = item.userInformation.userId;
     if (!userId)
     {
-        // If we don't have one (ADFS case) then use an NSNull instead
-        userId = [NSNull null];
+        // If we don't have one (ADFS case) then use an empty string
+        userId = @"";
     }
     else
     {

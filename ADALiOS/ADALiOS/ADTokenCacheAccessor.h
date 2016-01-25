@@ -58,4 +58,6 @@
 - (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
+- (nullable NSArray*)allItems:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+
 @end

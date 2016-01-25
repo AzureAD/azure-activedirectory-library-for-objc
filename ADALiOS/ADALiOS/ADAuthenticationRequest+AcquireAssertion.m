@@ -101,7 +101,15 @@
     
     [self requestTokenByAssertion:samlAssertion
                     assertionType:assertionType
-                       completion:completionBlock];
+                       completion:^(ADAuthenticationResult* result)
+    {
+        if (result.status == AD_SUCCEEDED)
+        {
+            [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
+        }
+        
+        completionBlock(result);
+    }];
 }
 
 /*Attemps to use the cache. Returns YES if an attempt was successful or if an
@@ -123,7 +131,7 @@
     {
         //Access token is good, just use it:
         [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:_correlationId];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:NO correlationId:_correlationId];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheItem:item multiResourceRefreshToken:NO correlationId:_correlationId];
         completionBlock(result);
         return;
     }
@@ -187,7 +195,15 @@
          //call acquireToken
          [self requestTokenByAssertion:samlAssertion
                          assertionType:assertionType
-                            completion:completionBlock];
+                            completion:^(ADAuthenticationResult *result)
+          {
+              if (result.status == AD_SUCCEEDED)
+              {
+                  [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
+              }
+              
+              completionBlock(result);
+          }];
      }];//End of the refreshing token completion block, executed asynchronously.
 }
 

@@ -126,14 +126,14 @@
     if (AD_SUCCEEDED == result.status)
     {
         ADAuthenticationContext* ctx = [ADAuthenticationContext
-                                        authenticationContextWithAuthority:result.tokenCacheStoreItem.authority
+                                        authenticationContextWithAuthority:result.tokenCacheItem.authority
                                         error:nil];
         
         [ctx updateCacheToResult:result
                        cacheItem:nil
                 withRefreshToken:nil];
         
-        NSString* userId = [[[result tokenCacheStoreItem] userInformation] userId];
+        NSString* userId = [[[result tokenCacheItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result
                    toUser:[ADUserIdentifier identifierWithId:userId]];
     }

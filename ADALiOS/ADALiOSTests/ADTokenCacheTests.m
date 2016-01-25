@@ -1,14 +1,23 @@
+// Copyright © Microsoft Open Technologies, Inc.
 //
-//  ADTokenCacheStorageWrapperTests.m
-//  ADALiOS
+// All Rights Reserved
 //
-//  Created by Ryan Pangrle on 1/12/16.
-//  Copyright © 2016 MS Open Tech. All rights reserved.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
+// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
+// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
+// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
+//
+// See the Apache License, Version 2.0 for the specific language
+// governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
-#import "ADCacheStorage.h"
-#import "ADTokenCache.h"
+#import "ADTokenCache+Internal.h"
 #import "ADTokenCacheItem.h"
 #import "ADTokenCacheStoreKey.h"
 #import "NSString+ADHelperMethods.h"
@@ -17,77 +26,115 @@
 #define TEST_AUTHORITY @"https://login.windows.net/contoso.com"
 #define TEST_CLIENT_ID @"01234567-89ab-cdef-0123-456789abcdef"
 
-@interface ADTestSimpleStorage : NSObject <ADCacheStorageDelegate>
+typedef enum
+{
+    kNothingCalled,
+    kWillCalled,
+    kDidCalled,
+} TestDelegateState;
+
+@interface ADTestSimpleStorage : NSObject <ADTokenCacheDelegate>
 {
 @public
     BOOL _changed;
-    BOOL _retrieveStorageCalled;
-    BOOL _retrieveIfUpdatedCalled;
     
     NSData* _cache;
+    
+    TestDelegateState access;
+    TestDelegateState write;
 }
 
 - (void)changeCache:(NSData*)cache;
-- (void)resetFlags;
 
 @end
 
 @implementation ADTestSimpleStorage
 
-/*!
- Called on initial storage retrieval
- */
-- (BOOL)retrieveStorage:(NSData * __nonnull * __nullable)data
-                  error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+- (void)willAccessCache:(nonnull ADTokenCache *)cache
 {
-    (void)error;
-    _changed = NO;
-    _retrieveStorageCalled = YES;
-    *data = _cache;
-    return YES;
-}
-
-/*!
- Called when checking if the cache needs to be updated, return nil if nothing has changed since the last storage operation.
- Can be the same implementation as -retrieveStorage, however performance will suffer.
- */
-- (BOOL)retrieveIfUpdated:(NSData **)data
-                    error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
-{
-    (void)error;
-    _retrieveIfUpdatedCalled = YES;
     if (_changed)
     {
+        [cache deserialize:_cache error:nil];
         _changed = NO;
-        *data = _cache;
-        return YES;
     }
     
-    return YES;
+    switch (access)
+    {
+        case kNothingCalled: access = kWillCalled; break;
+        case kWillCalled: NSAssert(0, @"willAccessCache called multiple times without calling didAccessCache!"); break;
+        case kDidCalled: access = kWillCalled; break;
+    }
 }
 
-/*!
- Called by ADAL to update the cache storage
- */
-- (BOOL)saveToStorage:(nullable NSData*)data
-                error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (void)didAccessCache:(nonnull ADTokenCache *)cache
 {
-    _cache = data;
-    _changed = NO;
+    (void)cache;
     
-    return YES;
+    switch (access)
+    {
+        case kNothingCalled: NSAssert(0, @"willAccessCache must be called before didAccessCache"); break;
+        case kWillCalled: access = kDidCalled; break;
+        case kDidCalled: NSAssert(0, @"didAccessCache callled multuple times!"); break;
+    }
+}
+
+- (void)willWriteCache:(nonnull ADTokenCache *)cache
+{
+    if (_changed)
+    {
+        [cache deserialize:_cache error:nil];
+        _changed = NO;
+    }
+    
+    switch (write)
+    {
+        case kNothingCalled: write = kWillCalled; break;
+        case kWillCalled: NSAssert(0, @"willAccessCache called multiple times without calling didAccessCache!"); break;
+        case kDidCalled: write = kWillCalled; break;
+    }
+}
+
+- (void)didWriteCache:(nonnull ADTokenCache *)cache
+{
+    _cache = [cache serialize];
+    
+    switch (write)
+    {
+        case kNothingCalled: NSAssert(0, @"willAccessCache must be called before didAccessCache"); break;
+        case kWillCalled: write = kDidCalled; break;
+        case kDidCalled: NSAssert(0, @"didAccessCache callled multuple times!"); break;
+    }
+    
 }
 
 - (void)changeCache:(NSData *)cache
 {
-    _cache = cache;
+    _cache = [cache copy];
     _changed = YES;
 }
 
 - (void)resetFlags
 {
-    _retrieveIfUpdatedCalled = NO;
-    _retrieveStorageCalled = NO;
+}
+
+- (BOOL)verifyRead:(NSString**)failureReason
+{
+    switch (access)
+    {
+        case kNothingCalled: *failureReason = @"Neither willAccessCache or didAccessCache were called!"; return NO;
+        case kWillCalled: *failureReason = @"willAccessCache was called without a matching didAccessCache call."; return NO;
+        case kDidCalled: return YES;
+    }
+}
+
+- (BOOL)verifyWrite:(NSString**)failureReason
+{
+    switch (write)
+    {
+        case kNothingCalled: *failureReason = @"Neither willWriteCache or didWriteCache were called!"; return NO;
+        case kWillCalled: *failureReason = @"willWriteCache was called without a matching didWriteCache call."; return NO;
+        case kDidCalled: return YES;
+    }
 }
 
 @end
@@ -456,6 +503,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     XCTAssertEqualObjects(actualSet, expectedSet);
 }
 
+#if 0
 - (void)testGetItemsWithKey
 {
     ADTokenCache* wrapper = [[ADTokenCache alloc] init];
@@ -484,6 +532,8 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     NSSet* actualSet = [NSSet setWithArray:items];
     XCTAssertEqualObjects(expectedSet, actualSet);
 }
+
+#endif
 
 - (void)testAddItem
 {
@@ -526,7 +576,8 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     [wrapper setCache:tokenCache];
 
     ADAuthenticationError* error = nil;
-    [wrapper removeItemWithKey:CacheKey(@"mister_kitty") userId:CartmanUserid() error:&error];
+    
+    [wrapper removeItem:CartmanItem(@"mister_kitty", YES) error:&error];
     XCTAssertNil(error);
     
     NSMutableDictionary* expected = [NSMutableDictionary dictionaryWithDictionary:
@@ -546,36 +597,28 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 {
     ADAuthenticationError* error = nil;
     ADTestSimpleStorage* storage1 = [[ADTestSimpleStorage alloc] init];
-    ADTokenCache* wrapper1 = [[ADTokenCache alloc] initWithStorage:storage1];
+    ADTokenCache* wrapper1 = [ADTokenCache new];
+    [wrapper1 setDelegate:storage1];
     
     ADTestSimpleStorage* storage2 = [[ADTestSimpleStorage alloc] init];
-    ADTokenCache* wrapper2 = [[ADTokenCache alloc] initWithStorage:storage2];
-    
-    
-    // Make sure we've loaded up the storage but haven't checked for updates
-    XCTAssertTrue(storage1->_retrieveStorageCalled);
-    XCTAssertFalse(storage1->_retrieveIfUpdatedCalled);
+    ADTokenCache* wrapper2 = [ADTokenCache new];
+    [wrapper2 setDelegate:storage2];
     
     
     // Make sure both wrappers start off showing empty and that they checked for updates
     XCTAssertNil([wrapper1 allItems:&error]);
     XCTAssertNil(error);
-    XCTAssertTrue(storage1->_retrieveIfUpdatedCalled);
-    XCTAssertNil(storage1->_cache);
-    [storage1 resetFlags];
     
     XCTAssertNil([wrapper2 allItems:&error]);
     XCTAssertNil(error);
-    XCTAssertTrue(storage2->_retrieveIfUpdatedCalled);
-    XCTAssertNil(storage2->_cache);
-    [storage2 resetFlags];
     
     ADTokenCacheItem* item1 = ReginaItem(@"popularity", YES);
     // Add an item into wrapper 1
     
     [wrapper1 addOrUpdateItem:item1 error:&error];
-    XCTAssertTrue(storage1->_retrieveIfUpdatedCalled);
     XCTAssertNotNil(storage1->_cache);
+    NSString* failureReason = nil;
+    XCTAssertTrue([storage1 verifyWrite:&failureReason], @"addOrUpdateItem didn't use the delegate correctly: %@", failureReason);
     
     NSArray* items = nil;
     
@@ -583,6 +626,8 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     items = [wrapper1 allItems:&error];
     XCTAssertNotNil(items);
     XCTAssertNil(error);
+    XCTAssertTrue([storage1 verifyRead:&failureReason], @"allItems didn't use the delegate correctly: %@", failureReason);
+    
     XCTAssertEqual(items.count, 1);
     XCTAssertEqualObjects(items[0], item1);
     
@@ -592,7 +637,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     [storage1 resetFlags];
 
     // Copy the data from storage 1 into storage 2 "under the covers"
-    [storage2 changeCache:storage1->_cache];
+    [storage2 changeCache:[storage1->_cache copy]];
     
     // Call allItems and make sure it picks up on the cache change and shows us the item
     items = [wrapper2 allItems:&error];

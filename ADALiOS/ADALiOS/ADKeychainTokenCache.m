@@ -238,6 +238,34 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     return [self getItemsWithKey:key userId:nil error:error];
 }
 
+
+/*!
+    @param  item    The item to remove from the cache
+    @param  error   (Optional) In the case of an error this will be filled with the
+                    error details.
+ 
+    @return YES if the item was successfully removed, or was not in the cache. If NO
+            look
+ */
+- (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
+             error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+{
+    RETURN_NO_ON_NIL_ARGUMENT(item);
+    
+    ADTokenCacheStoreKey* key = [item extractKey:error];
+    if (!key)
+    {
+        return NO;
+    }
+    
+    
+    NSMutableDictionary* query = [self queryDictionaryForKey:key
+                                                      userId:item.userInformation.userId
+                                                  additional:nil];
+    OSStatus status = SecItemDelete((CFDictionaryRef)query);
+    return [ADKeychainTokenCache checkStatus:status details:@"Failed to remove item from keychain" error:error];
+}
+
 @end
 
 @implementation ADKeychainTokenCache (Internal)
@@ -392,31 +420,20 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     }
 }
 
-/*!
-    @param  item    The item to remove from the cache
-    @param  error   (Optional) In the case of an error this will be filled with the
-                    error details.
- 
-    @return YES if the item was successfully removed, or was not in the cache. If NO
-            look
- */
-- (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
-             error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+- (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error
 {
-    RETURN_NO_ON_NIL_ARGUMENT(item);
-    
-    ADTokenCacheStoreKey* key = [item extractKey:error];
-    if (!key)
+    @synchronized(self)
     {
-        return NO;
+        NSMutableDictionary* query = [self queryDictionaryForKey:nil userId:nil additional:nil];
+        OSStatus status = SecItemDelete((CFDictionaryRef)query);
+        [ADKeychainTokenCache checkStatus:status details:@"Failed to remove all" error:error];
+        
+        NSArray* items = [self allItems:nil];
+        if ([items count])
+        {
+            NSLog(@"!!!!!!!!!!!!!!!!!!!! %lu items remaining...", (unsigned long)items.count);
+        }
     }
-    
-    
-    NSMutableDictionary* query = [self queryDictionaryForKey:key
-                                                      userId:item.userInformation.userId
-                                                  additional:nil];
-    OSStatus status = SecItemDelete((CFDictionaryRef)query);
-    return [ADKeychainTokenCache checkStatus:status details:@"Failed to remove item from keychain" error:error];
 }
 
 @end

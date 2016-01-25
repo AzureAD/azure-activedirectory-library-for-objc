@@ -52,11 +52,11 @@
     XCTAssertEqual(_result.status, _status, "Wrong status"); \
     XCTAssertNotNil(_result.error, "Nil error"); \
     ADAssertLongEquals(_result.error.code, _code); \
-    XCTAssertNil(_result.tokenCacheStoreItem.accessToken); \
-    XCTAssertNil(_result.tokenCacheStoreItem.accessTokenType); \
-    XCTAssertNil(_result.tokenCacheStoreItem.refreshToken); \
-    XCTAssertNil(_result.tokenCacheStoreItem.expiresOn); \
-    XCTAssertNil(_result.tokenCacheStoreItem.userInformation); \
+    XCTAssertNil(_result.tokenCacheItem.accessToken); \
+    XCTAssertNil(_result.tokenCacheItem.accessTokenType); \
+    XCTAssertNil(_result.tokenCacheItem.refreshToken); \
+    XCTAssertNil(_result.tokenCacheItem.expiresOn); \
+    XCTAssertNil(_result.tokenCacheItem.userInformation); \
 }
 
 -(void) testResultFromCancellation
@@ -81,17 +81,17 @@
     XCTAssertNotNil(resultFromItem);
     XCTAssertEqual(resultFromItem.status, AD_SUCCEEDED, "Result should be success.");
     XCTAssertNil(resultFromItem.error, "Unexpected error object: %@", resultFromItem.error.errorDetails);
-    XCTAssertEqual(item.accessTokenType, resultFromItem.tokenCacheStoreItem.accessTokenType);
-    XCTAssertEqual(item.accessToken, resultFromItem.tokenCacheStoreItem.accessToken);
-    XCTAssertEqual(item.expiresOn, resultFromItem.tokenCacheStoreItem.expiresOn);
-    XCTAssertEqual(item.userInformation.tenantId, resultFromItem.tokenCacheStoreItem.userInformation.tenantId);
-    ADAssertStringEquals(item.userInformation.userId, resultFromItem.tokenCacheStoreItem.userInformation.userId);
+    XCTAssertEqual(item.accessTokenType, resultFromItem.tokenCacheItem.accessTokenType);
+    XCTAssertEqual(item.accessToken, resultFromItem.tokenCacheItem.accessToken);
+    XCTAssertEqual(item.expiresOn, resultFromItem.tokenCacheItem.expiresOn);
+    XCTAssertEqual(item.userInformation.tenantId, resultFromItem.tokenCacheItem.userInformation.tenantId);
+    ADAssertStringEquals(item.userInformation.userId, resultFromItem.tokenCacheItem.userInformation.userId);
 }
 
-- (void)testResultFromTokenCacheStoreItem
+- (void)testResultFromtokenCacheItem
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheStoreItem:nil multiResourceRefreshToken:NO correlationId:nil];
+    ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheItem:nil multiResourceRefreshToken:NO correlationId:nil];
     VERIFY_RESULT(nilItemResult, AD_FAILED, AD_ERROR_UNEXPECTED);
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
@@ -108,7 +108,7 @@
     ADAssertNoError;
     
     //Copy the item to ensure that it is not modified withing the method call below:
-    ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy] multiResourceRefreshToken:NO correlationId:nil];
+    ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheItem:[item copy] multiResourceRefreshToken:NO correlationId:nil];
     [self verifyResult:resultFromValidItem item:item];
 }
 
@@ -130,14 +130,14 @@
                                };
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:response];
     XCTAssertNotNil(result);
-    XCTAssertNotNil(result.tokenCacheStoreItem);
-    XCTAssertNotNil(result.tokenCacheStoreItem.expiresOn);
-    XCTAssertEqual(result.tokenCacheStoreItem.expiresOn.timeIntervalSince1970, 1444166530.336707);
-    XCTAssertEqualObjects(result.tokenCacheStoreItem.accessToken, @"MyFakeAccessToken");
-    XCTAssertEqualObjects(result.tokenCacheStoreItem.refreshToken, @"MyFakeRefreshToken");
-    XCTAssertEqualObjects(result.tokenCacheStoreItem.resource, @"MyFakeResource");
-    XCTAssertEqualObjects(result.tokenCacheStoreItem.clientId, @"27AD83C9-FC05-4A6C-AF01-36EDA42ED18F");
-    XCTAssertEqualObjects(result.tokenCacheStoreItem.userInformation.userId, @"myfakeuser@contoso.com");
+    XCTAssertNotNil(result.tokenCacheItem);
+    XCTAssertNotNil(result.tokenCacheItem.expiresOn);
+    XCTAssertEqual(result.tokenCacheItem.expiresOn.timeIntervalSince1970, 1444166530.336707);
+    XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"MyFakeAccessToken");
+    XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"MyFakeRefreshToken");
+    XCTAssertEqualObjects(result.tokenCacheItem.resource, @"MyFakeResource");
+    XCTAssertEqualObjects(result.tokenCacheItem.clientId, @"27AD83C9-FC05-4A6C-AF01-36EDA42ED18F");
+    XCTAssertEqualObjects(result.tokenCacheItem.userInformation.userId, @"myfakeuser@contoso.com");
 }
 
 @end

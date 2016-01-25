@@ -17,20 +17,30 @@
 // governing permissions and limitations under the License
 
 @class ADKeyChainHelper;
+@class ADTokenCacheItem;
+@class ADAuthenticationError;
 
 @interface ADKeychainTokenCache : NSObject
 
-@property (readonly) NSString* sharedGroup;
+@property (readonly) NSString* __nonnull sharedGroup;
 
 /* Initializes the token cache store with default shared group value.
  */
-- (id)init;
+- (nullable instancetype)init;
 
 /*! Initializes the token cache store.
  @param: sharedGroup: Optional. If the application needs to share the cached tokens
  with other applications from the same vendor, the app will need to specify the 
  shared group here and add the necessary entitlements to the application.
  See Apple's keychain services documentation for details. */
-- (id)initWithGroup:(NSString *)sharedGroup;
+- (nullable instancetype)initWithGroup:(nullable NSString *)sharedGroup;
+
+/*! Return a copy of all items. The array will contain ADTokenCacheItem objects,
+ containing all of the cached information. Returns an empty array, if no items are found.
+ Returns nil in case of error. */
+- (nullable NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error;
+
+- (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
+             error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 @end

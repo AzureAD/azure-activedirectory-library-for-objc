@@ -143,15 +143,15 @@
     
     if (AD_SUCCEEDED == result.status)
     {
-        if(![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheStoreItem argumentName:@"tokenCacheStoreItem" authenticationResult:&result]
-           || ![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheStoreItem.resource argumentName:@"resource" authenticationResult:&result]
-           || ![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheStoreItem.accessToken argumentName:@"accessToken" authenticationResult:&result])
+        if(![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheItem argumentName:@"tokenCacheItem" authenticationResult:&result]
+           || ![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheItem.resource argumentName:@"resource" authenticationResult:&result]
+           || ![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheItem.accessToken argumentName:@"accessToken" authenticationResult:&result])
         {
             return;
         }
         
         //In case of success we use explicitly the item that comes back in the result:
-        cacheItem = result.tokenCacheStoreItem;
+        cacheItem = result.tokenCacheItem;
         NSString* savedRefreshToken = cacheItem.refreshToken;
         if (result.multiResourceRefreshToken)
         {

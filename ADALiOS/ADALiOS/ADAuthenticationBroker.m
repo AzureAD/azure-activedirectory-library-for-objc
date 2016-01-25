@@ -263,9 +263,7 @@ correlationId:(NSUUID *)correlationId
     //Error occurred above. Dispatch the callback to the caller:
     if (error)
     {
-        dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-            _completionBlock( error, nil );
-        });
+        _completionBlock( error, nil );
     }
 }
 

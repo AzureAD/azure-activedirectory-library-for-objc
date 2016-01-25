@@ -26,7 +26,8 @@
 #import <libkern/OSAtomic.h>
 #import <Foundation/NSObjCRuntime.h>
 #import <objc/runtime.h>
-
+#import "ADTestURLConnection.h"
+#import "ADOAuth2Constants.h"
 
 @implementation XCTestCase (TestHelperMethods)
 
@@ -46,8 +47,8 @@ NSString* const sIDTokenHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
 volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 /* See header for details. */
--(void) adValidateForInvalidArgument: (NSString*) argument
-                               error: (ADAuthenticationError*) error
+- (void)adValidateForInvalidArgument:(NSString *)argument
+                               error:(ADAuthenticationError *)error
 {
     XCTAssertNotNil(argument, "Internal test error: please specify the expected parameter.");
     
@@ -63,22 +64,22 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 
 /* See header for details.*/
--(void) adValidateFactoryForInvalidArgument: (NSString*) argument
-                             returnedObject: (id) returnedObject
-                                      error: (ADAuthenticationError*) error
+- (void)adValidateFactoryForInvalidArgument:(NSString *)argument
+                             returnedObject:(id)returnedObject
+                                      error:(ADAuthenticationError *)error
 {
     XCTAssertNil(returnedObject, "Creator should have returned nil. Object: %@", returnedObject);
     
     [self adValidateForInvalidArgument:argument error:error];
 }
 
--(void) adSetLogTolerance: (ADAL_LOG_LEVEL) maxLogTolerance
+- (void)adSetLogTolerance:(ADAL_LOG_LEVEL)maxLogTolerance
 {
     sMaxAcceptedLogLevel = maxLogTolerance;
 }
 
 /*! Sets logging and other infrastructure for a new test */
--(void) adTestBegin: (ADAL_LOG_LEVEL) maxLogTolerance;
+- (void)adTestBegin:(ADAL_LOG_LEVEL)maxLogTolerance;
 {
     [self adSetLogTolerance:maxLogTolerance];
     
@@ -133,7 +134,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 }
 
 /*! Clears logging and other infrastructure after a test */
--(void) adTestEnd
+- (void)adTestEnd
 {
     [ADLogger setLogCallBack:nil];
     @synchronized(self.class)
@@ -149,13 +150,13 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 //Parses backwards the log to find the test begin prefix. Returns the beginning
 //of the log string if not found:
--(long) indexOfTestBegin: (NSString*) log
+- (long)indexOfTestBegin:(NSString *)log
 {
     NSUInteger index = [log rangeOfString:sTestBegin options:NSBackwardsSearch].location;
     return (index == NSNotFound) ? 0 : index;
 }
 
--(NSString*) adLogLevelLogs
+- (NSString *)adLogLevelLogs
 {
     NSString* toReturn;
     @synchronized(self.class)
@@ -165,7 +166,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return toReturn;
 }
 
--(NSString*) adMessagesLogs
+- (NSString *)adMessagesLogs
 {
     NSString* toReturn;
     @synchronized(self.class)
@@ -175,7 +176,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return toReturn;
 }
 
--(NSString*) adInformationLogs
+- (NSString *)adInformationLogs
 {
     NSString* toReturn;
     @synchronized(self.class)
@@ -185,7 +186,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return toReturn;
 }
 
--(NSString*) adErrorCodesLogs
+- (NSString *)adErrorCodesLogs
 {
     NSString* toReturn;
     @synchronized(self.class)
@@ -196,8 +197,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 }
 
 //Helper method to count how many times a string occurs in another string:
--(int) adCountOccurencesOf: (NSString*) contained
-                  inString: (NSString*) string
+- (int)adCountOccurencesOf:(NSString *)contained
+                  inString:(NSString *)string
 {
     XCTAssertNotNil(contained);
     XCTAssertNotNil(string);
@@ -223,21 +224,21 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 }
 
 //The methods help with verifying of the logs:
--(int) adCountOfLogOccurrencesIn: (ADLogPart) logPart
-                        ofString: (NSString*) contained
+- (int)adCountOfLogOccurrencesIn:(ADLogPart)logPart
+                        ofString:(NSString *)contained
 {
     NSString* log = [self adGetLogs:logPart];
     return [self adCountOccurencesOf:contained inString:log];
 }
 
 //String clearing helper method:
--(void) clearString: (NSMutableString*) string
+- (void)clearString:(NSMutableString *)string
 {
     NSRange all = {.location = 0, .length = string.length};
     [string deleteCharactersInRange:all];
 }
 
--(void) adClearLogs
+- (void)adClearLogs
 {
     @synchronized(self.class)
     {
@@ -248,7 +249,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     }
 }
 
--(NSString*) adGetLogs: (ADLogPart) logPart
+- (NSString *)adGetLogs:(ADLogPart)logPart
 {
     switch (logPart) {
         case TEST_LOG_LEVEL:
@@ -266,10 +267,10 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     }
 }
 
--(void) adAssertLogsContain: (NSString*) text
-                    logPart: (ADLogPart) logPart
-                       file: (const char*) file
-                       line: (int) line
+- (void)adAssertLogsContain:(NSString *)text
+                    logPart:(ADLogPart)logPart
+                       file:(const char *)file
+                       line:(int)line
 {
     NSString* logs = [self adGetLogs:logPart];
     
@@ -279,10 +280,10 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     }
 }
 
--(void) adAssertLogsDoNotContain: (NSString*) text
-                         logPart: (ADLogPart) logPart
-                            file: (const char*) file
-                            line: (int) line
+- (void)adAssertLogsDoNotContain:(NSString *)text
+                         logPart:(ADLogPart)logPart
+                            file:(const char *)file
+                            line:(int)line
 {
     NSString* logs = [self adGetLogs:logPart];
     
@@ -292,11 +293,11 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     }
 }
 
--(void) adAssertStringEquals: (NSString*) actual
-            stringExpression: (NSString*) expression
-                    expected: (NSString*) expected
-                        file: (const char*) file
-                        line: (int) line
+- (void)adAssertStringEquals:(NSString *)actual
+            stringExpression:(NSString *)expression
+                    expected:(NSString *)expected
+                        file:(const char *)file
+                        line:(int)line
 {
     if (!actual && !expected)//Both nil, so they are equal
         return;
@@ -306,115 +307,125 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     }
 }
 
+- (ADTokenCacheItem *)adCreateCacheItem
+{
+    return [self adCreateCacheItem:TEST_USER_ID];
+}
+
 //Creates an new item with all of the properties having correct
 //values
--(ADTokenCacheItem*) adCreateCacheItem
+- (ADTokenCacheItem *)adCreateCacheItem:(NSString *)userId
 {
     ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
-    item.resource = @"resource";
-    item.authority = @"https://login.windows.net/sometenant.com";
-    item.clientId = @"client id";
-    item.accessToken = @"access token";
-    item.refreshToken = @"refresh token";
-    item.sessionKey = nil;
+    item.resource = TEST_RESOURCE;
+    item.authority = TEST_AUTHORITY;
+    item.clientId = TEST_CLIENT_ID;
+    item.accessToken = TEST_ACCESS_TOKEN;
+    item.refreshToken = TEST_REFRESH_TOKEN;
     //1hr into the future:
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
-    item.userInformation = [self adCreateUserInformation];
-    item.accessTokenType = @"access token type";
-    
-    [self adVerifyPropertiesAreSet:item];
+    if (![NSString adIsStringNilOrBlank:userId])
+    {
+        item.userInformation = [self adCreateUserInformation:userId];
+    }
+    item.accessTokenType = TEST_ACCESS_TOKEN_TYPE;
     
     return item;
 }
 
--(ADUserInformation*) adCreateUserInformation
+- (ADTokenCacheItem *)adCreateATCacheItem
 {
-    ADAuthenticationError* error = nil;
-    //This one sets the "userId" property:
-    NSString* id_token = [NSString stringWithFormat:@"%@.%@.",
-                          [sIDTokenHeader adBase64UrlEncode],
-                          [sIdTokenClaims adBase64UrlEncode]];
-    ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:id_token error:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(userInfo, "Nil user info returned.");
+    return [self adCreateATCacheItem:TEST_RESOURCE userId:TEST_USER_ID];
+}
+
+- (ADTokenCacheItem *)adCreateATCacheItem:(NSString *)resource
+                                   userId:(NSString *)userId
+{
     
-    //Check the standard properties:
-    ADAssertStringEquals(userInfo.userId, @"boris@msopentechbv.onmicrosoft.com");
-    ADAssertStringEquals(userInfo.givenName, @"Boriss");
-    ADAssertStringEquals(userInfo.familyName, @"Vidolovv");
-    ADAssertStringEquals(userInfo.subject, @"0DxnAlLi12IvGL_dG3dDMk3zp6AQHnjgogyim5AWpSc");
-    ADAssertStringEquals(userInfo.tenantId, @"6fd1f5cd-a94c-4335-889b-6c598e6d8048");
-    ADAssertStringEquals(userInfo.upn, @"boris@MSOpenTechBV.onmicrosoft.com");
-    ADAssertStringEquals(userInfo.uniqueName, @"boris@MSOpenTechBV.onmicrosoft.com");
-    ADAssertStringEquals(userInfo.eMail, @"fake e-mail");
-    ADAssertStringEquals(userInfo.identityProvider, @"Fake IDP");
-    ADAssertStringEquals(userInfo.userObjectId, @"53c6acf2-2742-4538-918d-e78257ec8516");
-    ADAssertStringEquals(userInfo.guestId, @"Some Guest id");
+    ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
+    item.resource = resource;
+    item.authority = TEST_AUTHORITY;
+    item.clientId = TEST_CLIENT_ID;
+    item.accessToken = TEST_ACCESS_TOKEN;
+    item.refreshToken = nil;
+    //1hr into the future:
+    item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
+    if (![NSString adIsStringNilOrBlank:userId])
+    {
+        item.userInformation = [self adCreateUserInformation:userId];
+    }
+    item.accessTokenType = TEST_ACCESS_TOKEN_TYPE;
     
-    //Check unmapped claims:
-    ADAssertStringEquals([userInfo.allClaims objectForKey:@"aud"], @"c3c7f5e5-7153-44d4-90e6-329686d48d76");
-    ADAssertStringEquals([userInfo.allClaims objectForKey:@"iss"], @"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048/");
-    XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"iat"], [NSNumber numberWithLong:1387224169]);
-    XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"nbf"], [NSNumber numberWithLong:1387224170]);
-    XCTAssertEqualObjects([userInfo.allClaims objectForKey:@"exp"], [NSNumber numberWithLong:1387227769]);
-    ADAssertStringEquals([userInfo.allClaims objectForKey:@"ver"], @"1.0");
+    return item;
+}
+
+- (ADTokenCacheItem *)adCreateMRRTCacheItem
+{
+    return [self adCreateMRRTCacheItem:TEST_USER_ID];
+}
+
+- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
+{
+    // A MRRT item is just a refresh token, it doesn't have a specified resource
+    // an expiration time (that we know about) and covers multiple ATs.
+    ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
+    item.authority = TEST_AUTHORITY;
+    item.clientId = TEST_CLIENT_ID;
+    item.refreshToken = TEST_REFRESH_TOKEN;
+    if (![NSString adIsStringNilOrBlank:userId])
+    {
+        item.userInformation = [self adCreateUserInformation:userId];
+    }
     
-    //This will check absolutely all properties, so that if we add a new one later
-    //it will fail if it is not set:
-    [self adVerifyPropertiesAreSet:userInfo];
+    return item;
+}
+
+- (ADTokenCacheStoreKey *)adCreateCacheKey
+{
+    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:TEST_AUTHORITY
+                                                              resource:TEST_RESOURCE
+                                                              clientId:TEST_CLIENT_ID
+                                                                 error:nil];
     
+    return key;
+}
+
+- (ADUserInformation *)adCreateUserInformation:(NSString*)userId
+{
+    NSAssert(userId, @"userId cannot be nil!");
+    NSDictionary* part1_claims = @{ @"typ" : @"JWT",
+                                    @"alg" : @"none" };
+    
+    NSDictionary* idtoken_claims = @{ @"aud" : @"c3c7f5e5-7153-44d4-90e6-329686d48d76",
+                                      @"iss" : @"https://sts.windows.net/6fd1f5cd-a94c-4335-889b-6c598e6d8048",
+                                      @"iat" : @"1387224169",
+                                      @"nbf" : @"1387224169",
+                                      @"exp" : @"1387227769",
+                                      @"ver" : @"1.0",
+                                      @"tid" : @"6fd1f5cd-a94c-4335-889b-6c598e6d8048",
+                                      @"oid" : @"53c6acf2-2742-4538-918d-e78257ec8516",
+                                      @"upn" : userId,
+                                      @"unique_name" : userId,
+                                      @"sub" : @"0DxnAlLi12IvGL_dG3dDMk3zp6AQHnjgogyim5AWpSc",
+                                      @"family_name" : @"Cartman",
+                                      @"given_name" : @"Eric"
+                                      };
+    
+    NSString* idtoken = [NSString stringWithFormat:@"%@.%@",
+                         [NSString Base64EncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
+                         [NSString Base64EncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
+    
+    ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idtoken error:nil];
+    
+    // If you're hitting this you might as well fix it before trying to run other tests.
+    NSAssert(userInfo, @"Failed to create a userinfo object from a static idtoken. Something must have horribly broke,");
     return userInfo;
 }
 
--(void) adVerifyPropertiesAreSet: (NSObject*) object
-{
-    if (!object)
-    {
-        XCTFail("object must be set.");
-        return;//Return to avoid crashing below
-    }
-    
-    //Add here calculated properties that cannot be initialized and shouldn't be checked for initialization:
-    NSDictionary* const exceptionProperties = @{
-                                                NSStringFromClass([ADTokenCacheItem class]):[NSSet setWithObjects:@"multiResourceRefreshToken",
-                                                                                                  @"sessionKey",nil], };
-    
-    //Enumerate all properties and ensure that they are set to non-default values:
-    unsigned int propertyCount;
-    objc_property_t* properties = class_copyPropertyList([object class], &propertyCount);
-    
-    for (int i = 0; i < propertyCount; ++i)
-    {
-        NSString* propertyName = [NSString stringWithCString:property_getName(properties[i])
-                                                    encoding:NSUTF8StringEncoding];
-        NSSet* exceptions = [exceptionProperties valueForKey:NSStringFromClass([object class])];//May be nil
-        if ([exceptions containsObject:propertyName])
-        {
-            continue;//Respect the exception
-        }
-        
-        id value = [object valueForKey:propertyName];
-        if ([value isKindOfClass:[NSNumber class]])
-        {
-            //Cast to the scalar to double and ensure it is far from 0 (default)
-            
-            double dValue = [(NSNumber*)value doubleValue];
-            if (fabs(dValue) < 0.0001)
-            {
-                XCTFail("The value of the property %@ is 0. Please update the initialization method to set it.", propertyName);
-            }
-        }
-        else //Not a scalar type, we can compare to nil:
-        {
-            XCTAssertNotNil(value, "The value of the property %@ is nil. Please update the initialization method to set it.", propertyName);
-        }
-    }
-}
-
--(void) adCallAndWaitWithFile: (NSString*) file
-                         line: (int) line
-                    semaphore: (dispatch_semaphore_t)sem
-                        block: (void (^)(void)) block
+- (void)adCallAndWaitWithFile:(NSString *)file
+                         line:(int)line
+                    semaphore:(dispatch_semaphore_t)sem
+                        block:(void (^)(void))block
 {
     THROW_ON_NIL_ARGUMENT(sem);
     THROW_ON_NIL_EMPTY_ARGUMENT(file);
@@ -427,6 +438,91 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     {
         [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
     }
+}
+
+- (ADTestURLResponse *)adResponseBadRefreshToken:(NSString *)refreshToken
+                                       authority:(NSString *)authority
+                                        resource:(NSString *)resource
+                                        clientId:(NSString *)clientId
+                                   correlationId:(NSUUID *)correlationId
+{
+    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
+    
+    NSDictionary* headers = nil;
+    if (correlationId)
+    {
+        headers = @{ OAUTH2_CORRELATION_ID_REQUEST_VALUE : [correlationId UUIDString] };
+    }
+    
+    ADTestURLResponse* response =
+    [ADTestURLResponse requestURLString:requestUrlString
+                         requestHeaders:headers
+                      requestParamsBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
+                                           OAUTH2_REFRESH_TOKEN : refreshToken,
+                                           OAUTH2_RESOURCE : resource,
+                                           OAUTH2_CLIENT_ID : clientId }
+                      responseURLString:@"https://contoso.com"
+                           responseCode:400
+                       httpHeaderFields:@{}
+                       dictionaryAsJSON:@{ OAUTH2_ERROR : @"bad_refresh_token",
+                                           OAUTH2_ERROR_DESCRIPTION : @"oauth error description"}];
+    
+    return response;
+}
+
+- (ADTestURLResponse *)adDefaultBadRefreshTokenResponse
+{
+    return [self adResponseBadRefreshToken:TEST_REFRESH_TOKEN
+                                 authority:TEST_AUTHORITY
+                                  resource:TEST_RESOURCE
+                                  clientId:TEST_CLIENT_ID
+                             correlationId:TEST_CORRELATION_ID];
+}
+
+- (ADTestURLResponse *)adDefaultRefreshResponse:(NSString *)newRefreshToken
+                                    accessToken:(NSString *)newAccessToken
+{
+    return [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                              authority:TEST_AUTHORITY
+                               resource:TEST_RESOURCE
+                               clientId:TEST_CLIENT_ID
+                          correlationId:TEST_CORRELATION_ID
+                        newRefreshToken:newRefreshToken
+                         newAccessToken:newAccessToken];
+}
+
+- (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
+                                    authority:(NSString *)authority
+                                     resource:(NSString *)resource
+                                     clientId:(NSString *)clientId
+                                correlationId:(NSUUID *)correlationId
+                              newRefreshToken:(NSString *)newRefreshToken
+                               newAccessToken:(NSString *)newAccessToken
+{
+    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
+    
+    NSDictionary* headers = nil;
+    if (correlationId)
+    {
+        headers = @{ OAUTH2_CORRELATION_ID_REQUEST_VALUE : [correlationId UUIDString] };
+    }
+    
+    ADTestURLResponse* response =
+    [ADTestURLResponse requestURLString:requestUrlString
+                         requestHeaders:headers
+                      requestParamsBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
+                                           OAUTH2_REFRESH_TOKEN : oldRefreshToken,
+                                           OAUTH2_RESOURCE : resource,
+                                           OAUTH2_CLIENT_ID : clientId }
+                      responseURLString:@"https://contoso.com"
+                           responseCode:400
+                       httpHeaderFields:@{}
+                       dictionaryAsJSON:@{ OAUTH2_REFRESH_TOKEN : newRefreshToken,
+                                           OAUTH2_ACCESS_TOKEN : newAccessToken,
+                                           OAUTH2_RESOURCE : resource }];
+    
+    return response;
+
 }
 
 @end

@@ -164,16 +164,12 @@ NSString* const sValidationServerError = @"The authority validation server retur
         return;
     }
     
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
-                   {
-                       //Nothing in the cache, ask the server:
-                       [self requestValidationOfAuthority:authority
-                                                     host:authorityHost
-                                         trustedAuthority:sTrustedAuthority
-                                            correlationId:correlationId
-                                          completionBlock:completionBlock];
-                   });
+    //Nothing in the cache, ask the server:
+    [self requestValidationOfAuthority:authority
+                                  host:authorityHost
+                      trustedAuthority:sTrustedAuthority
+                         correlationId:correlationId
+                       completionBlock:completionBlock];
 }
 
 //Checks the cache for previously validated authority.

@@ -405,6 +405,11 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 @implementation ADAuthenticationContext (CacheStorage)
 
+- (void)setTokenCacheStore:(id<ADTokenCacheAccessor>)tokenCacheStore
+{
+    _tokenCacheStore = tokenCacheStore;
+}
+
 - (id<ADTokenCacheAccessor>)tokenCacheStore
 {
     return _tokenCacheStore;

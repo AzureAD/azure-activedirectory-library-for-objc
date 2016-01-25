@@ -35,7 +35,7 @@
                                       correlationId:(NSUUID*)correlationId;
 
 /*! Creates an instance of the result from a pre-setup token cache store item */
-+ (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheItem*)item
++ (ADAuthenticationResult*)resultFromTokenCacheItem:(ADTokenCacheItem*)item
                                multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
                                            correlationId:(NSUUID*)correlationId;
 

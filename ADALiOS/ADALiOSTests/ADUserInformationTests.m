@@ -62,7 +62,7 @@
 
 - (void) testCopy
 {
-    ADUserInformation* userInfo = [self adCreateUserInformation];
+    ADUserInformation* userInfo = [self adCreateUserInformation:@"eric_cartman@contoso.com"];
     XCTAssertNotNil(userInfo);
     
     ADUserInformation* copy = [userInfo copy];

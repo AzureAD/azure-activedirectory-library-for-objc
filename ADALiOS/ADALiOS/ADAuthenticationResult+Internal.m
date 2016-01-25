@@ -41,7 +41,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     if (self)
     {
         _status = AD_SUCCEEDED;
-        _tokenCacheStoreItem = item;
+        _tokenCacheItem = item;
         _multiResourceRefreshToken = multiResourceRefreshToken;
         _correlationId = correlationId;
     }
@@ -64,7 +64,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return self;
 }
 
-+ (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheItem *)item
++ (ADAuthenticationResult*)resultFromTokenCacheItem:(ADTokenCacheItem *)item
                                multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
                                            correlationId:(NSUUID *)correlationId
 {

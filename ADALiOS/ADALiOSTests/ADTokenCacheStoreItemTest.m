@@ -41,7 +41,7 @@
 
 -(void) testIsExpired
 {
-    ADTokenCacheItem* item = [self adCreateCacheItem];
+    ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
     XCTAssertTrue(item.isExpired, "When time is now, the item should expire.");
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:30];
@@ -57,7 +57,7 @@
 }
 - (void)testIsEmptyUser
 {
-    ADTokenCacheItem* item = [self adCreateCacheItem];
+    ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
     XCTAssertFalse(item.isEmptyUser);
     item.userInformation = nil;
     XCTAssertTrue(item.isEmptyUser);
@@ -70,7 +70,7 @@
 {
     ADAuthenticationError* error;
     
-    ADTokenCacheItem* item1 = [self adCreateCacheItem];
+    ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
     if (userId1)
     {
         item1.userInformation = [ADUserInformation userInformationWithUserId:userId1 error:&error];
@@ -82,7 +82,7 @@
         item1.userInformation = nil;
     }
     
-    ADTokenCacheItem* item2 = [self adCreateCacheItem];
+    ADTokenCacheItem* item2 = [self adCreateCacheItem:@"eric@contoso.com"];
     if (userId2)
     {
         item2.userInformation = [ADUserInformation userInformationWithUserId:userId2 error:&error];
@@ -101,7 +101,7 @@
 -(void)testIsSameUser
 {
     //Check the trivial cases:
-    ADTokenCacheItem* item = [self adCreateCacheItem];
+    ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
     XCTAssertTrue([item isSameUser:item]);//self
     ADTokenCacheItem* copy = [item copy];
     XCTAssertTrue([item isSameUser:copy]);
@@ -127,7 +127,7 @@
 
 -(void) testMultiRefreshTokens
 {
-    ADTokenCacheItem* item = [self adCreateCacheItem];
+    ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
     XCTAssertFalse(item.multiResourceRefreshToken);
     item.resource = nil;
     XCTAssertFalse(item.multiResourceRefreshToken);

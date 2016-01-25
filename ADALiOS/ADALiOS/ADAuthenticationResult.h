@@ -40,7 +40,7 @@ typedef enum
 {
 @protected
     //See the corresponding properties for details.
-    ADTokenCacheItem*          _tokenCacheStoreItem;
+    ADTokenCacheItem*          _tokenCacheItem;
     ADAuthenticationResultStatus    _status;
     ADAuthenticationError*          _error;
     NSUUID*                         _correlationId;
@@ -51,11 +51,11 @@ typedef enum
 @property (readonly) ADAuthenticationResultStatus status;
 
 /*! A valid access token, if the results indicates success. The property is 
- calculated from the tokenCacheStoreItem one. The property is nil, in 
+ calculated from the tokenCacheItem one. The property is nil, in 
  case of error.*/
 @property (readonly) NSString* accessToken;
 
-@property (readonly) ADTokenCacheItem* tokenCacheStoreItem;
+@property (readonly) ADTokenCacheItem* tokenCacheItem;
 
 /*! The error that occurred or nil, if the operation was successful */
 @property (readonly) ADAuthenticationError* error;

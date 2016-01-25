@@ -46,7 +46,7 @@
     return;
 }
 
--(void) removeAll:(ADAuthenticationError *__autoreleasing *)error
+-(void) testRemoveAll:(ADAuthenticationError *__autoreleasing *)error
 {
     (void)error;
     return;

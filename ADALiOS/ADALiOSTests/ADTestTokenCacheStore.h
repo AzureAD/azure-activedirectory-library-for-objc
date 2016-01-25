@@ -17,9 +17,9 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "../ADALiOS/ADTokenCacheEnumerator.h"
+#import "ADTokenCache+Internal.h"
 
 /*! Stub class used for testing purposes. */
-@interface ADTestTokenCacheStore : NSObject<ADTokenCacheEnumerator>
+@interface ADTestTokenCacheStore : NSObject<ADTokenCacheAccessor>
 
 @end
