@@ -95,11 +95,11 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
     
     //one item:
-    XCTAssertTrue([mStore addOrUpdateItem:item1 error:&error]);
+    XCTAssertTrue([mStore addOrUpdateItem:item1 error:&error], @"addOrUpdate failed: %@ (%d)", error.errorDetails, error.code);
     XCTAssertNil(error);
     
     // Add the same item again for fun
-    XCTAssertTrue([mStore addOrUpdateItem:item1 error:&error]);
+    XCTAssertTrue([mStore addOrUpdateItem:item1 error:&error], @"addOrUpdate failed: %@ (%d)", error.errorDetails, error.code);
     XCTAssertNil(error);
     
     // Verify there's only a single item in the allItems list
@@ -110,7 +110,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     ADTokenCacheItem* returnedItem = [mStore getItemWithKey:[self adCreateCacheKey] userId:@"eric@contoso.com" error:&error];
     XCTAssertNotNil(returnedItem);
-    XCTAssertNil(error);
+    XCTAssertNil(error, @"getItemWithKey failed: %@ (%d)", error.errorDetails, error.code);
     
     XCTAssertEqualObjects(item1, returnedItem);
 }
