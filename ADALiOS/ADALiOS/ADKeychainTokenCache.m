@@ -385,7 +385,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     @param  error   (Optional) In the case of an error this will be filled with the
                     error details.
  */
-- (void)addOrUpdateItem:(ADTokenCacheItem *)item
+- (BOOL)addOrUpdateItem:(ADTokenCacheItem *)item
                   error:(ADAuthenticationError * __autoreleasing*)error
 {
     @synchronized(self)
@@ -393,7 +393,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         ADTokenCacheStoreKey* key = [item extractKey:error];
         if (!key)
         {
-            return;
+            return NO;
         }
         
         // In layers above this a nil/blank user ID means we simply don't know who it is (thanks to ADFS)
@@ -413,7 +413,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         OSStatus status = SecItemDelete((CFDictionaryRef)query);
         if ([ADKeychainTokenCache checkStatus:status details:@"Failed to remove previous entry from the keychain." error:error])
         {
-            return;
+            return NO;
         }
         
         NSData* itemData = [NSKeyedArchiver archivedDataWithRootObject:item];
@@ -421,8 +421,13 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
                                            (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly}];
         status = SecItemAdd((CFDictionaryRef)query, NULL);
         
-        [ADKeychainTokenCache checkStatus:status details:@"Failed to add or update keychain entry." error:error];
+        if ([ADKeychainTokenCache checkStatus:status details:@"Failed to add or update keychain entry." error:error])
+        {
+            return NO;
+        }
     }
+    
+    return YES;
 }
 
 - (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error

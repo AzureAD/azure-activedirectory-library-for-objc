@@ -457,18 +457,19 @@
  if an item already exists for the same key.
  @param error: in case of an error, if this parameter is not nil, it will be filled with
  the error details. */
-- (void)addOrUpdateItem:(ADTokenCacheItem *)item
+- (BOOL)addOrUpdateItem:(ADTokenCacheItem *)item
                   error:(ADAuthenticationError * __autoreleasing *)error
 {
     [_delegate willWriteCache:self];
-    [self addOrUpdateImpl:item error:error];
+    BOOL result = [self addOrUpdateImpl:item error:error];
     [_delegate didWriteCache:self];
+    
+    return result;
 }
 
-- (void)addOrUpdateImpl:(ADTokenCacheItem *)item
+- (BOOL)addOrUpdateImpl:(ADTokenCacheItem *)item
                   error:(ADAuthenticationError * __autoreleasing *)error
 {
-
     if (!item)
     {
         ADAuthenticationError* adError = [ADAuthenticationError errorFromArgument:item argumentName:@"item"];
@@ -476,7 +477,7 @@
         {
             *error = adError;
         }
-        return;
+        return NO;
     }
     
     // Copy the item to make sure it doesn't change under us.
@@ -485,7 +486,7 @@
     ADTokenCacheStoreKey* key = [item extractKey:error];
     if (!key)
     {
-        return;
+        return NO;
     }
     
     NSMutableDictionary* tokens = nil;
@@ -537,6 +538,8 @@
     item.userInformation = nil;
     
     [userDict setObject:item forKey:key];
+    
+    return YES;
 }
 
 @end
