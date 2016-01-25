@@ -34,7 +34,6 @@
 		8B5989511811A3DB00744AEE /* ADAuthenticationError.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B5989501811A3DB00744AEE /* ADAuthenticationError.m */; };
 		8B5989521811AF7E00744AEE /* ADAuthenticationError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B59894F1811A3DB00744AEE /* ADAuthenticationError.h */; };
 		8B5989551811B89800744AEE /* ADTokenCacheStoreKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B5989541811B89800744AEE /* ADTokenCacheStoreKey.m */; };
-		8B5989591811BFBA00744AEE /* ADTokenCacheStoreKey.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B5989531811B89800744AEE /* ADTokenCacheStoreKey.h */; };
 		8B59895A1811BFCB00744AEE /* ADTokenCacheItem.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B59894C1810BEAC00744AEE /* ADTokenCacheItem.h */; };
 		8B598961181710FD00744AEE /* ADKeychainTokenCacheStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B598960181710FD00744AEE /* ADKeychainTokenCacheStoreTests.m */; };
 		8B598963181739AA00744AEE /* ADAuthenticationErrorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B598962181739AA00744AEE /* ADAuthenticationErrorTests.m */; };
@@ -76,6 +75,7 @@
 		9430C34F1C54373E00D6506D /* ADAcquireTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8346A1807BE3F007F9F0D /* ADAcquireTokenTests.m */; };
 		9430C3561C55862A00D6506D /* ADAuthorityValidationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9430C3551C55862A00D6506D /* ADAuthorityValidationTests.m */; };
 		94351AA01B3F67FB00CD5F5E /* NSUUID+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 94351A9F1B3F67FB00CD5F5E /* NSUUID+ADExtensions.m */; };
+		9453C2FE1C56B519006B9E79 /* ADKeychainTokenCache.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B8FD799188223770070B1BE /* ADKeychainTokenCache.h */; };
 		949B3A9C1B3DEAAD00381438 /* ADAuthenticationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 949B3A9B1B3DEAAD00381438 /* ADAuthenticationRequest.m */; };
 		971C56BE1AF2278C0034820F /* ADBrokerNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 971C56BD1AF2278C0034820F /* ADBrokerNotificationManager.m */; };
 		971C57C91AFFFE010034820F /* ADCustomHeaderHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 971C57C81AFFFE010034820F /* ADCustomHeaderHandler.m */; };
@@ -122,13 +122,13 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				9453C2FE1C56B519006B9E79 /* ADKeychainTokenCache.h in Copy Files */,
 				D6FB3E3D1B30FF510032F883 /* ADUserIdentifier.h in Copy Files */,
 				97DFE4671AE38903008109E1 /* ADAL.h in Copy Files */,
 				8BBE6FAE193EA1C60039C23E /* ADWebAuthController.h in Copy Files */,
 				8B79592118F5ECA700EBF96E /* ADLogger.h in Copy Files */,
 				8B6114041872347E007759C2 /* ADInstanceDiscovery.h in Copy Files */,
 				8B59895A1811BFCB00744AEE /* ADTokenCacheItem.h in Copy Files */,
-				8B5989591811BFBA00744AEE /* ADTokenCacheStoreKey.h in Copy Files */,
 				8B5989521811AF7E00744AEE /* ADAuthenticationError.h in Copy Files */,
 				8B59894B180DF7AF00744AEE /* ADErrorCodes.h in Copy Files */,
 				8B59894A180DF7A900744AEE /* ADUserInformation.h in Copy Files */,

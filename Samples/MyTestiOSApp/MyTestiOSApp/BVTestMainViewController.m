@@ -22,6 +22,7 @@
 #import "BVSettings.h"
 #import "BVTestInstance.h"
 #import "BVApplicationData.h"
+#import <ADALiOS/ADKeychainTokenCache.h>
 
 
 ADAuthenticationContext* context = nil;
@@ -203,7 +204,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
             return;
         }
         
-        ADUserInformation* userInfo = result.tokenCacheStoreItem.userInformation;
+        ADUserInformation* userInfo = result.tokenCacheItem.userInformation;
         if (!userInfo)
         {
             [self appendToResults:@"Succesfully signed in but no user info?"];
@@ -254,7 +255,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
             return;
         }
         
-        [self appendToResults:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+        [self appendToResults:[self processAccessToken:result.tokenCacheItem.accessToken]];
     }];
 }
 
@@ -262,25 +263,22 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
 {
     [self clearResults];
     ADAuthenticationError* error;
-    id<ADTokenCacheEnumerator> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
-    NSArray* allItems = [cache allItemsWithError:&error];
+    ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
+    NSArray* allItems = [cache allItems:&error];
     if (error)
     {
         [self appendToResults:error.errorDetails];
         return;
     }
     NSString* status = nil;
+    
     if (allItems.count > 0)
     {
-        [cache removeAllWithError:&error];
-        if (error)
+        for (ADTokenCacheItem* item in allItems)
         {
-            status = error.errorDetails;
+            [cache removeItem:item error:nil];
         }
-        else
-        {
-            status = @"Items removed.";
-        }
+        status = @"Items removed.";
     }
     else
     {
@@ -303,8 +301,8 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
 {
     [self clearResults];
     ADAuthenticationError* error;
-    id<ADTokenCacheEnumerator> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
-    NSArray* array = [cache allItemsWithError:&error];
+    ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
+    NSArray* array = [cache allItems:&error];
     if (error)
     {
         [self appendToResults:error.errorDetails];
@@ -337,11 +335,14 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
 
 - (IBAction)expireAllPressed:(id)sender
 {
+    // TODO: This requires using internal APIs. It's not an addOrUpdate is not something
+    //       we have any desire to make public.
+    /*
     ADAuthenticationError* error;
     [self clearResults];
     [self appendToResults:@"Attempt to expire..."];
-    id<ADTokenCacheEnumerator> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
-    NSArray* array = [cache allItemsWithError:&error];
+    ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
+    NSArray* array = [cache allItems:&error];
     if (error)
     {
         [self appendToResults:error.errorDetails];
@@ -360,6 +361,8 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     {
         [self appendToResults:@"Done."];
     }
+     */
+    
 }
 
 - (IBAction)promptAlways:(id)sender
@@ -390,7 +393,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
              return;
          }
          
-         [self appendToResults:[self processAccessToken:result.tokenCacheStoreItem.accessToken]];
+         [self appendToResults:[self processAccessToken:result.tokenCacheItem.accessToken]];
          NSLog(@"Access token: %@", result.accessToken);
      }];
     
