@@ -40,10 +40,11 @@
 #import "ADAuthenticationError.h"
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
-#import "ADTokenCacheStoreKey.h"
+#import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
 #import "ADTokenCache+Internal.h"
+#import "ADTokenCacheKey.h"
 
 #define CHECK_ERROR(_cond, _code, _details) { \
     if (!(_cond)) { \
@@ -180,7 +181,7 @@
 
 - (void)addToItems:(nonnull NSMutableArray *)items
     fromDictionary:(nonnull NSDictionary *)dictionary
-               key:(nonnull ADTokenCacheStoreKey *)key
+               key:(nonnull ADTokenCacheKey *)key
           userInfo:(ADUserInformation *)userInfo
 {
     ADTokenCacheItem* item = [dictionary objectForKey:key];
@@ -197,7 +198,7 @@
          forUserId:(nonnull NSString *)userId
             tokens:(nonnull NSDictionary *)tokens
           idtokens:(NSDictionary *)idtokens
-               key:(ADTokenCacheStoreKey *)key
+               key:(ADTokenCacheKey *)key
 {
     NSDictionary* userTokens = [tokens objectForKey:userId];
     if (!userTokens)
@@ -228,7 +229,7 @@
     }
 }
 
-- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheStoreKey *)key
+- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheKey *)key
                                           userId:(nullable NSString *)userId
                                            error:(ADAuthenticationError *__autoreleasing *)error
 {
@@ -244,7 +245,7 @@
     }
 }
 
-- (NSArray<ADTokenCacheItem *> *)getItemsImplKey:(nullable ADTokenCacheStoreKey *)key
+- (NSArray<ADTokenCacheItem *> *)getItemsImplKey:(nullable ADTokenCacheKey *)key
                                           userId:(nullable NSString *)userId
 {
     if (!_cache)
@@ -298,7 +299,7 @@
 - (BOOL)removeImpl:(ADTokenCacheItem *)item
              error:(ADAuthenticationError * __autoreleasing *)error
 {
-    ADTokenCacheStoreKey* key = [item extractKey:error];
+    ADTokenCacheKey* key = [item extractKey:error];
     if (!key)
     {
         return NO;
@@ -381,7 +382,7 @@
             for (id adkey in userDict)
             {
                 // On the first level we're expecting NSDictionaries keyed off of ADTokenCacheStoreKey
-                CHECK_ERROR([adkey isKindOfClass:[ADTokenCacheStoreKey class]], AD_ERROR_BAD_CACHE_FORMAT, @"Key is not the expected class");
+                CHECK_ERROR([adkey isKindOfClass:[ADTokenCacheKey class]], AD_ERROR_BAD_CACHE_FORMAT, @"Key is not the expected class");
                 id token = [userDict objectForKey:adkey];
                 CHECK_ERROR([token isKindOfClass:[ADTokenCacheItem class]], AD_ERROR_BAD_CACHE_FORMAT, @"Token is not of expected class type!");
             }
@@ -414,7 +415,7 @@
  @param error: Will be set only in case of ambiguity. E.g. if userId is nil
  and we have tokens from multiple users. If the cache item is not present,
  the error will not be set. */
-- (ADTokenCacheItem *)getItemWithKey:(ADTokenCacheStoreKey *)key
+- (ADTokenCacheItem *)getItemWithKey:(ADTokenCacheKey *)key
                                    userId:(NSString *)userId
                                     error:(ADAuthenticationError * __autoreleasing *)error
 {
@@ -446,7 +447,7 @@
  if the same resource was accessed by more than one user. The returned
  array should contain only ADTokenCacheItem objects. Returns an empty array,
  if no items are found. Returns nil (and sets the error parameter) in case of error.*/
-- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheStoreKey*)key
+- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey*)key
                                                 error:(ADAuthenticationError* __autoreleasing*)error
 {
     return [self getItemsWithKey:key userId:nil error:error];
@@ -483,7 +484,7 @@
     // Copy the item to make sure it doesn't change under us.
     item = [item copy];
     
-    ADTokenCacheStoreKey* key = [item extractKey:error];
+    ADTokenCacheKey* key = [item extractKey:error];
     if (!key)
     {
         return NO;

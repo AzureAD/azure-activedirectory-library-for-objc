@@ -22,7 +22,7 @@
 
 //Checks the cache for item that can be used to get directly or indirectly an access token.
 //Checks the multi-resource refresh tokens too.
-- (ADTokenCacheItem*)findCacheItemWithKey:(ADTokenCacheStoreKey*) key
+- (ADTokenCacheItem*)findCacheItemWithKey:(ADTokenCacheKey*) key
                                         userId:(ADUserIdentifier*)userId
                                 useAccessToken:(BOOL*) useAccessToken
                                          error:(ADAuthenticationError* __autoreleasing*) error;
@@ -37,7 +37,7 @@
                   cacheItem:(ADTokenCacheItem*)cacheItem
            withRefreshToken:(NSString*)refreshToken;
 
-- (ADTokenCacheItem*)extractCacheItemWithKey:(ADTokenCacheStoreKey*)key
+- (ADTokenCacheItem*)extractCacheItemWithKey:(ADTokenCacheKey*)key
                                            userId:(ADUserIdentifier*)userId
                                             error:(ADAuthenticationError* __autoreleasing*)error;
 

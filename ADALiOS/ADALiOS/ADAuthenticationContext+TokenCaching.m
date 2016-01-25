@@ -21,12 +21,13 @@
 #import "ADHelpers.h"
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem+Internal.h"
+#import "ADTokenCacheKey.h"
 
 @implementation ADAuthenticationContext (TokenCaching)
 
 //Gets an item from the cache, where userId may be nil. Raises error, if items for multiple users
 //are present and user id is not specified.
-- (ADTokenCacheItem*)extractCacheItemWithKey:(ADTokenCacheStoreKey*)key
+- (ADTokenCacheItem*)extractCacheItemWithKey:(ADTokenCacheKey*)key
                                            userId:(ADUserIdentifier*)userId
                                             error:(ADAuthenticationError* __autoreleasing*)error
 {
@@ -52,7 +53,7 @@
 
 //Checks the cache for item that can be used to get directly or indirectly an access token.
 //Checks the multi-resource refresh tokens too.
-- (ADTokenCacheItem*)findCacheItemWithKey:(ADTokenCacheStoreKey*) key
+- (ADTokenCacheItem*)findCacheItemWithKey:(ADTokenCacheKey*) key
                                         userId:(ADUserIdentifier*)userId
                                 useAccessToken:(BOOL*) useAccessToken
                                          error:(ADAuthenticationError* __autoreleasing*) error
@@ -94,7 +95,7 @@
     if (![NSString adIsStringNilOrBlank:key.resource])
     {
         //The request came for specific resource. Try returning a multi-resource refresh token:
-        ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:self.authority
+        ADTokenCacheKey* broadKey = [ADTokenCacheKey keyWithAuthority:self.authority
                                                                        resource:nil
                                                                        clientId:key.clientId
                                                                           error:&localError];
@@ -187,7 +188,7 @@
             
             BOOL removed = NO;
             //The refresh token didn't work. We need to clear this refresh item from the cache.
-            ADTokenCacheStoreKey* exactKey = [cacheItem extractKey:nil];
+            ADTokenCacheKey* exactKey = [cacheItem extractKey:nil];
             if (exactKey)
             {
                 ADTokenCacheItem* existing = [tokenCacheStoreInstance getItemWithKey:exactKey userId:cacheItem.userInformation.userId error:nil];
@@ -202,7 +203,7 @@
             if (!removed)
             {
                 //Now try finding a broad refresh token in the cache and remove it accordingly
-                ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:self.authority resource:nil clientId:cacheItem.clientId error:nil];
+                ADTokenCacheKey* broadKey = [ADTokenCacheKey keyWithAuthority:self.authority resource:nil clientId:cacheItem.clientId error:nil];
                 if (broadKey)
                 {
                     ADTokenCacheItem* broadItem = [tokenCacheStoreInstance getItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];

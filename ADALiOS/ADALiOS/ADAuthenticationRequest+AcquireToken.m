@@ -22,6 +22,7 @@
 #import "ADInstanceDiscovery.h"
 #import "ADHelpers.h"
 #import "ADUserIdentifier.h"
+#import "ADTokenCacheKey.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -65,7 +66,7 @@
     ADAuthenticationError* error;
     //We are explicitly creating a key first to ensure indirectly that all of the required arguments are correct.
     //This is the safest way to guarantee it, it will raise an error, if the the any argument is not correct:
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:_context.authority
+    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_context.authority
                                                               resource:_resource
                                                               clientId:_clientId
                                                                  error:&error];
@@ -146,7 +147,7 @@
          //Try other means of getting access token result:
          if (!item.multiResourceRefreshToken)//Try multi-resource refresh token if not currently trying it
          {
-             ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:_context.authority resource:nil clientId:_clientId error:nil];
+             ADTokenCacheKey* broadKey = [ADTokenCacheKey keyWithAuthority:_context.authority resource:nil clientId:_clientId error:nil];
              if (broadKey)
              {
                  BOOL useAccessToken;

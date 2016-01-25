@@ -28,6 +28,7 @@
 #import <objc/runtime.h>
 #import "ADTestURLConnection.h"
 #import "ADOAuth2Constants.h"
+#import "ADTokenCacheKey.h"
 
 @implementation XCTestCase (TestHelperMethods)
 
@@ -380,9 +381,9 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return item;
 }
 
-- (ADTokenCacheStoreKey *)adCreateCacheKey
+- (ADTokenCacheKey *)adCreateCacheKey
 {
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:TEST_AUTHORITY
+    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY
                                                               resource:TEST_RESOURCE
                                                               clientId:TEST_CLIENT_ID
                                                                  error:nil];

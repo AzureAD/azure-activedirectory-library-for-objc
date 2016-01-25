@@ -22,7 +22,6 @@
 #import "ADAuthenticationResult.h"
 #import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
-#import "ADTokenCacheStoreKey.h"
 #import "ADErrorCodes.h"
 
 #if TARGET_OS_IPHONE

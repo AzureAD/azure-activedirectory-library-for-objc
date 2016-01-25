@@ -21,7 +21,7 @@
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADTokenCacheItem.h"
 #import "NSString+ADHelperMethods.h"
-#import "ADTokenCacheStoreKey.h"
+#import "ADTokenCacheKey.h"
 #import "ADUserInformation.h"
 #import "ADWorkplaceJoinUtil.h"
 #import "ADAuthenticationSettings.h"
@@ -90,7 +90,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 }
 
 - (void)logItemRetrievalStatus:(NSArray *)items
-                           key:(ADTokenCacheStoreKey *)key
+                           key:(ADTokenCacheKey *)key
                         userId:(NSString *)userId
 {
     if ([items count] > 0)
@@ -142,7 +142,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 // keychain attributes as extracted by SecItemCopyMatching. The attributes
 // (represented as dictionaries) can be used to obtain the actual token cache item.
 // May return nil in case of error.
-- (NSArray *)keychainItemsWithKey:(ADTokenCacheStoreKey*)key
+- (NSArray *)keychainItemsWithKey:(ADTokenCacheKey*)key
                            userId:(NSString*)userId
                             error:(ADAuthenticationError* __autoreleasing*)error
 {
@@ -193,7 +193,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     return item;
 }
 
-- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheStoreKey *)key
+- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
                                                userId:(NSString *)userId
                                                 error:(ADAuthenticationError * __autoreleasing* )error
 {
@@ -237,7 +237,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
  if the same resource was accessed by more than one user. The returned
  array should contain only ADTokenCacheItem objects. Returns an empty array,
  if no items are found. Returns nil (and sets the error parameter) in case of error.*/
-- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheStoreKey *)key
+- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
                                                 error:(ADAuthenticationError * __autoreleasing *)error
 {
     return [self getItemsWithKey:key userId:nil error:error];
@@ -257,7 +257,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 {
     RETURN_NO_ON_NIL_ARGUMENT(item);
     
-    ADTokenCacheStoreKey* key = [item extractKey:error];
+    ADTokenCacheKey* key = [item extractKey:error];
     if (!key)
     {
         return NO;
@@ -285,7 +285,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 }
 
 // Given an item key, generates the string key used in the keychain:
-- (NSString*)keychainKeyFromCacheKey:(ADTokenCacheStoreKey *)itemKey
+- (NSString*)keychainKeyFromCacheKey:(ADTokenCacheKey *)itemKey
 {
     //The key contains all of the ADAL cache key elements plus the version of the
     //library. The latter is required to ensure that SecItemAdd won't break on collisions
@@ -317,7 +317,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     return YES;
 }
 
-- (NSMutableDictionary*)queryDictionaryForKey:(ADTokenCacheStoreKey *)key
+- (NSMutableDictionary*)queryDictionaryForKey:(ADTokenCacheKey *)key
                                        userId:(NSString *)userId
                                    additional:(NSDictionary*)additional
 {
@@ -349,7 +349,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
                     and we have tokens from multiple users. If the cache item is not
                     present, the error will not be set.
  */
-- (ADTokenCacheItem*)getItemWithKey:(ADTokenCacheStoreKey *)key
+- (ADTokenCacheItem*)getItemWithKey:(ADTokenCacheKey *)key
                              userId:(NSString *)userId
                               error:(ADAuthenticationError * __autoreleasing *)error
 {
@@ -390,7 +390,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 {
     @synchronized(self)
     {
-        ADTokenCacheStoreKey* key = [item extractKey:error];
+        ADTokenCacheKey* key = [item extractKey:error];
         if (!key)
         {
             return NO;

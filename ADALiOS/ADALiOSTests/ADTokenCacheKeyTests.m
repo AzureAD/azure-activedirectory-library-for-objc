@@ -17,10 +17,10 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
-#import "ADTokenCacheStoreKey.h"
+#import "ADTokenCacheKey.h"
 #import "XCTestCase+TestHelperMethods.h"
 
-@interface ADTokenCacheStoreKeyTests : XCTestCase
+@interface ADTokenCacheKeyTests : XCTestCase
 {
     NSString* mAuthority;
     NSString* mResource;
@@ -29,7 +29,7 @@
 
 @end
 
-@implementation ADTokenCacheStoreKeyTests
+@implementation ADTokenCacheKeyTests
 
 - (void)setUp
 {
@@ -49,56 +49,56 @@
 - (void)testCreate
 {
     ADAuthenticationError* error;
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:mResource clientId:mClientId error:&error];
+    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:mAuthority resource:mResource clientId:mClientId error:&error];
     ADAssertNoError;
     XCTAssertNotNil(key);
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Bad authority:
     error = nil;
-    ADTokenCacheStoreKey* badKey = [ADTokenCacheStoreKey keyWithAuthority:nil resource:mResource clientId:mClientId error:&error];
+    ADTokenCacheKey* badKey = [ADTokenCacheKey keyWithAuthority:nil resource:mResource clientId:mClientId error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority"
                              returnedObject:badKey
                                       error:error];
     error = nil;
-    badKey = [ADTokenCacheStoreKey keyWithAuthority:@"   " resource:mResource clientId:mClientId error:&error];
+    badKey = [ADTokenCacheKey keyWithAuthority:@"   " resource:mResource clientId:mClientId error:&error];
     [self adValidateFactoryForInvalidArgument:@"authority"
                              returnedObject:badKey
                                       error:error];
 
     //Bad clientId
     error = nil;
-    badKey = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:mResource clientId:nil error:&error];
+    badKey = [ADTokenCacheKey keyWithAuthority:mAuthority resource:mResource clientId:nil error:&error];
     [self adValidateFactoryForInvalidArgument:@"clientId"
                              returnedObject:badKey
                                       error:error];
     error = nil;
-    badKey = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:mResource clientId:@"    " error:&error];
+    badKey = [ADTokenCacheKey keyWithAuthority:mAuthority resource:mResource clientId:@"    " error:&error];
     [self adValidateFactoryForInvalidArgument:@"clientId"
                              returnedObject:badKey
                                       error:error];
     
     error = nil;
-    ADTokenCacheStoreKey* normal = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:mResource clientId:mClientId error:&error];
+    ADTokenCacheKey* normal = [ADTokenCacheKey keyWithAuthority:mAuthority resource:mResource clientId:mClientId error:&error];
     ADAssertNoError;
     XCTAssertNotNil(normal);
     
     error = nil;
-    ADTokenCacheStoreKey* broad = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:nil clientId:mClientId error:&error];
+    ADTokenCacheKey* broad = [ADTokenCacheKey keyWithAuthority:mAuthority resource:nil clientId:mClientId error:&error];
     ADAssertNoError;
     XCTAssertNotNil(broad);
 }
 
--(void) assertKey: (ADTokenCacheStoreKey*) key1
-         equalsTo: (ADTokenCacheStoreKey*) key2
+-(void) assertKey: (ADTokenCacheKey*) key1
+         equalsTo: (ADTokenCacheKey*) key2
 {
     XCTAssertTrue([key1 isEqual:key2]);
     XCTAssertTrue([key2 isEqual:key1]);
     XCTAssertEqual(key1.hash, key2.hash);
 }
 
--(void) assertKey: (ADTokenCacheStoreKey*) key1
-      notEqualsTo: (ADTokenCacheStoreKey*) key2
+-(void) assertKey: (ADTokenCacheKey*) key1
+      notEqualsTo: (ADTokenCacheKey*) key2
 {
     XCTAssertFalse([key1 isEqual:key2]);
     XCTAssertFalse([key2 isEqual:key1]);
@@ -108,7 +108,7 @@
 - (void)testCompare
 {
     ADAuthenticationError* error;
-    ADTokenCacheStoreKey* normal = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:mResource clientId:mClientId error:&error];
+    ADTokenCacheKey* normal = [ADTokenCacheKey keyWithAuthority:mAuthority resource:mResource clientId:mClientId error:&error];
     ADAssertNoError;
     XCTAssertNotNil(normal);
     [self assertKey:normal equalsTo:normal];//Self
@@ -116,7 +116,7 @@
     
     {
         error = nil;
-        ADTokenCacheStoreKey* same = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:mResource clientId:mClientId error:&error];
+        ADTokenCacheKey* same = [ADTokenCacheKey keyWithAuthority:mAuthority resource:mResource clientId:mClientId error:&error];
         ADAssertNoError;
         XCTAssertNotNil(same);
         [self assertKey:normal equalsTo:normal];
@@ -124,7 +124,7 @@
     
     {
         error = nil;
-        ADTokenCacheStoreKey* differentAuth = [ADTokenCacheStoreKey keyWithAuthority:@"https://login.windows.com/common" resource:mResource clientId:mClientId error:&error];
+        ADTokenCacheKey* differentAuth = [ADTokenCacheKey keyWithAuthority:@"https://login.windows.com/common" resource:mResource clientId:mClientId error:&error];
         ADAssertNoError;
         XCTAssertNotNil(differentAuth);
         [self assertKey:normal notEqualsTo:differentAuth];
@@ -132,7 +132,7 @@
     
     {
         error = nil;
-        ADTokenCacheStoreKey* differentRes = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:@"another resource" clientId:mClientId error:&error];
+        ADTokenCacheKey* differentRes = [ADTokenCacheKey keyWithAuthority:mAuthority resource:@"another resource" clientId:mClientId error:&error];
         ADAssertNoError;
         XCTAssertNotNil(differentRes);
         [self assertKey:normal notEqualsTo:differentRes];
@@ -140,14 +140,14 @@
     
     {
         error = nil;
-        ADTokenCacheStoreKey* differentClient = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:mResource clientId:@"another clientid" error:&error];
+        ADTokenCacheKey* differentClient = [ADTokenCacheKey keyWithAuthority:mAuthority resource:mResource clientId:@"another clientid" error:&error];
         ADAssertNoError;
         XCTAssertNotNil(differentClient);
         [self assertKey:normal notEqualsTo:differentClient];
     }
     
     error = nil;
-    ADTokenCacheStoreKey* broad = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:nil clientId:mClientId error:&error];
+    ADTokenCacheKey* broad = [ADTokenCacheKey keyWithAuthority:mAuthority resource:nil clientId:mClientId error:&error];
     ADAssertNoError;
     XCTAssertNotNil(broad);
     [self assertKey:broad equalsTo:broad];
@@ -155,7 +155,7 @@
     
     {
         error = nil;
-        ADTokenCacheStoreKey* sameBroad = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:nil clientId:mClientId error:&error];
+        ADTokenCacheKey* sameBroad = [ADTokenCacheKey keyWithAuthority:mAuthority resource:nil clientId:mClientId error:&error];
         ADAssertNoError;
         XCTAssertNotNil(sameBroad);
         [self assertKey:broad equalsTo:sameBroad];
@@ -163,7 +163,7 @@
 
     {
         error = nil;
-        ADTokenCacheStoreKey* differentAuthBroad = [ADTokenCacheStoreKey keyWithAuthority:@"https://login.windows.com/common" resource:nil clientId:mClientId error:&error];
+        ADTokenCacheKey* differentAuthBroad = [ADTokenCacheKey keyWithAuthority:@"https://login.windows.com/common" resource:nil clientId:mClientId error:&error];
         ADAssertNoError;
         XCTAssertNotNil(differentAuthBroad);
         [self assertKey:broad notEqualsTo:differentAuthBroad];
@@ -171,7 +171,7 @@
     
     {
         error = nil;
-        ADTokenCacheStoreKey* differentClientBroad = [ADTokenCacheStoreKey keyWithAuthority:mAuthority resource:nil clientId:@"another authority" error:&error];
+        ADTokenCacheKey* differentClientBroad = [ADTokenCacheKey keyWithAuthority:mAuthority resource:nil clientId:@"another authority" error:&error];
         ADAssertNoError;
         XCTAssertNotNil(differentClientBroad);
         [self assertKey:broad notEqualsTo:differentClientBroad];

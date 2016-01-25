@@ -42,7 +42,7 @@ typedef enum
 
 @class ADTokenCacheItem;
 @class ADUserInformation;
-@class ADTokenCacheStoreKey;
+@class ADTokenCacheKey;
 @class ADTestURLResponse;
 
 @interface XCTestCase (HelperMethods)
@@ -112,7 +112,7 @@ typedef enum
                                    userId:(NSString *)userId;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId;
-- (ADTokenCacheStoreKey *)adCreateCacheKey;
+- (ADTokenCacheKey *)adCreateCacheKey;
 
 //Creates a sample user information object
 - (ADUserInformation *)adCreateUserInformation:(NSString*)userId;

@@ -20,11 +20,11 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "../ADALiOS/ADAuthenticationContext.h"
 
-@interface ADTokenCacheItemTest : XCTestCase
+@interface ADTokenCacheItemTests : XCTestCase
 
 @end
 
-@implementation ADTokenCacheItemTest
+@implementation ADTokenCacheItemTests
 
 - (void)setUp
 {

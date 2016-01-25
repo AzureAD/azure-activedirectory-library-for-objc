@@ -33,13 +33,13 @@ NSString* const sPersisted = @"successfully persisted";
 NSString* const sNoNeedForPersistence = @"No need for cache persistence.";
 NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
-@interface ADKeychainTokenCacheStoreTests : XCTestCase
+@interface ADKeychainTokenCacheTests : XCTestCase
 {
     ADKeychainTokenCache* mStore;
 }
 @end
 
-@implementation ADKeychainTokenCacheStoreTests
+@implementation ADKeychainTokenCacheTests
 
 - (void)setUp
 {

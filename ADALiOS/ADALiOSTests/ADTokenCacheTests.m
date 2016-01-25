@@ -19,7 +19,7 @@
 #import <XCTest/XCTest.h>
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheItem.h"
-#import "ADTokenCacheStoreKey.h"
+#import "ADTokenCacheKey.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADUserInformation.h"
 
@@ -186,9 +186,9 @@ static ADTokenCacheItem* ReginaItem(NSString* resource, BOOL includeUserInfo)
     return item;
 }
 
-static ADTokenCacheStoreKey* CacheKey(NSString* resource)
+static ADTokenCacheKey* CacheKey(NSString* resource)
 {
-    return [ADTokenCacheStoreKey keyWithAuthority:TEST_AUTHORITY resource:resource clientId:TEST_CLIENT_ID error:nil];
+    return [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY resource:resource clientId:TEST_CLIENT_ID error:nil];
 }
 
 static NSString* CartmanUserid()

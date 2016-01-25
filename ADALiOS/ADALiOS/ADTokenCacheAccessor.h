@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class ADTokenCacheStoreKey;
+@class ADTokenCacheKey;
 @class ADTokenCacheItem;
 
 @protocol ADTokenCacheAccessor <NSObject>
@@ -31,9 +31,9 @@
                     and we have tokens from multiple users. If the cache item is not
                     present, the error will not be set.
  */
-- (nullable ADTokenCacheItem*)getItemWithKey:(nonnull ADTokenCacheStoreKey *)key
-                                      userId:(nullable NSString *)userId
-                                       error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (nullable ADTokenCacheItem *)getItemWithKey:(nonnull ADTokenCacheKey *)key
+                                       userId:(nullable NSString *)userId
+                                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 /*!
     Ensures the cache contains an item matching the passed in item, adding or updating the

@@ -21,7 +21,7 @@
 #import "ADUserInformation.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
-#import "ADTokenCacheStoreKey.h"
+#import "ADTokenCacheKey.h"
 
 @implementation ADTokenCacheItem
 {
@@ -70,9 +70,9 @@
     return item;
 }
 
-- (ADTokenCacheStoreKey*)extractKey:(ADAuthenticationError* __autoreleasing *)error
+- (ADTokenCacheKey*)extractKey:(ADAuthenticationError* __autoreleasing *)error
 {
-    return [ADTokenCacheStoreKey keyWithAuthority:self.authority
+    return [ADTokenCacheKey keyWithAuthority:self.authority
                                          resource:self.resource
                                          clientId:self.clientId
                                             error:error];

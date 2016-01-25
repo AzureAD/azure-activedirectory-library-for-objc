@@ -18,7 +18,7 @@
 #import <Foundation/Foundation.h>
 
 @class ADUserInformation;
-@class ADTokenCacheStoreKey;
+@class ADTokenCacheKey;
 @class ADAuthenticationError;
 
 /*! Contains all cached elements for a given request for a token.
@@ -54,7 +54,7 @@
 /*! Obtains a key to be used for the internal cache from the full cache item.
  @param error: if a key cannot be extracted, the method will return nil and if this parameter is not nil,
  it will be filled with the appropriate error information.*/
-- (ADTokenCacheStoreKey*) extractKey:(ADAuthenticationError * __autoreleasing *)error;
+- (ADTokenCacheKey*) extractKey:(ADAuthenticationError * __autoreleasing *)error;
 
 /*! Compares expiresOn with the current time. If expiresOn is not nil, the function returns the
  comparison of expires on and the current time. If expiresOn is nil, the function returns NO,

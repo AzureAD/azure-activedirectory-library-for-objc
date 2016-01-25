@@ -27,11 +27,11 @@
             details:(NSString*)details
               error:(ADAuthenticationError* __autoreleasing *)error;
 
-- (NSMutableDictionary *)queryDictionaryForKey:(ADTokenCacheStoreKey *)key
+- (NSMutableDictionary *)queryDictionaryForKey:(ADTokenCacheKey *)key
                                         userId:(NSString *)userId
                                     additional:(NSDictionary*)additional;
 
-- (NSString*)keychainKeyFromCacheKey:(ADTokenCacheStoreKey *)itemKey;
+- (NSString*)keychainKeyFromCacheKey:(ADTokenCacheKey *)itemKey;
 
 /*! This method should *only* be called in test code, it should never be called
     in production code */

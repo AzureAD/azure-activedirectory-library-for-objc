@@ -20,10 +20,10 @@
 #import "ADALiOS.h"
 #import "ADAuthenticationContext.h"
 #import "ADInstanceDiscovery.h"
-#import "ADTokenCacheStoreKey.h"
+#import "ADTokenCacheKey.h"
 #import "NSString+ADHelperMethods.h"
 
-@implementation ADTokenCacheStoreKey
+@implementation ADTokenCacheKey
 {
     NSUInteger _hash;
 }
@@ -68,7 +68,7 @@
     RETURN_NIL_ON_NIL_ARGUMENT(authority);//Canonicalization will return nil on empty or bad URL.
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(clientId);
     
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey alloc];
+    ADTokenCacheKey* key = [ADTokenCacheKey alloc];
     return [key initWithAuthority:authority resource:resource clientId:clientId];
 }
 
@@ -84,12 +84,12 @@
         return NO;
     }
     
-    if (![object isKindOfClass:[ADTokenCacheStoreKey class]])
+    if (![object isKindOfClass:[ADTokenCacheKey class]])
     {
         return NO;
     }
     
-    ADTokenCacheStoreKey* key = object;
+    ADTokenCacheKey* key = object;
     
     //First check the fields which cannot be nil:
     if (![self.authority isEqualToString:key.authority] ||
