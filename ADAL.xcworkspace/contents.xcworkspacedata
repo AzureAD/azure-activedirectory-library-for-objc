@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "container:ADALiOS/ADALiOS.xcodeproj">
+      location = "group:ADAL/ADAL.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Samples/MyTestiOSApp/MyTestiOSApp.xcodeproj">
