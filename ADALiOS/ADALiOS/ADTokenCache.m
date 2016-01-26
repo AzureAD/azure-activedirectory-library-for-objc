@@ -120,12 +120,10 @@
 - (BOOL)deserialize:(nullable NSData*)data
               error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
-    // Start by dropping our existing cache
-    _cache = nil;
-    
     // If they pass in nil on deserialize that means to drop the cache
     if (!data)
     {
+        _cache = nil;
         return YES;
     }
     
