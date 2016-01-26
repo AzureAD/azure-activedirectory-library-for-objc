@@ -53,23 +53,6 @@
     return item;
 }
 
-+(id) initWithStoreItem:(ADTokenCacheStoreItem*) itemToBeCopied
-{
-    ADTokenCacheStoreItem* item = [self.class new];
-    
-    item.resource = itemToBeCopied.resource;
-    item.authority = itemToBeCopied.authority;
-    item.clientId = itemToBeCopied.clientId;
-    item.accessToken = itemToBeCopied.accessToken;
-    item.accessTokenType = itemToBeCopied.accessTokenType;
-    item.refreshToken = itemToBeCopied.refreshToken;
-    item.expiresOn = itemToBeCopied.expiresOn;
-    item.userInformation = itemToBeCopied.userInformation;
-    item.sessionKey = itemToBeCopied.sessionKey;
-    
-    return item;
-}
-
 -(ADTokenCacheStoreKey*) extractKeyWithError: (ADAuthenticationError* __autoreleasing *) error
 {
     return [ADTokenCacheStoreKey keyWithAuthority:self.authority
