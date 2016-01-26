@@ -53,7 +53,7 @@
     return item;
 }
 
--(ADTokenCacheStoreKey*) extractKeyWithError: (ADAuthenticationError* __autoreleasing *) error
+- (ADTokenCacheStoreKey*)extractKey:(ADAuthenticationError* __autoreleasing *)error
 {
     return [ADTokenCacheStoreKey keyWithAuthority:self.authority
                                          resource:self.resource

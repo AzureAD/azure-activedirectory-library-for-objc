@@ -21,7 +21,7 @@
 #import "ADAuthenticationResult.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADOAuth2Constants.h"
-#import "ADAuthenticationBroker.h"
+#import "ADWebAuthController.h"
 #import "ADAuthenticationSettings.h"
 #import "NSURL+ADExtensions.h"
 #import "NSDictionary+ADExtensions.h"
@@ -34,7 +34,6 @@
 #import "ADWorkPlaceJoin.h"
 #import "ADPkeyAuthHelper.h"
 #import "ADWorkPlaceJoinConstants.h"
-#import "ADKeyChainHelper.h"
 #import "ADBrokerKeyHelper.h"
 #import "ADClientMetrics.h"
 #import "NSString+ADHelperMethods.h"
@@ -157,7 +156,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     
     if (!request)
     {
-        completionBlock([ADAuthenticationResult resultFromError:error]);
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
     }
     
     return request;

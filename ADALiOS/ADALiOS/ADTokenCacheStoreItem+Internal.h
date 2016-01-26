@@ -20,6 +20,7 @@
 #import "ADTokenCacheStoreItem.h"
 
 @class ADAuthenticationError;
+@class ADAuthenticationResult;
 
 @interface ADTokenCacheStoreItem (Internal)
 

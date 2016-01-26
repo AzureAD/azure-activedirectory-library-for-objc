@@ -17,16 +17,10 @@
 // governing permissions and limitations under the License.
 
 
-#import "ADLogger.h"
-#import "ADAuthenticationContext.h"
-#import "ADTokenCacheStoring.h"
-#import "ADAuthenticationError.h"
-#import "ADAuthenticationResult.h"
-#import "ADTokenCacheStoreItem.h"
-#import "ADUserInformation.h"
-#import "ADTokenCacheStoreKey.h"
-#import "ADAuthenticationSettings.h"
-#import "ADWebAuthController.h"
-#import "ADErrorCodes.h"
-#import "ADAuthenticationParameters.h"
-#import "ADUserIdentifier.h"
+#import "ADKeychainTokenCacheStore.h"
+
+@interface ADKeychainTokenCacheStore (InternalTest)
+
+- (void)removeAll:(ADAuthenticationError * __autoreleasing *)error;
+
+@end

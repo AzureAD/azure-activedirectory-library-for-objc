@@ -31,27 +31,24 @@
 
 + (BOOL)respondsToUrl:(NSString*)url
 {
-    BOOL schemeIsInPlist = NO; // find out if the sceme is in the plist file.
-    NSBundle* mainBundle = [NSBundle mainBundle];
-    NSArray* cfBundleURLTypes = [mainBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"];
-    if ([cfBundleURLTypes isKindOfClass:[NSArray class]] && [cfBundleURLTypes lastObject]) {
-        NSDictionary* cfBundleURLTypes0 = [cfBundleURLTypes objectAtIndex:0];
-        if ([cfBundleURLTypes0 isKindOfClass:[NSDictionary class]]) {
-            NSArray* cfBundleURLSchemes = [cfBundleURLTypes0 objectForKey:@"CFBundleURLSchemes"];
-            if ([cfBundleURLSchemes isKindOfClass:[NSArray class]]) {
-                for (NSString* scheme in cfBundleURLSchemes) {
-                    if ([scheme isKindOfClass:[NSString class]] && [url hasPrefix:scheme]) {
-                        schemeIsInPlist = YES;
-                        break;
-                    }
-                }
-            }
+    NSArray* urlTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleURLTypes"];
+    
+    NSString* scheme = [[NSURL URLWithString:url] scheme];
+    if (!scheme)
+    {
+        return NO;
+    }
+    
+    for (NSDictionary* urlRole in urlTypes)
+    {
+        NSArray* urlSchemes = [urlRole objectForKey:@"CFBundleURLSchemes"];
+        if ([urlSchemes containsObject:scheme])
+        {
+            return YES;
         }
     }
     
-    BOOL canOpenUrl = [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString: url]];
-    
-    return schemeIsInPlist && canOpenUrl;
+    return NO;
 }
 
 + (void)internalHandleBrokerResponse:(NSURL *)response
@@ -81,6 +78,10 @@
         NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
         NSString* msgVer = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
         NSInteger protocolVersion = 1;
+        
+        NSUUID* correlationId = [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
+        [[NSUUID alloc] initWithUUIDString:[queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]]
+        : nil;
         
         if (msgVer)
         {
@@ -112,12 +113,13 @@
                 result = [ADAuthenticationResult resultFromError:[ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADAuthenticationErrorDomain
                                                                                                                              code:AD_ERROR_BROKER_RESPONSE_HASH_MISMATCH
                                                                                                                          userInfo:nil]
-                                                                                            errorDetails:@"Decrypted response does not match the hash"]];
+                                                                                            errorDetails:@"Decrypted response does not match the hash"]
+                                                    correlationId:correlationId];
             }
         }
         else
         {
-            result = [ADAuthenticationResult resultFromError:error];
+            result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
         }
     }
     
@@ -147,7 +149,6 @@
 }
 
 - (void)callBroker:(ADAuthenticationCallback)completionBlock
-
 {
     CHECK_FOR_NIL(_context.authority);
     CHECK_FOR_NIL(_resource);
@@ -160,7 +161,7 @@
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
                                                        protocolCode:nil
                                                        errorDetails:ADRedirectUriInvalidError];
-        completionBlock([ADAuthenticationResult resultFromError:error]);
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
         return;
     }
     
@@ -220,7 +221,7 @@
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
                                                        protocolCode:nil
                                                        errorDetails:ADRedirectUriInvalidError];
-        completionBlock([ADAuthenticationResult resultFromError:error]);
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
         return;
     }
     

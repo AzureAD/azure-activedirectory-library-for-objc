@@ -14,19 +14,12 @@
 // PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
 //
 // See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
+// governing permissions and limitations under the License.#in
 
+@interface ADALFrameworkUtils : NSObject
 
-#import "ADLogger.h"
-#import "ADAuthenticationContext.h"
-#import "ADTokenCacheStoring.h"
-#import "ADAuthenticationError.h"
-#import "ADAuthenticationResult.h"
-#import "ADTokenCacheStoreItem.h"
-#import "ADUserInformation.h"
-#import "ADTokenCacheStoreKey.h"
-#import "ADAuthenticationSettings.h"
-#import "ADWebAuthController.h"
-#import "ADErrorCodes.h"
-#import "ADAuthenticationParameters.h"
-#import "ADUserIdentifier.h"
++ (NSString *)resourcePath;
++ (void)setResourcePath:(NSString *)resourcePath;
++ (NSBundle *)frameworkBundle;
+
+@end

@@ -22,7 +22,7 @@
 
 @interface ADWorkPlaceJoinUtil : NSObject
 
-@property (nonatomic, readwrite) ADWorkPlaceJoin *workplaceJoin;
+@property (nonatomic, readwrite, retain) ADWorkPlaceJoin *workplaceJoin;
 
 + (ADWorkPlaceJoinUtil*) WorkPlaceJoinUtilManager;
 

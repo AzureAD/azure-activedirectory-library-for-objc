@@ -28,6 +28,7 @@
 #import "../ADALiOS/ADOAuth2Constants.h"
 #import "../ADALiOS/ADAuthenticationSettings.h"
 #import "../ADALiOS/ADKeychainTokenCacheStore.h"
+#import "ADKeychainTokenCacheStore+InternalTest.h"
 
 const int sAsyncContextTimeout = 10;
 @interface ADAuthenticationContextTests : XCTestCase
@@ -91,7 +92,7 @@ const int sAsyncContextTimeout = 10;
     testContext.credentialsType = AD_CREDENTIALS_EMBEDDED;
     
     //Clear the cache between the tests:
-    [mDefaultTokenCache removeAllWithError:&error];
+    [mDefaultTokenCache removeAll:&error];
     ADAssertNoError;
     [ADAuthenticationSettings sharedInstance].requestTimeOut = 5;
 }
@@ -109,7 +110,7 @@ const int sAsyncContextTimeout = 10;
 {
     XCTAssertNotNil(mDefaultTokenCache);
     ADAuthenticationError* error;
-    NSArray* all = [mDefaultTokenCache allItemsWithError:&error];
+    NSArray* all = [mDefaultTokenCache allItems:&error];
     ADAssertNoError;
     XCTAssertNotNil(all);
     return all.count;
@@ -516,9 +517,9 @@ const int sAsyncContextTimeout = 10;
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
     
     //Expire the cache item:
-    [mDefaultTokenCache removeAllWithError:&error];
+    [mDefaultTokenCache removeAll:&error];
     ADAssertNoError;
-    NSArray* allItems = [mDefaultTokenCache allItemsWithError:&error];
+    NSArray* allItems = [mDefaultTokenCache allItems:&error];
     XCTAssertTrue(allItems.count == 0);
     
     NSString* broadRefreshToken = @"broad refresh token testAcquireTokenWithNoPrompt";
@@ -696,7 +697,7 @@ const int sAsyncContextTimeout = 10;
     ADAssertStringEquals(mResult.tokenCacheStoreItem.accessToken, someTokenValue);
     
     //Expire the cache item:
-    NSArray* allItems = [mDefaultTokenCache allItemsWithError:&error];
+    NSArray* allItems = [mDefaultTokenCache allItems:&error];
     ADAssertNoError;
     XCTAssertTrue(allItems.count == 1);
     ADTokenCacheStoreItem* item = [allItems objectAtIndex:0];
@@ -712,7 +713,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([self cacheCount] == 0, "Expired items should be removed from the cache");
     NSString* refreshToken = @"some refresh token";
     [self addCacheWithToken:someTokenValue refreshToken:refreshToken];
-    allItems = [mDefaultTokenCache allItemsWithError:&error];
+    allItems = [mDefaultTokenCache allItems:&error];
     ADAssertNoError;
     XCTAssertTrue(allItems.count == 1);
     item = [allItems objectAtIndex:0];
@@ -889,7 +890,7 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, mResult.error.code);
     
     //#2: Only exact refresh token
-    [mDefaultTokenCache removeAllWithError:&error];
+    [mDefaultTokenCache removeAll:&error];
     ADAssertNoError;
     [self addCacheWithToken:nil refreshToken:exactRefreshToken userId:requestUser resource:mResource];
     [self.testContext->mResponse1 setObject:idToken forKey:OAUTH2_ID_TOKEN];
@@ -899,7 +900,7 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(2, [self cacheCount]);//The new token should be added to the cache
 
     //#3: Broad refresh token
-    [mDefaultTokenCache removeAllWithError:&error];
+    [mDefaultTokenCache removeAll:&error];
     ADAssertNoError;
     [self addCacheWithToken:nil refreshToken:broadToken userId:requestUser resource:nil];
     acquireTokenAsync;
@@ -923,7 +924,7 @@ const int sAsyncContextTimeout = 10;
     ADAssertStringEquals(mResult.accessToken, accessToken);
     
     //#2: Only exact refresh token, again, no user information:
-    [mDefaultTokenCache removeAllWithError:&error];
+    [mDefaultTokenCache removeAll:&error];
     [self addCacheWithToken:nil refreshToken:exactRefreshToken userId:nil resource:mResource];
     [self.testContext->mResponse1 setObject:accessToken forKey:OAUTH2_ACCESS_TOKEN];
     acquireTokenAsync;
@@ -931,7 +932,7 @@ const int sAsyncContextTimeout = 10;
     ADAssertStringEquals(mResult.accessToken, accessToken);
     
     //#3: Broad refresh token
-    [mDefaultTokenCache removeAllWithError:&error];
+    [mDefaultTokenCache removeAll:&error];
     [self addCacheWithToken:nil refreshToken:broadToken userId:nil resource:nil];
     acquireTokenAsync;
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
@@ -1022,7 +1023,7 @@ const int sAsyncContextTimeout = 10;
     ADTokenCacheStoreItem* item = [self adCreateCacheItem];
     ADUserIdentifier* userId = [ADUserIdentifier identifierWithId:item.userInformation.userId];
     ADAuthenticationError* error;
-    ADTokenCacheStoreKey* key = [item extractKeyWithError:&error];
+    ADTokenCacheStoreKey* key = [item extractKey:&error];
     XCTAssertNotNil(key);
     ADAssertNoError;
     
@@ -1090,7 +1091,7 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError* error;
     
     //Nothing in the cache, UI is needed:
-    [mDefaultTokenCache removeAllWithError:&error];
+    [mDefaultTokenCache removeAll:&error];
     ADAssertNoError;
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority error:&error];
     ADAssertNoError;
@@ -1208,7 +1209,7 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(1, [self cacheCount]);//Should not remove anything from cache, assuming that the server is unreachable
     
     //Ensure only broad token and retry the logic:
-    [mDefaultTokenCache removeAllWithError:&error];
+    [mDefaultTokenCache removeAll:&error];
     ADAssertNoError;
     [self addCacheWithToken:nil refreshToken:@"invalid broad refresh token" userId:mUserId resource:nil];
     

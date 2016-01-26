@@ -246,7 +246,6 @@
 				ORGANIZATIONNAME = MS;
 				TargetAttributes = {
 					8BA42AF517E3C150002D206E = {
-						DevelopmentTeam = UBF8T346G9;
 						SystemCapabilities = {
 							com.apple.Keychain = {
 								enabled = 1;

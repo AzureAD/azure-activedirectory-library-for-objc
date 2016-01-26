@@ -126,7 +126,7 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
                                                protocolCode:nil
                                                errorDetails:@"ADAuthenticationResult is nil"];
-        return [ADAuthenticationResult resultFromError:error];
+        return [ADAuthenticationResult resultFromError:error correlationId:[result correlationId]];
     }
     
     if (AD_SUCCEEDED != result.status || !userId || [NSString adIsStringNilOrBlank:userId.userId] || userId.type == OptionalDisplayableId)
@@ -152,7 +152,7 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_WRONG_USER
                                                protocolCode:nil
                                                errorDetails:errorText];
-        return [ADAuthenticationResult resultFromError:error];
+        return [ADAuthenticationResult resultFromError:error correlationId:[result correlationId]];
     }
     
     return result;

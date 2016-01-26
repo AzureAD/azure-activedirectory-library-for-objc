@@ -16,17 +16,26 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-
-#import "ADLogger.h"
-#import "ADAuthenticationContext.h"
-#import "ADTokenCacheStoring.h"
-#import "ADAuthenticationError.h"
-#import "ADAuthenticationResult.h"
+#import "ADKeychainTokenCacheStore+InternalTest.h"
 #import "ADTokenCacheStoreItem.h"
 #import "ADUserInformation.h"
-#import "ADTokenCacheStoreKey.h"
-#import "ADAuthenticationSettings.h"
-#import "ADWebAuthController.h"
-#import "ADErrorCodes.h"
-#import "ADAuthenticationParameters.h"
-#import "ADUserIdentifier.h"
+
+@implementation ADKeychainTokenCacheStore (InternalTest)
+
+- (void)removeAll:(ADAuthenticationError * __autoreleasing *)error
+{
+    @synchronized(self)
+    {
+        NSMutableDictionary* query = [self queryDictionaryForKey:nil userId:nil additional:nil];
+        OSStatus status = SecItemDelete((CFDictionaryRef)query);
+        [ADKeychainTokenCacheStore checkStatus:status details:@"Failed to remove all" error:error];
+        
+        NSArray* items = [self allItems:nil];
+        if ([items count])
+        {
+            NSLog(@"!!!!!!!!!!!!!!!!!!!! %d items remaining...", items.count);
+        }
+    }
+}
+
+@end

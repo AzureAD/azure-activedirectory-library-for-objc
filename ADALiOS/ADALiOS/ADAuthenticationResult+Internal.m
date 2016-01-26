@@ -26,15 +26,16 @@
 
 @implementation ADAuthenticationResult (Internal)
 
--(id) initWithCancellation
+-(id) initWithCancellation: (NSUUID*) correlationId
 {
     ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation];
     
-    return [self initWithError:error status:AD_USER_CANCELLED];
+    return [self initWithError:error status:AD_USER_CANCELLED correlationId:correlationId];
 }
 
 -(id) initWithItem: (ADTokenCacheStoreItem*) item
 multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
+     correlationId: (NSUUID*) correlationId
 {
     self = [super init];
     if (self)
@@ -42,12 +43,14 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         _status = AD_SUCCEEDED;
         _tokenCacheStoreItem = item;
         _multiResourceRefreshToken = multiResourceRefreshToken;
+        _correlationId = correlationId;
     }
     return self;
 }
 
 -(id) initWithError: (ADAuthenticationError*)error
              status: (ADAuthenticationResultStatus) status
+      correlationId: (NSUUID*) correlationId
 {
     THROW_ON_NIL_ARGUMENT(error);
     
@@ -56,90 +59,139 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     {
         _status = status;
         _error = error;
+        _correlationId = correlationId;
     }
     return self;
 }
 
-/*! Creates an instance of the result from the cache store. */
-+(ADAuthenticationResult*) resultFromTokenCacheStoreItem: (ADTokenCacheStoreItem*) item
-                               multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
++ (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheStoreItem *)item
+                               multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
+                                           correlationId:(NSUUID *)correlationId
 {
-    if (item)
-    {
-        ADAuthenticationError* error;
-        [item extractKeyWithError:&error];
-        if (error)
-        {
-            //Bad item, return error:
-            return [ADAuthenticationResult resultFromError:error];
-        }
-        if ([NSString adIsStringNilOrBlank:item.accessToken])
-        {
-            //Bad item, the access token should be accurate, else an error should be
-            //reported instead of this creator:
-            ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult created from item with no access token."];
-            return [ADAuthenticationResult resultFromError:error];
-        }
-        //The item can be used, just use it:
-        return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:multiResourceRefreshToken];
-    }
-    else
+    if (!item)
     {
         ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult created from nil token item."];
         return [ADAuthenticationResult resultFromError:error];
     }
+    
+    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:multiResourceRefreshToken correlationId:correlationId];
 }
 
 +(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error
 {
+    return [self resultFromError:error correlationId:nil];
+}
+
++(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error
+                             correlationId: (NSUUID*) correlationId
+{
     ADAuthenticationResult* result = [ADAuthenticationResult alloc];
-    return [result initWithError:error status:AD_FAILED];
+    return [result initWithError:error status:AD_FAILED correlationId:correlationId];
 }
 
 + (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
 {
-    return [[ADAuthenticationResult alloc] initWithError:[ADAuthenticationError invalidArgumentError:details] status:AD_FAILED];
+    return [self resultFromParameterError:details correlationId:nil];
+}
+
++ (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
+                                      correlationId: (NSUUID*) correlationId
+{
+    return [[ADAuthenticationResult alloc] initWithError:[ADAuthenticationError invalidArgumentError:details] status:AD_FAILED correlationId:correlationId];
 }
 
 +(ADAuthenticationResult*) resultFromCancellation
 {
-    ADAuthenticationResult* result = [ADAuthenticationResult alloc];
-    return [result initWithCancellation];
+    return [self resultFromCancellation:nil];
 }
 
-+(ADAuthenticationResult*) resultFromBrokerResponse: (NSDictionary*) response
++(ADAuthenticationResult*) resultFromCancellation: (NSUUID*) correlationId
 {
-    ADTokenCacheStoreItem* item = nil;
+    ADAuthenticationResult* result = [ADAuthenticationResult alloc];
+    return [result initWithCancellation:correlationId];
+}
+
++ (ADAuthenticationResult*)resultForNoBrokerResponse
+{
+    NSError* nsError = [NSError errorWithDomain:ADBrokerResponseErrorDomain
+                                           code:AD_ERROR_BROKER_UNKNOWN
+                                       userInfo:nil];
+    ADAuthenticationError* error = [ADAuthenticationError errorFromNSError:nsError
+                                                              errorDetails: @"No broker response received."];
+    return [ADAuthenticationResult resultFromError:error correlationId:nil];
+}
+
++ (ADAuthenticationResult*)resultForBrokerErrorResponse:(NSDictionary*)response
+{
+    NSString* correlationIdStr = [response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE];
+    NSUUID* correlationId =  correlationIdStr ? [[NSUUID alloc] initWithUUIDString:correlationIdStr] : nil;
     
-    if(!response || [response valueForKey:OAUTH2_ERROR_DESCRIPTION])
+    // Otherwise parse out the error condition
+    ADAuthenticationError* error = nil;
+    
+    NSString* errorDetails = [response valueForKey:OAUTH2_ERROR_DESCRIPTION];
+    if (!errorDetails)
     {
-        ADAuthenticationError* error = nil;
-        NSString* errorDetails = nil;
-        NSInteger errorCode = 0;
-        if (response)
-        {
-            errorDetails = [response valueForKey:OAUTH2_ERROR_DESCRIPTION];
-            errorCode = [[response valueForKey:@"error_code"] integerValue];
-            
-            if (!errorDetails)
-            {
-                errorDetails = @"Broker did not provide any details";
-            }
-        }
-        else
-        {
-            errorDetails = @"No broker response received.";
-        }
+        errorDetails = @"Broker did not provide any details";
+    }
         
-        error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADBrokerResponseErrorDomain code:errorCode userInfo:nil] errorDetails:errorDetails];
-        
-        return [ADAuthenticationResult resultFromError:error];
+    NSString* strErrorCode = [response valueForKey:@"error_code"];
+    NSInteger errorCode = AD_ERROR_BROKER_UNKNOWN;
+    if (strErrorCode && ![strErrorCode isEqualToString:@"0"])
+    {
+        errorCode = [strErrorCode integerValue];
     }
     
-    item = [ADTokenCacheStoreItem new];
+    NSString* protocolCode = [response valueForKey:@"protocol_code"];
+    if (!protocolCode)
+    {
+        // Older brokers used to send the protocol code as "code" and the error code not at all
+        protocolCode = [response valueForKey:@"code"];
+    }
+    
+    if (![NSString adIsStringNilOrBlank:protocolCode])
+    {
+       
+        error = [ADAuthenticationError errorFromAuthenticationError:errorCode
+                                                       protocolCode:protocolCode
+                                                       errorDetails:errorDetails];
+    }
+    else
+    {
+        NSError* nsError = [NSError errorWithDomain:ADBrokerResponseErrorDomain
+                                               code:errorCode
+                                           userInfo:nil];
+        error = [ADAuthenticationError errorFromNSError:nsError errorDetails:errorDetails];
+    }
+    
+    return [ADAuthenticationResult resultFromError:error correlationId:correlationId];
+
+}
+
++ (ADAuthenticationResult *)resultFromBrokerResponse:(NSDictionary *)response
+{
+    if (!response)
+    {
+        return [self resultForNoBrokerResponse];
+    }
+    
+    if ([response valueForKey:OAUTH2_ERROR_DESCRIPTION])
+    {
+        return [self resultForBrokerErrorResponse:response];
+    }
+    
+    NSUUID* correlationId =  nil;
+    NSString* correlationIdStr = [response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE];
+    if (correlationIdStr)
+    {
+        correlationId = [[NSUUID alloc] initWithUUIDString:correlationIdStr];
+    }
+
+    ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
     [item setAccessTokenType:@"Bearer"];
     BOOL isMRRT = [item fillItemWithResponse:response];
-    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:isMRRT];
+    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:isMRRT correlationId:correlationId];
+    
 }
 
 @end

@@ -28,6 +28,7 @@
 @synthesize status = _status;
 @synthesize error = _error;
 @synthesize multiResourceRefreshToken = _multiResourceRefreshToken;
+@synthesize correlationId = _correlationId;
 
 -(id) init
 {
@@ -56,8 +57,8 @@
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"(error=%@, mrrt=%@, status=%@, item=%@)",
-            _error, _multiResourceRefreshToken ? @"YES" : @"NO", [ADAuthenticationResult stringForResultStatus:_status], _tokenCacheStoreItem];
+    return [NSString stringWithFormat:@"(error=%@, mrrt=%@, status=%@, item=%@, correlationId=%@)",
+            _error, _multiResourceRefreshToken ? @"YES" : @"NO", [ADAuthenticationResult stringForResultStatus:_status], _tokenCacheStoreItem, [_correlationId UUIDString]];
 }
 
 @end
