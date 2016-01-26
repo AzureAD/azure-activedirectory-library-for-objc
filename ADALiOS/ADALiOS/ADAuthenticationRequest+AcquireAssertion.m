@@ -136,6 +136,7 @@
     }
     
     //Now attempt to use the refresh token of the passed cache item:
+    BOOL isMultiresourceRefreshToken = item.multiResourceRefreshToken;
     [self acquireTokenByRefreshToken:item.refreshToken
                            cacheItem:item
                      completionBlock:^(ADAuthenticationResult *result)
@@ -148,7 +149,7 @@
          }
          
          //Try other means of getting access token result:
-         if (!item.multiResourceRefreshToken)//Try multi-resource refresh token if not currently trying it
+         if (!isMultiresourceRefreshToken)//Try multi-resource refresh token if not currently trying it
          {
              ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:_context.authority resource:nil clientId:_clientId error:nil];
              if (broadKey)
