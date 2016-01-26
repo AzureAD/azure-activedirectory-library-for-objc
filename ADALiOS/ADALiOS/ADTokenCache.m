@@ -371,9 +371,8 @@
         CHECK_ERROR([tokens isKindOfClass:[NSMutableDictionary class]], AD_ERROR_BAD_CACHE_FORMAT, @"tokens must be a mutable dictionary.");
         for (id userId in tokens)
         {
-            // On the second level we're expecting NSDictionaries keyed off of the user ids (an NSString*) or
-            // NSNull if no userId was available.
-            CHECK_ERROR([userId isKindOfClass:[NSString class]] || [userId isKindOfClass:[NSNull class]], AD_ERROR_BAD_CACHE_FORMAT, @"User ID key not the expected class type");
+            // On the second level we're expecting NSDictionaries keyed off of the user ids (an NSString*)
+            CHECK_ERROR([userId isKindOfClass:[NSString class]], AD_ERROR_BAD_CACHE_FORMAT, @"User ID key not the expected class type");
             id userDict = [tokens objectForKey:userId];
             CHECK_ERROR([userDict isKindOfClass:[NSMutableDictionary class]], AD_ERROR_BAD_CACHE_FORMAT, @"User ID should have mutable dictionaries in the cache");
             
