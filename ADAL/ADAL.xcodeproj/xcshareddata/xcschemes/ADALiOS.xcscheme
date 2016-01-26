@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0510"
+   LastUpgradeVersion = "0720"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -17,7 +17,7 @@
                BlueprintIdentifier = "8B0965A917F25770002BDFB8"
                BuildableName = "libADALiOS.a"
                BlueprintName = "ADALiOS"
-               ReferencedContainer = "container:ADALiOS.xcodeproj">
+               ReferencedContainer = "container:ADAL.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,10 +35,19 @@
                BlueprintIdentifier = "8B0965B917F25770002BDFB8"
                BuildableName = "ADALiOSTests.xctest"
                BlueprintName = "ADALiOSTests"
-               ReferencedContainer = "container:ADALiOS.xcodeproj">
+               ReferencedContainer = "container:ADAL.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "8B0965A917F25770002BDFB8"
+            BuildableName = "libADALiOS.a"
+            BlueprintName = "ADALiOS"
+            ReferencedContainer = "container:ADAL.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -58,7 +67,7 @@
             BlueprintIdentifier = "8B0965A917F25770002BDFB8"
             BuildableName = "libADALiOS.a"
             BlueprintName = "ADALiOS"
-            ReferencedContainer = "container:ADALiOS.xcodeproj">
+            ReferencedContainer = "container:ADAL.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -70,6 +79,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "8B0965A917F25770002BDFB8"
+            BuildableName = "libADALiOS.a"
+            BlueprintName = "ADALiOS"
+            ReferencedContainer = "container:ADAL.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
