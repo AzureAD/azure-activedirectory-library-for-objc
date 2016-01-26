@@ -17,15 +17,32 @@
 // governing permissions and limitations under the License.
 
 #import "ADALiOS.h"
-#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
-#import "ADTokenCacheStoreKey.h"
+#import "ADTokenCacheKey.h"
 
-@implementation ADTokenCacheStoreItem
+@implementation ADTokenCacheItem
+{
+    NSUInteger _hash;
+    NSString* _resource;
+    NSString* _authority;
+    NSString* _clientId;
+    ADUserInformation* _userInformation;
+}
 
 @synthesize multiResourceRefreshToken;
+
+- (NSUInteger)hash
+{
+    return _hash;
+}
+
+- (void)calculateHash
+{
+    _hash = [[NSString stringWithFormat:@"%@%@%@%@", _resource, _authority, _clientId, _userInformation.userId] hash];
+}
 
 //Multi-resource refresh tokens are stored separately, as they apply to all resources. As such,
 //we create a special, "broad" cache item, with nil resource and access token:
@@ -38,7 +55,7 @@
 
 -(id) copyWithZone:(NSZone*) zone
 {
-    ADTokenCacheStoreItem* item = [[self.class allocWithZone:zone] init];
+    ADTokenCacheItem* item = [[self.class allocWithZone:zone] init];
     
     item.resource = [self.resource copyWithZone:zone];
     item.authority = [self.authority copyWithZone:zone];
@@ -53,9 +70,9 @@
     return item;
 }
 
-- (ADTokenCacheStoreKey*)extractKey:(ADAuthenticationError* __autoreleasing *)error
+- (ADTokenCacheKey*)extractKey:(ADAuthenticationError* __autoreleasing *)error
 {
-    return [ADTokenCacheStoreKey keyWithAuthority:self.authority
+    return [ADTokenCacheKey keyWithAuthority:self.authority
                                          resource:self.resource
                                          clientId:self.clientId
                                             error:error];
@@ -80,7 +97,7 @@
 }
 
 /*! Verifies if the user (as defined by userId) is the same between the two items. */
--(BOOL) isSameUser: (ADTokenCacheStoreItem*) other
+-(BOOL) isSameUser: (ADTokenCacheItem*) other
 {
     THROW_ON_NIL_ARGUMENT(other);
     
@@ -133,10 +150,10 @@
     if (!object)
         return NO;
     
-    if (![object isKindOfClass:[ADTokenCacheStoreItem class]])
+    if (![object isKindOfClass:[ADTokenCacheItem class]])
         return NO;
     
-    ADTokenCacheStoreItem* item = (ADTokenCacheStoreItem*)object;
+    ADTokenCacheItem* item = (ADTokenCacheItem*)object;
     
     if (self.resource && (!item.resource || ![self.resource isEqualToString:item.resource]))
     {
@@ -167,6 +184,50 @@
             _authority, _clientId,
             [NSString adIsStringNilOrBlank:_accessToken] ? @"(nil)" : @"(present)", _accessTokenType,
             [NSString adIsStringNilOrBlank:_refreshToken] ? @"(nil)" : @"(present)", _resource];
+}
+
+- (NSString *)clientId
+{
+    return _clientId;
+}
+
+- (void)setClientId:(NSString *)clientId
+{
+    _clientId = clientId;
+    [self calculateHash];
+}
+
+- (ADUserInformation *)userInformation
+{
+    return _userInformation;
+}
+
+- (void)setUserInformation:(ADUserInformation *)userInformation
+{
+    _userInformation = userInformation;
+    [self calculateHash];
+}
+
+- (NSString *)resource
+{
+    return _resource;
+}
+
+- (void)setResource:(NSString *)resource
+{
+    _resource = resource;
+    [self calculateHash];
+}
+
+- (NSString *)authority
+{
+    return _authority;
+}
+
+- (void)setAuthority:(NSString *)authority
+{
+    _authority = authority;
+    [self calculateHash];
 }
 
 @end

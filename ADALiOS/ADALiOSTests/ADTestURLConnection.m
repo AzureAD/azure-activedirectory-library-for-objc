@@ -27,6 +27,10 @@
 {
 @public
     NSURL* _requestURL;
+    id _requestJSONBody;
+    id _requestParamsBody;
+    NSDictionary* _requestHeaders;
+    NSData* _requestBody;
     NSDictionary* _QPs;
     NSDictionary* _expectedRequestHeaders;
     NSData* _responseData;
@@ -35,8 +39,22 @@
 }
 
 + (ADTestURLResponse*)request:(NSURL*)request
-                         response:(NSURLResponse*)urlResponse
-                      reponseData:(NSData*)data
+              requestJSONBody:(NSDictionary*)requestBody
+                     response:(NSURLResponse*)urlResponse
+                  reponseData:(NSData*)data
+{
+    ADTestURLResponse* response = [ADTestURLResponse new];
+    [response setRequestURL:request];
+    response->_requestJSONBody = requestBody;
+    response->_response = urlResponse;
+    response->_responseData = data;
+    
+    return response;
+}
+
++ (ADTestURLResponse*)request:(NSURL*)request
+                     response:(NSURLResponse*)urlResponse
+                  reponseData:(NSData*)data
 {
     ADTestURLResponse* response = [ADTestURLResponse new];
     
@@ -48,7 +66,7 @@
 }
 
 + (ADTestURLResponse*)request:(NSURL *)request
-                          reponse:(NSURLResponse *)urlResponse
+                      reponse:(NSURLResponse *)urlResponse
 {
     ADTestURLResponse* response = [ADTestURLResponse new];
     
@@ -59,7 +77,7 @@
 }
 
 + (ADTestURLResponse*)request:(NSURL *)request
-                  repondWithError:(NSError*)error
+             respondWithError:(NSError*)error
 {
     ADTestURLResponse* response = [ADTestURLResponse new];
     
@@ -73,7 +91,7 @@
 {
     NSURL* requestURL = [NSURL URLWithString:requestURLString];
     ADTestURLResponse* response = [ADTestURLResponse request:requestURL
-                                                     repondWithError:[NSError errorWithDomain:NSURLErrorDomain
+                                                     respondWithError:[NSError errorWithDomain:NSURLErrorDomain
                                                                                          code:NSURLErrorCannotFindHost
                                                                                      userInfo:nil]];
     return response;
@@ -105,43 +123,71 @@
 }
 
 + (ADTestURLResponse*)requestURLString:(NSString*)requestUrlString
-                            requestHeaders:(NSDictionary*)requestHeaders
-                         responseURLString:(NSString*)responseUrlString
-                              responseCode:(NSInteger)responseCode
-                          httpHeaderFields:(NSDictionary*)headerFields
-                          dictionaryAsJSON:(NSDictionary*)data
+                     responseURLString:(NSString*)responseUrlString
+                          responseCode:(NSInteger)responseCode
+                      httpHeaderFields:(NSDictionary*)headerFields
+                      dictionaryAsJSON:(NSDictionary*)data
 {
-    // TODO: This probably should be used somewhere...
-    (void) requestHeaders;
-    NSURL* requestURL = [NSURL URLWithString:requestUrlString];
-    NSHTTPURLResponse* response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:responseUrlString]
-                                                              statusCode:responseCode
-                                                             HTTPVersion:@"1.1"
-                                                            headerFields:headerFields];
-    NSData* responseData = nil;
+    ADTestURLResponse* response = [ADTestURLResponse new];
+    [response setRequestURL:[NSURL URLWithString:requestUrlString]];
+    [response setResponseURL:responseUrlString code:responseCode headerFields:headerFields];
+    [response setJSONResponse:data];
     
-    if (data)
-    {
-        responseData = [NSJSONSerialization dataWithJSONObject:data options:0 error:nil];
-    }
-    
-    return [ADTestURLResponse request:requestURL
-                                 response:response
-                              reponseData:responseData];
+    return response;
 }
 
 + (ADTestURLResponse*)requestURLString:(NSString*)requestUrlString
-                         responseURLString:(NSString*)responseUrlString
-                              responseCode:(NSInteger)responseCode
-                          httpHeaderFields:(NSDictionary*)headerFields
-                          dictionaryAsJSON:(NSDictionary*)data
+                       requestJSONBody:(id)requestJSONBody
+                     responseURLString:(NSString*)responseUrlString
+                          responseCode:(NSInteger)responseCode
+                      httpHeaderFields:(NSDictionary*)headerFields
+                      dictionaryAsJSON:(NSDictionary*)data
 {
-    return [ADTestURLResponse requestURLString:requestUrlString
-                                    requestHeaders:nil
-                                 responseURLString:responseUrlString
-                                      responseCode:responseCode
-                                  httpHeaderFields:headerFields
-                                  dictionaryAsJSON:data];
+    ADTestURLResponse* response = [ADTestURLResponse new];
+    [response setRequestURL:[NSURL URLWithString:requestUrlString]];
+    [response setResponseURL:responseUrlString code:responseCode headerFields:headerFields];
+    response->_requestJSONBody = requestJSONBody;
+    [response setJSONResponse:data];
+    
+    return response;
+}
+
++ (ADTestURLResponse*)requestURLString:(NSString*)requestUrlString
+                        requestHeaders:(NSDictionary *)requestHeaders
+                     requestParamsBody:(id)requestParams
+                     responseURLString:(NSString*)responseUrlString
+                          responseCode:(NSInteger)responseCode
+                      httpHeaderFields:(NSDictionary*)headerFields
+                      dictionaryAsJSON:(NSDictionary*)data
+{
+    ADTestURLResponse* response = [ADTestURLResponse new];
+    [response setRequestURL:[NSURL URLWithString:requestUrlString]];
+    [response setResponseURL:responseUrlString code:responseCode headerFields:headerFields];
+    response->_requestHeaders = requestHeaders;
+    response->_requestParamsBody = requestParams;
+    [response setJSONResponse:data];
+    
+    return response;
+}
+
+- (void)setResponseURL:(NSString*)urlString
+                  code:(NSInteger)code
+          headerFields:(NSDictionary*)headerFields
+{
+    NSHTTPURLResponse* response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:urlString]
+                                                              statusCode:code
+                                                             HTTPVersion:@"1.1"
+                                                            headerFields:headerFields];
+    
+    _response = response;
+}
+
+- (void)setJSONResponse:(id)jsonResponse
+{
+    NSError* error = nil;
+    _responseData = [NSJSONSerialization dataWithJSONObject:jsonResponse options:0 error:&error];
+    
+    NSAssert(_responseData, @"Invalid JSON object set for test response! %@", error);
 }
 
 - (void)setRequestURL:(NSURL*)url
@@ -194,6 +240,59 @@
     }
     
     return YES;
+}
+
+- (BOOL)matchesBody:(NSData*)body
+{
+    if (_requestJSONBody)
+    {
+        NSError* error = nil;
+        id obj = [NSJSONSerialization JSONObjectWithData:body options:NSJSONReadingAllowFragments error:&error];
+        BOOL match = [obj isEqual:_requestJSONBody];
+        return match;
+    }
+    
+    if (_requestParamsBody)
+    {
+        NSString* string = [[NSString alloc] initWithData:body encoding:NSUTF8StringEncoding];
+        id obj = [NSDictionary adURLFormDecode:string];
+        return [obj isEqual:_requestParamsBody];
+    }
+    
+    if (_requestBody)
+    {
+        return [_requestBody isEqualToData:body];
+    }
+    
+    return YES;
+}
+
+- (BOOL)matchesHeaders:(NSDictionary*)headers
+{
+    if (!_requestHeaders)
+    {
+        return YES;
+    }
+    
+    BOOL matches = YES;
+    
+    for (id key in _requestHeaders)
+    {
+        id header = [_requestHeaders objectForKey:key];
+        id matchHeader = [headers objectForKey:key];
+        if (!matchHeader)
+        {
+            AD_LOG_ERROR_F(@"Request is missing header", AD_FAILED, nil, @"%@", key);
+            matches = NO;
+        }
+        else if (![header isEqual:matchHeader])
+        {
+            AD_LOG_ERROR_F(@"Request headers do not match", AD_FAILED, nil, @"expected: \"%@\" actual: \"%@\"", header, matchHeader);
+            matches = NO;
+        }
+    }
+    
+    return matches;
 }
 
 @end
@@ -266,6 +365,9 @@ static NSMutableArray* s_responses = nil;
     
     NSURL* requestURL = [request URL];
     
+    NSData* body = [request HTTPBody];
+    NSDictionary* headers = [request allHTTPHeaderFields];
+    
     for (NSUInteger i = 0; i < cResponses; i++)
     {
         id obj = [s_responses objectAtIndex:i];
@@ -275,7 +377,7 @@ static NSMutableArray* s_responses = nil;
         {
             response = (ADTestURLResponse*)obj;
             
-            if ([response matchesURL:requestURL])
+            if ([response matchesURL:requestURL] && [response matchesHeaders:headers] && [response matchesBody:body])
             {
                 [s_responses removeObjectAtIndex:i];
                 return response;
@@ -287,7 +389,7 @@ static NSMutableArray* s_responses = nil;
             NSMutableArray* subResponses = [s_responses objectAtIndex:i];
             response = [subResponses objectAtIndex:0];
             
-            if ([response matchesURL:requestURL])
+            if ([response matchesURL:requestURL] && [response matchesHeaders:headers] && [response matchesBody:body])
             {
                 [subResponses removeObjectAtIndex:0];
                 if ([subResponses count] == 0)
@@ -446,6 +548,16 @@ static NSMutableArray* s_responses = nil;
 - (void)cancel
 {
     
+}
+
++ (BOOL)noResponsesLeft
+{
+    return s_responses.count == 0;
+}
+
++ (void)clearResponses
+{
+    [s_responses removeAllObjects];
 }
 
 @end

@@ -135,7 +135,7 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
         return result;
     }
     
-    ADUserInformation* userInfo = [[result tokenCacheStoreItem] userInformation];
+    ADUserInformation* userInfo = [[result tokenCacheItem] userInformation];
     
     if (!userInfo || ![userId userIdMatchString:userInfo])
     {

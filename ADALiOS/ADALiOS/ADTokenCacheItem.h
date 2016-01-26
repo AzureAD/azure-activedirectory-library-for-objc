@@ -18,13 +18,13 @@
 #import <Foundation/Foundation.h>
 
 @class ADUserInformation;
-@class ADTokenCacheStoreKey;
+@class ADTokenCacheKey;
 @class ADAuthenticationError;
 
 /*! Contains all cached elements for a given request for a token.
     Objects of this class are used in the key-based token cache store.
     See the key extraction function for details on how the keys are constructed. */
-@interface ADTokenCacheStoreItem : NSObject<NSCopying , NSSecureCoding>
+@interface ADTokenCacheItem : NSObject<NSCopying , NSSecureCoding>
 
 /*! Applicable resource. Should be nil, in case the item stores multi-resource refresh token. */
 @property (retain) NSString* resource;
@@ -54,7 +54,7 @@
 /*! Obtains a key to be used for the internal cache from the full cache item.
  @param error: if a key cannot be extracted, the method will return nil and if this parameter is not nil,
  it will be filled with the appropriate error information.*/
-- (ADTokenCacheStoreKey*) extractKey:(ADAuthenticationError * __autoreleasing *)error;
+- (ADTokenCacheKey*) extractKey:(ADAuthenticationError * __autoreleasing *)error;
 
 /*! Compares expiresOn with the current time. If expiresOn is not nil, the function returns the
  comparison of expires on and the current time. If expiresOn is nil, the function returns NO,
@@ -65,6 +65,6 @@
 - (BOOL)isEmptyUser;
 
 /*! Verifies if the user (as defined by userId) is the same between the two items. */
-- (BOOL)isSameUser:(ADTokenCacheStoreItem *)other;
+- (BOOL)isSameUser:(ADTokenCacheItem *)other;
 
 @end

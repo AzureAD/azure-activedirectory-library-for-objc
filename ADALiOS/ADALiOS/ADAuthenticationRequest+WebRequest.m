@@ -30,7 +30,7 @@
 #import "NSURL+ADExtensions.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
-#import "ADTokenCacheStoreItem+Internal.h"
+#import "ADTokenCacheItem+Internal.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -56,7 +56,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                  completion:^(NSDictionary *response)
      {
          //Prefill the known elements in the item. These can be overridden by the response:
-         ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
+         ADTokenCacheItem* item = [ADTokenCacheItem new];
          item.resource = _resource;
          item.clientId = _clientId;
          item.authority = _context.authority;
@@ -133,7 +133,6 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     else
     {
         webRequest.method = HTTPPost;
-        webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
     }
     
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];

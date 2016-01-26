@@ -26,6 +26,21 @@
                       httpHeaderFields:(NSDictionary*)headerFields
                       dictionaryAsJSON:(NSDictionary*)data;
 
++ (ADTestURLResponse*)requestURLString:(NSString*)requestUrlString
+                       requestJSONBody:(id)requestJSONBody
+                     responseURLString:(NSString*)responseUrlString
+                          responseCode:(NSInteger)responseCode
+                      httpHeaderFields:(NSDictionary*)headerFields
+                      dictionaryAsJSON:(NSDictionary*)data;
+
++ (ADTestURLResponse*)requestURLString:(NSString*)requestUrlString
+                        requestHeaders:(NSDictionary *)requestHeaders
+                     requestParamsBody:(id)requestParams
+                     responseURLString:(NSString*)responseUrlString
+                          responseCode:(NSInteger)responseCode
+                      httpHeaderFields:(NSDictionary*)headerFields
+                      dictionaryAsJSON:(NSDictionary*)data;
+
 + (ADTestURLResponse*)request:(NSURL*)request
                      response:(NSURLResponse*)response
                   reponseData:(NSData*)data;
@@ -34,7 +49,7 @@
                       reponse:(NSURLResponse *)response;
 
 + (ADTestURLResponse*)request:(NSURL *)request
-              repondWithError:(NSError*)error;
+              respondWithError:(NSError*)error;
 
 + (ADTestURLResponse*)serverNotFoundResponseForURLString:(NSString*)requestURLString;
 
@@ -55,6 +70,9 @@
 + (void)addNotFoundResponseForURLString:(NSString*)URLString;
 + (void)addValidAuthorityResponse:(NSString*)authority;
 + (void)addInvalidAuthorityResponse:(NSString*)authority;
+
++ (BOOL)noResponsesLeft;
++ (void)clearResponses;
 
 - (id)initWithRequest:(NSURLRequest*)request
              delegate:(id)delegate

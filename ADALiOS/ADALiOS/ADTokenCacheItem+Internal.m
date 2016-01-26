@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADAL.h"
-#import "ADTokenCacheStoreItem+Internal.h"
+#import "ADTokenCacheItem+Internal.h"
 #import "ADAuthenticationError.h"
 #import "ADOAuth2Constants.h"
 #import "ADUserInformation.h"
@@ -25,7 +25,7 @@
 #import "NSString+ADHelperMethods.h"
 #import "ADAuthenticationContext+Internal.h"
 
-@implementation ADTokenCacheStoreItem (Internal)
+@implementation ADTokenCacheItem (Internal)
 
 #define CHECK_ERROR(_CHECK, _ERR) { if (_CHECK) { if (error) {*error = _ERR;} return; } }
 
@@ -89,7 +89,7 @@
     if (![NSString adIsStringNilOrBlank:value])
     {
         BOOL isMrrt = [self fillItemWithResponse:response];
-        return [ADAuthenticationResult resultFromTokenCacheStoreItem:self
+        return [ADAuthenticationResult resultFromTokenCacheItem:self
                                            multiResourceRefreshToken:isMrrt
                                                        correlationId:[response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
     }

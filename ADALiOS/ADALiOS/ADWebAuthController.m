@@ -53,18 +53,6 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 
 #pragma mark Shared Instance Methods
 
-+ (ADWebAuthController *)sharedInstance
-{
-    static ADWebAuthController *broker     = nil;
-    static dispatch_once_t          predicate;
-    
-    dispatch_once( &predicate, ^{
-        broker = [[self allocPrivate] init];
-    });
-    
-    return broker;
-}
-
 + (id)alloc
 {
     NSAssert( false, @"Cannot create instances of %@", NSStringFromClass( self ) );
@@ -115,11 +103,6 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 + (void)cancelCurrentWebAuthSession
 {
     [[ADWebAuthController sharedInstance] webAuthenticationDidCancel];
-}
-
-- (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError*)error
-{
-    return [self endWebAuthenticationWithError:error orURL:nil];
 }
 
 #pragma mark - Private Methods
@@ -208,9 +191,26 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 
 @end
 
+#pragma mark - Private Methods
+
 @implementation ADWebAuthController (Internal)
 
-#pragma mark - Private Methods
++ (ADWebAuthController *)sharedInstance
+{
+    static ADWebAuthController *broker     = nil;
+    static dispatch_once_t          predicate;
+    
+    dispatch_once( &predicate, ^{
+        broker = [[self allocPrivate] init];
+    });
+    
+    return broker;
+}
+
+- (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError*)error
+{
+    return [self endWebAuthenticationWithError:error orURL:nil];
+}
 
 +(NSString*) getStoryboardName
 {
@@ -362,9 +362,7 @@ correlationId:(NSUUID *)correlationId
     //Error occurred above. Dispatch the callback to the caller:
     if (error)
     {
-        dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
-            _completionBlock( error, nil );
-        });
+        _completionBlock( error, nil );
     }
 }
 

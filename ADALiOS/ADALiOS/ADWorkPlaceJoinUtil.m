@@ -63,7 +63,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     
     if(item != NULL)
     {
-        keyData = (__bridge_transfer NSData*)item;
+        keyData = (NSData*)item;
     }
     else if (status != errSecSuccess)
     {

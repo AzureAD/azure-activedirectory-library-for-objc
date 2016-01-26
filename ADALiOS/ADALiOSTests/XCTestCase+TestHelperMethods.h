@@ -20,6 +20,18 @@
 #import "../ADALiOS/ADAuthenticationError.h"
 #import "../ADALiOS/ADALiOS.h"
 
+#define ADTAssertContains(_str, _contains) XCTAssertTrue([_str containsString:_contains], "%@ does not contain \"%@\"", _str, _contains)
+
+#define TEST_AUTHORITY @"https://login.windows.net/contoso.com"
+#define TEST_REDIRECT_URL [NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob"]
+#define TEST_RESOURCE @"resource"
+#define TEST_USER_ID @"eric_cartman@contoso.com"
+#define TEST_CLIENT_ID @"c3c7f5e5-7153-44d4-90e6-329686d48d76"
+#define TEST_ACCESS_TOKEN @"access token"
+#define TEST_ACCESS_TOKEN_TYPE @"access token type"
+#define TEST_REFRESH_TOKEN @"refresh token"
+#define TEST_CORRELATION_ID [[NSUUID alloc] initWithUUIDString:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"]
+
 typedef enum
 {
     TEST_LOG_LEVEL,
@@ -28,84 +40,99 @@ typedef enum
     TEST_LOG_CODE,
 } ADLogPart;
 
-@class ADTokenCacheStoreItem;
+@class ADTokenCacheItem;
 @class ADUserInformation;
+@class ADTokenCacheKey;
+@class ADTestURLResponse;
 
 @interface XCTestCase (HelperMethods)
 
--(void) adAssertStringEquals: (NSString*) actual
-          stringExpression: (NSString*) expression
-                  expected: (NSString*) expected
-                      file: (const char*) file
-                      line: (int) line;
+- (void)adAssertStringEquals:(NSString *)actual
+            stringExpression:(NSString *)expression
+                    expected:(NSString *)expected
+                        file:(const char *)file
+                        line:(int)line;
 
 /*! Used with the class factory methods that create class objects. Verifies
  the expectations when the passed argument is invalid:
  - The creator should return nil.
  - The error should be set accordingly, containing the argument in the description.*/
--(void) adValidateFactoryForInvalidArgument: (NSString*) argument
-                           returnedObject: (id) returnedObject
-                                    error: (ADAuthenticationError*) error;
+- (void)adValidateFactoryForInvalidArgument:(NSString *)argument
+                             returnedObject:(id)returnedObject
+                                      error:(ADAuthenticationError *)error;
+
+- (ADTestURLResponse *)adResponseBadRefreshToken:(NSString *)refreshToken
+                                       authority:(NSString *)authority
+                                        resource:(NSString *)resource
+                                        clientId:(NSString *)clientId
+                                   correlationId:(NSUUID *)correlationId;
+- (ADTestURLResponse *)adDefaultBadRefreshTokenResponse;
+
+- (ADTestURLResponse *)adDefaultRefreshResponse:(NSString *)newRefreshToken
+                                    accessToken:(NSString *)newAccessToken;
 
 /*! Verifies that the correct error is returned when any method was passed invalid arguments.
  */
--(void) adValidateForInvalidArgument: (NSString*) argument
-                             error: (ADAuthenticationError*) error;
+- (void)adValidateForInvalidArgument:(NSString *)argument
+                               error:(ADAuthenticationError *)error;
 
 /*! Sets logging and other infrastructure for a new test.
  The method sets the callback and fails the tests if a the logs contains higher level
  item than the maxLogTolerance. E.g. strict test may set this parameter to ADAL_LOG_LEVEL_INFO,
  so that all warnings and errors will be cause the test to fail.*/
--(void) adTestBegin: (ADAL_LOG_LEVEL) maxLogTolerance;
+- (void)adTestBegin:(ADAL_LOG_LEVEL)maxLogTolerance;
 
 /*! See description of adTestBegin. */
--(void) adSetLogTolerance: (ADAL_LOG_LEVEL) maxLogTolerance;
+- (void)adSetLogTolerance: (ADAL_LOG_LEVEL)maxLogTolerance;
 
 /*! Clears logging and other infrastructure after a test */
--(void) adTestEnd;
+- (void)adTestEnd;
 
 //The methods help with verifying of the logs:
--(NSString*) adGetLogs:(ADLogPart)logPart;
+- (NSString *)adGetLogs:(ADLogPart)logPart;
 
 //Clears all of the test logs. Useful for repeating operations.
--(void) adClearLogs;
+- (void)adClearLogs;
 
--(void) adAssertLogsContain: (NSString*) text
-                    logPart: (ADLogPart) logPart
-                       file: (const char*) file
-                       line: (int) line;
+- (void)adAssertLogsContain:(NSString *)text
+                    logPart:(ADLogPart)logPart
+                       file:(const char *)file
+                       line:(int)line;
 
--(void) adAssertLogsDoNotContain:  (NSString*) text
-                         logPart: (ADLogPart) logPart
-                            file: (const char*) file
-                            line: (int) line;
+- (void)adAssertLogsDoNotContain:(NSString *)text
+                         logPart:(ADLogPart)logPart
+                            file:(const char *)file
+                            line:(int) line;
 
 //Creates a new item with all of the properties having correct values
--(ADTokenCacheStoreItem*) adCreateCacheItem;
+- (ADTokenCacheItem *)adCreateCacheItem;
+- (ADTokenCacheItem *)adCreateCacheItem:(NSString*)userId;
+- (ADTokenCacheItem *)adCreateATCacheItem;
+- (ADTokenCacheItem *)adCreateATCacheItem:(NSString *)resource
+                                   userId:(NSString *)userId;
+- (ADTokenCacheItem *)adCreateMRRTCacheItem;
+- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId;
+- (ADTokenCacheKey *)adCreateCacheKey;
 
 //Creates a sample user information object
--(ADUserInformation*) adCreateUserInformation;
+- (ADUserInformation *)adCreateUserInformation:(NSString*)userId;
 
-//Ensures that all properties return non-default values. Useful to ensure that
-//the tests cover all properties of the tested objects:
--(void) adVerifyPropertiesAreSet: (NSObject*) object;
-
--(NSString*) adLogLevelLogs;
--(NSString*) adMessagesLogs;
--(NSString*) adInformationLogs;
--(NSString*) adErrorCodesLogs;
+- (NSString *)adLogLevelLogs;
+- (NSString *)adMessagesLogs;
+- (NSString *)adInformationLogs;
+- (NSString *)adErrorCodesLogs;
 
 //Counts how many times the "contained" is sequentially occurring in "string".
 //Example: "bar bar" is contained once in "bar bar bar" and twice in "bar bar bar bar".
--(int) adCountOccurencesOf: (NSString*) contained
-                  inString: (NSString*) string;
+- (int)adCountOccurencesOf:(NSString *)contained
+                  inString:(NSString *)string;
 
 //The methods help with verifying of the logs:
--(int) adCountOfLogOccurrencesIn: (ADLogPart) logPart
-                        ofString: (NSString*) contained;
+- (int)adCountOfLogOccurrencesIn:(ADLogPart)logPart
+                        ofString:(NSString *)contained;
 
 //Checks if the test coverage is enabled and stores the test coverage, if yes.
--(void) adFlushCodeCoverage;
+- (void)adFlushCodeCoverage;
 
 /* A special helper, which invokes the 'block' parameter in the UI thread and waits for its internal
  callback block to complete.
@@ -124,10 +151,10 @@ typedef enum
  The method executes the block in the UI thread, but runs an internal run loop and thus allows methods which enqueue their
  completion callbacks on the UI thread.
  */
--(void) adCallAndWaitWithFile: (NSString*) file
-                         line: (int) line
-                    semaphore: (dispatch_semaphore_t) signal
-                        block: (void (^)(void)) block;
+- (void)adCallAndWaitWithFile:(NSString*)file
+                         line:(int)line
+                    semaphore:(dispatch_semaphore_t)signal
+                        block:(void (^)(void)) block;
 @end
 
 //Fixes the issue with XCTAssertEqual not comparing int and long values

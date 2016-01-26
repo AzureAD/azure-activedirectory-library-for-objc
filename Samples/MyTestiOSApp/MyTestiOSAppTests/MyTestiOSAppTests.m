@@ -291,7 +291,7 @@ const int sTokenWorkflowTimeout     = 20;
                                         atLine:sourceLine
                                       expected:NO];
         }
-        if (!localResult.tokenCacheStoreItem.accessToken.length)
+        if (!localResult.tokenCacheItem.accessToken.length)
         {
             [self recordFailureWithDescription:@"Nil or empty access token."
                                         inFile:@"" __FILE__
@@ -355,9 +355,9 @@ const int sTokenWorkflowTimeout     = 20;
                                                                    line:__LINE__];
     
     //Now remove the access token and ensure that the refresh token is leveraged:
-    result.tokenCacheStoreItem.accessToken = nil;
+    result.tokenCacheItem.accessToken = nil;
     ADAuthenticationError* error;
-    [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore addOrUpdateItem:result.tokenCacheStoreItem error:&error];
+    [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore addOrUpdateItem:result.tokenCacheItem error:&error];
     XCTAssertNil(error);
     [self clearCookies];//Just in case
     [self callAcquireTokenWithInstance:instance
@@ -426,7 +426,7 @@ const int sTokenWorkflowTimeout     = 20;
 
 -(long) cacheCount
 {
-    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    id<ADTokenCacheEnumerator> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     ADAuthenticationError* error;
     NSArray* all = [cache allItemsWithError:&error];
     XCTAssertNotNil(all);
@@ -446,7 +446,7 @@ const int sTokenWorkflowTimeout     = 20;
                                                           expectSuccess:NO
                                                                  userId:@"Nonexistent"
                                                                    line:__LINE__];
-    XCTAssertNil(result.tokenCacheStoreItem);
+    XCTAssertNil(result.tokenCacheItem);
     XCTAssertEqual([self cacheCount], (long)2);//Access token and MRRT
     //Cache present, same:
     result = [self callAcquireTokenWithInstance:[self getAADInstance]
@@ -456,7 +456,7 @@ const int sTokenWorkflowTimeout     = 20;
                                   expectSuccess:NO
                                          userId:@"Nonexistent"
                                            line:__LINE__];
-    XCTAssertNil(result.tokenCacheStoreItem);
+    XCTAssertNil(result.tokenCacheItem);
     XCTAssertEqual((long)result.error.code, (long)AD_ERROR_WRONG_USER);
     XCTAssertEqual([self cacheCount], (long)2);//Access token and MRRT
 }

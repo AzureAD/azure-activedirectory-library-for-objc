@@ -20,6 +20,7 @@
 #import "ADInstanceDiscovery.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
+#import "ADTokenCacheKey.h"
 
 @implementation ADAuthenticationRequest (AcquireAssertion)
 
@@ -62,7 +63,7 @@
     ADAuthenticationError* error = nil;
     //We are explicitly creating a key first to ensure indirectly that all of the required arguments are correct.
     //This is the safest way to guarantee it, it will raise an error, if the the any argument is not correct:
-    ADTokenCacheStoreKey* key = [ADTokenCacheStoreKey keyWithAuthority:_context.authority
+    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_context.authority
                                                               resource:_resource
                                                               clientId:_clientId error:&error];
     if (!key)
@@ -77,7 +78,7 @@
     {
         //Cache should be used in this case:
         BOOL accessTokenUsable;
-        ADTokenCacheStoreItem* cacheItem = [_context findCacheItemWithKey:key
+        ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key
                                                                    userId:_identifier
                                                            useAccessToken:&accessTokenUsable
                                                                     error:&error];
@@ -101,12 +102,20 @@
     
     [self requestTokenByAssertion:samlAssertion
                     assertionType:assertionType
-                       completion:completionBlock];
+                       completion:^(ADAuthenticationResult* result)
+    {
+        if (result.status == AD_SUCCEEDED)
+        {
+            [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
+        }
+        
+        completionBlock(result);
+    }];
 }
 
 /*Attemps to use the cache. Returns YES if an attempt was successful or if an
  internal asynchronous call will proceed the processing. */
-- (void)attemptToUseCacheItem:(ADTokenCacheStoreItem*)item
+- (void)attemptToUseCacheItem:(ADTokenCacheItem*)item
                useAccessToken:(BOOL)useAccessToken
                 samlAssertion:(NSString*)samlAssertion
                 assertionType:(ADAssertionType)assertionType
@@ -123,7 +132,7 @@
     {
         //Access token is good, just use it:
         [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:_correlationId];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item multiResourceRefreshToken:NO correlationId:_correlationId];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheItem:item multiResourceRefreshToken:NO correlationId:_correlationId];
         completionBlock(result);
         return;
     }
@@ -150,12 +159,12 @@
          //Try other means of getting access token result:
          if (!item.multiResourceRefreshToken)//Try multi-resource refresh token if not currently trying it
          {
-             ADTokenCacheStoreKey* broadKey = [ADTokenCacheStoreKey keyWithAuthority:_context.authority resource:nil clientId:_clientId error:nil];
+             ADTokenCacheKey* broadKey = [ADTokenCacheKey keyWithAuthority:_context.authority resource:nil clientId:_clientId error:nil];
              if (broadKey)
              {
                  BOOL useAccessToken;
                  ADAuthenticationError* error = nil;
-                 ADTokenCacheStoreItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
+                 ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
                  if (error)
                  {
                      completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -187,7 +196,15 @@
          //call acquireToken
          [self requestTokenByAssertion:samlAssertion
                          assertionType:assertionType
-                            completion:completionBlock];
+                            completion:^(ADAuthenticationResult *result)
+          {
+              if (result.status == AD_SUCCEEDED)
+              {
+                  [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
+              }
+              
+              completionBlock(result);
+          }];
      }];//End of the refreshing token completion block, executed asynchronously.
 }
 

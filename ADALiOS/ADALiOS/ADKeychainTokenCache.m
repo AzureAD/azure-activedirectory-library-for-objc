@@ -18,12 +18,13 @@
 
 #import <Security/Security.h>
 #import "ADALiOS.h"
-#import "ADKeychainTokenCacheStore.h"
-#import "ADTokenCacheStoreItem.h"
+#import "ADKeychainTokenCache+Internal.h"
+#import "ADTokenCacheItem.h"
 #import "NSString+ADHelperMethods.h"
-#import "ADTokenCacheStoreKey.h"
+#import "ADTokenCacheKey.h"
 #import "ADUserInformation.h"
 #import "ADWorkplaceJoinUtil.h"
+#import "ADAuthenticationSettings.h"
 
 #define KEYCHAIN_VERSION 1
 #define STRINGIFY(x) #x
@@ -34,10 +35,7 @@ static NSString* const s_delimiter = @"|";
 
 static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_VERSION);
 
-static NSString* const sMultiUserError = @"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used.";
-static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
-
-@implementation ADKeychainTokenCacheStore
+@implementation ADKeychainTokenCache
 {
     NSString* _sharedGroup;
     NSDictionary* _default;
@@ -46,7 +44,7 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
 // Shouldn't be called.
 - (id)init
 {
-    return [self initWithGroup:sKeychainSharedGroup];
+    return [self initWithGroup:[[ADAuthenticationSettings sharedInstance] defaultKeychainGroup]];
 }
 
 - (id)initWithGroup:(NSString *)sharedGroup
@@ -82,64 +80,17 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
 }
 
 #pragma mark -
-#pragma mark Keychain Query Dictionary Utils
-
-//We should not put nil keys in the keychain. The method substitutes nil with a special GUID:
-+ (NSString*)getAttributeName:(NSString* )original
-{
-    return ([NSString adIsStringNilOrBlank:original]) ? s_nilKey : [original adBase64UrlEncode];
-}
-
-// Given an item key, generates the string key used in the keychain:
-- (NSString*)keychainKeyFromCacheKey:(ADTokenCacheStoreKey *)itemKey
-{
-    //The key contains all of the ADAL cache key elements plus the version of the
-    //library. The latter is required to ensure that SecItemAdd won't break on collisions
-    //with items left over from the previous versions of the library.
-    return [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
-            s_libraryString, s_delimiter,
-            [itemKey.authority adBase64UrlEncode], s_delimiter,
-            [self.class getAttributeName:itemKey.resource], s_delimiter,
-            [itemKey.clientId adBase64UrlEncode]
-            ];
-}
-
-- (NSMutableDictionary*)queryDictionaryForKey:(ADTokenCacheStoreKey *)key
-                                       userId:(NSString *)userId
-                                   additional:(NSDictionary*)additional
-{
-    NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:_default];
-    if (key)
-    {
-        [query setObject:[self keychainKeyFromCacheKey:key]
-                  forKey:(NSString*)kSecAttrService];
-    }
-    if (userId)
-    {
-        [query setObject:userId
-                  forKey:(NSString*)kSecAttrAccount];
-    }
-    
-    if (additional)
-    {
-        [query addEntriesFromDictionary:additional];
-    }
-    
-    return query;
-}
-
-#pragma mark -
 #pragma mark Keychain Loggig
 
 //Log operations that result in storing or reading cache item:
-- (void)logItem:(ADTokenCacheStoreItem *)item
+- (void)logItem:(ADTokenCacheItem *)item
         message:(NSString *)additionalMessage
 {
     AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"%@ for resource <%@> + client <%@> + authority <%@>", additionalMessage, [item resource], [item clientId], [item authority]);
 }
 
 - (void)logItemRetrievalStatus:(NSArray *)items
-                           key:(ADTokenCacheStoreKey *)key
+                           key:(ADTokenCacheKey *)key
                         userId:(NSString *)userId
 {
     if ([items count] > 0)
@@ -159,7 +110,7 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
     }
 }
 
-- (NSString*)getTokenNameForLog:(ADTokenCacheStoreItem *)item
+- (NSString*)getTokenNameForLog:(ADTokenCacheItem *)item
 {
     NSString* tokenName = @"unknown token";
     if (![NSString adIsStringNilOrBlank:item.accessToken])
@@ -191,7 +142,7 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
 // keychain attributes as extracted by SecItemCopyMatching. The attributes
 // (represented as dictionaries) can be used to obtain the actual token cache item.
 // May return nil in case of error.
-- (NSArray *)keychainItemsWithKey:(ADTokenCacheStoreKey*)key
+- (NSArray *)keychainItemsWithKey:(ADTokenCacheKey*)key
                            userId:(NSString*)userId
                             error:(ADAuthenticationError* __autoreleasing*)error
 {
@@ -210,7 +161,7 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
     }
     else if (status != errSecSuccess)
     {
-        [ADKeychainTokenCacheStore checkStatus:status details:@"Failed to run keychain query." error:error];
+        [ADKeychainTokenCache checkStatus:status details:@"Failed to run keychain query." error:error];
         return nil;
     }
     
@@ -218,7 +169,7 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
 }
 
 
-- (ADTokenCacheStoreItem*)itemFromKeyhainAttributes:(NSDictionary*)attrs
+- (ADTokenCacheItem*)itemFromKeyhainAttributes:(NSDictionary*)attrs
 {
     NSData* data = [attrs objectForKey:(id)kSecValueData];
     if (!data)
@@ -227,13 +178,13 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
         return nil;
     }
     
-    ADTokenCacheStoreItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    ADTokenCacheItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
     if (!item)
     {
         AD_LOG_WARN(@"Unable to decode item from data stored in keychain.", nil, nil);
         return nil;
     }
-    if (![item isKindOfClass:[ADTokenCacheStoreItem class]])
+    if (![item isKindOfClass:[ADTokenCacheItem class]])
     {
         AD_LOG_WARN(@"Unarchived Item was not of expected class", nil, nil);
         return nil;
@@ -242,7 +193,7 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
     return item;
 }
 
-- (NSArray<ADTokenCacheStoreItem *> *)getItemsWithKey:(ADTokenCacheStoreKey *)key
+- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
                                                userId:(NSString *)userId
                                                 error:(ADAuthenticationError * __autoreleasing* )error
 {
@@ -253,11 +204,11 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
         return nil;
     }
     
-    NSMutableArray* tokenItems = [[NSMutableArray<ADTokenCacheStoreItem *> alloc] initWithCapacity:items.count];
+    NSMutableArray* tokenItems = [[NSMutableArray<ADTokenCacheItem *> alloc] initWithCapacity:items.count];
     SAFE_ARC_AUTORELEASE(tokenItems);
     for (NSDictionary* attrs in items)
     {
-        ADTokenCacheStoreItem* item = [self itemFromKeyhainAttributes:attrs];
+        ADTokenCacheItem* item = [self itemFromKeyhainAttributes:attrs];
         if (!item)
         {
             continue;
@@ -272,59 +223,79 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
 }
 
 #pragma mark -
-#pragma mark ADTokenCacheStoring implementation
+#pragma mark ADTokenCacheAccessor implementation
 
-/*! Return a copy of all items. The array will contain ADTokenCacheStoreItem objects,
+/*! Return a copy of all items. The array will contain ADTokenCacheItem objects,
  containing all of the cached information. Returns an empty array, if no items are found.
  Returns nil in case of error. */
-- (NSArray<ADTokenCacheStoreItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
+- (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
     return [self getItemsWithKey:nil error:error];
 }
 
-/*! May return nil, if no cache item corresponds to the requested key
- @param key: The key of the item.
- @param user: The specific user whose item is needed. May be nil, in which
- case the item for the first user in the cache will be returned.
- @param error: Will be set only in case of ambiguity. E.g. if userId is nil
- and we have tokens from multiple users. If the cache item is not present,
- the error will not be set. */
-- (ADTokenCacheStoreItem*)getItemWithKey:(ADTokenCacheStoreKey *)key
-                                  userId:(NSString *)userId
-                                   error:(ADAuthenticationError * __autoreleasing *)error
-{
-    NSArray* items = [self getItemsWithKey:key userId:userId error:error];
-    if (!items || items.count == 0)
-    {
-        return nil;
-    }
-    
-    if (items.count > 1)
-    {
-        ADAuthenticationError* adError =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
-                                               protocolCode:nil
-                                               errorDetails:sMultiUserError];
-        if (error)
-        {
-            *error = adError;
-        }
-        
-        return nil;
-    }
-    
-    return items.firstObject;
-}
-
-
 /*! Returns all of the items for a given key. Multiple items may present,
  if the same resource was accessed by more than one user. The returned
- array should contain only ADTokenCacheStoreItem objects. Returns an empty array,
+ array should contain only ADTokenCacheItem objects. Returns an empty array,
  if no items are found. Returns nil (and sets the error parameter) in case of error.*/
-- (NSArray<ADTokenCacheStoreItem *> *)getItemsWithKey:(ADTokenCacheStoreKey *)key
+- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
                                                 error:(ADAuthenticationError * __autoreleasing *)error
 {
     return [self getItemsWithKey:key userId:nil error:error];
+}
+
+
+/*!
+    @param  item    The item to remove from the cache
+    @param  error   (Optional) In the case of an error this will be filled with the
+                    error details.
+ 
+    @return YES if the item was successfully removed, or was not in the cache. If NO
+            look
+ */
+- (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
+             error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+{
+    RETURN_NO_ON_NIL_ARGUMENT(item);
+    
+    ADTokenCacheKey* key = [item extractKey:error];
+    if (!key)
+    {
+        return NO;
+    }
+    
+    
+    NSMutableDictionary* query = [self queryDictionaryForKey:key
+                                                      userId:item.userInformation.userId
+                                                  additional:nil];
+    OSStatus status = SecItemDelete((CFDictionaryRef)query);
+    return [ADKeychainTokenCache checkStatus:status details:@"Failed to remove item from keychain" error:error];
+}
+
+@end
+
+@implementation ADKeychainTokenCache (Internal)
+
+#pragma mark -
+#pragma mark Keychain Query Dictionary Utils
+
+//We should not put nil keys in the keychain. The method substitutes nil with a special GUID:
++ (NSString*)getAttributeName:(NSString* )original
+{
+    return ([NSString adIsStringNilOrBlank:original]) ? s_nilKey : [original adBase64UrlEncode];
+}
+
+// Given an item key, generates the string key used in the keychain:
+- (NSString*)keychainKeyFromCacheKey:(ADTokenCacheKey *)itemKey
+{
+    //The key contains all of the ADAL cache key elements plus the version of the
+    //library. The latter is required to ensure that SecItemAdd won't break on collisions
+    //with items left over from the previous versions of the library.
+    return [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
+            s_libraryString, s_delimiter,
+            [itemKey.authority adBase64UrlEncode], s_delimiter,
+            [self.class getAttributeName:itemKey.resource], s_delimiter,
+            [itemKey.clientId adBase64UrlEncode]
+            ];
 }
 
 + (BOOL)checkStatus:(OSStatus)status
@@ -346,20 +317,83 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
     return YES;
 }
 
-/*! Extracts the key from the item and uses it to set the cache details. If another item with the
- same key exists, it will be overriden by the new one. 'getItemWithKey' method can be used to determine
- if an item already exists for the same key.
- @param error: in case of an error, if this parameter is not nil, it will be filled with
- the error details. */
-- (void)addOrUpdateItem:(ADTokenCacheStoreItem *)item
-                  error:(ADAuthenticationError * __autoreleasing *)error
+- (NSMutableDictionary*)queryDictionaryForKey:(ADTokenCacheKey *)key
+                                       userId:(NSString *)userId
+                                   additional:(NSDictionary*)additional
+{
+    NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:_default];
+    if (key)
+    {
+        [query setObject:[self keychainKeyFromCacheKey:key]
+                  forKey:(NSString*)kSecAttrService];
+    }
+    if (userId)
+    {
+        [query setObject:userId
+                  forKey:(NSString*)kSecAttrAccount];
+    }
+    
+    if (additional)
+    {
+        [query addEntriesFromDictionary:additional];
+    }
+    
+    return query;
+}
+
+/*!
+    @param key      The key of the item.
+    @param userId   The specific user whose item is needed. May be nil, in which
+                    case the item for the first user in the cache will be returned.
+    @param error    Will be set only in case of ambiguity. E.g. if userId is nil
+                    and we have tokens from multiple users. If the cache item is not
+                    present, the error will not be set.
+ */
+- (ADTokenCacheItem*)getItemWithKey:(ADTokenCacheKey *)key
+                             userId:(NSString *)userId
+                              error:(ADAuthenticationError * __autoreleasing *)error
+{
+    NSArray* items = [self getItemsWithKey:key userId:userId error:error];
+    if (!items || items.count == 0)
+    {
+        return nil;
+    }
+    
+    if (items.count > 1)
+    {
+        ADAuthenticationError* adError =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
+                                               protocolCode:nil
+                                               errorDetails:@"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used."];
+        if (error)
+        {
+            *error = adError;
+        }
+        
+        return nil;
+    }
+    
+    return items.firstObject;
+}
+
+/*!
+    Ensures the cache contains an item matching the passed in item, adding or updating the
+    item as necessary.
+    
+    @param  item    The item to add to the cache, or update if an item matching the key and
+                    userId already exists in the cache.
+    @param  error   (Optional) In the case of an error this will be filled with the
+                    error details.
+ */
+- (BOOL)addOrUpdateItem:(ADTokenCacheItem *)item
+                  error:(ADAuthenticationError * __autoreleasing*)error
 {
     @synchronized(self)
     {
-        ADTokenCacheStoreKey* key = [item extractKey:error];
+        ADTokenCacheKey* key = [item extractKey:error];
         if (!key)
         {
-            return;
+            return NO;
         }
         
         // In layers above this a nil/blank user ID means we simply don't know who it is (thanks to ADFS)
@@ -373,13 +407,13 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
         
         // If the item wasn't found that means we need to add it.
         NSMutableDictionary* query = [self queryDictionaryForKey:key
-                                                             userId:userId
-                                                         additional:nil];
+                                                          userId:userId
+                                                      additional:nil];
         
         OSStatus status = SecItemDelete((CFDictionaryRef)query);
-        if ([ADKeychainTokenCacheStore checkStatus:status details:@"Failed to remove previous entry from the keychain." error:error])
+        if ([ADKeychainTokenCache checkStatus:status details:@"Failed to remove previous entry from the keychain." error:error])
         {
-            return;
+            return NO;
         }
         
         NSData* itemData = [NSKeyedArchiver archivedDataWithRootObject:item];
@@ -387,35 +421,29 @@ static NSString* const sKeychainSharedGroup = @"com.microsoft.adalcache";
                                            (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly}];
         status = SecItemAdd((CFDictionaryRef)query, NULL);
         
-        [ADKeychainTokenCacheStore checkStatus:status details:@"Failed to add or update keychain entry." error:error];
-    }
-}
-
-/*! Clears token cache details for specific keys.
- @param key: the key of the cache item. Key can be extracted from the ADTokenCacheStoreItem using
- the method 'extractKey'
- @param userId: The user for which the item will be removed. Can be nil, in which case items for all users with
- the specified key will be removed.
- The method does not raise an error, if the item is not found.
- */
-- (void)removeItemWithKey:(ADTokenCacheStoreKey *)key
-                   userId:(NSString *)userId
-                    error:(ADAuthenticationError * __autoreleasing *)error
-{
-    if (!key)
-    {
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromArgument:key argumentName:@"key"];
-        if (error)
+        if ([ADKeychainTokenCache checkStatus:status details:@"Failed to add or update keychain entry." error:error])
         {
-            *error = adError;
+            return NO;
         }
-        
-        return;
     }
     
-    NSMutableDictionary* query = [self queryDictionaryForKey:key userId:userId additional:nil];
-    OSStatus status = SecItemDelete((CFDictionaryRef)query);
-    [ADKeychainTokenCacheStore checkStatus:status details:@"Failed to remove item from keychain" error:error];
+    return YES;
+}
+
+- (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error
+{
+    @synchronized(self)
+    {
+        NSMutableDictionary* query = [self queryDictionaryForKey:nil userId:nil additional:nil];
+        OSStatus status = SecItemDelete((CFDictionaryRef)query);
+        [ADKeychainTokenCache checkStatus:status details:@"Failed to remove all" error:error];
+        
+        NSArray* items = [self allItems:nil];
+        if ([items count])
+        {
+            NSLog(@"!!!!!!!!!!!!!!!!!!!! %lu items remaining...", (unsigned long)items.count);
+        }
+    }
 }
 
 @end

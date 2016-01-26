@@ -16,7 +16,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 #import "ADAuthenticationSettings.h"
-#import "ADKeychainTokenCacheStore.h"
+#import "ADKeychainTokenCache.h"
 
 @implementation ADAuthenticationSettings
 
@@ -38,7 +38,7 @@
         //that created the object. Unfortunately with Grand Central Dispatch, it is not guaranteed that the thread
         //exists. Hence for now, we create the connection on the main thread by default:
         self.dispatchQueue = dispatch_get_main_queue();
-        self.defaultTokenCacheStore = [ADKeychainTokenCacheStore new];
+        self.defaultKeychainGroup = @"com.microsoft.adalcache";
     }
     return self;
 }
@@ -55,28 +55,6 @@
         });
     }
     return instance;
-}
-
-- (NSString*)sharedCacheKeychainGroup
-{
-    id store = self.defaultTokenCacheStore;
-    if ([store isKindOfClass:[ADKeychainTokenCacheStore class]])
-    {
-        return ((ADKeychainTokenCacheStore*)store).sharedGroup;
-    }
-    else
-    {
-        return nil;
-    }
-}
-
-- (void)setSharedCacheKeychainGroup:(NSString *)sharedKeychainGroup
-{
-    id store = self.defaultTokenCacheStore;
-    if ([store isKindOfClass:[ADKeychainTokenCacheStore class]])
-    {
-        self.defaultTokenCacheStore = [[ADKeychainTokenCacheStore alloc] initWithGroup:sharedKeychainGroup];
-    }
 }
 
 @end

@@ -34,11 +34,11 @@
            completionBlock:(ADAuthenticationCallback)completionBlock;
 
 - (void)acquireTokenByRefreshToken:(NSString*)refreshToken
-                         cacheItem:(ADTokenCacheStoreItem*)cacheItem
+                         cacheItem:(ADTokenCacheItem*)cacheItem
                    completionBlock:(ADAuthenticationCallback)completionBlock;
 
 - (void) validatedAcquireTokenByRefreshToken:(NSString*)refreshToken
-                                   cacheItem:(ADTokenCacheStoreItem*)cacheItem
+                                   cacheItem:(ADTokenCacheItem*)cacheItem
                              completionBlock:(ADAuthenticationCallback)completionBlock;
 
 @end
