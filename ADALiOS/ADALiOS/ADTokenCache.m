@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 //
-//  This class provides a ADTokenCacheStoring interface around the provided ADCacheStorage interface.
+//  This class provides a ADTokenCacheAccessor interface around the provided ADCacheStorage interface.
 //
 //  This class deserializes the token cache from the data blob provided by the developer on a -deserialize
 //  call and validates cache format.

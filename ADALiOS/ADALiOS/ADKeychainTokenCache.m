@@ -223,7 +223,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 }
 
 #pragma mark -
-#pragma mark ADTokenCacheStoring implementation
+#pragma mark ADTokenCacheAccessor implementation
 
 /*! Return a copy of all items. The array will contain ADTokenCacheItem objects,
  containing all of the cached information. Returns an empty array, if no items are found.
