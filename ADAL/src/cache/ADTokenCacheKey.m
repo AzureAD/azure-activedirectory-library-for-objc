@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 
-#import "ADAL.h"
+#import "ADAL_Internal.h"
 #import "ADAuthenticationContext.h"
 #import "ADInstanceDiscovery.h"
 #import "ADTokenCacheKey.h"

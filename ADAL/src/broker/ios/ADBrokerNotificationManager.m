@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADBrokerNotificationManager.h"
-#import "ADAL.h"
+#import "ADAL_Internal.h"
 #import "ADAuthenticationResult+Internal.h"
 @interface ADBrokerNotificationManager ()
 {

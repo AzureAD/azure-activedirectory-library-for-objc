@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADUserInformation.h"
-#import "ADAL.h"
+#import "ADAL_Internal.h"
 #import "ADOAuth2Constants.h"
 #import "NSString+ADHelperMethods.h"
 

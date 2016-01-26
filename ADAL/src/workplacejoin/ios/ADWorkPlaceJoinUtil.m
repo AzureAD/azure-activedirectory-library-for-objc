@@ -21,7 +21,7 @@
 #import "ADWorkPlaceJoinConstants.h"
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
-#import "ADAL.h"
+#import "ADAL_Internal.h"
 
 @implementation ADWorkPlaceJoinUtil
 

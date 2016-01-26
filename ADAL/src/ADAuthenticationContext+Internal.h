@@ -28,7 +28,7 @@
 #define CHECK_FOR_NIL(_val) \
     if (!_val) { completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"" #_val " is nil!"]]); return; }
 
-#import "ADAL.h"
+#import "ADAL_Internal.h"
 
 @class ADUserIdentifier;
 

@@ -25,7 +25,7 @@
 #import <CommonCrypto/CommonDigest.h>
 
 #import "ADOauth2Constants.h"
-#import "ADAL.h"
+#import "ADAL_Internal.h"
 
 @implementation ADHelpers
 

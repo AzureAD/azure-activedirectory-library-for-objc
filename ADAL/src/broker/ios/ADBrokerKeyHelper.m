@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "ADAL.h"
+#import "ADAL_Internal.h"
 #import "ADAuthenticationError.h"
 #import "ADErrorCodes.h"
 #import "ADBrokerKeyHelper.h"

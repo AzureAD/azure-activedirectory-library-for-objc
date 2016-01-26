@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADALFrameworkUtils.h"
-#import "ADAL.h"
+#import "ADAL_Internal.h"
 
 @implementation ADALFrameworkUtils
 

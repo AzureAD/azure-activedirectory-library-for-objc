@@ -19,7 +19,7 @@
 
 #import "ADAuthenticationResult.h"
 #import "ADTokenCacheItem.h"
-#import "ADAL.h"
+#import "ADAL_Internal.h"
 
 @implementation ADAuthenticationResult
 

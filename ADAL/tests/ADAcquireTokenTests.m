@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
-#import "ADAL.h"
+#import "ADAL_Internal.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
