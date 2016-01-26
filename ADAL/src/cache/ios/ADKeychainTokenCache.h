@@ -14,7 +14,7 @@
 // PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
 //
 // See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License
+// governing permissions and limitations under the License.
 
 @class ADKeyChainHelper;
 @class ADTokenCacheItem;
