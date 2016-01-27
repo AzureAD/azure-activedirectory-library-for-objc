@@ -28,6 +28,7 @@
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADTestURLConnection.h"
 #import "ADTokenCache+Internal.h"
+#import "ADTokenCacheItem+Internal.h"
 
 const int sAsyncContextTimeout = 10;
 

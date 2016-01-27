@@ -29,6 +29,8 @@
 #import "ADTestURLConnection.h"
 #import "ADOAuth2Constants.h"
 #import "ADTokenCacheKey.h"
+#import "ADTokenCacheItem+Internal.h"
+#import "ADUserInformation.h"
 
 @implementation XCTestCase (TestHelperMethods)
 
