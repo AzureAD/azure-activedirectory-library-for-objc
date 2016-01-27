@@ -47,6 +47,7 @@
         additionalHeaders:(NSDictionary *)additionalHeaders
         returnRawResponse:(BOOL)returnRawResponse
              isGetRequest:(BOOL)isGetRequest
+       retryIfServerError:(BOOL)retryIfServerError
                completion:( void (^)(NSDictionary *) )completionBlock;
 
 //Requests an OAuth2 code to be used for obtaining a token:

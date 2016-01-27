@@ -625,6 +625,59 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqualObjects(allItems[0], mrrtItem);
 }
 
+-(void) testRequestRetryOnUnusualHttpResponse
+{
+    //Create a normal authority (not a test one):
+    ADAuthenticationError* error;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    // Add a expired access token with refresh token to the cache
+    ADTokenCacheItem* item = [self adCreateATCacheItem];
+    item.expiresOn = [NSDate date];
+    item.refreshToken = @"refresh token";
+    [[context tokenCacheStore] addOrUpdateItem:item error:&error];
+    XCTAssertNil(error);
+    
+    // Add an MRRT to the cache as well
+    [[context tokenCacheStore] addOrUpdateItem:[self adCreateMRRTCacheItem] error:&error];
+    XCTAssertNil(error);
+    
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/contoso.com/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING
+                                                    responseURLString:@"https://contoso.com"
+                                                         responseCode:500
+                                                     httpHeaderFields:@{ } // maybe shoehorn correlation ID here
+                                                     dictionaryAsJSON:@{ OAUTH2_ERROR : @"server_error",
+                                                                         OAUTH2_ERROR_DESCRIPTION : @"AADSTS90036: Non-retryable error has occurred." }];
+    
+    //It should hit network twice for trying and retrying the refresh token because it is an server error
+    //Then hit network twice again for broad refresh token for the same reason
+    //So totally 4 responses are added
+    //If there is an infinite retry, exception will be thrown becasuse there is not enough responses
+    [ADTestURLConnection addResponse:response];
+    [ADTestURLConnection addResponse:response];
+    [ADTestURLConnection addResponse:response];
+    [ADTestURLConnection addResponse:response];
+    
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                               userId:TEST_USER_ID
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+    
+    NSArray* allItems = [[context tokenCacheStore] allItems:&error];
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 2);
+}
+
 - (void)testExtraQueryParams
 {
     // TODO: Requires testing auth code flow

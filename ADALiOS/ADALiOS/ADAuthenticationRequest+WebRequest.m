@@ -82,6 +82,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
           additionalHeaders:additionalHeaders
           returnRawResponse:NO
                isGetRequest:NO
+         retryIfServerError:YES
                  completion:completionBlock];
 }
 
@@ -99,6 +100,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
           additionalHeaders:additionalHeaders
           returnRawResponse:returnRawResponse
                isGetRequest:NO
+         retryIfServerError:YES
                  completion:completionBlock];
 }
 
@@ -108,6 +110,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         additionalHeaders:(NSDictionary *)additionalHeaders
         returnRawResponse:(BOOL)returnRawResponse
              isGetRequest:(BOOL)isGetRequest
+       retryIfServerError:(BOOL)retryIfServerError
                completion:( void (^)(NSDictionary *) )completionBlock
 {
     [self ensureRequest];
@@ -234,6 +237,29 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                     }
                 }
                     break;
+                case 500:
+                case 503:
+                {
+                    //retry if it is a server error
+                    //500 and 503 are the ones we retry
+                    if (retryIfServerError)
+                    {
+                        //retry once after half second
+                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                            [self requestWithServer:authorizationServer
+                                        requestData:request_data
+                                    handledPkeyAuth:isHandlingPKeyAuthChallenge
+                                  additionalHeaders:additionalHeaders
+                                  returnRawResponse:returnRawResponse
+                                       isGetRequest:isGetRequest
+                                 retryIfServerError:NO
+                                         completion:completionBlock];
+                        });
+                        return;
+                    }
+                    //no "break;" here
+                    //will go to default for handling if "retryIfServerError" is NO
+                }
                 default:
                 {
                     // Request failure
@@ -495,6 +521,7 @@ static volatile int sDialogInProgress = 0;
               additionalHeaders:nil
               returnRawResponse:NO
 				   isGetRequest:YES
+             retryIfServerError:YES
                      completion:^(NSDictionary * parameters)
          {
              
