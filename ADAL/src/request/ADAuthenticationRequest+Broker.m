@@ -189,7 +189,7 @@
                                       @"extra_qp": _queryParams ? _queryParams : @"",
                                       };
     
-    [ADBrokerHelper invokeBroker:queryDictionary];
+    [ADBrokerHelper invokeBroker:queryDictionary completionHandler:completionBlock];
 }
 
 - (void)handleBrokerFromWebiewResponse:(NSString*)urlString
@@ -236,11 +236,11 @@
     
     if ([ADBrokerHelper canUseBroker])
     {
-        [ADBrokerHelper invokeBroker:urlParams];
+        [ADBrokerHelper invokeBroker:urlParams completionHandler:completionBlock];
     }
     else
     {
-        [ADBrokerHelper promptBrokerInstall:urlParams];
+        [ADBrokerHelper promptBrokerInstall:urlParams completionHandler:completionBlock];
     }
 }
 

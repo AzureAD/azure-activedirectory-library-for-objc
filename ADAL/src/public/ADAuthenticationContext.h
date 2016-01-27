@@ -24,16 +24,6 @@
 #import "ADUserInformation.h"
 #import "ADErrorCodes.h"
 
-#if TARGET_OS_IPHONE
-//iOS:
-#   include <UIKit/UIKit.h>
-typedef UIWebView WebViewType;
-#else
-//OS X:
-#   include <WebKit/WebKit.h>
-typedef WebView   WebViewType;
-#endif
-
 @class ADUserIdentifier;
 @class UIViewController;
 @class ADTokenCache;
@@ -106,9 +96,6 @@ typedef enum
 } ADCredentialsType;
 
 @class ADAuthenticationResult;
-
-/*! The completion block declaration. */
-typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 
 /*!
     @class ADAuthenticationContext

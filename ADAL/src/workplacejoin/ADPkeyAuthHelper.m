@@ -198,7 +198,7 @@
         return nil;
     }
 
-    OSStatus status = errSecFunctionFailed;
+    OSStatus status = errSecAuthFailed;
 #if TARGET_OS_IPHONE
     status = SecKeyRawSign(privateKey,
                            kSecPaddingPKCS1SHA256,

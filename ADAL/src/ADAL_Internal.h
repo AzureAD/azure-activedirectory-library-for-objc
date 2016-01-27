@@ -37,6 +37,22 @@
 #import "ADAuthenticationError.h"
 #import "NSString+ADHelperMethods.h"
 
+@class ADAuthenticationResult;
+
+/*! The completion block declaration. */
+typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
+
+#if TARGET_OS_IPHONE
+//iOS:
+#   include <UIKit/UIKit.h>
+typedef UIWebView WebViewType;
+#else
+//OS X:
+#   include <WebKit/WebKit.h>
+typedef WebView   WebViewType;
+#endif
+
+
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \
 NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u", __PRETTY_FUNCTION__, __LINE__]

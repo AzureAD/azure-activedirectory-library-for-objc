@@ -19,21 +19,23 @@
 #import "ADBrokerHelper.h"
 #import "ADBrokerNotificationManager.h"
 #import "ADOAuth2Constants.h"
+#import "NSDictionary+ADExtensions.h"
 
 @implementation ADBrokerHelper
 
 + (BOOL)canUseBroker
 {
-    return [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", brokerScheme]]];
+    return [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", ADAL_BROKER_SCHEME]]];
 }
 
-+ (BOOL)invokeBroker:(NSDictionary *)brokerParams
++ (void)invokeBroker:(NSDictionary *)brokerParams
+   completionHandler:(ADAuthenticationCallback)completion
 {
-    NSString* brokerParams = [queryDictionary adURLFormEncode];
+    NSString* query = [brokerParams adURLFormEncode];
     
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
     
-    [[ADBrokerNotificationManager sharedInstance] enableNotifications:completionBlock];
+    [[ADBrokerNotificationManager sharedInstance] enableNotifications:completion];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [[UIApplication sharedApplication] openURL:appUrl];
@@ -49,13 +51,14 @@
     [appPasteBoard setURL:url];
 }
 
-+ (BOOL)promptBrokerInstallInvoke:(NSDictionary *)brokerParams
++ (void)promptBrokerInstall:(NSDictionary *)brokerParams
+          completionHandler:(ADAuthenticationCallback)completion
 {
-    NSString* brokerParams = [queryDictionary adURLFormEncode];
+    NSString* query = [brokerParams adURLFormEncode];
     
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
     
-    [[ADBrokerNotificationManager sharedInstance] enableNotifications:completionBlock];
+    [[ADBrokerNotificationManager sharedInstance] enableNotifications:completion];
     
     //no broker installed. go to app store
     NSString* qp = [appUrl query];

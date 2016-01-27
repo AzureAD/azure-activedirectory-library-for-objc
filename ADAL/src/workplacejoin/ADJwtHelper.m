@@ -47,7 +47,7 @@
     size_t keyBufferSize = [jwtData length];
     
     NSMutableData *bits = [NSMutableData dataWithLength:keyBufferSize];
-    OSStatus status = errSecFunctionFailed;
+    OSStatus status = errSecAuthFailed;
 #if TARGET_OS_IPHONE
     status = SecKeyDecrypt(decrpytionKey,
                            kSecPaddingPKCS1,
@@ -95,14 +95,14 @@
             free(signedHashBytes);
         return nil;
     }
-    OSStatus status = errSecFunctionFailed;
+    OSStatus status = errSecAuthFailed;
 #if TARGET_OS_IPHONE
-    OSStatus status = SecKeyRawSign(privateKey,
-                                    kSecPaddingPKCS1SHA256,
-                                    hashBytes,
-                                    hashBytesSize,
-                                    signedHashBytes,
-                                    &signedHashBytesSize);
+    status = SecKeyRawSign(privateKey,
+                           kSecPaddingPKCS1SHA256,
+                           hashBytes,
+                           hashBytesSize,
+                           signedHashBytes,
+                           &signedHashBytesSize);
 #else
     // TODO: Use SecSignTransformCreate on OS X, SecKeyRawSign is not available on OS X
 #endif
