@@ -20,7 +20,7 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADInstanceDiscovery.h"
 #import <libkern/OSAtomic.h>
-#import <ADALiOS/ADAuthenticationSettings.h>
+#import "ADAuthenticationSettings.h"
 #import "ADTestURLConnection.h"
 
 NSString* const sAlwaysTrusted = @"https://login.windows.net";

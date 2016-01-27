@@ -17,8 +17,8 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
-#import <ADALiOS/ADAuthenticationParameters.h>
-#import <ADALiOS/ADAuthenticationSettings.h>
+#import "ADAuthenticationParameters.h"
+#import "ADAuthenticationSettings.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADAuthenticationParameters+Internal.h"
 #import "ADTestURLConnection.h"
