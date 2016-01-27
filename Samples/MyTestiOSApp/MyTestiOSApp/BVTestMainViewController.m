@@ -18,11 +18,10 @@
 
 
 #import "BVTestMainViewController.h"
-#import <ADALiOS/ADAL.h>
+#import <ADAL/ADAL.h>
 #import "BVSettings.h"
 #import "BVTestInstance.h"
 #import "BVApplicationData.h"
-#import <ADALiOS/ADKeychainTokenCache.h>
 
 
 ADAuthenticationContext* context = nil;

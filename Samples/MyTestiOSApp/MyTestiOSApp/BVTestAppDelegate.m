@@ -16,13 +16,12 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-
 #import "BVTestAppDelegate.h"
 #import "BVTestMainViewController.h"
 #import "BVSettings.h"
 #import "BVApplicationData.h"
-#import <ADALiOS/ADAuthenticationContext.h>
-#import <ADALiOS/ADAuthenticationResult.h>
+
+#import <ADAL/ADAL.h>
 
 @implementation BVTestAppDelegate
 
