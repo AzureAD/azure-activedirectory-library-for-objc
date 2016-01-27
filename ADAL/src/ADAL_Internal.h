@@ -26,6 +26,9 @@
 #define STR_ADAL_VER_LOW    "0"
 #define STR_ADAL_VER_PATCH  "2"
 
+// Framework versions only support high and low for the double value, sadly.
+#define ADAL_VERSION_NUMBER 2.0
+
 #define ADAL_VERSION_STRING     STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH
 #define ADAL_VERSION_NSSTRING   @"" STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH
 

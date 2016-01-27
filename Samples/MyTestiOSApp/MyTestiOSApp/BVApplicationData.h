@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import <ADALiOS/ADAuthenticationResult.h>
+#import <ADAL/ADAL.h>
 
 @interface BVApplicationData : NSObject
 

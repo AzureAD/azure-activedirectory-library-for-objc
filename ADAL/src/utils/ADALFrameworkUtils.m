@@ -19,6 +19,10 @@
 #import "ADALFrameworkUtils.h"
 #import "ADAL_Internal.h"
 
+double ADALFrameworkNumber = ADAL_VERSION_NUMBER;
+
+const unsigned char ADALFrameworkVersionString[] = ADAL_VERSION_STRING;
+
 @implementation ADALFrameworkUtils
 
 static NSString *_resourcePath = nil;

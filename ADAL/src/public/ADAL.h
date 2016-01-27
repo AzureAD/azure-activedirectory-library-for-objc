@@ -16,21 +16,31 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADAuthenticationContext.h"
-#import "ADAuthenticationError.h"
-#import "ADAuthenticationParameters.h"
-#import "ADAuthenticationResult.h"
-#import "ADAuthenticationSettings.h"
-#import "ADErrorCodes.h"
-#import "ADLogger.h"
-#import "ADTokenCacheItem.h"
-#import "ADUserIdentifier.h"
-#import "ADUserInformation.h"
-#import "ADWebAuthController.h"
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
+
+//! Project version number for ADALiOSFramework.
+FOUNDATION_EXPORT double ADALFrameworkVersionNumber;
+
+//! Project version string for ADALiOSFramework.
+FOUNDATION_EXPORT const unsigned char ADALFrameworkVersionString[];
+
+#import <ADAL/ADAuthenticationContext.h>
+#import <ADAL/ADAuthenticationError.h>
+#import <ADAL/ADAuthenticationParameters.h>
+#import <ADAL/ADAuthenticationResult.h>
+#import <ADAL/ADAuthenticationSettings.h>
+#import <ADAL/ADErrorCodes.h>
+#import <ADAL/ADLogger.h>
+#import <ADAL/ADTokenCacheItem.h>
+#import <ADAL/ADUserIdentifier.h>
+#import <ADAL/ADUserInformation.h>
+#import <ADAL/ADWebAuthController.h>
 
 #if TARGET_OS_IPHONE
-#import "ADKeychainTokenCache.h"
+#import <ADAL/ADKeychainTokenCache.h>
 #else
-#import "ADTokenCache.h"
+#import <ADAL/ADTokenCache.h>
 #endif
 
