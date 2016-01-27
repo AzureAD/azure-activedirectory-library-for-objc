@@ -16,7 +16,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "public/ADLogger.h"
+#import "ADLogger.h"
 
 //A simple macro for single-line logging:
 #define AD_LOG(_level, _msg, _code, _correlationId, _info) [ADLogger log:_level message:_msg errorCode:_code info:_info correlationId:_correlationId]
