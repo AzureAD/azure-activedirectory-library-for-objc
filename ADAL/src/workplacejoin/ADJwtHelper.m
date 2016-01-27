@@ -21,13 +21,15 @@
 #import "ADErrorCodes.h"
 #import "NSString+ADHelperMethods.h"
 #import <CommonCrypto/CommonDigest.h>
+#import <Security/Security.h>
+#import <Security/SecKey.h>
 
 @implementation ADJwtHelper
 
 
-+(NSString*) createSignedJWTforHeader:(NSDictionary*) header
-                              payload:(NSDictionary*) payload
-                           signingKey:(SecKeyRef) signingKey
++ (NSString*)createSignedJWTforHeader:(NSDictionary *)header
+                              payload:(NSDictionary *)payload
+                           signingKey:(SecKeyRef)signingKey
 {
     NSString* signingInput = [NSString stringWithFormat:@"%@.%@", [[ADJwtHelper createJSONFromDictionary:header] adBase64UrlEncode], [[ADJwtHelper createJSONFromDictionary:payload] adBase64UrlEncode]];
     NSData* signedData = [ADJwtHelper sign:signingKey
@@ -38,20 +40,25 @@
 }
 
 
-+(NSString*) decryptJWT:(NSData*) jwtData
-          decrpytionKey:(SecKeyRef) decrpytionKey
++ (NSString*)decryptJWT:(NSData *)jwtData
+          decrpytionKey:(SecKeyRef)decrpytionKey
 {
     size_t cipherBufferSize = SecKeyGetBlockSize(decrpytionKey);
     size_t keyBufferSize = [jwtData length];
     
     NSMutableData *bits = [NSMutableData dataWithLength:keyBufferSize];
-    OSStatus sanityCheck = SecKeyDecrypt(decrpytionKey,
-                                         kSecPaddingPKCS1,
-                                         (const uint8_t *) [jwtData bytes],
-                                         cipherBufferSize,
-                                         [bits mutableBytes],
-                                         &keyBufferSize);
-    if(sanityCheck != errSecSuccess)
+    OSStatus status = errSecFunctionFailed;
+#if TARGET_OS_IPHONE
+    status = SecKeyDecrypt(decrpytionKey,
+                           kSecPaddingPKCS1,
+                           (const uint8_t *) [jwtData bytes],
+                           cipherBufferSize,
+                           [bits mutableBytes],
+                           &keyBufferSize);
+#else
+    // TODO: SecKeyDecrypt is not available on OS X
+#endif
+    if(status != errSecSuccess)
     {
         return nil;
     }
@@ -88,13 +95,17 @@
             free(signedHashBytes);
         return nil;
     }
-    
+    OSStatus status = errSecFunctionFailed;
+#if TARGET_OS_IPHONE
     OSStatus status = SecKeyRawSign(privateKey,
                                     kSecPaddingPKCS1SHA256,
                                     hashBytes,
                                     hashBytesSize,
                                     signedHashBytes,
                                     &signedHashBytesSize);
+#else
+    // TODO: Use SecSignTransformCreate on OS X, SecKeyRawSign is not available on OS X
+#endif
     
     [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"Status returned from data signing - " errorCode:status info:nil correlationId:nil];
     signedHash = [NSData dataWithBytes:signedHashBytes

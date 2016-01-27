@@ -18,7 +18,6 @@
 
 #import "ADAL_Internal.h"
 #import "ADOAuth2Constants.h"
-#import "UIApplication+ADExtensions.h"
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationDelegate.h"
 #import "ADAuthenticationWebViewController.h"
@@ -29,6 +28,10 @@
 #import "ADNTLMHandler.h"
 #import "ADCustomHeaderHandler.h"
 #import "ADALFrameworkUtils.h"
+
+#if TARGET_OS_IPHONE
+#import "UIApplication+ADExtensions.h"
+#endif
 
 NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
 NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
@@ -139,10 +142,14 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 {
     if ( nil != _authenticationViewController && nil != _parentController)
     {
+#if TARGET_OS_IPHONE
         // Dismiss the authentication view and dispatch the completion block
         [_parentController dismissViewControllerAnimated:YES completion:^{
             [self dispatchCompletionBlock:error URL:endURL];
         }];
+#else
+        // TODO: Mac impl
+#endif
     }
     else if (nil != _authenticationWebViewController)
     {
@@ -212,7 +219,9 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
     return [self endWebAuthenticationWithError:error orURL:nil];
 }
 
-+(NSString*) getStoryboardName
+// TODO: Move to iOS only file
+#if TARGET_OS_IPHONE
++ (NSString*)getStoryboardName
 {
     return (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
     ? AD_IPAD_STORYBOARD
@@ -248,6 +257,7 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
     }
     return nil;
 }
+#endif // TARGET_OS_IPHONE
 
 -(NSURL*) addToURL: (NSURL*) url
      correlationId: (NSUUID*) correlationId
@@ -261,7 +271,9 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
 refreshTokenCredential:(NSString*)refreshTokenCredential
+#if TARGET_OS_IPHONE
 parentController:(UIViewController *)parent
+#endif
       webView:(WebViewType *)webView
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID *)correlationId
@@ -310,6 +322,8 @@ correlationId:(NSUUID *)correlationId
     }
     else
     {
+        // TODO: Move iOS specific implementation to its own file
+#if TARGET_OS_IPHONE
         if (!parent)
         {
             // Must have a parent view controller to start the authentication view
@@ -351,6 +365,7 @@ correlationId:(NSUUID *)correlationId
             }
         }
         else //Parent
+#endif // TARGET_OS_IPHONE
         {
             error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
                                                            protocolCode:nil

@@ -49,6 +49,7 @@
 
 #import <objc/runtime.h>
 
+#if TARGET_OS_IPHONE
 typedef BOOL (*applicationOpenURLPtr)(id, SEL, UIApplication*, NSURL*, NSString*, id);
 IMP __original_ApplicationOpenURL = NULL;
 
@@ -65,6 +66,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
     [ADAuthenticationContext handleBrokerResponse:url];
     return YES;
 }
+#endif // TARGET_OS_IPHONE
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
@@ -73,6 +75,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     id <ADTokenCacheAccessor> _tokenCacheStore;
 }
 
+#if TARGET_OS_IPHONE
 + (void) load
 {
     __block id observer = nil;
@@ -117,6 +120,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                 }];
     
 }
+#endif
 
 - (id)init
 {

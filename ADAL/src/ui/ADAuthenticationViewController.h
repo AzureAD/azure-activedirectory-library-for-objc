@@ -18,11 +18,21 @@
 
 @protocol ADAuthenticationDelegate;
 
-@interface ADAuthenticationViewController : UIViewController
+@interface ADAuthenticationViewController :
+#if TARGET_OS_IPHONE
+UIViewController
+#else
+NSViewController
+#endif
 
 @property (weak, nonatomic)   id<ADAuthenticationDelegate>     delegate;
+#if TARGET_OS_IPHONE
 @property (weak, nonatomic)   IBOutlet UIWebView               *webView;
 @property (weak, nonatomic)   IBOutlet UIActivityIndicatorView *activityIndicator;
+#else
+@property (weak, nonatomic)   IBOutlet WebView                 *webView;
+#endif
+
 
 - (IBAction)onCancel:(id)sender;
 
