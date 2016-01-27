@@ -133,6 +133,7 @@
     }
     
     //Now attempt to use the refresh token of the passed cache item:
+    BOOL isMultiResourceRefreshToken = item.multiResourceRefreshToken;
     [self acquireTokenByRefreshToken:item.refreshToken
                            cacheItem:item
                      completionBlock:^(ADAuthenticationResult *result)
@@ -145,7 +146,7 @@
          }
          
          //Try other means of getting access token result:
-         if (!item.multiResourceRefreshToken)//Try multi-resource refresh token if not currently trying it
+         if (!isMultiResourceRefreshToken)//Try multi-resource refresh token if not currently trying it
          {
              ADTokenCacheKey* broadKey = [ADTokenCacheKey keyWithAuthority:_context.authority resource:nil clientId:_clientId error:nil];
              if (broadKey)
@@ -183,7 +184,6 @@
          [self requestToken:completionBlock];
      }];//End of the refreshing token completion block, executed asynchronously.
 }
-
 
 - (void)requestToken:(ADAuthenticationCallback)completionBlock
 {
