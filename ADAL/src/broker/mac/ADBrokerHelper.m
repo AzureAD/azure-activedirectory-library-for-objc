@@ -44,7 +44,13 @@
     (void)brokerParams;
     (void)completion;
     
-    AD_LOG_ERROR(@"invokeBroker called on Mac! This code should be unreachable.", AD_ERROR_BROKER_UNKNOWN, nil, nil);
+    AD_LOG_ERROR(@"promptBrokerInstall called on Mac! This code should be unreachable.", AD_ERROR_BROKER_UNKNOWN, nil, nil);
+}
+
++ (ADAuthenticationCallback)copyAndClearCompletionBlock
+{
+    AD_LOG_ERROR(@"copyAndClearCompletionBlock called on Mac! This code should be unreachable.", AD_ERROR_BROKER_UNKNOWN, nil, nil);
+    return nil;
 }
 
 @end

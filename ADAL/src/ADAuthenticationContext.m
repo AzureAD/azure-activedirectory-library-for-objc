@@ -41,8 +41,10 @@
 #import "ADBrokerNotificationManager.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationRequest.h"
-#import "ADTokenCache.h"
+#import "ADTokenCache+Internal.h"
+#if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
+#endif 
 #import "ADTokenCacheAccessor.h"
 
 #import "ADAuthenticationContext+Internal.h"
@@ -129,6 +131,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     return nil;
 }
 
+#if TARGET_OS_IPHONE
 - (id)initWithAuthority:(NSString*) authority
       validateAuthority:(BOOL)bValidate
             sharedGroup:(NSString*)sharedGroup
@@ -145,21 +148,62 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     
     _authority = extractedAuthority;
     _validateAuthority = bValidate;
-    _credentialsType = AD_CREDENTIALS_EMBEDDED;;
+    _credentialsType = AD_CREDENTIALS_EMBEDDED;
     
     _tokenCacheStore = [[ADKeychainTokenCache alloc] initWithGroup:sharedGroup];
+    
+    return self;
+}
+#endif
+
+- (id)initWithAuthority:(NSString *)authority
+      validateAuthority:(BOOL)validateAuthority
+             tokenCache:(ADTokenCache*)tokenCache
+                  error:(ADAuthenticationError *__autoreleasing *)error
+{
+    API_ENTRY;
+    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
+    RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
+    
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    _authority = extractedAuthority;
+    _validateAuthority = validateAuthority;
+    _credentialsType = AD_CREDENTIALS_EMBEDDED;
+    _tokenCacheStore = tokenCache;
     
     return self;
 }
 
 - (id)initWithAuthority:(NSString *)authority
       validateAuthority:(BOOL)validateAuthority
+          cacheDelegate:(id<ADTokenCacheDelegate>) delegate
+                  error:(ADAuthenticationError * __autoreleasing *)error
+{
+    ADTokenCache* cache = [ADTokenCache new];
+    [cache setDelegate:delegate];
+    
+    return [self initWithAuthority:authority
+                 validateAuthority:validateAuthority
+                        tokenCache:cache
+                             error:error];
+}
+
+- (id)initWithAuthority:(NSString *)authority
+      validateAuthority:(BOOL)validateAuthority
                   error:(ADAuthenticationError *__autoreleasing *)error
 {
+#if TARGET_OS_IPHONE
     return [self initWithAuthority:authority
                  validateAuthority:validateAuthority
                        sharedGroup:[[ADAuthenticationSettings sharedInstance] defaultKeychainGroup]
                              error:error];
+#else
+    return [self initWithAuthority:authority validateAuthority:validateAuthority cacheDelegate:[ADAuthenticationSettings sharedInstance].defaultCacheDelegate error:error];
+#endif
 }
 
 - (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
@@ -214,6 +258,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     return [[self alloc] initWithAuthority:authority validateAuthority:bValidate error:error];
 }
 
+#if TARGET_OS_IPHONE
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
                                                    sharedGroup:(NSString*)sharedGroup
                                                          error:(ADAuthenticationError* __autoreleasing *)error
@@ -238,6 +283,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                                sharedGroup:sharedGroup
                                      error:error];
 }
+#endif // TARGET_OS_IPHONE
 
 + (BOOL)isResponseFromBroker:(NSString*)sourceApplication
                     response:(NSURL*)response

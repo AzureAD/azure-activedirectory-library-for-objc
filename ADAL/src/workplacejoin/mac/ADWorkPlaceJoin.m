@@ -16,16 +16,25 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
+#import "ADWorkPlaceJoin.h"
 
-@interface ADBrokerHelper : NSObject
+@implementation ADWorkPlaceJoin
 
-+ (BOOL)canUseBroker;
-+ (void)invokeBroker:(NSDictionary *)brokerParams
-   completionHandler:(ADAuthenticationCallback)completion;
-+ (void)promptBrokerInstall:(NSDictionary *)brokerParams
-          completionHandler:(ADAuthenticationCallback)completion;
+#pragma mark - Public Methods
 
-+ (ADAuthenticationCallback)copyAndClearCompletionBlock;
++ (ADWorkPlaceJoin*) WorkPlaceJoinManager
+{
+    return nil;
+}
+
+- (BOOL)isWorkPlaceJoined
+{
+    return NO;
+}
+
+- (ADRegistrationInformation*) getRegistrationInformation
+{
+    return nil;
+}
 
 @end

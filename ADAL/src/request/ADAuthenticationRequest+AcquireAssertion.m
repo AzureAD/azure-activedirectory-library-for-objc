@@ -21,6 +21,7 @@
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
 #import "ADTokenCacheKey.h"
+#import "ADTokenCacheItem+Internal.h"
 
 @implementation ADAuthenticationRequest (AcquireAssertion)
 

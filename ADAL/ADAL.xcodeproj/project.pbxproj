@@ -204,6 +204,9 @@
 		9453C46E1C5872B0006B9E79 /* ADJwtHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C46C1C5872AD006B9E79 /* ADJwtHelper.m */; };
 		9453C4741C5874FB006B9E79 /* ADBrokerHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C4731C5874FB006B9E79 /* ADBrokerHelper.m */; };
 		9453C4761C58750C006B9E79 /* ADBrokerHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C4751C58750C006B9E79 /* ADBrokerHelper.m */; };
+		94E0FD8E1C59614B00CD707B /* ADTokenCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 9453C3C61C583AE6006B9E79 /* ADTokenCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		94E0FD8F1C59618600CD707B /* ADAuthenticationWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C31C1C57FBC4006B9E79 /* ADAuthenticationWebViewController.m */; };
+		94E0FD921C597A4700CD707B /* ADWorkPlaceJoin.m in Sources */ = {isa = PBXBuildFile; fileRef = 94E0FD911C597A4700CD707B /* ADWorkPlaceJoin.m */; };
 		97A522491A1A752D001D77CE /* ADClientMetrics.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A522481A1A752D001D77CE /* ADClientMetrics.m */; };
 		97A522501A1A8999001D77CE /* ADClientMetricsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */; };
 		D6C38DCA1BA0E74F00D62ABF /* ADBrokerKeyHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6C38DC91BA0E74F00D62ABF /* ADBrokerKeyHelperTests.m */; };
@@ -420,6 +423,7 @@
 		9453C46F1C5874CB006B9E79 /* ADBrokerHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerHelper.h; sourceTree = "<group>"; };
 		9453C4731C5874FB006B9E79 /* ADBrokerHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelper.m; sourceTree = "<group>"; };
 		9453C4751C58750C006B9E79 /* ADBrokerHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelper.m; sourceTree = "<group>"; };
+		94E0FD911C597A4700CD707B /* ADWorkPlaceJoin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWorkPlaceJoin.m; sourceTree = "<group>"; };
 		97A522481A1A752D001D77CE /* ADClientMetrics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetrics.m; sourceTree = "<group>"; };
 		97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetricsTests.m; sourceTree = "<group>"; };
 		97A522511A1A89C4001D77CE /* ADClientMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADClientMetrics.h; sourceTree = "<group>"; };
@@ -629,6 +633,7 @@
 				9453C3481C5800E1006B9E79 /* ADPkeyAuthHelper.h */,
 				9453C3491C5800E1006B9E79 /* ADPkeyAuthHelper.m */,
 				9453C3471C5800C6006B9E79 /* ios */,
+				94E0FD901C597A4700CD707B /* mac */,
 			);
 			path = workplacejoin;
 			sourceTree = "<group>";
@@ -867,6 +872,14 @@
 			path = mac;
 			sourceTree = "<group>";
 		};
+		94E0FD901C597A4700CD707B /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				94E0FD911C597A4700CD707B /* ADWorkPlaceJoin.m */,
+			);
+			path = mac;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -900,6 +913,7 @@
 				9453C4481C58647E006B9E79 /* NSUUID+ADExtensions.h in Headers */,
 				9453C42C1C58646D006B9E79 /* ADAuthenticationRequest+AcquireToken.h in Headers */,
 				9453C4151C586456006B9E79 /* ADLogger+Internal.h in Headers */,
+				94E0FD8E1C59614B00CD707B /* ADTokenCache.h in Headers */,
 				9453C4001C586425006B9E79 /* ADAL Mac.h in Headers */,
 				9453C4121C586456006B9E79 /* ADInstanceDiscovery.h in Headers */,
 				9453C43A1C586476006B9E79 /* ADURLProtocol.h in Headers */,
@@ -1214,6 +1228,7 @@
 				9453C41D1C586456006B9E79 /* ADUserIdentifier.m in Sources */,
 				9453C4251C586462006B9E79 /* ADTokenCacheItem+Internal.m in Sources */,
 				9453C4391C586476006B9E79 /* ADNTLMHandler.m in Sources */,
+				94E0FD921C597A4700CD707B /* ADWorkPlaceJoin.m in Sources */,
 				9453C40C1C586456006B9E79 /* ADAuthenticationParameters+Internal.m in Sources */,
 				9453C4491C58647E006B9E79 /* NSUUID+ADExtensions.m in Sources */,
 				9453C40A1C586456006B9E79 /* ADAuthenticationError.m in Sources */,
@@ -1234,6 +1249,7 @@
 				9453C4741C5874FB006B9E79 /* ADBrokerHelper.m in Sources */,
 				9453C43B1C586476006B9E79 /* ADURLProtocol.m in Sources */,
 				9453C42D1C58646D006B9E79 /* ADAuthenticationRequest+AcquireToken.m in Sources */,
+				94E0FD8F1C59618600CD707B /* ADAuthenticationWebViewController.m in Sources */,
 				9453C40D1C586456006B9E79 /* ADAuthenticationParameters.m in Sources */,
 				9453C4431C58647E006B9E79 /* NSDictionary+ADExtensions.m in Sources */,
 				9453C4661C58707B006B9E79 /* ADNTLMUIPrompt.m in Sources */,
@@ -1847,21 +1863,18 @@
 		9453C4591C5866D0006B9E79 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
 		};
 		9453C45A1C5866D0006B9E79 /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = CodeCoverage;
 		};
 		9453C45B1C5866D0006B9E79 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};

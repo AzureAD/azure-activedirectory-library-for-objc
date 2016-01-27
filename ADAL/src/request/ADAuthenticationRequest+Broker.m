@@ -18,8 +18,10 @@
 
 #import "ADAuthenticationContext+Internal.h"
 #import "ADAuthenticationSettings.h"
+#if TARGET_OS_IPHONE
 #import "ADBrokerKeyHelper.h"
 #import "ADBrokerNotificationManager.h"
+#endif // TARGET_OS_IPHONE
 #import "NSDictionary+ADExtensions.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADPkeyAuthHelper.h"
@@ -27,6 +29,9 @@
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
 #import "ADBrokerHelper.h"
+#import "ADTokenCacheItem+Internal.h"
+#import "ADUserInformation.h"
+
 
 @implementation ADAuthenticationRequest (Broker)
 
@@ -54,7 +59,7 @@
 
 + (void)internalHandleBrokerResponse:(NSURL *)response
 {
-    ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].copyAndClearCallback;
+    ADAuthenticationCallback completionBlock = [ADBrokerHelper copyAndClearCompletionBlock];
     if (!completionBlock)
     {
         AD_LOG_ERROR(@"Received broker response without a completionBlock.", AD_FAILED, nil, nil);
@@ -73,6 +78,9 @@
     }
     else
     {
+        // Encrypting the broker response should not be a requirement on Mac as there shouldn't be a possibility of the response
+        // accidentally going to the wrong app
+#if TARGET_OS_IPHONE
         HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
         
         NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
@@ -122,6 +130,10 @@
         {
             result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
         }
+#else // !TARGET_OS_IPHONE
+        // TODO: Broker support on Mac.
+        result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+#endif // TARGET_OS_IPHONE
     }
     
     if (AD_SUCCEEDED == result.status)
@@ -165,13 +177,15 @@
     }
     
     AD_LOG_INFO(@"Invoking broker for authentication", _correlationId, nil);
+#if TARGET_OS_IPHONE // Broker Message Encryption
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
-    NSString* adalVersion = [ADLogger getAdalVersion];
-    
     CHECK_FOR_NIL(base64UrlKey);
+#endif // TARGET_OS_IPHONE Broker Message Encryption
+    
+    NSString* adalVersion = [ADLogger getAdalVersion];
     CHECK_FOR_NIL(adalVersion);
     
     NSDictionary* queryDictionary = @{
@@ -183,7 +197,9 @@
                                       @"username": _identifier.userId ? _identifier.userId : @"",
                                       @"force" : _promptBehavior == AD_FORCE_PROMPT ? @"YES" : @"NO",
                                       @"correlation_id": _correlationId,
+#if TARGET_OS_IPHONE // Broker Message Encryption
                                       @"broker_key": base64UrlKey,
+#endif // TARGET_OS_IPHONE Broker Message Encryption
                                       @"client_version": adalVersion,
 									  BROKER_MAX_PROTOCOL_VERSION : @"2",
                                       @"extra_qp": _queryParams ? _queryParams : @"",
@@ -207,15 +223,18 @@
         return;
     }
     
+#if TARGET_OS_IPHONE // Broker Message Encryption
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    CHECK_FOR_NIL(base64UrlKey);
+#endif // TARGET_OS_IPHONE Broker Message Encryption
+    
     NSString* adalVersion = [ADLogger getAdalVersion];
     NSString* correlationIdStr = [_correlationId UUIDString];
     NSString* authority = _context.authority;
     
-    CHECK_FOR_NIL(base64UrlKey);
     CHECK_FOR_NIL(adalVersion);
     CHECK_FOR_NIL(authority);
     
@@ -229,7 +248,9 @@
                                           @"username_type": _identifier ? [_identifier typeAsString] : @"",
                                           @"username": _identifier.userId ? _identifier.userId : @"",
                                           @"correlation_id": correlationIdStr,
+#if TARGET_OS_IPHONE // Broker Message Encryption
                                           @"broker_key": base64UrlKey,
+#endif // TARGET_OS_IPHONE Broker Message Encryption
                                           @"client_version": adalVersion,
                                           @"extra_qp": _queryParams ? _queryParams : @"",
                                           }];

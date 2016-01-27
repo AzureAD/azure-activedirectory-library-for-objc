@@ -33,7 +33,7 @@
 
 @implementation ADAuthenticationWebViewController
 {
-    __weak UIWebView *_webView;
+    __weak WebViewType *_webView;
     
     NSURL    *_startURL;
     NSString *_endURL;
@@ -44,7 +44,7 @@
 #pragma mark - Initialization
 NSTimer *timer;
 
-- (id)initWithWebView:(UIWebView *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
+- (id)initWithWebView:(WebViewType *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL
 {
     if ( nil == startURL || nil == endURL )
         return nil;
@@ -59,7 +59,9 @@ NSTimer *timer;
         _complete  = NO;
         _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
         _webView          = webView;
+#if TARGET_OS_IPHONE
         _webView.delegate = self;
+#endif
         [ADNTLMHandler setCancellationUrl:[_startURL absoluteString]];
     }
     
@@ -72,8 +74,19 @@ NSTimer *timer;
     // UIWebView that it is managing is released in the hosted case and
     // so it is important that to stop listening for events from the
     // UIWebView when we are released.
+#if TARGET_OS_IPHONE
     _webView.delegate = nil;
+#endif
     _webView          = nil;
+}
+
+- (void)loadRequest:(NSURLRequest*)request
+{
+#if TARGET_OS_IPHONE
+    [_webView loadRequest:request];
+#else
+    [_webView.mainFrame loadRequest:request];
+#endif
 }
 
 #pragma mark - Public Methods
@@ -81,7 +94,8 @@ NSTimer *timer;
 - (void)start
 {
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:_startURL]];
-    [_webView loadRequest:request];
+    
+    [self loadRequest:request];
 }
 
 - (void)stop
@@ -108,13 +122,15 @@ NSTimer *timer;
     
     [responseUrl setValue:pKeyAuthHeaderVersion forHTTPHeaderField: pKeyAuthHeader];
     [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
-    [_webView loadRequest:responseUrl];
+    [self loadRequest:responseUrl];
 }
 
 
 #pragma mark - UIWebViewDelegate Protocol
 
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+// TODO: Mac Impl
+#if TARGET_OS_IPHONE
+- (BOOL)webView:(WebViewType *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
 #pragma unused(webView)
 #pragma unused(navigationType)
@@ -126,6 +142,7 @@ NSTimer *timer;
     }
     
     NSString *requestURL = [request.URL absoluteString];
+
     if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"]) {
         _complete = YES;
         dispatch_async( dispatch_get_main_queue(), ^{[_delegate webAuthenticationDidCancel];});
@@ -239,5 +256,6 @@ NSTimer *timer;
                                                                     code:NSURLErrorTimedOut
                                                                 userInfo:nil]];
 }
+#endif // TARGET_OS_IPHONE
 
 @end

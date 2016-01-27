@@ -38,7 +38,9 @@
         //that created the object. Unfortunately with Grand Central Dispatch, it is not guaranteed that the thread
         //exists. Hence for now, we create the connection on the main thread by default:
         self.dispatchQueue = dispatch_get_main_queue();
+#if TARGET_OS_IPHONE
         self.defaultKeychainGroup = @"com.microsoft.adalcache";
+#endif
     }
     return self;
 }

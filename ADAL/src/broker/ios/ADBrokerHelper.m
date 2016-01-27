@@ -70,4 +70,9 @@
     });
 }
 
++ (ADAuthenticationCallback)copyAndClearCompletionBlock
+{
+    return [[ADBrokerNotificationManager sharedInstance] copyAndClearCallback];
+}
+
 @end
