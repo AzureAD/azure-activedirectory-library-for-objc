@@ -16,7 +16,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@class ADTokenCacheStoreItem;
+@class ADTokenCacheItem;
 
 /* Internally accessible methods.*/
 @interface ADAuthenticationResult (Internal)
@@ -35,7 +35,7 @@
                                       correlationId:(NSUUID*)correlationId;
 
 /*! Creates an instance of the result from a pre-setup token cache store item */
-+ (ADAuthenticationResult*)resultFromTokenCacheStoreItem:(ADTokenCacheStoreItem*)item
++ (ADAuthenticationResult*)resultFromTokenCacheItem:(ADTokenCacheItem*)item
                                multiResourceRefreshToken:(BOOL)multiResourceRefreshToken
                                            correlationId:(NSUUID*)correlationId;
 

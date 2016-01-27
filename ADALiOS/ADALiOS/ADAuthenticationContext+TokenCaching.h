@@ -16,11 +16,13 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import "ADTokenCacheAccessor.h"
+
 @interface ADAuthenticationContext (TokenCaching)
 
 //Checks the cache for item that can be used to get directly or indirectly an access token.
 //Checks the multi-resource refresh tokens too.
-- (ADTokenCacheStoreItem*)findCacheItemWithKey:(ADTokenCacheStoreKey*) key
+- (ADTokenCacheItem*)findCacheItemWithKey:(ADTokenCacheKey*) key
                                         userId:(ADUserIdentifier*)userId
                                 useAccessToken:(BOOL*) useAccessToken
                                          error:(ADAuthenticationError* __autoreleasing*) error;
@@ -28,14 +30,14 @@
 //Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
 //the item to be stored.
 - (void)updateCacheToResult:(ADAuthenticationResult*)result
-                  cacheItem:(ADTokenCacheStoreItem*)cacheItem
+                  cacheItem:(ADTokenCacheItem*)cacheItem
            withRefreshToken:(NSString*)refreshToken;
 - (void)updateCacheToResult:(ADAuthenticationResult*)result
-              cacheInstance:(id<ADTokenCacheStoring>)tokenCacheStoreInstance
-                  cacheItem:(ADTokenCacheStoreItem*)cacheItem
+              cacheInstance:(id<ADTokenCacheAccessor>)tokenCacheStoreInstance
+                  cacheItem:(ADTokenCacheItem*)cacheItem
            withRefreshToken:(NSString*)refreshToken;
 
-- (ADTokenCacheStoreItem*)extractCacheItemWithKey:(ADTokenCacheStoreKey*)key
+- (ADTokenCacheItem*)extractCacheItemWithKey:(ADTokenCacheKey*)key
                                            userId:(ADUserIdentifier*)userId
                                             error:(ADAuthenticationError* __autoreleasing*)error;
 

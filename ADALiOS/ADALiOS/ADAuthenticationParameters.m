@@ -68,34 +68,31 @@
         return;
     }
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),^
-    {
-        ADWebRequest* request = [[ADWebRequest alloc] initWithURL:resourceUrl correlationId:nil];
-        request.method = HTTPGet;
-        AD_LOG_VERBOSE_F(@"Starting authorization challenge request", nil, @"Resource: %@", resourceUrl);
-        
-        [request send:^(NSError * error, ADWebResponse *response) {
-            ADAuthenticationError* adError;
-            ADAuthenticationParameters* parameters;
-            if (error)
-            {
-                adError = [ADAuthenticationError errorFromNSError:error
-                                                     errorDetails:[NSString stringWithFormat:ConnectionError, error.description]];
-            }
-            else if (HTTP_UNAUTHORIZED != response.statusCode)
-            {
-                adError = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_UNAUTHORIZED_CODE_EXPECTED
-                                                                  errorDetails:[NSString stringWithFormat:UnauthorizedHTTStatusExpected,
-                                                                                response.statusCode]];
-            }
-            else
-            {
-                //Request coming, attempt to process it:
-                parameters = [self parametersFromResponseHeaders:response.headers error:&adError];
-            }
-            completion(parameters, adError);
-        }];
-    });
+    ADWebRequest* request = [[ADWebRequest alloc] initWithURL:resourceUrl correlationId:nil];
+    request.method = HTTPGet;
+    AD_LOG_VERBOSE_F(@"Starting authorization challenge request", nil, @"Resource: %@", resourceUrl);
+    
+    [request send:^(NSError * error, ADWebResponse *response) {
+        ADAuthenticationError* adError;
+        ADAuthenticationParameters* parameters;
+        if (error)
+        {
+            adError = [ADAuthenticationError errorFromNSError:error
+                                                 errorDetails:[NSString stringWithFormat:ConnectionError, error.description]];
+        }
+        else if (HTTP_UNAUTHORIZED != response.statusCode)
+        {
+            adError = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_UNAUTHORIZED_CODE_EXPECTED
+                                                              errorDetails:[NSString stringWithFormat:UnauthorizedHTTStatusExpected,
+                                                                            response.statusCode]];
+        }
+        else
+        {
+            //Request coming, attempt to process it:
+            parameters = [self parametersFromResponseHeaders:response.headers error:&adError];
+        }
+        completion(parameters, adError);
+    }];
 }
 
 +(ADAuthenticationParameters*) parametersFromResponseHeaders:(NSDictionary*)headers

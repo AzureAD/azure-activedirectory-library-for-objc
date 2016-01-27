@@ -16,10 +16,13 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import "../ADALiOS/ADTokenCacheStoring.h"
+#import "ADTokenCache.h"
+#import "ADTokenCacheAccessor.h"
 
-/*! Stub class used for testing purposes. */
-@interface ADTestTokenCacheStore : NSObject<ADTokenCacheStoring>
+@interface ADTokenCache (Internal) <ADTokenCacheAccessor>
+
+- (BOOL)validateCache:(nullable NSDictionary *)dict
+                error:(ADAuthenticationError * __nullable  __autoreleasing * __nullable)error;
 
 @end
+

@@ -36,6 +36,7 @@
 #import "ADAuthenticationContext+TokenCaching.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADOAuth2Constants.h"
+#import "ADTokenCacheAccessor.h"
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
@@ -70,5 +71,12 @@ extern NSString* const ADRedirectUriInvalidError;
                                  toUser:(ADUserIdentifier*)userId;
 
 - (BOOL)hasCacheStore;
+
+@end
+
+@interface ADAuthenticationContext (CacheStorage)
+
+- (void)setTokenCacheStore:(id<ADTokenCacheAccessor>)tokenCacheStore;
+- (id<ADTokenCacheAccessor>)tokenCacheStore;
 
 @end

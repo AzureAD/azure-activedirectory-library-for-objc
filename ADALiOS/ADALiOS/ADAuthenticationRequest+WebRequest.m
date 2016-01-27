@@ -30,7 +30,7 @@
 #import "NSURL+ADExtensions.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
-#import "ADTokenCacheStoreItem+Internal.h"
+#import "ADTokenCacheItem+Internal.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -56,7 +56,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                  completion:^(NSDictionary *response)
      {
          //Prefill the known elements in the item. These can be overridden by the response:
-         ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
+         ADTokenCacheItem* item = [ADTokenCacheItem new];
          item.resource = _resource;
          item.clientId = _clientId;
          item.authority = _context.authority;
@@ -136,7 +136,6 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     else
     {
         webRequest.method = HTTPPost;
-        webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
     }
     
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
@@ -246,7 +245,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                     if (retryIfServerError)
                     {
                         //retry once after half second
-                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                             [self requestWithServer:authorizationServer
                                         requestData:request_data
                                     handledPkeyAuth:isHandlingPKeyAuthChallenge

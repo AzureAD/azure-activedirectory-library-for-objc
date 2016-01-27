@@ -16,33 +16,25 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADTokenCacheStoring.h"
+#import "ADKeychainTokenCache.h"
+#import "ADTokenCacheAccessor.h"
 
-@class ADKeyChainHelper;
+@class ADTokenCacheStoreKey;
 
-@interface ADKeychainTokenCacheStore : NSObject<ADTokenCacheStoring>
-
-@property (readonly) NSString* sharedGroup;
-
-/* Initializes the token cache store with default shared group value.
- */
-- (id)init;
-
-/*! Initializes the token cache store.
- @param: sharedGroup: Optional. If the application needs to share the cached tokens
- with other applications from the same vendor, the app will need to specify the 
- shared group here and add the necessary entitlements to the application.
- See Apple's keychain services documentation for details. */
-- (id)initWithGroup:(NSString *)sharedGroup;
+@interface ADKeychainTokenCache (Internal) <ADTokenCacheAccessor>
 
 + (BOOL)checkStatus:(OSStatus)status
             details:(NSString*)details
               error:(ADAuthenticationError* __autoreleasing *)error;
 
-- (NSMutableDictionary *)queryDictionaryForKey:(ADTokenCacheStoreKey *)key
+- (NSMutableDictionary *)queryDictionaryForKey:(ADTokenCacheKey *)key
                                         userId:(NSString *)userId
                                     additional:(NSDictionary*)additional;
 
-- (NSString*)keychainKeyFromCacheKey:(ADTokenCacheStoreKey *)itemKey;
+- (NSString*)keychainKeyFromCacheKey:(ADTokenCacheKey *)itemKey;
+
+/*! This method should *only* be called in test code, it should never be called
+    in production code */
+- (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error;
 
 @end

@@ -17,7 +17,6 @@
 // governing permissions and limitations under the License.
 #import <Foundation/Foundation.h>
 
-@protocol ADTokenCacheStoring;
 /*! The class stores global settings for the ADAL library. It is a singleton class
  and the alloc, init and new should not be called directly. The "sharedInstance" selector
  should be used instead to provide the settings instance. The class is not thread-safe.
@@ -40,10 +39,7 @@
 @property BOOL enableFullScreen;
 
 /*! The dispatch queue to be used for the asynchronous calls. */
-@property dispatch_queue_t dispatchQueue;
-
-/*! The default token cache store to be used by the ADAuthenticationContext instances. */
-@property id<ADTokenCacheStoring> defaultTokenCacheStore;
+@property (retain) dispatch_queue_t dispatchQueue;
 
 /*! The name of the keychain group to be used if sharing of cache between applications
  is desired. Can be nil. The property sets the appropriate value of defaultTokenCacheStore
@@ -52,10 +48,10 @@
  is only given to the applications from the same vendor. If this property is not set, the behavior
  will depend on the values in the entitlements file (if such exists) and may not result in token
  sharing. The property has no effect if other cache mechanisms are used (non-keychain). */
-@property NSString* sharedCacheKeychainGroup;
+@property (copy) NSString* defaultKeychainGroup;
 
 /*! Some servers may require client authentication over TLS. The certificate will be stored in the
  shared keychain group, pointed by this property. */
-@property NSString* clientTLSKeychainGroup;
+@property (copy) NSString* clientTLSKeychainGroup;
 
 @end

@@ -88,20 +88,13 @@ NSString *const HTTPPost = @"POST";
     
     if ( nil != self )
     {
-        _connection     = nil;
-        
         _requestURL        = [requestURL copy];
         _requestMethod     = HTTPGet;
         _requestHeaders    = [[NSMutableDictionary alloc] init];
-        _requestData       = nil;
-        
-        _response          = nil;
-        _responseData      = nil;
         
         // Default timeout for ADWebRequest is 30 seconds
         _timeout           = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
         
-        _completionHandler = nil;
         _correlationId     = correlationId;
         
         _operationQueue = [[NSOperationQueue alloc] init];

@@ -22,21 +22,18 @@
 @class ADAuthenticationError;
 
 /*! Defines the cache store key. The object is immutable and new one should be created each time
- a new key is required. Keys can be created or extracted from existing ADTokenCacheStoreItem objects. */
-@interface ADTokenCacheStoreKey : NSObject<NSCopying>
-{
-    NSUInteger hash;
-}
+ a new key is required. Keys can be created or extracted from existing ADTokenCacheItem objects. */
+@interface ADTokenCacheKey : NSObject <NSCopying, NSSecureCoding>
 
 /*! Creates a key
  @param authority: Required. The authentication authority used.
  @param resource: Optional. The resource used for the token. Multi-resource refresh token items can be extracted by specifying nil.
  @param scope: Optional, can be nil. The OAuth2 scope.
  */
-+(ADTokenCacheStoreKey*) keyWithAuthority: (NSString*) authority
-                                 resource: (NSString*) resource
-                                 clientId: (NSString*)clientId
-                                    error: (ADAuthenticationError* __autoreleasing*) error;
++ (ADTokenCacheKey *)keyWithAuthority:(NSString *)authority
+                             resource:(NSString *)resource
+                             clientId:(NSString *)clientId
+                                error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*! The authority that issues access tokens */
 @property (readonly) NSString* authority;

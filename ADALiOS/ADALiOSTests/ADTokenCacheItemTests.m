@@ -20,11 +20,11 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "../ADALiOS/ADAuthenticationContext.h"
 
-@interface ADTokenCacheStoreItemTest : XCTestCase
+@interface ADTokenCacheItemTests : XCTestCase
 
 @end
 
-@implementation ADTokenCacheStoreItemTest
+@implementation ADTokenCacheItemTests
 
 - (void)setUp
 {
@@ -41,7 +41,7 @@
 
 -(void) testIsExpired
 {
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
     XCTAssertTrue(item.isExpired, "When time is now, the item should expire.");
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:30];
@@ -57,11 +57,11 @@
 }
 - (void)testIsEmptyUser
 {
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
     XCTAssertFalse(item.isEmptyUser);
     item.userInformation = nil;
     XCTAssertTrue(item.isEmptyUser);
-    item = [ADTokenCacheStoreItem new];
+    item = [ADTokenCacheItem new];
     XCTAssertTrue(item.isEmptyUser, "The default item should not have a user.");
 }
 
@@ -70,7 +70,7 @@
 {
     ADAuthenticationError* error;
     
-    ADTokenCacheStoreItem* item1 = [self adCreateCacheItem];
+    ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
     if (userId1)
     {
         item1.userInformation = [ADUserInformation userInformationWithUserId:userId1 error:&error];
@@ -82,7 +82,7 @@
         item1.userInformation = nil;
     }
     
-    ADTokenCacheStoreItem* item2 = [self adCreateCacheItem];
+    ADTokenCacheItem* item2 = [self adCreateCacheItem:@"eric@contoso.com"];
     if (userId2)
     {
         item2.userInformation = [ADUserInformation userInformationWithUserId:userId2 error:&error];
@@ -101,9 +101,9 @@
 -(void)testIsSameUser
 {
     //Check the trivial cases:
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
     XCTAssertTrue([item isSameUser:item]);//self
-    ADTokenCacheStoreItem* copy = [item copy];
+    ADTokenCacheItem* copy = [item copy];
     XCTAssertTrue([item isSameUser:copy]);
     XCTAssertTrue([copy isSameUser:item]);
     
@@ -127,7 +127,7 @@
 
 -(void) testMultiRefreshTokens
 {
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
+    ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
     XCTAssertFalse(item.multiResourceRefreshToken);
     item.resource = nil;
     XCTAssertFalse(item.multiResourceRefreshToken);
@@ -149,7 +149,7 @@
 
 -(void) testSupportsSecureCoding
 {
-    XCTAssertTrue([ADTokenCacheStoreItem supportsSecureCoding], "Ensure that the unarchiving is secure.");
+    XCTAssertTrue([ADTokenCacheItem supportsSecureCoding], "Ensure that the unarchiving is secure.");
 }
 
 @end

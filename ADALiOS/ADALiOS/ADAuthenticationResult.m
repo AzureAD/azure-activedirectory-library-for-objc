@@ -18,13 +18,13 @@
 
 
 #import "ADAuthenticationResult.h"
-#import "ADTokenCacheStoreItem.h"
+#import "ADTokenCacheItem.h"
 #import "ADALiOS.h"
 
 @implementation ADAuthenticationResult
 
 //Explicit @synthesize is needed for the internal category to work:
-@synthesize tokenCacheStoreItem = _tokenCacheStoreItem;
+@synthesize tokenCacheItem = _tokenCacheItem;
 @synthesize status = _status;
 @synthesize error = _error;
 @synthesize multiResourceRefreshToken = _multiResourceRefreshToken;
@@ -40,7 +40,7 @@
 /* Implements the accessToken property */
 -(NSString*) accessToken
 {
-    return self.tokenCacheStoreItem.accessToken;
+    return self.tokenCacheItem.accessToken;
 }
 
 #define STATUS_ENUM_CASE(_enum) case _enum: return @#_enum;
@@ -58,7 +58,7 @@
 - (NSString*)description
 {
     return [NSString stringWithFormat:@"(error=%@, mrrt=%@, status=%@, item=%@, correlationId=%@)",
-            _error, _multiResourceRefreshToken ? @"YES" : @"NO", [ADAuthenticationResult stringForResultStatus:_status], _tokenCacheStoreItem, [_correlationId UUIDString]];
+            _error, _multiResourceRefreshToken ? @"YES" : @"NO", [ADAuthenticationResult stringForResultStatus:_status], _tokenCacheItem, [_correlationId UUIDString]];
 }
 
 @end
