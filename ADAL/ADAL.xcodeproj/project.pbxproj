@@ -1124,7 +1124,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "ADALiOSTests/ADALiOSTests-Info.plist";
+				INFOPLIST_FILE = "tests/ADALiOSTests-Info.plist";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",
@@ -1150,7 +1150,7 @@
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = src/ADAL.pch;
-				INFOPLIST_FILE = "ADALiOSTests/ADALiOSTests-Info.plist";
+				INFOPLIST_FILE = "tests/ADALiOSTests-Info.plist";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",
@@ -1249,7 +1249,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "ADALiOSTests/ADALiOSTests-Info.plist";
+				INFOPLIST_FILE = "tests/ADALiOSTests-Info.plist";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",

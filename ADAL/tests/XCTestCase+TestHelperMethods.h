@@ -17,8 +17,8 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
-#import "../ADALiOS/ADAuthenticationError.h"
-#import "../ADALiOS/ADALiOS.h"
+#import "ADAuthenticationError.h"
+#import "ADAL_Internal.h"
 
 #define ADTAssertContains(_str, _contains) XCTAssertTrue([_str containsString:_contains], "%@ does not contain \"%@\"", _str, _contains)
 
