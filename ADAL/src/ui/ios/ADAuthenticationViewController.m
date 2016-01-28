@@ -139,6 +139,9 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 - (void)stop:(void (^)(void))completion
 {
     [_parentController dismissViewControllerAnimated:YES completion:completion];
+    
+    _parentController = nil;
+    _delegate = nil;
 }
 
 - (void)startRequest:(NSURLRequest *)request
