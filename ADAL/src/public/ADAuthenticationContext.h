@@ -18,25 +18,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import "ADAuthenticationError.h"
-#import "ADAuthenticationResult.h"
-#import "ADTokenCacheItem.h"
-#import "ADUserInformation.h"
-#import "ADErrorCodes.h"
-
-#if TARGET_OS_IPHONE
-//iOS:
-#   include <UIKit/UIKit.h>
-typedef UIWebView WebViewType;
-#else
-//OS X:
-#   include <WebKit/WebKit.h>
-typedef WebView   WebViewType;
-#endif
-
+@class ADAuthenticationError;
+@class ADAuthenticationResult;
+@class ADTokenCacheItem;
+@class ADUserInformation;
 @class ADUserIdentifier;
 @class UIViewController;
 @class ADTokenCache;
+
+#if !TARGET_OS_IPHONE
+@protocol ADTokenCacheDelegate;
+#endif
 
 typedef enum
 {
@@ -107,9 +99,6 @@ typedef enum
 
 @class ADAuthenticationResult;
 
-/*! The completion block declaration. */
-typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
-
 /*!
     @class ADAuthenticationContext
  
@@ -138,6 +127,24 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                   error:(ADAuthenticationError * __autoreleasing *)error;
 #endif
 
+#if !TARGET_OS_IPHONE
+/*!
+    Initializes an instance of ADAuthenticationContext with the provided parameters.
+ 
+    @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+    @param validateAuthority    Specifies if the authority should be validated.
+    @param delegate             An object conforming to the ADTokenCacheDelegate protocol, this is mandatory
+                                if you wish to persist tokens on OS X.
+    @param error                (Optional) Any extra error details, if the method fails
+ 
+    @return An instance of ADAuthenticationContext, nil if it fails.
+ */
+- (id)initWithAuthority:(NSString *)authority
+      validateAuthority:(BOOL)validateAuthority
+          cacheDelegate:(id<ADTokenCacheDelegate>)delegate
+                  error:(ADAuthenticationError * __autoreleasing *)error;
+#endif
+
 /*!
     Initializes an instance of ADAuthenticationContext with the provided parameters.
  
@@ -189,7 +196,6 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
                                                    sharedGroup:(NSString*)sharedGroup
                                                          error:(ADAuthenticationError* __autoreleasing *)error;
-#endif
 
 /*!
     Creates an instance of ADAuthenticationContext with the provided parameters.
@@ -205,6 +211,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                                              validateAuthority:(BOOL)validate
                                                    sharedGroup:(NSString*)sharedGroup
                                                          error:(ADAuthenticationError* __autoreleasing *)error;
+#endif
 
 /*!
  */
@@ -231,9 +238,11 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 /*! See the ADCredentialsType enumeration definition for details */
 @property ADCredentialsType credentialsType;
 
+#if TARGET_OS_IPHONE
 /*! The parent view controller for the authentication view controller UI. This property will be used only if
  a custom web view is NOT specified. */
 @property (weak) UIViewController* parentController;
+#endif
 
 /*! Gets or sets the webview, which will be used for the credentials. If nil, the library will create a webview object
  when needed, leveraging the parentController property. */

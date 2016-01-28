@@ -22,6 +22,7 @@
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADTokenCacheKey.h"
+#import "ADUserInformation.h"
 
 @implementation ADAuthenticationContext (TokenCaching)
 

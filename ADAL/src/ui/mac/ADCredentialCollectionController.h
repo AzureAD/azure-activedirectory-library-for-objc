@@ -16,18 +16,20 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@interface ADAuthenticationWebViewController :
-#if TARGET_OS_IPHONE
-NSObject <UIWebViewDelegate, NSURLConnectionDelegate>
-#else
-NSObject <NSURLConnectionDelegate>
-#endif
+#import <Foundation/Foundation.h>
 
-@property (weak, nonatomic) id<ADAuthenticationDelegate> delegate;
+@interface ADCredentialCollectionController : NSObject {
+    IBOutlet NSView *_customView;
+    IBOutlet NSTextField *_usernameField;
+    IBOutlet NSSecureTextField *_passwordField;
+    IBOutlet NSTextField *_usernameLabel;
+    IBOutlet NSTextField *_passwordLabel;
+}
 
-- (id)initWithWebView:(WebViewType *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
-- (void)start;
-- (void)stop;
-- (void)handlePKeyAuthChallenge:(NSString *)challengeUrl;
+@property (strong) IBOutlet NSView *customView;
+@property (strong) IBOutlet NSTextField *usernameField;
+@property (strong) IBOutlet NSSecureTextField *passwordField;
+@property (strong) IBOutlet NSTextField *usernameLabel;
+@property (strong) IBOutlet NSTextField *passwordLabel;
 
 @end

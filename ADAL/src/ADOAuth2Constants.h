@@ -82,4 +82,4 @@ extern NSString *const AUTH_FAILED_BUSY;
 
 extern NSString *const AAD_SECURECONVERSATION_LABEL;
 
-extern NSString* const brokerScheme;
+extern NSString* const ADAL_BROKER_SCHEME;

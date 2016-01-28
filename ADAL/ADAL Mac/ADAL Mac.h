@@ -16,18 +16,14 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@interface ADAuthenticationWebViewController :
-#if TARGET_OS_IPHONE
-NSObject <UIWebViewDelegate, NSURLConnectionDelegate>
-#else
-NSObject <NSURLConnectionDelegate>
-#endif
+#import <Cocoa/Cocoa.h>
 
-@property (weak, nonatomic) id<ADAuthenticationDelegate> delegate;
+//! Project version number for ADAL Mac.
+FOUNDATION_EXPORT double ADAL_MacVersionNumber;
 
-- (id)initWithWebView:(WebViewType *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
-- (void)start;
-- (void)stop;
-- (void)handlePKeyAuthChallenge:(NSString *)challengeUrl;
+//! Project version string for ADAL Mac.
+FOUNDATION_EXPORT const unsigned char ADAL_MacVersionString[];
 
-@end
+// In this header, you should import all the public headers of your framework using statements like #import <ADAL_Mac/PublicHeader.h>
+
+

@@ -18,14 +18,20 @@
 
 #import "ADAuthenticationContext+Internal.h"
 #import "ADAuthenticationSettings.h"
+#if TARGET_OS_IPHONE
 #import "ADBrokerKeyHelper.h"
 #import "ADBrokerNotificationManager.h"
+#endif // TARGET_OS_IPHONE
 #import "NSDictionary+ADExtensions.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADPkeyAuthHelper.h"
 #import "ADHelpers.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
+#import "ADBrokerHelper.h"
+#import "ADTokenCacheItem+Internal.h"
+#import "ADUserInformation.h"
+
 
 @implementation ADAuthenticationRequest (Broker)
 
@@ -53,7 +59,7 @@
 
 + (void)internalHandleBrokerResponse:(NSURL *)response
 {
-    ADAuthenticationCallback completionBlock = [ADBrokerNotificationManager sharedInstance].copyAndClearCallback;
+    ADAuthenticationCallback completionBlock = [ADBrokerHelper copyAndClearCompletionBlock];
     if (!completionBlock)
     {
         AD_LOG_ERROR(@"Received broker response without a completionBlock.", AD_FAILED, nil, nil);
@@ -72,6 +78,9 @@
     }
     else
     {
+        // Encrypting the broker response should not be a requirement on Mac as there shouldn't be a possibility of the response
+        // accidentally going to the wrong app
+#if TARGET_OS_IPHONE
         HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
         
         NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
@@ -121,6 +130,10 @@
         {
             result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
         }
+#else // !TARGET_OS_IPHONE
+        // TODO: Broker support on Mac.
+        result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+#endif // TARGET_OS_IPHONE
     }
     
     if (AD_SUCCEEDED == result.status)
@@ -143,9 +156,7 @@
 
 - (BOOL)canUseBroker
 {
-    return _context.credentialsType == AD_CREDENTIALS_AUTO &&
-     _context.validateAuthority == YES &&
-    [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", brokerScheme]]];
+    return _context.credentialsType == AD_CREDENTIALS_AUTO && _context.validateAuthority == YES && [ADBrokerHelper canUseBroker];
 }
 
 - (void)callBroker:(ADAuthenticationCallback)completionBlock
@@ -166,13 +177,15 @@
     }
     
     AD_LOG_INFO(@"Invoking broker for authentication", _correlationId, nil);
+#if TARGET_OS_IPHONE // Broker Message Encryption
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
-    NSString* adalVersion = [ADLogger getAdalVersion];
-    
     CHECK_FOR_NIL(base64UrlKey);
+#endif // TARGET_OS_IPHONE Broker Message Encryption
+    
+    NSString* adalVersion = [ADLogger getAdalVersion];
     CHECK_FOR_NIL(adalVersion);
     
     NSDictionary* queryDictionary = @{
@@ -184,30 +197,15 @@
                                       @"username": _identifier.userId ? _identifier.userId : @"",
                                       @"force" : _promptBehavior == AD_FORCE_PROMPT ? @"YES" : @"NO",
                                       @"correlation_id": _correlationId,
+#if TARGET_OS_IPHONE // Broker Message Encryption
                                       @"broker_key": base64UrlKey,
+#endif // TARGET_OS_IPHONE Broker Message Encryption
                                       @"client_version": adalVersion,
 									  BROKER_MAX_PROTOCOL_VERSION : @"2",
                                       @"extra_qp": _queryParams ? _queryParams : @"",
                                       };
     
-    NSString* query = [queryDictionary adURLFormEncode];
-    
-    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", brokerScheme, query]];
-    
-    [[ADBrokerNotificationManager sharedInstance] enableNotifications:completionBlock];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[UIApplication sharedApplication] openURL:appUrl];
-    });
-}
-
-- (void)saveToPasteBoard:(NSURL*) url
-{
-    UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
-                                                            create:YES];
-    appPasteBoard.persistent = YES;
-    url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication",[[NSBundle mainBundle] bundleIdentifier]]];
-    [appPasteBoard setURL:url];
+    [ADBrokerHelper invokeBroker:queryDictionary completionHandler:completionBlock];
 }
 
 - (void)handleBrokerFromWebiewResponse:(NSString*)urlString
@@ -225,51 +223,45 @@
         return;
     }
     
+#if TARGET_OS_IPHONE // Broker Message Encryption
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    CHECK_FOR_NIL(base64UrlKey);
+#endif // TARGET_OS_IPHONE Broker Message Encryption
+    
     NSString* adalVersion = [ADLogger getAdalVersion];
     NSString* correlationIdStr = [_correlationId UUIDString];
     NSString* authority = _context.authority;
     
-    CHECK_FOR_NIL(base64UrlKey);
     CHECK_FOR_NIL(adalVersion);
     CHECK_FOR_NIL(authority);
     
-    NSDictionary* queryDictionary = @{
-                                      @"authority": _context.authority,
-                                      @"resource" : _resource,
-                                      @"client_id": _clientId,
-                                      @"redirect_uri": _redirectUri,
-                                      @"username_type": _identifier ? [_identifier typeAsString] : @"",
-                                      @"username": _identifier.userId ? _identifier.userId : @"",
-                                      @"correlation_id": correlationIdStr,
-                                      @"broker_key": base64UrlKey,
-                                      @"client_version": adalVersion,
-                                      @"extra_qp": _queryParams ? _queryParams : @"",
-                                      };
-    NSString* query = [queryDictionary adURLFormEncode];
+    NSString* query = [[NSURL URLWithString:urlString] query];
+    NSMutableDictionary* urlParams = [[NSDictionary adURLFormDecode:query] mutableCopy];
     
-    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@&%@", urlString, query]];
-    [[ADBrokerNotificationManager sharedInstance] enableNotifications:completionBlock];
+    [urlParams addEntriesFromDictionary:@{@"authority": _context.authority,
+                                          @"resource" : _resource,
+                                          @"client_id": _clientId,
+                                          @"redirect_uri": _redirectUri,
+                                          @"username_type": _identifier ? [_identifier typeAsString] : @"",
+                                          @"username": _identifier.userId ? _identifier.userId : @"",
+                                          @"correlation_id": correlationIdStr,
+#if TARGET_OS_IPHONE // Broker Message Encryption
+                                          @"broker_key": base64UrlKey,
+#endif // TARGET_OS_IPHONE Broker Message Encryption
+                                          @"client_version": adalVersion,
+                                          @"extra_qp": _queryParams ? _queryParams : @"",
+                                          }];
     
-    if([[UIApplication sharedApplication] canOpenURL:appUrl])
+    if ([ADBrokerHelper canUseBroker])
     {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[UIApplication sharedApplication] openURL:appUrl];
-        });
+        [ADBrokerHelper invokeBroker:urlParams completionHandler:completionBlock];
     }
     else
     {
-        //no broker installed. go to app store
-        NSString* qp = [appUrl query];
-        NSDictionary* qpDict = [NSDictionary adURLFormDecode:qp];
-        NSString* url = [qpDict valueForKey:@"app_link"];
-        [self saveToPasteBoard:appUrl];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:url]];
-        });
+        [ADBrokerHelper promptBrokerInstall:urlParams completionHandler:completionBlock];
     }
 }
 

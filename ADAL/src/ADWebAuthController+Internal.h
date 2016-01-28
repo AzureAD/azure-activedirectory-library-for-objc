@@ -31,7 +31,9 @@ typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
 refreshTokenCredential:(NSString*)refreshTokenCredential
+#if TARGET_OS_IPHONE
 parentController:(UIViewController *)parent
+#endif
       webView:(WebViewType*)webView
    fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID*)correlationId

@@ -21,6 +21,7 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADAuthenticationContext.h"
 #import "ADTestURLConnection.h"
+#import "ADAuthenticationResult.h"
 
 @interface ADAuthortyValidationTests : XCTestCase
 

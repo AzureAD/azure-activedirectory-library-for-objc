@@ -62,7 +62,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
 }
 
 /*! The getter of the public "validatedAuthorities" property. */
-- (NSSet*) validatedAuthorities
+- (NSSet*)validatedAuthorities
 {
     API_ENTRY;
     NSSet* copy;
@@ -73,7 +73,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
     return copy;
 }
 
-+(ADInstanceDiscovery*) sharedInstance
++ (ADInstanceDiscovery*)sharedInstance
 {
     API_ENTRY;
     @synchronized (self)
