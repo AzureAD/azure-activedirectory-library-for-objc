@@ -7,4 +7,7 @@
    <FileRef
       location = "group:Samples/MyTestiOSApp/MyTestiOSApp.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:Samples/MyTestMacOSApp/MyTestMacOSApp.xcodeproj">
+   </FileRef>
 </Workspace>

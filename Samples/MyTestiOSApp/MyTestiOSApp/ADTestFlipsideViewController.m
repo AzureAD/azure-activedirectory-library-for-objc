@@ -16,10 +16,10 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "BVTestFlipsideViewController.h"
-#import "BVTestInstance.h"
+#import "ADTestFlipsideViewController.h"
+#import "ADTestInstance.h"
 
-@interface BVTestFlipsideViewController ()
+@interface ADTestFlipsideViewController ()
 
 @property (weak, nonatomic) IBOutlet UITextField *authorityLabel;
 @property (weak, nonatomic) IBOutlet UITextField *clientIdLabel;
@@ -37,7 +37,7 @@
 
 - (void) updateControlValues
 {
-    BVTestInstance *instance = [BVTestInstance getInstance:nil];
+    ADTestInstance *instance = [ADTestInstance getInstance:nil];
     [_authorityLabel setText: [instance authority]];
     [_clientIdLabel setText: [instance clientId]];
     [_resourceLabel setText: [instance resource]];
@@ -80,7 +80,7 @@
 
 - (IBAction)restoreDefaults:(id)sender
 {
-    [[BVTestInstance getInstance:nil] restoreDefaults];
+    [[ADTestInstance getInstance:nil] restoreDefaults];
     [self updateControlValues];
 }
 
@@ -99,7 +99,7 @@
     [updatedValues setObject:[self isEnabled:_validationSwitch] forKey:SUPPORTS_VALIDATION];
     [updatedValues setObject:[self isEnabled:_fullScreenSwitch] forKey:ENABLE_FULLSCREEN];
     
-    [[BVTestInstance getInstance:nil] updateValues:updatedValues];
+    [[ADTestInstance getInstance:nil] updateValues:updatedValues];
     [self done:sender];
 }
 

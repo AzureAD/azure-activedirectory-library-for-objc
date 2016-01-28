@@ -16,10 +16,10 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "BVTestInstance.h"
+#import "ADTestInstance.h"
 #import <ADAL/ADAL.h>
 
-@implementation BVTestInstance
+@implementation ADTestInstance
 
 const NSString* AUTHORITY = @"Authority";
 const NSString* CLIENT_ID = @"ClientId";
@@ -34,7 +34,7 @@ const NSString* REQUEST_TIMEOUT = @"RequestTimeout";
 
 + (id) getInstance: (NSDictionary*) contents
 {
-    static BVTestInstance *instance = nil;
+    static ADTestInstance *instance = nil;
     static dispatch_once_t onceToken;
     
     dispatch_once(&onceToken, ^{
