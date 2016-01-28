@@ -21,7 +21,71 @@
 #import "ADOAuth2Constants.h"
 #import "NSDictionary+ADExtensions.h"
 
+#import <objc/runtime.h>
+
+typedef BOOL (*applicationOpenURLPtr)(id, SEL, UIApplication*, NSURL*, NSString*, id);
+IMP __original_ApplicationOpenURL = NULL;
+
+BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application, NSURL* url, NSString* sourceApplication, id annotation)
+{
+    if (![ADAuthenticationContext isResponseFromBroker:sourceApplication response:url])
+    {
+        if (__original_ApplicationOpenURL)
+            return ((applicationOpenURLPtr)__original_ApplicationOpenURL)(self, _cmd, application, url, sourceApplication, annotation);
+        else
+            return NO;
+    }
+    
+    [ADAuthenticationContext handleBrokerResponse:url];
+    return YES;
+}
+
 @implementation ADBrokerHelper
+
++ (void)load
+{
+    __block id observer = nil;
+    
+    observer =
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification
+                                                      object:nil
+                                                       queue:nil
+                                                  usingBlock:^(NSNotification* notification)
+     {
+         (void)notification;
+         // We don't want to swizzle multiple times so remove the observer
+         [[NSNotificationCenter defaultCenter] removeObserver:observer name:UIApplicationDidFinishLaunchingNotification object:nil];
+         
+         SEL sel = @selector(application:openURL:sourceApplication:annotation:);
+         
+         // Dig out the app delegate (if there is one)
+         __strong id appDelegate = [[UIApplication sharedApplication] delegate];
+         
+         // There's not much we can do if there's no app delegate and there might be scenarios where
+         // that is valid...
+         if (appDelegate == nil)
+             return;
+         
+         if ([appDelegate respondsToSelector:sel])
+         {
+             Method m = class_getInstanceMethod([appDelegate class], sel);
+             __original_ApplicationOpenURL = method_getImplementation(m);
+             method_setImplementation(m, (IMP)__swizzle_ApplicationOpenURL);
+         }
+         else
+         {
+             NSString* typeEncoding = [NSString stringWithFormat:@"%s%s%s%s%s%s%s", @encode(BOOL), @encode(id), @encode(SEL), @encode(UIApplication*), @encode(NSURL*), @encode(NSString*), @encode(id)];
+             class_addMethod([appDelegate class], sel, (IMP)__swizzle_ApplicationOpenURL, [typeEncoding UTF8String]);
+             
+             // UIApplication caches whether or not the delegate responds to certain selectors. Clearing out the delegate and resetting it gaurantees that gets updated
+             [[UIApplication sharedApplication] setDelegate:nil];
+             // UIApplication employs dark magic to assume ownership of the app delegate when it gets the app delegate at launch, it won't do that for setDelegate calls so we
+             // have to add a retain here to make sure it doesn't turn into a zombie
+             [[UIApplication sharedApplication] setDelegate:(__bridge id)CFRetain((__bridge CFTypeRef)appDelegate)];
+         }
+         
+     }];
+}
 
 + (BOOL)canUseBroker
 {
