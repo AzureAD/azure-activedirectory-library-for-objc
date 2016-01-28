@@ -19,8 +19,7 @@
 #import "ADAL_Internal.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationContext.h"
-#import "ADAuthenticationDelegate.h"
-#import "ADAuthenticationWebViewController.h"
+#import "ADWebAuthDelegate.h"
 #import "ADAuthenticationViewController.h"
 #import "ADWebAuthController.h"
 #import "ADWebAuthController+Internal.h"
@@ -28,28 +27,37 @@
 #import "ADNTLMHandler.h"
 #import "ADCustomHeaderHandler.h"
 #import "ADALFrameworkUtils.h"
+#import "NSDictionary+ADExtensions.h"
+#import "ADHelpers.h"
+#import "ADPkeyAuthHelper.h"
+
+#import "ADWorkPlaceJoinConstants.h"
 
 #if TARGET_OS_IPHONE
 #import "UIApplication+ADExtensions.h"
 #endif
 
-NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
-NSString *const AD_FAILED_NO_RESOURCES  = @"The required resource bundle could not be loaded. Please read the ADALiOS readme on how to build your application with ADAL provided authentication UI resources.";
-NSString *const AD_IPAD_STORYBOARD = @"ADAL_iPad_Storyboard";
-NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
-
 // Private interface declaration
-@interface ADWebAuthController () <ADAuthenticationDelegate>
+@interface ADWebAuthController () <ADWebAuthDelegate>
 @end
 
 // Implementation
 @implementation ADWebAuthController
 {
-    UIViewController*                   _parentController;
-    ADAuthenticationViewController*     _authenticationViewController;
-    ADAuthenticationWebViewController*  _authenticationWebViewController;
+    ADAuthenticationViewController * _authenticationViewController;
     
-    NSLock                             *_completionLock;
+    NSLock * _completionLock;
+    NSString * _endURL;
+    
+    BOOL _loading;
+    // Used for managing the activity spinner
+    NSTimer* _spinnerTimer;
+    
+    // Used for timing out if it's taking too long to load
+    float _timeout;
+    NSTimer * _loadingTimer;
+    
+    BOOL _complete;
     
     void (^_completionBlock)( ADAuthenticationError *, NSURL *);
 }
@@ -105,7 +113,7 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 
 + (void)cancelCurrentWebAuthSession
 {
-    [[ADWebAuthController sharedInstance] webAuthenticationDidCancel];
+    [[ADWebAuthController sharedInstance] webAuthDidCancel];
 }
 
 #pragma mark - Private Methods
@@ -135,65 +143,220 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
     [_completionLock unlock];
 }
 
-#pragma mark - ADAuthenticationDelegate
+- (void) handlePKeyAuthChallenge:(NSString *)challengeUrl
+{
+    
+    AD_LOG_VERBOSE(@"Handling PKeyAuth Challenge", nil, nil);
+    
+    NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
+    NSString *qp = [parts objectAtIndex:1];
+    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    NSString* value = [ADHelpers addClientVersionToURLString:[queryParamsMap valueForKey:@"SubmitUrl"]];
+    
+    NSArray * authorityParts = [value componentsSeparatedByString:@"?"];
+    NSString *authority = [authorityParts objectAtIndex:0];
+    
+    NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc] initWithURL: [NSURL URLWithString: value]];
+    
+    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority
+                                                        challengeData:queryParamsMap];
+    
+    [responseUrl setValue:pKeyAuthHeaderVersion forHTTPHeaderField: pKeyAuthHeader];
+    [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
+    [_authenticationViewController loadRequest:responseUrl];
+}
 
 - (BOOL)endWebAuthenticationWithError:(ADAuthenticationError*) error
                                 orURL:(NSURL*)endURL
 {
-    if ( nil != _authenticationViewController && nil != _parentController)
-    {
-#if TARGET_OS_IPHONE
-        // Dismiss the authentication view and dispatch the completion block
-        [_parentController dismissViewControllerAnimated:YES completion:^{
-            [self dispatchCompletionBlock:error URL:endURL];
-        }];
-#else
-        // TODO: Mac impl
-#endif
-    }
-    else if (nil != _authenticationWebViewController)
-    {
-        [_authenticationWebViewController stop];
-        [self dispatchCompletionBlock:error URL:endURL];
-    }
-    else
+    if (!_authenticationViewController)
     {
         return NO;
     }
     
-    _parentController = nil;
-    _authenticationViewController    = nil;
-    _authenticationWebViewController = nil;
+    [_authenticationViewController stop:^{[self dispatchCompletionBlock:error URL:endURL];}];
+    _authenticationViewController = nil;
     
     return YES;
 }
 
+- (void)onStartActivityIndicator:(id)sender
+{
+#pragma unused(sender)
+    
+    if ( _loading )
+    {
+        [_authenticationViewController startSpinner];
+    }
+}
+
+- (void)stopSpinner
+{
+    if (!_loading)
+        return;
+    
+    _loading = NO;
+    if (_spinnerTimer)
+    {
+        [_spinnerTimer invalidate];
+        _spinnerTimer = nil;
+    }
+    
+    [_authenticationViewController stopSpinner];
+}
+
+
+- (void)failWithTimeout
+{
+    _loadingTimer = nil;
+    [_authenticationViewController stop:^{
+        NSError* error = [NSError errorWithDomain:NSURLErrorDomain
+                                             code:NSURLErrorTimedOut
+                                         userInfo:nil];
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:@"WebView timed out"];
+        [self dispatchCompletionBlock:adError URL:nil];
+    }];
+}
+
+#pragma mark - ADWebAuthDelegate
+
+- (void)webAuthDidStartLoad
+{
+    if (!_loading)
+    {
+        _loading = YES;
+        _spinnerTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
+                                                         target:self
+                                                       selector:@selector(onStartActivityIndicator:)
+                                                       userInfo:nil
+                                                        repeats:NO];
+    }
+    
+    if (_loadingTimer)
+    {
+        [_loadingTimer invalidate];
+        _loadingTimer = nil;
+    }
+    
+    _loadingTimer = [NSTimer scheduledTimerWithTimeInterval:_timeout
+                                                     target:self
+                                                   selector:@selector(failWithTimeout)
+                                                   userInfo:nil
+                                                    repeats:NO];
+}
+
+- (void)webAuthDidFinishLoad
+{
+    [self stopSpinner];
+}
+
+- (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest*)request
+{
+    if([ADNTLMHandler isChallengeCancelled])
+    {
+        _complete = YES;
+        dispatch_async( dispatch_get_main_queue(), ^{[self webAuthDidCancel];});
+        return NO;
+    }
+    
+    NSString *requestURL = [request.URL absoluteString];
+    
+    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"]) {
+#if TARGET_OS_IPHONE
+        _complete = YES;
+        dispatch_async( dispatch_get_main_queue(), ^{[self webAuthDidCancel];});
+        requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
+        dispatch_async( dispatch_get_main_queue(), ^{[[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];});
+        return NO;
+#else // !TARGET_OS_IPHONE
+        AD_LOG_ERROR(@"server is redirecting us to browser, this behavior is not defined on Mac OS X yet", AD_ERROR_APPLICATION, nil, nil);
+#endif // TARGET_OS_IPHONE
+    }
+    
+    // check for pkeyauth challenge.
+    if ([requestURL hasPrefix: pKeyAuthUrn] )
+    {
+        [self handlePKeyAuthChallenge: requestURL];
+        return NO;
+    }
+    
+    // Stop at the end URL.
+    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"] ||
+        [[requestURL lowercaseString] hasPrefix:[_endURL lowercaseString]] )
+    {
+#if AD_BROKER
+        if ([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"]) {
+            _complete = YES;
+            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthDidCompleteWithURL:request.URL]; } );
+            return NO;
+        }
+#endif
+        // iOS generates a 102, Frame load interrupted error from stopLoading, so we set a flag
+        // here to note that it was this code that halted the frame load in order that we can ignore
+        // the error when we are notified later.
+        _complete = YES;
+        NSURL* url = request.URL;
+        
+        [self webAuthDidCompleteWithURL:url];
+        
+        // Tell the web view that this URL should not be loaded.
+        return NO;
+    }
+    
+    return YES;
+}
 
 // The user cancelled authentication
-- (void)webAuthenticationDidCancel
+- (void)webAuthDidCancel
 {
     DebugLog();
     
     // Dispatch the completion block
-
+    
     ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation];
     [self endWebAuthenticationWithError:error orURL:nil];
 }
 
 // Authentication completed at the end URL
-- (void)webAuthenticationDidCompleteWithURL:(NSURL *)endURL
+- (void)webAuthDidCompleteWithURL:(NSURL *)endURL
 {
     DebugLog();
     [self endWebAuthenticationWithError:nil orURL:endURL];
 }
 
 // Authentication failed somewhere
-- (void)webAuthenticationDidFailWithError:(NSError *)error
+- (void)webAuthDidFailWithError:(NSError *)error
 {
-    // Dispatch the completion block
-    ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription];
+    [self stopSpinner];
+    if (_loadingTimer)
+    {
+        [_loadingTimer invalidate];
+        _loadingTimer = nil;
+    }
     
-    [self endWebAuthenticationWithError:adError orURL:nil];
+    if (NSURLErrorCancelled == error.code)
+    {
+        //This is a common error that webview generates and could be ignored.
+        //See this thread for details: https://discussions.apple.com/thread/1727260
+        return;
+    }
+    
+    if([error.domain isEqual:@"WebKitErrorDomain"]){
+        return;
+    }
+    
+    // Ignore failures that are triggered after we have found the end URL
+    if ( _complete == YES )
+    {
+        //We expect to get an error here, as we intentionally fail to navigate to the final redirect URL.
+        AD_LOG_VERBOSE(@"Expected error", nil, [error localizedDescription]);
+        return;
+    }
+    
+    // Dispatch the completion block
+    __block ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{ [self endWebAuthenticationWithError:adError orURL:nil]; });
 }
 
 @end
@@ -219,46 +382,6 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
     return [self endWebAuthenticationWithError:error orURL:nil];
 }
 
-// TODO: Move to iOS only file
-#if TARGET_OS_IPHONE
-+ (NSString*)getStoryboardName
-{
-    return (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-    ? AD_IPAD_STORYBOARD
-    : AD_IPHONE_STORYBOARD;
-}
-
-// Retrieve the current storyboard from the resources for the library. Attempts to use ADALiOS bundle first
-// and if the bundle is not present, assumes that the resources are build with the application itself.
-// Raises an error if both the library resources bundle and the application fail to locate resources.
-+ (UIStoryboard *)storyboard: (ADAuthenticationError* __autoreleasing*) error
-{
-    NSBundle* bundle = [ADALFrameworkUtils frameworkBundle];//May be nil.
-    if (!bundle)
-    {
-        //The user did not use ADALiOS.bundle. The resources may be manually linked
-        //to the app by referencing the storyboards directly.
-        bundle = [NSBundle mainBundle];
-    }
-    NSString* storyboardName = [self getStoryboardName];
-    if ([bundle pathForResource:storyboardName ofType:@"storyboardc"])
-    {
-        //Despite Apple's documentation, storyboard with name actually throws, crashing
-        //the app if the story board is not present, hence the if above.
-        UIStoryboard* storyBoard = [UIStoryboard storyboardWithName:storyboardName bundle:bundle];
-        if (storyBoard)
-            return storyBoard;
-    }
-    
-    ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES protocolCode:nil errorDetails:AD_FAILED_NO_RESOURCES];
-    if (error)
-    {
-        *error = adError;
-    }
-    return nil;
-}
-#endif // TARGET_OS_IPHONE
-
 -(NSURL*) addToURL: (NSURL*) url
      correlationId: (NSUUID*) correlationId
 {
@@ -270,12 +393,12 @@ NSString *const AD_IPHONE_STORYBOARD = @"ADAL_iPhone_Storyboard";
 
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
-refreshTokenCredential:(NSString*)refreshTokenCredential
+  refreshCred:(NSString*)refreshCred
 #if TARGET_OS_IPHONE
-parentController:(UIViewController *)parent
+       parent:(UIViewController *)parent
+   fullScreen:(BOOL)fullScreen
 #endif
       webView:(WebViewType *)webView
-   fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID *)correlationId
    completion:(ADBrokerCallback)completionBlock
 {
@@ -285,7 +408,11 @@ correlationId:(NSUUID *)correlationId
     THROW_ON_NIL_ARGUMENT(completionBlock)
     //AD_LOG_VERBOSE(@"Authorization", startURL.absoluteString);
     
+    _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
+    
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
+    _endURL = [endURL absoluteString];
+    _complete = NO;
     
     // Save the completion block
     _completionBlock = [completionBlock copy];
@@ -293,92 +420,28 @@ correlationId:(NSUUID *)correlationId
     
     [ADURLProtocol registerProtocol];
     
-    if(![NSString adIsStringNilOrBlank:refreshTokenCredential])
+    if(![NSString adIsStringNilOrBlank:refreshCred])
     {
-        [ADCustomHeaderHandler addCustomHeaderValue:refreshTokenCredential
+        [ADCustomHeaderHandler addCustomHeaderValue:refreshCred
                                        forHeaderKey:@"x-ms-RefreshTokenCredential"
                                        forSingleUse:YES];
     }
     
-    if (webView)
-    {
-        AD_LOG_INFO(@"Authorization UI", nil, @"Use the application provided WebView.");
-        // Use the application provided WebView
-        _authenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:webView startAtURL:startURL endAtURL:endURL];
-        
-        if ( _authenticationWebViewController )
-        {
-            // Show the authentication view
-            _authenticationWebViewController.delegate = self;
-            [_authenticationWebViewController start];
-        }
-        else
-        {
-            // Dispatch the completion block
-            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
-                                                           protocolCode:nil
-                                                           errorDetails:AD_FAILED_NO_RESOURCES];
-        }
-    }
-    else
-    {
-        // TODO: Move iOS specific implementation to its own file
+    _authenticationViewController = [[ADAuthenticationViewController alloc] init];
+    [_authenticationViewController setDelegate:self];
+    [_authenticationViewController setWebView:webView];
 #if TARGET_OS_IPHONE
-        if (!parent)
-        {
-            // Must have a parent view controller to start the authentication view
-            parent = [UIApplication adCurrentViewController];
-        }
-        
-        if (parent)
-        {
-            _parentController = parent;
-            // Load our resource bundle, find the navigation controller for the authentication view, and then the authentication view
-            UINavigationController *navigationController = [[self.class storyboard:&error] instantiateViewControllerWithIdentifier:@"LogonNavigator"];
-            
-            if (navigationController)
-            {
-                _authenticationViewController = (ADAuthenticationViewController *)[navigationController.viewControllers objectAtIndex:0];
-                
-                _authenticationViewController.delegate = self;
-                
-                if ( fullScreen == YES )
-                    [navigationController setModalPresentationStyle:UIModalPresentationFullScreen];
-                else
-                    [navigationController setModalPresentationStyle:UIModalPresentationFormSheet];
-                
-                // Show the authentication view
-                [parent presentViewController:navigationController animated:YES completion:^{
-                    // Instead of loading the URL immediately on completion, get the UI on the screen
-                    // and then dispatch the call to load the authorization URL
-                    dispatch_async( dispatch_get_main_queue(), ^{
-                        [_authenticationViewController startWithURL:startURL
-                                                           endAtURL:endURL];
-                    });
-                }];
-            }
-            else //Navigation controller
-            {
-                error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MISSING_RESOURCES
-                                                               protocolCode:nil
-                                                               errorDetails:AD_FAILED_NO_RESOURCES];
-            }
-        }
-        else //Parent
-#endif // TARGET_OS_IPHONE
-        {
-            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
-                                                           protocolCode:nil
-                                                           errorDetails:AD_FAILED_NO_CONTROLLER];
-            
-        }
+    [_authenticationViewController setParentController:parent];
+    [_authenticationViewController setFullScreen:fullScreen];
+#endif
+    
+    if (![_authenticationViewController loadView:&error])
+    {
+        _completionBlock(error, nil);
     }
     
-    //Error occurred above. Dispatch the callback to the caller:
-    if (error)
-    {
-        _completionBlock( error, nil );
-    }
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
+    [_authenticationViewController startRequest:request];
 }
 
 @end

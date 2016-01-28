@@ -19,6 +19,7 @@
 @class ADAuthenticationError;
 
 #import "ADAuthenticationContext.h"
+#import "ADWebAuthController.h"
 
 typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 @interface ADWebAuthController (Internal)
@@ -30,12 +31,12 @@ typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 // the authentication process.
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
-refreshTokenCredential:(NSString*)refreshTokenCredential
+  refreshCred:(NSString*)refreshCred
 #if TARGET_OS_IPHONE
-parentController:(UIViewController *)parent
+       parent:(UIViewController *)parent
+   fullScreen:(BOOL)fullScreen
 #endif
       webView:(WebViewType*)webView
-   fullScreen:(BOOL)fullScreen
 correlationId:(NSUUID*)correlationId
    completion: (ADBrokerCallback) completionBlock;
 

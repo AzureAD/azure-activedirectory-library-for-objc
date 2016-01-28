@@ -410,15 +410,15 @@ static volatile int sDialogInProgress = 0;
       completionBlock:(void (^)(ADAuthenticationError*, NSURL*))completionBlock
 {
     [[ADWebAuthController sharedInstance] start:[NSURL URLWithString:startUrl]
-                                               end:[NSURL URLWithString:_redirectUri]
-                            refreshTokenCredential:_refreshTokenCredential
+                                            end:[NSURL URLWithString:_redirectUri]
+                                    refreshCred:_refreshTokenCredential
 #if TARGET_OS_IPHONE
-                                  parentController:_context.parentController
+                                         parent:_context.parentController
+                                     fullScreen:[ADAuthenticationSettings sharedInstance].enableFullScreen
 #endif
-                                           webView:_context.webView
-                                        fullScreen:[ADAuthenticationSettings sharedInstance].enableFullScreen
-                                     correlationId:_correlationId
-                                        completion:completionBlock];
+                                        webView:_context.webView
+                                  correlationId:_correlationId
+                                     completion:completionBlock];
 }
 
 //Requests an OAuth2 code to be used for obtaining a token:
