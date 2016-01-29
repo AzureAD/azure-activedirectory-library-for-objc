@@ -31,11 +31,13 @@
 //the item to be stored.
 - (void)updateCacheToResult:(ADAuthenticationResult*)result
                   cacheItem:(ADTokenCacheItem*)cacheItem
-           withRefreshToken:(NSString*)refreshToken;
+           withRefreshToken:(NSString*)refreshToken
+       requestCorrelationId:(NSUUID*)requestCorrelationId;
 - (void)updateCacheToResult:(ADAuthenticationResult*)result
               cacheInstance:(id<ADTokenCacheAccessor>)tokenCacheStoreInstance
                   cacheItem:(ADTokenCacheItem*)cacheItem
-           withRefreshToken:(NSString*)refreshToken;
+           withRefreshToken:(NSString*)refreshToken
+       requestCorrelationId:(NSUUID*)requestCorrelationId;
 
 - (ADTokenCacheItem*)extractCacheItemWithKey:(ADTokenCacheKey*)key
                                            userId:(ADUserIdentifier*)userId

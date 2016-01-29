@@ -46,6 +46,16 @@
 
 @property (retain) ADUserInformation* userInformation;
 
+/* Whether the token is a tombstone. */
+@property BOOL tombstone;
+
+/*! Correlation ID of the request through which we get the token.
+   If the token is a tombstone, the value will be the correlation ID of the request that we got the error from.  */
+@property (retain) NSString* correlationId;
+
+/*! Bundle ID of the app which gets/tombstones the token.  */
+@property (retain) NSString* bundleId;
+
 /*! If true, the cache store item does not store actual access token, but instead a refresh token that can be
  used to obtain access token for any resource within the same user, authority and client id. This property is calculated
  from the value of other properties: it is true if: resource is nil, accessToken is nil and refresh token is not nil or empty.*/

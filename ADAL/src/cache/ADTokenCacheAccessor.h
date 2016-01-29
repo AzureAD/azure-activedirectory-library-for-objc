@@ -20,6 +20,7 @@
 
 @class ADTokenCacheKey;
 @class ADTokenCacheItem;
+@class ADAuthenticationError;
 
 @protocol ADTokenCacheAccessor <NSObject>
 

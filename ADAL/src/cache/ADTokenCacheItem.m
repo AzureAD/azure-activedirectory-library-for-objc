@@ -32,6 +32,19 @@
     ADUserInformation* _userInformation;
 }
 
+- (id)init
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    [self setTombstone:NO];
+    [self setBundleId:[[NSBundle mainBundle] bundleIdentifier]];
+    
+    return self;
+}
+
 @synthesize multiResourceRefreshToken;
 
 - (NSUInteger)hash
@@ -66,6 +79,9 @@
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.userInformation = [self.userInformation copyWithZone:zone];
     item.sessionKey = [self.sessionKey copyWithZone:zone];
+    item.tombstone = [self tombstone];
+    item.correlationId = [self.correlationId copyWithZone:zone];
+    item.bundleId = [self.bundleId copyWithZone:zone];
     
     return item;
 }
@@ -123,6 +139,9 @@
     [aCoder encodeObject:self.sessionKey forKey:@"sessionKey"];
     [aCoder encodeObject:self.expiresOn forKey:@"expiresOn"];
     [aCoder encodeObject:self.userInformation forKey:@"userInformation"];
+    [aCoder encodeBool:self.tombstone forKey:@"tombstone"];
+    [aCoder encodeObject:self.correlationId forKey:@"correlationId"];
+    [aCoder encodeObject:self.bundleId forKey:@"bundleId"];
 }
 
 //Deserializer:
@@ -141,6 +160,9 @@
         self.refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
         self.expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
         self.userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
+        self.tombstone = [aDecoder decodeBoolForKey:@"tombstone"];
+        self.correlationId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"correlationId"];
+        self.bundleId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"bundleId"];
     }
     return self;
 }

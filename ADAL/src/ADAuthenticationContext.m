@@ -44,6 +44,7 @@
 #import "ADTokenCache.h"
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADTokenCacheAccessor.h"
+#import "ADCacheTombstoneWrapper.h"
 
 #import "ADAuthenticationContext+Internal.h"
 
@@ -143,7 +144,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     _validateAuthority = bValidate;
     _credentialsType = AD_CREDENTIALS_EMBEDDED;;
     
-    _tokenCacheStore = [[ADKeychainTokenCache alloc] initWithGroup:sharedGroup];
+    _tokenCacheStore = [[ADCacheTombstoneWrapper alloc]
+                        initWithCache:[[ADKeychainTokenCache alloc] initWithGroup:sharedGroup]];
     
     return self;
 }

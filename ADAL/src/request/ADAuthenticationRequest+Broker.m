@@ -131,7 +131,8 @@
         
         [ctx updateCacheToResult:result
                        cacheItem:nil
-                withRefreshToken:nil];
+                withRefreshToken:nil
+            requestCorrelationId:nil];
         
         NSString* userId = [[[result tokenCacheItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result

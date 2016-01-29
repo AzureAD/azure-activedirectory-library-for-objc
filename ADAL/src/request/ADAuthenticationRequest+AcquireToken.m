@@ -244,7 +244,7 @@
                   {
                       if (AD_SUCCEEDED == result.status)
                       {
-                          [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
+                          [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil requestCorrelationId:_correlationId];
                           result = [ADAuthenticationContext updateResult:result toUser:_identifier];
                       }
                       completionBlock(result);
@@ -351,7 +351,8 @@
          {
              [_context updateCacheToResult:result
                                  cacheItem:resultItem
-                          withRefreshToken:refreshToken];
+                          withRefreshToken:refreshToken
+                      requestCorrelationId:_correlationId];
          }
          result = [ADAuthenticationContext updateResult:result toUser:_identifier];//Verify the user (just in case)
          
