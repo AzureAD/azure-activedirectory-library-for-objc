@@ -21,7 +21,7 @@
 #import "ADAuthenticationContext.h"
 #import "ADWebAuthController.h"
 
-typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
+typedef void (^ADBrokerCallback)(ADAuthenticationError* error, NSURL*);
 @interface ADWebAuthController (Internal)
 
 + (ADWebAuthController *)sharedInstance;
@@ -31,17 +31,17 @@ typedef void (^ADBrokerCallback) (ADAuthenticationError* error, NSURL*);
 // the authentication process.
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
-  refreshCred:(NSString*)refreshCred
+  refreshCred:(NSString *)refreshCred
 #if TARGET_OS_IPHONE
        parent:(UIViewController *)parent
    fullScreen:(BOOL)fullScreen
 #endif
       webView:(WebViewType*)webView
 correlationId:(NSUUID*)correlationId
-   completion: (ADBrokerCallback) completionBlock;
+   completion:(ADBrokerCallback)completionBlock;
 
 //Cancel the web authentication session which might be happening right now
 //Note that it only works if there's an active web authentication session going on
-- (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError*)error;
+- (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError *)error;
 
 @end

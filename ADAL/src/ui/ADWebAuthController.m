@@ -16,26 +16,24 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "ADAL_Internal.h"
-#import "ADOAuth2Constants.h"
-#import "ADAuthenticationContext.h"
-#import "ADWebAuthDelegate.h"
-#import "ADAuthenticationViewController.h"
-#import "ADWebAuthController.h"
-#import "ADWebAuthController+Internal.h"
-#import "ADAuthenticationSettings.h"
-#import "ADNTLMHandler.h"
-#import "ADCustomHeaderHandler.h"
-#import "ADALFrameworkUtils.h"
-#import "NSDictionary+ADExtensions.h"
-#import "ADHelpers.h"
-#import "ADPkeyAuthHelper.h"
-
-#import "ADWorkPlaceJoinConstants.h"
-
 #if TARGET_OS_IPHONE
 #import "UIApplication+ADExtensions.h"
 #endif
+#import "NSDictionary+ADExtensions.h"
+
+#import "ADWebAuthController+Internal.h"
+
+#import "ADAuthenticationViewController.h"
+#import "ADAuthenticationSettings.h"
+#import "ADCustomHeaderHandler.h"
+#import "ADHelpers.h"
+#import "ADNTLMHandler.h"
+#import "ADOAuth2Constants.h"
+#import "ADPkeyAuthHelper.h"
+#import "ADURLProtocol.h"
+#import "ADWebAuthDelegate.h"
+#import "ADWorkPlaceJoinConstants.h"
+
 
 // Private interface declaration
 @interface ADWebAuthController () <ADWebAuthDelegate>
@@ -250,7 +248,7 @@
     [self stopSpinner];
 }
 
-- (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest*)request
+- (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest *)request
 {
     if([ADNTLMHandler isChallengeCancelled])
     {
@@ -261,42 +259,48 @@
     
     NSString *requestURL = [request.URL absoluteString];
     
-    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"]) {
-#if TARGET_OS_IPHONE
+    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"])
+    {
         _complete = YES;
+#if TARGET_OS_IPHONE
         dispatch_async( dispatch_get_main_queue(), ^{[self webAuthDidCancel];});
         requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
         dispatch_async( dispatch_get_main_queue(), ^{[[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];});
-        return NO;
 #else // !TARGET_OS_IPHONE
         AD_LOG_ERROR(@"server is redirecting us to browser, this behavior is not defined on Mac OS X yet", AD_ERROR_APPLICATION, nil, nil);
 #endif // TARGET_OS_IPHONE
+        return NO;
     }
     
     // check for pkeyauth challenge.
-    if ([requestURL hasPrefix: pKeyAuthUrn] )
+    if ([requestURL hasPrefix: pKeyAuthUrn])
     {
+        // We still continue onwards from a pkeyauth challenge after it's handled, so the web auth flow
+        // is not complete yet.
         [self handlePKeyAuthChallenge: requestURL];
         return NO;
     }
     
     // Stop at the end URL.
-    if ([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"] ||
-        [[requestURL lowercaseString] hasPrefix:[_endURL lowercaseString]] )
+    if ([[requestURL lowercaseString] hasPrefix:[_endURL lowercaseString]] ||
+        [[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"])
     {
-#if AD_BROKER
-        if ([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"]) {
-            _complete = YES;
-            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthDidCompleteWithURL:request.URL]; } );
-            return NO;
-        }
-#endif
         // iOS generates a 102, Frame load interrupted error from stopLoading, so we set a flag
         // here to note that it was this code that halted the frame load in order that we can ignore
         // the error when we are notified later.
         _complete = YES;
-        NSURL* url = request.URL;
         
+#if AD_BROKER
+        // If we're in the broker and we get a url with msauth that means we got an auth code back from the
+        // client cert auth flow
+        if ([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"])
+        {
+            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthDidCompleteWithURL:request.URL]; } );
+            return NO;
+        }
+#endif
+
+        NSURL* url = request.URL;
         [self webAuthDidCompleteWithURL:url];
         
         // Tell the web view that this URL should not be loaded.
@@ -341,12 +345,13 @@
         return;
     }
     
-    if([error.domain isEqual:@"WebKitErrorDomain"]){
+    if([error.domain isEqual:@"WebKitErrorDomain"])
+    {
         return;
     }
     
     // Ignore failures that are triggered after we have found the end URL
-    if ( _complete == YES )
+    if (_complete == YES)
     {
         //We expect to get an error here, as we intentionally fail to navigate to the final redirect URL.
         AD_LOG_VERBOSE(@"Expected error", nil, [error localizedDescription]);
@@ -393,7 +398,7 @@
 
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
-  refreshCred:(NSString*)refreshCred
+  refreshCred:(NSString *)refreshCred
 #if TARGET_OS_IPHONE
        parent:(UIViewController *)parent
    fullScreen:(BOOL)fullScreen
