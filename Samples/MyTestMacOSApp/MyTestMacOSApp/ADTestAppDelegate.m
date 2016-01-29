@@ -38,6 +38,13 @@
 
 @implementation ADTestMemoryCache
 
+- (id)copyWithZone:(NSZone*)zone
+{
+    ADTestMemoryCache* cache = [[self.class allocWithZone:zone] init];
+    cache->_data = [_data copyWithZone:zone];
+    return cache;
+}
+
 - (void)willAccessCache:(nonnull ADTokenCache *)cache
 {
     @synchronized(self)

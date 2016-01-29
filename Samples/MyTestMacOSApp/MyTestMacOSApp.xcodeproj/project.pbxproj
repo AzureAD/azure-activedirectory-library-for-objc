@@ -416,6 +416,7 @@
 				GCC_PREFIX_HEADER = "MyTestMacOSApp/MyTestMacOSApp-Prefix.pch";
 				INFOPLIST_FILE = "MyTestMacOSApp/MyTestMacOSApp-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -429,6 +430,7 @@
 				GCC_PREFIX_HEADER = "MyTestMacOSApp/MyTestMacOSApp-Prefix.pch";
 				INFOPLIST_FILE = "MyTestMacOSApp/MyTestMacOSApp-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

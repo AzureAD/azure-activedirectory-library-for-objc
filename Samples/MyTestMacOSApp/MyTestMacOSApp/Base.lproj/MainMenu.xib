@@ -686,16 +686,6 @@
                             <action selector="expireAllAction:" target="494" id="wnc-r6-l1A"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0uE-U5-d52">
-                        <rect key="frame" x="56" y="511" width="178" height="32"/>
-                        <buttonCell key="cell" type="push" title="Refresh Token" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="AzZ-c5-I2t">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="refreshTokenFlowAction:" target="494" id="6kc-GX-Yrh"/>
-                        </connections>
-                    </button>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HAo-Rh-PbI">
                         <rect key="frame" x="56" y="478" width="178" height="32"/>
                         <buttonCell key="cell" type="push" title="Prompt NEVER (silent)" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="nD7-WK-Qzh">
@@ -758,7 +748,7 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="STi-Np-FSV">
-                            <rect key="frame" x="-15" y="1" width="16" height="0.0"/>
+                            <rect key="frame" x="358" y="1" width="16" height="188"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
@@ -796,7 +786,7 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="su4-I5-c4e">
-                            <rect key="frame" x="-15" y="1" width="16" height="0.0"/>
+                            <rect key="frame" x="582" y="1" width="16" height="366"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
