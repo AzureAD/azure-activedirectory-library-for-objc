@@ -16,6 +16,8 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import <Foundation/Foundation.h>
+
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 #endif
@@ -28,7 +30,6 @@ FOUNDATION_EXPORT const unsigned char ADALFrameworkVersionString[];
 
 #if TARGET_OS_IPHONE
 //iOS:
-#   include <UIKit/UIKit.h>
 typedef UIWebView WebViewType;
 #else
 //OS X:

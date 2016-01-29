@@ -16,18 +16,14 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@interface ADAuthenticationWebViewController :
-#if TARGET_OS_IPHONE
-NSObject <UIWebViewDelegate, NSURLConnectionDelegate>
-#else
-NSObject <NSURLConnectionDelegate>
-#endif
+@protocol ADWebAuthDelegate <NSObject>
 
-@property (weak, nonatomic) id<ADAuthenticationDelegate> delegate;
-
-- (id)initWithWebView:(WebViewType *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
-- (void)start;
-- (void)stop;
-- (void)handlePKeyAuthChallenge:(NSString *)challengeUrl;
+@required
+- (void)webAuthDidCancel;
+- (void)webAuthDidStartLoad;
+- (void)webAuthDidFinishLoad;
+- (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest*)request;
+- (void)webAuthDidCompleteWithURL:(NSURL *)endURL;
+- (void)webAuthDidFailWithError:(NSError *)error;
 
 @end

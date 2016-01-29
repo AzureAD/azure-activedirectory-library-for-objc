@@ -16,7 +16,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@protocol ADAuthenticationDelegate;
+@protocol ADWebAuthDelegate;
 
 @interface ADAuthenticationViewController :
 #if TARGET_OS_IPHONE
@@ -25,18 +25,24 @@ UIViewController
 NSViewController
 #endif
 
-@property (weak, nonatomic)   id<ADAuthenticationDelegate>     delegate;
+@property (weak, nonatomic) id<ADWebAuthDelegate>     delegate;
 #if TARGET_OS_IPHONE
-@property (weak, nonatomic)   IBOutlet UIWebView               *webView;
-@property (weak, nonatomic)   IBOutlet UIActivityIndicatorView *activityIndicator;
+@property (weak, nonatomic) UIWebView * webView;
+@property (weak, nonatomic) UIViewController * parentController;
+@property BOOL fullScreen;
 #else
-@property (weak, nonatomic)   IBOutlet WebView                 *webView;
+@property (weak, nonatomic) WebView * webView;
 #endif
 
+- (BOOL)loadView:(ADAuthenticationError * __autoreleasing *)error;
 
-- (IBAction)onCancel:(id)sender;
+- (void)onCancel:(id)sender;
 
-- (BOOL)startWithURL:(NSURL *)startURL
-            endAtURL:(NSURL *)endURL;
+- (void)startRequest:(NSURLRequest *)request;
+- (void)loadRequest:(NSURLRequest *)request;
+- (void)stop:(void (^)(void))completion;
+
+- (void)startSpinner;
+- (void)stopSpinner;
 
 @end
