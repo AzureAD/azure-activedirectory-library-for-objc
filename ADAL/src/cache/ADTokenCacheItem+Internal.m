@@ -24,6 +24,7 @@
 #import "ADLogger+Internal.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADAuthenticationContext+Internal.h"
+#import "ADAuthenticationResult+Internal.h"
 
 @implementation ADTokenCacheItem (Internal)
 

@@ -19,11 +19,11 @@
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
-#import "ADAuthenticationSettings.h"
-#import "ADAuthenticationContext.h"
 #import "ADKeychainTokenCache.h"
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADCacheTombstoneWrapper.h"
+#import "ADTokenCacheItem.h"
+#import "ADUserInformation.h"
 
 @interface ADCacheTombstoneWrapperTest : XCTestCase
 {

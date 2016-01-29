@@ -37,6 +37,22 @@
 #import "ADAuthenticationError.h"
 #import "NSString+ADHelperMethods.h"
 
+@class ADAuthenticationResult;
+
+/*! The completion block declaration. */
+typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
+
+#if TARGET_OS_IPHONE
+//iOS:
+#   include <UIKit/UIKit.h>
+typedef UIWebView WebViewType;
+#else
+//OS X:
+#   include <WebKit/WebKit.h>
+typedef WebView   WebViewType;
+#endif
+
+
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \
 NSString* __where = [NSString stringWithFormat:@"In function: %s, file line #%u", __PRETTY_FUNCTION__, __LINE__]
@@ -119,18 +135,3 @@ WHERE; \
 ADAL_VERSION; \
 AD_LOG_VERBOSE(__adalVersion, nil, __where); \
 }
-
-#if __has_feature(objc_arc)
-#define SAFE_ARC_RELEASE(_obj)
-#define SAFE_ARC_RETAIN(_obj)
-#define SAFE_ARC_AUTORELEASE(_obj)
-#else
-#define SAFE_ARC_RELEASE(_obj) [_obj release];
-#define SAFE_ARC_RETAIN(_obj) [_obj retain];
-#define SAFE_ARC_AUTORELEASE(_obj) [_obj autorelease];
-#endif
-
-
-
-
-

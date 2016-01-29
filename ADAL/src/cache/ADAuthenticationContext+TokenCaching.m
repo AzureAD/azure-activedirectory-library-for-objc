@@ -22,6 +22,7 @@
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADTokenCacheKey.h"
+#import "ADUserInformation.h"
 
 @implementation ADAuthenticationContext (TokenCaching)
 
@@ -190,7 +191,7 @@
             }
             
             BOOL removed = NO;
-            //The refresh token didn't work. We need to clear this refresh item from the cache.
+            //The refresh token didn't work. We need to tombstone this refresh item in the cache.
             ADTokenCacheKey* exactKey = [cacheItem extractKey:nil];
             if (exactKey)
             {
@@ -206,7 +207,7 @@
             
             if (!removed)
             {
-                //Now try finding a broad refresh token in the cache and remove it accordingly
+                //Now try finding a broad refresh token in the cache and tombstone it accordingly
                 ADTokenCacheKey* broadKey = [ADTokenCacheKey keyWithAuthority:self.authority resource:nil clientId:cacheItem.clientId error:nil];
                 if (broadKey)
                 {

@@ -26,13 +26,7 @@
 
 @implementation ADWorkPlaceJoin
 
-NSArray *_upnParts;
-NSString *_userPrincipalName;
-UIViewController * _callingViewController;
-
 static ADWorkPlaceJoin* wpjManager;
-
-NSString* _oauthClientId;
 
 #pragma mark - Public Methods
 

@@ -18,6 +18,7 @@
 
 #import "ADAuthenticationContext+Internal.h"
 #import "ADUserIdentifier.h"
+#import "ADTokenCacheItem+Internal.h"
 
 NSString* const ADUnknownError = @"Uknown error.";
 NSString* const ADCredentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";

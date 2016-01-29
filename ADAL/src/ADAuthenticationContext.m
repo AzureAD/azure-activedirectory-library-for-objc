@@ -41,82 +41,20 @@
 #import "ADBrokerNotificationManager.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationRequest.h"
-#import "ADTokenCache.h"
+#import "ADTokenCache+Internal.h"
+#if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
+#endif 
 #import "ADTokenCacheAccessor.h"
 #import "ADCacheTombstoneWrapper.h"
 
 #import "ADAuthenticationContext+Internal.h"
-
-#import <objc/runtime.h>
-
-typedef BOOL (*applicationOpenURLPtr)(id, SEL, UIApplication*, NSURL*, NSString*, id);
-IMP __original_ApplicationOpenURL = NULL;
-
-BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application, NSURL* url, NSString* sourceApplication, id annotation)
-{
-    if (![ADAuthenticationContext isResponseFromBroker:sourceApplication response:url])
-    {
-        if (__original_ApplicationOpenURL)
-            return ((applicationOpenURLPtr)__original_ApplicationOpenURL)(self, _cmd, application, url, sourceApplication, annotation);
-        else
-            return NO;
-    }
-    
-    [ADAuthenticationContext handleBrokerResponse:url];
-    return YES;
-}
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 @implementation ADAuthenticationContext
 {
     id <ADTokenCacheAccessor> _tokenCacheStore;
-}
-
-+ (void) load
-{
-    __block id observer = nil;
-    
-    observer = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification
-                                                                 object:nil
-                                                                  queue:nil
-                                                             usingBlock:^(NSNotification* notification)
-                {
-                    (void)notification;
-                    // We don't want to swizzle multiple times so remove the observer
-                    [[NSNotificationCenter defaultCenter] removeObserver:observer name:UIApplicationDidFinishLaunchingNotification object:nil];
-                    
-                    SEL sel = @selector(application:openURL:sourceApplication:annotation:);
-                    
-                    // Dig out the app delegate (if there is one)
-                    __strong id appDelegate = [[UIApplication sharedApplication] delegate];
-                    
-                    // There's not much we can do if there's no app delegate and there might be scenarios where
-                    // that is valid...
-                    if (appDelegate == nil)
-                        return;
-                    
-                    if ([appDelegate respondsToSelector:sel])
-                    {
-                        Method m = class_getInstanceMethod([appDelegate class], sel);
-                        __original_ApplicationOpenURL = method_getImplementation(m);
-                        method_setImplementation(m, (IMP)__swizzle_ApplicationOpenURL);
-                    }
-                    else
-                    {
-                        NSString* typeEncoding = [NSString stringWithFormat:@"%s%s%s%s%s%s%s", @encode(BOOL), @encode(id), @encode(SEL), @encode(UIApplication*), @encode(NSURL*), @encode(NSString*), @encode(id)];
-                        class_addMethod([appDelegate class], sel, (IMP)__swizzle_ApplicationOpenURL, [typeEncoding UTF8String]);
-                        
-                        // UIApplication caches whether or not the delegate responds to certain selectors. Clearing out the delegate and resetting it gaurantees that gets updated
-                        [[UIApplication sharedApplication] setDelegate:nil];
-                        // UIApplication employs dark magic to assume ownership of the app delegate when it gets the app delegate at launch, it won't do that for setDelegate calls so we
-                        // have to add a retain here to make sure it doesn't turn into a zombie
-                        [[UIApplication sharedApplication] setDelegate:(__bridge id)CFRetain((__bridge CFTypeRef)appDelegate)];
-                    }
-                    
-                }];
-    
 }
 
 - (id)init
@@ -126,6 +64,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     return nil;
 }
 
+#if TARGET_OS_IPHONE
 - (id)initWithAuthority:(NSString*) authority
       validateAuthority:(BOOL)bValidate
             sharedGroup:(NSString*)sharedGroup
@@ -142,22 +81,63 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     
     _authority = extractedAuthority;
     _validateAuthority = bValidate;
-    _credentialsType = AD_CREDENTIALS_EMBEDDED;;
+    _credentialsType = AD_CREDENTIALS_EMBEDDED;
     
     _tokenCacheStore = [[ADCacheTombstoneWrapper alloc]
                         initWithCache:[[ADKeychainTokenCache alloc] initWithGroup:sharedGroup]];
     
     return self;
 }
+#endif
+
+- (id)initWithAuthority:(NSString *)authority
+      validateAuthority:(BOOL)validateAuthority
+             tokenCache:(ADTokenCache*)tokenCache
+                  error:(ADAuthenticationError *__autoreleasing *)error
+{
+    API_ENTRY;
+    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
+    RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
+    
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    _authority = extractedAuthority;
+    _validateAuthority = validateAuthority;
+    _credentialsType = AD_CREDENTIALS_EMBEDDED;
+    _tokenCacheStore = tokenCache;
+    
+    return self;
+}
+
+- (id)initWithAuthority:(NSString *)authority
+      validateAuthority:(BOOL)validateAuthority
+          cacheDelegate:(id<ADTokenCacheDelegate>) delegate
+                  error:(ADAuthenticationError * __autoreleasing *)error
+{
+    ADTokenCache* cache = [ADTokenCache new];
+    [cache setDelegate:delegate];
+    
+    return [self initWithAuthority:authority
+                 validateAuthority:validateAuthority
+                        tokenCache:cache
+                             error:error];
+}
 
 - (id)initWithAuthority:(NSString *)authority
       validateAuthority:(BOOL)validateAuthority
                   error:(ADAuthenticationError *__autoreleasing *)error
 {
+#if TARGET_OS_IPHONE
     return [self initWithAuthority:authority
                  validateAuthority:validateAuthority
                        sharedGroup:[[ADAuthenticationSettings sharedInstance] defaultKeychainGroup]
                              error:error];
+#else
+    return [self initWithAuthority:authority validateAuthority:validateAuthority cacheDelegate:[ADAuthenticationSettings sharedInstance].defaultCacheDelegate error:error];
+#endif
 }
 
 - (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
@@ -212,6 +192,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     return [[self alloc] initWithAuthority:authority validateAuthority:bValidate error:error];
 }
 
+#if TARGET_OS_IPHONE
 + (ADAuthenticationContext*)authenticationContextWithAuthority:(NSString*)authority
                                                    sharedGroup:(NSString*)sharedGroup
                                                          error:(ADAuthenticationError* __autoreleasing *)error
@@ -236,6 +217,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                                sharedGroup:sharedGroup
                                      error:error];
 }
+#endif // TARGET_OS_IPHONE
 
 + (BOOL)isResponseFromBroker:(NSString*)sourceApplication
                     response:(NSURL*)response

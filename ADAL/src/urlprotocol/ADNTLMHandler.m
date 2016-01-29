@@ -22,13 +22,11 @@
 #import "ADErrorCodes.h"
 #import "ADAL_Internal.h"
 #import "ADURLProtocol.h"
-#import "UIAlertView+Additions.h"
+#import "ADNTLMUIPrompt.h"
 
 static NSString* const AD_WPJ_LOG = @"ADNTLMHandler";
 @implementation ADNTLMHandler
 
-static NSString *_username = nil;
-static NSString *_password = nil;
 static NSString *_cancellationUrl = nil;
 static BOOL _challengeCancelled = NO;
 static NSMutableURLRequest *_challengeUrl = nil;
@@ -55,8 +53,6 @@ static NSURLConnection *_conn = nil;
 {
     @synchronized(self)//Protect the sAD_Identity_Ref from being cleared while used.
     {
-        _username = nil;
-        _password = nil;
         _challengeUrl = nil;
         _cancellationUrl = nil;
         _conn = nil;
@@ -70,7 +66,6 @@ static NSURLConnection *_conn = nil;
                protocol:(ADURLProtocol*)protocol
 {
     (void)connection;
-    BOOL __block succeeded = NO;
     @synchronized(self)
     {
         if(_conn){
@@ -78,18 +73,15 @@ static NSURLConnection *_conn = nil;
         }
         // This is the NTLM challenge: use the identity to authenticate:
         AD_LOG_VERBOSE_F(AD_WPJ_LOG, nil, @"Attempting to handle NTLM challenge for host: %@", challenge.protectionSpace.host);
-        [UIAlertView presentCredentialAlert:^(NSUInteger index) {
-            if (index == 1)
+        
+        [ADNTLMUIPrompt presentPrompt:^(NSString *username, NSString *password)
+        {
+            if (username)
             {
-                UITextField *username = [[UIAlertView getAlertInstance] textFieldAtIndex:0];
-                _username = username.text;
-                UITextField *password = [[UIAlertView getAlertInstance] textFieldAtIndex:1];
-                _password = password.text;
-                
                 NSURLCredential *credential;
                 credential = [NSURLCredential
-                              credentialWithUser:_username
-                              password:_password
+                              credentialWithUser:username
+                              password:password
                               persistence:NSURLCredentialPersistenceForSession];
                 [challenge.sender useCredential:credential
                      forAuthenticationChallenge:challenge];
@@ -99,10 +91,9 @@ static NSURLConnection *_conn = nil;
                 [protocol stopLoading];
             }
         }];
-        succeeded = YES;
     }//@synchronized
     
-    return succeeded;
+    return YES;
 }
 
 @end

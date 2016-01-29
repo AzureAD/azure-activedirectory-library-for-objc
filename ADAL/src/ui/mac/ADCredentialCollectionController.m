@@ -16,18 +16,29 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-@interface ADAuthenticationWebViewController :
-#if TARGET_OS_IPHONE
-NSObject <UIWebViewDelegate, NSURLConnectionDelegate>
-#else
-NSObject <NSURLConnectionDelegate>
-#endif
+#import "ADCredentialCollectionController.h"
 
-@property (weak, nonatomic) id<ADAuthenticationDelegate> delegate;
+@implementation ADCredentialCollectionController
 
-- (id)initWithWebView:(WebViewType *)webView startAtURL:(NSURL *)startURL endAtURL:(NSURL *)endURL;
-- (void)start;
-- (void)stop;
-- (void)handlePKeyAuthChallenge:(NSString *)challengeUrl;
+@synthesize customView = _customView;
+@synthesize usernameField = _usernameField;
+@synthesize passwordField = _passwordField;
+@synthesize usernameLabel = _usernameLabel;
+@synthesize passwordLabel = _passwordLabel;
+
+-(id) init
+{
+    self = [super init];
+    if(self)
+    {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        [NSBundle loadNibNamed:@"ADCredentialViewController" owner:self];
+#pragma clang diagnostic pop
+//        loaded = [[NSBundle mainBundle] loadNibNamed:@"ADCredentialViewController" owner:self topLevelObjects:nil];
+    }
+    
+    return self;
+}
 
 @end

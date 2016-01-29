@@ -197,13 +197,18 @@
             free(signedHashBytes);
         return nil;
     }
-    
-    OSStatus status = SecKeyRawSign(privateKey,
-                                    kSecPaddingPKCS1SHA256,
-                                    hashBytes,
-                                    hashBytesSize,
-                                    signedHashBytes,
-                                    &signedHashBytesSize);
+
+    OSStatus status = errSecAuthFailed;
+#if TARGET_OS_IPHONE
+    status = SecKeyRawSign(privateKey,
+                           kSecPaddingPKCS1SHA256,
+                           hashBytes,
+                           hashBytesSize,
+                           signedHashBytes,
+                           &signedHashBytesSize);
+#else
+    // TODO: SecKeyRawSign is not available on OS X, use SecSignTransformCreate instead
+#endif
     
     [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"Status returned from data signing - " errorCode:status info:nil correlationId:nil];
     signedHash = [NSData dataWithBytes:signedHashBytes

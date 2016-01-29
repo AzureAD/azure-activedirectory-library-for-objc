@@ -85,5 +85,5 @@ NSString *const AAD_SECURECONVERSATION_LABEL = @"AzureAD-SecureConversation";
 
 
 //application constants
-NSString* const brokerScheme = @"msauth";
+NSString* const ADAL_BROKER_SCHEME = @"msauth";
 

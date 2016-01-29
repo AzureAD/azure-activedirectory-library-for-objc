@@ -21,6 +21,7 @@
 #import "ADAuthenticationResult+Internal.h"
 #import "ADTokenCacheItem.h"
 #import "XCTestCase+TestHelperMethods.h"
+#import "ADUserInformation.h"
 
 @interface ADAuthenticationResultTests : XCTestCase
 
