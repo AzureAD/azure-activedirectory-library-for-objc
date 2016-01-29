@@ -239,7 +239,6 @@
     XCTAssertNotNil(item);
     ADAuthenticationError* error;
     
-    //Find the one (if any) that has userId equal to nil:
     NSArray* all = [mStore allItems:&error];
     ADAssertNoError;
     XCTAssertNotNil(all);

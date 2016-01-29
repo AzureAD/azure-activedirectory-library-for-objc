@@ -70,6 +70,7 @@
     ADTokenCacheItem* item = [_cache getItemWithKey:key userId:userId error:error];
     if ([item tombstone])
     {
+        AD_LOG_VERBOSE_F(@"Cache tomestone wrapper", nil,  @"Found a tombstone for resource <%@> + client <%@> + authority <%@>", [item resource], [item clientId], [item authority]);
         return nil;
     }
     else

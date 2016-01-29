@@ -39,8 +39,8 @@
         return nil;
     }
     
-    [self setTombstone:NO];
     [self setBundleId:[[NSBundle mainBundle] bundleIdentifier]];
+    //default value of property tombstone is already NO
     
     return self;
 }
