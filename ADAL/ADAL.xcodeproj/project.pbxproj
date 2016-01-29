@@ -1892,7 +1892,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL-Mac";
 				PRODUCT_NAME = ADAL;
 				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
+				SKIP_INSTALL = NO;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -1925,7 +1925,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL-Mac";
 				PRODUCT_NAME = ADAL;
 				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
+				SKIP_INSTALL = NO;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -1958,7 +1958,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL-Mac";
 				PRODUCT_NAME = ADAL;
 				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
+				SKIP_INSTALL = NO;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
