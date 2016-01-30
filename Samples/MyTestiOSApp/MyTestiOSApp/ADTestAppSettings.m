@@ -47,7 +47,7 @@ NSString* const sAADTestInstance = @"AAD Instance";
             NSLog(@"Bad data for the instance: '%@'. Contents: %@", instanceName, instanceData);
             continue;
         }
-        BVTestInstance* instance = [BVTestInstance getInstance:instanceData];
+        ADTestInstance* instance = [ADTestInstance getInstance:instanceData];
         [testAuthorities setObject:instance forKey:instanceName];
         break;
     }
