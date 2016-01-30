@@ -34,6 +34,17 @@
 #import "ADWebAuthDelegate.h"
 #import "ADWorkPlaceJoinConstants.h"
 
+/*! Fired at the start of a resource load in the webview. */
+NSString* ADWebAuthDidStartLoadNotification = @"ADWebAuthDidStartLoadNotification";
+
+/*! Fired when a resource finishes loading in the webview. */
+NSString* ADWebAuthDidFinishLoadNotification = @"ADWebAuthDidFinishLoadNotification";
+
+/*! Fired when web authentication fails due to reasons originating from the network. */
+NSString* ADWebAuthDidFailNotification = @"ADWebAuthDidFailNotification";
+
+/*! Fired when authentication finishes */
+NSString* ADWebAuthDidCompleteNotification = @"ADWebAuthDidCompleteNotification";
 
 // Private interface declaration
 @interface ADWebAuthController () <ADWebAuthDelegate>
@@ -218,7 +229,7 @@
 
 #pragma mark - ADWebAuthDelegate
 
-- (void)webAuthDidStartLoad
+- (void)webAuthDidStartLoad:(NSURL*)url
 {
     if (!_loading)
     {
@@ -241,11 +252,14 @@
                                                    selector:@selector(failWithTimeout)
                                                    userInfo:nil
                                                     repeats:NO];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidStartLoadNotification object:self userInfo:url ? @{ @"url" : url } : nil];
 }
 
-- (void)webAuthDidFinishLoad
+- (void)webAuthDidFinishLoad:(NSURL*)url
 {
     [self stopSpinner];
+    [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFinishLoadNotification object:self userInfo:url ? @{ @"url" : url } : nil];
 }
 
 - (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest *)request
@@ -326,11 +340,19 @@
 {
     DebugLog();
     [self endWebAuthenticationWithError:nil orURL:endURL];
+    [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidCompleteNotification object:self userInfo:nil];
 }
 
 // Authentication failed somewhere
 - (void)webAuthDidFailWithError:(NSError *)error
 {
+    if (error)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFailNotification
+                                                            object:self
+                                                          userInfo:@{ @"error" : error}];
+    }
+    
     [self stopSpinner];
     if (_loadingTimer)
     {

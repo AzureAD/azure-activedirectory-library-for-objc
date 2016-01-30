@@ -20,6 +20,18 @@
 
 #import "ADAuthenticationContext.h"
 
+/*! Fired at the start of a resource load in the webview. The URL of the load, if available, will be in the @"url" key in the userInfo dictionary */
+extern NSString* ADWebAuthDidStartLoadNotification;
+
+/*! Fired when a resource finishes loading in the webview. */
+extern NSString* ADWebAuthDidFinishLoadNotification;
+
+/*! Fired when web authentication fails due to reasons originating from the network. Look at the @"error" key in the userInfo dictionary for more details.*/
+extern NSString* ADWebAuthDidFailNotification;
+
+/*! Fired when authentication finishes */
+extern NSString* ADWebAuthDidCompleteNotification;
+
 @interface ADWebAuthController : NSObject
 
 //Cancel the web authentication session which might be happening right now

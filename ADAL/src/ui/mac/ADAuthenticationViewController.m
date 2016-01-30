@@ -171,7 +171,7 @@ decisionListener:(id<WebPolicyDecisionListener>)listener
     if ([_delegate webAuthShouldStartLoadRequest:request])
     {
         [listener use];
-        [_delegate webAuthDidStartLoad];
+        [_delegate webAuthDidStartLoad:request.URL];
     }
     else
     {
@@ -185,7 +185,7 @@ decisionListener:(id<WebPolicyDecisionListener>)listener
     (void)identifier;
     (void)dataSource;
     
-    [_delegate webAuthDidFinishLoad];
+    [_delegate webAuthDidFinishLoad:dataSource.request.URL];
 }
 
 - (void)stopSpinner
