@@ -48,7 +48,7 @@ NSString* ADWebAuthDidCompleteNotification = @"ADWebAuthDidCompleteNotification"
 
 NSString* ADWebAuthDidReceieveResponseFromBroker = @"ADWebAuthDidReceiveResponseFromBroker";
 
-NSString* ADADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
+NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 // Private interface declaration
 @interface ADWebAuthController () <ADWebAuthDelegate>
