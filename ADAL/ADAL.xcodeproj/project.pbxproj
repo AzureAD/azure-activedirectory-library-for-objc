@@ -22,8 +22,6 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		046111241C59F322006998F5 /* ADCacheTombstoneWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 046111231C59F322006998F5 /* ADCacheTombstoneWrapper.m */; };
-		046111271C5AAA31006998F5 /* ADCacheTombstoneWrapperTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 046111261C5AAA31006998F5 /* ADCacheTombstoneWrapperTest.m */; };
 		6071B5E41C14C0B0006F6CC2 /* ADTestURLConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 6071B5E31C14C0B0006F6CC2 /* ADTestURLConnection.m */; };
 		8B0965AE17F25770002BDFB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
 		8B0965BC17F25770002BDFB8 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965BB17F25770002BDFB8 /* XCTest.framework */; };
@@ -274,9 +272,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		046111231C59F322006998F5 /* ADCacheTombstoneWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADCacheTombstoneWrapper.m; path = ios/ADCacheTombstoneWrapper.m; sourceTree = "<group>"; };
-		046111251C59F377006998F5 /* ADCacheTombstoneWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ADCacheTombstoneWrapper.h; path = ios/ADCacheTombstoneWrapper.h; sourceTree = "<group>"; };
-		046111261C5AAA31006998F5 /* ADCacheTombstoneWrapperTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADCacheTombstoneWrapperTest.m; sourceTree = "<group>"; };
 		04F7A0D71C5037370053BBD5 /* ADWebAuthController+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADWebAuthController+Internal.h"; sourceTree = "<group>"; };
 		6071B5E21C14C0B0006F6CC2 /* ADTestURLConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestURLConnection.h; sourceTree = "<group>"; };
 		6071B5E31C14C0B0006F6CC2 /* ADTestURLConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestURLConnection.m; sourceTree = "<group>"; };
@@ -565,7 +560,6 @@
 		8B0965C317F25770002BDFB8 /* tests */ = {
 			isa = PBXGroup;
 			children = (
-				046111261C5AAA31006998F5 /* ADCacheTombstoneWrapperTest.m */,
 				6071B5E21C14C0B0006F6CC2 /* ADTestURLConnection.h */,
 				6071B5E31C14C0B0006F6CC2 /* ADTestURLConnection.m */,
 				8BB8346A1807BE3F007F9F0D /* ADAcquireTokenTests.m */,
@@ -734,8 +728,6 @@
 			children = (
 				9453C3741C58016D006B9E79 /* ADKeychainTokenCache.m */,
 				9453C3751C58016D006B9E79 /* ADKeychainTokenCache+Internal.h */,
-				046111231C59F322006998F5 /* ADCacheTombstoneWrapper.m */,
-				046111251C59F377006998F5 /* ADCacheTombstoneWrapper.h */,
 			);
 			name = ios;
 			sourceTree = "<group>";
@@ -1157,7 +1149,6 @@
 				9453C36F1C580157006B9E79 /* NSDictionary+ADExtensions.m in Sources */,
 				9453C35B1C580143006B9E79 /* ADRegistrationInformation.m in Sources */,
 				9453C36D1C580157006B9E79 /* ADHelpers.m in Sources */,
-				046111241C59F322006998F5 /* ADCacheTombstoneWrapper.m in Sources */,
 				8BB8346218074CFA007F9F0D /* ADAuthenticationParameters.m in Sources */,
 				9453C3221C57FBCB006B9E79 /* UIAlertView+Additions.m in Sources */,
 				9453C37D1C5801CB006B9E79 /* ADBrokerKeyHelper.m in Sources */,
@@ -1196,7 +1187,6 @@
 				8BB8346D1807C5F5007F9F0D /* ADAuthenticationParametersTests.m in Sources */,
 				8B7AD62118972E3D00652DDE /* NSURLExtensionsTests.m in Sources */,
 				8B598963181739AA00744AEE /* ADAuthenticationErrorTests.m in Sources */,
-				046111271C5AAA31006998F5 /* ADCacheTombstoneWrapperTest.m in Sources */,
 				8B92DB74181C9196004AAB0E /* ADLoggerTests.m in Sources */,
 				8B92DB5F1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m in Sources */,
 				9430C34F1C54373E00D6506D /* ADAcquireTokenTests.m in Sources */,

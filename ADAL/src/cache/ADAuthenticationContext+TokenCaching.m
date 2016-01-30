@@ -199,7 +199,8 @@
                 if ([refreshToken isEqualToString:existing.refreshToken])//If still there, attempt to remove
                 {
                     AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Tombstoning cache for resource: %@", cacheItem.resource);
-                    [self setCacheItemAsTombstone:existing requestCorrelationId:requestCorrelationId];
+                    //set request correlation ID before we tombstone it
+                    [existing setCorrelationId:[requestCorrelationId UUIDString]];
                     [tokenCacheStoreInstance removeItem:existing error:nil];
                     removed = YES;
                 }
@@ -215,25 +216,14 @@
                     if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
                     {
                         AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Tombstoning multi-resource refresh token for authority: %@", self.authority);
-                        [self setCacheItemAsTombstone:broadItem requestCorrelationId:requestCorrelationId];
+                        //set request correlation ID before we tombstone it
+                        [broadItem setCorrelationId:[requestCorrelationId UUIDString]];
                         [tokenCacheStoreInstance removeItem:broadItem error:nil];
                     }
                 }
             }
         }
         
-    }
-}
-
--(void)setCacheItemAsTombstone:(ADTokenCacheItem*)item
-                      requestCorrelationId:(NSUUID*)requestCorrelationId
-{
-    if (item)
-    {
-        [item setTombstone:YES];
-        [item setCorrelationId:[requestCorrelationId UUIDString]];
-        [item setBundleId:[[NSBundle mainBundle] bundleIdentifier]];
-        [item setRefreshToken:@"<tombstone>"];
     }
 }
 

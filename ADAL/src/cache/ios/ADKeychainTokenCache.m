@@ -245,30 +245,48 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 
 
 /*!
-    @param  item    The item to remove from the cache
+    @param  item    The item to be set as tombstone in cache
     @param  error   (Optional) In the case of an error this will be filled with the
                     error details.
  
-    @return YES if the item was successfully removed, or was not in the cache. If NO
-            look
+    @return YES if the item was successfully tombstoned or not in the cache.
  */
 - (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     RETURN_NO_ON_NIL_ARGUMENT(item);
     
+    //try to delete the old item
     ADTokenCacheKey* key = [item extractKey:error];
     if (!key)
     {
         return NO;
     }
-    
-    
     NSMutableDictionary* query = [self queryDictionaryForKey:key
                                                       userId:item.userInformation.userId
                                                   additional:nil];
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
-    return [ADKeychainTokenCache checkStatus:status details:@"Failed to remove item from keychain" error:error];
+    
+    //if item is not found, just return; otherwise update item to tombstone
+    if (status==errSecItemNotFound)
+    {
+        return YES;
+    }
+    else
+    {
+        [self setCacheItemAsTombstone:item];
+        return [self addOrUpdateItem:item error:error];
+    }
+}
+
+-(void)setCacheItemAsTombstone:(ADTokenCacheItem*)item
+{
+    if (item)
+    {
+        [item setTombstone:YES];
+        [item setBundleId:[[NSBundle mainBundle] bundleIdentifier]];
+        [item setRefreshToken:@"<tombstone>"];
+    }
 }
 
 @end
@@ -373,7 +391,16 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         return nil;
     }
     
-    return items.firstObject;
+    //filter out tombstone
+    if (![items.firstObject tombstone])
+    {
+        return items.firstObject;
+    }
+    else
+    {
+        [self logItem:items.firstObject message:@"Found a tombstone"];
+        return nil;
+    }
 }
 
 /*!
