@@ -46,6 +46,10 @@ NSString* ADWebAuthDidFailNotification = @"ADWebAuthDidFailNotification";
 /*! Fired when authentication finishes */
 NSString* ADWebAuthDidCompleteNotification = @"ADWebAuthDidCompleteNotification";
 
+NSString* ADWebAuthDidReceieveResponseFromBroker = @"ADWebAuthDidReceiveResponseFromBroker";
+
+NSString* ADADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
+
 // Private interface declaration
 @interface ADWebAuthController () <ADWebAuthDelegate>
 @end
@@ -386,6 +390,17 @@ NSString* ADWebAuthDidCompleteNotification = @"ADWebAuthDidCompleteNotification"
     dispatch_async(dispatch_get_main_queue(), ^{ [self endWebAuthenticationWithError:adError orURL:nil]; });
 }
 
+#if TARGET_OS_IPHONE
+static ADAuthenticationResult* s_result = nil;
+
++ (ADAuthenticationResult*)responseFromInterruptedBrokerSession
+{
+    ADAuthenticationResult* result = s_result;
+    s_result = nil;
+    return result;
+}
+#endif // TARGET_OS_IPHONE
+
 @end
 
 #pragma mark - Private Methods
@@ -415,8 +430,6 @@ NSString* ADWebAuthDidCompleteNotification = @"ADWebAuthDidCompleteNotification"
     return [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@",
                                  [url absoluteString], OAUTH2_CORRELATION_ID_REQUEST_VALUE, [correlationId UUIDString]]];
 }
-
-#pragma mark - Public Methods
 
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
@@ -470,5 +483,12 @@ correlationId:(NSUUID *)correlationId
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
     [_authenticationViewController startRequest:request];
 }
+
+#if TARGET_OS_IPHONE
++ (void)setInterruptedBrokerResult:(ADAuthenticationResult*)result
+{
+    s_result = result;
+}
+#endif // TARGET_OS_IPHONE
 
 @end

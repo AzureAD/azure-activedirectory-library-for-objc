@@ -44,4 +44,8 @@ correlationId:(NSUUID*)correlationId
 //Note that it only works if there's an active web authentication session going on
 - (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError *)error;
 
+#if TARGET_OS_IPHONE
++ (void)setInterruptedBrokerResult:(ADAuthenticationResult*)result;
+#endif // TARGET_OS_IPHONE
+
 @end

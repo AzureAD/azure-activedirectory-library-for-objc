@@ -32,10 +32,27 @@ extern NSString* ADWebAuthDidFailNotification;
 /*! Fired when authentication finishes */
 extern NSString* ADWebAuthDidCompleteNotification;
 
+/*! Fired before ADAL invokes the broker app */
+extern NSString* ADWebAuthWillSwitchToBrokerApp;
+
+/*! Fired when the application receives a response from the broker. Look at the @"response"
+    key in the userInfo dictionary for the broker response */
+extern NSString* ADWebAuthDidReceieveResponseFromBroker;
+
 @interface ADWebAuthController : NSObject
 
 //Cancel the web authentication session which might be happening right now
 //Note that it only works if there's an active web authentication session going on
 + (void)cancelCurrentWebAuthSession;
+
+#if TARGET_OS_IPHONE
+/*!
+ If the application was terminated between ADAL calling out to the broker app and
+ receiving a response, then the request can't be continued in a normal fashion. An
+ application can use this API to retrieve a response that was received from the
+ broker but we no longer had an active completion block to hand it to.
+ */
++ (ADAuthenticationResult *)responseFromInterruptedBrokerSession;
+#endif
 
 @end

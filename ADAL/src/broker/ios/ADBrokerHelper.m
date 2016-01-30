@@ -16,12 +16,14 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import <objc/runtime.h>
+
+#import "NSDictionary+ADExtensions.h"
+
 #import "ADBrokerHelper.h"
 #import "ADBrokerNotificationManager.h"
 #import "ADOAuth2Constants.h"
-#import "NSDictionary+ADExtensions.h"
-
-#import <objc/runtime.h>
+#import "ADWebAuthController+Internal.h"
 
 typedef BOOL (*applicationOpenURLPtr)(id, SEL, UIApplication*, NSURL*, NSString*, id);
 IMP __original_ApplicationOpenURL = NULL;
@@ -102,6 +104,8 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
     [[ADBrokerNotificationManager sharedInstance] enableNotifications:completion];
     
     dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthWillSwitchToBrokerApp object:nil];
+        
         [[UIApplication sharedApplication] openURL:appUrl];
     });
 }
