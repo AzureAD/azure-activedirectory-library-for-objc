@@ -159,7 +159,8 @@ static CGRect _CenterRect(CGRect rect1, CGRect rect2)
     [self.window.contentView setNeedsDisplay:YES];
 }
 
-- (void)webView:(WebView *)webView decidePolicyForNavigationAction:(NSDictionary *)actionInformation
+- (void)webView:(WebView *)webView
+decidePolicyForNavigationAction:(NSDictionary *)actionInformation
         request:(NSURLRequest *)request
           frame:(WebFrame *)frame
 decisionListener:(id<WebPolicyDecisionListener>)listener
