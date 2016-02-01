@@ -106,7 +106,7 @@ static CGRect _CenterRect(CGRect rect1, CGRect rect2)
     [progressIndicator setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
     
     // On OS X there's a noticable lag between the window showing and the page loading, so starting with the spinner
-    // at least make it looks liek something is happening.
+    // at least make it looks like something is happening.
     [progressIndicator setHidden:NO];
     [progressIndicator startAnimation:nil];
     
@@ -147,7 +147,7 @@ static CGRect _CenterRect(CGRect rect1, CGRect rect2)
     [self loadRequest:request];
 }
 
-- (void)loadRequest:(NSURLRequest*)request
+- (void)loadRequest:(NSURLRequest *)request
 {
     [_webView.mainFrame loadRequest:request];
 }
