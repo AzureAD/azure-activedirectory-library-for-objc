@@ -16,12 +16,12 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "BVSettings.h"
-#import "BVTestInstance.h"
+#import "ADTestAppSettings.h"
+#import "ADTestInstance.h"
 
 NSString* const sAADTestInstance = @"AAD Instance";
 
-@implementation BVSettings
+@implementation ADTestAppSettings
 
 -(id) init
 {

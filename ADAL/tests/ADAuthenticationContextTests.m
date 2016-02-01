@@ -61,12 +61,14 @@
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
     
+#if TARGET_OS_IPHONE
     context = [ADAuthenticationContext authenticationContextWithAuthority:nil sharedGroup:nil error:&error];
     XCTAssertNil(context);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
+#endif // TARGET_OS_IPHONE
     
     context = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:NO error:&error];
     XCTAssertNil(context);
@@ -75,12 +77,14 @@
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
     
+#if TARGET_OS_IPHONE
     context = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:NO sharedGroup:nil error:&error];
     XCTAssertNil(context);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
+#endif
 }
 
 - (void)testBlankAuthority
@@ -95,12 +99,14 @@
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
     
+#if TARGET_OS_IPHONE
     context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " sharedGroup:nil error:&error];
     XCTAssertNil(context);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
+#endif // TARGET_OS_IPHONE
     
     context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " validateAuthority:NO error:&error];
     XCTAssertNil(context);
@@ -109,12 +115,14 @@
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
     
+#if TARGET_OS_IPHONE
     context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " validateAuthority:NO sharedGroup:nil error:&error];
     XCTAssertNil(context);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
+#endif // TARGET_OS_IPHONE
 }
 
 - (void)testValidAuthority
@@ -127,20 +135,24 @@
     XCTAssertNil(error);
     XCTAssertEqualObjects(context.authority, TEST_AUTHORITY);
     
+#if TARGET_OS_IPHONE
     context = [ADAuthenticationContext authenticationContextWithAuthority:TEST_AUTHORITY sharedGroup:nil error:&error];
     XCTAssertNotNil(context);
     XCTAssertNil(error);
     XCTAssertEqualObjects(context.authority, TEST_AUTHORITY);
+#endif // TARGET_OS_IPHONE
     
     context = [ADAuthenticationContext authenticationContextWithAuthority:TEST_AUTHORITY validateAuthority:NO error:&error];
     XCTAssertNotNil(context);
     XCTAssertNil(error);
     XCTAssertEqualObjects(context.authority, TEST_AUTHORITY);
     
+#if TARGET_OS_IPHONE
     context = [ADAuthenticationContext authenticationContextWithAuthority:TEST_AUTHORITY validateAuthority:NO sharedGroup:nil error:&error];
     XCTAssertNotNil(context);
     XCTAssertNil(error);
     XCTAssertEqualObjects(context.authority, TEST_AUTHORITY);
+#endif // TARGET_OS_IPHONE
 }
 
 @end

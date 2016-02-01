@@ -16,13 +16,9 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <UIKit/UIKit.h>
+#import <Cocoa/Cocoa.h>
 
-#import "ADTestAppDelegate.h"
-
-int main(int argc, char * argv[])
+int main(int argc, const char * argv[])
 {
-    @autoreleasepool{
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([ADTestAppDelegate class]));
-    }
+    return NSApplicationMain(argc, argv);
 }

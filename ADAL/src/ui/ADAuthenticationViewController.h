@@ -22,7 +22,7 @@
 #if TARGET_OS_IPHONE
 UIViewController
 #else
-NSViewController
+NSWindowController
 #endif
 
 @property (weak, nonatomic) id<ADWebAuthDelegate>     delegate;
@@ -35,8 +35,6 @@ NSViewController
 #endif
 
 - (BOOL)loadView:(ADAuthenticationError * __autoreleasing *)error;
-
-- (void)onCancel:(id)sender;
 
 - (void)startRequest:(NSURLRequest *)request;
 - (void)loadRequest:(NSURLRequest *)request;

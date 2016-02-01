@@ -22,10 +22,10 @@
 #import <UIKit/UIKit.h>
 #endif
 
-//! Project version number for ADALiOSFramework.
+//! Project version number for ADALFramework.
 FOUNDATION_EXPORT double ADALFrameworkVersionNumber;
 
-//! Project version string for ADALiOSFramework.
+//! Project version string for ADALFramework.
 FOUNDATION_EXPORT const unsigned char ADALFrameworkVersionString[];
 
 #if TARGET_OS_IPHONE

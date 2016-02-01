@@ -19,7 +19,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface BVTestAppDelegate : UIResponder <UIApplicationDelegate>
+@interface ADTestAppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 

@@ -85,23 +85,23 @@ static dispatch_once_t s_logOnce;
     
     switch (level) {
         case ADAL_LOG_LEVEL_ERROR:
-            return @"ADALiOS [%@ - %@] ERROR: %@. Additional Information: %@. ErrorCode: %d.";
+            return @"ADAL [%@ - %@] ERROR: %@. Additional Information: %@. ErrorCode: %d.";
             break;
             
         case ADAL_LOG_LEVEL_WARN:
-            return @"ADALiOS [%@ - %@] WARNING: %@. Additional Information: %@. ErrorCode: %d.";
+            return @"ADAL [%@ - %@] WARNING: %@. Additional Information: %@. ErrorCode: %d.";
             break;
             
         case ADAL_LOG_LEVEL_INFO:
-            return @"ADALiOS [%@ - %@] INFORMATION: %@. Additional Information: %@. ErrorCode: %d.";
+            return @"ADAL [%@ - %@] INFORMATION: %@. Additional Information: %@. ErrorCode: %d.";
             break;
             
         case ADAL_LOG_LEVEL_VERBOSE:
-            return @"ADALiOS [%@ - %@] VERBOSE: %@. Additional Information: %@. ErrorCode: %d.";
+            return @"ADAL [%@ - %@] VERBOSE: %@. Additional Information: %@. ErrorCode: %d.";
             break;
             
         default:
-            return @"ADALiOS [%@ - %@] UNKNOWN: %@. Additional Information: %@. ErrorCode: %d.";
+            return @"ADAL [%@ - %@] UNKNOWN: %@. Additional Information: %@. ErrorCode: %d.";
             break;
     }
 }
