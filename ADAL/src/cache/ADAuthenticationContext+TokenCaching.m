@@ -160,7 +160,7 @@
         NSString* savedRefreshToken = cacheItem.refreshToken;
         if (result.multiResourceRefreshToken)
         {
-            AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Storing multi-resource refresh token for authority: %@", self.authority);
+            AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Storing multi-resource refresh token for authority: %@", self.authority);
             
             //If the server returned a multi-resource refresh token, we break
             //the item into two: one with the access token and no refresh token and
@@ -175,7 +175,7 @@
             [tokenCacheStoreInstance addOrUpdateItem:multiRefreshTokenItem error:nil];
         }
         
-        AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Storing access token for resource: %@", cacheItem.resource);
+        AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Storing access token for resource: %@", cacheItem.resource);
         [tokenCacheStoreInstance addOrUpdateItem:cacheItem error:nil];
         cacheItem.refreshToken = savedRefreshToken;//Restore for the result
     }
@@ -198,9 +198,10 @@
                 ADTokenCacheItem* existing = [tokenCacheStoreInstance getItemWithKey:exactKey userId:cacheItem.userInformation.userId error:nil];
                 if ([refreshToken isEqualToString:existing.refreshToken])//If still there, attempt to remove
                 {
-                    AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Tombstoning cache for resource: %@", cacheItem.resource);
-                    //set request correlation ID before we tombstone it
-                    [existing setCorrelationId:[requestCorrelationId UUIDString]];
+                    AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Tombstoning cache for resource: %@", cacheItem.resource);
+                    //set request correlation ID and error details in tombstone property
+                    [existing setTombstone:[NSMutableDictionary dictionaryWithDictionary:@{ @"correlationId" : [requestCorrelationId UUIDString],
+                                                                                            @"errorDetails" : [result.error errorDetails]}]];
                     [tokenCacheStoreInstance removeItem:existing error:nil];
                     removed = YES;
                 }
@@ -215,9 +216,10 @@
                     ADTokenCacheItem* broadItem = [tokenCacheStoreInstance getItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
                     if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
                     {
-                        AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Tombstoning multi-resource refresh token for authority: %@", self.authority);
-                        //set request correlation ID before we tombstone it
-                        [broadItem setCorrelationId:[requestCorrelationId UUIDString]];
+                        AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Tombstoning multi-resource refresh token for authority: %@", self.authority);
+                        //set request correlation ID and error details in tombstone property
+                        [broadItem setTombstone:[NSMutableDictionary dictionaryWithDictionary:@{ @"correlationId" : [requestCorrelationId UUIDString],
+                                                                                                 @"errorDetails" : [result.error errorDetails]}]];
                         [tokenCacheStoreInstance removeItem:broadItem error:nil];
                     }
                 }

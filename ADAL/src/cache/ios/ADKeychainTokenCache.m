@@ -245,18 +245,64 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 
 
 /*!
-    @param  item    The item to be set as tombstone in cache
+    @param  item    The item to be removed. Item with refresh token will be set as a tombstone, those without will be deleted.
     @param  error   (Optional) In the case of an error this will be filled with the
                     error details.
  
-    @return YES if the item was successfully tombstoned or not in the cache.
+    @return YES if the item was successfully tombstoned/deleted or not in the cache.
  */
 - (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     RETURN_NO_ON_NIL_ARGUMENT(item);
     
-    //try to delete the old item
+    //if item contains a refresh token, tombstone it;
+    //Otherwise delete it directly.
+    if (![NSString adIsStringNilOrBlank:item.refreshToken])
+    {
+        ADTokenCacheKey* key = [item extractKey:error];
+        if (!key)
+        {
+            return NO;
+        }
+        
+        // In layers above this a nil/blank user ID means we simply don't know who it is (thanks to ADFS)
+        // however for the purposes of adding users we still do need to have an account name, even if it
+        // is just blank.
+        NSString* userId = item.userInformation.userId;
+        if (!userId)
+        {
+            userId = @"";
+        }
+        
+        NSMutableDictionary* query = [self queryDictionaryForKey:key
+                                                          userId:userId
+                                                      additional:nil];
+        
+        //set the item to tombstone
+        ADTokenCacheItem* tombstoneItem = [item copy];
+        [self setCacheItemAsTombstone:tombstoneItem];
+        NSData* itemData = [NSKeyedArchiver archivedDataWithRootObject:tombstoneItem];
+        NSMutableDictionary * itemUpdate = [NSMutableDictionary dictionaryWithDictionary:@{ (id)kSecValueData : itemData,
+                                                                                              (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly}];
+        [tombstoneItem release];
+        
+        //update the tombstone item to keychain
+        OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)itemUpdate);
+        return [ADKeychainTokenCache checkStatus:status details:@"Failed to remove item from keychain" error:error];
+    }
+    else
+    {
+        //item will be deleted if it does not contain any refresh token
+        return [self deleteItem:item error:error];
+    }
+}
+
+//Interal function: delete an item from keychain
+- (BOOL)deleteItem:(nonnull ADTokenCacheItem *)item
+             error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+{
+    RETURN_NO_ON_NIL_ARGUMENT(item);
     ADTokenCacheKey* key = [item extractKey:error];
     if (!key)
     {
@@ -266,25 +312,27 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
                                                       userId:item.userInformation.userId
                                                   additional:nil];
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
-    
-    //if item is not found, just return; otherwise update item to tombstone
-    if (status==errSecItemNotFound)
-    {
-        return YES;
-    }
-    else
-    {
-        [self setCacheItemAsTombstone:item];
-        return [self addOrUpdateItem:item error:error];
-    }
+
+    return [ADKeychainTokenCache checkStatus:status details:@"Failed to remove item from keychain" error:error];
 }
 
 -(void)setCacheItemAsTombstone:(ADTokenCacheItem*)item
 {
     if (item)
     {
-        [item setTombstone:YES];
-        [item setBundleId:[[NSBundle mainBundle] bundleIdentifier]];
+        //avoid bundleId being nil, as it will be stored in a NSMutableDictionary
+        NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier] ? [[NSBundle mainBundle] bundleIdentifier] : @"";
+        
+        if (item.tombstone)
+        {
+            [item.tombstone addEntriesFromDictionary:@{@"bundleId" : bundleId}];
+        }
+        else
+        {
+            [item setTombstone:[NSMutableDictionary dictionaryWithDictionary:@{@"bundleId" : bundleId}]];
+        }
+        
+        //wipe out the refresh token
         [item setRefreshToken:@"<tombstone>"];
     }
 }

@@ -197,7 +197,6 @@
     FILL_FIELD(accessToken, OAUTH2_ACCESS_TOKEN);
     FILL_FIELD(refreshToken, OAUTH2_REFRESH_TOKEN);
     FILL_FIELD(accessTokenType, OAUTH2_TOKEN_TYPE);
-    FILL_FIELD(correlationId, OAUTH2_CORRELATION_ID_RESPONSE);
     
     [self fillExpiration:responseDictionary];
     

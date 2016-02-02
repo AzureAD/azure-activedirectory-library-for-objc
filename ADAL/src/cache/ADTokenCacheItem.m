@@ -32,19 +32,6 @@
     ADUserInformation* _userInformation;
 }
 
-- (id)init
-{
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    [self setBundleId:[[NSBundle mainBundle] bundleIdentifier]];
-    //default value of property tombstone is already NO
-    
-    return self;
-}
-
 @synthesize multiResourceRefreshToken;
 
 - (NSUInteger)hash
@@ -79,9 +66,7 @@
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.userInformation = [self.userInformation copyWithZone:zone];
     item.sessionKey = [self.sessionKey copyWithZone:zone];
-    item.tombstone = [self tombstone];
-    item.correlationId = [self.correlationId copyWithZone:zone];
-    item.bundleId = [self.bundleId copyWithZone:zone];
+    item.tombstone = [NSMutableDictionary dictionaryWithDictionary:self.tombstone];
     
     return item;
 }
@@ -139,9 +124,7 @@
     [aCoder encodeObject:self.sessionKey forKey:@"sessionKey"];
     [aCoder encodeObject:self.expiresOn forKey:@"expiresOn"];
     [aCoder encodeObject:self.userInformation forKey:@"userInformation"];
-    [aCoder encodeBool:self.tombstone forKey:@"tombstone"];
-    [aCoder encodeObject:self.correlationId forKey:@"correlationId"];
-    [aCoder encodeObject:self.bundleId forKey:@"bundleId"];
+    [aCoder encodeObject:self.tombstone forKey:@"tombstone"];
 }
 
 //Deserializer:
@@ -160,9 +143,7 @@
         self.refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
         self.expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
         self.userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
-        self.tombstone = [aDecoder decodeBoolForKey:@"tombstone"];
-        self.correlationId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"correlationId"];
-        self.bundleId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"bundleId"];
+        self.tombstone = [aDecoder decodeObjectOfClass:[NSMutableDictionary class] forKey:@"tombstone"];
     }
     return self;
 }

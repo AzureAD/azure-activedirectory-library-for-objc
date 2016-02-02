@@ -204,6 +204,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqualObjects(item1, retrievedItem1);
     
     //tombstone item1
+    [item1 setTombstone:[NSMutableDictionary dictionaryWithDictionary:@{ @"correlationId" : @"cid",
+                                                                         @"errorDetails" : @"error details"}]];
     [mStore removeItem:item1 error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 2);
@@ -264,6 +266,56 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [self verifyCacheContainsItem:item3];
     
 }
+
+-(void) testItemDelete
+{
+    XCTAssertTrue([self count] == 0, "Start empty.");
+    ADAuthenticationError* error = nil;
+    
+    //add item1 with no refresh token
+    ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
+    [item1 setRefreshToken:nil];
+    [mStore addOrUpdateItem:item1 error:&error];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 1);
+    XCTAssertEqual([self tombstoneCount], 0);
+    
+    //getItemWithKey should be able to retrieve item1 from cache
+    ADTokenCacheKey* key1 = [item1 extractKey:&error];
+    ADAssertNoError;
+    ADTokenCacheItem* retrievedItem1 = [mStore getItemWithKey:key1 userId:item1.userInformation.userId error:&error];
+    ADAssertNoError;
+    XCTAssertEqualObjects(item1, retrievedItem1);
+    
+    
+    //add item2 with refresh token
+    ADTokenCacheItem* item2 = [self adCreateCacheItem:@"stan@contoso.com"];
+    [mStore addOrUpdateItem:item2 error:&error];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 2);
+    XCTAssertEqual([self tombstoneCount], 0);
+    
+    //getItemWithKey should be able to retrieve item2 from cache
+    ADTokenCacheKey* key2 = [item2 extractKey:&error];
+    ADAssertNoError;
+    ADTokenCacheItem* retrievedItem2 = [mStore getItemWithKey:key2 userId:item2.userInformation.userId error:&error];
+    XCTAssertEqualObjects(item2, retrievedItem2);
+    
+    //remove item1.
+    //Since item1 does not contain refresh token, it should be deleted from cache.
+    [mStore removeItem:item1 error:&error];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 1);
+    XCTAssertEqual([self tombstoneCount], 0);
+    
+    //remove item2.
+    //Since item2 contains refresh token, it should become a tombstone.
+    [mStore removeItem:item2 error:&error];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 0);
+    XCTAssertEqual([self tombstoneCount], 1);
+}
+
 
 -(void) verifyCacheContainsItem: (ADTokenCacheItem*) item
 {
