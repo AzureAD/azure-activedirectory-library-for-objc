@@ -18,11 +18,11 @@
 
 #import <XCTest/XCTest.h>
 #import <ADALiOS/ADAuthenticationContext.h>
-#import "BVTestAppDelegate.h"
+#import "ADTestAppDelegate.h"
 #import <ADAliOS/ADAuthenticationSettings.h>
 #import <ADALiOS/ADLogger.h>
-#import "BVTestInstance.h"
-#import "BVSettings.h"
+#import "ADTestInstance.h"
+#import "ADTestAppSettings.h"
 #import <ADALiOS/ADErrorCodes.h>
 
 //Timeouts in seconds. They are inflated to accumulate cloud-based
@@ -37,14 +37,14 @@ const int sTokenWorkflowTimeout     = 20;
 
 @interface MyTestiOSAppTests : XCTestCase
 {
-    BVSettings* mTestSettings;
+    ADTestAppSettings* mTestSettings;
 }
 
 @end
 
 @implementation MyTestiOSAppTests
 
--(ADAuthenticationContext*) createContextWithInstance: (BVTestInstance*) instance
+-(ADAuthenticationContext*) createContextWithInstance: (ADTestInstance*) instance
                                                  line: (int) line;
 {
     XCTAssertNotNil(instance, "Test error");
@@ -66,7 +66,7 @@ const int sTokenWorkflowTimeout     = 20;
 }
 
 //Obtains a test AAD instance and credentials:
--(BVTestInstance*) getAADInstance
+-(ADTestInstance*) getAADInstance
 {
     return mTestSettings.testAuthorities[sAADTestInstance];
 }
@@ -83,7 +83,7 @@ const int sTokenWorkflowTimeout     = 20;
     [self clearCache];
     
     //Load test data:
-    mTestSettings = [BVSettings new];
+    mTestSettings = [ADTestAppSettings new];
 }
 
 - (void)tearDown
@@ -163,7 +163,7 @@ const int sTokenWorkflowTimeout     = 20;
     }
 }
 
--(ADAuthenticationResult*) callAcquireTokenWithInstance: (BVTestInstance*) instance
+-(ADAuthenticationResult*) callAcquireTokenWithInstance: (ADTestInstance*) instance
                                         refresh_session: (BOOL) refresh_session
                                             interactive: (BOOL) interactive
                                            keepSignedIn: (BOOL) keepSignedIn
@@ -198,7 +198,7 @@ const int sTokenWorkflowTimeout     = 20;
 //Calls the asynchronous acquireTokenWithResource method.
 //"interactive" parameter indicates whether the call will display
 //UI which user will interact with
--(ADAuthenticationResult*) callAcquireTokenWithInstance: (BVTestInstance*) instance
+-(ADAuthenticationResult*) callAcquireTokenWithInstance: (ADTestInstance*) instance
                                         refresh_session: (BOOL) refresh_session
                                             interactive: (BOOL) interactive
                                            keepSignedIn: (BOOL) keepSignedIn
@@ -305,7 +305,7 @@ const int sTokenWorkflowTimeout     = 20;
 
 - (void)testInitialAcquireToken
 {
-    BVTestInstance* instance = [self getAADInstance];
+    ADTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
                        refresh_session:NO
                            interactive:YES
@@ -337,7 +337,7 @@ const int sTokenWorkflowTimeout     = 20;
 
 -(void) testCache
 {
-    BVTestInstance* instance = [self getAADInstance];
+    ADTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
                        refresh_session:NO
                            interactive:YES
@@ -370,7 +370,7 @@ const int sTokenWorkflowTimeout     = 20;
 
 -(void) testCookies
 {
-    BVTestInstance* instance = [self getAADInstance];
+    ADTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
                        refresh_session:NO
                            interactive:YES
@@ -391,7 +391,7 @@ const int sTokenWorkflowTimeout     = 20;
 -(void) testNegative
 {
     //Bad SSL certificate:
-    BVTestInstance* instance = [self getAADInstance];
+    ADTestInstance* instance = [self getAADInstance];
     instance.authority = @"https://example.com/common";
     instance.validateAuthority = NO;
     ADAuthenticationResult* result = [self callAcquireTokenWithInstance:instance
@@ -463,7 +463,7 @@ const int sTokenWorkflowTimeout     = 20;
 
 -(void) testRefreshSession
 {
-    BVTestInstance* instance = [self getAADInstance];
+    ADTestInstance* instance = [self getAADInstance];
     //Start with getting a normal token that will be refreshed later:
     ADAuthenticationResult* result1 = [self callAcquireTokenWithInstance:instance
                                                          refresh_session:NO

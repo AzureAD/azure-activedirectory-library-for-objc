@@ -17,16 +17,16 @@
 // governing permissions and limitations under the License.
 
 
-#import "BVTestMainViewController.h"
+#import "ADTestMainViewController.h"
 #import <ADAL/ADAL.h>
-#import "BVSettings.h"
-#import "BVTestInstance.h"
-#import "BVApplicationData.h"
+#import "ADTestAppSettings.h"
+#import "ADTestInstance.h"
+#import "ADTestApplicationData.h"
 
 
 ADAuthenticationContext* context = nil;
 
-@interface BVTestMainViewController ()
+@interface ADTestMainViewController ()
 - (IBAction)pressMeAction:(id)sender;
 - (IBAction)clearCachePressed:(id)sender;
 - (IBAction)getUsersPressed:(id)sender;
@@ -48,7 +48,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     }
 }
 
-@implementation BVTestMainViewController
+@implementation ADTestMainViewController
 
 - (void)viewDidLoad
 {
@@ -62,7 +62,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     // Do any additional setup after loading the view, typically from a nib.
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];//Log everything
     
-    mTestData = [BVSettings new];
+    mTestData = [ADTestAppSettings new];
     mAADInstance = mTestData.testAuthorities[sAADTestInstance];
     
     [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInformation, NSInteger errorCode)
@@ -105,7 +105,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
 
 -(void) consumeToken
 {
-    BVApplicationData* data = [BVApplicationData getInstance];
+    ADTestApplicationData* data = [ADTestApplicationData getInstance];
     if(!data.result)
     {
         return;
@@ -132,7 +132,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
 
 #pragma mark - Flipside View Controller
 
-- (void)flipsideViewControllerDidFinish:(BVTestFlipsideViewController *)controller
+- (void)flipsideViewControllerDidFinish:(ADTestFlipsideViewController *)controller
 {
     [self dismissViewControllerAnimated:YES completion:nil];
     

@@ -16,22 +16,24 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import <Foundation/Foundation.h>
 
-#import <UIKit/UIKit.h>
+extern NSString* const sAADTestInstance;
 
-@class BVTestFlipsideViewController;
+//A helper class for reading the test authorities, usernames, etc.
+//Reads the authorities from the TestData.plist file.
+@interface ADTestAppSettings : NSObject
+{
+    NSMutableDictionary *_testAuthorities;
+}
 
-@protocol BVTestFlipsideViewControllerDelegate
-- (void)flipsideViewControllerDidFinish:(BVTestFlipsideViewController *)controller;
-@end
 
-@interface BVTestFlipsideViewController : UIViewController
+//Returns a dictionary with the name of the test instances as keys.
+//The values are instances of BVTestInstance class.
+@property (readonly) NSDictionary* testAuthorities;
 
-@property (weak, nonatomic) id <BVTestFlipsideViewControllerDelegate> delegate;
+//In case of code coverage build, stores the code coverage data.
+//The method does nothing in the other configurations.
+-(void) flushCodeCoverage;
 
-- (IBAction)done:(id)sender;
-
-- (IBAction)restoreDefaults:(id)sender;
-
-- (IBAction)save:(id)sender;
 @end

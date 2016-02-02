@@ -21,7 +21,7 @@
 //Identifies one testable instance, e.g.
 //an AAD tenant with suitable user name password
 //and a client accessing a resource
-@interface BVTestInstance : NSObject
+@interface ADTestInstance : NSObject
 
 extern const NSString* AUTHORITY;
 extern const NSString* CLIENT_ID;

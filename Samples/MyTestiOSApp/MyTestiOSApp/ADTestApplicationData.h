@@ -16,14 +16,13 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
+#import <ADAL/ADAL.h>
 
-//! Project version number for ADAL Mac.
-FOUNDATION_EXPORT double ADAL_MacVersionNumber;
+@interface ADTestApplicationData : NSObject
 
-//! Project version string for ADAL Mac.
-FOUNDATION_EXPORT const unsigned char ADAL_MacVersionString[];
+@property ADAuthenticationResult* result;
 
-// In this header, you should import all the public headers of your framework using statements like #import <ADAL_Mac/PublicHeader.h>
++(id) getInstance;
 
-
+@end

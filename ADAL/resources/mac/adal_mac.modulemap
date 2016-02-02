@@ -1,0 +1,6 @@
+framework module ADAL {
+   umbrella header "ADAL.h"
+
+   export *
+   module * { export * }
+}

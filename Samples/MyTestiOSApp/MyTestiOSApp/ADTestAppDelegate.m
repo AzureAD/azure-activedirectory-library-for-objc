@@ -16,14 +16,14 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "BVTestAppDelegate.h"
-#import "BVTestMainViewController.h"
-#import "BVSettings.h"
-#import "BVApplicationData.h"
+#import "ADTestAppDelegate.h"
+#import "ADTestMainViewController.h"
+#import "ADTestAppSettings.h"
+#import "ADTestApplicationData.h"
 
 #import <ADAL/ADAL.h>
 
-@implementation BVTestAppDelegate
+@implementation ADTestAppDelegate
 
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize managedObjectModel = _managedObjectModel;
@@ -44,7 +44,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
-    BVTestMainViewController *controller = (BVTestMainViewController *)self.window.rootViewController;
+    ADTestMainViewController *controller = (ADTestMainViewController *)self.window.rootViewController;
     controller.managedObjectContext = self.managedObjectContext;
     return YES;
 }

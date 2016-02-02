@@ -16,13 +16,21 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import <ADAL/ADAL.h>
+#import "ADTestApplicationData.h"
 
-@interface BVApplicationData : NSObject
+@implementation ADTestApplicationData
 
-@property ADAuthenticationResult* result;
-
-+(id) getInstance;
++ (id) getInstance
+{
+    static ADTestApplicationData *instance = nil;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    
+    return instance;
+}
 
 @end
+
