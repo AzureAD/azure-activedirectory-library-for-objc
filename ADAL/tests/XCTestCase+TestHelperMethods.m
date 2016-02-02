@@ -502,12 +502,42 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
 {
+    return [self adResponseRefreshToken:oldRefreshToken
+                              authority:authority
+                               resource:resource
+                               clientId:clientId
+                          correlationId:correlationId
+                        newRefreshToken:newRefreshToken
+                         newAccessToken:newAccessToken
+                       additionalFields:nil];
+}
+
+- (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
+                                    authority:(NSString *)authority
+                                     resource:(NSString *)resource
+                                     clientId:(NSString *)clientId
+                                correlationId:(NSUUID *)correlationId
+                              newRefreshToken:(NSString *)newRefreshToken
+                               newAccessToken:(NSString *)newAccessToken
+                             additionalFields:(NSDictionary *)additionalFields
+{
     NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
     
     NSDictionary* headers = nil;
     if (correlationId)
     {
         headers = @{ OAUTH2_CORRELATION_ID_REQUEST_VALUE : [correlationId UUIDString] };
+    }
+    
+    NSDictionary* jsonBody = @{ OAUTH2_REFRESH_TOKEN : newRefreshToken,
+                                OAUTH2_ACCESS_TOKEN : newAccessToken,
+                                OAUTH2_RESOURCE : resource };
+    
+    if (additionalFields)
+    {
+        NSMutableDictionary* combinedDictionary = [NSMutableDictionary dictionaryWithDictionary:jsonBody];
+        [combinedDictionary addEntriesFromDictionary:additionalFields];
+        jsonBody = combinedDictionary;
     }
     
     ADTestURLResponse* response =
@@ -520,9 +550,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                       responseURLString:@"https://contoso.com"
                            responseCode:400
                        httpHeaderFields:@{}
-                       dictionaryAsJSON:@{ OAUTH2_REFRESH_TOKEN : newRefreshToken,
-                                           OAUTH2_ACCESS_TOKEN : newAccessToken,
-                                           OAUTH2_RESOURCE : resource }];
+                       dictionaryAsJSON:jsonBody];
     
     return response;
 

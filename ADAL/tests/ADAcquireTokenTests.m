@@ -680,9 +680,40 @@ const int sAsyncContextTimeout = 10;
 }
 
 // Make sure that if we get a token response from the server that includes a family ID we cache it properly
-- (void)testAcquireFamilyTokenNetwork
+- (void)testAcquireRefreshFamilyTokenNetwork
 {
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
+    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:[self adCreateMRRTCacheItem] error:&error]);
+    XCTAssertNil(error);
+    
+    ADTestURLResponse* response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                 correlationId:TEST_CORRELATION_ID
+                                               newRefreshToken:TEST_REFRESH_TOKEN
+                                                newAccessToken:TEST_ACCESS_TOKEN
+                                              additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"familyId"}];
+    
+    [ADTestURLConnection addResponse:response];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+    {
+        XCTAssertNotNil(result);
+        XCTAssertEqual(result.status, AD_SUCCEEDED);
+        XCTAssertNotNil(result.tokenCacheItem);
+        XCTAssertEqualObjects(result.accessToken, TEST_ACCESS_TOKEN);
+        XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"familyId");
+        TEST_SIGNAL;
+    }];
+
+    TEST_WAIT;
 }
 
 // Make sure if we attempt to get a token for a client ID in the cache, but we have a family token that we
@@ -732,9 +763,47 @@ const int sAsyncContextTimeout = 10;
 
 // Make sure that if we have a family token in the cache and we fail to get a token using it that we
 // properly fail out.
-- (void)testAcquireFailedUsingFamilyTokenFallbackNetwork
+- (void)testAcquireFailedUsingFamilyTokenFailsNetwork
 {
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
+    NSString* clientIdTwo = @"12345678-7153-44d4-90e6-329686d48d76";
+    
+    ADTokenCacheItem* familyMRRTItem = [self adCreateMRRTCacheItem];
+    familyMRRTItem.familyId = @"YES";
+    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:familyMRRTItem error:&error]);
+    XCTAssertNil(error);
+    
+    ADTestURLResponse* response = [self adResponseBadRefreshToken:TEST_REFRESH_TOKEN
+                                                        authority:TEST_AUTHORITY
+                                                         resource:TEST_RESOURCE
+                                                         clientId:clientIdTwo
+                                                    correlationId:TEST_CORRELATION_ID];
+    [ADTestURLConnection addResponse:response];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:clientIdTwo
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_USER_INPUT_NEEDED);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+    
+    // The family MRRT for the original client ID should still be there
+    NSArray* allItems = [[context tokenCacheStore] allItems:&error];
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 1);
+    
+    XCTAssertEqualObjects(allItems[0], familyMRRTItem);
 }
 
 
