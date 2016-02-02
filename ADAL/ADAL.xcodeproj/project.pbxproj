@@ -444,7 +444,6 @@
 		946818A81C59B80800CA0378 /* ADAuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationViewController.m; sourceTree = "<group>"; };
 		94DD18C91C5A00BC00F80C62 /* ADAuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationViewController.m; sourceTree = "<group>"; };
 		94DD18E11C5ACFBF00F80C62 /* ADAL Mac Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADAL Mac Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		94DD18E51C5ACFBF00F80C62 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		94DD19011C5AD39A00F80C62 /* ADALiOSTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ADALiOSTests-Info.plist"; sourceTree = "<group>"; };
 		94DD19021C5AD39A00F80C62 /* ADBrokerKeyHelperTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeyHelperTests.m; sourceTree = "<group>"; };
 		94DD19031C5AD39A00F80C62 /* ADKeychainTokenCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADKeychainTokenCacheTests.m; sourceTree = "<group>"; };
@@ -520,7 +519,6 @@
 				8B0965AF17F25770002BDFB8 /* src */,
 				8B0965C317F25770002BDFB8 /* tests */,
 				9453C3151C57EE57006B9E79 /* resouces */,
-				94DD18E21C5ACFBF00F80C62 /* ADAL Mac Tests */,
 				8B0965AC17F25770002BDFB8 /* Frameworks */,
 				8B0965AB17F25770002BDFB8 /* Products */,
 			);
@@ -883,14 +881,6 @@
 				9453C4731C5874FB006B9E79 /* ADBrokerHelper.m */,
 			);
 			path = mac;
-			sourceTree = "<group>";
-		};
-		94DD18E21C5ACFBF00F80C62 /* ADAL Mac Tests */ = {
-			isa = PBXGroup;
-			children = (
-				94DD18E51C5ACFBF00F80C62 /* Info.plist */,
-			);
-			path = "ADAL Mac Tests";
 			sourceTree = "<group>";
 		};
 		94DD19001C5AD39A00F80C62 /* ios */ = {
@@ -2126,6 +2116,7 @@
 				94DD18EC1C5ACFBF00F80C62 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
