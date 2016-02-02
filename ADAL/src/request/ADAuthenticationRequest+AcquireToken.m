@@ -81,7 +81,6 @@
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && [_context hasCacheStore])
     {
         //Cache should be used in this case:
-        BOOL accessTokenUsable;
         ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key
                                                               userId:_identifier
                                                                error:&error];
@@ -101,7 +100,7 @@
         ADTokenCacheItem* familyItem = [_context findFamilyItemForUser:_identifier error:&error];
         if (familyItem)
         {
-            [self attemptToUseCacheItem:cacheItem completionBlock:completionBlock];
+            [self attemptToUseCacheItem:familyItem completionBlock:completionBlock];
             return;
         }
     }
