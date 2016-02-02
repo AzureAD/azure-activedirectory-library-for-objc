@@ -71,6 +71,14 @@ typedef enum
 - (ADTestURLResponse *)adDefaultRefreshResponse:(NSString *)newRefreshToken
                                     accessToken:(NSString *)newAccessToken;
 
+- (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
+                                    authority:(NSString *)authority
+                                     resource:(NSString *)resource
+                                     clientId:(NSString *)clientId
+                                correlationId:(NSUUID *)correlationId
+                              newRefreshToken:(NSString *)newRefreshToken
+                               newAccessToken:(NSString *)newAccessToken;
+
 /*! Verifies that the correct error is returned when any method was passed invalid arguments.
  */
 - (void)adValidateForInvalidArgument:(NSString *)argument

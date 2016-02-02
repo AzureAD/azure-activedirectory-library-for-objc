@@ -193,35 +193,6 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     return item;
 }
 
-- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
-                                               userId:(NSString *)userId
-                                                error:(ADAuthenticationError * __autoreleasing* )error
-{
-    NSArray* items = [self keychainItemsWithKey:key userId:userId error:error];
-    if (!items)
-    {
-        [self logItemRetrievalStatus:nil key:key userId:userId];
-        return nil;
-    }
-    
-    NSMutableArray* tokenItems = [[NSMutableArray<ADTokenCacheItem *> alloc] initWithCapacity:items.count];
-    SAFE_ARC_AUTORELEASE(tokenItems);
-    for (NSDictionary* attrs in items)
-    {
-        ADTokenCacheItem* item = [self itemFromKeyhainAttributes:attrs];
-        if (!item)
-        {
-            continue;
-        }
-        
-        [tokenItems addObject:item];
-    }
-    
-    [self logItemRetrievalStatus:tokenItems key:key userId:userId];
-    return tokenItems;
-    
-}
-
 #pragma mark -
 #pragma mark ADTokenCacheAccessor implementation
 
@@ -339,6 +310,35 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     }
     
     return query;
+}
+
+- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
+                                          userId:(NSString *)userId
+                                           error:(ADAuthenticationError * __autoreleasing* )error
+{
+    NSArray* items = [self keychainItemsWithKey:key userId:userId error:error];
+    if (!items)
+    {
+        [self logItemRetrievalStatus:nil key:key userId:userId];
+        return nil;
+    }
+    
+    NSMutableArray* tokenItems = [[NSMutableArray<ADTokenCacheItem *> alloc] initWithCapacity:items.count];
+    SAFE_ARC_AUTORELEASE(tokenItems);
+    for (NSDictionary* attrs in items)
+    {
+        ADTokenCacheItem* item = [self itemFromKeyhainAttributes:attrs];
+        if (!item)
+        {
+            continue;
+        }
+        
+        [tokenItems addObject:item];
+    }
+    
+    [self logItemRetrievalStatus:tokenItems key:key userId:userId];
+    return tokenItems;
+    
 }
 
 /*!

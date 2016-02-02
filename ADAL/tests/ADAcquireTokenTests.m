@@ -626,10 +626,10 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqualObjects(allItems[0], mrrtItem);
 }
 
--(void) testRequestRetryOnUnusualHttpResponse
+- (void)testRequestRetryOnUnusualHttpResponse
 {
     //Create a normal authority (not a test one):
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
     // Add a expired access token with refresh token to the cache
@@ -678,6 +678,65 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNotNil(allItems);
     XCTAssertEqual(allItems.count, 2);
 }
+
+// Make sure that if we get a token response from the server that includes a family ID we cache it properly
+- (void)testAcquireFamilyTokenNetwork
+{
+    
+}
+
+// Make sure if we attempt to get a token for a client ID in the cache, but we have a family token that we
+// acquire using that
+- (void)testAcquireUsingFamilyTokenNetwork
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    NSString* clientIdTwo = @"12345678-7153-44d4-90e6-329686d48d76";
+    
+    ADTokenCacheItem* familyMRRTItem = [self adCreateMRRTCacheItem];
+    familyMRRTItem.familyId = @"YES";
+    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:familyMRRTItem error:&error]);
+    XCTAssertNil(error);
+    
+    ADTestURLResponse* response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:clientIdTwo
+                                                 correlationId:TEST_CORRELATION_ID
+                                               newRefreshToken:@"I am another refresh token"
+                                                newAccessToken:@"I am another access token"];
+    [ADTestURLConnection addResponse:response];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:clientIdTwo
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"I am another access token");
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+    
+    NSArray* allItems = [[context tokenCacheStore] allItems:&error];
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 3);
+}
+
+// Make sure that if we have a family token in the cache and we fail to get a token using it that we
+// properly fail out.
+- (void)testAcquireFailedUsingFamilyTokenFallbackNetwork
+{
+    
+}
+
 
 - (void)testExtraQueryParams
 {
