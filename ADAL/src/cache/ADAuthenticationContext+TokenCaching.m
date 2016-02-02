@@ -116,6 +116,16 @@
 - (ADTokenCacheItem *)findFamilyItemForUser:(ADUserIdentifier *)userIdentifier
                                       error:(ADAuthenticationError * __autoreleasing *)error
 {
+    if (!userIdentifier)
+    {
+        return nil;
+    }
+    
+    if (!userIdentifier.userId)
+    {
+        return nil;
+    }
+    
     NSArray* items = [[self tokenCacheStore] getItemsWithKey:nil
                                                       userId:userIdentifier.userId
                                                        error:error];
