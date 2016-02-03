@@ -413,16 +413,6 @@ const int sAsyncTimeout = 10;//in seconds
     XCTAssertTrue(mValidated);
     XCTAssertNil(mError);
     XCTAssertTrue([mValidatedAuthorities containsObject:@"https://login.windows-ppe.net"]);
-
-    //Hit the one that was just cached and ensure that no server-side call is attempted:
-    ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
-    dispatch_queue_t savedQueue = settings.dispatchQueue;
-    settings.dispatchQueue = nil;//point nowhere, so that any attempt to a server call will crash.
-    [self validateAuthority:@"https://login.windows-ppe.net/common" correlationId:[NSUUID UUID] line:__LINE__];
-    XCTAssertTrue(mValidated);
-    XCTAssertNil(mError);
-    XCTAssertTrue([mValidatedAuthorities containsObject:@"https://login.windows-ppe.net"]);
-    settings.dispatchQueue = savedQueue;//Restore for the rest of the tests
 }
 
 //Ensures that an invalid authority is not approved
