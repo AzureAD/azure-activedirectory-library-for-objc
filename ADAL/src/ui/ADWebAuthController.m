@@ -34,6 +34,21 @@
 #import "ADWebAuthDelegate.h"
 #import "ADWorkPlaceJoinConstants.h"
 
+/*! Fired at the start of a resource load in the webview. */
+NSString* ADWebAuthDidStartLoadNotification = @"ADWebAuthDidStartLoadNotification";
+
+/*! Fired when a resource finishes loading in the webview. */
+NSString* ADWebAuthDidFinishLoadNotification = @"ADWebAuthDidFinishLoadNotification";
+
+/*! Fired when web authentication fails due to reasons originating from the network. */
+NSString* ADWebAuthDidFailNotification = @"ADWebAuthDidFailNotification";
+
+/*! Fired when authentication finishes */
+NSString* ADWebAuthDidCompleteNotification = @"ADWebAuthDidCompleteNotification";
+
+NSString* ADWebAuthDidReceieveResponseFromBroker = @"ADWebAuthDidReceiveResponseFromBroker";
+
+NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 // Private interface declaration
 @interface ADWebAuthController () <ADWebAuthDelegate>
@@ -218,7 +233,7 @@
 
 #pragma mark - ADWebAuthDelegate
 
-- (void)webAuthDidStartLoad
+- (void)webAuthDidStartLoad:(NSURL*)url
 {
     if (!_loading)
     {
@@ -241,11 +256,14 @@
                                                    selector:@selector(failWithTimeout)
                                                    userInfo:nil
                                                     repeats:NO];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidStartLoadNotification object:self userInfo:url ? @{ @"url" : url } : nil];
 }
 
-- (void)webAuthDidFinishLoad
+- (void)webAuthDidFinishLoad:(NSURL*)url
 {
     [self stopSpinner];
+    [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFinishLoadNotification object:self userInfo:url ? @{ @"url" : url } : nil];
 }
 
 - (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest *)request
@@ -326,11 +344,19 @@
 {
     DebugLog();
     [self endWebAuthenticationWithError:nil orURL:endURL];
+    [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidCompleteNotification object:self userInfo:nil];
 }
 
 // Authentication failed somewhere
 - (void)webAuthDidFailWithError:(NSError *)error
 {
+    if (error)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFailNotification
+                                                            object:self
+                                                          userInfo:@{ @"error" : error}];
+    }
+    
     [self stopSpinner];
     if (_loadingTimer)
     {
@@ -364,6 +390,17 @@
     dispatch_async(dispatch_get_main_queue(), ^{ [self endWebAuthenticationWithError:adError orURL:nil]; });
 }
 
+#if TARGET_OS_IPHONE
+static ADAuthenticationResult* s_result = nil;
+
++ (ADAuthenticationResult*)responseFromInterruptedBrokerSession
+{
+    ADAuthenticationResult* result = s_result;
+    s_result = nil;
+    return result;
+}
+#endif // TARGET_OS_IPHONE
+
 @end
 
 #pragma mark - Private Methods
@@ -393,8 +430,6 @@
     return [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@",
                                  [url absoluteString], OAUTH2_CORRELATION_ID_REQUEST_VALUE, [correlationId UUIDString]]];
 }
-
-#pragma mark - Public Methods
 
 - (void)start:(NSURL *)startURL
           end:(NSURL *)endURL
@@ -448,5 +483,12 @@ correlationId:(NSUUID *)correlationId
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
     [_authenticationViewController startRequest:request];
 }
+
+#if TARGET_OS_IPHONE
++ (void)setInterruptedBrokerResult:(ADAuthenticationResult*)result
+{
+    s_result = result;
+}
+#endif // TARGET_OS_IPHONE
 
 @end

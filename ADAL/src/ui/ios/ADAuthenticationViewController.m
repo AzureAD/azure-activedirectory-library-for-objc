@@ -188,7 +188,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 {
 #pragma unused(webView)
     
-    [_delegate webAuthDidStartLoad];
+    [_delegate webAuthDidStartLoad:webView.request.URL];
 }
 
 - (void)stopSpinner
@@ -200,7 +200,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
-    [_delegate webAuthDidFinishLoad];
+    [_delegate webAuthDidFinishLoad:webView.request.URL];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error

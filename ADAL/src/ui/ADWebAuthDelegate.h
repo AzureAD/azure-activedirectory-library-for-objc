@@ -20,8 +20,8 @@
 
 @required
 - (void)webAuthDidCancel;
-- (void)webAuthDidStartLoad;
-- (void)webAuthDidFinishLoad;
+- (void)webAuthDidStartLoad:(NSURL*)url;
+- (void)webAuthDidFinishLoad:(NSURL*)url;
 - (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest*)request;
 - (void)webAuthDidCompleteWithURL:(NSURL *)endURL;
 - (void)webAuthDidFailWithError:(NSError *)error;

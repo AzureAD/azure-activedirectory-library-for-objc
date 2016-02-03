@@ -16,22 +16,24 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+#import "NSDictionary+ADExtensions.h"
+#import "NSString+ADHelperMethods.h"
+
 #import "ADAuthenticationContext+Internal.h"
+#import "ADAuthenticationRequest.h"
 #import "ADAuthenticationSettings.h"
+#import "ADBrokerHelper.h"
+#import "ADHelpers.h"
+#import "ADPkeyAuthHelper.h"
+#import "ADTokenCacheItem+Internal.h"
+#import "ADUserIdentifier.h"
+#import "ADUserInformation.h"
+#import "ADWebAuthController+Internal.h"
+
 #if TARGET_OS_IPHONE
 #import "ADBrokerKeyHelper.h"
 #import "ADBrokerNotificationManager.h"
 #endif // TARGET_OS_IPHONE
-#import "NSDictionary+ADExtensions.h"
-#import "NSString+ADHelperMethods.h"
-#import "ADPkeyAuthHelper.h"
-#import "ADHelpers.h"
-#import "ADUserIdentifier.h"
-#import "ADAuthenticationRequest.h"
-#import "ADBrokerHelper.h"
-#import "ADTokenCacheItem+Internal.h"
-#import "ADUserInformation.h"
-
 
 @implementation ADAuthenticationRequest (Broker)
 
@@ -60,12 +62,6 @@
 + (void)internalHandleBrokerResponse:(NSURL *)response
 {
     ADAuthenticationCallback completionBlock = [ADBrokerHelper copyAndClearCompletionBlock];
-    if (!completionBlock)
-    {
-        AD_LOG_ERROR(@"Received broker response without a completionBlock.", AD_FAILED, nil, nil);
-        return;
-    }
-    
     HANDLE_ARGUMENT(response);
     
     NSString *qp = [response query];
@@ -150,8 +146,23 @@
         [ADAuthenticationContext updateResult:result
                    toUser:[ADUserIdentifier identifierWithId:userId]];
     }
+    if (!completionBlock)
+    {
+        AD_LOG_ERROR(@"Received broker response without a completionBlock.", AD_FAILED, nil, nil);
+#if TARGET_OS_IPHONE
+        [ADWebAuthController setInterruptedBrokerResult:result];
+#endif // TARGET_OS_IPHONE
+    }
     
-    completionBlock(result);
+    [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidReceieveResponseFromBroker
+                                                        object:nil
+                                                      userInfo:@{ @"response" : result }];
+    
+    
+    if (completionBlock)
+    {
+        completionBlock(result);
+    }
 }
 
 - (BOOL)canUseBroker
