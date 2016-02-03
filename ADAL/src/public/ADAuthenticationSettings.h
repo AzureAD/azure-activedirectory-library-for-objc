@@ -37,10 +37,13 @@
  about to expire. */
 @property uint expirationBuffer;
 
-#if TARGET_OS_IPHONE
 /*! Used for the webView. Default is YES.*/
 @property BOOL enableFullScreen;
 
+/*! The dispatch queue to be used for the asynchronous calls. */
+@property (retain) dispatch_queue_t dispatchQueue;
+
+#if TARGET_OS_IPHONE
 /*! The name of the keychain group to be used if sharing of cache between applications
  is desired. Can be nil. The property sets the appropriate value of defaultTokenCacheStore
  object. See apple's documentation for keychain groups: such groups require certain
