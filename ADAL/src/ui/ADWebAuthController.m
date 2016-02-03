@@ -148,7 +148,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         void (^completionBlock)( ADAuthenticationError *, NSURL *) = _completionBlock;
         _completionBlock = nil;
         
-        dispatch_async( [ADAuthenticationSettings sharedInstance].dispatchQueue, ^{
+        dispatch_async( dispatch_get_main_queue(), ^{
             completionBlock( error, url );
         });
     }
