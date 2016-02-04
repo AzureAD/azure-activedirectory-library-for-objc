@@ -101,14 +101,6 @@
         ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:details];
         return [ADAuthenticationResult resultFromError:error];
     }
-    
-    //No access token and no error, we assume that there was another kind of error (connection, server down, etc.).
-    //Note that for security reasons we log only the keys, not the values returned by the user:
-    NSString* errorMessage = [NSString stringWithFormat:@"The server returned without providing an error. Keys returned: %@", [response allKeys]];
-    error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
-                                                   protocolCode:nil
-                                                   errorDetails:errorMessage];
-    return [ADAuthenticationResult resultFromError:error];
 }
 
 - (void)fillUserInformation:(NSString*)idToken

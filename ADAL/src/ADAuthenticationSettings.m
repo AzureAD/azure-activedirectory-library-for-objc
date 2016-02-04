@@ -23,6 +23,10 @@
 @synthesize requestTimeOut = _requestTimeOut;
 @synthesize expirationBuffer = _expirationBuffer;
 
+#if !TARGET_OS_IPHONE
+@synthesize defaultCacheDelegate = _defaultCacheDelegate;
+#endif // !TARGET_OS_IPHONE
+
 /*!
  An internal initializer used from the static creation function.
  */

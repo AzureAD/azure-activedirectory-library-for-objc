@@ -149,6 +149,8 @@ NSString *const HTTPPost = @"POST";
     request.allHTTPHeaderFields = _requestHeaders;
     request.HTTPBody            = _requestData;
     
+    NSDictionary* leak = [NSDictionary new];
+    
     _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
     [_connection setDelegateQueue:_operationQueue];
     [_connection start];

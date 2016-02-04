@@ -33,7 +33,7 @@
 @property (weak, nonatomic) IBOutlet UISegmentedControl *fullScreenSwitch;
 @end
 
-@implementation BVTestFlipsideViewController
+@implementation ADTestFlipsideViewController
 
 - (void) updateControlValues
 {

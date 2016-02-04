@@ -22,8 +22,6 @@
 
 @class ADUserIdentifier;
 
-typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
-
 #define AD_REQUEST_CHECK_ARGUMENT(_arg) { \
     if (!_arg || ([_arg isKindOfClass:[NSString class]] && [(NSString*)_arg isEqualToString:@""])) { \
         NSString* _details = @#_arg " must not be nil!"; \

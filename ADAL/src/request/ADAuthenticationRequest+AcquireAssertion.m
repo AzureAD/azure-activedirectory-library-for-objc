@@ -175,7 +175,7 @@
                  
                  if (broadItem)
                  {
-                     if (![broadItem multiResourceRefreshToken])
+                     if (![broadItem isMultiResourceRefreshToken])
                      {
                          AD_LOG_WARN(@"Unexpected", _correlationId, @"Multi-resource refresh token expected here.");
                          //Recover (avoid infinite recursion):

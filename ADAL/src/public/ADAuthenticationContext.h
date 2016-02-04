@@ -116,7 +116,7 @@ typedef enum
     BOOL _validateAuthority;
     ADCredentialsType _credentialsType;
     NSUUID* _correlationId;
-    WebViewType* _webView;
+    __weak WebViewType* _webView;
 }
 
 #if TARGET_OS_IPHONE
