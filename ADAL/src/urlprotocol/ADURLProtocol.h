@@ -33,6 +33,9 @@
 //Intercepts HTTPS protocol for the application in order to allow
 //NTLM with client-authentication. The class is not thread-safe.
 @interface ADURLProtocol : NSURLProtocol <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
+{
+    NSURLConnection *_connection;
+}
 
 + (void)registerHandler:(Class<ADAuthMethodHandler>)handler
              authMethod:(NSString*)authMethod;

@@ -47,6 +47,10 @@ typedef enum ADUserIdentifierType
 @class ADUserInformation;
 
 @interface ADUserIdentifier : NSObject
+{
+    NSString* _userId;
+    ADUserIdentifierType _type;
+}
 
 @property (readonly, retain) NSString* userId;
 @property (readonly) ADUserIdentifierType type;

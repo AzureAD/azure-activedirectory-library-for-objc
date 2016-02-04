@@ -20,6 +20,8 @@
 
 @implementation ADAuthenticationSettings
 
+@synthesize requestTimeOut = _requestTimeOut;
+@synthesize expirationBuffer = _expirationBuffer;
 
 /*!
  An internal initializer used from the static creation function.
@@ -32,8 +34,8 @@
         //Initialize the defaults here:
         self.requestTimeOut = 300;//in seconds.
         self.expirationBuffer = 300;//in seconds, ensures catching of clock differences between the server and the device
-        self.enableFullScreen = YES;
 #if TARGET_OS_IPHONE
+        self.enableFullScreen = YES;
         self.defaultKeychainGroup = @"com.microsoft.adalcache";
 #endif
     }

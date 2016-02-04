@@ -27,9 +27,6 @@ static NSMutableDictionary* s_handlers = nil;
 
 
 @implementation ADURLProtocol
-{
-    NSURLConnection *_connection;
-}
 
 + (void)registerHandler:(id)handler
              authMethod:(NSString*)authMethod

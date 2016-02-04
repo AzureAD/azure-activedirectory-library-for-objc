@@ -23,6 +23,24 @@ extern NSString *const HTTPGet;
 extern NSString *const HTTPPost;
 
 @interface ADWebRequest : NSObject <NSURLConnectionDelegate>
+{
+    NSURLConnection * _connection;
+    
+    NSData * _requestData;
+    
+    NSHTTPURLResponse * _response;
+    NSMutableData * _responseData;
+    NSUUID * _correlationId;
+    
+    NSURL * _requestURL;
+    NSMutableDictionary* _requestHeaders;
+    NSString* _requestMethod;
+    NSUInteger _timeout;
+    
+    NSOperationQueue * _operationQueue;
+    
+    void (^_completionHandler)( NSError *, ADWebResponse *);
+}
 
 @property (strong, readonly, nonatomic) NSURL               *URL;
 @property (strong)                      NSString            *method;

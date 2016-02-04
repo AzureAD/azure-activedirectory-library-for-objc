@@ -30,6 +30,9 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
 
 @implementation ADAuthenticationError
 
+@synthesize errorDetails = _errorDetails;
+@synthesize protocolCode = _protocolCode;
+
 -(id) init
 {
     //Should not be called.

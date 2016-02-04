@@ -52,9 +52,12 @@
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 @implementation ADAuthenticationContext
-{
-    id <ADTokenCacheAccessor> _tokenCacheStore;
-}
+
+@synthesize authority = _authority;
+@synthesize validateAuthority = _validateAuthority;
+@synthesize correlationId = _correlationId;
+@synthesize credentialsType = _credentialsType;
+@synthesize webView = _webView;
 
 - (id)init
 {

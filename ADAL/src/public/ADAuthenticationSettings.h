@@ -24,6 +24,13 @@
  should be used instead to provide the settings instance. The class is not thread-safe.
  */
 @interface ADAuthenticationSettings : NSObject
+{
+    int _requestTimeOut;
+    uint _expirationBuffer;
+#if !TARGET_OS_IPHONE
+    id<ADTokenCacheDelegate> _defaultCacheDelegate;
+#endif
+}
 
 /*! The static instance of the singleton settings class*/
 +(ADAuthenticationSettings*) sharedInstance;

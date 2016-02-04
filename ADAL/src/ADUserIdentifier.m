@@ -25,10 +25,6 @@
 #define DEFAULT_USER_TYPE RequiredDisplayableId
 
 @implementation ADUserIdentifier
-{
-    NSString* _userId;
-    ADUserIdentifierType _type;
-}
 
 @synthesize userId = _userId;
 @synthesize type = _type;

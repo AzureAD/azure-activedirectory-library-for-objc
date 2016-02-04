@@ -24,7 +24,7 @@
 #define DEFAULT_WINDOW_WIDTH 420
 #define DEFAULT_WINDOW_HEIGHT 650
 
-static CGRect _CenterRect(CGRect rect1, CGRect rect2)
+static NSRect _CenterRect(NSRect rect1, NSRect rect2)
 {
     CGFloat x = rect1.origin.x + ((rect1.size.width - rect2.size.width) / 2);
     CGFloat y = rect1.origin.y + ((rect1.size.height - rect2.size.height) / 2);
@@ -40,13 +40,13 @@ static CGRect _CenterRect(CGRect rect1, CGRect rect2)
 
 
 @interface ADAuthenticationViewController ( ) <WebResourceLoadDelegate, WebPolicyDelegate, WebFrameLoadDelegate, NSWindowDelegate>
-{
-    __weak NSProgressIndicator* _progressIndicator;
-}
 
 @end
 
 @implementation ADAuthenticationViewController
+
+@synthesize webView = _webView;
+@synthesize delegate = _delegate;
 
 - (void)loadView
 {

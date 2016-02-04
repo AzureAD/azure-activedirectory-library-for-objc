@@ -36,14 +36,20 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 
 @implementation ADUserInformation
 
--(id) init
+@synthesize userId = _userId;
+@synthesize rawIdToken = _rawIdToken;
+@synthesize userIdDisplayable = _userIdDisplayable;
+@synthesize uniqueId = _uniqueId;
+@synthesize allClaims = _allClaims;
+
+- (id)init
 {
     //Throws, as this init function should not be used
     [super doesNotRecognizeSelector:_cmd];
     return nil;
 }
 
-+(NSString*) normalizeUserId: (NSString*) userId
++ (NSString*)normalizeUserId: (NSString*) userId
 {
     if (!userId)
     {
@@ -54,7 +60,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     return normalized.length ? normalized : nil;
 }
 
--(id) initWithUserId: (NSString*) userId
+- (id)initWithUserId: (NSString*) userId
 {
     THROW_ON_NIL_EMPTY_ARGUMENT(userId);//Shouldn't be called with nil.
     self = [super init];
@@ -259,7 +265,7 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
 }
 
 //Serialize:
--(void) encodeWithCoder:(NSCoder *)aCoder
+- (void)encodeWithCoder:(NSCoder *)aCoder
 {
     [aCoder encodeObject:self.userId forKey:@"userId"];
     [aCoder encodeBool:self.userIdDisplayable forKey:@"userIdDisplayable"];
@@ -268,7 +274,7 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
 }
 
 //Deserialize:
--(id) initWithCoder:(NSCoder *) aDecoder
+- (id)initWithCoder:(NSCoder *) aDecoder
 {
     NSString* storedUserId      = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userId"];
     if ([NSString adIsStringNilOrBlank:storedUserId])

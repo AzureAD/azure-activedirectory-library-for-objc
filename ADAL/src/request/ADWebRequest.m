@@ -38,19 +38,6 @@ NSString *const HTTPPost = @"POST";
 @end
 
 @implementation ADWebRequest
-{
-    NSURLConnection     *_connection;
-    
-    NSData              *_requestData;
-    
-    NSHTTPURLResponse   *_response;
-    NSMutableData       *_responseData;
-    NSUUID              *_correlationId;
-    
-    NSOperationQueue    *_operationQueue;
-    
-    void (^_completionHandler)( NSError *, ADWebResponse *);
-}
 
 #pragma mark - Properties
 

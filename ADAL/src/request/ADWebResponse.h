@@ -17,13 +17,19 @@
 // governing permissions and limitations under the License.
 
 @interface ADWebResponse : NSObject
+{
+    NSHTTPURLResponse *_response;
+    NSData            *_body;
+    NSString          *_bodyText;
+}
 
-@property (strong, readonly) NSDictionary * headers;
 @property (strong, readonly) NSData * body;
-@property (readonly) NSInteger statusCode;
 
 - (id)initWithResponse:(NSHTTPURLResponse *)response data:(NSData *)data;
 
 - (NSURL*)URL;
+- (NSInteger)statusCode;
+- (NSDictionary *)headers;
+
 
 @end

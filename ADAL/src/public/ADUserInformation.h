@@ -20,6 +20,13 @@
 @class ADAuthenticationError;
 /*! Contains the details about a user that had authorized resource usage*/
 @interface ADUserInformation : NSObject<NSCopying, NSSecureCoding>
+{
+    NSString* _userId;
+    BOOL _userIdDisplayable;
+    NSString* _uniqueId;
+    NSString* _rawIdToken;
+    NSDictionary* _allClaims;
+}
 
 /*! Factory method. The default initializer will throw unrecognized selector
  exception. Please use this one instead */

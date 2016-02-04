@@ -24,9 +24,10 @@
 #import "NSString+ADHelperMethods.h"
 
 @implementation ADTokenCacheKey
-{
-    NSUInteger _hash;
-}
+
+@synthesize authority = _authority;
+@synthesize resource = _resource;
+@synthesize clientId = _clientId;
 
 - (id)init
 {

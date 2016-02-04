@@ -231,6 +231,51 @@
 		94E0FD921C597A4700CD707B /* ADWorkPlaceJoin.m in Sources */ = {isa = PBXBuildFile; fileRef = 94E0FD911C597A4700CD707B /* ADWorkPlaceJoin.m */; };
 		97A522491A1A752D001D77CE /* ADClientMetrics.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A522481A1A752D001D77CE /* ADClientMetrics.m */; };
 		97A522501A1A8999001D77CE /* ADClientMetricsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */; };
+		D620DDB61C62C038003F062C /* ADAL_Mac_32bit.h in Headers */ = {isa = PBXBuildFile; fileRef = D620DDB51C62C038003F062C /* ADAL_Mac_32bit.h */; };
+		D620DDB81C62C038003F062C /* ADAL_Mac_32bit.m in Sources */ = {isa = PBXBuildFile; fileRef = D620DDB71C62C038003F062C /* ADAL_Mac_32bit.m */; };
+		D620DDC01C62C285003F062C /* ADAuthenticationContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8345B18074A58007F9F0D /* ADAuthenticationContext.m */; };
+		D620DDC11C62C285003F062C /* ADAuthenticationContext+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E43A691B04026D000F5BE2 /* ADAuthenticationContext+Internal.m */; };
+		D620DDC21C62C285003F062C /* ADAuthenticationError.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B5989501811A3DB00744AEE /* ADAuthenticationError.m */; };
+		D620DDC31C62C285003F062C /* ADAuthenticationParameters+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BD14618182189C800796E79 /* ADAuthenticationParameters+Internal.m */; };
+		D620DDC41C62C285003F062C /* ADAuthenticationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8346118074CFA007F9F0D /* ADAuthenticationParameters.m */; };
+		D620DDC51C62C285003F062C /* ADAuthenticationResult+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B0DA7DD182AD01100CF5E1E /* ADAuthenticationResult+Internal.m */; };
+		D620DDC61C62C285003F062C /* ADAuthenticationResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8345E18074B74007F9F0D /* ADAuthenticationResult.m */; };
+		D620DDC71C62C285003F062C /* ADAuthenticationSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB83464180764B6007F9F0D /* ADAuthenticationSettings.m */; };
+		D620DDC81C62C285003F062C /* ADInstanceDiscovery.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B611400186E517D007759C2 /* ADInstanceDiscovery.m */; };
+		D620DDC91C62C285003F062C /* ADLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B92DB6F181B2335004AAB0E /* ADLogger.m */; };
+		D620DDCA1C62C285003F062C /* ADOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B7E6FC71856A1E8000DC3C8 /* ADOAuth2Constants.m */; };
+		D620DDCB1C62C285003F062C /* ADUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B59893D180DE8A100744AEE /* ADUserInformation.m */; };
+		D620DDCC1C62C285003F062C /* ADClientMetrics.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A522481A1A752D001D77CE /* ADClientMetrics.m */; };
+		D620DDCD1C62C285003F062C /* ADUserIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */; };
+		D620DDCE1C62C293003F062C /* ADAuthenticationContext+TokenCaching.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3541C580123006B9E79 /* ADAuthenticationContext+TokenCaching.m */; };
+		D620DDCF1C62C293003F062C /* ADTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3371C57FC2A006B9E79 /* ADTokenCache.m */; };
+		D620DDD01C62C293003F062C /* ADTokenCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C33B1C57FC2A006B9E79 /* ADTokenCacheItem.m */; };
+		D620DDD11C62C293003F062C /* ADTokenCacheItem+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C33D1C57FC2A006B9E79 /* ADTokenCacheItem+Internal.m */; };
+		D620DDD21C62C293003F062C /* ADTokenCacheKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C33F1C57FC2A006B9E79 /* ADTokenCacheKey.m */; };
+		D620DDD31C62C2B0003F062C /* ADBrokerHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C4731C5874FB006B9E79 /* ADBrokerHelper.m */; };
+		D620DDD41C62C2BF003F062C /* ADAuthenticationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3811C5820E3006B9E79 /* ADAuthenticationRequest.m */; };
+		D620DDD51C62C2BF003F062C /* ADAuthenticationRequest+AcquireAssertion.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3831C5820E3006B9E79 /* ADAuthenticationRequest+AcquireAssertion.m */; };
+		D620DDD61C62C2BF003F062C /* ADAuthenticationRequest+AcquireToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3851C5820E3006B9E79 /* ADAuthenticationRequest+AcquireToken.m */; };
+		D620DDD71C62C2BF003F062C /* ADAuthenticationRequest+Broker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3871C5820E3006B9E79 /* ADAuthenticationRequest+Broker.m */; };
+		D620DDD81C62C2BF003F062C /* ADAuthenticationRequest+WebRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3891C5820E3006B9E79 /* ADAuthenticationRequest+WebRequest.m */; };
+		D620DDD91C62C2BF003F062C /* ADWebRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C38B1C5820E3006B9E79 /* ADWebRequest.m */; };
+		D620DDDA1C62C2BF003F062C /* ADWebResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C38D1C5820E3006B9E79 /* ADWebResponse.m */; };
+		D620DDDB1C62C2CB003F062C /* ADWebAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 946818A41C59B7EE00CA0378 /* ADWebAuthController.m */; };
+		D620DDDC1C62C2D3003F062C /* ADAuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 94DD18C91C5A00BC00F80C62 /* ADAuthenticationViewController.m */; };
+		D620DDDD1C62C2D3003F062C /* ADCredentialCollectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C4621C58707B006B9E79 /* ADCredentialCollectionController.m */; };
+		D620DDDE1C62C2D3003F062C /* ADNTLMUIPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C4631C58707B006B9E79 /* ADNTLMUIPrompt.m */; };
+		D620DDDF1C62C2E6003F062C /* ADCustomHeaderHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3971C5826F2006B9E79 /* ADCustomHeaderHandler.m */; };
+		D620DDE01C62C2E6003F062C /* ADNTLMHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3991C5826F2006B9E79 /* ADNTLMHandler.m */; };
+		D620DDE11C62C2E6003F062C /* ADURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C39B1C5826F2006B9E79 /* ADURLProtocol.m */; };
+		D620DDE21C62C2E9003F062C /* ADALFrameworkUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C35F1C580157006B9E79 /* ADALFrameworkUtils.m */; };
+		D620DDE31C62C2E9003F062C /* ADHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3611C580157006B9E79 /* ADHelpers.m */; };
+		D620DDE41C62C2E9003F062C /* NSDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3651C580157006B9E79 /* NSDictionary+ADExtensions.m */; };
+		D620DDE51C62C2E9003F062C /* NSString+ADHelperMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3671C580157006B9E79 /* NSString+ADHelperMethods.m */; };
+		D620DDE61C62C2E9003F062C /* NSURL+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3691C580157006B9E79 /* NSURL+ADExtensions.m */; };
+		D620DDE71C62C2E9003F062C /* NSUUID+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C36B1C580157006B9E79 /* NSUUID+ADExtensions.m */; };
+		D620DDE81C62C2ED003F062C /* ADJwtHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C46C1C5872AD006B9E79 /* ADJwtHelper.m */; };
+		D620DDE91C62C2ED003F062C /* ADPkeyAuthHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3491C5800E1006B9E79 /* ADPkeyAuthHelper.m */; };
+		D620DDEA1C62C2EF003F062C /* ADWorkPlaceJoin.m in Sources */ = {isa = PBXBuildFile; fileRef = 94E0FD911C597A4700CD707B /* ADWorkPlaceJoin.m */; };
 		D6E43A6A1B04026D000F5BE2 /* ADAuthenticationContext+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E43A691B04026D000F5BE2 /* ADAuthenticationContext+Internal.m */; };
 		D6FB3E3C1B30D3630032F883 /* ADUserIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */; };
 /* End PBXBuildFile section */
@@ -270,6 +315,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 9453C3FC1C586425006B9E79;
 			remoteInfo = "ADAL Mac";
+		};
+		D620DDBD1C62C061003F062C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D620DDB21C62C038003F062C;
+			remoteInfo = "ADAL Mac-32bit";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -455,6 +507,9 @@
 		97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetricsTests.m; sourceTree = "<group>"; };
 		97A522511A1A89C4001D77CE /* ADClientMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADClientMetrics.h; sourceTree = "<group>"; };
 		97EEE7B41A4C0D6000D003F8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		D620DDB31C62C038003F062C /* libADAL32bit.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libADAL32bit.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		D620DDB51C62C038003F062C /* ADAL_Mac_32bit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAL_Mac_32bit.h; sourceTree = "<group>"; };
+		D620DDB71C62C038003F062C /* ADAL_Mac_32bit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADAL_Mac_32bit.m; sourceTree = "<group>"; };
 		D6E43A681B04026D000F5BE2 /* ADAuthenticationContext+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationContext+Internal.h"; sourceTree = "<group>"; };
 		D6E43A691B04026D000F5BE2 /* ADAuthenticationContext+Internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADAuthenticationContext+Internal.m"; sourceTree = "<group>"; };
 		D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADUserIdentifier.m; sourceTree = "<group>"; };
@@ -511,6 +566,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D620DDB01C62C038003F062C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -521,6 +583,7 @@
 				8B0965C317F25770002BDFB8 /* tests */,
 				9453C3151C57EE57006B9E79 /* resouces */,
 				94DD18E21C5ACFBF00F80C62 /* ADAL Mac Tests */,
+				D620DDB41C62C038003F062C /* ADAL Mac-32bit */,
 				8B0965AC17F25770002BDFB8 /* Frameworks */,
 				8B0965AB17F25770002BDFB8 /* Products */,
 			);
@@ -535,6 +598,7 @@
 				9453C3CC1C583E07006B9E79 /* ADAL.framework */,
 				9453C3FD1C586425006B9E79 /* ADAL.framework */,
 				94DD18E11C5ACFBF00F80C62 /* ADAL Mac Tests.xctest */,
+				D620DDB31C62C038003F062C /* libADAL32bit.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -920,6 +984,15 @@
 			path = mac;
 			sourceTree = "<group>";
 		};
+		D620DDB41C62C038003F062C /* ADAL Mac-32bit */ = {
+			isa = PBXGroup;
+			children = (
+				D620DDB51C62C038003F062C /* ADAL_Mac_32bit.h */,
+				D620DDB71C62C038003F062C /* ADAL_Mac_32bit.m */,
+			);
+			path = "ADAL Mac-32bit";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -994,6 +1067,14 @@
 				9453C4061C586456006B9E79 /* ADAL_Internal.h in Headers */,
 				9453C4441C58647E006B9E79 /* NSString+ADHelperMethods.h in Headers */,
 				9453C4361C586476006B9E79 /* ADCustomHeaderHandler.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D620DDB11C62C038003F062C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D620DDB61C62C038003F062C /* ADAL_Mac_32bit.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1079,10 +1160,12 @@
 				9453C3F91C586425006B9E79 /* Frameworks */,
 				9453C3FA1C586425006B9E79 /* Headers */,
 				9453C3FB1C586425006B9E79 /* Resources */,
+				D620DDBF1C62C088003F062C /* lipo 32-bit binary to make a universal framework */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D620DDBE1C62C061003F062C /* PBXTargetDependency */,
 			);
 			name = "ADAL Mac";
 			productName = "ADAL Mac";
@@ -1107,6 +1190,23 @@
 			productReference = 94DD18E11C5ACFBF00F80C62 /* ADAL Mac Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		D620DDB21C62C038003F062C /* ADAL Mac-32bit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D620DDB91C62C038003F062C /* Build configuration list for PBXNativeTarget "ADAL Mac-32bit" */;
+			buildPhases = (
+				D620DDAF1C62C038003F062C /* Sources */,
+				D620DDB01C62C038003F062C /* Frameworks */,
+				D620DDB11C62C038003F062C /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ADAL Mac-32bit";
+			productName = "ADAL Mac-32bit";
+			productReference = D620DDB31C62C038003F062C /* libADAL32bit.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1128,6 +1228,9 @@
 					94DD18E01C5ACFBF00F80C62 = {
 						CreatedOnToolsVersion = 7.2;
 					};
+					D620DDB21C62C038003F062C = {
+						CreatedOnToolsVersion = 7.2;
+					};
 				};
 			};
 			buildConfigurationList = 8B0965A517F25770002BDFB8 /* Build configuration list for PBXProject "ADAL" */;
@@ -1146,6 +1249,7 @@
 				9453C3CB1C583E07006B9E79 /* ADAL */,
 				8B0965B917F25770002BDFB8 /* ADALiOSTests */,
 				8BFEF05B182DA57800122C0C /* ADALiOSBundle */,
+				D620DDB21C62C038003F062C /* ADAL Mac-32bit */,
 				9453C3FC1C586425006B9E79 /* ADAL Mac */,
 				94DD18E01C5ACFBF00F80C62 /* ADAL Mac Tests */,
 				9453C4571C5866D0006B9E79 /* Build All */,
@@ -1192,6 +1296,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		D620DDBF1C62C088003F062C /* lipo 32-bit binary to make a universal framework */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "lipo 32-bit binary to make a universal framework";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "lipo -output $TARGET_BUILD_DIR/$PRODUCT_NAME.framework/$PRODUCT_NAME -replace i386 $TARGET_BUILD_DIR/libADAL32bit.dylib";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8B0965A617F25770002BDFB8 /* Sources */ = {
@@ -1364,6 +1485,57 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D620DDAF1C62C038003F062C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D620DDE81C62C2ED003F062C /* ADJwtHelper.m in Sources */,
+				D620DDD71C62C2BF003F062C /* ADAuthenticationRequest+Broker.m in Sources */,
+				D620DDE41C62C2E9003F062C /* NSDictionary+ADExtensions.m in Sources */,
+				D620DDD01C62C293003F062C /* ADTokenCacheItem.m in Sources */,
+				D620DDDB1C62C2CB003F062C /* ADWebAuthController.m in Sources */,
+				D620DDC01C62C285003F062C /* ADAuthenticationContext.m in Sources */,
+				D620DDCD1C62C285003F062C /* ADUserIdentifier.m in Sources */,
+				D620DDDD1C62C2D3003F062C /* ADCredentialCollectionController.m in Sources */,
+				D620DDD11C62C293003F062C /* ADTokenCacheItem+Internal.m in Sources */,
+				D620DDEA1C62C2EF003F062C /* ADWorkPlaceJoin.m in Sources */,
+				D620DDE51C62C2E9003F062C /* NSString+ADHelperMethods.m in Sources */,
+				D620DDD81C62C2BF003F062C /* ADAuthenticationRequest+WebRequest.m in Sources */,
+				D620DDC21C62C285003F062C /* ADAuthenticationError.m in Sources */,
+				D620DDD51C62C2BF003F062C /* ADAuthenticationRequest+AcquireAssertion.m in Sources */,
+				D620DDDA1C62C2BF003F062C /* ADWebResponse.m in Sources */,
+				D620DDE11C62C2E6003F062C /* ADURLProtocol.m in Sources */,
+				D620DDE21C62C2E9003F062C /* ADALFrameworkUtils.m in Sources */,
+				D620DDDE1C62C2D3003F062C /* ADNTLMUIPrompt.m in Sources */,
+				D620DDC71C62C285003F062C /* ADAuthenticationSettings.m in Sources */,
+				D620DDCE1C62C293003F062C /* ADAuthenticationContext+TokenCaching.m in Sources */,
+				D620DDD31C62C2B0003F062C /* ADBrokerHelper.m in Sources */,
+				D620DDC41C62C285003F062C /* ADAuthenticationParameters.m in Sources */,
+				D620DDCF1C62C293003F062C /* ADTokenCache.m in Sources */,
+				D620DDC91C62C285003F062C /* ADLogger.m in Sources */,
+				D620DDCC1C62C285003F062C /* ADClientMetrics.m in Sources */,
+				D620DDE91C62C2ED003F062C /* ADPkeyAuthHelper.m in Sources */,
+				D620DDD41C62C2BF003F062C /* ADAuthenticationRequest.m in Sources */,
+				D620DDE01C62C2E6003F062C /* ADNTLMHandler.m in Sources */,
+				D620DDD21C62C293003F062C /* ADTokenCacheKey.m in Sources */,
+				D620DDC81C62C285003F062C /* ADInstanceDiscovery.m in Sources */,
+				D620DDE61C62C2E9003F062C /* NSURL+ADExtensions.m in Sources */,
+				D620DDDC1C62C2D3003F062C /* ADAuthenticationViewController.m in Sources */,
+				D620DDE31C62C2E9003F062C /* ADHelpers.m in Sources */,
+				D620DDD91C62C2BF003F062C /* ADWebRequest.m in Sources */,
+				D620DDE71C62C2E9003F062C /* NSUUID+ADExtensions.m in Sources */,
+				D620DDC51C62C285003F062C /* ADAuthenticationResult+Internal.m in Sources */,
+				D620DDCB1C62C285003F062C /* ADUserInformation.m in Sources */,
+				D620DDDF1C62C2E6003F062C /* ADCustomHeaderHandler.m in Sources */,
+				D620DDCA1C62C285003F062C /* ADOAuth2Constants.m in Sources */,
+				D620DDB81C62C038003F062C /* ADAL_Mac_32bit.m in Sources */,
+				D620DDC11C62C285003F062C /* ADAuthenticationContext+Internal.m in Sources */,
+				D620DDD61C62C2BF003F062C /* ADAuthenticationRequest+AcquireToken.m in Sources */,
+				D620DDC31C62C285003F062C /* ADAuthenticationParameters+Internal.m in Sources */,
+				D620DDC61C62C285003F062C /* ADAuthenticationResult.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1391,6 +1563,11 @@
 			isa = PBXTargetDependency;
 			target = 9453C3FC1C586425006B9E79 /* ADAL Mac */;
 			targetProxy = 94DD18E71C5ACFBF00F80C62 /* PBXContainerItemProxy */;
+		};
+		D620DDBE1C62C061003F062C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D620DDB21C62C038003F062C /* ADAL Mac-32bit */;
+			targetProxy = D620DDBD1C62C061003F062C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1423,7 +1600,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -1466,7 +1643,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -1488,6 +1665,7 @@
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				ONLY_ACTIVE_ARCH = YES;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -1610,7 +1788,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -1889,6 +2067,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MODULEMAP_FILE = resources/mac/adal_mac.modulemap;
 				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL-Mac";
 				PRODUCT_NAME = ADAL;
 				SDKROOT = macosx;
@@ -1922,6 +2101,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MODULEMAP_FILE = resources/mac/adal_mac.modulemap;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL-Mac";
 				PRODUCT_NAME = ADAL;
 				SDKROOT = macosx;
@@ -1955,6 +2135,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MODULEMAP_FILE = resources/mac/adal_mac.modulemap;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL-Mac";
 				PRODUCT_NAME = ADAL;
 				SDKROOT = macosx;
@@ -2045,6 +2226,72 @@
 			};
 			name = Release;
 		};
+		D620DDBA1C62C038003F062C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = src/ADAL.pch;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = ADAL32bit;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		D620DDBB1C62C038003F062C /* CodeCoverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = src/ADAL.pch;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = ADAL32bit;
+				SDKROOT = macosx;
+			};
+			name = CodeCoverage;
+		};
+		D620DDBC1C62C038003F062C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = src/ADAL.pch;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = ADAL32bit;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2124,6 +2371,16 @@
 				94DD18EA1C5ACFBF00F80C62 /* Debug */,
 				94DD18EB1C5ACFBF00F80C62 /* CodeCoverage */,
 				94DD18EC1C5ACFBF00F80C62 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D620DDB91C62C038003F062C /* Build configuration list for PBXNativeTarget "ADAL Mac-32bit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D620DDBA1C62C038003F062C /* Debug */,
+				D620DDBB1C62C038003F062C /* CodeCoverage */,
+				D620DDBC1C62C038003F062C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 		};

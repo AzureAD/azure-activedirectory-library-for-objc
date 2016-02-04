@@ -19,11 +19,6 @@
 #import "ADWebResponse.h"
 
 @implementation ADWebResponse
-{
-    NSHTTPURLResponse *_response;
-    NSData            *_body;
-    NSString          *_bodyText;
-}
 
 @synthesize body = _body;
 

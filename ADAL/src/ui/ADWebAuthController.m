@@ -56,24 +56,6 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 // Implementation
 @implementation ADWebAuthController
-{
-    ADAuthenticationViewController * _authenticationViewController;
-    
-    NSLock * _completionLock;
-    NSString * _endURL;
-    
-    BOOL _loading;
-    // Used for managing the activity spinner
-    NSTimer* _spinnerTimer;
-    
-    // Used for timing out if it's taking too long to load
-    float _timeout;
-    NSTimer * _loadingTimer;
-    
-    BOOL _complete;
-    
-    void (^_completionBlock)( ADAuthenticationError *, NSURL *);
-}
 
 #pragma mark Shared Instance Methods
 

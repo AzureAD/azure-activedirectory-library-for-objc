@@ -27,7 +27,6 @@
 static ADAL_LOG_LEVEL s_LogLevel = ADAL_LOG_LEVEL_ERROR;
 static LogCallback s_LogCallback = nil;
 static BOOL s_NSLogging = YES;
-static NSUUID* s_requestCorrelationId;
 
 static NSMutableDictionary* s_adalId = nil;
 

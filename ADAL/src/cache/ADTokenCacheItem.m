@@ -24,15 +24,13 @@
 #import "ADTokenCacheKey.h"
 
 @implementation ADTokenCacheItem
-{
-    NSUInteger _hash;
-    NSString* _resource;
-    NSString* _authority;
-    NSString* _clientId;
-    ADUserInformation* _userInformation;
-}
 
-@synthesize multiResourceRefreshToken;
+@synthesize accessToken = _accessToken;
+@synthesize accessTokenType = _accessTokenType;
+@synthesize expiresOn = _expiresOn;
+@synthesize refreshToken = _refreshToken;
+@synthesize sessionKey = _sessionKey;
+@synthesize userInformation = _userInformation;
 
 - (NSUInteger)hash
 {
