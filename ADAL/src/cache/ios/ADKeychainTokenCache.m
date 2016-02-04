@@ -437,13 +437,12 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         NSMutableDictionary* query = [self queryDictionaryForKey:nil userId:nil additional:nil];
         OSStatus status = SecItemDelete((CFDictionaryRef)query);
         [ADKeychainTokenCache checkStatus:status details:@"Failed to remove all" error:error];
-        
-        NSArray* items = [self allItems:nil];
-        if ([items count])
-        {
-            NSLog(@"!!!!!!!!!!!!!!!!!!!! %lu items remaining...", (unsigned long)items.count);
-        }
     }
+}
+
+- (NSDictionary *)defaultKeychainQuery
+{
+    return _default;
 }
 
 @end

@@ -37,4 +37,6 @@
     in production code */
 - (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error;
 
+- (NSDictionary*)defaultKeychainQuery;
+
 @end
