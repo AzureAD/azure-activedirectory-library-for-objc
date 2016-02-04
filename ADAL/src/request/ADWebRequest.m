@@ -91,6 +91,13 @@ NSString *const HTTPPost = @"POST";
     return self;
 }
 
+
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_requestURL);
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 // Cleans up and then calls the completion handler
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response
 {
@@ -148,8 +155,6 @@ NSString *const HTTPPost = @"POST";
     request.HTTPMethod          = _requestMethod;
     request.allHTTPHeaderFields = _requestHeaders;
     request.HTTPBody            = _requestData;
-    
-    NSDictionary* leak = [NSDictionary new];
     
     _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
     [_connection setDelegateQueue:_operationQueue];

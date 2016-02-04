@@ -56,8 +56,17 @@
 
 @implementation ADTokenCache
 
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_cache);
+    SAFE_ARC_RELEASE(_delegate);
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 - (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate
 {
+    SAFE_ARC_RELEASE(_delegate);
     _delegate = delegate;
     _cache = nil;
     
@@ -189,6 +198,7 @@
         item = [item copy];
         
         [items addObject:item];
+        SAFE_ARC_RELEASE(item);
     }
 }
 
@@ -251,13 +261,14 @@
         return nil;
     }
     
-    NSMutableArray* items = [NSMutableArray new];
     NSDictionary* tokens = [_cache objectForKey:@"tokens"];
     if (!tokens)
     {
         return nil;
     }
     
+    NSMutableArray* items = [NSMutableArray new];
+    SAFE_ARC_AUTORELEASE(items);
     
     NSDictionary* idtokens = [_cache objectForKey:@"idtokens"];
     if (userId)

@@ -44,102 +44,119 @@
 
 //Multi-resource refresh tokens are stored separately, as they apply to all resources. As such,
 //we create a special, "broad" cache item, with nil resource and access token:
--(BOOL) isMultiResourceRefreshToken
+- (BOOL)isMultiResourceRefreshToken
 {
-    return [NSString adIsStringNilOrBlank:self.resource]
-        && [NSString adIsStringNilOrBlank:self.accessToken]
-       && ![NSString adIsStringNilOrBlank:self.refreshToken];
+    return [NSString adIsStringNilOrBlank:_resource]
+        && [NSString adIsStringNilOrBlank:_accessToken]
+       && ![NSString adIsStringNilOrBlank:_refreshToken];
 }
 
--(id) copyWithZone:(NSZone*) zone
+- (id)copyWithZone:(NSZone*) zone
 {
-    ADTokenCacheItem* item = [[self.class allocWithZone:zone] init];
+    ADTokenCacheItem* item = [[ADTokenCacheItem allocWithZone:zone] init];
     
-    item.resource = [self.resource copyWithZone:zone];
-    item.authority = [self.authority copyWithZone:zone];
-    item.clientId = [self.clientId copyWithZone:zone];
-    item.accessToken = [self.accessToken copyWithZone:zone];
-    item.accessTokenType = [self.accessTokenType copyWithZone:zone];
-    item.refreshToken = [self.refreshToken copyWithZone:zone];
-    item.expiresOn = [self.expiresOn copyWithZone:zone];
-    item.userInformation = [self.userInformation copyWithZone:zone];
-    item.sessionKey = [self.sessionKey copyWithZone:zone];
+    item->_resource = [_resource copyWithZone:zone];
+    item->_authority = [_authority copyWithZone:zone];
+    item->_clientId = [_clientId copyWithZone:zone];
+    item->_accessToken = [_accessToken copyWithZone:zone];
+    item->_accessTokenType = [_accessTokenType copyWithZone:zone];
+    item->_refreshToken = [_refreshToken copyWithZone:zone];
+    item->_expiresOn = [_expiresOn copyWithZone:zone];
+    item->_userInformation = [_userInformation copyWithZone:zone];
+    item->_sessionKey = [_sessionKey copyWithZone:zone];
     
     return item;
 }
 
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_resource);
+    SAFE_ARC_RELEASE(_authority);
+    SAFE_ARC_RELEASE(_clientId);
+    SAFE_ARC_RELEASE(_accessToken);
+    SAFE_ARC_RELEASE(_accessTokenType);
+    SAFE_ARC_RELEASE(_refreshToken);
+    SAFE_ARC_RELEASE(_expiresOn);
+    SAFE_ARC_RELEASE(_userInformation);
+    SAFE_ARC_RELEASE(_sessionKey);
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 - (ADTokenCacheKey*)extractKey:(ADAuthenticationError* __autoreleasing *)error
 {
-    return [ADTokenCacheKey keyWithAuthority:self.authority
-                                         resource:self.resource
-                                         clientId:self.clientId
+    return [ADTokenCacheKey keyWithAuthority:_authority
+                                         resource:_resource
+                                         clientId:_clientId
                                             error:error];
 }
 
--(BOOL) isExpired
+- (BOOL)isExpired
 {
-    if (nil == self.expiresOn)
+    if (nil == _expiresOn)
     {
         return NO;//Assume opportunistically that it is not, as the expiration time is uknown.
     }
     //Check if it there is less than "expirationBuffer" time to the expiration:
     uint expirationBuffer = [[ADAuthenticationSettings sharedInstance] expirationBuffer];
-    return [self.expiresOn compare:[NSDate dateWithTimeIntervalSinceNow:expirationBuffer]] == NSOrderedAscending;
+    return [_expiresOn compare:[NSDate dateWithTimeIntervalSinceNow:expirationBuffer]] == NSOrderedAscending;
 }
 
--(BOOL) isEmptyUser
+- (BOOL)isEmptyUser
 {
     //The userInformation object cannot be constructed with empty or blank string,
     //so its presence guarantees that the user is not empty:
-    return !self.userInformation;
+    return !_userInformation;
 }
 
 /*! Verifies if the user (as defined by userId) is the same between the two items. */
--(BOOL) isSameUser: (ADTokenCacheItem*) other
+- (BOOL)isSameUser:(ADTokenCacheItem*) other
 {
     THROW_ON_NIL_ARGUMENT(other);
     
     if ([self isEmptyUser])
         return [other isEmptyUser];
-    return (nil != other.userInformation && [self.userInformation.userId isEqualToString:other.userInformation.userId]);
+    return (nil != other.userInformation && [_userInformation.userId isEqualToString:other.userInformation.userId]);
 }
 
-+(BOOL) supportsSecureCoding
++ (BOOL)supportsSecureCoding
 {
     return YES;
 }
 
 //Serializer:
--(void) encodeWithCoder:(NSCoder *)aCoder
+- (void)encodeWithCoder:(NSCoder *)aCoder
 {
-    [aCoder encodeObject:self.resource forKey:@"resource"];
-    [aCoder encodeObject:self.authority forKey:@"authority"];
-    [aCoder encodeObject:self.clientId forKey:@"clientId"];
-    [aCoder encodeObject:self.accessToken forKey:@"accessToken"];
-    [aCoder encodeObject:self.accessTokenType forKey:@"accessTokenType"];
-    [aCoder encodeObject:self.refreshToken forKey:@"refreshToken"];
-    [aCoder encodeObject:self.sessionKey forKey:@"sessionKey"];
-    [aCoder encodeObject:self.expiresOn forKey:@"expiresOn"];
-    [aCoder encodeObject:self.userInformation forKey:@"userInformation"];
+    [aCoder encodeObject:_resource forKey:@"resource"];
+    [aCoder encodeObject:_authority forKey:@"authority"];
+    [aCoder encodeObject:_clientId forKey:@"clientId"];
+    [aCoder encodeObject:_accessToken forKey:@"accessToken"];
+    [aCoder encodeObject:_accessTokenType forKey:@"accessTokenType"];
+    [aCoder encodeObject:_refreshToken forKey:@"refreshToken"];
+    [aCoder encodeObject:_sessionKey forKey:@"sessionKey"];
+    [aCoder encodeObject:_expiresOn forKey:@"expiresOn"];
+    [aCoder encodeObject:_userInformation forKey:@"userInformation"];
 }
 
 //Deserializer:
--(id) initWithCoder:(NSCoder *)aDecoder
+- (id)initWithCoder:(NSCoder *)aDecoder
 {
-    self = [super init];
-    if (self)
+    if (!(self = [super init]))
     {
-        self.resource = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"resource"];
-        self.authority = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"authority"];
-        self.clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
-        self.accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
-        self.accessTokenType = [aDecoder decodeObjectOfClass:[NSString class]
-                                                      forKey:@"accessTokenType"];
-        self.sessionKey = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"sessionKey"];
-        self.refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
-        self.expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
-        self.userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
+        return nil;
     }
+    
+    _resource = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"resource"];
+    _authority = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"authority"];
+    _clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
+    _accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
+    _accessTokenType = [aDecoder decodeObjectOfClass:[NSString class]
+                                                  forKey:@"accessTokenType"];
+    _sessionKey = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"sessionKey"];
+    _refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
+    _expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
+    _userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
+    
     return self;
 }
 
@@ -153,17 +170,17 @@
     
     ADTokenCacheItem* item = (ADTokenCacheItem*)object;
     
-    if (self.resource && (!item.resource || ![self.resource isEqualToString:item.resource]))
+    if (_resource && (!item.resource || ![_resource isEqualToString:item.resource]))
     {
         return NO;
     }
     
-    if (![self.authority isEqualToString:item.authority])
+    if (![_authority isEqualToString:item.authority])
     {
         return NO;
     }
     
-    if (![self.clientId isEqualToString:item.clientId])
+    if (![_clientId isEqualToString:item.clientId])
     {
         return NO;
     }

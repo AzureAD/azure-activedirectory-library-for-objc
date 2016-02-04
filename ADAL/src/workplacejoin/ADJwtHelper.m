@@ -31,7 +31,11 @@
                               payload:(NSDictionary *)payload
                            signingKey:(SecKeyRef)signingKey
 {
-    NSString* signingInput = [NSString stringWithFormat:@"%@.%@", [[ADJwtHelper createJSONFromDictionary:header] adBase64UrlEncode], [[ADJwtHelper createJSONFromDictionary:payload] adBase64UrlEncode]];
+    NSString* headerJSON = [ADJwtHelper createJSONFromDictionary:header];
+    NSString* payloadJSON = [ADJwtHelper createJSONFromDictionary:payload];
+    NSString* signingInput = [NSString stringWithFormat:@"%@.%@", [headerJSON adBase64UrlEncode], [payloadJSON adBase64UrlEncode]];
+    SAFE_ARC_RELEASE(headerJSON);
+    SAFE_ARC_RELEASE(payloadJSON);
     NSData* signedData = [ADJwtHelper sign:signingKey
                                       data:[signingInput dataUsingEncoding:NSUTF8StringEncoding]];
     NSString* signedEncodedDataString = [NSString Base64EncodeData: signedData];
@@ -43,7 +47,9 @@
 + (NSString*)decryptJWT:(NSData *)jwtData
           decrpytionKey:(SecKeyRef)decrpytionKey
 {
+#if TARGET_OS_IPHONE
     size_t cipherBufferSize = SecKeyGetBlockSize(decrpytionKey);
+#endif // TARGET_OS_IPHONE
     size_t keyBufferSize = [jwtData length];
     
     NSMutableData *bits = [NSMutableData dataWithLength:keyBufferSize];
@@ -55,9 +61,9 @@
                            cipherBufferSize,
                            [bits mutableBytes],
                            &keyBufferSize);
-#else
+#else // !TARGET_OS_IPHONE
     // TODO: SecKeyDecrypt is not available on OS X
-#endif
+#endif // TARGET_OS_IPHONE
     if(status != errSecSuccess)
     {
         return nil;

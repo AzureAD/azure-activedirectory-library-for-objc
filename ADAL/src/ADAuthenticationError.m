@@ -82,6 +82,7 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
             [info appendFormat:@" Details: %@", details];
         }
         AD_LOG_ERROR(message, code, nil, info);
+        SAFE_ARC_RELEASE(info);
     }
     
     self = [super initWithDomain:domain code:code userInfo:userInfo];
@@ -99,12 +100,14 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                      errorDetails: (NSString*) details
                                          userInfo: (NSDictionary*) userInfo;
 {
-    return [[self alloc] initInternalWithDomain:domain
+    id obj = [[self alloc] initInternalWithDomain:domain
                                            code:code
                                    protocolCode:protocolCode
                                    errorDetails:details
                                        userInfo:userInfo
                                           quiet:NO];
+    SAFE_ARC_AUTORELEASE(obj);
+    return obj;
 }
 
 +(ADAuthenticationError*) errorFromArgument:(id)argumentValue

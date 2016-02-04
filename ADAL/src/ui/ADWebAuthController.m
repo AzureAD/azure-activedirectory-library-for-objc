@@ -151,7 +151,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     NSArray * authorityParts = [value componentsSeparatedByString:@"?"];
     NSString *authority = [authorityParts objectAtIndex:0];
     
-    NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc] initWithURL: [NSURL URLWithString: value]];
+    NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:value]];
     
     NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority
                                                         challengeData:queryParamsMap];
@@ -159,6 +159,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     [responseUrl setValue:pKeyAuthHeaderVersion forHTTPHeaderField: pKeyAuthHeader];
     [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
     [_authenticationViewController loadRequest:responseUrl];
+    SAFE_ARC_RELEASE(responseUrl);
 }
 
 - (BOOL)endWebAuthenticationWithError:(ADAuthenticationError*) error
@@ -464,6 +465,7 @@ correlationId:(NSUUID *)correlationId
     
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
     [_authenticationViewController startRequest:request];
+    SAFE_ARC_RELEASE(request);
 }
 
 #if TARGET_OS_IPHONE

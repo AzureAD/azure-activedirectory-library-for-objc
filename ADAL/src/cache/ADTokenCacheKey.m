@@ -69,8 +69,9 @@
     RETURN_NIL_ON_NIL_ARGUMENT(authority);//Canonicalization will return nil on empty or bad URL.
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(clientId);
     
-    ADTokenCacheKey* key = [ADTokenCacheKey alloc];
-    return [key initWithAuthority:authority resource:resource clientId:clientId];
+    ADTokenCacheKey* key = [[ADTokenCacheKey alloc] initWithAuthority:authority resource:resource clientId:clientId];
+    SAFE_ARC_AUTORELEASE(key);
+    return key;
 }
 
 - (NSUInteger)hash
@@ -138,9 +139,9 @@
 
 - (id)copyWithZone:(NSZone *) zone
 {
-    return [[self.class allocWithZone:zone] initWithAuthority:[self.authority copyWithZone:zone]
-                                                     resource:[self.resource copyWithZone:zone]
-                                                     clientId:[self.clientId copyWithZone:zone]];
+    return [[ADTokenCacheKey allocWithZone:zone] initWithAuthority:[_authority copyWithZone:zone]
+                                                     resource:[_resource copyWithZone:zone]
+                                                     clientId:[_clientId copyWithZone:zone]];
 }
 
 @end

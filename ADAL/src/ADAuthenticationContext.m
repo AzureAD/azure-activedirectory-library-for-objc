@@ -141,6 +141,14 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 #endif
 }
 
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_authority);
+    SAFE_ARC_RELEASE(_tokenCacheStore);
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 - (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
                                              clientId:(NSString*)clientId
                                              resource:(NSString*)resource
@@ -190,7 +198,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     API_ENTRY
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(authority);
     
-    return [[self alloc] initWithAuthority:authority validateAuthority:bValidate error:error];
+    return SAFE_ARC_AUTORELEASE([[self alloc] initWithAuthority:authority validateAuthority:bValidate error:error]);
 }
 
 #if TARGET_OS_IPHONE

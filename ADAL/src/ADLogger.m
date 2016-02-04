@@ -111,6 +111,15 @@ static dispatch_once_t s_logOnce;
        info:(NSString*)info
 correlationId:(NSUUID*)correlationId
 {
+    static NSDateFormatter* s_dateFormatter = nil;
+    static dispatch_once_t s_dateOnce;
+    
+    dispatch_once(&s_dateOnce, ^{
+        s_dateFormatter = [[NSDateFormatter alloc] init];
+        [s_dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
+        [s_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    });
+    
     //Note that the logging should not throw, as logging is heavily used in error conditions.
     //Hence, the checks below would rather swallow the error instead of throwing and changing the
     //program logic.
@@ -121,26 +130,24 @@ correlationId:(NSUUID*)correlationId
     
     @synchronized(self)//Guard against thread-unsafe callback and modification of sLogCallback after the check
     {
-        if (logLevel <= s_LogLevel)
+        if (logLevel <= s_LogLevel && (s_LogCallback || s_NSLogging))
         {
-            NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
-            [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
-            [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+            NSString* dateString =  [s_dateFormatter stringFromDate:[NSDate date]];
             if (s_NSLogging)
             {
                 //NSLog is documented as thread-safe:
-                NSLog([self formatStringPerLevel:logLevel], [dateFormatter stringFromDate:[NSDate date]], correlationId?[correlationId UUIDString]:@"", message, info, errorCode);
+                NSLog([self formatStringPerLevel:logLevel], dateString, correlationId ?[correlationId UUIDString]:@"", message, info, errorCode);
             }
             
             if (s_LogCallback)
             {
                 if (correlationId)
                 {
-                    s_LogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@ - %@] %@", [dateFormatter stringFromDate:[NSDate date]], [correlationId UUIDString], message], info, errorCode);
+                    s_LogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@ - %@] %@", dateString, [correlationId UUIDString], message], info, errorCode);
                 }
                 else
                 {
-                    s_LogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@] %@", [dateFormatter stringFromDate:[NSDate date]], message], info, errorCode);
+                    s_LogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@] %@", dateString, message], info, errorCode);
                 }
             }
         }
@@ -159,6 +166,7 @@ correlationId:(NSUUID*)correlationId
     va_end(args);
     
     [self log:level message:message errorCode:code info:info correlationId:correlationId];
+    SAFE_ARC_RELEASE(info);
 }
 
 //Extracts the CPU information according to the constants defined in

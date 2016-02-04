@@ -53,7 +53,7 @@
     ERROR_RETURN_IF_NIL(context);
     ERROR_RETURN_IF_NIL(clientId);
     
-    return [[self.class alloc] initWithContext:context redirectUri:redirectUri clientId:clientId resource:resource];
+    return SAFE_ARC_AUTORELEASE([[ADAuthenticationRequest alloc] initWithContext:context redirectUri:redirectUri clientId:clientId resource:resource]);
 }
 
 - (id)initWithContext:(ADAuthenticationContext*)context
@@ -78,6 +78,21 @@
     _allowSilent = NO;
     
     return self;
+}
+
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_context);
+    SAFE_ARC_RELEASE(_clientId);
+    SAFE_ARC_RELEASE(_redirectUri);
+    SAFE_ARC_RELEASE(_identifier);
+    SAFE_ARC_RELEASE(_resource);
+    SAFE_ARC_RELEASE(_scope);
+    SAFE_ARC_RELEASE(_queryParams);
+    SAFE_ARC_RELEASE(_refreshTokenCredential);
+    SAFE_ARC_RELEASE(_correlationId);
+    
+    SAFE_ARC_SUPER_DEALLOC();
 }
 
 #define CHECK_REQUEST_STARTED { \

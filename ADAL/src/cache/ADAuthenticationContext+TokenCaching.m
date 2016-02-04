@@ -37,7 +37,7 @@
         return nil;//Nothing to return
     }
     
-    ADAuthenticationError* localError;
+    ADAuthenticationError* localError = nil;
     ADTokenCacheItem* item = [self.tokenCacheStore getItemWithKey:key userId:userId.userId error:&localError];
     if (!item && !localError && userId)
     {
@@ -63,7 +63,7 @@
     {
         return nil;//Nothing to return
     }
-    ADAuthenticationError* localError;
+    ADAuthenticationError* localError = nil;
     ADTokenCacheItem* item = [self extractCacheItemWithKey:key userId:userId error:&localError];
     if (localError)
     {
