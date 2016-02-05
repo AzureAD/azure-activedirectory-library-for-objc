@@ -73,8 +73,8 @@
     AD_LOG_VERBOSE_F(@"Starting authorization challenge request", nil, @"Resource: %@", resourceUrl);
     
     [request send:^(NSError * error, ADWebResponse *response) {
-        ADAuthenticationError* adError;
-        ADAuthenticationParameters* parameters;
+        ADAuthenticationError* adError = nil;
+        ADAuthenticationParameters* parameters = nil;
         if (error)
         {
             adError = [ADAuthenticationError errorFromNSError:error

@@ -25,6 +25,7 @@
 #import "ADWebResponse.h"
 #import "ADAuthenticationSettings.h"
 #import "ADHelpers.h"
+#import "ADLogger+Internal.h"
 
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";

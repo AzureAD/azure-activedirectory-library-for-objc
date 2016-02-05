@@ -97,7 +97,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
 {
     NSURL* fullUrl = [NSURL URLWithString:authority.lowercaseString];
     
-    ADAuthenticationError* adError;
+    ADAuthenticationError* adError = nil;
     if (!fullUrl || ![fullUrl.scheme isEqualToString:@"https"])
     {
         adError = [ADAuthenticationError errorFromArgument:authority argumentName:@"authority"];

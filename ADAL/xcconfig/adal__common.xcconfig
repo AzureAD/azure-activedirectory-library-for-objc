@@ -1,0 +1,10 @@
+//
+//  adal__common.xcconfig
+//
+
+ONLY_ACTIVE_ARCH = NO;
+GCC_PREFIX_HEADER = src/ADAL.pch;
+
+CLANG_WARN_UNREACHABLE_CODE = YES;
+
+OTHER_CFLAGS = $(inherited) -Wuninitialized -Werror
