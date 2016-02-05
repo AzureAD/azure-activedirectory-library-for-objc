@@ -30,7 +30,7 @@
 #define TEST_ACCESS_TOKEN @"access token"
 #define TEST_ACCESS_TOKEN_TYPE @"access token type"
 #define TEST_REFRESH_TOKEN @"refresh token"
-#define TEST_CORRELATION_ID [[NSUUID alloc] initWithUUIDString:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"]
+#define TEST_CORRELATION_ID SAFE_ARC_AUTORELEASE([[NSUUID alloc] initWithUUIDString:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"])
 
 typedef enum
 {

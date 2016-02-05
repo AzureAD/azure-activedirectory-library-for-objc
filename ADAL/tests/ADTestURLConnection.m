@@ -24,19 +24,6 @@
 #import "ADOAuth2Constants.h"
 
 @implementation ADTestURLResponse
-{
-@public
-    NSURL* _requestURL;
-    id _requestJSONBody;
-    id _requestParamsBody;
-    NSDictionary* _requestHeaders;
-    NSData* _requestBody;
-    NSDictionary* _QPs;
-    NSDictionary* _expectedRequestHeaders;
-    NSData* _responseData;
-    NSURLResponse* _response;
-    NSError* _error;
-}
 
 + (ADTestURLResponse*)request:(NSURL*)request
               requestJSONBody:(NSDictionary*)requestBody
@@ -49,6 +36,8 @@
     response->_response = urlResponse;
     response->_responseData = data;
     
+    SAFE_ARC_AUTORELEASE(response);
+    
     return response;
 }
 
@@ -62,6 +51,8 @@
     response->_response = urlResponse;
     response->_responseData = data;
     
+    SAFE_ARC_AUTORELEASE(response);
+    
     return response;
 }
 
@@ -73,6 +64,8 @@
     [response setRequestURL:request];
     response->_response = urlResponse;
     
+    SAFE_ARC_AUTORELEASE(response);
+    
     return response;
 }
 
@@ -83,6 +76,8 @@
     
     [response setRequestURL:request];
     response->_error = error;
+    
+    SAFE_ARC_AUTORELEASE(response);
     
     return response;
 }
@@ -133,6 +128,8 @@
     [response setResponseURL:responseUrlString code:responseCode headerFields:headerFields];
     [response setJSONResponse:data];
     
+    SAFE_ARC_AUTORELEASE(response);
+    
     return response;
 }
 
@@ -148,6 +145,8 @@
     [response setResponseURL:responseUrlString code:responseCode headerFields:headerFields];
     response->_requestJSONBody = requestJSONBody;
     [response setJSONResponse:data];
+    
+    SAFE_ARC_AUTORELEASE(response);
     
     return response;
 }
@@ -166,6 +165,8 @@
     response->_requestHeaders = requestHeaders;
     response->_requestParamsBody = requestParams;
     [response setJSONResponse:data];
+    
+    SAFE_ARC_AUTORELEASE(response);
     
     return response;
 }
@@ -256,6 +257,7 @@
     {
         NSString* string = [[NSString alloc] initWithData:body encoding:NSUTF8StringEncoding];
         id obj = [NSDictionary adURLFormDecode:string];
+        SAFE_ARC_RELEASE(string);
         return [obj isEqual:_requestParamsBody];
     }
     
@@ -320,11 +322,6 @@
 #pragma clang diagnostic pop
 
 @implementation ADTestURLConnection
-{
-    NSOperationQueue* _delegateQueue;
-    NSURLRequest* _request;
-    id _delegate;
-}
 
 static NSMutableArray* s_responses = nil;
 
@@ -341,7 +338,13 @@ static NSMutableArray* s_responses = nil;
 // If you need to test a series of requests and responses use this API
 + (void)addResponses:(NSArray*)requestsAndResponses
 {
-    [s_responses addObject:[requestsAndResponses mutableCopy]];
+    if (!requestsAndResponses)
+    {
+        return;
+    }
+    NSArray* copy = [requestsAndResponses mutableCopy];
+    [s_responses addObject:copy];
+    SAFE_ARC_RELEASE(copy);
 }
 
 + (void)addNotFoundResponseForURLString:(NSString *)URLString

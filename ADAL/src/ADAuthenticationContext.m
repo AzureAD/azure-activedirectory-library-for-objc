@@ -73,12 +73,16 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                   error:(ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY;
-    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
-    RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
-    
     if (!(self = [super init]))
     {
         return nil;
+    }
+    
+    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
+    if (!extractedAuthority)
+    {
+        SAFE_ARC_RELEASE(self);
+        RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
     }
     
     _authority = extractedAuthority;
@@ -97,13 +101,18 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                   error:(ADAuthenticationError *__autoreleasing *)error
 {
     API_ENTRY;
-    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
-    RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
-    
     if (!(self = [super init]))
     {
         return nil;
     }
+    
+    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
+    if (!extractedAuthority)
+    {
+        SAFE_ARC_RELEASE(self);
+        RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
+    }
+    
     
     _authority = extractedAuthority;
     _validateAuthority = validateAuthority;
@@ -198,7 +207,17 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     API_ENTRY
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(authority);
     
-    return SAFE_ARC_AUTORELEASE([[self alloc] initWithAuthority:authority validateAuthority:bValidate error:error]);
+    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority
+                                                                        validateAuthority:bValidate
+                                                                                    error:error];
+    if (!context)
+    {
+        
+        return nil;
+    }
+    
+    SAFE_ARC_AUTORELEASE(context);
+    return context;
 }
 
 #if TARGET_OS_IPHONE

@@ -495,6 +495,7 @@
     ADTokenCacheKey* key = [item extractKey:error];
     if (!key)
     {
+        SAFE_ARC_RELEASE(item);
         return NO;
     }
     
@@ -511,6 +512,9 @@
         
         [_cache setObject:tokens forKey:@"tokens"];
         [_cache setObject:idtokens forKey:@"idtokens"];
+        
+        SAFE_ARC_RELEASE(tokens);
+        SAFE_ARC_RELEASE(idtokens);
     }
     else
     {
@@ -541,12 +545,14 @@
     {
         userDict = [NSMutableDictionary new];
         [tokens setObject:userDict forKey:userId];
+        SAFE_ARC_RELEASE(userDict);
     }
     
     // Nil out the user information
     item.userInformation = nil;
     
     [userDict setObject:item forKey:key];
+    SAFE_ARC_RELEASE(item);
     
     return YES;
 }

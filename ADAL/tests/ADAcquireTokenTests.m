@@ -35,8 +35,6 @@ const int sAsyncContextTimeout = 10;
 @interface ADAcquireTokenTests : XCTestCase
 {
 @private
-    ADPromptBehavior _promptBehavior;
-    
     dispatch_semaphore_t _dsem;
 }
 @end
@@ -71,8 +69,10 @@ const int sAsyncContextTimeout = 10;
                                                      error:nil];
     
     NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
-    [context setTokenCacheStore:[ADTokenCache new]];
+    [context setTokenCacheStore:SAFE_ARC_AUTORELEASE([ADTokenCache new])];
     [context setCorrelationId:TEST_CORRELATION_ID];
+    
+    SAFE_ARC_AUTORELEASE(context);
     
     return context;
 }

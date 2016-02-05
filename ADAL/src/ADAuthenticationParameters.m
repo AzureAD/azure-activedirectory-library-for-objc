@@ -127,7 +127,7 @@
     API_ENTRY;
     
     NSDictionary* params = [self extractChallengeParameters:authenticateHeader error:error];
-    return params ? [[ADAuthenticationParameters alloc] initInternalWithParameters:params error:error]
+    return params ? SAFE_ARC_AUTORELEASE([[ADAuthenticationParameters alloc] initInternalWithParameters:params error:error])
                   : nil;
 }
 

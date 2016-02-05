@@ -31,11 +31,9 @@
                               payload:(NSDictionary *)payload
                            signingKey:(SecKeyRef)signingKey
 {
-    NSString* headerJSON = [ADJwtHelper createJSONFromDictionary:header];
-    NSString* payloadJSON = [ADJwtHelper createJSONFromDictionary:payload];
+    NSString* headerJSON = [ADJwtHelper JSONFromDictionary:header];
+    NSString* payloadJSON = [ADJwtHelper JSONFromDictionary:payload];
     NSString* signingInput = [NSString stringWithFormat:@"%@.%@", [headerJSON adBase64UrlEncode], [payloadJSON adBase64UrlEncode]];
-    SAFE_ARC_RELEASE(headerJSON);
-    SAFE_ARC_RELEASE(payloadJSON);
     NSData* signedData = [ADJwtHelper sign:signingKey
                                       data:[signingInput dataUsingEncoding:NSUTF8StringEncoding]];
     NSString* signedEncodedDataString = [NSString Base64EncodeData: signedData];
@@ -75,8 +73,8 @@
 }
 
 
-+(NSData *) sign: (SecKeyRef) privateKey
-            data:(NSData *) plainData
++ (NSData *)sign:(SecKeyRef)privateKey
+            data:(NSData *)plainData
 {
     NSData* signedHash = nil;
     size_t signedHashBytesSize = SecKeyGetBlockSize(privateKey);
@@ -129,18 +127,26 @@
 }
 
 
-+ (NSString *) createJSONFromDictionary:(NSDictionary *) dictionary{
++ (NSString *)JSONFromDictionary:(NSDictionary *)dictionary
+{
     
-    NSError *error;
+    NSError *error = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary
                                                        options:NSJSONWritingPrettyPrinted
                                                          error:&error];
-    if (! jsonData) {
-        [ADLogger log:ADAL_LOG_LEVEL_ERROR message:[NSString stringWithFormat:@"Got an error: %@",error] errorCode:error.code info:nil correlationId:nil];
-    } else {
-        return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    if (!jsonData)
+    {
+        [ADLogger log:ADAL_LOG_LEVEL_ERROR
+              message:[NSString stringWithFormat:@"Got an error: %@",error]
+            errorCode:error.code
+                 info:nil
+        correlationId:nil];
+        return nil;
     }
-    return nil;
+
+    NSString* json = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    SAFE_ARC_AUTORELEASE(json);
+    return json;
 }
 
 @end

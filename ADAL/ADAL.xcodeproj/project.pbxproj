@@ -1601,6 +1601,7 @@
 		};
 		8B0965D217F25770002BDFB8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347831C644E13000A6DA1 /* adal__ios__common.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1699,6 +1700,7 @@
 		};
 		8B41A1EA1888C6350027EE1E /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347831C644E13000A6DA1 /* adal__ios__common.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				FRAMEWORK_SEARCH_PATHS = (

@@ -30,7 +30,7 @@
 @implementation ADHelpers
 
 
-+ (void) removeNullStringFrom:(NSDictionary*) dict
++ (void)removeNullStringFrom:(NSDictionary *)dict
 {
     for (NSString* key in dict.allKeys)
     {
@@ -41,7 +41,7 @@
     }
 }
 
-+(BOOL) isADFSInstance:(NSString*) endpoint
++ (BOOL)isADFSInstance:(NSString *)endpoint
 {
     if([NSString adIsStringNilOrBlank:endpoint]){
         return NO;
@@ -51,7 +51,7 @@
 }
 
 
-+(BOOL) isADFSInstanceURL:(NSURL*) endpointUrl
++ (BOOL)isADFSInstanceURL:(NSURL *)endpointUrl
 {
     
     NSArray* paths = endpointUrl.pathComponents;
@@ -64,7 +64,7 @@
 }
 
 
-+(NSString*) getEndpointName:(NSString*) fullEndpoint
++ (NSString *)getEndpointName:(NSString *)fullEndpoint
 {
     if([NSString adIsStringNilOrBlank:fullEndpoint])
     {
@@ -80,14 +80,14 @@
     return nil;
 }
 
-+ (NSData*) convertBase64UrlStringToBase64NSData:(NSString*) base64UrlString
++ (NSData *)convertBase64UrlStringToBase64NSData:(NSString *)base64UrlString
 {
     NSString* outVal = [ADHelpers convertBase64UrlStringToBase64NSString:base64UrlString];
     return [outVal dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 
-+ (NSString*) convertBase64UrlStringToBase64NSString:(NSString*) base64UrlString
++ (NSString*)convertBase64UrlStringToBase64NSString:(NSString *)base64UrlString
 {
     base64UrlString = [base64UrlString stringByReplacingOccurrencesOfString:@"-" withString:@"+"];
     base64UrlString = [base64UrlString stringByReplacingOccurrencesOfString:@"_" withString:@"/"];
@@ -109,14 +109,14 @@
     return base64UrlString;
 }
 
-+(NSString*) createSignedJWTUsingKeyDerivation:(NSDictionary*) header
-                                       payload:(NSDictionary*) payload
-                                       context:(NSString*) context
-                                  symmetricKey:(NSData*) symmetricKey
++ (NSString *)createSignedJWTUsingKeyDerivation:(NSDictionary *)header
+                                        payload:(NSDictionary *)payload
+                                        context:(NSString *)context
+                                   symmetricKey:(NSData *)symmetricKey
 {
     NSString* signingInput = [NSString stringWithFormat:@"%@.%@",
-                              [[ADHelpers createJSONFromDictionary:header] adBase64UrlEncode],
-                              [[ADHelpers createJSONFromDictionary:payload] adBase64UrlEncode]];
+                              [[ADHelpers JSONFromDictionary:header] adBase64UrlEncode],
+                              [[ADHelpers JSONFromDictionary:payload] adBase64UrlEncode]];
     
     NSData* derivedKey = [ADHelpers computeKDFInCounterMode:symmetricKey
                                                     context:[context dataUsingEncoding:NSUTF8StringEncoding]];
@@ -130,27 +130,34 @@
            [data length],
            cHMAC);
     NSData* signedData = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
-    NSString* signedEncodedDataString = [NSString Base64EncodeData: signedData];
+    NSString* signedEncodedDataString = [NSString Base64EncodeData:signedData];
+    SAFE_ARC_RELEASE(signedData);
     return [NSString stringWithFormat:@"%@.%@",
             signingInput,
             signedEncodedDataString];
 }
 
 
-+ (NSString *) createJSONFromDictionary:(NSDictionary *) dictionary{
++ (NSString *)JSONFromDictionary:(NSDictionary *)dictionary
+{
     
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary
                                                        options:NSJSONWritingPrettyPrinted
                                                          error:&error];
-    if (jsonData) {
-        return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    if (!jsonData)
+    {
+        return nil;
     }
-    return nil;
+    
+    NSString* json = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    SAFE_ARC_AUTORELEASE(json);
+    return json;
 }
 
-+ (NSData*) computeKDFInCounterMode:(NSData*)key
-                            context:(NSData*)ctx
++ (NSData*)computeKDFInCounterMode:(NSData *)key
+                           context:(NSData *)ctx
 {
     NSData* labelData = [AAD_SECURECONVERSATION_LABEL dataUsingEncoding:NSUTF8StringEncoding];
     NSMutableData* mutData = [NSMutableData new];
@@ -165,6 +172,7 @@
                                      keyDerivationKeyLength:key.length
                                                  fixedInput:(uint8_t*)mutData.bytes
                                            fixedInputLength:mutData.length];
+    SAFE_ARC_RELEASE(mutData);
     mutData = nil;
     NSData* returnedData = [NSData dataWithBytes:(const void *)pbDerivedKey length:32];
     free(pbDerivedKey);
@@ -261,6 +269,8 @@
     {
         return nil;
     }
+    
+    SAFE_ARC_AUTORELEASE(components);
     
     NSString* query = [components query];
     // Don't bother adding it if it's already there

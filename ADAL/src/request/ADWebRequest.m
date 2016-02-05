@@ -158,6 +158,7 @@ NSString *const HTTPPost = @"POST";
     request.HTTPBody            = _requestData;
     
     _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
+    SAFE_ARC_RELEASE(request);
     [_connection setDelegateQueue:_operationQueue];
     [_connection start];
 }
@@ -242,7 +243,9 @@ NSString *const HTTPPost = @"POST";
     //
     NSAssert( _response != nil, @"No HTTP Response available" );
     
-    [self completeWithError:nil andResponse:[[ADWebResponse alloc] initWithResponse:_response data:_responseData]];
+    ADWebResponse* response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
+    SAFE_ARC_AUTORELEASE(response);
+    [self completeWithError:nil andResponse:response];
 }
 
 //required method Available in OS X v10.6 through OS X v10.7, then deprecated

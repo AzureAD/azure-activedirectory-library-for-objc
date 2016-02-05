@@ -20,29 +20,27 @@
 
 @interface ADHelpers : NSObject
 
-+(BOOL) isADFSInstance:(NSString*) endpoint;
++ (BOOL)isADFSInstance:(NSString *)endpoint;
++ (BOOL)isADFSInstanceURL:(NSURL *)endpointUrl;
 
-+(BOOL) isADFSInstanceURL:(NSURL*) endpointUrl;
++ (NSString *)getEndpointName:(NSString *)fullEndpoint;
 
-+(NSString*) getEndpointName:(NSString*) fullEndpoint;
++ (NSData *)convertBase64UrlStringToBase64NSData:(NSString *)base64UrlString;
++ (NSString *)convertBase64UrlStringToBase64NSString:(NSString *)base64UrlString;
 
-+ (NSData*) convertBase64UrlStringToBase64NSData:(NSString*) base64UrlString;
++ (NSString *)createSignedJWTUsingKeyDerivation:(NSDictionary *)header
+                                        payload:(NSDictionary *)payload
+                                        context:(NSString *)context
+                                   symmetricKey:(NSData *)symmetricKey;
 
-+ (NSString*) convertBase64UrlStringToBase64NSString:(NSString*) base64UrlString;
++ (NSString *)JSONFromDictionary:(NSDictionary *)dictionary;
 
-+(NSString*) createSignedJWTUsingKeyDerivation:(NSDictionary*) header
-                                       payload:(NSDictionary*) payload
-                                       context:(NSString*) context
-                                  symmetricKey:(NSData*) symmetricKey;
++ (NSData*)computeKDFInCounterMode:(NSData *)key
+                           context:(NSData *)ctx;
 
-+ (NSString *) createJSONFromDictionary:(NSDictionary *) dictionary;
++ (void)removeNullStringFrom:(NSDictionary *)dict;
 
-+ (NSData*) computeKDFInCounterMode:(NSData*)key
-                            context:(NSData*)ctx;
-
-+ (void) removeNullStringFrom:(NSDictionary*) dict;
-
-+ (NSURL*)addClientVersionToURL:(NSURL*)url;
-+ (NSString*)addClientVersionToURLString:(NSString*)url;
++ (NSURL *)addClientVersionToURL:(NSURL*)url;
++ (NSString *)addClientVersionToURLString:(NSString*)url;
 
 @end

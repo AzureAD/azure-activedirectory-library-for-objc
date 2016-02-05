@@ -354,7 +354,11 @@
                           withRefreshToken:refreshToken];
          }
          result = [ADAuthenticationContext updateResult:result toUser:_identifier];//Verify the user (just in case)
-         
+         //
+         if (!cacheItem)
+         {
+             SAFE_ARC_RELEASE(resultItem);
+         }
          completionBlock(result);
      }];
 }

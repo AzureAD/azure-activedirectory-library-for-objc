@@ -168,12 +168,16 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                                protocolCode:(NSString*)protocolCode
                                                errorDetails:(NSString*)errorDetails
 {
-    return [[ADAuthenticationError alloc] initInternalWithDomain:ADAuthenticationErrorDomain
-                                                            code:code
-                                                    protocolCode:protocolCode
-                                                    errorDetails:errorDetails
-                                                        userInfo:nil
-                                                           quiet:YES];
+    ADAuthenticationError* error =
+    [[ADAuthenticationError alloc] initInternalWithDomain:ADAuthenticationErrorDomain
+                                                     code:code
+                                             protocolCode:protocolCode
+                                             errorDetails:errorDetails
+                                                 userInfo:nil
+                                                    quiet:YES];
+    
+    SAFE_ARC_AUTORELEASE(error);
+    return error;
 }
 
 + (ADAuthenticationError*)unexpectedInternalError:(NSString*)errorDetails

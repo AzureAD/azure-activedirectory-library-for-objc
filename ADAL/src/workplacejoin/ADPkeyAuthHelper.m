@@ -150,10 +150,15 @@
     return false;
 }
 
-+ (NSString *) createDeviceAuthResponse:(NSString*) audience
-                                  nonce:(NSString*) nonce
-                               identity:(ADRegistrationInformation *) identity{
-    
++ (NSString *)createDeviceAuthResponse:(NSString *)audience
+                                 nonce:(NSString *)nonce
+                              identity:(ADRegistrationInformation *)identity
+{
+    if (!audience || !nonce)
+    {
+        AD_LOG_ERROR(@"audience or nonce nil in device auth request!", AD_ERROR_UNEXPECTED, nil, nil);
+        return nil;
+    }
     NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];
     NSDictionary *header = @{
                              @"alg" : @"RS256",
@@ -222,20 +227,6 @@
         free(signedHashBytes);
     }
     return signedHash;
-}
-
-+ (NSString *) createJSONFromDictionary:(NSDictionary *) dictionary{
-    
-    NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary
-                                                       options:NSJSONWritingPrettyPrinted
-                                                         error:&error];
-    if (! jsonData) {
-        [ADLogger log:ADAL_LOG_LEVEL_ERROR message:[NSString stringWithFormat:@"Got an error: %@",error] errorCode:error.code info:nil correlationId:nil];
-    } else {
-        return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    }
-    return nil;
 }
 
 @end

@@ -19,6 +19,19 @@
 #import <Foundation/Foundation.h>
 
 @interface ADTestURLResponse : NSObject
+{
+@public
+    NSURL* _requestURL;
+    id _requestJSONBody;
+    id _requestParamsBody;
+    NSDictionary* _requestHeaders;
+    NSData* _requestBody;
+    NSDictionary* _QPs;
+    NSDictionary* _expectedRequestHeaders;
+    NSData* _responseData;
+    NSURLResponse* _response;
+    NSError* _error;
+}
 
 + (ADTestURLResponse*)requestURLString:(NSString*)requestUrlString
                      responseURLString:(NSString*)responseUrlString
@@ -59,6 +72,11 @@
 @end
 
 @interface ADTestURLConnection : NSObject
+{
+    NSOperationQueue* _delegateQueue;
+    NSURLRequest* _request;
+    id _delegate;
+}
 
 // This adds an expected request, and response to it.
 + (void)addResponse:(ADTestURLResponse*)response;

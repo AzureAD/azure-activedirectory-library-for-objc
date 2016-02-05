@@ -47,6 +47,7 @@
         }
     }
     
+    SAFE_ARC_AUTORELEASE(parameters);
     return parameters;
 }
 

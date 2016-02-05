@@ -91,9 +91,9 @@ NSString* const sValidationServerError = @"The authority validation server retur
  "https://login.windows.net/mytenant.com/oauth2/authorize", the host will be
  "https://login.windows.net". Returns nil and reaises an error if the protocol
  is not https or the authority is not a valid URL.*/
--(NSString*) extractHost: (NSString*) authority
-           correlationId: (NSUUID*) correlationId
-                   error: (ADAuthenticationError* __autoreleasing *) error
+- (NSString*)extractHost:(NSString *)authority
+           correlationId:(NSUUID *)correlationId
+                   error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSURL* fullUrl = [NSURL URLWithString:authority.lowercaseString];
     
@@ -149,9 +149,9 @@ NSString* const sValidationServerError = @"The authority validation server retur
     NSString* message = [NSString stringWithFormat:@"Attempting to validate the authority: %@; CorrelationId: %@", authority, [correlationId UUIDString]];
     AD_LOG_VERBOSE(@"Instance discovery", correlationId, message);
     
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     NSString* authorityHost = [self extractHost:authority correlationId:correlationId error:&error];
-    if (error)
+    if (!authorityHost)
     {
         completionBlock(NO, error);
         return;
@@ -295,7 +295,7 @@ NSString* const sValidationServerError = @"The authority validation server retur
                  {
                      // Request failure
                      NSString* logMessage = [NSString stringWithFormat:@"Server HTTP Status %ld", (long)webResponse.statusCode];
-                     NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding]];
+                     NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", SAFE_ARC_AUTORELEASE([[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding])];
                      AD_LOG_WARN(logMessage, correlationId, errorData);
                      adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData];
                  }

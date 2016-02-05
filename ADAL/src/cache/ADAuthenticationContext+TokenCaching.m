@@ -136,12 +136,15 @@
                   cacheItem:(ADTokenCacheItem*)cacheItem
            withRefreshToken:(NSString*)refreshToken
 {
-    if(![ADAuthenticationContext handleNilOrEmptyAsResult:result argumentName:@"result" authenticationResult:&result]){
+    if(![ADAuthenticationContext handleNilOrEmptyAsResult:result argumentName:@"result" authenticationResult:&result])
+    {
         return;
     }
     
     if (!tokenCacheStoreInstance)
-        return;//No cache to update
+    {
+        return;
+    }
     
     if (AD_SUCCEEDED == result.status)
     {
@@ -170,6 +173,7 @@
             multiRefreshTokenItem.resource = nil;
             multiRefreshTokenItem.expiresOn = nil;
             [tokenCacheStoreInstance addOrUpdateItem:multiRefreshTokenItem error:nil];
+            SAFE_ARC_RELEASE(multiRefreshTokenItem);
         }
         
         AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Storing access token for resource: %@", cacheItem.resource);
