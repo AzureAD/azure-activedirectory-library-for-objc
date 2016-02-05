@@ -30,7 +30,6 @@
 @synthesize expiresOn = _expiresOn;
 @synthesize refreshToken = _refreshToken;
 @synthesize sessionKey = _sessionKey;
-@synthesize userInformation = _userInformation;
 
 - (NSUInteger)hash
 {
@@ -64,6 +63,8 @@
     item->_expiresOn = [_expiresOn copyWithZone:zone];
     item->_userInformation = [_userInformation copyWithZone:zone];
     item->_sessionKey = [_sessionKey copyWithZone:zone];
+    
+    [item calculateHash];
     
     return item;
 }
@@ -156,6 +157,8 @@
     _refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     _expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
     _userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
+    
+    [self calculateHash];
     
     return self;
 }

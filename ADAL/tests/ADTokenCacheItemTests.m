@@ -130,23 +130,23 @@
 -(void) testMultiRefreshTokens
 {
     ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
-    XCTAssertFalse(item.multiResourceRefreshToken);
+    XCTAssertFalse(item.isMultiResourceRefreshToken);
     item.resource = nil;
-    XCTAssertFalse(item.multiResourceRefreshToken);
+    XCTAssertFalse(item.isMultiResourceRefreshToken);
     
     //Valid:
     item.accessToken = nil;
-    XCTAssertTrue(item.multiResourceRefreshToken);
+    XCTAssertTrue(item.isMultiResourceRefreshToken);
     
     //Invalidate through refresh token:
     item.refreshToken = nil;
-    XCTAssertFalse(item.multiResourceRefreshToken, "nil refresh token");
+    XCTAssertFalse(item.isMultiResourceRefreshToken, "nil refresh token");
     item.refreshToken = @"  ";
-    XCTAssertFalse(item.multiResourceRefreshToken, "Empty resource token");
+    XCTAssertFalse(item.isMultiResourceRefreshToken, "Empty resource token");
     
     //Restore:
     item.refreshToken = @"refresh token";
-    XCTAssertTrue(item.multiResourceRefreshToken);
+    XCTAssertTrue(item.isMultiResourceRefreshToken);
 }
 
 -(void) testSupportsSecureCoding
