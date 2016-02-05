@@ -41,7 +41,7 @@
 }
 
 
--(void) testIsExpired
+- (void)testIsExpired
 {
     ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
@@ -149,9 +149,40 @@
     XCTAssertTrue(item.isMultiResourceRefreshToken);
 }
 
--(void) testSupportsSecureCoding
+- (void)testSupportsSecureCoding
 {
     XCTAssertTrue([ADTokenCacheItem supportsSecureCoding], "Ensure that the unarchiving is secure.");
+}
+
+// Round trip the item though NSKeyedArchiver and NSKeyedUnarchiver to ensure the initWithCoder: and
+// encodeWithCoder: are properly implemented.
+- (void)testCoder
+{
+    ADTokenCacheItem* item = [self adCreateATCacheItem];
+    XCTAssertNotNil(item);
+    XCTAssertNotEqual([item hash], 0);
+    
+    NSData* data = [NSKeyedArchiver archivedDataWithRootObject:item];
+    XCTAssertNotNil(data);
+    
+    ADTokenCacheItem* unarchivedItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    XCTAssertNotNil(unarchivedItem);
+    
+    XCTAssertEqualObjects(item, unarchivedItem);
+    XCTAssertEqual([item hash], [unarchivedItem hash]);
+}
+
+- (void)testCopyWithZone
+{
+    ADTokenCacheItem* item = [self adCreateATCacheItem];
+    XCTAssertNotNil(item);
+    XCTAssertNotEqual([item hash], 0);
+    NSZone* zone = NSDefaultMallocZone();
+    
+    ADTokenCacheItem* copy = [item copyWithZone:zone];
+    XCTAssertNotNil(copy);
+    XCTAssertEqualObjects(copy, item);
+    XCTAssertEqual([copy hash], [item hash]);
 }
 
 @end
