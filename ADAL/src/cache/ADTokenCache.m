@@ -343,7 +343,27 @@
  Returns nil in case of error. */
 - (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
-    return [self getItemsWithKey:nil userId:nil error:error];
+    NSArray<ADTokenCacheItem *> * items = [self getItemsWithKey:nil userId:nil error:error];
+    return [self filterOutTombstones:items];
+}
+
+-(NSMutableArray*)filterOutTombstones:(NSArray*) items
+{
+    if(!items)
+    {
+        return nil;
+    }
+    
+    NSMutableArray* itemsKept = [NSMutableArray new];
+    for (ADTokenCacheItem* item in items)
+    {
+        if (![item tombstone])
+        {
+            [itemsKept addObject:item];
+        }
+    }
+    SAFE_ARC_AUTORELEASE(itemsKept);
+    return itemsKept;
 }
 
 @end
@@ -417,14 +437,16 @@
                                     error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSArray<ADTokenCacheItem *> * items = [self getItemsWithKey:key userId:userId error:error];
-    if (!items || items.count == 0)
+    NSArray<ADTokenCacheItem *> * itemsExcludingTombstones = [self filterOutTombstones:items];
+    
+    if (!itemsExcludingTombstones || itemsExcludingTombstones.count == 0)
     {
         return nil;
     }
     
-    if (items.count == 1)
+    if (itemsExcludingTombstones.count == 1)
     {
-        return items.firstObject;
+        return itemsExcludingTombstones.firstObject;
     }
     
     ADAuthenticationError* adError =

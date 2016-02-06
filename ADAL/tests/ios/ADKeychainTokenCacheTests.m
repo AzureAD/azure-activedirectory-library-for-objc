@@ -84,18 +84,11 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 - (long)tombstoneCount
 {
     ADAuthenticationError* error;
-    NSArray* all = [mStore allItems:&error];
+    NSArray* tombstones = [mStore allTombstones:&error];
     ADAssertNoError;
-    XCTAssertNotNil(all);
-    int itemCount = 0;
-    for (ADTokenCacheItem * item in all)
-    {
-        if ([item tombstone])
-        {
-            itemCount++;
-        }
-    }
-    return itemCount;
+    XCTAssertNotNil(tombstones);
+    
+    return [tombstones count];
 }
 
 //Verifies that the items in the cache are copied, so that the developer
@@ -211,7 +204,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqual([self count], 2);
     XCTAssertEqual([self tombstoneCount], 1);
     //verify that item1 is updated
-    [self verifyCacheContainsItem:item1];
+    [self verifyCacheContainsTombstone:item1];
     
     //getItemWithKey is NOT able to retrieve item1 from cache because it is a tombstone,
     //although item1 can still be retrieved using [mStore allItems]
@@ -227,7 +220,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqual([self count], 1);
     XCTAssertEqual([self tombstoneCount], 2);
     //verify that item2 is updated
-    [self verifyCacheContainsItem:item2];
+    [self verifyCacheContainsTombstone:item2];
     
     //tombstone an item which has already been tombstoned
     [mStore removeItem:item2 error:&error];
@@ -248,7 +241,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqual([self count], 0);
     XCTAssertEqual([self tombstoneCount], 3);
     //verify that item3 is updated
-    [self verifyCacheContainsItem:item3];
+    [self verifyCacheContainsTombstone:item3];
     
     //tombstone an item when cache is empty (except tombstones)
     [mStore removeItem:item3 error:&error];
@@ -257,7 +250,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqual([self tombstoneCount], 3);
     
     //update a tombstone to be a normal item
-    [item3 setTombstone:NO];
+    [item3 setTombstone:nil];
     [mStore addOrUpdateItem:item3 error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 1);
@@ -342,4 +335,28 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqualObjects(read, item);
 }
 
+-(void) verifyCacheContainsTombstone: (ADTokenCacheItem*) item
+{
+    XCTAssertNotNil(item);
+    ADAuthenticationError* error;
+    
+    NSArray* all = [mStore allTombstones:&error];
+    ADAssertNoError;
+    XCTAssertNotNil(all);
+    
+    ADTokenCacheItem* read = nil;
+    for(ADTokenCacheItem* i in all)
+    {
+        XCTAssertNotNil(i);
+        if ([i.userInformation.userId isEqualToString:item.userInformation.userId]
+            && [i.authority isEqualToString:item.authority]
+            && [i.resource isEqualToString:item.resource]
+            && [i.clientId isEqualToString:item.clientId])
+        {
+            read = i;
+            break;;
+        }
+    }
+    XCTAssertEqualObjects(read, item);
+}
 @end

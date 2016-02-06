@@ -86,18 +86,14 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 - (void)logItem:(ADTokenCacheItem *)item
         message:(NSString *)additionalMessage
 {
-    AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"%@ for resource <%@> + client <%@> + authority <%@>", additionalMessage, [item resource], [item clientId], [item authority]);
+    AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"%@ for resource <%@> + client <%@> + authority <%@> + user <%@>", additionalMessage, [item resource], [item clientId], [item authority], [[item userInformation] userId]);
 }
 
 - (void)logItemRetrievalStatus:(NSArray *)items
                            key:(ADTokenCacheKey *)key
                         userId:(NSString *)userId
 {
-    if ([items count] > 0)
-    {
-        AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"Found %lu token(s) for user <%@> in keychain.", (unsigned long)[items count], userId);
-    }
-    else
+    if (!items || [items count]<=0)
     {
         //if resource is nil, this request is intending to find MRRT
         if ([NSString adIsStringNilOrBlank:[key resource]]) {
@@ -107,6 +103,23 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         {
             AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"No AT/RT was found for resource <%@> + client <%@> + authority <%@>", [key resource], [key clientId], [key authority]);
         }
+    }
+    else
+    {
+        AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"Found %lu token(s) for user <%@> in keychain.", (unsigned long)[items count], userId);
+    }
+}
+
+- (void)logTombstones:(NSArray *)items
+{
+    for (ADTokenCacheItem* item in items)
+    {
+        [self logItem:item message:[NSString stringWithFormat:@"Retrieved a tombstone (BundleId:%@; Correlation Id:%@; Error Details:%@; Protocol Code:%@)",
+                                                 [[item tombstone] valueForKey:@"bundleId"],
+                                                 [[item tombstone] valueForKey:@"correlationId"],
+                                                 [[item tombstone] valueForKey:@"errorDetails"],
+                                                 [[item tombstone] valueForKey:@"protocolCode"]]];
+
     }
 }
 
@@ -230,7 +243,8 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
  Returns nil in case of error. */
 - (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
-    return [self getItemsWithKey:nil error:error];
+    NSArray* items = [self getItemsWithKey:nil error:error];
+    return [self filterOutTombstones:items];
 }
 
 /*! Returns all of the items for a given key. Multiple items may present,
@@ -255,51 +269,32 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     RETURN_NO_ON_NIL_ARGUMENT(item);
+
+    OSStatus deleteStatus = [self deleteItem:item error:error];
     
-    //if item contains a refresh token, tombstone it;
-    //Otherwise delete it directly.
-    if (![NSString adIsStringNilOrBlank:item.refreshToken])
+    //if item does not exist in cache or does not contain a refresh token, deletion is enough and should return.
+    if (deleteStatus != errSecSuccess || [NSString adIsStringNilOrBlank:item.refreshToken])
     {
-        ADTokenCacheKey* key = [item extractKey:error];
-        if (!key)
-        {
-            return NO;
-        }
-        
-        // In layers above this a nil/blank user ID means we simply don't know who it is (thanks to ADFS)
-        // however for the purposes of adding users we still do need to have an account name, even if it
-        // is just blank.
-        NSString* userId = item.userInformation.userId;
-        if (!userId)
-        {
-            userId = @"";
-        }
-        
-        NSMutableDictionary* query = [self queryDictionaryForKey:key
-                                                          userId:userId
-                                                      additional:nil];
-        
-        //set the item to tombstone
-        ADTokenCacheItem* tombstoneItem = [item copy];
-        [self setCacheItemAsTombstone:tombstoneItem];
-        NSData* itemData = [NSKeyedArchiver archivedDataWithRootObject:tombstoneItem];
-        NSMutableDictionary * itemUpdate = [NSMutableDictionary dictionaryWithDictionary:@{ (id)kSecValueData : itemData,
-                                                                                              (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly}];
-        [tombstoneItem release];
-        
-        //update the tombstone item to keychain
-        OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)itemUpdate);
-        return [ADKeychainTokenCache checkStatus:status details:@"Failed to remove item from keychain" error:error];
+        [self logItem:item message:@"Item being removed"];
+        return [ADKeychainTokenCache checkStatus:deleteStatus details:@"Failed to remove item from keychain" error:error];
     }
-    else
-    {
-        //item will be deleted if it does not contain any refresh token
-        return [self deleteItem:item error:error];
-    }
+    
+    //Item should be set as tombstone
+    [self logItem:item message:@"Item being tombstoned"];
+    
+    ADTokenCacheItem* tombstoneItem = [item copy];
+    SAFE_ARC_AUTORELEASE(tombstoneItem);
+    [self setCacheItemAsTombstone:tombstoneItem];
+    
+    //update tombstone in cache
+    BOOL updateStatus = [self addOrUpdateItem:tombstoneItem error:error];
+    
+    return updateStatus;
+    
 }
 
-//Interal function: delete an item from keychain
-- (BOOL)deleteItem:(nonnull ADTokenCacheItem *)item
+//Interal function: delete an item from keychain;
+- (OSStatus)deleteItem:(nonnull ADTokenCacheItem *)item
              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     RETURN_NO_ON_NIL_ARGUMENT(item);
@@ -311,9 +306,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     NSMutableDictionary* query = [self queryDictionaryForKey:key
                                                       userId:item.userInformation.userId
                                                   additional:nil];
-    OSStatus status = SecItemDelete((CFDictionaryRef)query);
-
-    return [ADKeychainTokenCache checkStatus:status details:@"Failed to remove item from keychain" error:error];
+    return SecItemDelete((CFDictionaryRef)query);
 }
 
 -(void)setCacheItemAsTombstone:(ADTokenCacheItem*)item
@@ -336,6 +329,26 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         [item setRefreshToken:@"<tombstone>"];
     }
 }
+
+-(NSMutableArray*)filterOutTombstones:(NSArray*) items
+{
+    if (!items)
+    {
+        return nil;
+    }
+    
+    NSMutableArray* itemsKept = [NSMutableArray new];
+    for (ADTokenCacheItem* item in items)
+    {
+        if (![item tombstone])
+        {
+            [itemsKept addObject:item];
+        }
+    }
+    SAFE_ARC_AUTORELEASE(itemsKept);
+    return itemsKept;
+}
+
 
 @end
 
@@ -420,12 +433,16 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
                               error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSArray* items = [self getItemsWithKey:key userId:userId error:error];
-    if (!items || items.count == 0)
+    NSArray* itemsExcludingTombstones = [self filterOutTombstones:items];
+    
+    //if nothing but tombstones is found, tombstones details should be logged.
+    if (!itemsExcludingTombstones || [itemsExcludingTombstones count]==0)
     {
+        [self logTombstones:items];
         return nil;
     }
     
-    if (items.count > 1)
+    if (itemsExcludingTombstones.count > 1)
     {
         ADAuthenticationError* adError =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
@@ -439,16 +456,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         return nil;
     }
     
-    //filter out tombstone
-    if (![items.firstObject tombstone])
-    {
-        return items.firstObject;
-    }
-    else
-    {
-        [self logItem:items.firstObject message:@"Found a tombstone"];
-        return nil;
-    }
+    return itemsExcludingTombstones.firstObject;
 }
 
 /*!
@@ -519,6 +527,21 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
             NSLog(@"!!!!!!!!!!!!!!!!!!!! %lu items remaining...", (unsigned long)items.count);
         }
     }
+}
+
+- (NSArray<ADTokenCacheItem *> *) allTombstones:(ADAuthenticationError * __autoreleasing *)error
+{
+    NSArray* items = [self getItemsWithKey:nil error:error];
+    NSMutableArray* tombstones = [NSMutableArray new];
+    for (ADTokenCacheItem* item in items)
+    {
+        if ([item tombstone])
+        {
+            [tombstones addObject:item];
+        }
+    }
+    SAFE_ARC_AUTORELEASE(tombstones);
+    return tombstones;
 }
 
 @end

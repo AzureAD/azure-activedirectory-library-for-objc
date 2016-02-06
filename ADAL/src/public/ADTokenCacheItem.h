@@ -51,6 +51,8 @@
  The dictionary contains the following pairs:
  @"bundleId":Bundle ID of the app which tombstones the token.
  @"correlationId":correlation ID of the request that we got the error from.
+ @"protocolCode":error code returned by the server for the rejected RT
+  @"errorDetails":error details of the rejected RT
  */
 @property (retain) NSMutableDictionary* tombstone;
 

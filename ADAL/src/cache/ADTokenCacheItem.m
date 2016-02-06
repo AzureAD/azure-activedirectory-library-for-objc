@@ -66,7 +66,7 @@
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.userInformation = [self.userInformation copyWithZone:zone];
     item.sessionKey = [self.sessionKey copyWithZone:zone];
-    item.tombstone = [NSMutableDictionary dictionaryWithDictionary:self.tombstone];
+    item.tombstone = self.tombstone ? [NSMutableDictionary dictionaryWithDictionary:self.tombstone] : nil;
     
     return item;
 }

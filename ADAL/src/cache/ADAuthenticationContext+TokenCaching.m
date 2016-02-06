@@ -199,10 +199,12 @@
                 if ([refreshToken isEqualToString:existing.refreshToken])//If still there, attempt to remove
                 {
                     AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Tombstoning cache for resource: %@", cacheItem.resource);
-                    //set request correlation ID and error details in tombstone property
+                    //update tombstone property before update the tombstone in cache
                     [existing setTombstone:[NSMutableDictionary dictionaryWithDictionary:@{ @"correlationId" : [requestCorrelationId UUIDString],
-                                                                                            @"errorDetails" : [result.error errorDetails]}]];
-                    [tokenCacheStoreInstance removeItem:existing error:nil];
+                                                                                            @"errorDetails" : [result.error errorDetails],
+                                                                                            @"protocolCode" : [result.error protocolCode],
+                                                                                            @"bundleId" : [[NSBundle mainBundle] bundleIdentifier] ? [[NSBundle mainBundle] bundleIdentifier] : @""}]];
+                    [tokenCacheStoreInstance addOrUpdateItem:existing error:nil];
                     removed = YES;
                 }
             }
@@ -217,10 +219,12 @@
                     if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
                     {
                         AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Tombstoning multi-resource refresh token for authority: %@", self.authority);
-                        //set request correlation ID and error details in tombstone property
+                        //update tombstone property before update the tombstone in cache
                         [broadItem setTombstone:[NSMutableDictionary dictionaryWithDictionary:@{ @"correlationId" : [requestCorrelationId UUIDString],
-                                                                                                 @"errorDetails" : [result.error errorDetails]}]];
-                        [tokenCacheStoreInstance removeItem:broadItem error:nil];
+                                                                                                 @"errorDetails" : [result.error errorDetails],
+                                                                                                 @"protocolCode" : [result.error protocolCode],
+                                                                                                 @"bundleId" : [[NSBundle mainBundle] bundleIdentifier] ? [[NSBundle mainBundle] bundleIdentifier] : @""}]];
+                        [tokenCacheStoreInstance addOrUpdateItem:broadItem error:nil];
                     }
                 }
             }
