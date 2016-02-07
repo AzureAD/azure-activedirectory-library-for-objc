@@ -106,6 +106,17 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     return self;
 }
 
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_completionLock);
+    SAFE_ARC_RELEASE(_endURL);
+    SAFE_ARC_RELEASE(_spinnerTimer);
+    SAFE_ARC_RELEASE(_loadingTimer);
+    SAFE_ARC_RELEASE(_completionBlock);
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 + (void)cancelCurrentWebAuthSession
 {
     [[ADWebAuthController sharedInstance] webAuthDidCancel];
@@ -171,6 +182,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     }
     
     [_authenticationViewController stop:^{[self dispatchCompletionBlock:error URL:endURL];}];
+    SAFE_ARC_RELEASE(_authenticationViewController);
     _authenticationViewController = nil;
     
     return YES;
@@ -434,11 +446,15 @@ correlationId:(NSUUID *)correlationId
     _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
     
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
+    SAFE_ARC_RELEASE(_endURL);
     _endURL = [endURL absoluteString];
+    SAFE_ARC_RETAIN(_endURL);
     _complete = NO;
     
     // Save the completion block
+    SAFE_ARC_RELEASE(_completionBlock);
     _completionBlock = [completionBlock copy];
+    SAFE_ARC_RETAIN(_completionBlock);
     ADAuthenticationError* error = nil;
     
     [ADURLProtocol registerProtocol];
@@ -450,6 +466,7 @@ correlationId:(NSUUID *)correlationId
                                        forSingleUse:YES];
     }
     
+    SAFE_ARC_RELEASE(_authenticationViewController);
     _authenticationViewController = [[ADAuthenticationViewController alloc] init];
     [_authenticationViewController setDelegate:self];
     [_authenticationViewController setWebView:webView];

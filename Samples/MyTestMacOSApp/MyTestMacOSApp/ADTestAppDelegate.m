@@ -129,7 +129,7 @@
     NSString* authority = aadInstance.authority;//params.authority;
     NSString* clientId = aadInstance.clientId;
     NSString* resourceString = aadInstance.resource;
-    ADAuthenticationError * error;
+    ADAuthenticationError * error = nil;
     ADAuthenticationContext* context = [ADAuthenticationContext authenticationContextWithAuthority:authority validateAuthority:aadInstance.validateAuthority error:&error];
     if (!context)
     {

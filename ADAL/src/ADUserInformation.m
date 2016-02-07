@@ -49,7 +49,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     return nil;
 }
 
-+ (NSString*)normalizeUserId: (NSString*) userId
++ (NSString*)normalizeUserId:(NSString*)userId
 {
     if (!userId)
     {
@@ -60,7 +60,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     return normalized.length ? normalized : nil;
 }
 
-- (id)initWithUserId: (NSString*) userId
+- (id)initWithUserId:(NSString*)userId
 {
     THROW_ON_NIL_EMPTY_ARGUMENT(userId);//Shouldn't be called with nil.
     self = [super init];
@@ -79,23 +79,27 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     { \
         *error = idTokenError; \
     } \
+    SAFE_ARC_RELEASE(self); \
     return nil; \
 }
 
 
--(ADAuthenticationError*) errorFromIdToken: (NSString*) idTokenText
+- (ADAuthenticationError*)errorFromIdToken:(NSString*)idTokenText
 {
-    THROW_ON_NIL_ARGUMENT(idTokenText);
     return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:nil errorDetails:[NSString stringWithFormat: @"The id_token contents cannot be parsed: %@", idTokenText]];
 }
 
 - (id)initWithIdToken:(NSString *)idToken
                 error:(ADAuthenticationError * __autoreleasing *)error
 {
-    THROW_ON_NIL_ARGUMENT(idToken);
-    self = [super init];
-    if (!self)
+    if (!(self = [super init]))
     {
+        return nil;
+    }
+    
+    if (!idToken)
+    {
+        SAFE_ARC_RELEASE(self);
         return nil;
     }
 
@@ -163,6 +167,8 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
         AD_LOG_WARN(@"The id_token type is missing.", nil, @"Assuming JWT type.");
     }
     
+    _allClaims = allClaims;
+    
     //Now attempt to extract an unique user id:
     if (![NSString adIsStringNilOrBlank:self.upn])
     {
@@ -205,11 +211,11 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     {
         _uniqueId = self.subject;
     }
-    
     _uniqueId = [ADUserInformation normalizeUserId:_uniqueId];
     
-    SAFE_ARC_RETAIN(allClaims);
-    _allClaims = allClaims;
+    SAFE_ARC_RETAIN(_userId);
+    SAFE_ARC_RETAIN(_uniqueId);
+    SAFE_ARC_RETAIN(_allClaims);
     
     return self;
 }
@@ -232,15 +238,6 @@ ID_TOKEN_PROPERTY_GETTER(identityProvider, ID_TOKEN_IDENTITY_PROVIDER);
 ID_TOKEN_PROPERTY_GETTER(userObjectId, ID_TOKEN_OBJECT_ID);
 ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
 
-+ (ADUserInformation*)userInformationWithUserId:(NSString *)userId
-                                          error:(ADAuthenticationError * __autoreleasing *)error
-{
-    RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(userId);
-    ADUserInformation* userInfo = [[ADUserInformation alloc] initWithUserId:userId];
-    SAFE_ARC_AUTORELEASE(userInfo);
-    return userInfo;
-}
-
 + (ADUserInformation*)userInformationWithIdToken:(NSString *)idToken
                                            error:(ADAuthenticationError * __autoreleasing *)error
 {
@@ -253,11 +250,10 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
 - (id)copyWithZone:(NSZone *)zone
 {
     //Deep copy. Note that the user may have passed NSMutableString objects, so all of the objects should be copied:
-    ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithUserId:self.userId];
-    info->_userIdDisplayable  = self.userIdDisplayable;
-    info->_rawIdToken       = [self.rawIdToken copyWithZone:zone];
-    info->_allClaims        = [self.allClaims copyWithZone:zone];
-    
+    NSString* idtoken = [_rawIdToken copyWithZone:zone];
+    ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithIdToken:idtoken
+                                                                                error:nil];
+    SAFE_ARC_RELEASE(idtoken);
     return info;
 }
 
@@ -269,32 +265,15 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
 //Serialize:
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
-    [aCoder encodeObject:self.userId forKey:@"userId"];
-    [aCoder encodeBool:self.userIdDisplayable forKey:@"userIdDisplayable"];
-    [aCoder encodeObject:self.rawIdToken forKey:@"rawIdToken"];
-    [aCoder encodeObject:self.allClaims forKey:@"allClaims"];
+    [aCoder encodeObject:_rawIdToken forKey:@"rawIdToken"];
 }
 
 //Deserialize:
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
-    NSString* storedUserId      = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userId"];
-    if ([NSString adIsStringNilOrBlank:storedUserId])
-    {
-        //The userId should be valid:
-        AD_LOG_ERROR_F(@"Invalid user information", AD_ERROR_BAD_CACHE_FORMAT, nil, @"Invalid userId: %@", storedUserId);
-        
-        return nil;
-    }
-    self = [self initWithUserId:storedUserId];
-    if (self)
-    {
-        _userIdDisplayable  = [aDecoder decodeBoolForKey:@"userIdDisplayable"];
-        _rawIdToken             = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
-        _allClaims              = [aDecoder decodeObjectOfClass:[NSDictionary class] forKey:@"allClaims"];
-    }
+    NSString* idToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
     
-    return self;
+    return [self initWithIdToken:idToken error:nil];
 }
 
 @end

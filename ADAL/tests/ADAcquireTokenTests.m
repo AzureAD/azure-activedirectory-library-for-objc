@@ -42,7 +42,6 @@ const int sAsyncContextTimeout = 10;
 #define TEST_SIGNAL dispatch_semaphore_signal(_dsem)
 #define TEST_WAIT dispatch_semaphore_wait(_dsem, DISPATCH_TIME_FOREVER)
 
-
 @implementation ADAcquireTokenTests
 
 - (void)setUp
@@ -53,6 +52,7 @@ const int sAsyncContextTimeout = 10;
 
 - (void)tearDown
 {
+    SAFE_ARC_DISPATCH_RELEASE(_dsem);
     _dsem = nil;
     
     XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
@@ -629,7 +629,7 @@ const int sAsyncContextTimeout = 10;
 -(void) testRequestRetryOnUnusualHttpResponse
 {
     //Create a normal authority (not a test one):
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
     // Add a expired access token with refresh token to the cache
@@ -654,8 +654,6 @@ const int sAsyncContextTimeout = 10;
     //Then hit network twice again for broad refresh token for the same reason
     //So totally 4 responses are added
     //If there is an infinite retry, exception will be thrown becasuse there is not enough responses
-    [ADTestURLConnection addResponse:response];
-    [ADTestURLConnection addResponse:response];
     [ADTestURLConnection addResponse:response];
     [ADTestURLConnection addResponse:response];
     

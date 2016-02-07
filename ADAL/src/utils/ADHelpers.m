@@ -141,7 +141,7 @@
 + (NSString *)JSONFromDictionary:(NSDictionary *)dictionary
 {
     
-    NSError *error;
+    NSError *error = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary
                                                        options:NSJSONWritingPrettyPrinted
                                                          error:&error];

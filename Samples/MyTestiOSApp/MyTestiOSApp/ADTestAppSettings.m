@@ -55,17 +55,4 @@ NSString* const sAADTestInstance = @"AAD Instance";
     return self;
 }
 
-//Code coverage logic:
-#ifdef AD_CODE_COVERAGE
-extern void __gcov_flush(void);
--(void) flushCodeCoverage
-{
-    __gcov_flush();
-}
-#else
-//No-op:
--(void) flushCodeCoverage{}
-#endif
-
-
 @end

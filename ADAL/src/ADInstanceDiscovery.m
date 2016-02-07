@@ -27,36 +27,29 @@
 #import "NSString+ADHelperMethods.h"
 #import "ADClientMetrics.h"
 
-NSString* const sTrustedAuthority = @"https://login.windows.net";
-NSString* const sApiVersionKey = @"api-version";
-NSString* const sApiVersion = @"1.0";
-NSString* const sAuthorizationEndPointKey = @"authorization_endpoint";
-NSString* const sCommonAuthorizationEndpoint = @"common/oauth2/authorize";
-NSString* const sTenantDiscoveryEndpoint = @"tenant_discovery_endpoint";
+static NSString* const sTrustedAuthority = @"https://login.windows.net";
+static NSString* const sApiVersionKey = @"api-version";
+static NSString* const sApiVersion = @"1.0";
+static NSString* const sAuthorizationEndPointKey = @"authorization_endpoint";
+static NSString* const sTenantDiscoveryEndpoint = @"tenant_discovery_endpoint";
 
-NSString* const sValidationServerError = @"The authority validation server returned an error: %@.";
+static NSString* const sValidationServerError = @"The authority validation server returned an error: %@.";
 
 @implementation ADInstanceDiscovery
 
--(id) init
+- (id)init
 {
-    [super doesNotRecognizeSelector:_cmd];//Throws an exception.
-    return nil;
-}
-
--(id) initInternal
-{
-    self = [super init];
-    if (self)
+    if (!(self = [super init]))
     {
-        mValidatedAuthorities = [NSMutableSet new];
-        //List of prevalidated authorities (Azure Active Directory cloud instances).
-        //Only the sThrustedAuthority is used for validation of new authorities.
-        [mValidatedAuthorities addObject:sTrustedAuthority];
-        [mValidatedAuthorities addObject:@"https://login.chinacloudapi.cn"];
-        [mValidatedAuthorities addObject:@"https://login.cloudgovapi.us"];
-        [mValidatedAuthorities addObject:@"https://login.microsoftonline.com"];
+        return nil;
     }
+    _validatedAuthorities = [NSMutableSet new];
+    //List of prevalidated authorities (Azure Active Directory cloud instances).
+    //Only the sThrustedAuthority is used for validation of new authorities.
+    [_validatedAuthorities addObject:sTrustedAuthority];
+    [_validatedAuthorities addObject:@"https://login.chinacloudapi.cn"];
+    [_validatedAuthorities addObject:@"https://login.cloudgovapi.us"];
+    [_validatedAuthorities addObject:@"https://login.microsoftonline.com"];
     
     return self;
 }
@@ -65,26 +58,20 @@ NSString* const sValidationServerError = @"The authority validation server retur
 - (NSSet*)validatedAuthorities
 {
     API_ENTRY;
-    NSSet* copy;
-    @synchronized (self)
-    {
-        copy = [NSSet setWithSet:mValidatedAuthorities];
-    }
-    return copy;
+    return _validatedAuthorities;
 }
 
 + (ADInstanceDiscovery*)sharedInstance
 {
     API_ENTRY;
-    @synchronized (self)
-    {
-        static ADInstanceDiscovery* instance;
-        if (!instance)
-        {
-            instance = [[ADInstanceDiscovery alloc] initInternal];
-        }
-        return instance;
-    }
+    static dispatch_once_t once;
+    static ADInstanceDiscovery* singleton = nil;
+    
+    dispatch_once(&once, ^{
+        singleton = [[ADInstanceDiscovery alloc] init];
+    });
+    
+    return singleton;
 }
 
 /*! Extracts the base URL host, e.g. if the authority is
@@ -135,9 +122,9 @@ NSString* const sValidationServerError = @"The authority validation server retur
     return [NSString stringWithFormat:@"https://%@", fullUrl.host];
 }
 
--(void) validateAuthority: (NSString*) authority
-            correlationId: (NSUUID*) correlationId
-          completionBlock: (ADDiscoveryCallback) completionBlock;
+- (void)validateAuthority:(NSString *)authority
+            correlationId:(NSUUID *)correlationId
+          completionBlock:(ADDiscoveryCallback)completionBlock;
 {
     API_ENTRY;
     THROW_ON_NIL_ARGUMENT(completionBlock);
@@ -148,6 +135,8 @@ NSString* const sValidationServerError = @"The authority validation server retur
     
     NSString* message = [NSString stringWithFormat:@"Attempting to validate the authority: %@; CorrelationId: %@", authority, [correlationId UUIDString]];
     AD_LOG_VERBOSE(@"Instance discovery", correlationId, message);
+    
+    authority = [authority lowercaseString];
     
     ADAuthenticationError* error = nil;
     NSString* authorityHost = [self extractHost:authority correlationId:correlationId error:&error];
@@ -174,15 +163,14 @@ NSString* const sValidationServerError = @"The authority validation server retur
 
 //Checks the cache for previously validated authority.
 //Note that the authority host should be normalized: no ending "/" and lowercase.
--(BOOL) isAuthorityValidated: (NSString*) authorityHost
+- (BOOL)isAuthorityValidated:(NSString *)authorityHost
 {
-    THROW_ON_NIL_EMPTY_ARGUMENT(authorityHost);
-    
-    BOOL validated;
-    @synchronized(self)
+    if (!authorityHost)
     {
-        validated = [mValidatedAuthorities containsObject:authorityHost];
+        return NO;
     }
+    
+    BOOL validated = [_validatedAuthorities containsObject:authorityHost];
     
     NSString* message = [NSString stringWithFormat:@"Checking cache for '%@'. Result: %d", authorityHost, validated];
     AD_LOG_VERBOSE(@"Authority Validation Cache", nil, message);
@@ -190,27 +178,82 @@ NSString* const sValidationServerError = @"The authority validation server retur
 }
 
 //Note that the authority host should be normalized: no ending "/" and lowercase.
--(void) setAuthorityValidation: (NSString*) authorityHost
+- (BOOL)addValidAuthority:(NSString *)authorityHost
 {
-    THROW_ON_NIL_EMPTY_ARGUMENT(authorityHost);
-    
-    @synchronized(self)
+    if ([NSString adIsStringNilOrBlank:authorityHost])
     {
-        [mValidatedAuthorities addObject:authorityHost];
+        return NO;
     }
+    
+    [_validatedAuthorities addObject:authorityHost];
     
     NSString* message = [NSString stringWithFormat:@"Setting validation set to YES for authority '%@'", authorityHost];
     AD_LOG_VERBOSE(@"Authority Validation Cache", nil, message);
+    return YES;
 }
+
+- (ADAuthenticationError *)processWebReponse:(ADWebResponse *)webResponse
+                               authorityHost:(NSString *)authorityHost
+                               correlationId:(NSUUID *)correlationId
+{
+    NSInteger code = webResponse.statusCode;
+    if (!(code == 200 || code == 400 || code == 401))
+    {
+        NSString* logMessage = [NSString stringWithFormat:@"Server HTTP Status %ld", (long)webResponse.statusCode];
+        NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", SAFE_ARC_AUTORELEASE([[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding])];
+        AD_LOG_WARN(logMessage, correlationId, errorData);
+        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData];
+    }
+
+    NSError   *jsonError  = nil;
+    id         jsonObject = [NSJSONSerialization JSONObjectWithData:webResponse.body options:0 error:&jsonError];
+    
+    if (!jsonObject)
+    {
+        NSString* details = jsonError ? jsonError.localizedDescription :
+        @"No JSON object was in the web response data";
+        
+        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
+                                                      protocolCode:nil
+                                                      errorDetails:details];
+    }
+    
+    if (![jsonObject isKindOfClass:[NSDictionary class]])
+    {
+        NSString* errorMessage = [NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]];
+        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
+                                                      protocolCode:nil
+                                                      errorDetails:errorMessage];
+    }
+    
+    // Load the response
+    NSDictionary* response = (NSDictionary *)jsonObject;
+    AD_LOG_VERBOSE(@"Discovery response", correlationId, response.description);
+    BOOL verified = ![NSString adIsStringNilOrBlank:[response objectForKey:sTenantDiscoveryEndpoint]];
+    if (!verified)
+    {
+        //First check for explicit OAuth2 protocol error:
+        NSString* serverOAuth2Error = [response objectForKey:OAUTH2_ERROR];
+        NSString* errorDetails = [response objectForKey:OAUTH2_ERROR_DESCRIPTION];
+        // Error response from the server
+        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
+                                                      protocolCode:serverOAuth2Error
+                                                      errorDetails:(errorDetails) ? errorDetails : [NSString stringWithFormat:sValidationServerError, serverOAuth2Error]];
+    }
+    
+    [self addValidAuthority:authorityHost];
+    return nil;
+}
+
 
 //Sends authority validation to the trustedAuthority by leveraging the instance discovery endpoint
 //If the authority is known, the server will set the "tenant_discovery_endpoint" parameter in the response.
 //The method should be executed on a thread that is guarranteed to exist upon completion, e.g. the UI thread.
--(void) requestValidationOfAuthority: (NSString*) authority
-                                host: (NSString*) authorityHost
-                    trustedAuthority: (NSString*) trustedAuthority
-                       correlationId: (NSUUID*) correlationId
-                     completionBlock: (ADDiscoveryCallback) completionBlock
+- (void)requestValidationOfAuthority:(NSString *)authority
+                                host:(NSString *)authorityHost
+                    trustedAuthority:(NSString *)trustedAuthority
+                       correlationId:(NSUUID *)correlationId
+                     completionBlock:(ADDiscoveryCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
     THROW_ON_NIL_ARGUMENT(correlationId);//Should be set by the caller
@@ -234,94 +277,35 @@ NSString* const sValidationServerError = @"The authority validation server retur
     [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[correlationId UUIDString] requestHeader:webRequest.headers];
     
     [webRequest send:^( NSError *error, ADWebResponse *webResponse )
-     {
-         // Request completion callback
-         NSDictionary *response = nil;
-         
-         BOOL verified = NO;
-         ADAuthenticationError* adError = nil;
-         if ( error == nil )
-         {
-             switch (webResponse.statusCode)
-             {
-                 case 200:
-                 case 400:
-                 case 401:
-                 {
-                     NSError   *jsonError  = nil;
-                     id         jsonObject = [NSJSONSerialization JSONObjectWithData:webResponse.body options:0 error:&jsonError];
-                     
-                     if ( nil != jsonObject && [jsonObject isKindOfClass:[NSDictionary class]] )
-                     {
-                         // Load the response
-                         response = (NSDictionary *)jsonObject;
-                         AD_LOG_VERBOSE(@"Discovery response", correlationId, response.description);
-                         verified = ![NSString adIsStringNilOrBlank:[response objectForKey:sTenantDiscoveryEndpoint]];
-                         if (verified)
-                         {
-                             [self setAuthorityValidation:authorityHost];
-                         }
-                         else
-                         {
-                             //First check for explicit OAuth2 protocol error:
-                             NSString* serverOAuth2Error = [response objectForKey:OAUTH2_ERROR];
-                             NSString* errorDetails = [response objectForKey:OAUTH2_ERROR_DESCRIPTION];
-                             // Error response from the server
-                             adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
-                                                                              protocolCode:serverOAuth2Error
-                                                                              errorDetails:(errorDetails) ? errorDetails : [NSString stringWithFormat:sValidationServerError, serverOAuth2Error]];
-                             
-                         }
-                     }
-                     else
-                     {
-                         if (jsonError)
-                         {
-                             adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
-                                                                              protocolCode:nil
-                                                                              errorDetails:jsonError.localizedDescription];
-                         }
-                         else
-                         {
-                             NSString* errorMessage = [NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]];
-                             adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
-                                                                              protocolCode:nil
-                                                                              errorDetails:errorMessage];
-                         }
-                     }
-                 }
-                     break;
-                 default:
-                 {
-                     // Request failure
-                     NSString* logMessage = [NSString stringWithFormat:@"Server HTTP Status %ld", (long)webResponse.statusCode];
-                     NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", SAFE_ARC_AUTORELEASE([[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding])];
-                     AD_LOG_WARN(logMessage, correlationId, errorData);
-                     adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData];
-                 }
-             }
-         }
-         else
-         {
-             AD_LOG_WARN(@"System error while making request.", correlationId, error.description);
-             // System error
-             adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription];
-         }
-         
-         if(adError)
-         {
-             [[ADClientMetrics getInstance] endClientMetricsRecord:[adError description]];
-         }
-         else
-         {
-             [[ADClientMetrics getInstance] endClientMetricsRecord:nil];
-         }
-         
-         completionBlock( verified, adError );
+    {
+        ADAuthenticationError* adError = nil;
+        if (error)
+        {
+            AD_LOG_WARN(@"System error while making request.", correlationId, error.description);
+            adError = [ADAuthenticationError errorFromNSError:error
+                                                 errorDetails:error.localizedDescription];
+        }
+        else
+        {
+            adError = [self processWebReponse:webResponse
+                                authorityHost:authorityHost
+                                correlationId:correlationId];
+        }
+        
+        if (adError)
+        {
+            [[ADClientMetrics getInstance] endClientMetricsRecord:[adError description]];
+        }
+        else
+        {
+            [[ADClientMetrics getInstance] endClientMetricsRecord:nil];
+        }
+        
+         completionBlock(!adError, adError);
      }];
 }
 
-+(NSString*) canonicalizeAuthority: (NSString*) authority
++ (NSString*)canonicalizeAuthority:(NSString *)authority
 {
     if ([NSString adIsStringNilOrBlank:authority])
     {

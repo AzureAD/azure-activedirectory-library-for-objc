@@ -80,9 +80,9 @@
         //Cache should be used in this case:
         BOOL accessTokenUsable;
         ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key
-                                                                   userId:_identifier
-                                                           useAccessToken:&accessTokenUsable
-                                                                    error:&error];
+                                                              userId:_identifier
+                                                      useAccessToken:&accessTokenUsable
+                                                               error:&error];
         if (error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);

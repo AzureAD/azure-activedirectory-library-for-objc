@@ -38,11 +38,20 @@
     if ( ( self = [super init] ) != nil )
     {
         _response = response;
+        SAFE_ARC_RETAIN(_response);
         _body     = data;
-        _bodyText = nil;
+        SAFE_ARC_RETAIN(_body);
     }
     
     return self;
+}
+
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_response);
+    SAFE_ARC_RELEASE(_body);
+    
+    SAFE_ARC_SUPER_DEALLOC();
 }
 
 - (NSDictionary *)headers

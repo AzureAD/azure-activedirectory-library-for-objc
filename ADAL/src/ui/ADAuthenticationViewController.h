@@ -28,7 +28,7 @@ NSWindowController
     // you can't define the ivars of a class in the implementation file.
     __weak id<ADWebAuthDelegate> _delegate;
     __weak WebViewType* _webView;
-    /*__weak*/ NSProgressIndicator* _progressIndicator;
+    __weak NSProgressIndicator* _progressIndicator;
 }
 #endif
 

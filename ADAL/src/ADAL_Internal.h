@@ -139,7 +139,7 @@ AD_LOG_VERBOSE(__adalVersion, nil, __where); \
 #if __has_feature(objc_arc)
 #   define SAFE_ARC_PROP_RETAIN strong
 #   define SAFE_ARC_RETAIN(x) (x)
-#   define SAFE_ARC_RELEASE(x) x = nil;
+#   define SAFE_ARC_RELEASE(x)
 #   define SAFE_ARC_AUTORELEASE(x) (x)
 #   define SAFE_ARC_BLOCK_COPY(x) (x)
 #   define SAFE_ARC_BLOCK_RELEASE(x)
@@ -151,7 +151,7 @@ AD_LOG_VERBOSE(__adalVersion, nil, __where); \
 #else
 #   define SAFE_ARC_PROP_RETAIN retain
 #   define SAFE_ARC_RETAIN(x) ([(x) retain])
-#   define SAFE_ARC_RELEASE(x) { [(x) release]; x=nil; }
+#   define SAFE_ARC_RELEASE(x) { [(x) release]; }
 #   define SAFE_ARC_AUTORELEASE(x) ([(x) autorelease])
 #   define SAFE_ARC_BLOCK_COPY(x) (Block_copy(x))
 #   define SAFE_ARC_BLOCK_RELEASE(x) (Block_release(x))

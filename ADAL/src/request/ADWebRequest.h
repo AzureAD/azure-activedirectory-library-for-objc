@@ -26,15 +26,16 @@ extern NSString *const HTTPPost;
 {
     NSURLConnection * _connection;
     
+    NSURL * _requestURL;
+    NSString* _requestMethod;
+    NSMutableDictionary* _requestHeaders;
     NSData * _requestData;
     
     NSHTTPURLResponse * _response;
     NSMutableData * _responseData;
+    
     NSUUID * _correlationId;
     
-    NSURL * _requestURL;
-    NSMutableDictionary* _requestHeaders;
-    NSString* _requestMethod;
     NSUInteger _timeout;
     
     NSOperationQueue * _operationQueue;

@@ -148,15 +148,25 @@
     }
     
     _resource = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"resource"];
+    SAFE_ARC_RETAIN(_resource);
     _authority = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"authority"];
+    SAFE_ARC_RETAIN(_authority);
+    
     _clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
+    SAFE_ARC_RETAIN(_clientId);
     _accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
+    SAFE_ARC_RETAIN(_accessToken);
     _accessTokenType = [aDecoder decodeObjectOfClass:[NSString class]
                                                   forKey:@"accessTokenType"];
+    SAFE_ARC_RETAIN(_accessTokenType);
     _sessionKey = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"sessionKey"];
+    SAFE_ARC_RETAIN(_sessionKey);
     _refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
+    SAFE_ARC_RETAIN(_refreshToken);
     _expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
+    SAFE_ARC_RETAIN(_expiresOn);
     _userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
+    SAFE_ARC_RETAIN(_userInformation);
     
     [self calculateHash];
     
@@ -211,7 +221,9 @@
 
 - (void)setClientId:(NSString *)clientId
 {
+    SAFE_ARC_RELEASE(_clientId);
     _clientId = clientId;
+    SAFE_ARC_RETAIN(_clientId);
     [self calculateHash];
 }
 
@@ -222,7 +234,9 @@
 
 - (void)setUserInformation:(ADUserInformation *)userInformation
 {
+    SAFE_ARC_RELEASE(_userInformation);
     _userInformation = userInformation;
+    SAFE_ARC_RETAIN(_userInformation);
     [self calculateHash];
 }
 
@@ -233,7 +247,9 @@
 
 - (void)setResource:(NSString *)resource
 {
+    SAFE_ARC_RELEASE(_resource);
     _resource = resource;
+    SAFE_ARC_RETAIN(_resource);
     [self calculateHash];
 }
 
@@ -244,7 +260,9 @@
 
 - (void)setAuthority:(NSString *)authority
 {
+    SAFE_ARC_RELEASE(_authority);
     _authority = authority;
+    SAFE_ARC_RETAIN(_authority);
     [self calculateHash];
 }
 

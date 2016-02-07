@@ -67,34 +67,11 @@
     XCTAssertTrue(item.isEmptyUser, "The default item should not have a user.");
 }
 
--(void) verifySameUser: (NSString*) userId1
-               userId2: (NSString*) userId2
+- (void)verifySameUser:(NSString *)userId1
+               userId2:(NSString *)userId2
 {
-    ADAuthenticationError* error;
-    
-    ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
-    if (userId1)
-    {
-        item1.userInformation = [ADUserInformation userInformationWithUserId:userId1 error:&error];
-        ADAssertNoError;
-        XCTAssertNotNil(item1.userInformation);
-    }
-    else
-    {
-        item1.userInformation = nil;
-    }
-    
-    ADTokenCacheItem* item2 = [self adCreateCacheItem:@"eric@contoso.com"];
-    if (userId2)
-    {
-        item2.userInformation = [ADUserInformation userInformationWithUserId:userId2 error:&error];
-        ADAssertNoError;
-        XCTAssertNotNil(item2.userInformation);
-    }
-    else
-    {
-        item2.userInformation = nil;
-    }
+    ADTokenCacheItem* item1 = [self adCreateCacheItem:userId1];
+    ADTokenCacheItem* item2 = [self adCreateCacheItem:userId2];
     
     XCTAssertTrue([item1 isSameUser:item2], "Should be the same: '%@' and '%@", userId1, userId2);
     XCTAssertTrue([item2 isSameUser:item1], "Should be the same: '%@' and '%@", userId1, userId2);
@@ -102,24 +79,6 @@
 
 -(void)testIsSameUser
 {
-    //Check the trivial cases:
-    ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
-    XCTAssertTrue([item isSameUser:item]);//self
-    ADTokenCacheItem* copy = [item copy];
-    XCTAssertTrue([item isSameUser:copy]);
-    XCTAssertTrue([copy isSameUser:item]);
-    
-    ADAuthenticationError* error;
-    item.userInformation = [ADUserInformation userInformationWithUserId:@"Another user   " error:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(item.userInformation);
-    XCTAssertFalse([item isSameUser:copy]);
-    XCTAssertFalse([copy isSameUser:item]);
-    
-    copy.userInformation = nil;
-    XCTAssertFalse([item isSameUser:copy]);
-    XCTAssertFalse([copy isSameUser:item]);
-    
     [self verifySameUser:nil userId2:nil];
     [self verifySameUser:@" test user" userId2:@"test user"];
     [self verifySameUser:@" test user  " userId2:@"     test user     "];

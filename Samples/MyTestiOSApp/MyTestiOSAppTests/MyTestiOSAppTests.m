@@ -48,7 +48,7 @@ const int sTokenWorkflowTimeout     = 20;
                                                  line: (int) line;
 {
     XCTAssertNotNil(instance, "Test error");
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADAuthenticationContext* context =
         [ADAuthenticationContext authenticationContextWithAuthority:instance.authority
                                                   validateAuthority:instance.validateAuthority
@@ -130,7 +130,7 @@ const int sTokenWorkflowTimeout     = 20;
 
 -(void) clearCache
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore removeAllWithError:&error];
     XCTAssertNil(error.errorDetails);
 }
@@ -356,7 +356,7 @@ const int sTokenWorkflowTimeout     = 20;
     
     //Now remove the access token and ensure that the refresh token is leveraged:
     result.tokenCacheItem.accessToken = nil;
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore addOrUpdateItem:result.tokenCacheItem error:&error];
     XCTAssertNil(error);
     [self clearCookies];//Just in case
@@ -427,7 +427,7 @@ const int sTokenWorkflowTimeout     = 20;
 -(long) cacheCount
 {
     id<ADTokenCacheEnumerator> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     NSArray* all = [cache allItemsWithError:&error];
     XCTAssertNotNil(all);
     XCTAssertNil(error.errorDetails);

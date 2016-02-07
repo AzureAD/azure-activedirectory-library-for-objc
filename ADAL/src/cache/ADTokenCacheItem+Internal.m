@@ -36,10 +36,9 @@
     AD_LOG_VERBOSE(@"Token extraction", requestCorrelationId, @"Attempt to extract the data from the server response.");
     
     NSString* responseId = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
-    NSUUID* responseUUID;
     if (![NSString adIsStringNilOrBlank:responseId])
     {
-        responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
+        NSUUID* responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
         if (!responseUUID)
         {
             AD_LOG_INFO_F(@"Bad correlation id", nil, @"The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, responseId);
@@ -48,6 +47,7 @@
         {
             AD_LOG_INFO_F(@"Correlation id mismatch", nil, @"Mismatch between the sent correlation id and the received one. Sent: %@; Received: %@", requestCorrelationId, responseId);
         }
+        SAFE_ARC_RELEASE(responseUUID);
     }
     else
     {
@@ -169,6 +169,8 @@
                  expiresOn:nil
              correlationId:correlationUUID];
     }
+    
+    SAFE_ARC_RELEASE(correlationUUID);
 }
 
 

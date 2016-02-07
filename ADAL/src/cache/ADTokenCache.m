@@ -68,6 +68,8 @@
 {
     SAFE_ARC_RELEASE(_delegate);
     _delegate = delegate;
+    SAFE_ARC_RETAIN(_delegate);
+    SAFE_ARC_RELEASE(_cache);
     _cache = nil;
     
     if (!delegate)
@@ -132,6 +134,7 @@
     // If they pass in nil on deserialize that means to drop the cache
     if (!data)
     {
+        SAFE_ARC_RELEASE(_cache);
         _cache = nil;
         return YES;
     }
@@ -148,6 +151,7 @@
     }
     
     _cache = [cache objectForKey:@"tokenCache"];
+    SAFE_ARC_RETAIN(_cache);
     return YES;
 }
 
@@ -160,13 +164,13 @@
         if (_cache)
         {
             AD_LOG_WARN(@"nil data provided to -updateCache, dropping old cache", nil, nil);
+            SAFE_ARC_RELEASE(_cache);
+            _cache = nil;
         }
         else
         {
             AD_LOG_INFO(@"No data provided for cache.", nil, nil);
         }
-        
-        _cache = nil;
         return YES;
     }
     
@@ -555,6 +559,11 @@
     SAFE_ARC_RELEASE(item);
     
     return YES;
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"ADTokenCache: %@", _cache];
 }
 
 @end

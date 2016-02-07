@@ -220,6 +220,7 @@ correlationId:(NSUUID*)correlationId
         }
         
         s_adalId = result;
+        SAFE_ARC_RETAIN(s_adalId);
     });
     
     return s_adalId;

@@ -104,9 +104,6 @@
     item.accessTokenType = @"tokenType";
     item.refreshToken = @"refreshToken";
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:30];
-    ADAuthenticationError* error;
-    item.userInformation = [ADUserInformation userInformationWithUserId:@"user" error:&error];
-    ADAssertNoError;
     
     //Copy the item to ensure that it is not modified withing the method call below:
     ADAuthenticationResult* resultFromValidItem = [ADAuthenticationResult resultFromTokenCacheItem:[item copy] multiResourceRefreshToken:NO correlationId:nil];

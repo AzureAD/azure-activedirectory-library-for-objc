@@ -113,11 +113,12 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
         RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
     }
     
-    
     _authority = extractedAuthority;
+    SAFE_ARC_RETAIN(_authority);
     _validateAuthority = validateAuthority;
     _credentialsType = AD_CREDENTIALS_EMBEDDED;
     _tokenCacheStore = tokenCache;
+    SAFE_ARC_RETAIN(_tokenCacheStore);
     
     return self;
 }
@@ -130,10 +131,12 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     ADTokenCache* cache = [ADTokenCache new];
     [cache setDelegate:delegate];
     
-    return [self initWithAuthority:authority
+    self = [self initWithAuthority:authority
                  validateAuthority:validateAuthority
                         tokenCache:cache
                              error:error];
+    SAFE_ARC_RELEASE(cache);
+    return self;
 }
 
 - (id)initWithAuthority:(NSString *)authority
@@ -419,7 +422,9 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 - (void)setTokenCacheStore:(id<ADTokenCacheAccessor>)tokenCacheStore
 {
+    SAFE_ARC_RELEASE(_tokenCacheStore);
     _tokenCacheStore = tokenCacheStore;
+    SAFE_ARC_RETAIN(_tokenCacheStore);
 }
 
 - (id<ADTokenCacheAccessor>)tokenCacheStore

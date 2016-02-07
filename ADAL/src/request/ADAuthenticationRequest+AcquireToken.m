@@ -63,7 +63,7 @@
     [self ensureRequest];
     
     //Check the cache:
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     //We are explicitly creating a key first to ensure indirectly that all of the required arguments are correct.
     //This is the safest way to guarantee it, it will raise an error, if the the any argument is not correct:
     ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_context.authority
@@ -83,7 +83,7 @@
         //Cache should be used in this case:
         BOOL accessTokenUsable;
         ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key userId:_identifier useAccessToken:&accessTokenUsable error:&error];
-        if (error)
+        if (!cacheItem && error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
             return;
@@ -152,9 +152,9 @@
              if (broadKey)
              {
                  BOOL useAccessToken;
-                 ADAuthenticationError* error;
+                 ADAuthenticationError* error = nil;
                  ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
-                 if (error)
+                 if (!broadItem && error)
                  {
                      completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
                      return;

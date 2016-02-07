@@ -20,7 +20,6 @@
 {
     NSHTTPURLResponse *_response;
     NSData            *_body;
-    NSString          *_bodyText;
 }
 
 @property (strong, readonly) NSData * body;

@@ -62,7 +62,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 - (long)count
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     NSArray* all = [mStore allItems:&error];
     ADAssertNoError;
     XCTAssertNotNil(all);

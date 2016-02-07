@@ -59,6 +59,11 @@
                                 useAccessToken:(BOOL*) useAccessToken
                                          error:(ADAuthenticationError* __autoreleasing*) error
 {
+    if (error)
+    {
+        *error = nil;
+    }
+    
     if (!key || !self.tokenCacheStore)
     {
         return nil;//Nothing to return

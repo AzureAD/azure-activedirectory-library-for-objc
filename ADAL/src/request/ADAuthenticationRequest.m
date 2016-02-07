@@ -33,7 +33,7 @@
 
 @implementation ADAuthenticationRequest
 
-#define RETURN_IF_NIL(_X) { if (!_X) { AD_LOG_ERROR(@#_X " must not be nil!", AD_FAILED, nil, nil); return nil; } }
+#define RETURN_IF_NIL(_X) { if (!_X) { AD_LOG_ERROR(@#_X " must not be nil!", AD_FAILED, nil, nil); SAFE_ARC_RELEASE(self); return nil; } }
 #define ERROR_RETURN_IF_NIL(_X) { \
     if (!_X) { \
         if (error) { \
@@ -67,10 +67,14 @@
     if (!(self = [super init]))
         return nil;
     
+    SAFE_ARC_RETAIN(context);
     _context = context;
     _redirectUri = [redirectUri adTrimmedString];
+    SAFE_ARC_RETAIN(_redirectUri);
     _clientId = [clientId adTrimmedString];
+    SAFE_ARC_RETAIN(_clientId);
     _resource = [resource adTrimmedString];
+    SAFE_ARC_RETAIN(_resource);
     
     _promptBehavior = AD_PROMPT_AUTO;
     
@@ -106,25 +110,33 @@
 - (void)setScope:(NSString *)scope
 {
     CHECK_REQUEST_STARTED;
+    SAFE_ARC_RELEASE(_scope);
     _scope = scope;
+    SAFE_ARC_RETAIN(_scope);
 }
 
 - (void)setExtraQueryParameters:(NSString *)queryParams
 {
     CHECK_REQUEST_STARTED;
+    SAFE_ARC_RELEASE(_queryParams);
     _queryParams = queryParams;
+    SAFE_ARC_RETAIN(_queryParams);
 }
 
 - (void)setUserIdentifier:(ADUserIdentifier *)identifier
 {
     CHECK_REQUEST_STARTED;
+    SAFE_ARC_RELEASE(_identifier);
     _identifier = identifier;
+    SAFE_ARC_RETAIN(_identifier);
 }
 
 - (void)setUserId:(NSString *)userId
 {
     CHECK_REQUEST_STARTED;
+    SAFE_ARC_RELEASE(_identifier);
     _identifier = [ADUserIdentifier identifierWithId:userId];
+    SAFE_ARC_RETAIN(_identifier);
 }
 
 - (void)setPromptBehavior:(ADPromptBehavior)promptBehavior
@@ -142,7 +154,9 @@
 - (void)setCorrelationId:(NSUUID*)correlationId
 {
     CHECK_REQUEST_STARTED;
+    SAFE_ARC_RELEASE(_correlationId);
     _correlationId = correlationId;
+    SAFE_ARC_RETAIN(_correlationId);
 }
 
 #if AD_BROKER
@@ -156,7 +170,9 @@
 {
     // We knowingly do this mid-request when we have to change auth types
     // Thus no CHECK_REQUEST_STARTED
+    SAFE_ARC_RELEASE(_redirectUri);
     _redirectUri = redirectUri;
+    SAFE_ARC_RETAIN(_redirectUri);
 }
 
 - (void)setAllowSilentRequests:(BOOL)allowSilent
@@ -168,7 +184,9 @@
 - (void)setRefreshTokenCredential:(NSString*)refreshTokenCredential
 {
     CHECK_REQUEST_STARTED;
+    SAFE_ARC_RELEASE(_refreshTokenCredential);
     _refreshTokenCredential = refreshTokenCredential;
+    SAFE_ARC_RETAIN(_refreshTokenCredential);
 }
 #endif
 
@@ -179,10 +197,7 @@
         return;
     }
     
-    if (!_correlationId)
-    {
-        _correlationId = [self correlationId];
-    }
+    [self correlationId];
     
     _requestStarted = YES;
 }
@@ -196,8 +211,10 @@
         if ([_context correlationId])
         {
             _correlationId = [_context correlationId];
+            SAFE_ARC_RETAIN(_correlationId);
         } else {
             _correlationId = [NSUUID UUID];
+            SAFE_ARC_RETAIN(_correlationId);
         }
     }
     

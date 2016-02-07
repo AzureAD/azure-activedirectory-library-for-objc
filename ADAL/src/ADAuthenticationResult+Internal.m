@@ -41,16 +41,19 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     if (self)
     {
         _status = AD_SUCCEEDED;
+        SAFE_ARC_RETAIN(item);
         _tokenCacheItem = item;
+        SAFE_ARC_RETAIN(_tokenCacheItem);
         _multiResourceRefreshToken = multiResourceRefreshToken;
+        SAFE_ARC_RETAIN(_correlationId);
         _correlationId = correlationId;
     }
     return self;
 }
 
--(id) initWithError: (ADAuthenticationError*)error
-             status: (ADAuthenticationResultStatus) status
-      correlationId: (NSUUID*) correlationId
+- (id)initWithError:(ADAuthenticationError *)error
+             status:(ADAuthenticationResultStatus)status
+      correlationId:(NSUUID *)correlationId
 {
     THROW_ON_NIL_ARGUMENT(error);
     
@@ -59,7 +62,9 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     {
         _status = status;
         _error = error;
+        SAFE_ARC_RETAIN(_error);
         _correlationId = correlationId;
+        SAFE_ARC_RETAIN(_correlationId);
     }
     return self;
 }
