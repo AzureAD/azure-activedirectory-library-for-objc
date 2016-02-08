@@ -426,4 +426,38 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     }
     XCTAssertEqualObjects(read, item);
 }
+
+- (void)testGarbageInKeychain
+{
+    ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
+    
+    // Grab the default keychain query dict to make sure that we're
+    // adding the garbage data in just the right place that we might
+    // trip up the keychain code.
+    NSDictionary* defaultQuery = [cache defaultKeychainQuery];
+    NSMutableDictionary* addQuery = [NSMutableDictionary dictionaryWithDictionary:defaultQuery];
+    
+    void* bytes = malloc(1024);
+    NSData* garbageData = [NSData dataWithBytes:bytes length:1024];
+    [addQuery setObject:@"I'm a service!" forKey:(id)kSecAttrService];
+    [addQuery setObject:TEST_USER_ID forKey:(id)kSecAttrAccount];
+    [addQuery setObject:garbageData forKey:(id)kSecValueData];
+    
+    // Add garbage into the keychain for the keychain cache code
+    // to trip on
+    OSStatus status = SecItemAdd((CFDictionaryRef)addQuery, NULL);
+    XCTAssertEqual(status, errSecSuccess);
+    
+    ADAuthenticationError* error = nil;
+    NSArray* allItems = [cache allItems:&error];
+    XCTAssertNotNil(allItems);
+    XCTAssertNil(error, @"allItems failed with error: %@", error.errorDetails);
+    
+    NSMutableDictionary* deleteQuery = [NSMutableDictionary dictionaryWithDictionary:defaultQuery];
+    [deleteQuery setObject:@"I'm a service!" forKey:(id)kSecAttrService];
+    [deleteQuery setObject:TEST_USER_ID forKey:(id)kSecAttrAccount];
+    
+    SecItemDelete((CFDictionaryRef)deleteQuery);
+}
+
 @end
