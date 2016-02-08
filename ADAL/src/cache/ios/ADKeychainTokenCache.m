@@ -114,11 +114,14 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 {
     for (ADTokenCacheItem* item in items)
     {
-        [self logItem:item message:[NSString stringWithFormat:@"Retrieved a tombstone (BundleId:%@; Correlation Id:%@; Error Details:%@; Protocol Code:%@)",
-                                                 [[item tombstone] valueForKey:@"bundleId"],
-                                                 [[item tombstone] valueForKey:@"correlationId"],
-                                                 [[item tombstone] valueForKey:@"errorDetails"],
-                                                 [[item tombstone] valueForKey:@"protocolCode"]]];
+        AD_LOG_ERROR_F(@"Keychain token cache store", AD_ERROR_TOKEN_CACHE_HIT_TOMBSTONE, nil,
+                      @"Retrieved a tombstone (BundleId:%@; Correlation Id:%@; Error Details:%@; Protocol Code:%@) for resource <%@> + client <%@> + authority <%@> + user <%@>",
+                      [[item tombstone] valueForKey:@"bundleId"],
+                      [[item tombstone] valueForKey:@"correlationId"],
+                      [[item tombstone] valueForKey:@"errorDetails"],
+                      [[item tombstone] valueForKey:@"protocolCode"],
+                      [item resource], [item clientId],
+                      [item authority], [[item userInformation] userId]);
 
     }
 }
