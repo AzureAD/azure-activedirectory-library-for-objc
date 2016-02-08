@@ -370,7 +370,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     return deleteSuccessful;
 }
 
-- (BOOL)removeAllForIdentifier:(NSString * __nonnull)userId
+- (BOOL)removeAllForUserId:(NSString * __nonnull)userId
                       clientId:(NSString * __nonnull)clientId
                          error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {

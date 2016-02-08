@@ -46,7 +46,7 @@
 - (BOOL)removeAllForClientId:(NSString * __nonnull)clientId
                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
-- (BOOL)removeAllForIdentifier:(NSString * __nonnull)userId
+- (BOOL)removeAllForUserId:(NSString * __nonnull)userId
                       clientId:(NSString * __nonnull)clientId
                          error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 

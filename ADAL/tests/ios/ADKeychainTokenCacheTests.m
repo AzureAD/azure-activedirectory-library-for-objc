@@ -343,7 +343,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [self verifyCacheContainsItem:item4];
 }
 
--(void) testRemoveAllForIdentifier
+-(void) testRemoveAllForUserId
 {
     XCTAssertTrue([self count] == 0, "Start empty.");
     
@@ -368,7 +368,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqual([self tombstoneCount], 0);
     
     //remove items with user ID as @"eric@contoso.com" and client ID as TEST_CLIENT_ID
-    [mStore removeAllForIdentifier:@"eric@contoso.com" clientId:TEST_CLIENT_ID error:&error];
+    [mStore removeAllForUserId:@"eric@contoso.com" clientId:TEST_CLIENT_ID error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 2);
     XCTAssertEqual([self tombstoneCount], 2);
