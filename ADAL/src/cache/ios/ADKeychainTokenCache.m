@@ -349,6 +349,49 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     return itemsKept;
 }
 
+- (BOOL)removeAllForClientId:(NSString * __nonnull)clientId
+                       error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+{
+    AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"Removing items for client <%@>", clientId);
+    
+    BOOL deleteSuccessful = YES;
+    NSArray* items = [self allItems:nil];
+    for (ADTokenCacheItem * item in items)
+    {
+        if ([clientId isEqualToString:[item clientId] ])
+        {
+            [self removeItem:item error:error];
+            if (*error)
+            {
+                deleteSuccessful = NO;
+            }
+        }
+    }
+    return deleteSuccessful;
+}
+
+- (BOOL)removeAllForIdentifier:(NSString * __nonnull)userId
+                      clientId:(NSString * __nonnull)clientId
+                         error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+{
+    AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"Removing items for user <%@> + client <%@>", userId, clientId);
+    
+    BOOL deleteSuccessful = YES;
+    NSArray* items = [self allItems:nil];
+    for (ADTokenCacheItem * item in items)
+    {
+        if ([userId isEqualToString:[[item userInformation] userId]]
+            && [clientId isEqualToString:[item clientId]])
+        {
+            [self removeItem:item error:error];
+            if (*error)
+            {
+                deleteSuccessful = NO;
+            }
+        }
+    }
+    return deleteSuccessful;
+}
 
 @end
 

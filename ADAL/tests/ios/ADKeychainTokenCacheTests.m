@@ -170,6 +170,8 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertNotNil(withGroup);
 }
 
+//test [ADKeychainTokenCache removeItem:error:]
+//for the case where item contains refresh token and will be set as a tombstone.
 -(void) testItemTombstone
 {
     XCTAssertTrue([self count] == 0, "Start empty.");
@@ -257,9 +259,10 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqual([self tombstoneCount], 2);
     //verify that item3 is updated
     [self verifyCacheContainsItem:item3];
-    
 }
 
+//test [ADKeychainTokenCache removeItem:error:]
+//for the case where item does not contain refresh token and will be deleted.
 -(void) testItemDelete
 {
     XCTAssertTrue([self count] == 0, "Start empty.");
@@ -309,6 +312,70 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqual([self tombstoneCount], 1);
 }
 
+-(void) testRemoveAllForClientId
+{
+    XCTAssertTrue([self count] == 0, "Start empty.");
+    
+    ADAuthenticationError* error;
+    XCTAssertNotNil([mStore allItems:&error]);
+    ADAssertNoError;
+    
+    //add three items with the same client ID and one with a different client ID
+    ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
+    [mStore addOrUpdateItem:item1 error:&error];
+    ADTokenCacheItem* item2 = [self adCreateCacheItem:@"stan@contoso.com"];
+    [mStore addOrUpdateItem:item2 error:&error];
+    ADTokenCacheItem* item3 = [self adCreateCacheItem:@"jack@contoso.com"];
+    [mStore addOrUpdateItem:item3 error:&error];
+    ADTokenCacheItem* item4 = [self adCreateCacheItem:@"rose@contoso.com"];
+    [item4 setClientId:@"a different client id"];
+    [mStore addOrUpdateItem:item4 error:&error];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 4);
+    XCTAssertEqual([self tombstoneCount], 0);
+    
+    //remove all items with client ID as TEST_CLIENT_ID
+    [mStore removeAllForClientId:TEST_CLIENT_ID error:&error];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 1);
+    XCTAssertEqual([self tombstoneCount], 3);
+    //only item4 is left in cache while the others should be tombstones
+    [self verifyCacheContainsItem:item4];
+}
+
+-(void) testRemoveAllForIdentifier
+{
+    XCTAssertTrue([self count] == 0, "Start empty.");
+    
+    ADAuthenticationError* error;
+    XCTAssertNotNil([mStore allItems:&error]);
+    ADAssertNoError;
+    
+    //add two items with the same client ID and same user ID but differnet resource
+    ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
+    [item1 setResource:@"resource 1"];
+    [mStore addOrUpdateItem:item1 error:&error];
+    ADTokenCacheItem* item2 = [self adCreateCacheItem:@"eric@contoso.com"];
+    [item2 setResource:@"resource 2"];
+    [mStore addOrUpdateItem:item2 error:&error];
+    //add another two more items
+    ADTokenCacheItem* item3 = [self adCreateCacheItem:@"jack@contoso.com"];
+    [mStore addOrUpdateItem:item3 error:&error];
+    ADTokenCacheItem* item4 = [self adCreateCacheItem:@"rose@contoso.com"];
+    [mStore addOrUpdateItem:item4 error:&error];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 4);
+    XCTAssertEqual([self tombstoneCount], 0);
+    
+    //remove items with user ID as @"eric@contoso.com" and client ID as TEST_CLIENT_ID
+    [mStore removeAllForIdentifier:@"eric@contoso.com" clientId:TEST_CLIENT_ID error:&error];
+    ADAssertNoError;
+    XCTAssertEqual([self count], 2);
+    XCTAssertEqual([self tombstoneCount], 2);
+    //only item3 and item4 are left in cache while the other twi should be tombstones
+    [self verifyCacheContainsItem:item3];
+    [self verifyCacheContainsItem:item4];
+}
 
 -(void) verifyCacheContainsItem: (ADTokenCacheItem*) item
 {
