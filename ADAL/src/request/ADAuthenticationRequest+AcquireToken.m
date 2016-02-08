@@ -81,8 +81,9 @@
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && [_context hasCacheStore])
     {
         //Cache should be used in this case:
-        BOOL accessTokenUsable;
-        ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key userId:_identifier useAccessToken:&accessTokenUsable error:&error];
+        ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key
+                                                              userId:_identifier
+                                                               error:&error];
         if (error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -92,10 +93,15 @@
         if (cacheItem)
         {
             //Found a promising item in the cache, try using it:
-            [self attemptToUseCacheItem:cacheItem
-                         useAccessToken:accessTokenUsable
-                        completionBlock:completionBlock];
+            [self attemptToUseCacheItem:cacheItem completionBlock:completionBlock];
             return; //The tryRefreshingFromCacheItem has taken care of the token obtaining
+        }
+        
+        ADTokenCacheItem* familyItem = [_context findFamilyItemForUser:_identifier error:&error];
+        if (familyItem)
+        {
+            [self attemptToUseCacheItem:familyItem completionBlock:completionBlock];
+            return;
         }
     }
     
@@ -105,7 +111,6 @@
 /*Attemps to use the cache. Returns YES if an attempt was successful or if an
  internal asynchronous call will proceed the processing. */
 - (void)attemptToUseCacheItem:(ADTokenCacheItem*)item
-               useAccessToken:(BOOL)useAccessToken
               completionBlock:(ADAuthenticationCallback)completionBlock
 {
     //All of these should be set before calling this method:
@@ -116,7 +121,7 @@
     
     [self ensureRequest];
     
-    if (useAccessToken)
+    if (item.accessToken && !item.isExpired)
     {
         //Access token is good, just use it:
         [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:_correlationId];
@@ -151,9 +156,8 @@
              ADTokenCacheKey* broadKey = [ADTokenCacheKey keyWithAuthority:_context.authority resource:nil clientId:_clientId error:nil];
              if (broadKey)
              {
-                 BOOL useAccessToken;
                  ADAuthenticationError* error;
-                 ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
+                 ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier error:&error];
                  if (error)
                  {
                      completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -172,7 +176,6 @@
                      
                      //Call recursively with the cache item containing a multi-resource refresh token:
                      [self attemptToUseCacheItem:broadItem
-                                  useAccessToken:NO
                                  completionBlock:completionBlock];
                      return;//The call above takes over, no more processing
                  }//broad item
