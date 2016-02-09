@@ -30,6 +30,8 @@
 @synthesize expiresOn = _expiresOn;
 @synthesize refreshToken = _refreshToken;
 @synthesize sessionKey = _sessionKey;
+@synthesize tombstone = _tombstone;
+@synthesize familyId = _familyId;
 
 - (NSUInteger)hash
 {
@@ -64,6 +66,7 @@
     item->_expiresOn = [_expiresOn copyWithZone:zone];
     item->_userInformation = [_userInformation copyWithZone:zone];
     item->_sessionKey = [_sessionKey copyWithZone:zone];
+	item->_tombstone = [_tombstone copyWithZone:zone];
     
     [item calculateHash];
     
@@ -139,6 +142,7 @@
     [aCoder encodeObject:_sessionKey forKey:@"sessionKey"];
     [aCoder encodeObject:_expiresOn forKey:@"expiresOn"];
     [aCoder encodeObject:_userInformation forKey:@"userInformation"];
+	[aCoder encodeObject:_tombstone forKey:@"tombstone"];
 }
 
 //Deserializer:
@@ -171,6 +175,8 @@
     SAFE_ARC_RETAIN(_expiresOn);
     _userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
     SAFE_ARC_RETAIN(_userInformation);
+	_tombstone = [aDecoder decodeObjectOfClass:[NSMutableDictionary class] forKey:@"tombstone"];
+	SAFE_ARC_RETAIN(_tombstone);
     
     [self calculateHash];
     

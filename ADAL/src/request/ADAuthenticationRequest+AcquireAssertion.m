@@ -104,7 +104,7 @@
     {
         if (result.status == AD_SUCCEEDED)
         {
-            [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
+            [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil requestCorrelationId:_correlationId];
         }
         
         completionBlock(result);
@@ -196,7 +196,7 @@
           {
               if (result.status == AD_SUCCEEDED)
               {
-                  [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil];
+                  [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil requestCorrelationId:_correlationId];
               }
               
               completionBlock(result);

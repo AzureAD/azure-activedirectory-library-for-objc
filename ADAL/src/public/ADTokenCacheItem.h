@@ -30,12 +30,14 @@
     NSString* _resource;
     NSString* _authority;
     NSString* _clientId;
+    NSString* _familyId;
     NSString* _accessToken;
     NSString* _accessTokenType;
     NSString* _refreshToken;
     NSData* _sessionKey;
     NSDate* _expiresOn;
     ADUserInformation* _userInformation;
+	NSMutableDictionary* _tombstone;
 }
 
 /*! Applicable resource. Should be nil, in case the item stores multi-resource refresh token. */
@@ -60,6 +62,16 @@
 
 
 @property (retain) ADUserInformation* userInformation;
+
+/*!
+ The item is a tombstone if this property if not nil;
+ The dictionary contains the following pairs:
+ @"bundleId":Bundle ID of the app which tombstones the token.
+ @"correlationId":correlation ID of the request that we got the error from.
+ @"protocolCode":error code returned by the server for the rejected RT
+  @"errorDetails":error details of the rejected RT
+ */
+@property (retain) NSMutableDictionary* tombstone;
 
 /*! Obtains a key to be used for the internal cache from the full cache item.
  @param error: if a key cannot be extracted, the method will return nil and if this parameter is not nil,
