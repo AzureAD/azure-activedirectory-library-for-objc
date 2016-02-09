@@ -20,42 +20,47 @@
 
 @implementation ADCustomHeaderHandler
 
-static NSDictionary* customHeaders;
-static NSMutableDictionary* customHeadersForSingleUse;
+static NSMutableDictionary* s_customHeaders = nil;
+static NSMutableDictionary* s_customHeadersForSingleUse = nil;
 
 + (void)initialize
 {
-    if (self == [ADCustomHeaderHandler class]) {
-        customHeaders = @{
-                         @"x-ms-PkeyAuth":@"1.0",
-                         };
-        customHeadersForSingleUse = [NSMutableDictionary new];
+    if (self == [ADCustomHeaderHandler class])
+    {
+        s_customHeaders =
+            [NSMutableDictionary dictionaryWithDictionary: @{@"x-ms-PkeyAuth":@"1.0"}];
+        SAFE_ARC_RETAIN(s_customHeaders);
+        s_customHeadersForSingleUse = [NSMutableDictionary new];
     }
 }
 
-+(void) addCustomHeaderValue:(NSString*)value forHeaderKey:(NSString*)key forSingleUse:(BOOL)singleUse
++ (void)addCustomHeaderValue:(NSString*)value
+                forHeaderKey:(NSString*)key
+                forSingleUse:(BOOL)singleUse
 {
     if(singleUse)
     {
-        [customHeadersForSingleUse setObject:value forKey:key];
+        [s_customHeadersForSingleUse setObject:value forKey:key];
     }
     else
     {
-        [customHeaders setValue:value forKey:key];
+        [s_customHeaders setObject:value forKey:key];
     }
 }
 
-+(void) applyCustomHeadersTo:(NSMutableURLRequest*) request
++ (void)applyCustomHeadersTo:(NSMutableURLRequest*) request
 {
-    for(NSString* key in customHeaders) {
-        id value = [customHeaders objectForKey:key];
+    for(NSString* key in s_customHeaders)
+    {
+        id value = [s_customHeaders objectForKey:key];
         [request setValue:value forHTTPHeaderField:key];
     }
     
-    for(NSString* key in customHeadersForSingleUse) {
-        id value = [customHeadersForSingleUse objectForKey:key];
+    for(NSString* key in s_customHeadersForSingleUse)
+    {
+        id value = [s_customHeadersForSingleUse objectForKey:key];
         [request setValue:value forHTTPHeaderField:key];
-        [customHeadersForSingleUse removeObjectForKey:key];
+        [s_customHeadersForSingleUse removeObjectForKey:key];
     }
 }
 
