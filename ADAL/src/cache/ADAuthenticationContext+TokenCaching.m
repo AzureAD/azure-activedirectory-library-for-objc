@@ -29,8 +29,8 @@
 //Gets an item from the cache, where userId may be nil. Raises error, if items for multiple users
 //are present and user id is not specified.
 - (ADTokenCacheItem*)extractCacheItemWithKey:(ADTokenCacheKey*)key
-                                           userId:(ADUserIdentifier*)userId
-                                            error:(ADAuthenticationError* __autoreleasing*)error
+                                      userId:(ADUserIdentifier*)userId
+                                       error:(ADAuthenticationError* __autoreleasing*)error
 {
     if (!key || !self.tokenCacheStore)
     {
@@ -54,10 +54,9 @@
 
 //Checks the cache for item that can be used to get directly or indirectly an access token.
 //Checks the multi-resource refresh tokens too.
-- (ADTokenCacheItem*)findCacheItemWithKey:(ADTokenCacheKey*) key
-                                        userId:(ADUserIdentifier*)userId
-                                useAccessToken:(BOOL*) useAccessToken
-                                         error:(ADAuthenticationError* __autoreleasing*) error
+- (ADTokenCacheItem *)findCacheItemWithKey:(ADTokenCacheKey *) key
+                                    userId:(ADUserIdentifier *)userId
+                                     error:(ADAuthenticationError * __autoreleasing *)error
 {
     if (error)
     {
@@ -76,27 +75,22 @@
         {
             *error = localError;
         }
-        return nil;//Quick return if an error was detected.
+        return nil;
     }
     
-    if (item)
+    if (item.accessToken && !item.isExpired)
     {
-        *useAccessToken = item.accessToken && !item.isExpired;
-        if (*useAccessToken)
-        {
-            return item;
-        }
-        else if (![NSString adIsStringNilOrBlank:item.refreshToken])
-        {
-            return item;//Suitable direct refresh token found.
-        }
-        else
-        {
-            //We have a cache item that cannot be used anymore, remove it from the cache:
-            [self.tokenCacheStore removeItem:item error:nil];
-        }
+        return item;
     }
-    *useAccessToken = false;//No item with suitable access token exists
+    
+    if (![NSString adIsStringNilOrBlank:item.refreshToken])
+    {
+        // Suitable direct refresh token found.
+        return item;
+    }
+    
+    // We have a cache item that cannot be used anymore, remove it from the cache:
+    [self.tokenCacheStore removeItem:item error:nil];
     
     if (![NSString adIsStringNilOrBlank:key.resource])
     {
@@ -122,6 +116,40 @@
         return broadItem;
     }
     return nil;//Nothing suitable
+}
+
+- (ADTokenCacheItem *)findFamilyItemForUser:(ADUserIdentifier *)userIdentifier
+                                      error:(ADAuthenticationError * __autoreleasing *)error
+{
+    if (!userIdentifier)
+    {
+        return nil;
+    }
+    
+    if (!userIdentifier.userId)
+    {
+        return nil;
+    }
+    
+    NSArray* items = [[self tokenCacheStore] getItemsWithKey:nil
+                                                      userId:userIdentifier.userId
+                                                       error:error];
+    if (!items || items.count == 0)
+    {
+        return nil;
+    }
+    
+    for (ADTokenCacheItem* item in items)
+    {
+        if (![NSString adIsStringNilOrBlank:item.familyId] &&
+            ![NSString adIsStringNilOrBlank:item.refreshToken])
+        {
+            // Return the first item we see with a family ID and a RT
+            return item;
+        }
+    }
+    
+    return nil;
 }
 
 //Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains

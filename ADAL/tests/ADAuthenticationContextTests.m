@@ -17,9 +17,12 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
-#import "ADAuthenticationContext.h"
+#import "ADAuthenticationContext+Internal.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADErrorCodes.h"
+#import "ADTokenCache+Internal.h"
+#import "ADTokenCacheItem+Internal.h"
+#import "ADUserIdentifier.h"
 
 #define TEST_AUTHORITY @"https://login.windows.net/contoso.com"
 
@@ -153,6 +156,28 @@
     XCTAssertNil(error);
     XCTAssertEqualObjects(context.authority, TEST_AUTHORITY);
 #endif // TARGET_OS_IPHONE
+}
+
+- (void)testFindFamilyToken
+{
+    ADAuthenticationContext* context =
+    [[ADAuthenticationContext alloc] initWithAuthority:TEST_AUTHORITY
+                                     validateAuthority:NO
+                                                 error:nil];
+    
+    NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
+    [context setTokenCacheStore:[ADTokenCache new]];
+    [context setCorrelationId:TEST_CORRELATION_ID];
+    
+    ADAuthenticationError* error = nil;
+    ADTokenCacheItem* familyItem = [self adCreateMRRTCacheItem];
+    familyItem.familyId = @"I'm a family item!";
+    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:familyItem error:&error]);
+    XCTAssertNil(error);
+    
+    ADTokenCacheItem* foundItem = [context findFamilyItemForUser:[ADUserIdentifier identifierWithId:TEST_USER_ID] error:&error];
+    XCTAssertNotNil(foundItem);
+    XCTAssertEqualObjects(familyItem, foundItem);
 }
 
 @end

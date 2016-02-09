@@ -25,7 +25,6 @@
 /*Attemps to use the cache. Returns YES if an attempt was successful or if an
  internal asynchronous call will proceed the processing. */
 - (void)attemptToUseCacheItem:(ADTokenCacheItem*)item
-               useAccessToken:(BOOL)useAccessToken
                 samlAssertion:(NSString*)samlAssertion
                 assertionType:(ADAssertionType)assertionType
               completionBlock:(ADAuthenticationCallback)completionBlock;

@@ -22,23 +22,26 @@
 
 //Checks the cache for item that can be used to get directly or indirectly an access token.
 //Checks the multi-resource refresh tokens too.
-- (ADTokenCacheItem*)findCacheItemWithKey:(ADTokenCacheKey*) key
-                                        userId:(ADUserIdentifier*)userId
-                                useAccessToken:(BOOL*) useAccessToken
-                                         error:(ADAuthenticationError* __autoreleasing*) error;
+- (ADTokenCacheItem*)findCacheItemWithKey:(ADTokenCacheKey *)key
+                                   userId:(ADUserIdentifier *)userId
+                                    error:(ADAuthenticationError * __autoreleasing *)error;
+
+- (ADTokenCacheItem *)findFamilyItemForUser:(ADUserIdentifier *)userIdentifier
+                                      error:(ADAuthenticationError * __autoreleasing *)error;
 
 //Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
 //the item to be stored.
-- (void)updateCacheToResult:(ADAuthenticationResult*)result
-                  cacheItem:(ADTokenCacheItem*)cacheItem
-           withRefreshToken:(NSString*)refreshToken;
-- (void)updateCacheToResult:(ADAuthenticationResult*)result
-              cacheInstance:(id<ADTokenCacheAccessor>)tokenCacheStoreInstance
-                  cacheItem:(ADTokenCacheItem*)cacheItem
-           withRefreshToken:(NSString*)refreshToken;
+- (void)updateCacheToResult:(ADAuthenticationResult *)result
+                  cacheItem:(ADTokenCacheItem *)cacheItem
+           withRefreshToken:(NSString *)refreshToken;
 
-- (ADTokenCacheItem*)extractCacheItemWithKey:(ADTokenCacheKey*)key
-                                           userId:(ADUserIdentifier*)userId
-                                            error:(ADAuthenticationError* __autoreleasing*)error;
+- (void)updateCacheToResult:(ADAuthenticationResult *)result
+              cacheInstance:(id<ADTokenCacheAccessor>)tokenCacheStoreInstance
+                  cacheItem:(ADTokenCacheItem *)cacheItem
+           withRefreshToken:(NSString *)refreshToken;
+
+- (ADTokenCacheItem *)extractCacheItemWithKey:(ADTokenCacheKey *)key
+                                       userId:(ADUserIdentifier *)userId
+                                        error:(ADAuthenticationError * __autoreleasing *)error;
 
 @end

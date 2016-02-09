@@ -54,6 +54,8 @@ extern NSString *const OAUTH2_SAML2_BEARER_VALUE;
 extern NSString *const OAUTH2_SCOPE_OPENID_VALUE;
 extern NSString *const OAUTH2_ASSERTION;
 
+extern NSString *const ADAL_CLIENT_FAMILY_ID;
+
 extern NSString *const BROKER_MAX_PROTOCOL_VERSION;
 extern NSString *const BROKER_MESSAGE_VERSION;
 extern NSString *const BROKER_RESPONSE_KEY;

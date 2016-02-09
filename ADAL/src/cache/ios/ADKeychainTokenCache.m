@@ -193,35 +193,6 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     return item;
 }
 
-- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
-                                               userId:(NSString *)userId
-                                                error:(ADAuthenticationError * __autoreleasing* )error
-{
-    NSArray* items = [self keychainItemsWithKey:key userId:userId error:error];
-    if (!items)
-    {
-        [self logItemRetrievalStatus:nil key:key userId:userId];
-        return nil;
-    }
-    
-    NSMutableArray* tokenItems = [[NSMutableArray<ADTokenCacheItem *> alloc] initWithCapacity:items.count];
-    SAFE_ARC_AUTORELEASE(tokenItems);
-    for (NSDictionary* attrs in items)
-    {
-        ADTokenCacheItem* item = [self itemFromKeyhainAttributes:attrs];
-        if (!item)
-        {
-            continue;
-        }
-        
-        [tokenItems addObject:item];
-    }
-    
-    [self logItemRetrievalStatus:tokenItems key:key userId:userId];
-    return tokenItems;
-    
-}
-
 #pragma mark -
 #pragma mark ADTokenCacheAccessor implementation
 
@@ -341,6 +312,35 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     return query;
 }
 
+- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
+                                          userId:(NSString *)userId
+                                           error:(ADAuthenticationError * __autoreleasing* )error
+{
+    NSArray* items = [self keychainItemsWithKey:key userId:userId error:error];
+    if (!items)
+    {
+        [self logItemRetrievalStatus:nil key:key userId:userId];
+        return nil;
+    }
+    
+    NSMutableArray* tokenItems = [[NSMutableArray<ADTokenCacheItem *> alloc] initWithCapacity:items.count];
+    SAFE_ARC_AUTORELEASE(tokenItems);
+    for (NSDictionary* attrs in items)
+    {
+        ADTokenCacheItem* item = [self itemFromKeyhainAttributes:attrs];
+        if (!item)
+        {
+            continue;
+        }
+        
+        [tokenItems addObject:item];
+    }
+    
+    [self logItemRetrievalStatus:tokenItems key:key userId:userId];
+    return tokenItems;
+    
+}
+
 /*!
     @param key      The key of the item.
     @param userId   The specific user whose item is needed. May be nil, in which
@@ -437,13 +437,12 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         NSMutableDictionary* query = [self queryDictionaryForKey:nil userId:nil additional:nil];
         OSStatus status = SecItemDelete((CFDictionaryRef)query);
         [ADKeychainTokenCache checkStatus:status details:@"Failed to remove all" error:error];
-        
-        NSArray* items = [self allItems:nil];
-        if ([items count])
-        {
-            NSLog(@"!!!!!!!!!!!!!!!!!!!! %lu items remaining...", (unsigned long)items.count);
-        }
     }
+}
+
+- (NSDictionary *)defaultKeychainQuery
+{
+    return _default;
 }
 
 @end

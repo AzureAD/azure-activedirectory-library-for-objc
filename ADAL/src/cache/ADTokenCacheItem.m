@@ -57,6 +57,7 @@
     item->_resource = [_resource copyWithZone:zone];
     item->_authority = [_authority copyWithZone:zone];
     item->_clientId = [_clientId copyWithZone:zone];
+	item->_familyId = [_familyId copyWithZone:zone];
     item->_accessToken = [_accessToken copyWithZone:zone];
     item->_accessTokenType = [_accessTokenType copyWithZone:zone];
     item->_refreshToken = [_refreshToken copyWithZone:zone];
@@ -131,6 +132,7 @@
     [aCoder encodeObject:_resource forKey:@"resource"];
     [aCoder encodeObject:_authority forKey:@"authority"];
     [aCoder encodeObject:_clientId forKey:@"clientId"];
+	[aCoder encodeObject:_familyId forKey:@"familyId"];
     [aCoder encodeObject:_accessToken forKey:@"accessToken"];
     [aCoder encodeObject:_accessTokenType forKey:@"accessTokenType"];
     [aCoder encodeObject:_refreshToken forKey:@"refreshToken"];
@@ -151,9 +153,11 @@
     SAFE_ARC_RETAIN(_resource);
     _authority = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"authority"];
     SAFE_ARC_RETAIN(_authority);
-    
     _clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
     SAFE_ARC_RETAIN(_clientId);
+	_familyId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
+	SAFE_ARC_RETAIN(_familyId);
+
     _accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
     SAFE_ARC_RETAIN(_accessToken);
     _accessTokenType = [aDecoder decodeObjectOfClass:[NSString class]
