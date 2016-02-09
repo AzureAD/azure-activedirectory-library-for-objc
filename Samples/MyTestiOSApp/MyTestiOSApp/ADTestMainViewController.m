@@ -314,9 +314,13 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
         ADUserInformation *user = item.userInformation;
         if (!item.userInformation)
         {
-            user = [ADUserInformation userInformationWithUserId:@"Unknown user" error:nil];
+            if (![users containsObject:@"<ADFS User>"])
+            {
+                [users addObject:@"<ADFS User>"];
+                [usersStr appendString:@"<ADFS User>"];
+            }
         }
-        if (![users containsObject:user.userId])
+        else if (![users containsObject:user.userId])
         {
             //New user, add and print:
             [users addObject:user.userId];

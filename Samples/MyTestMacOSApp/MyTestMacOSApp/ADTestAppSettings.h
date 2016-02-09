@@ -27,13 +27,8 @@ extern NSString* const sAADTestInstance;
     NSMutableDictionary *_testAuthorities;
 }
 
-
 //Returns a dictionary with the name of the test instances as keys.
 //The values are instances of BVTestInstance class.
 @property (readonly) NSDictionary* testAuthorities;
-
-//In case of code coverage build, stores the code coverage data.
-//The method does nothing in the other configurations.
--(void) flushCodeCoverage;
 
 @end

@@ -79,14 +79,6 @@
 
 @end
 
-
-@interface ADTestAppDelegate ()
-{
-    ADTestMemoryCache* _cacheDelegate;
-    ADTokenCache* _cache;
-}
-
-@end
 @implementation ADTestAppDelegate
 
 @synthesize window = _window;
@@ -204,9 +196,13 @@
         ADUserInformation *user = item.userInformation;
         if (!item.userInformation)
         {
-            user = [ADUserInformation userInformationWithUserId:@"Unknown user" error:nil];
+            if (![users containsObject:@"<ADFS User>"])
+            {
+                [users addObject:@"<ADFS User>"];
+                [usersStr appendString:@"<ADFS User>"];
+            }
         }
-        if (![users containsObject:user.userId])
+        else if (![users containsObject:user.userId])
         {
             //New user, add and print:
             [users addObject:user.userId];
