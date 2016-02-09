@@ -152,17 +152,20 @@
 - (void)updateCacheToResult:(ADAuthenticationResult*)result
                   cacheItem:(ADTokenCacheItem*)cacheItem
            withRefreshToken:(NSString*)refreshToken
+       requestCorrelationId:(NSUUID*)requestCorrelationId
 {
     [self updateCacheToResult:result
                 cacheInstance:self.tokenCacheStore
                     cacheItem:cacheItem
-             withRefreshToken:refreshToken];
+             withRefreshToken:refreshToken
+         requestCorrelationId:requestCorrelationId];
 }
 
 - (void)updateCacheToResult:(ADAuthenticationResult*)result
               cacheInstance:(id<ADTokenCacheAccessor>)tokenCacheStoreInstance
                   cacheItem:(ADTokenCacheItem*)cacheItem
            withRefreshToken:(NSString*)refreshToken
+       requestCorrelationId:(NSUUID*)requestCorrelationId
 {
     if(![ADAuthenticationContext handleNilOrEmptyAsResult:result argumentName:@"result" authenticationResult:&result]){
         return;
@@ -185,7 +188,7 @@
         NSString* savedRefreshToken = cacheItem.refreshToken;
         if (result.multiResourceRefreshToken)
         {
-            AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Storing multi-resource refresh token for authority: %@", self.authority);
+            AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Storing multi-resource refresh token for authority: %@", self.authority);
             
             //If the server returned a multi-resource refresh token, we break
             //the item into two: one with the access token and no refresh token and
@@ -200,7 +203,7 @@
             [tokenCacheStoreInstance addOrUpdateItem:multiRefreshTokenItem error:nil];
         }
         
-        AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Storing access token for resource: %@", cacheItem.resource);
+        AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Storing access token for resource: %@", cacheItem.resource);
         [tokenCacheStoreInstance addOrUpdateItem:cacheItem error:nil];
         cacheItem.refreshToken = savedRefreshToken;//Restore for the result
     }
@@ -216,34 +219,45 @@
             }
             
             BOOL removed = NO;
-            //The refresh token didn't work. We need to clear this refresh item from the cache.
+            //The refresh token didn't work. We need to tombstone this refresh item in the cache.
             ADTokenCacheKey* exactKey = [cacheItem extractKey:nil];
             if (exactKey)
             {
                 ADTokenCacheItem* existing = [tokenCacheStoreInstance getItemWithKey:exactKey userId:cacheItem.userInformation.userId error:nil];
                 if ([refreshToken isEqualToString:existing.refreshToken])//If still there, attempt to remove
                 {
-                    AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Removing cache for resource: %@", cacheItem.resource);
-                    [tokenCacheStoreInstance removeItem:existing error:nil];
+                    AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Tombstoning cache for resource: %@", cacheItem.resource);
+                    //update tombstone property before update the tombstone in cache
+                    [existing setTombstone:[NSMutableDictionary dictionaryWithDictionary:@{ @"correlationId" : [requestCorrelationId UUIDString],
+                                                                                            @"errorDetails" : [result.error errorDetails],
+                                                                                            @"protocolCode" : [result.error protocolCode],
+                                                                                            @"bundleId" : [[NSBundle mainBundle] bundleIdentifier] ? [[NSBundle mainBundle] bundleIdentifier] : @""}]];
+                    [tokenCacheStoreInstance addOrUpdateItem:existing error:nil];
                     removed = YES;
                 }
             }
             
             if (!removed)
             {
-                //Now try finding a broad refresh token in the cache and remove it accordingly
+                //Now try finding a broad refresh token in the cache and tombstone it accordingly
                 ADTokenCacheKey* broadKey = [ADTokenCacheKey keyWithAuthority:self.authority resource:nil clientId:cacheItem.clientId error:nil];
                 if (broadKey)
                 {
                     ADTokenCacheItem* broadItem = [tokenCacheStoreInstance getItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
                     if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
                     {
-                        AD_LOG_VERBOSE_F(@"Token cache store", [self correlationId], @"Removing multi-resource refresh token for authority: %@", self.authority);
-                        [tokenCacheStoreInstance removeItem:broadItem error:nil];
+                        AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Tombstoning multi-resource refresh token for authority: %@", self.authority);
+                        //update tombstone property before update the tombstone in cache
+                        [broadItem setTombstone:[NSMutableDictionary dictionaryWithDictionary:@{ @"correlationId" : [requestCorrelationId UUIDString],
+                                                                                                 @"errorDetails" : [result.error errorDetails],
+                                                                                                 @"protocolCode" : [result.error protocolCode],
+                                                                                                 @"bundleId" : [[NSBundle mainBundle] bundleIdentifier] ? [[NSBundle mainBundle] bundleIdentifier] : @""}]];
+                        [tokenCacheStoreInstance addOrUpdateItem:broadItem error:nil];
                     }
                 }
             }
         }
+        
     }
 }
 

@@ -113,6 +113,9 @@ typedef enum
     /*! The error code was not sent to us due to an older version of the broker */ 
     AD_ERROR_BROKER_UNKNOWN = 24,
     
+    /* No item is retrieved from cache store but tombstones */
+    AD_ERROR_TOKEN_CACHE_HIT_TOMBSTONE = 25,
+    
 } ADErrorCode;
 
 /* HTTP status codes used by the library */

@@ -49,6 +49,16 @@
 
 @property (retain) ADUserInformation* userInformation;
 
+/*!
+ The item is a tombstone if this property if not nil;
+ The dictionary contains the following pairs:
+ @"bundleId":Bundle ID of the app which tombstones the token.
+ @"correlationId":correlation ID of the request that we got the error from.
+ @"protocolCode":error code returned by the server for the rejected RT
+  @"errorDetails":error details of the rejected RT
+ */
+@property (retain) NSMutableDictionary* tombstone;
+
 /*! If true, the cache store item does not store actual access token, but instead a refresh token that can be
  used to obtain access token for any resource within the same user, authority and client id. This property is calculated
  from the value of other properties: it is true if: resource is nil, accessToken is nil and refresh token is not nil or empty.*/

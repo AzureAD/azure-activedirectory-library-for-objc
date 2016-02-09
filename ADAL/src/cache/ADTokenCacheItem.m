@@ -67,6 +67,7 @@
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.userInformation = [self.userInformation copyWithZone:zone];
     item.sessionKey = [self.sessionKey copyWithZone:zone];
+    item.tombstone = self.tombstone ? [NSMutableDictionary dictionaryWithDictionary:self.tombstone] : nil;
     
     
     return item;
@@ -126,6 +127,7 @@
     [aCoder encodeObject:self.sessionKey forKey:@"sessionKey"];
     [aCoder encodeObject:self.expiresOn forKey:@"expiresOn"];
     [aCoder encodeObject:self.userInformation forKey:@"userInformation"];
+    [aCoder encodeObject:self.tombstone forKey:@"tombstone"];
 }
 
 //Deserializer:
@@ -145,6 +147,7 @@
         self.refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
         self.expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
         self.userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
+        self.tombstone = [aDecoder decodeObjectOfClass:[NSMutableDictionary class] forKey:@"tombstone"];
     }
     return self;
 }
