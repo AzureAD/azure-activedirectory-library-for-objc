@@ -66,7 +66,7 @@
     item->_expiresOn = [_expiresOn copyWithZone:zone];
     item->_userInformation = [_userInformation copyWithZone:zone];
     item->_sessionKey = [_sessionKey copyWithZone:zone];
-	item->_tombstone = [_tombstone copyWithZone:zone];
+	item->_tombstone = [_tombstone mutableCopyWithZone:zone];
     
     [item calculateHash];
     
