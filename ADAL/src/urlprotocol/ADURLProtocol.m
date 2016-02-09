@@ -141,7 +141,7 @@ static NSMutableDictionary* s_handlers = nil;
     [self.client URLProtocol:self didFailWithError:error];
 }
 
--(void) connection:(NSURLConnection *)connection
+- (void)connection:(NSURLConnection *)connection
 willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
     NSString* authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
@@ -149,14 +149,15 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     AD_LOG_VERBOSE_F(sLog, nil, @"connection:willSendRequestForAuthenticationChallenge: %@. Previous challenge failure count: %ld", authMethod, (long)challenge.previousFailureCount);
     
     BOOL handled = NO;
+    Class<ADAuthMethodHandler> handler = nil;
     @synchronized([self class])
     {
-        Class<ADAuthMethodHandler> handler = [s_handlers objectForKey:authMethod];
-        handled = [handler handleChallenge:challenge
-                                connection:connection
-                                  protocol:self];
-        
+        handler = [s_handlers objectForKey:authMethod];
     }
+    
+    handled = [handler handleChallenge:challenge
+                            connection:connection
+                              protocol:self];
     
     if (!handled)
     {
