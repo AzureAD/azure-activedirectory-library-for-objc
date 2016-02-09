@@ -78,10 +78,8 @@
     if ([_context hasCacheStore])
     {
         //Cache should be used in this case:
-        BOOL accessTokenUsable;
         ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key
                                                                    userId:_identifier
-                                                           useAccessToken:&accessTokenUsable
                                                                     error:&error];
         if (error)
         {
@@ -93,7 +91,6 @@
         {
             //Found a promising item in the cache, try using it:
             [self attemptToUseCacheItem:cacheItem
-                         useAccessToken:accessTokenUsable
                           samlAssertion:samlAssertion
                           assertionType:assertionType
                         completionBlock:completionBlock];
@@ -117,7 +114,6 @@
 /*Attemps to use the cache. Returns YES if an attempt was successful or if an
  internal asynchronous call will proceed the processing. */
 - (void)attemptToUseCacheItem:(ADTokenCacheItem*)item
-               useAccessToken:(BOOL)useAccessToken
                 samlAssertion:(NSString*)samlAssertion
                 assertionType:(ADAssertionType)assertionType
               completionBlock:(ADAuthenticationCallback)completionBlock
@@ -129,7 +125,7 @@
     AD_REQUEST_CHECK_PROPERTY(_clientId);
     [self ensureRequest];
     
-    if (useAccessToken)
+    if (item.accessToken && !item.isExpired)
     {
         //Access token is good, just use it:
         [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:_correlationId];
@@ -164,9 +160,8 @@
              ADTokenCacheKey* broadKey = [ADTokenCacheKey keyWithAuthority:_context.authority resource:nil clientId:_clientId error:nil];
              if (broadKey)
              {
-                 BOOL useAccessToken;
                  ADAuthenticationError* error = nil;
-                 ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier useAccessToken:&useAccessToken error:&error];
+                 ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier error:&error];
                  if (error)
                  {
                      completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -185,7 +180,6 @@
                      
                      //Call recursively with the cache item containing a multi-resource refresh token:
                      [self attemptToUseCacheItem:broadItem
-                                  useAccessToken:NO
                                    samlAssertion:samlAssertion
                                    assertionType:assertionType
                                  completionBlock:completionBlock];

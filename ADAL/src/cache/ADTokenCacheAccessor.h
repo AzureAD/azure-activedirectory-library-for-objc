@@ -37,6 +37,19 @@
                                         error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 /*!
+    @param key      The key of the item. May be nil, in which case all items that match
+                    other parameters will be returned.
+    @param userId   The specific user whose item is needed. May be nil, in which
+                    case the item for the first user in the cache will be returned.
+    @param error    Will be set only in case of ambiguity. E.g. if userId is nil
+                    and we have tokens from multiple users. If the cache item is not
+                    present, the error will not be set.
+ */
+- (nullable NSArray <ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheKey *)key
+                                                    userId:(nullable NSString *)userId
+                                                     error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+
+/*!
     Ensures the cache contains an item matching the passed in item, adding or updating the
     item as necessary.
     

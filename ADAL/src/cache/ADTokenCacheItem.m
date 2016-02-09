@@ -46,20 +46,21 @@
 
 //Multi-resource refresh tokens are stored separately, as they apply to all resources. As such,
 //we create a special, "broad" cache item, with nil resource and access token:
--(BOOL) isMultiResourceRefreshToken
+- (BOOL)isMultiResourceRefreshToken
 {
     return [NSString adIsStringNilOrBlank:self.resource]
         && [NSString adIsStringNilOrBlank:self.accessToken]
        && ![NSString adIsStringNilOrBlank:self.refreshToken];
 }
 
--(id) copyWithZone:(NSZone*) zone
+- (id)copyWithZone:(NSZone*) zone
 {
     ADTokenCacheItem* item = [[self.class allocWithZone:zone] init];
     
     item.resource = [self.resource copyWithZone:zone];
     item.authority = [self.authority copyWithZone:zone];
     item.clientId = [self.clientId copyWithZone:zone];
+    item.familyId = [self.familyId copyWithZone:zone];
     item.accessToken = [self.accessToken copyWithZone:zone];
     item.accessTokenType = [self.accessTokenType copyWithZone:zone];
     item.refreshToken = [self.refreshToken copyWithZone:zone];
@@ -67,6 +68,7 @@
     item.userInformation = [self.userInformation copyWithZone:zone];
     item.sessionKey = [self.sessionKey copyWithZone:zone];
     item.tombstone = self.tombstone ? [NSMutableDictionary dictionaryWithDictionary:self.tombstone] : nil;
+    
     
     return item;
 }
@@ -79,7 +81,7 @@
                                             error:error];
 }
 
--(BOOL) isExpired
+- (BOOL)isExpired
 {
     if (nil == self.expiresOn)
     {
@@ -90,7 +92,7 @@
     return [self.expiresOn compare:[NSDate dateWithTimeIntervalSinceNow:expirationBuffer]] == NSOrderedAscending;
 }
 
--(BOOL) isEmptyUser
+- (BOOL)isEmptyUser
 {
     //The userInformation object cannot be constructed with empty or blank string,
     //so its presence guarantees that the user is not empty:
@@ -98,7 +100,7 @@
 }
 
 /*! Verifies if the user (as defined by userId) is the same between the two items. */
--(BOOL) isSameUser: (ADTokenCacheItem*) other
+- (BOOL)isSameUser:(ADTokenCacheItem*) other
 {
     THROW_ON_NIL_ARGUMENT(other);
     
@@ -107,17 +109,18 @@
     return (nil != other.userInformation && [self.userInformation.userId isEqualToString:other.userInformation.userId]);
 }
 
-+(BOOL) supportsSecureCoding
++ (BOOL)supportsSecureCoding
 {
     return YES;
 }
 
 //Serializer:
--(void) encodeWithCoder:(NSCoder *)aCoder
+- (void) encodeWithCoder:(NSCoder *)aCoder
 {
     [aCoder encodeObject:self.resource forKey:@"resource"];
     [aCoder encodeObject:self.authority forKey:@"authority"];
     [aCoder encodeObject:self.clientId forKey:@"clientId"];
+    [aCoder encodeObject:self.familyId forKey:@"familyId"];
     [aCoder encodeObject:self.accessToken forKey:@"accessToken"];
     [aCoder encodeObject:self.accessTokenType forKey:@"accessTokenType"];
     [aCoder encodeObject:self.refreshToken forKey:@"refreshToken"];
@@ -128,7 +131,7 @@
 }
 
 //Deserializer:
--(id) initWithCoder:(NSCoder *)aDecoder
+- (id)initWithCoder:(NSCoder *)aDecoder
 {
     self = [super init];
     if (self)
@@ -136,6 +139,7 @@
         self.resource = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"resource"];
         self.authority = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"authority"];
         self.clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
+        self.familyId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
         self.accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
         self.accessTokenType = [aDecoder decodeObjectOfClass:[NSString class]
                                                       forKey:@"accessTokenType"];

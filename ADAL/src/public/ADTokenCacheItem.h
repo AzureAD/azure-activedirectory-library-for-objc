@@ -27,22 +27,25 @@
 @interface ADTokenCacheItem : NSObject<NSCopying , NSSecureCoding>
 
 /*! Applicable resource. Should be nil, in case the item stores multi-resource refresh token. */
-@property (retain) NSString* resource;
+@property (copy) NSString* resource;
 
-@property (retain) NSString* authority;
+@property (copy) NSString* authority;
 
-@property (retain) NSString* clientId;
+@property (copy) NSString* clientId;
+
+@property (copy) NSString* familyId;
 
 /*! The access token received. Should be nil, in case the item stores multi-resource refresh token. */
-@property (retain) NSString* accessToken;
+@property (copy) NSString* accessToken;
 
-@property (retain) NSString* accessTokenType;
+@property (copy) NSString* accessTokenType;
 
-@property (retain) NSString* refreshToken;
+@property (copy) NSString* refreshToken;
 
-@property (retain) NSData* sessionKey;
+@property (copy) NSData* sessionKey;
 
-@property (retain) NSDate* expiresOn;
+@property (copy) NSDate* expiresOn;
+
 
 @property (retain) ADUserInformation* userInformation;
 

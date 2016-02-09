@@ -227,22 +227,6 @@
     }
 }
 
-- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheKey *)key
-                                          userId:(nullable NSString *)userId
-                                           error:(ADAuthenticationError *__autoreleasing *)error
-{
-    (void)error;
-    
-    @synchronized(self)
-    {
-        [_delegate willAccessCache:self];
-        NSArray<ADTokenCacheItem *> * result = [self getItemsImplKey:key userId:userId];
-        [_delegate didAccessCache:self];
-        
-        return result;
-    }
-}
-
 - (NSArray<ADTokenCacheItem *> *)getItemsImplKey:(nullable ADTokenCacheKey *)key
                                           userId:(nullable NSString *)userId
 {
@@ -560,6 +544,22 @@
     [userDict setObject:item forKey:key];
     
     return YES;
+}
+
+- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheKey *)key
+                                          userId:(nullable NSString *)userId
+                                           error:(ADAuthenticationError *__autoreleasing *)error
+{
+    (void)error;
+    
+    @synchronized(self)
+    {
+        [_delegate willAccessCache:self];
+        NSArray<ADTokenCacheItem *> * result = [self getItemsImplKey:key userId:userId];
+        [_delegate didAccessCache:self];
+        
+        return result;
+    }
 }
 
 @end
