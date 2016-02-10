@@ -30,7 +30,6 @@
 @synthesize expiresOn = _expiresOn;
 @synthesize refreshToken = _refreshToken;
 @synthesize sessionKey = _sessionKey;
-@synthesize tombstone = _tombstone;
 @synthesize familyId = _familyId;
 
 - (NSUInteger)hash
@@ -274,6 +273,11 @@
     _authority = authority;
     SAFE_ARC_RETAIN(_authority);
     [self calculateHash];
+}
+
+- (NSDictionary *)tombstone
+{
+    return _tombstone;
 }
 
 @end

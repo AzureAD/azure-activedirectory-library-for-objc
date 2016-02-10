@@ -237,10 +237,9 @@
                 {
                     AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Tombstoning cache for resource: %@", cacheItem.resource);
                     //update tombstone property before update the tombstone in cache
-                    [existing setTombstone:[NSMutableDictionary dictionaryWithDictionary:@{ @"correlationId" : [requestCorrelationId UUIDString],
-                                                                                            @"errorDetails" : [result.error errorDetails],
-                                                                                            @"protocolCode" : [result.error protocolCode],
-                                                                                            @"bundleId" : [[NSBundle mainBundle] bundleIdentifier] ? [[NSBundle mainBundle] bundleIdentifier] : @""}]];
+                    [existing makeTombstone:@{ @"correlationId" : [requestCorrelationId UUIDString],
+                                               @"errorDetails" : [result.error errorDetails],
+                                               @"protocolCode" : [result.error protocolCode] }];
                     [tokenCacheStoreInstance addOrUpdateItem:existing error:nil];
                     removed = YES;
                 }
@@ -257,10 +256,9 @@
                     {
                         AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Tombstoning multi-resource refresh token for authority: %@", self.authority);
                         //update tombstone property before update the tombstone in cache
-                        [broadItem setTombstone:[NSMutableDictionary dictionaryWithDictionary:@{ @"correlationId" : [requestCorrelationId UUIDString],
-                                                                                                 @"errorDetails" : [result.error errorDetails],
-                                                                                                 @"protocolCode" : [result.error protocolCode],
-                                                                                                 @"bundleId" : [[NSBundle mainBundle] bundleIdentifier] ? [[NSBundle mainBundle] bundleIdentifier] : @""}]];
+                        [broadItem makeTombstone:@{ @"correlationId" : [requestCorrelationId UUIDString],
+                                                    @"errorDetails" : [result.error errorDetails],
+                                                    @"protocolCode" : [result.error protocolCode] }];
                         [tokenCacheStoreInstance addOrUpdateItem:broadItem error:nil];
                     }
                 }

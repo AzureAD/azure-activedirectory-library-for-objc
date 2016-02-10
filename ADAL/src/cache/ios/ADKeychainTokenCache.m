@@ -25,6 +25,7 @@
 #import "ADUserInformation.h"
 #import "ADWorkplaceJoinUtil.h"
 #import "ADAuthenticationSettings.h"
+#import "ADTokenCacheItem+Internal.h"
 
 #define KEYCHAIN_VERSION 1
 #define STRINGIFY(x) #x
@@ -114,15 +115,10 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 {
     for (ADTokenCacheItem* item in items)
     {
-        AD_LOG_ERROR_F(@"Keychain token cache store", AD_ERROR_TOKEN_CACHE_HIT_TOMBSTONE, nil,
-                      @"Retrieved a tombstone (BundleId:%@; Correlation Id:%@; Error Details:%@; Protocol Code:%@) for resource <%@> + client <%@> + authority <%@> + user <%@>",
-                      [[item tombstone] valueForKey:@"bundleId"],
-                      [[item tombstone] valueForKey:@"correlationId"],
-                      [[item tombstone] valueForKey:@"errorDetails"],
-                      [[item tombstone] valueForKey:@"protocolCode"],
-                      [item resource], [item clientId],
-                      [item authority], [[item userInformation] userId]);
-
+        if (item.tombstone)
+        {
+            AD_LOG_WARN_F(@"Keychain token cache store", nil, @"Tombstone Found: %@" , item.tombstone);
+        }
     }
 }
 
@@ -256,12 +252,9 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     //Item should be set as tombstone
     [self logItem:item message:@"Item being tombstoned"];
     
-    ADTokenCacheItem* tombstoneItem = [item copy];
-    SAFE_ARC_AUTORELEASE(tombstoneItem);
-    [self setCacheItemAsTombstone:tombstoneItem];
-    
+    [item makeTombstone:@{ @"errorDetails" : @"Manually removed from cache."}];
     //update tombstone in cache
-    BOOL updateStatus = [self addOrUpdateItem:tombstoneItem error:error];
+    BOOL updateStatus = [self addOrUpdateItem:item error:error];
     
     return updateStatus;
     
@@ -283,28 +276,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     return SecItemDelete((CFDictionaryRef)query);
 }
 
--(void)setCacheItemAsTombstone:(ADTokenCacheItem*)item
-{
-    if (item)
-    {
-        //avoid bundleId being nil, as it will be stored in a NSMutableDictionary
-        NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier] ? [[NSBundle mainBundle] bundleIdentifier] : @"";
-        
-        if (item.tombstone)
-        {
-            [item.tombstone addEntriesFromDictionary:@{@"bundleId" : bundleId}];
-        }
-        else
-        {
-            [item setTombstone:[NSMutableDictionary dictionaryWithDictionary:@{@"bundleId" : bundleId}]];
-        }
-        
-        //wipe out the refresh token
-        [item setRefreshToken:@"<tombstone>"];
-    }
-}
-
--(NSMutableArray*)filterOutTombstones:(NSArray*) items
+- (NSMutableArray *)filterOutTombstones:(NSArray *)items
 {
     if (!items)
     {

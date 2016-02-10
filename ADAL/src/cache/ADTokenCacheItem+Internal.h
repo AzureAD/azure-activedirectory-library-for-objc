@@ -43,4 +43,6 @@
  */
 - (BOOL)fillItemWithResponse:(NSDictionary*)responseDictionary;
 
+- (void)makeTombstone:(NSDictionary*)tombstoneEntries;
+
 @end

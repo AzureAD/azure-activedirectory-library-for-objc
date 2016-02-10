@@ -202,5 +202,28 @@
     return isMRRT;
 }
 
+- (void)makeTombstone:(NSDictionary *)tombstoneEntries
+{
+    NSMutableDictionary* tombstoneDictionary = [NSMutableDictionary new];
+    
+    //avoid bundleId being nil, as it will be stored in a NSMutableDictionary
+    NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
+    
+    if (bundleId)
+    {
+        [tombstoneDictionary setObject:bundleId forKey:@"bundleId"];
+    }
+    
+    if (tombstoneEntries)
+    {
+        [tombstoneDictionary addEntriesFromDictionary:tombstoneEntries];
+    }
+    
+    //wipe out the refresh token
+    _refreshToken = @"<tombstone>";
+    _tombstone = tombstoneDictionary;
+
+}
+
 
 @end

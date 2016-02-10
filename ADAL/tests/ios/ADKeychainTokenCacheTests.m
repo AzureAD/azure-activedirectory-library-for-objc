@@ -23,7 +23,7 @@
 #import "ADAuthenticationContext.h"
 #import "ADKeychainTokenCache.h"
 #import "ADKeychainTokenCache+Internal.h"
-#import "ADTokenCacheItem.h"
+#import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
 dispatch_semaphore_t sThreadsSemaphore;//Will be signalled when the last thread is done. Should be initialized and cleared in the test.
 volatile int32_t sThreadsFinished;//The number of threads that are done. Should be set to 0 at the beginning of the test.
@@ -172,7 +172,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 //test [ADKeychainTokenCache removeItem:error:]
 //for the case where item contains refresh token and will be set as a tombstone.
--(void) testItemTombstone
+- (void)testItemTombstone
 {
     XCTAssertTrue([self count] == 0, "Start empty.");
     
@@ -199,8 +199,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqualObjects(item1, retrievedItem1);
     
     //tombstone item1
-    [item1 setTombstone:[NSMutableDictionary dictionaryWithDictionary:@{ @"correlationId" : @"cid",
-                                                                         @"errorDetails" : @"error details"}]];
     [mStore removeItem:item1 error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 2);
@@ -250,20 +248,11 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAssertNoError;
     XCTAssertEqual([self count], 0);
     XCTAssertEqual([self tombstoneCount], 3);
-    
-    //update a tombstone to be a normal item
-    [item3 setTombstone:nil];
-    [mStore addOrUpdateItem:item3 error:&error];
-    ADAssertNoError;
-    XCTAssertEqual([self count], 1);
-    XCTAssertEqual([self tombstoneCount], 2);
-    //verify that item3 is updated
-    [self verifyCacheContainsItem:item3];
 }
 
 //test [ADKeychainTokenCache removeItem:error:]
 //for the case where item does not contain refresh token and will be deleted.
--(void) testItemDelete
+- (void)testItemDelete
 {
     XCTAssertTrue([self count] == 0, "Start empty.");
     ADAuthenticationError* error = nil;
@@ -312,7 +301,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqual([self tombstoneCount], 1);
 }
 
--(void) testRemoveAllForClientId
+- (void)testRemoveAllForClientId
 {
     XCTAssertTrue([self count] == 0, "Start empty.");
     
@@ -343,7 +332,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [self verifyCacheContainsItem:item4];
 }
 
--(void) testRemoveAllForUserId
+- (void)testRemoveAllForUserId
 {
     XCTAssertTrue([self count] == 0, "Start empty.");
     
@@ -377,7 +366,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [self verifyCacheContainsItem:item4];
 }
 
--(void) verifyCacheContainsItem: (ADTokenCacheItem*) item
+- (void)verifyCacheContainsItem: (ADTokenCacheItem*) item
 {
     XCTAssertNotNil(item);
     ADAuthenticationError* error;
@@ -402,7 +391,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertEqualObjects(read, item);
 }
 
--(void) verifyCacheContainsTombstone: (ADTokenCacheItem*) item
+- (void)verifyCacheContainsTombstone:(ADTokenCacheItem *)item
 {
     XCTAssertNotNil(item);
     ADAuthenticationError* error;
