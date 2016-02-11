@@ -75,8 +75,6 @@
     XCTAssertNotNil(error, "No error for nil prameter");
     [self adValidateForInvalidArgument:parameter error:error];
     XCTAssertTrue([error.errorDetails adContainsString:@"(null)"], "'null' should be part of the text");
-    ADAssertLogsContain(TEST_LOG_INFO, "argument");
-    ADAssertLogsContainValue(TEST_LOG_INFO, parameter);
 }
 
 -(void) testErrorFromArgumentNormal
@@ -88,9 +86,6 @@
     
     [self adValidateForInvalidArgument:parameter error:error];
     XCTAssertTrue([error.errorDetails adContainsString:parameterValue], "Value should be part of the text");
-    ADAssertLogsContain(TEST_LOG_INFO, "argument");
-    ADAssertLogsContainValue(TEST_LOG_INFO, parameter);
-    ADAssertLogsContainValue(TEST_LOG_INFO, parameterValue);
 }
 
 -(void)testErrorFromUnauthorizedResponseNormal
@@ -98,8 +93,6 @@
     NSString* details = @"Some details";
     ADAuthenticationError* error = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_MISSING_AUTHENTICATE_HEADER errorDetails:details];
     XCTAssertNotNil(error, "Nil returned for valid case");
-    ADAssertLogsContain(TEST_LOG_INFO, "Unauthorized");
-    ADAssertLogsContainValue(TEST_LOG_INFO, details);
 }
 
 -(void) testErrorFromOAuthError

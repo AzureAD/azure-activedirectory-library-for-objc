@@ -111,10 +111,7 @@ typedef enum
     AD_ERROR_INVALID_REDIRECT_URI = 23,
     
     /*! The error code was not sent to us due to an older version of the broker */ 
-    AD_ERROR_BROKER_UNKNOWN = 24,
-    
-    /* No item is retrieved from cache store but tombstones */
-    AD_ERROR_TOKEN_CACHE_HIT_TOMBSTONE = 25,
+    AD_ERROR_BROKER_UNKNOWN = 24
     
 } ADErrorCode;
 

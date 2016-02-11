@@ -105,22 +105,6 @@ typedef enum
 /*! Clears logging and other infrastructure after a test */
 - (void)adTestEnd;
 
-//The methods help with verifying of the logs:
-- (NSString *)adGetLogs:(ADLogPart)logPart;
-
-//Clears all of the test logs. Useful for repeating operations.
-- (void)adClearLogs;
-
-- (void)adAssertLogsContain:(NSString *)text
-                    logPart:(ADLogPart)logPart
-                       file:(const char *)file
-                       line:(int)line;
-
-- (void)adAssertLogsDoNotContain:(NSString *)text
-                         logPart:(ADLogPart)logPart
-                            file:(const char *)file
-                            line:(int) line;
-
 //Creates a new item with all of the properties having correct values
 - (ADTokenCacheItem *)adCreateCacheItem;
 - (ADTokenCacheItem *)adCreateCacheItem:(NSString*)userId;
@@ -196,41 +180,6 @@ typedef enum
 //Fixes the problem with the test framework not able to compare dates:
 #define ADAssertDateEquals(actualParam, expectedParam) XCTAssertTrue([expectedParam compare:actualParam] == NSOrderedSame)
 
-//Usage: ADAssertLogsContain(TEST_LOG_MESSAGE, "acquireToken");
-//       ADAssertLogsContainValue(TEST_LOG_MESSAGE, parameterValue);
-// Use ADAssertLogsContain for constant texts and ADAssertLogsContainValue, when passing a string object.
-#define ADAssertLogsContain(LOGPART, TEXT) \
-{ \
-    [self adAssertLogsContain:TO_NSSTRING(TEXT) \
-                      logPart:LOGPART \
-                         file:__FILE__ \
-                         line:__LINE__]; \
-}
-
-//"TEXT" should be string object:
-#define ADAssertLogsContainValue(LOGPART, TEXT) \
-{ \
-    [self adAssertLogsContain:TEXT \
-                      logPart:LOGPART \
-                         file:__FILE__ \
-                         line:__LINE__]; \
-}
-
-#define ADAssertLogsDoNotContain(LOGPART, TEXT) \
-{ \
-    [self adAssertLogsDoNotContain:TO_NSSTRING(TEXT) \
-                           logPart:LOGPART \
-                              file:__FILE__ \
-                              line:__LINE__]; \
-}
-
-#define ADAssertLogsDoNotContainValue(LOGPART, TEXT) \
-{ \
-    [self adAssertLogsDoNotContain:TEXT \
-                           logPart:LOGPART \
-                              file:__FILE__ \
-                              line:__LINE__];\
-}
 
 //Verifes that "error" local variable is nil. If not prints the error
 #define ADAssertNoError XCTAssertNil(error, "Unexpected error occurred: %@", error.errorDetails)

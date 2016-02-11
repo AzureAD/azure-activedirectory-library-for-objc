@@ -47,6 +47,7 @@ const int sAsyncContextTimeout = 10;
 - (void)setUp
 {
     [super setUp];
+    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     _dsem = dispatch_semaphore_create(0);
 }
 
@@ -505,12 +506,33 @@ const int sAsyncContextTimeout = 10;
     
     TEST_WAIT;
     
+    NSArray* tombstones = [[context tokenCacheStore] allTombstones:&error];
+    XCTAssertEqual(tombstones.count, 1);
+    
     // Verify that both the expired AT and the rejected MRRT are removed from the cache
     NSArray* allItems = [context.tokenCacheStore allItems:&error];
     XCTAssertNil(error);
     
     XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
     XCTAssertEqual(allItems.count, 0);
+    
+    // The next acquire token call should fail immediately without hitting network
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         // Request should fail because it's silent and getting a new RT requires showing UI
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_USER_INPUT_NEEDED);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
 }
 
 - (void)testSilentExpiredATRefreshMRRTNetwork
