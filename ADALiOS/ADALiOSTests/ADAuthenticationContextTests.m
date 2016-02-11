@@ -1050,7 +1050,7 @@ const int sAsyncContextTimeout = 10;
 
 -(void) testBadAuthorityWithValidation
 {
-    mAuthority = @"https://MyFakeAuthority.com/MSOpenTechBV.OnMicrosoft.com";
+    mAuthority = @"https://MyFakeAuthority.microsoft.com/MSOpenTechBV.OnMicrosoft.com";
     ADAuthenticationError* error;
     mContext = [ADAuthenticationContext authenticationContextWithAuthority:mAuthority error:&error];
     XCTAssertNotNil(mContext);

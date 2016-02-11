@@ -429,7 +429,6 @@ const int sAsyncTimeout = 10;//in seconds
     XCTAssertFalse(mValidated);
     XCTAssertNotNil(mError);
     ADAssertLongEquals(AD_ERROR_AUTHORITY_VALIDATION, mError.code);
-    XCTAssertTrue([mError.errorDetails adContainsString:[correlationId UUIDString].lowercaseString]);
 }
 
 -(void) testUnreachableServer
