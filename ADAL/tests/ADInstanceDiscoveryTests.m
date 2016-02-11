@@ -87,8 +87,6 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
         XCTAssertEqual(error.domain, ADInvalidArgumentDomain);
         XCTAssertNil(error.protocolCode);
         XCTAssertTrue([error.errorDetails containsString:@"authority"]);
-        ADAssertLogsContain(TEST_LOG_MESSAGE, "Error");
-        ADAssertLogsContain(TEST_LOG_INFO, "authority");
     }
     
     SAFE_ARC_RELEASE(discovery);

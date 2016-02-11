@@ -47,33 +47,7 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
     [super tearDown];
 }
 
-- (void)testLevel
-{
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    for(int i = ADAL_LOG_LEVEL_NO_LOG; i < ADAL_LOG_LAST; ++i)
-    {
-        [ADLogger setLevel:i];
-        XCTAssertEqual(i, [ADLogger getLevel], "Level not set");
-        for(int j = ADAL_LOG_LEVEL_ERROR; j <= ADAL_LOG_LAST; ++j)
-        {
-            NSString* message = [NSString stringWithFormat:@"Test%dMessage%d %s", i, j, __PRETTY_FUNCTION__];
-            NSString* info = [NSString stringWithFormat:@"Test%dnfo%d %s", i, j, __PRETTY_FUNCTION__];
-            [ADLogger log:j message:message errorCode:1 info:info correlationId:nil];
-            if (j <= i)//Meets the error bar
-            {
-                ADAssertLogsContainValue(TEST_LOG_MESSAGE, message);
-                ADAssertLogsContainValue(TEST_LOG_INFO, info);
-            }
-            else
-            {
-                ADAssertLogsDoNotContainValue(TEST_LOG_MESSAGE, message);
-                ADAssertLogsDoNotContainValue(TEST_LOG_INFO, info);
-            }
-        }
-    }
-}
-
--(void) testMessageNoThrowing
+- (void)testMessageNoThrowing
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     //Neither of these calls should throw. See the method body for details:

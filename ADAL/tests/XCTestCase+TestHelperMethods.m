@@ -34,13 +34,6 @@
 
 @implementation XCTestCase (TestHelperMethods)
 
-//Tracks the logged messages.
-NSMutableString* sLogLevelsLog;
-NSMutableString* sMessagesLog;
-NSMutableString* sInformationLog;
-NSMutableString* sErrorCodesLog;
-ADAL_LOG_LEVEL sMaxAcceptedLogLevel;//If a message is logged above it, the test will fail.
-
 NSString* const sTestBegin = @"|||TEST_BEGIN|||";
 NSString* const sTestEnd = @"|||TEST_END|||";
 
@@ -78,77 +71,23 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 - (void)adSetLogTolerance:(ADAL_LOG_LEVEL)maxLogTolerance
 {
-    sMaxAcceptedLogLevel = maxLogTolerance;
+    [ADLogger setLevel:maxLogTolerance - 1];
 }
 
 /*! Sets logging and other infrastructure for a new test */
 - (void)adTestBegin:(ADAL_LOG_LEVEL)maxLogTolerance;
 {
-    [self adSetLogTolerance:maxLogTolerance];
-    
-    @synchronized(self.class)
-    {
-        static dispatch_once_t once = 0;
-        
-        dispatch_once(&once, ^{
-            sLogLevelsLog = [NSMutableString new];
-            sMessagesLog = [NSMutableString new];
-            sInformationLog = [NSMutableString new];
-            sErrorCodesLog = [NSMutableString new];
-        });
-        
-        //Note beginning of the test:
-        [sLogLevelsLog appendString:sTestBegin];
-        [sMessagesLog appendString:sTestBegin];
-        [sInformationLog appendString:sTestBegin];
-        [sErrorCodesLog appendString:sTestBegin];
-    }
-    
-    LogCallback logCallback = ^(ADAL_LOG_LEVEL logLevel,
-                                NSString* message,
-                                NSString* additionalInformation,
-                                NSInteger errorCode)
-    {
-        @synchronized(self.class)
-        {
-            //Write a single message:
-            [sLogLevelsLog appendFormat:@"|%u|", logLevel];
-            [sMessagesLog appendFormat:@"|%@|", message];
-            [sInformationLog appendFormat:@"|%@|", additionalInformation];
-            [sErrorCodesLog appendFormat:@"|%lu|", (long)errorCode];
-            
-            if (logLevel < sMaxAcceptedLogLevel)
-            {
-                NSString* fail = [NSString stringWithFormat:@"Level: %u; Message: %@; Info: %@; Code: %lu",
-                                  logLevel, message, additionalInformation, (long)errorCode];
-                
-                [self recordFailureWithDescription:fail inFile:@"" __FILE__ atLine:__LINE__ expected:NO];
-            }
-        }
-    };
-    
-    
-    [ADLogger setLogCallBack:logCallback];
-    [ADLogger setLevel:ADAL_LOG_LAST];//Log everything by default. Tests can change this.
-    [ADLogger setNSLogging:NO];//Disables the NS logging to avoid generating huge amount of system logs.
-    
-    // ARC: comparing two block objects is not valid in non-ARC environments
-    //XCTAssertEqual(logCallback, [ADLogger getLogCallBack], "Setting of logCallBack failed.");
+    // We don't want to fail merely on log statements as if the test is actually failing it should be capable of
+    // detecting that through some means OTHER then log statements. Not logging entirely also deprives us of a
+    // very useful tool for trying to figure out why tests are failing when they fail. So now we repurposes this
+    // previous "max tolerance" for our level to start logging at.
+    [ADLogger setLevel:maxLogTolerance - 1];
+    [ADLogger setNSLogging:YES];
 }
 
 /*! Clears logging and other infrastructure after a test */
 - (void)adTestEnd
 {
-    [ADLogger setLogCallBack:nil];
-    @synchronized(self.class)
-    {
-        //Write ending of the test:
-        [sLogLevelsLog appendString:sTestEnd];
-        [sMessagesLog appendString:sTestEnd];
-        [sInformationLog appendString:sTestEnd];
-        [sErrorCodesLog appendString:sTestEnd];
-    }
-    XCTAssertNil([ADLogger getLogCallBack], "Clearing of logCallBack failed.");
 }
 
 //Parses backwards the log to find the test begin prefix. Returns the beginning
@@ -157,46 +96,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 {
     NSUInteger index = [log rangeOfString:sTestBegin options:NSBackwardsSearch].location;
     return (index == NSNotFound) ? 0 : index;
-}
-
-- (NSString *)adLogLevelLogs
-{
-    NSString* toReturn;
-    @synchronized(self.class)
-    {
-        toReturn = [sLogLevelsLog substringFromIndex:[self indexOfTestBegin:sLogLevelsLog]];
-    }
-    return toReturn;
-}
-
-- (NSString *)adMessagesLogs
-{
-    NSString* toReturn;
-    @synchronized(self.class)
-    {
-        toReturn = [sMessagesLog substringFromIndex:[self indexOfTestBegin:sMessagesLog]];
-    }
-    return toReturn;
-}
-
-- (NSString *)adInformationLogs
-{
-    NSString* toReturn;
-    @synchronized(self.class)
-    {
-        toReturn = [sInformationLog substringFromIndex:[self indexOfTestBegin:sInformationLog]];
-    }
-    return toReturn;
-}
-
-- (NSString *)adErrorCodesLogs
-{
-    NSString* toReturn;
-    @synchronized(self.class)
-    {
-        toReturn = [sErrorCodesLog substringFromIndex:[self indexOfTestBegin:sErrorCodesLog]];
-    }
-    return toReturn;
 }
 
 //Helper method to count how many times a string occurs in another string:
@@ -226,74 +125,11 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return occurences;
 }
 
-//The methods help with verifying of the logs:
-- (int)adCountOfLogOccurrencesIn:(ADLogPart)logPart
-                        ofString:(NSString *)contained
-{
-    NSString* log = [self adGetLogs:logPart];
-    return [self adCountOccurencesOf:contained inString:log];
-}
-
 //String clearing helper method:
 - (void)clearString:(NSMutableString *)string
 {
     NSRange all = {.location = 0, .length = string.length};
     [string deleteCharactersInRange:all];
-}
-
-- (void)adClearLogs
-{
-    @synchronized(self.class)
-    {
-        [self clearString:sLogLevelsLog];
-        [self clearString:sMessagesLog];
-        [self clearString:sInformationLog];
-        [self clearString:sErrorCodesLog];
-    }
-}
-
-- (NSString *)adGetLogs:(ADLogPart)logPart
-{
-    switch (logPart) {
-        case TEST_LOG_LEVEL:
-            return [self adLogLevelLogs];
-        case TEST_LOG_MESSAGE:
-            return [self adMessagesLogs];
-        case TEST_LOG_INFO:
-            return [self adInformationLogs];
-        case TEST_LOG_CODE:
-            return [self adErrorCodesLogs];
-            
-        default:
-            XCTFail("Unknown ADLogPart: %u", logPart);
-            return @"";
-    }
-}
-
-- (void)adAssertLogsContain:(NSString *)text
-                    logPart:(ADLogPart)logPart
-                       file:(const char *)file
-                       line:(int)line
-{
-    NSString* logs = [self adGetLogs:logPart];
-    
-    if (![logs adContainsString:text])
-    {
-        _XCTFailureHandler(self, YES, file, line, @"Logs.", @"" "Logs for the test do not contain '%@'. Part of the log examined: %u", text, logPart);
-    }
-}
-
-- (void)adAssertLogsDoNotContain:(NSString *)text
-                         logPart:(ADLogPart)logPart
-                            file:(const char *)file
-                            line:(int)line
-{
-    NSString* logs = [self adGetLogs:logPart];
-    
-    if ([logs adContainsString:text])
-    {
-        _XCTFailureHandler(self, YES, file, line, @"Logs.", @"" "Logs for the test contain '%@'. Part of the log examined: %u", text, logPart);
-    }
 }
 
 - (void)adAssertStringEquals:(NSString *)actual
