@@ -33,8 +33,6 @@
 //          |- tokens   - a NSDictionary containing all the tokens
 //          |     |- [<user_id> - an NSDictionary, keyed off of an NSString of the userId
 //          |            |- <ADTokenCacheStoreKey> - An ADTokenCacheItem, keyed with an ADTokenCacheStoreKey
-//          |- idtokens - An NSDictionary containing all of the idtokens, keyed off of the userID
-//
 
 #import "ADTokenCache.h"
 #import "ADAuthenticationError.h"
@@ -193,12 +191,10 @@
 - (void)addToItems:(nonnull NSMutableArray *)items
     fromDictionary:(nonnull NSDictionary *)dictionary
                key:(nonnull ADTokenCacheKey *)key
-          userInfo:(ADUserInformation *)userInfo
 {
     ADTokenCacheItem* item = [dictionary objectForKey:key];
     if (item)
     {
-        item.userInformation = userInfo;
         item = [item copy];
         
         [items addObject:item];
@@ -209,7 +205,6 @@
 - (void)addToItems:(nonnull NSMutableArray *)items
          forUserId:(nonnull NSString *)userId
             tokens:(nonnull NSDictionary *)tokens
-          idtokens:(NSDictionary *)idtokens
                key:(ADTokenCacheKey *)key
 {
     NSDictionary* userTokens = [tokens objectForKey:userId];
@@ -218,25 +213,16 @@
         return;
     }
     
-    NSString* idtoken = [idtokens objectForKey:userId];
-    ADUserInformation* userInfo = nil;
-    if (idtoken)
-    {
-        // If this fails the error will still get logged below, but that doesn't mean we
-        // won't necessarily not have valid tokens for the user.
-        userInfo = [ADUserInformation userInformationWithIdToken:idtoken error:nil];
-    }
-    
     // Add items matching the key for this user
     if (key)
     {
-        [self addToItems:items fromDictionary:userTokens key:key userInfo:userInfo];
+        [self addToItems:items fromDictionary:userTokens key:key];
     }
     else
     {
         for (id adkey in userTokens)
         {
-            [self addToItems:items fromDictionary:userTokens key:adkey userInfo:userInfo];
+            [self addToItems:items fromDictionary:userTokens key:adkey];
         }
     }
 }
@@ -258,18 +244,17 @@
     NSMutableArray* items = [NSMutableArray new];
     SAFE_ARC_AUTORELEASE(items);
     
-    NSDictionary* idtokens = [_cache objectForKey:@"idtokens"];
     if (userId)
     {
         // If we have a specified userId then we only look for that one
-        [self addToItems:items forUserId:userId tokens:tokens idtokens:idtokens key:key];
+        [self addToItems:items forUserId:userId tokens:tokens key:key];
     }
     else
     {
         // Otherwise we have to traverse all of the users in the cache
         for (NSString* userId in tokens)
         {
-            [self addToItems:items forUserId:userId tokens:tokens idtokens:idtokens key:key];
+            [self addToItems:items forUserId:userId tokens:tokens key:key];
         }
     }
     
@@ -327,11 +312,10 @@
     
     [userTokens removeObjectForKey:key];
     
-    // Check to see if we need to remove the idtoken
+    // Check to see if we need to remove the overall dict
     if (!userTokens.count)
     {
         [tokens removeObjectForKey:userId];
-        [[_cache objectForKey:@"idtokens"] removeObjectForKey:userId];
     }
     
     return YES;
@@ -402,19 +386,6 @@
                 id token = [userDict objectForKey:adkey];
                 CHECK_ERROR([token isKindOfClass:[ADTokenCacheItem class]], AD_ERROR_BAD_CACHE_FORMAT, @"Token is not of expected class type!");
             }
-        }
-    }
-    
-    
-    NSDictionary* idtokens = [cache objectForKey:@"idtokens"];
-    if (idtokens)
-    {
-        CHECK_ERROR([idtokens isKindOfClass:[NSMutableDictionary class]], AD_ERROR_BAD_CACHE_FORMAT, @"idtokens is not a dictionary!");
-        for (id idtoken_key in idtokens)
-        {
-            CHECK_ERROR([idtoken_key isKindOfClass:[NSString class]], AD_ERROR_BAD_CACHE_FORMAT, @"idtoken key is not a string!");
-            id idtoken = [idtokens objectForKey:idtoken_key];
-            CHECK_ERROR([idtoken isKindOfClass:[NSString class]], AD_ERROR_BAD_CACHE_FORMAT, @"idtoken is not a string!");
         }
     }
     
@@ -510,7 +481,6 @@
     }
     
     NSMutableDictionary* tokens = nil;
-    NSMutableDictionary* idtokens = nil;
     
     if (!_cache)
     {
@@ -518,18 +488,14 @@
         _cache = [NSMutableDictionary new];
         
         tokens = [NSMutableDictionary new];
-        idtokens = [NSMutableDictionary new];
         
         [_cache setObject:tokens forKey:@"tokens"];
-        [_cache setObject:idtokens forKey:@"idtokens"];
         
         SAFE_ARC_RELEASE(tokens);
-        SAFE_ARC_RELEASE(idtokens);
     }
     else
     {
         tokens = [_cache objectForKey:@"tokens"];
-        idtokens = [_cache objectForKey:@"idtokens"];
     }
     
     // Grab the userId first
@@ -538,15 +504,6 @@
     {
         // If we don't have one (ADFS case) then use an empty string
         userId = @"";
-    }
-    else
-    {
-        // Save away the idtoken
-        NSString* idtoken = item.userInformation.rawIdToken;
-        if (idtoken)
-        {
-            [idtokens setObject:idtoken forKey:userId];
-        }
     }
     
     // Grab the token dictionary for this user id.
@@ -557,9 +514,6 @@
         [tokens setObject:userDict forKey:userId];
         SAFE_ARC_RELEASE(userDict);
     }
-    
-    // Nil out the user information
-    item.userInformation = nil;
     
     [userDict setObject:item forKey:key];
     SAFE_ARC_RELEASE(item);

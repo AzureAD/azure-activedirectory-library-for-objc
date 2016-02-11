@@ -169,13 +169,10 @@ static NSString* ReginaIdtoken()
     return idtoken;
 }
 
-static ADTokenCacheItem* ReginaItem(NSString* resource, BOOL includeUserInfo)
+static ADTokenCacheItem* ReginaItem(NSString* resource)
 {
     ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
-    if (includeUserInfo)
-    {
-        item.userInformation = [ADUserInformation userInformationWithIdToken:ReginaIdtoken() error:nil];
-    }
+    item.userInformation = [ADUserInformation userInformationWithIdToken:ReginaIdtoken() error:nil];
     item.authority = TEST_AUTHORITY;
     item.accessToken = @"ThisIsMyAcessToken";
     item.refreshToken = @"ThisIsMyRefreshToken";
@@ -216,7 +213,7 @@ static NSString* CartmanIdtoken()
     return idtoken;
 }
 
-static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
+static ADTokenCacheItem* CartmanItem(NSString* resource)
 {
     ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
     item.resource = resource;
@@ -225,10 +222,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     item.accessToken = @"Grant me access, hippie!";
     item.accessTokenType = @"Bearer";
     item.refreshToken = @"I am a refresh token.";
-    if (includeUserInfo)
-    {
-        item.userInformation = [ADUserInformation userInformationWithIdToken:CartmanIdtoken() error:nil];
-    }
+    item.userInformation = [ADUserInformation userInformationWithIdToken:CartmanIdtoken() error:nil];
     
     return item;
 }
@@ -337,8 +331,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 - (void)testValidationEmptyTokens
 {
     NSMutableDictionary* tokenCache = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{ @"tokens"  : [NSMutableDictionary new],
-                                          @"idtokens" : [NSMutableDictionary new] }];
+                                       @{ @"tokens"  : [NSMutableDictionary new] }];
     NSDictionary* root = @{ @"version" : @CURRENT_WRAPPER_CACHE_VERSION,
                             @"tokenCache" : tokenCache };
     
@@ -353,8 +346,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 - (void)testValidationBadTokensNotMutable
 {
     NSMutableDictionary* tokenCache = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{ @"tokens"  : [NSDictionary new],
-                                          @"idtokens" : [NSMutableDictionary new] }];
+                                       @{ @"tokens"  : [NSDictionary new]}];
     NSDictionary* root = @{ @"version" : @CURRENT_WRAPPER_CACHE_VERSION,
                             @"tokenCache" : tokenCache };
     
@@ -365,46 +357,26 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     XCTAssertFalse([wrapper validateCache:root error:&error]);
     XCTAssertNotNil(error);
 }
-
-- (void)testValidationBadIdtokensNotMutable
-{
-    NSMutableDictionary* tokenCache = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{ @"tokens"  : [NSMutableDictionary new],
-                                          @"idtokens" : [NSDictionary new] }];
-    NSDictionary* root = @{ @"version" : @CURRENT_WRAPPER_CACHE_VERSION,
-                            @"tokenCache" : tokenCache };
-    
-    ADAuthenticationError* error = nil;
-    ADTokenCache* wrapper = [[ADTokenCache alloc] init];
-    
-    // Still expecting these too come back as "good"
-    XCTAssertFalse([wrapper validateCache:root error:&error]);
-    XCTAssertNotNil(error);
-}
-
 
 - (void)testValidationTokensAndIdtokens
 {
     ADAuthenticationError* error = nil;
     
-    NSMutableDictionary* idtokens = [NSMutableDictionary dictionaryWithDictionary:@{ CartmanUserid() : CartmanIdtoken(),
-                                                                                     ReginaUserid() : ReginaIdtoken()}];
     NSMutableDictionary* cartmanTokens = [NSMutableDictionary dictionaryWithDictionary:
-                                          @{ CacheKey(@"police_badge") : CartmanItem(@"police_badge", NO),
-                                             CacheKey(@"mister_kitty") : CartmanItem(@"mister_kitty", NO) }];
+                                          @{ CacheKey(@"police_badge") : CartmanItem(@"police_badge"),
+                                             CacheKey(@"mister_kitty") : CartmanItem(@"mister_kitty") }];
     NSMutableDictionary* reginaTokens = [NSMutableDictionary dictionaryWithDictionary:
-                                         @{ CacheKey(@"police_badge") : CartmanItem(@"police_badge", NO),
-                                            CacheKey(@"mister_kitty") : CartmanItem(@"mister_kitty", NO),
-                                            CacheKey(@"popularity") : ReginaItem(@"popularity", NO),
-                                            CacheKey(@"kaltein_bar") : ReginaItem(@"kaltein_bar", NO),
-                                            CacheKey(@"friends") : ReginaItem(@"friends", NO)}];
+                                         @{ CacheKey(@"police_badge") : CartmanItem(@"police_badge"),
+                                            CacheKey(@"mister_kitty") : CartmanItem(@"mister_kitty"),
+                                            CacheKey(@"popularity") : ReginaItem(@"popularity"),
+                                            CacheKey(@"kaltein_bar") : ReginaItem(@"kaltein_bar"),
+                                            CacheKey(@"friends") : ReginaItem(@"friends")}];
     NSMutableDictionary* tokens = [NSMutableDictionary dictionaryWithDictionary:
                                    @{ CartmanUserid() : cartmanTokens,
                                       ReginaUserid() : reginaTokens}];
     
     NSMutableDictionary* tokenCache = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{ @"tokens"  : tokens,
-                                          @"idtokens" : idtokens }];
+                                       @{ @"tokens"  : tokens }];
     NSDictionary* root = @{ @"version" : @CURRENT_WRAPPER_CACHE_VERSION,
                             @"tokenCache" : tokenCache };
     
@@ -423,18 +395,15 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     
     // Populate the cache dictionaries
     NSMutableDictionary* cartmanTokens = [NSMutableDictionary dictionaryWithDictionary:
-                                          @{ CacheKey(@"mister_kitty") : CartmanItem(@"mister_kitty", NO) }];
+                                          @{ CacheKey(@"mister_kitty") : CartmanItem(@"mister_kitty") }];
     NSMutableDictionary* tokens= [NSMutableDictionary dictionaryWithDictionary:
                                   @{ CartmanUserid() : cartmanTokens }];
-    NSMutableDictionary* idtokens = [NSMutableDictionary dictionaryWithDictionary:
-                                     @{ CartmanUserid() : CartmanIdtoken() }];
     NSMutableDictionary* tokenCache = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{ @"tokens" : tokens,
-                                          @"idtokens" : idtokens }];
+                                       @{ @"tokens" : tokens }];
     [wrapper setCache:tokenCache];
     
     ADAuthenticationError* error = nil;
-    ADTokenCacheItem* expectedItem = CartmanItem(@"mister_kitty", YES);
+    ADTokenCacheItem* expectedItem = CartmanItem(@"mister_kitty");
     ADTokenCacheItem* actualItem = [wrapper getItemWithKey:CacheKey(@"mister_kitty") userId:CartmanUserid() error:&error];
     XCTAssertNotNil(actualItem);
     XCTAssertNil(error);
@@ -447,52 +416,45 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     
     // Populate the cache dictionaries
     NSMutableDictionary* cartmanTokens = [NSMutableDictionary dictionaryWithDictionary:
-                                          @{ CacheKey(@"mister_kitty") : CartmanItem(@"mister_kitty", NO) }];
+                                          @{ CacheKey(@"mister_kitty") : CartmanItem(@"mister_kitty") }];
     NSMutableDictionary* tokens= [NSMutableDictionary dictionaryWithDictionary:
                                   @{ CartmanUserid() : cartmanTokens }];
-    NSMutableDictionary* idtokens = [NSMutableDictionary dictionaryWithDictionary:
-                                     @{ CartmanUserid() : CartmanIdtoken() }];
     NSMutableDictionary* tokenCache = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{ @"tokens" : tokens,
-                                          @"idtokens" : idtokens }];
+                                       @{ @"tokens" : tokens }];
     [wrapper setCache:tokenCache];
     
     ADAuthenticationError* error = nil;
     NSArray* items = [wrapper allItems:&error];
     XCTAssertNotNil(items);
     XCTAssertNil(error);
-    XCTAssertEqualObjects(items, @[CartmanItem(@"mister_kitty", YES)]);
+    XCTAssertEqualObjects(items, @[CartmanItem(@"mister_kitty")]);
 }
 
 - (void)testAllItems
 {
     ADTokenCache* wrapper = [[ADTokenCache alloc] init];
-
-    NSMutableDictionary* idtokens = [NSMutableDictionary dictionaryWithDictionary:
-                                     @{ CartmanUserid() : CartmanIdtoken(),
-                                        ReginaUserid() : ReginaIdtoken()}];
+    
     NSMutableDictionary* cartmanTokens = [NSMutableDictionary dictionaryWithDictionary:
-                                          @{ CacheKey(@"police_badge") : CartmanItem(@"police_badge", NO),
-                                             CacheKey(@"mister_kitty") : CartmanItem(@"mister_kitty", NO) }];
+                                          @{ CacheKey(@"police_badge") : CartmanItem(@"police_badge"),
+                                             CacheKey(@"mister_kitty") : CartmanItem(@"mister_kitty") }];
     NSMutableDictionary* reginaTokens = [NSMutableDictionary dictionaryWithDictionary:
-                                         @{ CacheKey(@"popularity") : ReginaItem(@"popularity", NO),
-                                            CacheKey(@"kaltein_bar") : ReginaItem(@"kaltein_bar", NO),
-                                            CacheKey(@"friends") : ReginaItem(@"friends", NO)}];
+                                         @{ CacheKey(@"popularity") : ReginaItem(@"popularity"),
+                                            CacheKey(@"kaltein_bar") : ReginaItem(@"kaltein_bar"),
+                                            CacheKey(@"friends") : ReginaItem(@"friends")}];
     NSMutableDictionary* tokens = [NSMutableDictionary dictionaryWithDictionary:
                                    @{ CartmanUserid() : cartmanTokens,
                                       ReginaUserid() : reginaTokens}];
     
     NSMutableDictionary* tokenCache = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{ @"tokens"  : tokens,
-                                          @"idtokens" : idtokens }];
+                                       @{ @"tokens"  : tokens }];
     
     [wrapper setCache:tokenCache];
     
     ADAuthenticationError* error = nil;
     NSArray* items = [wrapper allItems:&error];
-    NSArray* expected = @[ CartmanItem(@"police_badge", YES), CartmanItem(@"mister_kitty", YES),
-                           ReginaItem(@"popularity", YES), ReginaItem(@"kaltein_bar", YES),
-                           ReginaItem(@"friends", YES) ];
+    NSArray* expected = @[ CartmanItem(@"police_badge"), CartmanItem(@"mister_kitty"),
+                           ReginaItem(@"popularity"), ReginaItem(@"kaltein_bar"),
+                           ReginaItem(@"friends") ];
     XCTAssertNotNil(items);
     XCTAssertEqual(items.count, 5);
     XCTAssertNil(error);
@@ -511,13 +473,10 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
 - (void)testGetItemsWithKey
 {
     ADTokenCache* wrapper = [[ADTokenCache alloc] init];
-    NSMutableDictionary* idtokens = [NSMutableDictionary dictionaryWithDictionary:
-                                     @{ CartmanUserid() : CartmanIdtoken(),
-                                        ReginaUserid() : ReginaIdtoken()}];
     NSMutableDictionary* cartmanTokens = [NSMutableDictionary dictionaryWithDictionary:
-                                          @{ CacheKey(@"friends") : CartmanItem(@"friends", NO) } ];
+                                          @{ CacheKey(@"friends") : CartmanItem(@"friends") } ];
     NSMutableDictionary* reginaTokens = [NSMutableDictionary dictionaryWithDictionary:
-                                         @{ CacheKey(@"friends") : ReginaItem(@"friends", NO)}];
+                                         @{ CacheKey(@"friends") : ReginaItem(@"friends")}];
     NSMutableDictionary* tokens = [NSMutableDictionary dictionaryWithDictionary:
                                    @{ CartmanUserid() : cartmanTokens,
                                       ReginaUserid() : reginaTokens}];
@@ -532,7 +491,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     XCTAssertNotNil(items);
     XCTAssertNil(error);
     
-    NSSet* expectedSet = [NSSet setWithArray:@[CartmanItem(@"friends", YES), ReginaItem(@"friends", YES)]];
+    NSSet* expectedSet = [NSSet setWithArray:@[CartmanItem(@"friends"), ReginaItem(@"friends", YES)]];
     NSSet* actualSet = [NSSet setWithArray:items];
     XCTAssertEqualObjects(expectedSet, actualSet);
 }
@@ -545,19 +504,16 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     XCTAssertNil([wrapper cache]);
     
     ADAuthenticationError* error = nil;
-    [wrapper addOrUpdateItem:CartmanItem(@"mister_kitty", YES) error:&error];
+    [wrapper addOrUpdateItem:CartmanItem(@"mister_kitty") error:&error];
     XCTAssertNil(error);
     
     // Expected cache structure
     NSMutableDictionary* cartmanTokens = [NSMutableDictionary dictionaryWithDictionary:
-                                          @{ CacheKey(@"mister_kitty") : CartmanItem(@"mister_kitty", NO) }];
+                                          @{ CacheKey(@"mister_kitty") : CartmanItem(@"mister_kitty") }];
     NSMutableDictionary* tokens= [NSMutableDictionary dictionaryWithDictionary:
                                   @{ CartmanUserid() : cartmanTokens }];
-    NSMutableDictionary* idtokens = [NSMutableDictionary dictionaryWithDictionary:
-                                     @{ CartmanUserid() : CartmanIdtoken() }];
     NSMutableDictionary* tokenCache = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{ @"tokens" : tokens,
-                                          @"idtokens" : idtokens }];
+                                       @{ @"tokens" : tokens }];
     
     XCTAssertEqualObjects(tokenCache, [wrapper cache]);
 }
@@ -569,24 +525,20 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     
     // Populate the cache dictionaries
     NSMutableDictionary* cartmanTokens = [NSMutableDictionary dictionaryWithDictionary:
-                                          @{ CacheKey(@"mister_kitty") : CartmanItem(@"mister_kitty", NO) }];
+                                          @{ CacheKey(@"mister_kitty") : CartmanItem(@"mister_kitty") }];
     NSMutableDictionary* tokens= [NSMutableDictionary dictionaryWithDictionary:
                                   @{ CartmanUserid() : cartmanTokens }];
-    NSMutableDictionary* idtokens = [NSMutableDictionary dictionaryWithDictionary:
-                                     @{ CartmanUserid() : CartmanIdtoken() }];
     NSMutableDictionary* tokenCache = [NSMutableDictionary dictionaryWithDictionary:
-                                       @{ @"tokens" : tokens,
-                                          @"idtokens" : idtokens }];
+                                       @{ @"tokens" : tokens }];
     [wrapper setCache:tokenCache];
 
     ADAuthenticationError* error = nil;
     
-    [wrapper removeItem:CartmanItem(@"mister_kitty", YES) error:&error];
+    [wrapper removeItem:CartmanItem(@"mister_kitty") error:&error];
     XCTAssertNil(error);
     
     NSMutableDictionary* expected = [NSMutableDictionary dictionaryWithDictionary:
-                                     @{ @"tokens" : [NSMutableDictionary new],
-                                        @"idtokens" : [NSMutableDictionary new] }];
+                                     @{ @"tokens" : [NSMutableDictionary new] }];
     
     XCTAssertEqualObjects([wrapper cache], expected);
 }
@@ -616,7 +568,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     XCTAssertNil([wrapper2 allItems:&error]);
     XCTAssertNil(error);
     
-    ADTokenCacheItem* item1 = ReginaItem(@"popularity", YES);
+    ADTokenCacheItem* item1 = ReginaItem(@"popularity");
     // Add an item into wrapper 1
     
     [wrapper1 addOrUpdateItem:item1 error:&error];
