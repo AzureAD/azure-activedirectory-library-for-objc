@@ -37,7 +37,7 @@
         return nil;//Nothing to return
     }
     
-    ADAuthenticationError* localError;
+    ADAuthenticationError* localError = nil;
     ADTokenCacheItem* item = [self.tokenCacheStore getItemWithKey:key userId:userId.userId error:&localError];
     if (!item && !localError && userId)
     {
@@ -58,6 +58,11 @@
                                     userId:(ADUserIdentifier *)userId
                                      error:(ADAuthenticationError * __autoreleasing *)error
 {
+    if (error)
+    {
+        *error = nil;
+    }
+    
     if (!key || !self.tokenCacheStore)
     {
         return nil;//Nothing to return
@@ -167,12 +172,15 @@
            withRefreshToken:(NSString*)refreshToken
        requestCorrelationId:(NSUUID*)requestCorrelationId
 {
-    if(![ADAuthenticationContext handleNilOrEmptyAsResult:result argumentName:@"result" authenticationResult:&result]){
+    if(![ADAuthenticationContext handleNilOrEmptyAsResult:result argumentName:@"result" authenticationResult:&result])
+    {
         return;
     }
     
     if (!tokenCacheStoreInstance)
-        return;//No cache to update
+    {
+        return;
+    }
     
     if (AD_SUCCEEDED == result.status)
     {
@@ -201,6 +209,7 @@
             multiRefreshTokenItem.resource = nil;
             multiRefreshTokenItem.expiresOn = nil;
             [tokenCacheStoreInstance addOrUpdateItem:multiRefreshTokenItem error:nil];
+            SAFE_ARC_RELEASE(multiRefreshTokenItem);
         }
         
         AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Storing access token for resource: %@", cacheItem.resource);

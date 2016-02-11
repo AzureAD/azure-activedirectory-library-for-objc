@@ -25,6 +25,7 @@
 #import "ADWebResponse.h"
 #import "ADAuthenticationSettings.h"
 #import "ADHelpers.h"
+#import "ADLogger+Internal.h"
 
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
@@ -38,19 +39,6 @@ NSString *const HTTPPost = @"POST";
 @end
 
 @implementation ADWebRequest
-{
-    NSURLConnection     *_connection;
-    
-    NSData              *_requestData;
-    
-    NSHTTPURLResponse   *_response;
-    NSMutableData       *_responseData;
-    NSUUID              *_correlationId;
-    
-    NSOperationQueue    *_operationQueue;
-    
-    void (^_completionHandler)( NSError *, ADWebResponse *);
-}
 
 #pragma mark - Properties
 
@@ -68,8 +56,12 @@ NSString *const HTTPPost = @"POST";
 {
     if ( body != nil )
     {
+        SAFE_ARC_RELEASE(_requestMethod);
         _requestMethod = HTTPPost;
+        SAFE_ARC_RETAIN(_requestMethod);
+        SAFE_ARC_RELEASE(_requestData);
         _requestData   = body;
+        SAFE_ARC_RETAIN(_requestData);
         
         // Add default HTTP Headers to the request: Expect
         // Note that we don't bother with Expect because iOS does not support it
@@ -79,56 +71,90 @@ NSString *const HTTPPost = @"POST";
 
 #pragma mark - Initialization
 
-- (id)initWithURL: (NSURL*) requestURL
-    correlationId: (NSUUID*) correlationId
+- (id)initWithURL:(NSURL *)requestURL
+    correlationId:(NSUUID *)correlationId
 {
-    THROW_ON_CONDITION_ARGUMENT(![self verifyRequestURL:requestURL], requestURL);//Should have been checked by the caller
-    
-    self = [super init];
-    
-    if ( nil != self )
+    if (!(self = [super init]))
     {
-        _requestURL        = [requestURL copy];
-        _requestMethod     = HTTPGet;
-        _requestHeaders    = [[NSMutableDictionary alloc] init];
-        
-        // Default timeout for ADWebRequest is 30 seconds
-        _timeout           = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
-        
-        _correlationId     = correlationId;
-        
-        _operationQueue = [[NSOperationQueue alloc] init];
-        [_operationQueue setMaxConcurrentOperationCount:1];
+        return nil;
     }
     
+    _requestURL        = [requestURL copy];
+    _requestMethod     = HTTPGet;
+    SAFE_ARC_RETAIN(_requestMethod);
+    _requestHeaders    = [[NSMutableDictionary alloc] init];
+    
+    // Default timeout for ADWebRequest is 30 seconds
+    _timeout           = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
+    
+    _correlationId     = correlationId;
+    SAFE_ARC_RETAIN(_correlationId);
+    
+    _operationQueue = [[NSOperationQueue alloc] init];
+    [_operationQueue setMaxConcurrentOperationCount:1];
+    
     return self;
+}
+
+
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_connection);
+    
+    SAFE_ARC_RELEASE(_requestURL);
+    SAFE_ARC_RELEASE(_requestMethod);
+    SAFE_ARC_RELEASE(_requestHeaders);
+    SAFE_ARC_RELEASE(_requestData);
+    
+    SAFE_ARC_RELEASE(_response);
+    SAFE_ARC_RELEASE(_responseData);
+    
+    SAFE_ARC_RELEASE(_correlationId);
+    
+    SAFE_ARC_RELEASE(_operationQueue);
+    
+    SAFE_ARC_RELEASE(_completionHandler);
+    
+    SAFE_ARC_SUPER_DEALLOC();
 }
 
 // Cleans up and then calls the completion handler
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response
 {
     // Cleanup
+    SAFE_ARC_RELEASE(_requestURL);
     _requestURL     = nil;
+    SAFE_ARC_RELEASE(_requestMethod);
     _requestMethod  = nil;
+    SAFE_ARC_RELEASE(_requestHeaders);
     _requestHeaders = nil;
+    SAFE_ARC_RELEASE(_requestData);
     _requestData    = nil;
     
+    SAFE_ARC_RELEASE(_response);
     _response       = nil;
+    SAFE_ARC_RELEASE(_responseData);
     _responseData   = nil;
     
+    SAFE_ARC_RELEASE(_connection);
     _connection     = nil;
     
     if ( _completionHandler != nil )
     {
         _completionHandler( error, response );
+        SAFE_ARC_RELEASE(_completionHandler);
+        _completionHandler = nil;
     }
 }
 
 - (void)send:(void (^)(NSError *, ADWebResponse *))completionHandler
 {
+    SAFE_ARC_RELEASE(_completionHandler);
     _completionHandler = [completionHandler copy];
     
+    SAFE_ARC_RELEASE(_response);
     _response          = nil;
+    SAFE_ARC_RELEASE(_responseData);
     _responseData      = [[NSMutableData alloc] init];
     
     [self send];
@@ -162,7 +188,9 @@ NSString *const HTTPPost = @"POST";
     request.allHTTPHeaderFields = _requestHeaders;
     request.HTTPBody            = _requestData;
     
+    SAFE_ARC_RELEASE(_connection);
     _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
+    SAFE_ARC_RELEASE(request);
     [_connection setDelegateQueue:_operationQueue];
     [_connection start];
 }
@@ -215,7 +243,9 @@ NSString *const HTTPPost = @"POST";
 {
 #pragma unused(connection)
     
+    SAFE_ARC_RELEASE(_response);
     _response = (NSHTTPURLResponse *)response;
+    SAFE_ARC_RETAIN(_response);
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
@@ -247,7 +277,9 @@ NSString *const HTTPPost = @"POST";
     //
     NSAssert( _response != nil, @"No HTTP Response available" );
     
-    [self completeWithError:nil andResponse:[[ADWebResponse alloc] initWithResponse:_response data:_responseData]];
+    ADWebResponse* response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
+    SAFE_ARC_AUTORELEASE(response);
+    [self completeWithError:nil andResponse:response];
 }
 
 //required method Available in OS X v10.6 through OS X v10.7, then deprecated

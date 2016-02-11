@@ -17,6 +17,7 @@
 // governing permissions and limitations under the License.
 
 @class ADAuthenticationError;
+@class ADAuthenticationViewController;
 
 #import "ADAuthenticationContext.h"
 
@@ -40,6 +41,24 @@ extern NSString* ADWebAuthWillSwitchToBrokerApp;
 extern NSString* ADWebAuthDidReceieveResponseFromBroker;
 
 @interface ADWebAuthController : NSObject
+{
+    ADAuthenticationViewController * _authenticationViewController;
+    
+    NSLock * _completionLock;
+    NSString * _endURL;
+    
+    BOOL _loading;
+    // Used for managing the activity spinner
+    NSTimer* _spinnerTimer;
+    
+    // Used for timing out if it's taking too long to load
+    float _timeout;
+    NSTimer * _loadingTimer;
+    
+    BOOL _complete;
+    
+    void (^_completionBlock)( ADAuthenticationError *, NSURL *);
+}
 
 //Cancel the web authentication session which might be happening right now
 //Note that it only works if there's an active web authentication session going on

@@ -63,7 +63,7 @@ BOOL validBase64Characters(const byte* data, const int size)
 /// See RFC 4648, Section 5 plus switch characters 62 and 63 and no padding.
 /// For a good overview of Base64 encoding, see http://en.wikipedia.org/wiki/Base64
 /// </remarks>
-+ (NSData *) Base64DecodeData:(NSString *)encodedString
++ (NSData *)Base64DecodeData:(NSString *)encodedString
 {
     if ( nil == encodedString )
     {
@@ -158,11 +158,11 @@ BOOL validBase64Characters(const byte* data, const int size)
     return result;
 }
 
-- (NSString *) adBase64UrlDecode
+- (NSString *)adBase64UrlDecode
 {
     NSData *decodedData = [self.class Base64DecodeData:self];
     
-    return [[NSString alloc] initWithData:decodedData encoding:NSUTF8StringEncoding];
+    return SAFE_ARC_AUTORELEASE([[NSString alloc] initWithData:decodedData encoding:NSUTF8StringEncoding]);
 }
 
 //Helper method to encode 3 bytes into a sequence of 4 bytes:
@@ -182,7 +182,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 /// See RFC 4648, Section 5 plus switch characters 62 and 63 and no padding.
 /// For a good overview of Base64 encoding, see http://en.wikipedia.org/wiki/Base64
 /// </remarks>
-+ (NSString *) Base64EncodeData:(NSData *)data
++ (NSString *)Base64EncodeData:(NSData *)data
 {
     if ( nil == data )
         return nil;
@@ -258,7 +258,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 }
 
 // Base64 URL encodes a string
-- (NSString *) adBase64UrlEncode
+- (NSString *)adBase64UrlEncode
 {
     NSData *decodedData = [self dataUsingEncoding:NSUTF8StringEncoding];
     
@@ -266,7 +266,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 }
 
 /* Caches statically the non-white characterset */
-+(NSCharacterSet*) nonWhiteCharSet
++ (NSCharacterSet*)nonWhiteCharSet
 {
     static NSCharacterSet* nonWhiteCharSet;//Cached instance
     static dispatch_once_t once;
@@ -275,12 +275,13 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
         dispatch_once(&once, ^{
             //Instance initialization (only once):
             nonWhiteCharSet = [[NSCharacterSet whitespaceAndNewlineCharacterSet] invertedSet];
+            SAFE_ARC_RETAIN(nonWhiteCharSet);
         });
     }
     return nonWhiteCharSet;
 }
 
-+(BOOL) adIsStringNilOrBlank: (NSString*)string
++ (BOOL)adIsStringNilOrBlank:(NSString *)string
 {
     if (!string || !string.length)
         return YES;
@@ -291,7 +292,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     }
 }
 
--(BOOL) adContainsString: (NSString*) contained
+- (BOOL)adContainsString:(NSString *)contained
 {
     THROW_ON_NIL_ARGUMENT(contained);
     if (!contained.length)
@@ -299,8 +300,8 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return [self rangeOfString:contained].location != NSNotFound;
 }
 
--(long) adFindCharactersFromSet: (NSCharacterSet*) set
-                        start: (long) startIndex
+- (long)adFindCharactersFromSet:(NSCharacterSet *)set
+                          start:(long)startIndex
 {
     THROW_ON_NIL_ARGUMENT(set);
     long end = self.length;
@@ -312,26 +313,28 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return (found == NSNotFound) ? end : found;
 }
 
--(long) adFindNonWhiteCharacterAfter: (long) startIndex
+- (long)adFindNonWhiteCharacterAfter:(long)startIndex
 {
     return [self adFindCharactersFromSet:[NSString nonWhiteCharSet] start:startIndex];
 }
 
--(long) adFindCharacter:(unichar)toFind start: (long) startIndex
+- (long)adFindCharacter:(unichar)toFind
+                  start:(long)startIndex
 {
     NSRange chars = {.location = toFind, .length = 1};
     NSCharacterSet* set = [NSCharacterSet characterSetWithRange:chars];
     return [self adFindCharactersFromSet:set start:startIndex];
 }
 
--(NSString*) adTrimmedString
+- (NSString *)adTrimmedString
 {
     //The white characters set is cached by the system:
     NSCharacterSet* set = [NSCharacterSet whitespaceAndNewlineCharacterSet];
     return [self stringByTrimmingCharactersInSet:set];
 }
 
--(BOOL) adRangeHasPrefixWord: (NSString*) prefixWord range: (NSRange) range
+- (BOOL)adRangeHasPrefixWord:(NSString *)prefixWord
+                       range:(NSRange)range
 {
     THROW_ON_NIL_ARGUMENT(prefixWord);
     if (!prefixWord.length)
@@ -353,7 +356,8 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return ([[NSCharacterSet whitespaceAndNewlineCharacterSet] characterIsMember:[self characterAtIndex:after]]);
 }
 
--(BOOL) adSubstringHasPrefixWord: (NSString*) prefixWord start: (long) substringStart
+- (BOOL)adSubstringHasPrefixWord:(NSString *)prefixWord
+                           start:(long)substringStart
 {
     NSRange range = {.location = substringStart, .length = (self.length - substringStart)};
     return [self adRangeHasPrefixWord:prefixWord range:range];
@@ -392,8 +396,8 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return CFBridgingRelease( encodedString );
 }
 
-+ (BOOL) adSame: (NSString*) string1
-       toString: (NSString*) string2
++ (BOOL)adSame:(NSString *)string1
+      toString:(NSString *)string2
 {
     if (!string1)
         return !string2; //if both are nil, they are equal
@@ -402,7 +406,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 }
 
 
-- (NSString*) adComputeSHA256
+- (NSString*)adComputeSHA256
 {
     const char* inputStr = [self UTF8String];
     unsigned char hash[CC_SHA256_DIGEST_LENGTH];
@@ -428,6 +432,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 - (NSDictionary*)authHeaderParams
 {
     NSMutableDictionary* params = [NSMutableDictionary new];
+    SAFE_ARC_AUTORELEASE(params);
     
     NSUInteger strLength = [self length];
     NSRange currentRange = NSMakeRange(0, strLength);

@@ -56,9 +56,20 @@
 
 @implementation ADTokenCache
 
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_cache);
+    SAFE_ARC_RELEASE(_delegate);
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 - (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate
 {
+    SAFE_ARC_RELEASE(_delegate);
     _delegate = delegate;
+    SAFE_ARC_RETAIN(_delegate);
+    SAFE_ARC_RELEASE(_cache);
     _cache = nil;
     
     if (!delegate)
@@ -123,6 +134,7 @@
     // If they pass in nil on deserialize that means to drop the cache
     if (!data)
     {
+        SAFE_ARC_RELEASE(_cache);
         _cache = nil;
         return YES;
     }
@@ -139,6 +151,7 @@
     }
     
     _cache = [cache objectForKey:@"tokenCache"];
+    SAFE_ARC_RETAIN(_cache);
     return YES;
 }
 
@@ -151,13 +164,13 @@
         if (_cache)
         {
             AD_LOG_WARN(@"nil data provided to -updateCache, dropping old cache", nil, nil);
+            SAFE_ARC_RELEASE(_cache);
+            _cache = nil;
         }
         else
         {
             AD_LOG_INFO(@"No data provided for cache.", nil, nil);
         }
-        
-        _cache = nil;
         return YES;
     }
     
@@ -189,6 +202,7 @@
         item = [item copy];
         
         [items addObject:item];
+        SAFE_ARC_RELEASE(item);
     }
 }
 
@@ -235,13 +249,14 @@
         return nil;
     }
     
-    NSMutableArray* items = [NSMutableArray new];
     NSDictionary* tokens = [_cache objectForKey:@"tokens"];
     if (!tokens)
     {
         return nil;
     }
     
+    NSMutableArray* items = [NSMutableArray new];
+    SAFE_ARC_AUTORELEASE(items);
     
     NSDictionary* idtokens = [_cache objectForKey:@"idtokens"];
     if (userId)
@@ -490,6 +505,7 @@
     ADTokenCacheKey* key = [item extractKey:error];
     if (!key)
     {
+        SAFE_ARC_RELEASE(item);
         return NO;
     }
     
@@ -506,6 +522,9 @@
         
         [_cache setObject:tokens forKey:@"tokens"];
         [_cache setObject:idtokens forKey:@"idtokens"];
+        
+        SAFE_ARC_RELEASE(tokens);
+        SAFE_ARC_RELEASE(idtokens);
     }
     else
     {
@@ -536,12 +555,14 @@
     {
         userDict = [NSMutableDictionary new];
         [tokens setObject:userDict forKey:userId];
+        SAFE_ARC_RELEASE(userDict);
     }
     
     // Nil out the user information
     item.userInformation = nil;
     
     [userDict setObject:item forKey:key];
+    SAFE_ARC_RELEASE(item);
     
     return YES;
 }
@@ -560,6 +581,11 @@
         
         return result;
     }
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"ADTokenCache: %@", _cache];
 }
 
 @end

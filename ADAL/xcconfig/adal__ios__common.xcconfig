@@ -1,0 +1,7 @@
+//
+//  adal__ios.xcconfig
+//
+
+#include "adal__common.xcconfig"
+
+CLANG_ENABLE_OBJC_ARC = YES;

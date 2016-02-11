@@ -24,6 +24,12 @@
 /*! Defines the cache store key. The object is immutable and new one should be created each time
  a new key is required. Keys can be created or extracted from existing ADTokenCacheItem objects. */
 @interface ADTokenCacheKey : NSObject <NSCopying, NSSecureCoding>
+{
+    NSUInteger _hash;
+    NSString* _authority;
+    NSString* _resource;
+    NSString* _clientId;
+}
 
 /*! Creates a key
  @param authority: Required. The authentication authority used.

@@ -56,24 +56,6 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 // Implementation
 @implementation ADWebAuthController
-{
-    ADAuthenticationViewController * _authenticationViewController;
-    
-    NSLock * _completionLock;
-    NSString * _endURL;
-    
-    BOOL _loading;
-    // Used for managing the activity spinner
-    NSTimer* _spinnerTimer;
-    
-    // Used for timing out if it's taking too long to load
-    float _timeout;
-    NSTimer * _loadingTimer;
-    
-    BOOL _complete;
-    
-    void (^_completionBlock)( ADAuthenticationError *, NSURL *);
-}
 
 #pragma mark Shared Instance Methods
 
@@ -124,6 +106,17 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     return self;
 }
 
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_completionLock);
+    SAFE_ARC_RELEASE(_endURL);
+    SAFE_ARC_RELEASE(_spinnerTimer);
+    SAFE_ARC_RELEASE(_loadingTimer);
+    SAFE_ARC_RELEASE(_completionBlock);
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 + (void)cancelCurrentWebAuthSession
 {
     [[ADWebAuthController sharedInstance] webAuthDidCancel];
@@ -169,7 +162,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     NSArray * authorityParts = [value componentsSeparatedByString:@"?"];
     NSString *authority = [authorityParts objectAtIndex:0];
     
-    NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc] initWithURL: [NSURL URLWithString: value]];
+    NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:value]];
     
     NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority
                                                         challengeData:queryParamsMap];
@@ -177,6 +170,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     [responseUrl setValue:pKeyAuthHeaderVersion forHTTPHeaderField: pKeyAuthHeader];
     [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
     [_authenticationViewController loadRequest:responseUrl];
+    SAFE_ARC_RELEASE(responseUrl);
 }
 
 - (BOOL)endWebAuthenticationWithError:(ADAuthenticationError*) error
@@ -188,6 +182,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     }
     
     [_authenticationViewController stop:^{[self dispatchCompletionBlock:error URL:endURL];}];
+    SAFE_ARC_RELEASE(_authenticationViewController);
     _authenticationViewController = nil;
     
     return YES;
@@ -451,11 +446,15 @@ correlationId:(NSUUID *)correlationId
     _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
     
     startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
+    SAFE_ARC_RELEASE(_endURL);
     _endURL = [endURL absoluteString];
+    SAFE_ARC_RETAIN(_endURL);
     _complete = NO;
     
     // Save the completion block
+    SAFE_ARC_RELEASE(_completionBlock);
     _completionBlock = [completionBlock copy];
+    SAFE_ARC_RETAIN(_completionBlock);
     ADAuthenticationError* error = nil;
     
     [ADURLProtocol registerProtocol];
@@ -467,6 +466,7 @@ correlationId:(NSUUID *)correlationId
                                        forSingleUse:YES];
     }
     
+    SAFE_ARC_RELEASE(_authenticationViewController);
     _authenticationViewController = [[ADAuthenticationViewController alloc] init];
     [_authenticationViewController setDelegate:self];
     [_authenticationViewController setWebView:webView];
@@ -482,6 +482,7 @@ correlationId:(NSUUID *)correlationId
     
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
     [_authenticationViewController startRequest:request];
+    SAFE_ARC_RELEASE(request);
 }
 
 #if TARGET_OS_IPHONE

@@ -79,8 +79,8 @@
     {
         //Cache should be used in this case:
         ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key
-                                                                   userId:_identifier
-                                                                    error:&error];
+                                                              userId:_identifier
+                                                               error:&error];
         if (error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -142,7 +142,7 @@
     }
     
     //Now attempt to use the refresh token of the passed cache item:
-    BOOL isMultiresourceRefreshToken = item.multiResourceRefreshToken;
+    BOOL isMultiresourceRefreshToken = [item isMultiResourceRefreshToken];
     [self acquireTokenByRefreshToken:item.refreshToken
                            cacheItem:item
                      completionBlock:^(ADAuthenticationResult *result)
@@ -170,7 +170,7 @@
                  
                  if (broadItem)
                  {
-                     if (!broadItem.multiResourceRefreshToken)
+                     if (![broadItem isMultiResourceRefreshToken])
                      {
                          AD_LOG_WARN(@"Unexpected", _correlationId, @"Multi-resource refresh token expected here.");
                          //Recover (avoid infinite recursion):

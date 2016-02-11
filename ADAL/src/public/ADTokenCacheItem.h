@@ -25,6 +25,20 @@
     Objects of this class are used in the key-based token cache store.
     See the key extraction function for details on how the keys are constructed. */
 @interface ADTokenCacheItem : NSObject<NSCopying , NSSecureCoding>
+{
+    NSUInteger _hash;
+    NSString* _resource;
+    NSString* _authority;
+    NSString* _clientId;
+    NSString* _familyId;
+    NSString* _accessToken;
+    NSString* _accessTokenType;
+    NSString* _refreshToken;
+    NSData* _sessionKey;
+    NSDate* _expiresOn;
+    ADUserInformation* _userInformation;
+	NSMutableDictionary* _tombstone;
+}
 
 /*! Applicable resource. Should be nil, in case the item stores multi-resource refresh token. */
 @property (copy) NSString* resource;
@@ -59,11 +73,6 @@
  */
 @property (retain) NSMutableDictionary* tombstone;
 
-/*! If true, the cache store item does not store actual access token, but instead a refresh token that can be
- used to obtain access token for any resource within the same user, authority and client id. This property is calculated
- from the value of other properties: it is true if: resource is nil, accessToken is nil and refresh token is not nil or empty.*/
-@property (readonly, getter = isMultiResourceRefreshToken) BOOL multiResourceRefreshToken;
-
 /*! Obtains a key to be used for the internal cache from the full cache item.
  @param error: if a key cannot be extracted, the method will return nil and if this parameter is not nil,
  it will be filled with the appropriate error information.*/
@@ -79,5 +88,10 @@
 
 /*! Verifies if the user (as defined by userId) is the same between the two items. */
 - (BOOL)isSameUser:(ADTokenCacheItem *)other;
+
+/*! If true, the cache store item does not store actual access token, but instead a refresh token that can be
+ used to obtain access token for any resource within the same user, authority and client id. This property is calculated
+ from the value of other properties: it is true if: resource is nil, accessToken is nil and refresh token is not nil or empty.*/
+- (BOOL)isMultiResourceRefreshToken;
 
 @end

@@ -20,6 +20,8 @@
 
 @implementation ADWorkPlaceJoin
 
+@synthesize sharedGroup = _sharedGroup;
+
 #pragma mark - Public Methods
 
 + (ADWorkPlaceJoin*) WorkPlaceJoinManager

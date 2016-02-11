@@ -24,31 +24,34 @@
 #import "NSString+ADHelperMethods.h"
 
 @implementation ADTokenCacheKey
-{
-    NSUInteger _hash;
-}
 
-- (id)init
+@synthesize authority = _authority;
+@synthesize resource = _resource;
+@synthesize clientId = _clientId;
+
+- (void)calculateHash
 {
-    //Use the custom init instead. This one will throw.
-    [self doesNotRecognizeSelector:_cmd];
-    return nil;
+    _hash = [[NSString stringWithFormat:@"##%@##%@##%@##", _authority, _resource, _clientId]
+             hash];
 }
 
 - (id)initWithAuthority:(NSString *)authority
                resource:(NSString *)resource
                clientId:(NSString *)clientId
 {
-    self = [super init];
-    if (self)
+    if (!(self = [super init]))
     {
-        //As the object is immutable we precalculate the hash:
-        _hash = [[NSString stringWithFormat:@"##%@##%@##%@##", authority, resource, clientId]
-                    hash];
-        _authority = authority;
-        _resource = resource;
-        _clientId = clientId;
+        return nil;
     }
+    
+    _authority = authority;
+    SAFE_ARC_RETAIN(_authority);
+    _resource = resource;
+    SAFE_ARC_RETAIN(_resource);
+    _clientId = clientId;
+    SAFE_ARC_RETAIN(_clientId);
+    
+    [self calculateHash];
     
     return self;
 }
@@ -68,8 +71,9 @@
     RETURN_NIL_ON_NIL_ARGUMENT(authority);//Canonicalization will return nil on empty or bad URL.
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(clientId);
     
-    ADTokenCacheKey* key = [ADTokenCacheKey alloc];
-    return [key initWithAuthority:authority resource:resource clientId:clientId];
+    ADTokenCacheKey* key = [[ADTokenCacheKey alloc] initWithAuthority:authority resource:resource clientId:clientId];
+    SAFE_ARC_AUTORELEASE(key);
+    return key;
 }
 
 - (NSUInteger)hash
@@ -124,8 +128,13 @@
     }
     
     _authority = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"authority"];
+    SAFE_ARC_RETAIN(_authority);
     _resource = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"resource"];
+    SAFE_ARC_RETAIN(_resource);
     _clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
+    SAFE_ARC_RETAIN(_clientId);
+    
+    [self calculateHash];
     
     return self;
 }
@@ -137,9 +146,15 @@
 
 - (id)copyWithZone:(NSZone *) zone
 {
-    return [[self.class allocWithZone:zone] initWithAuthority:[self.authority copyWithZone:zone]
-                                                     resource:[self.resource copyWithZone:zone]
-                                                     clientId:[self.clientId copyWithZone:zone]];
+    ADTokenCacheKey* key = [[ADTokenCacheKey allocWithZone:zone] init];
+    
+    key->_authority = [_authority copyWithZone:zone];
+    key->_clientId = [_clientId copyWithZone:zone];
+    key->_resource = [_resource copyWithZone:zone];
+    
+    [key calculateHash];
+    
+    return key;
 }
 
 @end

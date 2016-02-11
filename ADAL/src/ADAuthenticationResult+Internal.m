@@ -41,16 +41,19 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     if (self)
     {
         _status = AD_SUCCEEDED;
+        SAFE_ARC_RETAIN(item);
         _tokenCacheItem = item;
+        SAFE_ARC_RETAIN(_tokenCacheItem);
         _multiResourceRefreshToken = multiResourceRefreshToken;
+        SAFE_ARC_RETAIN(_correlationId);
         _correlationId = correlationId;
     }
     return self;
 }
 
--(id) initWithError: (ADAuthenticationError*)error
-             status: (ADAuthenticationResultStatus) status
-      correlationId: (NSUUID*) correlationId
+- (id)initWithError:(ADAuthenticationError *)error
+             status:(ADAuthenticationResultStatus)status
+      correlationId:(NSUUID *)correlationId
 {
     THROW_ON_NIL_ARGUMENT(error);
     
@@ -59,7 +62,9 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     {
         _status = status;
         _error = error;
+        SAFE_ARC_RETAIN(_error);
         _correlationId = correlationId;
+        SAFE_ARC_RETAIN(_correlationId);
     }
     return self;
 }
@@ -74,7 +79,13 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         return [ADAuthenticationResult resultFromError:error];
     }
     
-    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:multiResourceRefreshToken correlationId:correlationId];
+    ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithItem:item
+                                                        multiResourceRefreshToken:multiResourceRefreshToken
+                                                                    correlationId:correlationId];
+    
+    SAFE_ARC_AUTORELEASE(result);
+    
+    return result;
 }
 
 +(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error
@@ -85,8 +96,12 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 +(ADAuthenticationResult*) resultFromError: (ADAuthenticationError*) error
                              correlationId: (NSUUID*) correlationId
 {
-    ADAuthenticationResult* result = [ADAuthenticationResult alloc];
-    return [result initWithError:error status:AD_FAILED correlationId:correlationId];
+    ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithError:error
+                                                                            status:AD_FAILED
+                                                                     correlationId:correlationId];
+    SAFE_ARC_AUTORELEASE(result);
+    
+    return result;
 }
 
 + (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
@@ -97,7 +112,13 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 + (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
                                       correlationId: (NSUUID*) correlationId
 {
-    return [[ADAuthenticationResult alloc] initWithError:[ADAuthenticationError invalidArgumentError:details] status:AD_FAILED correlationId:correlationId];
+    ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithError:[ADAuthenticationError invalidArgumentError:details]
+                                                                            status:AD_FAILED
+                                                                     correlationId:correlationId];
+    
+    SAFE_ARC_AUTORELEASE(result);
+    
+    return result;
 }
 
 +(ADAuthenticationResult*) resultFromCancellation
@@ -107,8 +128,9 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 
 +(ADAuthenticationResult*) resultFromCancellation: (NSUUID*) correlationId
 {
-    ADAuthenticationResult* result = [ADAuthenticationResult alloc];
-    return [result initWithCancellation:correlationId];
+    ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithCancellation:correlationId];
+    SAFE_ARC_AUTORELEASE(result);
+    return result;
 }
 
 + (ADAuthenticationResult*)resultForNoBrokerResponse
@@ -191,7 +213,11 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     ADTokenCacheItem* item = [ADTokenCacheItem new];
     [item setAccessTokenType:@"Bearer"];
     BOOL isMRRT = [item fillItemWithResponse:response];
-    return [[ADAuthenticationResult alloc] initWithItem:item multiResourceRefreshToken:isMRRT correlationId:correlationId];
+    ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithItem:item
+                                                        multiResourceRefreshToken:isMRRT
+                                                                    correlationId:correlationId];
+    SAFE_ARC_AUTORELEASE(result);
+    return result;
     
 }
 

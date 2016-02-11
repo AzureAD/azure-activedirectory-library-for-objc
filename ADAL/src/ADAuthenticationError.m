@@ -30,16 +30,19 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
 
 @implementation ADAuthenticationError
 
--(id) init
+@synthesize errorDetails = _errorDetails;
+@synthesize protocolCode = _protocolCode;
+
+- (id)init
 {
     //Should not be called.
     [super doesNotRecognizeSelector:_cmd];
     return nil;
 }
 
--(id) initWithDomain:(NSString*)domain
+- (id)initWithDomain:(NSString *)domain
                 code:(NSInteger)code
-            userInfo:(NSDictionary*)dict
+            userInfo:(NSDictionary *)dict
 {
     (void)domain;
     (void)code;
@@ -50,7 +53,7 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
     return nil;
 }
 
--(NSString*) description
+- (NSString *)description
 {
     NSString* superDescription = [super description];
     
@@ -58,11 +61,11 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
             (long)self.code, self.domain, self.protocolCode, self.errorDetails, superDescription];
 }
 
--(id) initInternalWithDomain:(NSString*)domain
+- (id)initInternalWithDomain:(NSString *)domain
                         code:(NSInteger)code
-                protocolCode:(NSString*)protocolCode
-                errorDetails:(NSString*)details
-                    userInfo:(NSDictionary*)userInfo
+                protocolCode:(NSString *)protocolCode
+                errorDetails:(NSString *)details
+                    userInfo:(NSDictionary *)userInfo
                        quiet:(BOOL)quiet
 {
     THROW_ON_NIL_EMPTY_ARGUMENT(domain);
@@ -79,33 +82,46 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
             [info appendFormat:@" Details: %@", details];
         }
         AD_LOG_ERROR(message, code, nil, info);
+        SAFE_ARC_RELEASE(info);
     }
     
     self = [super initWithDomain:domain code:code userInfo:userInfo];
     if (self)
     {
         _errorDetails = details;
+        SAFE_ARC_RETAIN(_errorDetails);
         _protocolCode = protocolCode;
+        SAFE_ARC_RETAIN(_protocolCode);
     }
     return self;
 }
 
-+(ADAuthenticationError*) errorWithDomainInternal: (NSString*) domain
-                                             code: (NSInteger) code
-                                protocolErrorCode: (NSString*) protocolCode
-                                     errorDetails: (NSString*) details
-                                         userInfo: (NSDictionary*) userInfo;
+- (void)dealloc
 {
-    return [[self alloc] initInternalWithDomain:domain
+    SAFE_ARC_RELEASE(_errorDetails);
+    SAFE_ARC_RELEASE(_protocolCode);
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
++ (ADAuthenticationError *)errorWithDomainInternal:(NSString *)domain
+                                             code:(NSInteger)code
+                                protocolErrorCode:(NSString *)protocolCode
+                                     errorDetails:(NSString *)details
+                                         userInfo:(NSDictionary *)userInfo
+{
+    id obj = [[self alloc] initInternalWithDomain:domain
                                            code:code
                                    protocolCode:protocolCode
                                    errorDetails:details
                                        userInfo:userInfo
                                           quiet:NO];
+    SAFE_ARC_AUTORELEASE(obj);
+    return obj;
 }
 
-+(ADAuthenticationError*) errorFromArgument:(id)argumentValue
-                               argumentName:(NSString*)argumentName
++ (ADAuthenticationError*)errorFromArgument:(id)argumentValue
+                               argumentName:(NSString *)argumentName
 {
     THROW_ON_NIL_EMPTY_ARGUMENT(argumentName);
     
@@ -162,12 +178,16 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                                protocolCode:(NSString*)protocolCode
                                                errorDetails:(NSString*)errorDetails
 {
-    return [[ADAuthenticationError alloc] initInternalWithDomain:ADAuthenticationErrorDomain
-                                                            code:code
-                                                    protocolCode:protocolCode
-                                                    errorDetails:errorDetails
-                                                        userInfo:nil
-                                                           quiet:YES];
+    ADAuthenticationError* error =
+    [[ADAuthenticationError alloc] initInternalWithDomain:ADAuthenticationErrorDomain
+                                                     code:code
+                                             protocolCode:protocolCode
+                                             errorDetails:errorDetails
+                                                 userInfo:nil
+                                                    quiet:YES];
+    
+    SAFE_ARC_AUTORELEASE(error);
+    return error;
 }
 
 + (ADAuthenticationError*)unexpectedInternalError:(NSString*)errorDetails

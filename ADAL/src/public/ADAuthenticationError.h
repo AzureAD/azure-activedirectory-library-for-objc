@@ -26,6 +26,10 @@ extern NSString* const ADUnauthorizedResponseErrorDomain;
 extern NSString* const ADBrokerResponseErrorDomain;
 
 @interface ADAuthenticationError : NSError
+{
+    NSString* _errorDetails;
+    NSString* _protocolCode;
+}
 
 /*! The error code, returned by the server. Can be null. */
 @property (readonly) NSString* protocolCode;

@@ -1,24 +1,28 @@
 language: objective-c
-osx_image: xcode7.1
+osx_image: xcode7.2
 
 # Set up our rubygems (slather and xcpretty, namely)
-install: gem install slather xcpretty -N
+install: 
+ - gem install xcpretty slather -N
 
 script: 
 # Start by nuking any lingering codecov files. These can cause issues when the xcode version changes
   - find . -name "*.gcda" -print0 | xargs -0 rm
+
+  - xcodebuild -workspace ADAL.xcworkspace -list
   
 # Build and Test the ADALiOS library
-  - xcodebuild test -workspace ADAL.xcworkspace -scheme ADALiOS -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty -c; exit ${PIPESTATUS[0]}
+  - xcodebuild test -workspace ADAL.xcworkspace -scheme ADALiOS -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty
 
 # Build the Test App (to make sure it doesn't break
-  - xcodebuild -workspace ADAL.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty -c; exit ${PIPESTATUS[0]}
+  - xcodebuild -workspace ADAL.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty
   
-# Build ADAL for Mac
-  - xcodebuild build -workspace ADAL.xcworkspace -scheme "ADAL Mac" | xcpretty -c; exit ${PIPESTATUS[0]}
+# Build and Test ADAL for Mac
+  - xcodebuild test -workspace ADAL.xcworkspace -scheme "ADAL Mac" | xcpretty
+
+# Test ADAL for Mac 32-bit
+  - xcodebuild test -workspace ADAL.xcworkspace - scheme "ADAL Mac" CURRENT_ARCH=i386 | xcpretty
 
 after_success:
 # Run slather once to have it print out the results in the travis log
   - slather coverage -s ADAL/ADAL.xcodeproj
-# And again to send it to coveralls
-  - slather

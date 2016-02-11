@@ -81,8 +81,8 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
 + (NSDictionary*) extractChallengeParameters: (NSString*) headerContents
                                        error: (ADAuthenticationError* __autoreleasing*) error;
 {
-    NSError* rgError;
-    __block ADAuthenticationError* adError;
+    NSError* rgError = nil;
+    __block ADAuthenticationError* adError = nil;
     
     if ([NSString adIsStringNilOrBlank:headerContents])
     {

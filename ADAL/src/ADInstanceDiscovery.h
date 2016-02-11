@@ -27,26 +27,38 @@ typedef void(^ADDiscoveryCallback)(BOOL validated, ADAuthenticationError* error)
  The class is thread-safe. */
 @interface ADInstanceDiscovery : NSObject
 {
-    NSMutableSet* mValidatedAuthorities;
+    NSMutableSet* _validatedAuthorities;
 }
 
 @property (readonly) NSSet* validatedAuthorities;
 
-/*! The shared instance of the class. Attempt to create the class with new or init will throw an exception.*/
-+(ADInstanceDiscovery*) sharedInstance;
+/*! The shared instance of the class.*/
++ (ADInstanceDiscovery *)sharedInstance;
 
 /*! Validates asynchronously the provided authority. Caches the validations in in-memory cache.
  @param authority: the authority to be validated. ADFS authority instances cannot be validated.
  @param correlationId: a special UUID sent out with the validation request. This UUID can be useful in case
  of calling support to track unexpected failures. This parameter may be null, in which case the method will generate a new UUID.
  @param completionBlock: the block to be called when the result is achieved.*/
--(void) validateAuthority: (NSString*) authority
-            correlationId: (NSUUID*) correlationId
-          completionBlock: (ADDiscoveryCallback) completionBlock;
+- (void)validateAuthority:(NSString *)authority
+            correlationId:(NSUUID *)correlationId
+          completionBlock:(ADDiscoveryCallback) completionBlock;
 
 /*! Takes the string and makes it canonical URL, e.g. lowercase with
  ending trailing "/". If the authority is not a valid URL, the method
  will return nil. */
-+(NSString*) canonicalizeAuthority: (NSString*) authority;
++ (NSString*)canonicalizeAuthority:(NSString *)authority;
+
+- (NSString*)extractHost:(NSString *)authority
+           correlationId:(NSUUID *)correlationId
+                   error:(ADAuthenticationError * __autoreleasing *)error;
+- (BOOL)isAuthorityValidated:(NSString *)authorityHost;
+- (BOOL)addValidAuthority:(NSString *)authorityHost;
+
+- (void)requestValidationOfAuthority:(NSString *)authority
+                                host:(NSString *)authorityHost
+                    trustedAuthority:(NSString *)trustedAuthority
+                       correlationId:(NSUUID *)correlationId
+                     completionBlock:(ADDiscoveryCallback)completionBlock;
 
 @end

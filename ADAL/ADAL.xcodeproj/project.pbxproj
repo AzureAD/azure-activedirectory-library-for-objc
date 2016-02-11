@@ -439,6 +439,15 @@
 		9453C46F1C5874CB006B9E79 /* ADBrokerHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADBrokerHelper.h; sourceTree = "<group>"; };
 		9453C4731C5874FB006B9E79 /* ADBrokerHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelper.m; sourceTree = "<group>"; };
 		9453C4751C58750C006B9E79 /* ADBrokerHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerHelper.m; sourceTree = "<group>"; };
+		946347801C644E13000A6DA1 /* adal__codecov.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__codecov.xcconfig; sourceTree = "<group>"; };
+		946347811C644E13000A6DA1 /* adal__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__common.xcconfig; sourceTree = "<group>"; };
+		946347821C644E13000A6DA1 /* adal__debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__debug.xcconfig; sourceTree = "<group>"; };
+		946347831C644E13000A6DA1 /* adal__ios__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__ios__common.xcconfig; sourceTree = "<group>"; };
+		946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__ios__framework.xcconfig; sourceTree = "<group>"; };
+		946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__ios__staticlib.xcconfig; sourceTree = "<group>"; };
+		946347861C644E13000A6DA1 /* adal__mac__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__mac__common.xcconfig; sourceTree = "<group>"; };
+		946347871C644E13000A6DA1 /* adal__mac__framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__mac__framework.xcconfig; sourceTree = "<group>"; };
+		946347881C644E13000A6DA1 /* adal__release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = adal__release.xcconfig; sourceTree = "<group>"; };
 		946818A41C59B7EE00CA0378 /* ADWebAuthController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthController.m; sourceTree = "<group>"; };
 		946818A51C59B7EE00CA0378 /* ADWebAuthController+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADWebAuthController+Internal.h"; sourceTree = "<group>"; };
 		946818A81C59B80800CA0378 /* ADAuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationViewController.m; sourceTree = "<group>"; };
@@ -519,6 +528,7 @@
 				8B0965AF17F25770002BDFB8 /* src */,
 				8B0965C317F25770002BDFB8 /* tests */,
 				9453C3151C57EE57006B9E79 /* resouces */,
+				94886EED1C63BE3800503C04 /* xcconfig */,
 				8B0965AC17F25770002BDFB8 /* Frameworks */,
 				8B0965AB17F25770002BDFB8 /* Products */,
 			);
@@ -881,6 +891,22 @@
 				9453C4731C5874FB006B9E79 /* ADBrokerHelper.m */,
 			);
 			path = mac;
+			sourceTree = "<group>";
+		};
+		94886EED1C63BE3800503C04 /* xcconfig */ = {
+			isa = PBXGroup;
+			children = (
+				946347801C644E13000A6DA1 /* adal__codecov.xcconfig */,
+				946347811C644E13000A6DA1 /* adal__common.xcconfig */,
+				946347821C644E13000A6DA1 /* adal__debug.xcconfig */,
+				946347831C644E13000A6DA1 /* adal__ios__common.xcconfig */,
+				946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */,
+				946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */,
+				946347861C644E13000A6DA1 /* adal__mac__common.xcconfig */,
+				946347871C644E13000A6DA1 /* adal__mac__framework.xcconfig */,
+				946347881C644E13000A6DA1 /* adal__release.xcconfig */,
+			);
+			path = xcconfig;
 			sourceTree = "<group>";
 		};
 		94DD19001C5AD39A00F80C62 /* ios */ = {
@@ -1406,6 +1432,7 @@
 /* Begin XCBuildConfiguration section */
 		8B0965CB17F25770002BDFB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347821C644E13000A6DA1 /* adal__debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = YES;
@@ -1413,7 +1440,6 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -1421,6 +1447,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = NO;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1441,14 +1468,16 @@
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
 		8B0965CC17F25770002BDFB8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347881C644E13000A6DA1 /* adal__release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = YES;
@@ -1456,7 +1485,6 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -1464,6 +1492,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = NO;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -1478,7 +1507,9 @@
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				ONLY_ACTIVE_ARCH = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -1486,6 +1517,7 @@
 		};
 		8B0965CE17F25770002BDFB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */;
 			buildSettings = {
 				DEAD_CODE_STRIPPING = NO;
 				DSTROOT = /usr/local/lib;
@@ -1512,6 +1544,7 @@
 		};
 		8B0965CF17F25770002BDFB8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */;
 			buildSettings = {
 				DEAD_CODE_STRIPPING = NO;
 				DSTROOT = /usr/local/lib;
@@ -1537,6 +1570,7 @@
 		};
 		8B0965D117F25770002BDFB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347831C644E13000A6DA1 /* adal__ios__common.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1567,6 +1601,7 @@
 		};
 		8B0965D217F25770002BDFB8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347831C644E13000A6DA1 /* adal__ios__common.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1593,6 +1628,7 @@
 		};
 		8B41A1E81888C6350027EE1E /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347801C644E13000A6DA1 /* adal__codecov.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = YES;
@@ -1600,7 +1636,6 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -1608,6 +1643,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = NO;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1628,14 +1664,16 @@
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = iphoneos;
 			};
 			name = CodeCoverage;
 		};
 		8B41A1E91888C6350027EE1E /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */;
 			buildSettings = {
 				DEAD_CODE_STRIPPING = NO;
 				DSTROOT = /usr/local/lib;
@@ -1662,6 +1700,7 @@
 		};
 		8B41A1EA1888C6350027EE1E /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347831C644E13000A6DA1 /* adal__ios__common.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1767,6 +1806,7 @@
 		};
 		9453C3D21C583E07006B9E79 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */;
 			buildSettings = {
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1797,6 +1837,7 @@
 		};
 		9453C3D31C583E07006B9E79 /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */;
 			buildSettings = {
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1827,6 +1868,7 @@
 		};
 		9453C3D41C583E07006B9E79 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */;
 			buildSettings = {
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1857,7 +1899,9 @@
 		};
 		9453C4021C586425006B9E79 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347871C644E13000A6DA1 /* adal__mac__framework.xcconfig */;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1873,14 +1917,9 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREFIX_HEADER = src/ADAL.pch;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = resources/mac/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				MODULEMAP_FILE = resources/mac/adal_mac.modulemap;
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL-Mac";
-				PRODUCT_NAME = ADAL;
 				SDKROOT = macosx;
 				SKIP_INSTALL = NO;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1890,7 +1929,9 @@
 		};
 		9453C4031C586425006B9E79 /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347871C644E13000A6DA1 /* adal__mac__framework.xcconfig */;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1904,18 +1945,11 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_VERSION = A;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREFIX_HEADER = src/ADAL.pch;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = resources/mac/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				MODULEMAP_FILE = resources/mac/adal_mac.modulemap;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL-Mac";
-				PRODUCT_NAME = ADAL;
 				SDKROOT = macosx;
-				SKIP_INSTALL = NO;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -1923,8 +1957,8 @@
 		};
 		9453C4041C586425006B9E79 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347871C644E13000A6DA1 /* adal__mac__framework.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
@@ -1937,16 +1971,8 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_VERSION = A;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREFIX_HEADER = src/ADAL.pch;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = resources/mac/Info.plist;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				MODULEMAP_FILE = resources/mac/adal_mac.modulemap;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL-Mac";
-				PRODUCT_NAME = ADAL;
 				SDKROOT = macosx;
 				SKIP_INSTALL = NO;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1957,23 +1983,27 @@
 		9453C4591C5866D0006B9E79 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				PRODUCT_NAME = "Build All";
 			};
 			name = Debug;
 		};
 		9453C45A1C5866D0006B9E79 /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				PRODUCT_NAME = "Build All";
 			};
 			name = CodeCoverage;
 		};
 		9453C45B1C5866D0006B9E79 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				PRODUCT_NAME = "Build All";
 			};
 			name = Release;
 		};
 		94DD18EA1C5ACFBF00F80C62 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347861C644E13000A6DA1 /* adal__mac__common.xcconfig */;
 			buildSettings = {
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -1995,6 +2025,7 @@
 		};
 		94DD18EB1C5ACFBF00F80C62 /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347861C644E13000A6DA1 /* adal__mac__common.xcconfig */;
 			buildSettings = {
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -2016,6 +2047,7 @@
 		};
 		94DD18EC1C5ACFBF00F80C62 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 946347861C644E13000A6DA1 /* adal__mac__common.xcconfig */;
 			buildSettings = {
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "-";

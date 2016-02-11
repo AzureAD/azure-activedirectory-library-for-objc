@@ -47,6 +47,7 @@
         }
     }
     
+    SAFE_ARC_AUTORELEASE(parameters);
     return parameters;
 }
 
@@ -54,27 +55,26 @@
 // Returns nil if the dictionary is empty, otherwise the encoded value
 - (NSString *)adURLFormEncode
 {
-    __block NSString *parameters = nil;
+    __block NSMutableString *parameters = nil;
     
     [self enumerateKeysAndObjectsUsingBlock: ^(id key, id value, BOOL *stop)
     {
-        *stop = NO;
+        (void)stop;
+        NSString* encodedKey = [[((NSString *)key) adTrimmedString] adUrlFormEncode];
+        NSString* encodedValue = [[((NSString *)value) adTrimmedString] adUrlFormEncode];
         
         if ( parameters == nil )
         {
-            parameters = [NSString stringWithFormat:@"%@=%@",
-                           [[((NSString *)key) adTrimmedString] adUrlFormEncode],
-                           [[((NSString *)value) adTrimmedString] adUrlFormEncode]];
+            parameters = [NSMutableString new];
+            [parameters appendFormat:@"%@=%@", encodedKey, encodedValue];
         }
         else
         {
-            parameters = [NSString stringWithFormat:@"%@&%@=%@",
-                          parameters,
-                          [[((NSString *)key) adTrimmedString] adUrlFormEncode],
-                          [[((NSString *)value) adTrimmedString] adUrlFormEncode]];
+            [parameters appendFormat:@"&%@=%@", encodedKey, encodedValue];
         }
     }];
     
+    SAFE_ARC_AUTORELEASE(parameters);
     return parameters;
 }
 

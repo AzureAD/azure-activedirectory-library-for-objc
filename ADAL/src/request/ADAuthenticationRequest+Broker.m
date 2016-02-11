@@ -95,7 +95,7 @@
         
         //decrypt response first
         ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
-        ADAuthenticationError* error;
+        ADAuthenticationError* error = nil;
         NSData *encryptedResponse = [NSString Base64DecodeData:encryptedBase64Response ];
         NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
                                                         version:protocolVersion

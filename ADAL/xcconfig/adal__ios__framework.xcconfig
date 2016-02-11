@@ -1,0 +1,8 @@
+//
+//  adal__ios__framework.xcconfig
+//
+
+#include "adal__ios__common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL";
+PRODUCT_NAME = ADAL;

@@ -35,15 +35,12 @@ const int sAsyncContextTimeout = 10;
 @interface ADAcquireTokenTests : XCTestCase
 {
 @private
-    ADPromptBehavior _promptBehavior;
-    
     dispatch_semaphore_t _dsem;
 }
 @end
 
 #define TEST_SIGNAL dispatch_semaphore_signal(_dsem)
 #define TEST_WAIT dispatch_semaphore_wait(_dsem, DISPATCH_TIME_FOREVER)
-
 
 @implementation ADAcquireTokenTests
 
@@ -55,6 +52,7 @@ const int sAsyncContextTimeout = 10;
 
 - (void)tearDown
 {
+    SAFE_ARC_DISPATCH_RELEASE(_dsem);
     _dsem = nil;
     
     XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
@@ -71,8 +69,10 @@ const int sAsyncContextTimeout = 10;
                                                      error:nil];
     
     NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
-    [context setTokenCacheStore:[ADTokenCache new]];
+    [context setTokenCacheStore:SAFE_ARC_AUTORELEASE([ADTokenCache new])];
     [context setCorrelationId:TEST_CORRELATION_ID];
+    
+    SAFE_ARC_AUTORELEASE(context);
     
     return context;
 }
@@ -654,8 +654,6 @@ const int sAsyncContextTimeout = 10;
     //Then hit network twice again for broad refresh token for the same reason
     //So totally 4 responses are added
     //If there is an infinite retry, exception will be thrown becasuse there is not enough responses
-    [ADTestURLConnection addResponse:response];
-    [ADTestURLConnection addResponse:response];
     [ADTestURLConnection addResponse:response];
     [ADTestURLConnection addResponse:response];
     

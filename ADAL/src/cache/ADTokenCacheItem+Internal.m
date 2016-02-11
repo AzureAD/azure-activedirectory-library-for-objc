@@ -36,10 +36,9 @@
     AD_LOG_VERBOSE(@"Token extraction", requestCorrelationId, @"Attempt to extract the data from the server response.");
     
     NSString* responseId = [response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE];
-    NSUUID* responseUUID;
     if (![NSString adIsStringNilOrBlank:responseId])
     {
-        responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
+        NSUUID* responseUUID = [[NSUUID alloc] initWithUUIDString:responseId];
         if (!responseUUID)
         {
             AD_LOG_INFO_F(@"Bad correlation id", nil, @"The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, responseId);
@@ -48,6 +47,7 @@
         {
             AD_LOG_INFO_F(@"Correlation id mismatch", nil, @"Mismatch between the sent correlation id and the received one. Sent: %@; Received: %@", requestCorrelationId, responseId);
         }
+        SAFE_ARC_RELEASE(responseUUID);
     }
     else
     {
@@ -101,14 +101,6 @@
         ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:details];
         return [ADAuthenticationResult resultFromError:error];
     }
-    
-    //No access token and no error, we assume that there was another kind of error (connection, server down, etc.).
-    //Note that for security reasons we log only the keys, not the values returned by the user:
-    NSString* errorMessage = [NSString stringWithFormat:@"The server returned without providing an error. Keys returned: %@", [response allKeys]];
-    error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
-                                                   protocolCode:nil
-                                                   errorDetails:errorMessage];
-    return [ADAuthenticationResult resultFromError:error];
 }
 
 - (void)fillUserInformation:(NSString*)idToken
@@ -177,6 +169,8 @@
                  expiresOn:nil
              correlationId:correlationUUID];
     }
+    
+    SAFE_ARC_RELEASE(correlationUUID);
 }
 
 

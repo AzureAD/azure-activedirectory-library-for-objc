@@ -52,9 +52,12 @@
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 @implementation ADAuthenticationContext
-{
-    id <ADTokenCacheAccessor> _tokenCacheStore;
-}
+
+@synthesize authority = _authority;
+@synthesize validateAuthority = _validateAuthority;
+@synthesize correlationId = _correlationId;
+@synthesize credentialsType = _credentialsType;
+@synthesize webView = _webView;
 
 - (id)init
 {
@@ -70,12 +73,16 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                   error:(ADAuthenticationError* __autoreleasing *) error
 {
     API_ENTRY;
-    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
-    RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
-    
     if (!(self = [super init]))
     {
         return nil;
+    }
+    
+    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
+    if (!extractedAuthority)
+    {
+        SAFE_ARC_RELEASE(self);
+        RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
     }
     
     _authority = extractedAuthority;
@@ -94,18 +101,24 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                   error:(ADAuthenticationError *__autoreleasing *)error
 {
     API_ENTRY;
-    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
-    RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
-    
     if (!(self = [super init]))
     {
         return nil;
     }
     
+    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
+    if (!extractedAuthority)
+    {
+        SAFE_ARC_RELEASE(self);
+        RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
+    }
+    
     _authority = extractedAuthority;
+    SAFE_ARC_RETAIN(_authority);
     _validateAuthority = validateAuthority;
     _credentialsType = AD_CREDENTIALS_EMBEDDED;
     _tokenCacheStore = tokenCache;
+    SAFE_ARC_RETAIN(_tokenCacheStore);
     
     return self;
 }
@@ -118,10 +131,12 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     ADTokenCache* cache = [ADTokenCache new];
     [cache setDelegate:delegate];
     
-    return [self initWithAuthority:authority
+    self = [self initWithAuthority:authority
                  validateAuthority:validateAuthority
                         tokenCache:cache
                              error:error];
+    SAFE_ARC_RELEASE(cache);
+    return self;
 }
 
 - (id)initWithAuthority:(NSString *)authority
@@ -134,8 +149,16 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                        sharedGroup:[[ADAuthenticationSettings sharedInstance] defaultKeychainGroup]
                              error:error];
 #else
-    return [self initWithAuthority:authority validateAuthority:validateAuthority cacheDelegate:[ADAuthenticationSettings sharedInstance].defaultCacheDelegate error:error];
+    return [self initWithAuthority:authority validateAuthority:validateAuthority cacheDelegate:[ADAuthenticationSettings sharedInstance].defaultStorageDelegate error:error];
 #endif
+}
+
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_authority);
+    SAFE_ARC_RELEASE(_tokenCacheStore);
+    
+    SAFE_ARC_SUPER_DEALLOC();
 }
 
 - (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
@@ -187,7 +210,17 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     API_ENTRY
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(authority);
     
-    return [[self alloc] initWithAuthority:authority validateAuthority:bValidate error:error];
+    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority
+                                                                        validateAuthority:bValidate
+                                                                                    error:error];
+    if (!context)
+    {
+        
+        return nil;
+    }
+    
+    SAFE_ARC_AUTORELEASE(context);
+    return context;
 }
 
 #if TARGET_OS_IPHONE
@@ -389,7 +422,9 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 - (void)setTokenCacheStore:(id<ADTokenCacheAccessor>)tokenCacheStore
 {
+    SAFE_ARC_RELEASE(_tokenCacheStore);
     _tokenCacheStore = tokenCacheStore;
+    SAFE_ARC_RETAIN(_tokenCacheStore);
 }
 
 - (id<ADTokenCacheAccessor>)tokenCacheStore

@@ -500,6 +500,10 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     // Turn the items into to a set so we can just compare object equality without having to worry about order
     NSSet* actualSet = [NSSet setWithArray:items];
     NSSet* expectedSet = [NSSet setWithArray:expected];
+    
+    // If you're seeing this check fail and you can't come up with a good reason why that might be take a
+    // good long look at the hash calculating in ADTokenCacheItem. NSSet relies on -hash to be implemented
+    // correctly for -isEqual: to work properly.
     XCTAssertEqualObjects(actualSet, expectedSet);
 }
 

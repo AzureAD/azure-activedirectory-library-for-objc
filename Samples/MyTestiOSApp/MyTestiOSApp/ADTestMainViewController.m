@@ -224,7 +224,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     //TODO: implement the 401 challenge response in the test Azure app. Temporarily using another one:
     NSString* __block resourceString = @"http://testapi007.azurewebsites.net/api/WorkItem";
     //    NSURL* resource = [NSURL URLWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
-    ADAuthenticationError * error;
+    ADAuthenticationError * error = nil;
     
     //401 worked, now try to acquire the token:
     //TODO: replace the authority here with the one that comes back from 'params'
@@ -261,7 +261,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
 - (IBAction)clearCachePressed:(id)sender
 {
     [self clearResults];
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
     NSArray* allItems = [cache allItems:&error];
     if (error)
@@ -299,7 +299,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
 - (IBAction)getUsersPressed:(id)sender
 {
     [self clearResults];
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
     NSArray* array = [cache allItems:&error];
     if (error)
@@ -314,9 +314,13 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
         ADUserInformation *user = item.userInformation;
         if (!item.userInformation)
         {
-            user = [ADUserInformation userInformationWithUserId:@"Unknown user" error:nil];
+            if (![users containsObject:@"<ADFS User>"])
+            {
+                [users addObject:@"<ADFS User>"];
+                [usersStr appendString:@"<ADFS User>"];
+            }
         }
-        if (![users containsObject:user.userId])
+        else if (![users containsObject:user.userId])
         {
             //New user, add and print:
             [users addObject:user.userId];
@@ -337,7 +341,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     // TODO: This requires using internal APIs. It's not an addOrUpdate is not something
     //       we have any desire to make public.
     /*
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     [self clearResults];
     [self appendToResults:@"Attempt to expire..."];
     ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
@@ -368,7 +372,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
 {
     [self clearResults];
     [self appendToResults:@"Setting prompt always..."];
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     context = [ADAuthenticationContext authenticationContextWithAuthority:mAADInstance.authority
                                                         validateAuthority:mAADInstance.validateAuthority
                                                                     error:&error];

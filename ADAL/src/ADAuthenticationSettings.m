@@ -15,11 +15,17 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
+
 #import "ADAuthenticationSettings.h"
-#import "ADKeychainTokenCache.h"
 
 @implementation ADAuthenticationSettings
 
+@synthesize requestTimeOut = _requestTimeOut;
+@synthesize expirationBuffer = _expirationBuffer;
+
+#if !TARGET_OS_IPHONE
+@synthesize defaultStorageDelegate = _defaultStorageDelegate;
+#endif // !TARGET_OS_IPHONE
 
 /*!
  An internal initializer used from the static creation function.
@@ -32,8 +38,8 @@
         //Initialize the defaults here:
         self.requestTimeOut = 300;//in seconds.
         self.expirationBuffer = 300;//in seconds, ensures catching of clock differences between the server and the device
-        self.enableFullScreen = YES;
 #if TARGET_OS_IPHONE
+        self.enableFullScreen = YES;
         self.defaultKeychainGroup = @"com.microsoft.adalcache";
 #endif
     }

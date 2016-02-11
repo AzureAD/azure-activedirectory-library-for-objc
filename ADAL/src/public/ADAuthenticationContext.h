@@ -98,6 +98,7 @@ typedef enum
 } ADCredentialsType;
 
 @class ADAuthenticationResult;
+@protocol ADTokenCacheAccessor;
 
 /*!
     @class ADAuthenticationContext
@@ -109,6 +110,14 @@ typedef enum
     [ADAuthenticationContext new] or [[ADAuthenticationContext alloc] init] will throw an exception.
  */
 @interface ADAuthenticationContext : NSObject
+{
+    id <ADTokenCacheAccessor> _tokenCacheStore;
+    NSString* _authority;
+    BOOL _validateAuthority;
+    ADCredentialsType _credentialsType;
+    NSUUID* _correlationId;
+    __weak WebViewType* _webView;
+}
 
 #if TARGET_OS_IPHONE
 /*!
@@ -227,9 +236,6 @@ typedef enum
 
 /*! Controls authority validation in acquire token calls. */
 @property BOOL validateAuthority;
-
-/*! Represents the URL scheme of the application. If nil, the API selects the first value in an array of URL schemes. */
-@property NSString* applicationURLScheme;
 
 /*! Unique identifier passed to the server and returned back with errors. Useful during investigations to correlate the
  requests and the responses from the server. If nil, a new UUID is generated on every request. */

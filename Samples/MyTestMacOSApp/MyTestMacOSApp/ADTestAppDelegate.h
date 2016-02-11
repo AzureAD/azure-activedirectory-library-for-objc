@@ -18,6 +18,9 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class ADTestMemoryCache;
+@class ADTokenCache;
+
 @interface ADTestAppDelegate : NSObject <NSApplicationDelegate>
 {
 //@private:
@@ -27,6 +30,8 @@
     NSPersistentStoreCoordinator *_persistentStoreCoordinator;
     NSManagedObjectModel         *_managedObjectModel;
     NSManagedObjectContext       *_managedObjectContext;
+    ADTestMemoryCache* _cacheDelegate;
+    ADTokenCache* _cache;
 }
 
 @property (assign) IBOutlet NSWindow *window;
@@ -42,7 +47,6 @@
 - (IBAction)showUsersAction:(id)sender;
 - (IBAction)expireAllAction:(id)sender;
 - (IBAction)clearCacheAndCookiesAction:(id)sender;
-- (IBAction)refreshTokenFlowAction:(id)sender;
 - (IBAction)acquireTokenSilentAction:(id)sender;
 - (IBAction)promptAlwaysAction:(id)sender;
 - (IBAction)samlAssertionAction:(id)sender;

@@ -63,7 +63,7 @@
     [self ensureRequest];
     
     //Check the cache:
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     //We are explicitly creating a key first to ensure indirectly that all of the required arguments are correct.
     //This is the safest way to guarantee it, it will raise an error, if the the any argument is not correct:
     ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_context.authority
@@ -84,7 +84,7 @@
         ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key
                                                               userId:_identifier
                                                                error:&error];
-        if (error)
+        if (!cacheItem && error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
             return;
@@ -138,7 +138,7 @@
     }
     
     //Now attempt to use the refresh token of the passed cache item:
-    BOOL isMultiResourceRefreshToken = item.multiResourceRefreshToken;
+    BOOL isMultiResourceRefreshToken = [item isMultiResourceRefreshToken];
     [self acquireTokenByRefreshToken:item.refreshToken
                            cacheItem:item
                      completionBlock:^(ADAuthenticationResult *result)
@@ -158,7 +158,7 @@
              {
                  ADAuthenticationError* error;
                  ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier error:&error];
-                 if (error)
+                 if (!broadItem && error)
                  {
                      completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
                      return;
@@ -166,7 +166,7 @@
                  
                  if (broadItem)
                  {
-                     if (!broadItem.multiResourceRefreshToken)
+                     if (![broadItem isMultiResourceRefreshToken])
                      {
                          AD_LOG_WARN(@"Unexpected", _correlationId, @"Multi-resource refresh token expected here.");
                          //Recover (avoid infinite recursion):
@@ -358,7 +358,11 @@
                       requestCorrelationId:_correlationId];
          }
          result = [ADAuthenticationContext updateResult:result toUser:_identifier];//Verify the user (just in case)
-         
+         //
+         if (!cacheItem)
+         {
+             SAFE_ARC_RELEASE(resultItem);
+         }
          completionBlock(result);
      }];
 }

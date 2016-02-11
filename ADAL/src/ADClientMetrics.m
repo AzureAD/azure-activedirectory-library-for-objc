@@ -37,8 +37,8 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
 @synthesize errorToReport = _errorToReport;
 @synthesize isPending = _isPending;
 
-+ (ADClientMetrics*) getInstance {
-    /* Below is a standard objective C singleton pattern*/
++ (ADClientMetrics *)getInstance
+{
     static ADClientMetrics* instance = nil;
     static dispatch_once_t onceToken = 0;
     @synchronized(self)
@@ -50,31 +50,38 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
     return instance;
 }
 
-- (id)init {
-    return self;
-}
-
 - (void) beginClientMetricsRecordForEndpoint: (NSString*) endPoint
                                correlationId: (NSString*) correlationId
                                requestHeader: (NSMutableDictionary*) requestHeader
 {
     @synchronized(self)
     {
-        if([ADHelpers isADFSInstance:endPoint]){
+        if ([ADHelpers isADFSInstance:endPoint])
+        {
             return;
         }
-        if(_isPending){
+        if (_isPending)
+        {
             [requestHeader setObject:_errorToReport forKey:HeaderLastError];
             [requestHeader setObject:_responseTime forKey:HeaderLastResponseTime];
             [requestHeader setObject:[ADHelpers getEndpointName:_endpoint] forKey:HeaderLastEndpoint];
             [requestHeader setObject:_correlationId forKey:HeaderLastRequest];
             _isPending = NO;
         }
+        SAFE_ARC_RELEASE(_endpoint);
         _endpoint = endPoint;
+        SAFE_ARC_RETAIN(_endpoint);
+        SAFE_ARC_RELEASE(_responseTime);
         _responseTime = @"";
+        SAFE_ARC_RETAIN(_responseTime);
+        SAFE_ARC_RELEASE(_correlationId);
         _correlationId = correlationId;
+        SAFE_ARC_RETAIN(_correlationId);
+        SAFE_ARC_RELEASE(_startTime);
         _startTime = [NSDate new];
+        SAFE_ARC_RELEASE(_errorToReport);
         _errorToReport = @"";
+        SAFE_ARC_RETAIN(_errorToReport);
     }
 }
 
@@ -83,15 +90,25 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
     
     @synchronized(self)
     {
-        if([ADHelpers isADFSInstance:_endpoint]){
+        if([ADHelpers isADFSInstance:_endpoint])
+        {
             return;
         }
-        if([NSString adIsStringNilOrBlank:error]){
+        
+        SAFE_ARC_RELEASE(_errorToReport);
+        if([NSString adIsStringNilOrBlank:error])
+        {
             _errorToReport = @"";
-        }else{
+        }
+        else
+        {
             _errorToReport = error;
         }
+        SAFE_ARC_RETAIN(_errorToReport);
+        
+        SAFE_ARC_RELEASE(_responseTime);
         _responseTime = [NSString stringWithFormat:@"%f", [_startTime timeIntervalSinceNow] * -1000.0];
+        SAFE_ARC_RETAIN(_responseTime);
         _isPending = YES;
     }
 }

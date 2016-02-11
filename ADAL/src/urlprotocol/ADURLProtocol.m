@@ -27,9 +27,6 @@ static NSMutableDictionary* s_handlers = nil;
 
 
 @implementation ADURLProtocol
-{
-    NSURLConnection *_connection;
-}
 
 + (void)registerHandler:(id)handler
              authMethod:(NSString*)authMethod
@@ -122,6 +119,7 @@ static NSMutableDictionary* s_handlers = nil;
     _connection = [[NSURLConnection alloc] initWithRequest:mutableRequest
                                                   delegate:self
                                           startImmediately:YES];
+    SAFE_ARC_RELEASE(mutableRequest);
 }
 
 - (void)stopLoading
@@ -175,6 +173,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     AD_LOG_VERBOSE_F(sLog, nil, @"HTTPProtocol::connection:willSendRequest:. Redirect response: %@. New request:%@", response.URL, request.URL);
     //Ensure that the webview gets the redirect notifications:
     NSMutableURLRequest* mutableRequest = [request mutableCopy];
+    SAFE_ARC_AUTORELEASE(mutableRequest);
     if (response)
     {
         [[self class] removePropertyForKey:@"ADURLProtocol" inRequest:mutableRequest];

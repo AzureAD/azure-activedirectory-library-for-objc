@@ -41,7 +41,7 @@
 }
 
 
--(void) testIsExpired
+- (void)testIsExpired
 {
     ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
@@ -67,34 +67,11 @@
     XCTAssertTrue(item.isEmptyUser, "The default item should not have a user.");
 }
 
--(void) verifySameUser: (NSString*) userId1
-               userId2: (NSString*) userId2
+- (void)verifySameUser:(NSString *)userId1
+               userId2:(NSString *)userId2
 {
-    ADAuthenticationError* error;
-    
-    ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
-    if (userId1)
-    {
-        item1.userInformation = [ADUserInformation userInformationWithUserId:userId1 error:&error];
-        ADAssertNoError;
-        XCTAssertNotNil(item1.userInformation);
-    }
-    else
-    {
-        item1.userInformation = nil;
-    }
-    
-    ADTokenCacheItem* item2 = [self adCreateCacheItem:@"eric@contoso.com"];
-    if (userId2)
-    {
-        item2.userInformation = [ADUserInformation userInformationWithUserId:userId2 error:&error];
-        ADAssertNoError;
-        XCTAssertNotNil(item2.userInformation);
-    }
-    else
-    {
-        item2.userInformation = nil;
-    }
+    ADTokenCacheItem* item1 = [self adCreateCacheItem:userId1];
+    ADTokenCacheItem* item2 = [self adCreateCacheItem:userId2];
     
     XCTAssertTrue([item1 isSameUser:item2], "Should be the same: '%@' and '%@", userId1, userId2);
     XCTAssertTrue([item2 isSameUser:item1], "Should be the same: '%@' and '%@", userId1, userId2);
@@ -102,24 +79,6 @@
 
 -(void)testIsSameUser
 {
-    //Check the trivial cases:
-    ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
-    XCTAssertTrue([item isSameUser:item]);//self
-    ADTokenCacheItem* copy = [item copy];
-    XCTAssertTrue([item isSameUser:copy]);
-    XCTAssertTrue([copy isSameUser:item]);
-    
-    ADAuthenticationError* error;
-    item.userInformation = [ADUserInformation userInformationWithUserId:@"Another user   " error:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(item.userInformation);
-    XCTAssertFalse([item isSameUser:copy]);
-    XCTAssertFalse([copy isSameUser:item]);
-    
-    copy.userInformation = nil;
-    XCTAssertFalse([item isSameUser:copy]);
-    XCTAssertFalse([copy isSameUser:item]);
-    
     [self verifySameUser:nil userId2:nil];
     [self verifySameUser:@" test user" userId2:@"test user"];
     [self verifySameUser:@" test user  " userId2:@"     test user     "];
@@ -130,28 +89,59 @@
 -(void) testMultiRefreshTokens
 {
     ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
-    XCTAssertFalse(item.multiResourceRefreshToken);
+    XCTAssertFalse(item.isMultiResourceRefreshToken);
     item.resource = nil;
-    XCTAssertFalse(item.multiResourceRefreshToken);
+    XCTAssertFalse(item.isMultiResourceRefreshToken);
     
     //Valid:
     item.accessToken = nil;
-    XCTAssertTrue(item.multiResourceRefreshToken);
+    XCTAssertTrue(item.isMultiResourceRefreshToken);
     
     //Invalidate through refresh token:
     item.refreshToken = nil;
-    XCTAssertFalse(item.multiResourceRefreshToken, "nil refresh token");
+    XCTAssertFalse(item.isMultiResourceRefreshToken, "nil refresh token");
     item.refreshToken = @"  ";
-    XCTAssertFalse(item.multiResourceRefreshToken, "Empty resource token");
+    XCTAssertFalse(item.isMultiResourceRefreshToken, "Empty resource token");
     
     //Restore:
     item.refreshToken = @"refresh token";
-    XCTAssertTrue(item.multiResourceRefreshToken);
+    XCTAssertTrue(item.isMultiResourceRefreshToken);
 }
 
--(void) testSupportsSecureCoding
+- (void)testSupportsSecureCoding
 {
     XCTAssertTrue([ADTokenCacheItem supportsSecureCoding], "Ensure that the unarchiving is secure.");
+}
+
+// Round trip the item though NSKeyedArchiver and NSKeyedUnarchiver to ensure the initWithCoder: and
+// encodeWithCoder: are properly implemented.
+- (void)testCoder
+{
+    ADTokenCacheItem* item = [self adCreateATCacheItem];
+    XCTAssertNotNil(item);
+    XCTAssertNotEqual([item hash], 0);
+    
+    NSData* data = [NSKeyedArchiver archivedDataWithRootObject:item];
+    XCTAssertNotNil(data);
+    
+    ADTokenCacheItem* unarchivedItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    XCTAssertNotNil(unarchivedItem);
+    
+    XCTAssertEqualObjects(item, unarchivedItem);
+    XCTAssertEqual([item hash], [unarchivedItem hash]);
+}
+
+- (void)testCopyWithZone
+{
+    ADTokenCacheItem* item = [self adCreateATCacheItem];
+    XCTAssertNotNil(item);
+    XCTAssertNotEqual([item hash], 0);
+    NSZone* zone = NSDefaultMallocZone();
+    
+    ADTokenCacheItem* copy = [item copyWithZone:zone];
+    XCTAssertNotNil(copy);
+    XCTAssertEqualObjects(copy, item);
+    XCTAssertEqual([copy hash], [item hash]);
 }
 
 @end

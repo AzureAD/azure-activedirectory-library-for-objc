@@ -24,19 +24,6 @@
 #import "ADOAuth2Constants.h"
 
 @implementation ADTestURLResponse
-{
-@public
-    NSURL* _requestURL;
-    id _requestJSONBody;
-    id _requestParamsBody;
-    NSDictionary* _requestHeaders;
-    NSData* _requestBody;
-    NSDictionary* _QPs;
-    NSDictionary* _expectedRequestHeaders;
-    NSData* _responseData;
-    NSURLResponse* _response;
-    NSError* _error;
-}
 
 + (ADTestURLResponse*)request:(NSURL*)request
               requestJSONBody:(NSDictionary*)requestBody
@@ -49,6 +36,8 @@
     response->_response = urlResponse;
     response->_responseData = data;
     
+    SAFE_ARC_AUTORELEASE(response);
+    
     return response;
 }
 
@@ -62,6 +51,8 @@
     response->_response = urlResponse;
     response->_responseData = data;
     
+    SAFE_ARC_AUTORELEASE(response);
+    
     return response;
 }
 
@@ -73,6 +64,8 @@
     [response setRequestURL:request];
     response->_response = urlResponse;
     
+    SAFE_ARC_AUTORELEASE(response);
+    
     return response;
 }
 
@@ -83,6 +76,8 @@
     
     [response setRequestURL:request];
     response->_error = error;
+    
+    SAFE_ARC_AUTORELEASE(response);
     
     return response;
 }
@@ -133,6 +128,8 @@
     [response setResponseURL:responseUrlString code:responseCode headerFields:headerFields];
     [response setJSONResponse:data];
     
+    SAFE_ARC_AUTORELEASE(response);
+    
     return response;
 }
 
@@ -149,6 +146,8 @@
     response->_requestJSONBody = requestJSONBody;
     [response setJSONResponse:data];
     
+    SAFE_ARC_AUTORELEASE(response);
+    
     return response;
 }
 
@@ -164,8 +163,12 @@
     [response setRequestURL:[NSURL URLWithString:requestUrlString]];
     [response setResponseURL:responseUrlString code:responseCode headerFields:headerFields];
     response->_requestHeaders = requestHeaders;
+    SAFE_ARC_RETAIN(requestHeaders);
     response->_requestParamsBody = requestParams;
+    SAFE_ARC_RETAIN(requestParams);
     [response setJSONResponse:data];
+    
+    SAFE_ARC_AUTORELEASE(response);
     
     return response;
 }
@@ -179,13 +182,16 @@
                                                              HTTPVersion:@"1.1"
                                                             headerFields:headerFields];
     
+    SAFE_ARC_RELEASE(_response);
     _response = response;
+    SAFE_ARC_RETAIN(_response);
 }
 
 - (void)setJSONResponse:(id)jsonResponse
 {
     NSError* error = nil;
     _responseData = [NSJSONSerialization dataWithJSONObject:jsonResponse options:0 error:&error];
+    SAFE_ARC_RETAIN(_responseData);
     
     NSAssert(_responseData, @"Invalid JSON object set for test response! %@", error);
 }
@@ -193,10 +199,13 @@
 - (void)setRequestURL:(NSURL*)url
 {
     _requestURL = url;
+    SAFE_ARC_RETAIN(_requestURL);
     NSString* query = [url query];
+    SAFE_ARC_RELEASE(_QPs);
     if (![NSString adIsStringNilOrBlank:query])
     {
         _QPs = [NSDictionary adURLFormDecode:query];
+        SAFE_ARC_RETAIN(_QPs);
     }
     else
     {
@@ -256,6 +265,7 @@
     {
         NSString* string = [[NSString alloc] initWithData:body encoding:NSUTF8StringEncoding];
         id obj = [NSDictionary adURLFormDecode:string];
+        SAFE_ARC_RELEASE(string);
         return [obj isEqual:_requestParamsBody];
     }
     
@@ -320,11 +330,6 @@
 #pragma clang diagnostic pop
 
 @implementation ADTestURLConnection
-{
-    NSOperationQueue* _delegateQueue;
-    NSURLRequest* _request;
-    id _delegate;
-}
 
 static NSMutableArray* s_responses = nil;
 
@@ -341,7 +346,13 @@ static NSMutableArray* s_responses = nil;
 // If you need to test a series of requests and responses use this API
 + (void)addResponses:(NSArray*)requestsAndResponses
 {
-    [s_responses addObject:[requestsAndResponses mutableCopy]];
+    if (!requestsAndResponses)
+    {
+        return;
+    }
+    NSArray* copy = [requestsAndResponses mutableCopy];
+    [s_responses addObject:copy];
+    SAFE_ARC_RELEASE(copy);
 }
 
 + (void)addNotFoundResponseForURLString:(NSString *)URLString
@@ -412,7 +423,9 @@ static NSMutableArray* s_responses = nil;
     }
     
     _delegate = delegate;
+    SAFE_ARC_RETAIN(_delegate);
     _request = request;
+    SAFE_ARC_RETAIN(_request);
     
     if (startImmediately)
     {
@@ -424,7 +437,9 @@ static NSMutableArray* s_responses = nil;
 
 - (void)setDelegateQueue:(NSOperationQueue*)queue
 {
+    SAFE_ARC_RELEASE(_delegateQueue);
     _delegateQueue = queue;
+    SAFE_ARC_RETAIN(_delegateQueue);
 }
 
 - (void)dispatchIfNeed:(void (^)(void))block

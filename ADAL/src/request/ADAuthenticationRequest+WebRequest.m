@@ -63,6 +63,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
          ADAuthenticationResult* result = [item processTokenResponse:response
                                                          fromRefresh:NO
                                                 requestCorrelationId:_correlationId];
+         SAFE_ARC_RELEASE(item);
          completionBlock(result);
      }];
 }
@@ -162,6 +163,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     [webRequest send:^( NSError *error, ADWebResponse *webResponse ) {
         // Request completion callback
         NSMutableDictionary *response = [NSMutableDictionary new];
+        SAFE_ARC_AUTORELEASE(response);
         
         if ( error == nil )
         {
@@ -180,8 +182,10 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                 case 200:
                     if(returnRawResponse)
                     {
-                        [response setObject:[[NSString alloc] initWithData:webResponse.body encoding:NSASCIIStringEncoding]
+                        NSString* rawResponse = [[NSString alloc] initWithData:webResponse.body encoding:NSASCIIStringEncoding];
+                        [response setObject:rawResponse
                                      forKey:@"raw_response"];
+                        SAFE_ARC_RELEASE(rawResponse);
                         break;
                     }
                 case 400:
@@ -207,7 +211,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                     }
                     else
                     {
-                        ADAuthenticationError* adError;
+                        ADAuthenticationError* adError = nil;
                         if (jsonError)
                         {
                             // Unrecognized JSON response
@@ -228,6 +232,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                             
                             AD_LOG_ERROR_F(@"JSON deserialization", jsonError.code, _correlationId, @"Error: %@. Body text: '%@'. HTTPS Code: %ld. Response correlation id: %@", jsonError.description, bodyStr, (long)webResponse.statusCode, responseCorrelationId);
                             adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
+                            SAFE_ARC_RELEASE(bodyStr);
                         }
                         else
                         {
@@ -265,10 +270,11 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                     // Request failure
                     NSString* body = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
                     NSString* errorData = [NSString stringWithFormat:@"Server HTTP status code: %ld. Full response %@", (long)webResponse.statusCode, body];
+                    SAFE_ARC_RELEASE(body);
                     AD_LOG_WARN(@"HTTP Error", _correlationId, errorData);
                     
                     //Now add the information to the dictionary, so that the parser can extract it:
-                    [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:@(webResponse.statusCode).stringValue errorDetails:errorData]
+                    [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:nil errorDetails:errorData]
                                  forKey:AUTH_NON_PROTOCOL_ERROR];
                 }
             }
@@ -290,8 +296,10 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                          forKey:AUTH_NON_PROTOCOL_ERROR];
         }
         
-        if([response valueForKey:AUTH_NON_PROTOCOL_ERROR]){
-            [[ADClientMetrics getInstance] endClientMetricsRecord:[[response valueForKey:AUTH_NON_PROTOCOL_ERROR] errorDetails]];
+        ADAuthenticationError* adError = [response valueForKey:AUTH_NON_PROTOCOL_ERROR];
+        if(adError)
+        {
+            [[ADClientMetrics getInstance] endClientMetricsRecord:[adError errorDetails]];
         }
         else
         {
