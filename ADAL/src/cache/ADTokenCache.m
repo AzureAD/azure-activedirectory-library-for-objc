@@ -440,6 +440,10 @@
     
     if (!itemsExcludingTombstones || itemsExcludingTombstones.count == 0)
     {
+        if (items.count > 0)
+        {
+            AD_LOG_WARN_F(@"Keychain token cache store", nil, @"Tombstone Found: %@" , items.firstObject.tombstone);
+        }
         return nil;
     }
     
@@ -581,6 +585,21 @@
         
         return result;
     }
+}
+
+- (NSArray<ADTokenCacheItem *> *)allTombstones:(ADAuthenticationError * __autoreleasing *)error
+{
+    NSArray* items = [self getItemsWithKey:nil error:error];
+    NSMutableArray* tombstones = [NSMutableArray new];
+    for (ADTokenCacheItem* item in items)
+    {
+        if ([item tombstone])
+        {
+            [tombstones addObject:item];
+        }
+    }
+    SAFE_ARC_AUTORELEASE(tombstones);
+    return tombstones;
 }
 
 - (NSString *)description

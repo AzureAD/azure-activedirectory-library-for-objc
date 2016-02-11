@@ -541,7 +541,12 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     }
 }
 
-- (NSArray<ADTokenCacheItem *> *) allTombstones:(ADAuthenticationError * __autoreleasing *)error
+- (NSDictionary *)defaultKeychainQuery
+{
+    return _default;
+}
+
+- (NSArray<ADTokenCacheItem *> *)allTombstones:(ADAuthenticationError * __autoreleasing *)error
 {
     NSArray* items = [self getItemsWithKey:nil error:error];
     NSMutableArray* tombstones = [NSMutableArray new];
@@ -554,11 +559,6 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     }
     SAFE_ARC_AUTORELEASE(tombstones);
     return tombstones;
-}
-
-- (NSDictionary *)defaultKeychainQuery
-{
-    return _default;
 }
 
 @end

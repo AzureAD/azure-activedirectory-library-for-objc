@@ -37,9 +37,6 @@
     in production code */
 - (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error;
 
-/*! This internal method is only called in test code. */
-- (NSArray<ADTokenCacheItem *> *) allTombstones:(ADAuthenticationError * __autoreleasing *)error;
-
 - (NSDictionary*)defaultKeychainQuery;
 
 @end
