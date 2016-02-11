@@ -28,7 +28,7 @@
     int _requestTimeOut;
     uint _expirationBuffer;
 #if !TARGET_OS_IPHONE
-    id<ADTokenCacheDelegate> _defaultCacheDelegate;
+    id<ADTokenCacheDelegate> _defaultStorageDelegate;
 #endif
 }
 
@@ -59,7 +59,7 @@
 #endif //TARGET_OS_IPHONE
 
 #if !TARGET_OS_IPHONE
-@property (copy) id<ADTokenCacheDelegate> defaultCacheDelegate;
+@property (copy) id<ADTokenCacheDelegate> defaultStorageDelegate;
 #endif
 
 @end

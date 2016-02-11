@@ -149,7 +149,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
                        sharedGroup:[[ADAuthenticationSettings sharedInstance] defaultKeychainGroup]
                              error:error];
 #else
-    return [self initWithAuthority:authority validateAuthority:validateAuthority cacheDelegate:[ADAuthenticationSettings sharedInstance].defaultCacheDelegate error:error];
+    return [self initWithAuthority:authority validateAuthority:validateAuthority cacheDelegate:[ADAuthenticationSettings sharedInstance].defaultStorageDelegate error:error];
 #endif
 }
 
