@@ -37,7 +37,7 @@
 #define ERROR_RETURN_IF_NIL(_X) { \
     if (!_X) { \
         if (error) { \
-            *error = [ADAuthenticationError errorFromArgument:_X argumentName:@#_X]; \
+            *error = [ADAuthenticationError errorFromArgument:_X argumentName:@#_X correlationId:context.correlationId]; \
         } \
         return nil; \
     } \

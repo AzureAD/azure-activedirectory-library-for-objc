@@ -57,6 +57,8 @@ extern NSString* ADWebAuthDidReceieveResponseFromBroker;
     
     BOOL _complete;
     
+    NSUUID * _correlationId;
+    
     void (^_completionBlock)( ADAuthenticationError *, NSURL *);
 }
 

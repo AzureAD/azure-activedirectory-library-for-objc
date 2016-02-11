@@ -30,31 +30,31 @@
 @synthesize authority = _authority;
 @synthesize resource = _resource;
 
--(id) init
+- (id)init
 {
     //Throws exception as the method should not be called.
     [super doesNotRecognizeSelector:_cmd];
     return nil;
 }
 
-+(void) raiseErrorWithCode: (ADErrorCode) code
-                   details: (NSString*) details
-                     error: (ADAuthenticationError* __autoreleasing*) error
++ (void)raiseErrorWithCode:(ADErrorCode)code
+                   details:(NSString *)details
+                     error:(ADAuthenticationError * __autoreleasing *)error
 {
     //The error object should always be created to ensure propper logging, even if "error" is nil.
-    ADAuthenticationError* raisedError = [ADAuthenticationError errorFromUnauthorizedResponse:code errorDetails:details];
+    ADAuthenticationError* raisedError = [ADAuthenticationError errorFromUnauthorizedResponse:code errorDetails:details correlationId:nil];
     if (error)
     {
         *error = raisedError;
     }
 }
 
--(NSDictionary*) extractedParameters
+- (NSDictionary*)extractedParameters
 {
     return [NSDictionary dictionaryWithDictionary:_extractedParameters];
 }
 
-+(void) parametersFromResourceUrl:(NSURL*)resourceUrl
++ (void)parametersFromResourceUrl:(NSURL*)resourceUrl
                   completionBlock:(ADParametersCompletion)completion
 {
     API_ENTRY;
@@ -63,7 +63,9 @@
     if (!resourceUrl)
     {
         //Nil passed, just call the callback on the same thread with the error:
-        ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:resourceUrl argumentName:@"resourceUrl"];
+        ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:resourceUrl
+                                                                   argumentName:@"resourceUrl"
+                                                                  correlationId:nil];
         completion(nil, error);
         return;
     }
@@ -78,13 +80,15 @@
         if (error)
         {
             adError = [ADAuthenticationError errorFromNSError:error
-                                                 errorDetails:[NSString stringWithFormat:ConnectionError, error.description]];
+                                                 errorDetails:[NSString stringWithFormat:ConnectionError, error.description]
+                                                correlationId:nil];
         }
         else if (HTTP_UNAUTHORIZED != response.statusCode)
         {
             adError = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_UNAUTHORIZED_CODE_EXPECTED
                                                               errorDetails:[NSString stringWithFormat:UnauthorizedHTTStatusExpected,
-                                                                            response.statusCode]];
+                                                                            response.statusCode]
+                                                             correlationId:nil];
         }
         else
         {
@@ -95,7 +99,7 @@
     }];
 }
 
-+(ADAuthenticationParameters*) parametersFromResponseHeaders:(NSDictionary*)headers
++ (ADAuthenticationParameters*)parametersFromResponseHeaders:(NSDictionary *)headers
                                                        error:(ADAuthenticationError *__autoreleasing *)error
 {
     // Handle 401 Unauthorized using the OAuth2 Implicit Profile
@@ -112,7 +116,7 @@
     return [self parametersFromResponseAuthenticateHeader:authenticateHeader error:error];
 }
 
-+(ADAuthenticationParameters*) parametersFromResponse:(NSHTTPURLResponse*)response
++ (ADAuthenticationParameters*)parametersFromResponse:(NSHTTPURLResponse *)response
                                                 error:(ADAuthenticationError *__autoreleasing *)error
 {
     API_ENTRY;
@@ -121,7 +125,7 @@
     return [self parametersFromResponseHeaders:response.allHeaderFields error:error];
 }
 
-+(ADAuthenticationParameters*) parametersFromResponseAuthenticateHeader:(NSString*)authenticateHeader
++ (ADAuthenticationParameters *)parametersFromResponseAuthenticateHeader:(NSString *)authenticateHeader
                                                                   error:(ADAuthenticationError *__autoreleasing *)error
 {
     API_ENTRY;

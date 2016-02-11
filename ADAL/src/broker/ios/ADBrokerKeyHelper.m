@@ -40,7 +40,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 
 #define UNEXPECTED_KEY_ERROR { \
     if (error) { \
-        *error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:@"Could not create broker key." code:AD_ERROR_UNEXPECTED userInfo:nil] errorDetails:nil]; \
+        *error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:@"ADAL" code:AD_ERROR_UNEXPECTED userInfo:nil] errorDetails:@"Could not create broker key." correlationId:nil]; \
     } \
 }
 

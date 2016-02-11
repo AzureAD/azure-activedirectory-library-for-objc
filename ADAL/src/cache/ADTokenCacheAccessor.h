@@ -34,6 +34,7 @@
  */
 - (nullable ADTokenCacheItem *)getItemWithKey:(nonnull ADTokenCacheKey *)key
                                        userId:(nullable NSString *)userId
+                                correlationId:(nullable NSUUID *)correlationId
                                         error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 /*!
@@ -47,6 +48,7 @@
  */
 - (nullable NSArray <ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheKey *)key
                                                     userId:(nullable NSString *)userId
+                                             correlationId:(nullable NSUUID * )correlationId
                                                      error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 /*!
@@ -59,6 +61,7 @@
                     error details.
  */
 - (BOOL)addOrUpdateItem:(nonnull ADTokenCacheItem *)item
+          correlationId:(nullable NSUUID *)correlationId
                   error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
 
 /*!

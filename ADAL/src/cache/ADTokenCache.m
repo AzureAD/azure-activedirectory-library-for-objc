@@ -41,7 +41,7 @@
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "ADTokenCacheKey.h"
-#import "ADTokenCacheItem.h"
+#import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheKey.h"
@@ -432,17 +432,18 @@
  and we have tokens from multiple users. If the cache item is not present,
  the error will not be set. */
 - (ADTokenCacheItem *)getItemWithKey:(ADTokenCacheKey *)key
-                                   userId:(NSString *)userId
-                                    error:(ADAuthenticationError * __autoreleasing *)error
+                              userId:(NSString *)userId
+                       correlationId:(NSUUID *)correlationId
+                               error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSArray<ADTokenCacheItem *> * items = [self getItemsWithKey:key userId:userId error:error];
     NSArray<ADTokenCacheItem *> * itemsExcludingTombstones = [self filterOutTombstones:items];
     
     if (!itemsExcludingTombstones || itemsExcludingTombstones.count == 0)
     {
-        if (items.count > 0)
+        for (ADTokenCacheItem* item in items)
         {
-            AD_LOG_WARN_F(@"Keychain token cache store", nil, @"Tombstone Found: %@" , items.firstObject.tombstone);
+            [item log:ADAL_LOG_LEVEL_WARN correlationId:correlationId];
         }
         return nil;
     }

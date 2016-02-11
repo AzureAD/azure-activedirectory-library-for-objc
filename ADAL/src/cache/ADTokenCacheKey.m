@@ -68,7 +68,7 @@
     authority = [ADInstanceDiscovery canonicalizeAuthority:authority];
     resource = resource.adTrimmedString.lowercaseString;
     clientId = clientId.adTrimmedString.lowercaseString;
-    RETURN_NIL_ON_NIL_ARGUMENT(authority);//Canonicalization will return nil on empty or bad URL.
+    RETURN_NIL_ON_NIL_ARGUMENT(authority);
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(clientId);
     
     ADTokenCacheKey* key = [[ADTokenCacheKey alloc] initWithAuthority:authority resource:resource clientId:clientId];

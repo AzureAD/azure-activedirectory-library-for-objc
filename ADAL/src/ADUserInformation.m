@@ -86,7 +86,10 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 
 - (ADAuthenticationError*)errorFromIdToken:(NSString*)idTokenText
 {
-    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:nil errorDetails:[NSString stringWithFormat: @"The id_token contents cannot be parsed: %@", idTokenText]];
+    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
+                                                  protocolCode:nil
+                                                  errorDetails:[NSString stringWithFormat: @"The id_token contents cannot be parsed: %@", idTokenText]
+                                                 correlationId:nil];
 }
 
 - (id)initWithIdToken:(NSString *)idToken
@@ -131,7 +134,8 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
                 if (jsonError)
                 {
                     ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:jsonError
-                                                                                errorDetails:[NSString stringWithFormat:@"Failed to deserialize the id_token contents: %@", part]];
+                                                                                errorDetails:[NSString stringWithFormat:@"Failed to deserialize the id_token contents: %@", part]
+                                                                               correlationId:nil];
                     if (error)
                     {
                         *error = adError;

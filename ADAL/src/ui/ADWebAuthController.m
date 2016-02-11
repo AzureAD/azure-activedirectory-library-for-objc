@@ -221,7 +221,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         NSError* error = [NSError errorWithDomain:NSURLErrorDomain
                                              code:NSURLErrorTimedOut
                                          userInfo:nil];
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:@"WebView timed out"];
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:@"WebView timed out" correlationId:_correlationId];
         [self dispatchCompletionBlock:adError URL:nil];
     }];
 }
@@ -330,7 +330,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     
     // Dispatch the completion block
     
-    ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation];
+    ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation:_correlationId];
     [self endWebAuthenticationWithError:error orURL:nil];
 }
 
@@ -375,12 +375,12 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     if (_complete == YES)
     {
         //We expect to get an error here, as we intentionally fail to navigate to the final redirect URL.
-        AD_LOG_VERBOSE(@"Expected error", nil, [error localizedDescription]);
+        AD_LOG_VERBOSE(@"Expected error", _correlationId, [error localizedDescription]);
         return;
     }
     
     // Dispatch the completion block
-    __block ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription];
+    __block ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription correlationId:_correlationId];
     
     dispatch_async(dispatch_get_main_queue(), ^{ [self endWebAuthenticationWithError:adError orURL:nil]; });
 }
