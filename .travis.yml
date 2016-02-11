@@ -8,6 +8,8 @@ install:
 script: 
 # Start by nuking any lingering codecov files. These can cause issues when the xcode version changes
   - find . -name "*.gcda" -print0 | xargs -0 rm
+
+  - xcodebuild -workspace ADAL.xcworkspace -list
   
 # Build and Test the ADALiOS library
   - xcodebuild test -workspace ADAL.xcworkspace -scheme ADALiOS -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty
@@ -19,7 +21,7 @@ script:
   - xcodebuild test -workspace ADAL.xcworkspace -scheme "ADAL Mac" | xcpretty
 
 # Test ADAL for Mac 32-bit
-  - xcodebuild test -workspace ADAL.xcworkspace - scheme "ADAL MAC" CURRENT_ARCH=i386 | xcpretty
+  - xcodebuild test -workspace ADAL.xcworkspace - scheme "ADAL Mac" CURRENT_ARCH=i386 | xcpretty
 
 after_success:
 # Run slather once to have it print out the results in the travis log
