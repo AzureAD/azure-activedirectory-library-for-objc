@@ -10,7 +10,7 @@ script:
   - find . -name "*.gcda" -print0 | xargs -0 rm
   
 # Build and Test the ADALiOS library
-  - xcodebuild test -workspace ADAL.xcworkspace -scheme ADALiOS -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty
+  - xcodebuild test -workspace ADAL.xcworkspace -scheme ADAL -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty
 
 # Build the Test App (to make sure it doesn't break
   - xcodebuild -workspace ADAL.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty
@@ -23,4 +23,4 @@ script:
 
 after_success:
 # Run slather once to have it print out the results in the travis log
-  - slather coverage -s ADAL/ADAL.xcodeproj
+#  - slather coverage -s ADAL/ADAL.xcodeproj
