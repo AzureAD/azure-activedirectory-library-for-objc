@@ -12,16 +12,16 @@ script:
   - set -o pipefail
   
 # Build and Test the ADALiOS library
-  - xcodebuild test -workspace ADAL.xcworkspace -scheme ADAL -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty -f `xcpretty-travis-fromatter`
+  - xcodebuild test -workspace ADAL.xcworkspace -scheme ADAL -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty -f `xcpretty-travis-formatter`
 
 # Build the Test App (to make sure it doesn't break
-  - xcodebuild -workspace ADAL.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty -f `xcpretty-travis-fromatter`
+  - xcodebuild -workspace ADAL.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty -f `xcpretty-travis-formatter`
   
 # Build and Test ADAL for Mac
-  - xcodebuild test -workspace ADAL.xcworkspace -scheme "ADAL Mac" | xcpretty -f `xcpretty-travis-fromatter`
+  - xcodebuild test -workspace ADAL.xcworkspace -scheme "ADAL Mac" | xcpretty -f `xcpretty-travis-formatter`
 
 # Test ADAL for Mac 32-bit
-  - xcodebuild test -workspace ADAL.xcworkspace - scheme "ADAL Mac" CURRENT_ARCH=i386 | xcpretty -f `xcpretty-travis-fromatter`
+  - xcodebuild test -workspace ADAL.xcworkspace - scheme "ADAL Mac" CURRENT_ARCH=i386 | xcpretty -f `xcpretty-travis-formatter`
 
 after_success:
 # Run slather once to have it print out the results in the travis log
