@@ -154,13 +154,15 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                 userInfo:nil];
 }
 
-+ (ADAuthenticationError*)errorFromUnauthorizedResponse:(NSInteger) responseCode
-                                           errorDetails:(NSString*) errorDetails
++ (ADAuthenticationError*)errorFromUnauthorizedResponse:(NSInteger)responseCode
+                                           errorDetails:(NSString *)errorDetails
+                                          correlationId:(NSUUID *)correlationId
 {
     return [self errorWithDomainInternal:ADUnauthorizedResponseErrorDomain
                                     code:responseCode
                        protocolErrorCode:nil
                             errorDetails:errorDetails
+                           correlationId:correlationId
                                 userInfo:nil];
 }
 
@@ -207,17 +209,20 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
 }
 
 + (ADAuthenticationError*)unexpectedInternalError:(NSString*)errorDetails
+                                    correlationId:(NSUUID *)correlationId
 {
     return [self errorFromAuthenticationError:AD_ERROR_UNEXPECTED
                                  protocolCode:nil
-                                 errorDetails:errorDetails];
+                                 errorDetails:errorDetails
+                                correlationId:correlationId];
 }
 
-+ (ADAuthenticationError*)errorFromCancellation
++ (ADAuthenticationError*)errorFromCancellation:(NSUUID *)correlationId
 {
     return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_CANCEL
                                                   protocolCode:nil
-                                                  errorDetails:ADCancelError];
+                                                  errorDetails:ADCancelError
+                                                 correlationId:correlationId];
 }
 
 

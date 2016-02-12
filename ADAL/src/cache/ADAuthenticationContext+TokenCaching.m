@@ -70,7 +70,10 @@
         return nil;//Nothing to return
     }
     ADAuthenticationError* localError = nil;
-    ADTokenCacheItem* item = [self extractCacheItemWithKey:key userId:userId error:&localError];
+    ADTokenCacheItem* item = [self extractCacheItemWithKey:key
+                                                    userId:userId
+                                             correlationId:correlationId
+                                                     error:&localError];
     if (localError)
     {
         if (error)
@@ -106,7 +109,10 @@
             AD_LOG_WARN(@"Unexpected error", correlationId, localError.errorDetails);
             return nil;//Recover
         }
-        ADTokenCacheItem* broadItem = [self extractCacheItemWithKey:broadKey userId:userId error:&localError];
+        ADTokenCacheItem* broadItem = [self extractCacheItemWithKey:broadKey
+                                                             userId:userId
+                                                      correlationId:correlationId
+                                                              error:&localError];
         if (localError)
         {
             if (error)

@@ -17,10 +17,11 @@
 // governing permissions and limitations under the License.
 
 //A wrapper around checkAndHandleBadArgument. Assumes that "completionMethod" is in scope:
-#define HANDLE_ARGUMENT(ARG) \
+#define HANDLE_ARGUMENT(ARG, CORRELATION_ID) \
     if (![ADAuthenticationContext checkAndHandleBadArgument:ARG \
-                                             argumentName:TO_NSSTRING(#ARG) \
-                                          completionBlock:completionBlock]) \
+                                               argumentName:TO_NSSTRING(#ARG) \
+                                              correlationId:CORRELATION_ID \
+                                            completionBlock:completionBlock]) \
     { \
     return; \
     }
@@ -49,26 +50,27 @@ extern NSString* const ADRedirectUriInvalidError;
 
 @interface ADAuthenticationContext (Internal)
 
-+ (BOOL)checkAndHandleBadArgument:(NSObject*) argumentValue
-                     argumentName:(NSString*) argumentName
++ (BOOL)checkAndHandleBadArgument:(NSObject *)argumentValue
+                     argumentName:(NSString *)argumentName
+                    correlationId:(NSUUID *)correlationId
                   completionBlock:(ADAuthenticationCallback)completionBlock;
 
-+ (BOOL)handleNilOrEmptyAsResult:(NSObject*)argumentValue
-                    argumentName:(NSString*)argumentName
-            authenticationResult:(ADAuthenticationResult**)authenticationResult;
++ (BOOL)handleNilOrEmptyAsResult:(NSObject *)argumentValue
+                    argumentName:(NSString *)argumentName
+            authenticationResult:(ADAuthenticationResult **)authenticationResult;
 
-+ (ADAuthenticationError*)errorFromDictionary:(NSDictionary*)dictionary
++ (ADAuthenticationError*)errorFromDictionary:(NSDictionary *)dictionary
                                     errorCode:(ADErrorCode)errorCode;
 
 
-+ (BOOL)isFinalResult:(ADAuthenticationResult*)result;
++ (BOOL)isFinalResult:(ADAuthenticationResult *)result;
 
 + (NSString*)getPromptParameter:(ADPromptBehavior)prompt;
 
 + (BOOL)isForcedAuthorization:(ADPromptBehavior)prompt;
 
-+ (ADAuthenticationResult*)updateResult:(ADAuthenticationResult*)result
-                                 toUser:(ADUserIdentifier*)userId;
++ (ADAuthenticationResult*)updateResult:(ADAuthenticationResult *)result
+                                 toUser:(ADUserIdentifier *)userId;
 
 - (BOOL)hasCacheStore;
 

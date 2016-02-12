@@ -59,11 +59,11 @@
 
 -(void)testErrorFromArgumentNameNil
 {
-    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromArgument:@"val" argumentName:nil],
+    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromArgument:@"val" argumentName:nil correlationId:nil],
                                  NSException, NSInvalidArgumentException, "Nil argument name should throw.");
-    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromArgument:@"" argumentName:nil],
+    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromArgument:@"" argumentName:nil correlationId:nil],
                                  NSException, NSInvalidArgumentException, "Nil argument name should throw.");
-    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromArgument:nil argumentName:nil],
+    XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromArgument:nil argumentName:nil correlationId:nil],
                                  NSException, NSInvalidArgumentException, "Nil argument name should throw.");
 }
 
@@ -71,7 +71,7 @@
 {
     NSString* parameter = @"parameter123456 %@";
     //nil value:
-    ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:nil argumentName:parameter];
+    ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:nil argumentName:parameter correlationId:nil];
     XCTAssertNotNil(error, "No error for nil prameter");
     [self adValidateForInvalidArgument:parameter error:error];
     XCTAssertTrue([error.errorDetails adContainsString:@"(null)"], "'null' should be part of the text");
@@ -81,7 +81,7 @@
 {
     NSString* parameter = @"parameter123456 %@";
     NSString* parameterValue = @"value1245 %s@";
-    ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:parameterValue argumentName:parameter];
+    ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:parameterValue argumentName:parameter correlationId:nil];
     XCTAssertNotNil(error, "No error for valid prameter");
     
     [self adValidateForInvalidArgument:parameter error:error];
@@ -91,7 +91,7 @@
 -(void)testErrorFromUnauthorizedResponseNormal
 {
     NSString* details = @"Some details";
-    ADAuthenticationError* error = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_MISSING_AUTHENTICATE_HEADER errorDetails:details];
+    ADAuthenticationError* error = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_MISSING_AUTHENTICATE_HEADER errorDetails:details correlationId:nil];
     XCTAssertNotNil(error, "Nil returned for valid case");
 }
 
@@ -99,7 +99,7 @@
 {
     NSString* details = @"Some details";
     NSString* protocolCode = @"procol code";
-    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:protocolCode errorDetails:details];
+    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:protocolCode errorDetails:details correlationId:nil];
     ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
     ADAssertLongEquals(error.code, AD_ERROR_AUTHENTICATION);
     ADAssertStringEquals(error.protocolCode, protocolCode);
@@ -110,7 +110,7 @@
 {
     NSString* details = @"Some details";
     NSString* protocolCode = @"some-protocol-code";
-    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:42 protocolCode:protocolCode errorDetails:details];
+    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:42 protocolCode:protocolCode errorDetails:details correlationId:nil];
     XCTAssertTrue([error.description adContainsString:details]);
     XCTAssertTrue([error.description adContainsString:protocolCode]);
 }

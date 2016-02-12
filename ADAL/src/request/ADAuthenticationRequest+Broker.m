@@ -62,7 +62,7 @@
 + (void)internalHandleBrokerResponse:(NSURL *)response
 {
     ADAuthenticationCallback completionBlock = [ADBrokerHelper copyAndClearCompletionBlock];
-    HANDLE_ARGUMENT(response);
+    HANDLE_ARGUMENT(response, nil);
     
     NSString *qp = [response query];
     //expect to either response or error and description, AND correlation_id AND hash.
@@ -77,7 +77,7 @@
         // Encrypting the broker response should not be a requirement on Mac as there shouldn't be a possibility of the response
         // accidentally going to the wrong app
 #if TARGET_OS_IPHONE
-        HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
+        HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY], nil);
         
         NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
         NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];

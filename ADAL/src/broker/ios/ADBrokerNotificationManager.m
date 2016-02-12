@@ -122,7 +122,8 @@
     {
         ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BROKER_RESPONSE_NOT_RECEIVED
                                                                                 protocolCode:nil
-                                                                                errorDetails:@"application did not receive response from broker."];
+                                                                                errorDetails:@"application did not receive response from broker."
+                                                                               correlationId:nil];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:adError];
         callback(result);
     }

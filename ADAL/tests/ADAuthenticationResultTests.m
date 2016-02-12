@@ -70,7 +70,7 @@
 -(void) testResultFromError
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"something"];
+    ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"something" correlationId:nil];
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error];
     VERIFY_RESULT(result, AD_FAILED, AD_ERROR_UNEXPECTED);
     XCTAssertEqualObjects(result.error, error, "Different error object in the result.");

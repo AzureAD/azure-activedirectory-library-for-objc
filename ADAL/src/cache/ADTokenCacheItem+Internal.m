@@ -158,7 +158,9 @@
     
     NSUUID* correlationUUID = [[NSUUID alloc] initWithUUIDString:correlationId];
     
-    [self log:ADAL_LOG_LEVEL_VERBOSE correlationId:correlationUUID];
+    [self logMessage:nil
+               level:ADAL_LOG_LEVEL_VERBOSE
+       correlationId:correlationUUID];
     
     SAFE_ARC_RELEASE(correlationUUID);
 }

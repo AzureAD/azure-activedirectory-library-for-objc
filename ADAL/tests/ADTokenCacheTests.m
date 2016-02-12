@@ -435,7 +435,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     
     ADAuthenticationError* error = nil;
     ADTokenCacheItem* expectedItem = CartmanItem(@"mister_kitty", YES);
-    ADTokenCacheItem* actualItem = [wrapper getItemWithKey:CacheKey(@"mister_kitty") userId:CartmanUserid() error:&error];
+    ADTokenCacheItem* actualItem = [wrapper getItemWithKey:CacheKey(@"mister_kitty") userId:CartmanUserid() correlationId:nil error:&error];
     XCTAssertNotNil(actualItem);
     XCTAssertNil(error);
     XCTAssertEqualObjects(expectedItem, actualItem);
@@ -545,7 +545,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     XCTAssertNil([wrapper cache]);
     
     ADAuthenticationError* error = nil;
-    [wrapper addOrUpdateItem:CartmanItem(@"mister_kitty", YES) error:&error];
+    [wrapper addOrUpdateItem:CartmanItem(@"mister_kitty", YES) correlationId:nil error:&error];
     XCTAssertNil(error);
     
     // Expected cache structure
@@ -619,7 +619,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     ADTokenCacheItem* item1 = ReginaItem(@"popularity", YES);
     // Add an item into wrapper 1
     
-    [wrapper1 addOrUpdateItem:item1 error:&error];
+    [wrapper1 addOrUpdateItem:item1 correlationId:nil error:&error];
     XCTAssertNotNil(storage1->_cache);
     NSString* failureReason = nil;
     XCTAssertTrue([storage1 verifyWrite:&failureReason], @"addOrUpdateItem didn't use the delegate correctly: %@", failureReason);
@@ -655,7 +655,7 @@ static ADTokenCacheItem* CartmanItem(NSString* resource, BOOL includeUserInfo)
     
     // We're modifying item1 to make sure that it doesn't show up in the allItems array
     item1.resource = @"Stop";
-    [wrapper1 addOrUpdateItem:item1 error:&error];
+    [wrapper1 addOrUpdateItem:item1 correlationId:nil error:&error];
     XCTAssertNil(error);
 
     items = [wrapper1 allItems:&error];

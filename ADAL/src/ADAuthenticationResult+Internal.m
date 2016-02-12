@@ -26,9 +26,9 @@
 
 @implementation ADAuthenticationResult (Internal)
 
--(id) initWithCancellation: (NSUUID*) correlationId
+- (id)initWithCancellation:(NSUUID*)correlationId
 {
-    ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation];
+    ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation:correlationId];
     
     return [self initWithError:error status:AD_USER_CANCELLED correlationId:correlationId];
 }
@@ -75,7 +75,8 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 {
     if (!item)
     {
-        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult created from nil token item."];
+        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult created from nil token item."
+                                                                        correlationId:correlationId];
         return [ADAuthenticationResult resultFromError:error];
     }
     
@@ -110,9 +111,10 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 }
 
 + (ADAuthenticationResult*)resultFromParameterError:(NSString *)details
-                                      correlationId: (NSUUID*) correlationId
+                                      correlationId:(NSUUID*)correlationId
 {
-    ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithError:[ADAuthenticationError invalidArgumentError:details]
+    ADAuthenticationError* adError = [ADAuthenticationError invalidArgumentError:details correlationId:correlationId];
+    ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithError:adError
                                                                             status:AD_FAILED
                                                                      correlationId:correlationId];
     
@@ -121,12 +123,12 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     return result;
 }
 
-+(ADAuthenticationResult*) resultFromCancellation
++ (ADAuthenticationResult*)resultFromCancellation
 {
     return [self resultFromCancellation:nil];
 }
 
-+(ADAuthenticationResult*) resultFromCancellation: (NSUUID*) correlationId
++ (ADAuthenticationResult*)resultFromCancellation:(NSUUID *)correlationId
 {
     ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithCancellation:correlationId];
     SAFE_ARC_AUTORELEASE(result);
@@ -139,7 +141,8 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
                                            code:AD_ERROR_BROKER_UNKNOWN
                                        userInfo:nil];
     ADAuthenticationError* error = [ADAuthenticationError errorFromNSError:nsError
-                                                              errorDetails: @"No broker response received."];
+                                                              errorDetails: @"No broker response received."
+                                                             correlationId:nil];
     return [ADAuthenticationResult resultFromError:error correlationId:nil];
 }
 
@@ -177,14 +180,15 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
        
         error = [ADAuthenticationError errorFromAuthenticationError:errorCode
                                                        protocolCode:protocolCode
-                                                       errorDetails:errorDetails];
+                                                       errorDetails:errorDetails
+                                                      correlationId:correlationId];
     }
     else
     {
         NSError* nsError = [NSError errorWithDomain:ADBrokerResponseErrorDomain
                                                code:errorCode
                                            userInfo:nil];
-        error = [ADAuthenticationError errorFromNSError:nsError errorDetails:errorDetails];
+        error = [ADAuthenticationError errorFromNSError:nsError errorDetails:errorDetails correlationId:correlationId];
     }
     
     return [ADAuthenticationResult resultFromError:error correlationId:correlationId];

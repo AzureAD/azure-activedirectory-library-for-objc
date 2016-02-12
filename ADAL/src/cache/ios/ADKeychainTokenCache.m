@@ -216,20 +216,9 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
  Returns nil in case of error. */
 - (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSArray* items = [self getItemsWithKey:nil error:error];
+    NSArray* items = [self getItemsWithKey:nil userId:nil correlationId:nil error:error];
     return [self filterOutTombstones:items];
 }
-
-/*! Returns all of the items for a given key. Multiple items may present,
- if the same resource was accessed by more than one user. The returned
- array should contain only ADTokenCacheItem objects. Returns an empty array,
- if no items are found. Returns nil (and sets the error parameter) in case of error.*/
-- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
-                                           error:(ADAuthenticationError * __autoreleasing *)error
-{
-    return [self getItemsWithKey:key userId:nil correlationId:nil error:error];
-}
-
 
 /*!
     @param  item    The item to be removed. Item with refresh token will be set as a tombstone, those without will be deleted.
@@ -242,19 +231,16 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     RETURN_NO_ON_NIL_ARGUMENT(item);
+    
+    [item logMessage:@"Removing" level:ADAL_LOG_LEVEL_INFO correlationId:nil];
 
     OSStatus deleteStatus = [self deleteItem:item error:error];
     
     //if item does not exist in cache or does not contain a refresh token, deletion is enough and should return.
     if (deleteStatus != errSecSuccess || [NSString adIsStringNilOrBlank:item.refreshToken])
     {
-        [item log]
-        [self logItem:item message:@"Item being removed"];
         return [ADKeychainTokenCache checkStatus:deleteStatus details:@"Failed to remove item from keychain" correlationId:nil error:error];
     }
-    
-    //Item should be set as tombstone
-    [self logItem:item message:@"Item being tombstoned"];
     
     [item makeTombstone:@{ @"errorDetails" : @"Manually removed from cache."}];
     //update tombstone in cache
@@ -422,7 +408,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     NSArray* items = [self keychainItemsWithKey:key userId:userId error:error];
     if (!items)
     {
-        [self logItemRetrievalStatus:nil key:key userId:userId];
+        [self logItemRetrievalStatus:nil key:key userId:userId correlationId:correlationId];
         return nil;
     }
     
@@ -439,7 +425,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         [tokenItems addObject:item];
     }
     
-    [self logItemRetrievalStatus:tokenItems key:key userId:userId];
+    [self logItemRetrievalStatus:tokenItems key:key userId:userId correlationId:correlationId];
     return tokenItems;
     
 }
@@ -457,7 +443,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
                       correlationId:(NSUUID *)correlationId
                               error:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSArray* items = [self getItemsWithKey:key userId:userId error:error];
+    NSArray* items = [self getItemsWithKey:key userId:userId correlationId:correlationId error:error];
     NSArray* itemsExcludingTombstones = [self filterOutTombstones:items];
     
     //if nothing but tombstones is found, tombstones details should be logged.
@@ -557,7 +543,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 
 - (NSArray<ADTokenCacheItem *> *)allTombstones:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSArray* items = [self getItemsWithKey:nil error:error];
+    NSArray* items = [self getItemsWithKey:nil userId:nil correlationId:nil error:error];
     NSMutableArray* tombstones = [NSMutableArray new];
     for (ADTokenCacheItem* item in items)
     {

@@ -142,7 +142,8 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
                                                code:AD_ERROR_UNEXPECTED
                                            userInfo:nil];
         *error = [ADAuthenticationError errorFromNSError:nserror
-                                            errorDetails:details];
+                                            errorDetails:details
+                                           correlationId:nil];
     }
     
     _symmetricKeyRef = nil;
@@ -234,9 +235,16 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     size_t bufferSize = dataLength + kCCBlockSizeAES128;
     void *buffer = malloc(bufferSize);
     
-    if(!buffer){
-        *error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UNEXPECTED userInfo:nil]
-                                            errorDetails:@"Failed to allocate memory for decryption"];
+    if(!buffer)
+    {
+        NSError* nsError = [NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UNEXPECTED userInfo:nil];
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:nsError
+                                                                    errorDetails:@"Failed to allocate memory for decryption"
+                                                                   correlationId:nil];
+        if (error)
+        {
+            *error = adError;
+        }
         return nil;
     }
 
