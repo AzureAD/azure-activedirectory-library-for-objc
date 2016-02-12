@@ -15,10 +15,10 @@ before_script:
 
 script:  
 # Build and Test the ADALiOS library
-  - xcodebuild test -workspace ADAL.xcworkspace -scheme ADAL -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO CODE_SIGN_IDENTITY=" " GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty -f `xcpretty-travis-formatter`
+  - xcodebuild test -workspace ADAL.xcworkspace -scheme ADAL -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO CODE_SIGN_IDENTITY="" GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty -f `xcpretty-travis-formatter`
 
 # Build the Test App (to make sure it doesn't break
-  - xcodebuild -workspace ADAL.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO CODE_SIGN_IDENTITY=" " CODE_SIGNING_REQUIRED=NO | xcpretty -f `xcpretty-travis-formatter`
+  - xcodebuild -workspace ADAL.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO | xcpretty -f `xcpretty-travis-formatter`
   
 # Build and Test ADAL for Mac
   - xcodebuild test -workspace ADAL.xcworkspace -scheme "ADAL Mac" | xcpretty -f `xcpretty-travis-formatter`
