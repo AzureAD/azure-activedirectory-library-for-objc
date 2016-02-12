@@ -3,23 +3,25 @@ osx_image: xcode7.2
 
 # Set up our rubygems (slather and xcpretty, namely)
 install: 
- - gem install xcpretty slather -N
+ - gem install xcpretty slather xcpretty-travis-formatter -N
 
 script: 
 # Start by nuking any lingering codecov files. These can cause issues when the xcode version changes
   - find . -name "*.gcda" -print0 | xargs -0 rm
   
+  - set -o pipefail
+  
 # Build and Test the ADALiOS library
-  - set -o pipefail && xcodebuild test -workspace ADAL.xcworkspace -scheme ADAL -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty
+  - xcodebuild test -workspace ADAL.xcworkspace -scheme ADAL -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty -f `xcpretty-travis-fromatter`
 
 # Build the Test App (to make sure it doesn't break
-  - set -o pipefail && xcodebuild -workspace ADAL.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty
+  - xcodebuild -workspace ADAL.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty -f `xcpretty-travis-fromatter`
   
 # Build and Test ADAL for Mac
-  - set -o pipefail && xcodebuild test -workspace ADAL.xcworkspace -scheme "ADAL Mac" | xcpretty
+  - xcodebuild test -workspace ADAL.xcworkspace -scheme "ADAL Mac" | xcpretty -f `xcpretty-travis-fromatter`
 
 # Test ADAL for Mac 32-bit
-  - set -o pipefail && xcodebuild test -workspace ADAL.xcworkspace - scheme "ADAL Mac" CURRENT_ARCH=i386 | xcpretty
+  - xcodebuild test -workspace ADAL.xcworkspace - scheme "ADAL Mac" CURRENT_ARCH=i386 | xcpretty -f `xcpretty-travis-fromatter`
 
 after_success:
 # Run slather once to have it print out the results in the travis log
