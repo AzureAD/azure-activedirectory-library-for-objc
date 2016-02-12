@@ -24,7 +24,7 @@
 @synthesize expirationBuffer = _expirationBuffer;
 
 #if !TARGET_OS_IPHONE
-@synthesize defaultCacheDelegate = _defaultCacheDelegate;
+@synthesize defaultStorageDelegate = _defaultStorageDelegate;
 #endif // !TARGET_OS_IPHONE
 
 /*!
