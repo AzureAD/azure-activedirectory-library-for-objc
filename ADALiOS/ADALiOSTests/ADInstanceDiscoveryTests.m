@@ -419,7 +419,7 @@ const int sAsyncTimeout = 10;//in seconds
 
 -(void) testUnreachableServer
 {
-    [ADTestURLConnection addNotFoundResponseForURLString:@"https://SomeValidURLButNotExistentInTheNet.com/common/discovery/instance?api-version=1.0&authorization_endpoint=https://login.windows.cn/MSOpenTechBV.onmicrosoft.com/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING];
+    [ADTestURLConnection addNotFoundResponseForURLString:@"https://SomeValidURLButNotExistentInTheNet.com/common/discovery/instance?api-version=1.0&authorization_endpoint=https://login.windows.cn/MSOpenTechBV.onmicrosoft.com/oauth2/authorize&x-client-Ver=" ADA_NETWORKL_VERSION_STRING];
     __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
     {
