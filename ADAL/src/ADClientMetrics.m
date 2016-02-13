@@ -61,8 +61,9 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
 {
     @synchronized(self)
     {
-        if ([ADHelpers isADFSInstance:endPoint])
-        {
+        if([ADHelpers isADFSInstance:endPoint])
+		{
+            _endpoint = endPoint;
             return;
         }
         if (_isPending)
