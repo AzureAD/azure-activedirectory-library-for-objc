@@ -4,23 +4,31 @@ osx_image: xcode7.2
 # Set up our rubygems (slather and xcpretty, namely)
 install: 
  - gem install xcpretty slather -N
-
-script: 
+ 
+before_script:
 # Start by nuking any lingering codecov files. These can cause issues when the xcode version changes
   - find . -name "*.gcda" -print0 | xargs -0 rm
-  
-# Build and Test the ADALiOS library
-  - xcodebuild test -workspace ADAL.xcworkspace -scheme ADALiOS -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty
 
+# Tell the shell to echo failure codes up the pipe so that Travis will properly fail the
+# build when the xcodebuild command fails
+  - set -o pipefail
+
+script:  
+# Build and Test the ADALiOS library
+  - build/iOS_Static_Lib
+  
 # Build the Test App (to make sure it doesn't break
-  - xcodebuild -workspace ADAL.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty
+  - build/iOS_Test_App
   
 # Build and Test ADAL for Mac
-  - xcodebuild test -workspace ADAL.xcworkspace -scheme "ADAL Mac" | xcpretty
+  - build/Mac_Framework
+  
+# Build Mac Test App
+  - build/Mac_Test_App
 
 # Test ADAL for Mac 32-bit
-  - xcodebuild test -workspace ADAL.xcworkspace - scheme "ADAL Mac" CURRENT_ARCH=i386 | xcpretty
+  - build/Mac_32_bit
 
 after_success:
 # Run slather once to have it print out the results in the travis log
-  - slather coverage -s ADAL/ADAL.xcodeproj
+#  - slather coverage -s ADAL/ADAL.xcodeproj

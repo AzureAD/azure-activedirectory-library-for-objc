@@ -100,7 +100,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertTrue([self count] == 0, "Start empty.");
     
     ADTokenCacheItem* item = [self adCreateCacheItem:@"eric_cartman@contoso.com"];
-    [mStore addOrUpdateItem:item error:nil];
+    [mStore addOrUpdateItem:item correlationId:nil error:nil];
     
     NSArray* allItems = [mStore allItems:nil];
     
@@ -117,11 +117,11 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
     
     //one item:
-    XCTAssertTrue([mStore addOrUpdateItem:item1 error:&error], @"addOrUpdate failed: %@ (%ld)", error.errorDetails, (long)error.code);
+    XCTAssertTrue([mStore addOrUpdateItem:item1 correlationId:nil error:&error], @"addOrUpdate failed: %@ (%ld)", error.errorDetails, (long)error.code);
     XCTAssertNil(error);
     
     // Add the same item again for fun
-    XCTAssertTrue([mStore addOrUpdateItem:item1 error:&error], @"addOrUpdate failed: %@ (%ld)", error.errorDetails, (long)error.code);
+    XCTAssertTrue([mStore addOrUpdateItem:item1 correlationId:nil error:&error], @"addOrUpdate failed: %@ (%ld)", error.errorDetails, (long)error.code);
     XCTAssertNil(error);
     
     // Verify there's only a single item in the allItems list
@@ -130,7 +130,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertNil(error);
     XCTAssertEqual(items.count, 1);
     
-    ADTokenCacheItem* returnedItem = [mStore getItemWithKey:[self adCreateCacheKey] userId:@"eric@contoso.com" error:&error];
+    ADTokenCacheItem* returnedItem = [mStore getItemWithKey:[self adCreateCacheKey] userId:@"eric@contoso.com" correlationId:nil error:&error];
     XCTAssertNotNil(returnedItem);
     XCTAssertNil(error, @"getItemWithKey failed: %@ (%ld)", error.errorDetails, (long)error.code);
     
@@ -142,18 +142,18 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAuthenticationError* error = nil;
     ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
     //one item:
-    XCTAssertTrue([mStore addOrUpdateItem:item1 error:&error]);
+    XCTAssertTrue([mStore addOrUpdateItem:item1 correlationId:nil error:&error]);
     XCTAssertNil(error);
     
     // Now create an item with the same authority + resource + client id but a
     // different user
     ADTokenCacheItem* item2 = [self adCreateCacheItem:@"stan@contoso.com"];
-    XCTAssertTrue([mStore addOrUpdateItem:item2 error:&error]);
+    XCTAssertTrue([mStore addOrUpdateItem:item2 correlationId:nil error:&error]);
     XCTAssertNil(error);
     
     // Now try to get an item with that same key, because there are two items with the
     // same user id we should see a multiple users error
-    ADTokenCacheItem* returnedItem = [mStore getItemWithKey:[self adCreateCacheKey] userId:nil error:&error];
+    ADTokenCacheItem* returnedItem = [mStore getItemWithKey:[self adCreateCacheKey] userId:nil correlationId:nil error:&error];
     XCTAssertNil(returnedItem);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, AD_ERROR_MULTIPLE_USERS);
@@ -182,11 +182,11 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     //add three items:
     ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
-    [mStore addOrUpdateItem:item1 error:&error];
+    [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
     ADTokenCacheItem* item2 = [self adCreateCacheItem:@"stan@contoso.com"];
-    [mStore addOrUpdateItem:item2 error:&error];
+    [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
     ADTokenCacheItem* item3 = [self adCreateCacheItem:@"jack@contoso.com"];
-    [mStore addOrUpdateItem:item3 error:&error];
+    [mStore addOrUpdateItem:item3 correlationId:nil error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 3);
     XCTAssertEqual([self tombstoneCount], 0);
@@ -194,7 +194,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     //getItemWithKey should be able to retrieve item1 from cache
     ADTokenCacheKey* key1 = [item1 extractKey:&error];
     ADAssertNoError;
-    ADTokenCacheItem* retrievedItem1 = [mStore getItemWithKey:key1 userId:item1.userInformation.userId error:&error];
+    ADTokenCacheItem* retrievedItem1 = [mStore getItemWithKey:key1 userId:item1.userInformation.userId correlationId:nil error:&error];
     ADAssertNoError;
     XCTAssertEqualObjects(item1, retrievedItem1);
     
@@ -210,7 +210,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     //although item1 can still be retrieved using [mStore allItems]
     key1 = [item1 extractKey:&error];
     ADAssertNoError;
-    retrievedItem1 = [mStore getItemWithKey:key1 userId:item1.userInformation.userId error:&error];
+    retrievedItem1 = [mStore getItemWithKey:key1 userId:item1.userInformation.userId correlationId:nil error:&error];
     ADAssertNoError;
     XCTAssertNil(retrievedItem1);
     
@@ -260,7 +260,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     //add item1 with no refresh token
     ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
     [item1 setRefreshToken:nil];
-    [mStore addOrUpdateItem:item1 error:&error];
+    [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 1);
     XCTAssertEqual([self tombstoneCount], 0);
@@ -268,14 +268,14 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     //getItemWithKey should be able to retrieve item1 from cache
     ADTokenCacheKey* key1 = [item1 extractKey:&error];
     ADAssertNoError;
-    ADTokenCacheItem* retrievedItem1 = [mStore getItemWithKey:key1 userId:item1.userInformation.userId error:&error];
+    ADTokenCacheItem* retrievedItem1 = [mStore getItemWithKey:key1 userId:item1.userInformation.userId correlationId:nil error:&error];
     ADAssertNoError;
     XCTAssertEqualObjects(item1, retrievedItem1);
     
     
     //add item2 with refresh token
     ADTokenCacheItem* item2 = [self adCreateCacheItem:@"stan@contoso.com"];
-    [mStore addOrUpdateItem:item2 error:&error];
+    [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 2);
     XCTAssertEqual([self tombstoneCount], 0);
@@ -283,7 +283,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     //getItemWithKey should be able to retrieve item2 from cache
     ADTokenCacheKey* key2 = [item2 extractKey:&error];
     ADAssertNoError;
-    ADTokenCacheItem* retrievedItem2 = [mStore getItemWithKey:key2 userId:item2.userInformation.userId error:&error];
+    ADTokenCacheItem* retrievedItem2 = [mStore getItemWithKey:key2 userId:item2.userInformation.userId correlationId:nil error:&error];
     XCTAssertEqualObjects(item2, retrievedItem2);
     
     //remove item1.
@@ -311,14 +311,14 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     //add three items with the same client ID and one with a different client ID
     ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
-    [mStore addOrUpdateItem:item1 error:&error];
+    [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
     ADTokenCacheItem* item2 = [self adCreateCacheItem:@"stan@contoso.com"];
-    [mStore addOrUpdateItem:item2 error:&error];
+    [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
     ADTokenCacheItem* item3 = [self adCreateCacheItem:@"jack@contoso.com"];
-    [mStore addOrUpdateItem:item3 error:&error];
+    [mStore addOrUpdateItem:item3 correlationId:nil error:&error];
     ADTokenCacheItem* item4 = [self adCreateCacheItem:@"rose@contoso.com"];
     [item4 setClientId:@"a different client id"];
-    [mStore addOrUpdateItem:item4 error:&error];
+    [mStore addOrUpdateItem:item4 correlationId:nil error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 4);
     XCTAssertEqual([self tombstoneCount], 0);
@@ -343,15 +343,15 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     //add two items with the same client ID and same user ID but differnet resource
     ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
     [item1 setResource:@"resource 1"];
-    [mStore addOrUpdateItem:item1 error:&error];
+    [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
     ADTokenCacheItem* item2 = [self adCreateCacheItem:@"eric@contoso.com"];
     [item2 setResource:@"resource 2"];
-    [mStore addOrUpdateItem:item2 error:&error];
+    [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
     //add another two more items
     ADTokenCacheItem* item3 = [self adCreateCacheItem:@"jack@contoso.com"];
-    [mStore addOrUpdateItem:item3 error:&error];
+    [mStore addOrUpdateItem:item3 correlationId:nil error:&error];
     ADTokenCacheItem* item4 = [self adCreateCacheItem:@"rose@contoso.com"];
-    [mStore addOrUpdateItem:item4 error:&error];
+    [mStore addOrUpdateItem:item4 correlationId:nil error:&error];
     ADAssertNoError;
     XCTAssertEqual([self count], 4);
     XCTAssertEqual([self tombstoneCount], 0);

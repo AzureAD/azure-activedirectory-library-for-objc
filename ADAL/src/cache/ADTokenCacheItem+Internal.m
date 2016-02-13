@@ -74,7 +74,8 @@
     {
         ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
                                                                               protocolCode:@"adal cachce"
-                                                                              errorDetails:@"processTokenResponse called without a response dictionary"];
+                                                                              errorDetails:@"processTokenResponse called without a response dictionary"
+                                                                             correlationId:requestCorrelationId];
         return [ADAuthenticationResult resultFromError:error];
     }
     
@@ -98,7 +99,7 @@
     {
         // Bad item, the field we're looking for is missing.
         NSString* details = [NSString stringWithFormat:@"Authentication response received without expected \"%@\"", fieldToCheck];
-        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:details];
+        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:details correlationId:requestCorrelationId];
         return [ADAuthenticationResult resultFromError:error];
     }
 }
@@ -153,22 +154,13 @@
 - (void)logWithCorrelationId:(NSString*)correlationId
                         mrrt:(BOOL)isMRRT
 {
-    NSUUID* correlationUUID = [[NSUUID alloc] initWithUUIDString:correlationId];
-    if (self.accessToken)
-    {
-        [ADLogger logToken:self.accessToken
-                 tokenType:self.accessTokenType
-                 expiresOn:self.expiresOn
-             correlationId:correlationUUID];
-    }
+    (void)isMRRT;
     
-    if (self.refreshToken)
-    {
-        [ADLogger logToken:self.refreshToken
-                 tokenType:isMRRT ? @"multi-resource refresh token" : @"refresh token"
-                 expiresOn:nil
-             correlationId:correlationUUID];
-    }
+    NSUUID* correlationUUID = [[NSUUID alloc] initWithUUIDString:correlationId];
+    
+    [self logMessage:nil
+               level:ADAL_LOG_LEVEL_VERBOSE
+       correlationId:correlationUUID];
     
     SAFE_ARC_RELEASE(correlationUUID);
 }
@@ -223,6 +215,60 @@
     _refreshToken = @"<tombstone>";
     _tombstone = tombstoneDictionary;
 
+}
+
+- (void)logMessage:(NSString*)message level:(ADAL_LOG_LEVEL)level correlationId:(NSUUID*)correlationId
+{
+    if (_tombstone)
+    {
+        NSString* tombstoneMessage = nil;
+        if (message)
+        {
+            tombstoneMessage = [NSString stringWithFormat:@"%@ tombstone : %@", message, _tombstone];
+        }
+        else
+        {
+            tombstoneMessage = [NSString stringWithFormat:@"Tombstone : %@", _tombstone];
+        }
+        
+        [ADLogger log:level
+              message:tombstoneMessage
+            errorCode:0
+        correlationId:correlationId
+               format:@"{\n\tresource: %@\n\tclientId: %@\n\tauthority:%@\n}", _resource, _clientId, _authority];
+        return;
+    }
+    
+    NSString* tokenMessage = nil;
+    
+    if (_accessToken && _refreshToken)
+    {
+        tokenMessage = [NSString stringWithFormat:@"AT (%@) + RT (%@) Expires: %@", [ADLogger getHash:_accessToken], [ADLogger getHash:_refreshToken], _expiresOn];
+    }
+    else if (_accessToken)
+    {
+        tokenMessage = [NSString stringWithFormat:@"AT (%@) Expires: %@", [ADLogger getHash:_accessToken], _expiresOn];
+    }
+    else if (_refreshToken)
+    {
+        tokenMessage = [NSString stringWithFormat:@"RT (%@)", [ADLogger getHash:_refreshToken]];
+    }
+    else
+    {
+        tokenMessage = @"token";
+    }
+    
+    if (message)
+    {
+        tokenMessage = [NSString stringWithFormat:@"%@ %@", message, tokenMessage];
+    }
+    
+    [ADLogger log:level
+          message:tokenMessage
+        errorCode:0
+    correlationId:correlationId
+           format:@"{\n\tresource = %@\n\tclientId = %@\n\tauthority = %@\n\tuserId = %@\n}",
+     _resource, _clientId, _authority, _userInformation.userId];
 }
 
 

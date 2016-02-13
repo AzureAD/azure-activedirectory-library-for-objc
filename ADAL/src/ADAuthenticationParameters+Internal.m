@@ -39,8 +39,8 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
 @implementation ADAuthenticationParameters (Internal)
 
 
--(id) initInternalWithParameters: (NSDictionary *) extractedParameters
-                           error: (ADAuthenticationError* __autoreleasing*) error;
+- (id)initInternalWithParameters:(NSDictionary *)extractedParameters
+                           error:(ADAuthenticationError* __autoreleasing*)error;
 
 {
     THROW_ON_NIL_ARGUMENT(extractedParameters);
@@ -56,7 +56,8 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
             NSString* errorDetails = [NSString stringWithFormat:MissingOrInvalidAuthority,
                                       OAuth2_Authenticate_Header, OAuth2_Authorization_Uri];
             ADAuthenticationError* adError = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT
-                                                              errorDetails:errorDetails];
+                                                              errorDetails:errorDetails
+                                              correlationId:nil];
             if (error)
             {
                 *error = adError;
@@ -75,7 +76,8 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
     NSString* errorDetails = [NSString stringWithFormat:InvalidHeader,
      OAuth2_Authenticate_Header, headerContents];
     return [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT
-                                                   errorDetails:errorDetails];
+                                                   errorDetails:errorDetails
+                                                  correlationId:nil];
 }
 
 + (NSDictionary*) extractChallengeParameters: (NSString*) headerContents
@@ -146,7 +148,7 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
     if (rgError)
     {
         //The method below will log internally the error:
-        adError =[ADAuthenticationError errorFromNSError:rgError errorDetails:rgError.description];
+        adError =[ADAuthenticationError errorFromNSError:rgError errorDetails:rgError.description correlationId:nil];
     }
     
     if (error)

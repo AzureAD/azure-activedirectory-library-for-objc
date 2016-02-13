@@ -33,13 +33,14 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
  Then the method calls the callback with the result.
  The method returns if the argument is valid. If the method returns false,
  the calling method should return. */
-+ (BOOL)checkAndHandleBadArgument:(NSObject*)argumentValue
-                     argumentName:(NSString*)argumentName
++ (BOOL)checkAndHandleBadArgument:(NSObject *)argumentValue
+                     argumentName:(NSString *)argumentName
+                    correlationId:(NSUUID *)correlationId
                   completionBlock:(ADAuthenticationCallback)completionBlock
 {
     if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString adIsStringNilOrBlank:(NSString*)argumentValue]))
     {
-        ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName];
+        ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName correlationId:correlationId];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:argumentError];
         completionBlock(result);//Call the callback to tell about the result
         return NO;
@@ -56,7 +57,7 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
 {
     if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString adIsStringNilOrBlank:(NSString*)argumentValue]))
     {
-        ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName];
+        ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName correlationId:nil];
         *authenticationResult = [ADAuthenticationResult resultFromError:argumentError];
         return NO;
     }
@@ -75,7 +76,8 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
         // Error response from the server
         return [ADAuthenticationError errorFromAuthenticationError:errorCode
                                                       protocolCode:serverOAuth2Error
-                                                      errorDetails:(errorDetails) ? errorDetails : [NSString stringWithFormat:ADServerError, serverOAuth2Error]];
+                                                      errorDetails:(errorDetails) ? errorDetails : [NSString stringWithFormat:ADServerError, serverOAuth2Error]
+                                                     correlationId:[dictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
     }
     //In the case of more generic error, e.g. server unavailable, DNS error or no internet connection, the error object will be directly placed in the dictionary:
     return [dictionary objectForKey:AUTH_NON_PROTOCOL_ERROR];
@@ -126,7 +128,8 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
                                                protocolCode:nil
-                                               errorDetails:@"ADAuthenticationResult is nil"];
+                                               errorDetails:@"ADAuthenticationResult is nil"
+                                              correlationId:nil];
         return [ADAuthenticationResult resultFromError:error correlationId:[result correlationId]];
     }
     
@@ -152,7 +155,8 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_WRONG_USER
                                                protocolCode:nil
-                                               errorDetails:errorText];
+                                               errorDetails:errorText
+                                              correlationId:nil];
         return [ADAuthenticationResult resultFromError:error correlationId:[result correlationId]];
     }
     

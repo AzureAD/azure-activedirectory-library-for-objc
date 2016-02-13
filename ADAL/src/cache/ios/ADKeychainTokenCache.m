@@ -86,28 +86,31 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 //Log operations that result in storing or reading cache item:
 - (void)logItem:(ADTokenCacheItem *)item
         message:(NSString *)additionalMessage
+  correlationId:(NSUUID *)correlationId
 {
-    AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"%@ for resource <%@> + client <%@> + authority <%@> + user <%@>", additionalMessage, [item resource], [item clientId], [item authority], [[item userInformation] userId]);
+    [item logMessage:additionalMessage level:ADAL_LOG_LEVEL_VERBOSE correlationId:correlationId];
 }
 
 - (void)logItemRetrievalStatus:(NSArray *)items
                            key:(ADTokenCacheKey *)key
                         userId:(NSString *)userId
+                 correlationId:(NSUUID *)correlationId
 {
     if (!items || [items count]<=0)
     {
         //if resource is nil, this request is intending to find MRRT
         if ([NSString adIsStringNilOrBlank:[key resource]]) {
-            AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"No MRRT was found for resource <%@> + client <%@> + authority <%@>", [key resource], [key clientId], [key authority]);
+            AD_LOG_INFO_F(@"No MRRT found", correlationId, @"resource <%@> + client <%@> + authority <%@>", [key resource], [key clientId], [key authority]);
         }
         else
         {
-            AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"No AT/RT was found for resource <%@> + client <%@> + authority <%@>", [key resource], [key clientId], [key authority]);
+            AD_LOG_INFO_F(@"No AT was found", correlationId, @"resource <%@> + client <%@> + authority <%@>", [key resource], [key clientId], [key authority]);
         }
     }
     else
     {
-        AD_LOG_VERBOSE_F(@"Keychain token cache store", nil, @"Found %lu token(s) for user <%@> in keychain.", (unsigned long)[items count], userId);
+        NSString* msg = [NSString stringWithFormat:@"Found %lu token(s)", (unsigned long)[items count]];
+        AD_LOG_INFO_F(msg, correlationId, @"user <%@>", userId);
     }
 }
 
@@ -117,7 +120,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     {
         if (item.tombstone)
         {
-            AD_LOG_WARN_F(@"Keychain token cache store", nil, @"Tombstone Found: %@" , item.tombstone);
+            [item logMessage:nil level:ADAL_LOG_LEVEL_WARN correlationId:nil];
         }
     }
 }
@@ -173,7 +176,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     }
     else if (status != errSecSuccess)
     {
-        [ADKeychainTokenCache checkStatus:status details:@"Failed to run keychain query." error:error];
+        [ADKeychainTokenCache checkStatus:status details:@"Failed to run keychain query." correlationId:nil error:error];
         return nil;
     }
     
@@ -213,20 +216,9 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
  Returns nil in case of error. */
 - (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSArray* items = [self getItemsWithKey:nil error:error];
+    NSArray* items = [self getItemsWithKey:nil userId:nil correlationId:nil error:error];
     return [self filterOutTombstones:items];
 }
-
-/*! Returns all of the items for a given key. Multiple items may present,
- if the same resource was accessed by more than one user. The returned
- array should contain only ADTokenCacheItem objects. Returns an empty array,
- if no items are found. Returns nil (and sets the error parameter) in case of error.*/
-- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
-                                                error:(ADAuthenticationError * __autoreleasing *)error
-{
-    return [self getItemsWithKey:key userId:nil error:error];
-}
-
 
 /*!
     @param  item    The item to be removed. Item with refresh token will be set as a tombstone, those without will be deleted.
@@ -239,22 +231,20 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     RETURN_NO_ON_NIL_ARGUMENT(item);
+    
+    [item logMessage:@"Removing" level:ADAL_LOG_LEVEL_INFO correlationId:nil];
 
     OSStatus deleteStatus = [self deleteItem:item error:error];
     
     //if item does not exist in cache or does not contain a refresh token, deletion is enough and should return.
     if (deleteStatus != errSecSuccess || [NSString adIsStringNilOrBlank:item.refreshToken])
     {
-        [self logItem:item message:@"Item being removed"];
-        return [ADKeychainTokenCache checkStatus:deleteStatus details:@"Failed to remove item from keychain" error:error];
+        return [ADKeychainTokenCache checkStatus:deleteStatus details:@"Failed to remove item from keychain" correlationId:nil error:error];
     }
-    
-    //Item should be set as tombstone
-    [self logItem:item message:@"Item being tombstoned"];
     
     [item makeTombstone:@{ @"errorDetails" : @"Manually removed from cache."}];
     //update tombstone in cache
-    BOOL updateStatus = [self addOrUpdateItem:item error:error];
+    BOOL updateStatus = [self addOrUpdateItem:item correlationId:nil error:error];
     
     return updateStatus;
     
@@ -367,7 +357,8 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 }
 
 + (BOOL)checkStatus:(OSStatus)status
-            details:(NSString*)details
+            details:(NSString *)details
+      correlationId:(NSUUID *)correlationId
               error:(ADAuthenticationError* __autoreleasing *)error
 {
     if (status == errSecSuccess || status == errSecItemNotFound)
@@ -376,7 +367,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     }
     
     NSError* nsError = [NSError errorWithDomain:@"Keychain" code:status userInfo:nil];
-    ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:nsError errorDetails:details];
+    ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:nsError errorDetails:details correlationId:correlationId];
     if (error)
     {
         *error = adError;
@@ -411,12 +402,13 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 
 - (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey *)key
                                           userId:(NSString *)userId
+                                   correlationId:(NSUUID *)correlationId
                                            error:(ADAuthenticationError * __autoreleasing* )error
 {
     NSArray* items = [self keychainItemsWithKey:key userId:userId error:error];
     if (!items)
     {
-        [self logItemRetrievalStatus:nil key:key userId:userId];
+        [self logItemRetrievalStatus:nil key:key userId:userId correlationId:correlationId];
         return nil;
     }
     
@@ -433,7 +425,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         [tokenItems addObject:item];
     }
     
-    [self logItemRetrievalStatus:tokenItems key:key userId:userId];
+    [self logItemRetrievalStatus:tokenItems key:key userId:userId correlationId:correlationId];
     return tokenItems;
     
 }
@@ -448,9 +440,10 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
  */
 - (ADTokenCacheItem*)getItemWithKey:(ADTokenCacheKey *)key
                              userId:(NSString *)userId
+                      correlationId:(NSUUID *)correlationId
                               error:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSArray* items = [self getItemsWithKey:key userId:userId error:error];
+    NSArray* items = [self getItemsWithKey:key userId:userId correlationId:correlationId error:error];
     NSArray* itemsExcludingTombstones = [self filterOutTombstones:items];
     
     //if nothing but tombstones is found, tombstones details should be logged.
@@ -465,7 +458,8 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         ADAuthenticationError* adError =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
                                                protocolCode:nil
-                                               errorDetails:@"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used."];
+                                               errorDetails:@"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used."
+                                              correlationId:correlationId];
         if (error)
         {
             *error = adError;
@@ -487,6 +481,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
                     error details.
  */
 - (BOOL)addOrUpdateItem:(ADTokenCacheItem *)item
+          correlationId:(nullable NSUUID *)correlationId
                   error:(ADAuthenticationError * __autoreleasing*)error
 {
     @synchronized(self)
@@ -512,7 +507,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
                                                       additional:nil];
         
         OSStatus status = SecItemDelete((CFDictionaryRef)query);
-        if ([ADKeychainTokenCache checkStatus:status details:@"Failed to remove previous entry from the keychain." error:error])
+        if ([ADKeychainTokenCache checkStatus:status details:@"Failed to remove previous entry from the keychain." correlationId:correlationId error:error])
         {
             return NO;
         }
@@ -522,7 +517,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
                                            (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly}];
         status = SecItemAdd((CFDictionaryRef)query, NULL);
         
-        if ([ADKeychainTokenCache checkStatus:status details:@"Failed to add or update keychain entry." error:error])
+        if ([ADKeychainTokenCache checkStatus:status details:@"Failed to add or update keychain entry." correlationId:correlationId error:error])
         {
             return NO;
         }
@@ -537,7 +532,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     {
         NSMutableDictionary* query = [self queryDictionaryForKey:nil userId:nil additional:nil];
         OSStatus status = SecItemDelete((CFDictionaryRef)query);
-        [ADKeychainTokenCache checkStatus:status details:@"Failed to remove all" error:error];
+        [ADKeychainTokenCache checkStatus:status details:@"Failed to remove all" correlationId:nil error:error];
     }
 }
 
@@ -548,7 +543,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 
 - (NSArray<ADTokenCacheItem *> *)allTombstones:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSArray* items = [self getItemsWithKey:nil error:error];
+    NSArray* items = [self getItemsWithKey:nil userId:nil correlationId:nil error:error];
     NSMutableArray* tombstones = [NSMutableArray new];
     for (ADTokenCacheItem* item in items)
     {

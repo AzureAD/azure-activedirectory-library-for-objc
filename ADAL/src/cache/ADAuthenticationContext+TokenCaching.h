@@ -24,9 +24,11 @@
 //Checks the multi-resource refresh tokens too.
 - (ADTokenCacheItem*)findCacheItemWithKey:(ADTokenCacheKey *)key
                                    userId:(ADUserIdentifier *)userId
+                            correlationId:(NSUUID *)correlationId
                                     error:(ADAuthenticationError * __autoreleasing *)error;
 
 - (ADTokenCacheItem *)findFamilyItemForUser:(ADUserIdentifier *)userIdentifier
+                              correlationId:(NSUUID *)correlationId
                                       error:(ADAuthenticationError * __autoreleasing *)error;
 
 //Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
@@ -43,6 +45,7 @@
 
 - (ADTokenCacheItem *)extractCacheItemWithKey:(ADTokenCacheKey *)key
                                        userId:(ADUserIdentifier *)userId
+                                correlationId:(NSUUID *)correlationId
                                         error:(ADAuthenticationError * __autoreleasing *)error;
 
 @end

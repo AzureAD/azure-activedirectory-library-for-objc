@@ -80,6 +80,7 @@
         //Cache should be used in this case:
         ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key
                                                               userId:_identifier
+                                                       correlationId:_correlationId
                                                                error:&error];
         if (error)
         {
@@ -120,7 +121,7 @@
 {
     //All of these should be set before calling this method:
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    HANDLE_ARGUMENT(item);
+    HANDLE_ARGUMENT(item, _correlationId);
     AD_REQUEST_CHECK_PROPERTY(_resource);
     AD_REQUEST_CHECK_PROPERTY(_clientId);
     [self ensureRequest];
@@ -136,7 +137,7 @@
     
     if ([NSString adIsStringNilOrBlank:item.refreshToken])
     {
-        completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"Attempting to use an item without refresh token."]
+        completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"Attempting to use an item without refresh token." correlationId:_correlationId]
                                                   correlationId:_correlationId]);
         return;
     }
@@ -161,7 +162,7 @@
              if (broadKey)
              {
                  ADAuthenticationError* error = nil;
-                 ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier error:&error];
+                 ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier correlationId:_correlationId error:&error];
                  if (error)
                  {
                      completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);

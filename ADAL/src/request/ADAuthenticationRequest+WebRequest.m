@@ -170,9 +170,12 @@ static ADAuthenticationRequest* s_modalRequest = nil;
             NSDictionary* headers = webResponse.headers;
             //In most cases the correlation id is returned as a separate header
             NSString* responseCorrelationId = [headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE];
+            NSUUID* responseCorrelationUUID = _correlationId;
             if (![NSString adIsStringNilOrBlank:responseCorrelationId])
             {
                 [response setObject:responseCorrelationId forKey:OAUTH2_CORRELATION_ID_RESPONSE];//Add it to the dictionary to be logged and checked later.
+                responseCorrelationUUID = [[NSUUID alloc] initWithUUIDString:responseCorrelationId];
+                SAFE_ARC_AUTORELEASE(responseCorrelationUUID);
             }
             
             [response setObject:webResponse.URL forKey:@"url"];
@@ -191,9 +194,11 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                 case 400:
                 case 401:
                 {
-                    if(!isHandlingPKeyAuthChallenge){
+                    if(!isHandlingPKeyAuthChallenge)
+                    {
                         NSString* wwwAuthValue = [headers valueForKey:wwwAuthenticateHeader];
-                        if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName]){
+                        if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName])
+                        {
                             [self handlePKeyAuthChallenge:endPoint
                                        wwwAuthHeaderValue:wwwAuthValue
                                               requestData:request_data
@@ -231,12 +236,12 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                             }
                             
                             AD_LOG_ERROR_F(@"JSON deserialization", jsonError.code, _correlationId, @"Error: %@. Body text: '%@'. HTTPS Code: %ld. Response correlation id: %@", jsonError.description, bodyStr, (long)webResponse.statusCode, responseCorrelationId);
-                            adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
+                            adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription correlationId:responseCorrelationUUID];
                             SAFE_ARC_RELEASE(bodyStr);
                         }
                         else
                         {
-                            adError = [ADAuthenticationError unexpectedInternalError:[NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]]];
+                            adError = [ADAuthenticationError unexpectedInternalError:[NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]] correlationId:responseCorrelationUUID];
                         }
                         [response setObject:adError forKey:AUTH_NON_PROTOCOL_ERROR];
                     }
@@ -273,8 +278,12 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                     SAFE_ARC_RELEASE(body);
                     AD_LOG_WARN(@"HTTP Error", _correlationId, errorData);
                     
+                    ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
+                                                                                            protocolCode:nil
+                                                                                            errorDetails:errorData
+                                                                                           correlationId:_correlationId];
                     //Now add the information to the dictionary, so that the parser can extract it:
-                    [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:nil errorDetails:errorData]
+                    [response setObject:adError
                                  forKey:AUTH_NON_PROTOCOL_ERROR];
                 }
             }
@@ -292,7 +301,11 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         {
             AD_LOG_WARN(@"System error while making request.", _correlationId, error.description);
             // System error
-            [response setObject:[ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription]
+            ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error
+                                                                        errorDetails:error.localizedDescription
+                                                                       correlationId:_correlationId];
+            
+            [response setObject:adError
                          forKey:AUTH_NON_PROTOCOL_ERROR];
         }
         
@@ -324,7 +337,8 @@ static volatile int sDialogInProgress = 0;
         NSString* message = @"The user is currently prompted for credentials as result of another acquireToken request. Please retry the acquireToken call later.";
         ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_PROMPTED
                                                                               protocolCode:nil
-                                                                              errorDetails:message];
+                                                                              errorDetails:message
+                                                                             correlationId:_correlationId];
         completionBlock(nil, error);
         return NO;
     }
@@ -494,7 +508,8 @@ static volatile int sDialogInProgress = 0;
                      {
                          error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
                                                                         protocolCode:nil
-                                                                        errorDetails:@"The authorization server did not return a valid authorization code."];
+                                                                        errorDetails:@"The authorization server did not return a valid authorization code."
+                                                                       correlationId:_correlationId];
                      }
                  }
              }

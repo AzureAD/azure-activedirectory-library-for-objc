@@ -59,8 +59,9 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
         // Must have a parent view controller to start the authentication view
         ADAuthenticationError* adError =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
-                                                        protocolCode:nil
-                                                        errorDetails:AD_FAILED_NO_CONTROLLER];
+                                               protocolCode:nil
+                                               errorDetails:AD_FAILED_NO_CONTROLLER
+                                              correlationId:nil];
         
         if (error)
         {

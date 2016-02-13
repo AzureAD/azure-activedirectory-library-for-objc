@@ -24,8 +24,9 @@
 @interface ADKeychainTokenCache (Internal) <ADTokenCacheAccessor>
 
 + (BOOL)checkStatus:(OSStatus)status
-            details:(NSString*)details
-              error:(ADAuthenticationError* __autoreleasing *)error;
+            details:(NSString *)details
+      correlationId:(NSUUID *)correlationId
+              error:(ADAuthenticationError * __autoreleasing *)error;
 
 - (NSMutableDictionary *)queryDictionaryForKey:(ADTokenCacheKey *)key
                                         userId:(NSString *)userId

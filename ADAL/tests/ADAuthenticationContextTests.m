@@ -172,10 +172,10 @@
     ADAuthenticationError* error = nil;
     ADTokenCacheItem* familyItem = [self adCreateMRRTCacheItem];
     familyItem.familyId = @"I'm a family item!";
-    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:familyItem error:&error]);
+    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:familyItem correlationId:nil error:&error]);
     XCTAssertNil(error);
     
-    ADTokenCacheItem* foundItem = [context findFamilyItemForUser:[ADUserIdentifier identifierWithId:TEST_USER_ID] error:&error];
+    ADTokenCacheItem* foundItem = [context findFamilyItemForUser:[ADUserIdentifier identifierWithId:TEST_USER_ID] correlationId:nil error:&error];
     XCTAssertNotNil(foundItem);
     XCTAssertEqualObjects(familyItem, foundItem);
 }

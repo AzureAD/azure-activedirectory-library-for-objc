@@ -39,33 +39,39 @@ extern NSString* const ADBrokerResponseErrorDomain;
 
 /*! Generates an error for invalid method argument. */
 + (ADAuthenticationError*)errorFromArgument:(id)argument
-                               argumentName:(NSString*)argumentName;
+                               argumentName:(NSString *)argumentName
+                              correlationId:(NSUUID *)correlationId;
 
 /*! Generates an error related to the 401 Bearer challenge handling */
 + (ADAuthenticationError*)errorFromUnauthorizedResponse:(NSInteger)responseCode
-                                           errorDetails:(NSString*)errorDetails;
+                                           errorDetails:(NSString *)errorDetails
+                                          correlationId:(NSUUID *)correlationId;
 
 /*! Generates an error object from an internally encountered error condition. Preserves the error
  code and domain of the original error and adds the custom details in the "errorDetails" property. */
-+ (ADAuthenticationError*)errorFromNSError:(NSError*)error
-                              errorDetails:(NSString*)errorDetails;
++ (ADAuthenticationError*)errorFromNSError:(NSError *)error
+                              errorDetails:(NSString *)errorDetails
+                             correlationId:(NSUUID *)correlationId;
 
 /*! Genearates an error from the code and details of an authentication error */
 + (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
-                                          protocolCode:(NSString*)protocolCode
-                                          errorDetails:(NSString*)errorDetails;
+                                          protocolCode:(NSString *)protocolCode
+                                          errorDetails:(NSString *)errorDetails
+                                         correlationId:(NSUUID *)correlationId;
 
 + (ADAuthenticationError*)errorQuietWithAuthenticationError:(NSInteger)code
                                                protocolCode:(NSString*)protocolCode
                                                errorDetails:(NSString*)errorDetails;
 
 /*! Generates an error when an unexpected internal library conditions occurs. */
-+ (ADAuthenticationError*)unexpectedInternalError:(NSString*)errorDetails;
++ (ADAuthenticationError*)unexpectedInternalError:(NSString *)errorDetails
+                                    correlationId:(NSUUID *)correlationId;
 
-+ (ADAuthenticationError*)invalidArgumentError:(NSString*)details;
++ (ADAuthenticationError*)invalidArgumentError:(NSString *)details
+                                 correlationId:(NSUUID *)correlationId;
 
 /*! Generates an error from cancel operations. E.g. the user pressed "Cancel" button
  on the authorization UI page. */
-+ (ADAuthenticationError*)errorFromCancellation;
++ (ADAuthenticationError*)errorFromCancellation:(NSUUID *)correlationId;
 
 @end

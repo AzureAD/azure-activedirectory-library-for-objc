@@ -187,7 +187,7 @@ const int sAsyncContextTimeout = 10;
     
     // Add a token item to return in the cache
     ADTokenCacheItem* item = [self adCreateCacheItem];
-    [[context tokenCacheStore] addOrUpdateItem:item error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
     
     [context acquireTokenForAssertion:@"some assertion"
@@ -268,7 +268,7 @@ const int sAsyncContextTimeout = 10;
     
     // Add a token item to return in the cache
     ADTokenCacheItem* item = [self adCreateCacheItem:@"eric@contoso.com"];
-    [[context tokenCacheStore] addOrUpdateItem:item error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:item correlationId:nil error:&error];
     
     // Because there's only one user in the cache calling acquire token with nil userId should
     // return this one item.
@@ -295,8 +295,8 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
     // Add a token item to return in the cache
-    [[context tokenCacheStore] addOrUpdateItem:[self adCreateCacheItem:@"eric@contoso.com"] error:&error];
-    [[context tokenCacheStore] addOrUpdateItem:[self adCreateCacheItem:@"stan@contoso.com"] error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:[self adCreateCacheItem:@"eric@contoso.com"] correlationId:nil error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:[self adCreateCacheItem:@"stan@contoso.com"] correlationId:nil error:&error];
     
     // Because there's only one user in the cache calling acquire token with nil userId should
     // return this one item.
@@ -325,7 +325,7 @@ const int sAsyncContextTimeout = 10;
     
     // Add a token item to return in the cache
     ADTokenCacheItem* item = [self adCreateCacheItem:nil];
-    [[context tokenCacheStore] addOrUpdateItem:item error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:item correlationId:nil error:&error];
     
     // Because there's only one user in the cache calling acquire token should return that
     // item, even though there is no userId info in the item and we specified a user id.
@@ -379,7 +379,7 @@ const int sAsyncContextTimeout = 10;
     
     // Add a token item to return in the cache
     ADTokenCacheItem* item = [self adCreateCacheItem];
-    [[context tokenCacheStore] addOrUpdateItem:item error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:item correlationId:nil error:&error];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -407,7 +407,7 @@ const int sAsyncContextTimeout = 10;
     ADTokenCacheItem* item = [self adCreateCacheItem];
     item.expiresOn = [NSDate date];
     item.refreshToken = nil;
-    [[context tokenCacheStore] addOrUpdateItem:item error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
@@ -440,7 +440,7 @@ const int sAsyncContextTimeout = 10;
     // Add a expired access token with refresh token to the cache
     ADTokenCacheItem* item = [self adCreateCacheItem];
     item.expiresOn = [NSDate date];
-    [[context tokenCacheStore] addOrUpdateItem:item error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
     
     // Set the response to reject the refresh token
@@ -479,11 +479,11 @@ const int sAsyncContextTimeout = 10;
     // Add a expired access token with refresh token to the cache
     ADTokenCacheItem* item = [self adCreateATCacheItem];
     item.expiresOn = [NSDate date];
-    [[context tokenCacheStore] addOrUpdateItem:item error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
     
     // Add an MRRT to the cache as well
-    [[context tokenCacheStore] addOrUpdateItem:[self adCreateMRRTCacheItem] error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
     
     // Set the response to reject the refresh token
@@ -543,11 +543,11 @@ const int sAsyncContextTimeout = 10;
     // Add a expired access token with refresh token to the cache
     ADTokenCacheItem* item = [self adCreateATCacheItem];
     item.expiresOn = [NSDate date];
-    [[context tokenCacheStore] addOrUpdateItem:item error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
     
     // Add an MRRT to the cache as well
-    [[context tokenCacheStore] addOrUpdateItem:[self adCreateMRRTCacheItem] error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
     
     [ADTestURLConnection addResponse:[self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token"]];
@@ -608,12 +608,12 @@ const int sAsyncContextTimeout = 10;
     // Add a expired access token with refresh token to the cache
     ADTokenCacheItem* item = [self adCreateATCacheItem];
     item.expiresOn = [NSDate date];
-    [[context tokenCacheStore] addOrUpdateItem:item error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
     
     // Add an MRRT to the cache as well
     ADTokenCacheItem* mrrtItem = [self adCreateMRRTCacheItem];
-    [[context tokenCacheStore] addOrUpdateItem:mrrtItem error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:mrrtItem correlationId:nil error:&error];
     XCTAssertNil(error);
     
     // Set up the mock connection to simulate a no internet connection error
@@ -658,11 +658,11 @@ const int sAsyncContextTimeout = 10;
     ADTokenCacheItem* item = [self adCreateATCacheItem];
     item.expiresOn = [NSDate date];
     item.refreshToken = @"refresh token";
-    [[context tokenCacheStore] addOrUpdateItem:item error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:item correlationId:nil error:&error];
     XCTAssertNil(error);
     
     // Add an MRRT to the cache as well
-    [[context tokenCacheStore] addOrUpdateItem:[self adCreateMRRTCacheItem] error:&error];
+    [[context tokenCacheStore] addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
     
     ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/contoso.com/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING
@@ -705,7 +705,7 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
-    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:[self adCreateMRRTCacheItem] error:&error]);
+    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error]);
     XCTAssertNil(error);
     
     ADTestURLResponse* response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
@@ -747,7 +747,7 @@ const int sAsyncContextTimeout = 10;
     
     ADTokenCacheItem* familyMRRTItem = [self adCreateMRRTCacheItem];
     familyMRRTItem.familyId = @"YES";
-    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:familyMRRTItem error:&error]);
+    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:familyMRRTItem correlationId:nil error:&error]);
     XCTAssertNil(error);
     
     ADTestURLResponse* response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
@@ -792,7 +792,7 @@ const int sAsyncContextTimeout = 10;
     
     ADTokenCacheItem* familyMRRTItem = [self adCreateMRRTCacheItem];
     familyMRRTItem.familyId = @"YES";
-    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:familyMRRTItem error:&error]);
+    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:familyMRRTItem correlationId:nil error:&error]);
     XCTAssertNil(error);
     
     ADTestURLResponse* response = [self adResponseBadRefreshToken:TEST_REFRESH_TOKEN

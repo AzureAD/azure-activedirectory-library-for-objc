@@ -83,6 +83,7 @@
         //Cache should be used in this case:
         ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key
                                                               userId:_identifier
+                                                       correlationId:_correlationId
                                                                error:&error];
         if (!cacheItem && error)
         {
@@ -97,7 +98,7 @@
             return; //The tryRefreshingFromCacheItem has taken care of the token obtaining
         }
         
-        ADTokenCacheItem* familyItem = [_context findFamilyItemForUser:_identifier error:&error];
+        ADTokenCacheItem* familyItem = [_context findFamilyItemForUser:_identifier correlationId:_correlationId error:&error];
         if (familyItem)
         {
             [self attemptToUseCacheItem:familyItem completionBlock:completionBlock];
@@ -132,7 +133,7 @@
     
     if ([NSString adIsStringNilOrBlank:item.refreshToken])
     {
-        completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"Attempting to use an item without refresh token."]
+        completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"Attempting to use an item without refresh token." correlationId:_correlationId]
                                                   correlationId:_correlationId]);
         return;
     }
@@ -157,7 +158,7 @@
              if (broadKey)
              {
                  ADAuthenticationError* error;
-                 ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier error:&error];
+                 ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier correlationId:_correlationId error:&error];
                  if (!broadItem && error)
                  {
                      completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -200,7 +201,8 @@
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_INPUT_NEEDED
                                                protocolCode:nil
-                                               errorDetails:ADCredentialsNeeded];
+                                               errorDetails:ADCredentialsNeeded
+                                              correlationId:_correlationId];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
         completionBlock(result);
         return;
@@ -402,7 +404,7 @@
 - (void)requestTokenByCode:(NSString *)code
            completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    HANDLE_ARGUMENT(code);
+    HANDLE_ARGUMENT(code, _correlationId);
     [self ensureRequest];
     AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", _correlationId, @"Requesting token by authorization code for resource: %@", _resource);
     

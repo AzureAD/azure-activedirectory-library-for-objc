@@ -89,7 +89,7 @@ NSString* __adalVersion = [NSString stringWithFormat:@"ADAL API call [Version - 
 if (error) \
 { \
 *error = [ADAuthenticationError errorFromArgument:ARG \
-argumentName:@#ARG]; \
+argumentName:@#ARG correlationId:nil]; \
 }
 
 #define STRING_NIL_OR_EMPTY_CONDITION(ARG) [NSString adIsStringNilOrBlank:ARG]

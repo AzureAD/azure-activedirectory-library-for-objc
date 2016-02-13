@@ -87,15 +87,17 @@ static NSString* const sValidationServerError = @"The authority validation serve
     ADAuthenticationError* adError = nil;
     if (!fullUrl || ![fullUrl.scheme isEqualToString:@"https"])
     {
-        adError = [ADAuthenticationError errorFromArgument:authority argumentName:@"authority"];
+        adError = [ADAuthenticationError errorFromArgument:authority argumentName:@"authority" correlationId:correlationId];
     }
     else
     {
         NSArray* paths = fullUrl.pathComponents;
         if (paths.count < 2)
         {
-            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT protocolCode:nil errorDetails:
-                       [NSString stringWithFormat:@"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com. CorrelationId: %@", [correlationId UUIDString]]];
+            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
+                                                             protocolCode:nil
+                                                             errorDetails:@"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com."
+                                                            correlationId:correlationId];
         }
         else
         {
@@ -104,8 +106,8 @@ static NSString* const sValidationServerError = @"The authority validation serve
             {
                 adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
                                                                  protocolCode:nil
-                                                                 errorDetails:
-                           [NSString stringWithFormat:@"Authority validation is not supported for ADFS instances. Consider disabling the authority validation in the authentication context. CorrelationId: %@", [correlationId UUIDString]]];
+                                                                 errorDetails:@"Authority validation is not supported for ADFS instances. Consider disabling the authority validation in the authentication context."
+                                                                correlationId:correlationId];
             }
         }
     }
@@ -202,7 +204,7 @@ static NSString* const sValidationServerError = @"The authority validation serve
         NSString* logMessage = [NSString stringWithFormat:@"Server HTTP Status %ld", (long)webResponse.statusCode];
         NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", SAFE_ARC_AUTORELEASE([[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding])];
         AD_LOG_WARN(logMessage, correlationId, errorData);
-        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData];
+        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData correlationId:correlationId];
     }
 
     NSError   *jsonError  = nil;
@@ -215,7 +217,8 @@ static NSString* const sValidationServerError = @"The authority validation serve
         
         return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
                                                       protocolCode:nil
-                                                      errorDetails:details];
+                                                      errorDetails:details
+                                                     correlationId:correlationId];
     }
     
     if (![jsonObject isKindOfClass:[NSDictionary class]])
@@ -223,7 +226,8 @@ static NSString* const sValidationServerError = @"The authority validation serve
         NSString* errorMessage = [NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]];
         return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
                                                       protocolCode:nil
-                                                      errorDetails:errorMessage];
+                                                      errorDetails:errorMessage
+                                                     correlationId:correlationId];
     }
     
     // Load the response
@@ -236,9 +240,11 @@ static NSString* const sValidationServerError = @"The authority validation serve
         NSString* serverOAuth2Error = [response objectForKey:OAUTH2_ERROR];
         NSString* errorDetails = [response objectForKey:OAUTH2_ERROR_DESCRIPTION];
         // Error response from the server
+        errorDetails = errorDetails ? errorDetails : [NSString stringWithFormat:sValidationServerError, serverOAuth2Error];
         return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
                                                       protocolCode:serverOAuth2Error
-                                                      errorDetails:(errorDetails) ? errorDetails : [NSString stringWithFormat:sValidationServerError, serverOAuth2Error]];
+                                                      errorDetails:errorDetails
+                                                     correlationId:correlationId];
     }
     
     [self addValidAuthority:authorityHost];
@@ -283,7 +289,8 @@ static NSString* const sValidationServerError = @"The authority validation serve
         {
             AD_LOG_WARN(@"System error while making request.", correlationId, error.description);
             adError = [ADAuthenticationError errorFromNSError:error
-                                                 errorDetails:error.localizedDescription];
+                                                 errorDetails:error.localizedDescription
+                                                correlationId:correlationId];
         }
         else
         {

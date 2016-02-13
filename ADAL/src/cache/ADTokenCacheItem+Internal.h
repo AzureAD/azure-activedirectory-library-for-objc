@@ -45,4 +45,8 @@
 
 - (void)makeTombstone:(NSDictionary*)tombstoneEntries;
 
+- (void)logMessage:(NSString *)message
+             level:(ADAL_LOG_LEVEL)level
+     correlationId:(NSUUID*)correlationId;
+
 @end

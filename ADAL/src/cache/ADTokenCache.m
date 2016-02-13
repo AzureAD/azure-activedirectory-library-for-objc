@@ -39,14 +39,14 @@
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "ADTokenCacheKey.h"
-#import "ADTokenCacheItem.h"
+#import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheKey.h"
 
 #define CHECK_ERROR(_cond, _code, _details) { \
     if (!(_cond)) { \
-        ADAuthenticationError* _AD_ERROR = [ADAuthenticationError errorFromAuthenticationError:_code protocolCode:nil errorDetails:_details]; \
+        ADAuthenticationError* _AD_ERROR = [ADAuthenticationError errorFromAuthenticationError:_code protocolCode:nil errorDetails:_details correlationId:nil]; \
         if (error) { *error = _AD_ERROR; } \
         return NO; \
     } \
@@ -114,7 +114,8 @@
         ADAuthenticationError* adError =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BAD_CACHE_FORMAT
                                                protocolCode:nil
-                                               errorDetails:@"Failed to unarchive data blob from -deserialize!"];
+                                               errorDetails:@"Failed to unarchive data blob from -deserialize!"
+                                              correlationId:nil];
         
         if (error)
         {
@@ -326,7 +327,7 @@
  Returns nil in case of error. */
 - (NSArray<ADTokenCacheItem *> *)allItems:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSArray<ADTokenCacheItem *> * items = [self getItemsWithKey:nil userId:nil error:error];
+    NSArray<ADTokenCacheItem *> * items = [self getItemsWithKey:nil userId:nil correlationId:nil error:error];
     return [self filterOutTombstones:items];
 }
 
@@ -403,17 +404,20 @@
  and we have tokens from multiple users. If the cache item is not present,
  the error will not be set. */
 - (ADTokenCacheItem *)getItemWithKey:(ADTokenCacheKey *)key
-                                   userId:(NSString *)userId
-                                    error:(ADAuthenticationError * __autoreleasing *)error
+                              userId:(NSString *)userId
+                       correlationId:(NSUUID *)correlationId
+                               error:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSArray<ADTokenCacheItem *> * items = [self getItemsWithKey:key userId:userId error:error];
+    NSArray<ADTokenCacheItem *> * items = [self getItemsWithKey:key userId:userId correlationId:correlationId error:error];
     NSArray<ADTokenCacheItem *> * itemsExcludingTombstones = [self filterOutTombstones:items];
     
     if (!itemsExcludingTombstones || itemsExcludingTombstones.count == 0)
     {
-        if (items.count > 0)
+        for (ADTokenCacheItem* item in items)
         {
-            AD_LOG_WARN_F(@"Keychain token cache store", nil, @"Tombstone Found: %@" , items.firstObject.tombstone);
+            [item logMessage:@"Found"
+                       level:ADAL_LOG_LEVEL_WARN
+               correlationId:correlationId];
         }
         return nil;
     }
@@ -426,7 +430,8 @@
     ADAuthenticationError* adError =
     [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
                                            protocolCode:nil
-                                           errorDetails:@"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used."];
+                                           errorDetails:@"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used."
+                                          correlationId:correlationId];
     if (error)
     {
         *error = adError;
@@ -436,37 +441,29 @@
 
 }
 
-/*! Returns all of the items for a given key. Multiple items may present,
- if the same resource was accessed by more than one user. The returned
- array should contain only ADTokenCacheItem objects. Returns an empty array,
- if no items are found. Returns nil (and sets the error parameter) in case of error.*/
-- (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(ADTokenCacheKey*)key
-                                                error:(ADAuthenticationError* __autoreleasing*)error
-{
-    return [self getItemsWithKey:key userId:nil error:error];
-}
-
 /*! Extracts the key from the item and uses it to set the cache details. If another item with the
  same key exists, it will be overriden by the new one. 'getItemWithKey' method can be used to determine
  if an item already exists for the same key.
  @param error: in case of an error, if this parameter is not nil, it will be filled with
  the error details. */
 - (BOOL)addOrUpdateItem:(ADTokenCacheItem *)item
+          correlationId:(NSUUID *)correlationId
                   error:(ADAuthenticationError * __autoreleasing *)error
 {
     [_delegate willWriteCache:self];
-    BOOL result = [self addOrUpdateImpl:item error:error];
+    BOOL result = [self addOrUpdateImpl:item correlationId:correlationId error:error];
     [_delegate didWriteCache:self];
     
     return result;
 }
 
 - (BOOL)addOrUpdateImpl:(ADTokenCacheItem *)item
+          correlationId:(NSUUID *)correlationId
                   error:(ADAuthenticationError * __autoreleasing *)error
 {
     if (!item)
     {
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromArgument:item argumentName:@"item"];
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromArgument:item argumentName:@"item" correlationId:correlationId];
         if (error)
         {
             *error = adError;
@@ -527,9 +524,11 @@
 
 - (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheKey *)key
                                           userId:(nullable NSString *)userId
+                                   correlationId:(nullable NSUUID *)correlationId
                                            error:(ADAuthenticationError *__autoreleasing *)error
 {
     (void)error;
+    (void)correlationId;
     
     @synchronized(self)
     {
@@ -543,7 +542,7 @@
 
 - (NSArray<ADTokenCacheItem *> *)allTombstones:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSArray* items = [self getItemsWithKey:nil error:error];
+    NSArray* items = [self getItemsWithKey:nil userId:nil correlationId:nil error:error];
     NSMutableArray* tombstones = [NSMutableArray new];
     for (ADTokenCacheItem* item in items)
     {
