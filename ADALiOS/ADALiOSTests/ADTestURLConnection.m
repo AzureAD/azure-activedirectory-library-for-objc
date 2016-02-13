@@ -81,7 +81,7 @@
 
 + (ADTestURLResponse*)responseValidAuthority:(NSString *)authority
 {
-    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADA_NETWORKL_VERSION_STRING, authority];
+    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADA_NETWORK_VERSION_STRING, authority];
     ADTestURLResponse* response = [ADTestURLResponse requestURLString:authorityValidationURL
                                                     responseURLString:@"https://idontmatter.com"
                                                          responseCode:400
@@ -93,7 +93,7 @@
 
 + (ADTestURLResponse*)responseInvalidAuthority:(NSString *)authority
 {
-    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADA_NETWORKL_VERSION_STRING, authority];
+    NSString* authorityValidationURL = [NSString stringWithFormat:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADA_NETWORK_VERSION_STRING, authority];
     ADTestURLResponse* response = [ADTestURLResponse requestURLString:authorityValidationURL
                                                     responseURLString:@"https://idontmatter.com"
                                                          responseCode:400
@@ -351,7 +351,7 @@ static NSMutableArray* s_responses = nil;
         //
         // Example:
         //
-        // ADTestRequestResponse* response = [ADTestRequestResponse requestURLString:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=https://login.windows.net/omercantest.onmicrosoft.com/oauth2/authorize&x-client-Ver=" ADA_NETWORKL_VERSION_STRING
+        // ADTestRequestResponse* response = [ADTestRequestResponse requestURLString:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=https://login.windows.net/omercantest.onmicrosoft.com/oauth2/authorize&x-client-Ver=" ADA_NETWORK_VERSION_STRING
         //                                                         responseURLString:@"https://idontknowwhatthisshouldbe.com"
         //                                                              responseCode:400
         //                                                          httpHeaderFields:@{}
