@@ -34,8 +34,8 @@
 // Framework versions only support high and low for the double value, sadly.
 #define ADAL_VERSION_NUMBER 2.1
 
-#define ADAL_VERSION_STRING     STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH "-beta.1"
-#define ADAL_VERSION_NSSTRING   @"" STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH "-beta.1"
+#define ADAL_VERSION_STRING     STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH "-beta.2"
+#define ADAL_VERSION_NSSTRING   @"" STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH "-beta.2"
 
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
