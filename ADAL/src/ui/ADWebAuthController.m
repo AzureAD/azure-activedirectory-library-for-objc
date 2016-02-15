@@ -114,10 +114,15 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 - (void)dealloc
 {
     SAFE_ARC_RELEASE(_completionLock);
+    _completionLock = nil;
     SAFE_ARC_RELEASE(_endURL);
+    _endURL = nil;
     SAFE_ARC_RELEASE(_spinnerTimer);
+    _spinnerTimer = nil;
     SAFE_ARC_RELEASE(_loadingTimer);
+    _loadingTimer = nil;
     SAFE_ARC_RELEASE(_completionBlock);
+    _completionBlock = nil;
     
     SAFE_ARC_SUPER_DEALLOC();
 }
@@ -221,6 +226,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)failWithTimeout
 {
+    
     _loadingTimer = nil;
     [_authenticationViewController stop:^{
         NSError* error = [NSError errorWithDomain:NSURLErrorDomain
@@ -243,6 +249,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
                                                        selector:@selector(onStartActivityIndicator:)
                                                        userInfo:nil
                                                         repeats:NO];
+        [_spinnerTimer setTolerance:0.3];
     }
     
     if (_loadingTimer)
@@ -256,6 +263,10 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
                                                    selector:@selector(failWithTimeout)
                                                    userInfo:nil
                                                     repeats:NO];
+    // Tolerance is how much "float" the system is allowed to use to try to group the timer with other events
+    // on the system.
+    [_loadingTimer setTolerance:4.0];
+    SAFE_ARC_RETAIN(_loadingTimer);
     
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidStartLoadNotification object:self userInfo:url ? @{ @"url" : url } : nil];
 }
