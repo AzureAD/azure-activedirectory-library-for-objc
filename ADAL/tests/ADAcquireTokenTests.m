@@ -255,7 +255,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result.tokenCacheItem);
          XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, broadRefreshToken);
          XCTAssertEqualObjects(result.accessToken, anotherAccessToken);
-         XCTAssertEqualObjects(result.correlationId, correlationId.UUIDString);
+         XCTAssertEqualObjects(result.correlationId, correlationId);
          
          TEST_SIGNAL;
      }];
@@ -566,6 +566,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
          XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertTrue([result.correlationId isKindOfClass:[NSUUID class]]);
          XCTAssertEqualObjects(result.accessToken, @"new access token");
          
          TEST_SIGNAL;
