@@ -23,16 +23,17 @@
 
 /*! This mock ADAuthenticationViewController has the same set of public properties and functions.*/
 @interface ADTestAuthenticationViewController : NSObject
-
-// same set of public properties and functions as ADAuthenticationViewController
-@property (weak, nonatomic) id<ADWebAuthDelegate>     delegate;
+{
+    id<ADWebAuthDelegate> _delegate;
 #if TARGET_OS_IPHONE
-@property (weak, nonatomic) UIWebView * webView;
-@property (weak, nonatomic) UIViewController * parentController;
-@property BOOL fullScreen;
+    UIWebView * _webView;
+    UIViewController * _parentController;
+    BOOL _fullScreen;
 #else
-@property (weak, nonatomic) WebView * webView;
+    WebView * _webView;
 #endif
+}
+
 - (BOOL)loadView:(ADAuthenticationError * __autoreleasing *)error;
 - (void)startRequest:(NSURLRequest *)request;
 - (void)loadRequest:(NSURLRequest *)request;

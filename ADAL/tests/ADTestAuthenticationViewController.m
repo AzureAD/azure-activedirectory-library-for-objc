@@ -153,6 +153,35 @@ static NSMutableArray<WebAuthDelegateCall*> * s_delegateCalls = nil;
     }
 }
 
+- (void)setDelegate: (id<ADWebAuthDelegate>) delegate
+{
+    // delegate supposed to be a weak pointer
+    _delegate = delegate;
+}
+
+#if TARGET_OS_IPHONE
+- (void)setWebView: (UIWebView *) webView
+{
+    (void) webView;
+    return;
+}
+
+- (void)setParentController:(UIViewController *) parentController
+{
+    (void) parentController;
+}
+
+- (void)setFullScreen: (BOOL) fullScreen
+{
+    (void) fullScreen;
+}
+#else
+- (void)setWebView: (WebView *) webView
+{
+    (void) webView;
+}
+#endif
+
 + (void)initialize
 {
     s_delegateCalls = [NSMutableArray<WebAuthDelegateCall*> new];
