@@ -98,7 +98,7 @@
         BOOL isMrrt = [self fillItemWithResponse:response];
         return [ADAuthenticationResult resultFromTokenCacheItem:self
                                            multiResourceRefreshToken:isMrrt
-                                                       correlationId:[response objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
+                                                       correlationId:requestCorrelationId];
     }
     else
     {
