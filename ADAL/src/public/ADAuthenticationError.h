@@ -81,6 +81,6 @@ extern NSString* const ADBrokerResponseErrorDomain;
 + (ADAuthenticationError*)errorFromCancellation:(NSUUID *)correlationId;
 
 /*! Generates an error for the case that server redirects authentication process to a non-secure http url */
-+ (ADAuthenticationError*)errorFromNonsecureHttpRedirect;
++ (ADAuthenticationError*)errorFromNonsecureHttpRedirect:(NSUUID *)correlationId;
 
 @end

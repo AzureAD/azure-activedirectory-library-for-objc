@@ -231,11 +231,12 @@ NSString* const ADNonsecureHttpRedirectError = @"The server has redirected to a 
                                                  correlationId:correlationId];
 }
 
-+ (ADAuthenticationError*)errorFromNonsecureHttpRedirect
++ (ADAuthenticationError*)errorFromNonsecureHttpRedirect:(NSUUID *)correlationId
 {
     return [ADAuthenticationError errorFromAuthenticationError:AD_NON_SECURE_HTTP_REDIRECT
                                                   protocolCode:nil
-                                                  errorDetails:ADNonsecureHttpRedirectError];
+                                                  errorDetails:ADNonsecureHttpRedirectError
+                                                 correlationId:correlationId];
 }
 
 

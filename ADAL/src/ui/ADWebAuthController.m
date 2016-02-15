@@ -295,7 +295,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     {
         AD_LOG_ERROR(@"Server is redirecting to a non-https url", AD_NON_SECURE_HTTP_REDIRECT, nil, nil);
         _complete = YES;
-        ADAuthenticationError* error = [ADAuthenticationError errorFromNonsecureHttpRedirect];
+        ADAuthenticationError* error = [ADAuthenticationError errorFromNonsecureHttpRedirect:_correlationId];
         dispatch_async( dispatch_get_main_queue(), ^{[self endWebAuthenticationWithError:error orURL:nil];} );
 
         return NO;
