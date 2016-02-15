@@ -1163,11 +1163,7 @@ const int sAsyncContextTimeout = 10;
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     [self addCacheWithToken:@"cacheToken" refreshToken:nil];
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> master
     __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     ADAuthenticationCallback innerCallback = ^(ADAuthenticationResult* result)
     {
@@ -1176,10 +1172,7 @@ const int sAsyncContextTimeout = 10;
         mError = mResult.error;
         dispatch_semaphore_signal(sem);
     };
-<<<<<<< HEAD
-=======
-    
->>>>>>> master
+
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
          [mContext acquireTokenWithResource:mResource
@@ -1200,11 +1193,7 @@ const int sAsyncContextTimeout = 10;
      }];
     [self validateAsynchronousResultWithLine:__LINE__];
     ADAssertLongEquals(AD_SUCCEEDED, mResult.status);
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> master
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
      {
          [mContext acquireTokenWithResource:mResource
