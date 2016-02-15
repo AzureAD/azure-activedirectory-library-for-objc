@@ -27,6 +27,7 @@ NSString* const ADBrokerResponseErrorDomain = @"ADBrokerResponseErrorDomain";
 NSString* const ADInvalidArgumentMessage = @"The argument '%@' is invalid. Value:%@";
 
 NSString* const ADCancelError = @"The user has cancelled the authorization.";
+NSString* const ADNonsecureHttpRedirectError = @"The server has redirected to a non-secure http url.";
 
 @implementation ADAuthenticationError
 
@@ -202,6 +203,13 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
     return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_CANCEL
                                                   protocolCode:nil
                                                   errorDetails:ADCancelError];
+}
+
++ (ADAuthenticationError*)errorFromNonsecureHttpRedirect
+{
+    return [ADAuthenticationError errorFromAuthenticationError:AD_NON_SECURE_HTTP_REDIRECT
+                                                  protocolCode:nil
+                                                  errorDetails:ADNonsecureHttpRedirectError];
 }
 
 

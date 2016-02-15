@@ -285,6 +285,17 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         return NO;
     }
     
+    // redirecting to non-https url is not allowed
+    if ([requestURL hasPrefix: @"http"] && ![requestURL hasPrefix: @"https"])
+    {
+        AD_LOG_ERROR(@"Server is redirecting to a non-https url", AD_NON_SECURE_HTTP_REDIRECT, nil, nil);
+        _complete = YES;
+        ADAuthenticationError* error = [ADAuthenticationError errorFromNonsecureHttpRedirect];
+        dispatch_async( dispatch_get_main_queue(), ^{[self endWebAuthenticationWithError:error orURL:nil];} );
+
+        return NO;
+    }
+    
     // check for pkeyauth challenge.
     if ([requestURL hasPrefix: pKeyAuthUrn])
     {
