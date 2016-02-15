@@ -1,3 +1,7 @@
+Version 1.2.5
+_____________
+* Fix for a crash in ADClientMetrics when using ADAL directly against ADFS
+
 Version 1.2.4
 -------------
 * Support NTLM for developers who provide custom webview.
