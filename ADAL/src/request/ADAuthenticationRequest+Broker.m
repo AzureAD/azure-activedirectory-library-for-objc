@@ -1,20 +1,25 @@
-// Copyright © Microsoft Open Technologies, Inc.
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-// All Rights Reserved
+// This code is licensed under the MIT License.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-//
-// See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import "NSDictionary+ADExtensions.h"
 #import "NSString+ADHelperMethods.h"
@@ -62,7 +67,7 @@
 + (void)internalHandleBrokerResponse:(NSURL *)response
 {
     ADAuthenticationCallback completionBlock = [ADBrokerHelper copyAndClearCompletionBlock];
-    HANDLE_ARGUMENT(response);
+    HANDLE_ARGUMENT(response, nil);
     
     NSString *qp = [response query];
     //expect to either response or error and description, AND correlation_id AND hash.
@@ -77,7 +82,7 @@
         // Encrypting the broker response should not be a requirement on Mac as there shouldn't be a possibility of the response
         // accidentally going to the wrong app
 #if TARGET_OS_IPHONE
-        HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
+        HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY], nil);
         
         NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
         NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
@@ -115,11 +120,14 @@
             }
             else
             {
-                result = [ADAuthenticationResult resultFromError:[ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADAuthenticationErrorDomain
-                                                                                                                             code:AD_ERROR_BROKER_RESPONSE_HASH_MISMATCH
-                                                                                                                         userInfo:nil]
-                                                                                            errorDetails:@"Decrypted response does not match the hash"]
-                                                    correlationId:correlationId];
+                NSError* nsErr = [NSError errorWithDomain:ADAuthenticationErrorDomain
+                                                     code:AD_ERROR_BROKER_RESPONSE_HASH_MISMATCH
+                                                 userInfo:nil];
+                ADAuthenticationError* adErr = [ADAuthenticationError errorFromNSError:nsErr
+                                                                          errorDetails:@"Decrypted response does not match the hash"
+                                                                         correlationId:correlationId];
+
+                result = [ADAuthenticationResult resultFromError:adErr];
             }
         }
         else
@@ -183,7 +191,8 @@
     {
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
                                                        protocolCode:nil
-                                                       errorDetails:ADRedirectUriInvalidError];
+                                                       errorDetails:ADRedirectUriInvalidError
+                                                      correlationId:_correlationId];
         completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
         return;
     }
@@ -230,7 +239,8 @@
     {
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
                                                        protocolCode:nil
-                                                       errorDetails:ADRedirectUriInvalidError];
+                                                       errorDetails:ADRedirectUriInvalidError
+                                                      correlationId:_correlationId];
         completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
         return;
     }

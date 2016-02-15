@@ -1,20 +1,26 @@
-// Copyright © Microsoft Open Technologies, Inc.
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-// All Rights Reserved
+// This code is licensed under the MIT License.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-//
-// See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
 #import "ADAL_Internal.h"
 #import "ADInstanceDiscovery.h"
 #import "ADAuthenticationError.h"
@@ -87,15 +93,17 @@ static NSString* const sValidationServerError = @"The authority validation serve
     ADAuthenticationError* adError = nil;
     if (!fullUrl || ![fullUrl.scheme isEqualToString:@"https"])
     {
-        adError = [ADAuthenticationError errorFromArgument:authority argumentName:@"authority"];
+        adError = [ADAuthenticationError errorFromArgument:authority argumentName:@"authority" correlationId:correlationId];
     }
     else
     {
         NSArray* paths = fullUrl.pathComponents;
         if (paths.count < 2)
         {
-            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT protocolCode:nil errorDetails:
-                       [NSString stringWithFormat:@"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com. CorrelationId: %@", [correlationId UUIDString]]];
+            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
+                                                             protocolCode:nil
+                                                             errorDetails:@"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com."
+                                                            correlationId:correlationId];
         }
         else
         {
@@ -104,8 +112,8 @@ static NSString* const sValidationServerError = @"The authority validation serve
             {
                 adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
                                                                  protocolCode:nil
-                                                                 errorDetails:
-                           [NSString stringWithFormat:@"Authority validation is not supported for ADFS instances. Consider disabling the authority validation in the authentication context. CorrelationId: %@", [correlationId UUIDString]]];
+                                                                 errorDetails:@"Authority validation is not supported for ADFS instances. Consider disabling the authority validation in the authentication context."
+                                                                correlationId:correlationId];
             }
         }
     }
@@ -202,7 +210,7 @@ static NSString* const sValidationServerError = @"The authority validation serve
         NSString* logMessage = [NSString stringWithFormat:@"Server HTTP Status %ld", (long)webResponse.statusCode];
         NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", SAFE_ARC_AUTORELEASE([[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding])];
         AD_LOG_WARN(logMessage, correlationId, errorData);
-        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData];
+        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData correlationId:correlationId];
     }
 
     NSError   *jsonError  = nil;
@@ -215,7 +223,8 @@ static NSString* const sValidationServerError = @"The authority validation serve
         
         return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
                                                       protocolCode:nil
-                                                      errorDetails:details];
+                                                      errorDetails:details
+                                                     correlationId:correlationId];
     }
     
     if (![jsonObject isKindOfClass:[NSDictionary class]])
@@ -223,7 +232,8 @@ static NSString* const sValidationServerError = @"The authority validation serve
         NSString* errorMessage = [NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]];
         return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
                                                       protocolCode:nil
-                                                      errorDetails:errorMessage];
+                                                      errorDetails:errorMessage
+                                                     correlationId:correlationId];
     }
     
     // Load the response
@@ -236,9 +246,11 @@ static NSString* const sValidationServerError = @"The authority validation serve
         NSString* serverOAuth2Error = [response objectForKey:OAUTH2_ERROR];
         NSString* errorDetails = [response objectForKey:OAUTH2_ERROR_DESCRIPTION];
         // Error response from the server
+        errorDetails = errorDetails ? errorDetails : [NSString stringWithFormat:sValidationServerError, serverOAuth2Error];
         return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
                                                       protocolCode:serverOAuth2Error
-                                                      errorDetails:(errorDetails) ? errorDetails : [NSString stringWithFormat:sValidationServerError, serverOAuth2Error]];
+                                                      errorDetails:errorDetails
+                                                     correlationId:correlationId];
     }
     
     [self addValidAuthority:authorityHost];
@@ -283,7 +295,8 @@ static NSString* const sValidationServerError = @"The authority validation serve
         {
             AD_LOG_WARN(@"System error while making request.", correlationId, error.description);
             adError = [ADAuthenticationError errorFromNSError:error
-                                                 errorDetails:error.localizedDescription];
+                                                 errorDetails:error.localizedDescription
+                                                correlationId:correlationId];
         }
         else
         {

@@ -1,6 +1,11 @@
 #!/bin/sh
 
-xcodebuild test -project ADALiOS/ADALiOS.xcodeproj -scheme ADALiOS -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty -c
-xcodebuild -workspace ADALiOS.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty -c
+find . -name "*.gcda" -print0 | xargs -0 rm
 
-slather coverage -s ADALiOS/ADALiOS.xcodeproj
+./build/iOS_Static_Lib
+./build/iOS_Test_App
+./build/Mac_Framework
+./build/Mac_Test_App
+./build/Mac_32_bit
+
+# slather coverage -s ADAL/ADAL.xcodeproj

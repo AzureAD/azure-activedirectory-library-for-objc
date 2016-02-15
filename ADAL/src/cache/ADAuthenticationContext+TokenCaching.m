@@ -1,20 +1,25 @@
-// Copyright © Microsoft Open Technologies, Inc.
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-// All Rights Reserved
+// This code is licensed under the MIT License.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-//
-// See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import "ADAuthenticationContext+Internal.h"
 #import "ADOAuth2Constants.h"
@@ -28,8 +33,9 @@
 
 //Gets an item from the cache, where userId may be nil. Raises error, if items for multiple users
 //are present and user id is not specified.
-- (ADTokenCacheItem*)extractCacheItemWithKey:(ADTokenCacheKey*)key
-                                      userId:(ADUserIdentifier*)userId
+- (ADTokenCacheItem*)extractCacheItemWithKey:(ADTokenCacheKey *)key
+                                      userId:(ADUserIdentifier *)userId
+                               correlationId:(NSUUID *)correlationId
                                        error:(ADAuthenticationError* __autoreleasing*)error
 {
     if (!key || !self.tokenCacheStore)
@@ -38,12 +44,12 @@
     }
     
     ADAuthenticationError* localError = nil;
-    ADTokenCacheItem* item = [self.tokenCacheStore getItemWithKey:key userId:userId.userId error:&localError];
+    ADTokenCacheItem* item = [self.tokenCacheStore getItemWithKey:key userId:userId.userId correlationId:correlationId error:&localError];
     if (!item && !localError && userId)
     {
         //ADFS fix, where the userId is not received by the server, but can be passed to the API:
         //We didn't find element with the userId, try finding an item with a blank userId:
-        item = [self.tokenCacheStore getItemWithKey:key userId:@"" error:&localError];
+        item = [self.tokenCacheStore getItemWithKey:key userId:@"" correlationId:correlationId error:&localError];
     }
     if (error && localError)
     {
@@ -56,6 +62,7 @@
 //Checks the multi-resource refresh tokens too.
 - (ADTokenCacheItem *)findCacheItemWithKey:(ADTokenCacheKey *) key
                                     userId:(ADUserIdentifier *)userId
+                             correlationId:(NSUUID *)correlationId
                                      error:(ADAuthenticationError * __autoreleasing *)error
 {
     if (error)
@@ -68,7 +75,10 @@
         return nil;//Nothing to return
     }
     ADAuthenticationError* localError = nil;
-    ADTokenCacheItem* item = [self extractCacheItemWithKey:key userId:userId error:&localError];
+    ADTokenCacheItem* item = [self extractCacheItemWithKey:key
+                                                    userId:userId
+                                             correlationId:correlationId
+                                                     error:&localError];
     if (localError)
     {
         if (error)
@@ -101,10 +111,13 @@
                                                                           error:&localError];
         if (!broadKey)
         {
-            AD_LOG_WARN(@"Unexpected error", [self correlationId], localError.errorDetails);
+            AD_LOG_WARN(@"Unexpected error", correlationId, localError.errorDetails);
             return nil;//Recover
         }
-        ADTokenCacheItem* broadItem = [self extractCacheItemWithKey:broadKey userId:userId error:&localError];
+        ADTokenCacheItem* broadItem = [self extractCacheItemWithKey:broadKey
+                                                             userId:userId
+                                                      correlationId:correlationId
+                                                              error:&localError];
         if (localError)
         {
             if (error)
@@ -119,6 +132,7 @@
 }
 
 - (ADTokenCacheItem *)findFamilyItemForUser:(ADUserIdentifier *)userIdentifier
+                              correlationId:(NSUUID *)correlationId
                                       error:(ADAuthenticationError * __autoreleasing *)error
 {
     if (!userIdentifier)
@@ -133,6 +147,7 @@
     
     NSArray* items = [[self tokenCacheStore] getItemsWithKey:nil
                                                       userId:userIdentifier.userId
+                                               correlationId:correlationId
                                                        error:error];
     if (!items || items.count == 0)
     {
@@ -208,12 +223,12 @@
             multiRefreshTokenItem.accessToken = nil;
             multiRefreshTokenItem.resource = nil;
             multiRefreshTokenItem.expiresOn = nil;
-            [tokenCacheStoreInstance addOrUpdateItem:multiRefreshTokenItem error:nil];
+            [tokenCacheStoreInstance addOrUpdateItem:multiRefreshTokenItem correlationId:requestCorrelationId error:nil];
             SAFE_ARC_RELEASE(multiRefreshTokenItem);
         }
         
         AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Storing access token for resource: %@", cacheItem.resource);
-        [tokenCacheStoreInstance addOrUpdateItem:cacheItem error:nil];
+        [tokenCacheStoreInstance addOrUpdateItem:cacheItem correlationId:requestCorrelationId error:nil];
         cacheItem.refreshToken = savedRefreshToken;//Restore for the result
     }
     else
@@ -232,7 +247,7 @@
             ADTokenCacheKey* exactKey = [cacheItem extractKey:nil];
             if (exactKey)
             {
-                ADTokenCacheItem* existing = [tokenCacheStoreInstance getItemWithKey:exactKey userId:cacheItem.userInformation.userId error:nil];
+                ADTokenCacheItem* existing = [tokenCacheStoreInstance getItemWithKey:exactKey userId:cacheItem.userInformation.userId correlationId:requestCorrelationId error:nil];
                 if ([refreshToken isEqualToString:existing.refreshToken])//If still there, attempt to remove
                 {
                     AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Tombstoning cache for resource: %@", cacheItem.resource);
@@ -240,7 +255,7 @@
                     [existing makeTombstone:@{ @"correlationId" : [requestCorrelationId UUIDString],
                                                @"errorDetails" : [result.error errorDetails],
                                                @"protocolCode" : [result.error protocolCode] }];
-                    [tokenCacheStoreInstance addOrUpdateItem:existing error:nil];
+                    [tokenCacheStoreInstance addOrUpdateItem:existing correlationId:requestCorrelationId error:nil];
                     removed = YES;
                 }
             }
@@ -251,7 +266,7 @@
                 ADTokenCacheKey* broadKey = [ADTokenCacheKey keyWithAuthority:self.authority resource:nil clientId:cacheItem.clientId error:nil];
                 if (broadKey)
                 {
-                    ADTokenCacheItem* broadItem = [tokenCacheStoreInstance getItemWithKey:broadKey userId:cacheItem.userInformation.userId error:nil];
+                    ADTokenCacheItem* broadItem = [tokenCacheStoreInstance getItemWithKey:broadKey userId:cacheItem.userInformation.userId correlationId:requestCorrelationId error:nil];
                     if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
                     {
                         AD_LOG_VERBOSE_F(@"Token cache store", requestCorrelationId, @"Tombstoning multi-resource refresh token for authority: %@", self.authority);
@@ -259,7 +274,7 @@
                         [broadItem makeTombstone:@{ @"correlationId" : [requestCorrelationId UUIDString],
                                                     @"errorDetails" : [result.error errorDetails],
                                                     @"protocolCode" : [result.error protocolCode] }];
-                        [tokenCacheStoreInstance addOrUpdateItem:broadItem error:nil];
+                        [tokenCacheStoreInstance addOrUpdateItem:broadItem correlationId:requestCorrelationId error:nil];
                     }
                 }
             }

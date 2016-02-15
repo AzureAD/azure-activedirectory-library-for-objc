@@ -1,20 +1,26 @@
-// Copyright © Microsoft Open Technologies, Inc.
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-// All Rights Reserved
+// This code is licensed under the MIT License.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-//
-// See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
 #import <Foundation/Foundation.h>
 
 extern NSString* const ADAuthenticationErrorDomain;
@@ -39,34 +45,40 @@ extern NSString* const ADBrokerResponseErrorDomain;
 
 /*! Generates an error for invalid method argument. */
 + (ADAuthenticationError*)errorFromArgument:(id)argument
-                               argumentName:(NSString*)argumentName;
+                               argumentName:(NSString *)argumentName
+                              correlationId:(NSUUID *)correlationId;
 
 /*! Generates an error related to the 401 Bearer challenge handling */
 + (ADAuthenticationError*)errorFromUnauthorizedResponse:(NSInteger)responseCode
-                                           errorDetails:(NSString*)errorDetails;
+                                           errorDetails:(NSString *)errorDetails
+                                          correlationId:(NSUUID *)correlationId;
 
 /*! Generates an error object from an internally encountered error condition. Preserves the error
  code and domain of the original error and adds the custom details in the "errorDetails" property. */
-+ (ADAuthenticationError*)errorFromNSError:(NSError*)error
-                              errorDetails:(NSString*)errorDetails;
++ (ADAuthenticationError*)errorFromNSError:(NSError *)error
+                              errorDetails:(NSString *)errorDetails
+                             correlationId:(NSUUID *)correlationId;
 
 /*! Genearates an error from the code and details of an authentication error */
 + (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
-                                          protocolCode:(NSString*)protocolCode
-                                          errorDetails:(NSString*)errorDetails;
+                                          protocolCode:(NSString *)protocolCode
+                                          errorDetails:(NSString *)errorDetails
+                                         correlationId:(NSUUID *)correlationId;
 
 + (ADAuthenticationError*)errorQuietWithAuthenticationError:(NSInteger)code
                                                protocolCode:(NSString*)protocolCode
                                                errorDetails:(NSString*)errorDetails;
 
 /*! Generates an error when an unexpected internal library conditions occurs. */
-+ (ADAuthenticationError*)unexpectedInternalError:(NSString*)errorDetails;
++ (ADAuthenticationError*)unexpectedInternalError:(NSString *)errorDetails
+                                    correlationId:(NSUUID *)correlationId;
 
-+ (ADAuthenticationError*)invalidArgumentError:(NSString*)details;
++ (ADAuthenticationError*)invalidArgumentError:(NSString *)details
+                                 correlationId:(NSUUID *)correlationId;
 
 /*! Generates an error from cancel operations. E.g. the user pressed "Cancel" button
  on the authorization UI page. */
-+ (ADAuthenticationError*)errorFromCancellation;
++ (ADAuthenticationError*)errorFromCancellation:(NSUUID *)correlationId;
 
 /*! Generates an error for the case that server redirects authentication process to a non-secure http url */
 + (ADAuthenticationError*)errorFromNonsecureHttpRedirect;

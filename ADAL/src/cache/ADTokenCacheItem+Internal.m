@@ -1,20 +1,25 @@
-// Copyright © Microsoft Open Technologies, Inc.
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-// All Rights Reserved
+// This code is licensed under the MIT License.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-//
-// See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import "ADAL_Internal.h"
 #import "ADTokenCacheItem+Internal.h"
@@ -74,7 +79,8 @@
     {
         ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
                                                                               protocolCode:@"adal cachce"
-                                                                              errorDetails:@"processTokenResponse called without a response dictionary"];
+                                                                              errorDetails:@"processTokenResponse called without a response dictionary"
+                                                                             correlationId:requestCorrelationId];
         return [ADAuthenticationResult resultFromError:error];
     }
     
@@ -98,7 +104,7 @@
     {
         // Bad item, the field we're looking for is missing.
         NSString* details = [NSString stringWithFormat:@"Authentication response received without expected \"%@\"", fieldToCheck];
-        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:details];
+        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:details correlationId:requestCorrelationId];
         return [ADAuthenticationResult resultFromError:error];
     }
 }
@@ -153,22 +159,13 @@
 - (void)logWithCorrelationId:(NSString*)correlationId
                         mrrt:(BOOL)isMRRT
 {
-    NSUUID* correlationUUID = [[NSUUID alloc] initWithUUIDString:correlationId];
-    if (self.accessToken)
-    {
-        [ADLogger logToken:self.accessToken
-                 tokenType:self.accessTokenType
-                 expiresOn:self.expiresOn
-             correlationId:correlationUUID];
-    }
+    (void)isMRRT;
     
-    if (self.refreshToken)
-    {
-        [ADLogger logToken:self.refreshToken
-                 tokenType:isMRRT ? @"multi-resource refresh token" : @"refresh token"
-                 expiresOn:nil
-             correlationId:correlationUUID];
-    }
+    NSUUID* correlationUUID = [[NSUUID alloc] initWithUUIDString:correlationId];
+    
+    [self logMessage:nil
+               level:ADAL_LOG_LEVEL_VERBOSE
+       correlationId:correlationUUID];
     
     SAFE_ARC_RELEASE(correlationUUID);
 }
@@ -223,6 +220,60 @@
     _refreshToken = @"<tombstone>";
     _tombstone = tombstoneDictionary;
 
+}
+
+- (void)logMessage:(NSString*)message level:(ADAL_LOG_LEVEL)level correlationId:(NSUUID*)correlationId
+{
+    if (_tombstone)
+    {
+        NSString* tombstoneMessage = nil;
+        if (message)
+        {
+            tombstoneMessage = [NSString stringWithFormat:@"%@ tombstone : %@", message, _tombstone];
+        }
+        else
+        {
+            tombstoneMessage = [NSString stringWithFormat:@"Tombstone : %@", _tombstone];
+        }
+        
+        [ADLogger log:level
+              message:tombstoneMessage
+            errorCode:0
+        correlationId:correlationId
+               format:@"{\n\tresource: %@\n\tclientId: %@\n\tauthority:%@\n}", _resource, _clientId, _authority];
+        return;
+    }
+    
+    NSString* tokenMessage = nil;
+    
+    if (_accessToken && _refreshToken)
+    {
+        tokenMessage = [NSString stringWithFormat:@"AT (%@) + RT (%@) Expires: %@", [ADLogger getHash:_accessToken], [ADLogger getHash:_refreshToken], _expiresOn];
+    }
+    else if (_accessToken)
+    {
+        tokenMessage = [NSString stringWithFormat:@"AT (%@) Expires: %@", [ADLogger getHash:_accessToken], _expiresOn];
+    }
+    else if (_refreshToken)
+    {
+        tokenMessage = [NSString stringWithFormat:@"RT (%@)", [ADLogger getHash:_refreshToken]];
+    }
+    else
+    {
+        tokenMessage = @"token";
+    }
+    
+    if (message)
+    {
+        tokenMessage = [NSString stringWithFormat:@"%@ %@", message, tokenMessage];
+    }
+    
+    [ADLogger log:level
+          message:tokenMessage
+        errorCode:0
+    correlationId:correlationId
+           format:@"{\n\tresource = %@\n\tclientId = %@\n\tauthority = %@\n\tuserId = %@\n}",
+     _resource, _clientId, _authority, _userInformation.userId];
 }
 
 

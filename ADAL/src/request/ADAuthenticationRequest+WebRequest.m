@@ -1,20 +1,25 @@
-// Copyright © Microsoft Open Technologies, Inc.
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-// All Rights Reserved
+// This code is licensed under the MIT License.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-//
-// See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import "ADAuthenticationContext+Internal.h"
 #import "ADWebRequest.h"
@@ -170,9 +175,12 @@ static ADAuthenticationRequest* s_modalRequest = nil;
             NSDictionary* headers = webResponse.headers;
             //In most cases the correlation id is returned as a separate header
             NSString* responseCorrelationId = [headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE];
+            NSUUID* responseCorrelationUUID = _correlationId;
             if (![NSString adIsStringNilOrBlank:responseCorrelationId])
             {
                 [response setObject:responseCorrelationId forKey:OAUTH2_CORRELATION_ID_RESPONSE];//Add it to the dictionary to be logged and checked later.
+                responseCorrelationUUID = [[NSUUID alloc] initWithUUIDString:responseCorrelationId];
+                SAFE_ARC_AUTORELEASE(responseCorrelationUUID);
             }
             
             [response setObject:webResponse.URL forKey:@"url"];
@@ -191,9 +199,11 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                 case 400:
                 case 401:
                 {
-                    if(!isHandlingPKeyAuthChallenge){
+                    if(!isHandlingPKeyAuthChallenge)
+                    {
                         NSString* wwwAuthValue = [headers valueForKey:wwwAuthenticateHeader];
-                        if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName]){
+                        if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName])
+                        {
                             [self handlePKeyAuthChallenge:endPoint
                                        wwwAuthHeaderValue:wwwAuthValue
                                               requestData:request_data
@@ -231,12 +241,12 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                             }
                             
                             AD_LOG_ERROR_F(@"JSON deserialization", jsonError.code, _correlationId, @"Error: %@. Body text: '%@'. HTTPS Code: %ld. Response correlation id: %@", jsonError.description, bodyStr, (long)webResponse.statusCode, responseCorrelationId);
-                            adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription];
+                            adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription correlationId:responseCorrelationUUID];
                             SAFE_ARC_RELEASE(bodyStr);
                         }
                         else
                         {
-                            adError = [ADAuthenticationError unexpectedInternalError:[NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]]];
+                            adError = [ADAuthenticationError unexpectedInternalError:[NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]] correlationId:responseCorrelationUUID];
                         }
                         [response setObject:adError forKey:AUTH_NON_PROTOCOL_ERROR];
                     }
@@ -273,8 +283,12 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                     SAFE_ARC_RELEASE(body);
                     AD_LOG_WARN(@"HTTP Error", _correlationId, errorData);
                     
+                    ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
+                                                                                            protocolCode:nil
+                                                                                            errorDetails:errorData
+                                                                                           correlationId:_correlationId];
                     //Now add the information to the dictionary, so that the parser can extract it:
-                    [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:nil errorDetails:errorData]
+                    [response setObject:adError
                                  forKey:AUTH_NON_PROTOCOL_ERROR];
                 }
             }
@@ -292,7 +306,11 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         {
             AD_LOG_WARN(@"System error while making request.", _correlationId, error.description);
             // System error
-            [response setObject:[ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription]
+            ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error
+                                                                        errorDetails:error.localizedDescription
+                                                                       correlationId:_correlationId];
+            
+            [response setObject:adError
                          forKey:AUTH_NON_PROTOCOL_ERROR];
         }
         
@@ -324,7 +342,8 @@ static volatile int sDialogInProgress = 0;
         NSString* message = @"The user is currently prompted for credentials as result of another acquireToken request. Please retry the acquireToken call later.";
         ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_PROMPTED
                                                                               protocolCode:nil
-                                                                              errorDetails:message];
+                                                                              errorDetails:message
+                                                                             correlationId:_correlationId];
         completionBlock(nil, error);
         return NO;
     }
@@ -494,7 +513,8 @@ static volatile int sDialogInProgress = 0;
                      {
                          error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
                                                                         protocolCode:nil
-                                                                        errorDetails:@"The authorization server did not return a valid authorization code."];
+                                                                        errorDetails:@"The authorization server did not return a valid authorization code."
+                                                                       correlationId:_correlationId];
                      }
                  }
              }

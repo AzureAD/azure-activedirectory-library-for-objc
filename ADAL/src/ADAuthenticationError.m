@@ -1,20 +1,25 @@
-// Copyright © Microsoft Open Technologies, Inc.
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-// All Rights Reserved
+// This code is licensed under the MIT License.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-//
-// See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import "ADAL_Internal.h"
 #import "ADAuthenticationError.h"
@@ -66,10 +71,15 @@ NSString* const ADNonsecureHttpRedirectError = @"The server has redirected to a 
                         code:(NSInteger)code
                 protocolCode:(NSString *)protocolCode
                 errorDetails:(NSString *)details
+               correlationId:(NSUUID *)correlationId
                     userInfo:(NSDictionary *)userInfo
                        quiet:(BOOL)quiet
 {
-    THROW_ON_NIL_EMPTY_ARGUMENT(domain);
+    if (!domain)
+    {
+        domain = @"ADAL";
+    }
+    
     if (!quiet)
     {
         NSString* message = [NSString stringWithFormat:@"Error raised: %ld", (long)code];
@@ -82,7 +92,7 @@ NSString* const ADNonsecureHttpRedirectError = @"The server has redirected to a 
         {
             [info appendFormat:@" Details: %@", details];
         }
-        AD_LOG_ERROR(message, code, nil, info);
+        AD_LOG_ERROR(message, code, correlationId, info);
         SAFE_ARC_RELEASE(info);
     }
     
@@ -106,23 +116,26 @@ NSString* const ADNonsecureHttpRedirectError = @"The server has redirected to a 
 }
 
 + (ADAuthenticationError *)errorWithDomainInternal:(NSString *)domain
-                                             code:(NSInteger)code
-                                protocolErrorCode:(NSString *)protocolCode
-                                     errorDetails:(NSString *)details
-                                         userInfo:(NSDictionary *)userInfo
+                                              code:(NSInteger)code
+                                 protocolErrorCode:(NSString *)protocolCode
+                                      errorDetails:(NSString *)details
+                                     correlationId:(NSUUID *)correlationId
+                                          userInfo:(NSDictionary *)userInfo
 {
     id obj = [[self alloc] initInternalWithDomain:domain
-                                           code:code
-                                   protocolCode:protocolCode
-                                   errorDetails:details
-                                       userInfo:userInfo
-                                          quiet:NO];
+                                             code:code
+                                     protocolCode:protocolCode
+                                     errorDetails:details
+                                    correlationId:correlationId
+                                         userInfo:userInfo
+                                            quiet:NO];
     SAFE_ARC_AUTORELEASE(obj);
     return obj;
 }
 
 + (ADAuthenticationError*)errorFromArgument:(id)argumentValue
                                argumentName:(NSString *)argumentName
+                              correlationId:(NSUUID *)correlationId
 {
     THROW_ON_NIL_EMPTY_ARGUMENT(argumentName);
     
@@ -132,46 +145,55 @@ NSString* const ADNonsecureHttpRedirectError = @"The server has redirected to a 
                                     code:AD_ERROR_INVALID_ARGUMENT
                        protocolErrorCode:nil
                             errorDetails:errorMessage
+                           correlationId:correlationId
                                 userInfo:nil];
 }
 
 + (ADAuthenticationError*)invalidArgumentError:(NSString *)details
+                                 correlationId:(nullable NSUUID *)correlationId
 {
     return [self errorWithDomainInternal:ADInvalidArgumentDomain
                                     code:AD_ERROR_INVALID_ARGUMENT
                        protocolErrorCode:nil
                             errorDetails:details
+                           correlationId:correlationId
                                 userInfo:nil];
 }
 
-+ (ADAuthenticationError*)errorFromUnauthorizedResponse:(NSInteger) responseCode
-                                           errorDetails:(NSString*) errorDetails
++ (ADAuthenticationError*)errorFromUnauthorizedResponse:(NSInteger)responseCode
+                                           errorDetails:(NSString *)errorDetails
+                                          correlationId:(NSUUID *)correlationId
 {
     return [self errorWithDomainInternal:ADUnauthorizedResponseErrorDomain
                                     code:responseCode
                        protocolErrorCode:nil
                             errorDetails:errorDetails
+                           correlationId:correlationId
                                 userInfo:nil];
 }
 
-+ (ADAuthenticationError*)errorFromNSError:(NSError*)error
-                              errorDetails:(NSString*)errorDetails
++ (ADAuthenticationError*)errorFromNSError:(NSError *)error
+                              errorDetails:(NSString *)errorDetails
+                             correlationId:(NSUUID *)correlationId
 {
     return [self errorWithDomainInternal:error.domain
                                     code:error.code
                        protocolErrorCode:nil
                             errorDetails:errorDetails
+                           correlationId:correlationId
                                 userInfo:error.userInfo];
 }
 
 + (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
-                                          protocolCode:(NSString*)protocolCode
-                                          errorDetails:(NSString*)errorDetails
+                                          protocolCode:(NSString *)protocolCode
+                                          errorDetails:(NSString *)errorDetails
+                                         correlationId:(NSUUID *)correlationId
 {
     return [self errorWithDomainInternal:ADAuthenticationErrorDomain
                                     code:code
                        protocolErrorCode:protocolCode
                             errorDetails:errorDetails
+                           correlationId:correlationId
                                 userInfo:nil];
 }
 
@@ -184,6 +206,7 @@ NSString* const ADNonsecureHttpRedirectError = @"The server has redirected to a 
                                                      code:code
                                              protocolCode:protocolCode
                                              errorDetails:errorDetails
+                                            correlationId:nil
                                                  userInfo:nil
                                                     quiet:YES];
     
@@ -192,17 +215,20 @@ NSString* const ADNonsecureHttpRedirectError = @"The server has redirected to a 
 }
 
 + (ADAuthenticationError*)unexpectedInternalError:(NSString*)errorDetails
+                                    correlationId:(NSUUID *)correlationId
 {
     return [self errorFromAuthenticationError:AD_ERROR_UNEXPECTED
                                  protocolCode:nil
-                                 errorDetails:errorDetails];
+                                 errorDetails:errorDetails
+                                correlationId:correlationId];
 }
 
-+ (ADAuthenticationError*)errorFromCancellation
++ (ADAuthenticationError*)errorFromCancellation:(NSUUID *)correlationId
 {
     return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_CANCEL
                                                   protocolCode:nil
-                                                  errorDetails:ADCancelError];
+                                                  errorDetails:ADCancelError
+                                                 correlationId:correlationId];
 }
 
 + (ADAuthenticationError*)errorFromNonsecureHttpRedirect

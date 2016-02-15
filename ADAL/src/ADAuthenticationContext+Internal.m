@@ -1,20 +1,25 @@
-// Copyright © Microsoft Open Technologies, Inc.
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-// All Rights Reserved
+// This code is licensed under the MIT License.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-//
-// See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import "ADAuthenticationContext+Internal.h"
 #import "ADUserIdentifier.h"
@@ -33,13 +38,14 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
  Then the method calls the callback with the result.
  The method returns if the argument is valid. If the method returns false,
  the calling method should return. */
-+ (BOOL)checkAndHandleBadArgument:(NSObject*)argumentValue
-                     argumentName:(NSString*)argumentName
++ (BOOL)checkAndHandleBadArgument:(NSObject *)argumentValue
+                     argumentName:(NSString *)argumentName
+                    correlationId:(NSUUID *)correlationId
                   completionBlock:(ADAuthenticationCallback)completionBlock
 {
     if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString adIsStringNilOrBlank:(NSString*)argumentValue]))
     {
-        ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName];
+        ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName correlationId:correlationId];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:argumentError];
         completionBlock(result);//Call the callback to tell about the result
         return NO;
@@ -56,7 +62,7 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
 {
     if (!argumentValue || ([argumentValue isKindOfClass:[NSString class]] && [NSString adIsStringNilOrBlank:(NSString*)argumentValue]))
     {
-        ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName];
+        ADAuthenticationError* argumentError = [ADAuthenticationError errorFromArgument:argumentValue argumentName:argumentName correlationId:nil];
         *authenticationResult = [ADAuthenticationResult resultFromError:argumentError];
         return NO;
     }
@@ -75,7 +81,8 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
         // Error response from the server
         return [ADAuthenticationError errorFromAuthenticationError:errorCode
                                                       protocolCode:serverOAuth2Error
-                                                      errorDetails:(errorDetails) ? errorDetails : [NSString stringWithFormat:ADServerError, serverOAuth2Error]];
+                                                      errorDetails:(errorDetails) ? errorDetails : [NSString stringWithFormat:ADServerError, serverOAuth2Error]
+                                                     correlationId:[dictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
     }
     //In the case of more generic error, e.g. server unavailable, DNS error or no internet connection, the error object will be directly placed in the dictionary:
     return [dictionary objectForKey:AUTH_NON_PROTOCOL_ERROR];
@@ -126,7 +133,8 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
                                                protocolCode:nil
-                                               errorDetails:@"ADAuthenticationResult is nil"];
+                                               errorDetails:@"ADAuthenticationResult is nil"
+                                              correlationId:nil];
         return [ADAuthenticationResult resultFromError:error correlationId:[result correlationId]];
     }
     
@@ -152,7 +160,8 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_WRONG_USER
                                                protocolCode:nil
-                                               errorDetails:errorText];
+                                               errorDetails:errorText
+                                              correlationId:nil];
         return [ADAuthenticationResult resultFromError:error correlationId:[result correlationId]];
     }
     
