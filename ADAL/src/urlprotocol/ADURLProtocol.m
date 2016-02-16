@@ -121,6 +121,7 @@ static NSMutableDictionary* s_handlers = nil;
     NSMutableURLRequest *mutableRequest = [self.request mutableCopy];
     [mutableRequest setURL:url];
     [NSURLProtocol setProperty:@"YES" forKey:@"ADURLProtocol" inRequest:mutableRequest];
+    SAFE_ARC_RELEASE(_connection);
     _connection = [[NSURLConnection alloc] initWithRequest:mutableRequest
                                                   delegate:self
                                           startImmediately:YES];
@@ -131,6 +132,8 @@ static NSMutableDictionary* s_handlers = nil;
 {
     AD_LOG_VERBOSE_F(sLog, nil, @"Stop loading");
     [_connection cancel];
+    SAFE_ARC_RELEASE(_connection);
+    _connection = nil;
     [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
 }
 
@@ -185,6 +188,8 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
         [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
         
         [_connection cancel];
+        SAFE_ARC_RELEASE(_connection);
+        _connection = nil;
         [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
         [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
 
@@ -214,6 +219,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     (void)connection;
     
     [self.client URLProtocolDidFinishLoading:self];
+    SAFE_ARC_RELEASE(_connection);
     _connection = nil;
 }
 

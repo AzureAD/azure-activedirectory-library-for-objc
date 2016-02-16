@@ -101,7 +101,7 @@
     _cache = [ADTokenCache new];
     [_cache setDelegate:_cacheDelegate];
     
-    [[ADAuthenticationSettings sharedInstance] setDefaultCacheDelegate:_cacheDelegate];
+    [[ADAuthenticationSettings sharedInstance] setDefaultStorageDelegate:_cacheDelegate];
 }
 
 
