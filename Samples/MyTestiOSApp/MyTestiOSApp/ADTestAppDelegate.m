@@ -80,7 +80,6 @@
 {
     // Saves changes in the application's managed object context before the application terminates.
     [self saveContext];
-    [[ADTestAppSettings new] flushCodeCoverage];
 }
 
 - (void)saveContext
