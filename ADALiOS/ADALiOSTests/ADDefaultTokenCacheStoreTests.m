@@ -46,6 +46,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     
+    [ADAuthenticationSettings sharedInstance].sharedCacheKeychainGroup = [[NSBundle mainBundle] bundleIdentifier];
     mStore = (ADKeychainTokenCacheStore*)[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     XCTAssertNotNil(mStore, "Default store cannot be nil.");
     XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
@@ -519,8 +520,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     //Test the property:
     ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
     ADKeychainTokenCacheStore* keychainStore = (ADKeychainTokenCacheStore*)mStore;
-    XCTAssertNotNil(settings.sharedCacheKeychainGroup);
-    XCTAssertNotNil(keychainStore.sharedGroup);
     NSString* groupName = @"com.microsoft.ADAL";
     settings.sharedCacheKeychainGroup = groupName;
     ADAssertStringEquals(settings.sharedCacheKeychainGroup, groupName);
@@ -528,9 +527,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADAssertStringEquals(keychainStore.sharedGroup, groupName);
     
     //Restore back to default
-    keychainStore.sharedGroup = nil;
-    XCTAssertNil(keychainStore.sharedGroup);
-    XCTAssertNil(settings.sharedCacheKeychainGroup);
+    keychainStore.sharedGroup = [[NSBundle mainBundle] bundleIdentifier];
     [mStore removeAllWithError:&error];
     ADAssertNoError;
     ADAssertLongEquals(0, [self count]);
