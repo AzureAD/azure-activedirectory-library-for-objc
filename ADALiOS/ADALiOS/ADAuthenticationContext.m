@@ -1703,8 +1703,8 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     AD_LOG_VERBOSE_F(@"Post request", @"Sending POST request to %@ with client-request-id %@", endPoint, [requestCorrelationId UUIDString]);
     
     webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
-    [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[requestCorrelationId UUIDString] requestHeader:webRequest.headers];
-    
+    __block NSDate* startTime = [NSDate new];
+    [[ADClientMetrics getInstance] addClientMetrics:webRequest.headers endpoint:endPoint];
     [webRequest send:^( NSError *error, ADWebResponse *webResponse ) {
         // Request completion callback
         NSMutableDictionary *response = [NSMutableDictionary new];
@@ -1780,11 +1780,18 @@ additionalHeaders:(NSDictionary *)additionalHeaders
         }
         
         if([response valueForKey:AUTH_NON_PROTOCOL_ERROR]){
-            [[ADClientMetrics getInstance] endClientMetricsRecord:[[response valueForKey:AUTH_NON_PROTOCOL_ERROR] errorDetails]];
+            NSString* errorDetails = [[response valueForKey:AUTH_NON_PROTOCOL_ERROR] errorDetails];
+            [[ADClientMetrics getInstance] endClientMetricsRecord:endPoint
+                                                        startTime:startTime
+                                                    correlationId:requestCorrelationId
+                                                     errorDetails:errorDetails];
         }
         else
         {
-            [[ADClientMetrics getInstance] endClientMetricsRecord:nil];
+            [[ADClientMetrics getInstance] endClientMetricsRecord:endPoint
+                                                        startTime:startTime
+                                                    correlationId:requestCorrelationId
+                                                     errorDetails:nil];
         }
         
         completionBlock( response );
