@@ -67,6 +67,10 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         
         NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
         mSharedCache = (sharedGroup && ![sharedGroup isEqualToString:bundleId]);
+        if (!sharedGroup)
+        {
+            sharedGroup = bundleId;
+        }
         
         //Generic setup values:
         mClassValue     = (__bridge id)kSecClassGenericPassword;
@@ -570,8 +574,12 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     {
         if (![NSString adSame:mHelper.sharedGroup toString:sharedGroup])
         {
-            NSString* bundleId = nil;
+            NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
             mSharedCache = (sharedGroup && ![sharedGroup isEqualToString:bundleId]);
+            if (!sharedGroup)
+            {
+                sharedGroup = bundleId;
+            }
             mHelper.sharedGroup = sharedGroup;
         }
     }
