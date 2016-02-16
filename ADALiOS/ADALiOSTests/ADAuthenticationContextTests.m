@@ -1048,6 +1048,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil([mProtocolContext findCacheItemWithKey:key userId:item.userInformation.userId useAccessToken:&useAccessToken error:&error]);
 }
 
+#if TEST_HITS_NETWORK
 -(void) testBadAuthorityWithValidation
 {
     mAuthority = @"https://MyFakeAuthority.microsoft.com/MSOpenTechBV.OnMicrosoft.com";
@@ -1061,6 +1062,7 @@ const int sAsyncContextTimeout = 10;
     ADAssertLongEquals(AD_FAILED, mResult.status);
     ADAssertLongEquals(AD_ERROR_AUTHORITY_VALIDATION, mError.code);
 }
+#endif // TEST_HITS_NETWORK
 
 //Used when the framework needs to display an UI and cannot, raising an error
 -(void) validateUIError
@@ -1100,7 +1102,8 @@ const int sAsyncContextTimeout = 10;
     mPromptBehavior = AD_PROMPT_ALWAYS;
     [self validateUIError];
 }
- 
+
+#if TEST_HITS_NETWORK
 -(void) testBadRefreshToken
 {
     //Create a normal authority (not a test one):
@@ -1131,6 +1134,7 @@ const int sAsyncContextTimeout = 10;
     acquireTokenAsync;//Will attempt to use the broad refresh token and fail.
     ADAssertLongEquals(0, [self cacheCount]);
 }
+#endif // TEST_HITS_NETWORK
 
 //Creates the context with
 -(void) testUnreachableAuthority
@@ -1340,6 +1344,7 @@ const int sAsyncContextTimeout = 10;
 }
 
 //Hits a the cloud with either a bad server or a bad refresh token:
+#if TEST_HITS_NETWORK
 -(void) testRefreshingTokenWithServerErrors
 {
     [ADAuthenticationSettings sharedInstance].requestTimeOut = 5;
@@ -1366,5 +1371,6 @@ const int sAsyncContextTimeout = 10;
     ADAssertStringEquals(mResult.error.protocolCode, @"invalid_grant");
     XCTAssertTrue([mResult.error.errorDetails.lowercaseString adContainsString:@"refresh token"]);
 }
+#endif // TEST_HITS_NETWORK
 
 @end
