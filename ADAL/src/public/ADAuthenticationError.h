@@ -80,7 +80,7 @@ extern NSString* const ADBrokerResponseErrorDomain;
  on the authorization UI page. */
 + (ADAuthenticationError*)errorFromCancellation:(NSUUID *)correlationId;
 
-/*! Generates an error for the case that server redirects authentication process to a non-secure http url */
-+ (ADAuthenticationError*)errorFromNonsecureHttpRedirect:(NSUUID *)correlationId;
+/*! Generates an error for the case that server redirects authentication process to a non-https url */
++ (ADAuthenticationError*)errorFromNonHttpsRedirect:(NSUUID *)correlationId;
 
 @end

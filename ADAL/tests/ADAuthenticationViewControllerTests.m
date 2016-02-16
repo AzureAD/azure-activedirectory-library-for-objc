@@ -79,10 +79,11 @@
                                userId:TEST_USER_ID
                       completionBlock:^(ADAuthenticationResult *result)
      {
+         //Should fail with AD_NON_HTTPS_REDIRECT error
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_NON_SECURE_HTTP_REDIRECT);
+         XCTAssertEqual(result.error.code, AD_NON_HTTPS_REDIRECT);
          
          dispatch_semaphore_signal(_dsem);
      }];
@@ -95,7 +96,7 @@
 {
     while (dispatch_semaphore_wait(sem, DISPATCH_TIME_NOW))
     {
-        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate: [NSDate distantFuture]];
     }
 }
 

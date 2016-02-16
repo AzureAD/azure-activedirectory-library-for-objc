@@ -59,7 +59,7 @@ typedef enum
     {
         _type = type;
         _parameter = [parameter copy];
-        SAFE_ARC_RELEASE(_parameter);
+        SAFE_ARC_AUTORELEASE(_parameter);
     }
     return self;
 }

@@ -118,8 +118,8 @@ typedef enum
     /*! The error code was not sent to us due to an older version of the broker */ 
     AD_ERROR_BROKER_UNKNOWN = 24,
     
-    /*! Server redirects authentication process to a non-secure http url */
-    AD_NON_SECURE_HTTP_REDIRECT = 25
+    /*! Server redirects authentication process to a non-https url */
+    AD_NON_HTTPS_REDIRECT = 25
     
 } ADErrorCode;
 
