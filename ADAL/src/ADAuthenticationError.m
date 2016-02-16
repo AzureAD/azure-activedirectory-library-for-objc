@@ -233,7 +233,7 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
 
 + (ADAuthenticationError*)errorFromNonHttpsRedirect:(NSUUID *)correlationId
 {
-    return [ADAuthenticationError errorFromAuthenticationError:AD_NON_HTTPS_REDIRECT
+    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NON_HTTPS_REDIRECT
                                                   protocolCode:nil
                                                   errorDetails:ADNonHttpsRedirectError
                                                  correlationId:correlationId];

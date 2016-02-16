@@ -119,7 +119,7 @@ typedef enum
     AD_ERROR_BROKER_UNKNOWN = 24,
     
     /*! Server redirects authentication process to a non-https url */
-    AD_NON_HTTPS_REDIRECT = 25
+    AD_ERROR_NON_HTTPS_REDIRECT = 25
     
 } ADErrorCode;
 

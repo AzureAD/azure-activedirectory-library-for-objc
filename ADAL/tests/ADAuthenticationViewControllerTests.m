@@ -79,11 +79,11 @@
                                userId:TEST_USER_ID
                       completionBlock:^(ADAuthenticationResult *result)
      {
-         //Should fail with AD_NON_HTTPS_REDIRECT error
+         //Should fail with AD_ERROR_NON_HTTPS_REDIRECT error
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_NON_HTTPS_REDIRECT);
+         XCTAssertEqual(result.error.code, AD_ERROR_NON_HTTPS_REDIRECT);
          
          dispatch_semaphore_signal(_dsem);
      }];
