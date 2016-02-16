@@ -34,11 +34,16 @@
 #import "ADWorkPlaceJoin.h"
 #import "ADPkeyAuthHelper.h"
 #import "ADWorkPlaceJoinConstants.h"
+#import "ADKeyChainHelper.h"
+#import "ADBrokerKeyHelper.h"
 #import "ADClientMetrics.h"
 
 NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
 NSString* const serverError = @"The authentication server returned an error: %@.";
+
+NSString* const brokerAppIdentifier = @"com.microsoft.adbrokerApp";
+NSString* const brokerURL = @"msauth://broker";
 
 //Used for the callback of obtaining the OAuth2 code:
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
@@ -57,7 +62,7 @@ BOOL isCorrelationIdUserProvided = NO;
 
 //A wrapper around checkAndHandleBadArgument. Assumes that "completionMethod" is in scope:
 #define HANDLE_ARGUMENT(ARG) \
-if (![self checkAndHandleBadArgument:ARG \
+if (![ADAuthenticationContext checkAndHandleBadArgument:ARG \
 argumentName:TO_NSSTRING(#ARG) \
 completionBlock:completionBlock]) \
 { \
@@ -84,7 +89,7 @@ return; \
  Then the method calls the callback with the result.
  The method returns if the argument is valid. If the method returns false,
  the calling method should return. */
--(BOOL) checkAndHandleBadArgument: (NSObject*) argumentValue
++(BOOL) checkAndHandleBadArgument: (NSObject*) argumentValue
                      argumentName: (NSString*) argumentName
                   completionBlock: (ADAuthenticationCallback)completionBlock
 {
@@ -197,6 +202,67 @@ return; \
 {
     [ADLogger setCorrelationId: correlationId];
     isCorrelationIdUserProvided = YES;
+}
+
++(BOOL) isResponseFromBroker:(NSURL*) response
+{
+    return response && [NSString adSame:[response path] toString:@"/broker"];
+}
+
++(void) handleBrokerResponse:(NSURL*) response
+             completionBlock: (ADAuthenticationCallback) completionBlock
+{
+    
+    THROW_ON_NIL_ARGUMENT(completionBlock);
+    HANDLE_ARGUMENT(response);
+    
+    NSString *qp = [response query];
+    //expect to either response or error and description, AND correlation_id AND hash.
+    NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
+    ADAuthenticationResult* result;
+    //response=encrypted_response&hash=hash_value
+    //code=some_code&error_details=message
+    if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION]){
+        result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+    }
+    else
+    {
+        HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY]);
+     
+        NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
+        NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
+
+        //decrypt response first
+        ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+        ADAuthenticationError* error;
+        NSData *encryptedResponse = [NSString Base64DecodeData:encryptedBase64Response ];
+        NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse error:&error];
+        NSString* decryptedString = nil;
+        
+        if(!error)
+        {
+            decryptedString =[[NSString alloc] initWithData:decrypted encoding:0];
+            //now compute the hash on the unencrypted data
+            if([NSString adSame:hash toString:[ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES]]){
+                //create response from the decrypted payload
+                queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
+                result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+                
+            }
+            else
+            {
+                result = [ADAuthenticationResult resultFromError:[ADAuthenticationError errorFromNSError:[NSError errorWithDomain:ADAuthenticationErrorDomain
+                                                                                                                             code:AD_ERROR_BROKER_RESPONSE_HASH_MISMATCH
+                                                                                                                         userInfo:nil]
+                                                                                            errorDetails:@"Decrypted response does not match the hash"]];
+            }
+        }
+        else
+        {
+            result = [ADAuthenticationResult resultFromError:error];
+        }
+    }
+    completionBlock(result);
 }
 
 -(void)  acquireTokenForAssertion: (NSString*) assertion
@@ -538,6 +604,19 @@ return; \
              }//key
          }//!item.multiResourceRefreshToken
          
+         
+         if([self canUseBroker]){
+             [self callBrokerForAuthority: self.authority
+                                 resource: resource
+                                 clientId: clientId
+                              redirectUri: redirectUri
+                                   userId: userId
+                            correlationId: [correlationId UUIDString]
+                     extraQueryParameters: queryParams];
+             return;
+         }
+         
+         
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
          [self internalAcquireTokenWithResource: resource
@@ -836,6 +915,18 @@ return; \
              }
          }];
         return;//The asynchronous handler above will do the work.
+    }
+    
+    //call the broker.
+    if([self canUseBroker]){
+        [self callBrokerForAuthority: self.authority
+                            resource: resource
+                            clientId: clientId
+                         redirectUri: redirectUri
+                              userId: userId
+                       correlationId: [correlationId UUIDString]
+                extraQueryParameters: queryParams];
+        return;
     }
     
     //Check the cache:
@@ -1612,8 +1703,8 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     AD_LOG_VERBOSE_F(@"Post request", @"Sending POST request to %@ with client-request-id %@", endPoint, [requestCorrelationId UUIDString]);
     
     webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
-    [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[requestCorrelationId UUIDString] requestHeader:webRequest.headers];
-    
+    __block NSDate* startTime = [NSDate new];
+    [[ADClientMetrics getInstance] addClientMetrics:webRequest.headers endpoint:endPoint];
     [webRequest send:^( NSError *error, ADWebResponse *webResponse ) {
         // Request completion callback
         NSMutableDictionary *response = [NSMutableDictionary new];
@@ -1689,11 +1780,18 @@ additionalHeaders:(NSDictionary *)additionalHeaders
         }
         
         if([response valueForKey:AUTH_NON_PROTOCOL_ERROR]){
-            [[ADClientMetrics getInstance] endClientMetricsRecord:[[response valueForKey:AUTH_NON_PROTOCOL_ERROR] errorDetails]];
+            NSString* errorDetails = [[response valueForKey:AUTH_NON_PROTOCOL_ERROR] errorDetails];
+            [[ADClientMetrics getInstance] endClientMetricsRecord:endPoint
+                                                        startTime:startTime
+                                                    correlationId:requestCorrelationId
+                                                     errorDetails:errorDetails];
         }
         else
         {
-            [[ADClientMetrics getInstance] endClientMetricsRecord:nil];
+            [[ADClientMetrics getInstance] endClientMetricsRecord:endPoint
+                                                        startTime:startTime
+                                                    correlationId:requestCorrelationId
+                                                     errorDetails:nil];
         }
         
         completionBlock( response );
@@ -1729,6 +1827,32 @@ additionalHeaders:(NSDictionary *)additionalHeaders
     [headerKeyValuePair setObject:authHeader forKey:@"Authorization"];
     
     [self request:authorizationServer requestData:request_data requestCorrelationId:requestCorrelationId isHandlingPKeyAuthChallenge:TRUE additionalHeaders:headerKeyValuePair completion:completionBlock];
+}
+
+- (BOOL) canUseBroker
+{
+    return [[ADAuthenticationSettings sharedInstance] credentialsType] == AD_CREDENTIALS_AUTO && [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:brokerURL]];
+}
+
+
+- (void) callBrokerForAuthority:(NSString*) authority
+                       resource: (NSString*) resource
+                       clientId: (NSString*)clientId
+                    redirectUri: (NSURL*) redirectUri
+                         userId: (NSString*) userId
+                  correlationId: (NSString*) correlationId
+           extraQueryParameters: (NSString*) queryParams
+{
+    AD_LOG_INFO(@"Invoking broker for authentication", nil);
+    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] initHelper];
+    ADAuthenticationError* error = nil;
+    NSData* key = [brokerHelper getBrokerKey:&error];
+    NSString* base64Key = [NSString Base64EncodeData:key];
+    NSString* base64UrlKey = [base64Key adUrlFormEncode];
+    
+    NSString* query = [NSString stringWithFormat:@"authority=%@&resource=%@&client_id=%@&redirect_uri=%@&user_id=%@&correlation_id=%@&query_params=%@&broker_key=%@", authority, resource, clientId, redirectUri, userId, correlationId, queryParams, base64UrlKey];
+    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@?%@", brokerURL, query]];
+    [[UIApplication sharedApplication] openURL:appUrl];
 }
 
 @end

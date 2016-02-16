@@ -20,12 +20,31 @@
 #import "BVTestAppDelegate.h"
 #import "BVTestMainViewController.h"
 #import "BVSettings.h"
+#import "BVApplicationData.h"
+#import <ADALiOS/ADAuthenticationContext.h>
+#import <ADALiOS/ADAuthenticationResult.h>
 
 @implementation BVTestAppDelegate
 
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
+
+
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication
+         annotation:(id)annotation
+{
+    if([ADAuthenticationContext isResponseFromBroker:url]){
+        [ADAuthenticationContext handleBrokerResponse:url completionBlock:^(ADAuthenticationResult *result) 
+        {
+            BVApplicationData* data = [BVApplicationData getInstance];
+            data.result = result;
+        }];
+    }
+    return YES;
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -103,6 +122,22 @@
     if (_managedObjectModel != nil) {
         return _managedObjectModel;
     }
+    NSBundle* bundle = [NSBundle mainBundle];
+    NSDictionary* dict = [bundle infoDictionary];
+    NSArray* urlTypes = [dict valueForKey:@"CFBundleURLTypes"];
+    NSString* scheme  = nil;
+    if(urlTypes)
+    {
+        NSDictionary* urlType = [urlTypes objectAtIndex:0];
+        if(urlType){
+            NSArray* schemes = [urlType valueForKey:@"CFBundleURLSchemes"];
+            if(schemes)
+            {
+                scheme = [schemes objectAtIndex:0];
+            }
+        }
+    }
+    
     NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"MyTestiOSApp" withExtension:@"momd"];
     _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
     return _managedObjectModel;

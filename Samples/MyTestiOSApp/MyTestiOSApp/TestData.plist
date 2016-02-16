@@ -10,7 +10,7 @@
 		<string>d3590ed6-52b3-4102-aeff-aad2292ab01c</string>
 		<key>Resource</key>
 		<string>https://officeapps.live.com</string>
-		<key>RedirectUri</key>
+        <key>RedirectUri</key>
 		<string>urn:ietf:wg:oauth:2.0:oob</string>
 		<key>UserId</key>
 		<string></string>

@@ -88,6 +88,7 @@ const int sAsyncTimeout = 10;//in seconds
 {
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_INFO];
+    [ADAuthenticationSettings sharedInstance].requestTimeOut = 10;
     mValidated = NO;
     mInstanceDiscovery = [ADInstanceDiscovery sharedInstance];
     mTestInstanceDiscovery = (id<TestInstanceDiscovery>)mInstanceDiscovery;
@@ -308,7 +309,7 @@ const int sAsyncTimeout = 10;//in seconds
 {
     mError = nil;//Reset
     __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
+    [self adCallAndWaitWithFile:@"" __FILE__ line:line semaphore:sem block:^
      {
          [mInstanceDiscovery validateAuthority:authority correlationId:correlationId completionBlock:^(BOOL validated, ADAuthenticationError *error)
           {

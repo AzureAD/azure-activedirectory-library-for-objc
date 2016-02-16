@@ -31,4 +31,7 @@
 +(ADAuthenticationResult*) resultFromTokenCacheStoreItem: (ADTokenCacheStoreItem*) item
                                multiResourceRefreshToken: (BOOL) multiResourceRefreshToken;
 
+/*! Creates an authentication result from broker response. */
++(ADAuthenticationResult*) resultFromBrokerResponse: (NSDictionary*) response;
+
 @end
