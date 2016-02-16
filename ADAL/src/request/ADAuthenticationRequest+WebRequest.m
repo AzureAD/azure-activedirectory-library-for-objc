@@ -163,7 +163,9 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     }
     
     webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
-    [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[_correlationId UUIDString] requestHeader:webRequest.headers];
+    
+    __block NSDate* startTime = [NSDate new];
+    [[ADClientMetrics getInstance] addClientMetrics:webRequest.headers endpoint:endPoint];
     
     [webRequest send:^( NSError *error, ADWebResponse *webResponse ) {
         // Request completion callback
@@ -315,16 +317,14 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         }
         
         ADAuthenticationError* adError = [response valueForKey:AUTH_NON_PROTOCOL_ERROR];
-        if(adError)
-        {
-            [[ADClientMetrics getInstance] endClientMetricsRecord:[adError errorDetails]];
-        }
-        else
-        {
-            [[ADClientMetrics getInstance] endClientMetricsRecord:nil];
-        }
+        NSString* errorDetails = [adError errorDetails];
+        [[ADClientMetrics getInstance] endClientMetricsRecord:endPoint
+                                                    startTime:startTime
+                                                correlationId:_correlationId
+                                                 errorDetails:errorDetails];
+        SAFE_ARC_RELEASE(startTime);
         
-        completionBlock( response );
+        completionBlock(response);
     }];
     
     // The objc blocks above will hold onto references to this web request and keep it alive until after

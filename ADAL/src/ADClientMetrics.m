@@ -25,6 +25,8 @@
 #import "ADClientMetrics.h"
 #import "ADHelpers.h"
 #import "NSString+ADHelperMethods.h"
+#import "ADLogger.h"
+#import "ADErrorCodes.h"
 
 @implementation ADClientMetrics
 
@@ -55,70 +57,83 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
     return instance;
 }
 
-- (void) beginClientMetricsRecordForEndpoint: (NSString*) endPoint
-                               correlationId: (NSString*) correlationId
-                               requestHeader: (NSMutableDictionary*) requestHeader
+- (void)addClientMetrics:(NSMutableDictionary *)requestHeaders
+                endpoint:(NSString *)endPoint
 {
-    @synchronized(self)
+    if ([ADHelpers isADFSInstance:endPoint])
     {
-        if([ADHelpers isADFSInstance:endPoint])
-		{
-            _endpoint = endPoint;
-            return;
-        }
-        if (_isPending)
-        {
-            [requestHeader setObject:_errorToReport forKey:HeaderLastError];
-            [requestHeader setObject:_responseTime forKey:HeaderLastResponseTime];
-            [requestHeader setObject:[ADHelpers getEndpointName:_endpoint] forKey:HeaderLastEndpoint];
-            [requestHeader setObject:_correlationId forKey:HeaderLastRequest];
-            _isPending = NO;
-        }
-        SAFE_ARC_RELEASE(_endpoint);
-        _endpoint = endPoint;
-        SAFE_ARC_RETAIN(_endpoint);
-        SAFE_ARC_RELEASE(_responseTime);
-        _responseTime = @"";
-        SAFE_ARC_RETAIN(_responseTime);
-        SAFE_ARC_RELEASE(_correlationId);
-        _correlationId = correlationId;
-        SAFE_ARC_RETAIN(_correlationId);
-        SAFE_ARC_RELEASE(_startTime);
-        _startTime = [NSDate new];
-        SAFE_ARC_RELEASE(_errorToReport);
-        _errorToReport = @"";
-        SAFE_ARC_RETAIN(_errorToReport);
+        return;
     }
-}
-
-
--(void) endClientMetricsRecord: (NSString*) error{
     
     @synchronized(self)
     {
-        if([ADHelpers isADFSInstance:_endpoint])
+        if (!_isPending)
         {
             return;
         }
         
-        SAFE_ARC_RELEASE(_errorToReport);
-        if([NSString adIsStringNilOrBlank:error])
+        if (_errorToReport && _responseTime && _endpoint && _correlationId)
+        {
+            [requestHeaders setObject:_errorToReport forKey:HeaderLastError];
+            [requestHeaders setObject:_responseTime forKey:HeaderLastResponseTime];
+            [requestHeaders setObject:[ADHelpers getEndpointName:_endpoint] forKey:HeaderLastEndpoint];
+            [requestHeaders setObject:_correlationId forKey:HeaderLastRequest];
+        }
+        else
+        {
+            AD_LOG_ERROR(@"unable to add client metrics.", AD_ERROR_UNEXPECTED, nil, nil);
+        }
+        
+		SAFE_ARC_RELEASE(_errorToReport);
+        _errorToReport = nil;
+		SAFE_ARC_RELEASE(_endpoint);
+        _endpoint = nil;
+		SAFE_ARC_RELEASE(_correlationId);
+        _correlationId = nil;
+		SAFE_ARC_RELEASE(_responseTime);
+        _responseTime = nil;
+        
+        _isPending = NO;
+    }
+}
+
+- (void)endClientMetricsRecord:(NSString *)endpoint
+                     startTime:(NSDate *)startTime
+                 correlationId:(NSUUID *)correlationId
+                  errorDetails:(NSString *)errorDetails
+{
+    if ([ADHelpers isADFSInstance:endpoint])
+    {
+        return;
+    }
+    
+    @synchronized(self)
+    {
+		SAFE_ARC_RELEASE(_endpoint);
+        _endpoint = endpoint;
+		SAFE_ARC_RETAIN(_endpoint);
+
+		SAFE_ARC_RELEASE(_errorToReport);
+        if([NSString adIsStringNilOrBlank:errorDetails])
         {
             _errorToReport = @"";
         }
         else
         {
-            _errorToReport = error;
+            _errorToReport = errorDetails;
         }
-        SAFE_ARC_RETAIN(_errorToReport);
-        
-        SAFE_ARC_RELEASE(_responseTime);
-        _responseTime = [NSString stringWithFormat:@"%f", [_startTime timeIntervalSinceNow] * -1000.0];
-        SAFE_ARC_RETAIN(_responseTime);
+		SAFE_ARC_RETAIN(_errorToReport);
+
+		SAFE_ARC_RELEASE(_correlationId);
+        _correlationId = [correlationId UUIDString];
+		SAFE_ARC_RETAIN(_correlationId);
+
+		SAFE_ARC_RELEASE(_responseTime);
+        _responseTime = [NSString stringWithFormat:@"%f", [startTime timeIntervalSinceNow] * -1000.0];
+		SAFE_ARC_RETAIN(_responseTime);
+
         _isPending = YES;
     }
 }
-
-
 
 @end
