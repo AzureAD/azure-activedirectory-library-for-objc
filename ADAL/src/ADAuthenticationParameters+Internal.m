@@ -45,38 +45,48 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
 
 
 - (id)initInternalWithParameters:(NSDictionary *)extractedParameters
-                           error:(ADAuthenticationError* __autoreleasing*)error;
+                           error:(ADAuthenticationError * __autoreleasing *)error;
 
 {
-    THROW_ON_NIL_ARGUMENT(extractedParameters);
-    
-    self = [super init];
-    if (self)
+    if (!(self = [super init]))
     {
-        self->_extractedParameters = extractedParameters;
-        self->_authority = [_extractedParameters objectForKey:OAuth2_Authorization_Uri];
-        NSURL* testUrl = [NSURL URLWithString:_authority];//Nil argument returns nil
-        if (!testUrl)
-        {
-            NSString* errorDetails = [NSString stringWithFormat:MissingOrInvalidAuthority,
-                                      OAuth2_Authenticate_Header, OAuth2_Authorization_Uri];
-            ADAuthenticationError* adError = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT
-                                                              errorDetails:errorDetails
-                                              correlationId:nil];
-            if (error)
-            {
-                *error = adError;
-            }
-            return nil;
-        }
-        
-        self->_resource = [_extractedParameters objectForKey:OAuth2_Resource_Id];
+        return nil;
     }
+    
+    if (!extractedParameters)
+    {
+        SAFE_ARC_RELEASE(self);
+        return nil;
+    }
+    
+    NSString* authority = [extractedParameters objectForKey:OAuth2_Authorization_Uri];
+    NSURL* testUrl = [NSURL URLWithString:authority];//Nil argument returns nil
+    if (!testUrl)
+    {
+        NSString* errorDetails = [NSString stringWithFormat:MissingOrInvalidAuthority,
+                                  OAuth2_Authenticate_Header, OAuth2_Authorization_Uri];
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT
+                                                                                 errorDetails:errorDetails
+                                                                                correlationId:nil];
+        if (error)
+        {
+            *error = adError;
+        }
+        SAFE_ARC_RELEASE(self);
+        return nil;
+    }
+    
+    _extractedParameters = extractedParameters;
+    SAFE_ARC_RETAIN(_extractedParameters);
+    _authority = authority;
+    SAFE_ARC_RETAIN(_authority);
+    _resource = [_extractedParameters objectForKey:OAuth2_Resource_Id];
+    SAFE_ARC_RETAIN(_resource);
     return self;
 }
 
 //Generates and returns an error
-+(ADAuthenticationError*) invalidHeader:(NSString*) headerContents
++ (ADAuthenticationError *)invalidHeader:(NSString *)headerContents
 {
     NSString* errorDetails = [NSString stringWithFormat:InvalidHeader,
      OAuth2_Authenticate_Header, headerContents];
@@ -85,8 +95,8 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
                                                   correlationId:nil];
 }
 
-+ (NSDictionary*) extractChallengeParameters: (NSString*) headerContents
-                                       error: (ADAuthenticationError* __autoreleasing*) error;
++ (NSDictionary *)extractChallengeParameters:(NSString *)headerContents
+                                       error:(ADAuthenticationError * __autoreleasing *)error;
 {
     NSError* rgError = nil;
     __block ADAuthenticationError* adError = nil;

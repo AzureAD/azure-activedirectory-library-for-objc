@@ -117,6 +117,8 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     
     _rawIdToken = idToken;
+    SAFE_ARC_RETAIN(_rawIdToken);
+    
     NSArray* parts = [idToken componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"."]];
     if (parts.count < 1)
     {
@@ -177,6 +179,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     
     _allClaims = allClaims;
+    SAFE_ARC_RETAIN(_allClaims);
     
     //Now attempt to extract an unique user id:
     if (![NSString adIsStringNilOrBlank:self.upn])
@@ -211,6 +214,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
         RETURN_ID_TOKEN_ERROR(idToken);
     }
     _userId = [self.class normalizeUserId:_userId];
+    SAFE_ARC_RETAIN(_userId);
     
     if (![NSString adIsStringNilOrBlank:self.userObjectId])
     {
@@ -221,12 +225,23 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
         _uniqueId = self.subject;
     }
     _uniqueId = [ADUserInformation normalizeUserId:_uniqueId];
-    
-    SAFE_ARC_RETAIN(_userId);
     SAFE_ARC_RETAIN(_uniqueId);
-    SAFE_ARC_RETAIN(_allClaims);
     
     return self;
+}
+
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_userId);
+    _userId = nil;
+    SAFE_ARC_RELEASE(_uniqueId);
+    _uniqueId = nil;
+    SAFE_ARC_RELEASE(_allClaims);
+    _allClaims = nil;
+    SAFE_ARC_RELEASE(_rawIdToken);
+    _rawIdToken = nil;
+    
+    SAFE_ARC_SUPER_DEALLOC();
 }
 
 //Declares a propperty getter, which extracts the property from the claims dictionary

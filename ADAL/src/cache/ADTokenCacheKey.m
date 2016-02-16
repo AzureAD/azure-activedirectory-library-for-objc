@@ -61,6 +61,18 @@
     return self;
 }
 
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_authority);
+    _authority = nil;
+    SAFE_ARC_RELEASE(_resource);
+    _resource = nil;
+    SAFE_ARC_RELEASE(_clientId);
+    _clientId = nil;
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 + (id)keyWithAuthority:(NSString *)authority
               resource:(NSString *)resource
               clientId:(NSString *)clientId

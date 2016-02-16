@@ -326,6 +326,10 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         
         completionBlock( response );
     }];
+    
+    // The objc blocks above will hold onto references to this web request and keep it alive until after
+    // the completion block gets hit.
+    SAFE_ARC_RELEASE(webRequest);
 }
 
 //Used for the callback of obtaining the OAuth2 code:

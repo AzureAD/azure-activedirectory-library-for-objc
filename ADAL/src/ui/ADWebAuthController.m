@@ -153,6 +153,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         
         dispatch_async( dispatch_get_main_queue(), ^{
             completionBlock( error, url );
+            SAFE_ARC_RELEASE(completionBlock);
         });
     }
     
@@ -202,21 +203,27 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 {
 #pragma unused(sender)
     
-    if ( _loading )
+    if (_loading)
     {
         [_authenticationViewController startSpinner];
     }
+    
+    SAFE_ARC_RELEASE(_spinnerTimer);
+    _spinnerTimer = nil;
 }
 
 - (void)stopSpinner
 {
     if (!_loading)
+    {
         return;
+    }
     
     _loading = NO;
     if (_spinnerTimer)
     {
         [_spinnerTimer invalidate];
+        SAFE_ARC_RELEASE(_spinnerTimer);
         _spinnerTimer = nil;
     }
     
@@ -226,7 +233,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)failWithTimeout
 {
-    
+    SAFE_ARC_RELEASE(_loadingTimer);
     _loadingTimer = nil;
     [_authenticationViewController stop:^{
         NSError* error = [NSError errorWithDomain:NSURLErrorDomain
@@ -244,17 +251,24 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     if (!_loading)
     {
         _loading = YES;
+        if (_spinnerTimer)
+        {
+            [_spinnerTimer invalidate];
+            SAFE_ARC_RELEASE(_spinnerTimer);
+        }
         _spinnerTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
                                                          target:self
                                                        selector:@selector(onStartActivityIndicator:)
                                                        userInfo:nil
                                                         repeats:NO];
         [_spinnerTimer setTolerance:0.3];
+        SAFE_ARC_RETAIN(_spinnerTimer);
     }
     
     if (_loadingTimer)
     {
         [_loadingTimer invalidate];
+        SAFE_ARC_RELEASE(_loadingTimer);
         _loadingTimer = nil;
     }
     
@@ -383,6 +397,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     if (_loadingTimer)
     {
         [_loadingTimer invalidate];
+        SAFE_ARC_RELEASE(_loadingTimer);
         _loadingTimer = nil;
     }
     
@@ -481,7 +496,6 @@ correlationId:(NSUUID *)correlationId
     // Save the completion block
     SAFE_ARC_RELEASE(_completionBlock);
     _completionBlock = [completionBlock copy];
-    SAFE_ARC_RETAIN(_completionBlock);
     ADAuthenticationError* error = nil;
     
     [ADURLProtocol registerProtocol];

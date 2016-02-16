@@ -56,7 +56,7 @@ NSString* const sAADTestInstance = @"AAD Instance";
         [testAuthorities setObject:instance forKey:instanceName];
         break;
     }
-    self->_testAuthorities = testAuthorities;
+    _testAuthorities = testAuthorities;
     return self;
 }
 

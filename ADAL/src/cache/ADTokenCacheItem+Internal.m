@@ -153,7 +153,10 @@
     {
         expires = [NSDate dateWithTimeIntervalSinceNow:3600.0]; //Assume 1hr expiration
     }
-    self.expiresOn = expires;
+    
+    SAFE_ARC_RELEASE(_expiresOn);
+    _expiresOn = expires;
+    SAFE_ARC_RETAIN(_expiresOn);
 }
 
 - (void)logWithCorrelationId:(NSString*)correlationId
