@@ -63,7 +63,7 @@
     return context;
 }
 
-- (void)testRequestRetryOnUnusualHttpResponse
+- (void)testNonHttpsRedirectInWebView
 {
     //Create a context with empty token cache
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
