@@ -154,9 +154,13 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 
 + (ADAuthenticationResult*)resultForBrokerErrorResponse:(NSDictionary*)response
 {
-	NSUUID* correlationId = [response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
-                            [[NSUUID alloc] initWithUUIDString:[response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]]
-                            : nil;
+    NSUUID* correlationId = nil;
+    NSString* uuidString = [response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE];
+    if (uuidString)
+    {
+        correlationId = [[NSUUID alloc] initWithUUIDString:[response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
+        SAFE_ARC_AUTORELEASE(correlationId);
+    }
     
     // Otherwise parse out the error condition
     ADAuthenticationError* error = nil;
@@ -218,6 +222,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     if (correlationIdStr)
     {
         correlationId = [[NSUUID alloc] initWithUUIDString:correlationIdStr];
+        SAFE_ARC_AUTORELEASE(correlationId);
     }
 
     ADTokenCacheItem* item = [ADTokenCacheItem new];
@@ -226,6 +231,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithItem:item
                                                         multiResourceRefreshToken:isMRRT
                                                                     correlationId:correlationId];
+    SAFE_ARC_RELEASE(item);
     SAFE_ARC_AUTORELEASE(result);
     return result;
     
