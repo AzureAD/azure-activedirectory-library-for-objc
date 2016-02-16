@@ -28,6 +28,7 @@
 #import "NSDictionary+ADExtensions.h"
 #import "ADAuthenticationSettings.h"
 #import "ADNTLMHandler.h"
+#import "ADLogger.h"
 
 @implementation ADAuthenticationWebViewController
 {
@@ -155,6 +156,16 @@ NSTimer *timer;
         dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCompleteWithURL:request.URL]; } );
         
         // Tell the web view that this URL should not be loaded.
+        return NO;
+    }
+    
+    // redirecting to non-https url is not allowed
+    if (![requestURL hasPrefix: @"https"])
+    {
+        AD_LOG_ERROR(@"Server is redirecting to a non-https url", AD_ERROR_NON_HTTPS_REDIRECT, nil);
+        _complete = YES;
+        ADAuthenticationError* error = [ADAuthenticationError errorFromNonHttpsRedirect];
+        dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidFailWithError:error]; } );
         return NO;
     }
     
