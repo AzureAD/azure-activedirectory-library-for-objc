@@ -59,7 +59,7 @@ NSString *const OAUTH2_SAML11_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:
 NSString *const OAUTH2_SAML2_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml2-bearer";
 NSString *const OAUTH2_SCOPE_OPENID_VALUE = @"openid";
 
-NSString *const ADAL_CLIENT_FAMILY_ID = @"fid";
+NSString *const ADAL_CLIENT_FAMILY_ID = @"foci";
 
 NSString *const BROKER_MAX_PROTOCOL_VERSION              = @"max_protocol_ver";
 
