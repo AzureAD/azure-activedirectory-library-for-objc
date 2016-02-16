@@ -271,11 +271,11 @@
     
     if (query)
     {
-        [components setQuery:[query stringByAppendingString:[NSString stringWithFormat:@"&%@=%@", ADAL_ID_VERSION, [ADLogger getNetworkAdalVersion]]]];
+        [components setQuery:[query stringByAppendingString:[NSString stringWithFormat:@"&%@=%@", ADAL_ID_VERSION, ADAL_VERSION_NSSTRING]]];
     }
     else
     {
-        [components setQuery:[NSString stringWithFormat:@"%@=%@", ADAL_ID_VERSION, [ADLogger getNetworkAdalVersion]]];
+        [components setQuery:[NSString stringWithFormat:@"%@=%@", ADAL_ID_VERSION, ADAL_VERSION_NSSTRING]];
     }
     
     return [components URL];

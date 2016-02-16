@@ -107,8 +107,6 @@ typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
 
 +(NSString*) getAdalVersion;
 
-+(NSString*) getNetworkAdalVersion;
-
 @end
 
 //A simple macro for single-line logging:

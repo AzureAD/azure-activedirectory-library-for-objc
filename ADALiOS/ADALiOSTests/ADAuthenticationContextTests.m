@@ -950,7 +950,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     XCTAssertNotNil(_context);
     ADAssertNoError;
     
-    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=https://myfakeauthority.microsoft.com/msopentechbv.onmicrosoft.com/oauth2/authorize&x-client-Ver=" ADA_NETWORK_VERSION_STRING
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=https://myfakeauthority.microsoft.com/msopentechbv.onmicrosoft.com/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING
                                                             responseURLString:@"https://idontknowwhatthisshouldbe.com"
                                                                  responseCode:400
                                                              httpHeaderFields:@{}
@@ -1015,8 +1015,8 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADD_AT_RT_TO_CACHE(nil, @"invalid refresh token");
     ADAssertLongEquals(1, [self cacheCount]);
     
-    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=" ADA_NETWORK_VERSION_STRING
-                                                            responseURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=" ADA_NETWORK_VERSION_STRING
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=" ADAL_VERSION_STRING
+                                                            responseURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=" ADAL_VERSION_STRING
                                                                  responseCode:400
                                                              httpHeaderFields:@{ } // maybe shoehorn correlation ID here
                                                              dictionaryAsJSON:@{ OAUTH2_ERROR : @"invalid_grant",
@@ -1041,7 +1041,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADD_AT_RT_TO_CACHE(nil, @"invalid refresh token");
     ADAssertLongEquals(1, [self cacheCount]);
     
-    [ADTestURLConnection addNotFoundResponseForURLString:@"https://somevalidurlbutnonexistentdomain.com/sometenant.com/oauth2/v2.0/token?x-client-Ver=" ADA_NETWORK_VERSION_STRING];
+    [ADTestURLConnection addNotFoundResponseForURLString:@"https://somevalidurlbutnonexistentdomain.com/sometenant.com/oauth2/v2.0/token?x-client-Ver=" ADAL_VERSION_STRING];
     
     acquireTokenAsync;//Will attempt to use the refresh token and fail with system error.
     ADAssertLongEquals(1, [self cacheCount]);//Should not remove anything from cache, assuming that the server is unreachable

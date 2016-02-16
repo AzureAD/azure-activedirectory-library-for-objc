@@ -215,11 +215,6 @@ NSUUID* requestCorrelationId;
     return ADAL_VERSION_NSSTRING;
 }
 
-+(NSString*) getNetworkAdalVersion
-{
-    return ADAL_NETWORK_VERSION_NSSTRING;
-}
-
 +(void) logToken: (NSString*) token
        tokenType: (NSString*) tokenType
        expiresOn: (NSDate*) expiresOn

@@ -165,7 +165,7 @@
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString adBase64URLEncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
-    NSString* adalVersion = [ADLogger getNetworkAdalVersion];
+    NSString* adalVersion = [ADLogger getAdalVersion];
     
     CHECK_FOR_NIL(base64UrlKey);
     CHECK_FOR_NIL(adalVersion);
@@ -223,7 +223,7 @@
     NSData* key = [brokerHelper getBrokerKey:&error];
     NSString* base64Key = [NSString adBase64URLEncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
-    NSString* adalVersion = [ADLogger getNetworkAdalVersion];
+    NSString* adalVersion = [ADLogger getAdalVersion];
     NSString* correlationIdStr = [_correlationId UUIDString];
     NSString* authority = _context.authority;
     
