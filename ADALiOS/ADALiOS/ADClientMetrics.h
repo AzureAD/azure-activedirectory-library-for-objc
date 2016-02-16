@@ -38,10 +38,12 @@
 
 + (ADClientMetrics*) getInstance;
 
-- (void) beginClientMetricsRecordForEndpoint: (NSString*) endPoint
-                               correlationId: (NSString*) correlationId
-                               requestHeader: (NSMutableDictionary*) requestHeader;
+- (void)addClientMetrics:(NSMutableDictionary *)requestHeaders
+                endpoint:(NSString *)endPoint;
 
--(void) endClientMetricsRecord: (NSString*) error;
+- (void)endClientMetricsRecord:(NSString *)endpoint
+                     startTime:(NSDate *)startTime
+                 correlationId:(NSUUID *)correlationId
+                  errorDetails:(NSString *)errorDetails;
 
 @end

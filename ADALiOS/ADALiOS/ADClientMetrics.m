@@ -20,6 +20,8 @@
 #import "ADClientMetrics.h"
 #import "ADHelpers.h"
 #import "NSString+ADHelperMethods.h"
+#import "ADLogger.h"
+#import "ADErrorCodes.h"
 
 @implementation ADClientMetrics
 
@@ -54,45 +56,65 @@ const NSString* HeaderLastEndpoint = @"x-client-last-endpoint";
     return self;
 }
 
-- (void) beginClientMetricsRecordForEndpoint: (NSString*) endPoint
-                               correlationId: (NSString*) correlationId
-                               requestHeader: (NSMutableDictionary*) requestHeader
+- (void)addClientMetrics:(NSMutableDictionary *)requestHeaders
+                endpoint:(NSString *)endPoint
 {
-    @synchronized(self)
+    if ([ADHelpers isADFSInstance:endPoint])
     {
-        if([ADHelpers isADFSInstance:endPoint]){
-            _endpoint = endPoint;
-            return;
-        }
-        if(_isPending){
-            [requestHeader setObject:_errorToReport forKey:HeaderLastError];
-            [requestHeader setObject:_responseTime forKey:HeaderLastResponseTime];
-            [requestHeader setObject:[ADHelpers getEndpointName:_endpoint] forKey:HeaderLastEndpoint];
-            [requestHeader setObject:_correlationId forKey:HeaderLastRequest];
-            _isPending = NO;
-        }
-        _endpoint = endPoint;
-        _responseTime = @"";
-        _correlationId = correlationId;
-        _startTime = [NSDate new];
-        _errorToReport = @"";
+        return;
     }
-}
-
-
--(void) endClientMetricsRecord: (NSString*) error{
     
     @synchronized(self)
     {
-        if([ADHelpers isADFSInstance:_endpoint]){
+        if (!_isPending)
+        {
             return;
         }
-        if([NSString adIsStringNilOrBlank:error]){
-            _errorToReport = @"";
-        }else{
-            _errorToReport = error;
+        
+        if (_errorToReport && _responseTime && _endpoint && _correlationId)
+        {
+            [requestHeaders setObject:_errorToReport forKey:HeaderLastError];
+            [requestHeaders setObject:_responseTime forKey:HeaderLastResponseTime];
+            [requestHeaders setObject:[ADHelpers getEndpointName:_endpoint] forKey:HeaderLastEndpoint];
+            [requestHeaders setObject:_correlationId forKey:HeaderLastRequest];
         }
-        _responseTime = [NSString stringWithFormat:@"%f", [_startTime timeIntervalSinceNow] * -1000.0];
+        else
+        {
+            AD_LOG_ERROR(@"unable to add client metrics.", AD_ERROR_UNEXPECTED, nil);
+        }
+        
+        _errorToReport = nil;
+        _endpoint = nil;
+        _correlationId = nil;
+        _responseTime = nil;
+        
+        _isPending = NO;
+    }
+}
+
+- (void)endClientMetricsRecord:(NSString *)endpoint
+                     startTime:(NSDate *)startTime
+                 correlationId:(NSUUID *)correlationId
+                  errorDetails:(NSString *)errorDetails
+{
+    if ([ADHelpers isADFSInstance:endpoint])
+    {
+        return;
+    }
+    
+    @synchronized(self)
+    {
+        _endpoint = endpoint;
+        if([NSString adIsStringNilOrBlank:errorDetails])
+        {
+            _errorToReport = @"";
+        }
+        else
+        {
+            _errorToReport = errorDetails;
+        }
+        _correlationId = [correlationId UUIDString];
+        _responseTime = [NSString stringWithFormat:@"%f", [startTime timeIntervalSinceNow] * -1000.0];
         _isPending = YES;
     }
 }
