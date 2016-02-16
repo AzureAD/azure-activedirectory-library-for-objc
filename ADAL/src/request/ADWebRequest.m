@@ -105,20 +105,30 @@ NSString *const HTTPPost = @"POST";
 - (void)dealloc
 {
     SAFE_ARC_RELEASE(_connection);
+    _connection = nil;
     
     SAFE_ARC_RELEASE(_requestURL);
+    _requestURL = nil;
     SAFE_ARC_RELEASE(_requestMethod);
+    _requestMethod = nil;
     SAFE_ARC_RELEASE(_requestHeaders);
+    _requestHeaders = nil;
     SAFE_ARC_RELEASE(_requestData);
+    _requestData = nil;
     
     SAFE_ARC_RELEASE(_response);
+    _response = nil;
     SAFE_ARC_RELEASE(_responseData);
+    _responseData = nil;
     
     SAFE_ARC_RELEASE(_correlationId);
+    _correlationId = nil;
     
     SAFE_ARC_RELEASE(_operationQueue);
+    _operationQueue = nil;
     
     SAFE_ARC_RELEASE(_completionHandler);
+    _completionHandler = nil;
     
     SAFE_ARC_SUPER_DEALLOC();
 }

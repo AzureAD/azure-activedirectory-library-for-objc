@@ -241,6 +241,7 @@ correlationId:(NSUUID*)correlationId
     unsigned char hash[CC_SHA256_DIGEST_LENGTH];
     CC_SHA256(inputStr, (int)strlen(inputStr), hash);
     NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
+    SAFE_ARC_AUTORELEASE(toReturn);
     for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
     {
         [toReturn appendFormat:@"%02x", hash[i]];

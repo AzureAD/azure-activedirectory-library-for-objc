@@ -60,6 +60,14 @@ static NSString* const sValidationServerError = @"The authority validation serve
     return self;
 }
 
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_validatedAuthorities);
+    _validatedAuthorities = nil;
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 /*! The getter of the public "validatedAuthorities" property. */
 - (NSSet*)validatedAuthorities
 {

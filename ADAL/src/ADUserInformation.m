@@ -225,8 +225,23 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     SAFE_ARC_RETAIN(_userId);
     SAFE_ARC_RETAIN(_uniqueId);
     SAFE_ARC_RETAIN(_allClaims);
+    SAFE_ARC_RETAIN(_rawIdToken);
     
     return self;
+}
+
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_userId);
+    _userId = nil;
+    SAFE_ARC_RELEASE(_uniqueId);
+    _uniqueId = nil;
+    SAFE_ARC_RELEASE(_allClaims);
+    _allClaims = nil;
+    SAFE_ARC_RELEASE(_rawIdToken);
+    _rawIdToken = nil;
+    
+    SAFE_ARC_SUPER_DEALLOC();
 }
 
 //Declares a propperty getter, which extracts the property from the claims dictionary

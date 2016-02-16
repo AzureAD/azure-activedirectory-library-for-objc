@@ -62,7 +62,9 @@
 - (void)dealloc
 {
     SAFE_ARC_RELEASE(_cache);
+    _cache = nil;
     SAFE_ARC_RELEASE(_delegate);
+    _delegate = nil;
     
     SAFE_ARC_SUPER_DEALLOC();
 }
@@ -92,8 +94,9 @@
         return nil;
     }
     
-    NSDictionary* wrapper = @{ @"version" : @CURRENT_WRAPPER_CACHE_VERSION,
-                               @"tokenCache" : _cache };
+    // Using the dictionary @{ key : value } syntax here causes _cache to leak. Yay legacy runtime!
+    NSDictionary* wrapper = [NSDictionary dictionaryWithObjectsAndKeys:_cache, @"tokenCache",
+                             @CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
     
     @try
     {
@@ -154,6 +157,7 @@
         return NO;
     }
     
+    SAFE_ARC_RELEASE(_cache);
     _cache = [cache objectForKey:@"tokenCache"];
     SAFE_ARC_RETAIN(_cache);
     return YES;
@@ -187,7 +191,9 @@
         return NO;
     }
     
+    SAFE_ARC_RELEASE(_cache);
     _cache = [dict objectForKey:@"tokenCache"];
+    SAFE_ARC_RETAIN(_cache);
     
     return YES;
 }
@@ -478,11 +484,11 @@
     
     // Copy the item to make sure it doesn't change under us.
     item = [item copy];
+    SAFE_ARC_AUTORELEASE(item);
     
     ADTokenCacheKey* key = [item extractKey:error];
     if (!key)
     {
-        SAFE_ARC_RELEASE(item);
         return NO;
     }
     
@@ -492,11 +498,8 @@
     {
         // If we don't have a cache that means we need to create one.
         _cache = [NSMutableDictionary new];
-        
         tokens = [NSMutableDictionary new];
-        
         [_cache setObject:tokens forKey:@"tokens"];
-        
         SAFE_ARC_RELEASE(tokens);
     }
     else
@@ -522,8 +525,6 @@
     }
     
     [userDict setObject:item forKey:key];
-    SAFE_ARC_RELEASE(item);
-    
     return YES;
 }
 

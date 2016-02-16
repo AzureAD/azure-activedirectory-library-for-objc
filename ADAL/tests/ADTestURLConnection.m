@@ -487,6 +487,7 @@ static NSMutableArray* s_responses = nil;
         //  Consult the ADTestRequestResponse class for a list of helper methods for formulating requests and responses.
         NSString* requestURLString = [[_request URL] absoluteString];
         NSAssert(response, @"did not find a matching response for %@", requestURLString);
+        (void)requestURLString;
         
         AD_LOG_ERROR_F(@"No matching response found.", NSURLErrorNotConnectedToInternet, nil, @"request url = %@", [_request URL]);
         [self dispatchIfNeed:^{

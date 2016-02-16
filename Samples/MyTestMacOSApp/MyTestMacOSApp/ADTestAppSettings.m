@@ -61,9 +61,17 @@ NSString* const sAADTestInstance = @"AAD Instance";
         [instance release];
 #endif
     }
-    self->_testAuthorities = testAuthorities;
+    _testAuthorities = testAuthorities;
     
     return self;
+}
+
+- (void)dealloc
+{
+    [_testAuthorities release];
+    _testAuthorities = nil;
+    
+    [super dealloc];
 }
 
 @end

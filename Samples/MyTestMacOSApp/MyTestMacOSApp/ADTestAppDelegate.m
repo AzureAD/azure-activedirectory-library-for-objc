@@ -62,7 +62,9 @@
 {
     @synchronized(self)
     {
+        [_data release];
         _data = [cache serialize];
+        [_data retain];
     }
 }
 
@@ -78,7 +80,9 @@
 {
     @synchronized(self)
     {
+        [_data release];
         _data = [cache serialize];
+        [_data retain];
     }
 }
 

@@ -44,13 +44,15 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     self = [super init];
     if (self)
     {
+        // Non ObjC Objects
         _status = AD_SUCCEEDED;
-        SAFE_ARC_RETAIN(item);
+        _multiResourceRefreshToken = multiResourceRefreshToken;
+        
+        // ObjC Objects
         _tokenCacheItem = item;
         SAFE_ARC_RETAIN(_tokenCacheItem);
-        _multiResourceRefreshToken = multiResourceRefreshToken;
-        SAFE_ARC_RETAIN(_correlationId);
         _correlationId = correlationId;
+        SAFE_ARC_RETAIN(_correlationId);
     }
     return self;
 }
