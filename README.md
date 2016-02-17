@@ -50,11 +50,11 @@ We've made it easy for you to have multiple options to use this library in your 
 
 ###Option 1: Source Zip
 
-To download a copy of the source code, click "Download ZIP" on the right side of the page or click [here](https://github.com/AzureAD/azure-activedirectory-library-for-objc/archive/1.2.4.tar.gz).
+To download a copy of the source code, click "Download ZIP" on the right side of the page or click [here](https://github.com/AzureAD/azure-activedirectory-library-for-objc/archive/1.2.5.tar.gz).
 
 ###Option 2: Cocoapods
 
-    pod 'ADALiOS', '~> 1.2.4'
+    pod 'ADALiOS', '~> 1.2.5'
 
 ## Usage
 
@@ -192,7 +192,7 @@ Otherwise ADAL outputs to NSLog by default, which will print messages on the con
 The message portion of ADAL iOS are in the format of ADALiOS [timestamp - correlation_id] message
 
 ```
-ADALiOS [2015-06-22 19:42:53 - 1030CB25-798F-4A6F-97DF-04A3A3E9DFF2] ADAL API call [Version - 1.2.4]
+ADALiOS [2015-06-22 19:42:53 - 1030CB25-798F-4A6F-97DF-04A3A3E9DFF2] ADAL API call [Version - 1.2.5]
 ```
 
 Providing correlation IDs and timestamps are tremendously in tracking down issues. The only

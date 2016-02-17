@@ -44,27 +44,46 @@
 {
     ADClientMetrics* metrics = [ADClientMetrics new];
     NSMutableDictionary* header = [NSMutableDictionary new];
-
-    [metrics beginClientMetricsRecordForEndpoint:@"https://login.windows.net/common/oauth2/token" correlationId:@"correlationId" requestHeader:header];
-    [metrics endClientMetricsRecord:@"error"];
+    
+    NSDate* startTime = [NSDate new];
+    [metrics addClientMetrics:header
+                     endpoint:@"https://login.windows.net/common/oauth2/token"];
+    [metrics endClientMetricsRecord:@"https://login.windows.net/common/oauth2/token"
+                          startTime:startTime
+                      correlationId:[NSUUID UUID]
+                       errorDetails:@"error"];
     XCTAssertEqual([header count], 0);
-    [metrics beginClientMetricsRecordForEndpoint:@"https://login.windows.net/common/oauth2/token" correlationId:@"correlationId" requestHeader:header];
+    
+    [metrics addClientMetrics:header
+                     endpoint:@"https://login.windows.net/common/oauth2/token"];
     XCTAssertEqual([header count], 4);
 }
 
-- (void)testMetricsWithAdsfEndpointFollowedByNonAdsf
+- (void)testMetricsWithADFSEndpointFollowedByNonADFS
 {
     ADClientMetrics* metrics = [ADClientMetrics new];
     NSMutableDictionary* header = [NSMutableDictionary new];
     
-    [metrics beginClientMetricsRecordForEndpoint:@"https://sts.concoso.com/adfs/oauth2/token" correlationId:@"correlationId" requestHeader:header];
-    [metrics endClientMetricsRecord:@"error"];
+    NSDate* startTime = [NSDate new];
+    [metrics addClientMetrics:header
+                     endpoint:@"https://sts.contoso.com/adfs/oauth2/token"];
     XCTAssertEqual([header count], 0);
-    [metrics beginClientMetricsRecordForEndpoint:@"https://login.windows.net/common/oauth2/token" correlationId:@"correlationId" requestHeader:header];
+    [metrics endClientMetricsRecord:@"https://sts.contoso.com/adfs/oauth2/token"
+                          startTime:startTime
+                      correlationId:[NSUUID UUID]
+                       errorDetails:@"error"];
+    
+    [metrics addClientMetrics:header
+                     endpoint:@"https://login.windows.net/common/oauth2/token"];
     XCTAssertEqual([header count], 0);
-    [metrics endClientMetricsRecord:@"error"];
-    XCTAssertEqual([header count], 0);
-    [metrics beginClientMetricsRecordForEndpoint:@"https://login.windows.net/common/oauth2/token" correlationId:@"correlationId" requestHeader:header];
+    
+    [metrics endClientMetricsRecord:@"https://login.windows.net/common/oauth2/token"
+                          startTime:startTime
+                      correlationId:[NSUUID UUID]
+                       errorDetails:@"error"];
+    
+    [metrics addClientMetrics:header
+                     endpoint:@"https://login.windows.net/common/oauth2/token"];
     XCTAssertEqual([header count], 4);
 }
 

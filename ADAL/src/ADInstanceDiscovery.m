@@ -294,7 +294,8 @@ static NSString* const sValidationServerError = @"The authority validation serve
     webRequest.method = HTTPGet;
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
-    [[ADClientMetrics getInstance] beginClientMetricsRecordForEndpoint:endPoint correlationId:[correlationId UUIDString] requestHeader:webRequest.headers];
+    __block NSDate* startTime = [NSDate new];
+    [[ADClientMetrics getInstance] addClientMetrics:webRequest.headers endpoint:endPoint];
     
     [webRequest send:^( NSError *error, ADWebResponse *webResponse )
     {
@@ -313,14 +314,12 @@ static NSString* const sValidationServerError = @"The authority validation serve
                                 correlationId:correlationId];
         }
         
-        if (adError)
-        {
-            [[ADClientMetrics getInstance] endClientMetricsRecord:[adError description]];
-        }
-        else
-        {
-            [[ADClientMetrics getInstance] endClientMetricsRecord:nil];
-        }
+        NSString* errorDetails = [adError errorDetails];
+        [[ADClientMetrics getInstance] endClientMetricsRecord:endPoint
+                                                    startTime:startTime
+                                                correlationId:correlationId
+                                                 errorDetails:errorDetails];
+        SAFE_ARC_RELEASE(startTime);
         
          completionBlock(!adError, adError);
      }];
