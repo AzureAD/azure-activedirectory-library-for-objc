@@ -62,6 +62,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 @synthesize validateAuthority = _validateAuthority;
 @synthesize correlationId = _correlationId;
 @synthesize credentialsType = _credentialsType;
+@synthesize component = _component;
 @synthesize webView = _webView;
 
 - (id)init
