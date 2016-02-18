@@ -221,6 +221,9 @@
     
     //wipe out the refresh token
     _refreshToken = @"<tombstone>";
+    SAFE_ARC_RELEASE(_expiresOn);
+    _expiresOn = [NSDate dateWithTimeIntervalSinceNow:60*60*24*30];//tombstones should be removed after 30 days
+    SAFE_ARC_RETAIN(_expiresOn);
     _tombstone = tombstoneDictionary;
 
 }

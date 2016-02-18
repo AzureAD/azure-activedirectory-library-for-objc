@@ -454,4 +454,40 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     SecItemDelete((CFDictionaryRef)deleteQuery);
 }
 
+//test the case where a tombstone is too old to stay in cache store
+- (void)testTombstoneAgingOut
+{
+    XCTAssertTrue([self count] == 0, "Start empty.");
+    
+    ADAuthenticationError* error;
+    XCTAssertNotNil([mStore allItems:&error]);
+    ADAssertNoError;
+    
+    //add a tombstone which is old enough
+    ADTokenCacheItem* item1 = [self adCreateCacheItem:@"eric@contoso.com"];
+    [item1 makeTombstone:nil];
+    [item1 setExpiresOn:[NSDate date]];// set the tombstone expire date as now
+    [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
+    XCTAssertEqual([self tombstoneCount], 1);
+    
+    //deletion of old-enough tombstones is done on the back of the filtering function
+    //any method involving filtering tombstones will have the effect of deleting old tombstones
+    //E.g., [allitems:] will filter out tombstones and therefore old tombstones are deleted.
+    NSArray* all = [mStore allItems:nil];
+    (void) all;
+    XCTAssertEqual([self tombstoneCount], 0);
+    
+    //add another item
+    ADTokenCacheItem* item2 = [self adCreateCacheItem:@"stan@contoso.com"];
+    [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
+    //make item2 a tombstone. It will expire after 30 days by default.
+    [mStore removeItem:item2 error:&error];
+    ADAssertNoError;
+    XCTAssertEqual([self tombstoneCount], 1);
+    
+    //after calling [allItems:], tombstone for item2 should still remain in cache store as it is new.
+    [mStore allItems:nil];
+    XCTAssertEqual([self tombstoneCount], 1);
+}
+
 @end

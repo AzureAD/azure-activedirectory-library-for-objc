@@ -356,9 +356,27 @@
         {
             [itemsKept addObject:item];
         }
+        else
+        {
+            //tombstone will be deleted from cache store if it is too old
+            [self deleteTombstoneIfTooOld:item];
+        }
     }
     SAFE_ARC_AUTORELEASE(itemsKept);
     return itemsKept;
+}
+
+- (void)deleteTombstoneIfTooOld:(ADTokenCacheItem *)item
+{
+    if (!item)
+    {
+        return;
+    }
+    
+    if ([[item expiresOn] compare:[NSDate date]] == NSOrderedAscending)
+    {
+        [self removeItem:item error:nil];
+    }
 }
 
 @end
