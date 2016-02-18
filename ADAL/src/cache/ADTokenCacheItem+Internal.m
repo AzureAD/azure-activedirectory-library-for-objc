@@ -244,6 +244,7 @@
               message:tombstoneMessage
             errorCode:0
         correlationId:correlationId
+             userInfo:_tombstone
                format:@"{\n\tresource: %@\n\tclientId: %@\n\tauthority:%@\n}", _resource, _clientId, _authority];
         return;
     }
@@ -277,6 +278,7 @@
           message:tokenMessage
         errorCode:0
     correlationId:correlationId
+         userInfo:nil
            format:@"{\n\tresource = %@\n\tclientId = %@\n\tauthority = %@\n\tuserId = %@\n}",
      _resource, _clientId, _authority, _userInformation.userId];
 }

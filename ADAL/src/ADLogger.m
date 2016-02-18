@@ -104,6 +104,7 @@ static dispatch_once_t s_logOnce;
   errorCode:(NSInteger)errorCode
        info:(NSString*)info
 correlationId:(NSUUID*)correlationId
+   userInfo:(NSDictionary *)userInfo
 {
     static NSDateFormatter* s_dateFormatter = nil;
     static dispatch_once_t s_dateOnce;
@@ -161,24 +162,25 @@ correlationId:(NSUUID*)correlationId
         if (s_LogCallback)
         {
             NSString* msg = [NSString stringWithFormat:@"ADAL [%@%@]%@ %@", dateString, correlationIdStr, component, message];
-            s_LogCallback(logLevel, msg, info, errorCode);
+            s_LogCallback(logLevel, msg, info, errorCode, userInfo);
         }
     }
 }
 
 + (void)log:(ADAL_LOG_LEVEL)level
     context:(id)context
-    message:(NSString*)message
+    message:(NSString *)message
   errorCode:(NSInteger)code
 correlationId:(NSUUID*)correlationId
-     format:(NSString*)format, ...
+   userInfo:(NSDictionary *)userInfo
+     format:(NSString *)format, ...
 {
     va_list args;
     va_start(args, format);
     NSString* info = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
     
-    [self log:level context:context message:message errorCode:code info:info correlationId:correlationId];
+    [self log:level context:context message:message errorCode:code info:info correlationId:correlationId userInfo:userInfo];
     SAFE_ARC_RELEASE(info);
 }
 

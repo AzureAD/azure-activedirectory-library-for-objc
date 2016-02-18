@@ -48,9 +48,10 @@ typedef enum
 //The block declaration. Needs to be weak to ensure that the pointer does not hold static reference
 //to the parent class of the callback.
 typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
-                            NSString* message,
-                            NSString* additionalInformation,
-                            NSInteger errorCode);
+                            NSString *message,
+                            NSString *additionalInformation,
+                            NSInteger errorCode,
+                            NSDictionary *userInfo);
 
 /*! Provided block will be called when the logged messages meet the priority threshold
  @param callback: The block to be executed when suitable messages are logged. By default, when
