@@ -80,22 +80,6 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
         domain = @"ADAL";
     }
     
-    if (!quiet)
-    {
-        NSString* message = [NSString stringWithFormat:@"Error raised: %ld", (long)code];
-        NSMutableString* info = [[NSMutableString alloc] initWithFormat:@"Domain: %@", domain];
-        if (protocolCode)
-        {
-            [info appendFormat:@" ProtocolCode: %@", protocolCode];
-        }
-        if (details)
-        {
-            [info appendFormat:@" Details: %@", details];
-        }
-        AD_LOG_ERROR(message, code, correlationId, info);
-        SAFE_ARC_RELEASE(info);
-    }
-    
     self = [super initWithDomain:domain code:code userInfo:userInfo];
     if (self)
     {
@@ -104,6 +88,24 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
         _protocolCode = protocolCode;
         SAFE_ARC_RETAIN(_protocolCode);
     }
+    
+    if (!quiet)
+    {
+        NSString* message = [NSString stringWithFormat:@"Error raised: (Domain: \"%@\" Code:%lu ProtocolCode: \"%@\" Details: \"%@\"", domain, (long)code, protocolCode, details];
+        NSDictionary* logDict = nil;
+        if (correlationId)
+        {
+            logDict = @{ @"error" : self,
+                         @"correlationId" : correlationId };
+        }
+        else
+        {
+            logDict = @{ @"error" : self };
+        }
+        
+        AD_LOG_ERROR_DICT(message, code, correlationId, logDict, nil);
+    }
+    
     return self;
 }
 
