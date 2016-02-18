@@ -43,6 +43,8 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     id mClassValue;
     NSString* mLibraryString;
     NSData* mLibraryValue;//Data representation of the library string.
+    
+    BOOL mSharedCache;
 
     ADKeyChainHelper* mHelper;
 }
@@ -67,6 +69,14 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         mClassValue     = (__bridge id)kSecClassGenericPassword;
         mLibraryString  = [NSString stringWithFormat:@"MSOpenTech.ADAL.%ld", sKeychainVersion];
         mLibraryValue   = [mLibraryString dataUsingEncoding:NSUTF8StringEncoding];
+        
+        NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
+        mSharedCache = (sharedGroup && ![sharedGroup isEqualToString:bundleId]);
+        if (!sharedGroup)
+        {
+            sharedGroup = bundleId;
+        }
+
         
         mHelper = [[ADKeyChainHelper alloc] initWithClass:mClassValue
                                                   generic:mLibraryValue
@@ -526,6 +536,14 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
         NSDictionary* allAttributes = [self keychainAttributesWithKey:key userId:userId error:error];
         if (allAttributes)
         {
+            NSString* service = [allAttributes objectForKey:(id)kSecAttrService];
+            NSArray* parts = [service componentsSeparatedByString:sDelimiter];
+            NSString* authority = [parts[1] adBase64UrlDecode];
+            NSString* resource = parts[2];
+            NSString* clientId = [parts[3] adBase64UrlDecode];
+            NSString* userId = [allAttributes objectForKey:(id)kSecAttrAccount];
+            
+            AD_LOG_VERBOSE_F(@"removing item from cache", @"authority = \"%@\", resource = \"%@\", clientId = \"%@\", userId = \"%@\"", authority, resource, clientId, userId);
             [self removeWithAttributesDictionaries:allAttributes error:error];
         }
     }
@@ -536,6 +554,15 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                    error: (ADAuthenticationError* __autoreleasing*) error
 {
     API_ENTRY;
+    if (mSharedCache)
+    {
+        AD_LOG_ERROR(@"******** removeAllWithError is being called. This will remove all tokens from the ADAL shared cache that your application has access to. ********", AD_ERROR_UNEXPECTED, nil);
+    }
+    else
+    {
+        AD_LOG_INFO(@"Removing all tokens from the keychain cache.", nil);
+    }
+    
     @synchronized(self)
     {
         NSMutableDictionary* query = [NSMutableDictionary new];
@@ -575,10 +602,13 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
     API_ENTRY;
     @synchronized(self)
     {
-        if (![NSString adSame:mHelper.sharedGroup toString:sharedGroup])
+        NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
+        mSharedCache = (sharedGroup && ![sharedGroup isEqualToString:bundleId]);
+        if (!sharedGroup)
         {
-            mHelper.sharedGroup = sharedGroup;
+            sharedGroup = bundleId;
         }
+        mHelper.sharedGroup = sharedGroup;
     }
 }
 
