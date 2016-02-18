@@ -40,14 +40,15 @@
 @interface ADURLProtocol : NSURLProtocol <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 {
     NSURLConnection *_connection;
+    NSUUID *_correlationId;
 }
 
 + (void)registerHandler:(Class<ADAuthMethodHandler>)handler
-             authMethod:(NSString*)authMethod;
+             authMethod:(NSString *)authMethod;
 
 + (BOOL)registerProtocol;
 + (void)unregisterProtocol;
 
-- (void)startLoading:(NSURL*)url;
-
++ (void)addCorrelationId:(NSUUID *)correlationId
+               toRequest:(NSMutableURLRequest *)request;
 @end
