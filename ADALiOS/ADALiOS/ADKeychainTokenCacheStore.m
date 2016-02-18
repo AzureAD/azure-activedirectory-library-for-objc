@@ -554,14 +554,6 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
                    error: (ADAuthenticationError* __autoreleasing*) error
 {
     API_ENTRY;
-    if (mSharedCache)
-    {
-        AD_LOG_ERROR(@"******** removeAllWithError is being called. This will remove all tokens from the ADAL shared cache that your application has access to. ********", AD_ERROR_UNEXPECTED, nil);
-    }
-    else
-    {
-        AD_LOG_INFO(@"Removing all tokens from the keychain cache.", nil);
-    }
     
     @synchronized(self)
     {
@@ -582,6 +574,16 @@ const long sKeychainVersion = 1;//will need to increase when we break the forwar
 -(void) removeAllWithError:(ADAuthenticationError *__autoreleasing *)error
 {
     API_ENTRY;
+    
+    if (mSharedCache)
+    {
+        AD_LOG_ERROR(@"******** removeAllWithError is being called. This will remove all tokens from the ADAL shared cache that your application has access to. ********", AD_ERROR_UNEXPECTED, nil);
+    }
+    else
+    {
+        AD_LOG_INFO(@"Removing all tokens from the keychain cache.", nil);
+    }
+    
     @synchronized(self)
     {
         NSDictionary* allAttributes = [self keychainAttributesWithQuery:nil error:error];
