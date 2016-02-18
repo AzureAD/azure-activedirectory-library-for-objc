@@ -271,11 +271,13 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 #define REQUEST_WITH_REDIRECT_STRING(_redirect, _clientId, _resource) \
     ADAuthenticationRequest* request = [self requestWithRedirectString:_redirect clientId:_clientId resource:_resource completionBlock:completionBlock]; \
-    if (!request) { return; }
+    if (!request) { return; } \
+    [request setComponent:_component];
 
 #define REQUEST_WITH_REDIRECT_URL(_redirect, _clientId, _resource) \
     ADAuthenticationRequest* request = [self requestWithRedirectUrl:_redirect clientId:_clientId resource:_resource completionBlock:completionBlock]; \
-    if (!request) { return; }
+    if (!request) { return; } \
+    [request setComponent:_component];
 
 - (void)acquireTokenForAssertion:(NSString*)assertion
                    assertionType:(ADAssertionType)assertionType

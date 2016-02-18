@@ -200,7 +200,7 @@
     }
     
     if (!CC_SHA256([plainData bytes], (CC_LONG)[plainData length], hashBytes)) {
-        [ADLogger log:ADAL_LOG_LEVEL_ERROR message:@"Could not compute SHA265 hash." errorCode:AD_ERROR_UNEXPECTED info:nil correlationId:nil];
+        [ADLogger log:ADAL_LOG_LEVEL_ERROR context:nil message:@"Could not compute SHA265 hash." errorCode:AD_ERROR_UNEXPECTED info:nil correlationId:nil];
         if (hashBytes)
             free(hashBytes);
         if (signedHashBytes)
@@ -220,7 +220,7 @@
     // TODO: SecKeyRawSign is not available on OS X, use SecSignTransformCreate instead
 #endif
     
-    [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"Status returned from data signing - " errorCode:status info:nil correlationId:nil];
+    [ADLogger log:ADAL_LOG_LEVEL_INFO context:nil message:@"Status returned from data signing - " errorCode:status info:nil correlationId:nil];
     signedHash = [NSData dataWithBytes:signedHashBytes
                                 length:(NSUInteger)signedHashBytesSize];
     

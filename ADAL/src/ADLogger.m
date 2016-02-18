@@ -29,6 +29,12 @@
 #include <mach/machine.h>
 #include <CommonCrypto/CommonDigest.h>
 
+@protocol LoggerContext <NSObject>
+
+- (NSString *)component;
+
+@end
+
 static ADAL_LOG_LEVEL s_LogLevel = ADAL_LOG_LEVEL_ERROR;
 static LogCallback s_LogCallback = nil;
 static BOOL s_NSLogging = YES;
@@ -80,37 +86,20 @@ static dispatch_once_t s_logOnce;
     }
 }
 
-+ (NSString*)formatStringPerLevel:(ADAL_LOG_LEVEL)level
++ (NSString*)stringForLevel:(ADAL_LOG_LEVEL)level
 {
-    {//Compile time check that all of the levels are covered below.
-    int add_new_types_to_the_switch_below_to_fix_this_error[ADAL_LOG_LEVEL_VERBOSE - ADAL_LOG_LAST];
-    #pragma unused(add_new_types_to_the_switch_below_to_fix_this_error)
-    }
-    
-    switch (level) {
-        case ADAL_LOG_LEVEL_ERROR:
-            return @"ADAL [%@ - %@] ERROR: %@. Additional Information: %@. ErrorCode: %d.";
-            break;
-            
-        case ADAL_LOG_LEVEL_WARN:
-            return @"ADAL [%@ - %@] WARNING: %@. Additional Information: %@. ErrorCode: %d.";
-            break;
-            
-        case ADAL_LOG_LEVEL_INFO:
-            return @"ADAL [%@ - %@] INFORMATION: %@. Additional Information: %@. ErrorCode: %d.";
-            break;
-            
-        case ADAL_LOG_LEVEL_VERBOSE:
-            return @"ADAL [%@ - %@] VERBOSE: %@. Additional Information: %@. ErrorCode: %d.";
-            break;
-            
-        default:
-            return @"ADAL [%@ - %@] UNKNOWN: %@. Additional Information: %@. ErrorCode: %d.";
-            break;
+    switch (level)
+    {
+        case ADAL_LOG_LEVEL_ERROR: return @"ERROR";
+        case ADAL_LOG_LEVEL_WARN: return @"WARNING";
+        case ADAL_LOG_LEVEL_INFO: return @"INFO";
+        case ADAL_LOG_LEVEL_VERBOSE: return @"VERBOSE";
+        case ADAL_LOG_LEVEL_NO_LOG: return @"NONE";
     }
 }
 
 + (void)log:(ADAL_LOG_LEVEL)logLevel
+    context:(id)context
     message:(NSString*)message
   errorCode:(NSInteger)errorCode
        info:(NSString*)info
@@ -133,33 +122,52 @@ correlationId:(NSUUID*)correlationId
     if (!message)
         return;
     
+    
     @synchronized(self)//Guard against thread-unsafe callback and modification of sLogCallback after the check
     {
-        if (logLevel <= s_LogLevel && (s_LogCallback || s_NSLogging))
+        if (!(logLevel <= s_LogLevel && (s_LogCallback || s_NSLogging)))
         {
-            NSString* dateString =  [s_dateFormatter stringFromDate:[NSDate date]];
-            if (s_NSLogging)
+            return;
+        }
+        
+        NSString* component = @"";
+        if ([context respondsToSelector:@selector(component)])
+        {
+            id compRet = [context component];
+            if ([compRet isKindOfClass:[NSString class]])
             {
-                //NSLog is documented as thread-safe:
-                NSLog([self formatStringPerLevel:logLevel], dateString, correlationId ?[correlationId UUIDString]:@"", message, info, errorCode);
+                component = [NSString stringWithFormat:@" [%@]", compRet];
             }
+        }
+        
+        NSString* correlationIdStr = @"";
+        if (correlationId)
+        {
+            correlationIdStr = [NSString stringWithFormat:@" - %@", correlationId.UUIDString];
+        }
+        
+        NSString* dateString =  [s_dateFormatter stringFromDate:[NSDate date]];
+        if (s_NSLogging)
+        {
+            NSString* levelString = [self stringForLevel:logLevel];
             
-            if (s_LogCallback)
-            {
-                if (correlationId)
-                {
-                    s_LogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@ - %@] %@", dateString, [correlationId UUIDString], message], info, errorCode);
-                }
-                else
-                {
-                    s_LogCallback(logLevel, [NSString stringWithFormat:@"ADALiOS [%@] %@", dateString, message], info, errorCode);
-                }
-            }
+            NSString* msg = [NSString stringWithFormat:@"ADAL [%@%@]%@ %@: %@", dateString, correlationIdStr,
+                             component, levelString, message];
+            
+            //NSLog is documented as thread-safe:
+            NSLog(@"%@", msg);
+        }
+        
+        if (s_LogCallback)
+        {
+            NSString* msg = [NSString stringWithFormat:@"ADAL [%@%@]%@ %@", dateString, correlationIdStr, component, message];
+            s_LogCallback(logLevel, msg, info, errorCode);
         }
     }
 }
 
 + (void)log:(ADAL_LOG_LEVEL)level
+    context:(id)context
     message:(NSString*)message
   errorCode:(NSInteger)code
 correlationId:(NSUUID*)correlationId
@@ -170,7 +178,7 @@ correlationId:(NSUUID*)correlationId
     NSString* info = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
     
-    [self log:level message:message errorCode:code info:info correlationId:correlationId];
+    [self log:level context:context message:message errorCode:code info:info correlationId:correlationId];
     SAFE_ARC_RELEASE(info);
 }
 

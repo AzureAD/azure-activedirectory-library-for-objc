@@ -240,6 +240,7 @@
         }
         
         [ADLogger log:level
+              context:self
               message:tombstoneMessage
             errorCode:0
         correlationId:correlationId
@@ -272,6 +273,7 @@
     }
     
     [ADLogger log:level
+          context:self
           message:tokenMessage
         errorCode:0
     correlationId:correlationId
