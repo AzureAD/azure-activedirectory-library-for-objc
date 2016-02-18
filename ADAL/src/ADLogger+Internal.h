@@ -31,8 +31,8 @@
 
 //Allows formatting, e.g. AD_LOG_FORMAT(ADAL_LOG_LEVEL_INFO, "Something", "Check this: %@ and this: %@", this1, this2)
 //If we make this a method, we will lose the warning when the string formatting parameters do not match the actual parameters.
-#define AD_LOG_F(_level, _msg, _code, _correlationId, _fmt, ...) \
-    [ADLogger log:_level context:self message:_msg errorCode:_code correlationId:_correlationId userInfo:nil format:_fmt, ##__VA_ARGS__ ]
+#define AD_LOG_F(_level, _msg, _code, _correlationId, _dict, _fmt, ...) \
+    [ADLogger log:_level context:self message:_msg errorCode:_code correlationId:_correlationId userInfo:_dict format:_fmt, ##__VA_ARGS__ ]
 
 #define AD_LOG_ERROR(_message, _code, _correlationId, _info) \
     AD_LOG(ADAL_LOG_LEVEL_ERROR, (_message), (_code), _correlationId, nil, _info)
