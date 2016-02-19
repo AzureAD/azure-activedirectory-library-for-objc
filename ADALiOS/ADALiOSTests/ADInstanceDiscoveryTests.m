@@ -162,7 +162,6 @@ const int sAsyncTimeout = 10;//in seconds
     result = [mTestInstanceDiscovery extractHost:nil correlationId:nil error:nil];
     XCTAssertNil(result);
     ADAssertLogsContain(TEST_LOG_MESSAGE, "Error");
-    ADAssertLogsContain(TEST_LOG_INFO, "authority");
     error = nil;
     
     //White space string:
