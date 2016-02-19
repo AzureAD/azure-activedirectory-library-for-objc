@@ -205,7 +205,10 @@
                key:(nonnull ADTokenCacheKey *)key
 {
     ADTokenCacheItem* item = [dictionary objectForKey:key];
-    if (item)
+    //if an item is a tombstone and too old, it is deleted and won't be returned;
+    //otherwise it will be returned.
+    if (item &&
+        !([item tombstone] && [self deleteTombstoneIfTooOld:item]))
     {
         item = [item copy];
         
@@ -356,27 +359,20 @@
         {
             [itemsKept addObject:item];
         }
-        else
-        {
-            //tombstone will be deleted from cache store if it is too old
-            [self deleteTombstoneIfTooOld:item];
-        }
     }
     SAFE_ARC_AUTORELEASE(itemsKept);
     return itemsKept;
 }
 
-- (void)deleteTombstoneIfTooOld:(ADTokenCacheItem *)item
+//return YES if the tombstone is too old and deleted; NO otherwise.
+- (BOOL)deleteTombstoneIfTooOld:(ADTokenCacheItem *)item
 {
-    if (!item)
-    {
-        return;
-    }
-    
-    if ([[item expiresOn] compare:[NSDate date]] == NSOrderedAscending)
+    if (item && [[item expiresOn] compare:[NSDate date]] == NSOrderedAscending)
     {
         [self removeItem:item error:nil];
+        return YES;
     }
+    return NO;
 }
 
 @end
