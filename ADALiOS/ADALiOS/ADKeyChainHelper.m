@@ -85,26 +85,19 @@ extern NSString* const sKeyChainlog;
     NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:attributes];
     [self addStandardAttributes:query];
     
-    AD_LOG_VERBOSE_F(sKeyChainlog, @"Attempting to remove items that match attributes: %@", attributes);
-    
     OSStatus res = SecItemDelete((__bridge CFDictionaryRef)query);
     switch (res)
     {
         case errSecSuccess:
-            AD_LOG_VERBOSE_F(sKeyChainlog, @"Successfully removed any items that match: %@", attributes);
+            AD_LOG_INFO_F(@"Keychain: Removed items.", @"query: %@", attributes);
             return YES;
         case errSecItemNotFound:
             //It is expected: the item may be removed in parallel by another app, so no raising of error.
-            AD_LOG_VERBOSE_F(sKeyChainlog, @"No items to remove. Searched for: %@", attributes);
+            AD_LOG_VERBOSE_F(@"Keychain: No items to remove.",  @"query: %@", attributes);
             break;
         default:
         {
-            //Couldn't extract the elements:
-            NSString* errorDetails = [NSString stringWithFormat:@"Cannot the the items in the keychain. Error code: %ld. Items attempted: %@",
-                                      (long)res, attributes];
-            ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                                                     protocolCode:nil
-                                                                                     errorDetails:errorDetails];
+            ADAuthenticationError* toReport = [ADAuthenticationError keychainErrorFromOperation:@"delete" status:res];
             if (error)
             {
                 *error = toReport;
@@ -133,21 +126,9 @@ extern NSString* const sKeyChainlog;
             //All good
             return YES;
         case errSecItemNotFound:
-        {
-            NSString* errorDetails = [NSString stringWithFormat:@"Cannot update a keychain item, as it is not present anymore. Attributes: %@",
-                                    attributes];
-            toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                              protocolCode:nil
-                                                              errorDetails:errorDetails];
-            break;
-        }
         default:
         {
-            NSString* errorDetails = [NSString stringWithFormat:@"Cannot update the item in the keychain. Error code: %ld. Attributes: %@", (long)res,
-                                      attributes];
-            toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                              protocolCode:nil
-                                                              errorDetails:errorDetails];
+            toReport = [ADAuthenticationError keychainErrorFromOperation:@"update" status:res];
         }
     }
     
@@ -183,16 +164,12 @@ extern NSString* const sKeyChainlog;
             //Success:
             return (__bridge_transfer NSArray*)all;
         case errSecItemNotFound:
-            AD_LOG_VERBOSE_F(sKeyChainlog, @"No cache items found.");
+            AD_LOG_INFO(@"Keychain: No cache items found.", nil);
             return [NSArray new];//Empty one
         default:
         {
             //Couldn't extract the elements:
-            NSString* errorDetails = [NSString stringWithFormat:@"Cannot read the items in the keychain. Error code: %ld. Query: %@", (long)res, query];
-            ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                                                     protocolCode:nil
-                                                                                     errorDetails:errorDetails];
-            if (error)
+            ADAuthenticationError* toReport = toReport = [ADAuthenticationError keychainErrorFromOperation:@"read" status:res];            if (error)
             {
                 *error = toReport;
             }
@@ -221,10 +198,7 @@ extern NSString* const sKeyChainlog;
     OSStatus res = SecItemAdd((__bridge CFMutableDictionaryRef)updatedAttributes, NULL);
     if (errSecSuccess != res)
     {
-        NSString* errorDetails = [NSString stringWithFormat:@"Cannot add a new item in the keychain. Error code: %ld. Attributes: %@", (long)res, attributes];
-        ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                                                 protocolCode:nil
-                                                                                 errorDetails:errorDetails];
+        ADAuthenticationError* toReport = toReport = [ADAuthenticationError keychainErrorFromOperation:@"add" status:res];
         if (error)
         {
             *error = toReport;
@@ -263,15 +237,11 @@ extern NSString* const sKeyChainlog;
         case errSecItemNotFound:
             //This can happen in the case of shared keychain groups, where the item can be deleted by another app
             //while this application is working on accessing it:
-            AD_LOG_WARN_F(sKeyChainlog, @"Cannot find item with attributes: %@", attributes);
+            AD_LOG_WARN_F(@"Keychain: Failed to find matching items in keychain.", @"query: %@", attributes);
             return NO;
         default:
         {
-            NSString* errorDetails = [NSString stringWithFormat:@"Cannot read the data from the keychain. Error code: %ld. Attributes: %@",
-                                      (long)res, attributes];
-            ADAuthenticationError* toReport = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
-                                                                                     protocolCode:nil
-                                                                                     errorDetails:errorDetails];
+            ADAuthenticationError* toReport = [ADAuthenticationError keychainErrorFromOperation:@"read" status:res];
             if (error)
             {
                 *error = toReport;

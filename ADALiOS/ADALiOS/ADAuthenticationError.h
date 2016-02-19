@@ -24,6 +24,12 @@ extern NSString* const ADInvalidArgumentDomain;
 extern NSString* const ADUnauthorizedResponseErrorDomain;
 /*! Error returned by Broker */
 extern NSString* const ADBrokerResponseErrorDomain;
+/*! Error domain from keychain errors. */
+extern NSString* const ADKeychainErrorDomain;
+/*! HTTP Error Codes */
+extern NSString* const ADHTTPErrorCodeDomain;
+/*! OAuth Server Errors */
+extern NSString* const ADOAuthServerErrorDomain;
 
 @interface ADAuthenticationError : NSError
 
@@ -63,5 +69,15 @@ extern NSString* const ADBrokerResponseErrorDomain;
 /*! Generates an error from cancel operations. E.g. the user pressed "Cancel" button
  on the authorization UI page. */
 + (ADAuthenticationError*)errorFromCancellation;
+
++ (ADAuthenticationError *)keychainErrorFromOperation:(NSString *)operation
+                                               status:(OSStatus)status;
+
++ (ADAuthenticationError *)HTTPErrorCode:(NSInteger)code
+                                    body:(NSString *)body;
+
++ (ADAuthenticationError *)OAuthServerError:(NSString *)protocolCode
+                                description:(NSString *)description
+                                       code:(NSInteger)code;
 
 @end
