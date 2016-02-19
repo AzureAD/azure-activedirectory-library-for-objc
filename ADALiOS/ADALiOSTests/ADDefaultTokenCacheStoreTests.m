@@ -46,6 +46,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_INFO];
     
+    [ADAuthenticationSettings sharedInstance].sharedCacheKeychainGroup = [[NSBundle mainBundle] bundleIdentifier];
     mStore = (ADKeychainTokenCacheStore*)[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
     XCTAssertNotNil(mStore, "Default store cannot be nil.");
     XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
@@ -426,36 +427,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     NSString* group = @"test";
     ADKeychainTokenCacheStore* withGroup = [[ADKeychainTokenCacheStore alloc] initWithGroup:group];
     XCTAssertNotNil(withGroup);
-}
-
--(void) testsharedKeychainGroupProperty
-{
-    //Put an item in the cache:
-    ADAssertLongEquals(0, [self count]);
-    ADTokenCacheStoreItem* item = [self adCreateCacheItem];
-    ADAuthenticationError* error = nil;
-    [mStore addOrUpdateItem:item error:&error];
-    ADAssertNoError;
-    ADAssertLongEquals(1, [self count]);
-    
-    //Test the property:
-    ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
-    ADKeychainTokenCacheStore* keychainStore = (ADKeychainTokenCacheStore*)mStore;
-    XCTAssertNotNil(settings.sharedCacheKeychainGroup);
-    XCTAssertNotNil(keychainStore.sharedGroup);
-    NSString* groupName = @"com.microsoft.ADAL";
-    settings.sharedCacheKeychainGroup = groupName;
-    ADAssertStringEquals(settings.sharedCacheKeychainGroup, groupName);
-    XCTAssertTrue([mStore isKindOfClass:[ADKeychainTokenCacheStore class]]);
-    ADAssertStringEquals(keychainStore.sharedGroup, groupName);
-    
-    //Restore back to default
-    keychainStore.sharedGroup = nil;
-    XCTAssertNil(keychainStore.sharedGroup);
-    XCTAssertNil(settings.sharedCacheKeychainGroup);
-    [mStore removeAllWithError:&error];
-    ADAssertNoError;
-    ADAssertLongEquals(0, [self count]);
 }
 
 @end
