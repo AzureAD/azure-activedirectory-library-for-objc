@@ -29,11 +29,9 @@
 //Checks the multi-resource refresh tokens too.
 - (ADTokenCacheItem*)findCacheItemWithKey:(ADTokenCacheKey *)key
                                    userId:(ADUserIdentifier *)userId
-                            correlationId:(NSUUID *)correlationId
                                     error:(ADAuthenticationError * __autoreleasing *)error;
 
 - (ADTokenCacheItem *)findFamilyItemForUser:(ADUserIdentifier *)userIdentifier
-                              correlationId:(NSUUID *)correlationId
                                       error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*!
@@ -43,12 +41,12 @@
     @param result       The result to update the cache to
     @param refreshToken The refresh token (if anything) that was used to get this authentication result
  */
-- (void)updateCacheToResult:(ADAuthenticationResult*)result
-               refreshToken:(NSString*)refreshToken;
+- (void)updateCacheToResult:(ADAuthenticationResult *)result
+                  cacheItem:(ADTokenCacheItem *)cacheItem
+               refreshToken:(NSString *)refreshToken;
 
 - (ADTokenCacheItem *)extractCacheItemWithKey:(ADTokenCacheKey *)key
                                        userId:(ADUserIdentifier *)userId
-                                correlationId:(NSUUID *)correlationId
                                         error:(ADAuthenticationError * __autoreleasing *)error;
 
 @end
