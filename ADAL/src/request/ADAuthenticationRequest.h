@@ -70,7 +70,7 @@
     BOOL _requestStarted;
 }
 
-@property NSString* component;
+@property (retain) NSString* component;
 
 // The default constructor. All of the parameters are mandatory
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context

@@ -44,13 +44,13 @@
     AD_LOG(ADAL_LOG_LEVEL_VERBOSE, _message, AD_ERROR_SUCCEEDED, _correlationId, nil, _info)
 
 #define AD_LOG_ERROR_F(_msg, _code, _correlationId, _fmt, ...) \
-    AD_LOG_F(ADAL_LOG_LEVEL_ERROR, _msg, _code, _correlationId, _fmt, ##__VA_ARGS__)
+    AD_LOG_F(ADAL_LOG_LEVEL_ERROR, _msg, _code, _correlationId, nil, _fmt, ##__VA_ARGS__)
 #define AD_LOG_WARN_F(_msg, _correlationId, _fmt, ...) \
-    AD_LOG_F(ADAL_LOG_LEVEL_WARN, _msg, AD_ERROR_SUCCEEDED, _correlationId, _fmt, ##__VA_ARGS__)
+    AD_LOG_F(ADAL_LOG_LEVEL_WARN, _msg, AD_ERROR_SUCCEEDED, _correlationId, nil, _fmt, ##__VA_ARGS__)
 #define AD_LOG_INFO_F(_msg, _correlationId, _fmt, ...) \
-    AD_LOG_F(ADAL_LOG_LEVEL_INFO, _msg, AD_ERROR_SUCCEEDED, _correlationId, _fmt, ##__VA_ARGS__)
+    AD_LOG_F(ADAL_LOG_LEVEL_INFO, _msg, AD_ERROR_SUCCEEDED, _correlationId, nil, _fmt, ##__VA_ARGS__)
 #define AD_LOG_VERBOSE_F(_msg, _correlationId, _fmt, ...) \
-    AD_LOG_F(ADAL_LOG_LEVEL_VERBOSE, _msg, AD_ERROR_SUCCEEDED, _correlationId, _fmt, ##__VA_ARGS__)
+    AD_LOG_F(ADAL_LOG_LEVEL_VERBOSE, _msg, AD_ERROR_SUCCEEDED, _correlationId, nil, _fmt, ##__VA_ARGS__)
 
 #define AD_LOG_ERROR_DICT(_message, _code, _correlationId, _dict, _info) \
     AD_LOG(ADAL_LOG_LEVEL_ERROR, (_message), (_code), _correlationId, _dict, _info)

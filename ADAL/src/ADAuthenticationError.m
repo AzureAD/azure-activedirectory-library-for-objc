@@ -80,14 +80,16 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
         domain = @"ADAL";
     }
     
-    self = [super initWithDomain:domain code:code userInfo:userInfo];
-    if (self)
+    if (!(self = [super initWithDomain:domain code:code userInfo:userInfo]))
     {
-        _errorDetails = details;
-        SAFE_ARC_RETAIN(_errorDetails);
-        _protocolCode = protocolCode;
-        SAFE_ARC_RETAIN(_protocolCode);
+        // If we're getting nil back here we have bigger problems and the logging below is going to fail anyways.`
+        return nil;
     }
+    
+    _errorDetails = details;
+    SAFE_ARC_RETAIN(_errorDetails);
+    _protocolCode = protocolCode;
+    SAFE_ARC_RETAIN(_protocolCode);
     
     if (!quiet)
     {

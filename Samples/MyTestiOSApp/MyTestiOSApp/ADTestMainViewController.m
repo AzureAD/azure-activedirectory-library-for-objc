@@ -70,7 +70,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
     mTestData = [ADTestAppSettings new];
     mAADInstance = mTestData.testAuthorities[sAADTestInstance];
     
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInformation, NSInteger errorCode)
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInformation, NSInteger errorCode, NSDictionary* userInfo)
     {
         NSString* logLine = nil;
         if (errorCode == AD_ERROR_SUCCEEDED)
@@ -186,6 +186,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
                                                         validateAuthority:mAADInstance.validateAuthority
                                                                     error:&error];
     [context setCredentialsType:AD_CREDENTIALS_AUTO];
+    [context setComponent:@"end-to-end"];
     if (!context)
     {
         [self appendToResults:error.errorDetails];
