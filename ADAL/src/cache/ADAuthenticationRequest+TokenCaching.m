@@ -29,7 +29,7 @@
 #import "ADTokenCacheKey.h"
 #import "ADUserInformation.h"
 
-@implementation ADAuthenticationContext (TokenCaching)
+@implementation ADAuthenticationRequest (TokenCaching)
 
 //Gets an item from the cache, where userId may be nil. Raises error, if items for multiple users
 //are present and user id is not specified.

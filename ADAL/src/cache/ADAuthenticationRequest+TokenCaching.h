@@ -23,7 +23,7 @@
 
 #import "ADTokenCacheAccessor.h"
 
-@interface ADAuthenticationContext (TokenCaching)
+@interface ADAuthenticationRequest (TokenCaching)
 
 //Checks the cache for item that can be used to get directly or indirectly an access token.
 //Checks the multi-resource refresh tokens too.
