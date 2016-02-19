@@ -65,12 +65,17 @@
     BOOL _allowSilent;
     
     NSUUID* _correlationId;
-    NSString* _component;
+    NSString* _logComponet;
     
     BOOL _requestStarted;
 }
 
-@property (retain) NSString* component;
+@property (retain) NSString* logComponent;
+
+// These constructors exists *solely* to be used when trying to use some of the caching logic.
+// You can't actually send requests with it. They will fail.
++ (ADAuthenticationRequest *)requestWithAuthority:(NSString *)authority;
++ (ADAuthenticationRequest *)requestWithContext:(ADAuthenticationContext *)context;
 
 // The default constructor. All of the parameters are mandatory
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
@@ -105,3 +110,4 @@
 #import "ADAuthenticationRequest+AcquireToken.h"
 #import "ADAuthenticationRequest+Broker.h"
 #import "ADAuthenticationRequest+WebRequest.h"
+#import "ADAuthenticationRequest+TokenCaching.h"

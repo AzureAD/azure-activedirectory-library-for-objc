@@ -36,17 +36,15 @@
                               correlationId:(NSUUID *)correlationId
                                       error:(ADAuthenticationError * __autoreleasing *)error;
 
-//Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
-//the item to be stored.
+/*!
+    Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
+    the item to be stored.
+ 
+    @param result       The result to update the cache to
+    @param refreshToken The refresh token (if anything) that was used to get this authentication result
+ */
 - (void)updateCacheToResult:(ADAuthenticationResult*)result
-                  cacheItem:(ADTokenCacheItem*)cacheItem
-           withRefreshToken:(NSString*)refreshToken
-       requestCorrelationId:(NSUUID*)requestCorrelationId;
-- (void)updateCacheToResult:(ADAuthenticationResult*)result
-              cacheInstance:(id<ADTokenCacheAccessor>)tokenCacheStoreInstance
-                  cacheItem:(ADTokenCacheItem*)cacheItem
-           withRefreshToken:(NSString*)refreshToken
-       requestCorrelationId:(NSUUID*)requestCorrelationId;
+               refreshToken:(NSString*)refreshToken;
 
 - (ADTokenCacheItem *)extractCacheItemWithKey:(ADTokenCacheKey *)key
                                        userId:(ADUserIdentifier *)userId
