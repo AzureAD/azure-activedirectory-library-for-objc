@@ -65,7 +65,7 @@
     BOOL _allowSilent;
     
     NSUUID* _correlationId;
-    NSString* _logComponet;
+    NSString* _logComponent;
     
     BOOL _requestStarted;
 }
