@@ -293,7 +293,8 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 - (BOOL)removeAllForClientId:(NSString * __nonnull)clientId
                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
-    AD_LOG_WARN_F(@"Keychain token cache store", nil, @"Removing items for client <%@>", clientId);
+    AD_LOG_WARN_DICT(([NSString stringWithFormat:@"Removing all items for client <%@>", clientId]), nil,
+                     (@{ @"operation" : @"removeAllForClientId:", @"clientId" : clientId }), nil);
     
     BOOL deleteSuccessful = YES;
     NSArray* items = [self allItems:nil];
@@ -312,10 +313,12 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 }
 
 - (BOOL)removeAllForUserId:(NSString * __nonnull)userId
-                      clientId:(NSString * __nonnull)clientId
-                         error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+                  clientId:(NSString * __nonnull)clientId
+                     error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
-    AD_LOG_WARN_F(@"Keychain token cache store", nil, @"Removing items for user <%@> + client <%@>", userId, clientId);
+    AD_LOG_WARN_DICT_F(([NSString stringWithFormat:@"Removing all items for user + client <%@>", clientId]), nil,
+                       (@{ @"operation" : @"removeAllForUserId:clientId:", @"clientId" : clientId, @"userId" : userId }),
+                       @"userId: %@", userId);
     
     BOOL deleteSuccessful = YES;
     NSArray* items = [self allItems:nil];

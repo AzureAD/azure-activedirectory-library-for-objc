@@ -38,6 +38,8 @@
 
 @implementation ADAuthenticationRequest
 
+@synthesize component = _component;
+
 #define RETURN_IF_NIL(_X) { if (!_X) { AD_LOG_ERROR(@#_X " must not be nil!", AD_FAILED, nil, nil); SAFE_ARC_RELEASE(self); return nil; } }
 #define ERROR_RETURN_IF_NIL(_X) { \
     if (!_X) { \

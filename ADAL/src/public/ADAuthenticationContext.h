@@ -120,6 +120,7 @@ typedef enum
     NSString* _authority;
     BOOL _validateAuthority;
     ADCredentialsType _credentialsType;
+    NSString* _component;
     NSUUID* _correlationId;
     __weak WebViewType* _webView;
 }
@@ -246,8 +247,13 @@ typedef enum
  requests and the responses from the server. If nil, a new UUID is generated on every request. */
 @property (strong) NSUUID* correlationId;
 
-/*! See the ADCredentialsType enumeration definition for details */
+/*! The credential behavior for the authentication context. See the ADCredentialsType enumeration
+    definition for details */
 @property ADCredentialsType credentialsType;
+
+/*! The name of the component using this authentication context. Used in some logging and telemetry
+    for clarification purposes. */
+@property (retain) NSString* component;
 
 #if TARGET_OS_IPHONE
 /*! The parent view controller for the authentication view controller UI. This property will be used only if

@@ -65,9 +65,12 @@
     BOOL _allowSilent;
     
     NSUUID* _correlationId;
+    NSString* _component;
     
     BOOL _requestStarted;
 }
+
+@property (retain) NSString* component;
 
 // The default constructor. All of the parameters are mandatory
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context

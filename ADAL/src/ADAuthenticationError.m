@@ -80,30 +80,34 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
         domain = @"ADAL";
     }
     
-    if (!quiet)
+    if (!(self = [super initWithDomain:domain code:code userInfo:userInfo]))
     {
-        NSString* message = [NSString stringWithFormat:@"Error raised: %ld", (long)code];
-        NSMutableString* info = [[NSMutableString alloc] initWithFormat:@"Domain: %@", domain];
-        if (protocolCode)
-        {
-            [info appendFormat:@" ProtocolCode: %@", protocolCode];
-        }
-        if (details)
-        {
-            [info appendFormat:@" Details: %@", details];
-        }
-        AD_LOG_ERROR(message, code, correlationId, info);
-        SAFE_ARC_RELEASE(info);
+        // If we're getting nil back here we have bigger problems and the logging below is going to fail anyways.`
+        return nil;
     }
     
-    self = [super initWithDomain:domain code:code userInfo:userInfo];
-    if (self)
+    _errorDetails = details;
+    SAFE_ARC_RETAIN(_errorDetails);
+    _protocolCode = protocolCode;
+    SAFE_ARC_RETAIN(_protocolCode);
+    
+    if (!quiet)
     {
-        _errorDetails = details;
-        SAFE_ARC_RETAIN(_errorDetails);
-        _protocolCode = protocolCode;
-        SAFE_ARC_RETAIN(_protocolCode);
+        NSString* message = [NSString stringWithFormat:@"Error raised: (Domain: \"%@\" Code:%lu ProtocolCode: \"%@\" Details: \"%@\"", domain, (long)code, protocolCode, details];
+        NSDictionary* logDict = nil;
+        if (correlationId)
+        {
+            logDict = @{ @"error" : self,
+                         @"correlationId" : correlationId };
+        }
+        else
+        {
+            logDict = @{ @"error" : self };
+        }
+        
+        AD_LOG_ERROR_DICT(message, code, correlationId, logDict, nil);
     }
+    
     return self;
 }
 
