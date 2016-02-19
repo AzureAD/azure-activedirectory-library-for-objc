@@ -236,11 +236,13 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                 {
                     // Request failure
                     NSString* body = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
-                    NSString* errorData = [NSString stringWithFormat:@"Server HTTP status code: %ld. Full response %@", (long)webResponse.statusCode, body];
-                    AD_LOG_WARN(@"HTTP Error", errorData);
+                    AD_LOG_WARN_F(([NSString stringWithFormat:@"HTTP Error %ld", webResponse.statusCode]), @"body: %@", body);
+                    
+                    ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
+                                                                                     body:body];
                     
                     //Now add the information to the dictionary, so that the parser can extract it:
-                    [response setObject:[ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:@(webResponse.statusCode).stringValue errorDetails:errorData]
+                    [response setObject:adError
                                  forKey:AUTH_NON_PROTOCOL_ERROR];
                 }
             }
@@ -262,7 +264,8 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                          forKey:AUTH_NON_PROTOCOL_ERROR];
         }
         
-        if([response valueForKey:AUTH_NON_PROTOCOL_ERROR]){
+        if([response valueForKey:AUTH_NON_PROTOCOL_ERROR])
+        {
             [[ADClientMetrics getInstance] endClientMetricsRecord:[[response valueForKey:AUTH_NON_PROTOCOL_ERROR] errorDetails]];
         }
         else

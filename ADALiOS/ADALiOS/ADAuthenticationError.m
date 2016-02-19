@@ -20,9 +20,12 @@
 #import "ADAuthenticationError.h"
 
 NSString* const ADAuthenticationErrorDomain = @"ADAuthenticationErrorDomain";
-NSString* const ADInvalidArgumentDomain = @"ADAuthenticationErrorDomain";
+NSString* const ADInvalidArgumentDomain = @"ADInvalidArgumentErrorDomain";
 NSString* const ADUnauthorizedResponseErrorDomain = @"ADUnauthorizedResponseErrorDomain";
 NSString* const ADBrokerResponseErrorDomain = @"ADBrokerResponseErrorDomain";
+NSString* const ADKeychainErrorDomain = @"ADKeychainErrorDomain";
+NSString* const ADHTTPErrorCodeDomain = @"ADHTTPErrorCodeDomain";
+NSString* const ADOAuthServerErrorDomain = @"ADOAuthServerErrorDomain";
 
 NSString* const ADInvalidArgumentMessage = @"The argument '%@' is invalid. Value:%@";
 
@@ -175,5 +178,38 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                                   errorDetails:ADCancelError];
 }
 
+
++ (ADAuthenticationError *)keychainErrorFromOperation:(NSString *)operation
+                                               status:(OSStatus)status
+{
+    NSString* details = [NSString stringWithFormat:@"Keychain failed during \"%@\" operation", operation];
+    
+    return [self errorWithDomainInternal:ADKeychainErrorDomain
+                                    code:status
+                       protocolErrorCode:nil
+                            errorDetails:details
+                                userInfo:nil];
+}
+
++ (ADAuthenticationError *)HTTPErrorCode:(NSInteger)code
+                                    body:(NSString *)body
+{
+    return [self errorWithDomainInternal:ADHTTPErrorCodeDomain
+                                    code:code
+                       protocolErrorCode:nil
+                            errorDetails:body
+                                userInfo:nil];
+}
+
++ (ADAuthenticationError *)OAuthServerError:(NSString *)protocolCode
+                                description:(NSString *)description
+                                       code:(NSInteger)code
+{
+    return [self errorWithDomainInternal:ADOAuthServerErrorDomain
+                                    code:code
+                       protocolErrorCode:protocolCode
+                            errorDetails:description
+                                userInfo:nil];
+}
 
 @end

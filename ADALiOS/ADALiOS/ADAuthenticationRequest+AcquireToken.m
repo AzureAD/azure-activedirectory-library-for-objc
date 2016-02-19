@@ -135,6 +135,11 @@
                            cacheItem:item
                      completionBlock:^(ADAuthenticationResult *result)
      {
+         if (result.status == AD_SUCCEEDED)
+         {
+             AD_LOG_INFO_F(@"acquire token with refresh token succeeded",  @"clientId: '%@'; resource: '%@';", _clientId, _resource);
+         }
+         
          //Asynchronous block:
          if ([ADAuthenticationContext isFinalResult:result])
          {
@@ -266,8 +271,6 @@
     
     [self ensureRequest];
     
-    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", @"Resource: %@", _resource);
-    
     if (!_context.validateAuthority)
     {
         [self validatedAcquireTokenByRefreshToken:refreshToken
@@ -328,7 +331,7 @@
         [request_data setObject:_resource forKey:OAUTH2_RESOURCE];
     }
     
-    AD_LOG_INFO_F(@"Sending request for refreshing token.", @"Client id: '%@'; resource: '%@';", _clientId, _resource);
+    AD_LOG_INFO_F(@"Attempting to acquire an access token from refresh token", @"clientId: '%@'; resource: '%@';", _clientId, _resource);
     [self requestWithServer:_context.authority
                 requestData:request_data
             handledPkeyAuth:NO
