@@ -20,7 +20,7 @@
 #import "ADAuthenticationError.h"
 
 NSString* const ADAuthenticationErrorDomain = @"ADAuthenticationErrorDomain";
-NSString* const ADInvalidArgumentDomain = @"ADAuthenticationErrorDomain";
+NSString* const ADInvalidArgumentDomain = @"ADInvalidArgumentErrorDomain";
 NSString* const ADUnauthorizedResponseErrorDomain = @"ADUnauthorizedResponseErrorDomain";
 NSString* const ADBrokerResponseErrorDomain = @"ADBrokerResponseErrorDomain";
 NSString* const ADKeychainErrorDomain = @"ADKeychainErrorDomain";
