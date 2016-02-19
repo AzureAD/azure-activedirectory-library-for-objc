@@ -174,6 +174,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     NSString *authority = [authorityParts objectAtIndex:0];
     
     NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:value]];
+    [ADURLProtocol addCorrelationId:_correlationId toRequest:responseUrl];
     
     NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority
                                                         challengeData:queryParamsMap];
@@ -287,12 +288,14 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)webAuthDidFinishLoad:(NSURL*)url
 {
+    AD_LOG_VERBOSE_F(@"-webAuthDidFinishLoad:", _correlationId, @"host: %@", url.host);
     [self stopSpinner];
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFinishLoadNotification object:self userInfo:url ? @{ @"url" : url } : nil];
 }
 
 - (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest *)request
 {
+    AD_LOG_VERBOSE_F(@"-webAuthShouldStartLoadRequest:", _correlationId, @"host: %@", request.URL.host);
     if([ADNTLMHandler isChallengeCancelled])
     {
         _complete = YES;
@@ -361,6 +364,11 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         return NO;
     }
     
+    if ([request isKindOfClass:[NSMutableURLRequest class]])
+    {
+        [ADURLProtocol addCorrelationId:_correlationId toRequest:(NSMutableURLRequest*)request];
+    }
+    
     return YES;
 }
 
@@ -368,6 +376,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 - (void)webAuthDidCancel
 {
     DebugLog();
+    AD_LOG_INFO(@"-webAuthDidCancel", _correlationId, nil);
     
     // Dispatch the completion block
     
@@ -378,6 +387,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 // Authentication completed at the end URL
 - (void)webAuthDidCompleteWithURL:(NSURL *)endURL
 {
+    AD_LOG_INFO_F(@"-webAuthDidCompleteWithURL:", _correlationId, @"%@", endURL);
     DebugLog();
     [self endWebAuthenticationWithError:nil orURL:endURL];
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidCompleteNotification object:self userInfo:nil];
@@ -386,6 +396,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 // Authentication failed somewhere
 - (void)webAuthDidFailWithError:(NSError *)error
 {
+    AD_LOG_ERROR_F(@"-webAuthDidFailWithError:", error.code, _correlationId, @"error: %@", error);
     if (error)
     {
         [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFailNotification
@@ -493,6 +504,10 @@ correlationId:(NSUUID *)correlationId
     SAFE_ARC_RETAIN(_endURL);
     _complete = NO;
     
+    SAFE_ARC_RELEASE(_correlationId);
+    _correlationId = correlationId;
+    SAFE_ARC_RETAIN(_correlationId);
+    
     // Save the completion block
     SAFE_ARC_RELEASE(_completionBlock);
     _completionBlock = [completionBlock copy];
@@ -522,6 +537,7 @@ correlationId:(NSUUID *)correlationId
     }
     
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
+    [ADURLProtocol addCorrelationId:_correlationId toRequest:request];
     [_authenticationViewController startRequest:request];
     SAFE_ARC_RELEASE(request);
 }

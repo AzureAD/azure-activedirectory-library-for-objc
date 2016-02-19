@@ -27,8 +27,12 @@
 #import "ADNTLMHandler.h"
 #import "ADCustomHeaderHandler.h"
 
-static NSString* const sLog = @"HTTP Protocol";
 static NSMutableDictionary* s_handlers = nil;
+
+static NSUUID * _reqCorId(NSURLRequest* request)
+{
+    return [NSURLProtocol propertyForKey:@"correlationId" inRequest:request];
+}
 
 
 @implementation ADURLProtocol
@@ -74,6 +78,17 @@ static NSMutableDictionary* s_handlers = nil;
     }
 }
 
++ (void)addCorrelationId:(NSUUID *)correlationId
+               toRequest:(NSMutableURLRequest *)request
+{
+    if (!correlationId)
+    {
+        return;
+    }
+    
+    [NSURLProtocol setProperty:correlationId forKey:@"correlationId" inRequest:request];
+}
+
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
     //TODO: Experiment with filtering of the URL to ensure that this class intercepts only
@@ -84,57 +99,62 @@ static NSMutableDictionary* s_handlers = nil;
     {
         //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checking
         //for initialization
-        if ( [NSURLProtocol propertyForKey:@"ADURLProtocol" inRequest:request] == nil )
+        if (![NSURLProtocol propertyForKey:@"ADURLProtocol" inRequest:request])
         {
-            AD_LOG_VERBOSE_F(sLog, nil, @"Requested handling of URL host: %@", [request.URL host]);
+            AD_LOG_VERBOSE_F(@"+[ADURLProtocol canInitWithRequest:] handling host", _reqCorId(request), @"host: %@", [request.URL host]);
 
             return YES;
         }
     }
     
-    AD_LOG_VERBOSE_F(sLog, nil, @"Ignoring handling of URL host: %@", [request.URL host]);
+    AD_LOG_VERBOSE_F(@"+[ADURLProtocol canInitWithRequest:] ignoring handling of host", _reqCorId(request), @"host: %@", [request.URL host]);
     
     return NO;
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
-    AD_LOG_VERBOSE_F(sLog, nil, @"canonicalRequestForRequest host: %@", [request.URL host] );
+    AD_LOG_VERBOSE_F(@"+[ADURLProtocol canonicalRequestForRequest:]", _reqCorId(request), @"host: %@", [request.URL host] );
     
     return request;
 }
 
 - (void)startLoading
 {
-    if (!self.request)
+    NSUUID* correlationId = _reqCorId(self.request);
+    if (correlationId)
     {
-        AD_LOG_WARN(sLog, nil, @"startLoading called without specifying the request.");
-        return;
+        SAFE_ARC_RELEASE(_correlationId);
+        _correlationId = correlationId;
+        SAFE_ARC_RETAIN(_correlationId);
     }
     
-    [self startLoading:self.request.URL];
-}
-
-- (void)startLoading:(NSURL*)url
-{
-    AD_LOG_VERBOSE_F(sLog, nil, @"startLoading host: %@", [url host] );
-    NSMutableURLRequest *mutableRequest = [self.request mutableCopy];
-    [mutableRequest setURL:url];
-    [NSURLProtocol setProperty:@"YES" forKey:@"ADURLProtocol" inRequest:mutableRequest];
+    AD_LOG_VERBOSE_F(@"-[ADURLProtocol startLoading]", _correlationId, @"host: %@", [self.request.URL host]);
+    
+    NSMutableURLRequest* request = [self.request mutableCopy];
+    
+    // Make sure the correlation ID propogates through the requests
+    if (!correlationId && _correlationId)
+    {
+        [ADURLProtocol addCorrelationId:_correlationId toRequest:request];
+    }
+    
+    [NSURLProtocol setProperty:@YES forKey:@"ADURLProtocol" inRequest:request];
+    
     SAFE_ARC_RELEASE(_connection);
-    _connection = [[NSURLConnection alloc] initWithRequest:mutableRequest
+    _connection = [[NSURLConnection alloc] initWithRequest:request
                                                   delegate:self
                                           startImmediately:YES];
-    SAFE_ARC_RELEASE(mutableRequest);
+    SAFE_ARC_RELEASE(request);
 }
 
 - (void)stopLoading
 {
-    AD_LOG_VERBOSE_F(sLog, nil, @"Stop loading");
+    AD_LOG_VERBOSE_F(@"-[ADURLProtocol stopLoading]", _reqCorId(self.request), @"host: %@", [self.request.URL host]);
+    
     [_connection cancel];
     SAFE_ARC_RELEASE(_connection);
     _connection = nil;
-    [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
 }
 
 #pragma mark - NSURLConnectionDelegate Methods
@@ -143,7 +163,7 @@ static NSMutableDictionary* s_handlers = nil;
 {
     (void)connection;
     
-    AD_LOG_VERBOSE_F(sLog, nil, @"connection:didFaileWithError: %@", error);
+    AD_LOG_ERROR_F(@"-[ADURLProtocol connection:didFailedWithError:]", error.code, _correlationId, @"error: %@", error);
     [self.client URLProtocol:self didFailWithError:error];
 }
 
@@ -152,7 +172,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 {
     NSString* authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
     
-    AD_LOG_VERBOSE_F(sLog, nil, @"connection:willSendRequestForAuthenticationChallenge: %@. Previous challenge failure count: %ld", authMethod, (long)challenge.previousFailureCount);
+    AD_LOG_VERBOSE_F(@"connection:willSendRequestForAuthenticationChallenge:", _correlationId, @"%@. Previous challenge failure count: %ld", authMethod, (long)challenge.previousFailureCount);
     
     BOOL handled = NO;
     Class<ADAuthMethodHandler> handler = nil;
@@ -178,25 +198,21 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 {
     (void)connection;
     
-    AD_LOG_VERBOSE_F(sLog, nil, @"HTTPProtocol::connection:willSendRequest:. Redirect response: %@. New request:%@", response.URL, request.URL);
-    //Ensure that the webview gets the redirect notifications:
-    NSMutableURLRequest* mutableRequest = [request mutableCopy];
-    SAFE_ARC_AUTORELEASE(mutableRequest);
-    if (response)
+    AD_LOG_VERBOSE_F(@"-[ADURLProtocol connection:willSendRequest:]", _correlationId, @"Redirect response: %@. New request:%@", response.URL, request.URL);
+    
+    // Disallow HTTP for ADURLProtocol
+    if ([request.URL.scheme isEqualToString:@"http"])
     {
-        [[self class] removePropertyForKey:@"ADURLProtocol" inRequest:mutableRequest];
-        [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
-        
-        [_connection cancel];
-        SAFE_ARC_RELEASE(_connection);
-        _connection = nil;
-        [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
-        [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
-
-        return mutableRequest;
+        return nil;
     }
     
-	[ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
+    NSMutableURLRequest* mutableRequest = [request mutableCopy];
+    SAFE_ARC_AUTORELEASE(mutableRequest);
+    [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
+    [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
+    [NSURLProtocol setProperty:@YES forKey:@"ADURLProtocol" inRequest:mutableRequest];
+    
+    [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
     return mutableRequest;
 }
 
@@ -219,8 +235,6 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     (void)connection;
     
     [self.client URLProtocolDidFinishLoading:self];
-    SAFE_ARC_RELEASE(_connection);
-    _connection = nil;
 }
 
 

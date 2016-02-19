@@ -31,6 +31,7 @@
 #import "ADAuthenticationSettings.h"
 #import "ADHelpers.h"
 #import "ADLogger+Internal.h"
+#import "ADURLProtocol.h"
 
 NSString *const HTTPGet  = @"GET";
 NSString *const HTTPPost = @"POST";
@@ -203,6 +204,8 @@ NSString *const HTTPPost = @"POST";
     request.allHTTPHeaderFields = _requestHeaders;
     request.HTTPBody            = _requestData;
     
+    [ADURLProtocol addCorrelationId:_correlationId toRequest:request];
+    
     SAFE_ARC_RELEASE(_connection);
     _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
     SAFE_ARC_RELEASE(request);
@@ -277,9 +280,13 @@ NSString *const HTTPPost = @"POST";
     NSURL* requestURL = [request URL];
     NSURL* modifiedURL = [ADHelpers addClientVersionToURL:requestURL];
     if (modifiedURL == requestURL)
+    {
         return request;
+    }
     
-    return [NSURLRequest requestWithURL:modifiedURL];
+    NSMutableURLRequest* mutableRequest = [NSMutableURLRequest requestWithURL:modifiedURL];
+    [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
+    return mutableRequest;
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
