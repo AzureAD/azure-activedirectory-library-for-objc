@@ -34,6 +34,7 @@
 @implementation ADTokenCacheItem (Internal)
 
 #define CHECK_ERROR(_CHECK, _ERR) { if (_CHECK) { if (error) {*error = _ERR;} return; } }
+#define THIRTY_DAYS_IN_SECONDS 2592000
 
 - (void)checkCorrelationId:(NSDictionary*)response
       requestCorrelationId:(NSUUID*)requestCorrelationId
@@ -221,6 +222,9 @@
     
     //wipe out the refresh token
     _refreshToken = @"<tombstone>";
+    SAFE_ARC_RELEASE(_expiresOn);
+    _expiresOn = [NSDate dateWithTimeIntervalSinceNow:THIRTY_DAYS_IN_SECONDS];//tombstones should be removed after 30 days
+    SAFE_ARC_RETAIN(_expiresOn);
     _tombstone = tombstoneDictionary;
 
 }

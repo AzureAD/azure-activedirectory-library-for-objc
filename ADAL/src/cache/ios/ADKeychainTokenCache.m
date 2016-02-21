@@ -290,6 +290,17 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     return itemsKept;
 }
 
+//return YES if the tombstone is too old and deleted; NO otherwise.
+- (BOOL)deleteTombstoneIfTooOld:(ADTokenCacheItem *)item
+{
+    if (item && [[item expiresOn] compare:[NSDate date]] == NSOrderedAscending)
+    {
+        [self deleteItem:item error:nil];
+        return YES;
+    }
+    return NO;
+}
+
 - (BOOL)removeAllForClientId:(NSString * __nonnull)clientId
                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
@@ -425,7 +436,8 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     for (NSDictionary* attrs in items)
     {
         ADTokenCacheItem* item = [self itemFromKeyhainAttributes:attrs];
-        if (!item)
+        if (!item ||
+            ([item tombstone] && [self deleteTombstoneIfTooOld:item])) // if item is a tombstone and too old, it is deleted and won't be returned.
         {
             continue;
         }

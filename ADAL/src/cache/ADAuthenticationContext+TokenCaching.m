@@ -156,10 +156,11 @@
     
     for (ADTokenCacheItem* item in items)
     {
-        if (![NSString adIsStringNilOrBlank:item.familyId] &&
+        if (![item tombstone] &&
+            ![NSString adIsStringNilOrBlank:item.familyId] &&
             ![NSString adIsStringNilOrBlank:item.refreshToken])
         {
-            // Return the first item we see with a family ID and a RT
+            // Return the first non-tombstone item we see with a family ID and a RT
             return item;
         }
     }
