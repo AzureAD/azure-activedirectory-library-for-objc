@@ -1,15 +1,39 @@
 language: objective-c
-before_install:
-#  - sudo easy_install cpp-coveralls
-script: 
-  - xcodebuild -workspace ADALiOS.xcworkspace -scheme ADALiOS -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest'
-  - xcodebuild test -workspace ADALiOS.xcworkspace -scheme ADALiOS -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest'
-  - find ~/Library/Developer/Xcode/DerivedData/ -not -path "*x86_64*" -not -path "*ADALiOSTests*" -name "*.gcno" -exec cp -v '{}' . \;
-  - find ~/Library/Developer/Xcode/DerivedData/ -not -path "*x86_64*" -not -path "*ADALiOSTests*" -name "*.gcda" -exec cp -v '{}' . \;
- # - coveralls -e ADALiOS/ADALiOSTests
-  - xcodebuild -workspace ADALiOS.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest'
-#  - xcodebuild test -workspace ADALiOS.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest'
-  - find ~/Library/Developer/Xcode/DerivedData/ -not -path "*x86_64*" -not -path "*ADALiOSTests*" -not -path "*MyTestiOSApp*" -name "*.gcno" -exec cp -v '{}' . \;
-  - find ~/Library/Developer/Xcode/DerivedData/ -not -path "*x86_64*" -not -path "*ADALiOSTests*" -not -path "*MyTestiOSApp*" -name "*.gcda" -exec cp -v '{}' . \;
-  #- coveralls -e ADALiOS/ADALiOSTests
+osx_image: xcode7.2
+
+# Set up our rubygems (slather and xcpretty, namely)
+install: 
+ - gem install xcpretty slather -N
+ 
+before_script:
+# Start by nuking any lingering codecov files. These can cause issues when the xcode version changes
+  - find . -name "*.gcda" -print0 | xargs -0 rm
+
+# Tell the shell to echo failure codes up the pipe so that Travis will properly fail the
+# build when the xcodebuild command fails
+  - set -o pipefail
+
+script:  
+# Build and Test the ADALiOS library
+  - build/iOS_Static_Lib
+  
+# Build the Test App (to make sure it doesn't break
+  - build/iOS_Test_App
+  
+# Build and Test ADAL for Mac
+  - build/Mac_Framework
+  
+# Build Mac Test App
+  - build/Mac_Test_App
+
+# Test ADAL for Mac 32-bit
+  - build/Mac_32_bit
+
+after_success:
+# Run slather once to have it print out the results in the travis log
+#  - slather coverage -s ADAL/ADAL.xcodeproj
+
+notifications:
+  slack:
+    secure: BIziStN+8QJLjdqNbLyRWWw9kI/MQsX+rZq+xz/bfTANk0gbEryLgMSiEoHxdoctu0dOqOet1voYuDKs3RQW3W0yh0AhDwVgWThNkTA0oDXF8zqm9AXettXNtmYHipaYb6+z6L4lpJOkClQp3hAheu8cM2igqye1O0FQla9g/PA=
 

@@ -2,3 +2,7 @@
 xcuserdata
 *.xccheckout
 Pods/*
+ADAL/ObjectiveC.gcda
+ADAL/ObjectiveC.gcno
+ADAL/Security.gcda
+ADAL/Security.gcno

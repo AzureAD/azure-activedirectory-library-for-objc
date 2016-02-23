@@ -1,28 +1,33 @@
-// Copyright © Microsoft Open Technologies, Inc.
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-// All Rights Reserved
+// This code is licensed under the MIT License.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-//
-// See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
 #import <ADALiOS/ADAuthenticationContext.h>
-#import "BVTestAppDelegate.h"
+#import "ADTestAppDelegate.h"
 #import <ADAliOS/ADAuthenticationSettings.h>
 #import <ADALiOS/ADLogger.h>
-#import "BVTestInstance.h"
-#import "BVSettings.h"
+#import "ADTestInstance.h"
+#import "ADTestAppSettings.h"
 #import <ADALiOS/ADErrorCodes.h>
 
 //Timeouts in seconds. They are inflated to accumulate cloud-based
@@ -37,18 +42,18 @@ const int sTokenWorkflowTimeout     = 20;
 
 @interface MyTestiOSAppTests : XCTestCase
 {
-    BVSettings* mTestSettings;
+    ADTestAppSettings* mTestSettings;
 }
 
 @end
 
 @implementation MyTestiOSAppTests
 
--(ADAuthenticationContext*) createContextWithInstance: (BVTestInstance*) instance
+-(ADAuthenticationContext*) createContextWithInstance: (ADTestInstance*) instance
                                                  line: (int) line;
 {
     XCTAssertNotNil(instance, "Test error");
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     ADAuthenticationContext* context =
         [ADAuthenticationContext authenticationContextWithAuthority:instance.authority
                                                   validateAuthority:instance.validateAuthority
@@ -66,7 +71,7 @@ const int sTokenWorkflowTimeout     = 20;
 }
 
 //Obtains a test AAD instance and credentials:
--(BVTestInstance*) getAADInstance
+-(ADTestInstance*) getAADInstance
 {
     return mTestSettings.testAuthorities[sAADTestInstance];
 }
@@ -83,7 +88,7 @@ const int sTokenWorkflowTimeout     = 20;
     [self clearCache];
     
     //Load test data:
-    mTestSettings = [BVSettings new];
+    mTestSettings = [ADTestAppSettings new];
 }
 
 - (void)tearDown
@@ -130,7 +135,7 @@ const int sTokenWorkflowTimeout     = 20;
 
 -(void) clearCache
 {
-    ADAuthenticationError* error;
+    ADAuthenticationError* error = nil;
     [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore removeAllWithError:&error];
     XCTAssertNil(error.errorDetails);
 }
@@ -163,7 +168,7 @@ const int sTokenWorkflowTimeout     = 20;
     }
 }
 
--(ADAuthenticationResult*) callAcquireTokenWithInstance: (BVTestInstance*) instance
+-(ADAuthenticationResult*) callAcquireTokenWithInstance: (ADTestInstance*) instance
                                         refresh_session: (BOOL) refresh_session
                                             interactive: (BOOL) interactive
                                            keepSignedIn: (BOOL) keepSignedIn
@@ -198,12 +203,12 @@ const int sTokenWorkflowTimeout     = 20;
 //Calls the asynchronous acquireTokenWithResource method.
 //"interactive" parameter indicates whether the call will display
 //UI which user will interact with
--(ADAuthenticationResult*) callAcquireTokenWithInstance: (BVTestInstance*) instance
+-(ADAuthenticationResult*) callAcquireTokenWithInstance: (ADTestInstance*) instance
                                         refresh_session: (BOOL) refresh_session
                                             interactive: (BOOL) interactive
                                            keepSignedIn: (BOOL) keepSignedIn
                                           expectSuccess: (BOOL) expectSuccess
-                                                 userId: (NSString*) userId /*requested userid, may be different from entered*/
+                                                 userId: (ADUserIdentifier*)userId /*requested userid, may be different from entered*/
                                                    line: (int) sourceLine
 {
     XCTAssertNotNil(instance, "Internal test failure.");
@@ -291,7 +296,7 @@ const int sTokenWorkflowTimeout     = 20;
                                         atLine:sourceLine
                                       expected:NO];
         }
-        if (!localResult.tokenCacheStoreItem.accessToken.length)
+        if (!localResult.tokenCacheItem.accessToken.length)
         {
             [self recordFailureWithDescription:@"Nil or empty access token."
                                         inFile:@"" __FILE__
@@ -305,7 +310,7 @@ const int sTokenWorkflowTimeout     = 20;
 
 - (void)testInitialAcquireToken
 {
-    BVTestInstance* instance = [self getAADInstance];
+    ADTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
                        refresh_session:NO
                            interactive:YES
@@ -337,7 +342,7 @@ const int sTokenWorkflowTimeout     = 20;
 
 -(void) testCache
 {
-    BVTestInstance* instance = [self getAADInstance];
+    ADTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
                        refresh_session:NO
                            interactive:YES
@@ -355,9 +360,9 @@ const int sTokenWorkflowTimeout     = 20;
                                                                    line:__LINE__];
     
     //Now remove the access token and ensure that the refresh token is leveraged:
-    result.tokenCacheStoreItem.accessToken = nil;
-    ADAuthenticationError* error;
-    [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore addOrUpdateItem:result.tokenCacheStoreItem error:&error];
+    result.tokenCacheItem.accessToken = nil;
+    ADAuthenticationError* error = nil;
+    [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore addOrUpdateItem:result.tokenCacheItem error:&error];
     XCTAssertNil(error);
     [self clearCookies];//Just in case
     [self callAcquireTokenWithInstance:instance
@@ -370,7 +375,7 @@ const int sTokenWorkflowTimeout     = 20;
 
 -(void) testCookies
 {
-    BVTestInstance* instance = [self getAADInstance];
+    ADTestInstance* instance = [self getAADInstance];
     [self callAcquireTokenWithInstance:instance
                        refresh_session:NO
                            interactive:YES
@@ -391,7 +396,7 @@ const int sTokenWorkflowTimeout     = 20;
 -(void) testNegative
 {
     //Bad SSL certificate:
-    BVTestInstance* instance = [self getAADInstance];
+    ADTestInstance* instance = [self getAADInstance];
     instance.authority = @"https://example.com/common";
     instance.validateAuthority = NO;
     ADAuthenticationResult* result = [self callAcquireTokenWithInstance:instance
@@ -426,8 +431,8 @@ const int sTokenWorkflowTimeout     = 20;
 
 -(long) cacheCount
 {
-    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
-    ADAuthenticationError* error;
+    id<ADTokenCacheEnumerator> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    ADAuthenticationError* error = nil;
     NSArray* all = [cache allItemsWithError:&error];
     XCTAssertNotNil(all);
     XCTAssertNil(error.errorDetails);
@@ -446,7 +451,7 @@ const int sTokenWorkflowTimeout     = 20;
                                                           expectSuccess:NO
                                                                  userId:@"Nonexistent"
                                                                    line:__LINE__];
-    XCTAssertNil(result.tokenCacheStoreItem);
+    XCTAssertNil(result.tokenCacheItem);
     XCTAssertEqual([self cacheCount], (long)2);//Access token and MRRT
     //Cache present, same:
     result = [self callAcquireTokenWithInstance:[self getAADInstance]
@@ -456,14 +461,14 @@ const int sTokenWorkflowTimeout     = 20;
                                   expectSuccess:NO
                                          userId:@"Nonexistent"
                                            line:__LINE__];
-    XCTAssertNil(result.tokenCacheStoreItem);
+    XCTAssertNil(result.tokenCacheItem);
     XCTAssertEqual((long)result.error.code, (long)AD_ERROR_WRONG_USER);
     XCTAssertEqual([self cacheCount], (long)2);//Access token and MRRT
 }
 
 -(void) testRefreshSession
 {
-    BVTestInstance* instance = [self getAADInstance];
+    ADTestInstance* instance = [self getAADInstance];
     //Start with getting a normal token that will be refreshed later:
     ADAuthenticationResult* result1 = [self callAcquireTokenWithInstance:instance
                                                          refresh_session:NO

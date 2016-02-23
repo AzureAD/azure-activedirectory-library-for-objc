@@ -1,0 +1,84 @@
+// Copyright © Microsoft Open Technologies, Inc.
+//
+// All Rights Reserved
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
+// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
+// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
+// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
+//
+// See the Apache License, Version 2.0 for the specific language
+// governing permissions and limitations under the License.
+
+
+//
+//  Prefix header
+//
+//  The contents of this file are implicitly included at the beginning of every source file.
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+
+#if TARGET_OS_IPHONE
+    #import <UIKit/UIKit.h>
+#else
+    #import <AppKit/AppKit.h>
+#endif
+
+#import "ADAL_Internal.h"
+
+#ifndef DebugLog
+#ifdef DEBUG
+#   define DebugLog(fmt, ...) NSLog((@"%s[%d][%@] " fmt), __PRETTY_FUNCTION__, __LINE__, [[NSThread currentThread] isEqual:[NSThread mainThread]] ? @"main" : @"work", ##__VA_ARGS__);
+#else
+#   define DebugLog(...)
+#endif
+#endif
+
+#if __has_include("../../../aad_overrides.h")
+#include "../../../aad_overrides.h"
+#endif
+
+
+#if !defined(__clang__) || __clang_major__ < 3
+#   ifndef __bridge
+#       define __bridge
+#   endif
+
+#   ifndef __bridge_retain
+#       define __bridge_retain
+#   endif
+
+#   ifndef __bridge_retained
+#       define __bridge_retained
+#   endif
+
+#   ifndef __bridge_transfer
+#       define __bridge_transfer
+#   endif
+
+#   ifndef __autoreleasing
+#       define __autoreleasing
+#   endif
+
+#   ifndef __strong
+#       define __strong
+#   endif
+
+#   ifndef __unsafe_unretained
+#       define __unsafe_unretained
+#   endif
+
+#   ifndef __weak
+#       define __weak
+#   endif
+#endif
+
+#endif
