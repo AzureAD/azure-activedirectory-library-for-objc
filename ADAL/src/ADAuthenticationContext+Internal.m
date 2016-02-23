@@ -27,6 +27,7 @@
 
 NSString* const ADUnknownError = @"Uknown error.";
 NSString* const ADCredentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
+NSString* const ADInteractionNotSupportedInExtension = @"Interaction is not supported in an app extension.";
 NSString* const ADServerError = @"The authentication server returned an error: %@.";
 NSString* const ADBrokerAppIdentifier = @"com.microsoft.azureadauthenticator";
 NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to invoke the application. Update your redirect URI to be of  <app-scheme>://<bundle-id> format";

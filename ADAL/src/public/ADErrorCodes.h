@@ -119,7 +119,10 @@ typedef enum
     AD_ERROR_BROKER_UNKNOWN = 24,
     
     /*! Server redirects authentication process to a non-https url */
-    AD_ERROR_NON_HTTPS_REDIRECT = 25
+    AD_ERROR_NON_HTTPS_REDIRECT = 25,
+    
+    /*! Interaction (webview/broker) cannot be launched in app extension */
+    AD_ERROR_INTERACTION_NOT_SUPPORTED_IN_APP_EXTENSION = 26
     
 } ADErrorCode;
 

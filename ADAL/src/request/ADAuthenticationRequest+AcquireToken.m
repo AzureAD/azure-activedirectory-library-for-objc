@@ -212,6 +212,19 @@
         completionBlock(result);
         return;
     }
+    
+    //can't pop UI or go to broker in an extension
+    if ([[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"]) {
+        // this is an app extension
+        ADAuthenticationError* error =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INTERACTION_NOT_SUPPORTED_IN_APP_EXTENSION
+                                               protocolCode:nil
+                                               errorDetails:ADInteractionNotSupportedInExtension
+                                              correlationId:_correlationId];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
+        completionBlock(result);
+        return;
+    }
 
 #if !AD_BROKER
     //call the broker.
