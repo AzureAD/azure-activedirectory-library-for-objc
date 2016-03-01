@@ -108,6 +108,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 -(void)dealloc
 {
     [_webView setDelegate:nil];
+    _webView = nil;
 }
 
 #pragma mark - UIViewController Methods
