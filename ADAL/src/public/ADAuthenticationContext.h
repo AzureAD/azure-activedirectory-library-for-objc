@@ -120,7 +120,7 @@ typedef enum
     NSString* _authority;
     BOOL _validateAuthority;
     ADCredentialsType _credentialsType;
-    NSString* _component;
+    NSString* _logComponent;
     NSUUID* _correlationId;
     __weak WebViewType* _webView;
 }
@@ -253,7 +253,7 @@ typedef enum
 
 /*! The name of the component using this authentication context. Used in some logging and telemetry
     for clarification purposes. */
-@property (retain) NSString* component;
+@property (retain) NSString* logComponent;
 
 #if TARGET_OS_IPHONE
 /*! The parent view controller for the authentication view controller UI. This property will be used only if

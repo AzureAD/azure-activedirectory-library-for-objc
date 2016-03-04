@@ -38,7 +38,7 @@
 
 @implementation ADAuthenticationRequest
 
-@synthesize component = _component;
+@synthesize logComponent = _logComponent;
 
 #define RETURN_IF_NIL(_X) { if (!_X) { AD_LOG_ERROR(@#_X " must not be nil!", AD_FAILED, nil, nil); SAFE_ARC_RELEASE(self); return nil; } }
 #define ERROR_RETURN_IF_NIL(_X) { \
@@ -50,6 +50,26 @@
     } \
 }
 
++ (ADAuthenticationRequest *)requestWithAuthority:(NSString *)authority
+{
+    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:NO error:nil];
+    
+    return [self requestWithContext:context];
+}
+
++ (ADAuthenticationRequest *)requestWithContext:(ADAuthenticationContext *)context
+{
+    ADAuthenticationRequest* request = [[ADAuthenticationRequest alloc] init];
+    if (!request)
+    {
+        return nil;
+    }
+    SAFE_ARC_AUTORELEASE(request);
+    
+    request->_context = context;
+    
+    return request;
+}
 
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                    redirectUri:(NSString*)redirectUri

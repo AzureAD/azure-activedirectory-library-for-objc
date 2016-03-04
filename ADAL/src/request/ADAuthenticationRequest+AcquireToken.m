@@ -86,10 +86,9 @@
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && [_context hasCacheStore])
     {
         //Cache should be used in this case:
-        ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key
-                                                              userId:_identifier
-                                                       correlationId:_correlationId
-                                                               error:&error];
+        ADTokenCacheItem* cacheItem = [self findCacheItemWithKey:key
+                                                          userId:_identifier
+                                                           error:&error];
         if (!cacheItem && error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -103,7 +102,7 @@
             return; //The tryRefreshingFromCacheItem has taken care of the token obtaining
         }
         
-        ADTokenCacheItem* familyItem = [_context findFamilyItemForUser:_identifier correlationId:_correlationId error:&error];
+        ADTokenCacheItem* familyItem = [self findFamilyItemForUser:_identifier error:&error];
         if (familyItem)
         {
             [self attemptToUseCacheItem:familyItem completionBlock:completionBlock];
@@ -163,7 +162,7 @@
              if (broadKey)
              {
                  ADAuthenticationError* error;
-                 ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier correlationId:_correlationId error:&error];
+                 ADTokenCacheItem* broadItem = [self findCacheItemWithKey:broadKey userId:_identifier error:&error];
                  if (!broadItem && error)
                  {
                      completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -254,7 +253,7 @@
                   {
                       if (AD_SUCCEEDED == result.status)
                       {
-                          [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil requestCorrelationId:_correlationId];
+                          [self updateCacheToResult:result cacheItem:nil refreshToken:nil];
                           result = [ADAuthenticationContext updateResult:result toUser:_identifier];
                       }
                       completionBlock(result);
@@ -359,10 +358,9 @@
          ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:_correlationId];
          if (cacheItem)//The request came from the cache item, update it:
          {
-             [_context updateCacheToResult:result
-                                 cacheItem:resultItem
-                          withRefreshToken:refreshToken
-                      requestCorrelationId:_correlationId];
+             [self updateCacheToResult:result
+                             cacheItem:resultItem
+                          refreshToken:refreshToken];
          }
          result = [ADAuthenticationContext updateResult:result toUser:_identifier];//Verify the user (just in case)
          //

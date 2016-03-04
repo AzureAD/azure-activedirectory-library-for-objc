@@ -83,10 +83,9 @@
     if ([_context hasCacheStore])
     {
         //Cache should be used in this case:
-        ADTokenCacheItem* cacheItem = [_context findCacheItemWithKey:key
-                                                              userId:_identifier
-                                                       correlationId:_correlationId
-                                                               error:&error];
+        ADTokenCacheItem* cacheItem = [self findCacheItemWithKey:key
+                                                          userId:_identifier
+                                                           error:&error];
         if (error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -110,7 +109,7 @@
     {
         if (result.status == AD_SUCCEEDED)
         {
-            [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil requestCorrelationId:_correlationId];
+            [self updateCacheToResult:result cacheItem: nil refreshToken:nil];
         }
         
         completionBlock(result);
@@ -167,7 +166,7 @@
              if (broadKey)
              {
                  ADAuthenticationError* error = nil;
-                 ADTokenCacheItem* broadItem = [_context findCacheItemWithKey:broadKey userId:_identifier correlationId:_correlationId error:&error];
+                 ADTokenCacheItem* broadItem = [self findCacheItemWithKey:broadKey userId:_identifier error:&error];
                  if (error)
                  {
                      completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -202,7 +201,7 @@
           {
               if (result.status == AD_SUCCEEDED)
               {
-                  [_context updateCacheToResult:result cacheItem:nil withRefreshToken:nil requestCorrelationId:_correlationId];
+                  [self updateCacheToResult:result cacheItem:nil refreshToken:nil];
               }
               
               completionBlock(result);

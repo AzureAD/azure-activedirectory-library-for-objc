@@ -186,7 +186,7 @@ static NSString* _StringForLevel(ADAL_LOG_LEVEL level)
                                                         validateAuthority:mAADInstance.validateAuthority
                                                                     error:&error];
     [context setCredentialsType:AD_CREDENTIALS_AUTO];
-    [context setComponent:@"end-to-end"];
+    [context setLogComponent:@"end-to-end"];
     if (!context)
     {
         [self appendToResults:error.errorDetails];

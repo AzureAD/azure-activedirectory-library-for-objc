@@ -39,7 +39,6 @@
 @class ADUserIdentifier;
 
 #import "ADAuthenticationContext.h"
-#import "ADAuthenticationContext+TokenCaching.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADOAuth2Constants.h"
 #import "ADTokenCacheAccessor.h"

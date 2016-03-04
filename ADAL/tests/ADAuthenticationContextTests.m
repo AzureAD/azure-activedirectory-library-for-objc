@@ -28,6 +28,7 @@
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserIdentifier.h"
+#import "ADAuthenticationRequest.h"
 
 #define TEST_AUTHORITY @"https://login.windows.net/contoso.com"
 
@@ -180,7 +181,9 @@
     XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:familyItem correlationId:nil error:&error]);
     XCTAssertNil(error);
     
-    ADTokenCacheItem* foundItem = [context findFamilyItemForUser:[ADUserIdentifier identifierWithId:TEST_USER_ID] correlationId:nil error:&error];
+    ADAuthenticationRequest* req = [ADAuthenticationRequest requestWithContext:context];
+    
+    ADTokenCacheItem* foundItem = [req findFamilyItemForUser:[ADUserIdentifier identifierWithId:TEST_USER_ID] error:&error];
     XCTAssertNotNil(foundItem);
     XCTAssertEqualObjects(familyItem, foundItem);
 }
