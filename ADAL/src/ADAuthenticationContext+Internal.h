@@ -47,6 +47,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 extern NSString* const ADUnknownError;
 extern NSString* const ADCredentialsNeeded;
+extern NSString* const ADInteractionNotSupportedInExtension;
 extern NSString* const ADServerError;
 extern NSString* const ADBrokerAppIdentifier;
 extern NSString* const ADRedirectUriInvalidError;
