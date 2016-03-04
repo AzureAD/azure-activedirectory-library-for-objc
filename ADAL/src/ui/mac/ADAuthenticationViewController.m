@@ -124,6 +124,15 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
     return YES;
 }
 
+-(void)dealloc
+{
+    [_webView setFrameLoadDelegate:nil];
+    [_webView setResourceLoadDelegate:nil];
+    [_webView setPolicyDelegate:nil];
+    _webView = nil;
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 #pragma mark - UIViewController Methods
 
 #pragma mark - Event Handlers

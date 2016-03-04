@@ -103,6 +103,14 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     return NO;
 }
 
+/*! set webview's delegate to nil when the view controller 
+    is deallocated, or it might crash ADAL. */
+-(void)dealloc
+{
+    [_webView setDelegate:nil];
+    _webView = nil;
+}
+
 #pragma mark - UIViewController Methods
 
 - (void)viewDidLoad
@@ -144,7 +152,16 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 
 - (void)stop:(void (^)(void))completion
 {
-    [_parentController dismissViewControllerAnimated:YES completion:completion];
+    //if webview is created by us, dismiss and then complete and return;
+    //otherwise just complete and return.
+    if (_parentController)
+    {
+        [_parentController dismissViewControllerAnimated:YES completion:completion];
+    }
+    else
+    {
+        completion();
+    }
     
     _parentController = nil;
     _delegate = nil;
