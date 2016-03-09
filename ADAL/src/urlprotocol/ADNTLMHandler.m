@@ -62,7 +62,6 @@ static NSURLConnection *_conn = nil;
         _cancellationUrl = nil;
         _conn = nil;
         _challengeCancelled = NO;
-        AD_LOG_VERBOSE(AD_WPJ_LOG, nil, @"NTLM session ended");
     }
 }
 
@@ -77,7 +76,7 @@ static NSURLConnection *_conn = nil;
             _conn = nil;
         }
         // This is the NTLM challenge: use the identity to authenticate:
-        AD_LOG_VERBOSE_F(AD_WPJ_LOG, nil, @"Attempting to handle NTLM challenge for host: %@", challenge.protectionSpace.host);
+        AD_LOG_INFO_F(@"Attempting to handle NTLM challenge", @"host: %@", challenge.protectionSpace.host);
         
         [ADNTLMUIPrompt presentPrompt:^(NSString *username, NSString *password)
         {
@@ -90,8 +89,10 @@ static NSURLConnection *_conn = nil;
                               persistence:NSURLCredentialPersistenceForSession];
                 [challenge.sender useCredential:credential
                      forAuthenticationChallenge:challenge];
+                AD_LOG_INFO_F(@"NTLM credentials added", @"host: %@", challenge.protectionSpace.host);
             } else {
                 _challengeCancelled = YES;
+                AD_LOG_INFO_F(@"NTLM challenge cancelled", @"host: %@", challenge.protectionSpace.host);
                 [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
                 [protocol stopLoading];
             }

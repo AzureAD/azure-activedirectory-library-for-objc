@@ -281,14 +281,13 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                 {
                     // Request failure
                     NSString* body = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
-                    NSString* errorData = [NSString stringWithFormat:@"Server HTTP status code: %ld. Full response %@", (long)webResponse.statusCode, body];
+                    NSString* errorData = [NSString stringWithFormat:@"Full response %@", (long)webResponse.statusCode, body];
                     SAFE_ARC_RELEASE(body);
-                    AD_LOG_WARN(@"HTTP Error", _correlationId, errorData);
+                    AD_LOG_WARN(([NSString stringWithFormat:@"HTTP Error %ld", webResponse.statusCode]), _correlationId, errorData);
                     
-                    ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
-                                                                                            protocolCode:nil
-                                                                                            errorDetails:errorData
-                                                                                           correlationId:_correlationId];
+                    ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
+                                                                                     body:body];
+                    
                     //Now add the information to the dictionary, so that the parser can extract it:
                     [response setObject:adError
                                  forKey:AUTH_NON_PROTOCOL_ERROR];
@@ -315,6 +314,9 @@ static ADAuthenticationRequest* s_modalRequest = nil;
             [response setObject:adError
                          forKey:AUTH_NON_PROTOCOL_ERROR];
         }
+
+		ADAuthenti responseError = [response valueForKey:AUTH_NON_PROTOCOL_ERROR];
+		
         
         ADAuthenticationError* adError = [response valueForKey:AUTH_NON_PROTOCOL_ERROR];
         NSString* errorDetails = [adError errorDetails];

@@ -84,10 +84,7 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
                                 [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]]:
                                 nil;
         SAFE_ARC_AUTORELEASE(correlationId);
-        return [ADAuthenticationError errorFromAuthenticationError:errorCode
-                                                      protocolCode:serverOAuth2Error
-                                                      errorDetails:(errorDetails) ? errorDetails : [NSString stringWithFormat:ADServerError, serverOAuth2Error]
-                                                     correlationId:correlationId];
+        return [ADAuthenticationError OAuthServerError:serverOAuth2Error description:errorDetails code:errorCode correlationId:correlationId];
     }
     //In the case of more generic error, e.g. server unavailable, DNS error or no internet connection, the error object will be directly placed in the dictionary:
     return [dictionary objectForKey:AUTH_NON_PROTOCOL_ERROR];
