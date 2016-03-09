@@ -30,6 +30,12 @@ extern NSString* const ADInvalidArgumentDomain;
 extern NSString* const ADUnauthorizedResponseErrorDomain;
 /*! Error returned by Broker */
 extern NSString* const ADBrokerResponseErrorDomain;
+/*! Error domain for keychain errors. */
+extern NSString* const ADKeychainErrorDomain;
+/*! HTTP Error Codes */
+extern NSString* const ADHTTPErrorCodeDomain;
+/*! OAuth Server Errors */
+extern NSString* const ADOAuthServerErrorDomain;
 
 @interface ADAuthenticationError : NSError
 {
@@ -82,5 +88,18 @@ extern NSString* const ADBrokerResponseErrorDomain;
 
 /*! Generates an error for the case that server redirects authentication process to a non-https url */
 + (ADAuthenticationError*)errorFromNonHttpsRedirect:(NSUUID *)correlationId;
+
++ (ADAuthenticationError *)keychainErrorFromOperation:(NSString *)operation
+                                               status:(OSStatus)status
+                                        correlationId:(NSUUID *)correlationId;
+
++ (ADAuthenticationError *)HTTPErrorCode:(NSInteger)code
+                                    body:(NSString *)body
+                           correlationId:(NSUUID *)correlationId;
+
++ (ADAuthenticationError *)OAuthServerError:(NSString *)protocolCode
+                                description:(NSString *)description
+                                       code:(NSInteger)code
+                              correlationId:(NSUUID *)correlationId;
 
 @end
