@@ -4,7 +4,7 @@
 
 #include "adal__mac__common.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL";
+PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADAL;
 PRODUCT_NAME = ADAL;
 MODULEMAP_FILE = resources/mac/adal_mac.modulemap;
 DEFINES_MODULE = YES;
