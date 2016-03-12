@@ -80,7 +80,9 @@
     ERROR_RETURN_IF_NIL(context);
     ERROR_RETURN_IF_NIL(clientId);
     
-    return SAFE_ARC_AUTORELEASE([[ADAuthenticationRequest alloc] initWithContext:context redirectUri:redirectUri clientId:clientId resource:resource]);
+    ADAuthenticationRequest *request = [[ADAuthenticationRequest alloc] initWithContext:context redirectUri:redirectUri clientId:clientId resource:resource];
+    SAFE_ARC_AUTORELEASE(request);
+    return request;
 }
 
 - (id)initWithContext:(ADAuthenticationContext*)context

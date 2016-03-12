@@ -216,7 +216,9 @@ static NSString* const sValidationServerError = @"The authority validation serve
     if (!(code == 200 || code == 400 || code == 401))
     {
         NSString* logMessage = [NSString stringWithFormat:@"Server HTTP Status %ld", (long)webResponse.statusCode];
-        NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", SAFE_ARC_AUTORELEASE([[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding])];
+        NSString* responseBodyString = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
+        SAFE_ARC_AUTORELEASE(responseBodyString);
+        NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", responseBodyString];
         AD_LOG_WARN(logMessage, correlationId, errorData);
         return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData correlationId:correlationId];
     }
