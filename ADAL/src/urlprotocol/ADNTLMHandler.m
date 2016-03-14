@@ -45,7 +45,12 @@ static NSURLConnection *_conn = nil;
 
 + (void)setCancellationUrl:(NSString*) url
 {
-    _cancellationUrl = url;
+    if (_cancellationUrl == url)
+    {
+        return;
+    }
+    SAFE_ARC_RELEASE(_cancellationUrl);
+    _cancellationUrl = [url copy];
 }
 
 + (BOOL)isChallengeCancelled

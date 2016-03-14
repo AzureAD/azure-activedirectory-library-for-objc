@@ -235,9 +235,12 @@
 
 - (void)setClientId:(NSString *)clientId
 {
+    if (_clientId == clientId)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_clientId);
-    _clientId = clientId;
-    SAFE_ARC_RETAIN(_clientId);
+    _clientId = [clientId copy];
     [self calculateHash];
 }
 
@@ -248,6 +251,10 @@
 
 - (void)setUserInformation:(ADUserInformation *)userInformation
 {
+    if (_userInformation == userInformation)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_userInformation);
     _userInformation = userInformation;
     SAFE_ARC_RETAIN(_userInformation);
@@ -261,9 +268,12 @@
 
 - (void)setResource:(NSString *)resource
 {
+    if (_resource == resource)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_resource);
-    _resource = resource;
-    SAFE_ARC_RETAIN(_resource);
+    _resource = [resource copy];
     [self calculateHash];
 }
 
@@ -274,9 +284,12 @@
 
 - (void)setAuthority:(NSString *)authority
 {
+    if (_authority == authority)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_authority);
-    _authority = authority;
-    SAFE_ARC_RETAIN(_authority);
+    _authority = [authority copy];
     [self calculateHash];
 }
 

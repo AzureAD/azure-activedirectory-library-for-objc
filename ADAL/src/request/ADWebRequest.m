@@ -65,9 +65,13 @@ NSString *const HTTPPost = @"POST";
         SAFE_ARC_RELEASE(_requestMethod);
         _requestMethod = HTTPPost;
         SAFE_ARC_RETAIN(_requestMethod);
+        
+        if (_requestData == body)
+        {
+            return;
+        }
         SAFE_ARC_RELEASE(_requestData);
-        _requestData   = body;
-        SAFE_ARC_RETAIN(_requestData);
+        _requestData = [body copy];
         
         // Add default HTTP Headers to the request: Expect
         // Note that we don't bother with Expect because iOS does not support it
