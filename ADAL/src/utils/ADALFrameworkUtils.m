@@ -39,7 +39,12 @@ static NSString *_resourcePath = nil;
 
 + (void)setResourcePath:(NSString *)resourcePath
 {
-    _resourcePath = resourcePath;
+    if (_resourcePath == resourcePath)
+    {
+        return;
+    }
+    SAFE_ARC_RELEASE(_resourcePath)
+    _resourcePath = [resourcePath copy];
 }
 
 // Retrive the bundle containing the resources for the library. May return nil, if the bundle

@@ -23,6 +23,12 @@
 
 @protocol ADWebAuthDelegate;
 
+#if __has_feature(objc_arc)
+#   define SAFE_ARC_IVAR_WEAK __weak
+#else
+#   define SAFE_ARC_IVAR_WEAK
+#endif
+
 @interface ADAuthenticationViewController :
 #if TARGET_OS_IPHONE
 UIViewController
@@ -31,9 +37,9 @@ NSWindowController
 {
     // In the legacy ObjC runtime (which is what we're stuck at for 32-bit Mac builds)
     // you can't define the ivars of a class in the implementation file.
-    __weak id<ADWebAuthDelegate> _delegate;
-    __weak WebViewType* _webView;
-    __weak NSProgressIndicator* _progressIndicator;
+    SAFE_ARC_IVAR_WEAK id<ADWebAuthDelegate> _delegate;
+    SAFE_ARC_IVAR_WEAK WebViewType* _webView;
+    SAFE_ARC_IVAR_WEAK NSProgressIndicator* _progressIndicator;
 }
 #endif
 

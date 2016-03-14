@@ -122,7 +122,11 @@ typedef enum
     ADCredentialsType _credentialsType;
     NSString* _logComponent;
     NSUUID* _correlationId;
+#if __has_feature(objc_arc)
     __weak WebViewType* _webView;
+#else 
+    WebViewType* _webView;
+#endif
 }
 
 #if TARGET_OS_IPHONE
