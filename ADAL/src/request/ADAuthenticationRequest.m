@@ -142,8 +142,7 @@
         return;
     }
     SAFE_ARC_RELEASE(_scope);
-    _scope = scope;
-    SAFE_ARC_RETAIN(_scope);
+    _scope = [scope copy];
 }
 
 - (void)setExtraQueryParameters:(NSString *)queryParams
@@ -154,8 +153,7 @@
         return;
     }
     SAFE_ARC_RELEASE(_queryParams);
-    _queryParams = queryParams;
-    SAFE_ARC_RETAIN(_queryParams);
+    _queryParams = [queryParams copy];
 }
 
 - (void)setUserIdentifier:(ADUserIdentifier *)identifier
@@ -216,8 +214,7 @@
         return;
     }
     SAFE_ARC_RELEASE(_redirectUri);
-    _redirectUri = redirectUri;
-    SAFE_ARC_RETAIN(_redirectUri);
+    _redirectUri = [redirectUri copy];
 }
 
 - (void)setAllowSilentRequests:(BOOL)allowSilent
@@ -234,8 +231,7 @@
         return;
     }
     SAFE_ARC_RELEASE(_refreshTokenCredential);
-    _refreshTokenCredential = refreshTokenCredential;
-    SAFE_ARC_RETAIN(_refreshTokenCredential);
+    _refreshTokenCredential = [refreshTokenCredential copy];
 }
 #endif
 
