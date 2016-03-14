@@ -71,6 +71,10 @@
 
 - (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate
 {
+    if (_delegate == delegate)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_delegate);
     _delegate = delegate;
     SAFE_ARC_RETAIN(_delegate);

@@ -187,6 +187,10 @@
                                                              HTTPVersion:@"1.1"
                                                             headerFields:headerFields];
     
+    if (_response == response)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_response);
     _response = response;
     SAFE_ARC_RETAIN(_response);
@@ -442,6 +446,10 @@ static NSMutableArray* s_responses = nil;
 
 - (void)setDelegateQueue:(NSOperationQueue*)queue
 {
+    if (_delegateQueue == queue)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_delegateQueue);
     _delegateQueue = queue;
     SAFE_ARC_RETAIN(_delegateQueue);

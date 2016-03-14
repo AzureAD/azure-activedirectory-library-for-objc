@@ -65,6 +65,11 @@ NSString *const HTTPPost = @"POST";
         SAFE_ARC_RELEASE(_requestMethod);
         _requestMethod = HTTPPost;
         SAFE_ARC_RETAIN(_requestMethod);
+        
+        if (_requestData == body)
+        {
+            return;
+        }
         SAFE_ARC_RELEASE(_requestData);
         _requestData   = body;
         SAFE_ARC_RETAIN(_requestData);

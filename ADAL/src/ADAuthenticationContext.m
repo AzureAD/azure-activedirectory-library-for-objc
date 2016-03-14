@@ -430,6 +430,10 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 - (void)setTokenCacheStore:(id<ADTokenCacheAccessor>)tokenCacheStore
 {
+    if (_tokenCacheStore == tokenCacheStore)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_tokenCacheStore);
     _tokenCacheStore = tokenCacheStore;
     SAFE_ARC_RETAIN(_tokenCacheStore);
