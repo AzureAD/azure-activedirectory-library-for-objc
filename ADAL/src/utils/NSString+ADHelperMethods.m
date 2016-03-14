@@ -167,7 +167,9 @@ BOOL validBase64Characters(const byte* data, const int size)
 {
     NSData *decodedData = [self.class Base64DecodeData:self];
     
-    return SAFE_ARC_AUTORELEASE([[NSString alloc] initWithData:decodedData encoding:NSUTF8StringEncoding]);
+    NSString *string = [[NSString alloc] initWithData:decodedData encoding:NSUTF8StringEncoding];
+    SAFE_ARC_AUTORELEASE(string);
+    return string;
 }
 
 //Helper method to encode 3 bytes into a sequence of 4 bytes:
