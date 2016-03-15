@@ -25,9 +25,12 @@
 #import "ADAuthenticationError.h"
 
 NSString* const ADAuthenticationErrorDomain = @"ADAuthenticationErrorDomain";
-NSString* const ADInvalidArgumentDomain = @"ADAuthenticationErrorDomain";
+NSString* const ADInvalidArgumentDomain = @"ADInvalidArgumentErrorDomain";
 NSString* const ADUnauthorizedResponseErrorDomain = @"ADUnauthorizedResponseErrorDomain";
 NSString* const ADBrokerResponseErrorDomain = @"ADBrokerResponseErrorDomain";
+NSString* const ADKeychainErrorDomain = @"ADKeychainErrorDomain";
+NSString* const ADHTTPErrorCodeDomain = @"ADHTTPErrorCodeDomain";
+NSString* const ADOAuthServerErrorDomain = @"ADOAuthServerErrorDomain";
 
 NSString* const ADInvalidArgumentMessage = @"The argument '%@' is invalid. Value:%@";
 
@@ -242,6 +245,46 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                                   errorDetails:ADNonHttpsRedirectError
                                                  correlationId:correlationId];
 }
+
++ (ADAuthenticationError *)keychainErrorFromOperation:(NSString *)operation
+                                               status:(OSStatus)status
+                                        correlationId:(NSUUID *)correlationId
+{
+    NSString* details = [NSString stringWithFormat:@"Keychain failed during \"%@\" operation", operation];
+    
+    return [self errorWithDomainInternal:ADKeychainErrorDomain
+                                    code:status
+                       protocolErrorCode:nil
+                            errorDetails:details
+                           correlationId:correlationId
+                                userInfo:nil];
+}
+
++ (ADAuthenticationError *)HTTPErrorCode:(NSInteger)code
+                                    body:(NSString *)body
+                           correlationId:(NSUUID *)correlationId
+{
+    return [self errorWithDomainInternal:ADHTTPErrorCodeDomain
+                                    code:code
+                       protocolErrorCode:nil
+                            errorDetails:body
+                           correlationId:correlationId
+                                userInfo:nil];
+}
+
++ (ADAuthenticationError *)OAuthServerError:(NSString *)protocolCode
+                                description:(NSString *)description
+                                       code:(NSInteger)code
+                              correlationId:(NSUUID *)correlationId
+{
+    return [self errorWithDomainInternal:ADOAuthServerErrorDomain
+                                    code:code
+                       protocolErrorCode:protocolCode
+                            errorDetails:description
+                           correlationId:correlationId
+                                userInfo:nil];
+}
+
 
 
 @end
