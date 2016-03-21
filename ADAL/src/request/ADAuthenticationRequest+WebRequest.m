@@ -344,7 +344,7 @@ static volatile int sDialogInProgress = 0;
     if ( !OSAtomicCompareAndSwapInt( 0, 1, &sDialogInProgress) )
     {
         NSString* message = @"The user is currently prompted for credentials as result of another acquireToken request. Please retry the acquireToken call later.";
-        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_PROMPTED
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTLIPLE_INTERACTIVE_REQUESTS
                                                                               protocolCode:nil
                                                                               errorDetails:message
                                                                              correlationId:_correlationId];

@@ -45,7 +45,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 
 #define UNEXPECTED_KEY_ERROR { \
     if (error) { \
-        *error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:@"ADAL" code:AD_ERROR_UNEXPECTED userInfo:nil] errorDetails:@"Could not create broker key." correlationId:nil]; \
+        *error = [ADAuthenticationError errorFromNSError:[NSError errorWithDomain:@"ADAL" code:AD_ERROR_TOKENBROKER_FAILED_TO_CREATE_KEY userInfo:nil] errorDetails:@"Could not create broker key." correlationId:nil]; \
     } \
 }
 
@@ -242,14 +242,6 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     
     if(!buffer)
     {
-        NSError* nsError = [NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UNEXPECTED userInfo:nil];
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:nsError
-                                                                    errorDetails:@"Failed to allocate memory for decryption"
-                                                                   correlationId:nil];
-        if (error)
-        {
-            *error = adError;
-        }
         return nil;
     }
 
@@ -269,6 +261,14 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     
     free(buffer);
     
+    ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_DECRYPTION_FAILED
+                                                                            protocolCode:nil
+                                                                            errorDetails:@"Failed to decrypt the broker response"
+                                                                           correlationId:nil];
+    if (error)
+    {
+        *error = adError;
+    }
     return nil;
 }
 

@@ -220,7 +220,7 @@ static NSString* const sValidationServerError = @"The authority validation serve
         SAFE_ARC_AUTORELEASE(responseBodyString);
         NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", responseBodyString];
         AD_LOG_WARN(logMessage, correlationId, errorData);
-        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData correlationId:correlationId];
+        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData correlationId:correlationId];
     }
 
     NSError   *jsonError  = nil;
@@ -231,7 +231,7 @@ static NSString* const sValidationServerError = @"The authority validation serve
         NSString* details = jsonError ? jsonError.localizedDescription :
         @"No JSON object was in the web response data";
         
-        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
+        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_AUTHORITY_VALIDATION
                                                       protocolCode:nil
                                                       errorDetails:details
                                                      correlationId:correlationId];
@@ -240,7 +240,7 @@ static NSString* const sValidationServerError = @"The authority validation serve
     if (![jsonObject isKindOfClass:[NSDictionary class]])
     {
         NSString* errorMessage = [NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]];
-        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
+        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_AUTHORITY_VALIDATION
                                                       protocolCode:nil
                                                       errorDetails:errorMessage
                                                      correlationId:correlationId];
@@ -257,7 +257,7 @@ static NSString* const sValidationServerError = @"The authority validation serve
         NSString* errorDetails = [response objectForKey:OAUTH2_ERROR_DESCRIPTION];
         // Error response from the server
         errorDetails = errorDetails ? errorDetails : [NSString stringWithFormat:sValidationServerError, serverOAuth2Error];
-        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHORITY_VALIDATION
+        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_AUTHORITY_VALIDATION
                                                       protocolCode:serverOAuth2Error
                                                       errorDetails:errorDetails
                                                      correlationId:correlationId];

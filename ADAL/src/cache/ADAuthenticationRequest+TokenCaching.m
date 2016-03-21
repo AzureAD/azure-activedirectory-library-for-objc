@@ -187,7 +187,7 @@
     
     // If we succeeded, or weren't told it was a bad refresh token then just return right away as there are no changes
     // to make to the cache.
-    if (!(result.status == AD_SUCCEEDED || result.error.code == AD_ERROR_INVALID_REFRESH_TOKEN))
+    if (!(result.status == AD_SUCCEEDED || result.error.code == AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED))
     {
         return;
     }

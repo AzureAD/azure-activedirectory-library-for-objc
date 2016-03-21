@@ -121,7 +121,7 @@
             else
             {
                 NSError* nsErr = [NSError errorWithDomain:ADAuthenticationErrorDomain
-                                                     code:AD_ERROR_BROKER_RESPONSE_HASH_MISMATCH
+                                                     code:AD_ERROR_TOKENBROKER_RESPONSE_HASH_MISMATCH
                                                  userInfo:nil];
                 ADAuthenticationError* adErr = [ADAuthenticationError errorFromNSError:nsErr
                                                                           errorDetails:@"Decrypted response does not match the hash"
@@ -184,7 +184,7 @@
     ADAuthenticationError* error = nil;
     if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
     {
-        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
+        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
                                                        protocolCode:nil
                                                        errorDetails:ADRedirectUriInvalidError
                                                       correlationId:_correlationId];
@@ -232,7 +232,7 @@
     ADAuthenticationError* error = nil;
     if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
     {
-        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
+        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
                                                        protocolCode:nil
                                                        errorDetails:ADRedirectUriInvalidError
                                                       correlationId:_correlationId];

@@ -59,7 +59,10 @@
                      error:(ADAuthenticationError * __autoreleasing *)error
 {
     //The error object should always be created to ensure propper logging, even if "error" is nil.
-    ADAuthenticationError* raisedError = [ADAuthenticationError errorFromUnauthorizedResponse:code errorDetails:details correlationId:nil];
+    ADAuthenticationError* raisedError = [ADAuthenticationError errorFromAuthenticationError:code
+                                                                                protocolCode:nil
+                                                                                errorDetails:details
+                                                                               correlationId:nil];
     if (error)
     {
         *error = raisedError;
@@ -102,10 +105,11 @@
         }
         else if (HTTP_UNAUTHORIZED != response.statusCode)
         {
-            adError = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_UNAUTHORIZED_CODE_EXPECTED
-                                                              errorDetails:[NSString stringWithFormat:UnauthorizedHTTStatusExpected,
-                                                                            response.statusCode]
-                                                             correlationId:nil];
+            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_UNAUTHORIZED_CODE_EXPECTED
+                                                             protocolCode:nil
+                                                             errorDetails:[NSString stringWithFormat:UnauthorizedHTTStatusExpected,
+                                                                           response.statusCode]
+                                                            correlationId:nil];
         }
         else
         {
@@ -124,7 +128,7 @@
     if ([NSString adIsStringNilOrBlank:authenticateHeader])
     {
         NSString* details = [NSString stringWithFormat:MissingHeader, OAuth2_Authenticate_Header];
-        [self raiseErrorWithCode:AD_ERROR_MISSING_AUTHENTICATE_HEADER details:details error:error];
+        [self raiseErrorWithCode:AD_ERROR_SERVER_MISSING_AUTHENTICATE_HEADER details:details error:error];
         
         return nil;
     }

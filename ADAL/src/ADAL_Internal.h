@@ -39,7 +39,7 @@
 
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
-#import "ADAuthenticationError.h"
+#import "ADAuthenticationError+Internal.h"
 #import "NSString+ADHelperMethods.h"
 
 @class ADAuthenticationResult;

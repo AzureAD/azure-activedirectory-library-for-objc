@@ -77,7 +77,7 @@
 {
     if (!response)
     {
-        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
                                                                               protocolCode:@"adal cachce"
                                                                               errorDetails:@"processTokenResponse called without a response dictionary"
                                                                              correlationId:requestCorrelationId];
@@ -86,7 +86,7 @@
     
     [self checkCorrelationId:response requestCorrelationId:requestCorrelationId];
     
-    ADAuthenticationError* error = [ADAuthenticationContext errorFromDictionary:response errorCode:(fromRefreshTokenWorkflow) ? AD_ERROR_INVALID_REFRESH_TOKEN : AD_ERROR_AUTHENTICATION];
+    ADAuthenticationError* error = [ADAuthenticationContext errorFromDictionary:response errorCode:(fromRefreshTokenWorkflow) ? AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED : AD_ERROR_SERVER_OAUTH];
     if (error)
     {
         return [ADAuthenticationResult resultFromError:error];

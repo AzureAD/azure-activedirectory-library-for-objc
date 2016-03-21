@@ -463,7 +463,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     if (itemsExcludingTombstones.count > 1)
     {
         ADAuthenticationError* adError =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_MULTIPLE_USERS
                                                protocolCode:nil
                                                errorDetails:@"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used."
                                               correlationId:correlationId];
@@ -516,7 +516,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         NSData* itemData = [NSKeyedArchiver archivedDataWithRootObject:item];
         if (!itemData)
         {
-            ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BAD_CACHE_FORMAT protocolCode:nil errorDetails:@"Failed to archive keychain item" correlationId:correlationId];
+            ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_BAD_FORMAT protocolCode:nil errorDetails:@"Failed to archive keychain item" correlationId:correlationId];
             if (error)
             {
                 *error = adError;
