@@ -48,7 +48,7 @@
     
     [alert beginSheetModalForWindow:[NSApp keyWindow] completionHandler:^(NSModalResponse returnCode)
     {
-        if (returnCode == 1)
+        if (returnCode == 1000)
         {
             NSString* username = [view.usernameField stringValue];
             NSString* password = [view.passwordField stringValue];
