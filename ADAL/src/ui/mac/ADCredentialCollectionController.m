@@ -39,7 +39,7 @@
         //Generate the NTLM input dialog by code for Mac
         //usename field
         _usernameLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(7, 36, 73, 17)];
-        //SAFE_ARC_AUTORELEASE(_usernameLabel);
+        SAFE_ARC_AUTORELEASE(_usernameLabel);
         [_usernameLabel setStringValue:@"User Name"];
         [_usernameLabel setBezeled:NO];
         [_usernameLabel setDrawsBackground:NO];
@@ -47,11 +47,11 @@
         [_usernameLabel setSelectable:NO];
         
         _usernameField = [[NSTextField alloc] initWithFrame:NSMakeRect(85, 36,210, 22)];
-        //SAFE_ARC_AUTORELEASE(_usernameField);
+        SAFE_ARC_AUTORELEASE(_usernameField);
         
         //password field
         _passwordLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(7, 6, 72, 17)];
-        //SAFE_ARC_AUTORELEASE(_passwordLabel);
+        SAFE_ARC_AUTORELEASE(_passwordLabel);
         [_passwordLabel setStringValue:@"Password"];
         [_passwordLabel setBezeled:NO];
         [_passwordLabel setDrawsBackground:NO];
@@ -59,11 +59,11 @@
         [_passwordLabel setSelectable:NO];
         
         _passwordField = [[NSSecureTextField alloc] initWithFrame:NSMakeRect(85, 6,210, 22)];
-        //SAFE_ARC_AUTORELEASE(_passwordField);
+        SAFE_ARC_AUTORELEASE(_passwordField);
         
         //add labels and fileds to view
         _customView = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 306, 63)];
-        //SAFE_ARC_AUTORELEASE(_customView);
+        SAFE_ARC_AUTORELEASE(_customView);
         [_customView addSubview:_usernameLabel];
         [_customView addSubview:_usernameField];
         [_customView addSubview:_passwordLabel];

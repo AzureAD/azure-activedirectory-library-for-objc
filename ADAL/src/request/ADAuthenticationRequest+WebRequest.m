@@ -282,12 +282,12 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                     // Request failure
                     NSString* body = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
                     NSString* errorData = [NSString stringWithFormat:@"Full response: %@", body];
-                    SAFE_ARC_RELEASE(body);
                     AD_LOG_WARN(([NSString stringWithFormat:@"HTTP Error %ld", (long)webResponse.statusCode]), _correlationId, errorData);
                     
                     ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
                                                                                      body:body
                                                                             correlationId:_correlationId];
+                    SAFE_ARC_RELEASE(body);
                     
                     //Now add the information to the dictionary, so that the parser can extract it:
                     [response setObject:adError
