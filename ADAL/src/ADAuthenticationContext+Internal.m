@@ -133,7 +133,7 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
     if (!result)
     {
         ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
                                                protocolCode:nil
                                                errorDetails:@"ADAuthenticationResult is nil"
                                               correlationId:nil];

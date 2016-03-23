@@ -52,17 +52,17 @@
     XCTAssertThrows([ADAuthenticationError new], @"The new selector should not work due to requirement to use the parameterless init. At: '%s'", __PRETTY_FUNCTION__);
 }
 
--(void)testParameterlessInit
+- (void)testParameterlessInit
 {
     XCTAssertThrows([ADAuthenticationError init], @"Parameterless init should throw. At: '%s'", __PRETTY_FUNCTION__);
 }
 
--(void)testParentInitWithDomain
+- (void)testParentInitWithDomain
 {
     XCTAssertThrows([[ADAuthenticationError alloc] initWithDomain:@"domain" code:123 userInfo:nil], @"Parameterless init should throw. At: '%s'", __PRETTY_FUNCTION__);
 }
 
--(void)testErrorFromArgumentNameNil
+- (void)testErrorFromArgumentNameNil
 {
     XCTAssertThrowsSpecificNamed([ADAuthenticationError errorFromArgument:@"val" argumentName:nil correlationId:nil],
                                  NSException, NSInvalidArgumentException, "Nil argument name should throw.");
@@ -72,7 +72,7 @@
                                  NSException, NSInvalidArgumentException, "Nil argument name should throw.");
 }
 
--(void)testErrorFromArgumentNil
+- (void)testErrorFromArgumentNil
 {
     NSString* parameter = @"parameter123456 %@";
     //nil value:
@@ -82,7 +82,7 @@
     XCTAssertTrue([error.errorDetails adContainsString:@"(null)"], "'null' should be part of the text");
 }
 
--(void) testErrorFromArgumentNormal
+- (void)testErrorFromArgumentNormal
 {
     NSString* parameter = @"parameter123456 %@";
     NSString* parameterValue = @"value1245 %s@";
@@ -93,25 +93,18 @@
     XCTAssertTrue([error.errorDetails adContainsString:parameterValue], "Value should be part of the text");
 }
 
--(void)testErrorFromUnauthorizedResponseNormal
-{
-    NSString* details = @"Some details";
-    ADAuthenticationError* error = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_MISSING_AUTHENTICATE_HEADER errorDetails:details correlationId:nil];
-    XCTAssertNotNil(error, "Nil returned for valid case");
-}
-
--(void) testErrorFromOAuthError
+- (void)testErrorFromOAuthError
 {
     NSString* details = @"Some details";
     NSString* protocolCode = @"procol code";
-    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION protocolCode:protocolCode errorDetails:details correlationId:nil];
+    ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_OAUTH protocolCode:protocolCode errorDetails:details correlationId:nil];
     ADAssertStringEquals(error.domain, ADAuthenticationErrorDomain);
-    ADAssertLongEquals(error.code, AD_ERROR_AUTHENTICATION);
+    ADAssertLongEquals(error.code, AD_ERROR_SERVER_OAUTH);
     ADAssertStringEquals(error.protocolCode, protocolCode);
     ADAssertStringEquals(error.errorDetails, details);
 }
 
--(void) testDescription
+- (void)testDescription
 {
     NSString* details = @"Some details";
     NSString* protocolCode = @"some-protocol-code";

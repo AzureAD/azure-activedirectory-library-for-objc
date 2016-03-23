@@ -89,7 +89,8 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
                                             error:&error];
         XCTAssertNil(result, @"extractHost: should return nil for \"%@\"", testCaseVal);
         XCTAssertNotNil(error, @"extractHost: did not fill out the error for \"%@\"", testCaseVal);
-        XCTAssertEqual(error.domain, ADInvalidArgumentDomain);
+        XCTAssertEqual(error.domain, ADAuthenticationErrorDomain);
+        XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
         XCTAssertNil(error.protocolCode);
         XCTAssertTrue([error.errorDetails containsString:@"authority"]);
     }
@@ -259,7 +260,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
      {
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
-         XCTAssertEqual(error.code, AD_ERROR_AUTHORITY_VALIDATION);
+         XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION);
          
          TEST_SIGNAL;
      }];

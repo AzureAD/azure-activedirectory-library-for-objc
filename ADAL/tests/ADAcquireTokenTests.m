@@ -102,7 +102,7 @@ const int sAsyncContextTimeout = 10;
         XCTAssertNotNil(result);
         XCTAssertEqual(result.status, AD_FAILED);
         XCTAssertNotNil(result.error);
-        XCTAssertEqual(result.error.code, AD_ERROR_INVALID_ARGUMENT);
+        XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
         ADTAssertContains(result.error.errorDetails, @"resource");
         
         TEST_SIGNAL;
@@ -118,7 +118,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_INVALID_ARGUMENT);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
          ADTAssertContains(result.error.errorDetails, @"resource");
          
          TEST_SIGNAL;
@@ -139,7 +139,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_INVALID_ARGUMENT);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
          ADTAssertContains(result.error.errorDetails, @"clientId");
          
          TEST_SIGNAL;
@@ -155,7 +155,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_INVALID_ARGUMENT);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
          ADTAssertContains(result.error.errorDetails, @"clientId");
          
          TEST_SIGNAL;
@@ -178,7 +178,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_INVALID_ARGUMENT);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
          ADTAssertContains(result.error.errorDetails, @"samlAssertion");
          
          TEST_SIGNAL;
@@ -317,7 +317,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
          XCTAssertNil(result.tokenCacheItem);
-         XCTAssertEqual(result.error.code, AD_ERROR_MULTIPLE_USERS);
+         XCTAssertEqual(result.error.code, AD_ERROR_CACHE_MULTIPLE_USERS);
          
          TEST_SIGNAL;
      }];
@@ -371,7 +371,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_USER_INPUT_NEEDED);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
          
          TEST_SIGNAL;
     }];
@@ -426,7 +426,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_USER_INPUT_NEEDED);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
          
          TEST_SIGNAL;
      }];
@@ -463,7 +463,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_USER_INPUT_NEEDED);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
          
          TEST_SIGNAL;
      }];
@@ -506,7 +506,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_USER_INPUT_NEEDED);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
          
          TEST_SIGNAL;
      }];
@@ -534,7 +534,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_USER_INPUT_NEEDED);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
          
          TEST_SIGNAL;
      }];
@@ -819,7 +819,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_USER_INPUT_NEEDED);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
          
          TEST_SIGNAL;
      }];
