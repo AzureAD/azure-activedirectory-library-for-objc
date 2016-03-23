@@ -82,6 +82,9 @@ typedef enum
     /*! We were asked to do something that is not supported by this version of ADAL. */
     AD_ERROR_SERVER_UNSUPPORTED_REQUEST = 111,
     
+    /*! A failure occurred while trying to get an authorization code */
+    AD_ERROR_SERVER_AUTHORIZATION_CODE = 112,
+    
     
     //
     // Cache Errors
@@ -98,6 +101,7 @@ typedef enum
     /*! An issue occurred while attempting to read the persisted token cache store. */
     AD_ERROR_CACHE_BAD_FORMAT = 202,
     
+    /*! No refresh token was available in the cache */
     AD_ERROR_CACHE_NO_REFRESH_TOKEN = 203,
     
     
@@ -127,6 +131,9 @@ typedef enum
     // the token broker (Azure Authenticator).
     //
     
+    /*! The error code was not sent to us due to an older version of the broker */
+    AD_ERROR_TOKENBROKER_UNKNOWN = 400,
+    
     /*! The redirect URI cannot be used for invoking broker. */
     AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI = 401,
     
@@ -136,11 +143,10 @@ typedef enum
     /*! When the application waiting for broker is activated ,without broker response. */
     AD_ERROR_TOKENBROKER_RESPONSE_NOT_RECEIVED = 403,
     
-    /*! The error code was not sent to us due to an older version of the broker */
-    AD_ERROR_TOKENBROKER_UNKNOWN = 404,
-    
     /*! Failed to create the encryption key to talk to Azure Authenticator */
-    AD_ERROR_TOKENBROKER_FAILED_TO_CREATE_KEY = 405,
+    AD_ERROR_TOKENBROKER_FAILED_TO_CREATE_KEY = 404,
+    
+    AD_ERROR_TOKENBROKER_DECRYPTION_FAILED = 405,
     
     
 } ADErrorCode;

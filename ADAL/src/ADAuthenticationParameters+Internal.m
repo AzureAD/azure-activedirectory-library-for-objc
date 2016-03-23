@@ -91,7 +91,7 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
 {
     NSString* errorDetails = [NSString stringWithFormat:InvalidHeader,
      OAuth2_Authenticate_Header, headerContents];
-    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT
+    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT
                                                   protocolCode:nil
                                                    errorDetails:errorDetails
                                                   correlationId:nil];

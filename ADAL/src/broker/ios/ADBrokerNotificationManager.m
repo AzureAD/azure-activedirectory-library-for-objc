@@ -125,7 +125,7 @@
     // in the broker and we should let whoever is waiting on an ADAL response know it's not coming.
     if(callback)
     {
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BROKER_RESPONSE_NOT_RECEIVED
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_RESPONSE_NOT_RECEIVED
                                                                                 protocolCode:nil
                                                                                 errorDetails:@"application did not receive response from broker."
                                                                                correlationId:nil];

@@ -109,7 +109,7 @@
     @catch (id exception)
     {
         // This should be exceedingly rare as all of the objects in the cache we placed there.
-        AD_LOG_ERROR(@"Failed to serialize the cache!", AD_ERROR_BAD_CACHE_FORMAT, nil, nil);
+        AD_LOG_ERROR(@"Failed to serialize the cache!", AD_ERROR_CACHE_BAD_FORMAT, nil, nil);
         return nil;
     }
 }
@@ -124,7 +124,7 @@
     @catch (id expection)
     {
         ADAuthenticationError* adError =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BAD_CACHE_FORMAT
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_BAD_FORMAT
                                                protocolCode:nil
                                                errorDetails:@"Failed to unarchive data blob from -deserialize!"
                                               correlationId:nil];
@@ -188,7 +188,7 @@
     
     // Unarchive the data first
     NSDictionary* dict = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    CHECK_ERROR(dict, AD_ERROR_BAD_CACHE_FORMAT, @"Unable to unarchive data provided by cache storage!");
+    CHECK_ERROR(dict, AD_ERROR_CACHE_BAD_FORMAT, @"Unable to unarchive data provided by cache storage!");
 
     if (![self validateCache:dict error:error])
     {
@@ -443,7 +443,7 @@
     }
     
     ADAuthenticationError* adError =
-    [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
+    [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_MULTIPLE_USERS
                                            protocolCode:nil
                                            errorDetails:@"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used."
                                           correlationId:correlationId];
