@@ -60,7 +60,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 - (void)tearDown
 {
-    [mStore testRemoveAll:nil];//Attempt to clear the junk from the keychain
+    [mStore testRemoveAll:nil];//Attempt to clear all things from the keychain
     mStore = nil;
     
     [self adTestEnd];

@@ -136,9 +136,9 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)dispatchCompletionBlock:(ADAuthenticationError *)error URL:(NSURL *)url
 {
-    // NOTE: It is possible that race between a successful completion
+    // NOTE: It is possible that competition between a successful completion
     //       and the user cancelling the authentication dialog can
-    //       occur causing this method to be called twice. The race
+    //       occur causing this method to be called twice. The competition
     //       cannot be blocked at its root, and so this method must
     //       be resilient to this condition and should not generate
     //       two callbacks.
