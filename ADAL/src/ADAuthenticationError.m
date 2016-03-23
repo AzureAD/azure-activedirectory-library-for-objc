@@ -145,7 +145,7 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
     
     //Constructs the applicable message and return the error:
     NSString* errorMessage = [NSString stringWithFormat:ADInvalidArgumentMessage, argumentName, argumentValue];
-    return [self errorWithDomainInternal:ADInvalidArgumentDomain
+    return [self errorWithDomainInternal:ADAuthenticationErrorDomain
                                     code:AD_ERROR_INVALID_ARGUMENT
                        protocolErrorCode:nil
                             errorDetails:errorMessage
@@ -231,7 +231,7 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
 
 + (ADAuthenticationError*)errorFromCancellation:(NSUUID *)correlationId
 {
-    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_CANCEL
+    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_USER_CANCEL
                                                   protocolCode:nil
                                                   errorDetails:ADCancelError
                                                  correlationId:correlationId];
@@ -239,7 +239,7 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
 
 + (ADAuthenticationError*)errorFromNonHttpsRedirect:(NSUUID *)correlationId
 {
-    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NON_HTTPS_REDIRECT
+    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_NON_HTTPS_REDIRECT
                                                   protocolCode:nil
                                                   errorDetails:ADNonHttpsRedirectError
                                                  correlationId:correlationId];

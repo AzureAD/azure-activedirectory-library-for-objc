@@ -37,6 +37,8 @@ typedef enum
     
     //
     // Server Errors
+    // These errors result from interaction with or errors returned directly
+    // by the server.
     //
     
     /*! User needs to re-authorize resource usage. This error is raised when access token cannot
@@ -64,6 +66,7 @@ typedef enum
     /*! Server redirects authentication process to a non-https url */
     AD_ERROR_SERVER_NON_HTTPS_REDIRECT = 106,
     
+    /*! The server sent us an idtoken that we were unable to parse. */
     AD_ERROR_SERVER_INVALID_ID_TOKEN = 107,
     
     /*! HTTP 401 (Unauthorized) response does not contain the OAUTH2 required header */
@@ -82,6 +85,8 @@ typedef enum
     
     //
     // Cache Errors
+    // These errors originate from a non-recoverable or ambiguous interaction
+    // with the cache.
     //
     
     /*! Access tokens for multiple users exist in the token cache. Please specify the userId. */
@@ -98,6 +103,8 @@ typedef enum
     
     //
     // UI Errors
+    // These errors originate from either being unable to display the user
+    // interface, or a user interaction.
     //
     
     /*! ADAL only supports a single interactive auth session at a time. The calling app should never ask for
@@ -115,7 +122,9 @@ typedef enum
     AD_ERROR_UI_USER_CANCEL = 304,
     
     //
-    // Broker Errors
+    // Token Broker Errors
+    // These errors originate from being unable or failing to communicate with
+    // the token broker (Azure Authenticator).
     //
     
     /*! The redirect URI cannot be used for invoking broker. */
