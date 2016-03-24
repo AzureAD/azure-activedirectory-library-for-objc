@@ -100,7 +100,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     self.navigationItem.leftBarButtonItem = cancelButton;
     [_navController pushViewController:self animated:NO];
     
-    return NO;
+    return YES;
 }
 
 /*! set webview's delegate to nil when the view controller 
