@@ -286,7 +286,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                     AD_LOG_WARN(([NSString stringWithFormat:@"HTTP Error %ld", (long)webResponse.statusCode]), _correlationId, errorData);
                     
                     ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
-                                                                                     body:body
+                                                                                     body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
                                                                             correlationId:_correlationId];
                     
                     //Now add the information to the dictionary, so that the parser can extract it:
