@@ -65,7 +65,7 @@ const CGFloat CUSTOM_VIEW_HEIGHT = 63;
         //usename field
         _usernameLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(USERNAME_LABEL_X, USERNAME_LABEL_Y, USERNAME_LABEL_WIDTH, USERNAME_LABEL_HEIGHT)];
         SAFE_ARC_AUTORELEASE(_usernameLabel);
-        [_usernameLabel setStringValue:NSLocalizedString(@"User Name", nil)];
+        [_usernameLabel setStringValue:NSLocalizedString(@"Username", nil)];
         [_usernameLabel setBezeled:NO];
         [_usernameLabel setDrawsBackground:NO];
         [_usernameLabel setEditable:NO];

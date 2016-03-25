@@ -43,7 +43,7 @@
     
     ADCredentialCollectionController* view = [ADCredentialCollectionController new];
     SAFE_ARC_AUTORELEASE(view);
-    [view.usernameLabel setStringValue:NSLocalizedString(@"User Name", nil)];
+    [view.usernameLabel setStringValue:NSLocalizedString(@"Username", nil)];
     [view.passwordLabel setStringValue:NSLocalizedString(@"Password", nil)];
     [alert setAccessoryView:view.customView];
     
