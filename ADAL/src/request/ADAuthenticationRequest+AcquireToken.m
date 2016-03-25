@@ -40,6 +40,22 @@
     AD_REQUEST_CHECK_ARGUMENT(_resource);
     [self ensureRequest];
     
+    NSString* log = [NSString stringWithFormat:@"acquireToken (authority = %@, resource = %@, clientId = %@, idtype = %@)",
+                     _context.authority, _resource, _clientId, [_identifier typeAsString]];
+    AD_LOG_INFO_F(log, _correlationId, @"userId = %@", _identifier.userId);
+    
+    if (!_silent && ![NSThread isMainThread])
+    {
+        ADAuthenticationError* error =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_ON_MAIN_THREAD
+                                               protocolCode:nil
+                                               errorDetails:@"Interactive authentication requests must originate from the main thread"
+                                              correlationId:_correlationId];
+        
+        completionBlock([ADAuthenticationResult resultFromError:error]);
+        return;
+    }
+    
     if (!_context.validateAuthority)
     {
         [self validatedAcquireToken:completionBlock];
