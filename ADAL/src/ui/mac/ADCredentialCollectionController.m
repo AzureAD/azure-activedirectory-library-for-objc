@@ -65,7 +65,7 @@ const CGFloat CUSTOM_VIEW_HEIGHT = 63;
         //usename field
         _usernameLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(USERNAME_LABEL_X, USERNAME_LABEL_Y, USERNAME_LABEL_WIDTH, USERNAME_LABEL_HEIGHT)];
         SAFE_ARC_AUTORELEASE(_usernameLabel);
-        [_usernameLabel setStringValue:@"User Name"];
+        [_usernameLabel setStringValue:NSLocalizedString(@"User Name", nil)];
         [_usernameLabel setBezeled:NO];
         [_usernameLabel setDrawsBackground:NO];
         [_usernameLabel setEditable:NO];
@@ -77,7 +77,7 @@ const CGFloat CUSTOM_VIEW_HEIGHT = 63;
         //password field
         _passwordLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(PASSWORD_LABEL_X, PASSWORD_LABEL_Y, PASSWORD_LABEL_WIDTH, PASSWORD_LABEL_HEIGHT)];
         SAFE_ARC_AUTORELEASE(_passwordLabel);
-        [_passwordLabel setStringValue:@"Password"];
+        [_passwordLabel setStringValue:NSLocalizedString(@"Password", nil)];
         [_passwordLabel setBezeled:NO];
         [_passwordLabel setDrawsBackground:NO];
         [_passwordLabel setEditable:NO];
