@@ -131,6 +131,9 @@ typedef enum
     /*! The user has cancelled the applicable UI prompts */
     AD_ERROR_UI_USER_CANCEL = 403,
     
+    /*! Interactive authentication requests must originate on the main thread. */
+    AD_ERROR_UI_NOT_ON_MAIN_THREAD = 404,
+    
     //
     // Token Broker Errors
     // These errors originate from being unable or failing to communicate with

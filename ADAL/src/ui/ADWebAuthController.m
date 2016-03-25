@@ -493,8 +493,27 @@ correlationId:(NSUUID *)correlationId
     THROW_ON_NIL_ARGUMENT(startURL);
     THROW_ON_NIL_ARGUMENT(endURL);
     THROW_ON_NIL_ARGUMENT(correlationId);
-    THROW_ON_NIL_ARGUMENT(completionBlock)
-    //AD_LOG_VERBOSE(@"Authorization", startURL.absoluteString);
+    THROW_ON_NIL_ARGUMENT(completionBlock);
+    
+    // If we're not on the main thread when trying to kick up the UI then
+    // dispatch over to the main thread.
+    if (![NSThread isMainThread])
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self start:startURL
+                    end:endURL
+            refreshCred:refreshCred
+#if TARGET_OS_IPHONE
+                 parent:parent
+             fullScreen:fullScreen
+#endif
+                webView:webView
+          correlationId:correlationId
+             completion:completionBlock];
+        });
+        return;
+    }
+    
     
     _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
     
