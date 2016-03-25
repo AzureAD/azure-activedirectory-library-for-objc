@@ -42,13 +42,14 @@
     [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
     
     ADCredentialCollectionController* view = [ADCredentialCollectionController new];
-    [view.usernameLabel setStringValue:NSLocalizedString(@"User Name", nil)];
+    SAFE_ARC_AUTORELEASE(view);
+    [view.usernameLabel setStringValue:NSLocalizedString(@"Username", nil)];
     [view.passwordLabel setStringValue:NSLocalizedString(@"Password", nil)];
     [alert setAccessoryView:view.customView];
     
     [alert beginSheetModalForWindow:[NSApp keyWindow] completionHandler:^(NSModalResponse returnCode)
     {
-        if (returnCode == 1)
+        if (returnCode == 1000)
         {
             NSString* username = [view.usernameField stringValue];
             NSString* password = [view.passwordField stringValue];
