@@ -56,7 +56,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     
     XCTAssertNotNil(error, "Error should be raised for the invalid argument '%@'", argument);
     XCTAssertNotNil(error.domain, "Error domain is nil.");
-    XCTAssertEqual(error.domain, ADInvalidArgumentDomain, "Incorrect error domain.");
+    XCTAssertEqual(error.domain, ADAuthenticationErrorDomain, "Incorrect error domain.");
     XCTAssertNil(error.protocolCode, "The protocol code should not be set. Instead protocolCode ='%@'.", error.protocolCode);
     XCTAssertFalse([NSString adIsStringNilOrBlank:error.errorDetails], @"Error should have details.");
     BOOL found = [error.errorDetails adContainsString:argument];

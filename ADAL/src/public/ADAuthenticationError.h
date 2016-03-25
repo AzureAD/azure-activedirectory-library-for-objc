@@ -23,12 +23,9 @@
 
 #import <Foundation/Foundation.h>
 
+/*! Errors originating from ADAL locally. Use ADErrorCodes.h to determine the error. */
 extern NSString* const ADAuthenticationErrorDomain;
-/*! Incorrect argument passed */
-extern NSString* const ADInvalidArgumentDomain;
-/*! Error related to extracting authority from the 401 (Unauthorized) challenge response */
-extern NSString* const ADUnauthorizedResponseErrorDomain;
-/*! Error returned by Broker */
+/*! Error returned by Broker, uses the same error codes as ADAuthenticationErrorDomain. */
 extern NSString* const ADBrokerResponseErrorDomain;
 /*! Error domain for keychain errors. */
 extern NSString* const ADKeychainErrorDomain;
@@ -48,58 +45,5 @@ extern NSString* const ADOAuthServerErrorDomain;
 
 /*! The full details of the error. Can contain details from an inner error. */
 @property (readonly) NSString* errorDetails;
-
-/*! Generates an error for invalid method argument. */
-+ (ADAuthenticationError*)errorFromArgument:(id)argument
-                               argumentName:(NSString *)argumentName
-                              correlationId:(NSUUID *)correlationId;
-
-/*! Generates an error related to the 401 Bearer challenge handling */
-+ (ADAuthenticationError*)errorFromUnauthorizedResponse:(NSInteger)responseCode
-                                           errorDetails:(NSString *)errorDetails
-                                          correlationId:(NSUUID *)correlationId;
-
-/*! Generates an error object from an internally encountered error condition. Preserves the error
- code and domain of the original error and adds the custom details in the "errorDetails" property. */
-+ (ADAuthenticationError*)errorFromNSError:(NSError *)error
-                              errorDetails:(NSString *)errorDetails
-                             correlationId:(NSUUID *)correlationId;
-
-/*! Genearates an error from the code and details of an authentication error */
-+ (ADAuthenticationError*)errorFromAuthenticationError:(NSInteger)code
-                                          protocolCode:(NSString *)protocolCode
-                                          errorDetails:(NSString *)errorDetails
-                                         correlationId:(NSUUID *)correlationId;
-
-+ (ADAuthenticationError*)errorQuietWithAuthenticationError:(NSInteger)code
-                                               protocolCode:(NSString*)protocolCode
-                                               errorDetails:(NSString*)errorDetails;
-
-/*! Generates an error when an unexpected internal library conditions occurs. */
-+ (ADAuthenticationError*)unexpectedInternalError:(NSString *)errorDetails
-                                    correlationId:(NSUUID *)correlationId;
-
-+ (ADAuthenticationError*)invalidArgumentError:(NSString *)details
-                                 correlationId:(NSUUID *)correlationId;
-
-/*! Generates an error from cancel operations. E.g. the user pressed "Cancel" button
- on the authorization UI page. */
-+ (ADAuthenticationError*)errorFromCancellation:(NSUUID *)correlationId;
-
-/*! Generates an error for the case that server redirects authentication process to a non-https url */
-+ (ADAuthenticationError*)errorFromNonHttpsRedirect:(NSUUID *)correlationId;
-
-+ (ADAuthenticationError *)keychainErrorFromOperation:(NSString *)operation
-                                               status:(OSStatus)status
-                                        correlationId:(NSUUID *)correlationId;
-
-+ (ADAuthenticationError *)HTTPErrorCode:(NSInteger)code
-                                    body:(NSString *)body
-                           correlationId:(NSUUID *)correlationId;
-
-+ (ADAuthenticationError *)OAuthServerError:(NSString *)protocolCode
-                                description:(NSString *)description
-                                       code:(NSInteger)code
-                              correlationId:(NSUUID *)correlationId;
 
 @end

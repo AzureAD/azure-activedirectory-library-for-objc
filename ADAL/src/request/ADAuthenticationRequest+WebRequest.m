@@ -286,7 +286,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                     AD_LOG_WARN(([NSString stringWithFormat:@"HTTP Error %ld", (long)webResponse.statusCode]), _correlationId, errorData);
                     
                     ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
-                                                                                     body:body
+                                                                                     body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
                                                                             correlationId:_correlationId];
                     
                     //Now add the information to the dictionary, so that the parser can extract it:
@@ -344,7 +344,7 @@ static volatile int sDialogInProgress = 0;
     if ( !OSAtomicCompareAndSwapInt( 0, 1, &sDialogInProgress) )
     {
         NSString* message = @"The user is currently prompted for credentials as result of another acquireToken request. Please retry the acquireToken call later.";
-        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_PROMPTED
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS
                                                                               protocolCode:nil
                                                                               errorDetails:message
                                                                              correlationId:_correlationId];
@@ -507,7 +507,7 @@ static volatile int sDialogInProgress = 0;
                  }
                  
                  //OAuth2 error may be passed by the server:
-                 error = [ADAuthenticationContext errorFromDictionary:parameters errorCode:AD_ERROR_AUTHENTICATION];
+                 error = [ADAuthenticationContext errorFromDictionary:parameters errorCode:AD_ERROR_SERVER_AUTHORIZATION_CODE];
                  if (!error)
                  {
                      //Note that we do not enforce the state, just log it:
@@ -515,7 +515,7 @@ static volatile int sDialogInProgress = 0;
                      code = [parameters objectForKey:OAUTH2_CODE];
                      if ([NSString adIsStringNilOrBlank:code])
                      {
-                         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
+                         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_AUTHORIZATION_CODE
                                                                         protocolCode:nil
                                                                         errorDetails:@"The authorization server did not return a valid authorization code."
                                                                        correlationId:_correlationId];
@@ -575,7 +575,7 @@ static volatile int sDialogInProgress = 0;
                  }
                  
                  // Otherwise error out
-                 error = [ADAuthenticationContext errorFromDictionary:parameters errorCode:AD_ERROR_AUTHENTICATION];
+                 error = [ADAuthenticationContext errorFromDictionary:parameters errorCode:AD_ERROR_SERVER_AUTHORIZATION_CODE];
              }
              
              requestCompletion(error, endURL);
@@ -595,7 +595,7 @@ static volatile int sDialogInProgress = 0;
     
     if (!authHeaderParams)
     {
-        AD_LOG_ERROR_F(@"Unparseable wwwAuthHeader received.", AD_ERROR_WPJ_REQUIRED, _correlationId, @"%@", wwwAuthHeaderValue);
+        AD_LOG_ERROR_F(@"Unparseable wwwAuthHeader received.", AD_ERROR_SERVER_WPJ_REQUIRED, _correlationId, @"%@", wwwAuthHeaderValue);
     }
     
     NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer

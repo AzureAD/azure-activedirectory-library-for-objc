@@ -161,7 +161,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADTokenCacheItem* returnedItem = [mStore getItemWithKey:[self adCreateCacheKey] userId:nil correlationId:nil error:&error];
     XCTAssertNil(returnedItem);
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, AD_ERROR_MULTIPLE_USERS);
+    XCTAssertEqual(error.code, AD_ERROR_CACHE_MULTIPLE_USERS);
 }
 
 - (void)testInitializer

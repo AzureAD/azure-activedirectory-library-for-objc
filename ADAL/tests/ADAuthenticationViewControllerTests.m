@@ -85,7 +85,7 @@
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_NON_HTTPS_REDIRECT);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_NON_HTTPS_REDIRECT);
          
          dispatch_semaphore_signal(_dsem);
      }];

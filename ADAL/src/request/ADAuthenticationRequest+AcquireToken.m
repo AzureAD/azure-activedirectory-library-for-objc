@@ -208,7 +208,7 @@
         //so credentials are needed to get an access token, but the developer, requested
         //no UI to be shown:
         ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_INPUT_NEEDED
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
                                                protocolCode:nil
                                                errorDetails:ADCredentialsNeeded
                                               correlationId:_correlationId];
@@ -221,7 +221,7 @@
     if ([[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"]) {
         // this is an app extension
         ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INTERACTION_NOT_SUPPORTED_IN_APP_EXTENSION
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION
                                                protocolCode:nil
                                                errorDetails:ADInteractionNotSupportedInExtension
                                               correlationId:_correlationId];
@@ -253,7 +253,7 @@
                  return;
              }
              
-             ADAuthenticationResult* result = (AD_ERROR_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_correlationId]
+             ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_correlationId]
              : [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
              completionBlock(result);
          }

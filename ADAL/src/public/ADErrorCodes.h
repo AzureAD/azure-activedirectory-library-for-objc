@@ -28,101 +28,133 @@ typedef enum
      but no error condition occurred.*/
     AD_ERROR_SUCCEEDED = 0,
     
-    /*! The user has cancelled the applicable UI prompts */
-    AD_ERROR_USER_CANCEL = 1,
+    /*! An unexpected internal error occurred. */
+    AD_ERROR_UNEXPECTED = -1,
+    
+    //
+    // Developer Errors
+    // These errors occur from bad parameters given by the developer
+    //
     
     /*! The method call contains one or more invalid arguments */
-    AD_ERROR_INVALID_ARGUMENT = 2,
+    AD_ERROR_DEVELOPER_INVALID_ARGUMENT = 100,
+    
+    /*! The passed in authority URL does not pass validation, if you're trying to use ADFS directly you must disable authority validation. */
+    /*! An error was raised during the process of validating the authorization authority. */
+    AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION = 101,
+    
+    
+    //
+    // Server Errors
+    // These errors result from interaction with or errors returned directly
+    // by the server.
+    //
+    
+    /*! User needs to re-authorize resource usage. This error is raised when access token cannot
+     be obtained without user explicitly re-authorizing, but the developer has called
+     acquireTokenSilentWithResource method. To obtain the token, the application will need to call
+     acquireTokenWithResource after this error to allow the library to give user abitlity
+     to re-authorize (with web UI involved). Use -underlyingError to determine the cause. */
+    AD_ERROR_SERVER_USER_INPUT_NEEDED = 200,
+    
+    /*! When work place join is required by the service. */
+    AD_ERROR_SERVER_WPJ_REQUIRED = 201,
+    
+    /*! An OAuth Error was received from the server, use -protocolCode for the error sent by the server. */
+    AD_ERROR_SERVER_OAUTH = 202,
+    
+    /*! The refresh token token was rejected by the server, use -protocoolCode for the error sent by the server. */
+    AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED = 203,
+    
+    /*! The user returned by the server does not match the the user identifier specified by the developer. */
+    AD_ERROR_SERVER_WRONG_USER = 204,
+    
+    /*! Server redirects authentication process to a non-https url */
+    AD_ERROR_SERVER_NON_HTTPS_REDIRECT = 205,
+    
+    /*! The server sent us an idtoken that we were unable to parse. */
+    AD_ERROR_SERVER_INVALID_ID_TOKEN = 206,
     
     /*! HTTP 401 (Unauthorized) response does not contain the OAUTH2 required header */
-    AD_ERROR_MISSING_AUTHENTICATE_HEADER = 3,
+    AD_ERROR_SERVER_MISSING_AUTHENTICATE_HEADER = 207,
     
     /*! HTTP 401 (Unauthorized) response's authentication header is in invalid format
      or does not contain expected values. */
-    AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT = 4,
-    
-    /*! An internal error occurs when the library did not receive
-     a response from the server */
-    AD_ERROR_CONNECTION_MISSING_RESPONSE = 5,
+    AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT = 208,
     
     /*! The logic expects the server to return HTTP_UNAUTHORIZED */
-    AD_ERROR_UNAUTHORIZED_CODE_EXPECTED = 6,
+    AD_ERROR_SERVER_UNAUTHORIZED_CODE_EXPECTED = 209,
     
-    /*! The refresh token cannot be used for extracting an access token. */
-    AD_ERROR_INVALID_REFRESH_TOKEN = 7,
+    /*! We were asked to do something that is not supported by this version of ADAL. */
+    AD_ERROR_SERVER_UNSUPPORTED_REQUEST = 210,
     
-    /*! An unexpected internal error occurred. */
-    AD_ERROR_UNEXPECTED = 8,
+    /*! A failure occurred while trying to get an authorization code */
+    AD_ERROR_SERVER_AUTHORIZATION_CODE = 211,
+    
+    
+    //
+    // Cache Errors
+    // These errors originate from a non-recoverable or ambiguous interaction
+    // with the cache.
+    //
     
     /*! Access tokens for multiple users exist in the token cache. Please specify the userId. */
-    AD_ERROR_MULTIPLE_USERS = 9,
+    AD_ERROR_CACHE_MULTIPLE_USERS = 300,
     
-    /*! User needs to re-authorize resource usage. This error is raised when access token cannot 
-     be obtained without user explicitly re-authorizing, but the developer has called 
-     acquireTokenSilentWithResource method. To obtain the token, the application will need to call
-     acquireTokenWithResource after this error to allow the library to give user abitlity
-     to re-authorize (with web UI involved). */
-    AD_ERROR_USER_INPUT_NEEDED = 10,
-    
-    /*! The cache store cannot be persisted to the specified location. This error is raised only if
-     the application called explicitly to persist the cache. Else, the errors are only logged
-     as warnings. */
-    AD_ERROR_CACHE_PERSISTENCE = 11,
+    /*! The provided cache is from an incompatible future version of ADAL. */
+    AD_ERROR_CACHE_VERSION_MISMATCH = 301,
     
     /*! An issue occurred while attempting to read the persisted token cache store. */
-    AD_ERROR_BAD_CACHE_FORMAT = 12,
+    AD_ERROR_CACHE_BAD_FORMAT = 302,
     
-    /*! The user is currently prompted for another authentication. The library chose to raise this
-     error instead of waiting to avoid multiple sequential prompts. It is up to the application
-     developer to chose to retry later. */
-    AD_ERROR_USER_PROMPTED = 13,
+    /*! No refresh token was available in the cache */
+    AD_ERROR_CACHE_NO_REFRESH_TOKEN = 303,
     
-    /*! This type of error occurs when something went wrong with the application stack, e.g.
-     the resource bundle cannot be loaded. */
-    AD_ERROR_APPLICATION = 14,
     
-    /*! A generic error code for all of the authentication errors. */
-    AD_ERROR_AUTHENTICATION = 15,
+    //
+    // UI Errors
+    // These errors originate from either being unable to display the user
+    // interface, or a user interaction.
+    //
     
-    /*! An error was raised during the process of validating the authorization authority. */
-    AD_ERROR_AUTHORITY_VALIDATION = 16,
+    /*! ADAL only supports a single interactive auth session at a time. The calling app should never ask for
+     interactive auth when ADAL is in the middle of an interactive request */
+    AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS = 400,
     
     /*! Failed to extract the main view controller of the application. Make sure that the application
      has UI elements.*/
-    AD_ERROR_NO_MAIN_VIEW_CONTROLLER = 17,
-    
-    /*! Failed to extract the framework resources (e.g. storyboards). Please read the readme and documentation
-     for the library on how to link the ADAL library with its resources to your project.*/
-    AD_ERROR_MISSING_RESOURCES = 18,
-    
-    /*! Token requested for user A, but obtained for user B. This can happen if the user explicitly authenticated
-     as user B in the login UI, or if cookies for user B are already present.*/
-    AD_ERROR_WRONG_USER = 19,
-    
-    /*! When client authentication is requested by TLS, the library attempts to extract the authentication
-     certificate. The error is generated if more than one certificate is found in the keychain. */
-    AD_ERROR_MULTIPLE_TLS_CERTIFICATES = 20,
-    
-    /*! When the hash of the decrypted broker response does not match the hash returned from broker. */
-    AD_ERROR_BROKER_RESPONSE_HASH_MISMATCH = 21,
-    
-    /*! When the application waiting for broker is activated without broker response. */
-    AD_ERROR_BROKER_RESPONSE_NOT_RECEIVED = 22,
-
-	/*! When work place join is required by the service. */
-    AD_ERROR_WPJ_REQUIRED = 23,
-    
-    /*! The redirect URI cannot be used for invoking broker. */
-    AD_ERROR_INVALID_REDIRECT_URI = 23,
-    
-    /*! The error code was not sent to us due to an older version of the broker */ 
-    AD_ERROR_BROKER_UNKNOWN = 24,
-    
-    /*! Server redirects authentication process to a non-https url */
-    AD_ERROR_NON_HTTPS_REDIRECT = 25,
+    AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER = 401,
     
     /*! Interaction (webview/broker) cannot be launched in app extension */
-    AD_ERROR_INTERACTION_NOT_SUPPORTED_IN_APP_EXTENSION = 26
+    AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION = 402,
+    
+    /*! The user has cancelled the applicable UI prompts */
+    AD_ERROR_UI_USER_CANCEL = 403,
+    
+    //
+    // Token Broker Errors
+    // These errors originate from being unable or failing to communicate with
+    // the token broker (Azure Authenticator).
+    //
+    
+    /*! The error code was not sent to us due to an older version of the broker */
+    AD_ERROR_TOKENBROKER_UNKNOWN = 500,
+    
+    /*! The redirect URI cannot be used for invoking broker. */
+    AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI = 501,
+    
+    /*! When the hash of the decrypted broker response does not match the hash returned from broker. */
+    AD_ERROR_TOKENBROKER_RESPONSE_HASH_MISMATCH = 502,
+    
+    /*! When the application waiting for broker is activated ,without broker response. */
+    AD_ERROR_TOKENBROKER_RESPONSE_NOT_RECEIVED = 503,
+    
+    /*! Failed to create the encryption key to talk to Azure Authenticator */
+    AD_ERROR_TOKENBROKER_FAILED_TO_CREATE_KEY = 504,
+    
+    /*! Failed to decrypt the message we received from Azure Authenticator */
+    AD_ERROR_TOKENBROKER_DECRYPTION_FAILED = 505,
+    
     
 } ADErrorCode;
 

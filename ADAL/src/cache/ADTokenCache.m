@@ -109,7 +109,7 @@
     @catch (id exception)
     {
         // This should be exceedingly rare as all of the objects in the cache we placed there.
-        AD_LOG_ERROR(@"Failed to serialize the cache!", AD_ERROR_BAD_CACHE_FORMAT, nil, nil);
+        AD_LOG_ERROR(@"Failed to serialize the cache!", AD_ERROR_CACHE_BAD_FORMAT, nil, nil);
         return nil;
     }
 }
@@ -124,7 +124,7 @@
     @catch (id expection)
     {
         ADAuthenticationError* adError =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_BAD_CACHE_FORMAT
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_BAD_FORMAT
                                                protocolCode:nil
                                                errorDetails:@"Failed to unarchive data blob from -deserialize!"
                                               correlationId:nil];
@@ -188,7 +188,7 @@
     
     // Unarchive the data first
     NSDictionary* dict = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    CHECK_ERROR(dict, AD_ERROR_BAD_CACHE_FORMAT, @"Unable to unarchive data provided by cache storage!");
+    CHECK_ERROR(dict, AD_ERROR_CACHE_BAD_FORMAT, @"Unable to unarchive data provided by cache storage!");
 
     if (![self validateCache:dict error:error])
     {
@@ -373,34 +373,34 @@
 - (BOOL)validateCache:(NSDictionary*)dict
                 error:(ADAuthenticationError * __autoreleasing *)error
 {
-    CHECK_ERROR([dict isKindOfClass:[NSDictionary class]], AD_ERROR_BAD_CACHE_FORMAT, @"Root level object of cache is not an NSDictionary!");
+    CHECK_ERROR([dict isKindOfClass:[NSDictionary class]], AD_ERROR_CACHE_BAD_FORMAT, @"Root level object of cache is not an NSDictionary!");
     
     NSString* version = [dict objectForKey:@"version"];
-    CHECK_ERROR(version, AD_ERROR_BAD_CACHE_FORMAT, @"Missing version number from cache.");
-    CHECK_ERROR([version floatValue] <= CURRENT_WRAPPER_CACHE_VERSION, AD_ERROR_CACHE_PERSISTENCE, @"Cache is a future unsupported version.");
+    CHECK_ERROR(version, AD_ERROR_CACHE_BAD_FORMAT, @"Missing version number from cache.");
+    CHECK_ERROR([version floatValue] <= CURRENT_WRAPPER_CACHE_VERSION, AD_ERROR_CACHE_VERSION_MISMATCH, @"Cache is a future unsupported version.");
     
     NSDictionary* cache = [dict objectForKey:@"tokenCache"];
-    CHECK_ERROR(cache, AD_ERROR_BAD_CACHE_FORMAT, @"Missing token cache from data.");
-    CHECK_ERROR([cache isKindOfClass:[NSMutableDictionary class]], AD_ERROR_BAD_CACHE_FORMAT, @"Cache is not a dictionary!");
+    CHECK_ERROR(cache, AD_ERROR_CACHE_BAD_FORMAT, @"Missing token cache from data.");
+    CHECK_ERROR([cache isKindOfClass:[NSMutableDictionary class]], AD_ERROR_CACHE_BAD_FORMAT, @"Cache is not a dictionary!");
     
     NSDictionary* tokens = [cache objectForKey:@"tokens"];
     
     if (tokens)
     {
-        CHECK_ERROR([tokens isKindOfClass:[NSMutableDictionary class]], AD_ERROR_BAD_CACHE_FORMAT, @"tokens must be a mutable dictionary.");
+        CHECK_ERROR([tokens isKindOfClass:[NSMutableDictionary class]], AD_ERROR_CACHE_BAD_FORMAT, @"tokens must be a mutable dictionary.");
         for (id userId in tokens)
         {
             // On the second level we're expecting NSDictionaries keyed off of the user ids (an NSString*)
-            CHECK_ERROR([userId isKindOfClass:[NSString class]], AD_ERROR_BAD_CACHE_FORMAT, @"User ID key not the expected class type");
+            CHECK_ERROR([userId isKindOfClass:[NSString class]], AD_ERROR_CACHE_BAD_FORMAT, @"User ID key not the expected class type");
             id userDict = [tokens objectForKey:userId];
-            CHECK_ERROR([userDict isKindOfClass:[NSMutableDictionary class]], AD_ERROR_BAD_CACHE_FORMAT, @"User ID should have mutable dictionaries in the cache");
+            CHECK_ERROR([userDict isKindOfClass:[NSMutableDictionary class]], AD_ERROR_CACHE_BAD_FORMAT, @"User ID should have mutable dictionaries in the cache");
             
             for (id adkey in userDict)
             {
                 // On the first level we're expecting NSDictionaries keyed off of ADTokenCacheStoreKey
-                CHECK_ERROR([adkey isKindOfClass:[ADTokenCacheKey class]], AD_ERROR_BAD_CACHE_FORMAT, @"Key is not the expected class");
+                CHECK_ERROR([adkey isKindOfClass:[ADTokenCacheKey class]], AD_ERROR_CACHE_BAD_FORMAT, @"Key is not the expected class");
                 id token = [userDict objectForKey:adkey];
-                CHECK_ERROR([token isKindOfClass:[ADTokenCacheItem class]], AD_ERROR_BAD_CACHE_FORMAT, @"Token is not of expected class type!");
+                CHECK_ERROR([token isKindOfClass:[ADTokenCacheItem class]], AD_ERROR_CACHE_BAD_FORMAT, @"Token is not of expected class type!");
             }
         }
     }
@@ -443,7 +443,7 @@
     }
     
     ADAuthenticationError* adError =
-    [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
+    [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_MULTIPLE_USERS
                                            protocolCode:nil
                                            errorDetails:@"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used."
                                           correlationId:correlationId];

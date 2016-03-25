@@ -39,7 +39,7 @@
 
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
-#import "ADAuthenticationError.h"
+#import "ADAuthenticationError+Internal.h"
 #import "NSString+ADHelperMethods.h"
 
 @class ADAuthenticationResult;
@@ -71,7 +71,7 @@ NSString* __adalVersion = [NSString stringWithFormat:@"ADAL API call [Version - 
     if (CONDITION) \
     { \
         WHERE; \
-        AD_LOG_ERROR(@"InvalidArgumentException: " #ARG, AD_ERROR_INVALID_ARGUMENT, nil, __where); \
+        AD_LOG_ERROR(@"InvalidArgumentException: " #ARG, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, nil, __where); \
         @throw [NSException exceptionWithName: NSInvalidArgumentException \
                                        reason:@"Please provide a valid '" #ARG "' parameter." \
                                      userInfo:nil];  \
@@ -105,7 +105,7 @@ argumentName:@#ARG correlationId:nil]; \
     if (CONDITION) \
     { \
         WHERE; \
-        AD_LOG_ERROR(@"InvalidArgumentError: " #ARG, AD_ERROR_INVALID_ARGUMENT, nil, __where); \
+        AD_LOG_ERROR(@"InvalidArgumentError: " #ARG, AD_ERROR_DEVELOPER_INVALID_ARGUMENT, nil, __where); \
         FILL_PARAMETER_ERROR(ARG); \
         return RET; \
     } \

@@ -133,7 +133,7 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
     if (!result)
     {
         ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
                                                protocolCode:nil
                                                errorDetails:@"ADAuthenticationResult is nil"
                                               correlationId:nil];
@@ -156,13 +156,10 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
     
     if (![ADUserIdentifier identifier:userId matchesInfo:userInfo])
     {
-        NSString* errorText = [NSString stringWithFormat:@"Different user was authenticated. Expected: '%@'; Actual: '%@'. Either the user entered credentials for different user, or cookie for different logged user is present. Consider calling acquireToken with AD_PROMPT_ALWAYS to ignore the cookie.",
-                               userId.userId, [userId userIdMatchString:userInfo]];
-        
         ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_WRONG_USER
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_WRONG_USER
                                                protocolCode:nil
-                                               errorDetails:errorText
+                                               errorDetails:@"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier of OptionalDisplayableId type and pass in the userId returned on the initial authentication flow in all future acquireToken calls."
                                               correlationId:nil];
         return [ADAuthenticationResult resultFromError:error correlationId:[result correlationId]];
     }

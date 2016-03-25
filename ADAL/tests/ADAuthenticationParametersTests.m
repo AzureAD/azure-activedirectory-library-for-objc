@@ -225,7 +225,7 @@
     {
         [self recordFailureWithDescription:@"Error expected" inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
-    if (![error.domain isEqualToString:ADUnauthorizedResponseErrorDomain])
+    if (![error.domain isEqualToString:ADAuthenticationErrorDomain])
     {
         [self recordFailureWithDescription:@"Wrong domain" inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
@@ -300,7 +300,7 @@
         [self recordFailureWithDescription:@"Parsed invalid header" inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
     [self expectedError:error line:sourceLine];
-    if (AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT != error.code)
+    if (AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT != error.code)
     {
         [self recordFailureWithDescription:@"Wrong error code" inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
@@ -389,7 +389,7 @@
     ADAuthenticationParameters* params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:header error:&error];
     XCTAssertNil(params);
     [self expectedError:error line:sourceLine];
-    ADAssertLongEquals(error.code, AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT);
+    ADAssertLongEquals(error.code, AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT);
 }
 
 -(void) testParametersFromResponseAuthenticateHeaderInvalid
