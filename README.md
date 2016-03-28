@@ -68,7 +68,7 @@ To download a copy of the source code, click "Download ZIP" on the right side of
 
     pod 'ADAL', '~> 2.1.0-beta.5'
 
-See [CocoaPods](https://cocoapods.org for more information on setting up a PodFile
+See [CocoaPods](https://cocoapods.org) for more information on setting up a PodFile
 
 ## Usage
 
