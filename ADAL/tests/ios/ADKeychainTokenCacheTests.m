@@ -30,6 +30,8 @@
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
+#import "ADTokenCacheKey.h"
+
 dispatch_semaphore_t sThreadsSemaphore;//Will be signalled when the last thread is done. Should be initialized and cleared in the test.
 volatile int32_t sThreadsFinished;//The number of threads that are done. Should be set to 0 at the beginning of the test.
 const int sMaxThreads = 3;//The number of threads to spawn
@@ -452,6 +454,59 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [deleteQuery setObject:TEST_USER_ID forKey:(id)kSecAttrAccount];
     
     SecItemDelete((CFDictionaryRef)deleteQuery);
+}
+
+- (void)testHardcodedData
+{
+    // A serialized token cache item in base 64 form
+    NSString* base64String = @"YnBsaXN0MDDUAQIDBAUGh4hYJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoK8QLAcIGxwdHh8gISUrNTk+P2FiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3+DVSRudWxs2QkKCwwNDg8QERITFBUWFxgZGlYkY2xhc3NZYXV0aG9yaXR5WHJlc291cmNlXxAPdXNlckluZm9ybWF0aW9uWWV4cGlyZXNPblhjbGllbnRJZFxyZWZyZXNoVG9rZW5bYWNjZXNzVG9rZW5fEA9hY2Nlc3NUb2tlblR5cGWAK4ADgAKACoAIgASAB4AFgAZaPHJlc291cmNlPl8QKGh0dHBzOi8vbG9naW4ubWljcm9zb2Z0b25saW5lLmNvbS9jb21tb25fECQyN0FEODNDOS1GQzA1LTRBNkMtQUYwMS0zNkVEQTQyRUQxOEZePGFjY2VzcyB0b2tlbj5WQmVhcmVyXxAPPHJlZnJlc2ggdG9rZW4+0iIJIyRXTlMudGltZSNBLoSAAAAAAIAJ0iYnKClaJGNsYXNzbmFtZVgkY2xhc3Nlc1ZOU0RhdGWiKCpYTlNPYmplY3TVLC0uLwkwMTIzNF8QEXVzZXJJZERpc3BsYXlhYmxlWWFsbENsYWltc1pyYXdJZFRva2VuVnVzZXJJZAmADoANgAuAKtIJNjc4WU5TLnN0cmluZ4AMXxAWbXlmYWtldXNlckBjb250b3NvLmNvbdImJzo7XxAPTlNNdXRhYmxlU3RyaW5nozw9Kl8QD05TTXV0YWJsZVN0cmluZ1hOU1N0cmluZ18RAlBleUowZVhBaU9pSktWMVFpTENKaGRXUWlPaUpqTTJNM1pqVmxOUzAzTVRVekxUUTBaRFF0T1RCbE5pMHpNamsyT0Raa05EaGtOellpTENKcGMzTWlPaUpvZEhSd2N6b3ZMM04wY3k1M2FXNWtiM2R6TG01bGRDODJabVF4WmpWalpDMWhPVFJqTFRRek16VXRPRGc1WWkwMll6VTVPR1UyWkRnd05EZ3ZJaXdpYVdGMElqb3hNemczTWpJME1UWTVMQ0p1WW1ZaU9qRXpPRGN5TWpReE5qa3NJbVY0Y0NJNk1UTTROekl5TnpjMk9Td2lkbVZ5SWpvaU1TNHdJaXdpZEdsa0lqb2lObVprTVdZMVkyUXRZVGswWXkwME16TTFMVGc0T1dJdE5tTTFPVGhsTm1RNE1EUTRJaXdpYjJsa0lqb2lOVE5qTm1GalpqSXRNamMwTWkwME5UTTRMVGt4T0dRdFpUYzRNalUzWldNNE5URTJJaXdpZFhCdUlqb2liWGxtWVd0bGRYTmxja0JqYjI1MGIzTnZMbU52YlNJc0luVnVhWEYxWlY5dVlXMWxJam9pYlhsbVlXdGxkWE5sY2tCamIyNTBiM052TG1OdmJTSXNJbk4xWWlJNklqQkVlRzVCYkV4cE1USkpka2RNWDJSSE0yUkVUV3N6ZW5BMlFWRklibXBuYjJkNWFXMDFRVmR3VTJNaUxDSm1ZVzFwYkhsZmJtRnRaU0k2SWxWelpYSWlMQ0puYVhabGJsOXVZVzFsSWpvaVJtRnJaU0o500BBCUJRYFdOUy5rZXlzWk5TLm9iamVjdHOuQ0RFRkdISUpLTE1OT1CAD4AQgBGAEoATgBSAFYAWgBeAGIAZgBqAG4AcrlJTVFVWV1hZU1tcXVJfgB2AHoAfgCCAIYAigCOAJIAegCWAJoAngB2AKIApU3VwblNuYmZTZXhwU2lzc1NvaWRTdHlwU3ZlclNhdWRTaWF0W2ZhbWlseV9uYW1lU3N1YlN0aWRbdW5pcXVlX25hbWVaZ2l2ZW5fbmFtZV8QFm15ZmFrZXVzZXJAY29udG9zby5jb20SUq9caRJSr2p5XxA9aHR0cHM6Ly9zdHMud2luZG93cy5uZXQvNmZkMWY1Y2QtYTk0Yy00MzM1LTg4OWItNmM1OThlNmQ4MDQ4L18QJDUzYzZhY2YyLTI3NDItNDUzOC05MThkLWU3ODI1N2VjODUxNlNKV1RTMS4wXxAkYzNjN2Y1ZTUtNzE1My00NGQ0LTkwZTYtMzI5Njg2ZDQ4ZDc2VFVzZXJfECswRHhuQWxMaTEySXZHTF9kRzNkRE1rM3pwNkFRSG5qZ29neWltNUFXcFNjXxAkNmZkMWY1Y2QtYTk0Yy00MzM1LTg4OWItNmM1OThlNmQ4MDQ4VEZha2XSJid8fVxOU0RpY3Rpb25hcnmifipcTlNEaWN0aW9uYXJ50iYngIFfEBFBRFVzZXJJbmZvcm1hdGlvbqKCKl8QEUFEVXNlckluZm9ybWF0aW9u0iYnhIVfEBVBRFRva2VuQ2FjaGVTdG9yZUl0ZW2ihipfEBVBRFRva2VuQ2FjaGVTdG9yZUl0ZW1fEA9OU0tleWVkQXJjaGl2ZXLRiYpUcm9vdIABAAgAEQAaACMALQAyADcAZgBsAH8AhgCQAJkAqwC1AL4AywDXAOkA6wDtAO8A8QDzAPUA9wD5APsBBgExAVgBZwFuAYABhQGNAZYBmAGdAagBsQG4AbsBxAHPAeMB7QH4Af8CAAICAgQCBgIIAg0CFwIZAjICNwJJAk0CXwJoBLwEwwTLBNYE5QTnBOkE6wTtBO8E8QTzBPUE9wT5BPsE/QT/BQEFEAUSBRQFFgUYBRoFHAUeBSAFIgUkBSYFKAUqBSwFLgUyBTYFOgU+BUIFRgVKBU4FUgVeBWIFZgVyBX0FlgWbBaAF4AYHBgsGDwY2BjsGaQaQBpUGmganBqoGtwa8BtAG0wbnBuwHBAcHBx8HMQc0BzkAAAAAAAACAQAAAAAAAACLAAAAAAAAAAAAAAAAAAAHOw==";
+    
+    
+    NSData* itemData = [[NSData alloc] initWithBase64EncodedString:base64String options:0];
+    XCTAssertNotNil(itemData);
+    
+    NSString* service = [NSString stringWithFormat:@"MSOpenTech.ADAL.1|%@|%@|%@",
+                         [@"https://login.microsoftonline.com/common" adBase64UrlEncode],
+                         [@"<resource>" adBase64UrlEncode],
+                         // The underlying keychain code lowercases the client ID before saving it out to keychain
+                         [@"27ad83c9-fc05-4a6c-af01-36eda42ed18f" adBase64UrlEncode]];
+    
+    NSDictionary* query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
+                             (id)kSecAttrAccount : [@"myfakeuser@contoso.com" adBase64UrlEncode],
+                             (id)kSecAttrService : service,
+                             (id)kSecAttrGeneric : [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding],
+                             (id)kSecValueData : itemData,
+                             };
+    
+    OSStatus status = SecItemAdd((CFDictionaryRef)query, NULL);
+    XCTAssertEqual(status, errSecSuccess);
+    
+    ADKeychainTokenCache* cache = [[ADKeychainTokenCache alloc] initWithGroup:nil];
+    ADAuthenticationError* error = nil;
+    
+    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:@"https://login.microsoftonline.com/common"
+                                                    resource:@"<resource>"
+                            // Client ID is upper cased here to make sure it does the proper case conversion
+                                                    clientId:@"27AD83C9-FC05-4A6C-AF01-36EDA42ED18F"
+                                                       error:&error];
+    XCTAssertNotNil(key);
+    
+    ADTokenCacheItem* item = [cache getItemWithKey:key userId:@"myfakeuser@contoso.com" correlationId:nil error:&error];
+    XCTAssertNotNil(item);
+    
+    XCTAssertEqualObjects(item.accessToken, @"<access token>");
+    XCTAssertEqualObjects(item.refreshToken, @"<refresh token>");
+    XCTAssertEqualObjects(item.accessTokenType, @"Bearer");
+    XCTAssertEqualObjects(item.userInformation.userId, @"myfakeuser@contoso.com");
+    
+    NSDictionary* deleteQuery = @{ (id)kSecClass : (id)kSecClassGenericPassword,
+                                   (id)kSecAttrAccount : [@"myfakeuser@contoso.com" adBase64UrlEncode],
+                                   (id)kSecAttrService : service,
+                                   (id)kSecAttrGeneric : [@"MSOpenTech.ADAL.1" dataUsingEncoding:NSUTF8StringEncoding],
+                                   };
+    
+    status = SecItemDelete((CFDictionaryRef)deleteQuery);
+    XCTAssertEqual(status, errSecSuccess);
 }
 
 @end

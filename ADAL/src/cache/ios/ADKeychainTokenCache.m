@@ -395,7 +395,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     }
     if (userId)
     {
-        [query setObject:userId
+        [query setObject:[userId adBase64UrlEncode]
                   forKey:(NSString*)kSecAttrAccount];
     }
     

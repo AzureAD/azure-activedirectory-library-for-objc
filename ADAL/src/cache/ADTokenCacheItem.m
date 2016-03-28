@@ -37,6 +37,14 @@
 @synthesize sessionKey = _sessionKey;
 @synthesize familyId = _familyId;
 
++ (void)load
+{
+    // This class was named "ADTokenCacheStoreItem" in ADAL 1.x, to maintain backwards compatibility
+    // we set class name mappings for this class.
+    [NSKeyedArchiver setClassName:@"ADTokenCacheStoreItem" forClass:self];
+    [NSKeyedUnarchiver setClass:self forClassName:@"ADTokenCacheStoreItem"];
+}
+
 - (NSUInteger)hash
 {
     return _hash;

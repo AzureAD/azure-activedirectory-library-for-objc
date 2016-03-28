@@ -288,13 +288,18 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
     return YES;
 }
 
-//Serialize:
+// Serialize:
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
     [aCoder encodeObject:_rawIdToken forKey:@"rawIdToken"];
+    
+    // These are needed for back-compat with ADAL 1.x
+    [aCoder encodeObject:_allClaims forKey:@"allClaims"];
+    [aCoder encodeObject:_userId forKey:@"userId"];
+    [aCoder encodeBool:_userIdDisplayable forKey:@"userIdDisplayable"];
 }
 
-//Deserialize:
+// Deserialize:
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
     NSString* idToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
