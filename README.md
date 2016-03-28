@@ -38,100 +38,68 @@ All code is licensed under the MIT license and we triage actively on GitHub. We 
 ## Quick Start
 
 1. Clone the repository to your machine
-2. Build the library or framework
-3. Add the ADAL library or framework your project
+2. Build the library
+3. Add the ADALiOS library to your project
+4. Add the storyboards from the ADALiOSBundle to your project resources
+5. Add libADALiOS to “Link With Libraries” phase. 
 
 
 ##Download
 
 We've made it easy for you to have multiple options to use this library in your iOS project:
 
-###Option 1: Git Submodule
-
-If your project is managed in a git repository you can include ADAL as a git submodule:
-
-    git submodule add https://github.com/AzureAD/azure-activedirectory-library-for-objc adal
-    cd adal
-    git checkout tags/2.1.0-beta.5
-    cd ..
-    git add adal
-    git commit -m "Use ADAL git submoduile at 2.1.0-beta.5"
-    git push
-    
-We recommend only syncing to specific release tags to make sure you're at a known spot in the code.
-
-###Option 2: Source Zip
+###Option 1: Source Zip
 
 To download a copy of the source code, click "Download ZIP" on the right side of the page or click [here](https://github.com/AzureAD/azure-activedirectory-library-for-objc/archive/1.2.5.tar.gz).
 
-###Option 3: Cocoapods
+###Option 2: Cocoapods
 
-    pod 'ADAL', '~> 2.1.0-beta.5'
-
-See [CocoaPods](https://cocoapods.org for more information on setting up a PodFile
+    pod 'ADALiOS', '~> 1.2.5'
 
 ## Usage
 
-### Caching
-
-#### iOS
-
-##### Keychain Setup
+### Set up Keychain Sharing Entitlements in your Xcode Project ###
 
 Click on your project in the Navigator pane in Xcode. Click on your application target and
 then the "Capabilities" tab. Scroll down to "Keychain Sharing" and flip the switch on. Add
 "com.microsoft.adalcache" to that list.
 
-Alternatively you can disable keychain sharing by setting the keychain sharing group to nil.
+Alternatively you can disable keychain sharing by setting the keychain sharing group to
 your application's bundle id.
 
 ```Objective-C
-    [[ADAuthenticationSettings sharedInstance] setSharedCacheKeychainGroup:nil];
+    [[ADAuthenticationSettings sharedInstance] setSharedCacheKeychainGroup:@"<your.bundle.id.here>"];
 ```
 
-##### Inspecting the Cache
-
-If you need to inspect the cache in your app, you can do it through the ADKeychainTokenCache interface.
-
-#### Mac OS X
-
-Keychain is not directly supported by ADAL on Mac OS X. The default caching implementation will keep around tokens for the life time of the process, but they will not be persisted. If you wish to persis tokens you must implement the ADTokenCacheDelegate and provide it on AuthenticationContext creation
-
-```Objective-C
-@protocol ADTokenCacheDelegate <NSObject>
-
-- (void)willAccessCache:(nonnull ADTokenCache *)cache;
-- (void)didAccessCache:(nonnull ADTokenCache *)cache;
-- (void)willWriteCache:(nonnull ADTokenCache *)cache;
-- (void)didWriteCache:(nonnull ADTokenCache *)cache;
-
-@end
-```
-
-In this delegate you can call -serialize and -deserialize on the cache object to save or update the cache in the form of an NSData binary blob.
-
-
-### Quick Start
+### ADAuthenticationContext
 
 The starting point for the API is in ADAuthenticationContext.h header. ADAuthenticationContext is the main class used for obtaining, caching and supplying access tokens.
 
 #### How to quickly get a token from the SDK:
 
 ```Objective-C
+	ADAuthenticationContext* authContext;
+	NSString* authority;
+	NSString* redirectUriString;
+	NSString* resourceId;
+	NSString* clientId;
 
-+ (void)getToken:(void (^)(NSString*))completionBlock;
++(void) getToken : (BOOL) clearCache completionHandler:(void (^) (NSString*))completionBlock;
 {
-    ADAuthenticationError *error = nil;
-    authContext = [ADAuthenticationContext authenticationContextWithAuthority:@"https://login.microsoftonline.com/common"
+    ADAuthenticationError *error;
+    authContext = [ADAuthenticationContext authenticationContextWithAuthority:authority
                                                                         error:&error];
     
     NSURL *redirectUri = [NSURL URLWithString:redirectUriString];
     
-    [authContext acquireTokenWithResource:@"https://graph.windows.net"                 
-                                 clientId:@"<Your Client ID">                          // Comes from App Portal
-                              redirectUri:[NSURL URLWithString:@"<Your Redirect URI>"] // Comes from App Portal
-                          completionBlock:^(ADAuthenticationResult *result)
-    {
+    if(clearCache){
+        [authContext.tokenCacheStore removeAll];
+    }
+    
+    [authContext acquireTokenWithResource:resourceId
+                                 clientId:clientId
+                              redirectUri:redirectUri
+                          completionBlock:^(ADAuthenticationResult *result) {
         if (AD_SUCCEEDED != result.status){
             // display error on the screen
             [self showError:result.error.errorDetails];
@@ -147,83 +115,55 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
 
 ```Objective-C
 
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:yourAppURL];
+	+(NSArray*) getTodoList:(id)delegate
+	{
+    __block NSMutableArray *scenarioList = nil;
+    
+    [self getToken:YES completionHandler:^(NSString* accessToken){
+    
+    NSURL *todoRestApiURL = [[NSURL alloc]initWithString:todoRestApiUrlString];
+            
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:todoRestApiURL];
+            
     NSString *authHeader = [NSString stringWithFormat:@"Bearer %@", accessToken];
+            
     [request addValue:authHeader forHTTPHeaderField:@"Authorization"];
             
-    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+    NSOperationQueue *queue = [[NSOperationQueue alloc]init];
             
-    [NSURLConnection sendAsynchronousRequest:request
-                                       queue:queue
-                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *error)
-    {
-    	// Process Response Here
+    [NSURLConnection sendAsynchronousRequest:request queue:queue completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                
+            if (error == nil){
+                    
+            NSArray *scenarios = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                
+            todoList = [[NSMutableArray alloc]init];
+                    
+            //each object is a key value pair
+            NSDictionary *keyVauePairs;
+                    
+            for(int i =0; i < todo.count; i++)
+            {
+                keyVauePairs = [todo objectAtIndex:i];
+                        
+                Task *s = [[Task alloc]init];
+                        
+                s.id = (NSInteger)[keyVauePairs objectForKey:@"TaskId"];
+                s.description = [keyVauePairs objectForKey:@"TaskDescr"];
+                
+                [todoList addObject:s];
+                
+             }
+                
+            }
+        
+        [delegate updateTodoList:TodoList];
+        
+        }];
+        
     }];
+    return nil; } 
 ```
-
-### Brokered Authentication
-
-If your app requires conditional access or certificate authentication (currently in preview) support, you must set up your AuthenticationContext and redirectURI to be able to talk to the Azure Authenticator app.
-
-
-#### Enable Broker Mode on Your Context
-Broker is enabled on a per-authentication-context basis. You must set your credentials type if you wish ADAL to call to broker:
-
-```Objective-C
-/*! See the ADCredentialsType enumeration definition for details */
-@property ADCredentialsType credentialsType;
-```
-
-The AD_CREDENTIALS_AUTO setting will allow ADAL to try to call out to the broker, AD_CREDENTIALS_EMBEDDED will precent ADAL from calling to the broker.
-
-#### Registering a URL Scheme
-ADAL uses URLs to invoke the broker and then return back to your app. To finish that round trip you need a URL scheme registered for your app. We recommend making the URL scheme fairly unique to minimize the chances of another app using the same URL scheme.
-
-```
-<key>CFBundleURLTypes</key>
-<array>
-    <dict>
-        <key>CFBundleTypeRole</key>
-        <string>Editor</string>
-        <key>CFBundleURLName</key>
-        <string>com.MSOpenTech.MyTestiOSApp</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-            <string>x-msauth-mytestiosapp</string>
-        </array>
-    </dict>
-</array>
-```
-
-#### LSApplicationQueriesSchemes
-ADAL uses –canOpenURL: to check if the broker is installed on the device. in iOS 9 Apple locked down what schemes an application can query for. You will need to add “msauth” to the LSApplicationQueriesSchemes section of your info.plist file.
-
-```
-<key>LSApplicationQueriesSchemes</key>
-<array>
-     <string>msauth</string>
-</array>
-````
-
-#### Redirect URI
-This adds extra requirements on your redirect URI. Your redirect URI must be in the proper form.
-
-```
-<app-scheme>://<your.bundle.id>
-ex: x-msauth-mytestiosapp://com.microsoft.mytestiosapp
-```
-
-This Redirect URI needs to be registered on the app portal as a valid redirect URI. Additionally a second "msauth" form needs to be registered to handle certificate authentication in Azure Authenticator.
-
-```
-msauth://code/<broker-redirect-uri-in-url-encoded-form>
-ex: msauth://code/x-msauth-mytestiosapp%3A%2F%2Fcom.microsoft.mytestiosapp
-```
-
-### Caching
-
-####
-
 
 ### Diagnostics
 
@@ -240,14 +180,9 @@ You can set a callback to capture ADAL logging and incorporate it in your own ap
 logging:
 
 ```Objective-C
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel,
-                               NSString *message,        // The message will not contain PII
-                               NSString *additionalInfo, // additionalInfo may contain PII, log with caution
-                               NSInteger errorCode,      // The error code for the log, if any
-                               NSDictionary *userInfo)   // Any extra context pertinent to this log message.
-    {
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInformation, NSInteger errorCode) {
         //HANDLE LOG MESSAGE HERE
-    }];
+    }]
 ```
 
 Otherwise ADAL outputs to NSLog by default, which will print messages on the console.
@@ -257,7 +192,7 @@ Otherwise ADAL outputs to NSLog by default, which will print messages on the con
 The message portion of ADAL iOS are in the format of ADALiOS [timestamp - correlation_id] message
 
 ```
-ADAL [2015-06-22 19:42:53 - 1030CB25-798F-4A6F-97DF-04A3A3E9DFF2] ADAL API call [Version - 2.1.0-beta.5]
+ADALiOS [2015-06-22 19:42:53 - 1030CB25-798F-4A6F-97DF-04A3A3E9DFF2] ADAL API call [Version - 1.2.5]
 ```
 
 Providing correlation IDs and timestamps are tremendously in tracking down issues. The only
@@ -318,9 +253,9 @@ your application, or disable keychain sharing by passing in your application's b
 in ADAuthenticationSettings:
 
 ```Objective-C
-    [[ADAuthenticationSettings sharedInstance] setSharedCacheKeychainGroup:nil];
+    [[ADAuthenticationSettings sharedInstance] setSharedCacheKeychainGroup:@"<your.bundle.id.here>"];
 ```
 
 ## License
 
-Copyright (c) Microsoft Corporation.  All rights reserved. Licensed under the MIT License (the "License"); 
+Copyright (c) Microsoft Open Technologies, Inc.  All rights reserved. Licensed under the Apache License, Version 2.0 (the "License"); 
