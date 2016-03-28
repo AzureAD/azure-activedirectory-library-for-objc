@@ -136,9 +136,9 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)dispatchCompletionBlock:(ADAuthenticationError *)error URL:(NSURL *)url
 {
-    // NOTE: It is possible that race between a successful completion
+    // NOTE: It is possible that competition between a successful completion
     //       and the user cancelling the authentication dialog can
-    //       occur causing this method to be called twice. The race
+    //       occur causing this method to be called twice. The competition
     //       cannot be blocked at its root, and so this method must
     //       be resilient to this condition and should not generate
     //       two callbacks.
@@ -493,8 +493,27 @@ correlationId:(NSUUID *)correlationId
     THROW_ON_NIL_ARGUMENT(startURL);
     THROW_ON_NIL_ARGUMENT(endURL);
     THROW_ON_NIL_ARGUMENT(correlationId);
-    THROW_ON_NIL_ARGUMENT(completionBlock)
-    //AD_LOG_VERBOSE(@"Authorization", startURL.absoluteString);
+    THROW_ON_NIL_ARGUMENT(completionBlock);
+    
+    // If we're not on the main thread when trying to kick up the UI then
+    // dispatch over to the main thread.
+    if (![NSThread isMainThread])
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self start:startURL
+                    end:endURL
+            refreshCred:refreshCred
+#if TARGET_OS_IPHONE
+                 parent:parent
+             fullScreen:fullScreen
+#endif
+                webView:webView
+          correlationId:correlationId
+             completion:completionBlock];
+        });
+        return;
+    }
+    
     
     _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
     
