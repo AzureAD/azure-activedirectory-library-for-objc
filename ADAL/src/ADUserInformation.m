@@ -288,13 +288,22 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
     return YES;
 }
 
-//Serialize:
+// Serialize:
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
     [aCoder encodeObject:_rawIdToken forKey:@"rawIdToken"];
+    
+    // There was no official support for Mac in ADAL 1.x, so no need for this back compat code
+    // which would greatly increase the size of the user information blobs.
+#if TARGET_OS_IPHONE
+    // These are needed for back-compat with ADAL 1.x
+    [aCoder encodeObject:_allClaims forKey:@"allClaims"];
+    [aCoder encodeObject:_userId forKey:@"userId"];
+    [aCoder encodeBool:_userIdDisplayable forKey:@"userIdDisplayable"];
+#endif
 }
 
-//Deserialize:
+// Deserialize:
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
     NSString* idToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];
