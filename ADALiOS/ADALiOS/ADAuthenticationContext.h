@@ -139,15 +139,6 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
                                                tokenCacheStore: (id<ADTokenCacheStoring>) tokenCache
                                                          error: (ADAuthenticationError* __autoreleasing *) error;
 
-/*!
- */
-+(BOOL) isResponseFromBroker:(NSURL*) response;
-
-/*!
- */
-+(void) handleBrokerResponse:(NSURL*) response
-             completionBlock: (ADAuthenticationCallback) completionBlock;
-
 
 /*! Represents the authority used by the context. */
 @property (readonly) NSString* authority;
@@ -258,7 +249,6 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
  @param userId: The user to be prepopulated in the credentials form. Additionally, if token is found in the cache,
  it may not be used if it belongs to different token. This parameter can be nil.
  @param extraQueryParameters: will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
- @param credentialsType: controls the way of obtaining client credentials if such are needed.
  @param promptBehavior: controls if any credentials UI will be shownt.
  @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
  */
