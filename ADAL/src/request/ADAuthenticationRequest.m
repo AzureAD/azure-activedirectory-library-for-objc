@@ -268,4 +268,14 @@
     return _correlationId;
 }
 
+- (BOOL)takeUserInterationLock
+{
+    return OSAtomicCompareAndSwapInt( 0, 1, &sInteractionInProgress);
+}
+
+- (BOOL)releaseUserInterationLock
+{
+    return OSAtomicCompareAndSwapInt( 1, 0, &sInteractionInProgress);
+}
+
 @end

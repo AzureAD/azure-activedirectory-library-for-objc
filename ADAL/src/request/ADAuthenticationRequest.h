@@ -43,6 +43,10 @@
     } \
 }
 
+// Used to make sure one interactive request is going on at a time,
+// either launching webview or broker
+static volatile int sInteractionInProgress = 0;
+
 @interface ADAuthenticationRequest : NSObject
 {
 @protected
@@ -87,6 +91,9 @@
 // This message is sent before any stage of processing is done, it marks all the fields as un-editable and grabs the
 // correlation ID from the logger
 - (void)ensureRequest;
+// This exclusion lock should be obtained before launching webview/broker for interaction
+- (BOOL)takeUserInterationLock;
+- (BOOL)releaseUserInterationLock;
 
 // These can only be set before the request gets sent out.
 - (void)setScope:(NSString*)scope;
