@@ -55,7 +55,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
 - (void)tearDown
 {
 #if !__has_feature(objc_arc)
-    dispatch_semaphore_release(_dsem);
+    dispatch_release(_dsem);
 #endif
     _dsem = nil;
     
