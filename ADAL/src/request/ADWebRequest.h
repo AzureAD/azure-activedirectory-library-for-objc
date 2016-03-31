@@ -24,15 +24,19 @@
 @class ADWebRequest;
 @class ADWebResponse;
 
-extern NSString *const HTTPGet;
-extern NSString *const HTTPPost;
+
+typedef enum
+{
+    ADWebRequestGet,
+    ADWebRequestPost,
+} ADWebRequestMethodType;
 
 @interface ADWebRequest : NSObject <NSURLConnectionDelegate>
 {
     NSURLConnection * _connection;
     
     NSURL * _requestURL;
-    NSString* _requestMethod;
+    __WEAK NSString* _requestMethod;
     NSMutableDictionary* _requestHeaders;
     NSData * _requestData;
     
@@ -49,7 +53,7 @@ extern NSString *const HTTPPost;
 }
 
 @property (strong, readonly, nonatomic) NSURL               *URL;
-@property (strong)                      NSString            *method;
+@property (weak, readonly)              NSString            *method;
 @property (strong, readonly, nonatomic) NSMutableDictionary *headers;
 @property (strong)                      NSData              *body;
 @property (nonatomic)           NSUInteger           timeout;
@@ -58,6 +62,8 @@ extern NSString *const HTTPPost;
     correlationId: (NSUUID*) correlationId;
 
 - (void)send:( void (^)( NSError *, ADWebResponse *) )completionHandler;
+
+- (void)setMethodType:(ADWebRequestMethodType)methodType;
 
 @end
 
