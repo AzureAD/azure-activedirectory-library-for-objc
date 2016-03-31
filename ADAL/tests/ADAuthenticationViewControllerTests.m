@@ -42,7 +42,9 @@
 
 - (void)tearDown
 {
-    SAFE_ARC_DISPATCH_RELEASE(_dsem);
+#if !__has_feature(objc_arc)
+    dispatch_semaphore_release(_dsem);
+#endif
     _dsem = nil;
     [super tearDown];
 }
