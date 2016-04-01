@@ -134,16 +134,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     
     ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
                                                    correlationId:_correlationId];
-    
-    if(isGetRequest)
-    {
-        webRequest.method = HTTPGet;
-    }
-    else
-    {
-        webRequest.method = HTTPPost;
-    }
-    
+    [webRequest setMethodType:isGetRequest ? ADWebRequestGet : ADWebRequestPost];
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];

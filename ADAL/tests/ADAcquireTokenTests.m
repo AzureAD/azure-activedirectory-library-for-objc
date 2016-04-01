@@ -58,7 +58,9 @@ const int sAsyncContextTimeout = 10;
 
 - (void)tearDown
 {
-    SAFE_ARC_DISPATCH_RELEASE(_dsem);
+#if !__has_feature(objc_arc)
+    dispatch_release(_dsem);
+#endif
     _dsem = nil;
     
     XCTAssertTrue([ADTestURLConnection noResponsesLeft]);

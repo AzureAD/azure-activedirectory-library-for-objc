@@ -293,7 +293,7 @@ static NSString* const sValidationServerError = @"The authority validation serve
     AD_LOG_VERBOSE(@"Authority Validation Request", correlationId, endPoint);
     ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint] correlationId:correlationId];
     
-    webRequest.method = HTTPGet;
+    [webRequest setMethodType:ADWebRequestGet];
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     __block NSDate* startTime = [NSDate new];
