@@ -43,10 +43,6 @@
     } \
 }
 
-// Used to make sure one interactive request is going on at a time,
-// either launching webview or broker
-static volatile int sInteractionInProgress = 0;
-
 @interface ADAuthenticationRequest : NSObject
 {
 @protected

@@ -356,11 +356,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
 //Attempts to release the lock. Logs warning if the lock was already released.
 -(void) releaseExclusionLock
 {
-    if ( ![self releaseUserInterationLock] )
-    {
-        AD_LOG_WARN(@"UI Locking", _correlationId, @"The UI lock has already been released.");
-    }
-    
+    [self releaseUserInterationLock];
     s_modalRequest = nil;
 }
 
