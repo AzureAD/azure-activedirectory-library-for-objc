@@ -54,6 +54,11 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
     } \
 }
 
++ (void)initialize
+{
+    sInteractionInProgress = dispatch_semaphore_create(1);
+}
+
 + (ADAuthenticationRequest *)requestWithAuthority:(NSString *)authority
 {
     ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:NO error:nil];
@@ -89,16 +94,6 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
     return request;
 }
 
-- (id)init
-{
-    if (!(self = [super init]))
-        return nil;
-    
-    sInteractionInProgress = dispatch_semaphore_create(1);
-    
-    return self;
-}
-
 - (id)initWithContext:(ADAuthenticationContext*)context
           redirectUri:(NSString*)redirectUri
              clientId:(NSString*)clientId
@@ -109,8 +104,6 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
     
     if (!(self = [super init]))
         return nil;
-    
-    sInteractionInProgress = dispatch_semaphore_create(1);
     
     SAFE_ARC_RETAIN(context);
     _context = context;
@@ -286,7 +279,7 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
 
 - (BOOL)takeUserInterationLock
 {
-    return !dispatch_semaphore_wait(sInteractionInProgress, DISPATCH_TIME_NOW);;
+    return !dispatch_semaphore_wait(sInteractionInProgress, DISPATCH_TIME_NOW);
 }
 
 - (BOOL)releaseUserInterationLock
