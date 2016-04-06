@@ -38,7 +38,7 @@
 
 // Used to make sure one interactive request is going on at a time,
 // either launching webview or broker
-static volatile dispatch_semaphore_t sInteractionInProgress = nil;
+static dispatch_semaphore_t sInteractionInProgress = nil;
 
 @implementation ADAuthenticationRequest
 
