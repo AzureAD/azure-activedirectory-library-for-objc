@@ -42,7 +42,6 @@
     [super viewDidLoad];
     
     ADAuthenticationSettings* settings = [ADAuthenticationSettings sharedInstance];
-    //settings.credentialsType = AD_CREDENTIALS_EMBEDDED;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(consumeToken)
      name:UIApplicationWillEnterForegroundNotification object:nil];
@@ -52,7 +51,6 @@
     
     mTestData = [BVSettings new];
     mAADInstance = mTestData.testAuthorities[sAADTestInstance];
-    //[ADAuthenticationSettings sharedInstance].credentialsType = AD_CREDENTIALS_EMBEDDED;
     self.resultLabel.text = @"-- Response Goes Here --";
 }
 
