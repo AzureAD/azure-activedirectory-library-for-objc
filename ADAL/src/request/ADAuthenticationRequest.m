@@ -36,6 +36,10 @@
 
 #include <libkern/OSAtomic.h>
 
+// Used to make sure one interactive request is going on at a time,
+// either launching webview or broker
+static dispatch_semaphore_t sInteractionInProgress = nil;
+
 @implementation ADAuthenticationRequest
 
 @synthesize logComponent = _logComponent;
@@ -48,6 +52,11 @@
         } \
         return nil; \
     } \
+}
+
++ (void)initialize
+{
+    sInteractionInProgress = dispatch_semaphore_create(1);
 }
 
 + (ADAuthenticationRequest *)requestWithAuthority:(NSString *)authority
@@ -266,6 +275,17 @@
     }
     
     return _correlationId;
+}
+
+- (BOOL)takeUserInterationLock
+{
+    return !dispatch_semaphore_wait(sInteractionInProgress, DISPATCH_TIME_NOW);
+}
+
+- (BOOL)releaseUserInterationLock
+{
+    dispatch_semaphore_signal(sInteractionInProgress);
+    return YES;
 }
 
 @end

@@ -323,16 +323,13 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     SAFE_ARC_RELEASE(webRequest);
 }
 
-//Used for the callback of obtaining the OAuth2 code:
-static volatile int sDialogInProgress = 0;
-
 //Ensures that a single UI login dialog can be requested at a time.
 //Returns true if successfully acquired the lock. If not, calls the callback with
 //the error and returns false.
 - (BOOL)takeExclusionLockWithCallback: (ADAuthorizationCodeCallback) completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    if ( !OSAtomicCompareAndSwapInt( 0, 1, &sDialogInProgress) )
+    if ( ![self takeUserInterationLock] )
     {
         NSString* message = @"The user is currently prompted for credentials as result of another acquireToken request. Please retry the acquireToken call later.";
         ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS
@@ -350,11 +347,7 @@ static volatile int sDialogInProgress = 0;
 //Attempts to release the lock. Logs warning if the lock was already released.
 -(void) releaseExclusionLock
 {
-    if ( !OSAtomicCompareAndSwapInt( 1, 0, &sDialogInProgress) )
-    {
-        AD_LOG_WARN(@"UI Locking", _correlationId, @"The UI lock has already been released.");
-    }
-    
+    [self releaseUserInterationLock];
     s_modalRequest = nil;
 }
 

@@ -192,6 +192,24 @@
         return;
     }
     
+    // get the interaction lock before calling broker
+    if (![self takeUserInterationLock])
+    {
+        NSString* message = @"The user is currently prompted for credentials as result of another acquireToken request. Please retry the acquireToken call later.";
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS
+                                                                              protocolCode:nil
+                                                                              errorDetails:message
+                                                                             correlationId:_correlationId];
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+        return;
+    }
+    
+    void(^requestCompletion)(ADAuthenticationResult* result) = ^void(ADAuthenticationResult* result)
+    {
+        [self releaseUserInterationLock]; // Release the lock when completion block is called.
+        completionBlock(result);
+    };
+    
     AD_LOG_INFO(@"Invoking broker for authentication", _correlationId, nil);
 #if TARGET_OS_IPHONE // Broker Message Encryption
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
@@ -221,7 +239,7 @@
                                       @"extra_qp": _queryParams ? _queryParams : @"",
                                       };
     
-    [ADBrokerHelper invokeBroker:queryDictionary completionHandler:completionBlock];
+    [ADBrokerHelper invokeBroker:queryDictionary completionHandler:requestCompletion];
 }
 
 - (void)handleBrokerFromWebiewResponse:(NSString*)urlString
