@@ -50,5 +50,6 @@
 + (void)addDelegateCallWebAuthShouldStartLoadRequest:(NSURLRequest*)request;
 + (void)addDelegateCallWebAuthDidCompleteWithURL:(NSURL *)endURL;
 + (void)addDelegateCallWebAuthDidFailWithError:(NSError *)error;
++ (void)clearDelegateCalls;
 
 @end

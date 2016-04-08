@@ -304,6 +304,11 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     }
     
     NSString *requestURL = [request.URL absoluteString];
+
+    if ([[requestURL lowercaseString] isEqualToString:@"about:blank"])
+    {
+        return NO;
+    }
     
     if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"])
     {
@@ -354,7 +359,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     }
     
     // redirecting to non-https url is not allowed
-    if (![requestURL hasPrefix: @"https"])
+    if (![[[request.URL scheme] lowercaseString] isEqualToString:@"https"])
     {
         AD_LOG_ERROR(@"Server is redirecting to a non-https url", AD_ERROR_SERVER_NON_HTTPS_REDIRECT, nil, nil);
         _complete = YES;
