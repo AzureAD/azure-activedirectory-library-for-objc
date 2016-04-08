@@ -298,14 +298,22 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     
     BOOL deleteSuccessful = YES;
     NSArray* items = [self allItems:nil];
+    
+    ADAuthenticationError* adError = nil;
+    
     for (ADTokenCacheItem * item in items)
     {
         if ([clientId isEqualToString:[item clientId] ])
         {
-            [self removeItem:item error:error];
-            if (*error)
+            [self removeItem:item error:&adError];
+            if (adError)
             {
                 deleteSuccessful = NO;
+                
+                if (error)
+                {
+                    *error = adError;
+                }
             }
         }
     }
@@ -322,15 +330,22 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     
     BOOL deleteSuccessful = YES;
     NSArray* items = [self allItems:nil];
+    
+    ADAuthenticationError* adError = nil;
+    
     for (ADTokenCacheItem * item in items)
     {
         if ([userId isEqualToString:[[item userInformation] userId]]
             && [clientId isEqualToString:[item clientId]])
         {
-            [self removeItem:item error:error];
-            if (*error)
+            [self removeItem:item error:&adError];
+            if (adError)
             {
                 deleteSuccessful = NO;
+                if (error)
+                {
+                    *error = adError;
+                }
             }
         }
     }
