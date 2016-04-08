@@ -73,9 +73,6 @@
     //Create a context with empty token cache
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
-    //Add two delegate calls to the mocking ADTestAuthenticationViewController
-    //First one in https while the second one in http
-    [ADTestAuthenticationViewController addDelegateCallWebAuthShouldStartLoadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:TEST_AUTHORITY]]];
     [ADTestAuthenticationViewController addDelegateCallWebAuthShouldStartLoadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"about:blank"]]];
     [ADTestAuthenticationViewController addDelegateCallWebAuthShouldStartLoadRequest:[NSURLRequest requestWithURL:TEST_REDIRECT_URL]];
     
@@ -85,12 +82,11 @@
                                userId:TEST_USER_ID
                       completionBlock:^(ADAuthenticationResult *result)
      {
-         //Should fail with AD_ERROR_NON_HTTPS_REDIRECT error
+         // we check for AD_ERROR_SERVER_AUTHORIZATION_CODE because the final url is redirect url that does not contain code QP.
+         // but the test validates that about:blank is whitelisted from non-https error.
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         // we check for AD_ERROR_SERVER_AUTHORIZATION_CODE because the final url is redirect url that does not contain code QP.
-         // but the test validates that about:blank is whitelisted from non-https error check.
          XCTAssertEqual(result.error.code, AD_ERROR_SERVER_AUTHORIZATION_CODE);
          
          dispatch_semaphore_signal(_dsem);
