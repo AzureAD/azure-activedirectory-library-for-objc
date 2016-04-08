@@ -164,28 +164,4 @@
 #endif // TARGET_OS_IPHONE
 }
 
-- (void)testFindFamilyToken
-{
-    ADAuthenticationContext* context =
-    [[ADAuthenticationContext alloc] initWithAuthority:TEST_AUTHORITY
-                                     validateAuthority:NO
-                                                 error:nil];
-    
-    NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
-    [context setTokenCacheStore:[ADTokenCache new]];
-    [context setCorrelationId:TEST_CORRELATION_ID];
-    
-    ADAuthenticationError* error = nil;
-    ADTokenCacheItem* familyItem = [self adCreateMRRTCacheItem];
-    familyItem.familyId = @"I'm a family item!";
-    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:familyItem correlationId:nil error:&error]);
-    XCTAssertNil(error);
-    
-    ADAuthenticationRequest* req = [ADAuthenticationRequest requestWithContext:context];
-    
-    ADTokenCacheItem* foundItem = [req findFamilyItemForUser:[ADUserIdentifier identifierWithId:TEST_USER_ID] error:&error];
-    XCTAssertNotNil(foundItem);
-    XCTAssertEqualObjects(familyItem, foundItem);
-}
-
 @end

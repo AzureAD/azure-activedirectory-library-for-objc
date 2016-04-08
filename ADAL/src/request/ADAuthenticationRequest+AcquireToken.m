@@ -117,13 +117,6 @@
             [self attemptToUseCacheItem:cacheItem completionBlock:completionBlock];
             return; //The tryRefreshingFromCacheItem has taken care of the token obtaining
         }
-        
-        ADTokenCacheItem* familyItem = [self findFamilyItemForUser:_identifier error:&error];
-        if (familyItem)
-        {
-            [self attemptToUseCacheItem:familyItem completionBlock:completionBlock];
-            return;
-        }
     }
     
     [self requestToken:completionBlock];

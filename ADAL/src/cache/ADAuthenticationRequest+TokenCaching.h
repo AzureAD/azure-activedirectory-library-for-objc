@@ -31,9 +31,6 @@
                                    userId:(ADUserIdentifier *)userId
                                     error:(ADAuthenticationError * __autoreleasing *)error;
 
-- (ADTokenCacheItem *)findFamilyItemForUser:(ADUserIdentifier *)userIdentifier
-                                      error:(ADAuthenticationError * __autoreleasing *)error;
-
 /*!
     Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
     the item to be stored.
