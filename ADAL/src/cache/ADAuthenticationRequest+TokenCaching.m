@@ -131,43 +131,6 @@
     return nil;//Nothing suitable
 }
 
-- (ADTokenCacheItem *)findFamilyItemForUser:(ADUserIdentifier *)userIdentifier
-                                      error:(ADAuthenticationError * __autoreleasing *)error
-{
-    id<ADTokenCacheAccessor> tokenCacheStore = [_context tokenCacheStore];
-    
-    if (!userIdentifier)
-    {
-        return nil;
-    }
-    
-    if (!userIdentifier.userId)
-    {
-        return nil;
-    }
-    
-    NSArray* items = [tokenCacheStore getItemsWithKey:nil
-                                               userId:userIdentifier.userId
-                                        correlationId:_correlationId
-                                                error:error];
-    if (!items || items.count == 0)
-    {
-        return nil;
-    }
-    
-    for (ADTokenCacheItem* item in items)
-    {
-        if (![NSString adIsStringNilOrBlank:item.familyId] &&
-            ![NSString adIsStringNilOrBlank:item.refreshToken])
-        {
-            // Return the first item we see with a family ID and a RT
-            return item;
-        }
-    }
-    
-    return nil;
-}
-
 //Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
 //the item to be stored.
 - (void)updateCacheToResult:(ADAuthenticationResult *)result
