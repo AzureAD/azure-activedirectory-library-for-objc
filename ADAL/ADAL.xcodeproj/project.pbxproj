@@ -55,7 +55,6 @@
 		8BBF678618358544004E0F4D /* ADUserInformationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BBF678518358544004E0F4D /* ADUserInformationTests.m */; };
 		8BBF6788183588EC004E0F4D /* ADTokenCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BBF6787183588EC004E0F4D /* ADTokenCacheItemTests.m */; };
 		8BD14619182189C800796E79 /* ADAuthenticationParameters+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BD14618182189C800796E79 /* ADAuthenticationParameters+Internal.m */; };
-		8BFEF07B182DB15E00122C0C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BFEF066182DA57800122C0C /* InfoPlist.strings */; };
 		9430C3411C4631C200D6506D /* ADTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9430C3401C4631C200D6506D /* ADTokenCacheTests.m */; };
 		9430C34E1C54320400D6506D /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9430C34D1C54320400D6506D /* ADAuthenticationContextTests.m */; };
 		9430C34F1C54373E00D6506D /* ADAcquireTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8346A1807BE3F007F9F0D /* ADAcquireTokenTests.m */; };
@@ -343,7 +342,6 @@
 		8BBF6787183588EC004E0F4D /* ADTokenCacheItemTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheItemTests.m; sourceTree = "<group>"; };
 		8BD14617182189C800796E79 /* ADAuthenticationParameters+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationParameters+Internal.h"; sourceTree = "<group>"; };
 		8BD14618182189C800796E79 /* ADAuthenticationParameters+Internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADAuthenticationParameters+Internal.m"; sourceTree = "<group>"; };
-		8BFEF05C182DA57800122C0C /* ADAL.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADAL.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BFEF05D182DA57800122C0C /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		8BFEF060182DA57800122C0C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8BFEF061182DA57800122C0C /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -497,13 +495,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		8BFEF059182DA57800122C0C /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		9453C3C81C583E07006B9E79 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -547,7 +538,6 @@
 			children = (
 				8B0965AA17F25770002BDFB8 /* libADALiOS.a */,
 				8B0965BA17F25770002BDFB8 /* ADALiOSTests.xctest */,
-				8BFEF05C182DA57800122C0C /* ADAL.bundle */,
 				9453C3CC1C583E07006B9E79 /* ADAL.framework */,
 				9453C3FD1C586425006B9E79 /* ADAL.framework */,
 				94DD18E11C5ACFBF00F80C62 /* ADAL Mac Tests.xctest */,
@@ -1063,23 +1053,6 @@
 			productReference = 8B0965BA17F25770002BDFB8 /* ADALiOSTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		8BFEF05B182DA57800122C0C /* ADALiOSBundle */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 8BFEF06A182DA57900122C0C /* Build configuration list for PBXNativeTarget "ADALiOSBundle" */;
-			buildPhases = (
-				8BFEF058182DA57800122C0C /* Sources */,
-				8BFEF059182DA57800122C0C /* Frameworks */,
-				8BFEF05A182DA57800122C0C /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = ADALiOSBundle;
-			productName = ADALiOSBundle;
-			productReference = 8BFEF05C182DA57800122C0C /* ADAL.bundle */;
-			productType = "com.apple.product-type.bundle";
-		};
 		9453C3CB1C583E07006B9E79 /* ADAL */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9453C3D11C583E07006B9E79 /* Build configuration list for PBXNativeTarget "ADAL" */;
@@ -1173,7 +1146,6 @@
 				8B0965A917F25770002BDFB8 /* ADALiOS */,
 				9453C3CB1C583E07006B9E79 /* ADAL */,
 				8B0965B917F25770002BDFB8 /* ADALiOSTests */,
-				8BFEF05B182DA57800122C0C /* ADALiOSBundle */,
 				9453C3FC1C586425006B9E79 /* ADAL Mac */,
 				94DD18E01C5ACFBF00F80C62 /* ADAL Mac Tests */,
 				9453C4571C5866D0006B9E79 /* Build All */,
@@ -1187,14 +1159,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				94DD19061C5AD3A100F80C62 /* InfoPlist.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		8BFEF05A182DA57800122C0C /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				8BFEF07B182DB15E00122C0C /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1303,13 +1267,6 @@
 				8B6114031872127C007759C2 /* ADInstanceDiscoveryTests.m in Sources */,
 				8B92DB671819FA61004AAB0E /* ADTestNSStringHelperMethods.m in Sources */,
 				97A522501A1A8999001D77CE /* ADClientMetricsTests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		8BFEF058182DA57800122C0C /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1749,81 +1706,6 @@
 			};
 			name = CodeCoverage;
 		};
-		8B41A1EB1888C6350027EE1E /* CodeCoverage */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_CODE_COVERAGE = NO;
-				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PREFIX_HEADER = "ADALiOSBundle/ADALiOSBundle-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "ADALiOSBundle/ADALiOSBundle-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
-				ONLY_ACTIVE_ARCH = NO;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = "$(PROJECT_NAME)";
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				WRAPPER_EXTENSION = bundle;
-			};
-			name = CodeCoverage;
-		};
-		8BFEF06B182DA57900122C0C /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_CODE_COVERAGE = NO;
-				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PREFIX_HEADER = "ADALiOSBundle/ADALiOSBundle-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "ADALiOSBundle/ADALiOSBundle-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
-				ONLY_ACTIVE_ARCH = NO;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = "$(PROJECT_NAME)";
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				WRAPPER_EXTENSION = bundle;
-			};
-			name = Debug;
-		};
-		8BFEF06C182DA57900122C0C /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_CODE_COVERAGE = NO;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PREFIX_HEADER = "ADALiOSBundle/ADALiOSBundle-Prefix.pch";
-				INFOPLIST_FILE = "ADALiOSBundle/ADALiOSBundle-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
-				ONLY_ACTIVE_ARCH = NO;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = "$(PROJECT_NAME)";
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				WRAPPER_EXTENSION = bundle;
-			};
-			name = Release;
-		};
 		9453C3D21C583E07006B9E79 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */;
@@ -2111,16 +1993,6 @@
 				8B0965D117F25770002BDFB8 /* Debug */,
 				8B41A1EA1888C6350027EE1E /* CodeCoverage */,
 				8B0965D217F25770002BDFB8 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		8BFEF06A182DA57900122C0C /* Build configuration list for PBXNativeTarget "ADALiOSBundle" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				8BFEF06B182DA57900122C0C /* Debug */,
-				8B41A1EB1888C6350027EE1E /* CodeCoverage */,
-				8BFEF06C182DA57900122C0C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

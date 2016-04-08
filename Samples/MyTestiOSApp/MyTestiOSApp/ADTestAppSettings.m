@@ -22,41 +22,44 @@
 // THE SOFTWARE.
 
 #import "ADTestAppSettings.h"
-#import "ADTestInstance.h"
 
-NSString* const sAADTestInstance = @"AAD Instance";
+NSString* ADTestAppCacheChangeNotification = @"ADTestAppCacheChangeNotification";
 
 @implementation ADTestAppSettings
 
--(id) init
++ (ADTestAppSettings*)settings
 {
-    self = [super init];
-    if (!self)
+    static dispatch_once_t s_settingsOnce;
+    static ADTestAppSettings* s_settings = nil;
+    
+    dispatch_once(&s_settingsOnce,^{ s_settings = [ADTestAppSettings new]; });
+    
+    return s_settings;
+}
+
+- (id)init
+{
+    if (!(self = [super init]))
     {
         return nil;
     }
     
-    NSString* path = [[NSBundle mainBundle] pathForResource:@"TestData" ofType:@"plist"];
-    if (!path || !path.length)
-    {
-        return nil;
-    }
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     
-    NSDictionary* all = [NSDictionary dictionaryWithContentsOfFile:path];
-    NSMutableDictionary* testAuthorities = [[NSMutableDictionary alloc] initWithCapacity:all.count];
-    for(NSDictionary* instanceName in all.allKeys)
-    {
-        NSDictionary* instanceData = [all objectForKey:instanceName];
-        if (!instanceData || ![instanceData isKindOfClass:[NSDictionary class]])
-        {
-            NSLog(@"Bad data for the instance: '%@'. Contents: %@", instanceName, instanceData);
-            continue;
-        }
-        ADTestInstance* instance = [ADTestInstance getInstance:instanceData];
-        [testAuthorities setObject:instance forKey:instanceName];
-        break;
-    }
-    _testAuthorities = testAuthorities;
+    NSDictionary* defaultValues = @{ @"authority" : @"https://login.microsoftonline.com/common",
+                                     @"clientId" : @"e3786e2a-0dcb-449a-8eba-b4042c9bec01",
+                                     @"resource" : @"https://graph.windows.net",
+                                     @"redirectUri" : @"MyTestiOSApp://com.MSOpenTech.MyTestiOSApp" };
+    
+    
+    [defaults registerDefaults:defaultValues];
+    
+    
+    self.authority = [defaults stringForKey:@"authority"];
+    self.clientId = [defaults stringForKey:@"clientId"];
+    self.redirectUri = [NSURL URLWithString:[defaults stringForKey:@"redirectUri"]];
+    self.resource = [defaults stringForKey:@"resource"];
+    
     return self;
 }
 
