@@ -21,22 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 #import <UIKit/UIKit.h>
 
-@class ADTestFlipsideViewController;
+@interface ADTestAppLogViewController : UIViewController
 
-@protocol BVTestFlipsideViewControllerDelegate
-- (void)flipsideViewControllerDidFinish:(ADTestFlipsideViewController *)controller;
-@end
-
-@interface ADTestFlipsideViewController : UIViewController
-
-@property (weak, nonatomic) id <BVTestFlipsideViewControllerDelegate> delegate;
-
-- (IBAction)done:(id)sender;
-
-- (IBAction)restoreDefaults:(id)sender;
-
-- (IBAction)save:(id)sender;
 @end

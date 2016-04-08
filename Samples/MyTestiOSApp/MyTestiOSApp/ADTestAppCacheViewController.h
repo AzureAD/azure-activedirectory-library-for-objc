@@ -21,21 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADTestApplicationData.h"
+#import <UIKit/UIKit.h>
 
-@implementation ADTestApplicationData
-
-+ (id) getInstance
-{
-    static ADTestApplicationData *instance = nil;
-    static dispatch_once_t onceToken;
-    
-    dispatch_once(&onceToken, ^{
-        instance = [[self alloc] init];
-    });
-    
-    return instance;
-}
+@interface ADTestAppCacheViewController : UITableViewController
 
 @end
-

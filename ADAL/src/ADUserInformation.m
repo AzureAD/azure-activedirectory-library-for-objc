@@ -130,7 +130,6 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     NSString* type = nil;
     for (NSString* part in parts)
     {
-        AD_LOG_VERBOSE(@"Id_token part", nil, part);
         NSString* decoded = [part adBase64UrlDecode];
         if (![NSString adIsStringNilOrBlank:decoded])
         {
