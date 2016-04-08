@@ -54,7 +54,7 @@ typedef enum
      be obtained without user explicitly re-authorizing, but the developer has called
      acquireTokenSilentWithResource method. To obtain the token, the application will need to call
      acquireTokenWithResource after this error to allow the library to give user abitlity
-     to re-authorize (with web UI involved). Use -underlyingError to determine the cause. */
+     to re-authorize (with web UI involved). */
     AD_ERROR_SERVER_USER_INPUT_NEEDED = 200,
     
     /*! When work place join is required by the service. */
