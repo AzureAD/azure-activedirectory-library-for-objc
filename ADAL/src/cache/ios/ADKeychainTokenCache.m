@@ -35,11 +35,18 @@
 #define KEYCHAIN_VERSION 1
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
+#define ONE_DAY_IN_SECONDS 86400
 
 static NSString* const s_nilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";//A special attribute to write, instead of nil/empty one.
 static NSString* const s_delimiter = @"|";
 
 static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_VERSION);
+
+// artificial key made up for storing the next tombstone clean time in keychain
+static NSString* const s_keyForStoringTomestoneCleanTimeAuthority = @"HTTPS://NEXT_TOMBSTONE.CLEAN/TIME";
+static NSString* const s_keyForStoringTomestoneCleanTimeResource = @"HTTPS://NEXT-TOMBSTONE-CLEAN-TIME.COM";
+static NSString* const s_keyForStoringTomestoneCleanTimeClientId = @"e8uk0e2a-02cq-149a-8aba-j404249bec01";
+static NSString* const s_keyForStoringTomestoneCleanTimeUserId = @"NEXT-TOMBSTONE-CLEAN-TIME";
 
 @implementation ADKeychainTokenCache
 {
@@ -76,6 +83,13 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
                  (id)kSecAttrGeneric : [s_libraryString dataUsingEncoding:NSUTF8StringEncoding]
                  };
     SAFE_ARC_RETAIN(_default);
+    
+    static dispatch_once_t onceToken = 0;
+    dispatch_once(&onceToken, ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self cleanTombstoneIfNecessary];
+        });
+    });
     
     return self;
 }
@@ -350,6 +364,80 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         }
     }
     return deleteSuccessful;
+}
+
+- (BOOL)cleanTombstoneIfNecessary
+{
+    //Check whether it is time to clean tombstones
+    if (![self isTimeToCleanTombstones])
+    {
+        return NO;
+    }
+    
+    //Clean tombstones that are too old
+    NSArray* tombstones = [self allTombstones:nil];
+    for (ADTokenCacheItem * item in tombstones)
+    {
+        if (!item)
+        {
+            continue;
+        }
+        
+        if ([item expiresOn]==nil | [[item expiresOn] compare:[NSDate date]] == NSOrderedAscending)
+        {
+            [self deleteItem:item error:nil];
+        }
+    }
+    return YES;
+}
+
+- (BOOL) isTimeToCleanTombstones
+{
+    ADTokenCacheItem* cleanTimeItem = [self defaultCacheEntryForTombstoneCleanTime];
+    ADTokenCacheKey* cleanTimeKey = [cleanTimeItem extractKey:nil];
+    
+    // read the tombstone clean time from keychain, where only one item is expected to be returned
+    // if the next clean time has not yet come, return NO
+    NSArray* items = [self keychainItemsWithKey:cleanTimeKey userId:cleanTimeItem.userInformation.userId error:nil];
+    for (NSDictionary* attrs in items)
+    {
+        ADTokenCacheItem* item = [self itemFromKeyhainAttributes:attrs];
+        if (!item || [item tombstone])// item contaminated
+        {
+            continue;
+        }
+        if ([[item expiresOn] compare:[NSDate date]] == NSOrderedDescending)
+        {
+            return NO;
+        }
+    }
+    
+    //otherwise we need to return YES and set a new time for next clean
+    cleanTimeItem.expiresOn = [NSDate dateWithTimeIntervalSinceNow:ONE_DAY_IN_SECONDS]; //clean tombstone once everyday
+    [self addOrUpdateItem:cleanTimeItem correlationId:nil error:nil];
+    return YES;
+}
+
+- (ADTokenCacheItem*) defaultCacheEntryForTombstoneCleanTime
+{
+    ADTokenCacheItem* item = [ADTokenCacheItem new];
+    SAFE_ARC_AUTORELEASE(item);
+    
+    item.authority = s_keyForStoringTomestoneCleanTimeAuthority;
+    item.resource = s_keyForStoringTomestoneCleanTimeResource;
+    item.clientId = s_keyForStoringTomestoneCleanTimeClientId;
+    
+    NSDictionary* part1_claims = @{ @"typ" : @"JWT" };
+    NSDictionary* idtoken_claims = @{ @"upn" : s_keyForStoringTomestoneCleanTimeUserId,
+                                      @"unique_name" : s_keyForStoringTomestoneCleanTimeUserId
+                                      };
+    NSString* idtoken = [NSString stringWithFormat:@"%@.%@",
+                         [NSString Base64EncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
+                         [NSString Base64EncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
+    ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idtoken error:nil];
+    item.userInformation = userInfo;
+    
+    return item;
 }
 
 @end

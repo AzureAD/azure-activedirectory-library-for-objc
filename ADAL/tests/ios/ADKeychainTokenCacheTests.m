@@ -42,6 +42,13 @@ NSString* const sPersisted = @"successfully persisted";
 NSString* const sNoNeedForPersistence = @"No need for cache persistence.";
 NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
+@interface ADKeychainTokenCache (UnitTest)
+
+- (BOOL)cleanTombstoneIfNecessary;
+- (ADTokenCacheItem*) defaultCacheEntryForTombstoneCleanTime;
+
+@end
+
 @interface ADKeychainTokenCacheTests : XCTestCase
 {
     ADKeychainTokenCache* mStore;
@@ -507,6 +514,84 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     
     status = SecItemDelete((CFDictionaryRef)deleteQuery);
     XCTAssertEqual(status, errSecSuccess);
+}
+
+//test the case where a tombstone is too old to stay in cache store
+- (void)testTombstoneAgingOut
+{
+    XCTAssertTrue([self count] == 0, "There should be no token item in cache at start.");
+    XCTAssertTrue([self tombstoneCount] == 0, "There should be no tombstone item in cache at start.");
+    
+    ADAuthenticationError* error;
+    
+    //do a clean operation, which should create a cache entry to store clean time
+    XCTAssertTrue([mStore cleanTombstoneIfNecessary]);
+    XCTAssertEqual([self count], 1);
+    XCTAssertEqual([self tombstoneCount], 0);
+    
+    //add a tombstone which is old enough
+    ADTokenCacheItem* item1 = [self adCreateCacheItem:@"jack@contoso.com"];
+    [item1 makeTombstone:nil];
+    [item1 setExpiresOn:[NSDate date]];// set the tombstone expire date as now
+    [mStore addOrUpdateItem:item1 correlationId:nil error:&error];
+    XCTAssertEqual([self tombstoneCount], 1);
+    XCTAssertEqual([self count], 1);
+    
+    //the following clean should have no effect as the next clean time is one day later
+    XCTAssertFalse([mStore cleanTombstoneIfNecessary]);
+    XCTAssertEqual([self tombstoneCount], 1);
+    XCTAssertEqual([self count], 1);
+    
+    //manually set the clean time and clean tombstone
+    //clean operation should be completed
+    [self activateTombstoneCleanTime];
+    XCTAssertTrue([mStore cleanTombstoneIfNecessary]);
+    //the tombstone is too old and deleted. It won't be returned. Therefore there is still one tombstone in cache store.
+    XCTAssertEqual([self tombstoneCount], 0);
+    XCTAssertEqual([self count], 1);
+
+    
+    //add the second tombstone
+    ADTokenCacheItem* item2 = [self adCreateCacheItem:@"eric@contoso.com"];
+    [item2 makeTombstone:nil];
+    [item2 setExpiresOn:[NSDate dateWithTimeIntervalSinceNow:3600]];// set the tombstone's expire date as 1 hour later
+    [mStore addOrUpdateItem:item2 correlationId:nil error:&error];
+    XCTAssertEqual([self tombstoneCount], 1);
+    XCTAssertEqual([self count], 1);
+    
+    //clean tombstone
+    [self activateTombstoneCleanTime];
+    XCTAssertTrue([mStore cleanTombstoneIfNecessary]);
+    //the tombstone should remain in cache after clean as it is not too old
+    XCTAssertEqual([self tombstoneCount], 1);
+    XCTAssertEqual([self count], 1);
+    
+    
+    //add another item
+    ADTokenCacheItem* item3 = [self adCreateCacheItem:@"stan@contoso.com"];
+    [mStore addOrUpdateItem:item3 correlationId:nil error:&error];
+    XCTAssertEqual([self tombstoneCount], 1);
+    XCTAssertEqual([self count], 2);
+    
+    //make item3 a tombstone. It will expire after 30 days by default.
+    [mStore removeItem:item3 error:&error];
+    ADAssertNoError;
+    XCTAssertEqual([self tombstoneCount], 2);
+    XCTAssertEqual([self count], 1);
+    
+    //manually set the clean time and clean tombstone
+    [self activateTombstoneCleanTime];
+    XCTAssertTrue([mStore cleanTombstoneIfNecessary]);
+    //the tombstone is not too old and won't be deleted.
+    XCTAssertEqual([self tombstoneCount], 2);
+    XCTAssertEqual([self count], 1);
+}
+
+- (void)activateTombstoneCleanTime
+{
+    ADTokenCacheItem* cleanTimeItem = [mStore defaultCacheEntryForTombstoneCleanTime];
+    cleanTimeItem.expiresOn = [NSDate date];
+    [mStore addOrUpdateItem:cleanTimeItem correlationId:nil error:nil];
 }
 
 @end
