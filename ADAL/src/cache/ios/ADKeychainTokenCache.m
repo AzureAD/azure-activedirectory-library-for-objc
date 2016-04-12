@@ -42,7 +42,7 @@ static NSString* const s_delimiter = @"|";
 
 static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_VERSION);
 
-static NSString* const s_keyForStoringTomestoneCleanTime = @"NEXT-TOMBSTONE-CLEAN-TIME";
+static NSString* const s_keyForStoringTomestoneCleanTime = @"ADAL-NEXT-TOMBSTONE-CLEAN-TIME";
 
 @implementation ADKeychainTokenCache
 {
