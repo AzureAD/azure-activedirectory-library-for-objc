@@ -35,11 +35,14 @@
 #define KEYCHAIN_VERSION 1
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
+#define ONE_DAY_IN_SECONDS (24*60*60)
 
 static NSString* const s_nilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";//A special attribute to write, instead of nil/empty one.
 static NSString* const s_delimiter = @"|";
 
 static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_VERSION);
+
+static NSString* const s_keyForStoringTomestoneCleanTime = @"ADAL-NEXT-TOMBSTONE-CLEAN-TIME";
 
 @implementation ADKeychainTokenCache
 {
@@ -76,6 +79,13 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
                  (id)kSecAttrGeneric : [s_libraryString dataUsingEncoding:NSUTF8StringEncoding]
                  };
     SAFE_ARC_RETAIN(_default);
+    
+    static dispatch_once_t onceToken = 0;
+    dispatch_once(&onceToken, ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self cleanTombstoneIfNecessary];
+        });
+    });
     
     return self;
 }
@@ -350,6 +360,90 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         }
     }
     return deleteSuccessful;
+}
+
+- (BOOL)cleanTombstoneIfNecessary
+{
+    //Check whether it is time to clean tombstones
+    if (![self isTimeToCleanTombstones])
+    {
+        return NO;
+    }
+    
+    //Clean tombstones that are too old
+    NSArray* tombstones = [self allTombstones:nil];
+    for (ADTokenCacheItem * item in tombstones)
+    {
+        if (!item)
+        {
+            continue;
+        }
+        
+        if ([item expiresOn]==nil | [[item expiresOn] compare:[NSDate date]] == NSOrderedAscending)
+        {
+            [self deleteItem:item error:nil];
+        }
+    }
+    return YES;
+}
+
+- (BOOL) isTimeToCleanTombstones
+{
+    NSDate* nextCleanTime = [self getTombstoneCleanTime];
+    
+    // if the next clean time has not yet come, return NO
+    if (nextCleanTime && [nextCleanTime compare:[NSDate date]] == NSOrderedDescending)
+    {
+        return NO;
+    }
+    
+    // otherwise create a new entry and store it in keychain
+    nextCleanTime = [NSDate dateWithTimeIntervalSinceNow:ONE_DAY_IN_SECONDS]; //clean tombstone once everyday
+    [self storeTombstoneCleanTime:nextCleanTime];
+    return YES;
+}
+
+- (NSDate*) getTombstoneCleanTime
+{
+    NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:_default];
+    [query addEntriesFromDictionary:@{ (id)kSecMatchLimit : (id)kSecMatchLimitOne,
+                                       (id)kSecReturnData : @YES,
+                                       (id)kSecAttrService : s_keyForStoringTomestoneCleanTime}];
+
+    NSData* data = nil;
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&data);
+    if (status == errSecSuccess && data)
+    {
+        NSDate* cleanTime = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+        if (cleanTime)
+        {
+            return cleanTime;
+        }
+    }
+    return nil;
+}
+
+- (void) storeTombstoneCleanTime:(NSDate *)cleanTime
+{
+    NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:_default];
+    [query addEntriesFromDictionary:@{(id)kSecAttrService : s_keyForStoringTomestoneCleanTime}];
+    
+    NSData* itemData = [NSKeyedArchiver archivedDataWithRootObject:cleanTime];
+    if (!itemData)
+    {
+        return;
+    }
+    
+    NSDictionary* attrToUpdate = @{ (id)kSecValueData : itemData };
+    OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)attrToUpdate);
+    if (status == errSecItemNotFound)
+    {
+        // If the item wasn't found that means we need to add it instead.
+        [query addEntriesFromDictionary:@{ (id)kSecValueData : itemData,
+                                           (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly}];
+        SecItemAdd((CFDictionaryRef)query, NULL);
+    }
+    return;
 }
 
 @end
