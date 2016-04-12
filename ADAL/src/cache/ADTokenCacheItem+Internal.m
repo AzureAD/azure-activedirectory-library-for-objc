@@ -34,7 +34,7 @@
 @implementation ADTokenCacheItem (Internal)
 
 #define CHECK_ERROR(_CHECK, _ERR) { if (_CHECK) { if (error) {*error = _ERR;} return; } }
-#define THIRTY_DAYS_IN_SECONDS 2592000
+#define THIRTY_DAYS_IN_SECONDS (30*24*60*60)
 
 - (void)checkCorrelationId:(NSDictionary*)response
       requestCorrelationId:(NSUUID*)requestCorrelationId
