@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-/*! Levels of logging. Defines the priority of the logged message */
 #import <Foundation/Foundation.h>
 
+/*! Levels of logging. Defines the priority of the logged message */
 typedef enum
 {
     ADAL_LOG_LEVEL_NO_LOG,//Available to fully disable logging
@@ -36,34 +36,49 @@ typedef enum
 
 @interface ADLogger : NSObject
 
-/*! Sets the logging level for the internal logging messages. Messages with
- priority lower than the specified level will be ignored. 
- @param logLevel: desired logging level. The higher the number, the more logging information is included. */
+/*!
+    Sets the logging level for the internal logging messages. Messages with 
+    priority lower than the specified level will be ignored.
+ 
+    @param logLevel     the maximum level of information to log, any messages
+ */
 + (void)setLevel:(ADAL_LOG_LEVEL)logLevel;
 
-/*! Returns the current log level. See setLevel for details */
+/*! @return the current log level */
 + (ADAL_LOG_LEVEL)getLevel;
 
 
-//The block declaration. Needs to be weak to ensure that the pointer does not hold static reference
-//to the parent class of the callback.
+/*!
+    The LogCallback block for the ADAL logger
+ 
+    @param  logLevel        The level of the log message
+    @param  message         A short log message describing the event that occurred, this string will not contain PII.
+    @param  additionalInfo  A longer message that may contain PII and other details relevant to the event.
+    @param  errorCode       An integer error code if the log message is an error.
+    @param  userInfo        A dictionary with other information relevant to the log message. The information varies,
+                            for most error messages the error object will be in the "error" key.
+ */
 typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
                             NSString *message,
-                            NSString *additionalInformation,
+                            NSString *additionalInfo,
                             NSInteger errorCode,
                             NSDictionary *userInfo);
 
-/*! Provided block will be called when the logged messages meet the priority threshold
- @param callback: The block to be executed when suitable messages are logged. By default, when
- callback is set, messages will contingue to be logged through NSLog. Such logging can be disabled
- through setNSLogging. */
+/*!
+    Sets a block for the ADAL logger to use to send log messages to.
+ 
+    @param callback     The block log messages are sent to. See the documentation for LogCallback for more information.
+ */
 + (void)setLogCallBack:(LogCallback)callback;
 
-/*! By default, logging sends messages through standard NSLog. This function allows to disable this
- behavior. Disabling is useful if faster logging is implemented through the callback. */
+/*!
+    Turns on or off ADAL printing log messages to the console via NSLog. On by default.
+ */
 + (void)setNSLogging:(BOOL)nslogging;
 
-/*! YES if the messages are logged through NSLog.*/
+/*!
+    @return Whether ADAL is currently configured to print log messages to the console via NSLog.
+ */
 + (BOOL)getNSLogging;
 
 @end
