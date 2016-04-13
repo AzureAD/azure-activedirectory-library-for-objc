@@ -43,23 +43,15 @@
 		8B343450183305A6002DE1DC /* ADAuthenticationWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B34344E183305A6002DE1DC /* ADAuthenticationWebViewController.m */; };
 		8B59893A180DE00300744AEE /* ADAuthenticationOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B598939180DE00300744AEE /* ADAuthenticationOperation.m */; };
 		8B59893E180DE8A100744AEE /* ADUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B59893D180DE8A100744AEE /* ADUserInformation.m */; };
-		8B59894A180DF7A900744AEE /* ADUserInformation.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B59893C180DE8A100744AEE /* ADUserInformation.h */; };
-		8B59894B180DF7AF00744AEE /* ADErrorCodes.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B598946180DF6F000744AEE /* ADErrorCodes.h */; };
 		8B59894E1810BEAC00744AEE /* ADTokenCacheStoreItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B59894D1810BEAC00744AEE /* ADTokenCacheStoreItem.m */; };
 		8B5989511811A3DB00744AEE /* ADAuthenticationError.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B5989501811A3DB00744AEE /* ADAuthenticationError.m */; };
-		8B5989521811AF7E00744AEE /* ADAuthenticationError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B59894F1811A3DB00744AEE /* ADAuthenticationError.h */; };
 		8B5989551811B89800744AEE /* ADTokenCacheStoreKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B5989541811B89800744AEE /* ADTokenCacheStoreKey.m */; };
-		8B5989591811BFBA00744AEE /* ADTokenCacheStoreKey.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B5989531811B89800744AEE /* ADTokenCacheStoreKey.h */; };
-		8B59895A1811BFCB00744AEE /* ADTokenCacheStoreItem.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B59894C1810BEAC00744AEE /* ADTokenCacheStoreItem.h */; };
 		8B598961181710FD00744AEE /* ADDefaultTokenCacheStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B598960181710FD00744AEE /* ADDefaultTokenCacheStoreTests.m */; };
 		8B598963181739AA00744AEE /* ADAuthenticationErrorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B598962181739AA00744AEE /* ADAuthenticationErrorTests.m */; };
 		8B6113FE1868C59E007759C2 /* ADTestAuthenticationContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B6113FD1868C59E007759C2 /* ADTestAuthenticationContext.m */; };
 		8B611401186E517D007759C2 /* ADInstanceDiscovery.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B611400186E517D007759C2 /* ADInstanceDiscovery.m */; };
 		8B6114031872127C007759C2 /* ADInstanceDiscoveryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B6114021872127C007759C2 /* ADInstanceDiscoveryTests.m */; };
-		8B6114041872347E007759C2 /* ADInstanceDiscovery.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B6113FF186E517D007759C2 /* ADInstanceDiscovery.h */; };
 		8B6613B518346080008BDD3F /* ADAuthenticationResultTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B6613B418346080008BDD3F /* ADAuthenticationResultTests.m */; };
-		8B79592018F5E93A00EBF96E /* ADTokenCacheStoring.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B5989561811BEC500744AEE /* ADTokenCacheStoring.h */; };
-		8B79592118F5ECA700EBF96E /* ADLogger.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B92DB6E181B2335004AAB0E /* ADLogger.h */; };
 		8B7AD62118972E3D00652DDE /* NSURLExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B7AD62018972E3D00652DDE /* NSURLExtensionsTests.m */; };
 		8B7E6FC81856A1E8000DC3C8 /* ADOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B7E6FC71856A1E8000DC3C8 /* ADOAuth2Constants.m */; };
 		8B81CE3418188728005CFD65 /* ADTestTokenCacheStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B81CE3318188728005CFD65 /* ADTestTokenCacheStore.m */; };
@@ -74,13 +66,8 @@
 		8BB8345F18074B74007F9F0D /* ADAuthenticationResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8345E18074B74007F9F0D /* ADAuthenticationResult.m */; };
 		8BB8346218074CFA007F9F0D /* ADAuthenticationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8346118074CFA007F9F0D /* ADAuthenticationParameters.m */; };
 		8BB83465180764B6007F9F0D /* ADAuthenticationSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB83464180764B6007F9F0D /* ADAuthenticationSettings.m */; };
-		8BB8346618077F02007F9F0D /* ADAuthenticationContext.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8BB8345A18074A58007F9F0D /* ADAuthenticationContext.h */; };
-		8BB8346718077F0D007F9F0D /* ADAuthenticationResult.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8BB8345D18074B74007F9F0D /* ADAuthenticationResult.h */; };
-		8BB8346818077F15007F9F0D /* ADAuthenticationParameters.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8BB8346018074CFA007F9F0D /* ADAuthenticationParameters.h */; };
-		8BB8346918077F1B007F9F0D /* ADAuthenticationSettings.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8BB83463180764B6007F9F0D /* ADAuthenticationSettings.h */; };
 		8BB8346B1807BE3F007F9F0D /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8346A1807BE3F007F9F0D /* ADAuthenticationContextTests.m */; };
 		8BB8346D1807C5F5007F9F0D /* ADAuthenticationParametersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8346C1807C5F5007F9F0D /* ADAuthenticationParametersTests.m */; };
-		8BBE6FAE193EA1C60039C23E /* ADAuthenticationBroker.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 8B34344818330591002DE1DC /* ADAuthenticationBroker.h */; };
 		8BBF678618358544004E0F4D /* ADUserInformationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BBF678518358544004E0F4D /* ADUserInformationTests.m */; };
 		8BBF6788183588EC004E0F4D /* ADTokenCacheStoreItemTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BBF6787183588EC004E0F4D /* ADTokenCacheStoreItemTest.m */; };
 		8BD14619182189C800796E79 /* ADAuthenticationParameters+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BD14618182189C800796E79 /* ADAuthenticationParameters+Internal.m */; };
@@ -95,11 +82,10 @@
 		972A58A51A4AAEE40054BE11 /* ADURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 972A58A41A4AAEE40054BE11 /* ADURLProtocol.m */; };
 		972A58A81A4AB5580054BE11 /* ADNTLMHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 972A58A71A4AB5580054BE11 /* ADNTLMHandler.m */; };
 		97345B92199160BD0044B1A6 /* ADPkeyAuthHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 97345B91199160BD0044B1A6 /* ADPkeyAuthHelper.m */; };
-		97D685B01A107F0000EE816C /* ADBrokerKeyHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D685AF1A107F0000EE816C /* ADBrokerKeyHelper.m */; };
 		97A522491A1A752D001D77CE /* ADClientMetrics.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A522481A1A752D001D77CE /* ADClientMetrics.m */; };
 		97A5224C1A1A75B2001D77CE /* ADHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A5224B1A1A75B2001D77CE /* ADHelpers.m */; };
 		97A522501A1A8999001D77CE /* ADClientMetricsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */; };
-		97E296E11A81A0A200E22E77 /* ADAL.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 97E296E01A81A05300E22E77 /* ADAL.h */; };
+		97D685B01A107F0000EE816C /* ADBrokerKeyHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D685AF1A107F0000EE816C /* ADBrokerKeyHelper.m */; };
 		97EEE7BB1A4C97A400D003F8 /* UIAlertView+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 97EEE7BA1A4C97A400D003F8 /* UIAlertView+Additions.m */; };
 /* End PBXBuildFile section */
 
@@ -126,33 +112,6 @@
 			remoteInfo = ADALiOSBundle;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		8B0965A817F25770002BDFB8 /* Copy Files */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = "include/$(PRODUCT_NAME)";
-			dstSubfolderSpec = 16;
-			files = (
-				97E296E11A81A0A200E22E77 /* ADAL.h in Copy Files */,
-				8BBE6FAE193EA1C60039C23E /* ADAuthenticationBroker.h in Copy Files */,
-				8B79592118F5ECA700EBF96E /* ADLogger.h in Copy Files */,
-				8B79592018F5E93A00EBF96E /* ADTokenCacheStoring.h in Copy Files */,
-				8B6114041872347E007759C2 /* ADInstanceDiscovery.h in Copy Files */,
-				8B59895A1811BFCB00744AEE /* ADTokenCacheStoreItem.h in Copy Files */,
-				8B5989591811BFBA00744AEE /* ADTokenCacheStoreKey.h in Copy Files */,
-				8B5989521811AF7E00744AEE /* ADAuthenticationError.h in Copy Files */,
-				8B59894B180DF7AF00744AEE /* ADErrorCodes.h in Copy Files */,
-				8B59894A180DF7A900744AEE /* ADUserInformation.h in Copy Files */,
-				8BB8346918077F1B007F9F0D /* ADAuthenticationSettings.h in Copy Files */,
-				8BB8346818077F15007F9F0D /* ADAuthenticationParameters.h in Copy Files */,
-				8BB8346718077F0D007F9F0D /* ADAuthenticationResult.h in Copy Files */,
-				8BB8346618077F02007F9F0D /* ADAuthenticationContext.h in Copy Files */,
-			);
-			name = "Copy Files";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		4CAE461B18F75F0900659400 /* ADKeyChainHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADKeyChainHelper.h; sourceTree = "<group>"; };
@@ -260,13 +219,13 @@
 		972A58A71A4AB5580054BE11 /* ADNTLMHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADNTLMHandler.m; sourceTree = "<group>"; };
 		97345B90199160BD0044B1A6 /* ADPkeyAuthHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADPkeyAuthHelper.h; sourceTree = "<group>"; };
 		97345B91199160BD0044B1A6 /* ADPkeyAuthHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADPkeyAuthHelper.m; sourceTree = "<group>"; };
-		97D685AF1A107F0000EE816C /* ADBrokerKeyHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeyHelper.m; sourceTree = "<group>"; };
-		97D685B11A107F1E00EE816C /* ADBrokerKeyHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADBrokerKeyHelper.h; sourceTree = "<group>"; };
 		97A522481A1A752D001D77CE /* ADClientMetrics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetrics.m; sourceTree = "<group>"; };
 		97A5224A1A1A7583001D77CE /* ADHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADHelpers.h; sourceTree = "<group>"; };
 		97A5224B1A1A75B2001D77CE /* ADHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADHelpers.m; sourceTree = "<group>"; };
 		97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetricsTests.m; sourceTree = "<group>"; };
 		97A522511A1A89C4001D77CE /* ADClientMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADClientMetrics.h; sourceTree = "<group>"; };
+		97D685AF1A107F0000EE816C /* ADBrokerKeyHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerKeyHelper.m; sourceTree = "<group>"; };
+		97D685B11A107F1E00EE816C /* ADBrokerKeyHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADBrokerKeyHelper.h; sourceTree = "<group>"; };
 		97E296E01A81A05300E22E77 /* ADAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAL.h; sourceTree = "<group>"; };
 		97EEE7B41A4C0D6000D003F8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		97EEE7B91A4C97A400D003F8 /* UIAlertView+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+Additions.h"; sourceTree = "<group>"; };
@@ -529,10 +488,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8B0965CD17F25770002BDFB8 /* Build configuration list for PBXNativeTarget "ADALiOS" */;
 			buildPhases = (
-				8B0965A817F25770002BDFB8 /* Copy Files */,
 				8B0965A617F25770002BDFB8 /* Sources */,
 				8B0965A717F25770002BDFB8 /* Frameworks */,
-				8B19339718BAEDE4008FD93A /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -631,20 +588,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		8B19339718BAEDE4008FD93A /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Create the folder structure for a Framework\necho \"Creating Framework folder structure at ${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}\"\n\n# Ensure failure if any simple command fails\nset -e\n\n# Create the directory layout\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/A/Headers\"\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/A/Resources\"\n\n# Link the \"Current\" version to \"A\"\n/bin/ln -sfh A \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/Current\"\n/bin/ln -sfh Versions/Current/Headers \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Headers\"\n/bin/ln -sfh Versions/Current/Resources \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Resources\"\n/bin/ln -sfh \"Versions/Current/${PRODUCT_NAME}\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/${PRODUCT_NAME}\"\n\n# The -a ensures that the headers maintain the source modification date so that we don't constantly\n# cause propagating rebuilds of files that import these headers.\necho \"Copying public headers from $TARGET_BUILD_DIR/$PUBLIC_HEADERS_FOLDER_PATH/\"\n/bin/cp -a \"${TARGET_BUILD_DIR}/${PUBLIC_HEADERS_FOLDER_PATH}/\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/A/Headers\"\n";
-			showEnvVarsInLog = 0;
-		};
 		8BDC716118BD6941006A9A8B /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
