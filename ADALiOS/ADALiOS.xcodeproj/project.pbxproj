@@ -131,7 +131,7 @@
 		8B0965A817F25770002BDFB8 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
-			dstPath = "Headers/$(PRODUCT_NAME)";
+			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
 				97E296E11A81A0A200E22E77 /* ADAL.h in Copy Files */,
