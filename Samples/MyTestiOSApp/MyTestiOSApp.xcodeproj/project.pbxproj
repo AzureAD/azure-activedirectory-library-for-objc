@@ -29,6 +29,7 @@
 		D68B4A2B1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A2A1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m */; };
 		D68B4A311CB5A85D00758FB3 /* ADTestAppCacheViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A301CB5A85D00758FB3 /* ADTestAppCacheViewController.m */; };
 		D68B4A371CB5AB0C00758FB3 /* ADTestAppLogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A361CB5AB0C00758FB3 /* ADTestAppLogViewController.m */; };
+		D68FB7901CBDA224008C5BCF /* ADAL.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 9453C3E91C58403D006B9E79 /* ADAL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D6D034871CB6D74E00406721 /* ADTestAppSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D034851CB6D74E00406721 /* ADTestAppSettingsViewController.m */; };
 		D6D034881CB6D74E00406721 /* ADTestAppSettingsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = D6D034861CB6D74E00406721 /* ADTestAppSettingsView.xib */; };
 /* End PBXBuildFile section */
@@ -42,6 +43,20 @@
 			remoteInfo = MyTestiOSApp;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D68FB7761CBD9C8F008C5BCF /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D68FB7901CBDA224008C5BCF /* ADAL.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		4CAE461A18F7555400659400 /* MyTestiOSApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MyTestiOSApp.entitlements; sourceTree = "<group>"; };
@@ -65,8 +80,8 @@
 		8BA42B2C17E3C150002D206E /* MyTestiOSAppTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MyTestiOSAppTests-Info.plist"; sourceTree = "<group>"; };
 		8BA42B2E17E3C150002D206E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyTestiOSAppTests.m; sourceTree = "<group>"; };
-		8BAB18B3184576B700FDD4DD /* libADALiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADALiOS.a; path = "../../../../Library/Developer/Xcode/DerivedData/ADALiOS-ckezcambqztutxakbxsnwblsewcb/Build/Products/Debug-iphoneos/libADALiOS.a"; sourceTree = "<group>"; };
-		9453C3E91C58403D006B9E79 /* ADAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ADAL.framework; path = "../../ADAL/build/Debug-iphoneos/ADAL.framework"; sourceTree = "<group>"; };
+		8BAB18B3184576B700FDD4DD /* libADALiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libADALiOS.a; sourceTree = "<group>"; };
+		9453C3E91C58403D006B9E79 /* ADAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ADAL.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D68B4A251CB59DE100758FB3 /* ADTestAppAcquireTokenView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ADTestAppAcquireTokenView.xib; sourceTree = "<group>"; };
 		D68B4A291CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppAcquireTokenViewController.h; sourceTree = "<group>"; };
 		D68B4A2A1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppAcquireTokenViewController.m; sourceTree = "<group>"; };
@@ -203,6 +218,7 @@
 				8BA42AF217E3C150002D206E /* Sources */,
 				8BA42AF317E3C150002D206E /* Frameworks */,
 				8BA42AF417E3C150002D206E /* Resources */,
+				D68FB7761CBD9C8F008C5BCF /* Copy Frameworks */,
 			);
 			buildRules = (
 			);
@@ -410,6 +426,7 @@
 				);
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -534,6 +551,7 @@
 				GCC_PREFIX_HEADER = "MyTestiOSApp/MyTestiOSApp-Prefix.pch";
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -553,6 +571,7 @@
 				GCC_PREFIX_HEADER = "MyTestiOSApp/MyTestiOSApp-Prefix.pch";
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";

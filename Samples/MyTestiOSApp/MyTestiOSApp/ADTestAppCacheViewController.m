@@ -131,6 +131,17 @@
     [self loadCache];
 }
 
+- (void)invalidateTokenAtPath:(NSIndexPath*)indexPath
+{
+    ADTestAppCacheRowItem* rowItem = [self cacheItemForPath:indexPath];
+    rowItem.item.refreshToken = @"<bad-refresh-token>";
+    
+    ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
+    [cache addOrUpdateItem:rowItem.item correlationId:nil error:nil];
+    
+    [self loadCache];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -166,8 +177,16 @@
     {
         [self tombstoneTokenAtPath:indexPath];
     }];
-    
     [tombstoneTokenAction setBackgroundColor:[UIColor brownColor]];
+    
+    UITableViewRowAction* invalidateAction =
+    [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal
+                                       title:@"Invalidate"
+                                     handler:^(UITableViewRowAction * _Nonnull action, NSIndexPath * _Nonnull indexPath)
+     {
+         [self invalidateTokenAtPath:indexPath];
+     }];
+    [invalidateAction setBackgroundColor:[UIColor yellowColor]];
     
     UITableViewRowAction* expireTokenAction =
     [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal
@@ -188,7 +207,7 @@
     }];
     
     _tokenRowActions = @[ deleteTokenAction, expireTokenAction ];
-    _mrrtRowActions = @[ tombstoneTokenAction ];
+    _mrrtRowActions = @[ tombstoneTokenAction, invalidateAction ];
     _clientIdRowActions = @[ deleteAllAction ];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:ADTestAppCacheChangeNotification
@@ -363,6 +382,10 @@
         if (cacheItem.item.tombstone)
         {
             [[cell textLabel] setTextColor:[UIColor brownColor]];
+        }
+        else if ([cacheItem.item.refreshToken isEqualToString:@"<bad-refresh-token>"])
+        {
+            [[cell textLabel] setTextColor:[UIColor yellowColor]];
         }
         else if (cacheItem.item.isExpired)
         {
