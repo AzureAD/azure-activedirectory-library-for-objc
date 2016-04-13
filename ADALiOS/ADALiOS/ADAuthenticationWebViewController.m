@@ -124,6 +124,12 @@ NSTimer *timer;
     }
     
     NSString *requestURL = [request.URL absoluteString];
+    
+    if ([requestURL caseInsensitiveCompare:@"about:blank"] == NSOrderedSame)
+    {
+        return NO;
+    }
+    
     if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"]) {
         _complete = YES;
         dispatch_async( dispatch_get_main_queue(), ^{[_delegate webAuthenticationDidCancel];});
@@ -160,7 +166,7 @@ NSTimer *timer;
     }
     
     // redirecting to non-https url is not allowed
-    if (![requestURL hasPrefix: @"https"])
+    if ([request.URL.scheme caseInsensitiveCompare:@"https"] != NSOrderedSame)
     {
         AD_LOG_ERROR(@"Server is redirecting to a non-https url", AD_ERROR_NON_HTTPS_REDIRECT, nil);
         _complete = YES;
