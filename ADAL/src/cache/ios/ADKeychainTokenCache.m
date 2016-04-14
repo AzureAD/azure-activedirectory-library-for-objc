@@ -42,12 +42,14 @@ static NSString* const s_delimiter = @"|";
 
 static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_VERSION);
 
-static NSString* const s_keyForStoringTomestoneCleanTime = @"ADAL-NEXT-TOMBSTONE-CLEAN-TIME";
+static NSString* const s_keyForStoringTomestoneCleanTime = @"NextTombstoneCleanTime";
+static NSString* const s_tombstoneLibraryString = @"Microsoft.ADAL.Tombstone." TOSTRING(KEYCHAIN_VERSION);
 
 @implementation ADKeychainTokenCache
 {
     NSString* _sharedGroup;
     NSDictionary* _default;
+    NSDictionary* _defaultTombstone;
 }
 
 // Shouldn't be called.
@@ -79,6 +81,18 @@ static NSString* const s_keyForStoringTomestoneCleanTime = @"ADAL-NEXT-TOMBSTONE
                  (id)kSecAttrGeneric : [s_libraryString dataUsingEncoding:NSUTF8StringEncoding]
                  };
     SAFE_ARC_RETAIN(_default);
+    
+    // Use a different generic attribute so that past versions of ADAL don't trip up on this entry
+    _defaultTombstone = @{
+                 (id)kSecClass : (id)kSecClassGenericPassword,
+                 //Apps are not signed on the simulator, so the shared group doesn't apply there.
+#if !(TARGET_IPHONE_SIMULATOR)
+                 (id)kSecAttrAccessGroup : (id)_sharedGroup,
+#endif
+                 (id)kSecAttrGeneric : [s_tombstoneLibraryString dataUsingEncoding:NSUTF8StringEncoding]
+                 };
+    SAFE_ARC_RETAIN(_default);
+
     
     static dispatch_once_t onceToken = 0;
     dispatch_once(&onceToken, ^{
@@ -387,7 +401,7 @@ static NSString* const s_keyForStoringTomestoneCleanTime = @"ADAL-NEXT-TOMBSTONE
     return YES;
 }
 
-- (BOOL) isTimeToCleanTombstones
+- (BOOL)isTimeToCleanTombstones
 {
     NSDate* nextCleanTime = [self getTombstoneCleanTime];
     
@@ -403,13 +417,14 @@ static NSString* const s_keyForStoringTomestoneCleanTime = @"ADAL-NEXT-TOMBSTONE
     return YES;
 }
 
-- (NSDate*) getTombstoneCleanTime
+- (NSDate*)getTombstoneCleanTime
 {
-    NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:_default];
+    NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:_defaultTombstone];
+    
     [query addEntriesFromDictionary:@{ (id)kSecMatchLimit : (id)kSecMatchLimitOne,
                                        (id)kSecReturnData : @YES,
-                                       (id)kSecAttrService : s_keyForStoringTomestoneCleanTime}];
-
+                                       (id)kSecAttrService : s_keyForStoringTomestoneCleanTime }];
+    
     NSData* data = nil;
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&data);
     if (status == errSecSuccess && data)
@@ -423,10 +438,10 @@ static NSString* const s_keyForStoringTomestoneCleanTime = @"ADAL-NEXT-TOMBSTONE
     return nil;
 }
 
-- (void) storeTombstoneCleanTime:(NSDate *)cleanTime
+- (void)storeTombstoneCleanTime:(NSDate *)cleanTime
 {
-    NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:_default];
-    [query addEntriesFromDictionary:@{(id)kSecAttrService : s_keyForStoringTomestoneCleanTime}];
+    NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:_defaultTombstone];
+    [query setObject:s_keyForStoringTomestoneCleanTime forKey:(id)kSecAttrService];
     
     NSData* itemData = [NSKeyedArchiver archivedDataWithRootObject:cleanTime];
     if (!itemData)
@@ -668,6 +683,10 @@ static NSString* const s_keyForStoringTomestoneCleanTime = @"ADAL-NEXT-TOMBSTONE
         NSMutableDictionary* query = [self queryDictionaryForKey:nil userId:nil additional:nil];
         OSStatus status = SecItemDelete((CFDictionaryRef)query);
         [ADKeychainTokenCache checkStatus:status operation:@"remove all" correlationId:nil error:error];
+        
+        // Remove the tombstone timestamp as well;
+        status = SecItemDelete((CFDictionaryRef)_defaultTombstone);
+        [ADKeychainTokenCache checkStatus:status operation:@"remove tombstone timestamp" correlationId:nil error:nil];
     }
 }
 
