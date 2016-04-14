@@ -55,7 +55,8 @@
     }
     
     NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
-    if (![[redirectURI path] isEqualToString:bundleId])
+    NSString* host = [redirectURI host];
+    if (![host isEqualToString:bundleId])
     {
         return NO;
     }
