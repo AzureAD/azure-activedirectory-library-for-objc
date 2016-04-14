@@ -75,11 +75,17 @@
     ADRegistrationInformation* regInfo =
     [[ADWorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
     
-    NSString* wpjLabel = regInfo.userPrincipalName;
-    if (!wpjLabel)
+    NSString* wpjLabel = @"No WPJ Registration Found";
+    
+    if (regInfo.userPrincipalName)
     {
-        wpjLabel = @"No WPJ Found";
+        wpjLabel = regInfo.userPrincipalName;
     }
+    else if (regInfo)
+    {
+        wpjLabel = @"WPJ Registration Found";
+    }
+    
     [_workplaceJoin setText:wpjLabel];
 }
 
