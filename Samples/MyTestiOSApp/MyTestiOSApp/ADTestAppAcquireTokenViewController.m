@@ -198,25 +198,30 @@
     {
         if (fBlockHit)
         {
-            UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Error!"
-                                                                           message:@"Completion block was hit multiple times!"
-                                                                    preferredStyle:UIAlertControllerStyleAlert];
-
-            [self presentViewController:alert animated:YES completion:nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Error!"
+                                                                               message:@"Completion block was hit multiple times!"
+                                                                        preferredStyle:UIAlertControllerStyleAlert];
+                
+                [self presentViewController:alert animated:YES completion:nil];
+            });
+            
+            return;
         }
         fBlockHit = YES;
-        
-        if ([_acquireSettingsView isHidden])
-        {
-            [_webView loadHTMLString:@"<html><head></head><body>done!</body></html>" baseURL:nil];
-            [UIView animateWithDuration:0.5 animations:^{
-                [_authView setHidden:YES];
-                [_acquireSettingsView setHidden:NO];
-            }];
-        }
         NSLog(@"result: %@", result);
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:ADTestAppCacheChangeNotification object:self];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([_acquireSettingsView isHidden])
+            {
+                [_webView loadHTMLString:@"<html><head></head><body>done!</body></html>" baseURL:nil];
+                [_authView setHidden:YES];
+                [_acquireSettingsView setHidden:NO];
+                [self.view setNeedsDisplay];
+            }
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:ADTestAppCacheChangeNotification object:self];
+        });
     }];
     
 }

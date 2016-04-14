@@ -47,10 +47,12 @@ NSString* ADTestAppCacheChangeNotification = @"ADTestAppCacheChangeNotification"
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     
     NSDictionary* defaultValues = @{ @"authority" : @"https://login.microsoftonline.com/common",
-                                     @"clientId" : @"e3786e2a-0dcb-449a-8eba-b4042c9bec01",
                                      @"resource" : @"https://graph.windows.net",
-                                     @"redirectUri" : @"MyTestiOSApp://com.MSOpenTech.MyTestiOSApp" };
-    
+                                     // NOTE: The settings below should come from your registered application on
+                                     //       the azure management portal.
+                                     @"clientId" : @"b92e0ba5-f86e-4411-8e18-6b5f928d968a",
+                                     @"redirectUri" : @"urn:ietf:wg:oauth:2.0:oob",
+                                     };
     
     [defaults registerDefaults:defaultValues];
     

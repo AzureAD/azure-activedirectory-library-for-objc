@@ -51,10 +51,10 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     UIWindow* window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    [window setTintColor:[UIColor colorWithRed:118.0/255.0 green:44.0/255.0 blue:144.0/255.0 alpha:1.0]];
     self.window = window;
     
     _tabBar = [UITabBarController new];
-    
     
     ADTestAppAcquireTokenViewController* tokenController = [ADTestAppAcquireTokenViewController new];
     [_tabBar addChildViewController:tokenController];
