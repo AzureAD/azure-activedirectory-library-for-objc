@@ -56,6 +56,17 @@
         return;
     }
     
+    if (!_silent && _context.credentialsType == AD_CREDENTIALS_AUTO && ![ADAuthenticationRequest validBrokerRedirectUri:_redirectUri])
+    {
+        ADAuthenticationError* error =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
+                                               protocolCode:nil
+                                               errorDetails:ADRedirectUriInvalidError
+                                              correlationId:_correlationId];
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+        return;
+    }
+    
     if (!_context.validateAuthority)
     {
         [self validatedAcquireToken:completionBlock];
