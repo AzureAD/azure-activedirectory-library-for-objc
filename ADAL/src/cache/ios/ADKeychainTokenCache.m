@@ -42,7 +42,8 @@ static NSString* const s_delimiter = @"|";
 
 static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_VERSION);
 
-static NSString* const s_keyForStoringTomestoneCleanTime = @"ADAL-NEXT-TOMBSTONE-CLEAN-TIME";
+static NSString* const s_keyForStoringTomestoneCleanTime = @"NextTombstoneCleanTime";
+static NSString* const s_tombstoneLibraryString = @"Microsoft.ADAL.Tombstone." TOSTRING(KEYCHAIN_VERSION);
 
 @implementation ADKeychainTokenCache
 {
@@ -387,7 +388,7 @@ static NSString* const s_keyForStoringTomestoneCleanTime = @"ADAL-NEXT-TOMBSTONE
     return YES;
 }
 
-- (BOOL) isTimeToCleanTombstones
+- (BOOL)isTimeToCleanTombstones
 {
     NSDate* nextCleanTime = [self getTombstoneCleanTime];
     
@@ -403,12 +404,13 @@ static NSString* const s_keyForStoringTomestoneCleanTime = @"ADAL-NEXT-TOMBSTONE
     return YES;
 }
 
-- (NSDate*) getTombstoneCleanTime
+- (NSDate*)getTombstoneCleanTime
 {
     NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:_default];
     [query addEntriesFromDictionary:@{ (id)kSecMatchLimit : (id)kSecMatchLimitOne,
                                        (id)kSecReturnData : @YES,
-                                       (id)kSecAttrService : s_keyForStoringTomestoneCleanTime}];
+                                       (id)kSecAttrService : s_keyForStoringTomestoneCleanTime,
+                                       (id)kSecAttrGeneric : [s_tombstoneLibraryString dataUsingEncoding:NSUTF8StringEncoding] }];
 
     NSData* data = nil;
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&data);
@@ -423,10 +425,11 @@ static NSString* const s_keyForStoringTomestoneCleanTime = @"ADAL-NEXT-TOMBSTONE
     return nil;
 }
 
-- (void) storeTombstoneCleanTime:(NSDate *)cleanTime
+- (void)storeTombstoneCleanTime:(NSDate *)cleanTime
 {
     NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:_default];
-    [query addEntriesFromDictionary:@{(id)kSecAttrService : s_keyForStoringTomestoneCleanTime}];
+    [query addEntriesFromDictionary:@{ (id)kSecAttrService : s_keyForStoringTomestoneCleanTime,
+                                       (id)kSecAttrGeneric : [s_tombstoneLibraryString dataUsingEncoding:NSUTF8StringEncoding] }];
     
     NSData* itemData = [NSKeyedArchiver archivedDataWithRootObject:cleanTime];
     if (!itemData)
