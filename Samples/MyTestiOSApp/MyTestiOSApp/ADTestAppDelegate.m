@@ -24,13 +24,10 @@
 #import "ADTestAppDelegate.h"
 #import "ADTestAppSettings.h"
 
-
 #import "ADTestAppAcquireTokenViewController.h"
 #import "ADTestAppCacheViewController.h"
 #import "ADTestAppLogViewController.h"
 #import "ADTestAppSettingsViewController.h"
-
-#import <ADAL/ADAL.h>
 
 @implementation ADTestAppDelegate
 {

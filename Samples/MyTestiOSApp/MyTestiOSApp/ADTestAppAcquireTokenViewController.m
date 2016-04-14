@@ -23,7 +23,6 @@
 
 #import "ADTestAppAcquireTokenViewController.h"
 #import "ADTestAppSettings.h"
-#import <ADAL/ADAL.h>
 
 @interface ADTestAppAcquireTokenViewController ()
 

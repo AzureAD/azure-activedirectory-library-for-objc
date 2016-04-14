@@ -24,19 +24,10 @@
 #import "ADTestAppCacheViewController.h"
 #import "ADTestAppSettings.h"
 
-#import <ADAL/ADAL.h>
+#import "ADTokenCacheItem.h"
 
-// NOTE: This is done for testing purposes only. Forward declaring and calling
-// internal APIs in production code would be inappropriate and can be broken
-// at any time.
-@interface ADKeychainTokenCache (TestApp)
-
-- (nullable NSArray<ADTokenCacheItem *> *)allTombstones:(ADAuthenticationError * __nullable __autoreleasing *__nullable)error;
-- (BOOL)addOrUpdateItem:(ADTokenCacheItem *)item
-          correlationId:(nullable NSUUID *)correlationId
-                  error:(ADAuthenticationError * __autoreleasing*)error;
-
-@end
+// NOTE: Internal headers should not be consumed in production code
+#import "ADKeychainTokenCache+Internal.h"
 
 
 @interface ADTestAppCacheRowItem : NSObject

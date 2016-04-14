@@ -24,6 +24,11 @@
 #import "ADTestAppSettingsViewController.h"
 #import "ADTestAppSettings.h"
 
+// Internal ADAL headers
+#import "ADWorkPlaceJoin.h"
+#import "ADWorkPlaceJoinUtil.h"
+
+
 @interface ADTestAppSettingsViewController ()
 
 @end
@@ -34,6 +39,8 @@
     IBOutlet UILabel* _clientId;
     IBOutlet UILabel* _redirectUri;
     IBOutlet UIButton* _resource;
+    IBOutlet UILabel* _keychainId;
+    IBOutlet UILabel* _workplaceJoin;
 }
 
 - (id)init
@@ -60,6 +67,20 @@
     [_clientId setText:settings.clientId];
     [_redirectUri setText:settings.redirectUri.absoluteString];
     [_resource setTitle:settings.resource forState:UIControlStateNormal];
+    [_keychainId setText:[[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix]];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    ADRegistrationInformation* regInfo =
+    [[ADWorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
+    
+    NSString* wpjLabel = regInfo.userPrincipalName;
+    if (!wpjLabel)
+    {
+        wpjLabel = @"No WPJ Found";
+    }
+    [_workplaceJoin setText:wpjLabel];
 }
 
 - (void)didReceiveMemoryWarning {
