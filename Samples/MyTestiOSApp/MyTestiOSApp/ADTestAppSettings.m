@@ -51,7 +51,7 @@ NSString* ADTestAppCacheChangeNotification = @"ADTestAppCacheChangeNotification"
                                      // NOTE: The settings below should come from your registered application on
                                      //       the azure management portal.
                                      @"clientId" : @"b92e0ba5-f86e-4411-8e18-6b5f928d968a",
-                                     @"redirectUri" : @"urn:ietf:wg:oauth:2.0:oob",
+                                     @"redirectUri" : @"x-msauth-adaltestapp-210://com.microsoft.adal.2.1.0.TestApp",
                                      };
     
     [defaults registerDefaults:defaultValues];

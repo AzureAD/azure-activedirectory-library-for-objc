@@ -166,6 +166,27 @@ const int sAsyncContextTimeout = 10;
     TEST_WAIT;
 }
 
+- (void)testInvalidBrokerRedirectURI
+{
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    [context setCredentialsType:AD_CREDENTIALS_AUTO];
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:[NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob"]
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+}
+
 - (void)testAssertionBadAssertion
 {
     ADAuthenticationContext* context = [self getTestAuthenticationContext];

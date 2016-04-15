@@ -42,12 +42,21 @@
 
 @implementation ADAuthenticationRequest (Broker)
 
-+ (BOOL)respondsToUrl:(NSString*)url
++ (BOOL)validBrokerRedirectUri:(NSString*)url
 {
     NSArray* urlTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleURLTypes"];
     
-    NSString* scheme = [[NSURL URLWithString:url] scheme];
+    NSURL* redirectURI = [NSURL URLWithString:url];
+    
+    NSString* scheme = redirectURI.scheme;
     if (!scheme)
+    {
+        return NO;
+    }
+    
+    NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
+    NSString* host = [redirectURI host];
+    if (![host isEqualToString:bundleId])
     {
         return NO;
     }
@@ -182,7 +191,7 @@
     CHECK_FOR_NIL(_correlationId);
     
     ADAuthenticationError* error = nil;
-    if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
+    if(![ADAuthenticationRequest validBrokerRedirectUri:_redirectUri])
     {
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
                                                        protocolCode:nil
@@ -248,7 +257,7 @@
     CHECK_FOR_NIL(_resource);
     
     ADAuthenticationError* error = nil;
-    if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
+    if(![ADAuthenticationRequest validBrokerRedirectUri:_redirectUri])
     {
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
                                                        protocolCode:nil
