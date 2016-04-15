@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "ADTestAppLogViewController.h"
-#import <ADAL/ADAL.h>
 
 @interface ADTestAppLogViewController ()
 
