@@ -322,7 +322,7 @@ in ADAuthenticationSettings:
     [[ADAuthenticationSettings sharedInstance] setSharedCacheKeychainGroup:nil];
 ```
 
-**ADAL keeps returning SSL errors in iOS 9 and later
+**ADAL keeps returning SSL errors in iOS 9 and later**
 
 iOS 9 added App Transport Security (ATS). ATS restricts apps from accessing the internet unless they meet several security requirements including TLS 1.2 and SHA-256. It also prevents network traces that rely on self signed certs to crack SSL from working. Disabling ATS must be done in the Application's info.plist file, see [documentation on the NSAppTransport info.plist key](https://developer.apple.com/library/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW33) for more information.
 
