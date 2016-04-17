@@ -167,7 +167,7 @@ Broker is enabled on a per-authentication-context basis. You must set your crede
 @property ADCredentialsType credentialsType;
 ```
 
-The AD_CREDENTIALS_AUTO setting will allow ADAL to try to call out to the broker, AD_CREDENTIALS_EMBEDDED will precent ADAL from calling to the broker.
+The AD_CREDENTIALS_AUTO setting will allow ADAL to try to call out to the broker, AD_CREDENTIALS_EMBEDDED will prevent ADAL from calling to the broker.
 
 #### Registering a URL Scheme
 ADAL uses URLs to invoke the broker and then return back to your app. To finish that round trip you need a URL scheme registered for your app. We recommend making the URL scheme fairly unique to minimize the chances of another app using the same URL scheme.
