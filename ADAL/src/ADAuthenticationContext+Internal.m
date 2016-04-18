@@ -83,8 +83,16 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
         NSUUID* correlationId = [dictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
                                 [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]]:
                                 nil;
-        SAFE_ARC_AUTORELEASE(correlationId);
-        return [ADAuthenticationError OAuthServerError:serverOAuth2Error description:errorDetails code:errorCode correlationId:correlationId];
+        SAFE_ARC_AUTORELEASE(correlationId);        
+        NSString *subcode = [dictionary objectForKey:OAUTH2_ERROR_SUBCODE];
+        if ([subcode isEqualToString:OAUTH2_CANCEL_TOKEN])
+        {
+            return [ADAuthenticationError errorFromCancellation:correlationId];
+        }
+        else
+        {
+	        return [ADAuthenticationError OAuthServerError:serverOAuth2Error description:errorDetails code:errorCode correlationId:correlationId];
+        }
     }
     //In the case of more generic error, e.g. server unavailable, DNS error or no internet connection, the error object will be directly placed in the dictionary:
     return [dictionary objectForKey:AUTH_NON_PROTOCOL_ERROR];
