@@ -36,6 +36,10 @@
 
 #include <libkern/OSAtomic.h>
 
+// Used to make sure one interactive request is going on at a time,
+// either launching webview or broker
+static dispatch_semaphore_t sInteractionInProgress = nil;
+
 @implementation ADAuthenticationRequest
 
 @synthesize logComponent = _logComponent;
@@ -48,6 +52,11 @@
         } \
         return nil; \
     } \
+}
+
++ (void)initialize
+{
+    sInteractionInProgress = dispatch_semaphore_create(1);
 }
 
 + (ADAuthenticationRequest *)requestWithAuthority:(NSString *)authority
@@ -80,7 +89,9 @@
     ERROR_RETURN_IF_NIL(context);
     ERROR_RETURN_IF_NIL(clientId);
     
-    return SAFE_ARC_AUTORELEASE([[ADAuthenticationRequest alloc] initWithContext:context redirectUri:redirectUri clientId:clientId resource:resource]);
+    ADAuthenticationRequest *request = [[ADAuthenticationRequest alloc] initWithContext:context redirectUri:redirectUri clientId:clientId resource:resource];
+    SAFE_ARC_AUTORELEASE(request);
+    return request;
 }
 
 - (id)initWithContext:(ADAuthenticationContext*)context
@@ -137,22 +148,32 @@
 - (void)setScope:(NSString *)scope
 {
     CHECK_REQUEST_STARTED;
+    if (_scope == scope)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_scope);
-    _scope = scope;
-    SAFE_ARC_RETAIN(_scope);
+    _scope = [scope copy];
 }
 
 - (void)setExtraQueryParameters:(NSString *)queryParams
 {
     CHECK_REQUEST_STARTED;
+    if (_queryParams == queryParams)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_queryParams);
-    _queryParams = queryParams;
-    SAFE_ARC_RETAIN(_queryParams);
+    _queryParams = [queryParams copy];
 }
 
 - (void)setUserIdentifier:(ADUserIdentifier *)identifier
 {
     CHECK_REQUEST_STARTED;
+    if (_identifier == identifier)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_identifier);
     _identifier = identifier;
     SAFE_ARC_RETAIN(_identifier);
@@ -161,9 +182,7 @@
 - (void)setUserId:(NSString *)userId
 {
     CHECK_REQUEST_STARTED;
-    SAFE_ARC_RELEASE(_identifier);
-    _identifier = [ADUserIdentifier identifierWithId:userId];
-    SAFE_ARC_RETAIN(_identifier);
+    [self setUserIdentifier:[ADUserIdentifier identifierWithId:userId]];
 }
 
 - (void)setPromptBehavior:(ADPromptBehavior)promptBehavior
@@ -181,6 +200,10 @@
 - (void)setCorrelationId:(NSUUID*)correlationId
 {
     CHECK_REQUEST_STARTED;
+    if (_correlationId == correlationId)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_correlationId);
     _correlationId = correlationId;
     SAFE_ARC_RETAIN(_correlationId);
@@ -197,9 +220,12 @@
 {
     // We knowingly do this mid-request when we have to change auth types
     // Thus no CHECK_REQUEST_STARTED
+    if (_redirectUri == redirectUri)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_redirectUri);
-    _redirectUri = redirectUri;
-    SAFE_ARC_RETAIN(_redirectUri);
+    _redirectUri = [redirectUri copy];
 }
 
 - (void)setAllowSilentRequests:(BOOL)allowSilent
@@ -211,9 +237,12 @@
 - (void)setRefreshTokenCredential:(NSString*)refreshTokenCredential
 {
     CHECK_REQUEST_STARTED;
+    if (_refreshTokenCredential == refreshTokenCredential)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_refreshTokenCredential);
-    _refreshTokenCredential = refreshTokenCredential;
-    SAFE_ARC_RETAIN(_refreshTokenCredential);
+    _refreshTokenCredential = [refreshTokenCredential copy];
 }
 #endif
 
@@ -246,6 +275,17 @@
     }
     
     return _correlationId;
+}
+
+- (BOOL)takeUserInterationLock
+{
+    return !dispatch_semaphore_wait(sInteractionInProgress, DISPATCH_TIME_NOW);
+}
+
+- (BOOL)releaseUserInterationLock
+{
+    dispatch_semaphore_signal(sInteractionInProgress);
+    return YES;
 }
 
 @end

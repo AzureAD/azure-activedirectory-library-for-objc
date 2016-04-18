@@ -30,7 +30,7 @@ NSString* const ADCredentialsNeeded = @"The user credentials are need to obtain 
 NSString* const ADInteractionNotSupportedInExtension = @"Interaction is not supported in an app extension.";
 NSString* const ADServerError = @"The authentication server returned an error: %@.";
 NSString* const ADBrokerAppIdentifier = @"com.microsoft.azureadauthenticator";
-NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to invoke the application. Update your redirect URI to be of  <app-scheme>://<bundle-id> format";
+NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is configured to allow brokered authentication but your redirect URI is not setup properly. Make sure your redirect URI is in the form of <app-scheme>://<bundle-id> (e.g. \"x-msauth-testapp://com.microsoft.adal.testapp\") and that the \"app-scheme\" you choose is registered in your application's info.plist.";
 
 @implementation ADAuthenticationContext (Internal)
 
@@ -84,10 +84,7 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
                                 [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]]:
                                 nil;
         SAFE_ARC_AUTORELEASE(correlationId);
-        return [ADAuthenticationError errorFromAuthenticationError:errorCode
-                                                      protocolCode:serverOAuth2Error
-                                                      errorDetails:(errorDetails) ? errorDetails : [NSString stringWithFormat:ADServerError, serverOAuth2Error]
-                                                     correlationId:correlationId];
+        return [ADAuthenticationError OAuthServerError:serverOAuth2Error description:errorDetails code:errorCode correlationId:correlationId];
     }
     //In the case of more generic error, e.g. server unavailable, DNS error or no internet connection, the error object will be directly placed in the dictionary:
     return [dictionary objectForKey:AUTH_NON_PROTOCOL_ERROR];
@@ -136,7 +133,7 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
     if (!result)
     {
         ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_ARGUMENT
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
                                                protocolCode:nil
                                                errorDetails:@"ADAuthenticationResult is nil"
                                               correlationId:nil];
@@ -159,13 +156,10 @@ NSString* const ADRedirectUriInvalidError = @"Redirect URI cannot be used to inv
     
     if (![ADUserIdentifier identifier:userId matchesInfo:userInfo])
     {
-        NSString* errorText = [NSString stringWithFormat:@"Different user was authenticated. Expected: '%@'; Actual: '%@'. Either the user entered credentials for different user, or cookie for different logged user is present. Consider calling acquireToken with AD_PROMPT_ALWAYS to ignore the cookie.",
-                               userId.userId, [userId userIdMatchString:userInfo]];
-        
         ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_WRONG_USER
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_WRONG_USER
                                                protocolCode:nil
-                                               errorDetails:errorText
+                                               errorDetails:@"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier of OptionalDisplayableId type and pass in the userId returned on the initial authentication flow in all future acquireToken calls."
                                               correlationId:nil];
         return [ADAuthenticationResult resultFromError:error correlationId:[result correlationId]];
     }

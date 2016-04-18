@@ -27,6 +27,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 + (void)internalHandleBrokerResponse:(NSURL*)response;
 
++ (BOOL)validBrokerRedirectUri:(NSString*)url;
+
 - (BOOL)canUseBroker;
 
 - (void)callBroker:(ADAuthenticationCallback)completionBlock;

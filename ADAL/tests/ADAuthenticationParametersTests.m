@@ -225,7 +225,7 @@
     {
         [self recordFailureWithDescription:@"Error expected" inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
-    if (![error.domain isEqualToString:ADUnauthorizedResponseErrorDomain])
+    if (![error.domain isEqualToString:ADAuthenticationErrorDomain])
     {
         [self recordFailureWithDescription:@"Wrong domain" inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
@@ -262,7 +262,7 @@
     //HTTP headers are case-insensitive. This test validates that the underlying code is aware:
     NSURL *url = [NSURL URLWithString:@"http://www.example.com"];
     NSDictionary* headerFields1 = [NSDictionary dictionaryWithObject:@"Bearer authorization_uri=\"https://www.example.com\""
-                                                              forKey:@"WWW-AUTHENTICATE"];//Capital
+                                                              forKey:@"WWW-AUTHENTICATE"];//Uppercase
     NSHTTPURLResponse* response1 = [[NSHTTPURLResponse alloc] initWithURL:url
                                                                statusCode:401
                                                               HTTPVersion:@"1.1"
@@ -275,7 +275,7 @@
     [self verifyWithAuthority:@"https://www.example.com"];
     
     NSDictionary* headerFields2 = [NSDictionary dictionaryWithObject:@"Bearer authorization_uri=\"https://www.example.com\""
-                                                              forKey:@"www-AUTHEnticate"];//Capital
+                                                              forKey:@"www-AUTHEnticate"];//Partially uppercase
     NSHTTPURLResponse* response2 = [[NSHTTPURLResponse alloc] initWithURL:url
                                                                statusCode:401
                                                               HTTPVersion:@"1.1"
@@ -300,7 +300,7 @@
         [self recordFailureWithDescription:@"Parsed invalid header" inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
     [self expectedError:error line:sourceLine];
-    if (AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT != error.code)
+    if (AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT != error.code)
     {
         [self recordFailureWithDescription:@"Wrong error code" inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
@@ -356,12 +356,12 @@
 
 -(void) testInternalInit
 {
-    [self validateExtractChallenge:@"Bearerauthorization_uri=\"abc\", resource_id=\"foo\"" authority:nil resource:nil line:__LINE__];
-    [self validateExtractChallenge:@"Bearer foo" authority:nil resource:nil line:__LINE__];
-    [self validateExtractChallenge:@"Bearer foo=bar" authority:nil resource:nil line:__LINE__];
-    [self validateExtractChallenge:@"Bearer foo=\"bar\"" authority:nil resource:nil line:__LINE__];
-    [self validateExtractChallenge:@"Bearer foo=\"bar" authority:nil resource:nil line:__LINE__];//Missing second quote
-    [self validateExtractChallenge:@"Bearer foo=\"bar\"," authority:nil resource:nil line:__LINE__];
+    [self validateExtractChallenge:@"Bearerauthorization_uri=\"abc\", resource_id=\"something\"" authority:nil resource:nil line:__LINE__];
+    [self validateExtractChallenge:@"Bearer something" authority:nil resource:nil line:__LINE__];
+    [self validateExtractChallenge:@"Bearer something=bar" authority:nil resource:nil line:__LINE__];
+    [self validateExtractChallenge:@"Bearer something=\"bar\"" authority:nil resource:nil line:__LINE__];
+    [self validateExtractChallenge:@"Bearer something=\"bar" authority:nil resource:nil line:__LINE__];//Missing second quote
+    [self validateExtractChallenge:@"Bearer something=\"bar\"," authority:nil resource:nil line:__LINE__];
     [self validateExtractChallenge:@"Bearer   authorization_uri=\"https://login.windows.net/common\""
                                 authority:@"https://login.windows.net/common" resource:nil line:__LINE__];
     //More commas:
@@ -369,16 +369,16 @@
                          authority:@"https://login.windows.net/common"
                           resource:nil
                               line:__LINE__];
-    [self validateExtractChallenge:@"Bearer authorization_uri=\"https://login.windows.net/common\",resource_id=\"foo\""
+    [self validateExtractChallenge:@"Bearer authorization_uri=\"https://login.windows.net/common\",resource_id=\"something\""
                          authority:@"https://login.windows.net/common"
-                          resource:@"foo"
+                          resource:@"something"
                               line:__LINE__];
-    [self validateExtractChallenge:@"Bearer authorization_uri=\"\",resource_id=\"foo\"" authority:nil resource:@"foo" line:__LINE__];
+    [self validateExtractChallenge:@"Bearer authorization_uri=\"\",resource_id=\"something\"" authority:nil resource:@"something" line:__LINE__];
 
     //Pass an attribute, whose value contains commas:
-    [self validateExtractChallenge:@"Bearer  error_descritpion=\"Make sure, that you handle commas, inside the text\",authorization_uri=\"https://login.windows.net/common\",resource_id=\"foo\""
+    [self validateExtractChallenge:@"Bearer  error_descritpion=\"Make sure, that you handle commas, inside the text\",authorization_uri=\"https://login.windows.net/common\",resource_id=\"something\""
                          authority:@"https://login.windows.net/common"
-                          resource:@"foo"
+                          resource:@"something"
                               line:__LINE__];
 }
 
@@ -389,12 +389,12 @@
     ADAuthenticationParameters* params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:header error:&error];
     XCTAssertNil(params);
     [self expectedError:error line:sourceLine];
-    ADAssertLongEquals(error.code, AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT);
+    ADAssertLongEquals(error.code, AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT);
 }
 
 -(void) testParametersFromResponseAuthenticateHeaderInvalid
 {
-    [self validateFactoryForBadHeader:@"Bearer foo=bar" line:__LINE__];
+    [self validateFactoryForBadHeader:@"Bearer something=bar" line:__LINE__];
     [self validateFactoryForBadHeader:@"Bearer = , = , "  line:__LINE__];
     [self validateFactoryForBadHeader:@"Bearer =,=,=" line:__LINE__];
 }
@@ -403,7 +403,7 @@
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     ADAuthenticationError* error = nil;
-    ADAuthenticationParameters* params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\"https://login.windows.net/common\", resource_uri=\"foo.com\", anotherParam=\"Indeed, another param=5\" "
+    ADAuthenticationParameters* params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\"https://login.windows.net/common\", resource_uri=\"something.com\", anotherParam=\"Indeed, another param=5\" "
                                                                             error:&error];
     XCTAssertNotNil(params);
     XCTAssertNil(error);

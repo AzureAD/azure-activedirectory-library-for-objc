@@ -33,8 +33,8 @@
 #import "ADLogger+Internal.h"
 #import "ADURLProtocol.h"
 
-NSString *const HTTPGet  = @"GET";
-NSString *const HTTPPost = @"POST";
+static NSString *const HTTPGet  = @"GET";
+static NSString *const HTTPPost = @"POST";
 
 @interface ADWebRequest () <NSURLConnectionDelegate>
 
@@ -62,16 +62,27 @@ NSString *const HTTPPost = @"POST";
 {
     if ( body != nil )
     {
-        SAFE_ARC_RELEASE(_requestMethod);
         _requestMethod = HTTPPost;
-        SAFE_ARC_RETAIN(_requestMethod);
+        
+        if (_requestData == body)
+        {
+            return;
+        }
         SAFE_ARC_RELEASE(_requestData);
-        _requestData   = body;
-        SAFE_ARC_RETAIN(_requestData);
+        _requestData = [body copy];
         
         // Add default HTTP Headers to the request: Expect
         // Note that we don't bother with Expect because iOS does not support it
         //[_requestHeaders setValue:@"100-continue" forKey:@"Expect"];
+    }
+}
+
+- (void)setMethodType:(ADWebRequestMethodType)methodType
+{
+    switch (methodType)
+    {
+        case ADWebRequestGet: _requestMethod = HTTPGet; break;
+        case ADWebRequestPost: _requestMethod = HTTPPost; break;
     }
 }
 
@@ -87,7 +98,6 @@ NSString *const HTTPPost = @"POST";
     
     _requestURL        = [requestURL copy];
     _requestMethod     = HTTPGet;
-    SAFE_ARC_RETAIN(_requestMethod);
     _requestHeaders    = [[NSMutableDictionary alloc] init];
     
     // Default timeout for ADWebRequest is 30 seconds
@@ -110,7 +120,7 @@ NSString *const HTTPPost = @"POST";
     
     SAFE_ARC_RELEASE(_requestURL);
     _requestURL = nil;
-    SAFE_ARC_RELEASE(_requestMethod);
+    
     _requestMethod = nil;
     SAFE_ARC_RELEASE(_requestHeaders);
     _requestHeaders = nil;
@@ -140,7 +150,7 @@ NSString *const HTTPPost = @"POST";
     // Cleanup
     SAFE_ARC_RELEASE(_requestURL);
     _requestURL     = nil;
-    SAFE_ARC_RELEASE(_requestMethod);
+    
     _requestMethod  = nil;
     SAFE_ARC_RELEASE(_requestHeaders);
     _requestHeaders = nil;

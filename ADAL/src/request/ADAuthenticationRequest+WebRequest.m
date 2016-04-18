@@ -134,16 +134,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     
     ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
                                                    correlationId:_correlationId];
-    
-    if(isGetRequest)
-    {
-        webRequest.method = HTTPGet;
-    }
-    else
-    {
-        webRequest.method = HTTPPost;
-    }
-    
+    [webRequest setMethodType:isGetRequest ? ADWebRequestGet : ADWebRequestPost];
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
     [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
     [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
@@ -281,14 +272,14 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                 {
                     // Request failure
                     NSString* body = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
-                    NSString* errorData = [NSString stringWithFormat:@"Server HTTP status code: %ld. Full response %@", (long)webResponse.statusCode, body];
-                    SAFE_ARC_RELEASE(body);
-                    AD_LOG_WARN(@"HTTP Error", _correlationId, errorData);
+                    NSString* errorData = [NSString stringWithFormat:@"Full response: %@", body];
+                    AD_LOG_WARN(([NSString stringWithFormat:@"HTTP Error %ld", (long)webResponse.statusCode]), _correlationId, errorData);
                     
-                    ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
-                                                                                            protocolCode:nil
-                                                                                            errorDetails:errorData
-                                                                                           correlationId:_correlationId];
+                    ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
+                                                                                     body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
+                                                                            correlationId:_correlationId];
+                    SAFE_ARC_RELEASE(body);
+                    
                     //Now add the information to the dictionary, so that the parser can extract it:
                     [response setObject:adError
                                  forKey:AUTH_NON_PROTOCOL_ERROR];
@@ -332,19 +323,16 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     SAFE_ARC_RELEASE(webRequest);
 }
 
-//Used for the callback of obtaining the OAuth2 code:
-static volatile int sDialogInProgress = 0;
-
 //Ensures that a single UI login dialog can be requested at a time.
 //Returns true if successfully acquired the lock. If not, calls the callback with
 //the error and returns false.
 - (BOOL)takeExclusionLockWithCallback: (ADAuthorizationCodeCallback) completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    if ( !OSAtomicCompareAndSwapInt( 0, 1, &sDialogInProgress) )
+    if ( ![self takeUserInterationLock] )
     {
         NSString* message = @"The user is currently prompted for credentials as result of another acquireToken request. Please retry the acquireToken call later.";
-        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_PROMPTED
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS
                                                                               protocolCode:nil
                                                                               errorDetails:message
                                                                              correlationId:_correlationId];
@@ -359,11 +347,7 @@ static volatile int sDialogInProgress = 0;
 //Attempts to release the lock. Logs warning if the lock was already released.
 -(void) releaseExclusionLock
 {
-    if ( !OSAtomicCompareAndSwapInt( 1, 0, &sDialogInProgress) )
-    {
-        AD_LOG_WARN(@"UI Locking", _correlationId, @"The UI lock has already been released.");
-    }
-    
+    [self releaseUserInterationLock];
     s_modalRequest = nil;
 }
 
@@ -507,7 +491,7 @@ static volatile int sDialogInProgress = 0;
                  }
                  
                  //OAuth2 error may be passed by the server:
-                 error = [ADAuthenticationContext errorFromDictionary:parameters errorCode:AD_ERROR_AUTHENTICATION];
+                 error = [ADAuthenticationContext errorFromDictionary:parameters errorCode:AD_ERROR_SERVER_AUTHORIZATION_CODE];
                  if (!error)
                  {
                      //Note that we do not enforce the state, just log it:
@@ -515,7 +499,7 @@ static volatile int sDialogInProgress = 0;
                      code = [parameters objectForKey:OAUTH2_CODE];
                      if ([NSString adIsStringNilOrBlank:code])
                      {
-                         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
+                         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_AUTHORIZATION_CODE
                                                                         protocolCode:nil
                                                                         errorDetails:@"The authorization server did not return a valid authorization code."
                                                                        correlationId:_correlationId];
@@ -575,7 +559,7 @@ static volatile int sDialogInProgress = 0;
                  }
                  
                  // Otherwise error out
-                 error = [ADAuthenticationContext errorFromDictionary:parameters errorCode:AD_ERROR_AUTHENTICATION];
+                 error = [ADAuthenticationContext errorFromDictionary:parameters errorCode:AD_ERROR_SERVER_AUTHORIZATION_CODE];
              }
              
              requestCompletion(error, endURL);
@@ -595,7 +579,7 @@ static volatile int sDialogInProgress = 0;
     
     if (!authHeaderParams)
     {
-        AD_LOG_ERROR_F(@"Unparseable wwwAuthHeader received.", AD_ERROR_WPJ_REQUIRED, _correlationId, @"%@", wwwAuthHeaderValue);
+        AD_LOG_ERROR_F(@"Unparseable wwwAuthHeader received.", AD_ERROR_SERVER_WPJ_REQUIRED, _correlationId, @"%@", wwwAuthHeaderValue);
     }
     
     NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer

@@ -187,6 +187,10 @@
                                                              HTTPVersion:@"1.1"
                                                             headerFields:headerFields];
     
+    if (_response == response)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_response);
     _response = response;
     SAFE_ARC_RETAIN(_response);
@@ -195,17 +199,28 @@
 - (void)setJSONResponse:(id)jsonResponse
 {
     NSError* error = nil;
-    _responseData = [NSJSONSerialization dataWithJSONObject:jsonResponse options:0 error:&error];
+    NSData* responseData = [NSJSONSerialization dataWithJSONObject:jsonResponse options:0 error:&error];
+    if (_responseData == responseData)
+    {
+        return;
+    }
+    SAFE_ARC_RELEASE(_responseData);
+    _responseData = responseData;
     SAFE_ARC_RETAIN(_responseData);
     
     NSAssert(_responseData, @"Invalid JSON object set for test response! %@", error);
 }
 
-- (void)setRequestURL:(NSURL*)url
+- (void)setRequestURL:(NSURL*)requestURL
 {
-    _requestURL = url;
+    if (_requestURL == requestURL)
+    {
+        return;
+    }
+    SAFE_ARC_RELEASE(_requestURL);
+    _requestURL = requestURL;
     SAFE_ARC_RETAIN(_requestURL);
-    NSString* query = [url query];
+    NSString* query = [requestURL query];
     SAFE_ARC_RELEASE(_QPs);
     if (![NSString adIsStringNilOrBlank:query])
     {
@@ -442,6 +457,10 @@ static NSMutableArray* s_responses = nil;
 
 - (void)setDelegateQueue:(NSOperationQueue*)queue
 {
+    if (_delegateQueue == queue)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_delegateQueue);
     _delegateQueue = queue;
     SAFE_ARC_RETAIN(_delegateQueue);

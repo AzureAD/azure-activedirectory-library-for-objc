@@ -77,9 +77,9 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     return self;
 }
 
-#define RETURN_ID_TOKEN_ERROR(text) \
+#define RETURN_ID_TOKEN_ERROR \
 { \
-    ADAuthenticationError* idTokenError = [self errorFromIdToken:text]; \
+    ADAuthenticationError* idTokenError = [ADUserInformation invalidIdTokenError]; \
     if (error) \
     { \
         *error = idTokenError; \
@@ -89,11 +89,11 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 }
 
 
-- (ADAuthenticationError*)errorFromIdToken:(NSString*)idTokenText
++ (ADAuthenticationError*)invalidIdTokenError
 {
-    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
+    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_INVALID_ID_TOKEN
                                                   protocolCode:nil
-                                                  errorDetails:[NSString stringWithFormat: @"The id_token contents cannot be parsed: %@", idTokenText]
+                                                  errorDetails:@"The id_token contents cannot be parsed."
                                                  correlationId:nil];
 }
 
@@ -113,7 +113,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
 
     if ([NSString adIsStringNilOrBlank:idToken])
     {
-        RETURN_ID_TOKEN_ERROR(idToken);
+        RETURN_ID_TOKEN_ERROR;
     }
     
     _rawIdToken = idToken;
@@ -122,7 +122,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     NSArray* parts = [idToken componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"."]];
     if (parts.count < 1)
     {
-        RETURN_ID_TOKEN_ERROR(idToken);
+        RETURN_ID_TOKEN_ERROR;
     }
     
     NSMutableDictionary* allClaims = [NSMutableDictionary new];
@@ -130,7 +130,6 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     NSString* type = nil;
     for (NSString* part in parts)
     {
-        AD_LOG_VERBOSE(@"Id_token part", nil, part);
         NSString* decoded = [part adBase64UrlDecode];
         if (![NSString adIsStringNilOrBlank:decoded])
         {
@@ -140,6 +139,8 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
                                                               error:&jsonError];
                 if (jsonError)
                 {
+                    
+                    
                     ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:jsonError
                                                                                 errorDetails:[NSString stringWithFormat:@"Failed to deserialize the id_token contents: %@", part]
                                                                                correlationId:nil];
@@ -152,7 +153,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
             
             if (![jsonObject isKindOfClass:[NSDictionary class]])
             {
-                RETURN_ID_TOKEN_ERROR(part);
+                RETURN_ID_TOKEN_ERROR;
             }
             
             NSDictionary* contents = (NSDictionary*)jsonObject;
@@ -211,7 +212,7 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     else
     {
-        RETURN_ID_TOKEN_ERROR(idToken);
+        RETURN_ID_TOKEN_ERROR;
     }
     _userId = [self.class normalizeUserId:_userId];
     SAFE_ARC_RETAIN(_userId);
@@ -286,13 +287,22 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
     return YES;
 }
 
-//Serialize:
+// Serialize:
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
     [aCoder encodeObject:_rawIdToken forKey:@"rawIdToken"];
+    
+    // There was no official support for Mac in ADAL 1.x, so no need for this back compat code
+    // which would greatly increase the size of the user information blobs.
+#if TARGET_OS_IPHONE
+    // These are needed for back-compat with ADAL 1.x
+    [aCoder encodeObject:_allClaims forKey:@"allClaims"];
+    [aCoder encodeObject:_userId forKey:@"userId"];
+    [aCoder encodeBool:_userIdDisplayable forKey:@"userIdDisplayable"];
+#endif
 }
 
-//Deserialize:
+// Deserialize:
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
     NSString* idToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"rawIdToken"];

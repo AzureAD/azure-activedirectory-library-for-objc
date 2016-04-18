@@ -236,4 +236,9 @@ static NSMutableArray<WebAuthDelegateCall*> * s_delegateCalls = nil;
     SAFE_ARC_RELEASE(call);
 }
 
++ (void)clearDelegateCalls
+{
+    [s_delegateCalls removeAllObjects];
+}
+
 @end

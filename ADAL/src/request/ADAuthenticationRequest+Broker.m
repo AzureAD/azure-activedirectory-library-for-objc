@@ -42,12 +42,21 @@
 
 @implementation ADAuthenticationRequest (Broker)
 
-+ (BOOL)respondsToUrl:(NSString*)url
++ (BOOL)validBrokerRedirectUri:(NSString*)url
 {
     NSArray* urlTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleURLTypes"];
     
-    NSString* scheme = [[NSURL URLWithString:url] scheme];
+    NSURL* redirectURI = [NSURL URLWithString:url];
+    
+    NSString* scheme = redirectURI.scheme;
     if (!scheme)
+    {
+        return NO;
+    }
+    
+    NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
+    NSString* host = [redirectURI host];
+    if (![host isEqualToString:bundleId])
     {
         return NO;
     }
@@ -121,7 +130,7 @@
             else
             {
                 NSError* nsErr = [NSError errorWithDomain:ADAuthenticationErrorDomain
-                                                     code:AD_ERROR_BROKER_RESPONSE_HASH_MISMATCH
+                                                     code:AD_ERROR_TOKENBROKER_RESPONSE_HASH_MISMATCH
                                                  userInfo:nil];
                 ADAuthenticationError* adErr = [ADAuthenticationError errorFromNSError:nsErr
                                                                           errorDetails:@"Decrypted response does not match the hash"
@@ -182,15 +191,33 @@
     CHECK_FOR_NIL(_correlationId);
     
     ADAuthenticationError* error = nil;
-    if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
+    if(![ADAuthenticationRequest validBrokerRedirectUri:_redirectUri])
     {
-        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
+        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
                                                        protocolCode:nil
                                                        errorDetails:ADRedirectUriInvalidError
                                                       correlationId:_correlationId];
         completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
         return;
     }
+    
+    // get the interaction lock before calling broker
+    if (![self takeUserInterationLock])
+    {
+        NSString* message = @"The user is currently prompted for credentials as result of another acquireToken request. Please retry the acquireToken call later.";
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS
+                                                                              protocolCode:nil
+                                                                              errorDetails:message
+                                                                             correlationId:_correlationId];
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+        return;
+    }
+    
+    void(^requestCompletion)(ADAuthenticationResult* result) = ^void(ADAuthenticationResult* result)
+    {
+        [self releaseUserInterationLock]; // Release the lock when completion block is called.
+        completionBlock(result);
+    };
     
     AD_LOG_INFO(@"Invoking broker for authentication", _correlationId, nil);
 #if TARGET_OS_IPHONE // Broker Message Encryption
@@ -221,7 +248,7 @@
                                       @"extra_qp": _queryParams ? _queryParams : @"",
                                       };
     
-    [ADBrokerHelper invokeBroker:queryDictionary completionHandler:completionBlock];
+    [ADBrokerHelper invokeBroker:queryDictionary completionHandler:requestCompletion];
 }
 
 - (void)handleBrokerFromWebiewResponse:(NSString*)urlString
@@ -230,9 +257,9 @@
     CHECK_FOR_NIL(_resource);
     
     ADAuthenticationError* error = nil;
-    if(![ADAuthenticationRequest respondsToUrl:_redirectUri])
+    if(![ADAuthenticationRequest validBrokerRedirectUri:_redirectUri])
     {
-        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INVALID_REDIRECT_URI
+        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
                                                        protocolCode:nil
                                                        errorDetails:ADRedirectUriInvalidError
                                                       correlationId:_correlationId];

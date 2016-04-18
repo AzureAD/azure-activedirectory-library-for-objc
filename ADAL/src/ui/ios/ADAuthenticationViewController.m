@@ -63,7 +63,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     {
         // Must have a parent view controller to start the authentication view
         ADAuthenticationError* adError =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER
                                                protocolCode:nil
                                                errorDetails:AD_FAILED_NO_CONTROLLER
                                               correlationId:nil];
@@ -100,7 +100,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     self.navigationItem.leftBarButtonItem = cancelButton;
     [_navController pushViewController:self animated:NO];
     
-    return NO;
+    return YES;
 }
 
 /*! set webview's delegate to nil when the view controller 

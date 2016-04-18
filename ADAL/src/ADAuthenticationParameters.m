@@ -59,7 +59,10 @@
                      error:(ADAuthenticationError * __autoreleasing *)error
 {
     //The error object should always be created to ensure propper logging, even if "error" is nil.
-    ADAuthenticationError* raisedError = [ADAuthenticationError errorFromUnauthorizedResponse:code errorDetails:details correlationId:nil];
+    ADAuthenticationError* raisedError = [ADAuthenticationError errorFromAuthenticationError:code
+                                                                                protocolCode:nil
+                                                                                errorDetails:details
+                                                                               correlationId:nil];
     if (error)
     {
         *error = raisedError;
@@ -88,7 +91,7 @@
     }
 
     ADWebRequest* request = [[ADWebRequest alloc] initWithURL:resourceUrl correlationId:nil];
-    request.method = HTTPGet;
+    [request setMethodType:ADWebRequestGet];
     AD_LOG_VERBOSE_F(@"Starting authorization challenge request", nil, @"Resource: %@", resourceUrl);
     
     [request send:^(NSError * error, ADWebResponse *response) {
@@ -102,10 +105,11 @@
         }
         else if (HTTP_UNAUTHORIZED != response.statusCode)
         {
-            adError = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_UNAUTHORIZED_CODE_EXPECTED
-                                                              errorDetails:[NSString stringWithFormat:UnauthorizedHTTStatusExpected,
-                                                                            response.statusCode]
-                                                             correlationId:nil];
+            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_UNAUTHORIZED_CODE_EXPECTED
+                                                             protocolCode:nil
+                                                             errorDetails:[NSString stringWithFormat:UnauthorizedHTTStatusExpected,
+                                                                           response.statusCode]
+                                                            correlationId:nil];
         }
         else
         {
@@ -124,7 +128,7 @@
     if ([NSString adIsStringNilOrBlank:authenticateHeader])
     {
         NSString* details = [NSString stringWithFormat:MissingHeader, OAuth2_Authenticate_Header];
-        [self raiseErrorWithCode:AD_ERROR_MISSING_AUTHENTICATE_HEADER details:details error:error];
+        [self raiseErrorWithCode:AD_ERROR_SERVER_MISSING_AUTHENTICATE_HEADER details:details error:error];
         
         return nil;
     }
@@ -148,8 +152,14 @@
     API_ENTRY;
     
     NSDictionary* params = [self extractChallengeParameters:authenticateHeader error:error];
-    return params ? SAFE_ARC_AUTORELEASE([[ADAuthenticationParameters alloc] initInternalWithParameters:params error:error])
-                  : nil;
+    if (!params)
+    {
+        return nil;
+    }
+    
+    ADAuthenticationParameters *parameters = [[ADAuthenticationParameters alloc] initInternalWithParameters:params error:error];
+    SAFE_ARC_AUTORELEASE(parameters);
+    return parameters;
 }
 
 

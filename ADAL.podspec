@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = "ADAL"
   s.module_name  = "ADAL"
-  s.version      = "2.1.0-beta.2"
+  s.version      = "2.1.0"
   s.summary      = "The ADAL SDK for iOS gives you the ability to add Azure Identity authentication to your application"
 
   s.description  = <<-DESC
@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.authors      = { "Brandon Werner" => "brandwe@microsoft.com" }
   s.social_media_url   = "https://twitter.com/azuread"
   s.platform     = :ios, :osx
-  s.ios.deployment_target = "7.0"
+  s.ios.deployment_target = "8.0"
   s.osx.deployment_target = "10.10"
   s.source       = { 
     :git => "https://github.com/AzureAD/azure-activedirectory-library-for-objc.git", 
@@ -29,10 +29,12 @@ Pod::Spec.new do |s|
   s.source_files = "ADAL/src/**/*.{h,m}"
   s.public_header_files = "ADAL/src/public/*.h"
   
-  s.ios.public_header_files = "ADAL/src/public/ios/*.h"
+  # There is currently a bug in CocoaPods where it doesn't combine the public headers
+  # for both the platform and overall.
+  s.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/ios/*.h"
   s.ios.exclude_files = "ADAL/src/**/mac/*"
   
-  s.osx.public_header_files = "ADAL/src/public/mac/*.h"
+  s.osx.public_header_files = "ADAL/src/public/mac/*.h","ADAL/src/public/*.h"
   s.osx.exclude_files = "ADAL/src/**/ios/*"
   s.osx.module_map = "ADAL/resources/mac/adal_mac.modulemap"
   s.osx.resources = "ADAL/resources/mac/ADCredentialViewController.xib"
@@ -46,13 +48,13 @@ Pod::Spec.new do |s|
   	ph.ios.source_files = "ADAL/src/public/mac/ADTokenCache.h","ADAL/src/public/ios/*.h"
   	# This extra nonsense is so that it doesn't make ADTokenCache.h a public header on iOS
   	# And also doesn't generate a podspec warning
-  	ph.ios.public_header_files = "ADAL/src/public/ios/*.h"
+  	ph.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/ios/*.h"
   end
   
   s.subspec 'iosinternalheaders' do |hds|
    hds.platform = :osx
    hds.osx.source_files = "ADAL/src/workplacejoin/ios/ADWorkplaceJoinConstants.h","ADAL/src/broker/ios/*.h","ADAL/src/public/mac/*.h"
-   hds.osx.public_header_files = "ADAL/src/public/mac/*.h"
+   hds.osx.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/mac/*.h"
   end
 
   # This is the only way cocoapods has of dealing with a handful of files that don't use
@@ -60,9 +62,9 @@ Pod::Spec.new do |s|
   s.subspec 'no-arc' do |noarc|
     noarc.platform = :ios
    	noarc.ios.source_files = "ADAL/src/**/*.h","ADAL/src/broker/ios/ADBrokerKeyHelper.m","ADAL/src/cache/ios/ADKeychainTokenCache.m","ADAL/src/workplacejoin/ios/ADWorkPlaceJoinUtil.m"
-  	noarc.ios.public_header_files = "ADAL/src/public/*.h"
+  	noarc.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/*.h"
   	
-  	noarc.ios.public_header_files = "ADAL/src/public/ios/*.h"
+  	noarc.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/ios/*.h"
   	noarc.ios.exclude_files = "ADAL/src/**/mac/*"
   	
   	noarc.requires_arc = false

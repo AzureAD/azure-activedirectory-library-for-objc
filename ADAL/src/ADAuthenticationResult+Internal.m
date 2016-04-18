@@ -144,7 +144,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 + (ADAuthenticationResult*)resultForNoBrokerResponse
 {
     NSError* nsError = [NSError errorWithDomain:ADBrokerResponseErrorDomain
-                                           code:AD_ERROR_BROKER_UNKNOWN
+                                           code:AD_ERROR_TOKENBROKER_UNKNOWN
                                        userInfo:nil];
     ADAuthenticationError* error = [ADAuthenticationError errorFromNSError:nsError
                                                               errorDetails: @"No broker response received."
@@ -172,7 +172,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     }
         
     NSString* strErrorCode = [response valueForKey:@"error_code"];
-    NSInteger errorCode = AD_ERROR_BROKER_UNKNOWN;
+    NSInteger errorCode = AD_ERROR_TOKENBROKER_UNKNOWN;
     if (strErrorCode && ![strErrorCode isEqualToString:@"0"])
     {
         errorCode = [strErrorCode integerValue];

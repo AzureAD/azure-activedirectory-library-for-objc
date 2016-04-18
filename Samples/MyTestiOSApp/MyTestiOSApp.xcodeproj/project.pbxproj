@@ -10,7 +10,6 @@
 		8B87548818988C4B0061999F /* TestData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8B87548718988C4B0061999F /* TestData.plist */; };
 		8B87548918988C4B0061999F /* TestData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8B87548718988C4B0061999F /* TestData.plist */; };
 		8B87548C189978350061999F /* ADTestAppSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B87548B189978350061999F /* ADTestAppSettings.m */; };
-		8B87548F18997DB70061999F /* ADTestInstance.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B87548E18997DB70061999F /* ADTestInstance.m */; };
 		8BA42AFA17E3C150002D206E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA42AF917E3C150002D206E /* Foundation.framework */; };
 		8BA42AFC17E3C150002D206E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA42AFB17E3C150002D206E /* CoreGraphics.framework */; };
 		8BA42AFE17E3C150002D206E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA42AFD17E3C150002D206E /* UIKit.framework */; };
@@ -18,10 +17,6 @@
 		8BA42B0617E3C150002D206E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B0417E3C150002D206E /* InfoPlist.strings */; };
 		8BA42B0817E3C150002D206E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B0717E3C150002D206E /* main.m */; };
 		8BA42B0C17E3C150002D206E /* ADTestAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B0B17E3C150002D206E /* ADTestAppDelegate.m */; };
-		8BA42B0F17E3C150002D206E /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B0D17E3C150002D206E /* Main_iPhone.storyboard */; };
-		8BA42B1217E3C150002D206E /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B1017E3C150002D206E /* Main_iPad.storyboard */; };
-		8BA42B1517E3C150002D206E /* MyTestiOSApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B1317E3C150002D206E /* MyTestiOSApp.xcdatamodeld */; };
-		8BA42B1817E3C150002D206E /* ADTestMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B1717E3C150002D206E /* ADTestMainViewController.m */; };
 		8BA42B1D17E3C150002D206E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B1C17E3C150002D206E /* Images.xcassets */; };
 		8BA42B2417E3C150002D206E /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA42B2317E3C150002D206E /* XCTest.framework */; };
 		8BA42B2517E3C150002D206E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA42AF917E3C150002D206E /* Foundation.framework */; };
@@ -29,10 +24,13 @@
 		8BA42B2717E3C150002D206E /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA42AFF17E3C150002D206E /* CoreData.framework */; };
 		8BA42B2F17E3C150002D206E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B2D17E3C150002D206E /* InfoPlist.strings */; };
 		8BA42B3117E3C150002D206E /* MyTestiOSAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */; };
-		9453C3EA1C58403D006B9E79 /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9453C3E91C58403D006B9E79 /* ADAL.framework */; };
-		971C57C61AFBBA490034820F /* ADALiOS.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 971C57C51AFBBA490034820F /* ADALiOS.bundle */; };
-		9777DFFB1A3586D600D8D8A8 /* ADTestApplicationData.m in Sources */ = {isa = PBXBuildFile; fileRef = 9777DFFA1A3586D600D8D8A8 /* ADTestApplicationData.m */; };
-		97E5968719F5C82200D9F44E /* ADTestFlipsideViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B1A17E3C150002D206E /* ADTestFlipsideViewController.m */; };
+		D68B4A261CB59DE100758FB3 /* ADTestAppAcquireTokenView.xib in Resources */ = {isa = PBXBuildFile; fileRef = D68B4A251CB59DE100758FB3 /* ADTestAppAcquireTokenView.xib */; };
+		D68B4A2B1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A2A1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m */; };
+		D68B4A311CB5A85D00758FB3 /* ADTestAppCacheViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A301CB5A85D00758FB3 /* ADTestAppCacheViewController.m */; };
+		D68B4A371CB5AB0C00758FB3 /* ADTestAppLogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A361CB5AB0C00758FB3 /* ADTestAppLogViewController.m */; };
+		D6CA73CC1CC03D4C00EF59C7 /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CA73CB1CC03D4C00EF59C7 /* libADALiOS.a */; };
+		D6D034871CB6D74E00406721 /* ADTestAppSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D034851CB6D74E00406721 /* ADTestAppSettingsViewController.m */; };
+		D6D034881CB6D74E00406721 /* ADTestAppSettingsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = D6D034861CB6D74E00406721 /* ADTestAppSettingsView.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,8 +48,6 @@
 		8B87548718988C4B0061999F /* TestData.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = TestData.plist; sourceTree = "<group>"; };
 		8B87548A189978350061999F /* ADTestAppSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppSettings.h; sourceTree = "<group>"; };
 		8B87548B189978350061999F /* ADTestAppSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppSettings.m; sourceTree = "<group>"; };
-		8B87548D18997DB70061999F /* ADTestInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADTestInstance.h; path = ../ADTestInstance.h; sourceTree = "<group>"; };
-		8B87548E18997DB70061999F /* ADTestInstance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADTestInstance.m; path = ../ADTestInstance.m; sourceTree = "<group>"; };
 		8BA42AF617E3C150002D206E /* MyTestiOSApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyTestiOSApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BA42AF917E3C150002D206E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8BA42AFB17E3C150002D206E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -63,24 +59,23 @@
 		8BA42B0917E3C150002D206E /* MyTestiOSApp-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MyTestiOSApp-Prefix.pch"; sourceTree = "<group>"; };
 		8BA42B0A17E3C150002D206E /* ADTestAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAppDelegate.h; sourceTree = "<group>"; };
 		8BA42B0B17E3C150002D206E /* ADTestAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestAppDelegate.m; sourceTree = "<group>"; };
-		8BA42B0E17E3C150002D206E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
-		8BA42B1117E3C150002D206E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
-		8BA42B1417E3C150002D206E /* MyTestiOSApp.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MyTestiOSApp.xcdatamodel; sourceTree = "<group>"; };
-		8BA42B1617E3C150002D206E /* ADTestMainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestMainViewController.h; sourceTree = "<group>"; };
-		8BA42B1717E3C150002D206E /* ADTestMainViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestMainViewController.m; sourceTree = "<group>"; };
-		8BA42B1917E3C150002D206E /* ADTestFlipsideViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestFlipsideViewController.h; sourceTree = "<group>"; };
-		8BA42B1A17E3C150002D206E /* ADTestFlipsideViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADTestFlipsideViewController.m; sourceTree = "<group>"; };
 		8BA42B1C17E3C150002D206E /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		8BA42B2217E3C150002D206E /* MyTestiOSAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyTestiOSAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BA42B2317E3C150002D206E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		8BA42B2C17E3C150002D206E /* MyTestiOSAppTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MyTestiOSAppTests-Info.plist"; sourceTree = "<group>"; };
 		8BA42B2E17E3C150002D206E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyTestiOSAppTests.m; sourceTree = "<group>"; };
-		8BAB18B3184576B700FDD4DD /* libADALiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADALiOS.a; path = "../../../../Library/Developer/Xcode/DerivedData/ADALiOS-ckezcambqztutxakbxsnwblsewcb/Build/Products/Debug-iphoneos/libADALiOS.a"; sourceTree = "<group>"; };
-		9453C3E91C58403D006B9E79 /* ADAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ADAL.framework; path = "../../ADAL/build/Debug-iphoneos/ADAL.framework"; sourceTree = "<group>"; };
-		971C57C51AFBBA490034820F /* ADALiOS.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = ADALiOS.bundle; path = ../ADALiOS.bundle; sourceTree = "<group>"; };
-		9777DFF91A3586C200D8D8A8 /* ADTestApplicationData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestApplicationData.h; sourceTree = "<group>"; };
-		9777DFFA1A3586D600D8D8A8 /* ADTestApplicationData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestApplicationData.m; sourceTree = "<group>"; };
+		D68B4A251CB59DE100758FB3 /* ADTestAppAcquireTokenView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ADTestAppAcquireTokenView.xib; sourceTree = "<group>"; };
+		D68B4A291CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppAcquireTokenViewController.h; sourceTree = "<group>"; };
+		D68B4A2A1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppAcquireTokenViewController.m; sourceTree = "<group>"; };
+		D68B4A2F1CB5A85D00758FB3 /* ADTestAppCacheViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppCacheViewController.h; sourceTree = "<group>"; };
+		D68B4A301CB5A85D00758FB3 /* ADTestAppCacheViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppCacheViewController.m; sourceTree = "<group>"; };
+		D68B4A351CB5AB0C00758FB3 /* ADTestAppLogViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppLogViewController.h; sourceTree = "<group>"; };
+		D68B4A361CB5AB0C00758FB3 /* ADTestAppLogViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppLogViewController.m; sourceTree = "<group>"; };
+		D6CA73CB1CC03D4C00EF59C7 /* libADALiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADALiOS.a; path = "../Debug-iphonesimulator/libADALiOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6D034841CB6D74E00406721 /* ADTestAppSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppSettingsViewController.h; sourceTree = "<group>"; };
+		D6D034851CB6D74E00406721 /* ADTestAppSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppSettingsViewController.m; sourceTree = "<group>"; };
+		D6D034861CB6D74E00406721 /* ADTestAppSettingsView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ADTestAppSettingsView.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,7 +83,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9453C3EA1C58403D006B9E79 /* ADAL.framework in Frameworks */,
+				D6CA73CC1CC03D4C00EF59C7 /* libADALiOS.a in Frameworks */,
 				8BA42AFC17E3C150002D206E /* CoreGraphics.framework in Frameworks */,
 				8BA42B0017E3C150002D206E /* CoreData.framework in Frameworks */,
 				8BA42AFE17E3C150002D206E /* UIKit.framework in Frameworks */,
@@ -132,8 +127,7 @@
 		8BA42AF817E3C150002D206E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				9453C3E91C58403D006B9E79 /* ADAL.framework */,
-				8BAB18B3184576B700FDD4DD /* libADALiOS.a */,
+				D6CA73CB1CC03D4C00EF59C7 /* libADALiOS.a */,
 				8BA42AF917E3C150002D206E /* Foundation.framework */,
 				8BA42AFB17E3C150002D206E /* CoreGraphics.framework */,
 				8BA42AFD17E3C150002D206E /* UIKit.framework */,
@@ -147,23 +141,22 @@
 			isa = PBXGroup;
 			children = (
 				4CAE461A18F7555400659400 /* MyTestiOSApp.entitlements */,
-				8B87548D18997DB70061999F /* ADTestInstance.h */,
-				8B87548E18997DB70061999F /* ADTestInstance.m */,
 				8B87548A189978350061999F /* ADTestAppSettings.h */,
 				8B87548B189978350061999F /* ADTestAppSettings.m */,
 				8BA42B0A17E3C150002D206E /* ADTestAppDelegate.h */,
 				8BA42B0B17E3C150002D206E /* ADTestAppDelegate.m */,
-				8BA42B0D17E3C150002D206E /* Main_iPhone.storyboard */,
-				8BA42B1017E3C150002D206E /* Main_iPad.storyboard */,
-				8BA42B1617E3C150002D206E /* ADTestMainViewController.h */,
-				8BA42B1917E3C150002D206E /* ADTestFlipsideViewController.h */,
-				8BA42B1717E3C150002D206E /* ADTestMainViewController.m */,
-				8BA42B1A17E3C150002D206E /* ADTestFlipsideViewController.m */,
 				8BA42B1C17E3C150002D206E /* Images.xcassets */,
-				8BA42B1317E3C150002D206E /* MyTestiOSApp.xcdatamodeld */,
 				8BA42B0217E3C150002D206E /* Supporting Files */,
-				9777DFF91A3586C200D8D8A8 /* ADTestApplicationData.h */,
-				9777DFFA1A3586D600D8D8A8 /* ADTestApplicationData.m */,
+				D68B4A251CB59DE100758FB3 /* ADTestAppAcquireTokenView.xib */,
+				D68B4A291CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.h */,
+				D68B4A2A1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m */,
+				D6D034841CB6D74E00406721 /* ADTestAppSettingsViewController.h */,
+				D6D034851CB6D74E00406721 /* ADTestAppSettingsViewController.m */,
+				D6D034861CB6D74E00406721 /* ADTestAppSettingsView.xib */,
+				D68B4A2F1CB5A85D00758FB3 /* ADTestAppCacheViewController.h */,
+				D68B4A301CB5A85D00758FB3 /* ADTestAppCacheViewController.m */,
+				D68B4A351CB5AB0C00758FB3 /* ADTestAppLogViewController.h */,
+				D68B4A361CB5AB0C00758FB3 /* ADTestAppLogViewController.m */,
 			);
 			path = MyTestiOSApp;
 			sourceTree = "<group>";
@@ -171,7 +164,6 @@
 		8BA42B0217E3C150002D206E /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				971C57C51AFBBA490034820F /* ADALiOS.bundle */,
 				8BA42B0317E3C150002D206E /* MyTestiOSApp-Info.plist */,
 				8BA42B0417E3C150002D206E /* InfoPlist.strings */,
 				8BA42B0717E3C150002D206E /* main.m */,
@@ -243,7 +235,7 @@
 		8BA42AEE17E3C150002D206E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				CLASSPREFIX = BVTest;
+				CLASSPREFIX = ADTestApp;
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = MS;
 				TargetAttributes = {
@@ -283,10 +275,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8BA42B1217E3C150002D206E /* Main_iPad.storyboard in Resources */,
 				8BA42B1D17E3C150002D206E /* Images.xcassets in Resources */,
-				8BA42B0F17E3C150002D206E /* Main_iPhone.storyboard in Resources */,
-				971C57C61AFBBA490034820F /* ADALiOS.bundle in Resources */,
+				D6D034881CB6D74E00406721 /* ADTestAppSettingsView.xib in Resources */,
+				D68B4A261CB59DE100758FB3 /* ADTestAppAcquireTokenView.xib in Resources */,
 				8B87548818988C4B0061999F /* TestData.plist in Resources */,
 				8BA42B0617E3C150002D206E /* InfoPlist.strings in Resources */,
 			);
@@ -308,13 +299,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				97E5968719F5C82200D9F44E /* ADTestFlipsideViewController.m in Sources */,
-				8B87548F18997DB70061999F /* ADTestInstance.m in Sources */,
 				8BA42B0C17E3C150002D206E /* ADTestAppDelegate.m in Sources */,
-				8BA42B1817E3C150002D206E /* ADTestMainViewController.m in Sources */,
-				9777DFFB1A3586D600D8D8A8 /* ADTestApplicationData.m in Sources */,
-				8BA42B1517E3C150002D206E /* MyTestiOSApp.xcdatamodeld in Sources */,
+				D68B4A2B1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m in Sources */,
+				D6D034871CB6D74E00406721 /* ADTestAppSettingsViewController.m in Sources */,
+				D68B4A311CB5A85D00758FB3 /* ADTestAppCacheViewController.m in Sources */,
 				8B87548C189978350061999F /* ADTestAppSettings.m in Sources */,
+				D68B4A371CB5AB0C00758FB3 /* ADTestAppLogViewController.m in Sources */,
 				8BA42B0817E3C150002D206E /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -344,22 +334,6 @@
 				8BA42B0517E3C150002D206E /* en */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		8BA42B0D17E3C150002D206E /* Main_iPhone.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8BA42B0E17E3C150002D206E /* Base */,
-			);
-			name = Main_iPhone.storyboard;
-			sourceTree = "<group>";
-		};
-		8BA42B1017E3C150002D206E /* Main_iPad.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8BA42B1117E3C150002D206E /* Base */,
-			);
-			name = Main_iPad.storyboard;
 			sourceTree = "<group>";
 		};
 		8BA42B2D17E3C150002D206E /* InfoPlist.strings */ = {
@@ -412,6 +386,7 @@
 				PROVISIONING_PROFILE = "8F81601F-2AC4-483A-BBC3-5E49C47791BD";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "../../ADAL/src/**";
 			};
 			name = CodeCoverage;
 		};
@@ -434,7 +409,9 @@
 				);
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.2.1.0.TestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -505,6 +482,7 @@
 				PROVISIONING_PROFILE = "8F81601F-2AC4-483A-BBC3-5E49C47791BD";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "../../ADAL/src/**";
 			};
 			name = Debug;
 		};
@@ -540,6 +518,7 @@
 				PROVISIONING_PROFILE = "8F81601F-2AC4-483A-BBC3-5E49C47791BD";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "../../ADAL/src/**";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -558,7 +537,9 @@
 				GCC_PREFIX_HEADER = "MyTestiOSApp/MyTestiOSApp-Prefix.pch";
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.2.1.0.TestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -577,7 +558,9 @@
 				GCC_PREFIX_HEADER = "MyTestiOSApp/MyTestiOSApp-Prefix.pch";
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.adal.2.1.0.TestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -660,19 +643,6 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCVersionGroup section */
-		8BA42B1317E3C150002D206E /* MyTestiOSApp.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				8BA42B1417E3C150002D206E /* MyTestiOSApp.xcdatamodel */,
-			);
-			currentVersion = 8BA42B1417E3C150002D206E /* MyTestiOSApp.xcdatamodel */;
-			path = MyTestiOSApp.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-/* End XCVersionGroup section */
 	};
 	rootObject = 8BA42AEE17E3C150002D206E /* Project object */;
 }

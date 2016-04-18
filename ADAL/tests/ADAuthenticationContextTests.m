@@ -66,7 +66,7 @@
     context = [ADAuthenticationContext authenticationContextWithAuthority:nil error:&error];
     XCTAssertNil(context);
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, AD_ERROR_INVALID_ARGUMENT);
+    XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
     
@@ -74,7 +74,7 @@
     context = [ADAuthenticationContext authenticationContextWithAuthority:nil sharedGroup:nil error:&error];
     XCTAssertNil(context);
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, AD_ERROR_INVALID_ARGUMENT);
+    XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
 #endif // TARGET_OS_IPHONE
@@ -82,7 +82,7 @@
     context = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:NO error:&error];
     XCTAssertNil(context);
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, AD_ERROR_INVALID_ARGUMENT);
+    XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
     
@@ -90,7 +90,7 @@
     context = [ADAuthenticationContext authenticationContextWithAuthority:nil validateAuthority:NO sharedGroup:nil error:&error];
     XCTAssertNil(context);
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, AD_ERROR_INVALID_ARGUMENT);
+    XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
 #endif
@@ -104,7 +104,7 @@
     context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " error:&error];
     XCTAssertNil(context);
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, AD_ERROR_INVALID_ARGUMENT);
+    XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
     
@@ -112,7 +112,7 @@
     context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " sharedGroup:nil error:&error];
     XCTAssertNil(context);
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, AD_ERROR_INVALID_ARGUMENT);
+    XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
 #endif // TARGET_OS_IPHONE
@@ -120,7 +120,7 @@
     context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " validateAuthority:NO error:&error];
     XCTAssertNil(context);
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, AD_ERROR_INVALID_ARGUMENT);
+    XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
     
@@ -128,7 +128,7 @@
     context = [ADAuthenticationContext authenticationContextWithAuthority:@"   " validateAuthority:NO sharedGroup:nil error:&error];
     XCTAssertNil(context);
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, AD_ERROR_INVALID_ARGUMENT);
+    XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
     ADTAssertContains(error.errorDetails, @"authority");
     error = nil;
 #endif // TARGET_OS_IPHONE
@@ -162,30 +162,6 @@
     XCTAssertNil(error);
     XCTAssertEqualObjects(context.authority, TEST_AUTHORITY);
 #endif // TARGET_OS_IPHONE
-}
-
-- (void)testFindFamilyToken
-{
-    ADAuthenticationContext* context =
-    [[ADAuthenticationContext alloc] initWithAuthority:TEST_AUTHORITY
-                                     validateAuthority:NO
-                                                 error:nil];
-    
-    NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
-    [context setTokenCacheStore:[ADTokenCache new]];
-    [context setCorrelationId:TEST_CORRELATION_ID];
-    
-    ADAuthenticationError* error = nil;
-    ADTokenCacheItem* familyItem = [self adCreateMRRTCacheItem];
-    familyItem.familyId = @"I'm a family item!";
-    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:familyItem correlationId:nil error:&error]);
-    XCTAssertNil(error);
-    
-    ADAuthenticationRequest* req = [ADAuthenticationRequest requestWithContext:context];
-    
-    ADTokenCacheItem* foundItem = [req findFamilyItemForUser:[ADUserIdentifier identifierWithId:TEST_USER_ID] error:&error];
-    XCTAssertNotNil(foundItem);
-    XCTAssertEqualObjects(familyItem, foundItem);
 }
 
 @end

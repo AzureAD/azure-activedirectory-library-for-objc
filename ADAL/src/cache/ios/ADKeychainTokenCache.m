@@ -35,16 +35,21 @@
 #define KEYCHAIN_VERSION 1
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
+#define ONE_DAY_IN_SECONDS (24*60*60)
 
 static NSString* const s_nilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";//A special attribute to write, instead of nil/empty one.
 static NSString* const s_delimiter = @"|";
 
 static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_VERSION);
 
+static NSString* const s_keyForStoringTomestoneCleanTime = @"NextTombstoneCleanTime";
+static NSString* const s_tombstoneLibraryString = @"Microsoft.ADAL.Tombstone." TOSTRING(KEYCHAIN_VERSION);
+
 @implementation ADKeychainTokenCache
 {
     NSString* _sharedGroup;
     NSDictionary* _default;
+    NSDictionary* _defaultTombstone;
 }
 
 // Shouldn't be called.
@@ -76,6 +81,25 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
                  (id)kSecAttrGeneric : [s_libraryString dataUsingEncoding:NSUTF8StringEncoding]
                  };
     SAFE_ARC_RETAIN(_default);
+    
+    // Use a different generic attribute so that past versions of ADAL don't trip up on this entry
+    _defaultTombstone = @{
+                 (id)kSecClass : (id)kSecClassGenericPassword,
+                 //Apps are not signed on the simulator, so the shared group doesn't apply there.
+#if !(TARGET_IPHONE_SIMULATOR)
+                 (id)kSecAttrAccessGroup : (id)_sharedGroup,
+#endif
+                 (id)kSecAttrGeneric : [s_tombstoneLibraryString dataUsingEncoding:NSUTF8StringEncoding]
+                 };
+    SAFE_ARC_RETAIN(_default);
+
+    
+    static dispatch_once_t onceToken = 0;
+    dispatch_once(&onceToken, ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self cleanTombstoneIfNecessary];
+        });
+    });
     
     return self;
 }
@@ -181,7 +205,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     }
     else if (status != errSecSuccess)
     {
-        [ADKeychainTokenCache checkStatus:status details:@"Failed to run keychain query." correlationId:nil error:error];
+        [ADKeychainTokenCache checkStatus:status operation:@"retrieve items" correlationId:nil error:error];
         return nil;
     }
     
@@ -244,7 +268,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     //if item does not exist in cache or does not contain a refresh token, deletion is enough and should return.
     if (deleteStatus != errSecSuccess || [NSString adIsStringNilOrBlank:item.refreshToken])
     {
-        return [ADKeychainTokenCache checkStatus:deleteStatus details:@"Failed to remove item from keychain" correlationId:nil error:error];
+        return [ADKeychainTokenCache checkStatus:deleteStatus operation:@"delete" correlationId:nil error:error];
     }
     
     [item makeTombstone:@{ @"errorDetails" : @"Manually removed from cache."}];
@@ -298,14 +322,22 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     
     BOOL deleteSuccessful = YES;
     NSArray* items = [self allItems:nil];
+    
+    ADAuthenticationError* adError = nil;
+    
     for (ADTokenCacheItem * item in items)
     {
         if ([clientId isEqualToString:[item clientId] ])
         {
-            [self removeItem:item error:error];
-            if (*error)
+            [self removeItem:item error:&adError];
+            if (adError)
             {
                 deleteSuccessful = NO;
+                
+                if (error)
+                {
+                    *error = adError;
+                }
             }
         }
     }
@@ -322,19 +354,111 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     
     BOOL deleteSuccessful = YES;
     NSArray* items = [self allItems:nil];
+    
+    ADAuthenticationError* adError = nil;
+    
     for (ADTokenCacheItem * item in items)
     {
         if ([userId isEqualToString:[[item userInformation] userId]]
             && [clientId isEqualToString:[item clientId]])
         {
-            [self removeItem:item error:error];
-            if (*error)
+            [self removeItem:item error:&adError];
+            if (adError)
             {
                 deleteSuccessful = NO;
+                if (error)
+                {
+                    *error = adError;
+                }
             }
         }
     }
     return deleteSuccessful;
+}
+
+- (BOOL)cleanTombstoneIfNecessary
+{
+    //Check whether it is time to clean tombstones
+    if (![self isTimeToCleanTombstones])
+    {
+        return NO;
+    }
+    
+    //Clean tombstones that are too old
+    NSArray* tombstones = [self allTombstones:nil];
+    for (ADTokenCacheItem * item in tombstones)
+    {
+        if (!item)
+        {
+            continue;
+        }
+        
+        if ([item expiresOn]==nil | [[item expiresOn] compare:[NSDate date]] == NSOrderedAscending)
+        {
+            [self deleteItem:item error:nil];
+        }
+    }
+    return YES;
+}
+
+- (BOOL)isTimeToCleanTombstones
+{
+    NSDate* nextCleanTime = [self getTombstoneCleanTime];
+    
+    // if the next clean time has not yet come, return NO
+    if (nextCleanTime && [nextCleanTime compare:[NSDate date]] == NSOrderedDescending)
+    {
+        return NO;
+    }
+    
+    // otherwise create a new entry and store it in keychain
+    nextCleanTime = [NSDate dateWithTimeIntervalSinceNow:ONE_DAY_IN_SECONDS]; //clean tombstone once everyday
+    [self storeTombstoneCleanTime:nextCleanTime];
+    return YES;
+}
+
+- (NSDate*)getTombstoneCleanTime
+{
+    NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:_defaultTombstone];
+    
+    [query addEntriesFromDictionary:@{ (id)kSecMatchLimit : (id)kSecMatchLimitOne,
+                                       (id)kSecReturnData : @YES,
+                                       (id)kSecAttrService : s_keyForStoringTomestoneCleanTime }];
+    
+    NSData* data = nil;
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&data);
+    if (status == errSecSuccess && data)
+    {
+        NSDate* cleanTime = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+        if (cleanTime)
+        {
+            return cleanTime;
+        }
+    }
+    return nil;
+}
+
+- (void)storeTombstoneCleanTime:(NSDate *)cleanTime
+{
+    NSMutableDictionary* query = [NSMutableDictionary dictionaryWithDictionary:_defaultTombstone];
+    [query setObject:s_keyForStoringTomestoneCleanTime forKey:(id)kSecAttrService];
+    
+    NSData* itemData = [NSKeyedArchiver archivedDataWithRootObject:cleanTime];
+    if (!itemData)
+    {
+        return;
+    }
+    
+    NSDictionary* attrToUpdate = @{ (id)kSecValueData : itemData };
+    OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)attrToUpdate);
+    if (status == errSecItemNotFound)
+    {
+        // If the item wasn't found that means we need to add it instead.
+        [query addEntriesFromDictionary:@{ (id)kSecValueData : itemData,
+                                           (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly}];
+        SecItemAdd((CFDictionaryRef)query, NULL);
+    }
+    return;
 }
 
 @end
@@ -365,7 +489,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 }
 
 + (BOOL)checkStatus:(OSStatus)status
-            details:(NSString *)details
+          operation:(NSString *)operation
       correlationId:(NSUUID *)correlationId
               error:(ADAuthenticationError* __autoreleasing *)error
 {
@@ -374,8 +498,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
         return NO;
     }
     
-    NSError* nsError = [NSError errorWithDomain:@"Keychain" code:status userInfo:nil];
-    ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:nsError errorDetails:details correlationId:correlationId];
+    ADAuthenticationError* adError = [ADAuthenticationError keychainErrorFromOperation:operation status:status correlationId:correlationId];
     if (error)
     {
         *error = adError;
@@ -396,7 +519,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     }
     if (userId)
     {
-        [query setObject:userId
+        [query setObject:[userId adBase64UrlEncode]
                   forKey:(NSString*)kSecAttrAccount];
     }
     
@@ -464,7 +587,7 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
     if (itemsExcludingTombstones.count > 1)
     {
         ADAuthenticationError* adError =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_MULTIPLE_USERS
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_MULTIPLE_USERS
                                                protocolCode:nil
                                                errorDetails:@"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used."
                                               correlationId:correlationId];
@@ -514,18 +637,36 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
                                                           userId:userId
                                                       additional:nil];
         
-        OSStatus status = SecItemDelete((CFDictionaryRef)query);
-        if ([ADKeychainTokenCache checkStatus:status details:@"Failed to remove previous entry from the keychain." correlationId:correlationId error:error])
+        NSData* itemData = [NSKeyedArchiver archivedDataWithRootObject:item];
+        if (!itemData)
         {
+            ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_BAD_FORMAT protocolCode:nil errorDetails:@"Failed to archive keychain item" correlationId:correlationId];
+            if (error)
+            {
+                *error = adError;
+            }
             return NO;
         }
         
-        NSData* itemData = [NSKeyedArchiver archivedDataWithRootObject:item];
-        [query addEntriesFromDictionary:@{ (id)kSecValueData : itemData,
-                                           (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly}];
-        status = SecItemAdd((CFDictionaryRef)query, NULL);
-        
-        if ([ADKeychainTokenCache checkStatus:status details:@"Failed to add or update keychain entry." correlationId:correlationId error:error])
+        NSDictionary* attrToUpdate = @{ (id)kSecValueData : itemData };
+        OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)attrToUpdate);
+        if (status == errSecSuccess)
+        {
+            return YES;
+        }
+        else if (status == errSecItemNotFound)
+        {
+            // If the item wasn't found that means we need to add it instead.
+            
+            [query addEntriesFromDictionary:@{ (id)kSecValueData : itemData,
+                                               (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly}];
+            status = SecItemAdd((CFDictionaryRef)query, NULL);
+            if ([ADKeychainTokenCache checkStatus:status operation:@"add" correlationId:correlationId error:error])
+            {
+                return NO;
+            }
+        }
+        else if ([ADKeychainTokenCache checkStatus:status operation:@"update" correlationId:correlationId error:error])
         {
             return NO;
         }
@@ -536,11 +677,16 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 
 - (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error
 {
+    AD_LOG_ERROR(@"******** -testRemoveAll: being called in ADKeychainTokenCache. This method should NEVER be called in production code. ********", 0, nil, nil);
     @synchronized(self)
     {
         NSMutableDictionary* query = [self queryDictionaryForKey:nil userId:nil additional:nil];
         OSStatus status = SecItemDelete((CFDictionaryRef)query);
-        [ADKeychainTokenCache checkStatus:status details:@"Failed to remove all" correlationId:nil error:error];
+        [ADKeychainTokenCache checkStatus:status operation:@"remove all" correlationId:nil error:error];
+        
+        // Remove the tombstone timestamp as well;
+        status = SecItemDelete((CFDictionaryRef)_defaultTombstone);
+        [ADKeychainTokenCache checkStatus:status operation:@"remove tombstone timestamp" correlationId:nil error:nil];
     }
 }
 

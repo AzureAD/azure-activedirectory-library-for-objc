@@ -69,7 +69,7 @@
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromCancellation];
-    VERIFY_RESULT(result, AD_USER_CANCELLED, AD_ERROR_USER_CANCEL);
+    VERIFY_RESULT(result, AD_USER_CANCELLED, AD_ERROR_UI_USER_CANCEL);
 }
 
 -(void) testResultFromError
@@ -162,7 +162,7 @@
     XCTAssertEqualObjects(result.error.errorDetails, @"EXTERMINATE!!!!!!");
     XCTAssertEqualObjects(result.error.protocolCode, @"could_not_compute");
     XCTAssertEqualObjects(result.correlationId, [[NSUUID alloc] initWithUUIDString:@"5EF4B8D0-A734-441B-887D-FBB8257C0784"]);
-    XCTAssertEqual(result.error.code, AD_ERROR_BROKER_UNKNOWN);
+    XCTAssertEqual(result.error.code, AD_ERROR_TOKENBROKER_UNKNOWN);
 }
 
 - (void)testBrokerFullErrorResponse

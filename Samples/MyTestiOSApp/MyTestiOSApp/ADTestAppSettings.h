@@ -23,14 +23,17 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString* const sAADTestInstance;
 
-//A helper class for reading the test authorities, usernames, etc.
-//Reads the authorities from the TestData.plist file.
+extern NSString* ADTestAppCacheChangeNotification;
+
 @interface ADTestAppSettings : NSObject
 
-//Returns a dictionary with the name of the test instances as keys.
-//The values are instances of BVTestInstance class.
-@property (readonly) NSDictionary* testAuthorities;
+@property NSString* authority;
+@property NSURL* redirectUri;
+@property NSString* clientId;
+@property NSString* resource;
+
+
++ (ADTestAppSettings*)settings;
 
 @end

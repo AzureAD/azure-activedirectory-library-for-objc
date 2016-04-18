@@ -58,7 +58,9 @@ const int sAsyncContextTimeout = 10;
 
 - (void)tearDown
 {
-    SAFE_ARC_DISPATCH_RELEASE(_dsem);
+#if !__has_feature(objc_arc)
+    dispatch_release(_dsem);
+#endif
     _dsem = nil;
     
     XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
@@ -75,7 +77,9 @@ const int sAsyncContextTimeout = 10;
                                                      error:nil];
     
     NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
-    [context setTokenCacheStore:SAFE_ARC_AUTORELEASE([ADTokenCache new])];
+    ADTokenCache *tokenCache = [ADTokenCache new];
+    SAFE_ARC_AUTORELEASE(tokenCache);
+    [context setTokenCacheStore:tokenCache];
     [context setCorrelationId:TEST_CORRELATION_ID];
     
     SAFE_ARC_AUTORELEASE(context);
@@ -100,7 +104,7 @@ const int sAsyncContextTimeout = 10;
         XCTAssertNotNil(result);
         XCTAssertEqual(result.status, AD_FAILED);
         XCTAssertNotNil(result.error);
-        XCTAssertEqual(result.error.code, AD_ERROR_INVALID_ARGUMENT);
+        XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
         ADTAssertContains(result.error.errorDetails, @"resource");
         
         TEST_SIGNAL;
@@ -116,7 +120,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_INVALID_ARGUMENT);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
          ADTAssertContains(result.error.errorDetails, @"resource");
          
          TEST_SIGNAL;
@@ -137,7 +141,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_INVALID_ARGUMENT);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
          ADTAssertContains(result.error.errorDetails, @"clientId");
          
          TEST_SIGNAL;
@@ -153,8 +157,29 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_INVALID_ARGUMENT);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
          ADTAssertContains(result.error.errorDetails, @"clientId");
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+}
+
+- (void)testInvalidBrokerRedirectURI
+{
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    [context setCredentialsType:AD_CREDENTIALS_AUTO];
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:[NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob"]
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI);
          
          TEST_SIGNAL;
      }];
@@ -176,7 +201,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_INVALID_ARGUMENT);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
          ADTAssertContains(result.error.errorDetails, @"samlAssertion");
          
          TEST_SIGNAL;
@@ -315,7 +340,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
          XCTAssertNil(result.tokenCacheItem);
-         XCTAssertEqual(result.error.code, AD_ERROR_MULTIPLE_USERS);
+         XCTAssertEqual(result.error.code, AD_ERROR_CACHE_MULTIPLE_USERS);
          
          TEST_SIGNAL;
      }];
@@ -369,7 +394,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_USER_INPUT_NEEDED);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
          
          TEST_SIGNAL;
     }];
@@ -424,7 +449,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_USER_INPUT_NEEDED);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
          
          TEST_SIGNAL;
      }];
@@ -461,7 +486,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_USER_INPUT_NEEDED);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
          
          TEST_SIGNAL;
      }];
@@ -504,7 +529,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_USER_INPUT_NEEDED);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
          
          TEST_SIGNAL;
      }];
@@ -532,7 +557,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_USER_INPUT_NEEDED);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
          
          TEST_SIGNAL;
      }];
@@ -741,97 +766,6 @@ const int sAsyncContextTimeout = 10;
 
     TEST_WAIT;
 }
-
-// Make sure if we attempt to get a token for a client ID in the cache, but we have a family token that we
-// acquire using that
-- (void)testAcquireUsingFamilyTokenNetwork
-{
-    ADAuthenticationError* error = nil;
-    ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    
-    NSString* clientIdTwo = @"12345678-7153-44d4-90e6-329686d48d76";
-    
-    ADTokenCacheItem* familyMRRTItem = [self adCreateMRRTCacheItem];
-    familyMRRTItem.familyId = @"YES";
-    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:familyMRRTItem correlationId:nil error:&error]);
-    XCTAssertNil(error);
-    
-    ADTestURLResponse* response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
-                                                     authority:TEST_AUTHORITY
-                                                      resource:TEST_RESOURCE
-                                                      clientId:clientIdTwo
-                                                 correlationId:TEST_CORRELATION_ID
-                                               newRefreshToken:@"I am another refresh token"
-                                                newAccessToken:@"I am another access token"];
-    [ADTestURLConnection addResponse:response];
-    
-    [context acquireTokenSilentWithResource:TEST_RESOURCE
-                                   clientId:clientIdTwo
-                                redirectUri:TEST_REDIRECT_URL
-                                     userId:TEST_USER_ID
-                            completionBlock:^(ADAuthenticationResult *result)
-     {
-         XCTAssertNotNil(result);
-         XCTAssertEqual(result.status, AD_SUCCEEDED);
-         XCTAssertNil(result.error);
-         XCTAssertNotNil(result.tokenCacheItem);
-         XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"I am another access token");
-         
-         TEST_SIGNAL;
-     }];
-    
-    TEST_WAIT;
-    
-    NSArray* allItems = [[context tokenCacheStore] allItems:&error];
-    XCTAssertNotNil(allItems);
-    XCTAssertEqual(allItems.count, 3);
-}
-
-// Make sure that if we have a family token in the cache and we fail to get a token using it that we
-// properly fail out.
-- (void)testAcquireFailedUsingFamilyTokenFailsNetwork
-{
-    ADAuthenticationError* error = nil;
-    ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    
-    NSString* clientIdTwo = @"12345678-7153-44d4-90e6-329686d48d76";
-    
-    ADTokenCacheItem* familyMRRTItem = [self adCreateMRRTCacheItem];
-    familyMRRTItem.familyId = @"YES";
-    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:familyMRRTItem correlationId:nil error:&error]);
-    XCTAssertNil(error);
-    
-    ADTestURLResponse* response = [self adResponseBadRefreshToken:TEST_REFRESH_TOKEN
-                                                        authority:TEST_AUTHORITY
-                                                         resource:TEST_RESOURCE
-                                                         clientId:clientIdTwo
-                                                    correlationId:TEST_CORRELATION_ID];
-    [ADTestURLConnection addResponse:response];
-    
-    [context acquireTokenSilentWithResource:TEST_RESOURCE
-                                   clientId:clientIdTwo
-                                redirectUri:TEST_REDIRECT_URL
-                                     userId:TEST_USER_ID
-                            completionBlock:^(ADAuthenticationResult *result)
-     {
-         XCTAssertNotNil(result);
-         XCTAssertEqual(result.status, AD_FAILED);
-         XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_USER_INPUT_NEEDED);
-         
-         TEST_SIGNAL;
-     }];
-    
-    TEST_WAIT;
-    
-    // The family MRRT for the original client ID should still be there
-    NSArray* allItems = [[context tokenCacheStore] allItems:&error];
-    XCTAssertNotNil(allItems);
-    XCTAssertEqual(allItems.count, 1);
-    
-    XCTAssertEqualObjects(allItems[0], familyMRRTItem);
-}
-
 
 - (void)testExtraQueryParams
 {

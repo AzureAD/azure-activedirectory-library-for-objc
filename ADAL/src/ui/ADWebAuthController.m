@@ -136,9 +136,9 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)dispatchCompletionBlock:(ADAuthenticationError *)error URL:(NSURL *)url
 {
-    // NOTE: It is possible that race between a successful completion
+    // NOTE: It is possible that competition between a successful completion
     //       and the user cancelling the authentication dialog can
-    //       occur causing this method to be called twice. The race
+    //       occur causing this method to be called twice. The competition
     //       cannot be blocked at its root, and so this method must
     //       be resilient to this condition and should not generate
     //       two callbacks.
@@ -304,6 +304,11 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     }
     
     NSString *requestURL = [request.URL absoluteString];
+
+    if ([[requestURL lowercaseString] isEqualToString:@"about:blank"])
+    {
+        return NO;
+    }
     
     if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"])
     {
@@ -313,7 +318,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
         dispatch_async( dispatch_get_main_queue(), ^{[[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];});
 #else // !TARGET_OS_IPHONE
-        AD_LOG_ERROR(@"server is redirecting us to browser, this behavior is not defined on Mac OS X yet", AD_ERROR_APPLICATION, nil, nil);
+        AD_LOG_ERROR(@"server is redirecting us to browser, this behavior is not defined on Mac OS X yet", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, nil, nil);
 #endif // TARGET_OS_IPHONE
         return NO;
     }
@@ -354,9 +359,9 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     }
     
     // redirecting to non-https url is not allowed
-    if (![requestURL hasPrefix: @"https"])
+    if (![[[request.URL scheme] lowercaseString] isEqualToString:@"https"])
     {
-        AD_LOG_ERROR(@"Server is redirecting to a non-https url", AD_ERROR_NON_HTTPS_REDIRECT, nil, nil);
+        AD_LOG_ERROR(@"Server is redirecting to a non-https url", AD_ERROR_SERVER_NON_HTTPS_REDIRECT, nil, nil);
         _complete = YES;
         ADAuthenticationError* error = [ADAuthenticationError errorFromNonHttpsRedirect:_correlationId];
         dispatch_async( dispatch_get_main_queue(), ^{[self endWebAuthenticationWithError:error orURL:nil];} );
@@ -493,8 +498,27 @@ correlationId:(NSUUID *)correlationId
     THROW_ON_NIL_ARGUMENT(startURL);
     THROW_ON_NIL_ARGUMENT(endURL);
     THROW_ON_NIL_ARGUMENT(correlationId);
-    THROW_ON_NIL_ARGUMENT(completionBlock)
-    //AD_LOG_VERBOSE(@"Authorization", startURL.absoluteString);
+    THROW_ON_NIL_ARGUMENT(completionBlock);
+    
+    // If we're not on the main thread when trying to kick up the UI then
+    // dispatch over to the main thread.
+    if (![NSThread isMainThread])
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self start:startURL
+                    end:endURL
+            refreshCred:refreshCred
+#if TARGET_OS_IPHONE
+                 parent:parent
+             fullScreen:fullScreen
+#endif
+                webView:webView
+          correlationId:correlationId
+             completion:completionBlock];
+        });
+        return;
+    }
+    
     
     _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
     

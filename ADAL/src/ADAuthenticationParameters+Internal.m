@@ -65,9 +65,10 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
     {
         NSString* errorDetails = [NSString stringWithFormat:MissingOrInvalidAuthority,
                                   OAuth2_Authenticate_Header, OAuth2_Authorization_Uri];
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT
-                                                                                 errorDetails:errorDetails
-                                                                                correlationId:nil];
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT
+                                                                                protocolCode:nil
+                                                                                errorDetails:errorDetails
+                                                                               correlationId:nil];
         if (error)
         {
             *error = adError;
@@ -90,7 +91,8 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
 {
     NSString* errorDetails = [NSString stringWithFormat:InvalidHeader,
      OAuth2_Authenticate_Header, headerContents];
-    return [ADAuthenticationError errorFromUnauthorizedResponse:AD_ERROR_AUTHENTICATE_HEADER_BAD_FORMAT
+    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT
+                                                  protocolCode:nil
                                                    errorDetails:errorDetails
                                                   correlationId:nil];
 }

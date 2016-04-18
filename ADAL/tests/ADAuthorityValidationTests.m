@@ -66,7 +66,7 @@
         XCTAssertNotNil(result);
         XCTAssertEqual(result.status, AD_FAILED);
         XCTAssertNotNil(result.error);
-        XCTAssertEqual(result.error.code, AD_ERROR_AUTHORITY_VALIDATION);
+        XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION);
         
         dispatch_semaphore_signal(dsem);
     }];

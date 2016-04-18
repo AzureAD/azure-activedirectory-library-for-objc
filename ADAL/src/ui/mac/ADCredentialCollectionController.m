@@ -23,6 +23,31 @@
 
 #import "ADCredentialCollectionController.h"
 
+// UI position values for the input dialog
+const CGFloat USERNAME_LABEL_X = 7;
+const CGFloat USERNAME_LABEL_Y = 36;
+const CGFloat USERNAME_LABEL_WIDTH = 73;
+const CGFloat USERNAME_LABEL_HEIGHT = 17;
+const CGFloat USERNAME_FIELD_X = 85;
+const CGFloat USERNAME_FIELD_Y = 36;
+const CGFloat USERNAME_FIELD_WIDTH = 210;
+const CGFloat USERNAME_FIELD_HEIGHT = 22;
+
+const CGFloat PASSWORD_LABEL_X = 7;
+const CGFloat PASSWORD_LABEL_Y = 6;
+const CGFloat PASSWORD_LABEL_WIDTH = 72;
+const CGFloat PASSWORD_LABEL_HEIGHT = 17;
+const CGFloat PASSWORD_FIELD_X = 85;
+const CGFloat PASSWORD_FIELD_Y = 6;
+const CGFloat PASSWORD_FIELD_WIDTH = 210;
+const CGFloat PASSWORD_FIELD_HEIGHT = 22;
+
+const CGFloat CUSTOM_VIEW_X = 0;
+const CGFloat CUSTOM_VIEW_Y = 0;
+const CGFloat CUSTOM_VIEW_WIDTH = 306;
+const CGFloat CUSTOM_VIEW_HEIGHT = 63;
+
+
 @implementation ADCredentialCollectionController
 
 @synthesize customView = _customView;
@@ -36,11 +61,38 @@
     self = [super init];
     if(self)
     {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        [NSBundle loadNibNamed:@"ADCredentialViewController" owner:self];
-#pragma clang diagnostic pop
-//        loaded = [[NSBundle mainBundle] loadNibNamed:@"ADCredentialViewController" owner:self topLevelObjects:nil];
+        //Generate the NTLM input dialog by code for Mac
+        //usename field
+        _usernameLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(USERNAME_LABEL_X, USERNAME_LABEL_Y, USERNAME_LABEL_WIDTH, USERNAME_LABEL_HEIGHT)];
+        SAFE_ARC_AUTORELEASE(_usernameLabel);
+        [_usernameLabel setStringValue:NSLocalizedString(@"Username", nil)];
+        [_usernameLabel setBezeled:NO];
+        [_usernameLabel setDrawsBackground:NO];
+        [_usernameLabel setEditable:NO];
+        [_usernameLabel setSelectable:NO];
+        
+        _usernameField = [[NSTextField alloc] initWithFrame:NSMakeRect(USERNAME_FIELD_X, USERNAME_FIELD_Y, USERNAME_FIELD_WIDTH, USERNAME_FIELD_HEIGHT)];
+        SAFE_ARC_AUTORELEASE(_usernameField);
+        
+        //password field
+        _passwordLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(PASSWORD_LABEL_X, PASSWORD_LABEL_Y, PASSWORD_LABEL_WIDTH, PASSWORD_LABEL_HEIGHT)];
+        SAFE_ARC_AUTORELEASE(_passwordLabel);
+        [_passwordLabel setStringValue:NSLocalizedString(@"Password", nil)];
+        [_passwordLabel setBezeled:NO];
+        [_passwordLabel setDrawsBackground:NO];
+        [_passwordLabel setEditable:NO];
+        [_passwordLabel setSelectable:NO];
+        
+        _passwordField = [[NSSecureTextField alloc] initWithFrame:NSMakeRect(PASSWORD_FIELD_X, PASSWORD_FIELD_Y, PASSWORD_FIELD_WIDTH, PASSWORD_FIELD_HEIGHT)];
+        SAFE_ARC_AUTORELEASE(_passwordField);
+        
+        //add labels and fileds to view
+        _customView = [[NSView alloc] initWithFrame:NSMakeRect(CUSTOM_VIEW_X, CUSTOM_VIEW_Y, CUSTOM_VIEW_WIDTH, CUSTOM_VIEW_HEIGHT)];
+        SAFE_ARC_AUTORELEASE(_customView);
+        [_customView addSubview:_usernameLabel];
+        [_customView addSubview:_usernameField];
+        [_customView addSubview:_passwordLabel];
+        [_customView addSubview:_passwordField];
     }
     
     return self;

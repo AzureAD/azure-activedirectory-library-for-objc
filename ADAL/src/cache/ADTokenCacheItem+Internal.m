@@ -34,6 +34,7 @@
 @implementation ADTokenCacheItem (Internal)
 
 #define CHECK_ERROR(_CHECK, _ERR) { if (_CHECK) { if (error) {*error = _ERR;} return; } }
+#define THIRTY_DAYS_IN_SECONDS (30*24*60*60)
 
 - (void)checkCorrelationId:(NSDictionary*)response
       requestCorrelationId:(NSUUID*)requestCorrelationId
@@ -77,7 +78,7 @@
 {
     if (!response)
     {
-        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_PERSISTENCE
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
                                                                               protocolCode:@"adal cachce"
                                                                               errorDetails:@"processTokenResponse called without a response dictionary"
                                                                              correlationId:requestCorrelationId];
@@ -86,7 +87,7 @@
     
     [self checkCorrelationId:response requestCorrelationId:requestCorrelationId];
     
-    ADAuthenticationError* error = [ADAuthenticationContext errorFromDictionary:response errorCode:(fromRefreshTokenWorkflow) ? AD_ERROR_INVALID_REFRESH_TOKEN : AD_ERROR_AUTHENTICATION];
+    ADAuthenticationError* error = [ADAuthenticationContext errorFromDictionary:response errorCode:(fromRefreshTokenWorkflow) ? AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED : AD_ERROR_SERVER_OAUTH];
     if (error)
     {
         return [ADAuthenticationResult resultFromError:error];
@@ -222,6 +223,9 @@
     //wipe out the refresh token
     _refreshToken = @"<tombstone>";
     _tombstone = tombstoneDictionary;
+    SAFE_ARC_RELEASE(_expiresOn);
+    _expiresOn = [NSDate dateWithTimeIntervalSinceNow:THIRTY_DAYS_IN_SECONDS];//tombstones should be removed after 30 days
+    SAFE_ARC_RETAIN(_expiresOn);
 
 }
 

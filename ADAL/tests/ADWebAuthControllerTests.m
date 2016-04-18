@@ -23,8 +23,9 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADTokenCache+Internal.h"
+#import "ADWebAuthController+Internal.h"
 
-@interface ADAuthenticationViewControllerTests : XCTestCase
+@interface ADWebAuthControllerTests : XCTestCase
 {
 @private
     dispatch_semaphore_t _dsem;
@@ -32,7 +33,7 @@
 
 @end
 
-@implementation ADAuthenticationViewControllerTests
+@implementation ADWebAuthControllerTests
 
 - (void)setUp
 {
@@ -42,8 +43,11 @@
 
 - (void)tearDown
 {
-    SAFE_ARC_DISPATCH_RELEASE(_dsem);
+#if !__has_feature(objc_arc)
+    dispatch_release(_dsem);
+#endif
     _dsem = nil;
+    [ADTestAuthenticationViewController clearDelegateCalls];
     [super tearDown];
 }
 
@@ -55,7 +59,9 @@
                                                  error:nil];
     
     NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
-    [context setTokenCacheStore:SAFE_ARC_AUTORELEASE([ADTokenCache new])];
+    ADTokenCache *tokenCache = [ADTokenCache new];
+    SAFE_ARC_AUTORELEASE(tokenCache);
+    [context setTokenCacheStore:tokenCache];
     [context setCorrelationId:TEST_CORRELATION_ID];
     
     SAFE_ARC_AUTORELEASE(context);
@@ -63,31 +69,64 @@
     return context;
 }
 
+- (void)testAboutBlankWhitelistInWebView
+{
+    ADWebAuthController* controller = [ADWebAuthController sharedInstance];
+    
+    //add about:blank url in the middle to test that it does not fail as non-https redirect.
+    [ADTestAuthenticationViewController addDelegateCallWebAuthShouldStartLoadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:TEST_AUTHORITY]]];
+    [ADTestAuthenticationViewController addDelegateCallWebAuthShouldStartLoadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"about:blank"]]];
+    [ADTestAuthenticationViewController addDelegateCallWebAuthShouldStartLoadRequest:[NSURLRequest requestWithURL:TEST_REDIRECT_URL]];
+
+    [controller start:[NSURL URLWithString:TEST_AUTHORITY]
+                  end:TEST_REDIRECT_URL
+          refreshCred:nil
+#if TARGET_OS_IPHONE
+               parent:nil
+           fullScreen:false
+#endif
+            webView:nil
+        correlationId:[NSUUID new]
+           completion:^(ADAuthenticationError *error, NSURL *url) {
+               
+               XCTAssertNil(error);
+               XCTAssertNotNil(url);
+               XCTAssertEqual(url.absoluteString, TEST_REDIRECT_URL.absoluteString);
+               dispatch_semaphore_signal(_dsem);
+    }];
+    
+    [self waitSemaphoreWithoutBlockingMainQueue:_dsem];
+    
+}
+
 - (void)testNonHttpsRedirectInWebView
 {
-    //Create a context with empty token cache
-    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    ADWebAuthController* controller = [ADWebAuthController sharedInstance];
     
     //Add two delegate calls to the mocking ADTestAuthenticationViewController
     //First one in https while the second one in http
     [ADTestAuthenticationViewController addDelegateCallWebAuthShouldStartLoadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:TEST_AUTHORITY]]];
     [ADTestAuthenticationViewController addDelegateCallWebAuthShouldStartLoadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://abc.com"]]];
     
-    [context acquireTokenWithResource:TEST_RESOURCE
-                             clientId:TEST_CLIENT_ID
-                          redirectUri:TEST_REDIRECT_URL
-                               userId:TEST_USER_ID
-                      completionBlock:^(ADAuthenticationResult *result)
-     {
-         //Should fail with AD_ERROR_NON_HTTPS_REDIRECT error
-         XCTAssertNotNil(result);
-         XCTAssertEqual(result.status, AD_FAILED);
-         XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_NON_HTTPS_REDIRECT);
-         
-         dispatch_semaphore_signal(_dsem);
-     }];
-    
+    [controller start:[NSURL URLWithString:TEST_AUTHORITY]
+                  end:TEST_REDIRECT_URL
+          refreshCred:nil
+#if TARGET_OS_IPHONE
+               parent:nil
+           fullScreen:false
+#endif
+              webView:nil
+        correlationId:[NSUUID new]
+           completion:^(ADAuthenticationError *error, NSURL *url) {
+               
+               //Should fail with AD_ERROR_NON_HTTPS_REDIRECT error
+               XCTAssertNil(url);
+               XCTAssertNotNil(error);
+               XCTAssertEqual(error.code, AD_ERROR_SERVER_NON_HTTPS_REDIRECT);
+               
+               dispatch_semaphore_signal(_dsem);
+           }];
+               
     [self waitSemaphoreWithoutBlockingMainQueue:_dsem];
     
 }

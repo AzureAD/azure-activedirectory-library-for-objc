@@ -21,13 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import <ADAL/ADAL.h>
+#import <UIKit/UIKit.h>
 
-@interface ADTestApplicationData : NSObject
-
-@property ADAuthenticationResult* result;
-
-+(id) getInstance;
+@interface ADTestAppSettingsViewController : UIViewController
 
 @end

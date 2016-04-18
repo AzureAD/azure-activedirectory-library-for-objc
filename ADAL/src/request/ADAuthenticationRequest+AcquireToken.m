@@ -40,6 +40,33 @@
     AD_REQUEST_CHECK_ARGUMENT(_resource);
     [self ensureRequest];
     
+    NSString* log = [NSString stringWithFormat:@"acquireToken (authority = %@, resource = %@, clientId = %@, idtype = %@)",
+                     _context.authority, _resource, _clientId, [_identifier typeAsString]];
+    AD_LOG_INFO_F(log, _correlationId, @"userId = %@", _identifier.userId);
+    
+    if (!_silent && ![NSThread isMainThread])
+    {
+        ADAuthenticationError* error =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_ON_MAIN_THREAD
+                                               protocolCode:nil
+                                               errorDetails:@"Interactive authentication requests must originate from the main thread"
+                                              correlationId:_correlationId];
+        
+        completionBlock([ADAuthenticationResult resultFromError:error]);
+        return;
+    }
+    
+    if (!_silent && _context.credentialsType == AD_CREDENTIALS_AUTO && ![ADAuthenticationRequest validBrokerRedirectUri:_redirectUri])
+    {
+        ADAuthenticationError* error =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
+                                               protocolCode:nil
+                                               errorDetails:ADRedirectUriInvalidError
+                                              correlationId:_correlationId];
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+        return;
+    }
+    
     if (!_context.validateAuthority)
     {
         [self validatedAcquireToken:completionBlock];
@@ -101,13 +128,6 @@
             [self attemptToUseCacheItem:cacheItem completionBlock:completionBlock];
             return; //The tryRefreshingFromCacheItem has taken care of the token obtaining
         }
-        
-        ADTokenCacheItem* familyItem = [self findFamilyItemForUser:_identifier error:&error];
-        if (familyItem)
-        {
-            [self attemptToUseCacheItem:familyItem completionBlock:completionBlock];
-            return;
-        }
     }
     
     [self requestToken:completionBlock];
@@ -148,6 +168,11 @@
                            cacheItem:item
                      completionBlock:^(ADAuthenticationResult *result)
      {
+         if (result.status == AD_SUCCEEDED)
+         {
+             AD_LOG_INFO_F(@"acquire token with refresh token succeeded", nil,  @"clientId: '%@'; resource: '%@';", _clientId, _resource);
+         }
+         
          //Asynchronous block:
          if ([ADAuthenticationContext isFinalResult:result])
          {
@@ -203,7 +228,7 @@
         //so credentials are needed to get an access token, but the developer, requested
         //no UI to be shown:
         ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_USER_INPUT_NEEDED
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
                                                protocolCode:nil
                                                errorDetails:ADCredentialsNeeded
                                               correlationId:_correlationId];
@@ -216,7 +241,7 @@
     if ([[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"]) {
         // this is an app extension
         ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_INTERACTION_NOT_SUPPORTED_IN_APP_EXTENSION
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION
                                                protocolCode:nil
                                                errorDetails:ADInteractionNotSupportedInExtension
                                               correlationId:_correlationId];
@@ -248,7 +273,7 @@
                  return;
              }
              
-             ADAuthenticationResult* result = (AD_ERROR_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_correlationId]
+             ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_correlationId]
              : [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
              completionBlock(result);
          }
@@ -352,7 +377,7 @@
         [request_data setObject:_resource forKey:OAUTH2_RESOURCE];
     }
     
-    AD_LOG_INFO_F(@"Sending request for refreshing token.", _correlationId, @"Client id: '%@'; resource: '%@';", _clientId, _resource);
+    AD_LOG_INFO_F(@"Attempting to acquire an access token from refresh token", nil, @"clientId: '%@'; resource: '%@';", _clientId, _resource);
     [self requestWithServer:_context.authority
                 requestData:request_data
             handledPkeyAuth:NO

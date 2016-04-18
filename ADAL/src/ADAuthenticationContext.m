@@ -56,6 +56,11 @@
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
+// This variable is purposefully a global so that way we can more easily pull it out of the
+// symbols in a binary to detect what version of ADAL is being used without needing to
+// run the application.
+NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
+
 @implementation ADAuthenticationContext
 
 @synthesize authority = _authority;
@@ -64,6 +69,14 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 @synthesize credentialsType = _credentialsType;
 @synthesize logComponent = _logComponent;
 @synthesize webView = _webView;
+
++ (void)load
+{
+    // +load is called by the ObjC runtime before main() as it loads in ObjC symbols and
+    // populates the runtime.
+    
+    NSLog(@"ADAL version %@", ADAL_VERSION_VAR);
+}
 
 - (id)init
 {
@@ -430,6 +443,10 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 - (void)setTokenCacheStore:(id<ADTokenCacheAccessor>)tokenCacheStore
 {
+    if (_tokenCacheStore == tokenCacheStore)
+    {
+        return;
+    }
     SAFE_ARC_RELEASE(_tokenCacheStore);
     _tokenCacheStore = tokenCacheStore;
     SAFE_ARC_RETAIN(_tokenCacheStore);
