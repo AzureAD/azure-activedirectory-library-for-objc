@@ -380,7 +380,6 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 // The user cancelled authentication
 - (void)webAuthDidCancel
 {
-    DebugLog();
     AD_LOG_INFO(@"-webAuthDidCancel", _correlationId, nil);
     
     // Dispatch the completion block
@@ -393,7 +392,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 - (void)webAuthDidCompleteWithURL:(NSURL *)endURL
 {
     AD_LOG_INFO_F(@"-webAuthDidCompleteWithURL:", _correlationId, @"%@", endURL);
-    DebugLog();
+
     [self endWebAuthenticationWithError:nil orURL:endURL];
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidCompleteNotification object:self userInfo:nil];
 }
