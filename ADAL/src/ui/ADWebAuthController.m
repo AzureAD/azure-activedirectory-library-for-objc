@@ -401,9 +401,16 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 // Authentication failed somewhere
 - (void)webAuthDidFailWithError:(NSError *)error
 {
-    AD_LOG_ERROR_F(@"-webAuthDidFailWithError:", error.code, _correlationId, @"error: %@", error);
+    // Ignore WebKitError 102 for OAuth 2.0 flow.
+    if ([error.domain isEqualToString:@"WebKitErrorDomain"] && error.code == 102)
+    {
+        return;
+    }
+
     if (error)
     {
+        AD_LOG_ERROR_F(@"-webAuthDidFailWithError:", error.code, _correlationId, @"error: %@", error);
+
         [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFailNotification
                                                             object:self
                                                           userInfo:@{ @"error" : error}];
