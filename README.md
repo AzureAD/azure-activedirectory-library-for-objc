@@ -2,13 +2,6 @@
 #Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and OSX
 =====================================
 
-####NOTE regarding iOS 9
-
-Apple has released iOS 9 which includes support for App Transport Security (ATS). ATS restricts apps from accessing the internet unless they meet several security requirements including TLS 1.2 and SHA-256. While Microsoft's APIs support these standards some third party APIs and content delivery networks we use have yet to be upgraded. This means that any app that relies on Azure Active Directory or Microsoft Accounts will fail when compiled with iOS 9. For now our recommendation is to disable ATS, which reverts to iOS 8 functionality. Please refer to the [documentation on the NSAppTransport info.plist key](https://developer.apple.com/library/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW33) for more information.
-
-----
-
-
 [![Build Status](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc.svg?branch=1.2.x)](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc)
 
 The ADAL SDK for iOS and Mac OS X gives you the ability to add support for Work Accounts to your application with just a few lines of additional code. This SDK gives your application the full functionality of Microsoft Azure AD, including industry standard protocol support for OAuth2, Web API integration with user level consent, and two factor authentication support. Best of all, it’s FOSS (Free and Open Source Software) so that you can participate in the development process as we build these libraries. 
@@ -52,10 +45,10 @@ If your project is managed in a git repository you can include ADAL as a git sub
 
     git submodule add https://github.com/AzureAD/azure-activedirectory-library-for-objc adal
     cd adal
-    git checkout tags/2.1.0-beta.5
+    git checkout tags/2.1.0
     cd ..
     git add adal
-    git commit -m "Use ADAL git submoduile at 2.1.0-beta.5"
+    git commit -m "Use ADAL git submodule at 2.1.0"
     git push
     
 We recommend only syncing to specific release tags to make sure you're at a known spot in the code.
@@ -66,7 +59,7 @@ To download a copy of the source code, click "Download ZIP" on the right side of
 
 ###Option 3: Cocoapods
 
-    pod 'ADAL', '~> 2.1.0-beta.5'
+    pod 'ADAL', '~> 2.1.0'
 
 See [CocoaPods](https://cocoapods.org) for more information on setting up a PodFile
 
@@ -174,7 +167,7 @@ Broker is enabled on a per-authentication-context basis. You must set your crede
 @property ADCredentialsType credentialsType;
 ```
 
-The AD_CREDENTIALS_AUTO setting will allow ADAL to try to call out to the broker, AD_CREDENTIALS_EMBEDDED will precent ADAL from calling to the broker.
+The AD_CREDENTIALS_AUTO setting will allow ADAL to try to call out to the broker, AD_CREDENTIALS_EMBEDDED will prevent ADAL from calling to the broker.
 
 #### Registering a URL Scheme
 ADAL uses URLs to invoke the broker and then return back to your app. To finish that round trip you need a URL scheme registered for your app. We recommend making the URL scheme fairly unique to minimize the chances of another app using the same URL scheme.
@@ -239,16 +232,24 @@ authentication issues.
 You can set a callback to capture ADAL logging and incorporate it in your own application's
 logging:
 
-```Objective-C
-    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel,
-                               NSString *message,        // The message will not contain PII
-                               NSString *additionalInfo, // additionalInfo may contain PII, log with caution
-                               NSInteger errorCode,      // The error code for the log, if any
-                               NSDictionary *userInfo)   // Any extra context pertinent to this log message.
-    {
-        //HANDLE LOG MESSAGE HERE
-    }];
+```objective-c
+/*!
+    The LogCallback block for the ADAL logger
+ 
+    @param  logLevel        The level of the log message
+    @param  message         A short log message describing the event that occurred, this string will not contain PII.
+    @param  additionalInfo  A longer message that may contain PII and other details relevant to the event.
+    @param  errorCode       An integer error code if the log message is an error.
+    @param  userInfo        A dictionary with other information relevant to the log message. The information varies,
+                            for most error messages the error object will be in the "error" key.
+ */
+typedef void (^LogCallback)(ADAL_LOG_LEVEL logLevel,
+                            NSString *message,
+                            NSString *additionalInfo,
+                            NSInteger errorCode,
+                            NSDictionary *userInfo);
 ```
+
 
 Otherwise ADAL outputs to NSLog by default, which will print messages on the console.
 
@@ -257,7 +258,7 @@ Otherwise ADAL outputs to NSLog by default, which will print messages on the con
 The message portion of ADAL iOS are in the format of ADALiOS [timestamp - correlation_id] message
 
 ```
-ADAL [2015-06-22 19:42:53 - 1030CB25-798F-4A6F-97DF-04A3A3E9DFF2] ADAL API call [Version - 2.1.0-beta.5]
+ADAL [2015-06-22 19:42:53 - 1030CB25-798F-4A6F-97DF-04A3A3E9DFF2] ADAL API call [Version - 2.1.0]
 ```
 
 Providing correlation IDs and timestamps are tremendously in tracking down issues. The only
@@ -320,6 +321,11 @@ in ADAuthenticationSettings:
 ```Objective-C
     [[ADAuthenticationSettings sharedInstance] setSharedCacheKeychainGroup:nil];
 ```
+
+**ADAL keeps returning SSL errors in iOS 9 and later**
+
+iOS 9 added App Transport Security (ATS). ATS restricts apps from accessing the internet unless they meet several security requirements including TLS 1.2 and SHA-256. It also prevents network traces that rely on self signed certs to crack SSL from working. Disabling ATS must be done in the Application's info.plist file, see [documentation on the NSAppTransport info.plist key](https://developer.apple.com/library/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW33) for more information.
+
 
 ## License
 
