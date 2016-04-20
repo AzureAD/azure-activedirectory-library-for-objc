@@ -91,7 +91,7 @@ static NSString* const s_tombstoneLibraryString = @"Microsoft.ADAL.Tombstone." T
 #endif
                  (id)kSecAttrGeneric : [s_tombstoneLibraryString dataUsingEncoding:NSUTF8StringEncoding]
                  };
-    SAFE_ARC_RETAIN(_defaultTombstone);
+    SAFE_ARC_RETAIN(_default);
 
     
     static dispatch_once_t onceToken = 0;
