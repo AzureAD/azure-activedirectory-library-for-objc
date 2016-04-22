@@ -91,7 +91,8 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
                                                      backing:NSBackingStoreBuffered
                                                        defer:YES];
     [window setDelegate:self];
-    
+    [window setAccessibilityIdentifier:@"ADAL_SIGN_IN_WINDOW"];
+
     
     
     NSView* contentView = window.contentView;
@@ -102,7 +103,8 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
     [webView setResourceLoadDelegate:self];
     [webView setPolicyDelegate:self];
     [webView setAutoresizingMask:NSViewHeightSizable | NSViewWidthSizable];
-    
+    [webView setAccessibilityIdentifier:@"ADAL_SIGN_IN_WEBVIEW"];
+
     [contentView addSubview:webView];
     
     NSProgressIndicator* progressIndicator = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(DEFAULT_WINDOW_WIDTH / 2 - 16, DEFAULT_WINDOW_HEIGHT / 2 - 16, 32, 32)];
