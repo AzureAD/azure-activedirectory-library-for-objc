@@ -130,7 +130,7 @@
         }
     }
     
-    [self requestToken:error completionBlock:completionBlock];
+    [self requestToken:completionBlock];
 }
 
 /*Attemps to use the cache. Returns YES if an attempt was successful or if an
@@ -214,12 +214,13 @@
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
-         [self requestToken:[result error] completionBlock:completionBlock];
+         _underlyingError = result.error;
+         SAFE_ARC_RETAIN(_underlyingError);
+         [self requestToken:completionBlock];
      }];//End of the refreshing token completion block, executed asynchronously.
 }
 
-- (void)requestToken:(ADAuthenticationError*)previousError
-     completionBlock:(ADAuthenticationCallback)completionBlock
+- (void)requestToken:(ADAuthenticationCallback)completionBlock
 {
     [self ensureRequest];
 
@@ -228,12 +229,18 @@
         //The cache lookup and refresh token attempt have been unsuccessful,
         //so credentials are needed to get an access token, but the developer, requested
         //no UI to be shown:
-        ADAuthenticationError* error =
+        ADAuthenticationError* error = _underlyingError ?
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
                                                protocolCode:nil
                                                errorDetails:ADCredentialsNeeded
-                                                   userInfo:@{NSUnderlyingErrorKey:(previousError?previousError:[NSNull null])}
+                                                   userInfo:@{NSUnderlyingErrorKey:_underlyingError}
+                                              correlationId:_correlationId]
+        :
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
+                                               protocolCode:nil
+                                               errorDetails:ADCredentialsNeeded
                                               correlationId:_correlationId];
+        
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
         completionBlock(result);
         return;
@@ -271,7 +278,7 @@
              if (silentRequest)
              {
                  _allowSilent = NO;
-                 [self requestToken:error completionBlock:completionBlock];
+                 [self requestToken:completionBlock];
                  return;
              }
              
