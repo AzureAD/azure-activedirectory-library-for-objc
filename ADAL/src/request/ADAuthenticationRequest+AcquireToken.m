@@ -130,7 +130,7 @@
         }
     }
     
-    [self requestToken:completionBlock];
+    [self requestToken:error completionBlock:completionBlock];
 }
 
 /*Attemps to use the cache. Returns YES if an attempt was successful or if an
@@ -214,11 +214,12 @@
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
-         [self requestToken:completionBlock];
+         [self requestToken:[result error] completionBlock:completionBlock];
      }];//End of the refreshing token completion block, executed asynchronously.
 }
 
-- (void)requestToken:(ADAuthenticationCallback)completionBlock
+- (void)requestToken:(ADAuthenticationError*)previousError
+     completionBlock:(ADAuthenticationCallback)completionBlock
 {
     [self ensureRequest];
 
@@ -231,6 +232,7 @@
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
                                                protocolCode:nil
                                                errorDetails:ADCredentialsNeeded
+                                                   userInfo:@{NSUnderlyingErrorKey:(previousError?previousError:[NSNull null])}
                                               correlationId:_correlationId];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
         completionBlock(result);
@@ -269,7 +271,7 @@
              if (silentRequest)
              {
                  _allowSilent = NO;
-                 [self requestToken:completionBlock];
+                 [self requestToken:error completionBlock:completionBlock];
                  return;
              }
              

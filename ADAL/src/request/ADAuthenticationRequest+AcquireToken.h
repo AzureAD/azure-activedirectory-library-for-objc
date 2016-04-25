@@ -32,7 +32,8 @@
 
 // Bypasses the cache and attempts to request a token from the server, generally called after
 // attempts to use cached tokens failed
-- (void)requestToken:(ADAuthenticationCallback)completionBlock;
+- (void)requestToken:(ADAuthenticationError*)previousError
+     completionBlock:(ADAuthenticationCallback)completionBlock;
 
 // Generic OAuth2 Authorization Request, obtains a token from an authorization code.
 - (void)requestTokenByCode:(NSString*)code
