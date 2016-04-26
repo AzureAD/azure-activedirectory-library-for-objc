@@ -54,6 +54,7 @@ static NSString* const sValidationServerError = @"The authority validation serve
     //Only the sThrustedAuthority is used for validation of new authorities.
     [_validatedAuthorities addObject:sTrustedAuthority];
     [_validatedAuthorities addObject:@"https://login.chinacloudapi.cn"]; // Microsoft Azure China
+    [_validatedAuthorities addObject:@"https://login.microsoftonline.de"]; // Microsoft Azure Germany
     [_validatedAuthorities addObject:@"https://login.microsoftonline.com"]; // Microsoft Azure Worldwide
     [_validatedAuthorities addObject:@"https://login-us.microsoftonline.com"]; // Microsoft Azure US Government
     
