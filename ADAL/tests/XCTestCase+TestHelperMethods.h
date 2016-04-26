@@ -71,6 +71,7 @@ typedef enum
                                         resource:(NSString *)resource
                                         clientId:(NSString *)clientId
                                    correlationId:(NSUUID *)correlationId;
+- (ADTestURLResponse *)adDefaultBadRefreshTokenResponseError:(NSString*)oauthError;
 - (ADTestURLResponse *)adDefaultBadRefreshTokenResponse;
 
 - (ADTestURLResponse *)adDefaultRefreshResponse:(NSString *)newRefreshToken
