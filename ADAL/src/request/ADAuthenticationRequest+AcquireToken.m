@@ -230,7 +230,8 @@
         //so credentials are needed to get an access token, but the developer, requested
         //no UI to be shown:
         NSDictionary* underlyingError = _underlyingError ? @{NSUnderlyingErrorKey:_underlyingError} : nil;
-        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
+        ADAuthenticationError* error =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
                                                protocolCode:nil
                                                errorDetails:ADCredentialsNeeded
                                                    userInfo:underlyingError
