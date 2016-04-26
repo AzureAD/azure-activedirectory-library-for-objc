@@ -229,16 +229,11 @@
         //The cache lookup and refresh token attempt have been unsuccessful,
         //so credentials are needed to get an access token, but the developer, requested
         //no UI to be shown:
-        ADAuthenticationError* error = _underlyingError ?
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
+        NSDictionary* underlyingError = _underlyingError ? @{NSUnderlyingErrorKey:_underlyingError} : nil;
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
                                                protocolCode:nil
                                                errorDetails:ADCredentialsNeeded
-                                                   userInfo:@{NSUnderlyingErrorKey:_underlyingError}
-                                              correlationId:_correlationId]
-        :
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
-                                               protocolCode:nil
-                                               errorDetails:ADCredentialsNeeded
+                                                   userInfo:underlyingError
                                               correlationId:_correlationId];
         
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
