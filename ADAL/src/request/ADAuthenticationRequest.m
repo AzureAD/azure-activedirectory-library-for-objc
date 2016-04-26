@@ -133,6 +133,7 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
     SAFE_ARC_RELEASE(_queryParams);
     SAFE_ARC_RELEASE(_refreshTokenCredential);
     SAFE_ARC_RELEASE(_correlationId);
+    SAFE_ARC_RELEASE(_underlyingError);
     
     SAFE_ARC_SUPER_DEALLOC();
 }
