@@ -693,20 +693,17 @@ const int sAsyncContextTimeout = 10;
     // Set up the mock connection to simulate a no internet connection error
     [ADTestURLConnection addResponse:[self adDefaultBadRefreshTokenResponseError:@"unauthorized_client"]];
     
-    // Web UI should not attempt to launch when we fail to refresh the RT because there is no internet
-    // connection
-    [context acquireTokenWithResource:TEST_RESOURCE
-                             clientId:TEST_CLIENT_ID
-                          redirectUri:TEST_REDIRECT_URL
-                               userId:TEST_USER_ID
-                      completionBlock:^(ADAuthenticationResult *result)
-     {
-         XCTAssertNotNil(result);
-         XCTAssertEqual(result.status, AD_FAILED);
-         XCTAssertNotNil(result.error);
-         
-         TEST_SIGNAL;
-     }];
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                            completionBlock:^(ADAuthenticationResult *result)
+    {
+        XCTAssertNotNil(result);
+        XCTAssertEqual(result.status, AD_FAILED);
+        XCTAssertNotNil(result.error);
+        
+        TEST_SIGNAL;
+    }];
     
     TEST_WAIT;
     
@@ -715,8 +712,6 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNotNil(allItems);
     XCTAssertEqual(allItems.count, 1);
     XCTAssertEqualObjects(allItems[0], mrrtItem);
-    
-    
 }
 
 - (void)testRequestRetryOnUnusualHttpResponse
