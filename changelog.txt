@@ -1,6 +1,38 @@
+Version 2.1.1
+_____________
+* Added underlying errors to ADAuthenticationErrors when returning user interaction required
+* Fixed a crash in ADKeychainTokenCache
+* Add Azure Germany, and login-us to the list of known good Azure AD Authorities
+* Refresh Tokens will only be removed on 'invalid_grant' OAuth errors now.
+
+Version 2.1.0
+_____________
+(See the GitHub release page for a more detailed list)
+* Mac OS X Support
+* Brokered Authentication support with Azure Authenticator
+* Support for Conditional Access in 3rd Party apps via Azure Authenticator
+* Support for User Cert Based Authentication via Azure Authenticator
+* Changed ADLogger callback to allow more data to be passed through for telemetry purposes
+* Logging improvements
+* Token Cache API changes
+* Renamed ADKeychainTokenCacheStore to ADKeychainTokenCache
+* Renamed ADTokenCacheStoreItem to ADTokenCacheItem
+* Renamed ADAuthenticationBroker to ADWebAuthController
+* Changed APIs in ADAuthenticationSettings
+* Added ADUserIdentifier API.
+
+
+Version 1.2.6
+_____________
+* Whitelisted "about:blank" on the ADAL webview redirect filter.
+
+
 Version 1.2.5
 _____________
 * Fix for a crash in ADClientMetrics when using ADAL directly against ADFS
+* Fix a correlation ID synchronization issue that could cause crashes
+* Added token removal logging
+* Redirects and forwards to unsecure endpoints (HTTP) will be blocked in the ADAL webview
 
 Version 1.2.4
 -------------

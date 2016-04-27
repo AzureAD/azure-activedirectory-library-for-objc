@@ -148,14 +148,6 @@
         return;
     }
     
-    // If we succeeded, or weren't told it was a bad refresh token then just return right away as there are no changes
-    // to make to the cache.
-    if (!(result.status == AD_SUCCEEDED || result.error.code == AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED))
-    {
-        return;
-    }
-    
-    
     if (AD_SUCCEEDED == result.status)
     {
         ADTokenCacheItem* item = [result tokenCacheItem];
@@ -171,13 +163,23 @@
         
         [self updateCacheToItem:item
                            MRRT:[result multiResourceRefreshToken]];
+        return;
     }
-    else
+    
+    if (result.error.code != AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED)
     {
-        [self removeItemFromCache:cacheItem
-                     refreshToken:refreshToken
-                            error:result.error];
+        return;
     }
+    
+    // Only remove tokens from the cache if we get an invalid_grant from the server
+    if (![result.error.protocolCode isEqualToString:@"invalid_grant"])
+    {
+        return;
+    }
+    
+    [self removeItemFromCache:cacheItem
+                 refreshToken:refreshToken
+                        error:result.error];
 }
 
 - (void)updateCacheToItem:(ADTokenCacheItem *)cacheItem

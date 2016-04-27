@@ -68,6 +68,8 @@
     NSString* _logComponent;
     
     BOOL _requestStarted;
+    
+    ADAuthenticationError* _underlyingError;
 }
 
 @property (retain) NSString* logComponent;

@@ -214,6 +214,8 @@
          
          //The refresh token attempt failed and no other suitable refresh token found
          //call acquireToken
+         _underlyingError = result.error;
+         SAFE_ARC_RETAIN(_underlyingError);
          [self requestToken:completionBlock];
      }];//End of the refreshing token completion block, executed asynchronously.
 }
@@ -227,11 +229,14 @@
         //The cache lookup and refresh token attempt have been unsuccessful,
         //so credentials are needed to get an access token, but the developer, requested
         //no UI to be shown:
+        NSDictionary* underlyingError = _underlyingError ? @{NSUnderlyingErrorKey:_underlyingError} : nil;
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_USER_INPUT_NEEDED
                                                protocolCode:nil
                                                errorDetails:ADCredentialsNeeded
+                                                   userInfo:underlyingError
                                               correlationId:_correlationId];
+        
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
         completionBlock(result);
         return;
