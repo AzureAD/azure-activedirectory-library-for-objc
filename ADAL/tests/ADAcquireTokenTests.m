@@ -679,6 +679,41 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqualObjects(allItems[0], mrrtItem);
 }
 
+- (void)testMRRTUnauthorizedClient
+{
+    // Refresh tokens should only be deleted when the server returns a 'invalid_grant' error
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    // Add an MRRT to the cache as well
+    ADTokenCacheItem* mrrtItem = [self adCreateMRRTCacheItem];
+    [[context tokenCacheStore] addOrUpdateItem:mrrtItem correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    // Set up the mock connection to simulate a no internet connection error
+    [ADTestURLConnection addResponse:[self adDefaultBadRefreshTokenResponseError:@"unauthorized_client"]];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                            completionBlock:^(ADAuthenticationResult *result)
+    {
+        XCTAssertNotNil(result);
+        XCTAssertEqual(result.status, AD_FAILED);
+        XCTAssertNotNil(result.error);
+        
+        TEST_SIGNAL;
+    }];
+    
+    TEST_WAIT;
+    
+    // The MRRT should still be in the cache
+    NSArray* allItems = [[context tokenCacheStore] allItems:&error];
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 1);
+    XCTAssertEqualObjects(allItems[0], mrrtItem);
+}
+
 - (void)testRequestRetryOnUnusualHttpResponse
 {
     //Create a normal authority (not a test one):

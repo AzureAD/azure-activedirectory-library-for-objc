@@ -294,6 +294,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                        authority:(NSString *)authority
                                         resource:(NSString *)resource
                                         clientId:(NSString *)clientId
+                                      oauthError:(NSString *)oauthError
                                    correlationId:(NSUUID *)correlationId
 {
     NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
@@ -314,19 +315,26 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                       responseURLString:@"https://contoso.com"
                            responseCode:400
                        httpHeaderFields:@{}
-                       dictionaryAsJSON:@{ OAUTH2_ERROR : @"bad_refresh_token",
+                       dictionaryAsJSON:@{ OAUTH2_ERROR : oauthError,
                                            OAUTH2_ERROR_DESCRIPTION : @"oauth error description"}];
     
     return response;
 }
 
-- (ADTestURLResponse *)adDefaultBadRefreshTokenResponse
+- (ADTestURLResponse *)adDefaultBadRefreshTokenResponseError:(NSString*)oauthError
 {
     return [self adResponseBadRefreshToken:TEST_REFRESH_TOKEN
                                  authority:TEST_AUTHORITY
                                   resource:TEST_RESOURCE
                                   clientId:TEST_CLIENT_ID
+                                oauthError:oauthError
                              correlationId:TEST_CORRELATION_ID];
+
+}
+
+- (ADTestURLResponse *)adDefaultBadRefreshTokenResponse
+{
+    return [self adDefaultBadRefreshTokenResponseError:@"invalid_grant"];
 }
 
 - (ADTestURLResponse *)adDefaultRefreshResponse:(NSString *)newRefreshToken
