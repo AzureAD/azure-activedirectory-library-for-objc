@@ -34,10 +34,10 @@
 // Framework versions only support high and low for the double value, sadly.
 #define ADAL_VERSION_NUMBER 2.1
 
-#define ADAL_VERSION_STRING     STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH "-dev"
-#define ADAL_VERSION_NSSTRING   @"" STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH "-dev"
+#define ADAL_VERSION_STRING     STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH
+#define ADAL_VERSION_NSSTRING   @"" STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH
 
-#define ADAL_VERSION_(high, low, patch) adalVersion_ ## high ## _ ## low ## _ ## patch ## _dev
+#define ADAL_VERSION_(high, low, patch) adalVersion_ ## high ## _ ## low ## _ ## patch
 
 // This is specially crafted so the name of the variable matches the full ADAL version
 #define ADAL_VERSION_VAR ADAL_VERSION_(2, 1, 1)
