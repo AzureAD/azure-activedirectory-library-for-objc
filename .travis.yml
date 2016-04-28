@@ -8,6 +8,9 @@ install:
 before_script:
 # Start by nuking any lingering codecov files. These can cause issues when the xcode version changes
   - find . -name "*.gcda" -print0 | xargs -0 rm
+  
+# Nuke the entire derived data folder while we're at it.
+  - rm -rf ~/Library/Developer/Xcode/DerivedData
 
 # Tell the shell to echo failure codes up the pipe so that Travis will properly fail the
 # build when the xcodebuild command fails
