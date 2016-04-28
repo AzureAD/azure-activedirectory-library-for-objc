@@ -34,6 +34,7 @@
 #import "ADTestURLConnection.h"
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheItem+Internal.h"
+#import "ADTokenCacheKey.h"
 
 const int sAsyncContextTimeout = 10;
 
@@ -771,7 +772,10 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
-    XCTAssertTrue([[context tokenCacheStore] addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error]);
+    id<ADTokenCacheAccessor> cache = [context tokenCacheStore];
+    XCTAssertNotNil(cache);
+    
+    XCTAssertTrue([cache addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error]);
     XCTAssertNil(error);
     
     ADTestURLResponse* response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
@@ -781,7 +785,7 @@ const int sAsyncContextTimeout = 10;
                                                  correlationId:TEST_CORRELATION_ID
                                                newRefreshToken:TEST_REFRESH_TOKEN
                                                 newAccessToken:TEST_ACCESS_TOKEN
-                                              additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"familyId"}];
+                                              additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     
     [ADTestURLConnection addResponse:response];
     
@@ -795,11 +799,28 @@ const int sAsyncContextTimeout = 10;
         XCTAssertEqual(result.status, AD_SUCCEEDED);
         XCTAssertNotNil(result.tokenCacheItem);
         XCTAssertEqualObjects(result.accessToken, TEST_ACCESS_TOKEN);
-        XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"familyId");
+        XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
         TEST_SIGNAL;
     }];
 
     TEST_WAIT;
+    
+    // Verfiy the FRT is now properly stored in cache
+    ADTokenCacheKey* frtKey = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY
+                                                       resource:nil
+                                                       clientId:@"foci-1"
+                                                          error:&error];
+    XCTAssertNotNil(frtKey);
+    XCTAssertNil(error);
+    
+    ADTokenCacheItem* frtItem = [cache getItemWithKey:frtKey
+                                               userId:TEST_USER_ID
+                                        correlationId:nil
+                                                error:&error];
+    XCTAssertNotNil(frtItem);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(TEST_REFRESH_TOKEN, frtItem.refreshToken);
 }
 
 - (void)testExtraQueryParams

@@ -273,7 +273,7 @@
     _attemptedFRT = YES;
     
     ADAuthenticationError* error = nil;
-    NSString* fociClientId = [NSString stringWithFormat:@"foci-%@", foci ? foci : @"1"];
+    NSString* fociClientId = [ADAuthenticationRequest fociClientId:foci];
     
     ADTokenCacheItem* frtItem = [self getItemForResource:nil clientId:fociClientId error:&error];
     if (!frtItem && error)

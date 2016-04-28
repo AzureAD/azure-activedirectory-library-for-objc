@@ -25,6 +25,8 @@
 
 @interface ADAuthenticationRequest (TokenCaching)
 
++ (NSString*)fociClientId:(NSString*)familyID;
+
 /*!
     Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
     the item to be stored.
