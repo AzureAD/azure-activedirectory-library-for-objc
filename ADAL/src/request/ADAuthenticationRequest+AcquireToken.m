@@ -94,130 +94,256 @@
 {
     [self ensureRequest];
     
-    //Check the cache:
-    ADAuthenticationError* error = nil;
-    //We are explicitly creating a key first to ensure indirectly that all of the required arguments are correct.
-    //This is the safest way to guarantee it, it will raise an error, if the the any argument is not correct:
-    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_context.authority
-                                                              resource:_resource
-                                                              clientId:_clientId
-                                                                 error:&error];
-    if (!key)
-    {
-        //If the key cannot be extracted, call the callback with the information:
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
-        completionBlock(result);
-        return;
-    }
-    
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && [_context hasCacheStore])
     {
-        //Cache should be used in this case:
-        ADTokenCacheItem* cacheItem = [self findCacheItemWithKey:key
-                                                          userId:_identifier
-                                                           error:&error];
-        if (!cacheItem && error)
-        {
-            completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
-            return;
-        }
-        
-        if (cacheItem)
-        {
-            //Found a promising item in the cache, try using it:
-            [self attemptToUseCacheItem:cacheItem completionBlock:completionBlock];
-            return; //The tryRefreshingFromCacheItem has taken care of the token obtaining
-        }
+        [self getCachedAccessToken:completionBlock];
+        return;
     }
     
     [self requestToken:completionBlock];
 }
 
-/*Attemps to use the cache. Returns YES if an attempt was successful or if an
- internal asynchronous call will proceed the processing. */
-- (void)attemptToUseCacheItem:(ADTokenCacheItem*)item
-              completionBlock:(ADAuthenticationCallback)completionBlock
+- (ADTokenCacheItem *)getItemForResource:(NSString*)resource
+                                clientId:(NSString*)clientId
+                                   error:(ADAuthenticationError * __autoreleasing *)error
 {
-    //All of these should be set before calling this method:
-    THROW_ON_NIL_ARGUMENT(completionBlock);
-    AD_REQUEST_CHECK_ARGUMENT(item);
-    AD_REQUEST_CHECK_PROPERTY(_resource);
-    AD_REQUEST_CHECK_PROPERTY(_clientId);
-    
-    [self ensureRequest];
-    
-    if (item.accessToken && !item.isExpired)
+    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_context.authority
+                                                    resource:resource
+                                                    clientId:clientId
+                                                       error:error];
+    if (!key)
     {
-        //Access token is good, just use it:
-        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:_correlationId];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheItem:item multiResourceRefreshToken:NO correlationId:_correlationId];
-        completionBlock(result);
-        return;
+        return nil;
     }
     
-    if ([NSString adIsStringNilOrBlank:item.refreshToken])
+    return [[_context tokenCacheStore] getItemWithKey:key
+                                               userId:_identifier.userId
+                                        correlationId:_correlationId
+                                                error:error];
+}
+
+- (ADTokenCacheItem*)getUnkownUserADFSToken:(ADAuthenticationError * __autoreleasing *)error
+{
+    // ADFS fix: When talking to ADFS directly we can get ATs and RTs (but not MRRTs or FRTs) without
+    // id tokens. In those cases we do not know who they belong to and cache them with a blank userId
+    // (@"").
+    
+    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_context.authority
+                                                    resource:_resource
+                                                    clientId:_clientId
+                                                       error:error];
+    if (!key)
     {
-        completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"Attempting to use an item without refresh token." correlationId:_correlationId]
-                                                  correlationId:_correlationId]);
-        return;
+        return nil;
     }
     
-    //Now attempt to use the refresh token of the passed cache item:
-    BOOL isMultiResourceRefreshToken = [item isMultiResourceRefreshToken];
+    return [[_context tokenCacheStore] getItemWithKey:key userId:@"" correlationId:_correlationId error:error];
+}
+
+- (void)acquireTokenWithItem:(ADTokenCacheItem *)item
+                 refreshType:(NSString *)refreshType
+             completionBlock:(ADAuthenticationCallback)completionBlock
+                    fallback:(ADAuthenticationCallback)fallback
+{
     [self acquireTokenByRefreshToken:item.refreshToken
                            cacheItem:item
                      completionBlock:^(ADAuthenticationResult *result)
      {
-         if (result.status == AD_SUCCEEDED)
+         NSString* msg = nil;
+         if (refreshType)
          {
-             AD_LOG_INFO_F(@"acquire token with refresh token succeeded", nil,  @"clientId: '%@'; resource: '%@';", _clientId, _resource);
+             msg = [NSString stringWithFormat:@"Acquire Token with %@ Refresh Token %@.", refreshType, result.status == AD_SUCCEEDED ? @"Succeeded" : @"Failed"];
+         }
+         else
+         {
+             msg = [NSString stringWithFormat:@"Acquire Token with Refresh Token %@.", result.status == AD_SUCCEEDED ? @"Succeeded" : @"Failed"];
          }
          
-         //Asynchronous block:
+         AD_LOG_INFO_F(msg, _correlationId, @"clientId: '%@'; resource: '%@';", _clientId, _resource);
+         
          if ([ADAuthenticationContext isFinalResult:result])
          {
              completionBlock(result);
              return;
          }
          
-         //Try other means of getting access token result:
-         if (!isMultiResourceRefreshToken)//Try multi-resource refresh token if not currently trying it
-         {
-             ADTokenCacheKey* broadKey = [ADTokenCacheKey keyWithAuthority:_context.authority resource:nil clientId:_clientId error:nil];
-             if (broadKey)
-             {
-                 ADAuthenticationError* error;
-                 ADTokenCacheItem* broadItem = [self findCacheItemWithKey:broadKey userId:_identifier error:&error];
-                 if (!broadItem && error)
-                 {
-                     completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
-                     return;
-                 }
-                 
-                 if (broadItem)
-                 {
-                     if (![broadItem isMultiResourceRefreshToken])
-                     {
-                         AD_LOG_WARN(@"Unexpected", _correlationId, @"Multi-resource refresh token expected here.");
-                         //Recover (avoid infinite recursion):
-                         completionBlock(result);
-                         return;
-                     }
-                     
-                     //Call recursively with the cache item containing a multi-resource refresh token:
-                     [self attemptToUseCacheItem:broadItem
-                                 completionBlock:completionBlock];
-                     return;//The call above takes over, no more processing
-                 }//broad item
-             }//key
-         }//!item.multiResourceRefreshToken
-         
-         //The refresh token attempt failed and no other suitable refresh token found
-         //call acquireToken
+         fallback(result);
+     }];
+}
+
+/*Attemps to use the cache. Returns YES if an attempt was successful or if an
+ internal asynchronous call will proceed the processing. */
+- (void)getCachedAccessToken:(ADAuthenticationCallback)completionBlock
+{
+    //All of these should be set before calling this method:
+    THROW_ON_NIL_ARGUMENT(completionBlock);
+    AD_REQUEST_CHECK_PROPERTY(_resource);
+    AD_REQUEST_CHECK_PROPERTY(_clientId);
+    
+    [self ensureRequest];
+    
+    BOOL fADFSUser = NO;
+    
+    ADAuthenticationError* error = nil;
+    ADTokenCacheItem* item = [self getItemForResource:_resource clientId:_clientId error:&error];
+    if (!item && error)
+    {
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+        return;
+    }
+    
+    if (!item)
+    {
+        item = [self getUnkownUserADFSToken:&error];
+        if (!item && error)
+        {
+            completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+            return;
+        }
+        
+        if (item)
+        {
+            fADFSUser = YES;
+        }
+    }
+    
+    // If we have a good (non-expired) access token then return it right away
+    if (item.accessToken && !item.isExpired)
+    {
+        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:_correlationId];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheItem:item multiResourceRefreshToken:NO correlationId:_correlationId];
+        completionBlock(result);
+        return;
+    }
+
+    if (!item.refreshToken)
+    {
+        // There's nothing usable in this cache item, delete it.
+        if (![[_context tokenCacheStore] removeItem:item error:&error] && error)
+        {
+            completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+            return;
+        }
+        
+        // If we're not a ADFS user try the MRRT
+        if (!fADFSUser)
+        {
+            [self useCachedMRRT:completionBlock];
+            return;
+        }
+        
+        // Otherwise go straight to interactive auth
+        [self requestToken:completionBlock];
+        return;
+    }
+    
+    [self acquireTokenWithItem:item
+                   refreshType:nil
+               completionBlock:completionBlock
+                      fallback:^(ADAuthenticationResult* result)
+    {
+        (void)result;
+        // If we had an individual RT associated with this item then we aren't
+        // talking to AAD so there won't be an MRRT. Go straight to interactive
+        // auth.
+        [self requestToken:completionBlock];
+    }];
+}
+
+- (void)useCachedMRRT:(ADAuthenticationCallback)completionBlock
+{
+    ADAuthenticationError* error = nil;
+    
+    // If we don't have an item yet see if we can pull one out of the cache
+    if (!_mrrtItem)
+    {
+        _mrrtItem = [self getItemForResource:nil clientId:_clientId error:&error];
+        if (!_mrrtItem && error)
+        {
+            completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+            return;
+        }
+    }
+    
+    // If we still don't have an item try to use a FRT
+    if (!_mrrtItem)
+    {
+        [self useCachedFRT:nil completionBlock:completionBlock];
+        return;
+    }
+    
+    // If our MRRT is marked with an Family ID and we haven't tried a FRT yet
+    // try that first
+    if (_mrrtItem.familyId && !_attemptedFRT)
+    {
+        [self useCachedFRT:_mrrtItem.familyId completionBlock:completionBlock];
+        return;
+    }
+    
+    // Otherwise try the MRRT
+    [self acquireTokenWithItem:_mrrtItem
+                   refreshType:@"Multi Resource"
+               completionBlock:completionBlock
+                      fallback:^(ADAuthenticationResult* result)
+    {
          _underlyingError = result.error;
          SAFE_ARC_RETAIN(_underlyingError);
-         [self requestToken:completionBlock];
-     }];//End of the refreshing token completion block, executed asynchronously.
+         
+         NSString* familyId = _mrrtItem.familyId;
+         
+         // Clear out the MRRT as it's not good anymore anyways
+         _mrrtItem = nil;
+        
+        // Try the FRT in case it's there.
+         [self useCachedFRT:familyId completionBlock:completionBlock];
+     }];
+}
+
+- (void)useCachedFRT:(NSString*)foci
+     completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    if (_attemptedFRT)
+    {
+        [self requestToken:completionBlock];
+        return;
+    }
+    _attemptedFRT = YES;
+    
+    ADAuthenticationError* error = nil;
+    NSString* fociClientId = [NSString stringWithFormat:@"foci-%@", foci ? foci : @"1"];
+    
+    ADTokenCacheItem* frtItem = [self getItemForResource:nil clientId:fociClientId error:&error];
+    if (!frtItem && error)
+    {
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+        return;
+    }
+    
+    if (!frtItem)
+    {
+        if (_mrrtItem)
+        {
+            [self useCachedMRRT:completionBlock];
+        }
+        else
+        {
+            [self requestToken:completionBlock];
+        }
+        return;
+    }
+    
+    [self acquireTokenWithItem:frtItem refreshType:@"Family" completionBlock:completionBlock fallback:^(ADAuthenticationResult *result)
+    {
+        (void)result;
+        
+        if (_mrrtItem)
+        {
+            [self useCachedMRRT:completionBlock];
+            return;
+        }
+        
+        [self requestToken:completionBlock];
+    }];
 }
 
 - (void)requestToken:(ADAuthenticationCallback)completionBlock

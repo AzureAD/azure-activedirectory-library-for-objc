@@ -68,6 +68,9 @@
     NSString* _logComponent;
     
     BOOL _requestStarted;
+    BOOL _attemptedFRT;
+    
+    ADTokenCacheItem* _mrrtItem;
     
     ADAuthenticationError* _underlyingError;
 }
