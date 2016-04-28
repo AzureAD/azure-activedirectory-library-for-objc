@@ -96,48 +96,11 @@
     
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && [_context hasCacheStore])
     {
-        [self getCachedAccessToken:completionBlock];
+        [self tryAccessToken:completionBlock];
         return;
     }
     
     [self requestToken:completionBlock];
-}
-
-- (ADTokenCacheItem *)getItemForResource:(NSString*)resource
-                                clientId:(NSString*)clientId
-                                   error:(ADAuthenticationError * __autoreleasing *)error
-{
-    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_context.authority
-                                                    resource:resource
-                                                    clientId:clientId
-                                                       error:error];
-    if (!key)
-    {
-        return nil;
-    }
-    
-    return [[_context tokenCacheStore] getItemWithKey:key
-                                               userId:_identifier.userId
-                                        correlationId:_correlationId
-                                                error:error];
-}
-
-- (ADTokenCacheItem*)getUnkownUserADFSToken:(ADAuthenticationError * __autoreleasing *)error
-{
-    // ADFS fix: When talking to ADFS directly we can get ATs and RTs (but not MRRTs or FRTs) without
-    // id tokens. In those cases we do not know who they belong to and cache them with a blank userId
-    // (@"").
-    
-    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_context.authority
-                                                    resource:_resource
-                                                    clientId:_clientId
-                                                       error:error];
-    if (!key)
-    {
-        return nil;
-    }
-    
-    return [[_context tokenCacheStore] getItemWithKey:key userId:@"" correlationId:_correlationId error:error];
 }
 
 - (void)acquireTokenWithItem:(ADTokenCacheItem *)item
@@ -173,7 +136,7 @@
 
 /*Attemps to use the cache. Returns YES if an attempt was successful or if an
  internal asynchronous call will proceed the processing. */
-- (void)getCachedAccessToken:(ADAuthenticationCallback)completionBlock
+- (void)tryAccessToken:(ADAuthenticationCallback)completionBlock
 {
     //All of these should be set before calling this method:
     THROW_ON_NIL_ARGUMENT(completionBlock);
@@ -228,7 +191,7 @@
         // If we're not a ADFS user try the MRRT
         if (!fADFSUser)
         {
-            [self useCachedMRRT:completionBlock];
+            [self tryMRRT:completionBlock];
             return;
         }
         
@@ -250,7 +213,7 @@
     }];
 }
 
-- (void)useCachedMRRT:(ADAuthenticationCallback)completionBlock
+- (void)tryMRRT:(ADAuthenticationCallback)completionBlock
 {
     ADAuthenticationError* error = nil;
     
@@ -268,7 +231,7 @@
     // If we still don't have an item try to use a FRT
     if (!_mrrtItem)
     {
-        [self useCachedFRT:nil completionBlock:completionBlock];
+        [self tryFRT:nil completionBlock:completionBlock];
         return;
     }
     
@@ -276,7 +239,7 @@
     // try that first
     if (_mrrtItem.familyId && !_attemptedFRT)
     {
-        [self useCachedFRT:_mrrtItem.familyId completionBlock:completionBlock];
+        [self tryFRT:_mrrtItem.familyId completionBlock:completionBlock];
         return;
     }
     
@@ -295,11 +258,11 @@
          _mrrtItem = nil;
         
         // Try the FRT in case it's there.
-         [self useCachedFRT:familyId completionBlock:completionBlock];
+         [self tryFRT:familyId completionBlock:completionBlock];
      }];
 }
 
-- (void)useCachedFRT:(NSString*)foci
+- (void)tryFRT:(NSString*)foci
      completionBlock:(ADAuthenticationCallback)completionBlock
 {
     if (_attemptedFRT)
@@ -323,7 +286,7 @@
     {
         if (_mrrtItem)
         {
-            [self useCachedMRRT:completionBlock];
+            [self tryMRRT:completionBlock];
         }
         else
         {
@@ -338,7 +301,7 @@
         
         if (_mrrtItem)
         {
-            [self useCachedMRRT:completionBlock];
+            [self tryMRRT:completionBlock];
             return;
         }
         
@@ -349,6 +312,12 @@
 - (void)requestToken:(ADAuthenticationCallback)completionBlock
 {
     [self ensureRequest];
+    
+    if (_samlAssertion)
+    {
+        [self requestTokenByAssertion:completionBlock];
+        return;
+    }
 
     if (_silent && !_allowSilent)
     {

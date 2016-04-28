@@ -23,20 +23,7 @@
 
 @interface ADAuthenticationRequest (AcquireAssertion)
 
-- (void)acquireTokenForAssertion:(NSString*)samlAssertion
-                   assertionType:(ADAssertionType)assertionType
-                 completionBlock:(ADAuthenticationCallback)completionBlock;
-
-/*Attemps to use the cache. Returns YES if an attempt was successful or if an
- internal asynchronous call will proceed the processing. */
-- (void)attemptToUseCacheItem:(ADTokenCacheItem*)item
-                samlAssertion:(NSString*)samlAssertion
-                assertionType:(ADAssertionType)assertionType
-              completionBlock:(ADAuthenticationCallback)completionBlock;
-
 // Generic OAuth2 Authorization Request, obtains a token from a SAML assertion.
-- (void)requestTokenByAssertion:(NSString *)samlAssertion
-                  assertionType:(ADAssertionType)assertionType
-                     completion:(ADAuthenticationCallback)completionBlock;
+- (void)requestTokenByAssertion:(ADAuthenticationCallback)completionBlock;
 
 @end

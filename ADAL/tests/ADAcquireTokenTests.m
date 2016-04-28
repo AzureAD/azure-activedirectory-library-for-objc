@@ -202,7 +202,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_FAILED);
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
-         ADTAssertContains(result.error.errorDetails, @"samlAssertion");
+         ADTAssertContains(result.error.errorDetails, @"assertion");
          
          TEST_SIGNAL;
      }];

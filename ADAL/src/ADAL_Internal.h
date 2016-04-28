@@ -45,12 +45,14 @@
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "ADAuthenticationError+Internal.h"
+#import "ADAuthenticationResult+Internal.h"
 #import "NSString+ADHelperMethods.h"
 
 @class ADAuthenticationResult;
 
 /*! The completion block declaration. */
 typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
+
 
 #if TARGET_OS_IPHONE
 //iOS:
@@ -62,6 +64,7 @@ typedef UIWebView WebViewType;
 typedef WebView   WebViewType;
 #endif
 
+#import "ADAuthenticationRequest.h"
 
 //Helper macro to initialize a variable named __where string with place in file details:
 #define WHERE \
