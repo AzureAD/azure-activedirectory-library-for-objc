@@ -70,6 +70,7 @@ typedef enum
                                        authority:(NSString *)authority
                                         resource:(NSString *)resource
                                         clientId:(NSString *)clientId
+                                      oauthError:(NSString *)oauthError
                                    correlationId:(NSUUID *)correlationId;
 - (ADTestURLResponse *)adDefaultBadRefreshTokenResponseError:(NSString*)oauthError;
 - (ADTestURLResponse *)adDefaultBadRefreshTokenResponse;
