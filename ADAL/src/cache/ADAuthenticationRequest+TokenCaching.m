@@ -152,7 +152,6 @@
         multiRefreshTokenItem.resource = nil;
         multiRefreshTokenItem.expiresOn = nil;
         [tokenCacheStore addOrUpdateItem:multiRefreshTokenItem correlationId:_correlationId error:nil];
-        SAFE_ARC_RELEASE(multiRefreshTokenItem);
         
         // If the item is also a Family Refesh Token (FRT) we update the FRT
         // as well so we have a guaranteed spot to look for the most recent FRT.
@@ -165,7 +164,7 @@
             [tokenCacheStore addOrUpdateItem:frtItem correlationId:_correlationId error:nil];
             SAFE_ARC_RELEASE(frtItem);
         }
-        
+        SAFE_ARC_RELEASE(multiRefreshTokenItem);
     }
     
     AD_LOG_VERBOSE_F(@"Token cache store", _correlationId, @"Storing access token for resource: %@", cacheItem.resource);
