@@ -209,16 +209,48 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 - (ADTokenCacheItem *)adCreateMRRTCacheItem
 {
-    return [self adCreateMRRTCacheItem:TEST_USER_ID];
+    return [self adCreateMRRTCacheItem:TEST_USER_ID familyId:nil];
 }
 
 - (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
+{
+    return [self adCreateMRRTCacheItem:userId familyId:nil];
+}
+
+- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
+                                   familyId:(NSString *)foci
 {
     // A MRRT item is just a refresh token, it doesn't have a specified resource
     // an expiration time (that we know about) and covers multiple ATs.
     ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
     item.authority = TEST_AUTHORITY;
     item.clientId = TEST_CLIENT_ID;
+    item.refreshToken = TEST_REFRESH_TOKEN;
+    item.familyId = foci;
+    if (![NSString adIsStringNilOrBlank:userId])
+    {
+        item.userInformation = [self adCreateUserInformation:userId];
+    }
+    
+    SAFE_ARC_AUTORELEASE(item);
+    
+    return item;
+}
+
+- (ADTokenCacheItem *)adCreateFRTCacheItem
+{
+    return [self adCreateFRTCacheItem:@"1" userId:TEST_USER_ID];
+}
+
+- (ADTokenCacheItem *)adCreateFRTCacheItem:(NSString *)foci
+                                    userId:(NSString *)userId
+{
+    ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
+    item.authority = TEST_AUTHORITY;
+    // This should match the implementation in +[ADAuthenticationRequest fociClientId:]
+    // think long and hard before changing this.
+    item.clientId = [NSString stringWithFormat:@"foci-%@", foci];
+    item.familyId = foci;
     item.refreshToken = TEST_REFRESH_TOKEN;
     if (![NSString adIsStringNilOrBlank:userId])
     {

@@ -823,6 +823,47 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqualObjects(TEST_REFRESH_TOKEN, frtItem.refreshToken);
 }
 
+- (void)testAcquireTokenUsingFRT
+{
+    // Simplest FRT case, the only RT available is the FRT so that would should be the one used
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    id<ADTokenCacheAccessor> cache = [context tokenCacheStore];
+    XCTAssertNotNil(cache);
+    
+    XCTAssertTrue([cache addOrUpdateItem:[self adCreateFRTCacheItem] correlationId:nil error:&error]);
+    XCTAssertNil(error);
+    
+    ADTestURLResponse* response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                 correlationId:TEST_CORRELATION_ID
+                                               newRefreshToken:TEST_REFRESH_TOKEN
+                                                newAccessToken:TEST_ACCESS_TOKEN
+                                              additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
+    
+    [ADTestURLConnection addResponse:response];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertEqualObjects(result.accessToken, TEST_ACCESS_TOKEN);
+         XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+    
+}
+
 - (void)testExtraQueryParams
 {
     // TODO: Requires testing auth code flow

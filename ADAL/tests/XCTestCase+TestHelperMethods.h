@@ -119,6 +119,11 @@ typedef enum
                                    userId:(NSString *)userId;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId;
+- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
+                                   familyId:(NSString *)familyId;
+- (ADTokenCacheItem *)adCreateFRTCacheItem;
+- (ADTokenCacheItem *)adCreateFRTCacheItem:(NSString *)familyId
+                                    userId:(NSString *)userId;
 - (ADTokenCacheKey *)adCreateCacheKey;
 
 //Creates a sample user information object
