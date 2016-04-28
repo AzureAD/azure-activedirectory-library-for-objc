@@ -1018,6 +1018,73 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqualObjects(frtItem.refreshToken, @"new family refresh token");
 }
 
+- (void)testFociMRRTWithNoFRT
+{
+    // This case is to make sure that if we have a MRRT marked with a family ID but no FRT in the
+    // cache that we still use the MRRT
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    id<ADTokenCacheAccessor> cache = [context tokenCacheStore];
+    XCTAssertNotNil(cache);
+    
+    XCTAssertTrue([cache addOrUpdateItem:[self adCreateMRRTCacheItem:TEST_USER_ID familyId:@"1"] correlationId:nil error:&error]);
+    XCTAssertNil(error);
+    
+    ADTestURLResponse* mrrtResponse =
+    [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                       authority:TEST_AUTHORITY
+                        resource:TEST_RESOURCE
+                        clientId:TEST_CLIENT_ID
+                   correlationId:TEST_CORRELATION_ID
+                 newRefreshToken:@"new family refresh token"
+                  newAccessToken:@"new access token"
+                additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
+    [ADTestURLConnection addResponse:mrrtResponse];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertEqualObjects(result.accessToken, @"new access token");
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new family refresh token");
+         XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+    
+    // Make sure that cache state is properly updated
+    ADTokenCacheKey* mrrtKey = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY
+                                                        resource:nil
+                                                        clientId:TEST_CLIENT_ID
+                                                           error:&error];
+    XCTAssertNotNil(mrrtKey);
+    XCTAssertNil(error);
+    
+    ADTokenCacheItem* mrrtItem = [cache getItemWithKey:mrrtKey userId:TEST_USER_ID correlationId:nil error:&error];
+    XCTAssertNotNil(mrrtItem);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(mrrtItem.refreshToken, @"new family refresh token");
+    XCTAssertEqualObjects(mrrtItem.familyId, @"1");
+    
+    ADTokenCacheKey* frtKey = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY
+                                                       resource:nil
+                                                       clientId:@"foci-1"
+                                                          error:&error];
+    XCTAssertNotNil(frtKey);
+    XCTAssertNil(error);
+    
+    ADTokenCacheItem* frtItem = [cache getItemWithKey:frtKey userId:TEST_USER_ID correlationId:nil error:&error];
+    XCTAssertNotNil(frtItem);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(frtItem.refreshToken, @"new family refresh token");
+}
+
 - (void)testExtraQueryParams
 {
     // TODO: Requires testing auth code flow
