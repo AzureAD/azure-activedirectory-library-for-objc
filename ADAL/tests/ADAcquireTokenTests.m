@@ -835,12 +835,12 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([cache addOrUpdateItem:[self adCreateFRTCacheItem] correlationId:nil error:&error]);
     XCTAssertNil(error);
     
-    ADTestURLResponse* response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+    ADTestURLResponse* response = [self adResponseRefreshToken:@"family refresh token"
                                                      authority:TEST_AUTHORITY
                                                       resource:TEST_RESOURCE
                                                       clientId:TEST_CLIENT_ID
                                                  correlationId:TEST_CORRELATION_ID
-                                               newRefreshToken:TEST_REFRESH_TOKEN
+                                               newRefreshToken:@"new family refresh token"
                                                 newAccessToken:TEST_ACCESS_TOKEN
                                               additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     
@@ -856,6 +856,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertEqual(result.status, AD_SUCCEEDED);
          XCTAssertNotNil(result.tokenCacheItem);
          XCTAssertEqualObjects(result.accessToken, TEST_ACCESS_TOKEN);
+         XCTAssertEqualObjects(result.tokenCacheItem.refreshToken, @"new family refresh token");
          XCTAssertEqualObjects(result.tokenCacheItem.familyId, @"1");
          TEST_SIGNAL;
      }];

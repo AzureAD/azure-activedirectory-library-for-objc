@@ -251,7 +251,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     // think long and hard before changing this.
     item.clientId = [NSString stringWithFormat:@"foci-%@", foci];
     item.familyId = foci;
-    item.refreshToken = TEST_REFRESH_TOKEN;
+    item.refreshToken = @"family refresh token";
     if (![NSString adIsStringNilOrBlank:userId])
     {
         item.userInformation = [self adCreateUserInformation:userId];
