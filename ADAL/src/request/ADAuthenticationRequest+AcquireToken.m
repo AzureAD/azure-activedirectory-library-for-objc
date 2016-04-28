@@ -164,10 +164,12 @@
             return;
         }
         
-        if (item)
+        if (!item)
         {
-            fADFSUser = YES;
+            [self tryMRRT:completionBlock];
+            return;
         }
+        fADFSUser = YES;
     }
     
     // If we have a good (non-expired) access token then return it right away
