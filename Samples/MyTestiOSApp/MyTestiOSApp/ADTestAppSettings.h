@@ -33,7 +33,9 @@ extern NSString* ADTestAppCacheChangeNotification;
 @property NSString* clientId;
 @property NSString* resource;
 
-
 + (ADTestAppSettings*)settings;
+
+
+- (void)setFromDictionary:(NSDictionary*)settings;
 
 @end

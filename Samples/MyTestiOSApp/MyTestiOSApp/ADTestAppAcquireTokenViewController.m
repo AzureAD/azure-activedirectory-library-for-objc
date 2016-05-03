@@ -38,6 +38,8 @@
     IBOutlet UISegmentedControl* _webViewType;
     IBOutlet UISegmentedControl* _fullScreen;
     
+    IBOutlet UITextView* _resultView;
+    
     IBOutlet UIView* _authView;
     IBOutlet UIWebView* _webView;
 }
@@ -56,9 +58,6 @@
     
     return self;
 }
-
-
-
 
 - (void)viewDidLoad
 {
@@ -156,6 +155,27 @@
     [self acquireTokenInteractive:AD_PROMPT_AUTO];
 }
 
+- (void)updateResultView:(ADAuthenticationResult*)result
+{
+    NSString* resultStatus = nil;
+    
+    switch (result.status)
+    {
+        case AD_SUCCEEDED : resultStatus = @"AD_SUCCEEDED"; break;
+        case AD_FAILED : resultStatus = @"AD_FAILED"; break;
+        case AD_USER_CANCELLED : resultStatus = @"AD_USER_CANCELLED"; break;
+        default:
+            resultStatus = [NSString stringWithFormat:@"Unknown (%d)", result.status];
+            break;
+    }
+    
+    NSString* resultText = [NSString stringWithFormat:@"{\n\tstatus = %@;\n\terror = %@\n\tcorrelation ID = %@\n\ttokenCacheItem = %@\n}", resultStatus, result.error, result.correlationId, result.tokenCacheItem];
+    
+    [_resultView setText:resultText];
+    
+    printf("%s", [resultText UTF8String]);
+}
+
 - (void)acquireTokenInteractive:(ADPromptBehavior)promptBehavior
 {
     ADTestAppSettings* settings = [ADTestAppSettings settings];
@@ -208,9 +228,12 @@
             return;
         }
         fBlockHit = YES;
-        NSLog(@"result: %@", result);
+        
+        
         
         dispatch_async(dispatch_get_main_queue(), ^{
+            [self updateResultView:result];
+            
             if ([_acquireSettingsView isHidden])
             {
                 [_webView loadHTMLString:@"<html><head></head><body>done!</body></html>" baseURL:nil];
@@ -251,18 +274,23 @@
     {
         if (fBlockHit)
         {
-            UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Error!"
-                                                                           message:@"Completion block was hit multiple times!"
-                                                                    preferredStyle:UIAlertControllerStyleAlert];
-            
-            [self presentViewController:alert animated:YES completion:nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Error!"
+                                                                               message:@"Completion block was hit multiple times!"
+                                                                        preferredStyle:UIAlertControllerStyleAlert];
+                
+                [self presentViewController:alert animated:YES completion:nil];
+            });
+            return;
         }
         fBlockHit = YES;
-        NSLog(@"result: %@", result);
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:ADTestAppCacheChangeNotification object:self];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self updateResultView:result];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:ADTestAppCacheChangeNotification object:self];
+        });
     }];
-    
 }
 
 @end

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10116" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -14,6 +14,7 @@
                 <outlet property="_authView" destination="orS-Qq-OUM" id="SzN-9h-CUB"/>
                 <outlet property="_credentialsType" destination="P1s-oS-Vzp" id="yCu-DQ-9Lo"/>
                 <outlet property="_fullScreen" destination="gCe-17-wmq" id="Mch-6c-j89"/>
+                <outlet property="_resultView" destination="mWT-SQ-yZi" id="OHc-Kh-wi5"/>
                 <outlet property="_userIdField" destination="SgI-Un-Oat" id="DhN-rW-EuJ"/>
                 <outlet property="_userIdType" destination="2JR-Jf-euR" id="HvD-pg-HH0"/>
                 <outlet property="_webView" destination="ZJD-6I-rIr" id="55I-Rd-vuh"/>
@@ -168,13 +169,21 @@
                         <constraint firstItem="jv6-9i-Wob" firstAttribute="baseline" secondItem="M4r-Zc-dBi" secondAttribute="baseline" id="qfy-hw-qGn"/>
                     </constraints>
                 </view>
+                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="mWT-SQ-yZi">
+                    <rect key="frame" x="8" y="205" width="584" height="349"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                </textView>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <constraints>
                 <constraint firstItem="0zg-6e-gSv" firstAttribute="top" secondItem="2JR-Jf-euR" secondAttribute="bottom" constant="9" id="44Z-ZL-xeN"/>
                 <constraint firstAttribute="trailing" secondItem="0zg-6e-gSv" secondAttribute="trailing" id="5IN-DJ-Qd0"/>
                 <constraint firstItem="0zg-6e-gSv" firstAttribute="centerX" secondItem="ZMN-vd-zcr" secondAttribute="centerX" id="CSp-xl-OvI"/>
+                <constraint firstItem="ZMN-vd-zcr" firstAttribute="top" secondItem="mWT-SQ-yZi" secondAttribute="bottom" constant="8" symbolic="YES" id="IKl-Pm-OOX"/>
                 <constraint firstItem="2JR-Jf-euR" firstAttribute="baseline" secondItem="jOf-i3-Mew" secondAttribute="firstBaseline" id="ILT-Lr-2Ip"/>
+                <constraint firstItem="mWT-SQ-yZi" firstAttribute="top" secondItem="0zg-6e-gSv" secondAttribute="bottom" constant="8" symbolic="YES" id="M68-P2-lg8"/>
                 <constraint firstItem="SgI-Un-Oat" firstAttribute="centerY" secondItem="2JR-Jf-euR" secondAttribute="centerY" id="Pxe-nJ-Z3p"/>
                 <constraint firstItem="2JR-Jf-euR" firstAttribute="leading" secondItem="SgI-Un-Oat" secondAttribute="trailing" constant="8" symbolic="YES" id="YXY-KU-T6B"/>
                 <constraint firstItem="SgI-Un-Oat" firstAttribute="leading" secondItem="jOf-i3-Mew" secondAttribute="trailing" constant="8" symbolic="YES" id="ZAf-97-g2i"/>
@@ -182,8 +191,10 @@
                 <constraint firstItem="SgI-Un-Oat" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="25" id="aek-Jg-q1g"/>
                 <constraint firstItem="jOf-i3-Mew" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leadingMargin" id="drh-mV-6fi"/>
                 <constraint firstItem="jOf-i3-Mew" firstAttribute="centerY" secondItem="SgI-Un-Oat" secondAttribute="centerY" id="hP3-66-R7W"/>
+                <constraint firstItem="mWT-SQ-yZi" firstAttribute="leading" secondItem="jOf-i3-Mew" secondAttribute="leading" id="hn0-OK-LdY"/>
                 <constraint firstItem="ZMN-vd-zcr" firstAttribute="bottom" secondItem="iN0-l3-epB" secondAttribute="bottomMargin" id="hzb-Fp-ePe"/>
                 <constraint firstItem="jOf-i3-Mew" firstAttribute="baseline" secondItem="2JR-Jf-euR" secondAttribute="baseline" id="qey-72-0gM"/>
+                <constraint firstItem="mWT-SQ-yZi" firstAttribute="trailing" secondItem="2JR-Jf-euR" secondAttribute="trailing" id="rWh-nl-XCe"/>
                 <constraint firstItem="0zg-6e-gSv" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="sZ1-gp-dSQ"/>
                 <constraint firstItem="0zg-6e-gSv" firstAttribute="top" secondItem="jOf-i3-Mew" secondAttribute="bottom" constant="14" id="vXS-zL-4KU"/>
                 <constraint firstItem="2JR-Jf-euR" firstAttribute="trailing" secondItem="iN0-l3-epB" secondAttribute="trailingMargin" id="xhv-Ef-4Jx"/>
