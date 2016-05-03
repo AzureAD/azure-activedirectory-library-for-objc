@@ -26,6 +26,9 @@
 NSString* ADTestAppCacheChangeNotification = @"ADTestAppCacheChangeNotification";
 
 @implementation ADTestAppSettings
+{
+    NSDictionary* _settings;
+}
 
 + (ADTestAppSettings*)settings
 {
@@ -44,25 +47,26 @@ NSString* ADTestAppCacheChangeNotification = @"ADTestAppCacheChangeNotification"
         return nil;
     }
     
-    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    NSDictionary* defaultSettings =
+    @{ @"authority" : @"https://login.microsoftonline.com/common",
+       @"resource" : @"https://graph.windows.net",
+       // NOTE: The settings below should come from your registered application on
+       //       the azure management portal.
+       @"clientId" : @"b92e0ba5-f86e-4411-8e18-6b5f928d968a",
+       @"redirectUri" : @"x-msauth-adaltestapp-210://com.microsoft.adal.2.1.0.TestApp",
+       };
     
-    NSDictionary* defaultValues = @{ @"authority" : @"https://login.microsoftonline.com/common",
-                                     @"resource" : @"https://graph.windows.net",
-                                     // NOTE: The settings below should come from your registered application on
-                                     //       the azure management portal.
-                                     @"clientId" : @"b92e0ba5-f86e-4411-8e18-6b5f928d968a",
-                                     @"redirectUri" : @"x-msauth-adaltestapp-210://com.microsoft.adal.2.1.0.TestApp",
-                                     };
-    
-    [defaults registerDefaults:defaultValues];
-    
-    
-    self.authority = [defaults stringForKey:@"authority"];
-    self.clientId = [defaults stringForKey:@"clientId"];
-    self.redirectUri = [NSURL URLWithString:[defaults stringForKey:@"redirectUri"]];
-    self.resource = [defaults stringForKey:@"resource"];
+    [self setFromDictionary:defaultSettings];
     
     return self;
+}
+
+- (void)setFromDictionary:(NSDictionary *)settings
+{
+    self.authority = [settings objectForKey:@"authority"];
+    self.clientId = [settings objectForKey:@"clientId"];
+    self.redirectUri = [NSURL URLWithString:[settings objectForKey:@"redirectUri"]];
+    self.resource = [settings objectForKey:@"resource"];
 }
 
 @end

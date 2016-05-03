@@ -55,8 +55,17 @@
     
     ADTestAppAcquireTokenViewController* tokenController = [ADTestAppAcquireTokenViewController new];
     [_tabBar addChildViewController:tokenController];
+    
+    // Settings controller is contained in a navigation controller
     ADTestAppSettingsViewController* settingsController = [ADTestAppSettingsViewController new];
-    [_tabBar addChildViewController:settingsController];
+    
+    UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:settingsController];
+    navController.navigationBar.hidden = NO;
+    navController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Settings"
+                                                             image:[UIImage imageNamed:@"Settings"]
+                                                               tag:0];
+    [_tabBar addChildViewController:navController];
+    
     ADTestAppCacheViewController* cacheController = [ADTestAppCacheViewController new];
     [_tabBar addChildViewController:cacheController];
     ADTestAppLogViewController* logController = [ADTestAppLogViewController new];

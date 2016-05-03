@@ -298,7 +298,14 @@
                     NSString* resource = item.resource;
                     if (!resource)
                     {
-                        resource = @"<MRRT>";
+                        if ([clientId hasPrefix:@"foci-"])
+                        {
+                            resource = @"<FRT>";
+                        }
+                        else
+                        {
+                            resource = @"<MRRT>";
+                        }
                     }
                     tokenItem.title = resource;
                     tokenItem.item = item;
