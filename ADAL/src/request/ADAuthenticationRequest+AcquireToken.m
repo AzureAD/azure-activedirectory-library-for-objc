@@ -96,7 +96,7 @@
     
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && [_context hasCacheStore])
     {
-        [self tryAccessToken:completionBlock];
+        [self findAccessToken:completionBlock];
         return;
     }
     
@@ -134,9 +134,13 @@
      }];
 }
 
-/*Attemps to use the cache. Returns YES if an attempt was successful or if an
- internal asynchronous call will proceed the processing. */
-- (void)tryAccessToken:(ADAuthenticationCallback)completionBlock
+/*
+    This is the beginning of the cache look up sequence. We start by trying to find an access token that is not
+    expired. If there's a single-resource-refresh-token it will be cached along side an expire AT, and we'll
+    attempt to use that. If not we fall into the MRRT<-->FRT code.
+ */
+ 
+- (void)findAccessToken:(ADAuthenticationCallback)completionBlock
 {
     //All of these should be set before calling this method:
     THROW_ON_NIL_ARGUMENT(completionBlock);
@@ -149,12 +153,15 @@
     
     ADAuthenticationError* error = nil;
     ADTokenCacheItem* item = [self getItemForResource:_resource clientId:_clientId error:&error];
+    // If some error ocurred during the cache lookup then we need to fail out right away.
     if (!item && error)
     {
         completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
         return;
     }
     
+    // If we didn't find an item at all there's a chance that we might be dealing with an "ADFS" user
+    // and we need to check the unknown user ADFS token as well
     if (!item)
     {
         item = [self getUnkownUserADFSToken:&error];
@@ -164,11 +171,15 @@
             return;
         }
         
+        // If we still don't have anything from the cache to use then we should try to see if we have an MRRT
+        // that matches.
         if (!item)
         {
             [self tryMRRT:completionBlock];
             return;
         }
+        
+        // If the token was an ADFS user then there's no reason to try any of the MRRT or FRT fallbacks
         fADFSUser = YES;
     }
     
@@ -215,6 +226,10 @@
     }];
 }
 
+/*
+    This method will try to find and use an MRRT, that matches the parameters of the authentication request.
+    If it finds one marked with a family ID it will call tryFRT before attempting to use the MRRT.
+ */
 - (void)tryMRRT:(ADAuthenticationCallback)completionBlock
 {
     ADAuthenticationError* error = nil;
@@ -264,8 +279,13 @@
      }];
 }
 
-- (void)tryFRT:(NSString*)foci
-     completionBlock:(ADAuthenticationCallback)completionBlock
+/*
+    This method will attempt to find and use a FRT matching the given family ID and the parameters of the
+    authentication request, if we've not already tried an FRT during this request. If it fails it will call
+    -tryMRRT: If we have already tried to use an FRT then we go to interactive auth.
+ */
+ 
+- (void)tryFRT:(NSString*)familyId completionBlock:(ADAuthenticationCallback)completionBlock
 {
     if (_attemptedFRT)
     {
@@ -275,9 +295,9 @@
     _attemptedFRT = YES;
     
     ADAuthenticationError* error = nil;
-    NSString* fociClientId = [ADAuthenticationRequest fociClientId:foci];
+    NSString* familyClientId = [ADAuthenticationRequest familyClientId:familyId];
     
-    ADTokenCacheItem* frtItem = [self getItemForResource:nil clientId:fociClientId error:&error];
+    ADTokenCacheItem* frtItem = [self getItemForResource:nil clientId:familyClientId error:&error];
     if (!frtItem && error)
     {
         completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -288,10 +308,12 @@
     {
         if (_mrrtItem)
         {
+            // If we still have an MRRT item retrieved in this request then attempt to use that.
             [self tryMRRT:completionBlock];
         }
         else
         {
+            // Otherwise go to interactive auth
             [self requestToken:completionBlock];
         }
         return;
@@ -303,6 +325,7 @@
         
         if (_mrrtItem)
         {
+            // If we still have an MRRT item retrieved in this request then attempt to use that.
             [self tryMRRT:completionBlock];
             return;
         }

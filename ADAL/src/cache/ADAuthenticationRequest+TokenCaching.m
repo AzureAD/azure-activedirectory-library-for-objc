@@ -32,7 +32,7 @@
 
 @implementation ADAuthenticationRequest (TokenCaching)
 
-+ (NSString*)fociClientId:(NSString*)familyID
++ (NSString*)familyClientId:(NSString*)familyID
 {
     if (!familyID)
     {
@@ -159,7 +159,7 @@
         if (familyId)
         {
             ADTokenCacheItem* frtItem = [multiRefreshTokenItem copy];
-            NSString* fociClientId = [ADAuthenticationRequest fociClientId:familyId];
+            NSString* fociClientId = [ADAuthenticationRequest familyClientId:familyId];
             frtItem.clientId = fociClientId;
             [tokenCacheStore addOrUpdateItem:frtItem correlationId:_correlationId error:nil];
             SAFE_ARC_RELEASE(frtItem);
