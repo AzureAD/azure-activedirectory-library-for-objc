@@ -70,6 +70,7 @@ typedef enum
                                        authority:(NSString *)authority
                                         resource:(NSString *)resource
                                         clientId:(NSString *)clientId
+                                      oauthError:(NSString *)oauthError
                                    correlationId:(NSUUID *)correlationId;
 - (ADTestURLResponse *)adDefaultBadRefreshTokenResponseError:(NSString*)oauthError;
 - (ADTestURLResponse *)adDefaultBadRefreshTokenResponse;
@@ -119,6 +120,11 @@ typedef enum
                                    userId:(NSString *)userId;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem;
 - (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId;
+- (ADTokenCacheItem *)adCreateMRRTCacheItem:(NSString *)userId
+                                   familyId:(NSString *)familyId;
+- (ADTokenCacheItem *)adCreateFRTCacheItem;
+- (ADTokenCacheItem *)adCreateFRTCacheItem:(NSString *)familyId
+                                    userId:(NSString *)userId;
 - (ADTokenCacheKey *)adCreateCacheKey;
 
 //Creates a sample user information object

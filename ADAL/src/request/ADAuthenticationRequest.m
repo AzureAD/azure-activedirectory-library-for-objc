@@ -247,6 +247,25 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
 }
 #endif
 
+- (void)setSamlAssertion:(NSString *)samlAssertion
+{
+    CHECK_REQUEST_STARTED;
+    if (_samlAssertion == samlAssertion)
+    {
+        return;
+    }
+    
+    SAFE_ARC_RELEASE(_samlAssertion);
+    _samlAssertion = [samlAssertion copy];
+}
+
+- (void)setAssertionType:(ADAssertionType)assertionType
+{
+    CHECK_REQUEST_STARTED;
+    
+    _assertionType = assertionType;
+}
+
 - (void)ensureRequest
 {
     if (_requestStarted)

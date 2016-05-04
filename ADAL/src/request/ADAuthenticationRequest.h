@@ -61,6 +61,9 @@
     
     NSString* _refreshTokenCredential;
     
+    NSString* _samlAssertion;
+    ADAssertionType _assertionType;
+    
     BOOL _silent;
     BOOL _allowSilent;
     
@@ -68,6 +71,9 @@
     NSString* _logComponent;
     
     BOOL _requestStarted;
+    BOOL _attemptedFRT;
+    
+    ADTokenCacheItem* _mrrtItem;
     
     ADAuthenticationError* _underlyingError;
 }
@@ -108,6 +114,8 @@
 - (void)setAllowSilentRequests:(BOOL)allowSilent;
 - (void)setRefreshTokenCredential:(NSString*)refreshTokenCredential;
 #endif
+- (void)setSamlAssertion:(NSString*)samlAssertion;
+- (void)setAssertionType:(ADAssertionType)assertionType;
 
 @end
 

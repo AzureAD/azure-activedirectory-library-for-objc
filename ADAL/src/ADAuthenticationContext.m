@@ -21,36 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAL_Internal.h"
-#import "ADAuthenticationContext.h"
-#import "ADAuthenticationResult.h"
-#import "ADAuthenticationResult+Internal.h"
-#import "ADOAuth2Constants.h"
-#import "ADWebAuthController.h"
 #import "ADAuthenticationSettings.h"
-#import "NSURL+ADExtensions.h"
-#import "NSDictionary+ADExtensions.h"
-#import "ADWebRequest.h"
-#import "ADWebResponse.h"
 #import "ADInstanceDiscovery.h"
-#import "ADTokenCacheItem.h"
-#import "ADTokenCacheKey.h"
-#import "ADUserInformation.h"
-#import "ADWorkPlaceJoin.h"
-#import "ADPkeyAuthHelper.h"
-#import "ADWorkPlaceJoinConstants.h"
-#import "ADBrokerKeyHelper.h"
-#import "ADClientMetrics.h"
-#import "NSString+ADHelperMethods.h"
-#import "ADHelpers.h"
-#import "ADBrokerNotificationManager.h"
-#import "ADOAuth2Constants.h"
-#import "ADAuthenticationRequest.h"
 #import "ADTokenCache+Internal.h"
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
 #endif 
-#import "ADTokenCacheAccessor.h"
 
 #import "ADAuthenticationContext+Internal.h"
 
@@ -283,6 +259,8 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 }
 
 #define REQUEST_WITH_REDIRECT_STRING(_redirect, _clientId, _resource) \
+    THROW_ON_NIL_ARGUMENT(completionBlock) \
+    CHECK_STRING_ARG_BLOCK(clientId) \
     ADAuthenticationRequest* request = [self requestWithRedirectString:_redirect clientId:_clientId resource:_resource completionBlock:completionBlock]; \
     if (!request) { return; } \
     [request setLogComponent:_logComponent];
@@ -291,6 +269,13 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     ADAuthenticationRequest* request = [self requestWithRedirectUrl:_redirect clientId:_clientId resource:_resource completionBlock:completionBlock]; \
     if (!request) { return; } \
     [request setLogComponent:_logComponent];
+
+#define CHECK_STRING_ARG_BLOCK(_arg) \
+    if (!_arg || [NSString adIsStringNilOrBlank:_arg]) { \
+        ADAuthenticationError* error = [ADAuthenticationError invalidArgumentError:@#_arg " cannot be nil" correlationId:_correlationId]; \
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]); \
+        return; \
+    }
 
 - (void)acquireTokenForAssertion:(NSString*)assertion
                    assertionType:(ADAssertionType)assertionType
@@ -301,11 +286,14 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 {
     API_ENTRY;
     REQUEST_WITH_REDIRECT_STRING(nil, clientId, resource);
-    [request setUserId:userId];
+    CHECK_STRING_ARG_BLOCK(assertion);
+    CHECK_STRING_ARG_BLOCK(resource);
     
-    [request acquireTokenForAssertion:assertion
-                        assertionType:assertionType
-                      completionBlock:completionBlock];
+    [request setUserId:userId];
+    [request setSamlAssertion:assertion];
+    [request setAssertionType:assertionType];
+    
+    [request acquireToken:completionBlock];
     
 }
 

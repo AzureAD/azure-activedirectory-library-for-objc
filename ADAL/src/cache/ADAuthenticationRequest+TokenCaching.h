@@ -25,11 +25,7 @@
 
 @interface ADAuthenticationRequest (TokenCaching)
 
-//Checks the cache for item that can be used to get directly or indirectly an access token.
-//Checks the multi-resource refresh tokens too.
-- (ADTokenCacheItem*)findCacheItemWithKey:(ADTokenCacheKey *)key
-                                   userId:(ADUserIdentifier *)userId
-                                    error:(ADAuthenticationError * __autoreleasing *)error;
++ (NSString*)familyClientId:(NSString*)familyID;
 
 /*!
     Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
@@ -42,8 +38,11 @@
                   cacheItem:(ADTokenCacheItem *)cacheItem
                refreshToken:(NSString *)refreshToken;
 
-- (ADTokenCacheItem *)extractCacheItemWithKey:(ADTokenCacheKey *)key
-                                       userId:(ADUserIdentifier *)userId
-                                        error:(ADAuthenticationError * __autoreleasing *)error;
+
+- (ADTokenCacheItem *)getItemForResource:(NSString*)resource
+                                clientId:(NSString*)clientId
+                                   error:(ADAuthenticationError * __autoreleasing *)error;
+
+- (ADTokenCacheItem*)getUnkownUserADFSToken:(ADAuthenticationError * __autoreleasing *)error;
 
 @end
