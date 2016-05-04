@@ -59,6 +59,7 @@
 @property (copy) id<ADTokenCacheDelegate> defaultStorageDelegate;
 #endif
 
+#if TARGET_OS_IPHONE
 /*! The name of the keychain group to be used if sharing of cache between applications
  is desired. Can be nil. The property sets the appropriate value of defaultTokenCacheStore
  object. See apple's documentation for keychain groups: such groups require certain
@@ -73,5 +74,6 @@
  */
 - (NSString*)defaultKeychainGroup;
 - (void)setDefaultKeychainGroup:(NSString*)keychainGroup;
+#endif // TARGET_OS_IPHONE
 
 @end
