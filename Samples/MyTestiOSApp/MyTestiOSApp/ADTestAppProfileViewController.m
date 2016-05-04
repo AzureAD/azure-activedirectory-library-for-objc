@@ -34,7 +34,7 @@ static NSArray* s_profileTitles = nil;
        @"Office"      : @{ @"authority" : @"https://login.microsoftonline.com/common",
                            @"resource" : @"https://api.office.com/discovery",
                            @"clientId" : @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
-                           @"redirectUri" : @"urn:ietf:oauth:2.0:oob",
+                           @"redirectUri" : @"urn:ietf:wg:oauth:2.0:oob",
                            },
        @"OneDrive"    : @{ @"authority" : @"https://login.microsoftonline.com/common",
                            @"resource" : @"https://api.office.com/discovery",
