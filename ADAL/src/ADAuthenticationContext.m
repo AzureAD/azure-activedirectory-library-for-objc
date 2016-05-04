@@ -84,7 +84,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     _validateAuthority = bValidate;
     _credentialsType = AD_CREDENTIALS_EMBEDDED;
     
-    _tokenCacheStore = [[ADKeychainTokenCache alloc] initWithGroup:sharedGroup];
+    _tokenCacheStore = [ADKeychainTokenCache keychainCacheForGroup:sharedGroup];
     
     return self;
 }

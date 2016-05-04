@@ -23,6 +23,10 @@
 
 #import "ADAuthenticationSettings.h"
 
+#if TARGET_OS_IPHONE
+#import "ADKeychainTokenCache.h"
+#endif // TARGET_OS_IPHONE
+
 @implementation ADAuthenticationSettings
 
 @synthesize requestTimeOut = _requestTimeOut;
@@ -45,7 +49,6 @@
         self.expirationBuffer = 300;//in seconds, ensures catching of clock differences between the server and the device
 #if TARGET_OS_IPHONE
         self.enableFullScreen = YES;
-        self.defaultKeychainGroup = @"com.microsoft.adalcache";
 #endif
     }
     return self;
@@ -64,6 +67,18 @@
     }
     return instance;
 }
+
+#if TARGET_OS_IPHONE
+- (NSString*)defaultKeychainGroup
+{
+    return [ADKeychainTokenCache defaultKeychainGroup];
+}
+
+- (void)setDefaultKeychainGroup:(NSString*)keychainGroup
+{
+    [ADKeychainTokenCache setDefaultKeychainGroup:keychainGroup];
+}
+#endif
 
 @end
 

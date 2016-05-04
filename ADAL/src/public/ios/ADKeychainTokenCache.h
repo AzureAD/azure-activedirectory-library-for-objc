@@ -29,6 +29,33 @@
 
 @property (readonly) NSString* __nonnull sharedGroup;
 
+/*! The name of the keychain group to be used if sharing of cache between applications
+ is desired. Can be nil. The property sets the appropriate value of defaultTokenCacheStore
+ object. See apple's documentation for keychain groups: such groups require certain
+ entitlements to be set by the applications. Additionally, access to the items in this group
+ is only given to the applications from the same vendor. If this property is not set, the behavior
+ will depend on the values in the entitlements file (if such exists) and may not result in token
+ sharing. The property has no effect if other cache mechanisms are used (non-keychain).
+ 
+ NOTE: Once an authentication context has been created with the default keychain
+ group, or +[ADKeychainTokenCache defaultKeychainCache] has been called then
+ this value cannot be changed. Doing so will throw an exception.
+ */
++ (nullable NSString*)defaultKeychainGroup;
++ (void)setDefaultKeychainGroup:(nullable NSString*)keychainGroup;
+
+
+/*!
+    @return A singleton instance of the ADKeychainTokenCache for the default keychain group.
+ */
++ (nonnull ADKeychainTokenCache*)defaultKeychainCache;
+
+/*!
+    @return An instance of ADKeychainTokenCache for the given group, or the defaultKeychainCache
+            singleton if the default keychain group is passed in.
+ */
++ (nonnull ADKeychainTokenCache*)keychainCacheForGroup:(nullable NSString*)group;
+
 /* Initializes the token cache store with default shared group value.
  */
 - (nullable instancetype)init;

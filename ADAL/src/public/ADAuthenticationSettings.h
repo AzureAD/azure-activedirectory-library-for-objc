@@ -53,6 +53,11 @@
 #if TARGET_OS_IPHONE
 /*! Used for the webView. Default is YES.*/
 @property BOOL enableFullScreen;
+#endif //TARGET_OS_IPHONE
+
+#if !TARGET_OS_IPHONE
+@property (copy) id<ADTokenCacheDelegate> defaultStorageDelegate;
+#endif
 
 /*! The name of the keychain group to be used if sharing of cache between applications
  is desired. Can be nil. The property sets the appropriate value of defaultTokenCacheStore
@@ -60,12 +65,13 @@
  entitlements to be set by the applications. Additionally, access to the items in this group
  is only given to the applications from the same vendor. If this property is not set, the behavior
  will depend on the values in the entitlements file (if such exists) and may not result in token
- sharing. The property has no effect if other cache mechanisms are used (non-keychain). */
-@property (copy) NSString* defaultKeychainGroup;
-#endif //TARGET_OS_IPHONE
-
-#if !TARGET_OS_IPHONE
-@property (copy) id<ADTokenCacheDelegate> defaultStorageDelegate;
-#endif
+ sharing. The property has no effect if other cache mechanisms are used (non-keychain).
+ 
+ NOTE: Once an authentication context has been created with the default keychain
+ group, or +[ADKeychainTokenCache defaultKeychainCache] has been called then
+ this value cannot be changed. Doing so will throw an exception.
+ */
+- (NSString*)defaultKeychainGroup;
+- (void)setDefaultKeychainGroup:(NSString*)keychainGroup;
 
 @end
