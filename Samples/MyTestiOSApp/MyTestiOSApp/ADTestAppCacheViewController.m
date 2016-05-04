@@ -302,6 +302,10 @@
                         {
                             resource = @"<FRT>";
                         }
+                        else if (item.familyId)
+                        {
+                            resource = [NSString stringWithFormat:@"<MRRT (F=%@)>", item.familyId];
+                        }
                         else
                         {
                             resource = @"<MRRT>";
