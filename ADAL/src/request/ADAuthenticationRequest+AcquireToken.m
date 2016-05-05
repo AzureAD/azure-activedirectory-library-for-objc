@@ -112,14 +112,28 @@
                            cacheItem:item
                      completionBlock:^(ADAuthenticationResult *result)
      {
+         NSString* resultStatus = @"Succeded";
+         
+         if (result.status == AD_FAILED)
+         {
+             if (result.error.protocolCode)
+             {
+                 resultStatus = [NSString stringWithFormat:@"Failed (%@)", result.error.protocolCode];
+             }
+             else
+             {
+                 resultStatus = [NSString stringWithFormat:@"Failed (%@ %ld)", result.error.domain, (long)result.error.code];
+             }
+         }
+         
          NSString* msg = nil;
          if (refreshType)
          {
-             msg = [NSString stringWithFormat:@"Acquire Token with %@ Refresh Token %@.", refreshType, result.status == AD_SUCCEEDED ? @"Succeeded" : @"Failed"];
+             msg = [NSString stringWithFormat:@"Acquire Token with %@ Refresh Token %@.", refreshType, resultStatus];
          }
          else
          {
-             msg = [NSString stringWithFormat:@"Acquire Token with Refresh Token %@.", result.status == AD_SUCCEEDED ? @"Succeeded" : @"Failed"];
+             msg = [NSString stringWithFormat:@"Acquire Token with Refresh Token %@.", resultStatus];
          }
          
          AD_LOG_INFO_F(msg, _correlationId, @"clientId: '%@'; resource: '%@';", _clientId, _resource);
