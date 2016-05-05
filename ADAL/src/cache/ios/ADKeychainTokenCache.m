@@ -45,6 +45,9 @@ static NSString* const s_libraryString = @"MSOpenTech.ADAL." TOSTRING(KEYCHAIN_V
 static NSString* const s_keyForStoringTomestoneCleanTime = @"NextTombstoneCleanTime";
 static NSString* const s_tombstoneLibraryString = @"Microsoft.ADAL.Tombstone." TOSTRING(KEYCHAIN_VERSION);
 
+static NSString* s_defaultKeychainGroup = @"com.microsoft.adalcache";
+static ADKeychainTokenCache* s_defaultCache = nil;
+
 @implementation ADKeychainTokenCache
 {
     NSString* _sharedGroup;
@@ -52,10 +55,58 @@ static NSString* const s_tombstoneLibraryString = @"Microsoft.ADAL.Tombstone." T
     NSDictionary* _defaultTombstone;
 }
 
++ (ADKeychainTokenCache*)defaultKeychainCache
+{
+    static dispatch_once_t s_once;
+    
+    dispatch_once(&s_once, ^{
+        s_defaultCache = [[ADKeychainTokenCache alloc] init];
+    });
+    
+    
+    return s_defaultCache;
+}
+
++ (ADKeychainTokenCache*)keychainCacheForGroup:(nullable NSString*)group
+{
+    if ([group isEqualToString:s_defaultKeychainGroup])
+    {
+        return [self defaultKeychainCache];
+    }
+    ADKeychainTokenCache* cache = [[ADKeychainTokenCache alloc] initWithGroup:group];
+    SAFE_ARC_AUTORELEASE(cache);
+    return cache;
+}
+
++ (NSString*)defaultKeychainGroup
+{
+    return s_defaultKeychainGroup;
+}
+
++ (void)setDefaultKeychainGroup:(NSString *)keychainGroup
+{
+    if (s_defaultCache)
+    {
+        @throw @"Attempting to change the keychain group once AuthenticationContexts have been created or the default keychain cache has been retrieved is invalid. The default keychain group should only be set once for the lifetime of an application.";
+    }
+    
+    if (keychainGroup == s_defaultKeychainGroup)
+    {
+        return;
+    }
+    
+    if (!keychainGroup)
+    {
+        keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
+    }
+    
+    s_defaultKeychainGroup = [keychainGroup copy];
+}
+
 // Shouldn't be called.
 - (id)init
 {
-    return [self initWithGroup:[[ADAuthenticationSettings sharedInstance] defaultKeychainGroup]];
+    return [self initWithGroup:s_defaultKeychainGroup];
 }
 
 - (id)initWithGroup:(NSString *)sharedGroup
