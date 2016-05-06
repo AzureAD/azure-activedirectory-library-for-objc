@@ -11,4 +11,5 @@ DEFINES_MODULE = YES;
 INFOPLIST_FILE = resources/mac/Info.plist;
 SKIP_INSTALL = NO;
 INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks" @rpath;
+SKIP_INSTALL = YES;
 
