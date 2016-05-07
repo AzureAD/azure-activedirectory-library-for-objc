@@ -91,7 +91,7 @@
     }
 
     ADWebRequest* request = [[ADWebRequest alloc] initWithURL:resourceUrl correlationId:nil];
-    [request setMethodType:ADWebRequestGet];
+    [request setIsGetRequest:YES];
     AD_LOG_VERBOSE_F(@"Starting authorization challenge request", nil, @"Resource: %@", resourceUrl);
     
     [request send:^(NSError * error, ADWebResponse *response) {

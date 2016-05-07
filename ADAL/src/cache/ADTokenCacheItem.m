@@ -103,9 +103,9 @@
 - (ADTokenCacheKey*)extractKey:(ADAuthenticationError* __autoreleasing *)error
 {
     return [ADTokenCacheKey keyWithAuthority:_authority
-                                         resource:_resource
-                                         clientId:_clientId
-                                            error:error];
+                                    resource:_resource
+                                    clientId:_clientId
+                                       error:error];
 }
 
 - (BOOL)isExpired
