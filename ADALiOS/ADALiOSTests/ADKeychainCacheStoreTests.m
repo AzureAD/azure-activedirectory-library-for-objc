@@ -20,8 +20,8 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADTestUtils.h"
 #import <libkern/OSAtomic.h>
-#import "../ADALiOS/ADAuthenticationSettings.h"
-#import "../ADALiOS/ADAuthenticationContext.h"
+#import "../ADALiOS/public/ADAuthenticationSettings.h"
+#import "../ADALiOS/public/ADAuthenticationContext.h"
 #import "../ADALiOS/ADKeychainTokenCacheStore.h"
 
 dispatch_semaphore_t sThreadsSemaphore;//Will be signalled when the last thread is done. Should be initialized and cleared in the test.

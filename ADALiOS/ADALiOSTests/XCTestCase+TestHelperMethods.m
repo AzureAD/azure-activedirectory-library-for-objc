@@ -17,12 +17,12 @@
 // governing permissions and limitations under the License.
 
 #import "../ADALiOS/ADALiOS.h"
-#import "../ADALiOS/ADLogger.h"
+#import "../ADALiOS/public/ADLogger.h"
 #import "../ADALiOS/NSString+ADHelperMethods.h"
-#import "../ADALiOS/ADErrorCodes.h"
+#import "../ADALiOS/public/ADErrorCodes.h"
 #import "XCTestCase+TestHelperMethods.h"
-#import "../ADALiOS/ADAuthenticationContext.h"
-#import "../ADALioS/ADAuthenticationSettings.h"
+#import "../ADALiOS/public/ADAuthenticationContext.h"
+#import "../ADALiOS/public/ADAuthenticationSettings.h"
 #import <libkern/OSAtomic.h>
 #import <Foundation/NSObjCRuntime.h>
 #import <objc/runtime.h>
