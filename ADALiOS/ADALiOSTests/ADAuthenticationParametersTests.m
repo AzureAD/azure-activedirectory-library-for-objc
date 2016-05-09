@@ -20,7 +20,7 @@
 #import <ADALiOS/ADAuthenticationParameters.h>
 #import <ADALiOS/ADAuthenticationSettings.h>
 #import "XCTestCase+TestHelperMethods.h"
-#import "../ADALiOS/ADAuthenticationParameters+Internal.h"
+#import "ADAuthenticationParameters+Internal.h"
 #import "ADTestURLConnection.h"
 
 @interface ADAuthenticationParametersTests : XCTestCase

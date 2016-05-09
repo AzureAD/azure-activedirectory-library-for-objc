@@ -19,7 +19,7 @@
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADTestUtils.h"
-#import "../ADALiOS/public/ADAuthenticationContext.h"
+#import "ADAuthenticationContext.h"
 
 @interface ADTokenCacheStoreItemTest : XCTestCase
 

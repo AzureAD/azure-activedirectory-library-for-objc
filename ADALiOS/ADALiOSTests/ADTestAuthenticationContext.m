@@ -17,10 +17,10 @@
 // governing permissions and limitations under the License.
 
 #import "ADTestAuthenticationContext.h"
-#import "../ADALiOS/ADALiOS.h"
-#import "../ADALiOS/ADOAuth2Constants.h"
-#import "../ADALiOS/ADAuthenticationRequest.h"
-#import "../ADALiOS/ADAuthenticationResult+Internal.h"
+#import "ADALiOS.h"
+#import "ADOAuth2Constants.h"
+#import "ADAuthenticationRequest.h"
+#import "ADAuthenticationResult+Internal.h"
 
 @interface ADTestAuthenticationRequest : ADAuthenticationRequest
 

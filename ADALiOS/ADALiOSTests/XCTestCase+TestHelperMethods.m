@@ -16,13 +16,13 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
-#import "../ADALiOS/ADALiOS.h"
-#import "../ADALiOS/public/ADLogger.h"
-#import "../ADALiOS/NSString+ADHelperMethods.h"
-#import "../ADALiOS/public/ADErrorCodes.h"
+#import "ADALiOS.h"
+#import "ADLogger.h"
+#import "NSString+ADHelperMethods.h"
+#import "ADErrorCodes.h"
 #import "XCTestCase+TestHelperMethods.h"
-#import "../ADALiOS/public/ADAuthenticationContext.h"
-#import "../ADALiOS/public/ADAuthenticationSettings.h"
+#import "ADAuthenticationContext.h"
+#import "ADAuthenticationSettings.h"
 #import <libkern/OSAtomic.h>
 #import <Foundation/NSObjCRuntime.h>
 #import <objc/runtime.h>
