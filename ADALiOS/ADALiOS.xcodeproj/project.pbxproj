@@ -22,6 +22,21 @@
 		60A688711CDF25E60048BA75 /* ADTokenCacheStoreKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 60A688621CDF25E60048BA75 /* ADTokenCacheStoreKey.h */; };
 		60A688721CDF25E60048BA75 /* ADTokenCacheStoring.h in Headers */ = {isa = PBXBuildFile; fileRef = 60A688631CDF25E60048BA75 /* ADTokenCacheStoring.h */; };
 		60A688731CDF25E60048BA75 /* ADUserIdentifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 60A688641CDF25E60048BA75 /* ADUserIdentifier.h */; };
+		60A689AE1CE09AE60048BA75 /* ADAL.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A688561CDF25E60048BA75 /* ADAL.h */; };
+		60A689AF1CE09AE60048BA75 /* ADAuthenticationBroker.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A688571CDF25E60048BA75 /* ADAuthenticationBroker.h */; };
+		60A689B01CE09AE60048BA75 /* ADAuthenticationContext.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A688581CDF25E60048BA75 /* ADAuthenticationContext.h */; };
+		60A689B11CE09AE60048BA75 /* ADAuthenticationError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A688591CDF25E60048BA75 /* ADAuthenticationError.h */; };
+		60A689B21CE09AE60048BA75 /* ADAuthenticationParameters.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A6885A1CDF25E60048BA75 /* ADAuthenticationParameters.h */; };
+		60A689B31CE09AE60048BA75 /* ADAuthenticationResult.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A6885B1CDF25E60048BA75 /* ADAuthenticationResult.h */; };
+		60A689B41CE09AE60048BA75 /* ADAuthenticationSettings.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A6885C1CDF25E60048BA75 /* ADAuthenticationSettings.h */; };
+		60A689B51CE09AE60048BA75 /* ADErrorCodes.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A6885D1CDF25E60048BA75 /* ADErrorCodes.h */; };
+		60A689B61CE09AE60048BA75 /* ADInstanceDiscovery.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A6885E1CDF25E60048BA75 /* ADInstanceDiscovery.h */; };
+		60A689B71CE09AE60048BA75 /* ADLogger.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A6885F1CDF25E60048BA75 /* ADLogger.h */; };
+		60A689B81CE09AE60048BA75 /* ADProfileInfo.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A688601CDF25E60048BA75 /* ADProfileInfo.h */; };
+		60A689B91CE09AE60048BA75 /* ADTokenCacheStoreItem.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A688611CDF25E60048BA75 /* ADTokenCacheStoreItem.h */; };
+		60A689BA1CE09AE60048BA75 /* ADTokenCacheStoreKey.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A688621CDF25E60048BA75 /* ADTokenCacheStoreKey.h */; };
+		60A689BB1CE09AE60048BA75 /* ADTokenCacheStoring.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A688631CDF25E60048BA75 /* ADTokenCacheStoring.h */; };
+		60A689BC1CE09AE60048BA75 /* ADUserIdentifier.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 60A688641CDF25E60048BA75 /* ADUserIdentifier.h */; };
 		8B0965AE17F25770002BDFB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
 		8B0965B517F25770002BDFB8 /* ADALiOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B0965B417F25770002BDFB8 /* ADALiOS.m */; };
 		8B0965BC17F25770002BDFB8 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965BB17F25770002BDFB8 /* XCTest.framework */; };
@@ -164,6 +179,21 @@
 			dstPath = "Headers/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				60A689AE1CE09AE60048BA75 /* ADAL.h in Copy Files */,
+				60A689AF1CE09AE60048BA75 /* ADAuthenticationBroker.h in Copy Files */,
+				60A689B01CE09AE60048BA75 /* ADAuthenticationContext.h in Copy Files */,
+				60A689B11CE09AE60048BA75 /* ADAuthenticationError.h in Copy Files */,
+				60A689B21CE09AE60048BA75 /* ADAuthenticationParameters.h in Copy Files */,
+				60A689B31CE09AE60048BA75 /* ADAuthenticationResult.h in Copy Files */,
+				60A689B41CE09AE60048BA75 /* ADAuthenticationSettings.h in Copy Files */,
+				60A689B51CE09AE60048BA75 /* ADErrorCodes.h in Copy Files */,
+				60A689B61CE09AE60048BA75 /* ADInstanceDiscovery.h in Copy Files */,
+				60A689B71CE09AE60048BA75 /* ADLogger.h in Copy Files */,
+				60A689B81CE09AE60048BA75 /* ADProfileInfo.h in Copy Files */,
+				60A689B91CE09AE60048BA75 /* ADTokenCacheStoreItem.h in Copy Files */,
+				60A689BA1CE09AE60048BA75 /* ADTokenCacheStoreKey.h in Copy Files */,
+				60A689BB1CE09AE60048BA75 /* ADTokenCacheStoring.h in Copy Files */,
+				60A689BC1CE09AE60048BA75 /* ADUserIdentifier.h in Copy Files */,
 			);
 			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
