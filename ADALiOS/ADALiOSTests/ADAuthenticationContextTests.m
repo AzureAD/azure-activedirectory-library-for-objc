@@ -17,8 +17,8 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
-#import "../ADALiOS/ADAL.h"
-#import "../ADALiOS/ADAuthenticationContext+Internal.h"
+#import "ADAL.h"
+#import "ADAuthenticationContext+Internal.h"
 #import "ADTestTokenCacheStore.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
@@ -26,11 +26,11 @@
 #import "ADTestAuthenticationContext.h"
 #import "ADTestUtils.h"
 #import "ADTestURLConnection.h"
-#import "../ADALiOS/ADOAuth2Constants.h"
-#import "../ADALiOS/ADAuthenticationSettings.h"
-#import "../ADALiOS/ADKeychainTokenCacheStore.h"
-#import "../ADALiOS/NSArray+ADExtensions.h"
-#import "../ADALiOS/NSSet+ADExtensions.h"
+#import "ADOAuth2Constants.h"
+#import "ADAuthenticationSettings.h"
+#import "ADKeychainTokenCacheStore.h"
+#import "NSArray+ADExtensions.h"
+#import "NSSet+ADExtensions.h"
 
 const int sAsyncContextTimeout = 10;
 @interface ADAuthenticationContextTests : XCTestCase

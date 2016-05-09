@@ -16,7 +16,7 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 #import <XCTest/XCTest.h>
-#import "../ADALiOS/NSURL+ADExtensions.h"
+#import "NSURL+ADExtensions.h"
 #import "XCTestCase+TestHelperMethods.h"
 
 @interface NSURLExtensionsTests : XCTestCase
