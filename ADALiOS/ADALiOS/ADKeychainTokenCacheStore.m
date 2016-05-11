@@ -259,7 +259,11 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
     }
     
     ADKeychainQuery* writeQuery = [self createBaseQuery];
-    [writeQuery setUserId:userId ? userId : @""];
+    if (!userId || [userId isKindOfClass:[NSNull class]])
+    {
+        userId = @"";
+    }
+    [writeQuery setUserId:userId];
     
     const void * keys[] = { kSecAttrGeneric };
     const void * values[] = { data };

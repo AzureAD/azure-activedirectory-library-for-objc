@@ -97,7 +97,7 @@
     }
     
     NSString* matchString = [identifier userIdMatchString:info];
-    if (!matchString || [matchString isEqualToString:identifier.userId])
+    if (!matchString || [matchString isKindOfClass:[NSNull class]] || [matchString isEqualToString:identifier.userId])
     {
         return YES;
     }

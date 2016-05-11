@@ -164,11 +164,9 @@ static NSMutableArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* cont
     
     RETURN_IF_NOT_NIL([self validateScopes:lowercaseScopes additional:NO]);
     
-    if (![lowercaseScopes containsObject:_clientId])
-    {
-        [lowercaseScopes addObject:@"openid"];
-        [lowercaseScopes addObject:@"offline_access"];
-    }
+    [lowercaseScopes removeObject:_clientId];
+    [lowercaseScopes addObject:@"openid"];
+    [lowercaseScopes addObject:@"offline_access"];
     
     _scopes = [NSSet setWithArray:lowercaseScopes];
     

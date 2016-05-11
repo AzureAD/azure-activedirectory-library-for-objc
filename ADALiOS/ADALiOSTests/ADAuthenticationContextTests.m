@@ -17,8 +17,8 @@
 // governing permissions and limitations under the License.
 
 #import <XCTest/XCTest.h>
-#import "../ADALiOS/ADAL.h"
-#import "../ADALiOS/ADAuthenticationContext+Internal.h"
+#import "ADAL.h"
+#import "ADAuthenticationContext+Internal.h"
 #import "ADTestTokenCacheStore.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
@@ -26,11 +26,11 @@
 #import "ADTestAuthenticationContext.h"
 #import "ADTestUtils.h"
 #import "ADTestURLConnection.h"
-#import "../ADALiOS/ADOAuth2Constants.h"
-#import "../ADALiOS/ADAuthenticationSettings.h"
-#import "../ADALiOS/ADKeychainTokenCacheStore.h"
-#import "../ADALiOS/NSArray+ADExtensions.h"
-#import "../ADALiOS/NSSet+ADExtensions.h"
+#import "ADOAuth2Constants.h"
+#import "ADAuthenticationSettings.h"
+#import "ADKeychainTokenCacheStore.h"
+#import "NSArray+ADExtensions.h"
+#import "NSSet+ADExtensions.h"
 
 const int sAsyncContextTimeout = 10;
 @interface ADAuthenticationContextTests : XCTestCase
@@ -415,6 +415,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                                   identifier:[ADUserIdentifier identifierWithId:_userId type:RequiredDisplayableId]
                                promptBehavior:_promptBehavior
                            extraQueryParameters:nil
+                                       policy:_policy
                                 completionBlock:callback];
          }
 
@@ -476,6 +477,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
     item.authority = _authority;
     item.clientId = _clientId;
+    item.policy = _policy;
     if (userId)
     {
         item.profileInfo = [ADProfileInfo profileInfoWithUsername:userId
@@ -1027,7 +1029,49 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADAssertLongEquals(0, [self cacheCount]);
 }
 
-//Creates the context with
+- (void)testExtractAndStoreTokenFromResponse
+{
+    //Create a normal authority (not a test one):
+    ADAuthenticationError* error;
+    _context = [ADAuthenticationContext authenticationContextWithAuthority:_authority error:&error];
+    XCTAssertNotNil(_context);
+    ADAssertNoError;
+    
+    //add refresh token:
+    NSString* oldRefreshToken = @"old refresh token";
+    _userId = nil;
+    _policy = @"sign_in";
+    ADD_AT_RT_TO_CACHE(nil, oldRefreshToken);
+    ADAssertLongEquals(1, [self cacheCount]);
+    
+    //new refresh token and id token in response
+    NSString* newRefreshToken = @"new refresh token";
+    NSString* newIdToken = @"new id token";
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?p=sign_in&x-client-Ver=" ADAL_VERSION_STRING
+                                                    responseURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=" ADAL_VERSION_STRING
+                                                         responseCode:200
+                                                     httpHeaderFields:@{ }
+                                                     dictionaryAsJSON:@{ OAUTH2_TOKEN_TYPE : @"Bearer",
+                                                                         OAUTH2_REFRESH_TOKEN : newRefreshToken,
+                                                                         OAUTH2_ID_TOKEN : newIdToken,
+                                                                         OAUTH2_SCOPE : @"plantetarydefense.fire planetarydefense.target openid offline_access"
+                                                                         }];
+    [ADTestURLConnection addResponse:response];
+    
+    //call acquireToken
+    //AT and RT should be extracted from response and updated in cache
+    acquireTokenAsync;
+    ADAssertLongEquals(1, [self cacheCount]);
+    
+    //call acquireToken again, this time access token should be retrieved from cache
+    acquireTokenAsync;
+    XCTAssertEqual(_result.status, AD_SUCCEEDED);
+    XCTAssertEqualObjects(_result.accessToken, newIdToken);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.refreshToken, newRefreshToken);
+    
+    
+}
+
 - (void)testUnreachableAuthority
 {
     //Create a normal authority (not a test one):

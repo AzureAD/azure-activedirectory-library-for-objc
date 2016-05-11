@@ -52,6 +52,7 @@
          item.clientId = _clientId;
          NSArray* scopes = [[response objectForKey:@"scope"] componentsSeparatedByString:@" "];
          item.scopes = [NSSet setWithArray:scopes];
+         item.policy = _policy;
          completionBlock([_context processTokenResponse:response
                                                 forItem:item
                                             fromRefresh:NO

@@ -352,6 +352,7 @@
                                       scopes:(NSSet*)scopes
 {
     ADTokenCacheStoreItem* item = [self tokenItem];
+    item.policy = policy;
     
     // If no token was found then this is a no-op. We still want to return an item as the
     // refresh token might still be usable.

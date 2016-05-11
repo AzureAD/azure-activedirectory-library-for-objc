@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "ADALiOS"
-  s.version      = "3.0.0-pre3"
+  s.version      = "3.0.0-pre4”
   s.summary      = "The ADAL SDK for iOS gives you the ability to add Azure Identity authentication to your application"
 
   s.description  = <<-DESC
@@ -19,6 +19,7 @@ Pod::Spec.new do |s|
     :tag => s.version.to_s
   }
   s.source_files = "ADALiOS/ADALiOS/**/*.{h,m}"
+  s.public_header_files = "ADALiOS/ADALiOS/public/*.h"
   s.resources    = "ADALiOS/ADALiOS/*.storyboard"
   s.preserve_paths = "ADALiOS/ADALiOS/**/*.{h,m}"
   s.requires_arc = true
