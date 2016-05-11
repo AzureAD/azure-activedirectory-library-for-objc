@@ -45,13 +45,24 @@
                        completionBlock:(ADAuthenticationCallback)completionBlock
 {
     ADAcquireTokenSilentHandler* handler = [ADAcquireTokenSilentHandler new];
+    
+    // As this is an internal class these properties should all be set by the
+    // authentication request, which created copies of them.
+    
     handler->_authority = authority;
+    SAFE_ARC_RETAIN(authority);
     handler->_resource = resource;
+    SAFE_ARC_RETAIN(resource);
     handler->_clientId = clientId;
+    SAFE_ARC_RETAIN(clientId);
     handler->_redirectUri = redirectUri;
+    SAFE_ARC_RETAIN(redirectUri);
     handler->_identifier = identifier;
+    SAFE_ARC_RETAIN(identifier);
     handler->_tokenCache = tokenCache;
+    SAFE_ARC_RETAIN(tokenCache);
     handler->_correlationId = correlationId;
+    SAFE_ARC_RETAIN(correlationId);
     
     [handler getAccessToken:completionBlock];
 }
