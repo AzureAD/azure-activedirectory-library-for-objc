@@ -86,7 +86,7 @@ static ADAuthenticationError* _errorFromInfo(const char* cond, NSString* profile
 
 #define CHECK_PROFILE_INFO_ERROR(_cond) \
 { \
-    if (!_cond) { \
+    if (!(_cond)) { \
         ADAuthenticationError* _profileError = _errorFromInfo(#_cond, encodedString); \
         if (error) \
         { \
