@@ -324,7 +324,7 @@
         if (!item.userInformation.userId)
         {
             // If we don't have any userInformation in this token that means it came from an authority
-            // that supports
+            // that doesn't support MRRTs or FRTs either, so fail right now.
             completionBlock(nil);
             return;
         }
