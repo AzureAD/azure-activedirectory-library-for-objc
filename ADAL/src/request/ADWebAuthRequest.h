@@ -21,28 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADKeychainTokenCache.h"
-#import "ADTokenCacheDataSource.h"
+#import "ADWebRequest.h"
 
-@class ADTokenCacheStoreKey;
+@interface ADWebAuthRequest : ADWebRequest
+{
+    NSDate* _startTime;
+    BOOL _retryIfServerError;
+    BOOL _handledPkeyAuthChallenge;
+    BOOL _returnRawResponse;
+    
+    NSMutableDictionary* _responseDictionary;
+    
+    // A dictionary of key/value pairs that is either included as the query parameters on a GET
+    // request or serialized into JSON for a POST request
+    NSDictionary<NSString*,NSString*> * _requestDictionary;
+}
 
-@interface ADKeychainTokenCache (Internal) <ADTokenCacheDataSource>
+@property BOOL returnRawResponse;
 
-+ (BOOL)checkStatus:(OSStatus)status
-          operation:(NSString *)operation
-      correlationId:(NSUUID *)correlationId
-              error:(ADAuthenticationError * __autoreleasing *)error;
-
-- (NSMutableDictionary *)queryDictionaryForKey:(ADTokenCacheKey *)key
-                                        userId:(NSString *)userId
-                                    additional:(NSDictionary*)additional;
-
-- (NSString*)keychainKeyFromCacheKey:(ADTokenCacheKey *)itemKey;
-
-/*! This method should *only* be called in test code, it should never be called
-    in production code */
-- (void)testRemoveAll:(ADAuthenticationError * __autoreleasing *)error;
-
-- (NSDictionary*)defaultKeychainQuery;
+- (void)setRequestDictionary:(NSDictionary<NSString*, NSString*> *)requestDictionary;
+- (void)sendRequest:(void(^)(NSDictionary *))completionBlock;
 
 @end

@@ -70,10 +70,7 @@
                                          _resource, OAUTH2_RESOURCE,
                                          OAUTH2_SCOPE_OPENID_VALUE, OAUTH2_SCOPE,
                                          nil];
-    [self executeRequest:_context.authority
-             requestData:request_data
-         handledPkeyAuth:NO
-       additionalHeaders:nil
+    [self executeRequest:request_data
               completion:completionBlock];
 }
 

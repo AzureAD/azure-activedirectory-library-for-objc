@@ -22,9 +22,9 @@
 // THE SOFTWARE.
 
 #import "ADTokenCache.h"
-#import "ADTokenCacheAccessor.h"
+#import "ADTokenCacheDataSource.h"
 
-@interface ADTokenCache (Internal) <ADTokenCacheAccessor>
+@interface ADTokenCache (Internal) <ADTokenCacheDataSource>
 
 - (BOOL)validateCache:(nullable NSDictionary *)dict
                 error:(ADAuthenticationError * __nullable  __autoreleasing * __nullable)error;

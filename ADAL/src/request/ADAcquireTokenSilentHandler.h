@@ -21,28 +21,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADTokenCacheAccessor.h"
 
-@interface ADAuthenticationRequest (TokenCaching)
+#import <Foundation/Foundation.h>
 
-+ (NSString*)familyClientId:(NSString*)familyID;
+@class ADTokenCacheAccessor;
 
-/*!
-    Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
-    the item to be stored.
- 
-    @param result       The result to update the cache to
-    @param refreshToken The refresh token (if anything) that was used to get this authentication result
- */
-- (void)updateCacheToResult:(ADAuthenticationResult *)result
-                  cacheItem:(ADTokenCacheItem *)cacheItem
-               refreshToken:(NSString *)refreshToken;
+@interface ADAcquireTokenSilentHandler : NSObject
+{
+    NSString* _authority;
+    NSString* _resource;
+    NSString* _clientId;
+    NSString* _redirectUri;
+    ADUserIdentifier* _identifier;
+    NSUUID* _correlationId;
+    ADTokenCacheAccessor* _tokenCache;
+    
+    ADTokenCacheItem* _mrrtItem;
+    
+    // We only return underlying errors from the MRRT Result, because the FRT is a
+    // "best attempt" method, which is not necessarily tied to the client ID we're
+    // trying, so the MRRT error will be more accurate.
+    ADAuthenticationResult* _mrrtResult;
+    
+    BOOL _attemptedFRT;
+}
 
-
-- (ADTokenCacheItem *)getItemForResource:(NSString*)resource
-                                clientId:(NSString*)clientId
-                                   error:(ADAuthenticationError * __autoreleasing *)error;
-
-- (ADTokenCacheItem*)getUnkownUserADFSToken:(ADAuthenticationError * __autoreleasing *)error;
++ (void)acquireTokenSilentForAuthority:(NSString *)authority
+                              resource:(NSString *)resource
+                              clientId:(NSString *)clientId
+                           redirectUri:(NSString *)redirectUri
+                            identifier:(ADUserIdentifier *)identifier
+                         correlationId:(NSUUID *)correlationId
+                            tokenCache:(ADTokenCacheAccessor *)tokenCache
+                       completionBlock:(ADAuthenticationCallback)completionBlock;
 
 @end

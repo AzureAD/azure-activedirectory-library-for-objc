@@ -51,49 +51,6 @@
     [super tearDown];
 }
 
-- (void)testCreate
-{
-    ADAuthenticationError* error = nil;
-    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:mAuthority resource:mResource clientId:mClientId error:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(key);
-    
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    //Bad authority:
-    error = nil;
-    ADTokenCacheKey* badKey = [ADTokenCacheKey keyWithAuthority:nil resource:mResource clientId:mClientId error:&error];
-    [self adValidateFactoryForInvalidArgument:@"authority"
-                             returnedObject:badKey
-                                      error:error];
-    error = nil;
-    badKey = [ADTokenCacheKey keyWithAuthority:@"   " resource:mResource clientId:mClientId error:&error];
-    [self adValidateFactoryForInvalidArgument:@"authority"
-                             returnedObject:badKey
-                                      error:error];
-
-    //Bad clientId
-    error = nil;
-    badKey = [ADTokenCacheKey keyWithAuthority:mAuthority resource:mResource clientId:nil error:&error];
-    [self adValidateFactoryForInvalidArgument:@"clientId"
-                             returnedObject:badKey
-                                      error:error];
-    error = nil;
-    badKey = [ADTokenCacheKey keyWithAuthority:mAuthority resource:mResource clientId:@"    " error:&error];
-    [self adValidateFactoryForInvalidArgument:@"clientId"
-                             returnedObject:badKey
-                                      error:error];
-    
-    error = nil;
-    ADTokenCacheKey* normal = [ADTokenCacheKey keyWithAuthority:mAuthority resource:mResource clientId:mClientId error:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(normal);
-    
-    error = nil;
-    ADTokenCacheKey* broad = [ADTokenCacheKey keyWithAuthority:mAuthority resource:nil clientId:mClientId error:&error];
-    ADAssertNoError;
-    XCTAssertNotNil(broad);
-}
-
 -(void) assertKey: (ADTokenCacheKey*) key1
          equalsTo: (ADTokenCacheKey*) key2
 {
