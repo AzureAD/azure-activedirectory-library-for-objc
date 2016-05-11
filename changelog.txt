@@ -1,3 +1,8 @@
+Version 2.1.2
+-------------
+* Restored the fix for ADKeychainTokenCache that was overriden in a git merge.
+
+
 Version 2.1.1
 _____________
 * Added underlying errors to ADAuthenticationErrors when returning user interaction required
