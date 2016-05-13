@@ -30,11 +30,8 @@
 @interface ADBrokerKeyHelper : NSObject
 {
     NSData * _symmetricTag;
-    NSData * _symmetricKeyRef;
+    NSData * _symmetricKey;
 }
-
-@property (nonatomic, retain) NSData * symmetricTag;
-@property (nonatomic, retain) NSData * symmetricKeyRef;
 
 - (id)init;
 
@@ -48,5 +45,8 @@
                              key:(const void*)key
                             size:(size_t)size
                            error:(ADAuthenticationError *__autoreleasing *)error;
+
+// NOTE: Used for testing purposes only. Does not change keychain entries.
+- (void)setSymmetricKey:(NSData *)symmetricKey;
 
 @end

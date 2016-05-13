@@ -38,9 +38,6 @@ enum {
     CSSM_ALGID_AES
 };
 
-@synthesize symmetricTag = _symmetricTag;
-@synthesize symmetricKeyRef = _symmetricKeyRef;
-
 static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 
 #define UNEXPECTED_KEY_ERROR { \
@@ -108,11 +105,12 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     
     if(err != errSecSuccess)
     {
+        SAFE_ARC_RELEASE(keyData);
         UNEXPECTED_KEY_ERROR;
         return NO;
     }
     
-    _symmetricKeyRef = keyData;
+    _symmetricKey = keyData;
     
     return YES;
 }
@@ -144,7 +142,8 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
         return NO;
     }
     
-    _symmetricKeyRef = nil;
+    SAFE_ARC_RELEASE(_symmetricKey);
+    _symmetricKey = nil;
     return YES;
 }
 
@@ -159,9 +158,9 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
 {
     OSStatus err = noErr;
     
-    if (_symmetricKeyRef)
+    if (_symmetricKey)
     {
-        return _symmetricKeyRef;
+        return _symmetricKey;
     }
     
     NSDictionary* symmetricKeyQuery =
@@ -177,8 +176,8 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     err = SecItemCopyMatching((__bridge CFDictionaryRef)symmetricKeyQuery, (CFTypeRef *)&symmetricKey);
     if (err == errSecSuccess)
     {
-        _symmetricKeyRef = CFBridgingRelease(symmetricKey);
-        return _symmetricKeyRef;
+        [self setSymmetricKey:(NSData*)symmetricKey];
+        return _symmetricKey;
     }
     
     if (createKeyIfDoesNotExist)
@@ -186,7 +185,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
         [self createBrokerKey:error];
     }
     
-    return _symmetricKeyRef;
+    return _symmetricKey;
 }
 
 
@@ -263,6 +262,18 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
         *error = adError;
     }
     return nil;
+}
+
+- (void)setSymmetricKey:(NSData *)symmetricKey
+{
+    if (symmetricKey == _symmetricKey)
+    {
+        return;
+    }
+    
+    SAFE_ARC_RELEASE(_symmetricKey);
+    _symmetricKey = symmetricKey;
+    SAFE_ARC_RETAIN(_symmetricKey);
 }
 
 @end;
