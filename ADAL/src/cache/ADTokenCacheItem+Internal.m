@@ -214,7 +214,6 @@
     [additional removeObjectForKey:@"expires_in"];
     [additional removeObjectForKey:@"expires_on"];
     
-    // Go thro
     SAFE_ARC_RELEASE(_additionalServer);
     _additionalServer = additional;
     
