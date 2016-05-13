@@ -63,19 +63,17 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     return self;
 }
 
-- (void)createBrokerKey:(ADAuthenticationError* __autoreleasing*)error
+- (BOOL)createBrokerKey:(ADAuthenticationError* __autoreleasing*)error
 {
     uint8_t * symmetricKey = NULL;
     OSStatus err = errSecSuccess;
     
-    symmetricKey = malloc( kChosenCipherKeySize * sizeof(uint8_t));
+    symmetricKey = calloc( 1, kChosenCipherKeySize * sizeof(uint8_t));
     if (!symmetricKey)
     {
         UNEXPECTED_KEY_ERROR;
-        return;
+        return NO;
     }
-    
-    memset((void *)symmetricKey, 0x0, kChosenCipherKeySize);
     
     err = SecRandomCopyBytes(kSecRandomDefault, kChosenCipherKeySize, symmetricKey);
     if (err != errSecSuccess)
@@ -83,61 +81,55 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
         AD_LOG_ERROR(@"Failed to copy random bytes for broker key.", err, nil, nil);
         UNEXPECTED_KEY_ERROR;
         free(symmetricKey);
-        return;
+        return NO;
     }
     
     NSData* keyData = [[NSData alloc] initWithBytes:symmetricKey length:kChosenCipherKeySize * sizeof(uint8_t)];
     free(symmetricKey);
     
-    [self createBrokerKeyWithBytes:keyData error:error];
-    [keyData release];
-}
-
-- (void)createBrokerKeyWithBytes:(NSData*)bytes
-                           error:(ADAuthenticationError* __autoreleasing*)error
-{
-    OSStatus err = noErr;
-    
     // First delete current symmetric key.
     [self deleteSymmetricKey:error];
     
-    // Container dictionary
-    NSMutableDictionary *symmetricKeyAttr = [[NSMutableDictionary alloc] init];
-    [symmetricKeyAttr setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
-    [symmetricKeyAttr setObject:(__bridge id)(kSecClassGenericPassword) forKey:(__bridge id)kSecAttrKeyClass];
-    [symmetricKeyAttr setObject:_symmetricTag forKey:(__bridge id)kSecAttrApplicationTag];
-    [symmetricKeyAttr setObject:[NSNumber numberWithUnsignedInt:CSSM_ALGID_AES] forKey:(__bridge id)kSecAttrKeyType];
-    [symmetricKeyAttr setObject:[NSNumber numberWithUnsignedInt:(unsigned int)(kChosenCipherKeySize << 3)] forKey:(__bridge id)kSecAttrKeySizeInBits];
-    [symmetricKeyAttr setObject:[NSNumber numberWithUnsignedInt:(unsigned int)(kChosenCipherKeySize << 3)]  forKey:(__bridge id)kSecAttrEffectiveKeySize];
-    [symmetricKeyAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecAttrCanEncrypt];
-    [symmetricKeyAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecAttrCanDecrypt];
-    [symmetricKeyAttr setObject:bytes forKey:(__bridge id)kSecValueData];
+    
+    NSDictionary* symmetricKeyAttr =
+    @{
+      (id)kSecClass : (id)kSecClassKey,
+      (id)kSecAttrKeyClass : (id)kSecAttrKeyClassSymmetric,
+      (id)kSecAttrApplicationTag : _symmetricTag,
+      (id)kSecAttrKeyType : @(CSSM_ALGID_AES),
+      (id)kSecAttrKeySizeInBits : @(kChosenCipherKeySize << 3),
+      (id)kSecAttrEffectiveKeySize : @(kChosenCipherKeySize << 3),
+      (id)kSecAttrCanEncrypt : @YES,
+      (id)kSecAttrCanDecrypt : @YES,
+      (id)kSecValueData : keyData,
+      };
     
     err = SecItemAdd((__bridge CFDictionaryRef) symmetricKeyAttr, NULL);
-    SAFE_ARC_RELEASE(symmetricKeyAttr);
     
     if(err != errSecSuccess)
     {
         UNEXPECTED_KEY_ERROR;
+        return NO;
     }
     
-    _symmetricKeyRef = bytes;
+    _symmetricKeyRef = keyData;
+    
+    return YES;
 }
 
-- (void)deleteSymmetricKey: (ADAuthenticationError* __autoreleasing*) error
+- (BOOL)deleteSymmetricKey: (ADAuthenticationError* __autoreleasing*) error
 {
     OSStatus err = noErr;
     
-    NSMutableDictionary * querySymmetricKey = [[NSMutableDictionary alloc] init];
-    
-    // Set the symmetric key query dictionary.
-    [querySymmetricKey setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
-    [querySymmetricKey setObject:_symmetricTag forKey:(__bridge id)kSecAttrApplicationTag];
-    [querySymmetricKey setObject:[NSNumber numberWithUnsignedInt:CSSM_ALGID_AES] forKey:(__bridge id)kSecAttrKeyType];
+    NSDictionary* symmetricKeyQuery =
+    @{
+      (id)kSecClass : (id)kSecClassKey,
+      (id)kSecAttrApplicationTag : _symmetricTag,
+      (id)kSecAttrKeyType : @(CSSM_ALGID_AES),
+      };
     
     // Delete the symmetric key.
-    err = SecItemDelete((__bridge CFDictionaryRef)querySymmetricKey);
-    SAFE_ARC_RELEASE(querySymmetricKey);
+    err = SecItemDelete((__bridge CFDictionaryRef)symmetricKeyQuery);
     
     // Try to delete something that doesn't exist isn't really an error
     if(err != errSecSuccess && err != errSecItemNotFound)
@@ -149,9 +141,11 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
         *error = [ADAuthenticationError errorFromNSError:nserror
                                             errorDetails:details
                                            correlationId:nil];
+        return NO;
     }
     
     _symmetricKeyRef = nil;
+    return YES;
 }
 
 - (NSData*)getBrokerKey:(ADAuthenticationError* __autoreleasing*)error
@@ -170,18 +164,17 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
         return _symmetricKeyRef;
     }
     
-    NSMutableDictionary * querySymmetricKey = [[NSMutableDictionary alloc] init];
-    
-    // Set the private key query dictionary.
-    [querySymmetricKey setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
-    [querySymmetricKey setObject:_symmetricTag forKey:(__bridge id)kSecAttrApplicationTag];
-    [querySymmetricKey setObject:[NSNumber numberWithUnsignedInt:CSSM_ALGID_AES] forKey:(__bridge id)kSecAttrKeyType];
-    [querySymmetricKey setObject:[NSNumber numberWithBool:YES] forKey:(__bridge id)kSecReturnData];
+    NSDictionary* symmetricKeyQuery =
+    @{
+      (id)kSecClass : (id)kSecClassKey,
+      (id)kSecAttrApplicationTag : _symmetricTag,
+      (id)kSecAttrKeyType : @(CSSM_ALGID_AES),
+      (id)kSecReturnData : @(YES),
+      };
     
     // Get the key bits.
     CFDataRef symmetricKey = nil;
-    err = SecItemCopyMatching((__bridge CFDictionaryRef)querySymmetricKey, (CFTypeRef *)&symmetricKey);
-    SAFE_ARC_RELEASE(querySymmetricKey);
+    err = SecItemCopyMatching((__bridge CFDictionaryRef)symmetricKeyQuery, (CFTypeRef *)&symmetricKey);
     if (err == errSecSuccess)
     {
         _symmetricKeyRef = CFBridgingRelease(symmetricKey);

@@ -38,10 +38,8 @@
 
 - (id)init;
 
-- (void)createBrokerKey:(ADAuthenticationError* __autoreleasing*)error;
-- (void)createBrokerKeyWithBytes:(NSData*)bytes
-                           error:(ADAuthenticationError* __autoreleasing*)error;
-- (void)deleteSymmetricKey: (ADAuthenticationError* __autoreleasing*) error;
+- (BOOL)createBrokerKey:(ADAuthenticationError* __autoreleasing*)error;
+- (BOOL)deleteSymmetricKey: (ADAuthenticationError* __autoreleasing*) error;
 - (NSData*)getBrokerKey:(ADAuthenticationError* __autoreleasing*)error;
 - (NSData*)decryptBrokerResponse:(NSData*)response
                          version:(NSInteger)version
