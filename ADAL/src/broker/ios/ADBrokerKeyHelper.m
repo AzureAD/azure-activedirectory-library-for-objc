@@ -85,8 +85,10 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     free(symmetricKey);
     
     // First delete current symmetric key.
-    [self deleteSymmetricKey:error];
-    
+    if (![self deleteSymmetricKey:error])
+    {
+        return NO;
+    }
     
     NSDictionary* symmetricKeyAttr =
     @{
@@ -110,7 +112,7 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
         return NO;
     }
     
-    _symmetricKey = keyData;
+    [self setSymmetricKey:keyData];
     
     return YES;
 }
