@@ -200,6 +200,24 @@
     
     [self logWithCorrelationId:[responseDictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE] mrrt:isMRRT];
     
+    NSMutableDictionary* additional = [responseDictionary mutableCopy];
+    
+    // Remove any fields from the dictionary that we've already cached elsewhere
+    [additional removeObjectForKey:OAUTH2_AUTHORITY];
+    [additional removeObjectForKey:OAUTH2_RESOURCE];
+    [additional removeObjectForKey:OAUTH2_CLIENT_ID];
+    [additional removeObjectForKey:OAUTH2_ACCESS_TOKEN];
+    [additional removeObjectForKey:OAUTH2_REFRESH_TOKEN];
+    [additional removeObjectForKey:OAUTH2_TOKEN_TYPE];
+    [additional removeObjectForKey:ADAL_CLIENT_FAMILY_ID];
+    [additional removeObjectForKey:OAUTH2_ID_TOKEN];
+    [additional removeObjectForKey:@"expires_in"];
+    [additional removeObjectForKey:@"expires_on"];
+    
+    // Go thro
+    SAFE_ARC_RELEASE(_additionalServer);
+    _additionalServer = additional;
+    
     return isMRRT;
 }
 
@@ -285,6 +303,28 @@
          userInfo:nil
            format:@"{\n\tresource = %@\n\tclientId = %@\n\tauthority = %@\n\tuserId = %@\n}",
      _resource, _clientId, _authority, _userInformation.userId];
+}
+
+- (NSDictionary*)additionalServer
+{
+    return _additionalServer;
+}
+
+- (NSMutableDictionary*)additionalClient
+{
+    return _additionalClient;
+}
+
+- (void)setAdditionalClient:(NSMutableDictionary *)additionalClient
+{
+    if (_additionalClient == additionalClient)
+    {
+        return;
+    }
+    
+    SAFE_ARC_RELEASE(_additionalClient);
+    _additionalClient = additionalClient;
+    SAFE_ARC_RETAIN(_additionalClient);
 }
 
 

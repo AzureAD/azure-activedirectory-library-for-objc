@@ -766,6 +766,108 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqual(allItems.count, 2);
 }
 
+- (void)testAdditionalServerProperties
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    id<ADTokenCacheAccessor> cache = [context tokenCacheStore];
+    XCTAssertNotNil(cache);
+    
+    XCTAssertTrue([cache addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error]);
+    XCTAssertNil(error);
+    
+    NSDictionary* additional = @{ @"arbitraryProperty" : @"save_me",
+                                  @"thing-that-if-it-doesnt-get-saved-might-hose-us-later" : @"not-hosed" };
+    
+    ADTestURLResponse* response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                 correlationId:TEST_CORRELATION_ID
+                                               newRefreshToken:TEST_REFRESH_TOKEN
+                                                newAccessToken:TEST_ACCESS_TOKEN
+                                              additionalFields:additional];
+    
+    [ADTestURLConnection addResponse:response];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertEqualObjects(result.accessToken, TEST_ACCESS_TOKEN);
+         
+         NSDictionary* additionalServer = result.tokenCacheItem.additionalServer;
+         XCTAssertNotNil(additionalServer);
+         // We need to make sure the additionalServer dictionary contains everything in the additional
+         // dictionary, but if there's other stuff there as well it's okay.
+         for (NSString* key in additional)
+         {
+             XCTAssertEqualObjects(additionalServer[key], additional[key], @"Expected \"%@\" for \"%@\", Actual: \"%@\"", additionalServer[key], key, additional[key]);
+         }
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+}
+
+- (void)testAdditionalClientRetainedOnRefresh
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    id<ADTokenCacheAccessor> cache = [context tokenCacheStore];
+    XCTAssertNotNil(cache);
+    
+    ADTokenCacheItem* item = [self adCreateMRRTCacheItem];
+    NSMutableDictionary* additional = [NSMutableDictionary new];
+    additional[@"client_prop_1"] = @"something-client-side";
+    item.additionalClient = additional;
+    
+    XCTAssertTrue([cache addOrUpdateItem:item correlationId:nil error:&error]);
+    XCTAssertNil(error);
+    
+    ADTestURLResponse* response = [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                     authority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                 correlationId:TEST_CORRELATION_ID
+                                               newRefreshToken:@"new-mrrt"
+                                                newAccessToken:TEST_ACCESS_TOKEN
+                                              additionalFields:nil];
+    [ADTestURLConnection addResponse:response];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertEqualObjects(result.accessToken, TEST_ACCESS_TOKEN);
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+    
+    // Pull the MRRT directly out of the cache after the acquireTokenSilent operation
+    ADTokenCacheKey* mrrtKey = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY resource:nil clientId:TEST_CLIENT_ID error:nil];
+    XCTAssertNotNil(mrrtKey);
+    ADTokenCacheItem* itemFromCache = [cache getItemWithKey:mrrtKey userId:TEST_USER_ID correlationId:TEST_CORRELATION_ID error:nil];
+    XCTAssertNotNil(itemFromCache);
+    
+    // And make sure the additionalClient dictionary is still there unharmed
+    XCTAssertEqualObjects(itemFromCache.additionalClient, additional);
+    XCTAssertEqualObjects(itemFromCache.refreshToken, @"new-mrrt");
+}
+
 // Make sure that if we get a token response from the server that includes a family ID we cache it properly
 - (void)testAcquireRefreshFamilyTokenNetwork
 {
