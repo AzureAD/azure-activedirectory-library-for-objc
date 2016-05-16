@@ -223,6 +223,13 @@
 #if TARGET_OS_IPHONE // Broker Message Encryption
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
     NSData* key = [brokerHelper getBrokerKey:&error];
+    if (!key)
+    {
+        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Unable to retrieve broker key." correlationId:_correlationId];
+        completionBlock([ADAuthenticationResult resultFromError:adError correlationId:_correlationId]);
+        return;
+    }
+    
     NSString* base64Key = [NSString Base64EncodeData:key];
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
     CHECK_FOR_NIL(base64UrlKey);
