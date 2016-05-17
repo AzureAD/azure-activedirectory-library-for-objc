@@ -214,6 +214,9 @@
     [additional removeObjectForKey:@"expires_in"];
     [additional removeObjectForKey:@"expires_on"];
     
+    // reformat ext_expires_in to ext_expires_on in the dictionary
+    [self reformatExtendedExpiration:additional];
+    
     SAFE_ARC_RELEASE(_additionalServer);
     _additionalServer = additional;
     
@@ -326,5 +329,27 @@
     SAFE_ARC_RETAIN(_additionalClient);
 }
 
+- (void)reformatExtendedExpiration:(NSMutableDictionary *)additionalDictionary
+{
+    NSString* extendedExpiresIn = [_additionalServer valueForKey:@"ext_expires_in"];
+    if ([NSString adIsStringNilOrBlank:extendedExpiresIn] && [extendedExpiresIn respondsToSelector:@selector(doubleValue)])
+    {
+        [additionalDictionary setObject:[NSDate dateWithTimeIntervalSinceNow:[extendedExpiresIn doubleValue]]
+                                 forKey:@"ext_expires_on"];
+    }
+}
+
+- (BOOL)isExtendedLifetimeExpired
+{
+    NSDate* extendedExpiresOn = [_additionalServer valueForKey:@"ext_expires_on"];
+    
+    //extended lifetime is only valid if it contains an access token
+    if ([NSString adIsStringNilOrBlank:_accessToken] || !extendedExpiresOn)
+    {
+        return YES;
+    }
+    
+    return [extendedExpiresOn compare:[NSDate date]] == NSOrderedAscending;
+}
 
 @end
