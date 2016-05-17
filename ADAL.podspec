@@ -36,7 +36,7 @@ Pod::Spec.new do |s|
   
   s.osx.public_header_files = "ADAL/src/public/mac/*.h","ADAL/src/public/*.h"
   s.osx.exclude_files = "ADAL/src/**/ios/*"
-  s.osx.module_map = "ADAL/resources/mac/adal_mac.modulemap"
+  s.module_map = "ADAL/resources/mac/adal_mac.modulemap"
   s.osx.resources = "ADAL/resources/mac/ADCredentialViewController.xib"
   
   s.exclude_files = "ADAL/src/broker/ios/ADBrokerKeyHelper.m","ADAL/src/cache/ios/ADKeychainTokenCache.m","ADAL/src/workplacejoin/ios/ADWorkPlaceJoinUtil.m"
