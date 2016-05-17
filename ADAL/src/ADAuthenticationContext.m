@@ -43,6 +43,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 @synthesize validateAuthority = _validateAuthority;
 @synthesize correlationId = _correlationId;
 @synthesize credentialsType = _credentialsType;
+@synthesize enableExtendedLifetime = _enableExtendedLifetime;
 @synthesize logComponent = _logComponent;
 @synthesize webView = _webView;
 
@@ -83,6 +84,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     _authority = extractedAuthority;
     _validateAuthority = bValidate;
     _credentialsType = AD_CREDENTIALS_EMBEDDED;
+    _enableExtendedLifetime = NO;
     
     _tokenCacheStore = [ADKeychainTokenCache keychainCacheForGroup:sharedGroup];
     
@@ -112,6 +114,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     SAFE_ARC_RETAIN(_authority);
     _validateAuthority = validateAuthority;
     _credentialsType = AD_CREDENTIALS_EMBEDDED;
+    _enableExtendedLifetime = NO;
     _tokenCacheStore = tokenCache;
     SAFE_ARC_RETAIN(_tokenCacheStore);
     
