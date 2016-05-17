@@ -79,6 +79,8 @@
     item->_userInformation = [_userInformation copyWithZone:zone];
     item->_sessionKey = [_sessionKey copyWithZone:zone];
 	item->_tombstone = [_tombstone mutableCopyWithZone:zone];
+    item->_additionalClient = [_additionalClient mutableCopyWithZone:zone];
+    item->_additionalServer = [_additionalServer copyWithZone:zone];
     
     [item calculateHash];
     
@@ -155,6 +157,8 @@
     [aCoder encodeObject:_expiresOn forKey:@"expiresOn"];
     [aCoder encodeObject:_userInformation forKey:@"userInformation"];
 	[aCoder encodeObject:_tombstone forKey:@"tombstone"];
+    [aCoder encodeObject:_additionalClient forKey:@"additionalClient"];
+    [aCoder encodeObject:_additionalServer forKey:@"additionalServer"];
 }
 
 //Deserializer:
@@ -189,6 +193,10 @@
     SAFE_ARC_RETAIN(_userInformation);
 	_tombstone = [aDecoder decodeObjectOfClass:[NSMutableDictionary class] forKey:@"tombstone"];
 	SAFE_ARC_RETAIN(_tombstone);
+    _additionalClient = [aDecoder decodeObjectOfClass:[NSMutableDictionary class] forKey:@"additionalClient"];
+    SAFE_ARC_RETAIN(_additionalClient);
+    _additionalServer = [aDecoder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
+    SAFE_ARC_RETAIN(_additionalServer);
     
     [self calculateHash];
     

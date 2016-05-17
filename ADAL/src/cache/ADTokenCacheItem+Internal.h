@@ -29,6 +29,11 @@
 
 @interface ADTokenCacheItem (Internal)
 
+- (NSDictionary*)additionalServer;
+- (NSMutableDictionary*)additionalClient;
+
+- (void)setAdditionalClient:(NSMutableDictionary*)additionalClient;
+
 - (void)checkCorrelationId:(NSDictionary*)response
       requestCorrelationId:(NSUUID*)requestCorrelationId;
 

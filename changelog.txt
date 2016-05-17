@@ -1,3 +1,17 @@
+Version 2.2.0
+-------------
+* Added support for Family of Client IDs among Microsoft apps
+* (iOS Only) Added +[ADKeychainTokenCache defaultKeychainCache] and +[ADKeychainTokenCache keychainCacheForGroup:] APIs to make how to use the keychain token cache APIs more discoverable.
+* Fixed a crash on first use of the broker when creating a broker key
+* Added extensibility properties to token cache items to allow for forwards compatibility in the future.
+* Set the 'Skip Install' setting to 'YES' on all framework and static library targets.
+
+
+Version 2.1.2
+-------------
+* Restored the fix for ADKeychainTokenCache that was overriden in a git merge.
+
+
 Version 2.1.1
 _____________
 * Added underlying errors to ADAuthenticationErrors when returning user interaction required

@@ -142,7 +142,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 #endif
                  (id)kSecAttrGeneric : [s_tombstoneLibraryString dataUsingEncoding:NSUTF8StringEncoding]
                  };
-    SAFE_ARC_RETAIN(_default);
+    SAFE_ARC_RETAIN(_defaultTombstone);
 
     
     static dispatch_once_t onceToken = 0;

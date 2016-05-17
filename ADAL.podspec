@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = "ADAL"
   s.module_name  = "ADAL"
-  s.version      = "2.1.1"
+  s.version      = "2.2.0"
   s.summary      = "The ADAL SDK for iOS gives you the ability to add Azure Identity authentication to your application"
 
   s.description  = <<-DESC
@@ -36,7 +36,7 @@ Pod::Spec.new do |s|
   
   s.osx.public_header_files = "ADAL/src/public/mac/*.h","ADAL/src/public/*.h"
   s.osx.exclude_files = "ADAL/src/**/ios/*"
-  s.osx.module_map = "ADAL/resources/mac/adal_mac.modulemap"
+  s.module_map = "ADAL/resources/mac/adal_mac.modulemap"
   s.osx.resources = "ADAL/resources/mac/ADCredentialViewController.xib"
   
   s.exclude_files = "ADAL/src/broker/ios/ADBrokerKeyHelper.m","ADAL/src/cache/ios/ADKeychainTokenCache.m","ADAL/src/workplacejoin/ios/ADWorkPlaceJoinUtil.m"
