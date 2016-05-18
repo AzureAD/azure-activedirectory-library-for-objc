@@ -208,8 +208,8 @@
 
     if (!item.refreshToken)
     {
-        // There's nothing usable in this cache item, delete it.
-        if (![[_context tokenCacheStore] removeItem:item error:&error] && error)
+        // There's nothing usable in this cache item if extended lifetime also expires, delete it.
+        if (item.isExtendedLifetimeExpired && ![[_context tokenCacheStore] removeItem:item error:&error] && error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
             return;
