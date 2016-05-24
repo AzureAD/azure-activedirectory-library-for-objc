@@ -96,6 +96,11 @@
     
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && [_context hasCacheStore])
     {
+        if (_context.enableExtendedLifetime)
+        {
+            completionBlock = [self enableLogicForExtendedLifetime:completionBlock];
+        }
+        
         [self findAccessToken:completionBlock];
         return;
     }
@@ -206,6 +211,13 @@
         return;
     }
 
+    // If the access token is good in terms of extended lifetime then store it for later use
+    if (item.accessToken && !item.isExtendedLifetimeExpired)
+    {
+        _validStaleAccessTokenItem = item;
+        SAFE_ARC_RETAIN(_validStaleAccessTokenItem);
+    }
+    
     if (!item.refreshToken)
     {
         // There's nothing usable in this cache item if extended lifetime also expires, delete it.
@@ -438,6 +450,39 @@
              }
          }
      }];
+}
+
+- (ADAuthenticationCallback) enableLogicForExtendedLifetime:(ADAuthenticationCallback)completionBlock
+{
+    // logic is added to return valid stale access token when server is unavailable
+    ADAuthenticationCallback newCompletion = ^(ADAuthenticationResult *result)
+    {
+        if ([self isServerUnavailable:result] && _validStaleAccessTokenItem)
+        {
+            _validStaleAccessTokenItem.expiresOn = [_validStaleAccessTokenItem.additionalServer valueForKey:@"ext_expires_on"];
+            
+            // give the stale token as result
+            [ADLogger logToken:_validStaleAccessTokenItem.accessToken
+                     tokenType:@"access token (extended lifetime)"
+                     expiresOn:_validStaleAccessTokenItem.expiresOn
+                 correlationId:_correlationId];
+            SAFE_ARC_RELEASE(result);
+            result = [ADAuthenticationResult resultFromTokenCacheItem:_validStaleAccessTokenItem
+                                                                    multiResourceRefreshToken:NO
+                                                                                correlationId:_correlationId];
+        }
+        completionBlock(result);
+    };
+    return newCompletion;
+}
+
+- (BOOL) isServerUnavailable:(ADAuthenticationResult *)result
+{
+    if ([[[result error] protocolCode] isEqual:@"503"] || [[[result error] protocolCode] isEqual:@"504"])
+    {
+        return YES;
+    }
+    return NO;
 }
 
 #pragma mark -

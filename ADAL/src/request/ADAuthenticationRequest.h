@@ -74,6 +74,7 @@
     BOOL _attemptedFRT;
     
     ADTokenCacheItem* _mrrtItem;
+    ADTokenCacheItem* _validStaleAccessTokenItem;
     
     ADAuthenticationError* _underlyingError;
 }
