@@ -331,8 +331,8 @@
 
 - (void)reformatExtendedExpiration:(NSMutableDictionary *)additionalDictionary
 {
-    NSString* extendedExpiresIn = [_additionalServer valueForKey:@"ext_expires_in"];
-    if ([NSString adIsStringNilOrBlank:extendedExpiresIn] && [extendedExpiresIn respondsToSelector:@selector(doubleValue)])
+    NSString* extendedExpiresIn = [additionalDictionary valueForKey:@"ext_expires_in"];
+    if (![NSString adIsStringNilOrBlank:extendedExpiresIn] && [extendedExpiresIn respondsToSelector:@selector(doubleValue)])
     {
         [additionalDictionary setObject:[NSDate dateWithTimeIntervalSinceNow:[extendedExpiresIn doubleValue]]
                                  forKey:@"ext_expires_on"];
