@@ -49,4 +49,7 @@
 /*! Creates an authentication result from broker response, which can be with/without correlation id. */
 + (ADAuthenticationResult*)resultFromBrokerResponse:(NSDictionary*)response;
 
+/*! Internal method to set the extendedLifetimeToken flag. */
+- (void)setExtendedLifeTimeTokenFlag:(BOOL)extendedLifeTimeToken;
+
 @end

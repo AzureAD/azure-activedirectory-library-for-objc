@@ -468,6 +468,11 @@
      }];
 }
 
+/*
+ This method will add the logic of returning a valid AT in terms of ext_expires_in.
+ The logic is appended to the front of the completion block because returning a valid AT in terms of 
+ ext_expires_in happens in the vey end of the cache look up sequence.
+ */
 - (ADAuthenticationCallback) enableLogicForExtendedLifetime:(ADAuthenticationCallback)completionBlock
 {
     // logic is added to return valid stale access token when server is unavailable
@@ -487,6 +492,7 @@
             result = [ADAuthenticationResult resultFromTokenCacheItem:_validStaleAccessTokenItem
                                             multiResourceRefreshToken:NO
                                                         correlationId:_correlationId];
+            [result setExtendedLifeTimeTokenFlag:YES];
         }
         completionBlock(result);
     };
@@ -495,7 +501,7 @@
 
 - (BOOL) isServerUnavailable:(ADAuthenticationResult *)result
 {
-    if ([[result error] code] ==503 || [[result error] code] == 504)
+    if ([[result error] code] == 503 || [[result error] code] == 504)
     {
         return YES;
     }

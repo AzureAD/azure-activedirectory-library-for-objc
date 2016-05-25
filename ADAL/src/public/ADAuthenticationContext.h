@@ -120,7 +120,7 @@ typedef enum
     NSString* _authority;
     BOOL _validateAuthority;
     ADCredentialsType _credentialsType;
-    BOOL _enableExtendedLifetime;
+    BOOL _extendedLifetimeEnabled;
     NSString* _logComponent;
     NSUUID* _correlationId;
 #if __has_feature(objc_arc)
@@ -257,7 +257,7 @@ typedef enum
 @property ADCredentialsType credentialsType;
 
 /*! Enable to return access token with extended lifttime during server outage. */
-@property BOOL enableExtendedLifetime;
+@property BOOL extendedLifetimeEnabled;
 
 /*! The name of the component using this authentication context. Used in some logging and telemetry
     for clarification purposes. */

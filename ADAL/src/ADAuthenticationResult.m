@@ -34,6 +34,7 @@
 @synthesize error = _error;
 @synthesize multiResourceRefreshToken = _multiResourceRefreshToken;
 @synthesize correlationId = _correlationId;
+@synthesize extendedLifeTimeToken = _extendedLifeTimeToken;
 
 - (id)init
 {

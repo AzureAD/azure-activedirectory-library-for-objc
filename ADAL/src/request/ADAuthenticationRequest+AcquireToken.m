@@ -104,7 +104,7 @@
                                                          identifier:_identifier
                                                       correlationId:_correlationId
                                                          tokenCache:_tokenCache
-                                                   extendedLifetime:_context.enableExtendedLifetime
+                                                   extendedLifetime:_context.extendedLifetimeEnabled
                                                     completionBlock:^(ADAuthenticationResult *result)
         {
             if ([ADAuthenticationContext isFinalResult:result])

@@ -1275,7 +1275,7 @@ const int sAsyncContextTimeout = 10;
     [ADTestURLConnection addResponse:response];
     
     // Test whether valid stale access token is returned
-    [context setEnableExtendedLifetime:YES];
+    [context setExtendedLifetimeEnabled:YES];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:TEST_REDIRECT_URL

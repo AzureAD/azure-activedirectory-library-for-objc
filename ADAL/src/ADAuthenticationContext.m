@@ -43,7 +43,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 @synthesize validateAuthority = _validateAuthority;
 @synthesize correlationId = _correlationId;
 @synthesize credentialsType = _credentialsType;
-@synthesize enableExtendedLifetime = _enableExtendedLifetime;
+@synthesize extendedLifetimeEnabled = _extendedLifetimeEnabled;
 @synthesize logComponent = _logComponent;
 @synthesize webView = _webView;
 
@@ -101,7 +101,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     _authority = extractedAuthority;
     _validateAuthority = validateAuthority;
     _credentialsType = AD_CREDENTIALS_EMBEDDED;
-    _enableExtendedLifetime = NO;
+    _extendedLifetimeEnabled = NO;
     [self setTokenCacheStore:tokenCache];
 
     return self;

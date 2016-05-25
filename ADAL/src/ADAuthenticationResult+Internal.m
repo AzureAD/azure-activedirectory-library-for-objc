@@ -237,4 +237,9 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     
 }
 
+- (void)setExtendedLifeTimeTokenFlag:(BOOL)extendedLifeTimeToken;
+{
+    _extendedLifeTimeToken = extendedLifeTimeToken;
+}
+
 @end
