@@ -37,6 +37,8 @@
 #import "ADAL_Internal.h"
 
 @class ADUserIdentifier;
+@class ADTokenCacheAccessor;
+@protocol ADTokenCacheDataSource;
 
 #import "ADAuthenticationContext.h"
 #import "ADAuthenticationResult+Internal.h"
@@ -83,7 +85,7 @@ extern NSString* const ADRedirectUriInvalidError;
 
 @interface ADAuthenticationContext (CacheStorage)
 
-- (void)setTokenCacheStore:(id<ADTokenCacheAccessor>)tokenCacheStore;
-- (id<ADTokenCacheAccessor>)tokenCacheStore;
+- (void)setTokenCacheStore:(id<ADTokenCacheDataSource>)tokenCacheStore;
+- (ADTokenCacheAccessor *)tokenCacheStore;
 
 @end

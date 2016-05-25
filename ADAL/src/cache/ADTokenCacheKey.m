@@ -79,9 +79,9 @@
                  error:(ADAuthenticationError * __autoreleasing *)error
 {
     API_ENTRY;
-    //Trimm first for faster nil or empty checks. Also lowercase and trimming is
-    //needed to ensure that the cache handles correctly same items with different
-    //character case:
+    // Trim first for faster nil or empty checks. Also lowercase and trimming is
+    // needed to ensure that the cache handles correctly same items with different
+    // character case:
     authority = [ADInstanceDiscovery canonicalizeAuthority:authority];
     resource = resource.adTrimmedString.lowercaseString;
     clientId = clientId.adTrimmedString.lowercaseString;

@@ -94,8 +94,26 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 //
 + (BOOL)isFinalResult:(ADAuthenticationResult*)result
 {
-    return (AD_SUCCEEDED == result.status) /* access token provided, no need to try anything else */
-    || (result.error && !result.error.protocolCode); //Connection is down, server is unreachable or DNS error. No need to try refresh tokens.
+    if (!result)
+    {
+        return NO;
+    }
+    
+    // Successful results are final results!
+    if (result.status == AD_SUCCEEDED)
+    {
+        return YES;
+    }
+    
+    // Protocol Code is used for OAuth errors (and should only be used for OAuth errors...). If we
+    // received an OAuth error that means that the server is up and responsive, just that something
+    // about the token was bad.
+    if (result.error && !result.error.protocolCode)
+    {
+        return YES;
+    }
+    
+    return NO;
 }
 
 //Translates the ADPromptBehavior into prompt query parameter. May return nil, if such
