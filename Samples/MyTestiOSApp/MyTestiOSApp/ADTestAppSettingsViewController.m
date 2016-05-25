@@ -22,7 +22,13 @@
 // THE SOFTWARE.
 
 #import "ADTestAppSettingsViewController.h"
+#import "ADTestAppProfileViewController.h"
 #import "ADTestAppSettings.h"
+
+// Internal ADAL headers
+#import "ADWorkPlaceJoin.h"
+#import "ADWorkPlaceJoinUtil.h"
+
 
 @interface ADTestAppSettingsViewController ()
 
@@ -30,19 +36,23 @@
 
 @implementation ADTestAppSettingsViewController
 {
+    IBOutlet UIButton* _profile;
     IBOutlet UIButton* _authority;
     IBOutlet UILabel* _clientId;
     IBOutlet UILabel* _redirectUri;
     IBOutlet UIButton* _resource;
+    IBOutlet UILabel* _keychainId;
+    IBOutlet UILabel* _workplaceJoin;
 }
 
 - (id)init
 {
-    if (!(self = [super initWithNibName:@"ADTestAppSettingsView" bundle:nil]))
+    if (!(self = [super init]))
     {
         return nil;
     }
     
+    self.navigationController.navigationBarHidden = YES;
     self.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Settings"
                                                     image:[UIImage imageNamed:@"Settings"]
                                                       tag:0];
@@ -52,29 +62,46 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
     
+    [_keychainId setText:[[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix]];
+    
+    [self refreshProfileSettings];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    ADRegistrationInformation* regInfo =
+    [[ADWorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
+    
+    NSString* wpjLabel = @"No WPJ Registration Found";
+    
+    if (regInfo.userPrincipalName)
+    {
+        wpjLabel = regInfo.userPrincipalName;
+    }
+    else if (regInfo)
+    {
+        wpjLabel = @"WPJ Registration Found";
+    }
+    
+    [_workplaceJoin setText:wpjLabel];
+    
+    [self refreshProfileSettings];
+}
+
+- (IBAction)gotoProfile:(id)sender
+{
+    [self.navigationController pushViewController:[ADTestAppProfileViewController sharedProfileViewController] animated:YES];
+}
+
+- (void)refreshProfileSettings
+{
     ADTestAppSettings* settings = [ADTestAppSettings settings];
-    
     [_authority setTitle:settings.authority forState:UIControlStateNormal];
     [_clientId setText:settings.clientId];
     [_redirectUri setText:settings.redirectUri.absoluteString];
     [_resource setTitle:settings.resource forState:UIControlStateNormal];
+    [_profile setTitle:[ADTestAppProfileViewController currentProfileTitle] forState:UIControlStateNormal];
 }
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end

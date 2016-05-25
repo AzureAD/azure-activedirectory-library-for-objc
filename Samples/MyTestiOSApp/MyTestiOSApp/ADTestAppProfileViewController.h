@@ -21,21 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
+@interface ADTestAppProfileViewController : UIViewController <UITableViewDelegate, UITableViewDataSource>
 
-extern NSString* ADTestAppCacheChangeNotification;
-
-@interface ADTestAppSettings : NSObject
-
-@property NSString* authority;
-@property NSURL* redirectUri;
-@property NSString* clientId;
-@property NSString* resource;
-
-+ (ADTestAppSettings*)settings;
-
-
-- (void)setFromDictionary:(NSDictionary*)settings;
++ (NSString*)currentProfileTitle;
++ (ADTestAppProfileViewController*)sharedProfileViewController;
 
 @end

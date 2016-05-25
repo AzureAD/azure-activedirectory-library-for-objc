@@ -24,6 +24,7 @@
 		8BA42B2F17E3C150002D206E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B2D17E3C150002D206E /* InfoPlist.strings */; };
 		8BA42B3117E3C150002D206E /* MyTestiOSAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */; };
 		8BAB18B4184576B700FDD4DD /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BAB18B3184576B700FDD4DD /* libADALiOS.a */; };
+		D63D67B51CF66960003D668A /* ADTestAppProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D63D67B41CF66960003D668A /* ADTestAppProfileViewController.m */; };
 		D68FB79F1CBED0C0008C5BCF /* ADTestAppAcquireTokenView.xib in Resources */ = {isa = PBXBuildFile; fileRef = D68FB7911CBED0C0008C5BCF /* ADTestAppAcquireTokenView.xib */; };
 		D68FB7A01CBED0C0008C5BCF /* ADTestAppAcquireTokenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68FB7931CBED0C0008C5BCF /* ADTestAppAcquireTokenViewController.m */; };
 		D68FB7A11CBED0C0008C5BCF /* ADTestAppCacheViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68FB7951CBED0C0008C5BCF /* ADTestAppCacheViewController.m */; };
@@ -65,6 +66,8 @@
 		8BA42B2E17E3C150002D206E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyTestiOSAppTests.m; sourceTree = "<group>"; };
 		8BAB18B3184576B700FDD4DD /* libADALiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADALiOS.a; path = "../../../../Library/Developer/Xcode/DerivedData/ADALiOS-ckezcambqztutxakbxsnwblsewcb/Build/Products/Debug-iphoneos/libADALiOS.a"; sourceTree = "<group>"; };
+		D63D67B31CF66960003D668A /* ADTestAppProfileViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppProfileViewController.h; sourceTree = "<group>"; };
+		D63D67B41CF66960003D668A /* ADTestAppProfileViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppProfileViewController.m; sourceTree = "<group>"; };
 		D68FB7911CBED0C0008C5BCF /* ADTestAppAcquireTokenView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ADTestAppAcquireTokenView.xib; sourceTree = "<group>"; };
 		D68FB7921CBED0C0008C5BCF /* ADTestAppAcquireTokenViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppAcquireTokenViewController.h; sourceTree = "<group>"; };
 		D68FB7931CBED0C0008C5BCF /* ADTestAppAcquireTokenViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppAcquireTokenViewController.m; sourceTree = "<group>"; };
@@ -157,6 +160,8 @@
 				D68FB7971CBED0C0008C5BCF /* ADTestAppDelegate.m */,
 				D68FB7981CBED0C0008C5BCF /* ADTestAppLogViewController.h */,
 				D68FB7991CBED0C0008C5BCF /* ADTestAppLogViewController.m */,
+				D63D67B31CF66960003D668A /* ADTestAppProfileViewController.h */,
+				D63D67B41CF66960003D668A /* ADTestAppProfileViewController.m */,
 				D68FB79A1CBED0C0008C5BCF /* ADTestAppSettings.h */,
 				D68FB79B1CBED0C0008C5BCF /* ADTestAppSettings.m */,
 				D68FB79C1CBED0C0008C5BCF /* ADTestAppSettingsView.xib */,
@@ -307,6 +312,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D63D67B51CF66960003D668A /* ADTestAppProfileViewController.m in Sources */,
 				D68FB7A31CBED0C0008C5BCF /* ADTestAppLogViewController.m in Sources */,
 				8BA42B1517E3C150002D206E /* MyTestiOSApp.xcdatamodeld in Sources */,
 				D68FB7A01CBED0C0008C5BCF /* ADTestAppAcquireTokenViewController.m in Sources */,
@@ -415,12 +421,16 @@
 					"$(inherited)",
 					"AD_CODE_COVERAGE=1",
 				);
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = (
+					../../ADALiOS/ADALiOS,
+					"$(inherited)",
+				);
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.MSOpenTech.adal.1.2.6.TestApp;
 				PRODUCT_NAME = "ADAL Test App";
 				PROVISIONING_PROFILE = "";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../../ADALiOS/ADALiOS";
 				WRAPPER_EXTENSION = app;
 			};
 			name = CodeCoverage;
@@ -540,12 +550,16 @@
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MyTestiOSApp/MyTestiOSApp-Prefix.pch";
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = (
+					../../ADALiOS/ADALiOS,
+					"$(inherited)",
+				);
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.MSOpenTech.adal.1.2.6.TestApp;
 				PRODUCT_NAME = "ADAL Test App";
 				PROVISIONING_PROFILE = "";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../../ADALiOS/ADALiOS";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -560,12 +574,16 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MyTestiOSApp/MyTestiOSApp-Prefix.pch";
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = (
+					../../ADALiOS/ADALiOS,
+					"$(inherited)",
+				);
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.MSOpenTech.adal.1.2.6.TestApp;
 				PRODUCT_NAME = "ADAL Test App";
 				PROVISIONING_PROFILE = "";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../../ADALiOS/ADALiOS";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
