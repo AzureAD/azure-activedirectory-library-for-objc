@@ -478,7 +478,7 @@
 
 - (BOOL) isServerUnavailable:(ADAuthenticationResult *)result
 {
-    if ([[[result error] protocolCode] isEqual:@"503"] || [[[result error] protocolCode] isEqual:@"504"])
+    if ([[result error] code] ==503 || [[result error] code] == 504)
     {
         return YES;
     }

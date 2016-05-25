@@ -247,9 +247,10 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                     break;
                 case 500:
                 case 503:
+                case 504:
                 {
                     //retry if it is a server error
-                    //500 and 503 are the ones we retry
+                    //500, 503 and 504 are the ones we retry
                     if (retryIfServerError)
                     {
                         //retry once after half second
