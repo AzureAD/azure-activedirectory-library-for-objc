@@ -772,7 +772,7 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
-    id<ADTokenCacheAccessor> cache = [context tokenCacheStore];
+    id<ADTokenCacheDataSource> cache = [context tokenCacheStore].dataSource;
     XCTAssertNotNil(cache);
     
     XCTAssertTrue([cache addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error]);
@@ -822,7 +822,7 @@ const int sAsyncContextTimeout = 10;
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
-    id<ADTokenCacheAccessor> cache = [context tokenCacheStore];
+    id<ADTokenCacheDataSource> cache = [context tokenCacheStore].dataSource;
     XCTAssertNotNil(cache);
     
     ADTokenCacheItem* item = [self adCreateMRRTCacheItem];
