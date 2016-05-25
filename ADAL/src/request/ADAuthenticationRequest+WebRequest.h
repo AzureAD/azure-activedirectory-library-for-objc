@@ -27,33 +27,8 @@
 // this method will return the matching request
 + (ADAuthenticationRequest*)currentModalRequest;
 
-- (void)executeRequest:(NSString *)authorizationServer
-           requestData:(NSDictionary *)request_data
-       handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
-     additionalHeaders:(NSDictionary *)additionalHeaders
+- (void)executeRequest:(NSDictionary *)request_data
             completion:(ADAuthenticationCallback)completionBlock;
-
-- (void)requestWithServer:(NSString *)authorizationServer
-              requestData:(NSDictionary *)request_data
-          handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
-        additionalHeaders:(NSDictionary *)additionalHeaders
-               completion:( void (^)(NSDictionary *) )completionBlock;
-
-- (void)requestWithServer:(NSString *)authorizationServer
-              requestData:(NSDictionary *)request_data
-          handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
-        additionalHeaders:(NSDictionary *)additionalHeaders
-        returnRawResponse:(BOOL)returnRawResponse
-               completion:( void (^)(NSDictionary *) )completionBlock;
-
-- (void)requestWithServer:(NSString *)authorizationServer
-              requestData:(NSDictionary *)request_data
-          handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
-        additionalHeaders:(NSDictionary *)additionalHeaders
-        returnRawResponse:(BOOL)returnRawResponse
-             isGetRequest:(BOOL)isGetRequest
-       retryIfServerError:(BOOL)retryIfServerError
-               completion:( void (^)(NSDictionary *) )completionBlock;
 
 //Requests an OAuth2 code to be used for obtaining a token:
 - (void)requestCode:(ADAuthorizationCodeCallback)completionBlock;

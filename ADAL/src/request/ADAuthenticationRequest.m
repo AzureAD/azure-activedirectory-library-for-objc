@@ -107,6 +107,7 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
     
     SAFE_ARC_RETAIN(context);
     _context = context;
+    _tokenCache = context.tokenCacheStore;
     _redirectUri = [redirectUri adTrimmedString];
     SAFE_ARC_RETAIN(_redirectUri);
     _clientId = [clientId adTrimmedString];

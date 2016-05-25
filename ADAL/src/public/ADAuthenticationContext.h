@@ -103,7 +103,7 @@ typedef enum
 } ADCredentialsType;
 
 @class ADAuthenticationResult;
-@protocol ADTokenCacheAccessor;
+@class ADTokenCacheAccessor;
 
 /*!
     @class ADAuthenticationContext
@@ -116,7 +116,7 @@ typedef enum
  */
 @interface ADAuthenticationContext : NSObject
 {
-    id <ADTokenCacheAccessor> _tokenCacheStore;
+    ADTokenCacheAccessor* _tokenCacheStore;
     NSString* _authority;
     BOOL _validateAuthority;
     ADCredentialsType _credentialsType;
