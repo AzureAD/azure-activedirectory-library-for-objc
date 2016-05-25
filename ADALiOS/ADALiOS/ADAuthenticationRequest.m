@@ -279,7 +279,7 @@ static NSMutableArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* cont
                                          uniqueId:uniqueId
                                            idType:_identifier.type
                                            policy:_policy
-                                           scopes:_scopes
+                                           scopes:[self scopesWithoutReservedValues:_scopes]
                                             error:error];
 }
 
@@ -311,5 +311,14 @@ static NSMutableArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* cont
     return YES;
 }
 
+- (NSSet*)scopesWithoutReservedValues:(NSSet*)scopes
+{
+    NSMutableSet* newScopes = [scopes mutableCopy];
+    [newScopes removeObject:@"openid"];
+    [newScopes removeObject:@"offline_access"];
+    [newScopes removeObject:@"email"];
+    [newScopes removeObject:@"profile"];
+    return newScopes;
+}
 
 @end
