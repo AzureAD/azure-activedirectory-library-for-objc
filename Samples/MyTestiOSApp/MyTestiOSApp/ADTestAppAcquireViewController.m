@@ -267,10 +267,10 @@ ADAuthenticationContext* context = nil;
     }
 }
 
--(NSString*) processAccessToken: (NSString*) accessToken
+-(NSString*) processToken: (NSString*) token
 {
     //Add any future processing of the token here (e.g. opening to see what is inside):
-    return accessToken;
+    return token;
 }
 
 #pragma mark UIPickerViewDataSource

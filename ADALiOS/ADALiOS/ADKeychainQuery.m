@@ -73,7 +73,7 @@
 {
     if (!userId || [userId isKindOfClass:[NSNull class]])
     {
-        userId = @"";
+        return;
     }
     
     userId = [ADProfileInfo normalizeUserId:userId];

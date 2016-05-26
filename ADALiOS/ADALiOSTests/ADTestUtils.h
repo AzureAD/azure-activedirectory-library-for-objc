@@ -34,8 +34,8 @@
 
 @property NSString* authority;
 @property NSString* clientId;
-@property NSString* accessToken;
-@property NSString* accessTokenType;
+@property NSString* token;
+@property NSString* tokenType;
 @property NSString* refreshToken;
 @property NSArray* scopes;
 @property NSDate* expiresOn;

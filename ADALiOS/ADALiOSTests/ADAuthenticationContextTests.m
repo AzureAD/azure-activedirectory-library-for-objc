@@ -343,16 +343,16 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
         XCTAssertNotNil(_error, "Error should be returned if the result did not succeed.");
         //These will be used by the tests to denote success, so we want to make sure that they are not
         //set in case of failure:
-        XCTAssertNil(_result.tokenCacheStoreItem.accessToken);
+        XCTAssertNil(_result.tokenCacheStoreItem.token);
         XCTAssertNil(_result.tokenCacheStoreItem.refreshToken);
-        XCTAssertNil(_result.accessToken);
+        XCTAssertNil(_result.token);
     }
     if (_result && _result.status == AD_SUCCEEDED)
     {
         XCTAssertNil(_error, "Error should be nil on success. Error: %@", _error.errorDetails);
-        XCTAssertNotNil(_result.accessToken);
-        XCTAssertNotNil(_result.tokenCacheStoreItem.accessToken);
-        XCTAssertEqualObjects(_result.accessToken, _result.tokenCacheStoreItem.accessToken);
+        XCTAssertNotNil(_result.token);
+        XCTAssertNotNil(_result.tokenCacheStoreItem.token);
+        XCTAssertEqualObjects(_result.token, _result.tokenCacheStoreItem.token);
     }
 }
 
@@ -496,12 +496,12 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                                                    error:error];
 }
 
-- (BOOL)addCacheWithToken:(NSString*)accessToken
+- (BOOL)addCacheWithToken:(NSString*)token
              refreshToken:(NSString*)refreshToken
                    userId:(NSString*)userId
                     error:(ADAuthenticationError* __autoreleasing *)error
 {
-    return [self addCacheWithToken:accessToken
+    return [self addCacheWithToken:token
                       refreshToken:refreshToken
                             userId:userId
                             scopes:[NSSet setWithArray:[self scopesWithAddedByLibrary]]
@@ -521,14 +521,14 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     return [_scopes arrayByAddingObjectsFromArray:@[@"offline_access", @"openid", @"profile"]];
 }
 
-- (BOOL)addCacheWithToken:(NSString*)accessToken
+- (BOOL)addCacheWithToken:(NSString*)token
              refreshToken:(NSString*)refreshToken
                     error:(ADAuthenticationError* __autoreleasing *)error
 {
-    return [self addCacheWithToken:accessToken
+    return [self addCacheWithToken:token
                       refreshToken:refreshToken
                             userId:_userId
-                            scopes:[NSSet setWithArray:[self scopesWithAddedByLibrary]]
+                            scopes:[NSSet setWithArray:_scopes]
                              error:error];
 }
 
@@ -602,7 +602,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADD_AT_RT_TO_CACHE(someTokenValue, nil);
     
     acquireTokenForAssertionAsync;
-    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.token, someTokenValue);
     
     //Expire the cache item:
     [s_testCacheStore removeAll:&error];
@@ -611,7 +611,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     XCTAssertTrue(allItems.count == 0);
     
     NSString* refreshToken = @"refresh token testAcquireTokenWithNoPrompt";
-    NSString* anotherAccessToken = @"another access token testAcquireTokenWithNoPrompt";
+    NSString* anotherToken = @"another access token testAcquireTokenWithNoPrompt";
     
     NSMutableDictionary* request = [NSMutableDictionary dictionaryWithDictionary:[self defaultRequest]];
     
@@ -619,7 +619,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     [request setObject:OAUTH2_SAML11_BEARER_VALUE forKey:OAUTH2_GRANT_TYPE];
     [request setObject:_assertion forKey:OAUTH2_ASSERTION];
     
-    NSDictionary* response = @{ OAUTH2_ACCESS_TOKEN : anotherAccessToken,
+    NSDictionary* response = @{ OAUTH2_ACCESS_TOKEN : anotherToken,
                                 OAUTH2_REFRESH_TOKEN : refreshToken,
                                 OAUTH2_SCOPE : [_scopes adSpaceDeliminatedString] };
     
@@ -627,7 +627,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     
     acquireTokenForAssertionAsync;
     XCTAssertEqual(_result.status, AD_SUCCEEDED);
-    XCTAssertEqualObjects(_result.accessToken, anotherAccessToken);
+    XCTAssertEqualObjects(_result.token, anotherToken);
     XCTAssertEqualObjects(_result.tokenCacheStoreItem.refreshToken, refreshToken);
 }
 
@@ -640,7 +640,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                              refreshToken:nil
                                     error:&error], @"failed to add token to cache: %@", error.errorDetails);
     acquireTokenAsync;
-    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.token, someTokenValue);
     NSUUID* corrId = [_context getCorrelationId];
     
     NSMutableDictionary* request = [NSMutableDictionary dictionaryWithDictionary:[self defaultRequest]];
@@ -651,15 +651,15 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSString* nilUserTokenValue = @"nil user value";
     XCTAssertTrue([self addCacheWithToken:nilUserTokenValue refreshToken:nil userId:nil error:&error], @"failed to add token to cache: %@", error.errorDetails);
     acquireTokenAsync;
-    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.token, someTokenValue);
     XCTAssertNotEqual([corrId UUIDString], [[_context getCorrelationId] UUIDString]);
     corrId = [NSUUID UUID];
     [_context setCorrelationId:corrId];
     acquireTokenAsync;
-    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.token, someTokenValue);
     XCTAssertEqualObjects([corrId UUIDString], [[_context getCorrelationId] UUIDString]);
     acquireTokenAsync;
-    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.token, someTokenValue);
     XCTAssertEqualObjects([corrId UUIDString], [[_context getCorrelationId] UUIDString]);
 }
 
@@ -668,19 +668,19 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSString* someTokenValue = @"someToken value";
     ADD_AT_RT_TO_CACHE(someTokenValue, nil);
     acquireTokenAsync;
-    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.token, someTokenValue);
 
     //Cache a token for nil user:
     NSString* nilUserTokenValue = @"nil user value";
     ADD_AT_RT_USER_TO_CACHE(nilUserTokenValue, nil, nil);
     acquireTokenAsync;
-    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.token, someTokenValue);
     
     //Cache a token for another user:
     NSString* anotherUserTokenValue = @"another user token value";
     ADD_AT_RT_USER_TO_CACHE(anotherUserTokenValue, nil, @"another user");
     acquireTokenAsync;
-    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.token, someTokenValue);
 }
 
 //Tests the scenario where we have a cached item with nil user:
@@ -692,7 +692,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSString* nilUserTokenValue = @"nil user token";
     ADD_AT_RT_USER_TO_CACHE(nilUserTokenValue, nil, nil);
     acquireTokenAsync;
-    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, nilUserTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.token, nilUserTokenValue);
     
     //Adds a cache for a real user:
     NSString* someUserTokenValue = @"Some user token";
@@ -720,7 +720,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     _userId = user1;
     acquireTokenAsync;
     XCTAssertEqual(_result.status, AD_SUCCEEDED);
-    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, user1TokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.token, user1TokenValue);
     
     _userId = nil;
     //Try the same, but with refresh tokens only:
@@ -763,7 +763,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADTokenCacheStoreItem* _ITEM = [self getItemWithScopes:_SCOPES error:&_ERROR]; \
     XCTAssertNotNil(_ITEM, @"failed to retrieve item: %@", _ERROR.errorDetails); \
     if (_ITEM) { \
-        XCTAssertEqualObjects(_ACCESS_TOKEN, _ITEM.accessToken, @"accessTokens do not match, expected (%@) actual (%@)", _ACCESS_TOKEN, _ITEM.accessToken); \
+        XCTAssertEqualObjects(_ACCESS_TOKEN, _ITEM.token, @"tokens do not match, expected (%@) actual (%@)", _ACCESS_TOKEN, _ITEM.token); \
         XCTAssertEqualObjects(_REFRESH_TOKEN, _ITEM.refreshToken, @"refreshTokens do not match, expected (%@) actual (%@)", _REFRESH_TOKEN, _ITEM.refreshToken); \
     } \
 }
@@ -782,7 +782,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     NSString* someTokenValue = @"someToken value";
     ADD_AT_RT_TO_CACHE(someTokenValue, nil);
     acquireTokenAsync;
-    XCTAssertEqualObjects(_result.tokenCacheStoreItem.accessToken, someTokenValue);
+    XCTAssertEqualObjects(_result.tokenCacheStoreItem.token, someTokenValue);
     
     //Expire the cache item:
     NSArray* allItems = [s_testCacheStore allItems:&error];
@@ -861,7 +861,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADAuthenticationError* error = nil;
     NSString* profileInfo = [[ADTestUtils defaultUtils] rawProfileInfo];
 
-    NSString* accessToken = @"testWrongUser some access token";
+    NSString* token = @"testWrongUser some access token";
     NSString* exactRefreshToken = @"testWrongUser exact refresh token";
     NSString* requestUser = @"testWrongUser requestUser";
     NSDictionary* response = nil;
@@ -869,7 +869,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     _scopes = @[@"planetarydefense.target"];
     
     //#1: access token exists in the cache for different user, make sure that the library attempts to use UI
-    ADD_AT_RT_TO_CACHE(accessToken, exactRefreshToken);
+    ADD_AT_RT_TO_CACHE(token, exactRefreshToken);
     _userId = requestUser;
     acquireTokenAsync;
     ADAssertLongEquals(AD_ERROR_NO_MAIN_VIEW_CONTROLLER, _result.error.code);
@@ -878,12 +878,12 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADAssertNoError;
     
     // Add into cache a token with just the targetting scope
-    ADD_AT_RT_TO_CACHE(accessToken, exactRefreshToken);
+    ADD_AT_RT_TO_CACHE(token, exactRefreshToken);
     
     // Now request both target and fire, this should cause a scope mismatch and trigger a request using the RT.
     _scopes = @[@"planetarydefense.target", @"planetarydefense.fire"];
     response = @{ OAUTH2_PROFILE_INFO : profileInfo,
-                  OAUTH2_ACCESS_TOKEN : accessToken,
+                  OAUTH2_ACCESS_TOKEN : token,
                   OAUTH2_SCOPE : [[_scopes arrayByAddingObjectsFromArray:@[@"openid", @"offline_access", @"profile"]] adSpaceDeliminatedString]};
     [_testContext queueExpectedRequest:[self defaultRequest] response:response];
     acquireTokenAsync;
@@ -901,10 +901,10 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     XCTAssertNil([_context extractCacheItemWithKey:nil
                                             userId:nil
                                              error:nil]);
-    BOOL useAccessToken;
+    BOOL useToken;
     XCTAssertNil([_context findCacheItemWithKey:nil
                                          userId:nil
-                                 useAccessToken:&useAccessToken
+                                 useToken:&useToken
                                           error:nil]);
     
     ADTokenCacheStoreItem* item = [self adCreateCacheItem];
@@ -928,10 +928,10 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     error = nil;
     ADTokenCacheStoreItem* found = [_context findCacheItemWithKey:key
                                                            userId:userId
-                                                   useAccessToken:&useAccessToken
+                                                   useToken:&useToken
                                                             error:&error];
     ADAssertNoError;
-    XCTAssertTrue(useAccessToken);
+    XCTAssertTrue(useToken);
     XCTAssertEqualObjects(item, found);
     
     _context.tokenCacheStore = nil;//Set the authority to not use the cache:
@@ -940,7 +940,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                                              error:nil]);
     XCTAssertNil([_context findCacheItemWithKey:key
                                          userId:userId
-                                 useAccessToken:&useAccessToken
+                                 useToken:&useToken
                                           error:&error]);
 }
 
@@ -1046,6 +1046,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     
     //new refresh token and id token in response
     NSString* newRefreshToken = @"new refresh token";
+    NSString* newAccessToken = @"new id token";
     NSString* newIdToken = @"new id token";
     ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?p=sign_in&x-client-Ver=" ADAL_VERSION_STRING
                                                     responseURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=" ADAL_VERSION_STRING
@@ -1053,6 +1054,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                                                      httpHeaderFields:@{ }
                                                      dictionaryAsJSON:@{ OAUTH2_TOKEN_TYPE : @"Bearer",
                                                                          OAUTH2_REFRESH_TOKEN : newRefreshToken,
+                                                                         OAUTH2_ACCESS_TOKEN : newAccessToken,
                                                                          OAUTH2_ID_TOKEN : newIdToken,
                                                                          OAUTH2_SCOPE : @"plantetarydefense.fire planetarydefense.target"
                                                                          }];
@@ -1066,7 +1068,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     //call acquireToken again, this time access token should be retrieved from cache
     acquireTokenAsync;
     XCTAssertEqual(_result.status, AD_SUCCEEDED);
-    XCTAssertEqualObjects(_result.accessToken, newIdToken);
+    XCTAssertEqualObjects(_result.token, newIdToken);
     XCTAssertEqualObjects(_result.tokenCacheStoreItem.refreshToken, newRefreshToken);
 }
 
