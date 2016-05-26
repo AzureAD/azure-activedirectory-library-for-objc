@@ -488,7 +488,6 @@
                      expiresOn:_validStaleAccessTokenItem.expiresOn
                  correlationId:_correlationId];
             
-            SAFE_ARC_RELEASE(result);
             result = [ADAuthenticationResult resultFromTokenCacheItem:_validStaleAccessTokenItem
                                             multiResourceRefreshToken:NO
                                                         correlationId:_correlationId];
@@ -496,6 +495,8 @@
         }
         completionBlock(result);
     };
+    newCompletion = [newCompletion copy];
+    SAFE_ARC_AUTORELEASE(newCompletion);
     return newCompletion;
 }
 

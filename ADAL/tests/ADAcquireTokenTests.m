@@ -1285,6 +1285,7 @@ const int sAsyncContextTimeout = 10;
          XCTAssertNotNil(result);
          XCTAssertEqual(result.status, AD_SUCCEEDED);
          XCTAssertNil(result.error);
+         XCTAssertTrue(result.extendedLifeTimeToken);
          XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"access token");
          
          TEST_SIGNAL;
