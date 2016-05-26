@@ -36,6 +36,11 @@
         expires_in = [responseDictionary objectForKey:@"expires_in"];
     }
     
+    if (!expires_in)
+    {
+        expires_in = [responseDictionary objectForKey:@"id_token_expires_in"];
+    }
+    
     NSDate *expires    = nil;
     
     if (expires_in)
@@ -70,10 +75,10 @@
                         mrrt:(BOOL)isMRRT
 {
     NSUUID* correlationUUID = [[NSUUID alloc] initWithUUIDString:correlationId];
-    if (self.accessToken)
+    if (self.token)
     {
-        [ADLogger logToken:self.accessToken
-                 tokenType:self.accessTokenType
+        [ADLogger logToken:self.token
+                 tokenType:self.tokenType
                  expiresOn:self.expiresOn
              correlationId:correlationUUID];
     }
@@ -99,18 +104,27 @@
     
     self.profileInfo = [ADProfileInfo profileInfoWithEncodedString:[responseDictionary objectForKey:OAUTH2_PROFILE_INFO]
                                                              error:nil];
-    NSArray* scopes = [[responseDictionary objectForKey:OAUTH2_SCOPE] componentsSeparatedByString:@" "];
-    self.scopes = [NSSet setWithArray:scopes];
+    
+    if (![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_ACCESS_TOKEN]])
+    {
+        NSArray* scopes = [[responseDictionary objectForKey:OAUTH2_SCOPE] componentsSeparatedByString:@" "];
+        self.scopes = [NSSet setWithArray:scopes];
+        FILL_FIELD(token, OAUTH2_ACCESS_TOKEN);
+    }
+    else
+    {
+        self.scopes = [NSSet setWithObject:self.clientId];
+        FILL_FIELD(token, OAUTH2_ID_TOKEN);
+    }
     
     FILL_FIELD(authority, OAUTH2_AUTHORITY);
     FILL_FIELD(clientId, OAUTH2_CLIENT_ID);
-    FILL_FIELD(accessToken, OAUTH2_ACCESS_TOKEN);
     FILL_FIELD(refreshToken, OAUTH2_REFRESH_TOKEN);
-    FILL_FIELD(accessTokenType, OAUTH2_TOKEN_TYPE);
+    FILL_FIELD(tokenType, OAUTH2_TOKEN_TYPE);
     
     [self fillExpiration:responseDictionary];
     
-    BOOL isMRRT = ![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_RESOURCE]] && ![NSString adIsStringNilOrBlank:self.refreshToken];
+    BOOL isMRRT = ![NSString adIsStringNilOrBlank:self.refreshToken];
     
     [self logWithCorrelationId:[responseDictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE] mrrt:isMRRT];
     

@@ -93,6 +93,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 - (BOOL)validateProperties:(ADAuthenticationCallback)completionBlock;
 //- (BOOL)isClientID:(NSString*)scope;
 
+- (NSMutableSet*)decoratedScopes;
+
 - (NSSet*)combinedScopes;
 
 - (ADTokenCacheStoreKey*)cacheStoreKey:(ADAuthenticationError* __autoreleasing *)error;

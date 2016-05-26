@@ -131,9 +131,9 @@ static NSMutableArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* cont
 - (ADAuthenticationError*)validateScopes:(NSArray*)scopes
                               additional:(BOOL)additional
 {
-    if ([scopes containsObject:@"openid"] || [scopes containsObject:@"offline_access"])
+    if ([scopes containsObject:@"openid"] || [scopes containsObject:@"offline_access"] || [scopes containsObject:@"profile"])
     {
-        return [ADAuthenticationError invalidArgumentError:@"Can not pass in \"openid\" or \"offline_access\" scopes"];
+        return [ADAuthenticationError invalidArgumentError:@"Can not pass in \"openid\" or \"profile\" or \"offline_access\" scopes"];
     }
     
     if ([scopes containsObject:_clientId])
@@ -142,9 +142,10 @@ static NSMutableArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* cont
         {
             return [ADAuthenticationError invalidArgumentError:@"Client ID may not be passed in as an additional scopes"];
         }
+        
         if ([scopes count] > 1)
         {
-            return [ADAuthenticationError invalidArgumentError:@"If the client ID is being passed in as a scope it is the only allowed scope."];
+            return [ADAuthenticationError invalidArgumentError:@"If the client ID is being passed in as a scope, then it is the only allowed scope."];
         }
     }
     
@@ -164,9 +165,10 @@ static NSMutableArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* cont
     
     RETURN_IF_NOT_NIL([self validateScopes:lowercaseScopes additional:NO]);
     
-    [lowercaseScopes removeObject:_clientId];
-    [lowercaseScopes addObject:@"openid"];
-    [lowercaseScopes addObject:@"offline_access"];
+//    [lowercaseScopes removeObject:_clientId];
+//    [lowercaseScopes addObject:@"openid"];
+//    [lowercaseScopes addObject:@"offline_access"];
+//    [lowercaseScopes addObject:@"profile"];
     
     _scopes = [NSSet setWithArray:lowercaseScopes];
     
@@ -290,6 +292,18 @@ static NSMutableArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* cont
                                             error:error];
 }
 
+- (NSMutableSet*)decoratedScopes
+{
+    NSMutableSet* set = [_scopes mutableCopy];
+    
+    [set removeObject:_clientId];
+    [set addObject:@"openid"];
+    [set addObject:@"offline_access"];
+    [set addObject:@"profile"];
+    
+    return set;
+}
+
 - (NSSet*)combinedScopes
 {
     if (!_scopes)
@@ -297,12 +311,12 @@ static NSMutableArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* cont
         return nil;
     }
     
+    NSMutableSet* set = self.decoratedScopes;
     if (!_additionalScopes)
     {
-        return _scopes;
+        return set;
     }
     
-    NSMutableSet* set = [_scopes mutableCopy];
     [set unionSet:_additionalScopes];
     return set;
 }

@@ -75,7 +75,7 @@
         return [ADAuthenticationResult resultFromError:error];
     }
     
-    if ([NSString adIsStringNilOrBlank:item.accessToken])
+    if ([NSString adIsStringNilOrBlank:item.token])
     {
         //Bad item, the access token should be accurate, else an error should be
         //reported instead of this creator:
@@ -134,7 +134,7 @@
     }
     
     item = [ADTokenCacheStoreItem new];
-    [item setAccessTokenType:@"Bearer"];
+    [item setTokenType:@"Bearer"];
     [item fillItemWithResponse:response];
     return [[ADAuthenticationResult alloc] initWithItem:item];
 }

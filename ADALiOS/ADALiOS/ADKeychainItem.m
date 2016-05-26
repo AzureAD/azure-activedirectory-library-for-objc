@@ -24,8 +24,8 @@
 
 @property NSSet* scopes;
 
-@property NSString* accessToken;
-@property NSString* accessTokenType;
+@property NSString* token;
+@property NSString* tokenType;
 @property NSDate* expiresOn;
 
 - (void)addToTokenItem:(ADTokenCacheStoreItem*)item;
@@ -36,7 +36,7 @@
 
 @property NSString* refreshToken;
 
-- (void)addAccessTokenWithScopes:(NSSet*)scopes
+- (void)addTokenWithScopes:(NSSet*)scopes
                           toItem:(ADTokenCacheStoreItem*)item;
 
 @end
@@ -51,8 +51,8 @@
     }
     
     _scopes = [aDecoder decodeObjectOfClass:[NSSet class] forKey:@"scopes"];
-    _accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
-    _accessTokenType = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessTokenType"];
+    _token = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"token"];
+    _tokenType = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"tokenType"];
     _expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
     
     return self;
@@ -61,8 +61,8 @@
 - (void)encodeWithCoder:(NSCoder*)aCoder
 {
     [aCoder encodeObject:_scopes forKey:@"scopes"];
-    [aCoder encodeObject:_accessToken forKey:@"accessToken"];
-    [aCoder encodeObject:_accessTokenType forKey:@"accessTokenType"];
+    [aCoder encodeObject:_token forKey:@"token"];
+    [aCoder encodeObject:_tokenType forKey:@"tokenType"];
     [aCoder encodeObject:_expiresOn forKey:@"expiresOn"];
 }
 
@@ -75,16 +75,16 @@
 {
     // Access token specific properties
     item.scopes = _scopes;
-    item.accessToken = _accessToken;
-    item.accessTokenType = _accessTokenType;
+    item.token = _token;
+    item.tokenType = _tokenType;
     item.expiresOn = _expiresOn;
 }
 
 - (void)updateToTokenItem:(ADTokenCacheStoreItem*)item
 {
     _scopes = item.scopes;
-    _accessToken = item.accessToken;
-    _accessTokenType = item.accessTokenType;
+    _token = item.token;
+    _tokenType = item.tokenType;
     _expiresOn = item.expiresOn;
 }
 
@@ -93,7 +93,7 @@
 @implementation ADKeychainPolicyItem
 {
     @public
-    NSMutableArray* _accessTokens;
+    NSMutableArray* _tokens;
 }
 
 - (id)init
@@ -102,7 +102,7 @@
     {
         return nil;
     }
-    _accessTokens = [NSMutableArray new];
+    _tokens = [NSMutableArray new];
     
     return self;
 }
@@ -114,23 +114,23 @@
         return nil;
     }
     
-    NSArray* accessTokens = [aDecoder decodeObjectOfClass:[NSArray class] forKey:@"accessTokens"];
-    if (accessTokens)
+    NSArray* tokens = [aDecoder decodeObjectOfClass:[NSArray class] forKey:@"tokens"];
+    if (tokens)
     {
         // Verify everything in here matches the expected class
-        for (id accessToken in accessTokens)
+        for (id token in tokens)
         {
-            if (![accessToken isKindOfClass:[ADKeychainToken class]])
+            if (![token isKindOfClass:[ADKeychainToken class]])
             {
                 return nil;
             }
         }
         
-        _accessTokens = [NSMutableArray arrayWithArray:accessTokens];
+        _tokens = [NSMutableArray arrayWithArray:tokens];
     }
     else
     {
-        _accessTokens = [NSMutableArray new];
+        _tokens = [NSMutableArray new];
     }
     
     _refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
@@ -141,7 +141,7 @@
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
     [aCoder encodeObject:_refreshToken forKey:@"refreshToken"];
-    [aCoder encodeObject:_accessTokens forKey:@"accessTokens"];
+    [aCoder encodeObject:_tokens forKey:@"tokens"];
 }
 
 + (BOOL)supportsSecureCoding
@@ -151,7 +151,7 @@
 
 - (ADKeychainToken*)tokenWithScopes:(NSSet*)scopes
 {
-    for (ADKeychainToken* token in _accessTokens)
+    for (ADKeychainToken* token in _tokens)
     {
         // Ignore anything in the keychain item that's not the correct class.
         if (![token isKindOfClass:[ADKeychainToken class]])
@@ -168,7 +168,7 @@
     return nil;
 }
 
-- (void)addAccessTokenWithScopes:(NSSet*)scopes
+- (void)addTokenWithScopes:(NSSet*)scopes
                           toItem:(ADTokenCacheStoreItem*)item
 {
     item.refreshToken = _refreshToken;
@@ -181,11 +181,11 @@
 {
     NSMutableIndexSet* toRemove = [NSMutableIndexSet indexSet];
     
-    NSUInteger cTokens = [_accessTokens count];
+    NSUInteger cTokens = [_tokens count];
     
     for (NSUInteger i = 0; i < cTokens; i++)
     {
-        ADKeychainToken* token = _accessTokens[i];
+        ADKeychainToken* token = _tokens[i];
         
         // Ignore anything in the keychain item that's not the correct class.
         if (![token isKindOfClass:[ADKeychainToken class]])
@@ -199,7 +199,7 @@
         }
     }
     
-    [_accessTokens removeObjectsAtIndexes:toRemove];
+    [_tokens removeObjectsAtIndexes:toRemove];
 }
 
 - (void)updateToTokenItem:(ADTokenCacheStoreItem*)item
@@ -211,7 +211,7 @@
     
     ADKeychainToken* token = [ADKeychainToken new];
     [token updateToTokenItem:item];
-    [_accessTokens addObject:token];
+    [_tokens addObject:token];
 }
 
 @end
@@ -322,7 +322,7 @@
     for (id policyKey in _policies)
     {
         ADKeychainPolicyItem* policy = [_policies objectForKey:policyKey];
-        for (ADKeychainToken* token in policy->_accessTokens)
+        for (ADKeychainToken* token in policy->_tokens)
         {
             ADTokenCacheStoreItem* item = [self tokenItem];
             [token addToTokenItem:item];
@@ -357,7 +357,7 @@
     // If no token was found then this is a no-op. We still want to return an item as the
     // refresh token might still be usable.
     ADKeychainPolicyItem* policyItem = [self itemForPolicy:policy create:NO];
-    [policyItem addAccessTokenWithScopes:scopes toItem:item];
+    [policyItem addTokenWithScopes:scopes toItem:item];
     
     return item;
 }

@@ -78,7 +78,7 @@
         BOOL accessTokenUsable;
         ADTokenCacheStoreItem* cacheItem = [_context findCacheItemWithKey:key
                                                                    userId:_identifier
-                                                           useAccessToken:&accessTokenUsable
+                                                           useToken:&accessTokenUsable
                                                                     error:&error];
         if (error)
         {
@@ -120,7 +120,7 @@
     if (useAccessToken)
     {
         //Access token is good, just use it:
-        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:nil];
+        [ADLogger logToken:item.token tokenType:@"oken" expiresOn:item.expiresOn correlationId:nil];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item];
         completionBlock(result);
         return;
