@@ -50,6 +50,6 @@
 + (ADAuthenticationResult*)resultFromBrokerResponse:(NSDictionary*)response;
 
 /*! Internal method to set the extendedLifetimeToken flag. */
-- (void)setExtendedLifeTimeTokenFlag:(BOOL)extendedLifeTimeToken;
+- (void)setExtendedLifeTimeToken:(BOOL)extendedLifeTimeToken;
 
 @end

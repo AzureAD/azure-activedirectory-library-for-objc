@@ -65,11 +65,13 @@
     handler->_correlationId = correlationId;
     SAFE_ARC_RETAIN(correlationId);
     
+    // enable logic for returning extended lifetime token
     if (extendedLifetime)
     {
         completionBlock = [handler enableLogicForExtendedLifetime:completionBlock];
     }
     
+    // entering cache look up sequence
     [handler getAccessToken:completionBlock];
 }
 
@@ -471,7 +473,7 @@
 /*
  This method will add the logic of returning a valid AT in terms of ext_expires_in.
  The logic is appended to the front of the completion block because returning a valid AT in terms of 
- ext_expires_in happens in the vey end of the cache look up sequence.
+ ext_expires_in happens in the end of the cache look up sequence.
  */
 - (ADAuthenticationCallback) enableLogicForExtendedLifetime:(ADAuthenticationCallback)completionBlock
 {
@@ -491,7 +493,7 @@
             result = [ADAuthenticationResult resultFromTokenCacheItem:_validStaleAccessTokenItem
                                             multiResourceRefreshToken:NO
                                                         correlationId:_correlationId];
-            [result setExtendedLifeTimeTokenFlag:YES];
+            [result setExtendedLifeTimeToken:YES];
         }
         completionBlock(result);
     };

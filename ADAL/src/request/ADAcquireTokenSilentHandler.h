@@ -37,7 +37,7 @@
     ADTokenCacheAccessor* _tokenCache;
     
     ADTokenCacheItem* _mrrtItem;
-    ADTokenCacheItem* _validStaleAccessTokenItem;
+    ADTokenCacheItem* _validStaleAccessTokenItem; //store valid AT in terms of ext_expires_in (if find any)
     
     // We only return underlying errors from the MRRT Result, because the FRT is a
     // "best attempt" method, which is not necessarily tied to the client ID we're
