@@ -163,7 +163,7 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     ADD_OR_UPDATE_ITEM(item1, NO);
     
     //add an item with the same key, but some other change:
-    [utils setAccessToken:@"another token"];
+    [utils setToken:@"another token"];
     ADTokenCacheStoreItem* item3 = [utils createCacheItem:&errorDetails];
     XCTAssertNotNil(item3, @"Failed to create item: %@", errorDetails);
     ADD_OR_UPDATE_ITEM(item3, NO);

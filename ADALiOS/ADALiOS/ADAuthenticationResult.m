@@ -35,7 +35,7 @@
     return nil;
 }
 
-/* Implements the accessToken property */
+/* Implements the token property */
 -(NSString*) token
 {
     return self.tokenCacheStoreItem.token;

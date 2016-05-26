@@ -80,8 +80,8 @@
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && [_context hasCacheStore])
     {
         //Cache should be used in this case:
-        BOOL accessTokenUsable;
-        ADTokenCacheStoreItem* cacheItem = [_context findCacheItemWithKey:key userId:_identifier useToken:&accessTokenUsable error:&error];
+        BOOL tokenUsable;
+        ADTokenCacheStoreItem* cacheItem = [_context findCacheItemWithKey:key userId:_identifier useToken:&tokenUsable error:&error];
         if (error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error]);
@@ -92,7 +92,7 @@
         {
             //Found a promising item in the cache, try using it:
             [self attemptToUseCacheItem:cacheItem
-                         useAccessToken:accessTokenUsable
+                         useToken:tokenUsable
                         completionBlock:completionBlock];
             return; //The tryRefreshingFromCacheItem has taken care of the token obtaining
         }
@@ -104,7 +104,7 @@
 /*Attemps to use the cache. Returns YES if an attempt was successful or if an
  internal asynchronous call will proceed the processing. */
 - (void)attemptToUseCacheItem:(ADTokenCacheStoreItem*)item
-               useAccessToken:(BOOL)useAccessToken
+               useToken:(BOOL)useToken
               completionBlock:(ADAuthenticationCallback)completionBlock
 {
     //All of these should be set before calling this method:
@@ -114,7 +114,7 @@
     
     [self ensureRequest];
     
-    if (useAccessToken && [item containsScopes:_scopes])
+    if (useToken && [item containsScopes:_scopes])
     {
         //Access token is good, just use it:
         [ADLogger logToken:item.token tokenType:@"token" expiresOn:item.expiresOn correlationId:nil];
@@ -264,7 +264,7 @@
     
     if(cacheItem.sessionKey)
     {
-        NSString* jwtToken = [self createAccessTokenRequestJWTUsingRT:cacheItem];
+        NSString* jwtToken = [self createTokenRequestJWTUsingRT:cacheItem];
         request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                         _redirectUri, @"redirect_uri",
                         _clientId, @"client_id",
@@ -317,7 +317,7 @@
      }];
 }
 
-- (NSString*)createAccessTokenRequestJWTUsingRT:(ADTokenCacheStoreItem*)cacheItem
+- (NSString*)createTokenRequestJWTUsingRT:(ADTokenCacheStoreItem*)cacheItem
 {
     NSString* grantType = @"refresh_token";
     
