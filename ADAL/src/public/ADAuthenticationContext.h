@@ -103,7 +103,7 @@ typedef enum
 } ADCredentialsType;
 
 @class ADAuthenticationResult;
-@protocol ADTokenCacheAccessor;
+@class ADTokenCacheAccessor;
 
 /*!
     @class ADAuthenticationContext
@@ -116,10 +116,11 @@ typedef enum
  */
 @interface ADAuthenticationContext : NSObject
 {
-    id <ADTokenCacheAccessor> _tokenCacheStore;
+    ADTokenCacheAccessor* _tokenCacheStore;
     NSString* _authority;
     BOOL _validateAuthority;
     ADCredentialsType _credentialsType;
+    BOOL _extendedLifetimeEnabled;
     NSString* _logComponent;
     NSUUID* _correlationId;
 #if __has_feature(objc_arc)
@@ -254,6 +255,9 @@ typedef enum
 /*! The credential behavior for the authentication context. See the ADCredentialsType enumeration
     definition for details */
 @property ADCredentialsType credentialsType;
+
+/*! Enable to return access token with extended lifttime during server outage. */
+@property BOOL extendedLifetimeEnabled;
 
 /*! The name of the component using this authentication context. Used in some logging and telemetry
     for clarification purposes. */

@@ -51,6 +51,7 @@ typedef enum
     ADAuthenticationError*          _error;
     NSUUID*                         _correlationId;
     BOOL                            _multiResourceRefreshToken;
+    BOOL                            _extendedLifeTimeToken;
 }
 
 /*! See the ADAuthenticationResultStatus details */
@@ -60,6 +61,10 @@ typedef enum
  calculated from the tokenCacheItem one. The property is nil, in 
  case of error.*/
 @property (readonly) NSString* accessToken;
+
+/*! Some access tokens have extended lifetime when server is in an unavailable state.
+ This property indicates whether the access token is returned in such a state. */
+@property (readonly) BOOL extendedLifeTimeToken;
 
 @property (readonly) ADTokenCacheItem* tokenCacheItem;
 

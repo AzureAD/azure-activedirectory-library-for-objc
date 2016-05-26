@@ -21,28 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADTokenCacheAccessor.h"
+#import "ADWebRequest.h"
 
-@interface ADAuthenticationRequest (TokenCaching)
+@interface ADWebAuthRequest : ADWebRequest
+{
+    NSDate* _startTime;
+    BOOL _retryIfServerError;
+    BOOL _handledPkeyAuthChallenge;
+    BOOL _returnRawResponse;
+    
+    NSMutableDictionary* _responseDictionary;
+    
+    // A dictionary of key/value pairs that is either included as the query parameters on a GET
+    // request or serialized into JSON for a POST request
+    NSDictionary<NSString*,NSString*> * _requestDictionary;
+}
 
-+ (NSString*)familyClientId:(NSString*)familyID;
+@property BOOL returnRawResponse;
 
-/*!
-    Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
-    the item to be stored.
- 
-    @param result       The result to update the cache to
-    @param refreshToken The refresh token (if anything) that was used to get this authentication result
- */
-- (void)updateCacheToResult:(ADAuthenticationResult *)result
-                  cacheItem:(ADTokenCacheItem *)cacheItem
-               refreshToken:(NSString *)refreshToken;
-
-
-- (ADTokenCacheItem *)getItemForResource:(NSString*)resource
-                                clientId:(NSString*)clientId
-                                   error:(ADAuthenticationError * __autoreleasing *)error;
-
-- (ADTokenCacheItem*)getUnkownUserADFSToken:(ADAuthenticationError * __autoreleasing *)error;
+- (void)setRequestDictionary:(NSDictionary<NSString*, NSString*> *)requestDictionary;
+- (void)sendRequest:(void(^)(NSDictionary *))completionBlock;
 
 @end

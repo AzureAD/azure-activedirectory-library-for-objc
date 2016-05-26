@@ -26,6 +26,7 @@
 #import "ADAuthenticationContext.h"
 
 @class ADUserIdentifier;
+@class ADTokenCacheAccessor;
 
 #define AD_REQUEST_CHECK_ARGUMENT(_arg) { \
     if (!_arg || ([_arg isKindOfClass:[NSString class]] && [(NSString*)_arg isEqualToString:@""])) { \
@@ -49,6 +50,7 @@
     ADAuthenticationContext* _context;
     NSString* _clientId;
     NSString* _redirectUri;
+    ADTokenCacheAccessor* _tokenCache;
     
     ADUserIdentifier* _identifier;
     
@@ -123,4 +125,3 @@
 #import "ADAuthenticationRequest+AcquireToken.h"
 #import "ADAuthenticationRequest+Broker.h"
 #import "ADAuthenticationRequest+WebRequest.h"
-#import "ADAuthenticationRequest+TokenCaching.h"

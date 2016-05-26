@@ -22,67 +22,67 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "ADTokenCacheDataSource.h"
 
-@class ADTokenCacheKey;
-@class ADTokenCacheItem;
-@class ADAuthenticationError;
+@interface ADTokenCacheAccessor : NSObject
+{
+    id<ADTokenCacheDataSource> _dataSource;
+    NSString * _authority;
+}
 
-@protocol ADTokenCacheAccessor <NSObject>
+- (id<ADTokenCacheDataSource>)dataSource;
+
+- (id)initWithDataSource:(id<ADTokenCacheDataSource>)dataSource
+               authority:(NSString *)authority;
 
 /*!
-    @param key      The key of the item.
-    @param userId   The specific user whose item is needed. May be nil, in which
-                    case the item for the first user in the cache will be returned.
-    @param error    Will be set only in case of ambiguity. E.g. if userId is nil
-                    and we have tokens from multiple users. If the cache item is not
-                    present, the error will not be set.
+    Returns a AT/RT Token Cache Item for the given parameters. The RT in this item will only be good
+    for the given resource. If no RT is returned in the item then a MRRT or FRT should be used (if
+    available).
+  */
+- (ADTokenCacheItem *)getATRTItemForUser:(ADUserIdentifier *)identifier
+                                resource:(NSString *)resource
+                                clientId:(NSString *)clientId
+                           correlationId:(NSUUID *)correlationId
+                                   error:(ADAuthenticationError * __autoreleasing *)error;
+
+/*!
+    Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can
+    potentially be used for many resources for that given user, client ID and authority.
  */
-- (nullable ADTokenCacheItem *)getItemWithKey:(nonnull ADTokenCacheKey *)key
-                                       userId:(nullable NSString *)userId
-                                correlationId:(nullable NSUUID *)correlationId
-                                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (ADTokenCacheItem *)getMRRTItemForUser:(ADUserIdentifier *)identifier
+                                clientId:(NSString *)clientId
+                           correlationId:(NSUUID *)correlationId
+                                   error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*!
-    @param key      The key of the item. May be nil, in which case all items that match
-                    other parameters will be returned.
-    @param userId   The specific user whose item is needed. May be nil, in which
-                    case the item for the first user in the cache will be returned.
-    @param error    Will be set only in case of ambiguity. E.g. if userId is nil
-                    and we have tokens from multiple users. If the cache item is not
-                    present, the error will not be set.
+    Returns a Family Refresh Token for the given authority, user and family ID, if available. A FRT can
+    be used for many resources within a given family of client IDs.
  */
-- (nullable NSArray <ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheKey *)key
-                                                    userId:(nullable NSString *)userId
-                                             correlationId:(nullable NSUUID * )correlationId
-                                                     error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (ADTokenCacheItem *)getFRTItemForUser:(ADUserIdentifier *)identifier
+                               familyId:(NSString *)familyId
+                          correlationId:(NSUUID *)correlationId
+                                  error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*!
-    Ensures the cache contains an item matching the passed in item, adding or updating the
-    item as necessary.
-    
-    @param  item    The item to add to the cache, or update if an item matching the key and
-                    userId already exists in the cache.
-    @param  error   (Optional) In the case of an error this will be filled with the
-                    error details.
+    ADFS is not capable of giving us an idtoken when we authenticate users, so we don't know who got logged
+    in or who to cache the tokens for, and instead put the token in a special entry.
  */
-- (BOOL)addOrUpdateItem:(nonnull ADTokenCacheItem *)item
-          correlationId:(nullable NSUUID *)correlationId
-                  error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
+- (ADTokenCacheItem*)getADFSUserTokenForResource:(NSString *)resource
+                                        clientId:(NSString *)clientId
+                                   correlationId:(NSUUID *)correlationId
+                                           error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*!
-    @param  item    The item to remove from the cache
-    @param  error   (Optional) In the case of an error this will be filled with the
-                    error details.
+ Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
+ the item to be stored.
  
-    @return YES if the item was successfully removed, or was not in the cache. If NO
-            look
+ @param result       The result to update the cache to
+ @param refreshToken The refresh token (if anything) that was used to get this authentication result
  */
-- (BOOL)removeItem:(nonnull ADTokenCacheItem *)item
-             error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
-
-- (nullable NSArray*)allItems:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
-
-/*! This internal method is only called in test code. */
-- (nullable NSArray<ADTokenCacheItem *> *)allTombstones:(ADAuthenticationError * __nullable __autoreleasing *__nullable)error;
+- (void)updateCacheToResult:(ADAuthenticationResult *)result
+                  cacheItem:(ADTokenCacheItem *)cacheItem
+               refreshToken:(NSString *)refreshToken
+              correlationId:(NSUUID *)correlationId;
 
 @end

@@ -21,16 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAuthenticationContext+Internal.h"
-#import "ADOAuth2Constants.h"
-#import "ADHelpers.h"
+#import "ADTokenCacheAccessor.h"
 #import "ADUserIdentifier.h"
-#import "ADTokenCacheItem+Internal.h"
 #import "ADTokenCacheKey.h"
+#import "ADAuthenticationContext+Internal.h"
+#import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
-#import "ADAuthenticationRequest.h"
 
-@implementation ADAuthenticationRequest (TokenCaching)
+@implementation ADTokenCacheAccessor
 
 + (NSString*)familyClientId:(NSString*)familyID
 {
@@ -42,11 +40,35 @@
     return [NSString stringWithFormat:@"foci-%@", familyID];
 }
 
-- (ADTokenCacheItem *)getItemForResource:(NSString*)resource
-                                clientId:(NSString*)clientId
-                                   error:(ADAuthenticationError * __autoreleasing *)error
+- (id)initWithDataSource:(id<ADTokenCacheDataSource>)dataSource
+               authority:(NSString *)authority
 {
-    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_context.authority
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    _dataSource = dataSource;
+    SAFE_ARC_RETAIN(dataSource);
+    
+    _authority = authority;
+    SAFE_ARC_RETAIN(authority);
+    
+    return self;
+}
+
+- (id<ADTokenCacheDataSource>)dataSource
+{
+    return _dataSource;
+}
+
+- (ADTokenCacheItem *)getItemForUser:(ADUserIdentifier *)identifier
+                            resource:(NSString *)resource
+                            clientId:(NSString *)clientId
+                       correlationId:(NSUUID *)correlationId
+                               error:(ADAuthenticationError * __autoreleasing *)error
+{
+    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_authority
                                                     resource:resource
                                                     clientId:clientId
                                                        error:error];
@@ -55,28 +77,71 @@
         return nil;
     }
     
-    return [[_context tokenCacheStore] getItemWithKey:key
-                                               userId:_identifier.userId
-                                        correlationId:_correlationId
-                                                error:error];
+    return [_dataSource getItemWithKey:key
+                                userId:identifier.userId
+                         correlationId:correlationId
+                                 error:error];
 }
 
-- (ADTokenCacheItem*)getUnkownUserADFSToken:(ADAuthenticationError * __autoreleasing *)error
+/*!
+    Returns a AT/RT Token Cache Item for the given parameters. The RT in this item will only be good
+    for the given resource. If no RT is returned in the item then a MRRT or FRT should be used (if
+    available).
+ */
+- (ADTokenCacheItem *)getATRTItemForUser:(ADUserIdentifier *)identifier
+                                resource:(NSString *)resource
+                                clientId:(NSString *)clientId
+                           correlationId:(NSUUID *)correlationId
+                                   error:(ADAuthenticationError * __autoreleasing *)error
+{
+    return [self getItemForUser:identifier resource:resource clientId:clientId correlationId:correlationId error:error];
+}
+
+/*!
+    Returns a Multi-Resource Refresh Token (MRRT) Cache Item for the given parameters. A MRRT can
+    potentially be used for many resources for that given user, client ID and authority.
+ */
+- (ADTokenCacheItem *)getMRRTItemForUser:(ADUserIdentifier *)identifier
+                                clientId:(NSString *)clientId
+                           correlationId:(NSUUID *)correlationId
+                                   error:(ADAuthenticationError * __autoreleasing *)error
+{
+    return [self getItemForUser:identifier resource:nil clientId:clientId correlationId:correlationId error:error];
+}
+
+/*!
+    Returns a Family Refresh Token for the given authority, user and family ID, if available. A FRT can
+    be used for many resources within a given family of client IDs.
+ */
+- (ADTokenCacheItem *)getFRTItemForUser:(ADUserIdentifier *)identifier
+                               familyId:(NSString *)familyId
+                          correlationId:(NSUUID *)correlationId
+                                  error:(ADAuthenticationError * __autoreleasing *)error
+{
+    NSString* fociClientId = [ADTokenCacheAccessor familyClientId:familyId];
+    
+    return [self getItemForUser:identifier resource:nil clientId:fociClientId correlationId:correlationId error:error];
+}
+
+- (ADTokenCacheItem*)getADFSUserTokenForResource:(NSString *)resource
+                                        clientId:(NSString *)clientId
+                                   correlationId:(NSUUID *)correlationId
+                                           error:(ADAuthenticationError * __autoreleasing *)error
 {
     // ADFS fix: When talking to ADFS directly we can get ATs and RTs (but not MRRTs or FRTs) without
     // id tokens. In those cases we do not know who they belong to and cache them with a blank userId
     // (@"").
     
-    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_context.authority
-                                                    resource:_resource
-                                                    clientId:_clientId
+    ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_authority
+                                                    resource:resource
+                                                    clientId:clientId
                                                        error:error];
     if (!key)
     {
         return nil;
     }
     
-    return [[_context tokenCacheStore] getItemWithKey:key userId:@"" correlationId:_correlationId error:error];
+    return [_dataSource getItemWithKey:key userId:@"" correlationId:correlationId error:error];
 }
 
 
@@ -85,14 +150,10 @@
 - (void)updateCacheToResult:(ADAuthenticationResult *)result
                   cacheItem:(ADTokenCacheItem *)cacheItem
                refreshToken:(NSString *)refreshToken
+              correlationId:(NSUUID *)correlationId
 {
-
-    if(![ADAuthenticationContext handleNilOrEmptyAsResult:result argumentName:@"result" authenticationResult:&result])
-    {
-        return;
-    }
     
-    if (![_context tokenCacheStore])
+    if(!result)
     {
         return;
     }
@@ -106,12 +167,13 @@
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:item argumentName:@"resource" authenticationResult:&result]
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:item argumentName:@"accessToken" authenticationResult:&result])
         {
-            AD_LOG_WARN(@"Told to update cache to an invalid token cache item", _correlationId, nil);
+            AD_LOG_WARN(@"Told to update cache to an invalid token cache item", correlationId, nil);
             return;
         }
         
         [self updateCacheToItem:item
-                           MRRT:[result multiResourceRefreshToken]];
+                           MRRT:[result multiResourceRefreshToken]
+                  correlationId:correlationId];
         return;
     }
     
@@ -128,18 +190,18 @@
     
     [self removeItemFromCache:cacheItem
                  refreshToken:refreshToken
+                correlationId:correlationId
                         error:result.error];
 }
 
 - (void)updateCacheToItem:(ADTokenCacheItem *)cacheItem
                      MRRT:(BOOL)isMRRT
+            correlationId:(NSUUID *)correlationId
 {
-    id<ADTokenCacheAccessor> tokenCacheStore = [_context tokenCacheStore];
-    
     NSString* savedRefreshToken = cacheItem.refreshToken;
     if (isMRRT)
     {
-        AD_LOG_VERBOSE_F(@"Token cache store", _correlationId, @"Storing multi-resource refresh token for authority: %@", _context.authority);
+        AD_LOG_VERBOSE_F(@"Token cache store", correlationId, @"Storing multi-resource refresh token for authority: %@", _authority);
         
         //If the server returned a multi-resource refresh token, we break
         //the item into two: one with the access token and no refresh token and
@@ -151,7 +213,7 @@
         multiRefreshTokenItem.accessToken = nil;
         multiRefreshTokenItem.resource = nil;
         multiRefreshTokenItem.expiresOn = nil;
-        [tokenCacheStore addOrUpdateItem:multiRefreshTokenItem correlationId:_correlationId error:nil];
+        [_dataSource addOrUpdateItem:multiRefreshTokenItem correlationId:correlationId error:nil];
         
         // If the item is also a Family Refesh Token (FRT) we update the FRT
         // as well so we have a guaranteed spot to look for the most recent FRT.
@@ -159,25 +221,24 @@
         if (familyId)
         {
             ADTokenCacheItem* frtItem = [multiRefreshTokenItem copy];
-            NSString* fociClientId = [ADAuthenticationRequest familyClientId:familyId];
+            NSString* fociClientId = [ADTokenCacheAccessor familyClientId:familyId];
             frtItem.clientId = fociClientId;
-            [tokenCacheStore addOrUpdateItem:frtItem correlationId:_correlationId error:nil];
+            [_dataSource addOrUpdateItem:frtItem correlationId:correlationId error:nil];
             SAFE_ARC_RELEASE(frtItem);
         }
         SAFE_ARC_RELEASE(multiRefreshTokenItem);
     }
     
-    AD_LOG_VERBOSE_F(@"Token cache store", _correlationId, @"Storing access token for resource: %@", cacheItem.resource);
-    [tokenCacheStore addOrUpdateItem:cacheItem correlationId:_correlationId error:nil];
+    AD_LOG_VERBOSE_F(@"Token cache store", correlationId, @"Storing access token for resource: %@", cacheItem.resource);
+    [_dataSource addOrUpdateItem:cacheItem correlationId:correlationId error:nil];
     cacheItem.refreshToken = savedRefreshToken;//Restore for the result
 }
 
 - (void)removeItemFromCache:(ADTokenCacheItem *)cacheItem
                refreshToken:(NSString *)refreshToken
+              correlationId:(NSUUID *)correlationId
                       error:(ADAuthenticationError *)error
 {
-    id<ADTokenCacheAccessor> tokenCacheStore = [_context tokenCacheStore];
-    
     if (!cacheItem && !refreshToken)
     {
         return;
@@ -188,15 +249,15 @@
     ADTokenCacheKey* exactKey = [cacheItem extractKey:nil];
     if (exactKey)
     {
-        ADTokenCacheItem* existing = [tokenCacheStore getItemWithKey:exactKey userId:cacheItem.userInformation.userId correlationId:_correlationId error:nil];
+        ADTokenCacheItem* existing = [_dataSource getItemWithKey:exactKey userId:cacheItem.userInformation.userId correlationId:correlationId error:nil];
         if ([refreshToken isEqualToString:existing.refreshToken])//If still there, attempt to remove
         {
-            AD_LOG_VERBOSE_F(@"Token cache store", _correlationId, @"Tombstoning cache for resource: %@", cacheItem.resource);
+            AD_LOG_VERBOSE_F(@"Token cache store", correlationId, @"Tombstoning cache for resource: %@", cacheItem.resource);
             //update tombstone property before update the tombstone in cache
-            [existing makeTombstone:@{ @"correlationId" : [_correlationId UUIDString],
+            [existing makeTombstone:@{ @"correlationId" : [correlationId UUIDString],
                                        @"errorDetails" : [error errorDetails],
                                        @"protocolCode" : [error protocolCode] }];
-            [tokenCacheStore addOrUpdateItem:existing correlationId:_correlationId error:nil];
+            [_dataSource addOrUpdateItem:existing correlationId:correlationId error:nil];
             removed = YES;
         }
     }
@@ -204,18 +265,21 @@
     if (!removed)
     {
         //Now try finding a broad refresh token in the cache and tombstone it accordingly
-        ADTokenCacheKey* broadKey = [ADTokenCacheKey keyWithAuthority:_context.authority resource:nil clientId:cacheItem.clientId error:nil];
+        ADTokenCacheKey* broadKey = [ADTokenCacheKey keyWithAuthority:_authority
+                                                             resource:nil
+                                                             clientId:cacheItem.clientId
+                                                                error:nil];
         if (broadKey)
         {
-            ADTokenCacheItem* broadItem = [tokenCacheStore getItemWithKey:broadKey userId:cacheItem.userInformation.userId correlationId:_correlationId error:nil];
+            ADTokenCacheItem* broadItem = [_dataSource getItemWithKey:broadKey userId:cacheItem.userInformation.userId correlationId:correlationId error:nil];
             if (broadItem && [refreshToken isEqualToString:broadItem.refreshToken])//Remove if still there
             {
-                AD_LOG_VERBOSE_F(@"Token cache store", _correlationId, @"Tombstoning multi-resource refresh token for authority: %@", _context.authority);
+                AD_LOG_VERBOSE_F(@"Token cache store", correlationId, @"Tombstoning multi-resource refresh token for authority: %@", _authority);
                 //update tombstone property before update the tombstone in cache
-                [broadItem makeTombstone:@{ @"correlationId" : [_correlationId UUIDString],
+                [broadItem makeTombstone:@{ @"correlationId" : [correlationId UUIDString],
                                             @"errorDetails" : [error errorDetails],
                                             @"protocolCode" : [error protocolCode] }];
-                [tokenCacheStore addOrUpdateItem:broadItem correlationId:_correlationId error:nil];
+                [_dataSource addOrUpdateItem:broadItem correlationId:correlationId error:nil];
             }
         }
     }

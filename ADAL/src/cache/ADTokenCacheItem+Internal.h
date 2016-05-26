@@ -59,4 +59,7 @@
              level:(ADAL_LOG_LEVEL)level
      correlationId:(NSUUID*)correlationId;
 
+/*! Return NO only if the item contains an access token and ext_expires_in in additionalServer has not expired. */
+- (BOOL)isExtendedLifetimeExpired;
+
 @end
