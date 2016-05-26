@@ -49,7 +49,7 @@
 //Checks the multi-resource refresh tokens too.
 - (ADTokenCacheStoreItem*)findCacheItemWithKey:(ADTokenCacheStoreKey*) key
                                         userId:(ADUserIdentifier*)userId
-                                useAccessToken:(BOOL*) useAccessToken
+                                useToken:(BOOL*) useToken
                                          error:(ADAuthenticationError* __autoreleasing*) error
 {
     if (!key || !self.tokenCacheStore)
@@ -69,8 +69,8 @@
     
     if (item)
     {
-        *useAccessToken = item.accessToken && !item.isExpired;
-        if (*useAccessToken)
+        *useToken = item.token && !item.isExpired;
+        if (*useToken)
         {
             return item;
         }
@@ -84,7 +84,8 @@
             [self.tokenCacheStore removeItemWithKey:key error:nil];
         }
     }
-    *useAccessToken = false;//No item with suitable access token exists
+    
+    *useToken = false;//No item with suitable access token exists
     
     return nil;//Nothing suitable
 }
@@ -138,15 +139,15 @@
         return [ADAuthenticationResult resultFromError:error];
     }
     
-    NSString* accessToken = [response objectForKey:OAUTH2_ACCESS_TOKEN];
-    if (![NSString adIsStringNilOrBlank:accessToken])
+    if (![NSString adIsStringNilOrBlank:[response objectForKey:OAUTH2_ACCESS_TOKEN]]
+        || ![NSString adIsStringNilOrBlank:[response objectForKey:OAUTH2_ID_TOKEN]])
     {
         [item setAuthority:self.authority];
         [item fillItemWithResponse:response];
         return [ADAuthenticationResult resultFromTokenCacheStoreItem:item];
     }
     
-    //No access token and no error, we assume that there was another kind of error (connection, server down, etc.).
+    //No access/id token and no error, we assume that there was another kind of error (connection, server down, etc.).
     //Note that for security reasons we log only the keys, not the values returned by the user:
     NSString* errorMessage = [NSString stringWithFormat:@"The server returned without providing an error. Keys returned: %@", [response allKeys]];
     error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_AUTHENTICATION
@@ -183,7 +184,7 @@
     {
         if(![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheStoreItem argumentName:@"tokenCacheStoreItem" authenticationResult:&result]
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheStoreItem.scopes argumentName:@"scopes" authenticationResult:&result]
-           || ![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheStoreItem.accessToken argumentName:@"accessToken" authenticationResult:&result])
+           || ![ADAuthenticationContext handleNilOrEmptyAsResult:result.tokenCacheStoreItem.token argumentName:@"token" authenticationResult:&result])
         {
             return;
         }

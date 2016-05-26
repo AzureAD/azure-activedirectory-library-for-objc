@@ -81,7 +81,7 @@
     {
         //Cache should be used in this case:
         BOOL accessTokenUsable;
-        ADTokenCacheStoreItem* cacheItem = [_context findCacheItemWithKey:key userId:_identifier useAccessToken:&accessTokenUsable error:&error];
+        ADTokenCacheStoreItem* cacheItem = [_context findCacheItemWithKey:key userId:_identifier useToken:&accessTokenUsable error:&error];
         if (error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error]);
@@ -117,7 +117,7 @@
     if (useAccessToken && [item containsScopes:_scopes])
     {
         //Access token is good, just use it:
-        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:nil];
+        [ADLogger logToken:item.token tokenType:@"token" expiresOn:item.expiresOn correlationId:nil];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item];
         completionBlock(result);
         return;
@@ -280,7 +280,7 @@
                         OAUTH2_REFRESH_TOKEN, OAUTH2_GRANT_TYPE,
                         refreshToken, OAUTH2_REFRESH_TOKEN,
                         _clientId, OAUTH2_CLIENT_ID,
-                        [_scopes adSpaceDeliminatedString], OAUTH2_SCOPE,
+                        [self.decoratedScopes adSpaceDeliminatedString], OAUTH2_SCOPE,
                         nil];
     }
     
@@ -361,6 +361,7 @@
                                          OAUTH2_AUTHORIZATION_CODE, OAUTH2_GRANT_TYPE,
                                          code, OAUTH2_CODE,
                                          _clientId, OAUTH2_CLIENT_ID,
+                                         [self.decoratedScopes adSpaceDeliminatedString], OAUTH2_SCOPE,
                                          _redirectUri, OAUTH2_REDIRECT_URI,
                                          nil];
     

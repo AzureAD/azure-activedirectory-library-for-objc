@@ -28,7 +28,7 @@
 //Checks the multi-resource refresh tokens too.
 - (ADTokenCacheStoreItem*)findCacheItemWithKey:(ADTokenCacheStoreKey*) key
                                         userId:(ADUserIdentifier*)userId
-                                useAccessToken:(BOOL*) useAccessToken
+                                useToken:(BOOL*) useToken
                                          error:(ADAuthenticationError* __autoreleasing*) error;
 
 //Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains

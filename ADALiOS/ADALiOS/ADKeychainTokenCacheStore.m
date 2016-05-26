@@ -153,7 +153,7 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
 - (void)logItem:(ADTokenCacheStoreItem*)item
         message:(NSString*)additionalMessage
 {
-    AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. scopes: %@ Access token hash: %@; Refresh token hash: %@", additionalMessage, item.scopes, [ADLogger getHash:item.accessToken], [ADLogger getHash:item.refreshToken]);
+    AD_LOG_VERBOSE_F(sKeyChainlog, @"%@. scopes: %@ Access token hash: %@; Refresh token hash: %@", additionalMessage, item.scopes, [ADLogger getHash:item.token], [ADLogger getHash:item.refreshToken]);
 }
 
 #pragma mark Keychain Helper Methods

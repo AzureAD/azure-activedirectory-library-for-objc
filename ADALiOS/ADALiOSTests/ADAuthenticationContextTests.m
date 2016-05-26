@@ -464,7 +464,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     ADAssertArgumentError(@"clientId", _error);
 }
 
-- (BOOL)addCacheWithToken:(NSString*)accessToken
+- (BOOL)addCacheWithToken:(NSString*)token
              refreshToken:(NSString*)refreshToken
                    userId:(NSString*)userId
                    scopes:(NSSet*)scopes
@@ -472,7 +472,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 {
     ADTokenCacheStoreItem* item = [[ADTokenCacheStoreItem alloc] init];
     item.scopes = scopes;
-    item.accessToken = accessToken;
+    item.token = token;
     item.refreshToken = refreshToken;
     item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
     item.authority = _authority;
@@ -518,7 +518,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
 
 - (NSArray*)scopesWithAddedByLibrary
 {
-    return [_scopes arrayByAddingObjectsFromArray:@[@"offline_access", @"openid"]];
+    return [_scopes arrayByAddingObjectsFromArray:@[@"offline_access", @"openid", @"profile"]];
 }
 
 - (BOOL)addCacheWithToken:(NSString*)accessToken
@@ -884,7 +884,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     _scopes = @[@"planetarydefense.target", @"planetarydefense.fire"];
     response = @{ OAUTH2_PROFILE_INFO : profileInfo,
                   OAUTH2_ACCESS_TOKEN : accessToken,
-                  OAUTH2_SCOPE : [[_scopes arrayByAddingObjectsFromArray:@[@"openid", @"offline_access"]] adSpaceDeliminatedString]};
+                  OAUTH2_SCOPE : [[_scopes arrayByAddingObjectsFromArray:@[@"openid", @"offline_access", @"profile"]] adSpaceDeliminatedString]};
     [_testContext queueExpectedRequest:[self defaultRequest] response:response];
     acquireTokenAsync;
     

@@ -19,6 +19,12 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ADTestAppCacheViewController : UIViewController
+@interface ADTestAppCacheViewController : UIViewController <UITableViewDelegate, UITableViewDataSource>
+
+@property IBOutlet UITableView* cacheTable;
+
+- (IBAction)expireAllPressed:(id)sender;
+
+- (IBAction)deleteAllPressed:(id)sender;
 
 @end
