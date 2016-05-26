@@ -203,6 +203,10 @@ ADAuthenticationContext* context = nil;
     NSString* userId = [settings userId];
     NSString* redirectUri = [settings redirectUri];
     NSString* policy = [[[ADUserDefaultsSettings defaultSettings] objectForKey:@"policies"] objectAtIndex:[_policies selectedRowInComponent:0]];
+    if([policy isEqualToString:@""]){
+        policy = nil;
+    }
+    
     [ADTestAppLogger logMessage:[NSString stringWithFormat:@"Authority: %@", authority] type:TALogInformation];
     context = [ADAuthenticationContext authenticationContextWithAuthority:authority
                                                                     error:&error];

@@ -222,7 +222,6 @@
 @property NSString* clientId;
 @property NSData* sessionKey;
 @property ADProfileInfo* profileInfo;
-
 @end
 
 
@@ -277,7 +276,6 @@
     _clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
     _sessionKey = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"sessionKey"];
     _profileInfo = [aDecoder decodeObjectOfClass:[ADProfileInfo class] forKey:@"profileInfo"];
-    
     _policies = [[aDecoder decodeObjectOfClass:[NSDictionary class] forKey:@"policies"] mutableCopy];
     
     return self;
@@ -326,7 +324,7 @@
         {
             ADTokenCacheStoreItem* item = [self tokenItem];
             [token addToTokenItem:item];
-            
+            item.refreshToken = policy.refreshToken;
             [items addObject:item];
         }
     }
