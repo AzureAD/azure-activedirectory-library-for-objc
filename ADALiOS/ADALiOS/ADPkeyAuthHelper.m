@@ -60,38 +60,57 @@
 }
 
 
-+ (NSString*) createDeviceAuthResponse:(NSString*) authorizationServer
-                         challengeData:(NSDictionary*) challengeData
-                         challengeType: (ADChallengeType) challengeType
++ (nonnull NSString*)createDeviceAuthResponse:(NSString*)authorizationServer
+                                challengeData:(NSDictionary*) challengeData
 {
     ADRegistrationInformation *info = [[ADWorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
-    NSString* authHeaderTemplate = @"PKeyAuth %@ Context=\"%@\", Version=\"%@\"";
-    NSString* pKeyAuthHeader = @"";
-    BOOL challengeSuccessful = false;
     
-    if ([info isWorkPlaceJoined]) {
-        if(challengeType == AD_ISSUER){
-            
-            NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
-            certAuths = [[certAuths adUrlFormDecode] stringByReplacingOccurrencesOfString:@" "
-                                                                               withString:@""];
+    if (!challengeData)
+    {
+        // Error should have been logged before this where there is more information on why the challenge data was bad
+    }
+    else if (![info isWorkPlaceJoined])
+    {
+        AD_LOG_INFO(@"PKeyAuth: Received PKeyAuth request but no WPJ info.", nil);
+    }
+    else
+    {
+        NSString* certAuths = [challengeData valueForKey:@"CertAuthorities"];
+        NSString* expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
+        
+        if (certAuths)
+        {
             NSString* issuerOU = [ADPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
-            challengeSuccessful = [self isValidIssuer:certAuths keychainCertIssuer:issuerOU];
-        }else{
-            NSString* expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
-            if(expectedThumbprint){
-                challengeSuccessful = [NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]];
+            if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
+            {
+                AD_LOG_ERROR(@"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
+                [info releaseData];
+                info = nil;
+            }
+        }
+        else if (expectedThumbprint)
+        {
+            if (![NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]])
+            {
+                AD_LOG_ERROR(@"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
+                [info releaseData];
+                info = nil;
             }
         }
     }
-    if(challengeSuccessful){
+    
+    NSString* pKeyAuthHeader = @"";
+    if (info)
+    {
         pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
+        
+        [info releaseData];
+        info = nil;
     }
     
-    [info releaseData];
-    info = nil;
-    return [NSString stringWithFormat:authHeaderTemplate, pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
+    return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
 }
+
 
 
 + (NSString*) getOrgUnitFromIssuer:(NSString*) issuer{

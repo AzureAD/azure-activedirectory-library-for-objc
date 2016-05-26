@@ -77,4 +77,6 @@
 
 + (NSData *) Base64DecodeData:(NSString *)encodedString;
 
+- (NSDictionary*)authHeaderParams;
+
 @end

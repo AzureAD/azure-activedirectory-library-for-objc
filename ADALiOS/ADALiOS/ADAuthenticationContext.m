@@ -1725,16 +1725,16 @@ additionalHeaders:(NSDictionary *)additionalHeaders
 {
     //pkeyauth word length=8 + 1 whitespace
     wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[pKeyAuthName length] + 1];
-    wwwAuthHeaderValue = [wwwAuthHeaderValue stringByReplacingOccurrencesOfString:@"\""
-                                                                       withString:@""];
-    NSArray* headerPairs = [wwwAuthHeaderValue componentsSeparatedByString:@","];
     NSMutableDictionary* headerKeyValuePair = [[NSMutableDictionary alloc]init];
-    for(int i=0; i<[headerPairs count]; ++i) {
-        NSArray* pair = [headerPairs[i] componentsSeparatedByString:@"="];
-        [headerKeyValuePair setValue:pair[1] forKey:[pair[0] adTrimmedString]];
+    NSDictionary* authHeaderParams = [wwwAuthHeaderValue authHeaderParams];
+    
+    if (!authHeaderParams)
+    {
+        AD_LOG_ERROR_F(@"Unparseable wwwAuthHeader received.", AD_ERROR_WPJ_REQUIRED, @"%@", wwwAuthHeaderValue);
     }
-    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer challengeData:headerKeyValuePair challengeType:AD_THUMBPRINT];
-    [headerKeyValuePair removeAllObjects];
+    
+    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer
+                                                        challengeData:authHeaderParams];
     [headerKeyValuePair setObject:authHeader forKey:@"Authorization"];
     
     [self request:authorizationServer requestData:request_data requestCorrelationId:requestCorrelationId isHandlingPKeyAuthChallenge:TRUE additionalHeaders:headerKeyValuePair completion:completionBlock];
