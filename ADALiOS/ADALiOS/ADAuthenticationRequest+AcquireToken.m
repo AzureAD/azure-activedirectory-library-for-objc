@@ -114,7 +114,7 @@
     
     [self ensureRequest];
     
-    if (useAccessToken && [item containsScopes:[self scopesWithoutReservedValues:_scopes]])
+    if (useAccessToken && [item containsScopes:_scopesWithoutReservedValues])
     {
         //Access token is good, just use it:
         [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:nil];

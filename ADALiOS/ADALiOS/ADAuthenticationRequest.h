@@ -52,6 +52,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     ADPromptBehavior _promptBehavior;
     
     NSSet* _scopes;
+    NSSet* _scopesWithoutReservedValues;
     NSSet* _additionalScopes;
     
     NSString* _policy;
@@ -93,7 +94,6 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 //- (BOOL)isClientID:(NSString*)scope;
 
 - (NSSet*)combinedScopes;
-- (NSSet*)scopesWithoutReservedValues:(NSSet*)scopes;
 
 - (ADTokenCacheStoreKey*)cacheStoreKey:(ADAuthenticationError* __autoreleasing *)error;
 @end
