@@ -1054,7 +1054,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                                                      dictionaryAsJSON:@{ OAUTH2_TOKEN_TYPE : @"Bearer",
                                                                          OAUTH2_REFRESH_TOKEN : newRefreshToken,
                                                                          OAUTH2_ID_TOKEN : newIdToken,
-                                                                         OAUTH2_SCOPE : @"plantetarydefense.fire planetarydefense.target openid offline_access"
+                                                                         OAUTH2_SCOPE : @"plantetarydefense.fire planetarydefense.target"
                                                                          }];
     [ADTestURLConnection addResponse:response];
     
@@ -1068,8 +1068,6 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     XCTAssertEqual(_result.status, AD_SUCCEEDED);
     XCTAssertEqualObjects(_result.accessToken, newIdToken);
     XCTAssertEqualObjects(_result.tokenCacheStoreItem.refreshToken, newRefreshToken);
-    
-    
 }
 
 - (void)testUnreachableAuthority
