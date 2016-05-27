@@ -101,7 +101,7 @@
     self.profileInfo = [ADProfileInfo profileInfoWithEncodedString:[responseDictionary objectForKey:OAUTH2_PROFILE_INFO]
                                                              error:nil];
     
-    if (![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_ACCESS_TOKEN]])
+    if ([NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_ACCESS_TOKEN]])
     {
         NSArray* scopes = [[responseDictionary objectForKey:OAUTH2_SCOPE] componentsSeparatedByString:@" "];
         self.scopes = [NSSet setWithArray:scopes];
