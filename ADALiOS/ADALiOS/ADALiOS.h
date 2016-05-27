@@ -20,11 +20,11 @@
 //version in static define until we identify a better place:
 #define ADAL_VER_HIGH       3
 #define ADAL_VER_LOW        0
-#define ADAL_VER_PATCH      0
+#define ADAL_VER_PATCH      1
 
 #define STR_ADAL_VER_HIGH   "3"
 #define STR_ADAL_VER_LOW    "0"
-#define STR_ADAL_VER_PATCH  "0"
+#define STR_ADAL_VER_PATCH  "1"
 
 #define ADAL_VERSION_STRING     STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH "-pre3"
 #define ADAL_VERSION_NSSTRING   @"" STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH "-pre3"
