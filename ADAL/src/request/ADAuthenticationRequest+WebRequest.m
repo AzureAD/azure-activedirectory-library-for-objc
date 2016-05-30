@@ -150,6 +150,9 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         //Force the server to ignore cookies, by specifying explicitly the prompt behavior:
         [startUrl appendString:[NSString stringWithFormat:@"&prompt=%@", promptParam]];
     }
+    
+    [startUrl appendString:@"&haschrome=1"]; //to hide back button in UI
+    
     if (![NSString adIsStringNilOrBlank:_queryParams])
     {//Append the additional query parameters if specified:
         queryParams = _queryParams.adTrimmedString;
