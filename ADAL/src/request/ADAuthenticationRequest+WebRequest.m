@@ -223,7 +223,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                                                 @"username": [[NSDictionary adURLFormDecode:[end query]] valueForKey:@"username"],
                                                 };
                      NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
-                                                        code:AD_ERROR_WPJ_REQUIRED
+                                                        code:AD_ERROR_SERVER_WPJ_REQUIRED
                                                     userInfo:userInfo];
                      error = [ADAuthenticationError errorFromNSError:err errorDetails:@"work place join is required"];
                  }
