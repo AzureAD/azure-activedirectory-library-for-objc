@@ -336,16 +336,6 @@
     SAFE_ARC_RETAIN(_additionalClient);
 }
 
-- (void)reformatExtendedExpiration:(NSMutableDictionary *)additionalDictionary
-{
-    NSString* extendedExpiresIn = [additionalDictionary valueForKey:@"ext_expires_in"];
-    if (![NSString adIsStringNilOrBlank:extendedExpiresIn] && [extendedExpiresIn respondsToSelector:@selector(doubleValue)])
-    {
-        [additionalDictionary setObject:[NSDate dateWithTimeIntervalSinceNow:[extendedExpiresIn doubleValue]]
-                                 forKey:@"ext_expires_on"];
-    }
-}
-
 - (BOOL)isExtendedLifetimeValid
 {
     NSDate* extendedExpiresOn = [_additionalServer valueForKey:@"ext_expires_on"];
