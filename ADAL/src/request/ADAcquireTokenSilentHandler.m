@@ -65,14 +65,28 @@
     handler->_correlationId = correlationId;
     SAFE_ARC_RETAIN(correlationId);
     
-    // enable logic for returning extended lifetime token
-    if (extendedLifetime)
-    {
-        completionBlock = [handler enableLogicForExtendedLifetime:completionBlock];
-    }
-    
-    // entering cache look up sequence
-    [handler getAccessToken:completionBlock];
+    [handler getAccessToken:^(ADAuthenticationResult *result)
+     {
+         // Logic for returning extended lifetime token
+         if (extendedLifetime && [handler isServerUnavailable:result] && handler->_extendedLifetimeAccessTokenItem)
+         {
+             handler->_extendedLifetimeAccessTokenItem.expiresOn =
+             [handler->_extendedLifetimeAccessTokenItem.additionalServer valueForKey:@"ext_expires_on"];
+             
+             // give the stale token as result
+             [ADLogger logToken:handler->_extendedLifetimeAccessTokenItem.accessToken
+                      tokenType:@"access token (extended lifetime)"
+                      expiresOn:handler->_extendedLifetimeAccessTokenItem.expiresOn
+                  correlationId:handler->_correlationId];
+             
+             result = [ADAuthenticationResult resultFromTokenCacheItem:handler->_extendedLifetimeAccessTokenItem
+                                             multiResourceRefreshToken:NO
+                                                         correlationId:handler->_correlationId];
+             [result setExtendedLifeTimeToken:YES];
+         }
+         
+         completionBlock(result);
+     }];
 }
 
 - (void)dealloc
@@ -104,8 +118,8 @@
     SAFE_ARC_RELEASE(_mrrtResult);
     _mrrtResult = nil;
     
-    SAFE_ARC_RELEASE(_validStaleAccessTokenItem);
-    _validStaleAccessTokenItem = nil;
+    SAFE_ARC_RELEASE(_extendedLifetimeAccessTokenItem);
+    _extendedLifetimeAccessTokenItem = nil;
     
     SAFE_ARC_SUPER_DEALLOC();
 }
@@ -316,10 +330,10 @@
     }
     
     // If the access token is good in terms of extended lifetime then store it for later use
-    if (item.accessToken && !item.isExtendedLifetimeExpired)
+    if (item.accessToken && item.isExtendedLifetimeValid)
     {
-        _validStaleAccessTokenItem = item;
-        SAFE_ARC_RETAIN(_validStaleAccessTokenItem);
+        _extendedLifetimeAccessTokenItem = item;
+        SAFE_ARC_RETAIN(_extendedLifetimeAccessTokenItem);
     }
     
     [self tryRT:item completionBlock:completionBlock];
@@ -332,7 +346,7 @@
     if (!item.refreshToken)
     {
         // There's nothing usable in this cache item if extended lifetime also expires, delete it.
-        if (item.isExtendedLifetimeExpired && ![_tokenCache.dataSource removeItem:item error:&error] && error)
+        if (!item.isExtendedLifetimeValid && ![_tokenCache.dataSource removeItem:item error:&error] && error)
         {
             // If we failed to remove the item with an error, then return that error right away
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -470,45 +484,14 @@
      }];
 }
 
-/*
- This method will add the logic of returning a valid AT in terms of ext_expires_in.
- The logic is appended to the front of the completion block because returning a valid AT in terms of 
- ext_expires_in happens in the end of the cache look up sequence.
- */
-- (ADAuthenticationCallback) enableLogicForExtendedLifetime:(ADAuthenticationCallback)completionBlock
-{
-    // logic is added to return valid stale access token when server is unavailable
-    ADAuthenticationCallback newCompletion = ^(ADAuthenticationResult *result)
-    {
-        if ([self isServerUnavailable:result] && _validStaleAccessTokenItem)
-        {
-            _validStaleAccessTokenItem.expiresOn = [_validStaleAccessTokenItem.additionalServer valueForKey:@"ext_expires_on"];
-            
-            // give the stale token as result
-            [ADLogger logToken:_validStaleAccessTokenItem.accessToken
-                     tokenType:@"access token (extended lifetime)"
-                     expiresOn:_validStaleAccessTokenItem.expiresOn
-                 correlationId:_correlationId];
-            
-            result = [ADAuthenticationResult resultFromTokenCacheItem:_validStaleAccessTokenItem
-                                            multiResourceRefreshToken:NO
-                                                        correlationId:_correlationId];
-            [result setExtendedLifeTimeToken:YES];
-        }
-        completionBlock(result);
-    };
-    newCompletion = [newCompletion copy];
-    SAFE_ARC_AUTORELEASE(newCompletion);
-    return newCompletion;
-}
-
 - (BOOL) isServerUnavailable:(ADAuthenticationResult *)result
 {
-    if ([[result error] code] == 503 || [[result error] code] == 504)
+    if (![[result.error domain] isEqualToString:ADHTTPErrorCodeDomain])
     {
-        return YES;
+        return NO;
     }
-    return NO;
+    
+    return ([result.error code] == 500 || [result.error code] == 503 || [result.error code] == 504);
 }
 
 @end
