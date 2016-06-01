@@ -26,7 +26,7 @@
 #import "ADTokenCacheItem+Internal.h"
 
 NSString* const ADUnknownError = @"Uknown error.";
-NSString* const ADCredentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
+NSString* const ADCredentialsNeeded = @"The user credentials are needed to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
 NSString* const ADInteractionNotSupportedInExtension = @"Interaction is not supported in an app extension.";
 NSString* const ADServerError = @"The authentication server returned an error: %@.";
 NSString* const ADBrokerAppIdentifier = @"com.microsoft.azureadauthenticator";
@@ -177,7 +177,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_WRONG_USER
                                                protocolCode:nil
-                                               errorDetails:@"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier of OptionalDisplayableId type and pass in the userId returned on the initial authentication flow in all future acquireToken calls."
+                                               errorDetails:@"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier is of OptionalDisplayableId type, pass in the userId returned on the initial authentication flow in all future acquireToken calls."
                                               correlationId:nil];
         return [ADAuthenticationResult resultFromError:error correlationId:[result correlationId]];
     }

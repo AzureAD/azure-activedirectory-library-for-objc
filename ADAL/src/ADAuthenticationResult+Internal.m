@@ -81,7 +81,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 {
     if (!item)
     {
-        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult created from nil token item."
+        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult was created with nil token item."
                                                                         correlationId:correlationId];
         return [ADAuthenticationResult resultFromError:error];
     }

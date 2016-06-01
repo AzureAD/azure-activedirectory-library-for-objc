@@ -161,7 +161,7 @@
 {
     if (!audience || !nonce)
     {
-        AD_LOG_ERROR(@"audience or nonce nil in device auth request!", AD_ERROR_UNEXPECTED, nil, nil);
+        AD_LOG_ERROR(@"audience or nonce is nil in device auth request!", AD_ERROR_UNEXPECTED, nil, nil);
         return nil;
     }
     NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];

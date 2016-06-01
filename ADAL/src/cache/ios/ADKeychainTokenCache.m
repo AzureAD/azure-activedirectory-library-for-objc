@@ -640,7 +640,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         ADAuthenticationError* adError =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_MULTIPLE_USERS
                                                protocolCode:nil
-                                               errorDetails:@"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used."
+                                               errorDetails:@"The token cache store for this resource contains more than one user. Please set the 'userId' parameter to the one that will be used."
                                               correlationId:correlationId];
         if (error)
         {

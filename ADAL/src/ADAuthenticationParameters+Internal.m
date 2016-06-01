@@ -32,10 +32,10 @@ NSString* const OAuth2_Resource_Id = @"resource_id";
 
 NSString* const MissingHeader = @"The authentication header '%@' is missing in the Unauthorized (401) response. Make sure that the resouce server supports OAuth2 protocol.";
 NSString* const MissingOrInvalidAuthority = @"The authentication header '%@' in the Unauthorized (401) response does not contain valid '%@' parameter. Make sure that the resouce server supports OAuth2 protocol.";
-NSString* const InvalidHeader = @"The authentication header '%@' for the Unauthorized (401) response does cannot be parsed. Header value: %@";
+NSString* const InvalidHeader = @"The authentication header '%@' for the Unauthorized (401) response cannot be parsed. Header value: %@";
 NSString* const ConnectionError = @"Connection error: %@";
 NSString* const InvalidResponse = @"Missing or invalid Url response.";
-NSString* const UnauthorizedHTTStatusExpected = @"Expected Unauthorized (401) HTTP status code. Actual status code %d";
+NSString* const UnauthorizedHTTStatusExpected = @"Unauthorized (401) HTTP status code is expected, but the actual status code is %d";
 const unichar Quote = '\"';
 //The regular expression that matches the Bearer contents:
 NSString* const RegularExpression = @"^Bearer\\s+([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*(?:,\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"\\s*)*$";
