@@ -64,8 +64,10 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
 {
     NSString* superDescription = [super description];
     
-    return [NSString stringWithFormat:@"Error with code: %lu Domain: %@ ProtocolCode:%@ Details:%@. Inner error details: %@",
-            (long)self.code, self.domain, self.protocolCode, self.errorDetails, superDescription];
+    NSString* codeStr = [self getStringForADErrorCode:self.code domain:self.domain];
+    
+    return [NSString stringWithFormat:@"Error with code: %lu %@ Domain: %@ ProtocolCode:%@ Details:%@. Inner error details: %@",
+            (long)self.code, codeStr, self.domain, self.protocolCode, self.errorDetails, superDescription];
 }
 
 - (id)initInternalWithDomain:(NSString *)domain
@@ -94,7 +96,8 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
     
     if (!quiet)
     {
-        NSString* message = [NSString stringWithFormat:@"Error raised: (Domain: \"%@\" Code: %lu ProtocolCode: \"%@\" Details: \"%@\"", domain, (long)code, protocolCode, details];
+        NSString* codeStr = [self getStringForADErrorCode:code domain:domain];
+        NSString* message = [NSString stringWithFormat:@"Error raised: (Domain: \"%@\" Code: %lu %@ ProtocolCode: \"%@\" Details: \"%@\"", domain, (long)code, codeStr, protocolCode, details];
         NSDictionary* logDict = nil;
         if (correlationId)
         {
@@ -285,6 +288,57 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                 userInfo:nil];
 }
 
+- (NSString*)getStringForADErrorCode:(NSInteger)code
+                              domain:(NSString *)domain
+{
+    if ([domain isEqualToString:ADAuthenticationErrorDomain] ||
+        [domain isEqualToString:ADBrokerResponseErrorDomain] ||
+        [domain isEqualToString:ADOAuthServerErrorDomain])
+    {
+        return [self stringForADErrorCode:(ADErrorCode)code];
+    }
+    return @"";
+}
 
+#define AD_ERROR_CODE_ENUM_CASE(_enum) case _enum: return @#_enum;
+
+- (NSString*)stringForADErrorCode:(ADErrorCode)code
+{
+    switch (code)
+    {
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SUCCEEDED);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_UNEXPECTED);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_USER_INPUT_NEEDED);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_WPJ_REQUIRED);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_OAUTH);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_REFRESH_TOKEN_REJECTED);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_WRONG_USER);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_NON_HTTPS_REDIRECT);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_INVALID_ID_TOKEN);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_MISSING_AUTHENTICATE_HEADER);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_AUTHENTICATE_HEADER_BAD_FORMAT);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_UNAUTHORIZED_CODE_EXPECTED);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_UNSUPPORTED_REQUEST);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_SERVER_AUTHORIZATION_CODE);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_CACHE_MULTIPLE_USERS);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_CACHE_VERSION_MISMATCH);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_CACHE_BAD_FORMAT);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_CACHE_NO_REFRESH_TOKEN);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_UI_USER_CANCEL);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_UI_NOT_ON_MAIN_THREAD);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_TOKENBROKER_UNKNOWN);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_TOKENBROKER_RESPONSE_HASH_MISMATCH);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_TOKENBROKER_RESPONSE_NOT_RECEIVED);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_TOKENBROKER_FAILED_TO_CREATE_KEY);
+            AD_ERROR_CODE_ENUM_CASE(AD_ERROR_TOKENBROKER_DECRYPTION_FAILED);
+    }
+    return @"";
+}
 
 @end
