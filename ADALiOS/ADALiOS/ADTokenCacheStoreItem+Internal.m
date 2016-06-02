@@ -32,8 +32,8 @@
 {
     id expires_in = [responseDictionary objectForKey:OAUTH2_EXPIRES_IN];
     
-    //if access_token was not return then ONLY use id_token_expires_in
-    if (![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_ACCESS_TOKEN]])
+    //if access_token was NOT returned then ONLY use id_token_expires_in
+    if ([NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_ACCESS_TOKEN]])
     {
         expires_in = [responseDictionary objectForKey:OAUTH2_ID_TOKEN_EXPIRES_IN];
     }
@@ -101,7 +101,8 @@
     self.profileInfo = [ADProfileInfo profileInfoWithEncodedString:[responseDictionary objectForKey:OAUTH2_PROFILE_INFO]
                                                              error:nil];
     
-    if ([NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_ACCESS_TOKEN]])
+    //if access token was returned (is NOT nil or blank) then get scopes from the response.
+    if (![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_ACCESS_TOKEN]])
     {
         NSArray* scopes = [[responseDictionary objectForKey:OAUTH2_SCOPE] componentsSeparatedByString:@" "];
         self.scopes = [NSSet setWithArray:scopes];
@@ -109,6 +110,7 @@
     }
     else
     {
+        //if NO access token is present then use client id as a scope
         self.scopes = [NSSet setWithObject:self.clientId];
         FILL_FIELD(token, OAUTH2_ID_TOKEN);
     }

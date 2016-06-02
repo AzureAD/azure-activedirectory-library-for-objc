@@ -884,7 +884,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     _scopes = @[@"planetarydefense.target", @"planetarydefense.fire"];
     response = @{ OAUTH2_PROFILE_INFO : profileInfo,
                   OAUTH2_ACCESS_TOKEN : token,
-                  OAUTH2_SCOPE : [[_scopes arrayByAddingObjectsFromArray:@[@"openid", @"offline_access", @"profile"]] adSpaceDeliminatedString]};
+                  OAUTH2_SCOPE : [_scopes adSpaceDeliminatedString]};
     [_testContext queueExpectedRequest:[self defaultRequest] response:response];
     acquireTokenAsync;
     
@@ -1046,8 +1046,9 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     
     //new refresh token and id token in response
     NSString* newRefreshToken = @"new refresh token";
-    NSString* newAccessToken = @"new id token";
+    NSString* newAccessToken = @"new access token";
     NSString* newIdToken = @"new id token";
+    NSString* newProfileInfo = @"new profile info";
     ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?p=sign_in&x-client-Ver=" ADAL_VERSION_STRING
                                                     responseURLString:@"https://login.windows.net/msopentechbv.onmicrosoft.com/oauth2/v2.0/token?x-client-Ver=" ADAL_VERSION_STRING
                                                          responseCode:200
@@ -1056,6 +1057,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
                                                                          OAUTH2_REFRESH_TOKEN : newRefreshToken,
                                                                          OAUTH2_ACCESS_TOKEN : newAccessToken,
                                                                          OAUTH2_ID_TOKEN : newIdToken,
+                                                                         OAUTH2_PROFILE_INFO : newProfileInfo,
                                                                          OAUTH2_SCOPE : @"plantetarydefense.fire planetarydefense.target"
                                                                          }];
     [ADTestURLConnection addResponse:response];
@@ -1068,7 +1070,7 @@ static ADKeychainTokenCacheStore* s_testCacheStore = nil;
     //call acquireToken again, this time access token should be retrieved from cache
     acquireTokenAsync;
     XCTAssertEqual(_result.status, AD_SUCCEEDED);
-    XCTAssertEqualObjects(_result.token, newIdToken);
+    XCTAssertEqualObjects(_result.token, newAccessToken);
     XCTAssertEqualObjects(_result.tokenCacheStoreItem.refreshToken, newRefreshToken);
 }
 
