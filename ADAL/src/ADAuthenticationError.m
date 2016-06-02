@@ -64,10 +64,10 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
 {
     NSString* superDescription = [super description];
     
-    NSString* codeStr = [self getStringForADErrorCode:self.code domain:self.domain];
+    NSString* codeStr = [self getStringForErrorCode:self.code domain:self.domain];
     
-    return [NSString stringWithFormat:@"Error with code: %lu %@ Domain: %@ ProtocolCode:%@ Details:%@. Inner error details: %@",
-            (long)self.code, codeStr, self.domain, self.protocolCode, self.errorDetails, superDescription];
+    return [NSString stringWithFormat:@"Error with code: %@ Domain: %@ ProtocolCode:%@ Details:%@. Inner error details: %@",
+            codeStr, self.domain, self.protocolCode, self.errorDetails, superDescription];
 }
 
 - (id)initInternalWithDomain:(NSString *)domain
@@ -96,8 +96,8 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
     
     if (!quiet)
     {
-        NSString* codeStr = [self getStringForADErrorCode:code domain:domain];
-        NSString* message = [NSString stringWithFormat:@"Error raised: (Domain: \"%@\" Code: %lu %@ ProtocolCode: \"%@\" Details: \"%@\"", domain, (long)code, codeStr, protocolCode, details];
+        NSString* codeStr = [self getStringForErrorCode:code domain:domain];
+        NSString* message = [NSString stringWithFormat:@"Error raised: (Domain: \"%@\" Code: %@ ProtocolCode: \"%@\" Details: \"%@\"", domain, codeStr, protocolCode, details];
         NSDictionary* logDict = nil;
         if (correlationId)
         {
@@ -288,17 +288,17 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                 userInfo:nil];
 }
 
-- (NSString*)getStringForADErrorCode:(NSInteger)code
+- (NSString*)getStringForErrorCode:(NSInteger)code
                               domain:(NSString *)domain
 {
-    //code value is ADErrorCode enum if domain is one of following
+    //code is ADErrorCode enum if domain is one of following
     if ([domain isEqualToString:ADAuthenticationErrorDomain] ||
         [domain isEqualToString:ADBrokerResponseErrorDomain] ||
         [domain isEqualToString:ADOAuthServerErrorDomain])
     {
         return [self stringForADErrorCode:(ADErrorCode)code];
     }
-    return @"";
+    return [NSString stringWithFormat:@"%ld", (long)code];
 }
 
 #define AD_ERROR_CODE_ENUM_CASE(_enum) case _enum: return @#_enum;
@@ -338,8 +338,9 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
             AD_ERROR_CODE_ENUM_CASE(AD_ERROR_TOKENBROKER_RESPONSE_NOT_RECEIVED);
             AD_ERROR_CODE_ENUM_CASE(AD_ERROR_TOKENBROKER_FAILED_TO_CREATE_KEY);
             AD_ERROR_CODE_ENUM_CASE(AD_ERROR_TOKENBROKER_DECRYPTION_FAILED);
+            default:
+                return [NSString stringWithFormat:@"%ld", (long)code];
     }
-    return @"";
 }
 
 @end
