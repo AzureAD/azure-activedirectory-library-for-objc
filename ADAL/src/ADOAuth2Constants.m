@@ -80,13 +80,13 @@ NSString *const AUTH_FAILED_ERROR_CODE    = @"Authentication Failed: %d";
 NSString *const AUTH_NON_PROTOCOL_ERROR   = @"non_protocol_error";
 
 NSString *const AUTH_FAILED_SERVER_ERROR   = @"The Authorization Server returned an unrecognized response";
-NSString *const AUTH_FAILED_NO_STATE       = @"The Authorization Server response has incorrectly encoded state";
-NSString *const AUTH_FAILED_BAD_STATE      = @"The Authorization Server response has no encoded state";
+NSString *const AUTH_FAILED_NO_STATE       = @"The Authorization Server response has no encoded state";
+NSString *const AUTH_FAILED_BAD_STATE      = @"The Authorization Server response has incorrectly encoded state";
 NSString *const AUTH_FAILED_NO_TOKEN       = @"The requested access token could not be found";
 NSString *const AUTH_FAILED_BAD_PARAMETERS = @"Incorrect parameters for authorization call";
 NSString *const AUTH_FAILED_NO_CLIENTID    = @"Unable to determine client identifier";
 NSString *const AUTH_FAILED_NO_REDIRECTURI = @"Unable to determine redirect URL";
-NSString *const AUTH_FAILED_BUSY           = @"Authorization call already in progress";
+NSString *const AUTH_FAILED_BUSY           = @"Authorization call is already in progress";
 
 NSString *const AAD_SECURECONVERSATION_LABEL = @"AzureAD-SecureConversation";
 

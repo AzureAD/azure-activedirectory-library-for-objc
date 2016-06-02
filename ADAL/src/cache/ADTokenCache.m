@@ -373,7 +373,7 @@
 - (BOOL)validateCache:(NSDictionary*)dict
                 error:(ADAuthenticationError * __autoreleasing *)error
 {
-    CHECK_ERROR([dict isKindOfClass:[NSDictionary class]], AD_ERROR_CACHE_BAD_FORMAT, @"Root level object of cache is not an NSDictionary!");
+    CHECK_ERROR([dict isKindOfClass:[NSDictionary class]], AD_ERROR_CACHE_BAD_FORMAT, @"Root level object of cache is not a NSDictionary!");
     
     NSString* version = [dict objectForKey:@"version"];
     CHECK_ERROR(version, AD_ERROR_CACHE_BAD_FORMAT, @"Missing version number from cache.");
@@ -391,16 +391,16 @@
         for (id userId in tokens)
         {
             // On the second level we're expecting NSDictionaries keyed off of the user ids (an NSString*)
-            CHECK_ERROR([userId isKindOfClass:[NSString class]], AD_ERROR_CACHE_BAD_FORMAT, @"User ID key not the expected class type");
+            CHECK_ERROR([userId isKindOfClass:[NSString class]], AD_ERROR_CACHE_BAD_FORMAT, @"User ID key is not of the expected class type");
             id userDict = [tokens objectForKey:userId];
             CHECK_ERROR([userDict isKindOfClass:[NSMutableDictionary class]], AD_ERROR_CACHE_BAD_FORMAT, @"User ID should have mutable dictionaries in the cache");
             
             for (id adkey in userDict)
             {
                 // On the first level we're expecting NSDictionaries keyed off of ADTokenCacheStoreKey
-                CHECK_ERROR([adkey isKindOfClass:[ADTokenCacheKey class]], AD_ERROR_CACHE_BAD_FORMAT, @"Key is not the expected class");
+                CHECK_ERROR([adkey isKindOfClass:[ADTokenCacheKey class]], AD_ERROR_CACHE_BAD_FORMAT, @"Key is not of the expected class type");
                 id token = [userDict objectForKey:adkey];
-                CHECK_ERROR([token isKindOfClass:[ADTokenCacheItem class]], AD_ERROR_CACHE_BAD_FORMAT, @"Token is not of expected class type!");
+                CHECK_ERROR([token isKindOfClass:[ADTokenCacheItem class]], AD_ERROR_CACHE_BAD_FORMAT, @"Token is not of the expected class type!");
             }
         }
     }
@@ -445,7 +445,7 @@
     ADAuthenticationError* adError =
     [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_MULTIPLE_USERS
                                            protocolCode:nil
-                                           errorDetails:@"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used."
+                                           errorDetails:@"The token cache store for this resource contains more than one user. Please set the 'userId' parameter to the one that will be used."
                                           correlationId:correlationId];
     if (error)
     {
