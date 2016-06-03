@@ -325,6 +325,7 @@
             ADTokenCacheStoreItem* item = [self tokenItem];
             [token addToTokenItem:item];
             item.refreshToken = policy.refreshToken;
+            item.policy = policyKey;
             [items addObject:item];
         }
     }

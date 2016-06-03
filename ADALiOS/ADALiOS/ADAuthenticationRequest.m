@@ -165,11 +165,6 @@ static NSMutableArray* _arrayOfLowercaseStrings(NSArray* strings, NSString* cont
     
     RETURN_IF_NOT_NIL([self validateScopes:lowercaseScopes additional:NO]);
     
-//    [lowercaseScopes removeObject:_clientId];
-//    [lowercaseScopes addObject:@"openid"];
-//    [lowercaseScopes addObject:@"offline_access"];
-//    [lowercaseScopes addObject:@"profile"];
-    
     _scopes = [NSSet setWithArray:lowercaseScopes];
     
     NSMutableSet* scopesWithNoReservedValues = [_scopes mutableCopy];
