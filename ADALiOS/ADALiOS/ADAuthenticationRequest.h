@@ -52,6 +52,7 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
     ADPromptBehavior _promptBehavior;
     
     NSSet* _scopes;
+    NSSet* _scopesWithoutReservedValues;
     NSSet* _additionalScopes;
     
     NSString* _policy;
@@ -91,6 +92,8 @@ typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 - (BOOL)validateProperties:(ADAuthenticationCallback)completionBlock;
 //- (BOOL)isClientID:(NSString*)scope;
+
+- (NSMutableSet*)decoratedScopes;
 
 - (NSSet*)combinedScopes;
 

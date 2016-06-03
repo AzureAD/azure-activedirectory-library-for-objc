@@ -44,8 +44,8 @@
     
     item.authority = [self.authority copyWithZone:zone];
     item.clientId = [self.clientId copyWithZone:zone];
-    item.accessToken = [self.accessToken copyWithZone:zone];
-    item.accessTokenType = [self.accessTokenType copyWithZone:zone];
+    item.token = [self.token copyWithZone:zone];
+    item.tokenType = [self.tokenType copyWithZone:zone];
     item.refreshToken = [self.refreshToken copyWithZone:zone];
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.profileInfo = [self.profileInfo copyWithZone:zone];
@@ -111,8 +111,8 @@
 {
     [aCoder encodeObject:self.authority forKey:@"authority"];
     [aCoder encodeObject:self.clientId forKey:@"clientId"];
-    [aCoder encodeObject:self.accessToken forKey:@"accessToken"];
-    [aCoder encodeObject:self.accessTokenType forKey:@"accessTokenType"];
+    [aCoder encodeObject:self.token forKey:@"token"];
+    [aCoder encodeObject:self.tokenType forKey:@"tokenType"];
     [aCoder encodeObject:self.refreshToken forKey:@"refreshToken"];
     [aCoder encodeObject:self.sessionKey forKey:@"sessionKey"];
     [aCoder encodeObject:self.expiresOn forKey:@"expiresOn"];
@@ -129,9 +129,9 @@
     {
         self.authority = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"authority"];
         self.clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
-        self.accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
-        self.accessTokenType = [aDecoder decodeObjectOfClass:[NSString class]
-                                                      forKey:@"accessTokenType"];
+        self.token = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"token"];
+        self.tokenType = [aDecoder decodeObjectOfClass:[NSString class]
+                                                      forKey:@"tokenType"];
         self.sessionKey = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"sessionKey"];
         self.refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
         self.expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
@@ -201,9 +201,9 @@
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"(authority=%@ clientId=%@ accessToken=%@ accessTokenType=%@ refreshToken=%@ scopes=%@)",
+    return [NSString stringWithFormat:@"(authority=%@ clientId=%@ token=%@ tokenType=%@ refreshToken=%@ scopes=%@)",
             _authority, _clientId,
-            [NSString adIsStringNilOrBlank:_accessToken] ? @"(nil)" : @"(present)", _accessTokenType,
+            [NSString adIsStringNilOrBlank:_token] ? @"(nil)" : @"(present)", _tokenType,
             [NSString adIsStringNilOrBlank:_refreshToken] ? @"(nil)" : @"(present)", _scopes];
 }
 

@@ -72,6 +72,8 @@ ADAuthenticationContext* context = nil;
     [settings populateControl:_scPromptBehavior];
     [settings populateControl:_scUserType];
     
+    [settings setValue:@[@"User.Read"]
+                forKey:@"scopes"];
     [_policies setDataSource:self];
     [_policies setDelegate:self];
     
@@ -149,6 +151,10 @@ ADAuthenticationContext* context = nil;
     
     ADUserIdentifier* adUserId = [ADUserIdentifier identifierWithId:userId type:(ADUserIdentifierType)[_scUserType selectedSegmentIndex]];
     NSString* policy = [[[ADUserDefaultsSettings defaultSettings] objectForKey:@"policies"] objectAtIndex:[_policies selectedRowInComponent:0]];
+    if([policy isEqualToString:@""]){
+        policy = nil;
+    }
+    
     [context acquireTokenWithScopes:scopes
                    additionalScopes:additionalScopes
                            clientId:clientId
@@ -195,8 +201,12 @@ ADAuthenticationContext* context = nil;
     NSString* authority = [settings authority];//params.authority;
     NSString* clientId = [settings clientId];
     NSString* userId = [settings userId];
-    //NSString* __block resourceString = mAADInstance.resource;
     NSString* redirectUri = [settings redirectUri];
+    NSString* policy = [[[ADUserDefaultsSettings defaultSettings] objectForKey:@"policies"] objectAtIndex:[_policies selectedRowInComponent:0]];
+    if([policy isEqualToString:@""]){
+        policy = nil;
+    }
+    
     [ADTestAppLogger logMessage:[NSString stringWithFormat:@"Authority: %@", authority] type:TALogInformation];
     context = [ADAuthenticationContext authenticationContextWithAuthority:authority
                                                                     error:&error];
@@ -211,6 +221,7 @@ ADAuthenticationContext* context = nil;
                                 clientId:clientId
                              redirectUri:[NSURL URLWithString:redirectUri]
                               identifier:[ADUserIdentifier identifierWithId:userId]
+                                   policy:policy
                          completionBlock:^(ADAuthenticationResult *result)
     {
         if (result.status != AD_SUCCEEDED)
@@ -260,10 +271,10 @@ ADAuthenticationContext* context = nil;
     }
 }
 
--(NSString*) processAccessToken: (NSString*) accessToken
+-(NSString*) processToken: (NSString*) token
 {
     //Add any future processing of the token here (e.g. opening to see what is inside):
-    return accessToken;
+    return token;
 }
 
 #pragma mark UIPickerViewDataSource

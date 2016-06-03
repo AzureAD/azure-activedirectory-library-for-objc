@@ -43,7 +43,6 @@ typedef enum
     ADTokenCacheStoreItem*          _tokenCacheStoreItem;
     ADAuthenticationResultStatus    _status;
     ADAuthenticationError*          _error;
-    BOOL                            _multiResourceRefreshToken;
 }
 
 /*! See the ADAuthenticationResultStatus details */
@@ -52,7 +51,7 @@ typedef enum
 /*! A valid access token, if the results indicates success. The property is 
  calculated from the tokenCacheStoreItem one. The property is nil, in 
  case of error.*/
-@property (readonly) NSString* accessToken;
+@property (readonly) NSString* token;
 
 @property (readonly) ADTokenCacheStoreItem* tokenCacheStoreItem;
 

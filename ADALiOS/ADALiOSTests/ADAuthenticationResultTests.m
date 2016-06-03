@@ -53,8 +53,8 @@
     XCTAssertEqual(_result.status, expected, "Wrong status on cancellation"); \
     XCTAssertNotNil(_result.error, "Nil error"); \
     ADAssertLongEquals(_result.error.code, _code); \
-    XCTAssertNil(_result.tokenCacheStoreItem.accessToken); \
-    XCTAssertNil(_result.tokenCacheStoreItem.accessTokenType); \
+    XCTAssertNil(_result.tokenCacheStoreItem.token); \
+    XCTAssertNil(_result.tokenCacheStoreItem.tokenType); \
     XCTAssertNil(_result.tokenCacheStoreItem.refreshToken); \
     XCTAssertNil(_result.tokenCacheStoreItem.expiresOn); \
     XCTAssertNil(_result.tokenCacheStoreItem.profileInfo); \
@@ -82,8 +82,8 @@
     ADTestUtils* utils = [[ADTestUtils alloc] init];
     utils.authority = @"https://login.windows.net/mytennant.com";
     utils.clientId = @"clientId";
-    utils.accessToken = @"accessToken";
-    utils.accessTokenType = @"tokenType";
+    utils.token = @"token";
+    utils.tokenType = @"tokenType";
     utils.refreshToken = @"refreshToken";
     utils.expiresOn = [NSDate dateWithTimeIntervalSinceNow:30];
     
@@ -96,21 +96,21 @@
     XCTAssertNotNil(resultFromValidItem);
     XCTAssertEqual(resultFromValidItem.status, AD_SUCCEEDED, "Result should be success.");
     XCTAssertNil(resultFromValidItem.error, "Unexpected error object: %@", resultFromValidItem.error.errorDetails);
-    XCTAssertEqualObjects(item.accessTokenType, resultFromValidItem.tokenCacheStoreItem.accessTokenType);
-    XCTAssertEqualObjects(item.accessToken, resultFromValidItem.tokenCacheStoreItem.accessToken);
+    XCTAssertEqualObjects(item.tokenType, resultFromValidItem.tokenCacheStoreItem.tokenType);
+    XCTAssertEqualObjects(item.token, resultFromValidItem.tokenCacheStoreItem.token);
     XCTAssertEqualObjects(item.expiresOn, resultFromValidItem.tokenCacheStoreItem.expiresOn);
     XCTAssertEqualObjects(item.profileInfo.tenantId, resultFromValidItem.tokenCacheStoreItem.profileInfo.tenantId);
     XCTAssertEqualObjects(item.profileInfo.username, resultFromValidItem.tokenCacheStoreItem.profileInfo.username);
     
     //Nil access token:
-    item.accessToken = nil;
-    ADAuthenticationResult* resultFromNilAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy]];
-    VERIFY_ERROR_RESULT(resultFromNilAccessToken, AD_ERROR_UNEXPECTED);
+    item.token = nil;
+    ADAuthenticationResult* resultFromNilToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy]];
+    VERIFY_ERROR_RESULT(resultFromNilToken, AD_ERROR_UNEXPECTED);
 
     //Empty access token:
-    item.accessToken = @"   ";
-    ADAuthenticationResult* resultFromEmptyAccessToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy]];
-    VERIFY_ERROR_RESULT(resultFromEmptyAccessToken, AD_ERROR_UNEXPECTED);
+    item.token = @"   ";
+    ADAuthenticationResult* resultFromEmptyToken = [ADAuthenticationResult resultFromTokenCacheStoreItem:[item copy]];
+    VERIFY_ERROR_RESULT(resultFromEmptyToken, AD_ERROR_UNEXPECTED);
 }
 
 @end

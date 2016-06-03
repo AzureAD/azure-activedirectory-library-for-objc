@@ -287,7 +287,7 @@ static ADTestAppSettings* s_testSettings = nil;
                                         atLine:sourceLine
                                       expected:NO];
         }
-        if (!localResult.tokenCacheStoreItem.accessToken.length)
+        if (!localResult.tokenCacheStoreItem.token.length)
         {
             [self recordFailureWithDescription:@"Nil or empty access token."
                                         inFile:@"" __FILE__
@@ -351,7 +351,7 @@ static ADTestAppSettings* s_testSettings = nil;
                                                                    line:__LINE__];
     
     //Now remove the access token and ensure that the refresh token is leveraged:
-    result.tokenCacheStoreItem.accessToken = nil;
+    result.tokenCacheStoreItem.token = nil;
     ADAuthenticationError* error;
     [[ADAuthenticationSettings sharedInstance].defaultTokenCacheStore addOrUpdateItem:result.tokenCacheStoreItem error:&error];
     XCTAssertNil(error);
@@ -475,7 +475,7 @@ static ADTestAppSettings* s_testSettings = nil;
                                                             keepSignedIn:YES
                                                            expectSuccess:YES
                                                                     line:__LINE__];
-    XCTAssertNotEqualObjects(result1.accessToken, result2.accessToken);
+    XCTAssertNotEqualObjects(result1.token, result2.token);
     
     //Retry without the cache, cookies should still be used:
     [self clearCache];

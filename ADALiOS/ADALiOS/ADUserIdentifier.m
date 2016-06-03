@@ -111,7 +111,7 @@
     {
         case UniqueId: return info.subject;
         case OptionalDisplayableId: return nil;
-        case RequiredDisplayableId: return info.username;
+        case RequiredDisplayableId: return info.username.lowercaseString;
     }
     
     NSString* log = [NSString stringWithFormat:@"Unrecognized type on identifier match: %d", _type];

@@ -7,7 +7,7 @@
 		<key>authority</key>
 		<string>https://login.microsoftonline.com/fabrikamb2c.onmicrosoft.com</string>
 		<key>client_id</key>
-		<string>90c0fe63-bcf2-44d5-8fb7-b8bbc0b29dc6</string>
+		<string>a7d8cef0-4145-49b2-a91d-95c54051fa3f</string>
 		<key>redirect_uri</key>
 		<string>urn:ietf:wg:oauth:2.0:oob</string>
 		<key>timeout</key>
@@ -24,6 +24,7 @@
 		<string>b2c_1_sign_up</string>
 		<key>policies</key>
 		<array>
+			<string></string>
 			<string>b2c_1_sign_up</string>
 			<string>b2c_1_sign_in</string>
 			<string>b2c_1_edit_profile</string>
