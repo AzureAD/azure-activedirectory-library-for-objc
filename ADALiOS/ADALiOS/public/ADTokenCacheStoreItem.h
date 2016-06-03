@@ -38,13 +38,11 @@
 @property NSString* clientId;
 
 /*! The access token received. Should be nil, in case the item stores multi-resource refresh token. */
-@property NSString* accessToken;
+@property NSString* token;
 
-@property NSString* accessTokenType;
+@property NSString* tokenType;
 
 @property NSString* refreshToken;
-
-@property NSString* idToken;
 
 @property NSString* policy;
 

@@ -25,20 +25,46 @@
 
 @interface ADTestAppCacheViewController ()
 
-@property IBOutlet UITableView* cacheTable;
-
 @end
 
 @implementation ADTestAppCacheViewController
 
+NSMutableArray *tableData;
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    self.cacheTable.rowHeight = UITableViewAutomaticDimension;
+    self.cacheTable.estimatedRowHeight = 122.0;
+    
+    [self.cacheTable setDelegate:self];
+    [self.cacheTable setDataSource:self];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    tableData = [NSMutableArray new];
+    [self loadTableFromCache];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+
+- (void)loadTableFromCache {
+    ADAuthenticationError* error = nil;
+    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    NSArray* array = [cache allItems:&error];
+    if (!error)
+    {
+        for(ADTokenCacheStoreItem* item in array)
+        {
+            [tableData addObject:item.description];
+        }
+        
+        [_cacheTable reloadData];
+    }
 }
 
 /*
@@ -50,6 +76,39 @@
     // Pass the selected object to the new view controller.
 }
 */
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [tableData count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *simpleTableIdentifier = @"SimpleTableItem";
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
+    
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:simpleTableIdentifier];
+    }
+    
+    cell.textLabel.text = [tableData objectAtIndex:indexPath.row];
+    return cell;
+}
+
+
+- (IBAction)deleteAllPressed:(id)sender
+{
+    ADAuthenticationError* error = nil;
+    id<ADTokenCacheStoring> cache = [ADAuthenticationSettings sharedInstance].defaultTokenCacheStore;
+    [cache removeAll:&error];
+}
+
 
 - (IBAction)expireAllPressed:(id)sender
 {
@@ -67,6 +126,7 @@
         item.expiresOn = [NSDate dateWithTimeIntervalSinceNow:0];
         [cache addOrUpdateItem:item error:&error];
     }
+    
     if (error)
     {
         [ADTestAppLogger logMessage:[NSString stringWithFormat:@"Expire All failed to update item: %@", error.errorDetails]

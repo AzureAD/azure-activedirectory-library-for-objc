@@ -35,10 +35,10 @@
     return nil;
 }
 
-/* Implements the accessToken property */
--(NSString*) accessToken
+/* Implements the token property */
+-(NSString*) token
 {
-    return self.tokenCacheStoreItem.accessToken;
+    return self.tokenCacheStoreItem.token;
 }
 
 #define STATUS_ENUM_CASE(_enum) case _enum: return @#_enum;
@@ -55,8 +55,8 @@
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"(error=%@, mrrt=%@, status=%@, item=%@)",
-            _error, _multiResourceRefreshToken ? @"YES" : @"NO", [ADAuthenticationResult stringForResultStatus:_status], _tokenCacheStoreItem];
+    return [NSString stringWithFormat:@"(error=%@, status=%@, item=%@)",
+            _error, [ADAuthenticationResult stringForResultStatus:_status], _tokenCacheStoreItem];
 }
 
 @end

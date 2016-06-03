@@ -51,8 +51,8 @@ static NSString* const s_profileHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
     
     _authority = @"https://login.windows.net/sometenant.com";
     _clientId = @"client id";
-    _accessToken = @"access token";
-    _accessTokenType = @"access token type";
+    _token = @"access token";
+    _tokenType = @"access token type";
     _refreshToken = @"refresh token";
     _expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
     
@@ -127,14 +127,14 @@ static NSString* const s_profileHeader = @"{\"typ\":\"JWT\",\"alg\":\"none\"}";
     item.scopes = [NSSet setWithArray:_scopes];
     item.authority = _authority;
     item.clientId = _clientId;
-    item.accessToken = _accessToken;
+    item.token = _token;
     item.refreshToken = _refreshToken;
     item.sessionKey = nil;
     item.policy = _policy;
     //1hr into the future:
     item.expiresOn = _expiresOn;
     item.profileInfo = profileInfo;
-    item.accessTokenType = _accessTokenType;
+    item.tokenType = _tokenType;
     return item;
 }
 

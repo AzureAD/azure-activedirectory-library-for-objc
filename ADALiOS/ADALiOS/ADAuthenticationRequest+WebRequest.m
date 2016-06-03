@@ -50,8 +50,6 @@
          //Prefill the known elements in the item. These can be overridden by the response:
          ADTokenCacheStoreItem* item = [ADTokenCacheStoreItem new];
          item.clientId = _clientId;
-         NSArray* scopes = [[response objectForKey:@"scope"] componentsSeparatedByString:@" "];
-         item.scopes = [NSSet setWithArray:scopes];
          item.policy = _policy;
          completionBlock([_context processTokenResponse:response
                                                 forItem:item
@@ -294,8 +292,6 @@ static volatile int sDialogInProgress = 0;
     {
         [beginning appendString:@"?"];
     }
-    
-    
     
     NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@%@=%@&response_mode=query&%@=%@&%@=%@&%@=%@&%@=%@",
                                  beginning,

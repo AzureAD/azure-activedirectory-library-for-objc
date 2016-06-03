@@ -75,10 +75,10 @@
     if ([_context hasCacheStore])
     {
         //Cache should be used in this case:
-        BOOL accessTokenUsable;
+        BOOL tokenUsable;
         ADTokenCacheStoreItem* cacheItem = [_context findCacheItemWithKey:key
                                                                    userId:_identifier
-                                                           useAccessToken:&accessTokenUsable
+                                                           useToken:&tokenUsable
                                                                     error:&error];
         if (error)
         {
@@ -90,7 +90,7 @@
         {
             //Found a promising item in the cache, try using it:
             [self attemptToUseCacheItem:cacheItem
-                         useAccessToken:accessTokenUsable
+                         useToken:tokenUsable
                           samlAssertion:samlAssertion
                           assertionType:assertionType
                         completionBlock:completionBlock];
@@ -106,7 +106,7 @@
 /*Attemps to use the cache. Returns YES if an attempt was successful or if an
  internal asynchronous call will proceed the processing. */
 - (void)attemptToUseCacheItem:(ADTokenCacheStoreItem*)item
-               useAccessToken:(BOOL)useAccessToken
+               useToken:(BOOL)useToken
                 samlAssertion:(NSString*)samlAssertion
                 assertionType:(ADAssertionType)assertionType
               completionBlock:(ADAuthenticationCallback)completionBlock
@@ -117,10 +117,10 @@
     AD_REQUEST_CHECK_PROPERTY(_clientId);
     [self ensureRequest];
     
-    if (useAccessToken)
+    if (useToken)
     {
         //Access token is good, just use it:
-        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:nil];
+        [ADLogger logToken:item.token tokenType:@"oken" expiresOn:item.expiresOn correlationId:nil];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheStoreItem:item];
         completionBlock(result);
         return;
@@ -182,7 +182,7 @@
                                          [self getAssertionTypeGrantValue:assertionType], OAUTH2_GRANT_TYPE,
                                          base64String, OAUTH2_ASSERTION,
                                          _clientId, OAUTH2_CLIENT_ID,
-                                         [_scopes adSpaceDeliminatedString], OAUTH2_SCOPE,
+                                         [self.combinedScopes adSpaceDeliminatedString], OAUTH2_SCOPE,
                                          nil];
     
     if (_policy)
