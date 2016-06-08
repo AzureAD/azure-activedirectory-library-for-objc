@@ -1206,4 +1206,186 @@ const int sAsyncContextTimeout = 10;
     // Sign in a user without an idtoken coming back
 }
 
+- (void)testResilencyTokenReturn
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    id<ADTokenCacheDataSource> cache = [context tokenCacheStore].dataSource;
+    
+    // Add an MRRT to the cache
+    [cache addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    // Response with ext_expires_in value
+    [ADTestURLConnection addResponse:[self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                        authority:TEST_AUTHORITY
+                                                         resource:TEST_RESOURCE
+                                                         clientId:TEST_CLIENT_ID
+                                                    correlationId:TEST_CORRELATION_ID
+                                                  newRefreshToken:@"refresh token"
+                                                   newAccessToken:@"access token"
+                                                 additionalFields:@{ @"ext_expires_in" : @"3600"}]];
+    
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                               userId:TEST_USER_ID
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+    
+    // retrieve the AT from cache
+    ADTokenCacheKey* atKey = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY
+                                                        resource:TEST_RESOURCE
+                                                        clientId:TEST_CLIENT_ID
+                                                           error:&error];
+    XCTAssertNotNil(atKey);
+    XCTAssertNil(error);
+    
+    ADTokenCacheItem* atItem = [cache getItemWithKey:atKey userId:TEST_USER_ID correlationId:nil error:&error];
+    XCTAssertNotNil(atItem);
+    XCTAssertNil(error);
+    
+    // Make sure ext_expires_on is in the AT and set with proper value
+    NSDate* extExpires = [atItem.additionalServer valueForKey:@"ext_expires_on"];
+    NSDate* expectedExpiresTime = [NSDate dateWithTimeIntervalSinceNow:3600];
+    XCTAssertNotNil(extExpires);
+    XCTAssertTrue([expectedExpiresTime timeIntervalSinceDate:extExpires]<10); // 10 secs as tolerance
+    
+    // Purposely expire the AT
+    atItem.expiresOn = [NSDate date];
+    [cache addOrUpdateItem:atItem correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    // Test resiliency when response code 503/504 happens
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:[NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, TEST_AUTHORITY]
+                                                    responseURLString:@"https://contoso.com"
+                                                         responseCode:504
+                                                     httpHeaderFields:@{ }
+                                                     dictionaryAsJSON:@{ }];
+    // Add the responsce twice because retry will happen
+    [ADTestURLConnection addResponse:response];
+    [ADTestURLConnection addResponse:response];
+    
+    // Test whether valid stale access token is returned
+    [context setExtendedLifetimeEnabled:YES];
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                               userId:TEST_USER_ID
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         XCTAssertTrue(result.extendedLifeTimeToken);
+         XCTAssertEqualObjects(result.tokenCacheItem.accessToken, @"access token");
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+    
+    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
+}
+
+- (void)testResilencyTokenDeletion
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    id<ADTokenCacheDataSource> cache = [context tokenCacheStore].dataSource;
+    
+    // Add an MRRT to the cache
+    [cache addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    // Response with ext_expires_in value being 0
+    [ADTestURLConnection addResponse:[self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                                                        authority:TEST_AUTHORITY
+                                                         resource:TEST_RESOURCE
+                                                         clientId:TEST_CLIENT_ID
+                                                    correlationId:TEST_CORRELATION_ID
+                                                  newRefreshToken:@"refresh token"
+                                                   newAccessToken:@"access token"
+                                                 additionalFields:@{ @"ext_expires_in" : @"0"}]];
+    
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                               userId:TEST_USER_ID
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNil(result.error);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+    
+    // Purposely expire the AT
+    ADTokenCacheKey* atKey = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY
+                                                      resource:TEST_RESOURCE
+                                                      clientId:TEST_CLIENT_ID
+                                                         error:&error];
+    XCTAssertNotNil(atKey);
+    XCTAssertNil(error);
+    
+    ADTokenCacheItem* atItem = [cache getItemWithKey:atKey userId:TEST_USER_ID correlationId:nil error:&error];
+    XCTAssertNotNil(atItem);
+    XCTAssertNil(error);
+    
+    atItem.expiresOn = [NSDate date];
+    [cache addOrUpdateItem:atItem correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    // Delete the MRRT
+    ADTokenCacheKey* rtKey = [ADTokenCacheKey keyWithAuthority:TEST_AUTHORITY
+                                                      resource:nil
+                                                      clientId:TEST_CLIENT_ID
+                                                         error:&error];
+    XCTAssertNotNil(rtKey);
+    XCTAssertNil(error);
+    
+    ADTokenCacheItem* rtItem = [cache getItemWithKey:rtKey userId:TEST_USER_ID correlationId:nil error:&error];
+    XCTAssertNotNil(rtItem);
+    XCTAssertNil(error);
+    
+    [cache removeItem:rtItem error:&error];
+    XCTAssertNil(error);
+
+    // AT is no longer valid neither in terms of expires_on and ext_expires_on
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         // Request should fail because it's silent
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+    
+    // Verify that the AT is removed from the cache
+    NSArray* allItems = [cache allItems:&error];
+    XCTAssertNil(error);
+    
+    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
+    XCTAssertEqual(allItems.count, 0);
+}
+
 @end

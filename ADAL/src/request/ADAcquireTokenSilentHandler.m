@@ -42,6 +42,7 @@
                             identifier:(ADUserIdentifier *)identifier
                          correlationId:(NSUUID *)correlationId
                             tokenCache:(ADTokenCacheAccessor *)tokenCache
+                      extendedLifetime:(BOOL)extendedLifetime
                        completionBlock:(ADAuthenticationCallback)completionBlock
 {
     ADAcquireTokenSilentHandler* handler = [ADAcquireTokenSilentHandler new];
@@ -64,7 +65,28 @@
     handler->_correlationId = correlationId;
     SAFE_ARC_RETAIN(correlationId);
     
-    [handler getAccessToken:completionBlock];
+    [handler getAccessToken:^(ADAuthenticationResult *result)
+     {
+         // Logic for returning extended lifetime token
+         if (extendedLifetime && [handler isServerUnavailable:result] && handler->_extendedLifetimeAccessTokenItem)
+         {
+             handler->_extendedLifetimeAccessTokenItem.expiresOn =
+             [handler->_extendedLifetimeAccessTokenItem.additionalServer valueForKey:@"ext_expires_on"];
+             
+             // give the stale token as result
+             [ADLogger logToken:handler->_extendedLifetimeAccessTokenItem.accessToken
+                      tokenType:@"access token (extended lifetime)"
+                      expiresOn:handler->_extendedLifetimeAccessTokenItem.expiresOn
+                  correlationId:handler->_correlationId];
+             
+             result = [ADAuthenticationResult resultFromTokenCacheItem:handler->_extendedLifetimeAccessTokenItem
+                                             multiResourceRefreshToken:NO
+                                                         correlationId:handler->_correlationId];
+             [result setExtendedLifeTimeToken:YES];
+         }
+         
+         completionBlock(result);
+     }];
 }
 
 - (void)dealloc
@@ -95,6 +117,9 @@
     
     SAFE_ARC_RELEASE(_mrrtResult);
     _mrrtResult = nil;
+    
+    SAFE_ARC_RELEASE(_extendedLifetimeAccessTokenItem);
+    _extendedLifetimeAccessTokenItem = nil;
     
     SAFE_ARC_SUPER_DEALLOC();
 }
@@ -304,6 +329,13 @@
         return;
     }
     
+    // If the access token is good in terms of extended lifetime then store it for later use
+    if (item.accessToken && item.isExtendedLifetimeValid)
+    {
+        _extendedLifetimeAccessTokenItem = item;
+        SAFE_ARC_RETAIN(_extendedLifetimeAccessTokenItem);
+    }
+    
     [self tryRT:item completionBlock:completionBlock];
 }
 
@@ -313,8 +345,8 @@
     
     if (!item.refreshToken)
     {
-        // There's nothing usable in this cache item, delete it.
-        if (![_tokenCache.dataSource removeItem:item error:&error] && error)
+        // There's nothing usable in this cache item if extended lifetime also expires, delete it.
+        if (!item.isExtendedLifetimeValid && ![_tokenCache.dataSource removeItem:item error:&error] && error)
         {
             // If we failed to remove the item with an error, then return that error right away
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -450,6 +482,16 @@
          
          completionBlock(_mrrtResult);
      }];
+}
+
+- (BOOL) isServerUnavailable:(ADAuthenticationResult *)result
+{
+    if (![[result.error domain] isEqualToString:ADHTTPErrorCodeDomain])
+    {
+        return NO;
+    }
+    
+    return ([result.error code] == 500 || [result.error code] == 503 || [result.error code] == 504);
 }
 
 @end

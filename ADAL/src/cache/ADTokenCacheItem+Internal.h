@@ -51,12 +51,15 @@
  
     @return Whether the resulting item is a Multi Resource Refresh Token
  */
-- (BOOL)fillItemWithResponse:(NSDictionary*)responseDictionary;
+- (BOOL)fillItemWithResponse:(NSDictionary*)response;
 
 - (void)makeTombstone:(NSDictionary*)tombstoneEntries;
 
 - (void)logMessage:(NSString *)message
              level:(ADAL_LOG_LEVEL)level
      correlationId:(NSUUID*)correlationId;
+
+/*! Return YES only if the item contains an access token and ext_expires_in in additionalServer has not expired. */
+- (BOOL)isExtendedLifetimeValid;
 
 @end

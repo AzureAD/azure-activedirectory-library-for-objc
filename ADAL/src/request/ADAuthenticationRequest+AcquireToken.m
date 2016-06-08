@@ -104,6 +104,7 @@
                                                          identifier:_identifier
                                                       correlationId:_correlationId
                                                          tokenCache:_tokenCache
+                                                   extendedLifetime:_context.extendedLifetimeEnabled
                                                     completionBlock:^(ADAuthenticationResult *result)
         {
             if ([ADAuthenticationContext isFinalResult:result])
@@ -215,6 +216,7 @@
          }
      }];
 }
+
 // Generic OAuth2 Authorization Request, obtains a token from an authorization code.
 - (void)requestTokenByCode:(NSString *)code
            completionBlock:(ADAuthenticationCallback)completionBlock
