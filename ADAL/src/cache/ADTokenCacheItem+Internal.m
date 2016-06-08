@@ -206,6 +206,8 @@
     
     NSMutableDictionary* responseDictionary = [response mutableCopy];
     
+    BOOL isMRRT = ![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_RESOURCE]] && ![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_REFRESH_TOKEN]];
+    
     [self fillUserInformation:[responseDictionary valueForKey:OAUTH2_ID_TOKEN]];
     [responseDictionary removeObjectForKey:OAUTH2_ID_TOKEN];
     
@@ -218,8 +220,6 @@
     FILL_FIELD(familyId, ADAL_CLIENT_FAMILY_ID);
     
     [self fillExpiration:responseDictionary];
-    
-    BOOL isMRRT = ![NSString adIsStringNilOrBlank:self.resource] && ![NSString adIsStringNilOrBlank:self.refreshToken];
     
     [self logWithCorrelationId:[responseDictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE] mrrt:isMRRT];
     
