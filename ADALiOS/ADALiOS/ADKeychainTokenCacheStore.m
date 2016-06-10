@@ -25,6 +25,7 @@
 #import "ADProfileInfo.h"
 #import "ADKeychainQuery.h"
 #import "ADKeychainItem.h"
+#import "ADWorkPlaceJoinUtil.h"
 
 
 /************************************************************************************************
@@ -85,7 +86,12 @@ static void adkeychain_dispatch_if_needed(dispatch_block_t block)
         return nil;
     }
     
-    _sharedGroup = sharedGroup;
+    if (!sharedGroup)
+    {
+        sharedGroup = [[NSBundle mainBundle] bundleIdentifier];
+    }
+    
+    _sharedGroup = [[NSString alloc] initWithFormat:@"%@.%@", [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix], sharedGroup];
     _serviceKey = s_kDefaultADALServiceKey;
     
     return self;
