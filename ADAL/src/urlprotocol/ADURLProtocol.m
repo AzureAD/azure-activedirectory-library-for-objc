@@ -208,11 +208,16 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     
     NSMutableURLRequest* mutableRequest = [request mutableCopy];
     SAFE_ARC_AUTORELEASE(mutableRequest);
+    
+    //it is a redirect if response is not nil (otherwise this method is called because of URL canonicalization)
+    if (response)
+    {
+        [[self class] removePropertyForKey:@"ADURLProtocol" inRequest:mutableRequest];
+        [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
+    }
     [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
     [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
-    [NSURLProtocol setProperty:@YES forKey:@"ADURLProtocol" inRequest:mutableRequest];
     
-    [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
     return mutableRequest;
 }
 
