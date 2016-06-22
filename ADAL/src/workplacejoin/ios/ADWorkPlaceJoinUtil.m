@@ -59,9 +59,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     [privateKeyAttr setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
     [privateKeyAttr setObject:(__bridge id)(kSecAttrKeyTypeRSA) forKey:(__bridge id<NSCopying>)(kSecAttrKeyType)];
     [privateKeyAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnData)];
-#if !TARGET_IPHONE_SIMULATOR
     [privateKeyAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
-#endif
     
     status = SecItemCopyMatching((__bridge CFDictionaryRef)privateKeyAttr, (CFTypeRef*)&item);
     SAFE_ARC_RELEASE(privateKeyAttr);
@@ -108,9 +106,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     [identityAttr setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
     
-#if !TARGET_IPHONE_SIMULATOR
     [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
-#endif
     
     CFDictionaryRef  result;
     OSStatus status = noErr;
@@ -187,10 +183,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnRef)];
     [identityAttr setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
     
-    
-#if !TARGET_IPHONE_SIMULATOR
     [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
-#endif
     
     SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)identity);
     
@@ -317,8 +310,10 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
 - (NSString*)getApplicationIdentifierPrefix{
     
     AD_LOG_VERBOSE(@"Looking for application identifier prefix in app data", nil, nil);
-    NSUserDefaults* c = [NSUserDefaults standardUserDefaults];
-    NSString* appIdentifierPrefix = [c objectForKey:applicationIdentifierPrefix];
+    //NSUserDefaults* c = [NSUserDefaults standardUserDefaults];
+    //NSString* appIdentifierPrefix = [c objectForKey:applicationIdentifierPrefix];
+    
+    NSString* appIdentifierPrefix = nil;
     
     if (!appIdentifierPrefix)
     {

@@ -126,9 +126,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     _default = @{
                  (id)kSecClass : (id)kSecClassGenericPassword,
                  //Apps are not signed on the simulator, so the shared group doesn't apply there.
-#if !(TARGET_IPHONE_SIMULATOR)
                  (id)kSecAttrAccessGroup : (id)_sharedGroup,
-#endif
                  (id)kSecAttrGeneric : [s_libraryString dataUsingEncoding:NSUTF8StringEncoding]
                  };
     SAFE_ARC_RETAIN(_default);
@@ -137,9 +135,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     _defaultTombstone = @{
                  (id)kSecClass : (id)kSecClassGenericPassword,
                  //Apps are not signed on the simulator, so the shared group doesn't apply there.
-#if !(TARGET_IPHONE_SIMULATOR)
                  (id)kSecAttrAccessGroup : (id)_sharedGroup,
-#endif
                  (id)kSecAttrGeneric : [s_tombstoneLibraryString dataUsingEncoding:NSUTF8StringEncoding]
                  };
     SAFE_ARC_RETAIN(_defaultTombstone);
