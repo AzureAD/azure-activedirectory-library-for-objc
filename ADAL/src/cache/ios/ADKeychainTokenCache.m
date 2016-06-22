@@ -121,25 +121,37 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         sharedGroup = [[NSBundle mainBundle] bundleIdentifier];
     }
     
-    _sharedGroup = [[NSString alloc] initWithFormat:@"%@.%@", [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  keychainTeamId], sharedGroup];
+    NSString* teamId = [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager] keychainTeamId];
+    if (teamId)
+    {
+        _sharedGroup = [[NSString alloc] initWithFormat:@"%@.%@", teamId, sharedGroup];
+    }
     
-    _default = @{
-                 (id)kSecClass : (id)kSecClassGenericPassword,
-                 //Apps are not signed on the simulator, so the shared group doesn't apply there.
-                 (id)kSecAttrAccessGroup : (id)_sharedGroup,
-                 (id)kSecAttrGeneric : [s_libraryString dataUsingEncoding:NSUTF8StringEncoding]
-                 };
-    SAFE_ARC_RETAIN(_default);
+    NSMutableDictionary* defaultQuery =
+    [@{
+       (id)kSecClass : (id)kSecClassGenericPassword,
+       (id)kSecAttrGeneric : [s_libraryString dataUsingEncoding:NSUTF8StringEncoding]
+       } mutableCopy];
     
     // Use a different generic attribute so that past versions of ADAL don't trip up on this entry
-    _defaultTombstone = @{
-                 (id)kSecClass : (id)kSecClassGenericPassword,
-                 //Apps are not signed on the simulator, so the shared group doesn't apply there.
-                 (id)kSecAttrAccessGroup : (id)_sharedGroup,
-                 (id)kSecAttrGeneric : [s_tombstoneLibraryString dataUsingEncoding:NSUTF8StringEncoding]
-                 };
-    SAFE_ARC_RETAIN(_defaultTombstone);
+    NSMutableDictionary* defaultTombstoneQuery =
+    [@{
+       (id)kSecClass : (id)kSecClassGenericPassword,
+       (id)kSecAttrGeneric : [s_tombstoneLibraryString dataUsingEncoding:NSUTF8StringEncoding]
+       } mutableCopy];
 
+    // Depending on the environment we may or may not have keychain access groups. Which environments
+    // have keychain access group support also varies over time. They should always work on device,
+    // in Simulator they work when running within an app bundle but not in unit tests, as of Xcode 7.3
+    
+    if (_sharedGroup)
+    {
+        [defaultQuery setObject:_sharedGroup forKey:(id)kSecAttrAccessGroup];
+        [defaultTombstoneQuery setObject:_sharedGroup forKey:(id)kSecAttrAccessGroup];
+    }
+    
+    _default = defaultQuery;
+    _defaultTombstone = defaultTombstoneQuery;
     
     static dispatch_once_t onceToken = 0;
     dispatch_once(&onceToken, ^{

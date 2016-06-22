@@ -105,7 +105,6 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnRef)];
     [identityAttr setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
-    
     [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
     
     CFDictionaryRef  result;
@@ -182,7 +181,6 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     [identityAttr setObject:(__bridge id)kSecClassIdentity forKey:(__bridge id)kSecClass];
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnRef)];
     [identityAttr setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
-    
     [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
     
     SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)identity);
@@ -320,7 +318,8 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     return s_keychainTeamId;
 }
 
-- (NSString*)retrieveTeamIDFromKeychain {
+- (NSString*)retrieveTeamIDFromKeychain
+{
     NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
                            (__bridge id)(kSecClassGenericPassword), kSecClass,
                            @"bundleSeedID", kSecAttrAccount,
@@ -328,18 +327,26 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
                            (id)kCFBooleanTrue, kSecReturnAttributes,
                            nil];
     CFDictionaryRef result = nil;
+    
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+    
     if (status == errSecItemNotFound)
+    {
         status = SecItemAdd((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+    }
+    
     if (status != errSecSuccess)
+    {
         return nil;
+    }
+    
     NSString *accessGroup = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrAccessGroup)];
     NSArray *components = [accessGroup componentsSeparatedByString:@"."];
-    NSString *bundleSeedID = [[components objectEnumerator] nextObject];
-    SecItemDelete((__bridge CFDictionaryRef)(query));
+    NSString *bundleSeedID = [components firstObject];
     
     CFRelease(result);
-    return bundleSeedID;
+    
+    return [bundleSeedID length] ? bundleSeedID : nil;
 }
 
 @end
