@@ -46,6 +46,6 @@
                    underlyingError:(NSError*) underlyingError
                        shouldRetry:(BOOL) retry;
 
-- (NSString*)getApplicationIdentifierPrefix;
+- (NSString*)keychainTeamId;
 
 @end

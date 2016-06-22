@@ -121,7 +121,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         sharedGroup = [[NSBundle mainBundle] bundleIdentifier];
     }
     
-    _sharedGroup = [[NSString alloc] initWithFormat:@"%@.%@", [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix], sharedGroup];
+    _sharedGroup = [[NSString alloc] initWithFormat:@"%@.%@", [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  keychainTeamId], sharedGroup];
     
     _default = @{
                  (id)kSecClass : (id)kSecClassGenericPassword,

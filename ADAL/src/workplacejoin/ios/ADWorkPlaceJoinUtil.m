@@ -307,28 +307,20 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     return theData;
 }
 
-- (NSString*)getApplicationIdentifierPrefix{
+- (NSString*)keychainTeamId
+{
+    static dispatch_once_t s_once;
+    static NSString* s_keychainTeamId = nil;
     
-    AD_LOG_VERBOSE(@"Looking for application identifier prefix in app data", nil, nil);
-    //NSUserDefaults* c = [NSUserDefaults standardUserDefaults];
-    //NSString* appIdentifierPrefix = [c objectForKey:applicationIdentifierPrefix];
+    dispatch_once(&s_once, ^{
+        s_keychainTeamId = [self retrieveTeamIDFromKeychain];
+        AD_LOG_INFO(([NSString stringWithFormat:@"Using \"%@\" Team ID for Keychain.", s_keychainTeamId]), nil, nil);
+    });
     
-    NSString* appIdentifierPrefix = nil;
-    
-    if (!appIdentifierPrefix)
-    {
-        appIdentifierPrefix = [self bundleSeedID];
-        
-        AD_LOG_VERBOSE(@"Storing application identifier prefix in app data", nil, nil);
-        NSUserDefaults* c = [NSUserDefaults standardUserDefaults];
-        [c setObject:appIdentifierPrefix forKey:applicationIdentifierPrefix];
-        [c synchronize];
-    }
-    
-    return appIdentifierPrefix;
+    return s_keychainTeamId;
 }
 
-- (NSString*)bundleSeedID {
+- (NSString*)retrieveTeamIDFromKeychain {
     NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
                            (__bridge id)(kSecClassGenericPassword), kSecClass,
                            @"bundleSeedID", kSecAttrAccount,
