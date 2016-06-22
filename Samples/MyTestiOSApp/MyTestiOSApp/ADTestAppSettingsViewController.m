@@ -63,7 +63,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [_keychainId setText:[[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix]];
+    [_keychainId setText:[[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  keychainTeamId]];
     
     [self refreshProfileSettings];
 }
