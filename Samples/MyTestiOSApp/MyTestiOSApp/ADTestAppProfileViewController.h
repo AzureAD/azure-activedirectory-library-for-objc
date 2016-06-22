@@ -25,7 +25,6 @@
 
 @interface ADTestAppProfileViewController : UIViewController <UITableViewDelegate, UITableViewDataSource>
 
-+ (NSString*)currentProfileTitle;
 + (ADTestAppProfileViewController*)sharedProfileViewController;
 
 @end

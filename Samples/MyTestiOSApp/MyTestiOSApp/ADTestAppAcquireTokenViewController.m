@@ -186,7 +186,7 @@
     ADUserIdentifier* identifier = [self identifier];
     ADCredentialsType credType = [self credType];
     
-    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:YES error:nil];
+    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:NO error:nil];
     if (!context)
     {
         return;
