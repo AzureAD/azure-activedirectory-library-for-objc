@@ -60,10 +60,13 @@
     return self;
 }
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     
-    [_keychainId setText:[[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  keychainTeamId]];
+    NSString* teamId = [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager] keychainTeamId];
+    
+    [_keychainId setText: teamId ? teamId : @"<No Team ID>" ];
     
     [self refreshProfileSettings];
 }
