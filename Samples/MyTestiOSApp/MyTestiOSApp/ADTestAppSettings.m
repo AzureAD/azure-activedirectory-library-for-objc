@@ -25,9 +25,54 @@
 
 NSString* ADTestAppCacheChangeNotification = @"ADTestAppCacheChangeNotification";
 
+static NSDictionary* s_profiles = nil;
+static NSArray* s_profileTitles = nil;
+
 @implementation ADTestAppSettings
 {
     NSDictionary* _settings;
+}
+
++ (void)initialize
+{
+    s_profiles =
+    @{ @"Test App"    : @{ @"authority" : @"https://login.microsoftonline.com/common",
+                           @"resource" : @"https://graph.windows.net",
+                           // NOTE: The settings below should come from your registered application on
+                           //       the azure management portal.
+                           @"clientId" : @"b92e0ba5-f86e-4411-8e18-6b5f928d968a",
+                           @"redirectUri" : @"x-msauth-adaltestapp-210://com.microsoft.adal.2.1.0.TestApp",
+                           },
+       @"Office"      : @{ @"authority" : @"https://login.microsoftonline.com/common",
+                           @"resource" : @"https://api.office.com/discovery",
+                           @"clientId" : @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
+                           @"redirectUri" : @"urn:ietf:wg:oauth:2.0:oob",
+                           },
+       @"OneDrive"    : @{ @"authority" : @"https://login.microsoftonline.com/common",
+                           @"resource" : @"https://api.office.com/discovery",
+                           @"clientId" : @"af124e86-4e96-495a-b70a-90f90ab96707",
+                           @"redirectUri" : @"ms-onedrive://com.microsoft.skydrive",
+                           },
+       };
+    
+    NSMutableArray* titles = [[NSMutableArray alloc] initWithCapacity:[s_profiles count]];
+    
+    for (NSString* profileTitle in s_profiles)
+    {
+        [titles addObject:profileTitle];
+    }
+    
+    s_profileTitles = titles;
+}
+
++ (NSDictionary*)profiles
+{
+    return s_profiles;
+}
+
++ (NSArray*)profileTitles
+{
+    return s_profileTitles;
 }
 
 + (ADTestAppSettings*)settings
@@ -40,6 +85,13 @@ NSString* ADTestAppCacheChangeNotification = @"ADTestAppCacheChangeNotification"
     return s_settings;
 }
 
++ (NSString*)currentProfileTitle
+{
+    NSString* currentProfile = [[NSUserDefaults standardUserDefaults] stringForKey:@"CurrentProfile"];
+    
+    return currentProfile ? currentProfile : @"Test App";
+}
+
 - (id)init
 {
     if (!(self = [super init]))
@@ -47,16 +99,8 @@ NSString* ADTestAppCacheChangeNotification = @"ADTestAppCacheChangeNotification"
         return nil;
     }
     
-    NSDictionary* defaultSettings =
-    @{ @"authority" : @"https://login.microsoftonline.com/common",
-       @"resource" : @"https://graph.windows.net",
-       // NOTE: The settings below should come from your registered application on
-       //       the azure management portal.
-       @"clientId" : @"b92e0ba5-f86e-4411-8e18-6b5f928d968a",
-       @"redirectUri" : @"x-msauth-adaltestapp-210://com.microsoft.adal.2.1.0.TestApp",
-       };
-    
-    [self setFromDictionary:defaultSettings];
+    NSDictionary* profileDict = [s_profiles objectForKey:[ADTestAppSettings currentProfileTitle]];
+    [self setFromDictionary:profileDict];
     
     return self;
 }

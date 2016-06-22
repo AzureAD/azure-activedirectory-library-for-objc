@@ -35,6 +35,10 @@ extern NSString* ADTestAppCacheChangeNotification;
 
 + (ADTestAppSettings*)settings;
 
++ (NSDictionary*)profiles;
++ (NSArray*)profileTitles;
++ (NSString*)currentProfileTitle;
+
 
 - (void)setFromDictionary:(NSDictionary*)settings;
 
