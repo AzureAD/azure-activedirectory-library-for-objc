@@ -51,6 +51,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
 
 + (void)load
 {
+#if !ADAL_EXTENSION_SAFE
     __block id observer = nil;
     
     observer =
@@ -92,16 +93,22 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
          }
          
      }];
+#endif
 }
 
 + (BOOL)canUseBroker
 {
+#if !ADAL_EXTENSION_SAFE
     return [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", ADAL_BROKER_SCHEME]]];
+#else
+    return NO;
+#endif
 }
 
 + (void)invokeBroker:(NSDictionary *)brokerParams
    completionHandler:(ADAuthenticationCallback)completion
 {
+#if !ADAL_EXTENSION_SAFE
     NSString* query = [brokerParams adURLFormEncode];
     
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
@@ -113,6 +120,10 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
         
         [[UIApplication sharedApplication] openURL:appUrl];
     });
+#else
+    (void)brokerParams;
+    completion(nil);
+#endif
 }
 
 + (void)saveToPasteBoard:(NSURL*) url
@@ -127,6 +138,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
 + (void)promptBrokerInstall:(NSDictionary *)brokerParams
           completionHandler:(ADAuthenticationCallback)completion
 {
+#if !ADAL_EXTENSION_SAFE
     NSString* query = [brokerParams adURLFormEncode];
     
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
@@ -141,6 +153,10 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
     dispatch_async(dispatch_get_main_queue(), ^{
         [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:url]];
     });
+#else
+    (void)brokerParams;
+    completion(nil);
+#endif
 }
 
 + (ADAuthenticationCallback)copyAndClearCompletionBlock
