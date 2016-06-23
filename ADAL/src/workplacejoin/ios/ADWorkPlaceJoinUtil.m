@@ -59,9 +59,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     [privateKeyAttr setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
     [privateKeyAttr setObject:(__bridge id)(kSecAttrKeyTypeRSA) forKey:(__bridge id<NSCopying>)(kSecAttrKeyType)];
     [privateKeyAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnData)];
-#if !TARGET_IPHONE_SIMULATOR
     [privateKeyAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
-#endif
     
     status = SecItemCopyMatching((__bridge CFDictionaryRef)privateKeyAttr, (CFTypeRef*)&item);
     SAFE_ARC_RELEASE(privateKeyAttr);
@@ -107,10 +105,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnRef)];
     [identityAttr setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
-    
-#if !TARGET_IPHONE_SIMULATOR
     [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
-#endif
     
     CFDictionaryRef  result;
     OSStatus status = noErr;
@@ -186,11 +181,7 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     [identityAttr setObject:(__bridge id)kSecClassIdentity forKey:(__bridge id)kSecClass];
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnRef)];
     [identityAttr setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
-    
-    
-#if !TARGET_IPHONE_SIMULATOR
     [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
-#endif
     
     SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)identity);
     
@@ -314,26 +305,21 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     return theData;
 }
 
-- (NSString*)getApplicationIdentifierPrefix{
+- (NSString*)keychainTeamId
+{
+    static dispatch_once_t s_once;
+    static NSString* s_keychainTeamId = nil;
     
-    AD_LOG_VERBOSE(@"Looking for application identifier prefix in app data", nil, nil);
-    NSUserDefaults* c = [NSUserDefaults standardUserDefaults];
-    NSString* appIdentifierPrefix = [c objectForKey:applicationIdentifierPrefix];
+    dispatch_once(&s_once, ^{
+        s_keychainTeamId = [self retrieveTeamIDFromKeychain];
+        AD_LOG_INFO(([NSString stringWithFormat:@"Using \"%@\" Team ID for Keychain.", s_keychainTeamId]), nil, nil);
+    });
     
-    if (!appIdentifierPrefix)
-    {
-        appIdentifierPrefix = [self bundleSeedID];
-        
-        AD_LOG_VERBOSE(@"Storing application identifier prefix in app data", nil, nil);
-        NSUserDefaults* c = [NSUserDefaults standardUserDefaults];
-        [c setObject:appIdentifierPrefix forKey:applicationIdentifierPrefix];
-        [c synchronize];
-    }
-    
-    return appIdentifierPrefix;
+    return s_keychainTeamId;
 }
 
-- (NSString*)bundleSeedID {
+- (NSString*)retrieveTeamIDFromKeychain
+{
     NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
                            (__bridge id)(kSecClassGenericPassword), kSecClass,
                            @"bundleSeedID", kSecAttrAccount,
@@ -341,18 +327,26 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
                            (id)kCFBooleanTrue, kSecReturnAttributes,
                            nil];
     CFDictionaryRef result = nil;
+    
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+    
     if (status == errSecItemNotFound)
+    {
         status = SecItemAdd((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+    }
+    
     if (status != errSecSuccess)
+    {
         return nil;
+    }
+    
     NSString *accessGroup = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrAccessGroup)];
     NSArray *components = [accessGroup componentsSeparatedByString:@"."];
-    NSString *bundleSeedID = [[components objectEnumerator] nextObject];
-    SecItemDelete((__bridge CFDictionaryRef)(query));
+    NSString *bundleSeedID = [components firstObject];
     
     CFRelease(result);
-    return bundleSeedID;
+    
+    return [bundleSeedID length] ? bundleSeedID : nil;
 }
 
 @end

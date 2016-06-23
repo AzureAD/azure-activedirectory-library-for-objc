@@ -115,7 +115,9 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     XCTAssertTrue([self count] == 0, "Start empty.");
     
     ADTokenCacheItem* item = [self adCreateCacheItem:@"eric_cartman@contoso.com"];
-    [mStore addOrUpdateItem:item correlationId:nil error:nil];
+    ADAuthenticationError* error = nil;
+    XCTAssertTrue([mStore addOrUpdateItem:item correlationId:nil error:&error]);
+    XCTAssertNil(error, @"Error occurred on add: %@", error);
     
     NSArray* allItems = [mStore allItems:nil];
     
@@ -179,7 +181,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADKeychainTokenCache* simple = [ADKeychainTokenCache new];
     XCTAssertNotNil(simple);
-    XCTAssertNotNil(simple.sharedGroup);
     NSString* group = @"test";
     ADKeychainTokenCache* withGroup = [[ADKeychainTokenCache alloc] initWithGroup:group];
     XCTAssertNotNil(withGroup);

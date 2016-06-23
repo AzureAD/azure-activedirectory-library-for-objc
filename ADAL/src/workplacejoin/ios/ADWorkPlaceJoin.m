@@ -49,7 +49,7 @@ static ADWorkPlaceJoin* wpjManager;
     self = [super init];
     if (self) {
         [ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager].workplaceJoin = self;
-        _sharedGroup = [NSString stringWithFormat:@"%@.%@", [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix], _defaultSharedGroup];
+        _sharedGroup = [NSString stringWithFormat:@"%@.%@", [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  keychainTeamId], _defaultSharedGroup];
     }
     return self;
 }
