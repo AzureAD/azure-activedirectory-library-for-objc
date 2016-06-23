@@ -30,6 +30,12 @@
 
 @implementation ADAuthenticationResult (Internal)
 
+// ADAL_RESILIENCY_NOT_YET: Remove when we add feature to public API
+- (BOOL)extendedLifeTimeToken
+{
+    return _extendedLifeTimeToken;
+}
+
 - (id)initWithCancellation:(NSUUID*)correlationId
 {
     ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation:correlationId];

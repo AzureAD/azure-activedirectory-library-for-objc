@@ -256,9 +256,6 @@ typedef enum
     definition for details */
 @property ADCredentialsType credentialsType;
 
-/*! Enable to return access token with extended lifttime during server outage. */
-@property BOOL extendedLifetimeEnabled;
-
 /*! The name of the component using this authentication context. Used in some logging and telemetry
     for clarification purposes. */
 @property (retain) NSString* logComponent;

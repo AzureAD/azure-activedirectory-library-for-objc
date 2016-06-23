@@ -81,6 +81,10 @@ extern NSString* const ADRedirectUriInvalidError;
 
 - (BOOL)hasCacheStore;
 
+// ADAL_RESILIENCY_NOT_YET: Move back to public header
+/*! Enable to return access token with extended lifetime during server outage. */
+@property BOOL extendedLifetimeEnabled;
+
 @end
 
 @interface ADAuthenticationContext (CacheStorage)
