@@ -34,6 +34,18 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 
 @implementation ADAuthenticationContext (Internal)
 
+// ADAL_RESILIENCY_NOT_YET: Remove when feature goes into public API
+- (BOOL)extendedLifetimeEnabled
+{
+    return _extendedLifetimeEnabled;
+}
+
+// ADAL_RESILIENCY_NOT_YET: Remove when feature goes into public API
+- (void)setExtendedLifetimeEnabled:(BOOL)extendedLifetimeEnabled
+{
+    _extendedLifetimeEnabled = extendedLifetimeEnabled;
+}
+
 /*! Verifies that the string parameter is not nil or empty. If it is,
  the method generates an error and set it to an authentication result.
  Then the method calls the callback with the result.
