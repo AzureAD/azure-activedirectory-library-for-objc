@@ -10,6 +10,7 @@ static UIAlertView *alert;
 
 + (void)presentCredentialAlert:(void (^)(NSUInteger))handler {
     
+#if !ADAL_EXTENSION_SAFE
     NSBundle* bundle = [ADALFrameworkUtils frameworkBundle];
     if (!bundle)
     {
@@ -32,6 +33,9 @@ static UIAlertView *alert;
     dispatch_async(dispatch_get_main_queue(), ^(void){
         [alert show];
     });
+#else
+    handler(0);
+#endif
 }
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
