@@ -26,7 +26,7 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "ADRegistrationInformation.h"
 #import "NSString+ADHelperMethods.h"
-#import "ADWorkPlaceJoin.h"
+#import "ADWorkPlaceJoinUtil.h"
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "ADJwtHelper.h"
@@ -66,10 +66,29 @@
 }
 
 
-+ (nonnull NSString*)createDeviceAuthResponse:(NSString*)authorizationServer
-                                challengeData:(NSDictionary*) challengeData
++ (nonnull NSString*)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
+                                challengeData:(nullable NSDictionary*)challengeData
+                                correlationId:(nullable NSUUID *)correlationId
+                                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
-    ADRegistrationInformation *info = [[ADWorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
+    ADAuthenticationError* adError = nil;
+    ADRegistrationInformation *info =
+    [ADWorkPlaceJoinUtil getRegistrationInformation:correlationId
+                                              error:&adError];
+    
+    if (!info && adError)
+    {
+        // If some error ocurred other then "I found nothing in the keychain" we want to short circuit out of
+        // the rest of the code, but if there was no error, we still create a response header, even if we
+        // don't have registration info
+        
+        if (error)
+        {
+            *error = adError;
+        }
+        return nil;
+    }
+    
     
     if (!challengeData)
     {

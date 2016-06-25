@@ -121,7 +121,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         sharedGroup = [[NSBundle mainBundle] bundleIdentifier];
     }
     
-    NSString* teamId = [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager] keychainTeamId];
+    NSString* teamId = [ADWorkPlaceJoinUtil keychainTeamId];
     if (teamId)
     {
         _sharedGroup = [[NSString alloc] initWithFormat:@"%@.%@", teamId, sharedGroup];
