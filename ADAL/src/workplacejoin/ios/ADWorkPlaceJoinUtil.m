@@ -159,6 +159,7 @@
     
     dispatch_once(&s_once, ^{
         s_keychainTeamId = [self retrieveTeamIDFromKeychain];
+        SAFE_ARC_RETAIN(s_keychainTeamId);
         AD_LOG_INFO(([NSString stringWithFormat:@"Using \"%@\" Team ID for Keychain.", s_keychainTeamId]), nil, nil);
     });
     
