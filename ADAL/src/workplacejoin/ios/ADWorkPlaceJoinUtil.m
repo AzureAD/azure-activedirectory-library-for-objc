@@ -30,11 +30,15 @@
 
 @implementation ADWorkPlaceJoinUtil
 
+// Convenience macro for checking keychain status codes while looking up the WPJ
+// information. We don't send errors for errSecItemNotFound (because not having
+// WPJ information is an expected case) or errSecNoAccessForItem (because non-
+// Microsoft apps will not be able to access the workplace join information).
 #define CHECK_KEYCHAIN_STATUS(_operation) \
 { \
     if (status != noErr) \
     { \
-        if (status != errSecItemNotFound) \
+        if (!(status == errSecItemNotFound || status == errSecNoAccessForItem)) \
         { \
             ADAuthenticationError* adError = \
             [ADAuthenticationError keychainErrorFromOperation:_operation \
