@@ -38,7 +38,7 @@
 { \
     if (status != noErr) \
     { \
-        if (!(status == errSecItemNotFound || status == errSecNoAccessForItem)) \
+        if (!(status == errSecItemNotFound || status == -25243)) \
         { \
             ADAuthenticationError* adError = \
             [ADAuthenticationError keychainErrorFromOperation:_operation \
