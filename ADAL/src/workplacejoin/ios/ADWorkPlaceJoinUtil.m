@@ -86,7 +86,6 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     NSData *privateKeyData = nil;
     NSString *certificateIssuer = nil;
     NSString *userPrincipalName = nil;
-    error = nil;
     
     NSMutableDictionary *identityAttr = [[NSMutableDictionary alloc] init];
     SAFE_ARC_AUTORELEASE(identityAttr);
