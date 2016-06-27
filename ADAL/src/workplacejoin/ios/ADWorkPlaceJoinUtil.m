@@ -30,18 +30,6 @@
 
 @implementation ADWorkPlaceJoinUtil
 
-ADWorkPlaceJoinUtil* wpjUtilManager = nil;
-
-+ (ADWorkPlaceJoinUtil*) WorkPlaceJoinUtilManager;
-{
-    if (!wpjUtilManager)
-    {
-        wpjUtilManager = [[self alloc] init];
-    }
-    
-    return wpjUtilManager;
-}
-
 #define CHECK_KEYCHAIN_STATUS(_operation) \
 { \
     if (status != noErr) \

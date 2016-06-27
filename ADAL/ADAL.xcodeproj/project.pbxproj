@@ -230,6 +230,7 @@
 		94E0FD8E1C59614B00CD707B /* ADTokenCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 9453C3C61C583AE6006B9E79 /* ADTokenCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		97A522491A1A752D001D77CE /* ADClientMetrics.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A522481A1A752D001D77CE /* ADClientMetrics.m */; };
 		97A522501A1A8999001D77CE /* ADClientMetricsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */; };
+		D68040301D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D680402F1D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m */; };
 		D6E43A6A1B04026D000F5BE2 /* ADAuthenticationContext+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E43A691B04026D000F5BE2 /* ADAuthenticationContext+Internal.m */; };
 		D6F095151CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D6F095131CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h */; };
 		D6F095161CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F095141CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m */; };
@@ -468,6 +469,7 @@
 		97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetricsTests.m; sourceTree = "<group>"; };
 		97A522511A1A89C4001D77CE /* ADClientMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADClientMetrics.h; sourceTree = "<group>"; };
 		97EEE7B41A4C0D6000D003F8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		D680402F1D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWorkPlaceJoinUtil.m; sourceTree = "<group>"; };
 		D6E43A681B04026D000F5BE2 /* ADAuthenticationContext+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationContext+Internal.h"; sourceTree = "<group>"; };
 		D6E43A691B04026D000F5BE2 /* ADAuthenticationContext+Internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ADAuthenticationContext+Internal.m"; sourceTree = "<group>"; };
 		D6F095131CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAcquireTokenSilentHandler.h; sourceTree = "<group>"; };
@@ -938,6 +940,7 @@
 		94E0FD901C597A4700CD707B /* mac */ = {
 			isa = PBXGroup;
 			children = (
+				D680402F1D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m */,
 			);
 			path = mac;
 			sourceTree = "<group>";
@@ -1306,6 +1309,7 @@
 				9453C42B1C58646D006B9E79 /* ADAuthenticationRequest+AcquireAssertion.m in Sources */,
 				9453C4141C586456006B9E79 /* ADLogger.m in Sources */,
 				9453C41B1C586456006B9E79 /* ADClientMetrics.m in Sources */,
+				D68040301D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m in Sources */,
 				9453C43D1C58647E006B9E79 /* ADALFrameworkUtils.m in Sources */,
 				9453C4371C586476006B9E79 /* ADCustomHeaderHandler.m in Sources */,
 				9453C4271C586462006B9E79 /* ADTokenCacheKey.m in Sources */,
