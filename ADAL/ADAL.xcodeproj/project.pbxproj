@@ -285,7 +285,7 @@
 		8B0965A817F25770002BDFB8 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
-			dstPath = "include/$(PRODUCT_NAME)";
+			dstPath = include/ADAL;
 			dstSubfolderSpec = 16;
 			files = (
 				9453C3EB1C5851D2006B9E79 /* ADAL.h in Copy Files */,
