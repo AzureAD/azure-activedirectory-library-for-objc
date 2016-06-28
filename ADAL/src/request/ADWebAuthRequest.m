@@ -216,8 +216,17 @@
         AD_LOG_ERROR_F(@"Unparseable wwwAuthHeader received.", AD_ERROR_SERVER_WPJ_REQUIRED, _correlationId, @"%@", wwwAuthHeaderValue);
     }
     
+    ADAuthenticationError* adError = nil;
     NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:[_requestURL absoluteString]
-                                                        challengeData:authHeaderParams];
+                                                        challengeData:authHeaderParams
+                                                        correlationId:_correlationId
+                                                                error:&adError];
+    
+    if (!authHeader)
+    {
+        [self handleADError:adError completionBlock:completionBlock];
+        return;
+    }
     
     // Add Authorization response header to the headers of the request
     [self.headers setObject:authHeader forKey:@"Authorization"];
