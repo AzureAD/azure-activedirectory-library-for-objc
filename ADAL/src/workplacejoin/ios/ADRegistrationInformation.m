@@ -32,72 +32,55 @@
 @synthesize certificateData = _certificateData;
 @synthesize certificateIssuer = _certificateIssuer;
 @synthesize privateKey = _privateKey;
-@synthesize privateKeyData = _privateKeyData;
 
--(id)initWithSecurityIdentity:(SecIdentityRef)identity
-            userPrincipalName:(NSString*)userPrincipalName
-            certificateIssuer:(NSString*)certificateIssuer
-                  certificate:(SecCertificateRef)certificate
-           certificateSubject:(NSString*)certificateSubject
-              certificateData:(NSData*)certificateData
-                   privateKey:(SecKeyRef)privateKey
-               privateKeyData:(NSData *)privateKeyData
+- (id)initWithSecurityIdentity:(SecIdentityRef)identity
+             userPrincipalName:(NSString*)userPrincipalName
+             certificateIssuer:(NSString*)certificateIssuer
+                   certificate:(SecCertificateRef)certificate
+            certificateSubject:(NSString*)certificateSubject
+               certificateData:(NSData*)certificateData
+                    privateKey:(SecKeyRef)privateKey
 
 {
-    self = [super init];
-    if(self)
+    if (!(self = [super init]))
     {
-        _securityIdentity = identity;
-        _userPrincipalName = userPrincipalName;
-        _certificate = certificate;
-        _certificateSubject = certificateSubject;
-        _certificateData = certificateData;
-        _privateKey = privateKey;
-        _privateKeyData = privateKeyData;
-        _certificateIssuer = certificateIssuer;
-        return self;
+        return nil;
     }
-    return nil;
+    
+    // ARC is not aware of Core Foundation objects, so they still have to be
+    // manually retained and released.
+    _securityIdentity = identity;
+    CFRetain(identity);
+    _certificate = certificate;
+    CFRetain(certificate);
+    _privateKey = privateKey;
+    CFRetain(privateKey);
+    
+    _userPrincipalName = userPrincipalName;
+    _certificateSubject = certificateSubject;
+    _certificateData = certificateData;
+    _certificateIssuer = certificateIssuer;
+
+    return self;
 }
 
-- (BOOL) isWorkPlaceJoined{
+- (void)dealloc
+{
+    // ARC is not aware of Core Foundation objects, so they still have to be
+    // manually retained and released.
+    CFRelease(_securityIdentity);
+    _securityIdentity = NULL;
+    
+    CFRelease(_certificate);
+    _certificate = NULL;
+    
+    CFRelease(_privateKey);
+    _privateKey = NULL;
+}
+
+- (BOOL)isWorkPlaceJoined
+{
     return _certificate != nil;
-}
-
-
--(void) releaseData{
-    if(self){
-        if(_securityIdentity){
-            CFRelease(_securityIdentity);
-            _securityIdentity = nil;
-        }
-        
-        if(_certificate){
-            CFRelease(_certificate);
-            _certificate = nil;
-        }
-        
-        if(_privateKey){
-            CFRelease(_privateKey);
-            _privateKey = nil;
-        }
-        
-        if(_certificateSubject){
-            _certificateSubject = nil;
-        }
-        
-        if(_certificateData){
-            _certificateData = nil;
-        }
-        
-        if(_userPrincipalName){
-            _userPrincipalName = nil;
-        }
-        
-        if(_certificateIssuer){
-            _certificateIssuer = nil;
-        }
-    }
 }
 
 @end
