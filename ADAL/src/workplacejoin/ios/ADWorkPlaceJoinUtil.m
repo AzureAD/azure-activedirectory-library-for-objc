@@ -103,7 +103,7 @@
     // now get the identity out and use it.
     [identityAttr removeObjectForKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
     status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)&identity);
-    CFBridgingRelease(identity)
+    CFBridgingRelease(identity);
     CHECK_KEYCHAIN_STATUS(@"retrieve wpj identity ref");;
     if (CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
