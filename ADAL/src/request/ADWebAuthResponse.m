@@ -76,6 +76,7 @@
 {
     SAFE_ARC_RELEASE(_responseDictionary);
     SAFE_ARC_RELEASE(_request);
+    SAFE_ARC_RELEASE(_correlationId);
     SAFE_ARC_SUPER_DEALLOC();
 }
 
