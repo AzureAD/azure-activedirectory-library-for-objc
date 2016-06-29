@@ -74,7 +74,7 @@
     }
     
     [bits setLength:keyBufferSize];
-    return [[NSString alloc] initWithData:bits encoding:NSASCIIStringEncoding];
+    return [[NSString alloc] initWithData:bits encoding:NSUTF8StringEncoding];
 }
 
 
@@ -83,26 +83,26 @@
 {
     NSData* signedHash = nil;
     size_t signedHashBytesSize = SecKeyGetBlockSize(privateKey);
-    uint8_t* signedHashBytes = malloc(signedHashBytesSize);
-    if(!signedHashBytes){
+    uint8_t* signedHashBytes = calloc(signedHashBytesSize, 1);
+    if(!signedHashBytes)
+    {
         return nil;
     }
     
-    memset(signedHashBytes, 0x0, signedHashBytesSize);
-    
-    size_t hashBytesSize = CC_SHA256_DIGEST_LENGTH;
-    uint8_t* hashBytes = malloc(hashBytesSize);
-    if(!hashBytes){
+    uint8_t* hashBytes = calloc(CC_SHA256_DIGEST_LENGTH, 1);
+    if(!hashBytes)
+    {
         free(signedHashBytes);
         return nil;
     }
     
-    if (!CC_SHA256([plainData bytes], (CC_LONG)[plainData length], hashBytes)) {
+    if (!CC_SHA256([plainData bytes], (CC_LONG)[plainData length], hashBytes))
+    {
         [ADLogger log:ADAL_LOG_LEVEL_ERROR context:self message:@"Could not compute SHA265 hash." errorCode:AD_ERROR_UNEXPECTED info:nil correlationId:nil userInfo:nil];
-        if (hashBytes)
-            free(hashBytes);
-        if (signedHashBytes)
-            free(signedHashBytes);
+        
+        free(hashBytes);
+        free(signedHashBytes);
+        
         return nil;
     }
     OSStatus status = errSecAuthFailed;
@@ -110,24 +110,27 @@
     status = SecKeyRawSign(privateKey,
                            kSecPaddingPKCS1SHA256,
                            hashBytes,
-                           hashBytesSize,
+                           CC_SHA256_DIGEST_LENGTH,
                            signedHashBytes,
                            &signedHashBytesSize);
 #else
     // TODO: Use SecSignTransformCreate on OS X, SecKeyRawSign is not available on OS X
 #endif
     
-    [ADLogger log:ADAL_LOG_LEVEL_INFO context:self message:@"Status returned from data signing - " errorCode:status info:nil correlationId:nil userInfo:nil];
+    if (status != errSecSuccess)
+    {
+        AD_LOG_ERROR(@"Failed to sign JWT", status, nil, nil);
+        free(hashBytes);
+        free(signedHashBytes);
+        return nil;
+    }
+
     signedHash = [NSData dataWithBytes:signedHashBytes
                                 length:(NSUInteger)signedHashBytesSize];
     
-    if (hashBytes) {
-        free(hashBytes);
-    }
-    
-    if (signedHashBytes) {
-        free(signedHashBytes);
-    }
+    free(hashBytes);
+    free(signedHashBytes);
+        
     return signedHash;
 }
 

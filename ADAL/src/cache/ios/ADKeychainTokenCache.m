@@ -272,7 +272,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
 }
 
 
-- (ADTokenCacheItem*)itemFromKeyhainAttributes:(NSDictionary*)attrs
+- (ADTokenCacheItem*)itemFromKeychainAttributes:(NSDictionary*)attrs
 {
     NSData* data = [attrs objectForKey:(id)kSecValueData];
     if (!data)
@@ -280,20 +280,27 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         AD_LOG_WARN(@"Retrieved item with key that did not have generic item data!", nil, nil);
         return nil;
     }
-    
-    ADTokenCacheItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    if (!item)
+    @try
     {
-        AD_LOG_WARN(@"Unable to decode item from data stored in keychain.", nil, nil);
+        ADTokenCacheItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+        if (!item)
+        {
+            AD_LOG_WARN(@"Unable to decode item from data stored in keychain.", nil, nil);
+            return nil;
+        }
+        if (![item isKindOfClass:[ADTokenCacheItem class]])
+        {
+            AD_LOG_WARN(@"Unarchived Item was not of expected class", nil, nil);
+            return nil;
+        }
+        
+        return item;
+    }
+    @catch (NSException *exception)
+    {
+        AD_LOG_WARN(@"Failed to deserialize data from keychain", nil, nil);
         return nil;
     }
-    if (![item isKindOfClass:[ADTokenCacheItem class]])
-    {
-        AD_LOG_WARN(@"Unarchived Item was not of expected class", nil, nil);
-        return nil;
-    }
-    
-    return item;
 }
 
 #pragma mark -
@@ -606,7 +613,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     SAFE_ARC_AUTORELEASE(tokenItems);
     for (NSDictionary* attrs in items)
     {
-        ADTokenCacheItem* item = [self itemFromKeyhainAttributes:attrs];
+        ADTokenCacheItem* item = [self itemFromKeychainAttributes:attrs];
         if (!item)
         {
             continue;

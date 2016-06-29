@@ -75,7 +75,6 @@
     SecKeyRef privateKey = NULL;
     NSString *certificateSubject = nil;
     NSData *certificateData = nil;
-    NSData *privateKeyData = nil;
     NSString *certificateIssuer = nil;
     NSString *userPrincipalName = nil;
     
@@ -104,7 +103,8 @@
     // now get the identity out and use it.
     [identityAttr removeObjectForKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
     status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)&identity);
-    CHECK_KEYCHAIN_STATUS(@"retrieve wpj identity ref");
+    CFBridgingRelease(identity);
+    CHECK_KEYCHAIN_STATUS(@"retrieve wpj identity ref");;
     if (CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
         ADAuthenticationError* adError =
@@ -119,9 +119,11 @@
     }
     //Get the certificate and data
     status = SecIdentityCopyCertificate(identity, &certificate);
+    CFBridgingRelease(certificate);
     CHECK_KEYCHAIN_STATUS(@"copy identity certificate");
     
     status = SecIdentityCopyPrivateKey(identity, &privateKey);
+    CFBridgingRelease(privateKey);
     CHECK_KEYCHAIN_STATUS(@"copy identity private key");
     
     certificateSubject = (NSString *)CFBridgingRelease(SecCertificateCopySubjectSummary(certificate));
@@ -146,8 +148,7 @@
                                                                                       certificate:certificate
                                                                                certificateSubject:certificateSubject
                                                                                   certificateData:certificateData
-                                                                                       privateKey:privateKey
-                                                                                   privateKeyData:privateKeyData];
+                                                                                       privateKey:privateKey];
     SAFE_ARC_AUTORELEASE(info);
     return info;
 }
