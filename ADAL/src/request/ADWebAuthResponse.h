@@ -21,49 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@class ADWebRequest;
-@class ADWebResponse;
+#import <Foundation/Foundation.h>
 
-@interface ADWebRequest : NSObject <NSURLConnectionDelegate>
+@class ADWebResponse;
+@class ADWebAuthRequest;
+
+@interface ADWebAuthResponse : NSObject
 {
-    NSURLConnection * _connection;
-    
-    NSURL * _requestURL;
-    NSMutableDictionary* _requestHeaders;
-    NSData * _requestData;
-    
-    NSHTTPURLResponse * _response;
-    NSMutableData * _responseData;
-    
-    NSUUID * _correlationId;
-    
-    NSUInteger _timeout;
-    
-    NSOperationQueue * _operationQueue;
-    
-    BOOL _isGetRequest;
-    
-    void (^_completionHandler)( NSError *, ADWebResponse *);
+    NSMutableDictionary* _responseDictionary;
+    ADWebAuthRequest* _request;
+    ADWebAuthRequest* _retryRequest;
+    NSUUID* _correlationId;
 }
 
-@property (strong, readonly, nonatomic) NSURL               *URL;
-@property (copy, nonatomic)             NSMutableDictionary *headers;
-@property (strong)                      NSData              *body;
-@property (nonatomic)                   NSUInteger           timeout;
-@property BOOL isGetRequest;
-@property (readonly) NSUUID* correlationId;
++ (void)processError:(NSError *)error
+       correlationId:(NSUUID *)correlationId
+          completion:(void (^)(NSDictionary *))completionBlock;
 
-- (id)initWithURL: (NSURL*)url
-    correlationId: (NSUUID*) correlationId;
-
-- (void)send:( void (^)( NSError *, ADWebResponse *) )completionHandler;
-
-/*!
-    Resends a request. Note, this will cause the completionHandler previously set
-    in -send: to be hit again. As such this method should only be called from
-    within the completionHandler block on -send:
- */
-- (void)resend;
++ (void)processResponse:(ADWebResponse *)webResponse
+                request:(ADWebAuthRequest *)request
+             completion:(void (^)(NSDictionary *))completionBlock;
 
 @end
-

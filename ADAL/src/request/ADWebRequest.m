@@ -49,6 +49,7 @@
 @synthesize headers  = _requestHeaders;
 @synthesize timeout  = _timeout;
 @synthesize isGetRequest = _isGetRequest;
+@synthesize correlationId = _correlationId;
 
 - (NSData *)body
 {
@@ -141,12 +142,7 @@
     SAFE_ARC_RELEASE(_connection);
     _connection     = nil;
     
-    if ( _completionHandler != nil )
-    {
-        _completionHandler( error, response );
-        SAFE_ARC_RELEASE(_completionHandler);
-        _completionHandler = nil;
-    }
+    _completionHandler(error, response);
 }
 
 - (void)send:(void (^)(NSError *, ADWebResponse *))completionHandler
@@ -159,6 +155,16 @@
     SAFE_ARC_RELEASE(_responseData);
     _responseData      = [[NSMutableData alloc] init];
     
+    [self send];
+}
+
+- (void)resend
+{
+    SAFE_ARC_RELEASE(_response);
+    _response          = nil;
+    SAFE_ARC_RELEASE(_responseData);
+    _responseData      = [[NSMutableData alloc] init];
+
     [self send];
 }
 
