@@ -1,4 +1,13 @@
-Version 2.2.0
+Version 2.2.1
+-------------
+* Added support for iOS 9's -application:openURL:options: method (#662)
+* Fixed a bug that caused the NTLM dialog to not appear (#666)
+* Properly handle keychain errors that happen while retrieving Workplace Join information (#685)
+* Added support for ADAL to use Keychain access groups in the Simulator when available (#670)
+* Fixed the include path when consuming ADAL as a static library (#630)
+* Error codes will appear as strings (ie. "AD_ERROR_SERVER_USER_INPUT_REQUIRED") in error messages now.
+
+Version 2.2.0 (05.16.2016)
 -------------
 * Added support for Family of Client IDs among Microsoft apps
 * (iOS Only) Added +[ADKeychainTokenCache defaultKeychainCache] and +[ADKeychainTokenCache keychainCacheForGroup:] APIs to make how to use the keychain token cache APIs more discoverable.
@@ -7,19 +16,19 @@ Version 2.2.0
 * Set the 'Skip Install' setting to 'YES' on all framework and static library targets.
 
 
-Version 2.1.2
+Version 2.1.2 (05.02.2016)
 -------------
-* Restored the fix for ADKeychainTokenCache that was overriden in a git merge.
+* Restored the fix for ADKeychainTokenCache that was overridden in a git merge.
 
 
-Version 2.1.1
+Version 2.1.1 (04.27.2016)
 _____________
 * Added underlying errors to ADAuthenticationErrors when returning user interaction required
 * Fixed a crash in ADKeychainTokenCache
 * Add Azure Germany, and login-us to the list of known good Azure AD Authorities
 * Refresh Tokens will only be removed on 'invalid_grant' OAuth errors now.
 
-Version 2.1.0
+Version 2.1.0 (04.15.2016)
 _____________
 (See the GitHub release page for a more detailed list)
 * Mac OS X Support
@@ -35,61 +44,57 @@ _____________
 * Changed APIs in ADAuthenticationSettings
 * Added ADUserIdentifier API.
 
+Version 1.2.7 (05.26.2016)
+--------------------------
+(Note: We recommend using 2.2 or later, as support for 1.2.x will end in the near future.)
+* Allow device authentication from the token endpoint for Microsoft applications
 
-Version 1.2.6
-_____________
-* Whitelisted "about:blank" on the ADAL webview redirect filter.
+Version 1.2.6 (04.12.2016)
+--------------------------
+* Remove broker code that had been merged in pre-maturely.
+* Whitelist "about:blank" when checking for insecure connections
 
-
-Version 1.2.5
-_____________
+Version 1.2.5 (05.16.2016)
+--------------------------
 * Fix for a crash in ADClientMetrics when using ADAL directly against ADFS
-* Fix a correlation ID synchronization issue that could cause crashes
-* Added token removal logging
-* Redirects and forwards to unsecure endpoints (HTTP) will be blocked in the ADAL webview
 
-Version 1.2.4
--------------
+Version 1.2.4 (05.15.2015)
+--------------------------
 * Support NTLM for developers who provide custom webview.
 
-Version 1.2.3
--------------
+Version 1.2.3 (05.18.2015)
+--------------------------
 * Fix a bug (#316) where non-ASCII input would result in a nil base64 value.
 
-Version 1.2.2
--------------
+Version 1.2.2 (03.23.2015)
+--------------------------
 * Fix a bug where a webpage would show blank screen when custom headers were sent.
 
-Version 1.2.1
--------------
+Version 1.2.1 (02.18.2015)
+--------------------------
 * Fix a crash in iOS 7.1 when NTLM alert is shown.
 
-Version 1.2.0
--------------
+Version 1.2.0 (02.05.2015)
+--------------------------
 * Support for NTLM login.
 * Addition of a master header file (ADAL.h) for easy developer access to the API.
 * Fix to cancel the webview when the user clicks "Enroll" button to initiate workplace join.
-* Fix for Issue #246.
-* Fix for Issue #245.
+* Added "login.microsoftonline.com" to the hardcoded whitelist of AAD Authorities (#246)
+* Change default keychain accessibility attribute to kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly (#245)
 
-Version 1.1.12
---------------
+Version 1.1.12 (12.20.2014)
+---------------------------
 * Fix to ignore navigation type in the webview. It was blocking users from enrolling their device.
 
-Version 1.1.11
---------------
-This release contains bug fixes and updates for an improved developer experience. Given below is the changelist -
-
+Version 1.1.11 (12.11.2014)
+---------------------------
 * Added support for client assertion to acquire token.
 * Client Metric reporting support for improved service analytics.
-* Updated logging messages to include ADAL version and correlation id.
-* Fixed Issue #230.
-* Fixed Issue #229.
+* Updated logging messages to include ADAL version and correlation id (#230)
+* ADAL now always sends PKeyAuth header (#229)
 
-Version 1.1.10
---------------
-This release contains several bug fixes and updates for an improved developer experience. Given below is the changelist -
-
+Version 1.1.10 (11.06.2014)
+---------------------------
 * Fixed incorrect casing in the import that could break the build on the case sensitive file system.
 * Commented code cleanup.
 * Fixed Issue #180.
@@ -99,37 +104,35 @@ This release contains several bug fixes and updates for an improved developer ex
 * Fixed Issue #138.
 
 
-Version 1.1.9
---------------
+Version 1.1.9 (10.19.2014)
+--------------------------
 Hotfix to address the incorrect casing in an import statement. Without this fix, the build will fail on case insensitive file systems.
 
 
-Version 1.1.8
---------------
+Version 1.1.8 (10.18.2014)
+--------------------------
 This release removes the OpenSSL dependency that was used to read certificate information.
 
 
-Version 1.1.7
---------------
+Version 1.1.7 (10.06.2014)
+--------------------------
 Added a fix for leaky timers in case of server redirects.
 
 
-Version 1.1.6
---------------
+Version 1.1.6 (09.30.2014)
+--------------------------
 Fixed pod spec with OpenSSL dependency.
 
 
-Version 1.1.5
---------------
-This release includes -
-
-1) Hotfix for double free error
-2) Removing extraction of private key bits.
-3) ParentController dismissal fix.
+Version 1.1.5 (09.23.2014)
+--------------------------
+* Hotfix for double free error
+* Removing extraction of private key bits.
+* ParentController dismissal fix.
 
 
-Version 1.1.4
---------------
+Version 1.1.4 (09.21.2014)
+--------------------------
 This release includes bug fixes for PkeyAuth protocol. Given below is a cumulative list of fixes and updates in 1.1.x releases.
 
 * Support for PKeyAuth protocol to acquire conditional access claims (device claims). Developer should add "com.microsoft.workplacejoin" to entitlements.
@@ -140,3 +143,16 @@ This release includes bug fixes for PkeyAuth protocol. Given below is a cumulati
 * Fixed the issue where the root view controller was being dismissed upon web view cancellation.
 * Fixed memory leaks and added allocation checks.
 * Fixed cache issue where adal would error out while getting token for 3rd unique user.
+
+Version 1.1.3 (09.16.2014)
+--------------------------
+* Support for PKeyAuth
+
+
+Version 1.0.2 (07.15.2014)
+--------------------------
+ADAL for iOS GA Release
+
+Version 0.5-alpha (01.21.2014)
+------------------------------
+ADAL for iOS Preview
