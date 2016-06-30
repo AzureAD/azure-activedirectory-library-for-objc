@@ -46,8 +46,6 @@ const int sAsyncContextTimeout = 10;
 }
 @end
 
-#define TEST_SIGNAL dispatch_semaphore_signal(_dsem)
-#define TEST_WAIT dispatch_semaphore_wait(_dsem, DISPATCH_TIME_FOREVER)
 
 @implementation ADAcquireTokenTests
 

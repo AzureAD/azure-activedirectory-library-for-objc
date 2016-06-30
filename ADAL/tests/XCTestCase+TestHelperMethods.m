@@ -393,6 +393,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                               authority:authority
                                resource:resource
                                clientId:clientId
+                         requestHeaders:nil
                           correlationId:correlationId
                         newRefreshToken:newRefreshToken
                          newAccessToken:newAccessToken
@@ -408,14 +409,27 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                newAccessToken:(NSString *)newAccessToken
                              additionalFields:(NSDictionary *)additionalFields
 {
-    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
-    
-    NSDictionary* headers = nil;
-    if (correlationId)
-    {
-        headers = @{ OAUTH2_CORRELATION_ID_REQUEST_VALUE : [correlationId UUIDString] };
-    }
-    
+    return [self adResponseRefreshToken:oldRefreshToken
+                              authority:authority
+                               resource:resource
+                               clientId:clientId
+                         requestHeaders:nil
+                          correlationId:correlationId
+                        newRefreshToken:newRefreshToken
+                         newAccessToken:newAccessToken
+                       additionalFields:additionalFields];
+}
+
+- (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
+                                    authority:(NSString *)authority
+                                     resource:(NSString *)resource
+                                     clientId:(NSString *)clientId
+                               requestHeaders:(NSDictionary *)requestHeaders
+                                correlationId:(NSUUID *)correlationId
+                              newRefreshToken:(NSString *)newRefreshToken
+                               newAccessToken:(NSString *)newAccessToken
+                             additionalFields:(NSDictionary *)additionalFields
+{
     NSDictionary* jsonBody = @{ OAUTH2_REFRESH_TOKEN : newRefreshToken,
                                 OAUTH2_ACCESS_TOKEN : newAccessToken,
                                 OAUTH2_RESOURCE : resource };
@@ -427,17 +441,68 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
         jsonBody = combinedDictionary;
     }
     
+    return [self adResponseRefreshToken:oldRefreshToken
+                              authority:authority
+                               resource:resource
+                               clientId:clientId
+                         requestHeaders:requestHeaders
+                          correlationId:correlationId
+                           responseCode:400
+                        responseHeaders:nil
+                           responseJson:jsonBody];
+}
+
+- (ADTestURLResponse *)adDefaultRefreshReponseCode:(NSInteger)responseCode
+                                   responseHeaders:(NSDictionary *)responseHeaders
+                                      responseJson:(NSDictionary *)responseJson
+{
+    return [self adResponseRefreshToken:TEST_REFRESH_TOKEN
+                              authority:TEST_AUTHORITY
+                               resource:TEST_RESOURCE
+                               clientId:TEST_CLIENT_ID
+                         requestHeaders:nil
+                          correlationId:TEST_CORRELATION_ID
+                           responseCode:responseCode
+                        responseHeaders:responseHeaders
+                           responseJson:responseJson];
+}
+
+- (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
+                                    authority:(NSString *)authority
+                                     resource:(NSString *)resource
+                                     clientId:(NSString *)clientId
+                               requestHeaders:(NSDictionary *)requestHeaders
+                                correlationId:(NSUUID *)correlationId
+                                 responseCode:(NSInteger)responseCode
+                              responseHeaders:(NSDictionary *)responseHeaders
+                                 responseJson:(NSDictionary *)responseJson
+
+{
+    NSString* requestUrlString = [NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, authority];
+    
+    if (requestHeaders && correlationId)
+    {
+        NSMutableDictionary* mutableHeaders = [requestHeaders mutableCopy];
+        [mutableHeaders setObject:[correlationId UUIDString] forKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE];
+        requestHeaders = mutableHeaders;
+        SAFE_ARC_AUTORELEASE(mutableHeaders);
+    }
+    else if (correlationId)
+    {
+        requestHeaders = @{ OAUTH2_CORRELATION_ID_REQUEST_VALUE : [correlationId UUIDString] };
+    }
+    
     ADTestURLResponse* response =
     [ADTestURLResponse requestURLString:requestUrlString
-                         requestHeaders:headers
+                         requestHeaders:requestHeaders
                       requestParamsBody:@{ OAUTH2_GRANT_TYPE : @"refresh_token",
                                            OAUTH2_REFRESH_TOKEN : oldRefreshToken,
                                            OAUTH2_RESOURCE : resource,
                                            OAUTH2_CLIENT_ID : clientId }
                       responseURLString:@"https://contoso.com"
-                           responseCode:400
-                       httpHeaderFields:@{}
-                       dictionaryAsJSON:jsonBody];
+                           responseCode:responseCode
+                       httpHeaderFields:responseHeaders ? responseHeaders : @{}
+                       dictionaryAsJSON:responseJson];
     
     return response;
 
