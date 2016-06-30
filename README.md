@@ -334,3 +334,7 @@ iOS 9 added App Transport Security (ATS). ATS restricts apps from accessing the 
 ## License
 
 Copyright (c) Microsoft Corporation.  All rights reserved. Licensed under the MIT License (the "License"); 
+
+## We Value and Adhere to the Microsoft Open Source Code of Conduct
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
