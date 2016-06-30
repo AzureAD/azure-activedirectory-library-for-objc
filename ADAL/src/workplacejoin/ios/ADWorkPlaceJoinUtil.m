@@ -55,6 +55,17 @@
                                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSString* teamId = [self keychainTeamId];
+
+#if TARGET_OS_SIMULATOR
+    NSString* sharedAccessGroup = nil;
+    
+    // Only in the simulator if we don't have a shared access group we want the rest of the code to
+    // at least attempt to work.
+    if (teamId)
+    {
+        sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
+    }
+#else
     if (!teamId)
     {
         ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Unable to retrieve team ID from keychain." correlationId:correlationId];
@@ -65,8 +76,10 @@
         
         return nil;
     }
-    
     NSString* sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
+#endif
+    
+    
     
     AD_LOG_VERBOSE_F(@"Attempting to get registration information - ", nil, @"%@ shared access Group", sharedAccessGroup);
     
@@ -84,6 +97,9 @@
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnRef)];
     [identityAttr setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
+#if TARGET_OS_SIMULATOR
+    if (sharedAccessGroup)
+#endif
     [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
     
     CFDictionaryRef result = NULL;
