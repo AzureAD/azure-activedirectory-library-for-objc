@@ -46,7 +46,7 @@
                                                 correlationId:correlationId];\
             if (error) { *error = adError; } \
         } \
-        return nil; \
+        goto _error; \
     } \
 }
 
@@ -90,6 +90,8 @@
     NSData *certificateData = nil;
     NSString *certificateIssuer = nil;
     NSString *userPrincipalName = nil;
+    NSData *issuer = nil;
+    NSDictionary *  cerDict = nil;
     
     NSMutableDictionary *identityAttr = [[NSMutableDictionary alloc] init];
     SAFE_ARC_AUTORELEASE(identityAttr);
@@ -108,9 +110,9 @@
     status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef *)&result);
     CHECK_KEYCHAIN_STATUS(@"retrieve wpj identity attr");
             
-    NSDictionary *  cerDict = (__bridge NSDictionary *) result;
+    cerDict = (__bridge NSDictionary *) result;
     assert([cerDict isKindOfClass:[NSDictionary class]]);
-    NSData* issuer = [cerDict objectForKey:(__bridge id)kSecAttrIssuer];
+    issuer = [cerDict objectForKey:(__bridge id)kSecAttrIssuer];
     certificateIssuer = [[NSString alloc] initWithData:issuer encoding:NSISOLatin1StringEncoding];
     SAFE_ARC_AUTORELEASE(certificateIssuer);
     CFRelease(result);
@@ -119,10 +121,10 @@
     // now get the identity out and use it.
     [identityAttr removeObjectForKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
     status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)&identity);
-    CFBridgingRelease(identity);
     CHECK_KEYCHAIN_STATUS(@"retrieve wpj identity ref");;
     if (CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
+        CFRelease(identity);
         ADAuthenticationError* adError =
         [ADAuthenticationError unexpectedInternalError:@"Wrong object type returned from identity query"
                                          correlationId:correlationId];
@@ -135,11 +137,9 @@
     }
     //Get the certificate and data
     status = SecIdentityCopyCertificate(identity, &certificate);
-    CFBridgingRelease(certificate);
     CHECK_KEYCHAIN_STATUS(@"copy identity certificate");
     
     status = SecIdentityCopyPrivateKey(identity, &privateKey);
-    CFBridgingRelease(privateKey);
     CHECK_KEYCHAIN_STATUS(@"copy identity private key");
     
     certificateSubject = (NSString *)CFBridgingRelease(SecCertificateCopySubjectSummary(certificate));
@@ -158,15 +158,31 @@
         return nil;
     }
     
-    ADRegistrationInformation *info = [[ADRegistrationInformation alloc] initWithSecurityIdentity:identity
+    {
+        ADRegistrationInformation *info = [[ADRegistrationInformation alloc] initWithSecurityIdentity:identity
                                                                                 userPrincipalName:userPrincipalName
                                                                                 certificateIssuer:certificateIssuer
                                                                                       certificate:certificate
                                                                                certificateSubject:certificateSubject
                                                                                   certificateData:certificateData
                                                                                        privateKey:privateKey];
-    SAFE_ARC_AUTORELEASE(info);
-    return info;
+        SAFE_ARC_AUTORELEASE(info);
+        return info;
+    }
+_error:
+    if (identity)
+    {
+        CFRelease(identity);
+    }
+    if (certificate)
+    {
+        CFRelease(certificate);
+    }
+    if (privateKey)
+    {
+        CFRelease(privateKey);
+    }
+    return nil;
 }
 
 + (NSString*)keychainTeamId

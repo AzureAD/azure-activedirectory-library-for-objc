@@ -254,8 +254,8 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                                               additional:@{ (id)kSecMatchLimit : (id)kSecMatchLimitAll,
                                                             (id)kSecReturnData : @YES,
                                                             (id)kSecReturnAttributes : @YES}];
-    NSArray* items = nil;
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&items);
+    CFTypeRef items = nil;
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &items);
     if (status == errSecItemNotFound)
     {
         // We don't want to print an error in this case as it's usually not actually an error.
@@ -268,7 +268,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         return nil;
     }
     
-    return items;
+    return CFBridgingRelease(items);
 }
 
 
@@ -491,11 +491,12 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                                        (id)kSecReturnData : @YES,
                                        (id)kSecAttrService : s_keyForStoringTomestoneCleanTime }];
     
-    NSData* data = nil;
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&data);
+    CFTypeRef data = nil;
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &data);
     if (status == errSecSuccess && data)
     {
-        NSDate* cleanTime = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+        NSDate* cleanTime = [NSKeyedUnarchiver unarchiveObjectWithData:(__bridge NSData * _Nonnull)(data)];
+        CFRelease(data);
         if (cleanTime)
         {
             return cleanTime;
