@@ -1,4 +1,4 @@
-Version 2.2.1
+Version 2.2.1 (06.30.2015)
 -------------
 * Added support for iOS 9's -application:openURL:options: method (#662)
 * Fixed a bug that caused the NTLM dialog to not appear (#666)
@@ -6,6 +6,9 @@ Version 2.2.1
 * Added support for ADAL to use Keychain access groups in the Simulator when available (#670)
 * Fixed the include path when consuming ADAL as a static library (#630)
 * Error codes will appear as strings (ie. "AD_ERROR_SERVER_USER_INPUT_REQUIRED") in error messages now.
+* Limited support for App Extensions. ADAL now has an app extension safe build in both the Xcode project (iOS static lib only) and CocoaPod. Interactive Auth is not supported in extensions as well. (#560)
+* Fixed a bug that caused ADAL to erroneously unpercent encode query parameters being passed on. (#689)
+
 
 Version 2.2.0 (05.16.2016)
 -------------
