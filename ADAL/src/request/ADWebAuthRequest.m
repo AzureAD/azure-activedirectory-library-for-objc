@@ -81,8 +81,6 @@
     _startTime = [NSDate new];
     [[ADClientMetrics getInstance] addClientMetrics:self.headers endpoint:[_requestURL absoluteString]];
     
-    CFRetain((CFTypeRef)self);
-    
     [self send:^( NSError *error, ADWebResponse *webResponse )
     {
         if (error)
