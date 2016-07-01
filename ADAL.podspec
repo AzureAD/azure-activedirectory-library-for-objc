@@ -28,12 +28,10 @@ Pod::Spec.new do |s|
   s.header_dir = "ADAL"
   s.module_map = "ADAL/resources/mac/adal_mac.modulemap"
   
-  s.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/ios/*.h"
-  s.osx.public_header_files = "ADAL/src/public/mac/*.h","ADAL/src/public/*.h"
-  
   s.subspec 'app-lib' do |app|
   	app.source_files = "ADAL/src/**/*.{h,m}"
-  	app.public_header_files = "ADAL/src/public/*.h"
+  	app.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/ios/*.h"
+  	app.osx.public_header_files = "ADAL/src/public/mac/*.h","ADAL/src/public/*.h"
   
   	app.ios.exclude_files = "ADAL/src/**/mac/*"
   		
@@ -42,30 +40,24 @@ Pod::Spec.new do |s|
   	
   	app.requires_arc = true
   	
-  	app.dependency 'ADAL/tokencacheheader'
-  	app.osx.dependency 'ADAL/iosinternalheaders'
+  	app.ios.dependency 'ADAL/tokencacheheader'
   end
   
   # This is a hack because one of the headers is public on mac but private on ios
   s.subspec 'tokencacheheader' do |ph|
   	ph.platform = :ios
-  	ph.ios.source_files = "ADAL/src/public/mac/ADTokenCache.h","ADAL/src/public/ios/*.h"
+  	ph.ios.source_files = "ADAL/src/public/mac/ADTokenCache.h"
   	# This extra nonsense is so that it doesn't make ADTokenCache.h a public header on iOS
   	# And also doesn't generate a podspec warning
-  	ph.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/ios/*.h"
-  end
-  
-  s.subspec 'iosinternalheaders' do |hds|
-   hds.platform = :osx
-   hds.osx.source_files = "ADAL/src/workplacejoin/ios/ADWorkplaceJoinConstants.h","ADAL/src/broker/ios/*.h","ADAL/src/public/mac/*.h"
-   hds.osx.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/mac/*.h"
+  	ph.ios.private_header_files = "ADAL/src/public/mac/ADTokenCache.h"
   end
   
   # Note, ADAL has limited support for running in app extensions.
   s.subspec 'extension' do |ext|
   	ext.compiler_flags = '-DADAL_EXTENSION_SAFE=1'
   	ext.source_files = "ADAL/src/**/*.{h,m}"
-  	ext.public_header_files = "ADAL/src/public/*.h"
+  	ext.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/ios/*.h"
+  	ext.osx.public_header_files = "ADAL/src/public/mac/*.h","ADAL/src/public/*.h"
   
   	# There is currently a bug in CocoaPods where it doesn't combine the public headers
   	# for both the platform and overall.
@@ -74,7 +66,6 @@ Pod::Spec.new do |s|
   	
   	ext.requires_arc = true
   	
-  	ext.dependency 'ADAL/tokencacheheader'
-  	ext.osx.dependency 'ADAL/iosinternalheaders'
+  	ext.ios.dependency 'ADAL/tokencacheheader'
   end
 end
