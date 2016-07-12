@@ -158,7 +158,7 @@
     {
         // This is an app extension. Return an error unless a webview is specified by the
         // extension and embedded auth is being used.
-        BOOL isEmbeddedWebView = (_context.webView != nil) && (_context.credentialsType == AD_CREDENTIALS_EMBEDDED);
+        BOOL isEmbeddedWebView = (nil != _context.webView) && (AD_CREDENTIALS_EMBEDDED == _context.credentialsType);
         if (!isEmbeddedWebView)
         {
             ADAuthenticationError* error =
