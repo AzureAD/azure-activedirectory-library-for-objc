@@ -26,14 +26,14 @@
 #import "NSURL+ADExtensions.h"
 #import "ADErrorCodes.h"
 #import "NSString+ADHelperMethods.h"
-#import "ADWebRequest.h"
 #import "ADWebResponse.h"
 #import "ADAuthenticationSettings.h"
 #import "ADHelpers.h"
 #import "ADLogger+Internal.h"
 #import "ADURLProtocol.h"
+#import "ADWebRequest+NSURLSession.h"
 
-@interface ADWebRequest () <NSURLConnectionDelegate>
+@interface ADWebRequest () <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response;
 - (void)send;
@@ -58,39 +58,30 @@
 
 - (void)setBody:(NSData *)body
 {
-    if ( body != nil )
-    {
-        
-        if (_requestData == body)
-        {
+    if (body != nil) {
+        if (_requestData == body) {
             return;
         }
         SAFE_ARC_RELEASE(_requestData);
         _requestData = [body copy];
-        
-        // Add default HTTP Headers to the request: Expect
-        // Note that we don't bother with Expect because iOS does not support it
-        //[_requestHeaders setValue:@"100-continue" forKey:@"Expect"];
     }
 }
 
 #pragma mark - Initialization
 
-- (id)initWithURL:(NSURL *)requestURL
-    correlationId:(NSUUID *)correlationId
+- (id)initWithURL:(NSURL *)url correlationId:(NSUUID *)correlationId
 {
-    if (!(self = [super init]))
-    {
+    if (!(self = [super init])) {
         return nil;
     }
     
-    _requestURL        = [requestURL copy];
-    _requestHeaders    = [[NSMutableDictionary alloc] init];
+    _requestURL = [url copy];
+    _requestHeaders = [[NSMutableDictionary alloc] init];
     
     // Default timeout for ADWebRequest is 30 seconds
-    _timeout           = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
+    _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
     
-    _correlationId     = correlationId;
+    _correlationId = correlationId;
     SAFE_ARC_RETAIN(_correlationId);
     
     _operationQueue = [[NSOperationQueue alloc] init];
@@ -99,12 +90,8 @@
     return self;
 }
 
-
 - (void)dealloc
 {
-    SAFE_ARC_RELEASE(_connection);
-    _connection = nil;
-    
     SAFE_ARC_RELEASE(_requestURL);
     _requestURL = nil;
     
@@ -139,9 +126,6 @@
     SAFE_ARC_RELEASE(_responseData);
     _responseData   = nil;
     
-    SAFE_ARC_RELEASE(_connection);
-    _connection     = nil;
-    
     _completionHandler(error, response);
 }
 
@@ -164,146 +148,114 @@
     _response          = nil;
     SAFE_ARC_RELEASE(_responseData);
     _responseData      = [[NSMutableData alloc] init];
-
+    
     [self send];
 }
 
 - (void)send
 {
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
-    //Correlation id:
-    if (_correlationId)
-    {
+    // Correlation id:
+    if (_correlationId) {
         [_requestHeaders addEntriesFromDictionary:
          @{
            OAUTH2_CORRELATION_ID_REQUEST:@"true",
            OAUTH2_CORRELATION_ID_REQUEST_VALUE:[_correlationId UUIDString]
            }];
     }
+    
     // If there is request data, then set the Content-Length header
-    if ( _requestData != nil )
-    {
+    if (_requestData != nil) {
         [_requestHeaders setValue:[NSString stringWithFormat:@"%ld", (unsigned long)_requestData.length] forKey:@"Content-Length"];
     }
     
     NSURL* requestURL = [ADHelpers addClientVersionToURL:_requestURL];
-    
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:requestURL
-                                                                cachePolicy:NSURLRequestReloadIgnoringCacheData
-                                                            timeoutInterval:_timeout];
-    
-    request.HTTPMethod          = _isGetRequest ? @"GET" : @"POST";
+                                                                cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:_timeout];
+    request.HTTPMethod = _isGetRequest ? @"GET" : @"POST";
     request.allHTTPHeaderFields = _requestHeaders;
-    request.HTTPBody            = _requestData;
+    request.HTTPBody = _requestData;
     
     [ADURLProtocol addCorrelationId:_correlationId toRequest:request];
     
-    SAFE_ARC_RELEASE(_connection);
-    _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
-    SAFE_ARC_RELEASE(request);
-    [_connection setDelegateQueue:_operationQueue];
-    [_connection start];
+    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:config
+                                                          delegate:self
+                                                     delegateQueue:_operationQueue];
+    [[session dataTaskWithRequest:request] resume];
 }
 
 - (BOOL)verifyRequestURL:(NSURL *)requestURL
 {
-    if ( requestURL == nil )
+    if (requestURL == nil)
         return NO;
     
-    if ( ![requestURL.scheme isEqualToString:@"http"] && ![requestURL.scheme isEqualToString:@"https"] )
+    if (![requestURL.scheme isEqualToString:@"http"] && ![requestURL.scheme isEqualToString:@"https"])
         return NO;
     
     return YES;
 }
 
-#pragma mark - NSURLConnectionDelegate
+#pragma mark - NSURLSessionDelegate
 
-// Connection Authentication
-
-// Discussion
-// This method allows the delegate to make an informed decision about connection authentication at once.
-// If the delegate implements this method, it has no need to implement connection:canAuthenticateAgainstProtectionSpace:, connection:didReceiveAuthenticationChallenge:, connectionShouldUseCredentialStorage:.
-// In fact, these other methods are not invoked.
-- (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+-(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-#pragma unused(connection)
-    // Do default handling
-    [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
+#pragma unused(session)
+#pragma unused(task)
+    
+    if (!error) {
+        //
+        // NOTE: There is a race condition between this method and the challenge handling methods
+        //       dependent on the the challenge processing that the application performs.
+        //
+        NSAssert(_response != nil, @"No HTTP Response available");
+        
+        ADWebResponse *response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
+        SAFE_ARC_AUTORELEASE(response);
+        
+        [self completeWithError:nil andResponse:response];
+    }
+    else {
+        [self completeWithError:error andResponse:nil];
+    }
 }
 
-// Connection Completion
-
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+-(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
 {
-#pragma unused(connection)
+#pragma unused(session)
+#pragma unused(dataTask)
+#pragma unused(completionHandler)
     
-    [self completeWithError:error andResponse:nil];
-}
-
-// Method Group
-- (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse
-{
-#pragma unused(connection)
-#pragma unused(cachedResponse)
-    
-    return nil;
-}
-
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
-{
-#pragma unused(connection)
-    
-    SAFE_ARC_RELEASE(_response);
+    SAFE_ARC_RELEASE(_response)
     _response = (NSHTTPURLResponse *)response;
-    SAFE_ARC_RETAIN(_response);
+    SAFE_ARC_RETAIN(_response)
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+-(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
-#pragma unused(connection)
+#pragma unused(session)
+#pragma unused(dataTask)
     
     [_responseData appendData:data];
 }
 
-- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse
+-(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler
 {
-#pragma unused(connection)
-#pragma unused(redirectResponse)
-    NSURL* requestURL = [request URL];
-    NSURL* modifiedURL = [ADHelpers addClientVersionToURL:requestURL];
-    if (modifiedURL == requestURL)
-    {
-        return request;
+#pragma unused(session)
+#pragma unused(task)
+#pragma unused(response)
+#pragma unused(completionHandler)
+    
+    NSURL *requestURL = [request URL];
+    NSURL *modifiedURL = [ADHelpers addClientVersionToURL:requestURL];
+    if (modifiedURL == requestURL) {
+        completionHandler(request);
     }
-    
-    NSMutableURLRequest* mutableRequest = [NSMutableURLRequest requestWithURL:modifiedURL];
-    [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
-    return mutableRequest;
-}
-
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection
-{
-#pragma unused(connection)
-    
-    //
-    // NOTE: There is a race condition between this method and the challenge handling methods
-    //       dependent on the the challenge processing that the application performs.
-    //
-    NSAssert( _response != nil, @"No HTTP Response available" );
-    
-    ADWebResponse* response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
-    SAFE_ARC_AUTORELEASE(response);
-    [self completeWithError:nil andResponse:response];
-}
-
-//required method Available in OS X v10.6 through OS X v10.7, then deprecated
--(void)connection:(NSURLConnection *)connection didSendBodyData:(NSInteger)bytesWritten totalBytesWritten:(NSInteger)totalBytesWritten totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
-{
-#pragma unused(connection)
-#pragma unused(bytesWritten)
-#pragma unused(totalBytesWritten)
-#pragma unused(totalBytesExpectedToWrite)
-    
+    else {
+        NSMutableURLRequest *mutableRequest = [NSMutableURLRequest requestWithURL:modifiedURL];
+        [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
+        completionHandler(mutableRequest);
+    }
 }
 
 @end

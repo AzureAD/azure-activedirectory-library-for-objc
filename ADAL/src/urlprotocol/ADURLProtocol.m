@@ -142,10 +142,13 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     [NSURLProtocol setProperty:@YES forKey:@"ADURLProtocol" inRequest:request];
     
     SAFE_ARC_RELEASE(_connection);
-    // FIXIT
-//    _connection = [[NSURLConnection alloc] initWithRequest:request
-//                                                  delegate:self
-//                                          startImmediately:YES];
+#if !TARGET_OS_WATCH
+    // the reason we simply comment this out for watch is because we know this code will not be called for WatchOS target
+    // this may need further updates in case we want to make it working properly for watch
+    _connection = [[NSURLConnection alloc] initWithRequest:request
+                                                  delegate:self
+                                          startImmediately:YES];
+#endif
     SAFE_ARC_RELEASE(request);
 }
 
