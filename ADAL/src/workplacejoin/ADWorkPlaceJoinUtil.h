@@ -22,29 +22,14 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "ADRegistrationInformation.h"
 
-@class ADWorkPlaceJoin;
+@class ADRegistrationInformation;
 
-@interface ADWorkPlaceJoin : NSObject
-{
-    NSString* _sharedGroup;
-}
+@interface ADWorkPlaceJoinUtil : NSObject
 
-/// Returns a static instance of the WorkPlaceJoin class which can then be used
-/// to perform a join, leave, verify if the device is joined and get the
-/// registered UPN in the event the device is joined.
-+ (ADWorkPlaceJoin*) WorkPlaceJoinManager;
++ (ADRegistrationInformation*)getRegistrationInformation:(NSUUID *)correlationId
+                                                   error:(ADAuthenticationError * __autoreleasing *)error;
 
-/*! Represents the shared access group used by this api. */
-@property (readwrite, retain) NSString* sharedGroup;
-
-/// Will look at the shared application keychain in search for a certificate
-/// Certificate found returns true
-/// Certificate not found returns false
-- (BOOL)isWorkPlaceJoined;
-
-- (ADRegistrationInformation*) getRegistrationInformation;
++ (NSString*)keychainTeamId;
 
 @end
-

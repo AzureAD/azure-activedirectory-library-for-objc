@@ -160,7 +160,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     [_completionLock unlock];
 }
 
-- (void) handlePKeyAuthChallenge:(NSString *)challengeUrl
+- (void)handlePKeyAuthChallenge:(NSString *)challengeUrl
 {
     
     AD_LOG_VERBOSE(@"Handling PKeyAuth Challenge", nil, nil);
@@ -173,11 +173,19 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     NSArray * authorityParts = [value componentsSeparatedByString:@"?"];
     NSString *authority = [authorityParts objectAtIndex:0];
     
+    ADAuthenticationError* adError = nil;
+    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority
+                                                        challengeData:queryParamsMap
+                                                        correlationId:_correlationId
+                                                                error:&adError];
+    if (!authHeader)
+    {
+        [self dispatchCompletionBlock:adError URL:nil];
+        return;
+    }
+    
     NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:value]];
     [ADURLProtocol addCorrelationId:_correlationId toRequest:responseUrl];
-    
-    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority
-                                                        challengeData:queryParamsMap];
     
     [responseUrl setValue:pKeyAuthHeaderVersion forHTTPHeaderField: pKeyAuthHeader];
     [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
@@ -314,11 +322,15 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     {
         _complete = YES;
 #if TARGET_OS_IPHONE
+#if !ADAL_EXTENSION_SAFE
         dispatch_async( dispatch_get_main_queue(), ^{[self webAuthDidCancel];});
         requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
         dispatch_async( dispatch_get_main_queue(), ^{[[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];});
+#else // ADAL_EXTENSION_SAFE
+        AD_LOG_ERROR(@"unable to redirect to browser from extension", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _correlationId, nil);
+#endif // ADAL_EXTENSION_SAFE
 #else // !TARGET_OS_IPHONE
-        AD_LOG_ERROR(@"server is redirecting us to browser, this behavior is not defined on Mac OS X yet", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, nil, nil);
+        AD_LOG_ERROR(@"server is redirecting us to browser, this behavior is not defined on Mac OS X yet", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _correlationId, nil);
 #endif // TARGET_OS_IPHONE
         return NO;
     }

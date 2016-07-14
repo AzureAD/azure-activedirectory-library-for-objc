@@ -36,6 +36,7 @@
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
 #import "ADTokenCacheItem+Internal.h"
+#import "ADWebAuthRequest.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -48,17 +49,13 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     return s_modalRequest;
 }
 
-- (void)executeRequest:(NSString *)authorizationServer
-           requestData:(NSDictionary *)request_data
-       handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
-     additionalHeaders:(NSDictionary *)additionalHeaders
+- (void)executeRequest:(NSDictionary *)request_data
             completion:(ADAuthenticationCallback)completionBlock
 {
-    [self requestWithServer:authorizationServer
-                requestData:request_data
-            handledPkeyAuth:isHandlingPKeyAuthChallenge
-          additionalHeaders:additionalHeaders
-                 completion:^(NSDictionary *response)
+    NSString* urlString = [_context.authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
+    ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString] correlationId:_correlationId];
+    [req setRequestDictionary:request_data];
+    [req sendRequest:^(NSDictionary *response)
      {
          //Prefill the known elements in the item. These can be overridden by the response:
          ADTokenCacheItem* item = [ADTokenCacheItem new];
@@ -71,256 +68,6 @@ static ADAuthenticationRequest* s_modalRequest = nil;
          SAFE_ARC_RELEASE(item);
          completionBlock(result);
      }];
-}
-
-
-// Performs an OAuth2 token request using the supplied request dictionary and executes the completion block
-// If the request generates an HTTP error, the method adds details to the "error" parameters of the dictionary.
-- (void)requestWithServer:(NSString *)authorizationServer
-              requestData:(NSDictionary *)request_data
-          handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
-        additionalHeaders:(NSDictionary *)additionalHeaders
-               completion:( void (^)(NSDictionary *) )completionBlock
-{
-    [self requestWithServer:authorizationServer
-                requestData:request_data
-            handledPkeyAuth:isHandlingPKeyAuthChallenge
-          additionalHeaders:additionalHeaders
-          returnRawResponse:NO
-               isGetRequest:NO
-         retryIfServerError:YES
-                 completion:completionBlock];
-}
-
-
-- (void)requestWithServer:(NSString *)authorizationServer
-              requestData:(NSDictionary *)request_data
-          handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
-        additionalHeaders:(NSDictionary *)additionalHeaders
-        returnRawResponse:(BOOL)returnRawResponse
-               completion:( void (^)(NSDictionary *) )completionBlock
-{
-    [self requestWithServer:authorizationServer
-                requestData:request_data
-            handledPkeyAuth:isHandlingPKeyAuthChallenge
-          additionalHeaders:additionalHeaders
-          returnRawResponse:returnRawResponse
-               isGetRequest:NO
-         retryIfServerError:YES
-                 completion:completionBlock];
-}
-
-- (void)requestWithServer:(NSString *)authorizationServer
-              requestData:(NSDictionary *)request_data
-          handledPkeyAuth:(BOOL)isHandlingPKeyAuthChallenge
-        additionalHeaders:(NSDictionary *)additionalHeaders
-        returnRawResponse:(BOOL)returnRawResponse
-             isGetRequest:(BOOL)isGetRequest
-       retryIfServerError:(BOOL)retryIfServerError
-               completion:( void (^)(NSDictionary *) )completionBlock
-{
-    [self ensureRequest];
-    NSString* endPoint = authorizationServer;
-    
-    if (!isHandlingPKeyAuthChallenge && !isGetRequest)
-	{
-        endPoint = [_context.authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
-    }
-    
-    if (isGetRequest)
-    {
-        endPoint = [NSString stringWithFormat:@"%@?%@", endPoint, [request_data adURLFormEncode]];
-    }
-    
-    ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
-                                                   correlationId:_correlationId];
-    [webRequest setMethodType:isGetRequest ? ADWebRequestGet : ADWebRequestPost];
-    [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
-    [webRequest.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
-    [webRequest.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
-    if(additionalHeaders){
-        for (NSString* key in [additionalHeaders allKeys] ) {
-            [webRequest.headers setObject:[additionalHeaders objectForKey:key ] forKey:key];
-        }
-    }
-    
-    if (isGetRequest)
-    {
-        AD_LOG_VERBOSE_F(@"Get request", _correlationId, @"Sending GET request to %@ with client-request-id %@", endPoint, [_correlationId UUIDString]);
-    }
-    else
-    {
-        AD_LOG_VERBOSE_F(@"Post request", _correlationId, @"Sending POST request to %@ with client-request-id %@", endPoint, [_correlationId UUIDString]);
-    }
-    
-    webRequest.body = [[request_data adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding];
-    
-    __block NSDate* startTime = [NSDate new];
-    [[ADClientMetrics getInstance] addClientMetrics:webRequest.headers endpoint:endPoint];
-    
-    [webRequest send:^( NSError *error, ADWebResponse *webResponse ) {
-        // Request completion callback
-        NSMutableDictionary *response = [NSMutableDictionary new];
-        SAFE_ARC_AUTORELEASE(response);
-        
-        if ( error == nil )
-        {
-            NSDictionary* headers = webResponse.headers;
-            //In most cases the correlation id is returned as a separate header
-            NSString* responseCorrelationId = [headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE];
-            NSUUID* responseCorrelationUUID = _correlationId;
-            if (![NSString adIsStringNilOrBlank:responseCorrelationId])
-            {
-                [response setObject:responseCorrelationId forKey:OAUTH2_CORRELATION_ID_RESPONSE];//Add it to the dictionary to be logged and checked later.
-                responseCorrelationUUID = [[NSUUID alloc] initWithUUIDString:responseCorrelationId];
-                SAFE_ARC_AUTORELEASE(responseCorrelationUUID);
-            }
-            
-            [response setObject:webResponse.URL forKey:@"url"];
-            
-            switch (webResponse.statusCode)
-            {
-                case 200:
-                    if(returnRawResponse)
-                    {
-                        NSString* rawResponse = [[NSString alloc] initWithData:webResponse.body encoding:NSASCIIStringEncoding];
-                        [response setObject:rawResponse
-                                     forKey:@"raw_response"];
-                        SAFE_ARC_RELEASE(rawResponse);
-                        break;
-                    }
-                case 400:
-                case 401:
-                {
-                    if(!isHandlingPKeyAuthChallenge)
-                    {
-                        NSString* wwwAuthValue = [headers valueForKey:wwwAuthenticateHeader];
-                        if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName])
-                        {
-                            [self handlePKeyAuthChallenge:endPoint
-                                       wwwAuthHeaderValue:wwwAuthValue
-                                              requestData:request_data
-                                               completion:completionBlock];
-                            return;
-                        }
-                    }
-                    NSError   *jsonError  = nil;
-                    id         jsonObject = [NSJSONSerialization JSONObjectWithData:webResponse.body options:0 error:&jsonError];
-                    
-                    if ( nil != jsonObject && [jsonObject isKindOfClass:[NSDictionary class]] )
-                    {
-                        // Load the response
-                        [response addEntriesFromDictionary:(NSDictionary*)jsonObject];
-                    }
-                    else
-                    {
-                        ADAuthenticationError* adError = nil;
-                        if (jsonError)
-                        {
-                            // Unrecognized JSON response
-                            // We're often seeing the JSON parser being asked to parse whole HTML pages.
-                            // Logging out the whole thing is unhelpful as it contains no useful info.
-                            // If the body is > 1 KB then it's a pretty safe bet that it contains more
-                            // noise then would be helpful
-                            NSString* bodyStr = nil;
-                            
-                            if ([webResponse.body length] < 1024)
-                            {
-                                bodyStr = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
-                            }
-                            else
-                            {
-                                bodyStr = [[NSString alloc] initWithFormat:@"large response, probably HTML, <%lu bytes>", (unsigned long)[webResponse.body length]];
-                            }
-                            
-                            AD_LOG_ERROR_F(@"JSON deserialization", jsonError.code, _correlationId, @"Error: %@. Body text: '%@'. HTTPS Code: %ld. Response correlation id: %@", jsonError.description, bodyStr, (long)webResponse.statusCode, responseCorrelationId);
-                            adError = [ADAuthenticationError errorFromNSError:jsonError errorDetails:jsonError.localizedDescription correlationId:responseCorrelationUUID];
-                            SAFE_ARC_RELEASE(bodyStr);
-                        }
-                        else
-                        {
-                            adError = [ADAuthenticationError unexpectedInternalError:[NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]] correlationId:responseCorrelationUUID];
-                        }
-                        [response setObject:adError forKey:AUTH_NON_PROTOCOL_ERROR];
-                    }
-                }
-                    break;
-                case 500:
-                case 503:
-                {
-                    //retry if it is a server error
-                    //500 and 503 are the ones we retry
-                    if (retryIfServerError)
-                    {
-                        //retry once after half second
-                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                            [self requestWithServer:authorizationServer
-                                        requestData:request_data
-                                    handledPkeyAuth:isHandlingPKeyAuthChallenge
-                                  additionalHeaders:additionalHeaders
-                                  returnRawResponse:returnRawResponse
-                                       isGetRequest:isGetRequest
-                                 retryIfServerError:NO
-                                         completion:completionBlock];
-                        });
-                        return;
-                    }
-                    //no "break;" here
-                    //will go to default for handling if "retryIfServerError" is NO
-                }
-                default:
-                {
-                    // Request failure
-                    NSString* body = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
-                    NSString* errorData = [NSString stringWithFormat:@"Full response: %@", body];
-                    AD_LOG_WARN(([NSString stringWithFormat:@"HTTP Error %ld", (long)webResponse.statusCode]), _correlationId, errorData);
-                    
-                    ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
-                                                                                     body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
-                                                                            correlationId:_correlationId];
-                    SAFE_ARC_RELEASE(body);
-                    
-                    //Now add the information to the dictionary, so that the parser can extract it:
-                    [response setObject:adError
-                                 forKey:AUTH_NON_PROTOCOL_ERROR];
-                }
-            }
-        }
-        else if (error && [[error domain] isEqualToString:@"NSURLErrorDomain"] && [error code] == -1002)
-        {
-            // Unsupported URL Error
-            // This can happen because the redirect URI isn't a valid URI, or we've tried to jump out of the app with a URL scheme handler
-            // It's worth peeking into this error to see if we have useful information anyways.
-            
-            NSString* url = [[error userInfo] objectForKey:@"NSErrorFailingURLKey"];
-            [response setObject:url forKey:@"url"];
-        }
-        else
-        {
-            AD_LOG_WARN(@"System error while making request.", _correlationId, error.description);
-            // System error
-            ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error
-                                                                        errorDetails:error.localizedDescription
-                                                                       correlationId:_correlationId];
-            
-            [response setObject:adError
-                         forKey:AUTH_NON_PROTOCOL_ERROR];
-        }
-        
-        ADAuthenticationError* adError = [response valueForKey:AUTH_NON_PROTOCOL_ERROR];
-        NSString* errorDetails = [adError errorDetails];
-        [[ADClientMetrics getInstance] endClientMetricsRecord:endPoint
-                                                    startTime:startTime
-                                                correlationId:_correlationId
-                                                 errorDetails:errorDetails];
-        SAFE_ARC_RELEASE(startTime);
-        
-        completionBlock(response);
-    }];
-    
-    // The objc blocks above will hold onto references to this web request and keep it alive until after
-    // the completion block gets hit.
-    SAFE_ARC_RELEASE(webRequest);
 }
 
 //Ensures that a single UI login dialog can be requested at a time.
@@ -403,6 +150,9 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         //Force the server to ignore cookies, by specifying explicitly the prompt behavior:
         [startUrl appendString:[NSString stringWithFormat:@"&prompt=%@", promptParam]];
     }
+    
+    [startUrl appendString:@"&haschrome=1"]; //to hide back button in UI
+    
     if (![NSString adIsStringNilOrBlank:_queryParams])
     {//Append the additional query parameters if specified:
         queryParams = _queryParams.adTrimmedString;
@@ -473,7 +223,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                                                 @"username": [[NSDictionary adURLFormDecode:[end query]] valueForKey:@"username"],
                                                 };
                      NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
-                                                        code:AD_ERROR_WPJ_REQUIRED
+                                                        code:AD_ERROR_SERVER_WPJ_REQUIRED
                                                     userInfo:userInfo];
                      error = [ADAuthenticationError errorFromNSError:err errorDetails:@"work place join is required"];
                  }
@@ -533,14 +283,11 @@ static ADAuthenticationRequest* s_modalRequest = nil;
             [requestData setObject:_scope forKey:OAUTH2_SCOPE];
         }
         
-        [self requestWithServer:[_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]
-                    requestData:requestData
-                handledPkeyAuth:NO
-              additionalHeaders:nil
-              returnRawResponse:NO
-				   isGetRequest:YES
-             retryIfServerError:YES
-                     completion:^(NSDictionary * parameters)
+        NSURL* reqURL = [NSURL URLWithString:[_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]];
+        ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:reqURL correlationId:_correlationId];
+        [req setIsGetRequest:YES];
+        [req setRequestDictionary:requestData];
+        [req sendRequest:^(NSDictionary * parameters)
          {
              
              NSURL* endURL = nil;
@@ -566,34 +313,5 @@ static ADAuthenticationRequest* s_modalRequest = nil;
          }];
     }
 }
-
-- (void) handlePKeyAuthChallenge:(NSString *)authorizationServer
-              wwwAuthHeaderValue:(NSString *)wwwAuthHeaderValue
-                     requestData:(NSDictionary *)request_data
-                      completion:( void (^)(NSDictionary *) )completionBlock
-{
-    //pkeyauth word length=8 + 1 whitespace
-    wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[pKeyAuthName length] + 1];
-    
-    NSDictionary* authHeaderParams = [wwwAuthHeaderValue authHeaderParams];
-    
-    if (!authHeaderParams)
-    {
-        AD_LOG_ERROR_F(@"Unparseable wwwAuthHeader received.", AD_ERROR_SERVER_WPJ_REQUIRED, _correlationId, @"%@", wwwAuthHeaderValue);
-    }
-    
-    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer
-                                                        challengeData:authHeaderParams];
-    
-    NSDictionary* additionalHeaders = @{ @"Authorization" : authHeader };
-
-    
-    [self requestWithServer:authorizationServer
-                requestData:request_data
-            handledPkeyAuth:TRUE
-          additionalHeaders:additionalHeaders
-                 completion:completionBlock];
-}
-
 
 @end

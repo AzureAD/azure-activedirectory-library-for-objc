@@ -198,6 +198,13 @@
 
 - (void)setJSONResponse:(id)jsonResponse
 {
+    if (!jsonResponse)
+    {
+        SAFE_ARC_RELEASE(_responseData);
+        _responseData = nil;
+        return;
+    }
+    
     NSError* error = nil;
     NSData* responseData = [NSJSONSerialization dataWithJSONObject:jsonResponse options:0 error:&error];
     if (_responseData == responseData)

@@ -30,6 +30,12 @@
 
 @implementation ADAuthenticationResult (Internal)
 
+// ADAL_RESILIENCY_NOT_YET: Remove when we add feature to public API
+- (BOOL)extendedLifeTimeToken
+{
+    return _extendedLifeTimeToken;
+}
+
 - (id)initWithCancellation:(NSUUID*)correlationId
 {
     ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation:correlationId];
@@ -81,7 +87,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 {
     if (!item)
     {
-        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult created from nil token item."
+        ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"ADAuthenticationResult was created with nil token item."
                                                                         correlationId:correlationId];
         return [ADAuthenticationResult resultFromError:error];
     }
@@ -235,6 +241,11 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     SAFE_ARC_AUTORELEASE(result);
     return result;
     
+}
+
+- (void)setExtendedLifeTimeToken:(BOOL)extendedLifeTimeToken;
+{
+    _extendedLifeTimeToken = extendedLifeTimeToken;
 }
 
 @end

@@ -30,7 +30,11 @@
 #import "NSDictionary+ADExtensions.h"
 #import "NSString+ADHelperMethods.h"
 #import "NSURL+ADExtensions.h"
+
+#if TARGET_OS_IPHONE
 #import "ADBrokerKeyHelper.h"
+#endif
+
 #import "ADAuthenticationRequest+WebRequest.h"
 #import "ADUserIdentifier.h"
 
@@ -107,6 +111,7 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
     
     SAFE_ARC_RETAIN(context);
     _context = context;
+    _tokenCache = context.tokenCacheStore;
     _redirectUri = [redirectUri adTrimmedString];
     SAFE_ARC_RETAIN(_redirectUri);
     _clientId = [clientId adTrimmedString];

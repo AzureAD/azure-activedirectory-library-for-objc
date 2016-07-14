@@ -37,6 +37,7 @@
     IBOutlet UISegmentedControl* _credentialsType;
     IBOutlet UISegmentedControl* _webViewType;
     IBOutlet UISegmentedControl* _fullScreen;
+    IBOutlet UISegmentedControl* _validateAuthority;
     
     IBOutlet UITextView* _resultView;
     
@@ -186,9 +187,16 @@
     ADUserIdentifier* identifier = [self identifier];
     ADCredentialsType credType = [self credType];
     
-    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:YES error:nil];
+    BOOL validateAuthority = _validateAuthority.selectedSegmentIndex == 0;
+    
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority
+                                                                        validateAuthority:validateAuthority
+                                                                                    error:&error];
     if (!context)
     {
+        NSString* resultText = [NSString stringWithFormat:@"Failed to create AuthenticationContext:\n%@", error];
+        [_resultView setText:resultText];
         return;
     }
     
@@ -261,10 +269,14 @@
     NSString* clientId = [settings clientId];
     NSURL* redirectUri = [settings redirectUri];
     ADUserIdentifier* identifier = [self identifier];
+    BOOL validateAuthority = _validateAuthority.selectedSegmentIndex == 0;
     
-    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:YES error:nil];
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority validateAuthority:validateAuthority error:&error];
     if (!context)
     {
+        NSString* resultText = [NSString stringWithFormat:@"Failed to create AuthenticationContext:\n%@", error];
+        [_resultView setText:resultText];
         return;
     }
     

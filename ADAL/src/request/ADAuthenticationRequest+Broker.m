@@ -34,8 +34,10 @@
 #import "ADUserIdentifier.h"
 #import "ADUserInformation.h"
 #import "ADWebAuthController+Internal.h"
+#import "ADAuthenticationResult.h"
 
 #if TARGET_OS_IPHONE
+#import "ADKeychainTokenCache+Internal.h"
 #import "ADBrokerKeyHelper.h"
 #import "ADBrokerNotificationManager.h"
 #endif // TARGET_OS_IPHONE
@@ -75,6 +77,7 @@
 
 + (void)internalHandleBrokerResponse:(NSURL *)response
 {
+#if TARGET_OS_IPHONE
     ADAuthenticationCallback completionBlock = [ADBrokerHelper copyAndClearCompletionBlock];
     HANDLE_ARGUMENT(response, nil);
     
@@ -90,7 +93,6 @@
     {
         // Encrypting the broker response should not be a requirement on Mac as there shouldn't be a possibility of the response
         // accidentally going to the wrong app
-#if TARGET_OS_IPHONE
         HANDLE_ARGUMENT([queryParamsMap valueForKey:BROKER_HASH_KEY], nil);
         
         NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
@@ -143,17 +145,14 @@
         {
             result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
         }
-#else // !TARGET_OS_IPHONE
-        // TODO: Broker support on Mac.
-        result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
-#endif // TARGET_OS_IPHONE
     }
     
     if (AD_SUCCEEDED == result.status)
     {
-        ADAuthenticationRequest* req = [ADAuthenticationRequest requestWithAuthority:result.tokenCacheItem.authority];
+        ADTokenCacheAccessor* cache = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache defaultKeychainCache]
+                                                                             authority:result.tokenCacheItem.authority];
         
-        [req updateCacheToResult:result cacheItem:nil refreshToken:nil];
+        [cache updateCacheToResult:result cacheItem:nil refreshToken:nil correlationId:nil];
         
         NSString* userId = [[[result tokenCacheItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result
@@ -162,9 +161,7 @@
     if (!completionBlock)
     {
         AD_LOG_ERROR(@"Received broker response without a completionBlock.", AD_FAILED, nil, nil);
-#if TARGET_OS_IPHONE
         [ADWebAuthController setInterruptedBrokerResult:result];
-#endif // TARGET_OS_IPHONE
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidReceieveResponseFromBroker
@@ -176,6 +173,9 @@
     {
         completionBlock(result);
     }
+#else
+    (void)response;
+#endif
 }
 
 - (BOOL)canUseBroker

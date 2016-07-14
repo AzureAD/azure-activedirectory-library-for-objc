@@ -38,9 +38,35 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
     if (![ADAuthenticationContext isResponseFromBroker:sourceApplication response:url])
     {
         if (__original_ApplicationOpenURL)
+        {
             return ((applicationOpenURLPtr)__original_ApplicationOpenURL)(self, _cmd, application, url, sourceApplication, annotation);
+        }
         else
+        {
             return NO;
+        }
+    }
+    
+    [ADAuthenticationContext handleBrokerResponse:url];
+    return YES;
+}
+
+typedef BOOL (*applicationOpenURLiOS9Ptr)(id, SEL, UIApplication*, NSURL*, NSDictionary<NSString*, id>*);
+IMP __original_ApplicationOpenURLiOS9 = NULL;
+
+BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* application, NSURL* url, NSDictionary<NSString*, id>* options)
+{
+    NSString* sourceApplication = [options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey];
+    if (![ADAuthenticationContext isResponseFromBroker:sourceApplication response:url])
+    {
+        if (__original_ApplicationOpenURLiOS9)
+        {
+            return ((applicationOpenURLiOS9Ptr)__original_ApplicationOpenURLiOS9)(self, _cmd, application, url, options);
+        }
+        else
+        {
+            return NO;
+        }
     }
     
     [ADAuthenticationContext handleBrokerResponse:url];
@@ -51,6 +77,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
 
 + (void)load
 {
+#if !ADAL_EXTENSION_SAFE
     __block id observer = nil;
     
     observer =
@@ -64,6 +91,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
          [[NSNotificationCenter defaultCenter] removeObserver:observer name:UIApplicationDidFinishLaunchingNotification object:nil];
          
          SEL sel = @selector(application:openURL:sourceApplication:annotation:);
+         SEL seliOS9 = @selector(application:openURL:options:);
          
          // Dig out the app delegate (if there is one)
          __strong id appDelegate = [[UIApplication sharedApplication] delegate];
@@ -73,11 +101,30 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
          if (appDelegate == nil)
              return;
          
-         if ([appDelegate respondsToSelector:sel])
+         BOOL iOS9OrGreater = [[[UIDevice currentDevice] systemVersion] intValue] >= 9;
+         
+         if ([appDelegate respondsToSelector:seliOS9] && iOS9OrGreater)
+         {
+             Method m = class_getInstanceMethod([appDelegate class], seliOS9);
+             __original_ApplicationOpenURLiOS9 = method_getImplementation(m);
+             method_setImplementation(m, (IMP)__swizzle_ApplicationOpenURLiOS9);
+         }
+         else if ([appDelegate respondsToSelector:sel])
          {
              Method m = class_getInstanceMethod([appDelegate class], sel);
              __original_ApplicationOpenURL = method_getImplementation(m);
              method_setImplementation(m, (IMP)__swizzle_ApplicationOpenURL);
+         }
+         else if (iOS9OrGreater)
+         {
+             NSString* typeEncoding = [NSString stringWithFormat:@"%s%s%s%s%s%s", @encode(BOOL), @encode(id), @encode(SEL), @encode(UIApplication*), @encode(NSURL*), @encode(NSDictionary<NSString*, id>*)];
+             class_addMethod([appDelegate class], sel, (IMP)__swizzle_ApplicationOpenURLiOS9, [typeEncoding UTF8String]);
+             
+             // UIApplication caches whether or not the delegate responds to certain selectors. Clearing out the delegate and resetting it gaurantees that gets updated
+             [[UIApplication sharedApplication] setDelegate:nil];
+             // UIApplication employs dark magic to assume ownership of the app delegate when it gets the app delegate at launch, it won't do that for setDelegate calls so we
+             // have to add a retain here to make sure it doesn't turn into a zombie
+             [[UIApplication sharedApplication] setDelegate:(__bridge id)CFRetain((__bridge CFTypeRef)appDelegate)];
          }
          else
          {
@@ -92,16 +139,22 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
          }
          
      }];
+#endif
 }
 
 + (BOOL)canUseBroker
 {
+#if !ADAL_EXTENSION_SAFE
     return [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", ADAL_BROKER_SCHEME]]];
+#else
+    return NO;
+#endif
 }
 
 + (void)invokeBroker:(NSDictionary *)brokerParams
    completionHandler:(ADAuthenticationCallback)completion
 {
+#if !ADAL_EXTENSION_SAFE
     NSString* query = [brokerParams adURLFormEncode];
     
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
@@ -113,6 +166,10 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
         
         [[UIApplication sharedApplication] openURL:appUrl];
     });
+#else
+    (void)brokerParams;
+    completion(nil);
+#endif
 }
 
 + (void)saveToPasteBoard:(NSURL*) url
@@ -127,6 +184,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
 + (void)promptBrokerInstall:(NSDictionary *)brokerParams
           completionHandler:(ADAuthenticationCallback)completion
 {
+#if !ADAL_EXTENSION_SAFE
     NSString* query = [brokerParams adURLFormEncode];
     
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
@@ -141,6 +199,10 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
     dispatch_async(dispatch_get_main_queue(), ^{
         [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:url]];
     });
+#else
+    (void)brokerParams;
+    completion(nil);
+#endif
 }
 
 + (ADAuthenticationCallback)copyAndClearCompletionBlock

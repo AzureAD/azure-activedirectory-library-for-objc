@@ -21,28 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADTokenCacheAccessor.h"
+#import <Foundation/Foundation.h>
 
-@interface ADAuthenticationRequest (TokenCaching)
+@class ADWebResponse;
+@class ADWebAuthRequest;
 
-+ (NSString*)familyClientId:(NSString*)familyID;
+@interface ADWebAuthResponse : NSObject
+{
+    NSMutableDictionary* _responseDictionary;
+    ADWebAuthRequest* _request;
+    ADWebAuthRequest* _retryRequest;
+    NSUUID* _correlationId;
+}
 
-/*!
-    Stores the result in the cache. cacheItem parameter may be nil, if the result is successfull and contains
-    the item to be stored.
- 
-    @param result       The result to update the cache to
-    @param refreshToken The refresh token (if anything) that was used to get this authentication result
- */
-- (void)updateCacheToResult:(ADAuthenticationResult *)result
-                  cacheItem:(ADTokenCacheItem *)cacheItem
-               refreshToken:(NSString *)refreshToken;
++ (void)processError:(NSError *)error
+       correlationId:(NSUUID *)correlationId
+          completion:(void (^)(NSDictionary *))completionBlock;
 
-
-- (ADTokenCacheItem *)getItemForResource:(NSString*)resource
-                                clientId:(NSString*)clientId
-                                   error:(ADAuthenticationError * __autoreleasing *)error;
-
-- (ADTokenCacheItem*)getUnkownUserADFSToken:(ADAuthenticationError * __autoreleasing *)error;
++ (void)processResponse:(ADWebResponse *)webResponse
+                request:(ADWebAuthRequest *)request
+             completion:(void (^)(NSDictionary *))completionBlock;
 
 @end

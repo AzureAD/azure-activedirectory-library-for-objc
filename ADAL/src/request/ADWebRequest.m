@@ -33,9 +33,6 @@
 #import "ADLogger+Internal.h"
 #import "ADURLProtocol.h"
 
-static NSString *const HTTPGet  = @"GET";
-static NSString *const HTTPPost = @"POST";
-
 @interface ADWebRequest () <NSURLConnectionDelegate>
 
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response;
@@ -50,8 +47,9 @@ static NSString *const HTTPPost = @"POST";
 
 @synthesize URL      = _requestURL;
 @synthesize headers  = _requestHeaders;
-@synthesize method   = _requestMethod;
 @synthesize timeout  = _timeout;
+@synthesize isGetRequest = _isGetRequest;
+@synthesize correlationId = _correlationId;
 
 - (NSData *)body
 {
@@ -62,7 +60,6 @@ static NSString *const HTTPPost = @"POST";
 {
     if ( body != nil )
     {
-        _requestMethod = HTTPPost;
         
         if (_requestData == body)
         {
@@ -77,15 +74,6 @@ static NSString *const HTTPPost = @"POST";
     }
 }
 
-- (void)setMethodType:(ADWebRequestMethodType)methodType
-{
-    switch (methodType)
-    {
-        case ADWebRequestGet: _requestMethod = HTTPGet; break;
-        case ADWebRequestPost: _requestMethod = HTTPPost; break;
-    }
-}
-
 #pragma mark - Initialization
 
 - (id)initWithURL:(NSURL *)requestURL
@@ -97,7 +85,6 @@ static NSString *const HTTPPost = @"POST";
     }
     
     _requestURL        = [requestURL copy];
-    _requestMethod     = HTTPGet;
     _requestHeaders    = [[NSMutableDictionary alloc] init];
     
     // Default timeout for ADWebRequest is 30 seconds
@@ -121,7 +108,6 @@ static NSString *const HTTPPost = @"POST";
     SAFE_ARC_RELEASE(_requestURL);
     _requestURL = nil;
     
-    _requestMethod = nil;
     SAFE_ARC_RELEASE(_requestHeaders);
     _requestHeaders = nil;
     SAFE_ARC_RELEASE(_requestData);
@@ -148,15 +134,6 @@ static NSString *const HTTPPost = @"POST";
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response
 {
     // Cleanup
-    SAFE_ARC_RELEASE(_requestURL);
-    _requestURL     = nil;
-    
-    _requestMethod  = nil;
-    SAFE_ARC_RELEASE(_requestHeaders);
-    _requestHeaders = nil;
-    SAFE_ARC_RELEASE(_requestData);
-    _requestData    = nil;
-    
     SAFE_ARC_RELEASE(_response);
     _response       = nil;
     SAFE_ARC_RELEASE(_responseData);
@@ -165,12 +142,7 @@ static NSString *const HTTPPost = @"POST";
     SAFE_ARC_RELEASE(_connection);
     _connection     = nil;
     
-    if ( _completionHandler != nil )
-    {
-        _completionHandler( error, response );
-        SAFE_ARC_RELEASE(_completionHandler);
-        _completionHandler = nil;
-    }
+    _completionHandler(error, response);
 }
 
 - (void)send:(void (^)(NSError *, ADWebResponse *))completionHandler
@@ -183,6 +155,16 @@ static NSString *const HTTPPost = @"POST";
     SAFE_ARC_RELEASE(_responseData);
     _responseData      = [[NSMutableData alloc] init];
     
+    [self send];
+}
+
+- (void)resend
+{
+    SAFE_ARC_RELEASE(_response);
+    _response          = nil;
+    SAFE_ARC_RELEASE(_responseData);
+    _responseData      = [[NSMutableData alloc] init];
+
     [self send];
 }
 
@@ -210,7 +192,7 @@ static NSString *const HTTPPost = @"POST";
                                                                 cachePolicy:NSURLRequestReloadIgnoringCacheData
                                                             timeoutInterval:_timeout];
     
-    request.HTTPMethod          = _requestMethod;
+    request.HTTPMethod          = _isGetRequest ? @"GET" : @"POST";
     request.allHTTPHeaderFields = _requestHeaders;
     request.HTTPBody            = _requestData;
     

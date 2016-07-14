@@ -29,7 +29,11 @@
 
 + (UIViewController *)adCurrentViewController
 {
+#if !ADAL_EXTENSION_SAFE
     return [self adCurrentViewControllerWithRootViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+#else
+    return nil;
+#endif
 }
 
 + (UIViewController*)adCurrentViewControllerWithRootViewController:(UIViewController*)rootViewController

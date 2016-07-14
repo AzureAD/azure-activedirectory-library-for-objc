@@ -125,10 +125,12 @@
     self.userInformation = info;
 }
 
-- (void)fillExpiration:(NSDictionary*)responseDictionary
+- (void)fillExpiration:(NSMutableDictionary*)responseDictionary
 {
     id expires_in = [responseDictionary objectForKey:@"expires_in"];
     id expires_on = [responseDictionary objectForKey:@"expires_on"];
+    [responseDictionary removeObjectForKey:@"expires_in"];
+    [responseDictionary removeObjectForKey:@"expires_on"];
     
     
     NSDate *expires    = nil;
@@ -158,6 +160,16 @@
     SAFE_ARC_RELEASE(_expiresOn);
     _expiresOn = expires;
     SAFE_ARC_RETAIN(_expiresOn);
+    
+    // convert ext_expires_in to ext_expires_on
+    NSString* extendedExpiresIn = [responseDictionary valueForKey:@"ext_expires_in"];
+    [responseDictionary removeObjectForKey:@"ext_expires_in"];
+    
+    if (![NSString adIsStringNilOrBlank:extendedExpiresIn] && [extendedExpiresIn respondsToSelector:@selector(doubleValue)])
+    {
+        [responseDictionary setObject:[NSDate dateWithTimeIntervalSinceNow:[extendedExpiresIn doubleValue]]
+                                 forKey:@"ext_expires_on"];
+    }
 }
 
 - (void)logWithCorrelationId:(NSString*)correlationId
@@ -175,16 +187,29 @@
 }
 
 
-#define FILL_FIELD(_FIELD, _KEY) { id _val = [responseDictionary valueForKey:_KEY]; if (_val) { self._FIELD = _val; } }
+#define FILL_FIELD(_FIELD, _KEY) \
+{ \
+    id _val = [responseDictionary valueForKey:_KEY]; \
+    if (_val) \
+    { \
+        self._FIELD = _val; \
+    } \
+    [responseDictionary removeObjectForKey:_KEY]; \
+}
 
-- (BOOL)fillItemWithResponse:(NSDictionary*)responseDictionary
+- (BOOL)fillItemWithResponse:(NSDictionary*)response
 {
-    if (!responseDictionary)
+    if (!response)
     {
         return NO;
     }
     
+    NSMutableDictionary* responseDictionary = [response mutableCopy];
+    
+    BOOL isMRRT = ![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_RESOURCE]] && ![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_REFRESH_TOKEN]];
+    
     [self fillUserInformation:[responseDictionary valueForKey:OAUTH2_ID_TOKEN]];
+    [responseDictionary removeObjectForKey:OAUTH2_ID_TOKEN];
     
     FILL_FIELD(authority, OAUTH2_AUTHORITY);
     FILL_FIELD(resource, OAUTH2_RESOURCE);
@@ -196,26 +221,11 @@
     
     [self fillExpiration:responseDictionary];
     
-    BOOL isMRRT = ![NSString adIsStringNilOrBlank:[responseDictionary objectForKey:OAUTH2_RESOURCE]] && ![NSString adIsStringNilOrBlank:self.refreshToken];
-    
     [self logWithCorrelationId:[responseDictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE] mrrt:isMRRT];
     
-    NSMutableDictionary* additional = [responseDictionary mutableCopy];
-    
-    // Remove any fields from the dictionary that we've already cached elsewhere
-    [additional removeObjectForKey:OAUTH2_AUTHORITY];
-    [additional removeObjectForKey:OAUTH2_RESOURCE];
-    [additional removeObjectForKey:OAUTH2_CLIENT_ID];
-    [additional removeObjectForKey:OAUTH2_ACCESS_TOKEN];
-    [additional removeObjectForKey:OAUTH2_REFRESH_TOKEN];
-    [additional removeObjectForKey:OAUTH2_TOKEN_TYPE];
-    [additional removeObjectForKey:ADAL_CLIENT_FAMILY_ID];
-    [additional removeObjectForKey:OAUTH2_ID_TOKEN];
-    [additional removeObjectForKey:@"expires_in"];
-    [additional removeObjectForKey:@"expires_on"];
-    
+    // Store what we haven't cached to _additionalServer
     SAFE_ARC_RELEASE(_additionalServer);
-    _additionalServer = additional;
+    _additionalServer = responseDictionary;
     
     return isMRRT;
 }
@@ -326,5 +336,17 @@
     SAFE_ARC_RETAIN(_additionalClient);
 }
 
+- (BOOL)isExtendedLifetimeValid
+{
+    NSDate* extendedExpiresOn = [_additionalServer valueForKey:@"ext_expires_on"];
+    
+    //extended lifetime is only valid if it contains an access token
+    if (extendedExpiresOn && ![NSString adIsStringNilOrBlank:_accessToken])
+    {
+        return [extendedExpiresOn compare:[NSDate date]] == NSOrderedDescending;
+    }
+    
+    return NO;
+}
 
 @end

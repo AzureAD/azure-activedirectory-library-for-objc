@@ -21,31 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "ADRegistrationInformation.h"
-#import "ADWorkPlaceJoin.h"
+#import "ADWebRequest.h"
 
-@interface ADWorkPlaceJoinUtil : NSObject
+@interface ADWebAuthRequest : ADWebRequest
+{
+    NSDate* _startTime;
+    BOOL _retryIfServerError;
+    BOOL _handledPkeyAuthChallenge;
+    BOOL _returnRawResponse;
+    
+    NSMutableDictionary* _responseDictionary;
+    
+    // A dictionary of key/value pairs that is either included as the query parameters on a GET
+    // request or serialized into JSON for a POST request
+    NSDictionary<NSString*,NSString*> * _requestDictionary;
+}
 
-@property (nonatomic, readwrite, retain) ADWorkPlaceJoin *workplaceJoin;
+@property BOOL returnRawResponse;
+@property BOOL retryIfServerError;
+@property BOOL handledPkeyAuthChallenge;
+@property (readonly) NSDate* startTime;
 
-+ (ADWorkPlaceJoinUtil*) WorkPlaceJoinUtilManager;
-
-- (NSError*)getCertificateForAccessGroup: (NSString*)sharedAccessGroup
-                                identity: (SecIdentityRef*) identity
-                             certificate: (SecCertificateRef*) clientCertificate;
-
-- (ADRegistrationInformation*)getRegistrationInformation: (NSString*) sharedAccessGroup
-                                                 error: (NSError**) error;
-
-- (NSData *) base64DataFromString: (NSString *)string;
-
-- (NSError*) buildNSErrorForDomain:(NSString*)domain
-                         errorCode:(NSInteger) errorCode
-                      errorMessage:(NSString*) message
-                   underlyingError:(NSError*) underlyingError
-                       shouldRetry:(BOOL) retry;
-
-- (NSString*)getApplicationIdentifierPrefix;
+- (void)setRequestDictionary:(NSDictionary<NSString*, NSString*> *)requestDictionary;
+- (void)sendRequest:(void(^)(NSDictionary *))completionBlock;
 
 @end

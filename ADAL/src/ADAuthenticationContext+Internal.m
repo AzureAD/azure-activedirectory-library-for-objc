@@ -26,13 +26,25 @@
 #import "ADTokenCacheItem+Internal.h"
 
 NSString* const ADUnknownError = @"Uknown error.";
-NSString* const ADCredentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
+NSString* const ADCredentialsNeeded = @"The user credentials are needed to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
 NSString* const ADInteractionNotSupportedInExtension = @"Interaction is not supported in an app extension.";
 NSString* const ADServerError = @"The authentication server returned an error: %@.";
 NSString* const ADBrokerAppIdentifier = @"com.microsoft.azureadauthenticator";
 NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is configured to allow brokered authentication but your redirect URI is not setup properly. Make sure your redirect URI is in the form of <app-scheme>://<bundle-id> (e.g. \"x-msauth-testapp://com.microsoft.adal.testapp\") and that the \"app-scheme\" you choose is registered in your application's info.plist.";
 
 @implementation ADAuthenticationContext (Internal)
+
+// ADAL_RESILIENCY_NOT_YET: Remove when feature goes into public API
+- (BOOL)extendedLifetimeEnabled
+{
+    return _extendedLifetimeEnabled;
+}
+
+// ADAL_RESILIENCY_NOT_YET: Remove when feature goes into public API
+- (void)setExtendedLifetimeEnabled:(BOOL)extendedLifetimeEnabled
+{
+    _extendedLifetimeEnabled = extendedLifetimeEnabled;
+}
 
 /*! Verifies that the string parameter is not nil or empty. If it is,
  the method generates an error and set it to an authentication result.
@@ -94,8 +106,26 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
 //
 + (BOOL)isFinalResult:(ADAuthenticationResult*)result
 {
-    return (AD_SUCCEEDED == result.status) /* access token provided, no need to try anything else */
-    || (result.error && !result.error.protocolCode); //Connection is down, server is unreachable or DNS error. No need to try refresh tokens.
+    if (!result)
+    {
+        return NO;
+    }
+    
+    // Successful results are final results!
+    if (result.status == AD_SUCCEEDED)
+    {
+        return YES;
+    }
+    
+    // Protocol Code is used for OAuth errors (and should only be used for OAuth errors...). If we
+    // received an OAuth error that means that the server is up and responsive, just that something
+    // about the token was bad.
+    if (result.error && !result.error.protocolCode)
+    {
+        return YES;
+    }
+    
+    return NO;
 }
 
 //Translates the ADPromptBehavior into prompt query parameter. May return nil, if such
@@ -159,7 +189,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_WRONG_USER
                                                protocolCode:nil
-                                               errorDetails:@"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier of OptionalDisplayableId type and pass in the userId returned on the initial authentication flow in all future acquireToken calls."
+                                               errorDetails:@"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier is of OptionalDisplayableId type, pass in the userId returned on the initial authentication flow in all future acquireToken calls."
                                               correlationId:nil];
         return [ADAuthenticationResult resultFromError:error correlationId:[result correlationId]];
     }

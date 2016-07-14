@@ -84,12 +84,6 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     NSData* keyData = [[NSData alloc] initWithBytes:symmetricKey length:kChosenCipherKeySize * sizeof(uint8_t)];
     free(symmetricKey);
     
-    // First delete current symmetric key.
-    if (![self deleteSymmetricKey:error])
-    {
-        return NO;
-    }
-    
     NSDictionary* symmetricKeyAttr =
     @{
       (id)kSecClass : (id)kSecClassKey,
@@ -102,12 +96,18 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
       (id)kSecAttrCanDecrypt : @YES,
       (id)kSecValueData : keyData,
       };
+    SAFE_ARC_RELEASE(keyData);
+    
+    // First delete current symmetric key.
+    if (![self deleteSymmetricKey:error])
+    {
+        return NO;
+    }
     
     err = SecItemAdd((__bridge CFDictionaryRef) symmetricKeyAttr, NULL);
     
     if(err != errSecSuccess)
     {
-        SAFE_ARC_RELEASE(keyData);
         UNEXPECTED_KEY_ERROR;
         return NO;
     }
@@ -178,7 +178,8 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     err = SecItemCopyMatching((__bridge CFDictionaryRef)symmetricKeyQuery, (CFTypeRef *)&symmetricKey);
     if (err == errSecSuccess)
     {
-        [self setSymmetricKey:(NSData*)symmetricKey];
+        [self setSymmetricKey:(__bridge NSData*)symmetricKey];
+        CFRelease(symmetricKey);
         return _symmetricKey;
     }
     

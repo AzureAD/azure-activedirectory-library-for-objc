@@ -31,21 +31,17 @@
 @property (nonatomic, readonly) NSString *certificateIssuer;
 @property (nonatomic, readonly) NSData *certificateData;
 @property (nonatomic, readonly) SecKeyRef privateKey;
-@property (nonatomic, readonly) NSData *privateKeyData;
 @property (nonatomic, readonly) NSString *userPrincipalName;
 
--(id)initWithSecurityIdentity:(SecIdentityRef)identity
-            userPrincipalName:(NSString*)userPrincipalName
-            certificateIssuer:(NSString*)certificateIssuer
-                  certificate:(SecCertificateRef)certificate
-           certificateSubject:(NSString*)certificateSubject
-              certificateData:(NSData*)certificateData
-                   privateKey:(SecKeyRef)privateKey
-               privateKeyData:(NSData*)privateKeyData;
+- (id)initWithSecurityIdentity:(SecIdentityRef)identity
+             userPrincipalName:(NSString*)userPrincipalName
+             certificateIssuer:(NSString*)certificateIssuer
+                   certificate:(SecCertificateRef)certificate
+            certificateSubject:(NSString*)certificateSubject
+               certificateData:(NSData*)certificateData
+                    privateKey:(SecKeyRef)privateKey;
 
--(BOOL) isWorkPlaceJoined;
-
--(void) releaseData;
+- (BOOL)isWorkPlaceJoined;
 
 @end
 

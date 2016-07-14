@@ -22,11 +22,11 @@
 // THE SOFTWARE.
 
 #import "ADKeychainTokenCache.h"
-#import "ADTokenCacheAccessor.h"
+#import "ADTokenCacheDataSource.h"
 
 @class ADTokenCacheStoreKey;
 
-@interface ADKeychainTokenCache (Internal) <ADTokenCacheAccessor>
+@interface ADKeychainTokenCache (Internal) <ADTokenCacheDataSource>
 
 + (BOOL)checkStatus:(OSStatus)status
           operation:(NSString *)operation

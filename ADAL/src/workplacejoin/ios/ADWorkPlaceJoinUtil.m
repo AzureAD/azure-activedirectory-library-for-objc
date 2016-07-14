@@ -30,66 +30,57 @@
 
 @implementation ADWorkPlaceJoinUtil
 
-ADWorkPlaceJoinUtil* wpjUtilManager = nil;
-
-+ (ADWorkPlaceJoinUtil*) WorkPlaceJoinUtilManager;
-{
-    if (!wpjUtilManager)
-    {
-        wpjUtilManager = [[self alloc] init];
-    }
-    
-    return wpjUtilManager;
+// Convenience macro for checking keychain status codes while looking up the WPJ
+// information. We don't send errors for errSecItemNotFound (because not having
+// WPJ information is an expected case) or errSecNoAccessForItem (because non-
+// Microsoft apps will not be able to access the workplace join information).
+#define CHECK_KEYCHAIN_STATUS(_operation) \
+{ \
+    if (status != noErr) \
+    { \
+        if (!(status == errSecItemNotFound || status == -25243)) \
+        { \
+            ADAuthenticationError* adError = \
+            [ADAuthenticationError keychainErrorFromOperation:_operation \
+                                                       status:status \
+                                                correlationId:correlationId];\
+            if (error) { *error = adError; } \
+        } \
+        goto _error; \
+    } \
 }
 
-- (NSData *)getPrivateKeyForAccessGroup: (NSString*) sharedAccessGroup
-                   privateKeyIdentifier: (NSString*) privateKey
-                                  error: (NSError**) error
+
++ (ADRegistrationInformation*)getRegistrationInformation:(NSUUID *)correlationId
+                                                   error:(ADAuthenticationError * __autoreleasing *)error
 {
-    AD_LOG_VERBOSE_F(@"Getting private key - ", nil, @"%@ shared access Group", sharedAccessGroup);
-    OSStatus status = noErr;
-    CFDataRef item = NULL;
-    NSData *keyData = nil;
+    NSString* teamId = [self keychainTeamId];
+
+#if TARGET_OS_SIMULATOR
+    NSString* sharedAccessGroup = nil;
     
-    NSMutableDictionary *privateKeyAttr = [[NSMutableDictionary alloc] init];
-    
-    NSData *privateKeyTag = [NSData dataWithBytes:[privateKey UTF8String] length:privateKey.length];
-    
-    [privateKeyAttr setObject:privateKeyTag forKey:(__bridge id)kSecAttrApplicationTag];
-    [privateKeyAttr setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
-    [privateKeyAttr setObject:(__bridge id)(kSecAttrKeyTypeRSA) forKey:(__bridge id<NSCopying>)(kSecAttrKeyType)];
-    [privateKeyAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnData)];
-#if !TARGET_IPHONE_SIMULATOR
-    [privateKeyAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+    // Only in the simulator if we don't have a shared access group we want the rest of the code to
+    // at least attempt to work.
+    if (teamId)
+    {
+        sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
+    }
+#else
+    if (!teamId)
+    {
+        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Unable to retrieve team ID from keychain." correlationId:correlationId];
+        if (error)
+        {
+            *error = adError;
+        }
+        
+        return nil;
+    }
+    NSString* sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
 #endif
     
-    status = SecItemCopyMatching((__bridge CFDictionaryRef)privateKeyAttr, (CFTypeRef*)&item);
-    SAFE_ARC_RELEASE(privateKeyAttr);
     
-    if(item != NULL)
-    {
-        keyData = (NSData*)item;
-    }
-    else if (status != errSecSuccess)
-    {
-        if (*error != NULL)
-        {
-            *error = [self buildNSErrorForDomain:errorDomain
-                                       errorCode:sharedKeychainPermission
-                                    errorMessage: [NSString stringWithFormat:unabletoReadFromSharedKeychain, sharedAccessGroup]
-                                 underlyingError:nil
-                                     shouldRetry:false];
-        }
-    }
     
-    return keyData;
-}
-
-
-
-- (ADRegistrationInformation*)getRegistrationInformation: (NSString*) sharedAccessGroup
-                                                   error: (NSError**) error
-{
     AD_LOG_VERBOSE_F(@"Attempting to get registration information - ", nil, @"%@ shared access Group", sharedAccessGroup);
     
     SecIdentityRef identity = NULL;
@@ -97,243 +88,119 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
     SecKeyRef privateKey = NULL;
     NSString *certificateSubject = nil;
     NSData *certificateData = nil;
-    NSData *privateKeyData = nil;
     NSString *certificateIssuer = nil;
     NSString *userPrincipalName = nil;
-    error = nil;
+    NSData *issuer = nil;
+    NSDictionary *  cerDict = nil;
     
     NSMutableDictionary *identityAttr = [[NSMutableDictionary alloc] init];
+    SAFE_ARC_AUTORELEASE(identityAttr);
     [identityAttr setObject:(__bridge id)kSecClassIdentity forKey:(__bridge id)kSecClass];
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnRef)];
     [identityAttr setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
-    
-#if !TARGET_IPHONE_SIMULATOR
-    [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+#if TARGET_OS_SIMULATOR
+    if (sharedAccessGroup)
 #endif
+    [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
     
-    CFDictionaryRef  result;
+    CFDictionaryRef result = NULL;
     OSStatus status = noErr;
     //get the issuer information
-    status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef *) &result);
-    
-    if (status == noErr) {
-        NSDictionary *  cerDict = (__bridge NSDictionary *) result;
-        assert([cerDict isKindOfClass:[NSDictionary class]]);
-        NSData* issuer = [cerDict objectForKey:(__bridge id)kSecAttrIssuer];
-        certificateIssuer = [[NSString alloc] initWithData:issuer encoding:NSISOLatin1StringEncoding];
-        CFRelease(result);
-    } else {
-        NSLog(@"error %d", (int) status);
-    }
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef *)&result);
+    CHECK_KEYCHAIN_STATUS(@"retrieve wpj identity attr");
+            
+    cerDict = (__bridge NSDictionary *) result;
+    assert([cerDict isKindOfClass:[NSDictionary class]]);
+    issuer = [cerDict objectForKey:(__bridge id)kSecAttrIssuer];
+    certificateIssuer = [[NSString alloc] initWithData:issuer encoding:NSISOLatin1StringEncoding];
+    SAFE_ARC_AUTORELEASE(certificateIssuer);
+    CFRelease(result);
+    result = NULL;
     
     // now get the identity out and use it.
     [identityAttr removeObjectForKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
     status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)&identity);
-    SAFE_ARC_RELEASE(identityAttr);
-    
-    //Get the identity
-    if(status == errSecSuccess && identity)
+    CHECK_KEYCHAIN_STATUS(@"retrieve wpj identity ref");;
+    if (CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
-        AD_LOG_VERBOSE(@"Found identity in keychain", nil, nil);
-        //Get the certificate and data
-        SecIdentityCopyCertificate(identity, &certificate);
-        if(certificate)
+        CFRelease(identity);
+        ADAuthenticationError* adError =
+        [ADAuthenticationError unexpectedInternalError:@"Wrong object type returned from identity query"
+                                         correlationId:correlationId];
+        
+        if (error)
         {
-            AD_LOG_VERBOSE(@"Found certificate in keychain", nil, nil);
-            certificateSubject = (NSString *)CFBridgingRelease(SecCertificateCopySubjectSummary(certificate));
-            certificateData = (NSData *)CFBridgingRelease(SecCertificateCopyData(certificate));
+            *error = adError;
+        }
+        return nil;
+    }
+    //Get the certificate and data
+    status = SecIdentityCopyCertificate(identity, &certificate);
+    CHECK_KEYCHAIN_STATUS(@"copy identity certificate");
+    
+    status = SecIdentityCopyPrivateKey(identity, &privateKey);
+    CHECK_KEYCHAIN_STATUS(@"copy identity private key");
+    
+    certificateSubject = (NSString *)CFBridgingRelease(SecCertificateCopySubjectSummary(certificate));
+    certificateData = (NSData *)CFBridgingRelease(SecCertificateCopyData(certificate));
+    
+    if(!(identity && certificate && certificateSubject && certificateData && privateKey && certificateIssuer))
+    {
+        // We never should hit this error anyways, as any of this stuff being missing will cause failures farther up.
+        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Missing some piece of WPJ data" correlationId:correlationId];
+        
+        if (error)
+        {
+            *error = adError;
         }
         
-        //Get the private key and data
-        status = SecIdentityCopyPrivateKey(identity, &privateKey);
-        if (status != errSecSuccess)
-        {
-            [certificateIssuer release];
-            return nil;
-        }
-        
+        return nil;
     }
     
-    if(identity && certificate && certificateSubject && certificateData && privateKey && certificateIssuer)
     {
         ADRegistrationInformation *info = [[ADRegistrationInformation alloc] initWithSecurityIdentity:identity
-                                                                                    userPrincipalName:userPrincipalName
-                                                                                    certificateIssuer:certificateIssuer
-                                                                                          certificate:certificate
-                                                                                   certificateSubject:certificateSubject
-                                                                                      certificateData:certificateData
-                                                                                           privateKey:privateKey
-                                                                                       privateKeyData:privateKeyData];
-        SAFE_ARC_RELEASE(certificateIssuer);
+                                                                                userPrincipalName:userPrincipalName
+                                                                                certificateIssuer:certificateIssuer
+                                                                                      certificate:certificate
+                                                                               certificateSubject:certificateSubject
+                                                                                  certificateData:certificateData
+                                                                                       privateKey:privateKey];
         SAFE_ARC_AUTORELEASE(info);
         return info;
     }
-    else
+_error:
+    if (identity)
     {
-        AD_LOG_VERBOSE_F(@"Unable to extract a workplace join identity for", nil, @"%@ shared access keychain",
-                         sharedAccessGroup);
-        SAFE_ARC_RELEASE(certificateIssuer);
-        return nil;
+        CFRelease(identity);
     }
+    if (certificate)
+    {
+        CFRelease(certificate);
+    }
+    if (privateKey)
+    {
+        CFRelease(privateKey);
+    }
+    return nil;
 }
 
-- (NSError*)getCertificateForAccessGroup: (NSString*)sharedAccessGroup
-                                identity: (SecIdentityRef*) identity
-                             certificate: (SecCertificateRef*) clientCertificate
++ (NSString*)keychainTeamId
 {
-    NSMutableDictionary *identityAttr = [[NSMutableDictionary alloc] init];
-    [identityAttr setObject:(__bridge id)kSecClassIdentity forKey:(__bridge id)kSecClass];
-    [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnRef)];
-    [identityAttr setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
+    static dispatch_once_t s_once;
+    static NSString* s_keychainTeamId = nil;
     
+    dispatch_once(&s_once, ^{
+        s_keychainTeamId = [self retrieveTeamIDFromKeychain];
+        SAFE_ARC_RETAIN(s_keychainTeamId);
+        AD_LOG_INFO(([NSString stringWithFormat:@"Using \"%@\" Team ID for Keychain.", s_keychainTeamId]), nil, nil);
+    });
     
-#if !TARGET_IPHONE_SIMULATOR
-    [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
-#endif
-    
-    SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)identity);
-    
-    OSStatus status = SecIdentityCopyCertificate(*identity, clientCertificate );
-    SAFE_ARC_RELEASE(identityAttr);
-    
-    if (status == errSecSuccess)
-    {
-        return nil;
-    }
-    else
-    {
-        return [self buildNSErrorForDomain:errorDomain
-                                 errorCode:sharedKeychainPermission
-                              errorMessage: [NSString stringWithFormat:unabletoReadFromSharedKeychain, sharedAccessGroup]
-                           underlyingError:nil
-                               shouldRetry:false];
-    }
-    
-    
+    return s_keychainTeamId;
 }
 
-
-- (NSError*) buildNSErrorForDomain:(NSString*)domain
-                         errorCode:(NSInteger) errorCode
-                      errorMessage:(NSString*) message
-                   underlyingError:(NSError*) underlyingError
-                       shouldRetry:(BOOL) retry
++ (NSString*)retrieveTeamIDFromKeychain
 {
-    NSMutableDictionary* details = [NSMutableDictionary dictionary];
-    [details setValue:message forKey:NSLocalizedDescriptionKey];
-    
-    if (underlyingError != nil)
-    {
-        [details setValue:underlyingError forKey:NSUnderlyingErrorKey];
-    }
-    
-    if (retry)
-    {
-        [details setValue:@"retry" forKey:NSLocalizedRecoverySuggestionErrorKey];
-    }
-    
-    
-    NSError *error = [NSError errorWithDomain:domain code:errorCode userInfo:details];
-    return error;
-}
-
-- (NSData *)base64DataFromString: (NSString *)string
-{
-    unsigned char ch, accumulated[BASE64QUANTUMREP], outbuf[BASE64QUANTUM];
-    const unsigned char *charString;
-    NSMutableData *theData;
-    const int OUTOFRANGE = 64;
-    const unsigned char LASTCHARACTER = '=';
-    
-    if (string == nil)
-    {
-        return [NSData data];
-    }
-    
-    for (int i = 0; i < BASE64QUANTUMREP; i++) {
-        accumulated[i] = 0;
-    }
-    
-    charString = (const unsigned char *)[string UTF8String];
-    
-    theData = [NSMutableData dataWithCapacity: [string length]];
-    
-    short accumulateIndex = 0;
-    for (int index = 0; index < [string length]; index++) {
-        
-        ch = decodeBase64[charString [index]];
-        
-        if (ch < OUTOFRANGE)
-        {
-            short ctcharsinbuf = BASE64QUANTUM;
-            
-            if (charString [index] == LASTCHARACTER)
-            {
-                if (accumulateIndex == 0)
-                {
-                    break;
-                }
-                else if (accumulateIndex <= 2)
-                {
-                    ctcharsinbuf = 1;
-                }
-                else
-                {
-                    ctcharsinbuf = 2;
-                }
-                
-                accumulateIndex = BASE64QUANTUM;
-            }
-            //
-            // Accumulate 4 valid characters (ignore everything else)
-            //
-            accumulated [accumulateIndex++] = ch;
-            
-            //
-            // Store the 6 bits from each of the 4 characters as 3 bytes
-            //
-            if (accumulateIndex == BASE64QUANTUMREP)
-            {
-                accumulateIndex = 0;
-                
-                outbuf[0] = (accumulated[0] << 2) | ((accumulated[1] & 0x30) >> 4);
-                outbuf[1] = ((accumulated[1] & 0x0F) << 4) | ((accumulated[2] & 0x3C) >> 2);
-                outbuf[2] = ((accumulated[2] & 0x03) << 6) | (accumulated[3] & 0x3F);
-                
-                for (int i = 0; i < ctcharsinbuf; i++)
-                {
-                    [theData appendBytes: &outbuf[i] length: 1];
-                }
-            }
-            
-        }
-        
-    }
-    
-    return theData;
-}
-
-- (NSString*)getApplicationIdentifierPrefix{
-    
-    AD_LOG_VERBOSE(@"Looking for application identifier prefix in app data", nil, nil);
-    NSUserDefaults* c = [NSUserDefaults standardUserDefaults];
-    NSString* appIdentifierPrefix = [c objectForKey:applicationIdentifierPrefix];
-    
-    if (!appIdentifierPrefix)
-    {
-        appIdentifierPrefix = [self bundleSeedID];
-        
-        AD_LOG_VERBOSE(@"Storing application identifier prefix in app data", nil, nil);
-        NSUserDefaults* c = [NSUserDefaults standardUserDefaults];
-        [c setObject:appIdentifierPrefix forKey:applicationIdentifierPrefix];
-        [c synchronize];
-    }
-    
-    return appIdentifierPrefix;
-}
-
-- (NSString*)bundleSeedID {
     NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
                            (__bridge id)(kSecClassGenericPassword), kSecClass,
                            @"bundleSeedID", kSecAttrAccount,
@@ -341,18 +208,26 @@ ADWorkPlaceJoinUtil* wpjUtilManager = nil;
                            (id)kCFBooleanTrue, kSecReturnAttributes,
                            nil];
     CFDictionaryRef result = nil;
+    
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+    
     if (status == errSecItemNotFound)
+    {
         status = SecItemAdd((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+    }
+    
     if (status != errSecSuccess)
+    {
         return nil;
+    }
+    
     NSString *accessGroup = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrAccessGroup)];
     NSArray *components = [accessGroup componentsSeparatedByString:@"."];
-    NSString *bundleSeedID = [[components objectEnumerator] nextObject];
-    SecItemDelete((__bridge CFDictionaryRef)(query));
+    NSString *bundleSeedID = [components firstObject];
     
     CFRelease(result);
-    return bundleSeedID;
+    
+    return [bundleSeedID length] ? bundleSeedID : nil;
 }
 
 @end

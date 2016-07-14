@@ -51,6 +51,7 @@ typedef enum
     ADAuthenticationError*          _error;
     NSUUID*                         _correlationId;
     BOOL                            _multiResourceRefreshToken;
+    BOOL                            _extendedLifeTimeToken;
 }
 
 /*! See the ADAuthenticationResultStatus details */

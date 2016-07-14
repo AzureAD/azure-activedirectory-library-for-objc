@@ -24,19 +24,11 @@
 @class ADWebRequest;
 @class ADWebResponse;
 
-
-typedef enum
-{
-    ADWebRequestGet,
-    ADWebRequestPost,
-} ADWebRequestMethodType;
-
 @interface ADWebRequest : NSObject <NSURLConnectionDelegate>
 {
     NSURLConnection * _connection;
     
     NSURL * _requestURL;
-    __WEAK NSString* _requestMethod;
     NSMutableDictionary* _requestHeaders;
     NSData * _requestData;
     
@@ -49,21 +41,29 @@ typedef enum
     
     NSOperationQueue * _operationQueue;
     
+    BOOL _isGetRequest;
+    
     void (^_completionHandler)( NSError *, ADWebResponse *);
 }
 
 @property (strong, readonly, nonatomic) NSURL               *URL;
-@property (weak, readonly)              NSString            *method;
-@property (strong, readonly, nonatomic) NSMutableDictionary *headers;
+@property (copy, nonatomic)             NSMutableDictionary *headers;
 @property (strong)                      NSData              *body;
-@property (nonatomic)           NSUInteger           timeout;
+@property (nonatomic)                   NSUInteger           timeout;
+@property BOOL isGetRequest;
+@property (readonly) NSUUID* correlationId;
 
 - (id)initWithURL: (NSURL*)url
     correlationId: (NSUUID*) correlationId;
 
 - (void)send:( void (^)( NSError *, ADWebResponse *) )completionHandler;
 
-- (void)setMethodType:(ADWebRequestMethodType)methodType;
+/*!
+    Resends a request. Note, this will cause the completionHandler previously set
+    in -send: to be hit again. As such this method should only be called from
+    within the completionHandler block on -send:
+ */
+- (void)resend;
 
 @end
 

@@ -26,8 +26,8 @@
 #import "ADTestAppSettings.h"
 
 // Internal ADAL headers
-#import "ADWorkPlaceJoin.h"
 #import "ADWorkPlaceJoinUtil.h"
+#import "ADRegistrationInformation.h"
 
 
 @interface ADTestAppSettingsViewController ()
@@ -60,10 +60,13 @@
     return self;
 }
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     
-    [_keychainId setText:[[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix]];
+    NSString* teamId = [ADWorkPlaceJoinUtil keychainTeamId];
+    
+    [_keychainId setText: teamId ? teamId : @"<No Team ID>" ];
     
     [self refreshProfileSettings];
 }
@@ -71,7 +74,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     ADRegistrationInformation* regInfo =
-    [[ADWorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
+    [ADWorkPlaceJoinUtil getRegistrationInformation:nil error:nil];
     
     NSString* wpjLabel = @"No WPJ Registration Found";
     
@@ -101,7 +104,7 @@
     [_clientId setText:settings.clientId];
     [_redirectUri setText:settings.redirectUri.absoluteString];
     [_resource setTitle:settings.resource forState:UIControlStateNormal];
-    [_profile setTitle:[ADTestAppProfileViewController currentProfileTitle] forState:UIControlStateNormal];
+    [_profile setTitle:[ADTestAppSettings currentProfileTitle] forState:UIControlStateNormal];
 }
 
 @end

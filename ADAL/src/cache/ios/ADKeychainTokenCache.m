@@ -121,29 +121,37 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         sharedGroup = [[NSBundle mainBundle] bundleIdentifier];
     }
     
-    _sharedGroup = [[NSString alloc] initWithFormat:@"%@.%@", [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix], sharedGroup];
+    NSString* teamId = [ADWorkPlaceJoinUtil keychainTeamId];
+    if (teamId)
+    {
+        _sharedGroup = [[NSString alloc] initWithFormat:@"%@.%@", teamId, sharedGroup];
+    }
     
-    _default = @{
-                 (id)kSecClass : (id)kSecClassGenericPassword,
-                 //Apps are not signed on the simulator, so the shared group doesn't apply there.
-#if !(TARGET_IPHONE_SIMULATOR)
-                 (id)kSecAttrAccessGroup : (id)_sharedGroup,
-#endif
-                 (id)kSecAttrGeneric : [s_libraryString dataUsingEncoding:NSUTF8StringEncoding]
-                 };
-    SAFE_ARC_RETAIN(_default);
+    NSMutableDictionary* defaultQuery =
+    [@{
+       (id)kSecClass : (id)kSecClassGenericPassword,
+       (id)kSecAttrGeneric : [s_libraryString dataUsingEncoding:NSUTF8StringEncoding]
+       } mutableCopy];
     
     // Use a different generic attribute so that past versions of ADAL don't trip up on this entry
-    _defaultTombstone = @{
-                 (id)kSecClass : (id)kSecClassGenericPassword,
-                 //Apps are not signed on the simulator, so the shared group doesn't apply there.
-#if !(TARGET_IPHONE_SIMULATOR)
-                 (id)kSecAttrAccessGroup : (id)_sharedGroup,
-#endif
-                 (id)kSecAttrGeneric : [s_tombstoneLibraryString dataUsingEncoding:NSUTF8StringEncoding]
-                 };
-    SAFE_ARC_RETAIN(_defaultTombstone);
+    NSMutableDictionary* defaultTombstoneQuery =
+    [@{
+       (id)kSecClass : (id)kSecClassGenericPassword,
+       (id)kSecAttrGeneric : [s_tombstoneLibraryString dataUsingEncoding:NSUTF8StringEncoding]
+       } mutableCopy];
 
+    // Depending on the environment we may or may not have keychain access groups. Which environments
+    // have keychain access group support also varies over time. They should always work on device,
+    // in Simulator they work when running within an app bundle but not in unit tests, as of Xcode 7.3
+    
+    if (_sharedGroup)
+    {
+        [defaultQuery setObject:_sharedGroup forKey:(id)kSecAttrAccessGroup];
+        [defaultTombstoneQuery setObject:_sharedGroup forKey:(id)kSecAttrAccessGroup];
+    }
+    
+    _default = defaultQuery;
+    _defaultTombstone = defaultTombstoneQuery;
     
     static dispatch_once_t onceToken = 0;
     dispatch_once(&onceToken, ^{
@@ -246,8 +254,8 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                                               additional:@{ (id)kSecMatchLimit : (id)kSecMatchLimitAll,
                                                             (id)kSecReturnData : @YES,
                                                             (id)kSecReturnAttributes : @YES}];
-    NSArray* items = nil;
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&items);
+    CFTypeRef items = nil;
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &items);
     if (status == errSecItemNotFound)
     {
         // We don't want to print an error in this case as it's usually not actually an error.
@@ -260,11 +268,11 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         return nil;
     }
     
-    return items;
+    return CFBridgingRelease(items);
 }
 
 
-- (ADTokenCacheItem*)itemFromKeyhainAttributes:(NSDictionary*)attrs
+- (ADTokenCacheItem*)itemFromKeychainAttributes:(NSDictionary*)attrs
 {
     NSData* data = [attrs objectForKey:(id)kSecValueData];
     if (!data)
@@ -272,20 +280,27 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         AD_LOG_WARN(@"Retrieved item with key that did not have generic item data!", nil, nil);
         return nil;
     }
-    
-    ADTokenCacheItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    if (!item)
+    @try
     {
-        AD_LOG_WARN(@"Unable to decode item from data stored in keychain.", nil, nil);
+        ADTokenCacheItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+        if (!item)
+        {
+            AD_LOG_WARN(@"Unable to decode item from data stored in keychain.", nil, nil);
+            return nil;
+        }
+        if (![item isKindOfClass:[ADTokenCacheItem class]])
+        {
+            AD_LOG_WARN(@"Unarchived Item was not of expected class", nil, nil);
+            return nil;
+        }
+        
+        return item;
+    }
+    @catch (NSException *exception)
+    {
+        AD_LOG_WARN(@"Failed to deserialize data from keychain", nil, nil);
         return nil;
     }
-    if (![item isKindOfClass:[ADTokenCacheItem class]])
-    {
-        AD_LOG_WARN(@"Unarchived Item was not of expected class", nil, nil);
-        return nil;
-    }
-    
-    return item;
 }
 
 #pragma mark -
@@ -476,11 +491,12 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                                        (id)kSecReturnData : @YES,
                                        (id)kSecAttrService : s_keyForStoringTomestoneCleanTime }];
     
-    NSData* data = nil;
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&data);
+    CFTypeRef data = nil;
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &data);
     if (status == errSecSuccess && data)
     {
-        NSDate* cleanTime = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+        NSDate* cleanTime = [NSKeyedUnarchiver unarchiveObjectWithData:(__bridge NSData * _Nonnull)(data)];
+        CFRelease(data);
         if (cleanTime)
         {
             return cleanTime;
@@ -598,7 +614,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     SAFE_ARC_AUTORELEASE(tokenItems);
     for (NSDictionary* attrs in items)
     {
-        ADTokenCacheItem* item = [self itemFromKeyhainAttributes:attrs];
+        ADTokenCacheItem* item = [self itemFromKeychainAttributes:attrs];
         if (!item)
         {
             continue;
@@ -640,7 +656,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         ADAuthenticationError* adError =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_MULTIPLE_USERS
                                                protocolCode:nil
-                                               errorDetails:@"The token cache store for this resource contain more than one user. Please set the 'userId' parameter to determine which one to be used."
+                                               errorDetails:@"The token cache store for this resource contains more than one user. Please set the 'userId' parameter to the one that will be used."
                                               correlationId:correlationId];
         if (error)
         {

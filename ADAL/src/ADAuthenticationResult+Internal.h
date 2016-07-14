@@ -49,4 +49,12 @@
 /*! Creates an authentication result from broker response, which can be with/without correlation id. */
 + (ADAuthenticationResult*)resultFromBrokerResponse:(NSDictionary*)response;
 
+/*! Internal method to set the extendedLifetimeToken flag. */
+- (void)setExtendedLifeTimeToken:(BOOL)extendedLifeTimeToken;
+
+// ADAL_RESILIENCY_NOT_YET: Move back to public header
+/*! Some access tokens have extended lifetime when server is in an unavailable state.
+ This property indicates whether the access token is returned in such a state. */
+@property (readonly) BOOL extendedLifeTimeToken;
+
 @end
