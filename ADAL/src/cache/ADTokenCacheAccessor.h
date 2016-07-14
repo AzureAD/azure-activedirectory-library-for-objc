@@ -85,4 +85,9 @@
                refreshToken:(NSString *)refreshToken
               correlationId:(NSUUID *)correlationId;
 
+#if TARGET_OS_WATCH
+- (void)updateCacheToItem:(ADTokenCacheItem *)cacheItem
+                     MRRT:(BOOL)isMRRT;
+#endif
+
 @end

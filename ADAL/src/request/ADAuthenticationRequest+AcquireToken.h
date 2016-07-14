@@ -25,6 +25,12 @@
 
 @interface ADAuthenticationRequest (AcquireToken)
 
+#if TARGET_OS_WATCH
+- (void)acquireTokenWithAuthData:(NSData *)authData
+                 completionBlock: (ADAuthenticationCallback)completionBlock;
+#endif
+
+
 - (void)acquireToken:(ADAuthenticationCallback)completionBlock;
 
 // For use after the authority has been validated

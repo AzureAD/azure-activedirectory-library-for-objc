@@ -415,6 +415,16 @@ typedef enum
                                 userId:(NSString*)userId
                        completionBlock:(ADAuthenticationCallback)completionBlock;
 
+#if TARGET_OS_WATCH
+- (void)acquireTokenSlientWithAuthData:(NSData *)authData
+                              resource:(NSString *)resource
+                              clientId:(NSString *)clientId
+                           redirectUri:(NSURL *)redirectUri
+                       completionBlock:(ADAuthenticationCallback)completionBlock;
+#endif
+
+
+
 @end
 
 
