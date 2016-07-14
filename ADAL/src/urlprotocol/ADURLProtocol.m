@@ -142,9 +142,10 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     [NSURLProtocol setProperty:@YES forKey:@"ADURLProtocol" inRequest:request];
     
     SAFE_ARC_RELEASE(_connection);
-    _connection = [[NSURLConnection alloc] initWithRequest:request
-                                                  delegate:self
-                                          startImmediately:YES];
+    // FIXIT
+//    _connection = [[NSURLConnection alloc] initWithRequest:request
+//                                                  delegate:self
+//                                          startImmediately:YES];
     SAFE_ARC_RELEASE(request);
 }
 

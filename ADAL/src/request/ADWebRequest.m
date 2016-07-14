@@ -199,7 +199,8 @@
     [ADURLProtocol addCorrelationId:_correlationId toRequest:request];
     
     SAFE_ARC_RELEASE(_connection);
-    _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
+    // FIXIT
+    //_connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
     SAFE_ARC_RELEASE(request);
     [_connection setDelegateQueue:_operationQueue];
     [_connection start];
