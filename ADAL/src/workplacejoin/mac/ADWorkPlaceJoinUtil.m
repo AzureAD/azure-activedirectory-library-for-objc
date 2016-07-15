@@ -23,7 +23,6 @@
 
 #import "ADWorkPlaceJoinUtil.h"
 
-
 @implementation ADWorkPlaceJoinUtil
 
 + (ADRegistrationInformation*)getRegistrationInformation:(NSUUID *)correlationId
@@ -41,50 +40,6 @@
     }
     
     return nil;
-}
-
-+ (NSString*)keychainTeamId
-{
-    static dispatch_once_t s_once;
-    static NSString* s_keychainTeamId = nil;
-    
-    dispatch_once(&s_once, ^{
-        s_keychainTeamId = [self retrieveTeamIDFromKeychain];
-        AD_LOG_INFO(([NSString stringWithFormat:@"Using \"%@\" Team ID for Keychain.", s_keychainTeamId]), nil, nil);
-    });
-    
-    return s_keychainTeamId;
-}
-
-+ (NSString*)retrieveTeamIDFromKeychain
-{
-    NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
-                           (__bridge id)(kSecClassGenericPassword), kSecClass,
-                           @"bundleSeedID", kSecAttrAccount,
-                           @"", kSecAttrService,
-                           (id)kCFBooleanTrue, kSecReturnAttributes,
-                           nil];
-    CFDictionaryRef result = nil;
-    
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
-    
-    if (status == errSecItemNotFound)
-    {
-        status = SecItemAdd((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
-    }
-    
-    if (status != errSecSuccess)
-    {
-        return nil;
-    }
-    
-    NSString *accessGroup = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrAccessGroup)];
-    NSArray *components = [accessGroup componentsSeparatedByString:@"."];
-    NSString *bundleSeedID = [components firstObject];
-    
-    CFRelease(result);
-    
-    return [bundleSeedID length] ? bundleSeedID : nil;
 }
 
 @end
