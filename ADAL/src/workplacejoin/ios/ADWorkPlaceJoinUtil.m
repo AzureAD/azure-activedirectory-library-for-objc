@@ -54,7 +54,7 @@
 + (ADRegistrationInformation*)getRegistrationInformation:(NSUUID *)correlationId
                                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSString* teamId = [self keychainTeamId];
+    NSString* teamId = [self keychainTeamId:error];
 
 #if TARGET_OS_SIMULATOR
     NSString* sharedAccessGroup = nil;
@@ -68,12 +68,6 @@
 #else
     if (!teamId)
     {
-        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Unable to retrieve team ID from keychain." correlationId:correlationId];
-        if (error)
-        {
-            *error = adError;
-        }
-        
         return nil;
     }
     NSString* sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
@@ -185,28 +179,36 @@ _error:
     return nil;
 }
 
-+ (NSString*)keychainTeamId
++ (NSString*)keychainTeamId:(ADAuthenticationError* __autoreleasing *)error
 {
     static dispatch_once_t s_once;
     static NSString* s_keychainTeamId = nil;
     
+    static ADAuthenticationError* adError = nil;
+    
     dispatch_once(&s_once, ^{
-        s_keychainTeamId = [self retrieveTeamIDFromKeychain];
+        ADAuthenticationError* localError = nil;
+        s_keychainTeamId = [self retrieveTeamIDFromKeychain:&localError];
+        adError = localError;
         SAFE_ARC_RETAIN(s_keychainTeamId);
         AD_LOG_INFO(([NSString stringWithFormat:@"Using \"%@\" Team ID for Keychain.", s_keychainTeamId]), nil, nil);
     });
     
+    if (!s_keychainTeamId && error)
+    {
+        *error = adError;
+    }
+    
     return s_keychainTeamId;
 }
 
-+ (NSString*)retrieveTeamIDFromKeychain
++ (NSString*)retrieveTeamIDFromKeychain:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
-                           (__bridge id)(kSecClassGenericPassword), kSecClass,
-                           @"bundleSeedID", kSecAttrAccount,
-                           @"", kSecAttrService,
-                           (id)kCFBooleanTrue, kSecReturnAttributes,
-                           nil];
+    NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
+                             (id)kSecAttrAccount : @"teamIDHint",
+                             (id)kSecAttrService : @"",
+                             (id)kSecAttrAccessible : (id)kSecAttrAccessibleAlways,
+                             (id)kSecReturnAttributes : @YES };
     CFDictionaryRef result = nil;
     
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
@@ -218,6 +220,11 @@ _error:
     
     if (status != errSecSuccess)
     {
+        ADAuthenticationError* adError = [ADAuthenticationError keychainErrorFromOperation:@"team ID" status:status correlationId:nil];
+        if (error)
+        {
+            *error = adError;
+        }
         return nil;
     }
     

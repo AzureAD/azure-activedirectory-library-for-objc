@@ -64,7 +64,7 @@
 {
     [super viewDidLoad];
     
-    NSString* teamId = [ADWorkPlaceJoinUtil keychainTeamId];
+    NSString* teamId = [ADWorkPlaceJoinUtil keychainTeamId:nil];
     
     [_keychainId setText: teamId ? teamId : @"<No Team ID>" ];
     
