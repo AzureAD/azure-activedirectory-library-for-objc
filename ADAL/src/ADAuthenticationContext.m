@@ -134,6 +134,15 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 
 #if TARGET_OS_IPHONE
     tokenCache = [ADKeychainTokenCache defaultKeychainCache];
+    if (!tokenCache)
+    {
+        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Unable to get kecyhain token cache" correlationId:nil];
+        if (error)
+        {
+            *error = adError;
+        }
+        return nil;
+    }
 #else
     tokenCache = [ADTokenCache new];
     [(ADTokenCache*)tokenCache setDelegate:[ADAuthenticationSettings sharedInstance].defaultStorageDelegate];

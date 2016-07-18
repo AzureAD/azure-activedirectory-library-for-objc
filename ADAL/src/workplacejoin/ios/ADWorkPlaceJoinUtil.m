@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADWorkPlaceJoinUtil.h"
+#import "ADKeychainUtil.h"
 #import "ADRegistrationInformation.h"
 #import "ADWorkPlaceJoinConstants.h"
 #import "ADLogger+Internal.h"
@@ -54,7 +55,7 @@
 + (ADRegistrationInformation*)getRegistrationInformation:(NSUUID *)correlationId
                                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSString* teamId = [self keychainTeamId];
+    NSString* teamId = [ADKeychainUtil keychainTeamId:error];
 
 #if TARGET_OS_SIMULATOR
     NSString* sharedAccessGroup = nil;
@@ -68,12 +69,6 @@
 #else
     if (!teamId)
     {
-        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Unable to retrieve team ID from keychain." correlationId:correlationId];
-        if (error)
-        {
-            *error = adError;
-        }
-        
         return nil;
     }
     NSString* sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
@@ -183,51 +178,6 @@ _error:
         CFRelease(privateKey);
     }
     return nil;
-}
-
-+ (NSString*)keychainTeamId
-{
-    static dispatch_once_t s_once;
-    static NSString* s_keychainTeamId = nil;
-    
-    dispatch_once(&s_once, ^{
-        s_keychainTeamId = [self retrieveTeamIDFromKeychain];
-        SAFE_ARC_RETAIN(s_keychainTeamId);
-        AD_LOG_INFO(([NSString stringWithFormat:@"Using \"%@\" Team ID for Keychain.", s_keychainTeamId]), nil, nil);
-    });
-    
-    return s_keychainTeamId;
-}
-
-+ (NSString*)retrieveTeamIDFromKeychain
-{
-    NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
-                           (__bridge id)(kSecClassGenericPassword), kSecClass,
-                           @"bundleSeedID", kSecAttrAccount,
-                           @"", kSecAttrService,
-                           (id)kCFBooleanTrue, kSecReturnAttributes,
-                           nil];
-    CFDictionaryRef result = nil;
-    
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
-    
-    if (status == errSecItemNotFound)
-    {
-        status = SecItemAdd((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
-    }
-    
-    if (status != errSecSuccess)
-    {
-        return nil;
-    }
-    
-    NSString *accessGroup = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrAccessGroup)];
-    NSArray *components = [accessGroup componentsSeparatedByString:@"."];
-    NSString *bundleSeedID = [components firstObject];
-    
-    CFRelease(result);
-    
-    return [bundleSeedID length] ? bundleSeedID : nil;
 }
 
 @end

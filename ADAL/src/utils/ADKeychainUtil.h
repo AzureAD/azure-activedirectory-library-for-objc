@@ -23,11 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
-@class ADRegistrationInformation;
+@interface ADKeychainUtil : NSObject
 
-@interface ADWorkPlaceJoinUtil : NSObject
-
-+ (ADRegistrationInformation*)getRegistrationInformation:(NSUUID *)correlationId
-                                                   error:(ADAuthenticationError * __autoreleasing *)error;
++ (NSString*)keychainTeamId:(ADAuthenticationError* __autoreleasing *)error;
 
 @end
