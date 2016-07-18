@@ -79,7 +79,6 @@ extern NSString* const sKeyChainlog;
     [attributes setObject:_sharedGroup forKey:(__bridge id)kSecAttrAccessGroup];
 #endif
 }
-}
 
 //Given a set of attributes, deletes the matching keychain keys:
 -(BOOL) deleteByAttributes: (NSDictionary*) attributes
