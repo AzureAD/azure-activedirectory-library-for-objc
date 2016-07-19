@@ -21,10 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#define GRAB_DISPATCH_LOCK dispatch_semaphore_signal(_dispatchLock)
+#define RELEASE_DISPATCH_LOCK dispatch_semaphore_wait(_dispatchLock, DISPATCH_TIME_FOREVER)
+
 @interface ADDefaultDispatcher : NSObject
 {
     NSMutableDictionary* _objectsToBeDispatched;
     id<ADDispatcher> _dispatcher;
+    dispatch_semaphore_t _dispatchLock;
 }
 
 - (id)initWithDispatcher:(id<ADDispatcher>)dispatcher;

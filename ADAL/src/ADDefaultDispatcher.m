@@ -40,6 +40,8 @@
     if (self)
     {
         _objectsToBeDispatched = [NSMutableDictionary new];
+        _dispatchLock = dispatch_semaphore_create(1);
+        
         _dispatcher = dispatcher;
         SAFE_ARC_RETAIN(_dispatcher);
     }
@@ -48,9 +50,14 @@
 
 - (void)flush
 {
-    for (NSString* requestId in _objectsToBeDispatched)
+    GRAB_DISPATCH_LOCK; //avoid access conflict when manipulating _objectsToBeDispatched
+    NSMutableDictionary* objectsToBeDispatchedCopy = _objectsToBeDispatched;
+    _objectsToBeDispatched = [NSMutableDictionary new];
+    RELEASE_DISPATCH_LOCK;
+    
+    for (NSString* requestId in objectsToBeDispatchedCopy)
     {
-        NSArray* events = [_objectsToBeDispatched objectForKey:requestId];
+        NSArray* events = [objectsToBeDispatchedCopy objectForKey:requestId];
         
         for (id<ADEventInterface> event in events)
         {
@@ -61,7 +68,7 @@
             }
         }
         
-        [_objectsToBeDispatched removeObjectForKey:requestId];
+        SAFE_ARC_RELEASE(objectsToBeDispatchedCopy);
     }
 }
 
@@ -73,6 +80,7 @@
         return;
     }
     
+    GRAB_DISPATCH_LOCK; //make sure no one changes _objectsToBeDispatched while using it
     NSMutableArray* eventsForRequestId = [_objectsToBeDispatched objectForKey:requestId];
     if (!eventsForRequestId)
     {
@@ -81,6 +89,7 @@
     }
     
     [eventsForRequestId addObject:event];
+    RELEASE_DISPATCH_LOCK;
 }
 
 - (void)dealloc
@@ -89,6 +98,9 @@
     _dispatcher = nil;
     SAFE_ARC_RELEASE(_objectsToBeDispatched);
     _objectsToBeDispatched = nil;
+#if !__has_feature(objc_arc)
+    dispatch_release(_dispatchLock);
+#endif
     
     SAFE_ARC_SUPER_DEALLOC();
 }
