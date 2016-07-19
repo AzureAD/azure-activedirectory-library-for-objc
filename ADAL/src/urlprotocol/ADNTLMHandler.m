@@ -81,7 +81,7 @@ static NSURLConnection *_conn = nil;
         }
         // This is the NTLM challenge: use the identity to authenticate:
         AD_LOG_INFO_F(@"Attempting to handle NTLM challenge", nil,  @"host: %@", challenge.protectionSpace.host);
-
+        
         [ADNTLMUIPrompt presentPrompt:^(NSString *username, NSString *password)
         {
             if (username)
