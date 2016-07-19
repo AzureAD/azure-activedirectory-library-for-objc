@@ -51,11 +51,19 @@
 @property (strong)                      NSData              *body;
 @property (nonatomic)                   NSUInteger           timeout;
 @property BOOL isGetRequest;
+@property (readonly) NSUUID* correlationId;
 
 - (id)initWithURL: (NSURL*)url
     correlationId: (NSUUID*) correlationId;
 
 - (void)send:( void (^)( NSError *, ADWebResponse *) )completionHandler;
+
+/*!
+    Resends a request. Note, this will cause the completionHandler previously set
+    in -send: to be hit again. As such this method should only be called from
+    within the completionHandler block on -send:
+ */
+- (void)resend;
 
 @end
 

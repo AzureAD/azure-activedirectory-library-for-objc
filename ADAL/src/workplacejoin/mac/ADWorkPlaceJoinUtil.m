@@ -21,50 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADWorkPlaceJoin.h"
 #import "ADWorkPlaceJoinUtil.h"
-#import "ADWorkPlaceJoinConstants.h"
-#import "ADRegistrationInformation.h"
-#import <UIKit/UIKit.h>
-#import <MessageUI/MessageUI.h>
 
+@implementation ADWorkPlaceJoinUtil
 
-@implementation ADWorkPlaceJoin
-
-static ADWorkPlaceJoin* wpjManager;
-
-#pragma mark - Public Methods
-
-+ (ADWorkPlaceJoin*) WorkPlaceJoinManager
++ (ADRegistrationInformation*)getRegistrationInformation:(NSUUID *)correlationId
+                                                   error:(ADAuthenticationError * __autoreleasing *)error
 {
-    if (!wpjManager)
+    ADAuthenticationError* adError =
+    [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_UNSUPPORTED_REQUEST
+                                           protocolCode:nil
+                                           errorDetails:@"Conditional Access is not supported on macOS."
+                                          correlationId:correlationId];
+    
+    if (error)
     {
-        wpjManager = [[self alloc] init];
+        *error = adError;
     }
     
-    return wpjManager;
-}
-
-- (id)init {
-    self = [super init];
-    if (self) {
-        [ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager].workplaceJoin = self;
-        _sharedGroup = [NSString stringWithFormat:@"%@.%@", [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  keychainTeamId], _defaultSharedGroup];
-    }
-    return self;
-}
-
-- (BOOL)isWorkPlaceJoined
-{
-    ADRegistrationInformation *userRegInfo = [self getRegistrationInformation];
-    BOOL certExists = [userRegInfo certificate] != NULL;
-    [userRegInfo releaseData];
-    userRegInfo = nil;
-    return certExists;
-}
-
-- (ADRegistrationInformation*) getRegistrationInformation {
-    return [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getRegistrationInformation:_sharedGroup error:nil];
+    return nil;
 }
 
 @end
+

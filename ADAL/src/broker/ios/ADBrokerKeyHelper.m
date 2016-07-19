@@ -178,7 +178,8 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     err = SecItemCopyMatching((__bridge CFDictionaryRef)symmetricKeyQuery, (CFTypeRef *)&symmetricKey);
     if (err == errSecSuccess)
     {
-        [self setSymmetricKey:(NSData*)symmetricKey];
+        [self setSymmetricKey:(__bridge NSData*)symmetricKey];
+        CFRelease(symmetricKey);
         return _symmetricKey;
     }
     

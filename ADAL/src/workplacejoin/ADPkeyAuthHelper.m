@@ -26,7 +26,7 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "ADRegistrationInformation.h"
 #import "NSString+ADHelperMethods.h"
-#import "ADWorkPlaceJoin.h"
+#import "ADWorkPlaceJoinUtil.h"
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "ADJwtHelper.h"
@@ -66,10 +66,30 @@
 }
 
 
-+ (nonnull NSString*)createDeviceAuthResponse:(NSString*)authorizationServer
-                                challengeData:(NSDictionary*) challengeData
++ (nullable NSString*)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
+                                challengeData:(nullable NSDictionary*)challengeData
+                                correlationId:(nullable NSUUID *)correlationId
+                                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
-    ADRegistrationInformation *info = [[ADWorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
+    ADAuthenticationError* adError = nil;
+    ADRegistrationInformation *info =
+    [ADWorkPlaceJoinUtil getRegistrationInformation:correlationId
+                                              error:&adError];
+    
+    if (!info && adError)
+    {
+        // If some error ocurred other then "I found nothing in the keychain" we want to short circuit out of
+        // the rest of the code, but if there was no error, we still create a response header, even if we
+        // don't have registration info
+        AD_LOG_ERROR(@"Failed to create PKeyAuth request.", adError.code, correlationId, nil);
+        
+        if (error)
+        {
+            *error = adError;
+        }
+        return nil;
+    }
+    
     
     if (!challengeData)
     {
@@ -90,7 +110,6 @@
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
                 AD_LOG_ERROR(@"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.", AD_ERROR_SERVER_WPJ_REQUIRED, nil, nil);
-                [info releaseData];
                 info = nil;
             }
         }
@@ -99,7 +118,6 @@
             if (![NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]])
             {
                 AD_LOG_ERROR(@"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.", AD_ERROR_SERVER_WPJ_REQUIRED, nil, nil);
-                [info releaseData];
                 info = nil;
             }
         }
@@ -109,10 +127,11 @@
     if (info)
     {
         pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
-        
-        [info releaseData];
+        AD_LOG_INFO(@"Found WPJ Info and responded to PKeyAuth Request", correlationId, nil);
         info = nil;
     }
+    
+    
     
     return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
 }

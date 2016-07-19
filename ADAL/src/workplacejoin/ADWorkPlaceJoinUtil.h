@@ -22,30 +22,12 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "ADRegistrationInformation.h"
-#import "ADWorkPlaceJoin.h"
+
+@class ADRegistrationInformation;
 
 @interface ADWorkPlaceJoinUtil : NSObject
 
-@property (nonatomic, readwrite, retain) ADWorkPlaceJoin *workplaceJoin;
-
-+ (ADWorkPlaceJoinUtil*) WorkPlaceJoinUtilManager;
-
-- (NSError*)getCertificateForAccessGroup: (NSString*)sharedAccessGroup
-                                identity: (SecIdentityRef*) identity
-                             certificate: (SecCertificateRef*) clientCertificate;
-
-- (ADRegistrationInformation*)getRegistrationInformation: (NSString*) sharedAccessGroup
-                                                 error: (NSError**) error;
-
-- (NSData *) base64DataFromString: (NSString *)string;
-
-- (NSError*) buildNSErrorForDomain:(NSString*)domain
-                         errorCode:(NSInteger) errorCode
-                      errorMessage:(NSString*) message
-                   underlyingError:(NSError*) underlyingError
-                       shouldRetry:(BOOL) retry;
-
-- (NSString*)keychainTeamId;
++ (ADRegistrationInformation*)getRegistrationInformation:(NSUUID *)correlationId
+                                                   error:(ADAuthenticationError * __autoreleasing *)error;
 
 @end

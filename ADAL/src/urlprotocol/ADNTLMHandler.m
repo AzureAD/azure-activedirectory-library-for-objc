@@ -98,7 +98,7 @@ static NSURLConnection *_conn = nil;
                 _challengeCancelled = YES;
                 AD_LOG_INFO_F(@"NTLM challenge cancelled", nil, @"host: %@", challenge.protectionSpace.host);
                 [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
-                [protocol connection:connection didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
+                [protocol connection:connection didFailWithError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_USER_CANCEL userInfo:nil]];
             }
         }];
     }//@synchronized

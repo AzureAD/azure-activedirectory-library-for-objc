@@ -24,6 +24,7 @@
 #import <Security/Security.h>
 #import "ADAL_Internal.h"
 #import "ADKeychainTokenCache+Internal.h"
+#import "ADKeychainUtil.h"
 #import "ADTokenCacheItem.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADTokenCacheKey.h"
@@ -121,7 +122,15 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         sharedGroup = [[NSBundle mainBundle] bundleIdentifier];
     }
     
-    NSString* teamId = [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager] keychainTeamId];
+    NSString* teamId = [ADKeychainUtil keychainTeamId:nil];
+#if !TARGET_OS_SIMULATOR
+    // If we didn't find a team ID and we're on device then the rest of ADAL not only will not work
+    // particularly well, we'll probably induce other issues by continuing.
+    if (!teamId)
+    {
+        return nil;
+    }
+#endif
     if (teamId)
     {
         _sharedGroup = [[NSString alloc] initWithFormat:@"%@.%@", teamId, sharedGroup];
@@ -254,8 +263,8 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                                               additional:@{ (id)kSecMatchLimit : (id)kSecMatchLimitAll,
                                                             (id)kSecReturnData : @YES,
                                                             (id)kSecReturnAttributes : @YES}];
-    NSArray* items = nil;
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&items);
+    CFTypeRef items = nil;
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &items);
     if (status == errSecItemNotFound)
     {
         // We don't want to print an error in this case as it's usually not actually an error.
@@ -268,11 +277,11 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         return nil;
     }
     
-    return items;
+    return CFBridgingRelease(items);
 }
 
 
-- (ADTokenCacheItem*)itemFromKeyhainAttributes:(NSDictionary*)attrs
+- (ADTokenCacheItem*)itemFromKeychainAttributes:(NSDictionary*)attrs
 {
     NSData* data = [attrs objectForKey:(id)kSecValueData];
     if (!data)
@@ -280,20 +289,27 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         AD_LOG_WARN(@"Retrieved item with key that did not have generic item data!", nil, nil);
         return nil;
     }
-    
-    ADTokenCacheItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    if (!item)
+    @try
     {
-        AD_LOG_WARN(@"Unable to decode item from data stored in keychain.", nil, nil);
+        ADTokenCacheItem* item = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+        if (!item)
+        {
+            AD_LOG_WARN(@"Unable to decode item from data stored in keychain.", nil, nil);
+            return nil;
+        }
+        if (![item isKindOfClass:[ADTokenCacheItem class]])
+        {
+            AD_LOG_WARN(@"Unarchived Item was not of expected class", nil, nil);
+            return nil;
+        }
+        
+        return item;
+    }
+    @catch (NSException *exception)
+    {
+        AD_LOG_WARN(@"Failed to deserialize data from keychain", nil, nil);
         return nil;
     }
-    if (![item isKindOfClass:[ADTokenCacheItem class]])
-    {
-        AD_LOG_WARN(@"Unarchived Item was not of expected class", nil, nil);
-        return nil;
-    }
-    
-    return item;
 }
 
 #pragma mark -
@@ -484,11 +500,12 @@ static ADKeychainTokenCache* s_defaultCache = nil;
                                        (id)kSecReturnData : @YES,
                                        (id)kSecAttrService : s_keyForStoringTomestoneCleanTime }];
     
-    NSData* data = nil;
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&data);
+    CFTypeRef data = nil;
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &data);
     if (status == errSecSuccess && data)
     {
-        NSDate* cleanTime = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+        NSDate* cleanTime = [NSKeyedUnarchiver unarchiveObjectWithData:(__bridge NSData * _Nonnull)(data)];
+        CFRelease(data);
         if (cleanTime)
         {
             return cleanTime;
@@ -606,7 +623,7 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     SAFE_ARC_AUTORELEASE(tokenItems);
     for (NSDictionary* attrs in items)
     {
-        ADTokenCacheItem* item = [self itemFromKeyhainAttributes:attrs];
+        ADTokenCacheItem* item = [self itemFromKeychainAttributes:attrs];
         if (!item)
         {
             continue;

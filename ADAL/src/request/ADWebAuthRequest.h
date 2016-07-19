@@ -38,6 +38,9 @@
 }
 
 @property BOOL returnRawResponse;
+@property BOOL retryIfServerError;
+@property BOOL handledPkeyAuthChallenge;
+@property (readonly) NSDate* startTime;
 
 - (void)setRequestDictionary:(NSDictionary<NSString*, NSString*> *)requestDictionary;
 - (void)sendRequest:(void(^)(NSDictionary *))completionBlock;
