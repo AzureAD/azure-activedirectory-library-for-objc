@@ -143,12 +143,13 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     // Depending on the environment we may or may not have keychain access groups. Which environments
     // have keychain access group support also varies over time. They should always work on device,
     // in Simulator they work when running within an app bundle but not in unit tests, as of Xcode 7.3
-    
+#if !TARGET_OS_SIMULATOR
     if (_sharedGroup)
     {
         [defaultQuery setObject:_sharedGroup forKey:(id)kSecAttrAccessGroup];
         [defaultTombstoneQuery setObject:_sharedGroup forKey:(id)kSecAttrAccessGroup];
     }
+#endif
     
     _default = defaultQuery;
     _defaultTombstone = defaultTombstoneQuery;

@@ -40,7 +40,9 @@
                  completionBlock: (ADAuthenticationCallback)completionBlock
 {
     ADTokenCacheItem *authInfo = [NSKeyedUnarchiver unarchiveObjectWithData:authData];
-    [_tokenCache updateCacheToItem:authInfo MRRT:authInfo.isMultiResourceRefreshToken];
+    [_tokenCache updateCacheToItem:authInfo
+                              MRRT:authInfo.isMultiResourceRefreshToken
+                     correlationId:_correlationId];
     [self acquireToken:completionBlock];
 }
 #endif

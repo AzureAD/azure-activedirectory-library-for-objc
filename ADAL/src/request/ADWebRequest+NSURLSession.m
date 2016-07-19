@@ -33,7 +33,7 @@
 #import "ADURLProtocol.h"
 #import "ADWebRequest+NSURLSession.h"
 
-@interface ADWebRequest () <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
+@interface ADWebRequest ()
 
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response;
 - (void)send;
@@ -176,13 +176,32 @@
     request.allHTTPHeaderFields = _requestHeaders;
     request.HTTPBody = _requestData;
     
-    [ADURLProtocol addCorrelationId:_correlationId toRequest:request];
+    // For some reason, setting cutom properties in request on watchOS doesn't work properly
+    //[ADURLProtocol addCorrelationId:_correlationId toRequest:request];
     
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:config
-                                                          delegate:self
+                                                          delegate:nil
                                                      delegateQueue:_operationQueue];
-    [[session dataTaskWithRequest:request] resume];
+    
+    [[session dataTaskWithRequest:request
+                completionHandler:^(NSData * _Nullable data,
+                                    NSURLResponse * _Nullable response,
+                                    NSError * _Nullable error) {
+        if(error){
+            [self completeWithError:error andResponse:nil];
+        }
+        else {
+            _response = (NSHTTPURLResponse *)response;
+            [_responseData appendData:data];
+
+            NSAssert(_response != nil, @"No HTTP Response available");
+            ADWebResponse *response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
+            SAFE_ARC_AUTORELEASE(response);
+            
+            [self completeWithError:nil andResponse:response];
+        }
+    }] resume];
 }
 
 - (BOOL)verifyRequestURL:(NSURL *)requestURL
@@ -194,68 +213,6 @@
         return NO;
     
     return YES;
-}
-
-#pragma mark - NSURLSessionDelegate
-
--(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
-{
-#pragma unused(session)
-#pragma unused(task)
-    
-    if (!error) {
-        //
-        // NOTE: There is a race condition between this method and the challenge handling methods
-        //       dependent on the the challenge processing that the application performs.
-        //
-        NSAssert(_response != nil, @"No HTTP Response available");
-        
-        ADWebResponse *response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
-        SAFE_ARC_AUTORELEASE(response);
-        
-        [self completeWithError:nil andResponse:response];
-    }
-    else {
-        [self completeWithError:error andResponse:nil];
-    }
-}
-
--(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
-{
-#pragma unused(session)
-#pragma unused(dataTask)
-#pragma unused(completionHandler)
-    
-    SAFE_ARC_RELEASE(_response)
-    _response = (NSHTTPURLResponse *)response;
-    SAFE_ARC_RETAIN(_response)
-}
-
--(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
-{
-#pragma unused(session)
-#pragma unused(dataTask)
-    
-    [_responseData appendData:data];
-}
-
--(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler
-{
-#pragma unused(session)
-#pragma unused(task)
-#pragma unused(response)
-#pragma unused(completionHandler)
-    
-    NSURL *requestURL = [request URL];
-    NSURL *modifiedURL = [ADHelpers addClientVersionToURL:requestURL];
-    if (modifiedURL == requestURL) {
-        completionHandler(request);
-    }
-    else {
-        NSMutableURLRequest *mutableRequest = [NSMutableURLRequest requestWithURL:modifiedURL];
-        [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
-        completionHandler(mutableRequest);
-    }
 }
 
 @end

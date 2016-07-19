@@ -87,7 +87,8 @@
 
 #if TARGET_OS_WATCH
 - (void)updateCacheToItem:(ADTokenCacheItem *)cacheItem
-                     MRRT:(BOOL)isMRRT;
+                     MRRT:(BOOL)isMRRT
+            correlationId:(NSUUID *)correlationId;
 #endif
 
 @end

@@ -30,7 +30,7 @@ typedef enum
     ADWebRequestPost,
 } ADWebRequestMethodType;
 
-@interface ADWebRequest : NSObject <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
+@interface ADWebRequest : NSObject
 {
     NSURL * _requestURL;
     NSMutableDictionary * _requestHeaders;
