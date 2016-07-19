@@ -258,8 +258,6 @@
 		B681E9631D38068E001157CE /* ADWebAuthResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D68040321D22F686007A61AC /* ADWebAuthResponse.m */; };
 		B681E9651D38068E001157CE /* ADWebResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C38D1C5820E3006B9E79 /* ADWebResponse.m */; };
 		B681E9671D38069B001157CE /* ADCustomHeaderHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3971C5826F2006B9E79 /* ADCustomHeaderHandler.m */; };
-		B681E9691D38069B001157CE /* ADNTLMHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3991C5826F2006B9E79 /* ADNTLMHandler.m */; };
-		B681E96B1D38069B001157CE /* ADURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C39B1C5826F2006B9E79 /* ADURLProtocol.m */; };
 		B681E96D1D3806A4001157CE /* ADALFrameworkUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C35F1C580157006B9E79 /* ADALFrameworkUtils.m */; };
 		B681E96F1D3806A4001157CE /* ADHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3611C580157006B9E79 /* ADHelpers.m */; };
 		B681E9711D3806A4001157CE /* NSDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3651C580157006B9E79 /* NSDictionary+ADExtensions.m */; };
@@ -1647,7 +1645,6 @@
 				B681E9801D3806B5001157CE /* ADWorkPlaceJoinUtil.m in Sources */,
 				B681E9391D380674001157CE /* ADAuthenticationParameters.m in Sources */,
 				B681E93B1D380674001157CE /* ADAuthenticationResult+Internal.m in Sources */,
-				B681E9691D38069B001157CE /* ADNTLMHandler.m in Sources */,
 				B681E9501D380685001157CE /* ADTokenCacheKey.m in Sources */,
 				B681E93F1D380674001157CE /* ADInstanceDiscovery.m in Sources */,
 				B681E97C1D3806B0001157CE /* ADPkeyAuthHelper.m in Sources */,
@@ -1656,7 +1653,6 @@
 				B681E96D1D3806A4001157CE /* ADALFrameworkUtils.m in Sources */,
 				B681E9671D38069B001157CE /* ADCustomHeaderHandler.m in Sources */,
 				B681E9441D380674001157CE /* ADUserInformation.m in Sources */,
-				B681E96B1D38069B001157CE /* ADURLProtocol.m in Sources */,
 				B681E9771D3806A4001157CE /* NSUUID+ADExtensions.m in Sources */,
 				B681E9A21D381809001157CE /* ADWebRequest+NSURLSession.m in Sources */,
 				B681E9431D380674001157CE /* ADOAuth2Constants.m in Sources */,
@@ -3511,6 +3507,7 @@
 				B681E91F1D380633001157CE /* Nightly */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
 		};
 		D616AD5E1D25EF12006EF8B5 /* Build configuration list for PBXNativeTarget "ADALiOS-AppExtension" */ = {
 			isa = XCConfigurationList;

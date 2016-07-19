@@ -86,6 +86,12 @@
               correlationId:(NSUUID *)correlationId;
 
 #if TARGET_OS_WATCH
+/*!
+ This is a API exposed to the usage for watchOS only. Note it's still internal in the project. This method will update the ADTokenCacheItem into proper cache system.
+ 
+ @param cacheItem       The ADTokenCacheItem to update into Cache
+ @param MRRT            If the refresh token from cacheItem is a Multi-Resource Refresh Token (MRRT)
+ */
 - (void)updateCacheToItem:(ADTokenCacheItem *)cacheItem
                      MRRT:(BOOL)isMRRT
             correlationId:(NSUUID *)correlationId;

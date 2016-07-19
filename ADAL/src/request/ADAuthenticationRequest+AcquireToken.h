@@ -26,6 +26,10 @@
 @interface ADAuthenticationRequest (AcquireToken)
 
 #if TARGET_OS_WATCH
+/*! This is an API exposed for WatchOS only. The authData is the ADTokenCacheItem transmitted from paired phone to watch. Internally, this method will save this authData info into the cache on Watch, and then call acquireToken to finish the authentication process as the standard ADAL library does
+ @param authData: the ADTokenCacheItem saved on the paired phone cache and then transmitted from phone to watch
+ @param completionBlock: the callback handler after the authentication finishes
+ */
 - (void)acquireTokenWithAuthData:(NSData *)authData
                  completionBlock: (ADAuthenticationCallback)completionBlock;
 #endif
