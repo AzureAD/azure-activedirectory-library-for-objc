@@ -42,10 +42,10 @@
 
 - (void)flush
 {
-    GRAB_DISPATCH_LOCK; //avoid access conflict when manipulating _objectsToBeDispatched
+    [_dispatchLock lock]; //avoid access conflict when manipulating _objectsToBeDispatched
     NSMutableDictionary* objectsToBeDispatchedCopy = _objectsToBeDispatched;
     _objectsToBeDispatched = [NSMutableDictionary new];
-    RELEASE_DISPATCH_LOCK;
+    [_dispatchLock unlock];
     
     // Integrate events of a particular request id into one single event
     for (NSString* requestId in objectsToBeDispatchedCopy)
