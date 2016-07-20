@@ -21,27 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "ADEventInterface.h"
 
-@interface ADRegistrationInformation : NSObject
+@interface ADDefaultEvent : NSObject <ADEventInterface>
+{
+    NSMutableArray* _propertyMap;
+}
 
-@property (nonatomic, readonly) SecIdentityRef securityIdentity;
-@property (nonatomic, readonly) SecCertificateRef certificate;
-@property (nonatomic, readonly) NSString *certificateSubject;
-@property (nonatomic, readonly) NSString *certificateIssuer;
-@property (nonatomic, readonly) NSData *certificateData;
-@property (nonatomic, readonly) SecKeyRef privateKey;
-@property (nonatomic, readonly) NSString *userPrincipalName;
-
-- (id)initWithSecurityIdentity:(SecIdentityRef)identity
-             userPrincipalName:(NSString*)userPrincipalName
-             certificateIssuer:(NSString*)certificateIssuer
-                   certificate:(SecCertificateRef)certificate
-            certificateSubject:(NSString*)certificateSubject
-               certificateData:(NSData*)certificateData
-                    privateKey:(SecKeyRef)privateKey;
-
-- (BOOL)isWorkPlaceJoined;
+- (id)initWithName:(NSString*)eventName;
 
 @end
-

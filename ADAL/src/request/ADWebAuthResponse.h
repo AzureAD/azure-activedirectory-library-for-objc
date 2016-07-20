@@ -21,27 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADWorkPlaceJoin.h"
+#import <Foundation/Foundation.h>
 
-@implementation ADWorkPlaceJoin
+@class ADWebResponse;
+@class ADWebAuthRequest;
 
-@synthesize sharedGroup = _sharedGroup;
-
-#pragma mark - Public Methods
-
-+ (ADWorkPlaceJoin*) WorkPlaceJoinManager
+@interface ADWebAuthResponse : NSObject
 {
-    return nil;
+    NSMutableDictionary* _responseDictionary;
+    ADWebAuthRequest* _request;
+    ADWebAuthRequest* _retryRequest;
+    NSUUID* _correlationId;
 }
 
-- (BOOL)isWorkPlaceJoined
-{
-    return NO;
-}
++ (void)processError:(NSError *)error
+       correlationId:(NSUUID *)correlationId
+          completion:(void (^)(NSDictionary *))completionBlock;
 
-- (ADRegistrationInformation*) getRegistrationInformation
-{
-    return nil;
-}
++ (void)processResponse:(ADWebResponse *)webResponse
+                request:(ADWebAuthRequest *)request
+             completion:(void (^)(NSDictionary *))completionBlock;
 
 @end

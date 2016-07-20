@@ -21,27 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "ADEventInterface.h"
 
-@interface ADRegistrationInformation : NSObject
+@interface ADTelemetry (Internal)
 
-@property (nonatomic, readonly) SecIdentityRef securityIdentity;
-@property (nonatomic, readonly) SecCertificateRef certificate;
-@property (nonatomic, readonly) NSString *certificateSubject;
-@property (nonatomic, readonly) NSString *certificateIssuer;
-@property (nonatomic, readonly) NSData *certificateData;
-@property (nonatomic, readonly) SecKeyRef privateKey;
-@property (nonatomic, readonly) NSString *userPrincipalName;
+- (NSString*)registerNewRequest;
 
-- (id)initWithSecurityIdentity:(SecIdentityRef)identity
-             userPrincipalName:(NSString*)userPrincipalName
-             certificateIssuer:(NSString*)certificateIssuer
-                   certificate:(SecCertificateRef)certificate
-            certificateSubject:(NSString*)certificateSubject
-               certificateData:(NSData*)certificateData
-                    privateKey:(SecKeyRef)privateKey;
+- (void)startEvent:(NSString*)requestId
+         eventName:(NSString*)eventName;
 
-- (BOOL)isWorkPlaceJoined;
+- (void)stopEvent:(NSString*)requestId
+            event:(id<ADEventInterface>)event;
+
+- (void)dispatchEventNow:(NSString*)requestId
+                   event:(id<ADEventInterface>)event;
 
 @end
-

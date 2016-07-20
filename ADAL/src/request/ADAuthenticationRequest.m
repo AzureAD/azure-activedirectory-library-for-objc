@@ -30,7 +30,11 @@
 #import "NSDictionary+ADExtensions.h"
 #import "NSString+ADHelperMethods.h"
 #import "NSURL+ADExtensions.h"
+
+#if TARGET_OS_IPHONE
 #import "ADBrokerKeyHelper.h"
+#endif
+
 #import "ADAuthenticationRequest+WebRequest.h"
 #import "ADUserIdentifier.h"
 

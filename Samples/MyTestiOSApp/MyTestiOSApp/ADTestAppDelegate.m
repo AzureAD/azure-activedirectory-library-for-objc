@@ -105,5 +105,18 @@
     
 }
 
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url sourceApplication:(nullable NSString *)sourceApplication annotation:(nonnull id)annotation
+{
+    NSLog(@"iOS 8 OpenURL Method!");
+    
+    return YES;
+}
+
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *,id> *)options
+{
+    NSLog(@"iOS 9 OpenURL Method!");
+    
+    return YES;
+}
 
 @end

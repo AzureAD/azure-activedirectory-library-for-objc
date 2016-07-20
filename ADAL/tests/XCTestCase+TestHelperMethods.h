@@ -37,6 +37,9 @@
 #define TEST_REFRESH_TOKEN @"refresh token"
 #define TEST_CORRELATION_ID ({NSUUID *testID = [[NSUUID alloc] initWithUUIDString:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"]; SAFE_ARC_AUTORELEASE(testID); testID;})
 
+#define TEST_SIGNAL dispatch_semaphore_signal(_dsem)
+#define TEST_WAIT dispatch_semaphore_wait(_dsem, DISPATCH_TIME_FOREVER)
+
 typedef enum
 {
     TEST_LOG_LEVEL,
@@ -86,6 +89,7 @@ typedef enum
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken;
 
+/*! Used for constructing a refresh token response with additional information in the JSON body */
 - (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
                                     authority:(NSString *)authority
                                      resource:(NSString *)resource
@@ -94,6 +98,44 @@ typedef enum
                               newRefreshToken:(NSString *)newRefreshToken
                                newAccessToken:(NSString *)newAccessToken
                              additionalFields:(NSDictionary *)additionalFields;
+
+
+- (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
+                                    authority:(NSString *)authority
+                                     resource:(NSString *)resource
+                                     clientId:(NSString *)clientId
+                               requestHeaders:(NSDictionary *)requestHeaders
+                                correlationId:(NSUUID *)correlationId
+                              newRefreshToken:(NSString *)newRefreshToken
+                               newAccessToken:(NSString *)newAccessToken
+                             additionalFields:(NSDictionary *)additionalFields;
+
+/*! Used for constructing a response with the provided refresh token parameters */
+- (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
+                                    authority:(NSString *)authority
+                                     resource:(NSString *)resource
+                                     clientId:(NSString *)clientId
+                                correlationId:(NSUUID *)correlationId
+                                 responseCode:(NSInteger)responseCode
+                              responseHeaders:(NSDictionary *)responseHeaders
+                                 responseJson:(NSDictionary *)responseJson;
+
+
+- (ADTestURLResponse *)adResponseRefreshToken:(NSString *)oldRefreshToken
+                                    authority:(NSString *)authority
+                                     resource:(NSString *)resource
+                                     clientId:(NSString *)clientId
+                               requestHeaders:(NSDictionary *)requestHeaders
+                                correlationId:(NSUUID *)correlationId
+                                 responseCode:(NSInteger)responseCode
+                              responseHeaders:(NSDictionary *)responseHeaders
+                                 responseJson:(NSDictionary *)responseJson;
+
+/*! Used for constructing a response with a specific HTTP code and HTTP headers 
+    to a default refresh token request */
+- (ADTestURLResponse *)adDefaultRefreshReponseCode:(NSInteger)responseCode
+                                   responseHeaders:(NSDictionary *)responseHeaders
+                                      responseJson:(NSDictionary *)responseJson;
 
 /*! Verifies that the correct error is returned when any method was passed invalid arguments.
  */

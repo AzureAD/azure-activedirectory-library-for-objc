@@ -160,7 +160,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     [_completionLock unlock];
 }
 
-- (void) handlePKeyAuthChallenge:(NSString *)challengeUrl
+- (void)handlePKeyAuthChallenge:(NSString *)challengeUrl
 {
     
     AD_LOG_VERBOSE(@"Handling PKeyAuth Challenge", nil, nil);
@@ -173,11 +173,19 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     NSArray * authorityParts = [value componentsSeparatedByString:@"?"];
     NSString *authority = [authorityParts objectAtIndex:0];
     
+    ADAuthenticationError* adError = nil;
+    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority
+                                                        challengeData:queryParamsMap
+                                                        correlationId:_correlationId
+                                                                error:&adError];
+    if (!authHeader)
+    {
+        [self dispatchCompletionBlock:adError URL:nil];
+        return;
+    }
+    
     NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:value]];
     [ADURLProtocol addCorrelationId:_correlationId toRequest:responseUrl];
-    
-    NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority
-                                                        challengeData:queryParamsMap];
     
     [responseUrl setValue:pKeyAuthHeaderVersion forHTTPHeaderField: pKeyAuthHeader];
     [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];

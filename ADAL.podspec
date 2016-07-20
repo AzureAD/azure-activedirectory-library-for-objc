@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = "ADAL"
   s.module_name  = "ADAL"
-  s.version      = "2.2.0"
+  s.version      = "2.2.2"
   s.summary      = "The ADAL SDK for iOS gives you the ability to add Azure Identity authentication to your application"
 
   s.description  = <<-DESC
@@ -22,51 +22,50 @@ Pod::Spec.new do |s|
     :tag => s.version.to_s
   }
   
-  s.header_dir = "ADAL"
+  s.default_subspecs ='app-lib'
   
   s.prefix_header_file = "ADAL/src/ADAL.pch"
-
-  s.source_files = "ADAL/src/**/*.{h,m}"
-  s.public_header_files = "ADAL/src/public/*.h"
-  
-  # There is currently a bug in CocoaPods where it doesn't combine the public headers
-  # for both the platform and overall.
-  s.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/ios/*.h"
-  s.ios.exclude_files = "ADAL/src/**/mac/*"
-  
-  s.osx.public_header_files = "ADAL/src/public/mac/*.h","ADAL/src/public/*.h"
-  s.osx.exclude_files = "ADAL/src/**/ios/*"
+  s.header_dir = "ADAL"
   s.module_map = "ADAL/resources/mac/adal_mac.modulemap"
-  s.osx.resources = "ADAL/resources/mac/ADCredentialViewController.xib"
   
-  s.exclude_files = "ADAL/src/broker/ios/ADBrokerKeyHelper.m","ADAL/src/cache/ios/ADKeychainTokenCache.m","ADAL/src/workplacejoin/ios/ADWorkPlaceJoinUtil.m"
-  s.requires_arc = true
+  s.subspec 'app-lib' do |app|
+  	app.source_files = "ADAL/src/**/*.{h,m}"
+  	app.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/ios/*.h"
+  	app.osx.public_header_files = "ADAL/src/public/mac/*.h","ADAL/src/public/*.h"
+  
+  	app.ios.exclude_files = "ADAL/src/**/mac/*"
+  		
+  	app.osx.exclude_files = "ADAL/src/**/ios/*"
+  	app.osx.resources = "ADAL/resources/mac/ADCredentialViewController.xib"
+  	
+  	app.requires_arc = true
+  	
+  	app.ios.dependency 'ADAL/tokencacheheader'
+  end
   
   # This is a hack because one of the headers is public on mac but private on ios
   s.subspec 'tokencacheheader' do |ph|
   	ph.platform = :ios
-  	ph.ios.source_files = "ADAL/src/public/mac/ADTokenCache.h","ADAL/src/public/ios/*.h"
+  	ph.ios.source_files = "ADAL/src/public/mac/ADTokenCache.h"
   	# This extra nonsense is so that it doesn't make ADTokenCache.h a public header on iOS
   	# And also doesn't generate a podspec warning
-  	ph.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/ios/*.h"
+  	ph.ios.private_header_files = "ADAL/src/public/mac/ADTokenCache.h"
   end
   
-  s.subspec 'iosinternalheaders' do |hds|
-   hds.platform = :osx
-   hds.osx.source_files = "ADAL/src/workplacejoin/ios/ADWorkplaceJoinConstants.h","ADAL/src/broker/ios/*.h","ADAL/src/public/mac/*.h"
-   hds.osx.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/mac/*.h"
-  end
-
-  # This is the only way cocoapods has of dealing with a handful of files that don't use
-  # ARC. Why they make this significantly more difficult, I don't know.
-  s.subspec 'no-arc' do |noarc|
-    noarc.platform = :ios
-   	noarc.ios.source_files = "ADAL/src/**/*.h","ADAL/src/broker/ios/ADBrokerKeyHelper.m","ADAL/src/cache/ios/ADKeychainTokenCache.m","ADAL/src/workplacejoin/ios/ADWorkPlaceJoinUtil.m"
-  	noarc.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/*.h"
+  # Note, ADAL has limited support for running in app extensions.
+  s.subspec 'extension' do |ext|
+  	ext.compiler_flags = '-DADAL_EXTENSION_SAFE=1'
+  	ext.source_files = "ADAL/src/**/*.{h,m}"
+  	ext.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/ios/*.h"
+  	ext.osx.public_header_files = "ADAL/src/public/mac/*.h","ADAL/src/public/*.h"
+  
+  	# There is currently a bug in CocoaPods where it doesn't combine the public headers
+  	# for both the platform and overall.
+  	ext.ios.exclude_files = "ADAL/src/**/mac/*"
+  	ext.osx.exclude_files = "ADAL/src/**/ios/*"
   	
-  	noarc.ios.public_header_files = "ADAL/src/public/*.h","ADAL/src/public/ios/*.h"
-  	noarc.ios.exclude_files = "ADAL/src/**/mac/*"
+  	ext.requires_arc = true
   	
-  	noarc.requires_arc = false
+  	ext.ios.dependency 'ADAL/tokencacheheader'
   end
 end

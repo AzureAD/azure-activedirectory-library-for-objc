@@ -21,27 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#define GRAB_DISPATCH_LOCK dispatch_semaphore_signal(_dispatchLock)
+#define RELEASE_DISPATCH_LOCK dispatch_semaphore_wait(_dispatchLock, DISPATCH_TIME_FOREVER)
 
-@interface ADRegistrationInformation : NSObject
+@interface ADDefaultDispatcher : NSObject
+{
+    NSMutableDictionary* _objectsToBeDispatched;
+    id<ADDispatcher> _dispatcher;
+    dispatch_semaphore_t _dispatchLock;
+}
 
-@property (nonatomic, readonly) SecIdentityRef securityIdentity;
-@property (nonatomic, readonly) SecCertificateRef certificate;
-@property (nonatomic, readonly) NSString *certificateSubject;
-@property (nonatomic, readonly) NSString *certificateIssuer;
-@property (nonatomic, readonly) NSData *certificateData;
-@property (nonatomic, readonly) SecKeyRef privateKey;
-@property (nonatomic, readonly) NSString *userPrincipalName;
+- (id)initWithDispatcher:(id<ADDispatcher>)dispatcher;
 
-- (id)initWithSecurityIdentity:(SecIdentityRef)identity
-             userPrincipalName:(NSString*)userPrincipalName
-             certificateIssuer:(NSString*)certificateIssuer
-                   certificate:(SecCertificateRef)certificate
-            certificateSubject:(NSString*)certificateSubject
-               certificateData:(NSData*)certificateData
-                    privateKey:(SecKeyRef)privateKey;
+- (void)receive:(NSString *)requestId
+          event:(id<ADEventInterface>)event;
 
-- (BOOL)isWorkPlaceJoined;
+- (void)flush;
 
 @end
-

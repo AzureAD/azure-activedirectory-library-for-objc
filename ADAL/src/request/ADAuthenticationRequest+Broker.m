@@ -34,10 +34,10 @@
 #import "ADUserIdentifier.h"
 #import "ADUserInformation.h"
 #import "ADWebAuthController+Internal.h"
-#import "ADKeychainTokenCache+Internal.h"
 #import "ADAuthenticationResult.h"
 
 #if TARGET_OS_IPHONE
+#import "ADKeychainTokenCache+Internal.h"
 #import "ADBrokerKeyHelper.h"
 #import "ADBrokerNotificationManager.h"
 #endif // TARGET_OS_IPHONE
