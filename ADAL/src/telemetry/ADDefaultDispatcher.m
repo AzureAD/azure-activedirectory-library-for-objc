@@ -51,13 +51,13 @@
 - (void)flush
 {
     [_dispatchLock lock]; //avoid access conflict when manipulating _objectsToBeDispatched
-    NSMutableDictionary* objectsToBeDispatchedCopy = _objectsToBeDispatched;
+    NSMutableDictionary* objectsToBeDispatched = _objectsToBeDispatched;
     _objectsToBeDispatched = [NSMutableDictionary new];
     [_dispatchLock unlock];;
     
-    for (NSString* requestId in objectsToBeDispatchedCopy)
+    for (NSString* requestId in objectsToBeDispatched)
     {
-        NSArray* events = [objectsToBeDispatchedCopy objectForKey:requestId];
+        NSArray* events = [objectsToBeDispatched objectForKey:requestId];
         
         for (id<ADEventInterface> event in events)
         {
@@ -68,7 +68,7 @@
             }
         }
         
-        SAFE_ARC_RELEASE(objectsToBeDispatchedCopy);
+        SAFE_ARC_RELEASE(objectsToBeDispatched);
     }
 }
 

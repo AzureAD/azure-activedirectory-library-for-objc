@@ -23,7 +23,6 @@
 
 /* Begin PBXBuildFile section */
 		600401A01D340B760020EAAB /* ADTelemetry.h in Headers */ = {isa = PBXBuildFile; fileRef = 6004019F1D340B760020EAAB /* ADTelemetry.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		600401A11D340B760020EAAB /* ADTelemetry.h in Headers */ = {isa = PBXBuildFile; fileRef = 6004019F1D340B760020EAAB /* ADTelemetry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		600401A41D3421480020EAAB /* ADTelemetry.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401A31D3421480020EAAB /* ADTelemetry.m */; };
 		600401A51D3421480020EAAB /* ADTelemetry.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401A31D3421480020EAAB /* ADTelemetry.m */; };
 		600401A71D3426250020EAAB /* ADTelemetry+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 600401A61D3426250020EAAB /* ADTelemetry+Internal.h */; };
@@ -674,6 +673,7 @@
 		600401A21D3420C10020EAAB /* telemetry */ = {
 			isa = PBXGroup;
 			children = (
+				6004019F1D340B760020EAAB /* ADTelemetry.h */,
 				600401A61D3426250020EAAB /* ADTelemetry+Internal.h */,
 				600401A31D3421480020EAAB /* ADTelemetry.m */,
 				600401C11D39A18E0020EAAB /* ADDefaultDispatcher.h */,
@@ -684,7 +684,7 @@
 				600401A81D3428770020EAAB /* ADDefaultEvent.h */,
 				600401AA1D3443D30020EAAB /* ADDefaultEvent.m */,
 			);
-			name = telemetry;
+			path = telemetry;
 			sourceTree = "<group>";
 		};
 		8B0965A117F25770002BDFB8 = {
@@ -1018,7 +1018,6 @@
 				9453C3BC1C583AE6006B9E79 /* ADAuthenticationSettings.h */,
 				9453C3BD1C583AE6006B9E79 /* ADErrorCodes.h */,
 				9453C3BE1C583AE6006B9E79 /* ADLogger.h */,
-				6004019F1D340B760020EAAB /* ADTelemetry.h */,
 				9453C3BF1C583AE6006B9E79 /* ADTokenCacheItem.h */,
 				9453C3C01C583AE6006B9E79 /* ADUserIdentifier.h */,
 				9453C3C11C583AE6006B9E79 /* ADUserInformation.h */,
@@ -1185,7 +1184,6 @@
 				9453C42E1C58646D006B9E79 /* ADAuthenticationRequest+Broker.h in Headers */,
 				94DD18D11C5AC8DE00F80C62 /* ADAuthenticationError.h in Headers */,
 				600401C21D39A18E0020EAAB /* ADDefaultDispatcher.h in Headers */,
-				600401A11D340B760020EAAB /* ADTelemetry.h in Headers */,
 				600401A91D3428770020EAAB /* ADDefaultEvent.h in Headers */,
 				9453C43E1C58647E006B9E79 /* ADHelpers.h in Headers */,
 				9453C4211C586462006B9E79 /* ADTokenCache+Internal.h in Headers */,

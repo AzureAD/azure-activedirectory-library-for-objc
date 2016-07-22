@@ -50,7 +50,8 @@
 
 - (void)setProperty:(NSString*)name value:(NSString*)value
 {
-    if ([NSString adIsStringNilOrBlank:name] || [NSString adIsStringNilOrBlank:value])
+    // value can be empty but not nil
+    if ([NSString adIsStringNilOrBlank:name] || !value)
     {
         return;
     }

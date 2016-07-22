@@ -43,14 +43,14 @@
 - (void)flush
 {
     [_dispatchLock lock]; //avoid access conflict when manipulating _objectsToBeDispatched
-    NSMutableDictionary* objectsToBeDispatchedCopy = _objectsToBeDispatched;
+    NSMutableDictionary* objectsToBeDispatched = _objectsToBeDispatched;
     _objectsToBeDispatched = [NSMutableDictionary new];
     [_dispatchLock unlock];
     
     // Integrate events of a particular request id into one single event
-    for (NSString* requestId in objectsToBeDispatchedCopy)
+    for (NSString* requestId in objectsToBeDispatched)
     {
-        NSArray* events = [objectsToBeDispatchedCopy objectForKey:requestId];
+        NSArray* events = [objectsToBeDispatched objectForKey:requestId];
         NSMutableArray* aggregatedEvent = [NSMutableArray new];
         
         for (id<ADEventInterface> event in events)
@@ -73,7 +73,7 @@
         [_dispatcher dispatch:aggregatedEvent];
     }
     
-    SAFE_ARC_RELEASE(objectsToBeDispatchedCopy);
+    SAFE_ARC_RELEASE(objectsToBeDispatched);
 }
 
 @end
