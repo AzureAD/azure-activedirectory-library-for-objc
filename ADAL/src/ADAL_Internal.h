@@ -59,7 +59,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 #   include <UIKit/UIKit.h>
 typedef UIWebView WebViewType;
 #elif TARGET_OS_WATCH
-typedef NSString WebViewType; // Should never be called
+typedef NSObject WebViewType; // Should never be called
 #else
 //OS X:
 #   include <WebKit/WebKit.h>

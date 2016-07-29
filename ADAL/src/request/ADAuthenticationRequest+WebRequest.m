@@ -177,8 +177,10 @@ static ADAuthenticationRequest* s_modalRequest = nil;
       completionBlock:(void (^)(ADAuthenticationError*, NSURL*))completionBlock
 {
 #if TARGET_OS_WATCH
+    (void)startUrl;
+    (void)completionBlock;
     @throw [NSException exceptionWithName:@"WebViewException"
-                                   reason:@"Webview is not support on apple watch"
+                                   reason:@"WebView is not supported on apple watch"
                                  userInfo:nil];
 #else
 

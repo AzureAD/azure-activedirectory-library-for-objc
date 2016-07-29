@@ -38,7 +38,7 @@ FOUNDATION_EXPORT const unsigned char ADALFrameworkVersionString[];
 typedef UIWebView WebViewType;
 #elif TARGET_OS_WATCH
 //Watch:
-typedef NSString WebViewType; // Should never be used
+typedef NSObject WebViewType; // Should never be used
 #else
 //OS X:
 #   include <WebKit/WebKit.h>
