@@ -43,6 +43,7 @@
                          correlationId:(NSUUID *)correlationId
                             tokenCache:(ADTokenCacheAccessor *)tokenCache
                       extendedLifetime:(BOOL)extendedLifetime
+                    telemetryRequestId:(NSString*)telemetryRequestId
                        completionBlock:(ADAuthenticationCallback)completionBlock
 {
     ADAcquireTokenSilentHandler* handler = [ADAcquireTokenSilentHandler new];
@@ -64,6 +65,8 @@
     SAFE_ARC_RETAIN(tokenCache);
     handler->_correlationId = correlationId;
     SAFE_ARC_RETAIN(correlationId);
+    handler->_telemetryRequestId = telemetryRequestId;
+    SAFE_ARC_RETAIN(telemetryRequestId);
     
     [handler getAccessToken:^(ADAuthenticationResult *result)
      {
@@ -108,6 +111,9 @@
     
     SAFE_ARC_RELEASE(_correlationId);
     _correlationId = nil;
+    
+    SAFE_ARC_RELEASE(_telemetryRequestId);
+    _telemetryRequestId = nil;
     
     SAFE_ARC_RELEASE(_tokenCache);
     _tokenCache = nil;
@@ -167,7 +173,8 @@
     
     ADWebAuthRequest* webReq =
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[_authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX]]
-                            correlationId:_correlationId];
+                            correlationId:_correlationId
+                       telemetryRequestId:_telemetryRequestId];
     [webReq setRequestDictionary:request_data];
     AD_LOG_INFO_F(@"Attempting to acquire an access token from refresh token", nil, @"clientId: '%@'; resource: '%@';", _clientId, _resource);
     [webReq sendRequest:^(NSDictionary *response)
@@ -187,7 +194,8 @@
              [_tokenCache updateCacheToResult:result
                                     cacheItem:resultItem
                                  refreshToken:refreshToken
-                                correlationId:_correlationId];
+                                correlationId:_correlationId
+                           telemetryRequestId:_telemetryRequestId];
          }
          result = [ADAuthenticationContext updateResult:result toUser:_identifier];//Verify the user (just in case)
          //
@@ -292,6 +300,7 @@
                                                     resource:_resource
                                                     clientId:_clientId
                                                correlationId:_correlationId
+                                          telemetryRequestId:_telemetryRequestId
                                                        error:&error];
     // If some error ocurred during the cache lookup then we need to fail out right away.
     if (!item && error)
@@ -304,7 +313,7 @@
     // and we need to check the unknown user ADFS token as well
     if (!item)
     {
-        item = [_tokenCache getADFSUserTokenForResource:_resource clientId:_clientId correlationId:_correlationId error:&error];
+        item = [_tokenCache getADFSUserTokenForResource:_resource clientId:_clientId correlationId:_correlationId telemetryRequestId:_telemetryRequestId error:&error];
         if (!item && error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -386,7 +395,7 @@
     // If we don't have an item yet see if we can pull one out of the cache
     if (!_mrrtItem)
     {
-        _mrrtItem = [_tokenCache getMRRTItemForUser:_identifier clientId:_clientId correlationId:_correlationId error:&error];
+        _mrrtItem = [_tokenCache getMRRTItemForUser:_identifier clientId:_clientId correlationId:_correlationId telemetryRequestId:_telemetryRequestId error:&error];
         if (!_mrrtItem && error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
@@ -447,7 +456,7 @@
     _attemptedFRT = YES;
     
     ADAuthenticationError* error = nil;
-    ADTokenCacheItem* frtItem = [_tokenCache getFRTItemForUser:_identifier familyId:familyId correlationId:_correlationId error:&error];
+    ADTokenCacheItem* frtItem = [_tokenCache getFRTItemForUser:_identifier familyId:familyId correlationId:_correlationId telemetryRequestId:_telemetryRequestId error:&error];
     if (!frtItem && error)
     {
         completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);

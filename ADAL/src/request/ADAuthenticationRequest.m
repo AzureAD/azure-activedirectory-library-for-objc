@@ -30,6 +30,8 @@
 #import "NSDictionary+ADExtensions.h"
 #import "NSString+ADHelperMethods.h"
 #import "NSURL+ADExtensions.h"
+#import "ADTelemetry.h"
+#import "ADTelemetry+Internal.h"
 
 #if TARGET_OS_IPHONE
 #import "ADBrokerKeyHelper.h"
@@ -138,6 +140,7 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
     SAFE_ARC_RELEASE(_queryParams);
     SAFE_ARC_RELEASE(_refreshTokenCredential);
     SAFE_ARC_RELEASE(_correlationId);
+    SAFE_ARC_RELEASE(_telemetryRequestId);
     SAFE_ARC_RELEASE(_underlyingError);
     
     SAFE_ARC_SUPER_DEALLOC();
@@ -300,6 +303,17 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
     }
     
     return _correlationId;
+}
+
+- (NSString*)telemetryRequestId
+{
+    if (_telemetryRequestId == nil)
+    {
+        _telemetryRequestId = [[ADTelemetry getInstance] registerNewRequest];
+        SAFE_ARC_RETAIN(_telemetryRequestId);
+    }
+    
+    return _telemetryRequestId;
 }
 
 - (BOOL)takeUserInterationLock

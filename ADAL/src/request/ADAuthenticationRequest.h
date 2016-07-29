@@ -71,6 +71,7 @@
     
     NSUUID* _correlationId;
     NSString* _logComponent;
+    NSString* _telemetryRequestId;
     
     BOOL _requestStarted;
     BOOL _attemptedFRT;
@@ -110,6 +111,7 @@
 - (void)setSilent:(BOOL)silent;
 - (void)setCorrelationId:(NSUUID*)correlationId;
 - (NSUUID*)correlationId;
+- (NSString*)telemetryRequestId;
 #if AD_BROKER
 - (NSString*)redirectUri;
 - (void)setRedirectUri:(NSString*)redirectUri;

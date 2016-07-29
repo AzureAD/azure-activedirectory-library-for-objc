@@ -32,6 +32,9 @@
 #import "ADHelpers.h"
 #import "ADLogger+Internal.h"
 #import "ADURLProtocol.h"
+#import "ADTelemetry.h"
+#import "ADTelemetry+Internal.h"
+#import "ADHttpEvent.h"
 
 @interface ADWebRequest () <NSURLConnectionDelegate>
 
@@ -78,6 +81,7 @@
 
 - (id)initWithURL:(NSURL *)requestURL
     correlationId:(NSUUID *)correlationId
+telemetryRequestId:(NSString *)telemetryRequestId
 {
     if (!(self = [super init]))
     {
@@ -92,6 +96,9 @@
     
     _correlationId     = correlationId;
     SAFE_ARC_RETAIN(_correlationId);
+    
+    _telemetryRequestId = telemetryRequestId;
+    SAFE_ARC_RETAIN(_telemetryRequestId);
     
     _operationQueue = [[NSOperationQueue alloc] init];
     [_operationQueue setMaxConcurrentOperationCount:1];
@@ -121,6 +128,9 @@
     SAFE_ARC_RELEASE(_correlationId);
     _correlationId = nil;
     
+    SAFE_ARC_RELEASE(_telemetryRequestId);
+    _telemetryRequestId = nil;
+    
     SAFE_ARC_RELEASE(_operationQueue);
     _operationQueue = nil;
     
@@ -142,6 +152,7 @@
     SAFE_ARC_RELEASE(_connection);
     _connection     = nil;
     
+    [self stopTelemetryEvent:error response:response];
     _completionHandler(error, response);
 }
 
@@ -170,6 +181,8 @@
 
 - (void)send
 {
+    [[ADTelemetry getInstance] startEvent:_telemetryRequestId eventName:@"http_request"];
+    
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
     //Correlation id:
     if (_correlationId)
@@ -304,6 +317,28 @@
 #pragma unused(totalBytesWritten)
 #pragma unused(totalBytesExpectedToWrite)
     
+}
+
+- (void)stopTelemetryEvent:(NSError *)error
+                  response:(ADWebResponse *)response
+{
+    ADHttpEvent* event = [[ADHttpEvent alloc] initWithName:@"http_request"];
+    
+    [event setHttpMethod:_isGetRequest ? @"GET" : @"POST"];
+    [event setHttpPath:[[_requestURL host] stringByAppendingPathComponent:[_requestURL path]]];
+    [event setHttpRequestQueryParams:[_requestURL query]];
+    if (error)
+    {
+        [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
+    }
+    else if (response)
+    {
+        [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[response statusCode]]];
+    }
+    
+    [[ADTelemetry getInstance] stopEvent:_telemetryRequestId event:event];
+    SAFE_ARC_RELEASE(event);
+
 }
 
 @end

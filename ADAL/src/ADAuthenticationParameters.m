@@ -90,7 +90,7 @@
         return;
     }
 
-    ADWebRequest* request = [[ADWebRequest alloc] initWithURL:resourceUrl correlationId:nil];
+    ADWebRequest* request = [[ADWebRequest alloc] initWithURL:resourceUrl correlationId:nil telemetryRequestId:nil];
     [request setIsGetRequest:YES];
     AD_LOG_VERBOSE_F(@"Starting authorization challenge request", nil, @"Resource: %@", resourceUrl);
     

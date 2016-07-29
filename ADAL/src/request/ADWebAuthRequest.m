@@ -39,8 +39,9 @@
 
 - (id)initWithURL:(NSURL *)url
     correlationId:(NSUUID *)correlationId
+telemetryRequestId:(NSString *)telemetryRequestId
 {
-    self = [super initWithURL:url correlationId:correlationId];
+    self = [super initWithURL:url correlationId:correlationId telemetryRequestId:telemetryRequestId];
     if (!self)
     {
         return nil;

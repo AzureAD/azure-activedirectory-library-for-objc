@@ -34,6 +34,7 @@
     NSString* _redirectUri;
     ADUserIdentifier* _identifier;
     NSUUID* _correlationId;
+    NSString* _telemetryRequestId;
     ADTokenCacheAccessor* _tokenCache;
     
     ADTokenCacheItem* _mrrtItem;
@@ -55,6 +56,7 @@
                          correlationId:(NSUUID *)correlationId
                             tokenCache:(ADTokenCacheAccessor *)tokenCache
                       extendedLifetime:(BOOL)extendedLifetime
+                    telemetryRequestId:(NSString*)telemetryRequestId
                        completionBlock:(ADAuthenticationCallback)completionBlock;
 
 @end

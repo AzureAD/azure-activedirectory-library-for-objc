@@ -48,6 +48,7 @@ typedef void(^ADDiscoveryCallback)(BOOL validated, ADAuthenticationError* error)
  @param completionBlock: the block to be called when the result is achieved.*/
 - (void)validateAuthority:(NSString *)authority
             correlationId:(NSUUID *)correlationId
+       telemetryRequestId:(NSString*)telemetryRequestId
           completionBlock:(ADDiscoveryCallback) completionBlock;
 
 /*! Takes the string and makes it canonical URL, e.g. lowercase with
@@ -65,6 +66,7 @@ typedef void(^ADDiscoveryCallback)(BOOL validated, ADAuthenticationError* error)
                                 host:(NSString *)authorityHost
                     trustedAuthority:(NSString *)trustedAuthority
                        correlationId:(NSUUID *)correlationId
+                  telemetryRequestId:(NSString*)telemetryRequestId
                      completionBlock:(ADDiscoveryCallback)completionBlock;
 
 @end

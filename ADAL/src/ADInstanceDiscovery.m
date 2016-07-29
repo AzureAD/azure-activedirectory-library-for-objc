@@ -141,6 +141,7 @@ static NSString* const sValidationServerError = @"The authority validation serve
 
 - (void)validateAuthority:(NSString *)authority
             correlationId:(NSUUID *)correlationId
+       telemetryRequestId:(NSString*)telemetryRequestId
           completionBlock:(ADDiscoveryCallback)completionBlock;
 {
     API_ENTRY;
@@ -175,6 +176,7 @@ static NSString* const sValidationServerError = @"The authority validation serve
                                   host:authorityHost
                       trustedAuthority:sTrustedAuthority
                          correlationId:correlationId
+                    telemetryRequestId:telemetryRequestId
                        completionBlock:completionBlock];
 }
 
@@ -276,6 +278,7 @@ static NSString* const sValidationServerError = @"The authority validation serve
                                 host:(NSString *)authorityHost
                     trustedAuthority:(NSString *)trustedAuthority
                        correlationId:(NSUUID *)correlationId
+                  telemetryRequestId:(NSString*)telemetryRequestId
                      completionBlock:(ADDiscoveryCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
@@ -292,7 +295,9 @@ static NSString* const sValidationServerError = @"The authority validation serve
     NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data adURLFormEncode]];
     
     AD_LOG_VERBOSE(@"Authority Validation Request", correlationId, endPoint);
-    ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint] correlationId:correlationId];
+    ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
+                                                   correlationId:correlationId
+                                              telemetryRequestId:telemetryRequestId];
     
     [webRequest setIsGetRequest:YES];
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];

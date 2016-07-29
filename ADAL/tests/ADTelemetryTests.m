@@ -105,17 +105,12 @@ typedef void(^TestCallback)(NSArray* event);
                                   propertyName:@"sdk_version"]);
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
                              propertyName:@"sdk_version"], 1);
-#if TARGET_OS_IPHONE
+
     XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
                                   propertyName:@"device_id"]);
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
                              propertyName:@"device_id"], 1);
     
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"device_name"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"device_name"], 1);
-#endif
     // application_name, application_version are also default properties,
     // but they are not available in unit test framework, so we omit them here
     

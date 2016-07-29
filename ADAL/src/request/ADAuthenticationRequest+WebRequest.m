@@ -37,6 +37,9 @@
 #import "ADAuthenticationRequest.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADWebAuthRequest.h"
+#import "ADTelemetry.h"
+#import "ADTelemetry+Internal.h"
+#import "ADUIEvent.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -53,7 +56,9 @@ static ADAuthenticationRequest* s_modalRequest = nil;
             completion:(ADAuthenticationCallback)completionBlock
 {
     NSString* urlString = [_context.authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
-    ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString] correlationId:_correlationId];
+    ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString]
+                                                    correlationId:_correlationId
+                                               telemetryRequestId:_telemetryRequestId];
     [req setRequestDictionary:request_data];
     [req sendRequest:^(NSDictionary *response)
      {
@@ -174,6 +179,16 @@ static ADAuthenticationRequest* s_modalRequest = nil;
 - (void)launchWebView:(NSString*)startUrl
       completionBlock:(void (^)(ADAuthenticationError*, NSURL*))completionBlock
 {
+    [[ADTelemetry getInstance] startEvent:[self telemetryRequestId] eventName:@"launch_web_view"];
+    void(^requestCompletion)(ADAuthenticationError *error, NSURL *end) = ^void(ADAuthenticationError *error, NSURL *end)
+    {
+        ADUIEvent* event = [[ADUIEvent alloc] initWithName:@"launch_web_view"];
+        [self fillTelemetryUIEvent:event];
+        [[ADTelemetry getInstance] stopEvent:[self telemetryRequestId] event:event];
+        
+        completionBlock(error, end);
+    };
+    
     [[ADWebAuthController sharedInstance] start:[NSURL URLWithString:startUrl]
                                             end:[NSURL URLWithString:_redirectUri]
                                     refreshCred:_refreshTokenCredential
@@ -183,7 +198,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
 #endif
                                         webView:_context.webView
                                   correlationId:_correlationId
-                                     completion:completionBlock];
+                                     completion:requestCompletion];
 }
 
 //Requests an OAuth2 code to be used for obtaining a token:
@@ -284,7 +299,9 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         }
         
         NSURL* reqURL = [NSURL URLWithString:[_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]];
-        ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:reqURL correlationId:_correlationId];
+        ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:reqURL
+                                                        correlationId:_correlationId
+                                                   telemetryRequestId:_telemetryRequestId];
         [req setIsGetRequest:YES];
         [req setRequestDictionary:requestData];
         [req sendRequest:^(NSDictionary * parameters)
@@ -311,6 +328,14 @@ static ADAuthenticationRequest* s_modalRequest = nil;
              
              requestCompletion(error, endURL);
          }];
+    }
+}
+
+- (void)fillTelemetryUIEvent:(ADUIEvent*)event
+{
+    if (_identifier && [_identifier isDisplayable] && ![NSString adIsStringNilOrBlank:_identifier.userId])
+    {
+        [event setLoginHint:_identifier.userId];
     }
 }
 

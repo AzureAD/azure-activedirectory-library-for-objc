@@ -165,6 +165,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
         ADInstanceDiscovery* discovery = [[ADInstanceDiscovery alloc] init];
         [discovery validateAuthority:testCase
                        correlationId:correlationId
+                  telemetryRequestId:nil
                      completionBlock:^(BOOL validated, ADAuthenticationError *error)
          {
              XCTAssertFalse(validated, @"\"%@\" should come back invalid.", testCase);
@@ -234,6 +235,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     
     [discovery validateAuthority:@"https://login.windows-ppe.net/common"
                    correlationId:correlationId
+              telemetryRequestId:nil
                  completionBlock:^(BOOL validated, ADAuthenticationError * error)
     {
         XCTAssertTrue(validated);
@@ -258,6 +260,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     
     [discovery validateAuthority:@"https://MyFakeAuthority.microsoft.com/contoso.com"
                    correlationId:correlationId
+              telemetryRequestId:nil
                  completionBlock:^(BOOL validated, ADAuthenticationError * error)
      {
          XCTAssertFalse(validated);
@@ -285,6 +288,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
                                        host:@"https://login.windows.cn"
                            trustedAuthority:@"https://SomeValidURLButNotExistentInTheNet.com"
                               correlationId:[NSUUID UUID]
+                         telemetryRequestId:nil
                             completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          XCTAssertFalse(validated);

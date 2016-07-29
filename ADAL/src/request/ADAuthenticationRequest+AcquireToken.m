@@ -29,6 +29,9 @@
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheKey.h"
 #import "ADAcquireTokenSilentHandler.h"
+#import "ADTelemetry.h"
+#import "ADTelemetry+Internal.h"
+#import "ADAPIEvent.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -40,6 +43,17 @@
     THROW_ON_NIL_ARGUMENT(completionBlock);
     AD_REQUEST_CHECK_ARGUMENT(_resource);
     [self ensureRequest];
+    
+    [[ADTelemetry getInstance] startEvent:[self telemetryRequestId] eventName:@"acauire_token_call"];
+    ADAuthenticationCallback requestCompletion = ^void(ADAuthenticationResult *result)
+    {
+        ADAPIEvent* event = [[ADAPIEvent alloc] initWithName:@"acauire_token_call"];
+        [self fillTelemetryForAcquireToken:event result:result];
+        [[ADTelemetry getInstance] stopEvent:[self telemetryRequestId] event:event];
+        SAFE_ARC_RELEASE(event);
+        
+        completionBlock(result);
+    };
     
     NSString* log = [NSString stringWithFormat:@"acquireToken (authority = %@, resource = %@, clientId = %@, idtype = %@)",
                      _context.authority, _resource, _clientId, [_identifier typeAsString]];
@@ -53,7 +67,7 @@
                                                errorDetails:@"Interactive authentication requests must originate from the main thread"
                                               correlationId:_correlationId];
         
-        completionBlock([ADAuthenticationResult resultFromError:error]);
+        requestCompletion([ADAuthenticationResult resultFromError:error]);
         return;
     }
     
@@ -64,28 +78,35 @@
                                                protocolCode:nil
                                                errorDetails:ADRedirectUriInvalidError
                                               correlationId:_correlationId];
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+        requestCompletion([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
         return;
     }
     
     if (!_context.validateAuthority)
     {
-        [self validatedAcquireToken:completionBlock];
+        [self validatedAcquireToken:requestCompletion];
         return;
     }
     
+    [[ADTelemetry getInstance] startEvent:[self telemetryRequestId] eventName:@"authority_validation"];
     [[ADInstanceDiscovery sharedInstance] validateAuthority:_context.authority
                                               correlationId:_correlationId
+                                         telemetryRequestId:_telemetryRequestId
                                             completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
-         (void)validated;
+         ADAPIEvent* event = [[ADAPIEvent alloc] initWithName:@"authority_validation"];
+         [event setAuthorityValidationStatus:validated ? @"YES" : @"NO"];
+         [event setAuthority:_context.authority];
+         [[ADTelemetry getInstance] stopEvent:[self telemetryRequestId] event:event];
+         SAFE_ARC_RELEASE(event);
+
          if (error)
          {
-             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+             requestCompletion([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
          }
          else
          {
-             [self validatedAcquireToken:completionBlock];
+             [self validatedAcquireToken:requestCompletion];
          }
      }];
 
@@ -105,6 +126,7 @@
                                                       correlationId:_correlationId
                                                          tokenCache:_tokenCache
                                                    extendedLifetime:_context.extendedLifetimeEnabled
+                                                 telemetryRequestId:_telemetryRequestId
                                                     completionBlock:^(ADAuthenticationResult *result)
         {
             if ([ADAuthenticationContext isFinalResult:result])
@@ -184,8 +206,13 @@
     __block BOOL silentRequest = _allowSilent;
     
 // Get the code first:
+    [[ADTelemetry getInstance] startEvent:[self telemetryRequestId] eventName:@"authorization_code"];
     [self requestCode:^(NSString * code, ADAuthenticationError *error)
      {
+         ADAPIEvent* event = [[ADAPIEvent alloc] initWithName:@"authorization_code"];
+         [[ADTelemetry getInstance] stopEvent:[self telemetryRequestId] event:event];
+         SAFE_ARC_RELEASE(event);
+
          if (error)
          {
              if (silentRequest)
@@ -208,12 +235,17 @@
              }
              else
              {
+                 [[ADTelemetry getInstance] startEvent:[self telemetryRequestId] eventName:@"token_grant"];
                  [self requestTokenByCode:code
                           completionBlock:^(ADAuthenticationResult *result)
                   {
+                      ADAPIEvent* event = [[ADAPIEvent alloc] initWithName:@"token_grant"];
+                      [[ADTelemetry getInstance] stopEvent:[self telemetryRequestId] event:event];
+                      SAFE_ARC_RELEASE(event);
+                      
                       if (AD_SUCCEEDED == result.status)
                       {
-                          [_tokenCache updateCacheToResult:result cacheItem:nil refreshToken:nil correlationId:_correlationId];
+                          [_tokenCache updateCacheToResult:result cacheItem:nil refreshToken:nil correlationId:_correlationId telemetryRequestId:_telemetryRequestId];
                           result = [ADAuthenticationContext updateResult:result toUser:_identifier];
                       }
                       completionBlock(result);
@@ -247,5 +279,18 @@
               completion:completionBlock];
 }
 
+- (void)fillTelemetryForAcquireToken:(ADAPIEvent*)event
+                              result:(ADAuthenticationResult*)result
+{
+    [event setCorrelationId:_correlationId];
+    [event setUserId:[_identifier userId]];
+    [event setClientId:_clientId];
+    [event setResultStatus:[result status]];
+    [event setIsExtendedLifeTimeToken:[result extendedLifeTimeToken]? @"YES":@"NO"];
+    [event setErrorCode:[NSString stringWithFormat:@"%ld",(long)[result.error code]]];
+    [event setErrorDomain:[result.error domain]];
+    [event setProtocolCode:[[result error] protocolCode]];
+    [event setErrorDescription:[[result error] errorDetails]];
+}
 
 @end

@@ -43,6 +43,8 @@
     
     BOOL _isGetRequest;
     
+    NSString* _telemetryRequestId;
+    
     void (^_completionHandler)( NSError *, ADWebResponse *);
 }
 
@@ -54,7 +56,8 @@
 @property (readonly) NSUUID* correlationId;
 
 - (id)initWithURL: (NSURL*)url
-    correlationId: (NSUUID*) correlationId;
+    correlationId: (NSUUID*)correlationId
+telemetryRequestId: (NSString*)telemetryRequestId;
 
 - (void)send:( void (^)( NSError *, ADWebResponse *) )completionHandler;
 

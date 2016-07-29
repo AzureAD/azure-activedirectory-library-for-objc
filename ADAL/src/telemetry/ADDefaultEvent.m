@@ -24,6 +24,11 @@
 #import "ADDefaultEvent.h"
 #import "ADEventInterface.h"
 
+#if !TARGET_OS_IPHONE
+#include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/IOKitLib.h>
+#endif
+
 @implementation ADDefaultEvent
 
 @synthesize propertyMap = _propertyMap;
@@ -118,17 +123,20 @@ if (OBJECT) \
 #if TARGET_OS_IPHONE
         //iOS:
         NSString* deviceId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-        NSString* deviceName = [[UIDevice currentDevice] name];
-        SET_IF_NOT_NIL(s_defaultParameters, @"device_id", [[deviceId dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:0]);
-        SET_IF_NOT_NIL(s_defaultParameters, @"device_name", [[deviceName dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:0]);
-        
-        SET_IF_NOT_NIL(s_defaultParameters, @"application_name", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"]);
-        SET_IF_NOT_NIL(s_defaultParameters, @"sdk_id", @"iOS");
+        NSString* applicationName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+        NSString* sdkId = @"iOS";
 #else
-        SET_IF_NOT_NIL(s_defaultParameters, @"application_name",  [[NSProcessInfo processInfo] processName]);
-        SET_IF_NOT_NIL(s_defaultParameters, @"sdk_id", @"OSX");
+        CFStringRef macSerialNumber = nil;
+        CopySerialNumber(&macSerialNumber);
+        NSString* deviceId = CFBridgingRelease(macSerialNumber);
+        SAFE_ARC_AUTORELEASE(deviceId);
+        NSString* applicationName = [[NSProcessInfo processInfo] processName];
+        NSString* sdkId = @"OSX";
 #endif
         
+        SET_IF_NOT_NIL(s_defaultParameters, @"device_id", ([NSString stringWithFormat:@"%lu", (unsigned long)[deviceId hash]]));
+        SET_IF_NOT_NIL(s_defaultParameters, @"application_name", applicationName);
+        SET_IF_NOT_NIL(s_defaultParameters, @"sdk_id", sdkId);
         SET_IF_NOT_NIL(s_defaultParameters, @"application_version", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
         SET_IF_NOT_NIL(s_defaultParameters, @"sdk_version", ADAL_VERSION_NSSTRING);
         
@@ -150,5 +158,30 @@ if (OBJECT) \
     SAFE_ARC_SUPER_DEALLOC();
 }
 
+#if !TARGET_OS_IPHONE
+// Returns the serial number as a CFString.
+// It is the caller's responsibility to release the returned CFString when done with it.
+void CopySerialNumber(CFStringRef *serialNumber)
+{
+    if (serialNumber != NULL) {
+        *serialNumber = NULL;
+        
+        io_service_t    platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
+                                                                     IOServiceMatching("IOPlatformExpertDevice"));
+        
+        if (platformExpert) {
+            CFTypeRef serialNumberAsCFString =
+            IORegistryEntryCreateCFProperty(platformExpert,
+                                            CFSTR(kIOPlatformSerialNumberKey),
+                                            kCFAllocatorDefault, 0);
+            if (serialNumberAsCFString) {
+                *serialNumber = serialNumberAsCFString;
+            }
+            
+            IOObjectRelease(platformExpert);
+        }
+    }
+}
+#endif
 
 @end
