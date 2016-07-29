@@ -123,7 +123,7 @@ if (OBJECT) \
 #if TARGET_OS_IPHONE
         //iOS:
         NSString* deviceId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-        NSString* applicationName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+        NSString* applicationName = [[NSBundle mainBundle] bundleIdentifier];
         NSString* sdkId = @"iOS";
 #else
         CFStringRef macSerialNumber = nil;
