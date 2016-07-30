@@ -230,6 +230,7 @@
 		94E0FD8E1C59614B00CD707B /* ADTokenCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 9453C3C61C583AE6006B9E79 /* ADTokenCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		97A522491A1A752D001D77CE /* ADClientMetrics.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A522481A1A752D001D77CE /* ADClientMetrics.m */; };
 		97A522501A1A8999001D77CE /* ADClientMetricsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */; };
+		B61D6FB41D4C2AAF00DD4639 /* ADKeychainUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D610015D1D39A5620087AB81 /* ADKeychainUtil.m */; };
 		B681E9321D380674001157CE /* ADAuthenticationContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8345B18074A58007F9F0D /* ADAuthenticationContext.m */; };
 		B681E9341D380674001157CE /* ADAuthenticationContext+Internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E43A691B04026D000F5BE2 /* ADAuthenticationContext+Internal.m */; };
 		B681E9361D380674001157CE /* ADAuthenticationError.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B5989501811A3DB00744AEE /* ADAuthenticationError.m */; };
@@ -1656,6 +1657,7 @@
 				B681E94E1D380685001157CE /* ADTokenCacheItem+Internal.m in Sources */,
 				B681E9551D38068E001157CE /* ADAuthenticationRequest+AcquireAssertion.m in Sources */,
 				B681E9791D3806B0001157CE /* ADJwtHelper.m in Sources */,
+				B61D6FB41D4C2AAF00DD4639 /* ADKeychainUtil.m in Sources */,
 				B681E97F1D3806B5001157CE /* ADRegistrationInformation.m in Sources */,
 				B681E9801D3806B5001157CE /* ADWorkPlaceJoinUtil.m in Sources */,
 				B681E9391D380674001157CE /* ADAuthenticationParameters.m in Sources */,
