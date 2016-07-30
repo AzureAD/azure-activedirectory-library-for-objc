@@ -27,6 +27,7 @@
 
 // Internal ADAL headers
 #import "ADWorkPlaceJoinUtil.h"
+#import "ADKeychainUtil.h"
 #import "ADRegistrationInformation.h"
 
 
@@ -64,7 +65,7 @@
 {
     [super viewDidLoad];
     
-    NSString* teamId = [ADWorkPlaceJoinUtil keychainTeamId];
+    NSString* teamId = [ADKeychainUtil keychainTeamId:nil];
     
     [_keychainId setText: teamId ? teamId : @"<No Team ID>" ];
     

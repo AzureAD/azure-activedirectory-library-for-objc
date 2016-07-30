@@ -24,6 +24,7 @@
 #import <Security/Security.h>
 #import "ADAL_Internal.h"
 #import "ADKeychainTokenCache+Internal.h"
+#import "ADKeychainUtil.h"
 #import "ADTokenCacheItem.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADTokenCacheKey.h"
@@ -121,7 +122,15 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         sharedGroup = [[NSBundle mainBundle] bundleIdentifier];
     }
     
-    NSString* teamId = [ADWorkPlaceJoinUtil keychainTeamId];
+    NSString* teamId = [ADKeychainUtil keychainTeamId:nil];
+#if !TARGET_OS_SIMULATOR
+    // If we didn't find a team ID and we're on device then the rest of ADAL not only will not work
+    // particularly well, we'll probably induce other issues by continuing.
+    if (!teamId)
+    {
+        return nil;
+    }
+#endif
     if (teamId)
     {
         _sharedGroup = [[NSString alloc] initWithFormat:@"%@.%@", teamId, sharedGroup];
