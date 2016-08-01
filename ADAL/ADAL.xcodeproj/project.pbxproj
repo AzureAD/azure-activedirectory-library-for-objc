@@ -31,7 +31,6 @@
 		8B0965BC17F25770002BDFB8 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965BB17F25770002BDFB8 /* XCTest.framework */; };
 		8B0965BD17F25770002BDFB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
 		8B0965BF17F25770002BDFB8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965BE17F25770002BDFB8 /* UIKit.framework */; };
-		8B0965C217F25770002BDFB8 /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AA17F25770002BDFB8 /* libADALiOS.a */; };
 		8B3032231861347B00C61E7F /* ADTokenCacheKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B3032221861347B00C61E7F /* ADTokenCacheKeyTests.m */; };
 		8B598963181739AA00744AEE /* ADAuthenticationErrorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B598962181739AA00744AEE /* ADAuthenticationErrorTests.m */; };
 		8B6114031872127C007759C2 /* ADInstanceDiscoveryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B6114021872127C007759C2 /* ADInstanceDiscoveryTests.m */; };
@@ -376,6 +375,7 @@
 		D68040301D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D680402F1D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m */; };
 		D68040331D22F686007A61AC /* ADWebAuthResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = D68040311D22F686007A61AC /* ADWebAuthResponse.h */; };
 		D68040351D22F686007A61AC /* ADWebAuthResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D68040321D22F686007A61AC /* ADWebAuthResponse.m */; };
+		D69A720B1D4FEC4B00E91DB3 /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D664F1B41D302B9C0017B799 /* libADAL-core.a */; };
 		D6D8A8401D4FD14E00D20DE6 /* ADKeychainUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D8A83F1D4FD14E00D20DE6 /* ADKeychainUtil.m */; };
 		D6D8A8411D4FD14E00D20DE6 /* ADKeychainUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D8A83F1D4FD14E00D20DE6 /* ADKeychainUtil.m */; };
 		D6F095151CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D6F095131CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h */; };
@@ -386,13 +386,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		8B0965C017F25770002BDFB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8B0965A917F25770002BDFB8;
-			remoteInfo = ADALiOS;
-		};
 		9453C45C1C5866D8006B9E79 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
@@ -427,6 +420,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = D61001081D3986440087AB81;
 			remoteInfo = "ADALiOS-AppExtension-core";
+		};
+		D69A72091D4FEC4200E91DB3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D664F16A1D302B9C0017B799;
+			remoteInfo = "ADAL-core";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -692,10 +692,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D69A720B1D4FEC4B00E91DB3 /* libADAL-core.a in Frameworks */,
 				8B0965BC17F25770002BDFB8 /* XCTest.framework in Frameworks */,
 				8B0965BF17F25770002BDFB8 /* UIKit.framework in Frameworks */,
 				8B0965BD17F25770002BDFB8 /* Foundation.framework in Frameworks */,
-				8B0965C217F25770002BDFB8 /* libADALiOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1330,7 +1330,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				8B0965C117F25770002BDFB8 /* PBXTargetDependency */,
+				D69A720A1D4FEC4200E91DB3 /* PBXTargetDependency */,
 			);
 			name = ADALiOSTests;
 			productName = ADALiOSTests;
@@ -1860,11 +1860,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		8B0965C117F25770002BDFB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8B0965A917F25770002BDFB8 /* ADALiOS */;
-			targetProxy = 8B0965C017F25770002BDFB8 /* PBXContainerItemProxy */;
-		};
 		9453C45D1C5866D8006B9E79 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 9453C3FC1C586425006B9E79 /* ADAL Mac */;
@@ -1889,6 +1884,11 @@
 			isa = PBXTargetDependency;
 			target = D61001081D3986440087AB81 /* ADALiOS-AppExtension-core */;
 			targetProxy = D61001531D3986AE0087AB81 /* PBXContainerItemProxy */;
+		};
+		D69A720A1D4FEC4200E91DB3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D664F16A1D302B9C0017B799 /* ADAL-core */;
+			targetProxy = D69A72091D4FEC4200E91DB3 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
