@@ -202,6 +202,7 @@
             [self completeWithError:nil andResponse:response];
         }
     }] resume];
+    SAFE_ARC_RELEASE(request);
 }
 
 - (BOOL)verifyRequestURL:(NSURL *)requestURL
