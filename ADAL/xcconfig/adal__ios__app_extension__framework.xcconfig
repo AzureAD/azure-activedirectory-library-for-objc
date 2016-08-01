@@ -2,9 +2,9 @@
 //  adal__ios__framework.xcconfig
 //
 
-#include "adal__ios__common.xcconfig"
+#include "adal__ios__app_extension__common.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL";
+PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL.appextension";
 PRODUCT_NAME = ADAL;
 SKIP_INSTALL = YES;
 MODULEMAP_FILE=resources/ios/Framework/adal.modulemap

@@ -29,7 +29,7 @@
 		D68B4A2B1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A2A1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m */; };
 		D68B4A311CB5A85D00758FB3 /* ADTestAppCacheViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A301CB5A85D00758FB3 /* ADTestAppCacheViewController.m */; };
 		D68B4A371CB5AB0C00758FB3 /* ADTestAppLogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A361CB5AB0C00758FB3 /* ADTestAppLogViewController.m */; };
-		D6CA73CC1CC03D4C00EF59C7 /* libADALiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CA73CB1CC03D4C00EF59C7 /* libADALiOS.a */; };
+		D69A72061D4FE63200E91DB3 /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D69A72051D4FE63200E91DB3 /* libADAL-core.a */; };
 		D6D034871CB6D74E00406721 /* ADTestAppSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D034851CB6D74E00406721 /* ADTestAppSettingsViewController.m */; };
 		D6D034881CB6D74E00406721 /* ADTestAppSettingsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = D6D034861CB6D74E00406721 /* ADTestAppSettingsView.xib */; };
 /* End PBXBuildFile section */
@@ -75,6 +75,7 @@
 		D68B4A301CB5A85D00758FB3 /* ADTestAppCacheViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppCacheViewController.m; sourceTree = "<group>"; };
 		D68B4A351CB5AB0C00758FB3 /* ADTestAppLogViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppLogViewController.h; sourceTree = "<group>"; };
 		D68B4A361CB5AB0C00758FB3 /* ADTestAppLogViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppLogViewController.m; sourceTree = "<group>"; };
+		D69A72051D4FE63200E91DB3 /* libADAL-core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libADAL-core.a"; path = "../../../../../Library/Developer/Xcode/DerivedData/ADAL-hizanewzmwupbhfceegrsvnsxnnp/Build/Products/Debug-iphonesimulator/libADAL-core.a"; sourceTree = "<group>"; };
 		D6CA73CB1CC03D4C00EF59C7 /* libADALiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libADALiOS.a; path = "../Debug-iphonesimulator/libADALiOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6D034841CB6D74E00406721 /* ADTestAppSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppSettingsViewController.h; sourceTree = "<group>"; };
 		D6D034851CB6D74E00406721 /* ADTestAppSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppSettingsViewController.m; sourceTree = "<group>"; };
@@ -86,7 +87,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D6CA73CC1CC03D4C00EF59C7 /* libADALiOS.a in Frameworks */,
+				D69A72061D4FE63200E91DB3 /* libADAL-core.a in Frameworks */,
 				8BA42AFC17E3C150002D206E /* CoreGraphics.framework in Frameworks */,
 				8BA42B0017E3C150002D206E /* CoreData.framework in Frameworks */,
 				8BA42AFE17E3C150002D206E /* UIKit.framework in Frameworks */,
@@ -130,6 +131,7 @@
 		8BA42AF817E3C150002D206E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D69A72051D4FE63200E91DB3 /* libADAL-core.a */,
 				D6CA73CB1CC03D4C00EF59C7 /* libADALiOS.a */,
 				8BA42AF917E3C150002D206E /* Foundation.framework */,
 				8BA42AFB17E3C150002D206E /* CoreGraphics.framework */,
