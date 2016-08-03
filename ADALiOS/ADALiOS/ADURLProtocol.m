@@ -128,7 +128,6 @@ static NSMutableDictionary* s_handlers = nil;
 {
     AD_LOG_VERBOSE_F(sLog, @"Stop loading");
     [_connection cancel];
-    [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
 }
 
 #pragma mark - NSURLConnectionDelegate Methods
@@ -171,19 +170,14 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     AD_LOG_VERBOSE_F(sLog, @"HTTPProtocol::connection:willSendRequest:. Redirect response: %@. New request:%@", response.URL, request.URL);
     //Ensure that the webview gets the redirect notifications:
     NSMutableURLRequest* mutableRequest = [request mutableCopy];
+    [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
+    
     if (response)
     {
         [[self class] removePropertyForKey:@"ADURLProtocol" inRequest:mutableRequest];
         [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
-        
-        [_connection cancel];
-        [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
-        [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
-
-        return mutableRequest;
     }
-    
-	[ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
+
     return mutableRequest;
 }
 
