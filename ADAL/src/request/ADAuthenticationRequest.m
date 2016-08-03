@@ -309,7 +309,7 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
 {
     if (_telemetryRequestId == nil)
     {
-        _telemetryRequestId = [[ADTelemetry getInstance] registerNewRequest];
+        _telemetryRequestId = [[ADTelemetry sharedInstance] registerNewRequest];
         SAFE_ARC_RETAIN(_telemetryRequestId);
     }
     

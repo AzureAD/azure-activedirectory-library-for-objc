@@ -48,7 +48,7 @@ static NSString* const s_delimiter = @"|";
     return self;
 }
 
-+ (ADTelemetry*)getInstance
++ (ADTelemetry*)sharedInstance
 {
     static dispatch_once_t once;
     static ADTelemetry* singleton = nil;

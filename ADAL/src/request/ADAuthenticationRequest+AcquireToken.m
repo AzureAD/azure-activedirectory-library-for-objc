@@ -44,12 +44,12 @@
     AD_REQUEST_CHECK_ARGUMENT(_resource);
     [self ensureRequest];
     
-    [[ADTelemetry getInstance] startEvent:[self telemetryRequestId] eventName:@"acauire_token_call"];
+    [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"acauire_token_call"];
     ADAuthenticationCallback requestCompletion = ^void(ADAuthenticationResult *result)
     {
         ADAPIEvent* event = [[ADAPIEvent alloc] initWithName:@"acauire_token_call"];
         [self fillTelemetryForAcquireToken:event result:result];
-        [[ADTelemetry getInstance] stopEvent:[self telemetryRequestId] event:event];
+        [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
         SAFE_ARC_RELEASE(event);
         
         completionBlock(result);
@@ -88,16 +88,15 @@
         return;
     }
     
-    [[ADTelemetry getInstance] startEvent:[self telemetryRequestId] eventName:@"authority_validation"];
+    [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"authority_validation"];
     [[ADInstanceDiscovery sharedInstance] validateAuthority:_context.authority
-                                              correlationId:_correlationId
-                                         telemetryRequestId:_telemetryRequestId
+                                                    request:self
                                             completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          ADAPIEvent* event = [[ADAPIEvent alloc] initWithName:@"authority_validation"];
          [event setAuthorityValidationStatus:validated ? @"YES" : @"NO"];
          [event setAuthority:_context.authority];
-         [[ADTelemetry getInstance] stopEvent:[self telemetryRequestId] event:event];
+         [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
          SAFE_ARC_RELEASE(event);
 
          if (error)
@@ -123,10 +122,9 @@
                                                            clientId:_clientId
                                                         redirectUri:_redirectUri
                                                          identifier:_identifier
-                                                      correlationId:_correlationId
                                                          tokenCache:_tokenCache
                                                    extendedLifetime:_context.extendedLifetimeEnabled
-                                                 telemetryRequestId:_telemetryRequestId
+                                                            request:self
                                                     completionBlock:^(ADAuthenticationResult *result)
         {
             if ([ADAuthenticationContext isFinalResult:result])
@@ -206,11 +204,11 @@
     __block BOOL silentRequest = _allowSilent;
     
 // Get the code first:
-    [[ADTelemetry getInstance] startEvent:[self telemetryRequestId] eventName:@"authorization_code"];
+    [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"authorization_code"];
     [self requestCode:^(NSString * code, ADAuthenticationError *error)
      {
          ADAPIEvent* event = [[ADAPIEvent alloc] initWithName:@"authorization_code"];
-         [[ADTelemetry getInstance] stopEvent:[self telemetryRequestId] event:event];
+         [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
          SAFE_ARC_RELEASE(event);
 
          if (error)
@@ -235,17 +233,17 @@
              }
              else
              {
-                 [[ADTelemetry getInstance] startEvent:[self telemetryRequestId] eventName:@"token_grant"];
+                 [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"token_grant"];
                  [self requestTokenByCode:code
                           completionBlock:^(ADAuthenticationResult *result)
                   {
                       ADAPIEvent* event = [[ADAPIEvent alloc] initWithName:@"token_grant"];
-                      [[ADTelemetry getInstance] stopEvent:[self telemetryRequestId] event:event];
+                      [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
                       SAFE_ARC_RELEASE(event);
                       
                       if (AD_SUCCEEDED == result.status)
                       {
-                          [_tokenCache updateCacheToResult:result cacheItem:nil refreshToken:nil correlationId:_correlationId telemetryRequestId:_telemetryRequestId];
+                          [_tokenCache updateCacheToResult:result cacheItem:nil refreshToken:nil request:self];
                           result = [ADAuthenticationContext updateResult:result toUser:_identifier];
                       }
                       completionBlock(result);

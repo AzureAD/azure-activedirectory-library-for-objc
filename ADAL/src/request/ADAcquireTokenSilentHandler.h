@@ -33,9 +33,8 @@
     NSString* _clientId;
     NSString* _redirectUri;
     ADUserIdentifier* _identifier;
-    NSUUID* _correlationId;
-    NSString* _telemetryRequestId;
     ADTokenCacheAccessor* _tokenCache;
+    ADAuthenticationRequest* _request;
     
     ADTokenCacheItem* _mrrtItem;
     ADTokenCacheItem* _extendedLifetimeAccessTokenItem; //store valid AT in terms of ext_expires_in (if find any)
@@ -53,10 +52,9 @@
                               clientId:(NSString *)clientId
                            redirectUri:(NSString *)redirectUri
                             identifier:(ADUserIdentifier *)identifier
-                         correlationId:(NSUUID *)correlationId
                             tokenCache:(ADTokenCacheAccessor *)tokenCache
                       extendedLifetime:(BOOL)extendedLifetime
-                    telemetryRequestId:(NSString*)telemetryRequestId
+                               request:(ADAuthenticationRequest*)request
                        completionBlock:(ADAuthenticationCallback)completionBlock;
 
 @end

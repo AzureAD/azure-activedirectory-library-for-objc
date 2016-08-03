@@ -47,8 +47,7 @@ typedef void(^ADDiscoveryCallback)(BOOL validated, ADAuthenticationError* error)
  of calling support to track unexpected failures. This parameter may be null, in which case the method will generate a new UUID.
  @param completionBlock: the block to be called when the result is achieved.*/
 - (void)validateAuthority:(NSString *)authority
-            correlationId:(NSUUID *)correlationId
-       telemetryRequestId:(NSString*)telemetryRequestId
+                  request:(ADAuthenticationRequest*)request
           completionBlock:(ADDiscoveryCallback) completionBlock;
 
 /*! Takes the string and makes it canonical URL, e.g. lowercase with
@@ -65,8 +64,7 @@ typedef void(^ADDiscoveryCallback)(BOOL validated, ADAuthenticationError* error)
 - (void)requestValidationOfAuthority:(NSString *)authority
                                 host:(NSString *)authorityHost
                     trustedAuthority:(NSString *)trustedAuthority
-                       correlationId:(NSUUID *)correlationId
-                  telemetryRequestId:(NSString*)telemetryRequestId
+                             request:(ADAuthenticationRequest*)request
                      completionBlock:(ADDiscoveryCallback)completionBlock;
 
 @end

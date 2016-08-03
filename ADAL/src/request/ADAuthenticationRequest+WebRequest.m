@@ -179,12 +179,12 @@ static ADAuthenticationRequest* s_modalRequest = nil;
 - (void)launchWebView:(NSString*)startUrl
       completionBlock:(void (^)(ADAuthenticationError*, NSURL*))completionBlock
 {
-    [[ADTelemetry getInstance] startEvent:[self telemetryRequestId] eventName:@"launch_web_view"];
+    [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"launch_web_view"];
     void(^requestCompletion)(ADAuthenticationError *error, NSURL *end) = ^void(ADAuthenticationError *error, NSURL *end)
     {
         ADUIEvent* event = [[ADUIEvent alloc] initWithName:@"launch_web_view"];
         [self fillTelemetryUIEvent:event];
-        [[ADTelemetry getInstance] stopEvent:[self telemetryRequestId] event:event];
+        [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
         
         completionBlock(error, end);
     };

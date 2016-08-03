@@ -155,7 +155,7 @@
         ADTokenCacheAccessor* cache = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache defaultKeychainCache]
                                                                              authority:result.tokenCacheItem.authority];
         
-        [cache updateCacheToResult:result cacheItem:nil refreshToken:nil correlationId:nil telemetryRequestId:nil];
+        [cache updateCacheToResult:result cacheItem:nil refreshToken:nil request:nil];
         
         NSString* userId = [[[result tokenCacheItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result
@@ -216,14 +216,14 @@
         return;
     }
     
-    [[ADTelemetry getInstance] startEvent:[self telemetryRequestId] eventName:@"launch_broker"];
+    [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"launch_broker"];
     
     void(^requestCompletion)(ADAuthenticationResult* result) = ^void(ADAuthenticationResult* result)
     {
         [self releaseUserInterationLock]; // Release the lock when completion block is called.
         
         ADBrokerEvent* event = [[ADBrokerEvent alloc] initWithName:@"launch_broker"];
-        [[ADTelemetry getInstance] stopEvent:[self telemetryRequestId] event:event];
+        [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
         
         completionBlock(result);
     };

@@ -181,7 +181,7 @@ telemetryRequestId:(NSString *)telemetryRequestId
 
 - (void)send
 {
-    [[ADTelemetry getInstance] startEvent:_telemetryRequestId eventName:@"http_request"];
+    [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:@"http_request"];
     
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
     //Correlation id:
@@ -336,7 +336,7 @@ telemetryRequestId:(NSString *)telemetryRequestId
         [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[response statusCode]]];
     }
     
-    [[ADTelemetry getInstance] stopEvent:_telemetryRequestId event:event];
+    [[ADTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
     SAFE_ARC_RELEASE(event);
 
 }

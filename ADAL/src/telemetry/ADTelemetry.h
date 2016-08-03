@@ -58,7 +58,7 @@
 /*!
     Get a singleton instance of ADTelemetry.
  */
-+ (ADTelemetry*)getInstance;
++ (ADTelemetry*)sharedInstance;
 
 /*!
     Register a telemetry dispatcher for receiving telemetry events.

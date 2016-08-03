@@ -43,8 +43,7 @@
 - (ADTokenCacheItem *)getATRTItemForUser:(ADUserIdentifier *)identifier
                                 resource:(NSString *)resource
                                 clientId:(NSString *)clientId
-                           correlationId:(NSUUID *)correlationId
-                      telemetryRequestId:(NSString*)telemetryRequestId
+                                 request:(ADAuthenticationRequest*)request
                                    error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*!
@@ -53,8 +52,7 @@
  */
 - (ADTokenCacheItem *)getMRRTItemForUser:(ADUserIdentifier *)identifier
                                 clientId:(NSString *)clientId
-                           correlationId:(NSUUID *)correlationId
-                      telemetryRequestId:(NSString*)telemetryRequestId
+                                 request:(ADAuthenticationRequest*)request
                                    error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*!
@@ -63,8 +61,7 @@
  */
 - (ADTokenCacheItem *)getFRTItemForUser:(ADUserIdentifier *)identifier
                                familyId:(NSString *)familyId
-                          correlationId:(NSUUID *)correlationId
-                     telemetryRequestId:(NSString*)telemetryRequestId
+                                request:(ADAuthenticationRequest*)request
                                   error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*!
@@ -73,8 +70,7 @@
  */
 - (ADTokenCacheItem*)getADFSUserTokenForResource:(NSString *)resource
                                         clientId:(NSString *)clientId
-                                   correlationId:(NSUUID *)correlationId
-                              telemetryRequestId:(NSString*)telemetryRequestId
+                                         request:(ADAuthenticationRequest*)request
                                            error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*!
@@ -87,7 +83,6 @@
 - (void)updateCacheToResult:(ADAuthenticationResult *)result
                   cacheItem:(ADTokenCacheItem *)cacheItem
                refreshToken:(NSString *)refreshToken
-              correlationId:(NSUUID *)correlationId
-         telemetryRequestId:(NSString*)telemetryRequestId;
+                    request:(ADAuthenticationRequest*)request;
 
 @end

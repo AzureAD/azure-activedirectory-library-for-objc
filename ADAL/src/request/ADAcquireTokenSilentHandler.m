@@ -40,10 +40,9 @@
                               clientId:(NSString *)clientId
                            redirectUri:(NSString *)redirectUri
                             identifier:(ADUserIdentifier *)identifier
-                         correlationId:(NSUUID *)correlationId
                             tokenCache:(ADTokenCacheAccessor *)tokenCache
                       extendedLifetime:(BOOL)extendedLifetime
-                    telemetryRequestId:(NSString*)telemetryRequestId
+                               request:(ADAuthenticationRequest*)request
                        completionBlock:(ADAuthenticationCallback)completionBlock
 {
     ADAcquireTokenSilentHandler* handler = [ADAcquireTokenSilentHandler new];
@@ -63,10 +62,8 @@
     SAFE_ARC_RETAIN(identifier);
     handler->_tokenCache = tokenCache;
     SAFE_ARC_RETAIN(tokenCache);
-    handler->_correlationId = correlationId;
-    SAFE_ARC_RETAIN(correlationId);
-    handler->_telemetryRequestId = telemetryRequestId;
-    SAFE_ARC_RETAIN(telemetryRequestId);
+    handler->_request = request;
+    SAFE_ARC_RETAIN(request);
     
     [handler getAccessToken:^(ADAuthenticationResult *result)
      {
@@ -80,11 +77,11 @@
              [ADLogger logToken:handler->_extendedLifetimeAccessTokenItem.accessToken
                       tokenType:@"access token (extended lifetime)"
                       expiresOn:handler->_extendedLifetimeAccessTokenItem.expiresOn
-                  correlationId:handler->_correlationId];
+                  correlationId:[handler->_request correlationId]];
              
              result = [ADAuthenticationResult resultFromTokenCacheItem:handler->_extendedLifetimeAccessTokenItem
                                              multiResourceRefreshToken:NO
-                                                         correlationId:handler->_correlationId];
+                                                         correlationId:[handler->_request correlationId]];
              [result setExtendedLifeTimeToken:YES];
          }
          
@@ -109,11 +106,8 @@
     SAFE_ARC_RELEASE(_identifier);
     _identifier = nil;
     
-    SAFE_ARC_RELEASE(_correlationId);
-    _correlationId = nil;
-    
-    SAFE_ARC_RELEASE(_telemetryRequestId);
-    _telemetryRequestId = nil;
+    SAFE_ARC_RELEASE(_request);
+    _request = nil;
     
     SAFE_ARC_RELEASE(_tokenCache);
     _tokenCache = nil;
@@ -139,9 +133,9 @@
                          cacheItem:(ADTokenCacheItem*)cacheItem
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", _correlationId, @"Resource: %@", _resource);
+    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", [_request correlationId], @"Resource: %@", _resource);
 
-    [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:_correlationId];
+    [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:[_request correlationId]];
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = nil;
     
@@ -173,8 +167,8 @@
     
     ADWebAuthRequest* webReq =
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[_authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX]]
-                            correlationId:_correlationId
-                       telemetryRequestId:_telemetryRequestId];
+                            correlationId:[_request correlationId]
+                       telemetryRequestId:[_request telemetryRequestId]];
     [webReq setRequestDictionary:request_data];
     AD_LOG_INFO_F(@"Attempting to acquire an access token from refresh token", nil, @"clientId: '%@'; resource: '%@';", _clientId, _resource);
     [webReq sendRequest:^(NSDictionary *response)
@@ -188,14 +182,13 @@
          resultItem.authority = _authority;
          
          
-         ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:_correlationId];
+         ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:[_request correlationId]];
          if (cacheItem)//The request came from the cache item, update it:
          {
              [_tokenCache updateCacheToResult:result
                                     cacheItem:resultItem
                                  refreshToken:refreshToken
-                                correlationId:_correlationId
-                           telemetryRequestId:_telemetryRequestId];
+                                      request:_request];
          }
          result = [ADAuthenticationContext updateResult:result toUser:_identifier];//Verify the user (just in case)
          //
@@ -272,7 +265,7 @@
              msg = [NSString stringWithFormat:@"Acquire Token with Refresh Token %@.", resultStatus];
          }
          
-         AD_LOG_INFO_F(msg, _correlationId, @"clientId: '%@'; resource: '%@';", _clientId, _resource);
+         AD_LOG_INFO_F(msg, [_request correlationId], @"clientId: '%@'; resource: '%@';", _clientId, _resource);
          
          if ([ADAuthenticationContext isFinalResult:result])
          {
@@ -299,13 +292,12 @@
     ADTokenCacheItem* item = [_tokenCache getATRTItemForUser:_identifier
                                                     resource:_resource
                                                     clientId:_clientId
-                                               correlationId:_correlationId
-                                          telemetryRequestId:_telemetryRequestId
+                                                     request:_request
                                                        error:&error];
     // If some error ocurred during the cache lookup then we need to fail out right away.
     if (!item && error)
     {
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_request correlationId]]);
         return;
     }
     
@@ -313,10 +305,10 @@
     // and we need to check the unknown user ADFS token as well
     if (!item)
     {
-        item = [_tokenCache getADFSUserTokenForResource:_resource clientId:_clientId correlationId:_correlationId telemetryRequestId:_telemetryRequestId error:&error];
+        item = [_tokenCache getADFSUserTokenForResource:_resource clientId:_clientId request:_request error:&error];
         if (!item && error)
         {
-            completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+            completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_request correlationId]]);
             return;
         }
         
@@ -332,8 +324,8 @@
     // If we have a good (non-expired) access token then return it right away
     if (item.accessToken && !item.isExpired)
     {
-        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:_correlationId];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheItem:item multiResourceRefreshToken:NO correlationId:_correlationId];
+        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:[_request correlationId]];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheItem:item multiResourceRefreshToken:NO correlationId:[_request correlationId]];
         completionBlock(result);
         return;
     }
@@ -358,7 +350,7 @@
         if (!item.isExtendedLifetimeValid && ![_tokenCache.dataSource removeItem:item error:&error] && error)
         {
             // If we failed to remove the item with an error, then return that error right away
-            completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+            completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_request correlationId]]);
             return;
         }
         
@@ -395,10 +387,10 @@
     // If we don't have an item yet see if we can pull one out of the cache
     if (!_mrrtItem)
     {
-        _mrrtItem = [_tokenCache getMRRTItemForUser:_identifier clientId:_clientId correlationId:_correlationId telemetryRequestId:_telemetryRequestId error:&error];
+        _mrrtItem = [_tokenCache getMRRTItemForUser:_identifier clientId:_clientId request:_request error:&error];
         if (!_mrrtItem && error)
         {
-            completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+            completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_request correlationId]]);
             return;
         }
     }
@@ -456,10 +448,10 @@
     _attemptedFRT = YES;
     
     ADAuthenticationError* error = nil;
-    ADTokenCacheItem* frtItem = [_tokenCache getFRTItemForUser:_identifier familyId:familyId correlationId:_correlationId telemetryRequestId:_telemetryRequestId error:&error];
+    ADTokenCacheItem* frtItem = [_tokenCache getFRTItemForUser:_identifier familyId:familyId request:_request error:&error];
     if (!frtItem && error)
     {
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_request correlationId]]);
         return;
     }
     
