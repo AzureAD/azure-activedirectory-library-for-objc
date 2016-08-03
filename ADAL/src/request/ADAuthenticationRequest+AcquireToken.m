@@ -35,6 +35,18 @@
 #pragma mark -
 #pragma mark AcquireToken
 
+#if TARGET_OS_WATCH
+- (void)acquireTokenWithAuthData:(NSData *)authData
+                 completionBlock: (ADAuthenticationCallback)completionBlock
+{
+    ADTokenCacheItem *authInfo = [NSKeyedUnarchiver unarchiveObjectWithData:authData];
+    [_tokenCache updateCacheToItem:authInfo
+                              MRRT:authInfo.isMultiResourceRefreshToken
+                     correlationId:_correlationId];
+    [self acquireToken:completionBlock];
+}
+#endif
+
 - (void)acquireToken:(ADAuthenticationCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
