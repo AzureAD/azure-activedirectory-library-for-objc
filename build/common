@@ -1,9 +1,0 @@
-# Common build settings used throughout build scripts
-
-set -o pipefail
-
-ADAL_WORKSPACE=ADAL.xcworkspace
-ADAL_XCPRETTY="xcpretty -f build/adal_travis_formatter.rb"
-
-IOS_SIM_DEST='platform=iOS Simulator,name=iPhone 6,OS=latest'
-IOS_SIM_FLAGS="-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO -destination"
