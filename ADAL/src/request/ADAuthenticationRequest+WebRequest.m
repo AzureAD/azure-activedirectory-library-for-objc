@@ -29,8 +29,10 @@
 #import "ADWebResponse.h"
 #import "ADPkeyAuthHelper.h"
 #import "ADAuthenticationSettings.h"
+#if !TARGET_OS_WATCH
 #import "ADWebAuthController.h"
 #import "ADWebAuthController+Internal.h"
+#endif
 #import "ADHelpers.h"
 #import "NSURL+ADExtensions.h"
 #import "ADUserIdentifier.h"
@@ -174,6 +176,14 @@ static ADAuthenticationRequest* s_modalRequest = nil;
 - (void)launchWebView:(NSString*)startUrl
       completionBlock:(void (^)(ADAuthenticationError*, NSURL*))completionBlock
 {
+#if TARGET_OS_WATCH
+    (void)startUrl;
+    (void)completionBlock;
+    @throw [NSException exceptionWithName:@"WebViewException"
+                                   reason:@"WebView is not supported on apple watch"
+                                 userInfo:nil];
+#else
+
     [[ADWebAuthController sharedInstance] start:[NSURL URLWithString:startUrl]
                                             end:[NSURL URLWithString:_redirectUri]
                                     refreshCred:_refreshTokenCredential
@@ -184,6 +194,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                                         webView:_context.webView
                                   correlationId:_correlationId
                                      completion:completionBlock];
+#endif
 }
 
 //Requests an OAuth2 code to be used for obtaining a token:
