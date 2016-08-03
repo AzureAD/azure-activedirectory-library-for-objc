@@ -346,6 +346,21 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request acquireToken:completionBlock];
 }
 
+#if TARGET_OS_WATCH
+- (void)acquireTokenSlientWithAuthData:(NSData *)authData
+                              resource:(NSString *)resource
+                              clientId:(NSString *)clientId
+                           redirectUri:(NSURL *)redirectUri
+                       completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    API_ENTRY;
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+    
+    [request setSilent:YES];
+    [request acquireTokenWithAuthData:authData completionBlock:completionBlock];
+}
+#endif
+
 - (void)acquireTokenSilentWithResource:(NSString*)resource
                               clientId:(NSString*)clientId
                            redirectUri:(NSURL*)redirectUri
