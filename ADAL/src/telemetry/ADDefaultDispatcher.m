@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADTelemetry.h"
-#import "ADEventInterface.h"
+#import "ADTelemetryEventInterface.h"
 #import "ADDefaultDispatcher.h"
 
 @implementation ADDefaultDispatcher
@@ -59,7 +59,7 @@
     {
         NSArray* events = [objectsToBeDispatched objectForKey:requestId];
         
-        for (id<ADEventInterface> event in events)
+        for (id<ADTelemetryEventInterface> event in events)
         {
             NSArray* properties = [event getProperties];
             if (properties)
@@ -73,7 +73,7 @@
 }
 
 - (void)receive:(NSString *)requestId
-          event:(id<ADEventInterface>)event
+          event:(id<ADTelemetryEventInterface>)event
 {
     if ([NSString adIsStringNilOrBlank:requestId] || !event)
     {

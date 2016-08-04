@@ -31,7 +31,7 @@
 #import "ADAcquireTokenSilentHandler.h"
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
-#import "ADAPIEvent.h"
+#import "ADTelemetryAPIEvent.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -47,7 +47,7 @@
     [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"acauire_token_call"];
     ADAuthenticationCallback requestCompletion = ^void(ADAuthenticationResult *result)
     {
-        ADAPIEvent* event = [[ADAPIEvent alloc] initWithName:@"acauire_token_call"];
+        ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acauire_token_call"];
         [self fillTelemetryForAcquireToken:event result:result];
         [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
         SAFE_ARC_RELEASE(event);
@@ -95,7 +95,7 @@
                                               requestParams:_requestParams
                                             completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
-         ADAPIEvent* event = [[ADAPIEvent alloc] initWithName:@"authority_validation"];
+         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authority_validation"];
          [event setAuthorityValidationStatus:validated ? @"YES" : @"NO"];
          [event setAuthority:_context.authority];
          [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
@@ -202,7 +202,7 @@
     [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"authorization_code"];
     [self requestCode:^(NSString * code, ADAuthenticationError *error)
      {
-         ADAPIEvent* event = [[ADAPIEvent alloc] initWithName:@"authorization_code"];
+         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authorization_code"];
          [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
          SAFE_ARC_RELEASE(event);
 
@@ -232,7 +232,7 @@
                  [self requestTokenByCode:code
                           completionBlock:^(ADAuthenticationResult *result)
                   {
-                      ADAPIEvent* event = [[ADAPIEvent alloc] initWithName:@"token_grant"];
+                      ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"token_grant"];
                       [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
                       SAFE_ARC_RELEASE(event);
                       
@@ -272,7 +272,7 @@
               completion:completionBlock];
 }
 
-- (void)fillTelemetryForAcquireToken:(ADAPIEvent*)event
+- (void)fillTelemetryForAcquireToken:(ADTelemetryAPIEvent*)event
                               result:(ADAuthenticationResult*)result
 {
     [event setCorrelationId:[_requestParams correlationId]];

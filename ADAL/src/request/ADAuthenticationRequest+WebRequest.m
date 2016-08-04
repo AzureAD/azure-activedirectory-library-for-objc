@@ -39,7 +39,7 @@
 #import "ADWebAuthRequest.h"
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
-#import "ADUIEvent.h"
+#import "ADTelemetryUIEvent.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -181,7 +181,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"launch_web_view"];
     void(^requestCompletion)(ADAuthenticationError *error, NSURL *end) = ^void(ADAuthenticationError *error, NSURL *end)
     {
-        ADUIEvent* event = [[ADUIEvent alloc] initWithName:@"launch_web_view"];
+        ADTelemetryUIEvent* event = [[ADTelemetryUIEvent alloc] initWithName:@"launch_web_view"];
         [self fillTelemetryUIEvent:event];
         [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
         
@@ -329,7 +329,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     }
 }
 
-- (void)fillTelemetryUIEvent:(ADUIEvent*)event
+- (void)fillTelemetryUIEvent:(ADTelemetryUIEvent*)event
 {
     if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString adIsStringNilOrBlank:[_requestParams identifier].userId])
     {

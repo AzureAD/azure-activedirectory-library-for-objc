@@ -21,21 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADDefaultEvent.h"
+#import "ADTelemetryUIEvent.h"
 
-@interface ADAPIEvent : ADDefaultEvent
+@implementation ADTelemetryUIEvent
 
-- (void)setResultStatus:(ADAuthenticationResultStatus)status;
-- (void)setCorrelationId:(NSUUID*)correlationId;
-- (void)setUserId:(NSString*)userId;
-- (void)setClientId:(NSString*)clientId;
-- (void)setIsExtendedLifeTimeToken:(NSString*)isExtendedLifeToken;
-- (void)setErrorCode:(NSString*)errorCode;
-- (void)setProtocolCode:(NSString*)protocolCode;
-- (void)setErrorDescription:(NSString*)errorDescription;
-- (void)setErrorDomain:(NSString*)errorDomain;
-
-- (void)setAuthorityValidationStatus:(NSString*)status;
-- (void)setAuthority:(NSString*)authority;
+- (void)setLoginHint:(NSString*)hint
+{
+    [self setProperty:@"login_hint" value:[NSString stringWithFormat:@"%lu", (unsigned long)[hint hash]]];
+}
 
 @end

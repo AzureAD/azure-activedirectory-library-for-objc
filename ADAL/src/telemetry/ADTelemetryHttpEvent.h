@@ -21,10 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADDefaultEvent.h"
+#import "ADTelemetryDefaultEvent.h"
 
-@interface ADUIEvent : ADDefaultEvent
+@interface ADTelemetryHttpEvent : ADTelemetryDefaultEvent
 
-- (void)setLoginHint:(NSString*)hint;
+- (void)setHttpMethod:(NSString*)method;
+- (void)setHttpPath:(NSString*)path;
+- (void)setHttpResponseCode:(NSString*)code;
+- (void)setHttpResponseMethod:(NSString*)method;
+- (void)setHttpRequestQueryParams:(NSString*)params;
+- (void)setHttpUserAgent:(NSString*)userAgent;
 
 @end

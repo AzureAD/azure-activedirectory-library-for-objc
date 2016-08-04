@@ -21,10 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADDefaultEvent.h"
+#import "ADTelemetryDefaultEvent.h"
 
-@interface ADBrokerEvent : ADDefaultEvent
+@interface ADTelemetryUIEvent : ADTelemetryDefaultEvent
 
-- (void)setBrokerAppVersion:(NSString*)version;
+- (void)setLoginHint:(NSString*)hint;
 
 @end

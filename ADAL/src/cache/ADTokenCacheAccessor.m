@@ -29,7 +29,7 @@
 #import "ADUserInformation.h"
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
-#import "ADCacheEvent.h"
+#import "ADTelemetryCacheEvent.h"
 
 @implementation ADTokenCacheAccessor
 
@@ -87,7 +87,7 @@
                                            correlationId:[requestParams correlationId]
                                                    error:error];
     
-    ADCacheEvent* event = [[ADCacheEvent alloc] initWithName:@"token_cache_lookup"];
+    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_lookup"];
     [[ADTelemetry sharedInstance] stopEvent:[requestParams telemetryRequestId] event:event];
     SAFE_ARC_RELEASE(event);
     
@@ -156,7 +156,7 @@
     
     ADTokenCacheItem* item = [_dataSource getItemWithKey:key userId:@"" correlationId:[requestParams correlationId] error:error];
     
-    ADCacheEvent* event = [[ADCacheEvent alloc] initWithName:@"token_cache_lookup"];
+    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_lookup"];
     [[ADTelemetry sharedInstance] stopEvent:[requestParams telemetryRequestId] event:event];
     SAFE_ARC_RELEASE(event);
     
@@ -254,7 +254,7 @@
     [_dataSource addOrUpdateItem:cacheItem correlationId:[requestParams correlationId] error:nil];
     cacheItem.refreshToken = savedRefreshToken;//Restore for the result
     
-    ADCacheEvent* event = [[ADCacheEvent alloc] initWithName:@"token_cache_write"];
+    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_write"];
     [[ADTelemetry sharedInstance] stopEvent:[requestParams telemetryRequestId] event:event];
     SAFE_ARC_RELEASE(event);
 }
@@ -311,7 +311,7 @@
         }
     }
     
-    ADCacheEvent* event = [[ADCacheEvent alloc] initWithName:@"token_cache_delete_token"];
+    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_delete_token"];
     [[ADTelemetry sharedInstance] stopEvent:[requestParams telemetryRequestId] event:event];
     SAFE_ARC_RELEASE(event);
 }

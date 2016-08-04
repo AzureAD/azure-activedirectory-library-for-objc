@@ -21,13 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADUIEvent.h"
+#import "ADTelemetryBrokerEvent.h"
 
-@implementation ADUIEvent
+@implementation ADTelemetryBrokerEvent
 
-- (void)setLoginHint:(NSString*)hint
+- (void)setBrokerAppVersion:(NSString*)version
 {
-    [self setProperty:@"login_hint" value:[NSString stringWithFormat:@"%lu", (unsigned long)[hint hash]]];
+    [self setProperty:@"broker_app_version" value:version];
 }
 
 @end

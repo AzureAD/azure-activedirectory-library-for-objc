@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADTelemetry.h"
-#import "ADEventInterface.h"
+#import "ADTelemetryEventInterface.h"
 #import "ADAggregatedDispatcher.h"
 
 @implementation ADAggregatedDispatcher
@@ -53,7 +53,7 @@
         NSArray* events = [objectsToBeDispatched objectForKey:requestId];
         NSMutableArray* aggregatedEvent = [NSMutableArray new];
         
-        for (id<ADEventInterface> event in events)
+        for (id<ADTelemetryEventInterface> event in events)
         {
             NSArray* properties = [event getProperties];
             

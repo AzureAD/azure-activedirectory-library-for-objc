@@ -24,7 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
-#import "ADDefaultEvent.h"
+#import "ADTelemetryDefaultEvent.h"
 
 typedef void(^TestCallback)(NSArray* event);
 
@@ -87,7 +87,7 @@ typedef void(^TestCallback)(NSArray* event);
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADDefaultEvent alloc] initWithName:@"testEvent"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent"]];
     
     [[ADTelemetry sharedInstance] flush];
     
@@ -134,11 +134,11 @@ typedef void(^TestCallback)(NSArray* event);
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADDefaultEvent alloc] initWithName:@"testEvent1"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"]];
     
     // generate telemetry event 2
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
-    ADDefaultEvent* event2 = [[ADDefaultEvent alloc] initWithName:@"testEvent2"];
+    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"];
     [event2 setProperty:@"customized_property" value:@"customized_value"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                    event:event2];
@@ -204,11 +204,11 @@ typedef void(^TestCallback)(NSArray* event);
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADDefaultEvent alloc] initWithName:@"testEvent1"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"]];
     
     // generate telemetry event 2
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
-    ADDefaultEvent* event2 = [[ADDefaultEvent alloc] initWithName:@"testEvent2"];
+    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"];
     [event2 setProperty:@"customized_property" value:@"customized_value"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                    event:event2];
@@ -253,13 +253,13 @@ typedef void(^TestCallback)(NSArray* event);
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
-    ADDefaultEvent* event2 = [[ADDefaultEvent alloc] initWithName:@"testEvent2"];
+    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"];
     [event2 setProperty:@"customized_property" value:@"customized_value"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                    event:event2];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADDefaultEvent alloc] initWithName:@"testEvent1"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"]];
     
     [[ADTelemetry sharedInstance] flush];
     
@@ -326,13 +326,13 @@ typedef void(^TestCallback)(NSArray* event);
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
-    ADDefaultEvent* event2 = [[ADDefaultEvent alloc] initWithName:@"testEvent2"];
+    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"];
     [event2 setProperty:@"customized_property" value:@"customized_value"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                    event:event2];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADDefaultEvent alloc] initWithName:@"testEvent1"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"]];
     
     [[ADTelemetry sharedInstance] flush];
     
@@ -375,17 +375,17 @@ typedef void(^TestCallback)(NSArray* event);
     
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent3"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADDefaultEvent alloc] initWithName:@"testEvent3"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent3"]];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADDefaultEvent alloc] initWithName:@"testEvent2"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"]];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADDefaultEvent alloc] initWithName:@"testEvent1"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"]];
     
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent4"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADDefaultEvent alloc] initWithName:@"testEvent4"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent4"]];
     
     [[ADTelemetry sharedInstance] flush];
     
@@ -479,17 +479,17 @@ typedef void(^TestCallback)(NSArray* event);
     
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent3"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADDefaultEvent alloc] initWithName:@"testEvent3"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent3"]];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADDefaultEvent alloc] initWithName:@"testEvent2"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"]];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADDefaultEvent alloc] initWithName:@"testEvent1"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"]];
     
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent4"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADDefaultEvent alloc] initWithName:@"testEvent4"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent4"]];
     
     [[ADTelemetry sharedInstance] flush];
     

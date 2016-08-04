@@ -37,7 +37,7 @@
 #import "ADAuthenticationResult.h"
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
-#import "ADBrokerEvent.h"
+#import "ADTelemetryBrokerEvent.h"
 
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
@@ -222,7 +222,7 @@
     {
         [self releaseUserInterationLock]; // Release the lock when completion block is called.
         
-        ADBrokerEvent* event = [[ADBrokerEvent alloc] initWithName:@"launch_broker"];
+        ADTelemetryBrokerEvent* event = [[ADTelemetryBrokerEvent alloc] initWithName:@"launch_broker"];
         [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
         
         completionBlock(result);

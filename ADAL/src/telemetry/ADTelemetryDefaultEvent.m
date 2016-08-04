@@ -21,15 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADDefaultEvent.h"
-#import "ADEventInterface.h"
+#import "ADTelemetryDefaultEvent.h"
+#import "ADTelemetryEventInterface.h"
 
 #if !TARGET_OS_IPHONE
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOKitLib.h>
 #endif
 
-@implementation ADDefaultEvent
+@implementation ADTelemetryDefaultEvent
 
 @synthesize propertyMap = _propertyMap;
 

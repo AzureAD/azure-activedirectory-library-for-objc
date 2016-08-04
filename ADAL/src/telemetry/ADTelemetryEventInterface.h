@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@protocol ADEventInterface <NSObject>
+@protocol ADTelemetryEventInterface <NSObject>
 
 @property (readonly) NSMutableArray* propertyMap;
 

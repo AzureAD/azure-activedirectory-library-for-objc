@@ -23,7 +23,7 @@
 
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
-#import "ADEventInterface.h"
+#import "ADTelemetryEventInterface.h"
 #import "ADDefaultDispatcher.h"
 #import "ADAggregatedDispatcher.h"
 
@@ -111,7 +111,7 @@ static NSString* const s_delimiter = @"|";
 }
 
 - (void)stopEvent:(NSString*)requestId
-            event:(id<ADEventInterface>)event
+            event:(id<ADTelemetryEventInterface>)event
 {
     NSString* eventName = [self getPropertyFromEvent:event propertyName:@"event_name"];
     
@@ -136,7 +136,7 @@ static NSString* const s_delimiter = @"|";
 }
 
 - (void)dispatchEventNow:(NSString*)requestId
-                   event:(id<ADEventInterface>)event
+                   event:(id<ADTelemetryEventInterface>)event
 {
     @synchronized(self)//Guard against thread-unsafe callback and modification of _dispatcher after the check
     {
@@ -153,7 +153,7 @@ static NSString* const s_delimiter = @"|";
     return [NSString stringWithFormat:@"%@%@%@", requestId, s_delimiter, eventName];
 }
 
-- (NSString*)getPropertyFromEvent:(id<ADEventInterface>)event
+- (NSString*)getPropertyFromEvent:(id<ADTelemetryEventInterface>)event
                      propertyName:(NSString*)propertyName
 {
     NSArray* properties = [event getProperties];

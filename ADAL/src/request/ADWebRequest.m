@@ -34,7 +34,7 @@
 #import "ADURLProtocol.h"
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
-#import "ADHttpEvent.h"
+#import "ADTelemetryHttpEvent.h"
 
 @interface ADWebRequest () <NSURLConnectionDelegate>
 
@@ -321,7 +321,7 @@
 - (void)stopTelemetryEvent:(NSError *)error
                   response:(ADWebResponse *)response
 {
-    ADHttpEvent* event = [[ADHttpEvent alloc] initWithName:@"http_request"];
+    ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:@"http_request"];
     
     [event setHttpMethod:_isGetRequest ? @"GET" : @"POST"];
     [event setHttpPath:[[_requestURL host] stringByAppendingPathComponent:[_requestURL path]]];

@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAPIEvent.h"
+#import "ADTelemetryAPIEvent.h"
 
-@implementation ADAPIEvent
+@implementation ADTelemetryAPIEvent
 
 - (void)setResultStatus:(ADAuthenticationResultStatus)status
 {

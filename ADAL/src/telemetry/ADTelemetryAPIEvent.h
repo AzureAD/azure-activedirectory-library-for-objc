@@ -21,8 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADCacheEvent.h"
+#import "ADTelemetryDefaultEvent.h"
 
-@implementation ADCacheEvent
+@interface ADTelemetryAPIEvent : ADTelemetryDefaultEvent
+
+- (void)setResultStatus:(ADAuthenticationResultStatus)status;
+- (void)setCorrelationId:(NSUUID*)correlationId;
+- (void)setUserId:(NSString*)userId;
+- (void)setClientId:(NSString*)clientId;
+- (void)setIsExtendedLifeTimeToken:(NSString*)isExtendedLifeToken;
+- (void)setErrorCode:(NSString*)errorCode;
+- (void)setProtocolCode:(NSString*)protocolCode;
+- (void)setErrorDescription:(NSString*)errorDescription;
+- (void)setErrorDomain:(NSString*)errorDomain;
+
+- (void)setAuthorityValidationStatus:(NSString*)status;
+- (void)setAuthority:(NSString*)authority;
 
 @end
