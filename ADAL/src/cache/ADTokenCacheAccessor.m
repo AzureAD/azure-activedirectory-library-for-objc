@@ -83,9 +83,9 @@
     [[ADTelemetry sharedInstance] startEvent:[requestParams telemetryRequestId] eventName:@"token_cache_lookup"];
     
     ADTokenCacheItem* item = [_dataSource getItemWithKey:key
-                                userId:identifier.userId
-                         correlationId:[requestParams correlationId]
-                                 error:error];
+                                                  userId:identifier.userId
+                                           correlationId:[requestParams correlationId]
+                                                   error:error];
     
     ADCacheEvent* event = [[ADCacheEvent alloc] initWithName:@"token_cache_lookup"];
     [[ADTelemetry sharedInstance] stopEvent:[requestParams telemetryRequestId] event:event];

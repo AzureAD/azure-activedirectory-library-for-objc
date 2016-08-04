@@ -44,14 +44,14 @@
 @property (retain, nonatomic) NSUUID* correlationId;
 @property (retain, nonatomic) NSString* telemetryRequestId;
 
-- (id)initWithAuthority:(NSString *)authorityParam
-            resource:(NSString *)resourceParam
-            clientId:(NSString *)clientIdParam
-         redirectUri:(NSString *)redirectUriParam
-          identifier:(ADUserIdentifier *)identifierParam
-          tokenCache:(ADTokenCacheAccessor *)tokenCacheParam
-    extendedLifetime:(BOOL)extendedLifetimeParam
-       correlationId:(NSUUID *)correlationIdParam
-  telemetryRequestId:(NSString *)telemetryRequestIdParam;
+- (id)initWithAuthority:(NSString *)authority
+               resource:(NSString *)resource
+               clientId:(NSString *)clientId
+            redirectUri:(NSString *)redirectUri
+             identifier:(ADUserIdentifier *)identifier
+             tokenCache:(ADTokenCacheAccessor *)tokenCache
+       extendedLifetime:(BOOL)extendedLifetime
+          correlationId:(NSUUID *)correlationId
+     telemetryRequestId:(NSString *)telemetryRequestId;
 
 @end

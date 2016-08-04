@@ -158,12 +158,14 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     
     NSArray* cases = @[@"http://invalidscheme.com",
                        @"https://Invalid URL 2305 8 -0238460-820-386"];
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    [requestParams setCorrelationId:[NSUUID UUID]];
     
     for (NSString* testCase in cases)
     {
         ADInstanceDiscovery* discovery = [[ADInstanceDiscovery alloc] init];
         [discovery validateAuthority:testCase
-                       requestParams:nil
+                       requestParams:requestParams
                      completionBlock:^(BOOL validated, ADAuthenticationError *error)
          {
              XCTAssertFalse(validated, @"\"%@\" should come back invalid.", testCase);
@@ -227,10 +229,10 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
 - (void)testNormalFlow
 {
     ADInstanceDiscovery* discovery = [[ADInstanceDiscovery alloc] init];
-    
-    [ADTestURLConnection addResponse:[ADTestURLResponse responseValidAuthority:@"https://login.windows-ppe.net/common"]];
     ADRequestParameters* requestParams = [ADRequestParameters new];
     [requestParams setCorrelationId:[NSUUID UUID]];
+    
+    [ADTestURLConnection addResponse:[ADTestURLResponse responseValidAuthority:@"https://login.windows-ppe.net/common"]];
     
     [discovery validateAuthority:@"https://login.windows-ppe.net/common"
                    requestParams:requestParams

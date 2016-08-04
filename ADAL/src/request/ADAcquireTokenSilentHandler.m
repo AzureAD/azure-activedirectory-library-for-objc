@@ -36,7 +36,7 @@
 @implementation ADAcquireTokenSilentHandler
 
 + (void)acquireTokenSilentForRequestParams:(ADRequestParameters*)requestParams
-                       completionBlock:(ADAuthenticationCallback)completionBlock
+                           completionBlock:(ADAuthenticationCallback)completionBlock
 {
     ADAcquireTokenSilentHandler* handler = [ADAcquireTokenSilentHandler new];
     

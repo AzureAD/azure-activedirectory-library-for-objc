@@ -81,7 +81,7 @@
 + (ADAuthenticationRequest *)requestWithAuthority:(NSString *)authority;
 + (ADAuthenticationRequest *)requestWithContext:(ADAuthenticationContext *)context;
 
-// The default constructor. All of the parameters are mandatory
+// The default constructor. For requestParams, redirectUri, clientId and resource are mandatory
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
                                  requestParams:(ADRequestParameters*)requestParams
                                          error:(ADAuthenticationError* __autoreleasing *)error;
