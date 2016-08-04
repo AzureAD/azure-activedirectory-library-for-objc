@@ -57,19 +57,18 @@ static ADAuthenticationRequest* s_modalRequest = nil;
 {
     NSString* urlString = [_context.authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
     ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString]
-                                                    correlationId:_correlationId
-                                               telemetryRequestId:_telemetryRequestId];
+                                                    requestParams:_requestParams];
     [req setRequestDictionary:request_data];
     [req sendRequest:^(NSDictionary *response)
      {
          //Prefill the known elements in the item. These can be overridden by the response:
          ADTokenCacheItem* item = [ADTokenCacheItem new];
-         item.resource = _resource;
-         item.clientId = _clientId;
+         item.resource = [_requestParams resource];
+         item.clientId = [_requestParams clientId];
          item.authority = _context.authority;
          ADAuthenticationResult* result = [item processTokenResponse:response
                                                          fromRefresh:NO
-                                                requestCorrelationId:_correlationId];
+                                                requestCorrelationId:[_requestParams correlationId]];
          SAFE_ARC_RELEASE(item);
          completionBlock(result);
      }];
@@ -87,7 +86,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS
                                                                               protocolCode:nil
                                                                               errorDetails:message
-                                                                             correlationId:_correlationId];
+                                                                             correlationId:[_requestParams correlationId]];
         completionBlock(nil, error);
         return NO;
     }
@@ -114,18 +113,18 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         
         if (![NSString adIsStringNilOrBlank:authorizationServer] && ![NSString adIsStringNilOrBlank:resource])
         {
-            AD_LOG_VERBOSE_F(@"State", _correlationId, @"The authorization server returned the following state: %@", state);
+            AD_LOG_VERBOSE_F(@"State", [_requestParams correlationId], @"The authorization server returned the following state: %@", state);
             return YES;
         }
     }
-    AD_LOG_WARN_F(@"State error", _correlationId, @"Missing or invalid state returned: %@", state);
+    AD_LOG_WARN_F(@"State error", [_requestParams correlationId], @"Missing or invalid state returned: %@", state);
     return NO;
 }
 
 // Encodes the state parameter for a protocol message
 - (NSString *)encodeProtocolState
 {
-    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:_context.authority, @"a", _resource, @"r", _scope, @"s", nil]
+    return [[[NSMutableDictionary dictionaryWithObjectsAndKeys:[_requestParams authority], @"a", [_requestParams resource], @"r", _scope, @"s", nil]
              adURLFormEncode] adBase64UrlEncode];
 }
 
@@ -138,16 +137,16 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
                                  [_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX],
                                  OAUTH2_RESPONSE_TYPE, requestType,
-                                 OAUTH2_CLIENT_ID, [_clientId adUrlFormEncode],
-                                 OAUTH2_RESOURCE, [_resource adUrlFormEncode],
-                                 OAUTH2_REDIRECT_URI, [_redirectUri adUrlFormEncode],
+                                 OAUTH2_CLIENT_ID, [[_requestParams clientId] adUrlFormEncode],
+                                 OAUTH2_RESOURCE, [[_requestParams resource] adUrlFormEncode],
+                                 OAUTH2_REDIRECT_URI, [[_requestParams redirectUri] adUrlFormEncode],
                                  OAUTH2_STATE, state];
     
     [startUrl appendFormat:@"&%@", [[ADLogger adalId] adURLFormEncode]];
     
-    if (_identifier && [_identifier isDisplayable] && ![NSString adIsStringNilOrBlank:_identifier.userId])
+    if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString adIsStringNilOrBlank:[_requestParams identifier].userId])
     {
-        [startUrl appendFormat:@"&%@=%@", OAUTH2_LOGIN_HINT, [_identifier.userId adUrlFormEncode]];
+        [startUrl appendFormat:@"&%@=%@", OAUTH2_LOGIN_HINT, [[_requestParams identifier].userId adUrlFormEncode]];
     }
     NSString* promptParam = [ADAuthenticationContext getPromptParameter:_promptBehavior];
     if (promptParam)
@@ -190,14 +189,14 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     };
     
     [[ADWebAuthController sharedInstance] start:[NSURL URLWithString:startUrl]
-                                            end:[NSURL URLWithString:_redirectUri]
+                                            end:[NSURL URLWithString:[_requestParams redirectUri]]
                                     refreshCred:_refreshTokenCredential
 #if TARGET_OS_IPHONE
                                          parent:_context.parentController
                                      fullScreen:[ADAuthenticationSettings sharedInstance].enableFullScreen
 #endif
                                         webView:_context.webView
-                                  correlationId:_correlationId
+                                  correlationId:[_requestParams correlationId]
                                      completion:requestCompletion];
 }
 
@@ -207,7 +206,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     THROW_ON_NIL_ARGUMENT(completionBlock);
     [self ensureRequest];
     
-    AD_LOG_VERBOSE_F(@"Requesting authorization code.", _correlationId, @"Requesting authorization code for resource: %@", _resource);
+    AD_LOG_VERBOSE_F(@"Requesting authorization code.", [_requestParams correlationId], @"Requesting authorization code for resource: %@", [_requestParams resource]);
     if (![self takeExclusionLockWithCallback:completionBlock])
     {
         return;
@@ -267,7 +266,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                          error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_AUTHORIZATION_CODE
                                                                         protocolCode:nil
                                                                         errorDetails:@"The authorization server did not return a valid authorization code."
-                                                                       correlationId:_correlationId];
+                                                                       correlationId:[_requestParams correlationId]];
                      }
                  }
              }
@@ -287,9 +286,9 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     {
         NSMutableDictionary* requestData = nil;
         requestData = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                       _clientId, OAUTH2_CLIENT_ID,
-                       _redirectUri, OAUTH2_REDIRECT_URI,
-                       _resource, OAUTH2_RESOURCE,
+                       [_requestParams clientId], OAUTH2_CLIENT_ID,
+                       [_requestParams redirectUri], OAUTH2_REDIRECT_URI,
+                       [_requestParams resource], OAUTH2_RESOURCE,
                        OAUTH2_CODE, OAUTH2_RESPONSE_TYPE,
 					   @"1", @"nux", nil];
         
@@ -300,8 +299,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         
         NSURL* reqURL = [NSURL URLWithString:[_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]];
         ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:reqURL
-                                                        correlationId:_correlationId
-                                                   telemetryRequestId:_telemetryRequestId];
+                                                        requestParams:_requestParams];
         [req setIsGetRequest:YES];
         [req setRequestDictionary:requestData];
         [req sendRequest:^(NSDictionary * parameters)
@@ -333,9 +331,9 @@ static ADAuthenticationRequest* s_modalRequest = nil;
 
 - (void)fillTelemetryUIEvent:(ADUIEvent*)event
 {
-    if (_identifier && [_identifier isDisplayable] && ![NSString adIsStringNilOrBlank:_identifier.userId])
+    if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString adIsStringNilOrBlank:[_requestParams identifier].userId])
     {
-        [event setLoginHint:_identifier.userId];
+        [event setLoginHint:[_requestParams identifier].userId];
     }
 }
 

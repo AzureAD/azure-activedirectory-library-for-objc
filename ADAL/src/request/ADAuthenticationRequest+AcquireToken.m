@@ -41,7 +41,7 @@
 - (void)acquireToken:(ADAuthenticationCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    AD_REQUEST_CHECK_ARGUMENT(_resource);
+    AD_REQUEST_CHECK_ARGUMENT([_requestParams resource]);
     [self ensureRequest];
     
     [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"acauire_token_call"];
@@ -51,13 +51,15 @@
         [self fillTelemetryForAcquireToken:event result:result];
         [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
         SAFE_ARC_RELEASE(event);
+        //flush all events in the end of the acquireToken call
+        [[ADTelemetry sharedInstance] flush];
         
         completionBlock(result);
     };
     
     NSString* log = [NSString stringWithFormat:@"acquireToken (authority = %@, resource = %@, clientId = %@, idtype = %@)",
-                     _context.authority, _resource, _clientId, [_identifier typeAsString]];
-    AD_LOG_INFO_F(log, _correlationId, @"userId = %@", _identifier.userId);
+                     [_requestParams authority], [_requestParams resource], [_requestParams clientId], [[_requestParams identifier] typeAsString]];
+    AD_LOG_INFO_F(log, [_requestParams correlationId], @"userId = %@", [_requestParams identifier].userId);
     
     if (!_silent && ![NSThread isMainThread])
     {
@@ -65,20 +67,20 @@
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_ON_MAIN_THREAD
                                                protocolCode:nil
                                                errorDetails:@"Interactive authentication requests must originate from the main thread"
-                                              correlationId:_correlationId];
+                                              correlationId:[_requestParams correlationId]];
         
         requestCompletion([ADAuthenticationResult resultFromError:error]);
         return;
     }
     
-    if (!_silent && _context.credentialsType == AD_CREDENTIALS_AUTO && ![ADAuthenticationRequest validBrokerRedirectUri:_redirectUri])
+    if (!_silent && _context.credentialsType == AD_CREDENTIALS_AUTO && ![ADAuthenticationRequest validBrokerRedirectUri:[_requestParams redirectUri]])
     {
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
                                                protocolCode:nil
                                                errorDetails:ADRedirectUriInvalidError
-                                              correlationId:_correlationId];
-        requestCompletion([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+                                              correlationId:[_requestParams correlationId]];
+        requestCompletion([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);
         return;
     }
     
@@ -90,7 +92,7 @@
     
     [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"authority_validation"];
     [[ADInstanceDiscovery sharedInstance] validateAuthority:_context.authority
-                                                    request:self
+                                              requestParams:_requestParams
                                             completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          ADAPIEvent* event = [[ADAPIEvent alloc] initWithName:@"authority_validation"];
@@ -101,7 +103,7 @@
 
          if (error)
          {
-             requestCompletion([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+             requestCompletion([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);
          }
          else
          {
@@ -117,15 +119,8 @@
     
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && [_context hasCacheStore])
     {
-        [ADAcquireTokenSilentHandler acquireTokenSilentForAuthority:_context.authority
-                                                           resource:_resource
-                                                           clientId:_clientId
-                                                        redirectUri:_redirectUri
-                                                         identifier:_identifier
-                                                         tokenCache:_tokenCache
-                                                   extendedLifetime:_context.extendedLifetimeEnabled
-                                                            request:self
-                                                    completionBlock:^(ADAuthenticationResult *result)
+        [ADAcquireTokenSilentHandler acquireTokenSilentForRequestParams:_requestParams
+                                                        completionBlock:^(ADAuthenticationResult *result)
         {
             if ([ADAuthenticationContext isFinalResult:result])
             {
@@ -166,9 +161,9 @@
                                                protocolCode:nil
                                                errorDetails:ADCredentialsNeeded
                                                    userInfo:underlyingError
-                                              correlationId:_correlationId];
+                                              correlationId:[_requestParams correlationId]];
         
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]];
         completionBlock(result);
         return;
     }
@@ -185,8 +180,8 @@
             [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION
                                                    protocolCode:nil
                                                    errorDetails:ADInteractionNotSupportedInExtension
-                                                  correlationId:_correlationId];
-            ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
+                                                  correlationId:[_requestParams correlationId]];
+            ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]];
             completionBlock(result);
             return;
         }
@@ -220,8 +215,8 @@
                  return;
              }
              
-             ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_correlationId]
-             : [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
+             ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:[_requestParams correlationId]]
+             : [ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]];
              completionBlock(result);
          }
          else
@@ -243,8 +238,8 @@
                       
                       if (AD_SUCCEEDED == result.status)
                       {
-                          [_tokenCache updateCacheToResult:result cacheItem:nil refreshToken:nil request:self];
-                          result = [ADAuthenticationContext updateResult:result toUser:_identifier];
+                          [[_requestParams tokenCache] updateCacheToResult:result cacheItem:nil refreshToken:nil requestParams:_requestParams];
+                          result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
                       }
                       completionBlock(result);
                   }];
@@ -257,16 +252,16 @@
 - (void)requestTokenByCode:(NSString *)code
            completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    HANDLE_ARGUMENT(code, _correlationId);
+    HANDLE_ARGUMENT(code, [_requestParams correlationId]);
     [self ensureRequest];
-    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", _correlationId, @"Requesting token by authorization code for resource: %@", _resource);
+    AD_LOG_VERBOSE_F(@"Requesting token from authorization code.", [_requestParams correlationId], @"Requesting token by authorization code for resource: %@", [_requestParams resource]);
     
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                          OAUTH2_AUTHORIZATION_CODE, OAUTH2_GRANT_TYPE,
                                          code, OAUTH2_CODE,
-                                         _clientId, OAUTH2_CLIENT_ID,
-                                         _redirectUri, OAUTH2_REDIRECT_URI,
+                                         [_requestParams clientId], OAUTH2_CLIENT_ID,
+                                         [_requestParams redirectUri], OAUTH2_REDIRECT_URI,
                                          nil];
     if(![NSString adIsStringNilOrBlank:_scope])
     {
@@ -280,9 +275,9 @@
 - (void)fillTelemetryForAcquireToken:(ADAPIEvent*)event
                               result:(ADAuthenticationResult*)result
 {
-    [event setCorrelationId:_correlationId];
-    [event setUserId:[_identifier userId]];
-    [event setClientId:_clientId];
+    [event setCorrelationId:[_requestParams correlationId]];
+    [event setUserId:[[_requestParams identifier] userId]];
+    [event setClientId:[_requestParams clientId]];
     [event setResultStatus:[result status]];
     [event setIsExtendedLifeTimeToken:[result extendedLifeTimeToken]? @"YES":@"NO"];
     [event setErrorCode:[NSString stringWithFormat:@"%ld",(long)[result.error code]]];

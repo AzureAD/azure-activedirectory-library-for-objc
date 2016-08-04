@@ -32,7 +32,7 @@
     }
 
 #define CHECK_FOR_NIL(_val) \
-    if (!_val) { completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"" #_val " is nil!" correlationId:_correlationId]]); return; }
+    if (!_val) { completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"" #_val " is nil!" correlationId:[_requestParams correlationId]]]); return; }
 
 #import "ADAL_Internal.h"
 

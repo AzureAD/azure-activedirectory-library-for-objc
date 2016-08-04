@@ -24,6 +24,7 @@
 
 #import <Foundation/Foundation.h>
 #import "ADAuthenticationContext.h"
+#import "ADRequestParameters.h"
 
 @class ADUserIdentifier;
 @class ADTokenCacheAccessor;
@@ -48,15 +49,9 @@
 {
 @protected
     ADAuthenticationContext* _context;
-    NSString* _clientId;
-    NSString* _redirectUri;
-    ADTokenCacheAccessor* _tokenCache;
-    
-    ADUserIdentifier* _identifier;
+    ADRequestParameters* _requestParams;
     
     ADPromptBehavior _promptBehavior;
-    
-    NSString* _resource;
     
     NSString* _scope;
     NSString* _queryParams;
@@ -69,9 +64,7 @@
     BOOL _silent;
     BOOL _allowSilent;
     
-    NSUUID* _correlationId;
     NSString* _logComponent;
-    NSString* _telemetryRequestId;
     
     BOOL _requestStarted;
     BOOL _attemptedFRT;
@@ -90,9 +83,7 @@
 
 // The default constructor. All of the parameters are mandatory
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
-                                   redirectUri:(NSString*)redirectUri
-                                      clientId:(NSString*)clientId
-                                      resource:(NSString*)resource
+                                 requestParams:(ADRequestParameters*)requestParams
                                          error:(ADAuthenticationError* __autoreleasing *)error;
 
 // This message is sent before any stage of processing is done, it marks all the fields as un-editable and grabs the

@@ -36,4 +36,6 @@
 - (void)dispatchEventNow:(NSString*)requestId
                    event:(id<ADEventInterface>)event;
 
+- (void)flush;
+
 @end

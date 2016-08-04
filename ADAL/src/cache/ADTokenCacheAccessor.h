@@ -43,7 +43,7 @@
 - (ADTokenCacheItem *)getATRTItemForUser:(ADUserIdentifier *)identifier
                                 resource:(NSString *)resource
                                 clientId:(NSString *)clientId
-                                 request:(ADAuthenticationRequest*)request
+                           requestParams:(ADRequestParameters*)requestParams
                                    error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*!
@@ -52,7 +52,7 @@
  */
 - (ADTokenCacheItem *)getMRRTItemForUser:(ADUserIdentifier *)identifier
                                 clientId:(NSString *)clientId
-                                 request:(ADAuthenticationRequest*)request
+                           requestParams:(ADRequestParameters*)requestParams
                                    error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*!
@@ -61,7 +61,7 @@
  */
 - (ADTokenCacheItem *)getFRTItemForUser:(ADUserIdentifier *)identifier
                                familyId:(NSString *)familyId
-                                request:(ADAuthenticationRequest*)request
+                          requestParams:(ADRequestParameters*)requestParams
                                   error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*!
@@ -70,7 +70,7 @@
  */
 - (ADTokenCacheItem*)getADFSUserTokenForResource:(NSString *)resource
                                         clientId:(NSString *)clientId
-                                         request:(ADAuthenticationRequest*)request
+                                   requestParams:(ADRequestParameters*)requestParams
                                            error:(ADAuthenticationError * __autoreleasing *)error;
 
 /*!
@@ -83,6 +83,6 @@
 - (void)updateCacheToResult:(ADAuthenticationResult *)result
                   cacheItem:(ADTokenCacheItem *)cacheItem
                refreshToken:(NSString *)refreshToken
-                    request:(ADAuthenticationRequest*)request;
+              requestParams:(ADRequestParameters*)requestParams;
 
 @end

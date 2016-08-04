@@ -38,10 +38,9 @@
 @synthesize handledPkeyAuthChallenge = _handledPkeyAuthChallenge;
 
 - (id)initWithURL:(NSURL *)url
-    correlationId:(NSUUID *)correlationId
-telemetryRequestId:(NSString *)telemetryRequestId
+    requestParams:(ADRequestParameters*)requestParams
 {
-    self = [super initWithURL:url correlationId:correlationId telemetryRequestId:telemetryRequestId];
+    self = [super initWithURL:url requestParams:requestParams];
     if (!self)
     {
         return nil;

@@ -56,8 +56,7 @@
 @property (readonly) NSUUID* correlationId;
 
 - (id)initWithURL: (NSURL*)url
-    correlationId: (NSUUID*)correlationId
-telemetryRequestId: (NSString*)telemetryRequestId;
+    requestParams:(ADRequestParameters*)requestParams;
 
 - (void)send:( void (^)( NSError *, ADWebResponse *) )completionHandler;
 

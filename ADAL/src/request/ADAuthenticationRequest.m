@@ -87,39 +87,30 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
 }
 
 + (ADAuthenticationRequest*)requestWithContext:(ADAuthenticationContext*)context
-                                   redirectUri:(NSString*)redirectUri
-                                      clientId:(NSString*)clientId
-                                      resource:(NSString*)resource
+                                 requestParams:(ADRequestParameters*)requestParams
                                          error:(ADAuthenticationError* __autoreleasing *)error
 {
     ERROR_RETURN_IF_NIL(context);
-    ERROR_RETURN_IF_NIL(clientId);
+    ERROR_RETURN_IF_NIL([requestParams clientId]);
     
-    ADAuthenticationRequest *request = [[ADAuthenticationRequest alloc] initWithContext:context redirectUri:redirectUri clientId:clientId resource:resource];
+    ADAuthenticationRequest *request = [[ADAuthenticationRequest alloc] initWithContext:context requestParams:requestParams];
     SAFE_ARC_AUTORELEASE(request);
     return request;
 }
 
 - (id)initWithContext:(ADAuthenticationContext*)context
-          redirectUri:(NSString*)redirectUri
-             clientId:(NSString*)clientId
-             resource:(NSString*)resource
+        requestParams:(ADRequestParameters*)requestParams
 {
     RETURN_IF_NIL(context);
-    RETURN_IF_NIL(clientId);
+    RETURN_IF_NIL([requestParams clientId]);
     
     if (!(self = [super init]))
         return nil;
     
     SAFE_ARC_RETAIN(context);
     _context = context;
-    _tokenCache = context.tokenCacheStore;
-    _redirectUri = [redirectUri adTrimmedString];
-    SAFE_ARC_RETAIN(_redirectUri);
-    _clientId = [clientId adTrimmedString];
-    SAFE_ARC_RETAIN(_clientId);
-    _resource = [resource adTrimmedString];
-    SAFE_ARC_RETAIN(_resource);
+    SAFE_ARC_RETAIN(requestParams);
+    _requestParams = requestParams;
     
     _promptBehavior = AD_PROMPT_AUTO;
     
@@ -132,15 +123,10 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
 - (void)dealloc
 {
     SAFE_ARC_RELEASE(_context);
-    SAFE_ARC_RELEASE(_clientId);
-    SAFE_ARC_RELEASE(_redirectUri);
-    SAFE_ARC_RELEASE(_identifier);
-    SAFE_ARC_RELEASE(_resource);
+    SAFE_ARC_RELEASE(_requestParams);
     SAFE_ARC_RELEASE(_scope);
     SAFE_ARC_RELEASE(_queryParams);
     SAFE_ARC_RELEASE(_refreshTokenCredential);
-    SAFE_ARC_RELEASE(_correlationId);
-    SAFE_ARC_RELEASE(_telemetryRequestId);
     SAFE_ARC_RELEASE(_underlyingError);
     
     SAFE_ARC_SUPER_DEALLOC();
@@ -179,13 +165,11 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
 - (void)setUserIdentifier:(ADUserIdentifier *)identifier
 {
     CHECK_REQUEST_STARTED;
-    if (_identifier == identifier)
+    if ([_requestParams identifier] == identifier)
     {
         return;
     }
-    SAFE_ARC_RELEASE(_identifier);
-    _identifier = identifier;
-    SAFE_ARC_RETAIN(_identifier);
+    [_requestParams setIdentifier:identifier];
 }
 
 - (void)setUserId:(NSString *)userId
@@ -209,13 +193,11 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
 - (void)setCorrelationId:(NSUUID*)correlationId
 {
     CHECK_REQUEST_STARTED;
-    if (_correlationId == correlationId)
+    if ([_requestParams correlationId] == correlationId)
     {
         return;
     }
-    SAFE_ARC_RELEASE(_correlationId);
-    _correlationId = correlationId;
-    SAFE_ARC_RETAIN(_correlationId);
+    [_requestParams setCorrelationId:correlationId];
 }
 
 #if AD_BROKER
@@ -288,32 +270,29 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
 
 - (NSUUID*)correlationId
 {
-    if (_correlationId == nil)
+    if ([_requestParams correlationId] == nil)
     {
         //if correlationId is set in context, use it
         //if not, generate one
         if ([_context correlationId])
         {
-            _correlationId = [_context correlationId];
-            SAFE_ARC_RETAIN(_correlationId);
+            [_requestParams setCorrelationId:[_context correlationId]];
         } else {
-            _correlationId = [NSUUID UUID];
-            SAFE_ARC_RETAIN(_correlationId);
+            [_requestParams setCorrelationId:[NSUUID UUID]];
         }
     }
     
-    return _correlationId;
+    return [_requestParams correlationId];
 }
 
 - (NSString*)telemetryRequestId
 {
-    if (_telemetryRequestId == nil)
+    if ([_requestParams telemetryRequestId] == nil)
     {
-        _telemetryRequestId = [[ADTelemetry sharedInstance] registerNewRequest];
-        SAFE_ARC_RETAIN(_telemetryRequestId);
+        [_requestParams setTelemetryRequestId:[[ADTelemetry sharedInstance] registerNewRequest]];
     }
     
-    return _telemetryRequestId;
+    return [_requestParams telemetryRequestId];
 }
 
 - (BOOL)takeUserInterationLock

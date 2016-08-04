@@ -80,8 +80,7 @@
 #pragma mark - Initialization
 
 - (id)initWithURL:(NSURL *)requestURL
-    correlationId:(NSUUID *)correlationId
-telemetryRequestId:(NSString *)telemetryRequestId
+    requestParams:(ADRequestParameters*)requestParams
 {
     if (!(self = [super init]))
     {
@@ -94,10 +93,10 @@ telemetryRequestId:(NSString *)telemetryRequestId
     // Default timeout for ADWebRequest is 30 seconds
     _timeout           = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
     
-    _correlationId     = correlationId;
+    _correlationId     = [requestParams correlationId];
     SAFE_ARC_RETAIN(_correlationId);
     
-    _telemetryRequestId = telemetryRequestId;
+    _telemetryRequestId = [requestParams telemetryRequestId];
     SAFE_ARC_RETAIN(_telemetryRequestId);
     
     _operationQueue = [[NSOperationQueue alloc] init];

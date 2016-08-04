@@ -163,7 +163,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     {
         ADInstanceDiscovery* discovery = [[ADInstanceDiscovery alloc] init];
         [discovery validateAuthority:testCase
-                             request:nil
+                       requestParams:nil
                      completionBlock:^(BOOL validated, ADAuthenticationError *error)
          {
              XCTAssertFalse(validated, @"\"%@\" should come back invalid.", testCase);
@@ -229,9 +229,11 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     ADInstanceDiscovery* discovery = [[ADInstanceDiscovery alloc] init];
     
     [ADTestURLConnection addResponse:[ADTestURLResponse responseValidAuthority:@"https://login.windows-ppe.net/common"]];
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    [requestParams setCorrelationId:[NSUUID UUID]];
     
     [discovery validateAuthority:@"https://login.windows-ppe.net/common"
-                         request:[ADAuthenticationRequest new]
+                   requestParams:requestParams
                  completionBlock:^(BOOL validated, ADAuthenticationError * error)
     {
         XCTAssertTrue(validated);
@@ -243,6 +245,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     TEST_WAIT;
     XCTAssertTrue([[discovery validatedAuthorities] containsObject:@"https://login.windows-ppe.net"]);
     SAFE_ARC_RELEASE(discovery);
+    SAFE_ARC_RELEASE(requestParams);
 }
 
 //Ensures that an invalid authority is not approved
@@ -250,11 +253,13 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADInstanceDiscovery* discovery = [[ADInstanceDiscovery alloc] init];
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    [requestParams setCorrelationId:[NSUUID UUID]];
     
     [ADTestURLConnection addResponse:[ADTestURLResponse responseInvalidAuthority:@"https://myfakeauthority.microsoft.com/contoso.com"]];
     
     [discovery validateAuthority:@"https://MyFakeAuthority.microsoft.com/contoso.com"
-                         request:[ADAuthenticationRequest new]
+                   requestParams:requestParams
                  completionBlock:^(BOOL validated, ADAuthenticationError * error)
      {
          XCTAssertFalse(validated);
@@ -271,6 +276,8 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADInstanceDiscovery* discovery = [[ADInstanceDiscovery alloc] init];
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    [requestParams setCorrelationId:[NSUUID UUID]];
     
     NSURL* requestURL = [NSURL URLWithString:@"https://SomeValidURLButNotExistentInTheNet.com/common/discovery/instance?api-version=1.0&authorization_endpoint=https://login.windows.cn/MSOpenTechBV.onmicrosoft.com/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING];
     NSError* responseError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCannotFindHost userInfo:nil];
@@ -281,7 +288,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     [discovery requestValidationOfAuthority:@"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com"
                                        host:@"https://login.windows.cn"
                            trustedAuthority:@"https://SomeValidURLButNotExistentInTheNet.com"
-                                    request:[ADAuthenticationRequest new]
+                              requestParams:requestParams
                             completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          XCTAssertFalse(validated);
@@ -294,6 +301,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     TEST_WAIT;
     
     SAFE_ARC_RELEASE(discovery);
+    SAFE_ARC_RELEASE(requestParams);
 }
 
 @end

@@ -49,7 +49,7 @@
 - (void)requestTokenByAssertion:(ADAuthenticationCallback)completionBlock
 {
     [self ensureRequest];
-    AD_LOG_INFO_F(@"Requesting token from SAML Assertion", _correlationId, @"resource: %@, clientId: %@", _resource, _clientId);
+    AD_LOG_INFO_F(@"Requesting token from SAML Assertion", [_requestParams correlationId], @"resource: %@, clientId: %@", [_requestParams resource], [_requestParams clientId]);
     
     NSData *encodeData = [_samlAssertion dataUsingEncoding:NSUTF8StringEncoding];
     NSString *base64String = [encodeData base64EncodedStringWithOptions:0];
@@ -58,16 +58,16 @@
     if (!assertionType)
     {
         ADAuthenticationError* error = [ADAuthenticationError invalidArgumentError:@"Unrecognized assertion type."
-                                                                     correlationId:_correlationId];
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+                                                                     correlationId:[_requestParams correlationId]];
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);
         return;
     }
     
     NSMutableDictionary *request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                          assertionType, OAUTH2_GRANT_TYPE,
                                          base64String, OAUTH2_ASSERTION,
-                                         _clientId, OAUTH2_CLIENT_ID,
-                                         _resource, OAUTH2_RESOURCE,
+                                         [_requestParams clientId], OAUTH2_CLIENT_ID,
+                                         [_requestParams resource], OAUTH2_RESOURCE,
                                          OAUTH2_SCOPE_OPENID_VALUE, OAUTH2_SCOPE,
                                          nil];
     [self executeRequest:request_data

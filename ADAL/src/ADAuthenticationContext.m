@@ -24,6 +24,7 @@
 #import "ADAuthenticationSettings.h"
 #import "ADInstanceDiscovery.h"
 #import "ADTokenCache+Internal.h"
+#import "ADRequestParameters.h"
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
 #endif 
@@ -170,10 +171,16 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 {
     ADAuthenticationError* error = nil;
     
+    ADRequestParameters* requestParams = [[ADRequestParameters alloc] init];
+    [requestParams setAuthority:_authority];
+    [requestParams setResource:resource];
+    [requestParams setClientId:clientId];
+    [requestParams setRedirectUri:redirectUri];
+    [requestParams setTokenCache:_tokenCacheStore];
+    [requestParams setExtendedLifetime:_extendedLifetimeEnabled];
+
     ADAuthenticationRequest* request = [ADAuthenticationRequest requestWithContext:self
-                                                                       redirectUri:redirectUri
-                                                                          clientId:clientId
-                                                                          resource:resource
+                                                                     requestParams:requestParams
                                                                              error:&error];
     
     if (!request)

@@ -78,17 +78,6 @@ static NSString* const s_delimiter = @"|";
     }
 }
 
-- (void)flush
-{
-    @synchronized(self)
-    {
-        if (_dispatcher)
-        {
-            [_dispatcher flush];
-        }
-    }
-}
-
 - (void)dealloc
 {
     SAFE_ARC_RELEASE(_dispatcher);
@@ -176,6 +165,17 @@ static NSString* const s_delimiter = @"|";
         }
     }
     return nil;
+}
+
+- (void)flush
+{
+    @synchronized(self)
+    {
+        if (_dispatcher)
+        {
+            [_dispatcher flush];
+        }
+    }
 }
 
 @end
