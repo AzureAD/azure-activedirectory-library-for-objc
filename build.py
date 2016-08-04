@@ -9,10 +9,10 @@ ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUI
 default_workspace = "ADAL.xcworkspace"
 
 class tclr:
-	HDR = '\033[95m\033[1m'
-	OK = '\033[92m\033[1m'
-	FAIL = '\033[91m\033[1m'
-	WARN = '\033[93m\033[1m'
+	HDR = '\033[1m'
+	OK = '\033[32m\033[1m'
+	FAIL = '\033[31m\033[1m'
+	WARN = '\033[33m\033[1m'
 	END = '\033[0m'
 
 build_targets = [
@@ -78,16 +78,29 @@ build_targets = [
 	}
 ]
 
+def print_operation_start(name, operation) :
+	print tclr.HDR + "Beginning " + name + " [" + operation + "]" + tclr.END
+	print "travis_fold:start:#{" + (name + "_" + operation).replace(" ", "_") + "}" \
+
+def print_operation_end(name, operation, exit_code) :
+	print "travis_fold:end:#{" + (name + "_" + operation).replace(" ", "_") + "}"
+	
+	if (exit_code == 0) :
+		print tclr.OK + name + " [" + operation + "] Succeeded" + tclr.END
+	else :
+		print tclr.FAIL + name + " [" + operation + "] Failed" + tclr.END
+
 def do_ios_build(target, operation) :
 	name = target["name"]
 	scheme = target["scheme"]
 	
-	print tclr.HDR + "Beginning " + name + " [" + operation + "]" + tclr.END
-	print "travis_fold:start:#{" + name + " - " + operation + "}" 
+	print_operation_start(name, operation)
+	
 	command = "xcodebuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + ios_sim_dest + " | xcpretty"
 	print command
 	exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
-	print "travis_fold:end:#{" + name + " - " + operation + "}"
+	
+	print_operation_end(name, operation, exit_code)
 	return exit_code
 
 def do_mac_build(target, operation) :
@@ -95,8 +108,8 @@ def do_mac_build(target, operation) :
 	name = target["name"]
 	scheme = target["scheme"]
 	
-	print tclr.HDR +  "Beginning " + name + " [" + operation + "]" + tclr.END
-	print "travis_fold:start:#{" + name + " - " + operation + "}" 
+	print_operation_start(name, operation)
+	
 	command = "xcodebuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\""
 	
 	if (arch != None) :
@@ -106,7 +119,9 @@ def do_mac_build(target, operation) :
 	
 	print command
 	exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
-	print "travis_fold:end:#{" + name + " - " + operation + "}"
+
+	print_operation_end(name, operation, exit_code)
+	
 	return exit_code
 
 build_status = dict()
@@ -150,11 +165,6 @@ for target in build_targets:
 			exit_code = do_mac_build(target, operation)
 		else :
 			raise Exception('Unrecognized platform type ' + platform)
-		
-		if (exit_code == 0) :
-			print tclr.OK + name + " [" + operation + "] Succeeded" + tclr.END
-		else :
-			print tclr.FAIL + name + " [" + operation + "] Failed" + tclr.END
 	
 	if (exit_code == 0) :
 		print tclr.OK + name + " Succeeded" + tclr.END
@@ -167,7 +177,9 @@ final_status = 0
 
 print "\n"
 
-for project, status in build_status.iteritems() :
+for target in build_targets :
+	project = target["name"]
+	status = build_status[project]
 	if (status == "Failed") :
 		print tclr.FAIL + project + " failed." + tclr.END
 		final_status = 1
