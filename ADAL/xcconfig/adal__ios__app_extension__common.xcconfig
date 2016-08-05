@@ -1,0 +1,8 @@
+//
+//  adal__ios__app_extension__common.xcconfig
+//
+
+#include "adal__ios__common.xcconfig"
+
+APPLICATION_EXTENSION_API_ONLY = YES;
+OTHER_CFLAGS = -DADAL_EXTENSION_SAFE=1
