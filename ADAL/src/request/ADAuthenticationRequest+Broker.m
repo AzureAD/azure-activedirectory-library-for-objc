@@ -223,6 +223,7 @@
         [self releaseUserInterationLock]; // Release the lock when completion block is called.
         
         ADTelemetryBrokerEvent* event = [[ADTelemetryBrokerEvent alloc] initWithName:@"launch_broker"];
+        [event setResultStatus:[result status]];
         [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
         
         completionBlock(result);

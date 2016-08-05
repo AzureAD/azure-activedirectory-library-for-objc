@@ -25,4 +25,7 @@
 
 @interface ADTelemetryCacheEvent : ADTelemetryDefaultEvent
 
+- (void)setTokenType:(NSString*)tokenType;
+- (void)setStatus:(NSString*)status;
+
 @end

@@ -95,4 +95,14 @@
     [self setProperty:@"authority" value:authority];
 }
 
+- (void)setGrantType:(NSString*)grantType
+{
+    [self setProperty:@"grant_type" value:grantType];
+}
+
+- (void)setAPIStatus:(NSString*)status
+{
+    [self setProperty:@"api_status" value:status];
+}
+
 @end

@@ -30,4 +30,24 @@
     [self setProperty:@"broker_app_version" value:version];
 }
 
+- (void)setResultStatus:(ADAuthenticationResultStatus)status
+{
+    NSString* statusStr = nil;
+    switch (status) {
+        case AD_SUCCEEDED:
+            statusStr = @"SUCCEEDED";
+            break;
+        case AD_FAILED:
+            statusStr = @"FAILED";
+            break;
+        case AD_USER_CANCELLED:
+            statusStr = @"USER_CANCELLED";
+            break;
+        default:
+            statusStr = @"UNKNOWN";
+    }
+    
+    [self setProperty:@"status" value:statusStr];
+}
+
 @end

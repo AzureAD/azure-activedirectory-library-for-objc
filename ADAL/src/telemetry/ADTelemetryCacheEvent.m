@@ -25,4 +25,14 @@
 
 @implementation ADTelemetryCacheEvent
 
+- (void)setTokenType:(NSString*)tokenType
+{
+    [self setProperty:@"token_type" value:tokenType];
+}
+
+- (void)setStatus:(NSString*)status
+{
+    [self setProperty:@"status" value:status];
+}
+
 @end

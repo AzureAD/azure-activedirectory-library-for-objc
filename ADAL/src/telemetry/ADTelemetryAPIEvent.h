@@ -38,4 +38,7 @@
 - (void)setAuthorityValidationStatus:(NSString*)status;
 - (void)setAuthority:(NSString*)authority;
 
+- (void)setGrantType:(NSString*)grantType;
+- (void)setAPIStatus:(NSString*)status;
+
 @end

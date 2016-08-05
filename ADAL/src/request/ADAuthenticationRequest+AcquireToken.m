@@ -119,9 +119,14 @@
     
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && [_context hasCacheStore])
     {
+        [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"acquire_token_silent"];
         [ADAcquireTokenSilentHandler acquireTokenSilentForRequestParams:_requestParams
                                                         completionBlock:^(ADAuthenticationResult *result)
         {
+            ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquire_token_silent"];
+            [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+            SAFE_ARC_RELEASE(event);
+            
             if ([ADAuthenticationContext isFinalResult:result])
             {
                 completionBlock(result);
@@ -203,8 +208,6 @@
     [self requestCode:^(NSString * code, ADAuthenticationError *error)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authorization_code"];
-         [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
-         SAFE_ARC_RELEASE(event);
 
          if (error)
          {
@@ -217,22 +220,34 @@
              
              ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:[_requestParams correlationId]]
              : [ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]];
+             
+             [event setAPIStatus:(AD_ERROR_UI_USER_CANCEL == error.code) ? @"canceled":@"failed"];
+             [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+             
              completionBlock(result);
          }
          else
          {
              if([code hasPrefix:@"msauth://"])
              {
+                 [event setAPIStatus:@"try to invoke broker from webview"];
+                 [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+                 
                  [self handleBrokerFromWebiewResponse:code
                                       completionBlock:completionBlock];
              }
              else
              {
+                 [event setAPIStatus:@"succeeded"];
+                 [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+                 
                  [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"token_grant"];
                  [self requestTokenByCode:code
                           completionBlock:^(ADAuthenticationResult *result)
                   {
                       ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"token_grant"];
+                      [event setGrantType:@"by code"];
+                      [event setResultStatus:[result status]];
                       [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
                       SAFE_ARC_RELEASE(event);
                       
@@ -245,6 +260,8 @@
                   }];
              }
          }
+         
+         SAFE_ARC_RELEASE(event);
      }];
 }
 
