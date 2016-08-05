@@ -49,7 +49,7 @@ build_targets = [
 	  	"platform" : "Mac"
 	},
 	{
-		"name" : "Mac Framework (32-bit)",
+		"name" : "Mac Framework 32-bit",
 		"scheme" : "ADAL Mac",
 		"operations" : [ "build", "test" ],
 		"platform" : "Mac",
@@ -66,7 +66,7 @@ build_targets = [
 
 def print_operation_start(name, operation) :
 	print tclr.HDR + "Beginning " + name + " [" + operation + "]" + tclr.END
-	print "travis_fold:start:" + (name + "_" + operation).replace(" ", "_") 
+	print "travis_fold:start:" + (name + "_" + operation).replace(" ", "_")
 
 def print_operation_end(name, operation, exit_code) :
 	print "travis_fold:end:" + (name + "_" + operation).replace(" ", "_") 
