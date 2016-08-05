@@ -13,48 +13,34 @@ class tclr:
 	OK = '\033[32m\033[1m'
 	FAIL = '\033[31m\033[1m'
 	WARN = '\033[33m\033[1m'
+	SKIP = '\033[96m\033[1m'
 	END = '\033[0m'
 
 build_targets = [
 	{
-		"name" : "iOS Static Lib",
-	  	"scheme" : "ADAL-core",
-	  	"operations" : [ "build" , "test" ],
-	  	"platform" : "iOS"
+		"name" : "iOS Library",
+	  	"scheme" : "ADAL",
+	  	"operations" : [ "build", "test" ],
+	  	"platform" : "iOS",
 	},
 	{
-		"name" : "iOS Framework",
-	  	"scheme" : "ADAL",
-	  	"operations" : [ "build" ],
-	  	"platform" : "iOS",
-	  	"dependencies" : [ "iOS Static Lib" ]
+		"name" : "iOS Extension Library",
+		"scheme" : "ADAL (extension safe)",
+		"operations" : [ "build" ],
+		"platform" : "iOS"
 	},
 	{
 		"name" : "iOS Test App",
 	  	"scheme" : "MyTestiOSApp",
 	  	"operations" : [ "build" ],
 	  	"platform" : "iOS",
-	  	"dependencies" : [ "iOS Static Lib" ]
+	  	"dependencies" : [ "iOS Library", "iOS Extension Library" ]
 	},
 	{
-		"name" : "iOS Extension Static Lib",
-		"scheme" : "ADALiOS-AppExtension-core",
+		"name" : "Sample Swift App",
+		"scheme" : "SampleSwiftApp",
 		"operations" : [ "build" ],
 		"platform" : "iOS"
-	},
-	{
-		"name" : "iOS Extension Framework",
-		"scheme" : "ADAL (extension safe)",
-		"operations" : [ "build" ],
-		"platform" : "iOS",
-		"dependencies" : [ "iOS Extension Static Lib" ]
-	},
-	{
-		"name" : "iOS Test Extension",
-		"scheme" : "adal-extension",
-		"operations" : [ "build" ],
-		"platform" : "iOS",
-		"dependencies" : [ "iOS Extension Static Lib" ]
 	},
 	{
 		"name" : "Mac Framework",
@@ -80,10 +66,10 @@ build_targets = [
 
 def print_operation_start(name, operation) :
 	print tclr.HDR + "Beginning " + name + " [" + operation + "]" + tclr.END
-	print "travis_fold:start:#{" + (name + "_" + operation).replace(" ", "_") + "}" \
+	print "travis_fold:start:" + (name + "_" + operation).replace(" ", "_") 
 
 def print_operation_end(name, operation, exit_code) :
-	print "travis_fold:end:#{" + (name + "_" + operation).replace(" ", "_") + "}"
+	print "travis_fold:end:" + (name + "_" + operation).replace(" ", "_") 
 	
 	if (exit_code == 0) :
 		print tclr.OK + name + " [" + operation + "] Succeeded" + tclr.END
@@ -96,7 +82,7 @@ def do_ios_build(target, operation) :
 	
 	print_operation_start(name, operation)
 	
-	command = "xcodebuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + ios_sim_dest + " | xcpretty"
+	command = "xcodebuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest + " | xcpretty"
 	print command
 	exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
 	
@@ -134,17 +120,26 @@ def check_dependencies(target) :
 	for dependency in dependencies :
 		dependency_status = build_status.get(dependency)
 		if (dependency_status == None) :
-			print tclr.WARN + "Skipping " + name + " dependency " + dependency + " not built yet." + tclr.END
+			print tclr.SKIP + "Skipping " + name + " dependency " + dependency + " not built yet." + tclr.END
 			build_status[name] = "Skipped"
 			return False
 		
 		if (build_status[dependency] != "Succeeded") :
-			print tclr.WARN + "Skipping " + name + " dependency " + dependency + " failed." + tclr.END
+			print tclr.SKIP + "Skipping " + name + " dependency " + dependency + " failed." + tclr.END
 			build_status[name] = "Skipped"
 			return False
 	
 	return True
-	
+
+clean = True
+
+for arg in sys.argv :
+	if (arg == "--no-clean") :
+		clean = False
+
+# start by cleaning up any derived data that might be lying around
+if (clean) :
+	subprocess.call("rm -rf ~/Library/Developer/Xcode/DerivedData/ADAL-*", shell=True)
 
 for target in build_targets:
 	exit_code = 0
@@ -184,7 +179,7 @@ for target in build_targets :
 		print tclr.FAIL + project + " failed." + tclr.END
 		final_status = 1
 	elif (status == "Skipped") :
-		print tclr.WARN + '\033[93m' + project + " skipped." + tclr.END
+		print tclr.SKIP + '\033[93m' + project + " skipped." + tclr.END
 		final_status = 1
 	elif (status == "Succeeded") :
 		print tclr.OK + '\033[92m' + project + " succeeded." + tclr.END

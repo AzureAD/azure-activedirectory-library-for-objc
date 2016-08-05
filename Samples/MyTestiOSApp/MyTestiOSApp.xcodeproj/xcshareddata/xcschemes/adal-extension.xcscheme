@@ -15,10 +15,24 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D60C59D31D1C96D700DD9C91"
+               BlueprintIdentifier = "D6EA53A61D541011008A0BC3"
                BuildableName = "adal-extension.appex"
                BlueprintName = "adal-extension"
-               ReferencedContainer = "container:ADAL.xcodeproj">
+               ReferencedContainer = "container:MyTestiOSApp.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8BA42AF517E3C150002D206E"
+               BuildableName = "MyTestiOSApp.app"
+               BlueprintName = "MyTestiOSApp"
+               ReferencedContainer = "container:MyTestiOSApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -29,7 +43,26 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8BA42B2117E3C150002D206E"
+               BuildableName = "MyTestiOSAppTests.xctest"
+               BlueprintName = "MyTestiOSAppTests"
+               ReferencedContainer = "container:MyTestiOSApp.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "8BA42AF517E3C150002D206E"
+            BuildableName = "MyTestiOSApp.app"
+            BlueprintName = "MyTestiOSApp"
+            ReferencedContainer = "container:MyTestiOSApp.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -44,15 +77,16 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "2">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D60C59D31D1C96D700DD9C91"
-            BuildableName = "adal-extension.appex"
-            BlueprintName = "adal-extension"
-            ReferencedContainer = "container:ADAL.xcodeproj">
+            BlueprintIdentifier = "8BA42AF517E3C150002D206E"
+            BuildableName = "MyTestiOSApp.app"
+            BlueprintName = "MyTestiOSApp"
+            ReferencedContainer = "container:MyTestiOSApp.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -63,15 +97,16 @@
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES"
       launchAutomaticallySubstyle = "2">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D60C59D31D1C96D700DD9C91"
-            BuildableName = "adal-extension.appex"
-            BlueprintName = "adal-extension"
-            ReferencedContainer = "container:ADAL.xcodeproj">
+            BlueprintIdentifier = "8BA42AF517E3C150002D206E"
+            BuildableName = "MyTestiOSApp.app"
+            BlueprintName = "MyTestiOSApp"
+            ReferencedContainer = "container:MyTestiOSApp.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

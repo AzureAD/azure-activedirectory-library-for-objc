@@ -32,6 +32,10 @@
 		D69A72061D4FE63200E91DB3 /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D69A72051D4FE63200E91DB3 /* libADAL-core.a */; };
 		D6D034871CB6D74E00406721 /* ADTestAppSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D034851CB6D74E00406721 /* ADTestAppSettingsViewController.m */; };
 		D6D034881CB6D74E00406721 /* ADTestAppSettingsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = D6D034861CB6D74E00406721 /* ADTestAppSettingsView.xib */; };
+		D6EA53AB1D541012008A0BC3 /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D6EA53AA1D541012008A0BC3 /* ShareViewController.m */; };
+		D6EA53AE1D541012008A0BC3 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D6EA53AC1D541012008A0BC3 /* MainInterface.storyboard */; };
+		D6EA53B21D541012008A0BC3 /* adal-extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D6EA53A71D541011008A0BC3 /* adal-extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D6EA53B91D541030008A0BC3 /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6EA53B81D541030008A0BC3 /* ADAL.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,7 +46,28 @@
 			remoteGlobalIDString = 8BA42AF517E3C150002D206E;
 			remoteInfo = MyTestiOSApp;
 		};
+		D6EA53B01D541012008A0BC3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8BA42AEE17E3C150002D206E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D6EA53A61D541011008A0BC3;
+			remoteInfo = "adal-extension";
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D6EA53B71D541012008A0BC3 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D6EA53B21D541012008A0BC3 /* adal-extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		4CAE461A18F7555400659400 /* MyTestiOSApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MyTestiOSApp.entitlements; sourceTree = "<group>"; };
@@ -80,6 +105,12 @@
 		D6D034841CB6D74E00406721 /* ADTestAppSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppSettingsViewController.h; sourceTree = "<group>"; };
 		D6D034851CB6D74E00406721 /* ADTestAppSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppSettingsViewController.m; sourceTree = "<group>"; };
 		D6D034861CB6D74E00406721 /* ADTestAppSettingsView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ADTestAppSettingsView.xib; sourceTree = "<group>"; };
+		D6EA53A71D541011008A0BC3 /* adal-extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "adal-extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6EA53A91D541012008A0BC3 /* ShareViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
+		D6EA53AA1D541012008A0BC3 /* ShareViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
+		D6EA53AD1D541012008A0BC3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		D6EA53AF1D541012008A0BC3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D6EA53B81D541030008A0BC3 /* ADAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ADAL.framework; path = "../../ADAL/build/Debug-iphoneos/extension-safe/ADAL.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +137,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D6EA53A41D541011008A0BC3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6EA53B91D541030008A0BC3 /* ADAL.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -114,6 +153,7 @@
 			children = (
 				8BA42B0117E3C150002D206E /* MyTestiOSApp */,
 				8BA42B2A17E3C150002D206E /* MyTestiOSAppTests */,
+				D6EA53A81D541012008A0BC3 /* adal-extension */,
 				8BA42AF817E3C150002D206E /* Frameworks */,
 				8BA42AF717E3C150002D206E /* Products */,
 			);
@@ -124,6 +164,7 @@
 			children = (
 				8BA42AF617E3C150002D206E /* MyTestiOSApp.app */,
 				8BA42B2217E3C150002D206E /* MyTestiOSAppTests.xctest */,
+				D6EA53A71D541011008A0BC3 /* adal-extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -131,6 +172,7 @@
 		8BA42AF817E3C150002D206E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D6EA53B81D541030008A0BC3 /* ADAL.framework */,
 				D69A72051D4FE63200E91DB3 /* libADAL-core.a */,
 				D6CA73CB1CC03D4C00EF59C7 /* libADALiOS.a */,
 				8BA42AF917E3C150002D206E /* Foundation.framework */,
@@ -198,6 +240,17 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		D6EA53A81D541012008A0BC3 /* adal-extension */ = {
+			isa = PBXGroup;
+			children = (
+				D6EA53A91D541012008A0BC3 /* ShareViewController.h */,
+				D6EA53AA1D541012008A0BC3 /* ShareViewController.m */,
+				D6EA53AC1D541012008A0BC3 /* MainInterface.storyboard */,
+				D6EA53AF1D541012008A0BC3 /* Info.plist */,
+			);
+			path = "adal-extension";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -208,10 +261,12 @@
 				8BA42AF217E3C150002D206E /* Sources */,
 				8BA42AF317E3C150002D206E /* Frameworks */,
 				8BA42AF417E3C150002D206E /* Resources */,
+				D6EA53B71D541012008A0BC3 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D6EA53B11D541012008A0BC3 /* PBXTargetDependency */,
 			);
 			name = MyTestiOSApp;
 			productName = MyTestiOSApp;
@@ -236,6 +291,23 @@
 			productReference = 8BA42B2217E3C150002D206E /* MyTestiOSAppTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		D6EA53A61D541011008A0BC3 /* adal-extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D6EA53B61D541012008A0BC3 /* Build configuration list for PBXNativeTarget "adal-extension" */;
+			buildPhases = (
+				D6EA53A31D541011008A0BC3 /* Sources */,
+				D6EA53A41D541011008A0BC3 /* Frameworks */,
+				D6EA53A51D541011008A0BC3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "adal-extension";
+			productName = "adal-extension";
+			productReference = D6EA53A71D541011008A0BC3 /* adal-extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -256,6 +328,9 @@
 					8BA42B2117E3C150002D206E = {
 						TestTargetID = 8BA42AF517E3C150002D206E;
 					};
+					D6EA53A61D541011008A0BC3 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
 				};
 			};
 			buildConfigurationList = 8BA42AF117E3C150002D206E /* Build configuration list for PBXProject "MyTestiOSApp" */;
@@ -273,6 +348,7 @@
 			targets = (
 				8BA42AF517E3C150002D206E /* MyTestiOSApp */,
 				8BA42B2117E3C150002D206E /* MyTestiOSAppTests */,
+				D6EA53A61D541011008A0BC3 /* adal-extension */,
 			);
 		};
 /* End PBXProject section */
@@ -296,6 +372,14 @@
 			files = (
 				8B87548918988C4B0061999F /* TestData.plist in Resources */,
 				8BA42B2F17E3C150002D206E /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D6EA53A51D541011008A0BC3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6EA53AE1D541012008A0BC3 /* MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -325,6 +409,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D6EA53A31D541011008A0BC3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6EA53AB1D541012008A0BC3 /* ShareViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -332,6 +424,11 @@
 			isa = PBXTargetDependency;
 			target = 8BA42AF517E3C150002D206E /* MyTestiOSApp */;
 			targetProxy = 8BA42B2817E3C150002D206E /* PBXContainerItemProxy */;
+		};
+		D6EA53B11D541012008A0BC3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D6EA53A61D541011008A0BC3 /* adal-extension */;
+			targetProxy = D6EA53B01D541012008A0BC3 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -350,6 +447,14 @@
 				8BA42B2E17E3C150002D206E /* en */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		D6EA53AC1D541012008A0BC3 /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D6EA53AD1D541012008A0BC3 /* Base */,
+			);
+			name = MainInterface.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -617,6 +722,84 @@
 			};
 			name = Release;
 		};
+		D6EA53B31D541012008A0BC3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(BUILT_PRODUCTS_DIR)/extension-safe",
+					"$(inherited)",
+				);
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = "adal-extension/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.adal.2.1.0.TestApp.adal-extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		D6EA53B41D541012008A0BC3 /* CodeCoverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(BUILT_PRODUCTS_DIR)/extension-safe",
+					"$(inherited)",
+				);
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = "adal-extension/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.adal.2.1.0.TestApp.adal-extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = CodeCoverage;
+		};
+		D6EA53B51D541012008A0BC3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(BUILT_PRODUCTS_DIR)/extension-safe",
+					"$(inherited)",
+				);
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = "adal-extension/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.adal.2.1.0.TestApp.adal-extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -649,6 +832,15 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
+		};
+		D6EA53B61D541012008A0BC3 /* Build configuration list for PBXNativeTarget "adal-extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D6EA53B31D541012008A0BC3 /* Debug */,
+				D6EA53B41D541012008A0BC3 /* CodeCoverage */,
+				D6EA53B51D541012008A0BC3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};
