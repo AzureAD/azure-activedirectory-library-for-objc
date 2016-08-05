@@ -1,3 +1,8 @@
+Version 1.2.8 (08.04.2016)
+--------------------------
+(Note: We still recommend using 2.2 or later, as support for 1.2.x will end in the near future.)
+* Removed offending code that causes ADAL to not work on iOS 10 Beta 2 and later
+
 Version 1.2.7 (05.26.2016)
 --------------------------
 (Note: We recommend using 2.2 or later, as support for 1.2.x will end in the near future.)
