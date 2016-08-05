@@ -78,7 +78,6 @@ NSString* const sLog = @"HTTP Protocol";
 {
     AD_LOG_VERBOSE_F(sLog, @"Stop loading");
     [_connection cancel];
-    [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
 }
 
 #pragma mark - NSURLConnectionDelegate Methods
@@ -106,29 +105,27 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 - (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response
 {
     AD_LOG_VERBOSE_F(sLog, @"HTTPProtocol::connection:willSendRequest:. Redirect response: %@. New request:%@", response.URL, request.URL);
+    
+    // Disallow HTTP for ADURLProtocol
+    if ([request.URL.scheme isEqualToString:@"http"])
+    {
+        return nil;
+    }
+    
     //Ensure that the webview gets the redirect notifications:
     NSMutableURLRequest* mutableRequest = [request mutableCopy];
+    if(![mutableRequest.allHTTPHeaderFields valueForKey:@"x-ms-PkeyAuth"])
+    {
+        [mutableRequest addValue:@"1.0" forHTTPHeaderField:@"x-ms-PkeyAuth"];
+    }
+    
     if (response)
     {
         [[self class] removePropertyForKey:@"ADURLProtocol" inRequest:mutableRequest];
         [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
-        
-        [_connection cancel];
-        [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
-        if(![request.allHTTPHeaderFields valueForKey:@"x-ms-PkeyAuth"])
-        {
-            [mutableRequest addValue:@"1.0" forHTTPHeaderField:@"x-ms-PkeyAuth"];
-        }
-        return mutableRequest;
     }
     
-    if(![request.allHTTPHeaderFields valueForKey:@"x-ms-PkeyAuth"])
-    {
-        [mutableRequest addValue:@"1.0" forHTTPHeaderField:@"x-ms-PkeyAuth"];
-        request = [mutableRequest copy];
-        mutableRequest = nil;
-    }
-    return request;
+    return mutableRequest;
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
