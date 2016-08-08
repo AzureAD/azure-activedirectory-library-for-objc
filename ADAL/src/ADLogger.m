@@ -63,6 +63,7 @@ static dispatch_once_t s_logOnce;
 #else
     NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
     s_OSString = [NSString stringWithFormat:@"Mac %ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion];
+    SAFE_ARC_RETAIN(s_OSString);
 #endif
 }
 
