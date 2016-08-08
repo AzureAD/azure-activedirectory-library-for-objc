@@ -152,7 +152,7 @@ correlationId:(NSUUID*)correlationId
         {
             NSString* levelString = [self stringForLevel:logLevel];
             
-            NSString* msg = [NSString stringWithFormat:@"ADAL [%@%@]%@ %@: %@", dateString, correlationIdStr,
+            NSString* msg = [NSString stringWithFormat:@"ADAL " ADAL_VERSION_STRING " [%@%@]%@ %@: %@", dateString, correlationIdStr,
                              component, levelString, message];
             
             //NSLog is documented as thread-safe:
@@ -161,7 +161,7 @@ correlationId:(NSUUID*)correlationId
         
         if (s_LogCallback)
         {
-            NSString* msg = [NSString stringWithFormat:@"ADAL [%@%@]%@ %@", dateString, correlationIdStr, component, message];
+            NSString* msg = [NSString stringWithFormat:@"ADAL " ADAL_VERSION_STRING " [%@%@]%@ %@", dateString, correlationIdStr, component, message];
             s_LogCallback(logLevel, msg, info, errorCode, userInfo);
         }
     }
