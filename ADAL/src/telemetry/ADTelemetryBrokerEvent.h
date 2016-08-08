@@ -26,6 +26,8 @@
 @interface ADTelemetryBrokerEvent : ADTelemetryDefaultEvent
 
 - (void)setBrokerAppVersion:(NSString*)version;
+- (void)setBrokerProtocolVersion:(NSString*)version;
 - (void)setResultStatus:(ADAuthenticationResultStatus)status;
+- (void)setBrokerApp:(NSString*)appName;
 
 @end

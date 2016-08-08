@@ -23,6 +23,7 @@
 
 #import "ADTelemetryDefaultEvent.h"
 #import "ADTelemetryEventInterface.h"
+#import "ADLogger.h"
 
 #if !TARGET_OS_IPHONE
 #include <CoreFoundation/CoreFoundation.h>
@@ -124,22 +125,23 @@ if (OBJECT) \
         //iOS:
         NSString* deviceId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
         NSString* applicationName = [[NSBundle mainBundle] bundleIdentifier];
-        NSString* sdkId = @"iOS";
 #else
         CFStringRef macSerialNumber = nil;
         CopySerialNumber(&macSerialNumber);
         NSString* deviceId = CFBridgingRelease(macSerialNumber);
         SAFE_ARC_AUTORELEASE(deviceId);
         NSString* applicationName = [[NSProcessInfo processInfo] processName];
-        NSString* sdkId = @"OSX";
 #endif
         
         SET_IF_NOT_NIL(s_defaultParameters, @"device_id", ([NSString stringWithFormat:@"%lu", (unsigned long)[deviceId hash]]));
         SET_IF_NOT_NIL(s_defaultParameters, @"application_name", applicationName);
-        SET_IF_NOT_NIL(s_defaultParameters, @"sdk_id", sdkId);
         SET_IF_NOT_NIL(s_defaultParameters, @"application_version", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
-        SET_IF_NOT_NIL(s_defaultParameters, @"sdk_version", ADAL_VERSION_NSSTRING);
         
+        NSDictionary* adalId = [ADLogger adalId];
+        for (NSString* key in adalId)
+        {
+            SET_IF_NOT_NIL(s_defaultParameters, key, [adalId objectForKey:key]);
+        }
     });
     
     return s_defaultParameters;

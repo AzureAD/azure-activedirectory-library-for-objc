@@ -97,14 +97,14 @@ typedef void(^TestCallback)(NSArray* event);
     // make sure the default properties are recorded in the telemetry event,
     // i.e. sdk_id, sdk_version, device_id, device_name
     XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"sdk_id"]);
+                                  propertyName:@"x-client-SKU"]);
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"sdk_id"], 1);
+                             propertyName:@"x-client-SKU"], 1);
     
     XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"sdk_version"]);
+                                  propertyName:@"x-client-Ver"]);
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"sdk_version"], 1);
+                             propertyName:@"x-client-Ver"], 1);
 
     XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
                                   propertyName:@"device_id"]);

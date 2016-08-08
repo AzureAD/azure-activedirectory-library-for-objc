@@ -25,9 +25,27 @@
 
 @implementation ADTelemetryBrokerEvent
 
+-(id) init
+{
+    self = [super init];
+    if(self)
+    {
+        //this is the only broker for iOS
+        [self setBrokerApp:@"Azure Authenticator"];
+    }
+    
+    return self;
+}
+
+
 - (void)setBrokerAppVersion:(NSString*)version
 {
     [self setProperty:@"broker_app_version" value:version];
+}
+
+- (void)setBrokerProtocolVersion:(NSString*)version
+{
+    [self setProperty:@"broker_protocol_version" value:version];
 }
 
 - (void)setResultStatus:(ADAuthenticationResultStatus)status
@@ -48,6 +66,11 @@
     }
     
     [self setProperty:@"status" value:statusStr];
+}
+
+- (void)setBrokerApp:(NSString*)appName
+{
+    [self setProperty:@"broker_app" value:appName];
 }
 
 @end

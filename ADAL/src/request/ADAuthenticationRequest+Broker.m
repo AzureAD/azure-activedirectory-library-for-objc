@@ -45,6 +45,9 @@
 #import "ADBrokerNotificationManager.h"
 #endif // TARGET_OS_IPHONE
 
+static NSString* s_brokerAppVersion = nil;
+static NSString* s_brokerProtocolVersion = nil;
+
 @implementation ADAuthenticationRequest (Broker)
 
 + (BOOL)validBrokerRedirectUri:(NSString*)url
@@ -89,6 +92,8 @@
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
     ADAuthenticationResult* result;
     
+    s_brokerAppVersion = [queryParamsMap valueForKey:BROKER_APP_VERSION];
+    
     if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION]){
         result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     }
@@ -101,6 +106,7 @@
         NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
         NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
         NSString* msgVer = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
+        s_brokerProtocolVersion = msgVer;
         NSInteger protocolVersion = 1;
         
         NSUUID* correlationId = [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
@@ -224,6 +230,8 @@
         
         ADTelemetryBrokerEvent* event = [[ADTelemetryBrokerEvent alloc] initWithName:@"launch_broker"];
         [event setResultStatus:[result status]];
+        [event setBrokerAppVersion:s_brokerAppVersion];
+        [event setBrokerProtocolVersion:s_brokerProtocolVersion];
         [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
         
         completionBlock(result);
@@ -318,7 +326,19 @@
     
     if ([ADBrokerHelper canUseBroker])
     {
-        [ADBrokerHelper invokeBroker:urlParams completionHandler:completionBlock];
+        [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"launch_broker"];
+        void(^requestCompletion)(ADAuthenticationResult* result) = ^void(ADAuthenticationResult* result)
+        {
+            ADTelemetryBrokerEvent* event = [[ADTelemetryBrokerEvent alloc] initWithName:@"launch_broker"];
+            [event setResultStatus:[result status]];
+            [event setBrokerAppVersion:s_brokerAppVersion];
+            [event setBrokerProtocolVersion:s_brokerProtocolVersion];
+            [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+            
+            completionBlock(result);
+        };
+        
+        [ADBrokerHelper invokeBroker:urlParams completionHandler:requestCompletion];
     }
     else
     {

@@ -55,6 +55,11 @@
     [self setProperty:@"user_agent" value:userAgent];
 }
 
+- (void)setHttpErrorDomain:(NSString*)errorDomain
+{
+    [self setProperty:@"http_error_domain" value:errorDomain];
+}
+
 - (NSString*)scrubTenantFromUrl:(NSString*)url
 {
     //Scrub the tenant domain from the url

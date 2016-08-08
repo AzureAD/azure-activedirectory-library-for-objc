@@ -329,6 +329,7 @@
     if (error)
     {
         [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
+        [event setHttpErrorDomain:[error domain]];
     }
     else if (response)
     {
