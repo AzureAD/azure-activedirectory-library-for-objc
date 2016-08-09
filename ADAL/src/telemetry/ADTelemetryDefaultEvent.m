@@ -129,7 +129,6 @@ if (OBJECT) \
         CFStringRef macSerialNumber = nil;
         CopySerialNumber(&macSerialNumber);
         NSString* deviceId = CFBridgingRelease(macSerialNumber);
-        SAFE_ARC_AUTORELEASE(deviceId);
         NSString* applicationName = [[NSProcessInfo processInfo] processName];
 #endif
         
