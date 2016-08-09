@@ -17,20 +17,8 @@ before_script:
   - set -o pipefail
 
 script:  
-# Build and Test the ADALiOS library
-  - build/iOS_Static_Lib
-  
-# Build the Test App (to make sure it doesn't break
-  - build/iOS_Test_App
-  
-# Build and Test ADAL for Mac
-  - build/Mac_Framework
-  
-# Build Mac Test App
-  - build/Mac_Test_App
-
-# Test ADAL for Mac 32-bit
-  - build/Mac_32_bit
+# Run the ADAL build script
+  - ./build.py
 
 after_success:
 # Run slather once to have it print out the results in the travis log
