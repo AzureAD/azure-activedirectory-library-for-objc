@@ -112,8 +112,7 @@
     SAFE_ARC_RELEASE(_delegate);
     _delegate = delegate;
     SAFE_ARC_RETAIN(_delegate);
-    SAFE_ARC_RELEASE(_cache);
-    _cache = nil;
+    [self setCache:nil];
     
     if (!delegate)
     {
@@ -127,13 +126,14 @@
 
 - (nullable NSData *)serialize
 {
-    if (!_cache)
+    NSMutableDictionary *cacheCopy = [self cacheCopy];
+    if (!cacheCopy)
     {
         return nil;
     }
     
     // Using the dictionary @{ key : value } syntax here causes _cache to leak. Yay legacy runtime!
-    NSDictionary* wrapper = [NSDictionary dictionaryWithObjectsAndKeys:_cache, @"tokenCache",
+    NSDictionary* wrapper = [NSDictionary dictionaryWithObjectsAndKeys:cacheCopy, @"tokenCache",
                              @CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
     
     @try
@@ -179,8 +179,7 @@
     // If they pass in nil on deserialize that means to drop the cache
     if (!data)
     {
-        SAFE_ARC_RELEASE(_cache);
-        _cache = nil;
+        [self setCache:nil];
         return YES;
     }
     
@@ -194,10 +193,8 @@
     {
         return NO;
     }
-    
-    SAFE_ARC_RELEASE(_cache);
-    _cache = [cache objectForKey:@"tokenCache"];
-    SAFE_ARC_RETAIN(_cache);
+
+    [self setCache:[cache objectForKey:@"tokenCache"]];
     return YES;
 }
 
@@ -207,11 +204,10 @@
 {
     if (!data)
     {
-        if (_cache)
+        if ([self hasCache])
         {
             AD_LOG_WARN(@"nil data provided to -updateCache, dropping old cache", nil, nil);
-            SAFE_ARC_RELEASE(_cache);
-            _cache = nil;
+            [self setCache:nil];
         }
         else
         {
@@ -228,11 +224,8 @@
     {
         return NO;
     }
-    
-    SAFE_ARC_RELEASE(_cache);
-    _cache = [dict objectForKey:@"tokenCache"];
-    SAFE_ARC_RETAIN(_cache);
-    
+
+    [self setCache:[dict objectForKey:@"tokenCache"]];
     return YES;
 }
 
@@ -280,35 +273,33 @@
 - (NSArray<ADTokenCacheItem *> *)getItemsImplKey:(nullable ADTokenCacheKey *)key
                                           userId:(nullable NSString *)userId
 {
-    if (!_cache)
+    @synchronized(self)
     {
-        return nil;
-    }
-    
-    NSDictionary* tokens = [_cache objectForKey:@"tokens"];
-    if (!tokens)
-    {
-        return nil;
-    }
-    
-    NSMutableArray* items = [NSMutableArray new];
-    SAFE_ARC_AUTORELEASE(items);
-    
-    if (userId)
-    {
-        // If we have a specified userId then we only look for that one
-        [self addToItems:items forUserId:userId tokens:tokens key:key];
-    }
-    else
-    {
-        // Otherwise we have to traverse all of the users in the cache
-        for (NSString* userId in tokens)
+        NSDictionary* tokens = [_cache objectForKey:@"tokens"];
+        if (!tokens)
         {
+            return nil;
+        }
+
+        NSMutableArray* items = [NSMutableArray new];
+        SAFE_ARC_AUTORELEASE(items);
+
+        if (userId)
+        {
+            // If we have a specified userId then we only look for that one
             [self addToItems:items forUserId:userId tokens:tokens key:key];
         }
+        else
+        {
+            // Otherwise we have to traverse all of the users in the cache
+            for (NSString* userId in tokens)
+            {
+                [self addToItems:items forUserId:userId tokens:tokens key:key];
+            }
+        }
+        
+        return items;
     }
-    
-    return items;
 }
 
 
@@ -331,44 +322,47 @@
 - (BOOL)removeImpl:(ADTokenCacheItem *)item
              error:(ADAuthenticationError * __autoreleasing *)error
 {
-    ADTokenCacheKey* key = [item extractKey:error];
-    if (!key)
+    @synchronized(self)
     {
-        return NO;
-    }
-    
-    NSString* userId = item.userInformation.userId;
-    if (!userId)
-    {
-        userId = @"";
-    }
-    
-    NSMutableDictionary* tokens = [_cache objectForKey:@"tokens"];
-    if (!tokens)
-    {
+        ADTokenCacheKey* key = [item extractKey:error];
+        if (!key)
+        {
+            return NO;
+        }
+
+        NSString* userId = item.userInformation.userId;
+        if (!userId)
+        {
+            userId = @"";
+        }
+
+        NSMutableDictionary* tokens = [_cache objectForKey:@"tokens"];
+        if (!tokens)
+        {
+            return YES;
+        }
+
+        NSMutableDictionary* userTokens = [tokens objectForKey:userId];
+        if (!userTokens)
+        {
+            return YES;
+        }
+
+        if (![userTokens objectForKey:key])
+        {
+            return YES;
+        }
+
+        [userTokens removeObjectForKey:key];
+
+        // Check to see if we need to remove the overall dict
+        if (!userTokens.count)
+        {
+            [tokens removeObjectForKey:userId];
+        }
+        
         return YES;
     }
-    
-    NSMutableDictionary* userTokens = [tokens objectForKey:userId];
-    if (!userTokens)
-    {
-        return YES;
-    }
-    
-    if (![userTokens objectForKey:key])
-    {
-        return YES;
-    }
-    
-    [userTokens removeObjectForKey:key];
-    
-    // Check to see if we need to remove the overall dict
-    if (!userTokens.count)
-    {
-        [tokens removeObjectForKey:userId];
-    }
-    
-    return YES;
 }
 
 /*! Return a copy of all items. The array will contain ADTokenCacheItem objects,
@@ -529,41 +523,44 @@
     {
         return NO;
     }
-    
-    NSMutableDictionary* tokens = nil;
-    
-    if (!_cache)
+
+    @synchronized(self)
     {
-        // If we don't have a cache that means we need to create one.
-        _cache = [NSMutableDictionary new];
-        tokens = [NSMutableDictionary new];
-        [_cache setObject:tokens forKey:@"tokens"];
-        SAFE_ARC_RELEASE(tokens);
+        NSMutableDictionary* tokens = nil;
+
+        if (!_cache)
+        {
+            // If we don't have a cache that means we need to create one.
+            _cache = [NSMutableDictionary new];
+            tokens = [NSMutableDictionary new];
+            [_cache setObject:tokens forKey:@"tokens"];
+            SAFE_ARC_RELEASE(tokens);
+        }
+        else
+        {
+            tokens = [_cache objectForKey:@"tokens"];
+        }
+
+        // Grab the userId first
+        id userId = item.userInformation.userId;
+        if (!userId)
+        {
+            // If we don't have one (ADFS case) then use an empty string
+            userId = @"";
+        }
+
+        // Grab the token dictionary for this user id.
+        NSMutableDictionary* userDict = [tokens objectForKey:userId];
+        if (!userDict)
+        {
+            userDict = [NSMutableDictionary new];
+            [tokens setObject:userDict forKey:userId];
+            SAFE_ARC_RELEASE(userDict);
+        }
+        
+        [userDict setObject:item forKey:key];
+        return YES;
     }
-    else
-    {
-        tokens = [_cache objectForKey:@"tokens"];
-    }
-    
-    // Grab the userId first
-    id userId = item.userInformation.userId;
-    if (!userId)
-    {
-        // If we don't have one (ADFS case) then use an empty string
-        userId = @"";
-    }
-    
-    // Grab the token dictionary for this user id.
-    NSMutableDictionary* userDict = [tokens objectForKey:userId];
-    if (!userDict)
-    {
-        userDict = [NSMutableDictionary new];
-        [tokens setObject:userDict forKey:userId];
-        SAFE_ARC_RELEASE(userDict);
-    }
-    
-    [userDict setObject:item forKey:key];
-    return YES;
 }
 
 - (NSArray<ADTokenCacheItem *> *)getItemsWithKey:(nullable ADTokenCacheKey *)key
@@ -601,7 +598,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"ADTokenCache: %@", _cache];
+    return [NSString stringWithFormat:@"ADTokenCache: %@", [self cacheCopy]];
 }
 
 @end
