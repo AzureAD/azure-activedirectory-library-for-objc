@@ -71,10 +71,12 @@
 
 - (id)cacheObjectForKey:(id<NSCopying>)key
 {
+    id object = nil;
     @synchronized(self)
     {
-        return _cache[key];
+        object = _cache[key];
     }
+    return object;
 }
 
 - (void)setCache:(NSMutableDictionary *)newCache
@@ -89,10 +91,13 @@
 
 - (NSMutableDictionary *)cacheCopy
 {
+    NSMutableDictionary *copy = nil;
     @synchronized(self)
     {
-        return [_cache mutableCopy];
+        copy = [_cache mutableCopy];
     }
+    SAFE_ARC_AUTORELEASE(copy);
+    return copy;
 }
 
 - (BOOL)hasCache
