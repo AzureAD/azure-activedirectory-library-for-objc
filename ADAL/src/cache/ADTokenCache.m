@@ -69,6 +69,40 @@
     SAFE_ARC_SUPER_DEALLOC();
 }
 
+- (id)cacheObjectForKey:(id<NSCopying>)key
+{
+    @synchronized(self)
+    {
+        return _cache[key];
+    }
+}
+
+- (void)setCache:(NSMutableDictionary *)newCache
+{
+    @synchronized(self)
+    {
+        SAFE_ARC_RELEASE(_cache);
+        _cache = newCache;
+        SAFE_ARC_RETAIN(_cache);
+    }
+}
+
+- (NSMutableDictionary *)cacheCopy
+{
+    @synchronized(self)
+    {
+        return [_cache mutableCopy];
+    }
+}
+
+- (BOOL)hasCache
+{
+    @synchronized(self)
+    {
+        return _cache != nil;
+    }
+}
+
 - (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate
 {
     if (_delegate == delegate)
