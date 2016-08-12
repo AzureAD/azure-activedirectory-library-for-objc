@@ -181,7 +181,9 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"launch_web_view"];
     void(^requestCompletion)(ADAuthenticationError *error, NSURL *end) = ^void(ADAuthenticationError *error, NSURL *end)
     {
-        ADTelemetryUIEvent* event = [[ADTelemetryUIEvent alloc] initWithName:@"launch_web_view"];
+        ADTelemetryUIEvent* event = [[ADTelemetryUIEvent alloc] initWithName:@"launch_web_view"
+                                                                   requestId:[self telemetryRequestId]
+                                                               correlationId:[self correlationId]];
         [self fillTelemetryUIEvent:event];
         [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
         

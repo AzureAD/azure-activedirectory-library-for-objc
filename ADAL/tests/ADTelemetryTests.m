@@ -87,9 +87,11 @@ typedef void(^TestCallback)(NSArray* event);
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent"
+                                                                             requestId:requestId
+                                                                         correlationId:[NSUUID UUID]]];
     
-    [[ADTelemetry sharedInstance] flush];
+    [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry event recorded as we only generated one above
     XCTAssertEqual([receivedEvents count], 1);
@@ -110,6 +112,16 @@ typedef void(^TestCallback)(NSArray* event);
                                   propertyName:@"device_id"]);
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
                              propertyName:@"device_id"], 1);
+    
+    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
+                                  propertyName:@"request_id"]);
+    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+                             propertyName:@"request_id"], 1);
+    
+    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
+                                  propertyName:@"correlation_id"]);
+    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+                             propertyName:@"correlation_id"], 1);
     
     // application_name, application_version are also default properties,
     // but they are not available in unit test framework, so we omit them here
@@ -134,16 +146,20 @@ typedef void(^TestCallback)(NSArray* event);
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"
+                                                                             requestId:requestId
+                                                                         correlationId:nil]];
     
     // generate telemetry event 2
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
-    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"];
+    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
+                                                                          requestId:requestId
+                                                                      correlationId:nil];
     [event2 setProperty:@"customized_property" value:@"customized_value"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                    event:event2];
     
-    [[ADTelemetry sharedInstance] flush];
+    [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 2 telemetry events recorded as we generated two
     XCTAssertEqual([receivedEvents count], 2);
@@ -204,16 +220,20 @@ typedef void(^TestCallback)(NSArray* event);
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"
+                                                                             requestId:requestId
+                                                                         correlationId:nil]];
     
     // generate telemetry event 2
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
-    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"];
+    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
+                                                                          requestId:requestId
+                                                                      correlationId:nil];
     [event2 setProperty:@"customized_property" value:@"customized_value"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                    event:event2];
     
-    [[ADTelemetry sharedInstance] flush];
+    [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry event recorded as aggregation flag is on
     XCTAssertEqual([receivedEvents count], 1);
@@ -253,15 +273,19 @@ typedef void(^TestCallback)(NSArray* event);
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
-    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"];
+    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
+                                                                          requestId:requestId
+                                                                      correlationId:nil];
     [event2 setProperty:@"customized_property" value:@"customized_value"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                    event:event2];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"
+                                                                             requestId:requestId
+                                                                         correlationId:nil]];
     
-    [[ADTelemetry sharedInstance] flush];
+    [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 2 telemetry events recorded as we generated two
     XCTAssertEqual([receivedEvents count], 2);
@@ -326,15 +350,19 @@ typedef void(^TestCallback)(NSArray* event);
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
-    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"];
+    ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
+                                                                          requestId:requestId
+                                                                      correlationId:nil];
     [event2 setProperty:@"customized_property" value:@"customized_value"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                    event:event2];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"
+                                                                             requestId:requestId
+                                                                         correlationId:nil]];
     
-    [[ADTelemetry sharedInstance] flush];
+    [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry event recorded as aggregation flag is ON
     XCTAssertEqual([receivedEvents count], 1);
@@ -375,19 +403,27 @@ typedef void(^TestCallback)(NSArray* event);
     
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent3"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent3"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent3"
+                                                                             requestId:requestId
+                                                                         correlationId:nil]];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
+                                                                             requestId:requestId
+                                                                         correlationId:nil]];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"
+                                                                             requestId:requestId
+                                                                         correlationId:nil]];
     
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent4"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent4"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent4"
+                                                                             requestId:requestId
+                                                                         correlationId:nil]];
     
-    [[ADTelemetry sharedInstance] flush];
+    [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 4 telemetry events recorded as we generated four
     XCTAssertEqual([receivedEvents count], 4);
@@ -479,19 +515,27 @@ typedef void(^TestCallback)(NSArray* event);
     
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent3"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent3"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent3"
+                                                                             requestId:requestId
+                                                                         correlationId:nil]];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
+                                                                             requestId:requestId
+                                                                         correlationId:nil]];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"
+                                                                             requestId:requestId
+                                                                         correlationId:nil]];
     
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent4"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent4"]];
+                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent4"
+                                                                             requestId:requestId
+                                                                         correlationId:nil]];
     
-    [[ADTelemetry sharedInstance] flush];
+    [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry events recorded as aggregation flag is ON
     XCTAssertEqual([receivedEvents count], 1);

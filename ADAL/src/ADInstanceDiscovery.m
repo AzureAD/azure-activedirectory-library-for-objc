@@ -145,14 +145,15 @@ static NSString* const sValidationServerError = @"The authority validation serve
 {
     API_ENTRY;
     THROW_ON_NIL_ARGUMENT(completionBlock);
+    NSUUID* correlationId = [requestParams correlationId];
     
-    NSString* message = [NSString stringWithFormat:@"Attempting to validate the authority: %@; CorrelationId: %@", authority, [[requestParams correlationId] UUIDString]];
+    NSString* message = [NSString stringWithFormat:@"Attempting to validate the authority: %@; CorrelationId: %@", authority, [correlationId UUIDString]];
     AD_LOG_VERBOSE(@"Instance discovery", [requestParams correlationId], message);
     
     authority = [authority lowercaseString];
     
     ADAuthenticationError* error = nil;
-    NSString* authorityHost = [self extractHost:authority correlationId:[requestParams correlationId] error:&error];
+    NSString* authorityHost = [self extractHost:authority correlationId:correlationId error:&error];
     if (!authorityHost)
     {
         completionBlock(NO, error);
@@ -275,7 +276,8 @@ static NSString* const sValidationServerError = @"The authority validation serve
                      completionBlock:(ADDiscoveryCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
-    THROW_ON_NIL_ARGUMENT([requestParams correlationId]);//Should be set by the caller
+    NSUUID* correlationId = [requestParams correlationId];
+    THROW_ON_NIL_ARGUMENT(correlationId);//Should be set by the caller
     
     //All attempts to complete are done. Now try to validate the authorization ednpoint:
     NSString* authorizationEndpoint = [authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX];
@@ -287,7 +289,7 @@ static NSString* const sValidationServerError = @"The authority validation serve
     
     NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data adURLFormEncode]];
     
-    AD_LOG_VERBOSE(@"Authority Validation Request", [requestParams correlationId], endPoint);
+    AD_LOG_VERBOSE(@"Authority Validation Request", correlationId, endPoint);
     ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
                                                    requestParams:requestParams];
     
@@ -302,22 +304,22 @@ static NSString* const sValidationServerError = @"The authority validation serve
         ADAuthenticationError* adError = nil;
         if (error)
         {
-            AD_LOG_WARN(@"System error while making request.", [requestParams correlationId], error.description);
+            AD_LOG_WARN(@"System error while making request.", correlationId, error.description);
             adError = [ADAuthenticationError errorFromNSError:error
                                                  errorDetails:error.localizedDescription
-                                                correlationId:[requestParams correlationId]];
+                                                correlationId:correlationId];
         }
         else
         {
             adError = [self processWebReponse:webResponse
                                 authorityHost:authorityHost
-                                correlationId:[requestParams correlationId]];
+                                correlationId:correlationId];
         }
         
         NSString* errorDetails = [adError errorDetails];
         [[ADClientMetrics getInstance] endClientMetricsRecord:endPoint
                                                     startTime:startTime
-                                                correlationId:[requestParams correlationId]
+                                                correlationId:correlationId
                                                  errorDetails:errorDetails];
         SAFE_ARC_RELEASE(startTime);
         

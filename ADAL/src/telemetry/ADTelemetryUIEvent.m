@@ -27,7 +27,7 @@
 
 - (void)setLoginHint:(NSString*)hint
 {
-    [self setProperty:@"login_hint" value:[NSString stringWithFormat:@"%lu", (unsigned long)[hint hash]]];
+    [self setProperty:@"login_hint" value:[hint adComputeSHA256]];
 }
 
 @end

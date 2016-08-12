@@ -264,6 +264,7 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
     }
     
     [self correlationId];
+    [self telemetryRequestId];
     
     _requestStarted = YES;
 }

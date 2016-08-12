@@ -40,40 +40,57 @@
     return self;
 }
 
-- (void)flush
+- (void)flush:(NSString*)requestId
 {
     [_dispatchLock lock]; //avoid access conflict when manipulating _objectsToBeDispatched
-    NSMutableDictionary* objectsToBeDispatched = _objectsToBeDispatched;
-    _objectsToBeDispatched = [NSMutableDictionary new];
+    NSArray* eventsToBeDispatched = [_objectsToBeDispatched objectForKey:requestId];
+    [_objectsToBeDispatched removeObjectForKey:requestId];
     [_dispatchLock unlock];
     
     // Integrate events of a particular request id into one single event
-    for (NSString* requestId in objectsToBeDispatched)
+    NSMutableArray* aggregatedEvent = [NSMutableArray new];
+    SAFE_ARC_AUTORELEASE(aggregatedEvent);
+    
+    for (id<ADTelemetryEventInterface> event in eventsToBeDispatched)
     {
-        NSArray* events = [objectsToBeDispatched objectForKey:requestId];
-        NSMutableArray* aggregatedEvent = [NSMutableArray new];
+        NSArray* properties = [event getProperties];
         
-        for (id<ADTelemetryEventInterface> event in events)
+        NSInteger propertiesToSkip = 0;
+        // default properties are duplicate for all events,
+        // so they are skipped from 2nd event onwards
+        if (event != [eventsToBeDispatched objectAtIndex:0])
         {
-            NSArray* properties = [event getProperties];
-            
-            NSInteger propertiesToSkip = 0;
-            // default properties are duplicate for all events,
-            // so they are skipped from 2nd event onwards
-            if (event != [events objectAtIndex:0])
-            {
-                propertiesToSkip = [event getDefaultPropertyCount];
-            }
-            
-            for (NSInteger i = propertiesToSkip; i < [properties count]; i++)
-            {
-                [aggregatedEvent addObject:properties[i]];
-            }
+            propertiesToSkip = [event getDefaultPropertyCount];
         }
-        [_dispatcher dispatch:aggregatedEvent];
+        
+        for (NSInteger i = propertiesToSkip; i < [properties count]; i++)
+        {
+            [aggregatedEvent addObject:properties[i]];
+        }
+    }
+    [_dispatcher dispatch:aggregatedEvent];
+}
+
+- (void)receive:(NSString *)requestId
+          event:(id<ADTelemetryEventInterface>)event
+{
+    if ([NSString adIsStringNilOrBlank:requestId] || !event)
+    {
+        return;
+        
     }
     
-    SAFE_ARC_RELEASE(objectsToBeDispatched);
+    [_dispatchLock lock]; //make sure no one changes _objectsToBeDispatched while using it
+    NSMutableArray* eventsForRequestId = [_objectsToBeDispatched objectForKey:requestId];
+    if (!eventsForRequestId)
+    {
+        eventsForRequestId = [NSMutableArray new];
+        [_objectsToBeDispatched setObject:eventsForRequestId forKey:requestId];
+    }
+    
+    [eventsForRequestId addObject:event];
+    [_dispatchLock unlock];
+    
 }
 
 @end

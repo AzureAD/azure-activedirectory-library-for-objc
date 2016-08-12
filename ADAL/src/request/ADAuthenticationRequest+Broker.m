@@ -198,6 +198,7 @@ static NSString* s_brokerProtocolVersion = nil;
     CHECK_FOR_NIL([_requestParams resource]);
     CHECK_FOR_NIL([_requestParams clientId]);
     CHECK_FOR_NIL([_requestParams correlationId]);
+    NSUUID* correlationId = [_requestParams correlationId];
     
     ADAuthenticationError* error = nil;
     if(![ADAuthenticationRequest validBrokerRedirectUri:[_requestParams redirectUri]])
@@ -205,8 +206,8 @@ static NSString* s_brokerProtocolVersion = nil;
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
                                                        protocolCode:nil
                                                        errorDetails:ADRedirectUriInvalidError
-                                                      correlationId:[_requestParams correlationId]];
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);
+                                                      correlationId:correlationId];
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
         return;
     }
     
@@ -217,8 +218,8 @@ static NSString* s_brokerProtocolVersion = nil;
         ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS
                                                                               protocolCode:nil
                                                                               errorDetails:message
-                                                                             correlationId:[_requestParams correlationId]];
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);
+                                                                             correlationId:correlationId];
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
         return;
     }
     
@@ -228,7 +229,9 @@ static NSString* s_brokerProtocolVersion = nil;
     {
         [self releaseUserInterationLock]; // Release the lock when completion block is called.
         
-        ADTelemetryBrokerEvent* event = [[ADTelemetryBrokerEvent alloc] initWithName:@"launch_broker"];
+        ADTelemetryBrokerEvent* event = [[ADTelemetryBrokerEvent alloc] initWithName:@"launch_broker"
+                                                                           requestId:[_requestParams telemetryRequestId]
+                                                                       correlationId:correlationId];
         [event setResultStatus:[result status]];
         [event setBrokerAppVersion:s_brokerAppVersion];
         [event setBrokerProtocolVersion:s_brokerProtocolVersion];
@@ -237,14 +240,14 @@ static NSString* s_brokerProtocolVersion = nil;
         completionBlock(result);
     };
     
-    AD_LOG_INFO(@"Invoking broker for authentication", [_requestParams correlationId], nil);
+    AD_LOG_INFO(@"Invoking broker for authentication", correlationId, nil);
 #if TARGET_OS_IPHONE // Broker Message Encryption
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
     NSData* key = [brokerHelper getBrokerKey:&error];
     if (!key)
     {
-        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Unable to retrieve broker key." correlationId:[_requestParams correlationId]];
-        completionBlock([ADAuthenticationResult resultFromError:adError correlationId:[_requestParams correlationId]]);
+        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Unable to retrieve broker key." correlationId:correlationId];
+        completionBlock([ADAuthenticationResult resultFromError:adError correlationId:correlationId]);
         return;
     }
     
@@ -264,7 +267,7 @@ static NSString* s_brokerProtocolVersion = nil;
                                       @"username_type": [_requestParams identifier] ? [[_requestParams identifier] typeAsString] : @"",
                                       @"username": [_requestParams identifier].userId ? [_requestParams identifier].userId : @"",
                                       @"force" : _promptBehavior == AD_FORCE_PROMPT ? @"YES" : @"NO",
-                                      @"correlation_id": [_requestParams correlationId],
+                                      @"correlation_id": correlationId,
 #if TARGET_OS_IPHONE // Broker Message Encryption
                                       @"broker_key": base64UrlKey,
 #endif // TARGET_OS_IPHONE Broker Message Encryption
@@ -280,6 +283,7 @@ static NSString* s_brokerProtocolVersion = nil;
                        completionBlock:(ADAuthenticationCallback)completionBlock
 {
     CHECK_FOR_NIL([_requestParams resource]);
+    NSUUID* correlationId = [_requestParams correlationId];
     
     ADAuthenticationError* error = nil;
     if(![ADAuthenticationRequest validBrokerRedirectUri:[_requestParams redirectUri]])
@@ -287,8 +291,8 @@ static NSString* s_brokerProtocolVersion = nil;
         error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
                                                        protocolCode:nil
                                                        errorDetails:ADRedirectUriInvalidError
-                                                      correlationId:[_requestParams correlationId]];
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);
+                                                      correlationId:correlationId];
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
         return;
     }
     
@@ -301,7 +305,7 @@ static NSString* s_brokerProtocolVersion = nil;
 #endif // TARGET_OS_IPHONE Broker Message Encryption
     
     NSString* adalVersion = [ADLogger getAdalVersion];
-    NSString* correlationIdStr = [[_requestParams correlationId] UUIDString];
+    NSString* correlationIdStr = [correlationId UUIDString];
     NSString* authority = _context.authority;
     
     CHECK_FOR_NIL(adalVersion);
@@ -329,7 +333,9 @@ static NSString* s_brokerProtocolVersion = nil;
         [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"launch_broker"];
         void(^requestCompletion)(ADAuthenticationResult* result) = ^void(ADAuthenticationResult* result)
         {
-            ADTelemetryBrokerEvent* event = [[ADTelemetryBrokerEvent alloc] initWithName:@"launch_broker"];
+            ADTelemetryBrokerEvent* event = [[ADTelemetryBrokerEvent alloc] initWithName:@"launch_broker"
+                                                                               requestId:[_requestParams telemetryRequestId]
+                                                                           correlationId:correlationId];
             [event setResultStatus:[result status]];
             [event setBrokerAppVersion:s_brokerAppVersion];
             [event setBrokerProtocolVersion:s_brokerProtocolVersion];

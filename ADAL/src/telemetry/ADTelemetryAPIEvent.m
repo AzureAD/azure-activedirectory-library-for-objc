@@ -52,7 +52,7 @@
 
 - (void)setUserId:(NSString*)userId;
 {
-    [self setProperty:@"user_id" value:[NSString stringWithFormat:@"%lu",  (unsigned long)[userId hash]]];
+    [self setProperty:@"user_id" value:[userId adComputeSHA256]];
 }
 
 - (void)setClientId:(NSString*)clientId
@@ -103,6 +103,11 @@
 - (void)setAPIStatus:(NSString*)status
 {
     [self setProperty:@"api_status" value:status];
+}
+
+- (void)setAPIId:(NSString*)apiId
+{
+    [self setProperty:@"api_id" value:apiId];
 }
 
 @end

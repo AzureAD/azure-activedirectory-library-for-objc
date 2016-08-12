@@ -99,9 +99,11 @@
                          cacheItem:(ADTokenCacheItem*)cacheItem
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", [_requestParams correlationId], @"Resource: %@", [_requestParams resource]);
+    NSUUID* correlationId = [_requestParams correlationId];
+    
+    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", correlationId, @"Resource: %@", [_requestParams resource]);
 
-    [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:[_requestParams correlationId]];
+    [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:correlationId];
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = nil;
     
@@ -147,7 +149,7 @@
          resultItem.authority = [_requestParams authority];
          
          
-         ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:[_requestParams correlationId]];
+         ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:correlationId];
          if (cacheItem)//The request came from the cache item, update it:
          {
              [[_requestParams tokenCache] updateCacheToResult:result
@@ -207,7 +209,9 @@
                            cacheItem:item
                      completionBlock:^(ADAuthenticationResult *result)
      {
-         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"token_grant"];
+         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"token_grant"
+                                                                      requestId:[_requestParams telemetryRequestId]
+                                                                  correlationId:[_requestParams correlationId]];
          [event setGrantType:@"by refresh token"];
          [event setResultStatus:[result status]];
          [[ADTelemetry sharedInstance] stopEvent:[_requestParams telemetryRequestId] event:event];
@@ -259,6 +263,7 @@
 {
     //All of these should be set before calling this method:
     THROW_ON_NIL_ARGUMENT(completionBlock);
+    NSUUID* correlationId = [_requestParams correlationId];
     
     ADAuthenticationError* error = nil;
     ADTokenCacheItem* item = [[_requestParams tokenCache] getATRTItemForUser:[_requestParams identifier]
@@ -269,7 +274,7 @@
     // If some error ocurred during the cache lookup then we need to fail out right away.
     if (!item && error)
     {
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
         return;
     }
     
@@ -280,7 +285,7 @@
         item = [[_requestParams tokenCache] getADFSUserTokenForResource:[_requestParams resource] clientId:[_requestParams clientId] requestParams:_requestParams error:&error];
         if (!item && error)
         {
-            completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);
+            completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
             return;
         }
         
@@ -296,8 +301,8 @@
     // If we have a good (non-expired) access token then return it right away
     if (item.accessToken && !item.isExpired)
     {
-        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:[_requestParams correlationId]];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheItem:item multiResourceRefreshToken:NO correlationId:[_requestParams correlationId]];
+        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:correlationId];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheItem:item multiResourceRefreshToken:NO correlationId:correlationId];
         completionBlock(result);
         return;
     }

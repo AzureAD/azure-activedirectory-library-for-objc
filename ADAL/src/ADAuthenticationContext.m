@@ -30,6 +30,9 @@
 #endif 
 
 #import "ADAuthenticationContext+Internal.h"
+#import "ADTelemetry.h"
+#import "ADTelemetry+Internal.h"
+#import "ADTelemetryAPIEvent.h"
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
@@ -308,7 +311,24 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setSamlAssertion:assertion];
     [request setAssertionType:assertionType];
     
-    [request acquireToken:completionBlock];
+    //prepare telemetry for the acquire token call
+    [[ADTelemetry sharedInstance] startEvent:[request telemetryRequestId]
+                                   eventName:@"acquireTokenWithAssertion:assertionType:resource:clientId:userId:completionBlock:"];
+    ADAuthenticationCallback requestCompletion = ^void(ADAuthenticationResult *result)
+    {
+        ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenWithAssertion:assertionType:resource:clientId:userId:completionBlock:"
+                                                                     requestId:[request telemetryRequestId]
+                                                                 correlationId:[request correlationId]];
+        [event setAPIId:@"?"];
+        [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
+        SAFE_ARC_RELEASE(event);
+        //flush all events in the end of the acquireToken call
+        [[ADTelemetry sharedInstance] flush:[request telemetryRequestId]];
+        
+        completionBlock(result);
+    };
+    
+    [request acquireToken:requestCompletion];
     
 }
 
@@ -321,7 +341,24 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     API_ENTRY;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     
-    [request acquireToken:completionBlock];
+    //prepare telemetry for the acquire token call
+    [[ADTelemetry sharedInstance] startEvent:[request telemetryRequestId]
+                                   eventName:@"acquireTokenWithResource:clientId:redirectUri:completionBlock:"];
+    ADAuthenticationCallback requestCompletion = ^void(ADAuthenticationResult *result)
+    {
+        ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenWithResource:clientId:redirectUri:completionBlock:"
+                                                                     requestId:[request telemetryRequestId]
+                                                                 correlationId:[request correlationId]];
+        [event setAPIId:@"?"];
+        [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
+        SAFE_ARC_RELEASE(event);
+        //flush all events in the end of the acquireToken call
+        [[ADTelemetry sharedInstance] flush:[request telemetryRequestId]];
+        
+        completionBlock(result);
+    };
+    
+    [request acquireToken:requestCompletion];
 }
 
 - (void)acquireTokenWithResource:(NSString*)resource
@@ -334,7 +371,25 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     
     [request setUserId:userId];
-    [request acquireToken:completionBlock];
+    
+    //prepare telemetry for the acquire token call
+    [[ADTelemetry sharedInstance] startEvent:[request telemetryRequestId]
+                                   eventName:@"acquireTokenWithResource:clientId:redirectUri:userId:completionBlock:"];
+    ADAuthenticationCallback requestCompletion = ^void(ADAuthenticationResult *result)
+    {
+        ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenWithResource:clientId:redirectUri:userId:completionBlock:"
+                                                                     requestId:[request telemetryRequestId]
+                                                                 correlationId:[request correlationId]];
+        [event setAPIId:@"?"];
+        [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
+        SAFE_ARC_RELEASE(event);
+        //flush all events in the end of the acquireToken call
+        [[ADTelemetry sharedInstance] flush:[request telemetryRequestId]];
+        
+        completionBlock(result);
+    };
+    
+    [request acquireToken:requestCompletion];
 }
 
 
@@ -350,7 +405,25 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     
     [request setUserId:userId];
     [request setExtraQueryParameters:queryParams];
-    [request acquireToken:completionBlock];
+    
+    //prepare telemetry for the acquire token call
+    [[ADTelemetry sharedInstance] startEvent:[request telemetryRequestId]
+                                   eventName:@"acquireTokenWithResource:clientId:redirectUri:userId:extraQueryParameters:completionBlock:"];
+    ADAuthenticationCallback requestCompletion = ^void(ADAuthenticationResult *result)
+    {
+        ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenWithResource:clientId:redirectUri:userId:extraQueryParameters:completionBlock:"
+                                                                     requestId:[request telemetryRequestId]
+                                                                 correlationId:[request correlationId]];
+        [event setAPIId:@"?"];
+        [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
+        SAFE_ARC_RELEASE(event);
+        //flush all events in the end of the acquireToken call
+        [[ADTelemetry sharedInstance] flush:[request telemetryRequestId]];
+        
+        completionBlock(result);
+    };
+    
+    [request acquireToken:requestCompletion];
 }
 
 - (void)acquireTokenSilentWithResource:(NSString*)resource
@@ -362,7 +435,25 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     
     [request setSilent:YES];
-    [request acquireToken:completionBlock];
+    
+    //prepare telemetry for the acquire token call
+    [[ADTelemetry sharedInstance] startEvent:[request telemetryRequestId]
+                                   eventName:@"acquireTokenSilentWithResource:clientId:redirectId:redirectUri:completionBlock:"];
+    ADAuthenticationCallback requestCompletion = ^void(ADAuthenticationResult *result)
+    {
+        ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenSilentWithResource:clientId:redirectId:redirectUri:completionBlock:"
+                                                                     requestId:[request telemetryRequestId]
+                                                                 correlationId:[request correlationId]];
+        [event setAPIId:@"?"];
+        [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
+        SAFE_ARC_RELEASE(event);
+        //flush all events in the end of the acquireToken call
+        [[ADTelemetry sharedInstance] flush:[request telemetryRequestId]];
+        
+        completionBlock(result);
+    };
+    
+    [request acquireToken:requestCompletion];
 }
 
 - (void)acquireTokenSilentWithResource:(NSString*)resource
@@ -376,7 +467,25 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     
     [request setUserId:userId];
     [request setSilent:YES];
-    [request acquireToken:completionBlock];
+    
+    //prepare telemetry for the acquire token call
+    [[ADTelemetry sharedInstance] startEvent:[request telemetryRequestId]
+                                   eventName:@"acquireTokenSilentWithResource:clientId:redirectId:redirectUri:userId:completionBlock:"];
+    ADAuthenticationCallback requestCompletion = ^void(ADAuthenticationResult *result)
+    {
+        ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenSilentWithResource:clientId:redirectId:redirectUri:userId:completionBlock:"
+                                                                     requestId:[request telemetryRequestId]
+                                                                 correlationId:[request correlationId]];
+        [event setAPIId:@"?"];
+        [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
+        SAFE_ARC_RELEASE(event);
+        //flush all events in the end of the acquireToken call
+        [[ADTelemetry sharedInstance] flush:[request telemetryRequestId]];
+        
+        completionBlock(result);
+    };
+    
+    [request acquireToken:requestCompletion];
 }
 
 - (void)acquireTokenWithResource:(NSString*)resource
@@ -393,7 +502,25 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setUserId:userId];
     [request setPromptBehavior:promptBehavior];
     [request setExtraQueryParameters:queryParams];
-    [request acquireToken:completionBlock];
+    
+    //prepare telemetry for the acquire token call
+    [[ADTelemetry sharedInstance] startEvent:[request telemetryRequestId]
+                                   eventName:@"acquireTokenWithResource:clientId:redirectUri:promptBehavior:userId:extraQueryParameters:completionBlock:"];
+    ADAuthenticationCallback requestCompletion = ^void(ADAuthenticationResult *result)
+    {
+        ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenWithResource:clientId:redirectUri:promptBehavior:userId:extraQueryParameters:completionBlock:"
+                                                                     requestId:[request telemetryRequestId]
+                                                                 correlationId:[request correlationId]];
+        [event setAPIId:@"?"];
+        [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
+        SAFE_ARC_RELEASE(event);
+        //flush all events in the end of the acquireToken call
+        [[ADTelemetry sharedInstance] flush:[request telemetryRequestId]];
+        
+        completionBlock(result);
+    };
+    
+    [request acquireToken:requestCompletion];
 }
 
 - (void)acquireTokenWithResource:(NSString*)resource
@@ -410,7 +537,25 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setPromptBehavior:promptBehavior];
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
-    [request acquireToken:completionBlock];
+    
+    //prepare telemetry for the acquire token call
+    [[ADTelemetry sharedInstance] startEvent:[request telemetryRequestId]
+                                   eventName:@"acquireTokenWithResource:clientId:redirectUri:promptBehavior:userIdentifier:extraQueryParameters:completionBlock:"];
+    ADAuthenticationCallback requestCompletion = ^void(ADAuthenticationResult *result)
+    {
+        ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenWithResource:clientId:redirectUri:promptBehavior:userIdentifier:extraQueryParameters:completionBlock:"
+                                                                     requestId:[request telemetryRequestId]
+                                                                 correlationId:[request correlationId]];
+        [event setAPIId:@"?"];
+        [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
+        SAFE_ARC_RELEASE(event);
+        //flush all events in the end of the acquireToken call
+        [[ADTelemetry sharedInstance] flush:[request telemetryRequestId]];
+        
+        completionBlock(result);
+    };
+    
+    [request acquireToken:requestCompletion];
 }
 
 @end

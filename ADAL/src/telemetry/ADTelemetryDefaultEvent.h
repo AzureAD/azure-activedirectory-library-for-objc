@@ -26,8 +26,11 @@
 @interface ADTelemetryDefaultEvent : NSObject <ADTelemetryEventInterface>
 {
     NSMutableArray* _propertyMap;
+    NSInteger _defaultPropertyCount;
 }
 
-- (id)initWithName:(NSString*)eventName;
+- (id)initWithName:(NSString*)eventName
+         requestId:(NSString*)requestId
+     correlationId:(NSUUID*)correlationId;
 
 @end

@@ -49,7 +49,8 @@
 - (void)requestTokenByAssertion:(ADAuthenticationCallback)completionBlock
 {
     [self ensureRequest];
-    AD_LOG_INFO_F(@"Requesting token from SAML Assertion", [_requestParams correlationId], @"resource: %@, clientId: %@", [_requestParams resource], [_requestParams clientId]);
+    NSUUID* correlationId = [_requestParams correlationId];
+    AD_LOG_INFO_F(@"Requesting token from SAML Assertion", correlationId, @"resource: %@, clientId: %@", [_requestParams resource], [_requestParams clientId]);
     
     NSData *encodeData = [_samlAssertion dataUsingEncoding:NSUTF8StringEncoding];
     NSString *base64String = [encodeData base64EncodedStringWithOptions:0];
@@ -58,8 +59,8 @@
     if (!assertionType)
     {
         ADAuthenticationError* error = [ADAuthenticationError invalidArgumentError:@"Unrecognized assertion type."
-                                                                     correlationId:[_requestParams correlationId]];
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);
+                                                                     correlationId:correlationId];
+        completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
         return;
     }
     

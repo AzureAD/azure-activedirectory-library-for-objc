@@ -43,23 +43,25 @@
     THROW_ON_NIL_ARGUMENT(completionBlock);
     AD_REQUEST_CHECK_ARGUMENT([_requestParams resource]);
     [self ensureRequest];
+    NSUUID* correlationId = [_requestParams correlationId];
+    NSString* telemetryRequestId = [_requestParams telemetryRequestId];
     
-    [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"acauire_token_call"];
+    [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:@"acquire_token"];
     ADAuthenticationCallback requestCompletion = ^void(ADAuthenticationResult *result)
     {
-        ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acauire_token_call"];
+        ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquire_token"
+                                                                     requestId:telemetryRequestId
+                                                                 correlationId:correlationId];
         [self fillTelemetryForAcquireToken:event result:result];
-        [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+        [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
         SAFE_ARC_RELEASE(event);
-        //flush all events in the end of the acquireToken call
-        [[ADTelemetry sharedInstance] flush];
         
         completionBlock(result);
     };
     
     NSString* log = [NSString stringWithFormat:@"acquireToken (authority = %@, resource = %@, clientId = %@, idtype = %@)",
                      [_requestParams authority], [_requestParams resource], [_requestParams clientId], [[_requestParams identifier] typeAsString]];
-    AD_LOG_INFO_F(log, [_requestParams correlationId], @"userId = %@", [_requestParams identifier].userId);
+    AD_LOG_INFO_F(log, correlationId, @"userId = %@", [_requestParams identifier].userId);
     
     if (!_silent && ![NSThread isMainThread])
     {
@@ -67,7 +69,7 @@
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_ON_MAIN_THREAD
                                                protocolCode:nil
                                                errorDetails:@"Interactive authentication requests must originate from the main thread"
-                                              correlationId:[_requestParams correlationId]];
+                                              correlationId:correlationId];
         
         requestCompletion([ADAuthenticationResult resultFromError:error]);
         return;
@@ -79,8 +81,8 @@
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
                                                protocolCode:nil
                                                errorDetails:ADRedirectUriInvalidError
-                                              correlationId:[_requestParams correlationId]];
-        requestCompletion([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);
+                                              correlationId:correlationId];
+        requestCompletion([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
         return;
     }
     
@@ -90,20 +92,22 @@
         return;
     }
     
-    [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"authority_validation"];
+    [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:@"authority_validation"];
     [[ADInstanceDiscovery sharedInstance] validateAuthority:_context.authority
                                               requestParams:_requestParams
                                             completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
-         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authority_validation"];
+         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authority_validation"
+                                                                      requestId:telemetryRequestId
+                                                                  correlationId:correlationId];
          [event setAuthorityValidationStatus:validated ? @"YES" : @"NO"];
          [event setAuthority:_context.authority];
-         [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+         [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
          SAFE_ARC_RELEASE(event);
 
          if (error)
          {
-             requestCompletion([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);
+             requestCompletion([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
          }
          else
          {
@@ -119,11 +123,13 @@
     
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && [_context hasCacheStore])
     {
-        [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"acquire_token_silent"];
+        [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"acquire_token_silent_handler"];
         [ADAcquireTokenSilentHandler acquireTokenSilentForRequestParams:_requestParams
                                                         completionBlock:^(ADAuthenticationResult *result)
         {
-            ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquire_token_silent"];
+            ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquire_token_silent_handler"
+                                                                         requestId:[self telemetryRequestId]
+                                                                     correlationId:[self correlationId]];
             [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
             SAFE_ARC_RELEASE(event);
             
@@ -148,6 +154,8 @@
 - (void)requestToken:(ADAuthenticationCallback)completionBlock
 {
     [self ensureRequest];
+    NSUUID* correlationId = [_requestParams correlationId];
+    NSString* telemetryRequestId = [_requestParams telemetryRequestId];
     
     if (_samlAssertion)
     {
@@ -166,9 +174,9 @@
                                                protocolCode:nil
                                                errorDetails:ADCredentialsNeeded
                                                    userInfo:underlyingError
-                                              correlationId:[_requestParams correlationId]];
+                                              correlationId:correlationId];
         
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]];
+        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
         completionBlock(result);
         return;
     }
@@ -185,8 +193,8 @@
             [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION
                                                    protocolCode:nil
                                                    errorDetails:ADInteractionNotSupportedInExtension
-                                                  correlationId:[_requestParams correlationId]];
-            ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]];
+                                                  correlationId:correlationId];
+            ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
             completionBlock(result);
             return;
         }
@@ -204,10 +212,12 @@
     __block BOOL silentRequest = _allowSilent;
     
 // Get the code first:
-    [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"authorization_code"];
+    [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:@"authorization_code"];
     [self requestCode:^(NSString * code, ADAuthenticationError *error)
      {
-         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authorization_code"];
+         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authorization_code"
+                                                                      requestId:telemetryRequestId
+                                                                  correlationId:correlationId];
 
          if (error)
          {
@@ -218,11 +228,11 @@
                  return;
              }
              
-             ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:[_requestParams correlationId]]
-             : [ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]];
+             ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:correlationId]
+             : [ADAuthenticationResult resultFromError:error correlationId:correlationId];
              
              [event setAPIStatus:(AD_ERROR_UI_USER_CANCEL == error.code) ? @"canceled":@"failed"];
-             [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+             [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
              
              completionBlock(result);
          }
@@ -231,7 +241,7 @@
              if([code hasPrefix:@"msauth://"])
              {
                  [event setAPIStatus:@"try to invoke broker from webview"];
-                 [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+                 [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
                  
                  [self handleBrokerFromWebiewResponse:code
                                       completionBlock:completionBlock];
@@ -239,16 +249,18 @@
              else
              {
                  [event setAPIStatus:@"succeeded"];
-                 [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+                 [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
                  
-                 [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"token_grant"];
+                 [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:@"token_grant"];
                  [self requestTokenByCode:code
                           completionBlock:^(ADAuthenticationResult *result)
                   {
-                      ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"token_grant"];
+                      ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"token_grant"
+                                                                                   requestId:telemetryRequestId
+                                                                               correlationId:correlationId];
                       [event setGrantType:@"by code"];
                       [event setResultStatus:[result status]];
-                      [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+                      [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
                       SAFE_ARC_RELEASE(event);
                       
                       if (AD_SUCCEEDED == result.status)

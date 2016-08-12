@@ -113,6 +113,7 @@ static NSString* const s_delimiter = @"|";
 - (void)stopEvent:(NSString*)requestId
             event:(id<ADTelemetryEventInterface>)event
 {
+    NSDate* stopTime = [NSDate date];
     NSString* eventName = [self getPropertyFromEvent:event propertyName:@"event_name"];
     
     if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName] || !event)
@@ -129,10 +130,10 @@ static NSString* const s_delimiter = @"|";
     [event setStartTime:startTime];
     [_eventTracking removeObjectForKey:key];
     
-    NSDate* stopTime = [NSDate date];
     [event setStopTime:stopTime];
+    [event setResponseTime:[stopTime timeIntervalSinceDate:startTime]];
     
-    [self dispatchEventNow:requestId event:event];
+    [_dispatcher receive:requestId event:event];
 }
 
 - (void)dispatchEventNow:(NSString*)requestId
@@ -167,13 +168,13 @@ static NSString* const s_delimiter = @"|";
     return nil;
 }
 
-- (void)flush
+- (void)flush:(NSString*)requestId
 {
     @synchronized(self)
     {
         if (_dispatcher)
         {
-            [_dispatcher flush];
+            [_dispatcher flush:requestId];
         }
     }
 }

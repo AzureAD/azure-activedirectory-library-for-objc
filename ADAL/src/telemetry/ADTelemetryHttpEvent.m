@@ -32,7 +32,7 @@
 
 - (void)setHttpPath:(NSString*)path
 {
-    [self setProperty:@"http_path" value:[self scrubTenantFromUrl:path]];
+    [self setProperty:@"http_path" value:path];
 }
 
 - (void)setHttpResponseCode:(NSString*)code

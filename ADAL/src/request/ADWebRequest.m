@@ -321,10 +321,10 @@
 - (void)stopTelemetryEvent:(NSError *)error
                   response:(ADWebResponse *)response
 {
-    ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:@"http_request"];
+    ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:@"http_request" requestId:_telemetryRequestId correlationId:_correlationId];
     
     [event setHttpMethod:_isGetRequest ? @"GET" : @"POST"];
-    [event setHttpPath:[[_requestURL host] stringByAppendingPathComponent:[_requestURL path]]];
+    [event setHttpPath:[NSString stringWithFormat:@"%@://%@/%@", _requestURL.scheme, _requestURL.host, _requestURL.path]];
     [event setHttpRequestQueryParams:[_requestURL query]];
     if (error)
     {

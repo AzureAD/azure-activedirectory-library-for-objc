@@ -33,6 +33,6 @@
 - (void)receive:(NSString *)requestId
           event:(id<ADTelemetryEventInterface>)event;
 
-- (void)flush;
+- (void)flush:(NSString*)requestId;
 
 @end

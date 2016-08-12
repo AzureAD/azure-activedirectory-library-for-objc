@@ -30,6 +30,14 @@
 #include <IOKit/IOKitLib.h>
 #endif
 
+#define SET_IF_NOT_NIL(DICT, NAME, OBJECT) \
+{ \
+if (OBJECT) \
+{ \
+[(DICT) addObject:@[(NAME), (OBJECT)]]; \
+} \
+}
+
 @implementation ADTelemetryDefaultEvent
 
 @synthesize propertyMap = _propertyMap;
@@ -42,6 +50,8 @@
 }
 
 - (id)initWithName:(NSString*)eventName
+         requestId:(NSString*)requestId
+     correlationId:(NSUUID*)correlationId
 {
     if (!(self = [super init]))
     {
@@ -49,7 +59,11 @@
     }
     
     _propertyMap = [[self defaultParameters] mutableCopy];
-    [_propertyMap addObject:@[@"event_name", eventName]];
+    SET_IF_NOT_NIL(_propertyMap, @"request_id", requestId);
+    SET_IF_NOT_NIL(_propertyMap, @"correlation_id", [correlationId UUIDString]);
+    _defaultPropertyCount = [_propertyMap count];
+    
+    SET_IF_NOT_NIL(_propertyMap, @"event_name", eventName);
     
     return self;
 }
@@ -90,6 +104,11 @@
     [_propertyMap addObject:@[@"stop_time", [self getStringFromDate:time]]];
 }
 
+- (void)setResponseTime:(NSTimeInterval)responseTime
+{
+    [_propertyMap addObject:@[@"response_time", [NSString stringWithFormat:@"%f", responseTime]]];
+}
+
 - (NSString*)getStringFromDate:(NSDate*)date
 {
     static NSDateFormatter* s_dateFormatter = nil;
@@ -104,17 +123,9 @@
     return [s_dateFormatter stringFromDate:date];
 }
 
-#define SET_IF_NOT_NIL(DICT, NAME, OBJECT) \
-{ \
-if (OBJECT) \
-{ \
-[(DICT) addObject:@[(NAME), (OBJECT)]]; \
-} \
-}
-
 - (NSArray*)defaultParameters
 {
-    static NSMutableArray* s_defaultParameters = nil;
+    static NSMutableArray* s_defaultParameters;
     static dispatch_once_t s_parametersOnce;
     
     dispatch_once(&s_parametersOnce, ^{
@@ -132,7 +143,7 @@ if (OBJECT) \
         NSString* applicationName = [[NSProcessInfo processInfo] processName];
 #endif
         
-        SET_IF_NOT_NIL(s_defaultParameters, @"device_id", ([NSString stringWithFormat:@"%lu", (unsigned long)[deviceId hash]]));
+        SET_IF_NOT_NIL(s_defaultParameters, @"device_id", [deviceId adComputeSHA256]);
         SET_IF_NOT_NIL(s_defaultParameters, @"application_name", applicationName);
         SET_IF_NOT_NIL(s_defaultParameters, @"application_version", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
         
@@ -148,7 +159,7 @@ if (OBJECT) \
 
 - (NSInteger)getDefaultPropertyCount
 {
-    return [[self defaultParameters] count];
+    return _defaultPropertyCount;
 }
 
 - (void)dealloc
