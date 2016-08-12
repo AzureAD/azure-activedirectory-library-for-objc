@@ -275,36 +275,34 @@
     }
 }
 
+// This call is synchronized in the calling method, getItemsWithKey:userId:correlationId:error:
 - (NSArray<ADTokenCacheItem *> *)getItemsImplKey:(nullable ADTokenCacheKey *)key
                                           userId:(nullable NSString *)userId
 {
-    @synchronized(self)
+    NSDictionary* tokens = [_cache objectForKey:@"tokens"];
+    if (!tokens)
     {
-        NSDictionary* tokens = [_cache objectForKey:@"tokens"];
-        if (!tokens)
-        {
-            return nil;
-        }
+        return nil;
+    }
 
-        NSMutableArray* items = [NSMutableArray new];
-        SAFE_ARC_AUTORELEASE(items);
+    NSMutableArray* items = [NSMutableArray new];
+    SAFE_ARC_AUTORELEASE(items);
 
-        if (userId)
+    if (userId)
+    {
+        // If we have a specified userId then we only look for that one
+        [self addToItems:items forUserId:userId tokens:tokens key:key];
+    }
+    else
+    {
+        // Otherwise we have to traverse all of the users in the cache
+        for (NSString* userId in tokens)
         {
-            // If we have a specified userId then we only look for that one
             [self addToItems:items forUserId:userId tokens:tokens key:key];
         }
-        else
-        {
-            // Otherwise we have to traverse all of the users in the cache
-            for (NSString* userId in tokens)
-            {
-                [self addToItems:items forUserId:userId tokens:tokens key:key];
-            }
-        }
-        
-        return items;
     }
+    
+    return items;
 }
 
 
