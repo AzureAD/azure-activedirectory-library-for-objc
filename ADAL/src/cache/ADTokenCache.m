@@ -49,6 +49,8 @@
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheKey.h"
 
+#include <pthread.h>
+
 #define CHECK_ERROR(_cond, _code, _details) { \
     if (!(_cond)) { \
         ADAuthenticationError* _AD_ERROR = [ADAuthenticationError errorFromAuthenticationError:_code protocolCode:nil errorDetails:_details correlationId:nil]; \
@@ -59,12 +61,26 @@
 
 @implementation ADTokenCache
 
+- (id)init
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    pthread_rwlock_init(&_lock, NULL);
+    
+    return self;
+}
+
 - (void)dealloc
 {
     SAFE_ARC_RELEASE(_cache);
     _cache = nil;
     SAFE_ARC_RELEASE(_delegate);
     _delegate = nil;
+    
+    pthread_rwlock_destroy(&_lock);
     
     SAFE_ARC_SUPER_DEALLOC();
 }
@@ -75,11 +91,21 @@
     {
         return;
     }
+    
+    int err = pthread_rwlock_wrlock(&_lock);
+    if (err != 0)
+    {
+        AD_LOG_ERROR(@"pthread_rwlock_wrlock failed in setDelegate", err, nil, nil);
+        return;
+    }
+    
     SAFE_ARC_RELEASE(_delegate);
     _delegate = delegate;
     SAFE_ARC_RETAIN(_delegate);
     SAFE_ARC_RELEASE(_cache);
     _cache = nil;
+    
+    pthread_rwlock_unlock(&_lock);
     
     if (!delegate)
     {
@@ -98,9 +124,19 @@
         return nil;
     }
     
+    int err = pthread_rwlock_rdlock(&_lock);
+    if (err != 0)
+    {
+        AD_LOG_ERROR(@"pthread_rwlock_rdlock failed in serialize", err, nil, nil);
+        return nil;
+    }
+    NSDictionary* cacheCopy = [_cache mutableCopy];
+    pthread_rwlock_unlock(&_lock);
+    
     // Using the dictionary @{ key : value } syntax here causes _cache to leak. Yay legacy runtime!
-    NSDictionary* wrapper = [NSDictionary dictionaryWithObjectsAndKeys:_cache, @"tokenCache",
+    NSDictionary* wrapper = [NSDictionary dictionaryWithObjectsAndKeys:cacheCopy, @"tokenCache",
                              @CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
+    SAFE_ARC_RELEASE(cacheCopy);
     
     @try
     {
@@ -140,6 +176,15 @@
 
 
 - (BOOL)deserialize:(nullable NSData*)data
+              error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+{
+    pthread_rwlock_wrlock(&_lock);
+    BOOL ret = [self deserializeImpl:data error:error];
+    pthread_rwlock_unlock(&_lock);
+    return ret;
+}
+
+- (BOOL)deserializeImpl:(nullable NSData*)data
               error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     // If they pass in nil on deserialize that means to drop the cache
@@ -289,7 +334,14 @@
              error:(ADAuthenticationError * __autoreleasing *)error
 {
     [_delegate willWriteCache:self];
+    int err = pthread_rwlock_wrlock(&_lock);
+    if (err != 0)
+    {
+        AD_LOG_ERROR(@"pthread_rwlock_wrlock failed in removeItem", err, nil, nil);
+        return NO;
+    }
     BOOL result = [self removeImpl:item error:error];
+    pthread_rwlock_unlock(&_lock);
     [_delegate didWriteCache:self];
     return result;
 }
@@ -466,7 +518,14 @@
                   error:(ADAuthenticationError * __autoreleasing *)error
 {
     [_delegate willWriteCache:self];
+    int err = pthread_rwlock_wrlock(&_lock);
+    if (err != 0)
+    {
+        AD_LOG_ERROR(@"pthread_rwlock_wrlock failed in addOrUpdateItem", err, correlationId, nil);
+        return NO;
+    }
     BOOL result = [self addOrUpdateImpl:item correlationId:correlationId error:error];
+    pthread_rwlock_unlock(&_lock);
     [_delegate didWriteCache:self];
     
     return result;
@@ -540,14 +599,19 @@
     (void)error;
     (void)correlationId;
     
-    @synchronized(self)
+    [_delegate willAccessCache:self];
+    int err = pthread_rwlock_rdlock(&_lock);
+    if (err != 0)
     {
-        [_delegate willAccessCache:self];
-        NSArray<ADTokenCacheItem *> * result = [self getItemsImplKey:key userId:userId];
-        [_delegate didAccessCache:self];
-        
-        return result;
+        AD_LOG_ERROR(@"pthread_rwlock_rdlock failed in getItemsWithKey", err, correlationId, nil);
+        return nil;
     }
+    NSArray<ADTokenCacheItem *> * result = [self getItemsImplKey:key userId:userId];
+    pthread_rwlock_unlock(&_lock);
+    
+    [_delegate didAccessCache:self];
+    
+    return result;
 }
 
 - (NSArray<ADTokenCacheItem *> *)allTombstones:(ADAuthenticationError * __autoreleasing *)error
