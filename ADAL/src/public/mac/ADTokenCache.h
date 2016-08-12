@@ -43,6 +43,7 @@
 {
     NSMutableDictionary* _cache;
     id<ADTokenCacheDelegate> _delegate;
+    pthread_rwlock_t _lock;
 }
 
 - (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate;
