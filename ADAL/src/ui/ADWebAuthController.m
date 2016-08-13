@@ -555,7 +555,7 @@ correlationId:(NSUUID *)correlationId
     _completionBlock = [completionBlock copy];
     ADAuthenticationError* error = nil;
     
-    [ADURLProtocol registerProtocol];
+    [ADURLProtocol registerProtocol:[endURL absoluteString]];
     
     if(![NSString adIsStringNilOrBlank:refreshCred])
     {

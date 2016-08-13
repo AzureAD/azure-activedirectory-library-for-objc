@@ -28,6 +28,7 @@
 #import "ADCustomHeaderHandler.h"
 
 static NSMutableDictionary* s_handlers = nil;
+static NSString* s_endURL = nil;
 
 static NSUUID * _reqCorId(NSURLRequest* request)
 {
@@ -59,14 +60,18 @@ static NSUUID * _reqCorId(NSURLRequest* request)
 }
 
 
-+ (BOOL)registerProtocol
++ (BOOL)registerProtocol:(NSString*)endURL
 {
+    s_endURL = endURL;
+    SAFE_ARC_RETAIN(s_endURL);
     return [NSURLProtocol registerClass:self];
 }
 
 + (void)unregisterProtocol
 {
     [NSURLProtocol unregisterClass:self];
+    SAFE_ARC_RELEASE(s_endURL);
+    s_endURL = nil;
     
     @synchronized(self)
     {
@@ -203,7 +208,11 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     // Disallow HTTP for ADURLProtocol
     if ([request.URL.scheme isEqualToString:@"http"])
     {
-        return nil;
+        // end url is whitelisted regardless of the url format
+        if (s_endURL && ![[request.URL.absoluteString lowercaseString] hasPrefix:[s_endURL lowercaseString]])
+        {
+            return nil;
+        }
     }
     
     NSMutableURLRequest* mutableRequest = [request mutableCopy];
