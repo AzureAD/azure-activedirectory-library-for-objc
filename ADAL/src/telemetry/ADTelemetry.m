@@ -128,10 +128,9 @@ static NSString* const s_delimiter = @"|";
         return;
     }
     [event setStartTime:startTime];
-    [_eventTracking removeObjectForKey:key];
-    
     [event setStopTime:stopTime];
     [event setResponseTime:[stopTime timeIntervalSinceDate:startTime]];
+    [_eventTracking removeObjectForKey:key];
     
     [_dispatcher receive:requestId event:event];
 }
