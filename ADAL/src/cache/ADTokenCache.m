@@ -49,15 +49,29 @@
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheKey.h"
 
+#include <pthread.h>
+
 #define CHECK_ERROR(_cond, _code, _details) { \
-    if (!(_cond)) { \
-        ADAuthenticationError* _AD_ERROR = [ADAuthenticationError errorFromAuthenticationError:_code protocolCode:nil errorDetails:_details correlationId:nil]; \
-        if (error) { *error = _AD_ERROR; } \
-        return NO; \
-    } \
+if (!(_cond)) { \
+ADAuthenticationError* _AD_ERROR = [ADAuthenticationError errorFromAuthenticationError:_code protocolCode:nil errorDetails:_details correlationId:nil]; \
+if (error) { *error = _AD_ERROR; } \
+return NO; \
+} \
 }
 
 @implementation ADTokenCache
+
+- (id)init
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+
+    pthread_rwlock_init(&_lock, NULL);
+
+    return self;
+}
 
 - (void)dealloc
 {
@@ -65,7 +79,9 @@
     _cache = nil;
     SAFE_ARC_RELEASE(_delegate);
     _delegate = nil;
-    
+
+    pthread_rwlock_destroy(&_lock);
+
     SAFE_ARC_SUPER_DEALLOC();
 }
 
@@ -75,19 +91,29 @@
     {
         return;
     }
+
+    int err = pthread_rwlock_wrlock(&_lock);
+    if (err != 0)
+    {
+        AD_LOG_ERROR(@"pthread_rwlock_wrlock failed in setDelegate", err, nil, nil);
+        return;
+    }
+
     SAFE_ARC_RELEASE(_delegate);
     _delegate = delegate;
     SAFE_ARC_RETAIN(_delegate);
     SAFE_ARC_RELEASE(_cache);
     _cache = nil;
-    
+
+    pthread_rwlock_unlock(&_lock);
+
     if (!delegate)
     {
         return;
     }
-    
+
     [_delegate willAccessCache:self];
-    
+
     [_delegate didAccessCache:self];
 }
 
@@ -97,11 +123,21 @@
     {
         return nil;
     }
-    
+
+    int err = pthread_rwlock_rdlock(&_lock);
+    if (err != 0)
+    {
+        AD_LOG_ERROR(@"pthread_rwlock_rdlock failed in serialize", err, nil, nil);
+        return nil;
+    }
+    NSDictionary* cacheCopy = [_cache mutableCopy];
+    pthread_rwlock_unlock(&_lock);
+
     // Using the dictionary @{ key : value } syntax here causes _cache to leak. Yay legacy runtime!
-    NSDictionary* wrapper = [NSDictionary dictionaryWithObjectsAndKeys:_cache, @"tokenCache",
+    NSDictionary* wrapper = [NSDictionary dictionaryWithObjectsAndKeys:cacheCopy, @"tokenCache",
                              @CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
-    
+    SAFE_ARC_RELEASE(cacheCopy);
+
     @try
     {
         return [NSKeyedArchiver archivedDataWithRootObject:wrapper];
@@ -128,12 +164,12 @@
                                                protocolCode:nil
                                                errorDetails:@"Failed to unarchive data blob from -deserialize!"
                                               correlationId:nil];
-        
+
         if (error)
         {
             *error = adError;
         }
-        
+
         return nil;
     }
 }
@@ -142,6 +178,15 @@
 - (BOOL)deserialize:(nullable NSData*)data
               error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
+    pthread_rwlock_wrlock(&_lock);
+    BOOL ret = [self deserializeImpl:data error:error];
+    pthread_rwlock_unlock(&_lock);
+    return ret;
+}
+
+- (BOOL)deserializeImpl:(nullable NSData*)data
+                  error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
+{
     // If they pass in nil on deserialize that means to drop the cache
     if (!data)
     {
@@ -149,18 +194,18 @@
         _cache = nil;
         return YES;
     }
-    
+
     id cache = [self unarchive:data error:error];
     if (!cache)
     {
         return NO;
     }
-    
+
     if (![self validateCache:cache error:error])
     {
         return NO;
     }
-    
+
     SAFE_ARC_RELEASE(_cache);
     _cache = [cache objectForKey:@"tokenCache"];
     SAFE_ARC_RETAIN(_cache);
@@ -185,7 +230,7 @@
         }
         return YES;
     }
-    
+
     // Unarchive the data first
     NSDictionary* dict = [NSKeyedUnarchiver unarchiveObjectWithData:data];
     CHECK_ERROR(dict, AD_ERROR_CACHE_BAD_FORMAT, @"Unable to unarchive data provided by cache storage!");
@@ -194,11 +239,11 @@
     {
         return NO;
     }
-    
+
     SAFE_ARC_RELEASE(_cache);
     _cache = [dict objectForKey:@"tokenCache"];
     SAFE_ARC_RETAIN(_cache);
-    
+
     return YES;
 }
 
@@ -212,7 +257,7 @@
     if (item)
     {
         item = [item copy];
-        
+
         [items addObject:item];
         SAFE_ARC_RELEASE(item);
     }
@@ -228,7 +273,7 @@
     {
         return;
     }
-    
+
     // Add items matching the key for this user
     if (key)
     {
@@ -250,16 +295,16 @@
     {
         return nil;
     }
-    
+
     NSDictionary* tokens = [_cache objectForKey:@"tokens"];
     if (!tokens)
     {
         return nil;
     }
-    
+
     NSMutableArray* items = [NSMutableArray new];
     SAFE_ARC_AUTORELEASE(items);
-    
+
     if (userId)
     {
         // If we have a specified userId then we only look for that one
@@ -273,7 +318,7 @@
             [self addToItems:items forUserId:userId tokens:tokens key:key];
         }
     }
-    
+
     return items;
 }
 
@@ -289,7 +334,14 @@
              error:(ADAuthenticationError * __autoreleasing *)error
 {
     [_delegate willWriteCache:self];
+    int err = pthread_rwlock_wrlock(&_lock);
+    if (err != 0)
+    {
+        AD_LOG_ERROR(@"pthread_rwlock_wrlock failed in removeItem", err, nil, nil);
+        return NO;
+    }
     BOOL result = [self removeImpl:item error:error];
+    pthread_rwlock_unlock(&_lock);
     [_delegate didWriteCache:self];
     return result;
 }
@@ -302,38 +354,38 @@
     {
         return NO;
     }
-    
+
     NSString* userId = item.userInformation.userId;
     if (!userId)
     {
         userId = @"";
     }
-    
+
     NSMutableDictionary* tokens = [_cache objectForKey:@"tokens"];
     if (!tokens)
     {
         return YES;
     }
-    
+
     NSMutableDictionary* userTokens = [tokens objectForKey:userId];
     if (!userTokens)
     {
         return YES;
     }
-    
+
     if (![userTokens objectForKey:key])
     {
         return YES;
     }
-    
+
     [userTokens removeObjectForKey:key];
-    
+
     // Check to see if we need to remove the overall dict
     if (!userTokens.count)
     {
         [tokens removeObjectForKey:userId];
     }
-    
+
     return YES;
 }
 
@@ -352,7 +404,7 @@
     {
         return nil;
     }
-    
+
     NSMutableArray* itemsKept = [NSMutableArray new];
     for (ADTokenCacheItem* item in items)
     {
@@ -374,17 +426,17 @@
                 error:(ADAuthenticationError * __autoreleasing *)error
 {
     CHECK_ERROR([dict isKindOfClass:[NSDictionary class]], AD_ERROR_CACHE_BAD_FORMAT, @"Root level object of cache is not a NSDictionary!");
-    
+
     NSString* version = [dict objectForKey:@"version"];
     CHECK_ERROR(version, AD_ERROR_CACHE_BAD_FORMAT, @"Missing version number from cache.");
     CHECK_ERROR([version floatValue] <= CURRENT_WRAPPER_CACHE_VERSION, AD_ERROR_CACHE_VERSION_MISMATCH, @"Cache is a future unsupported version.");
-    
+
     NSDictionary* cache = [dict objectForKey:@"tokenCache"];
     CHECK_ERROR(cache, AD_ERROR_CACHE_BAD_FORMAT, @"Missing token cache from data.");
     CHECK_ERROR([cache isKindOfClass:[NSMutableDictionary class]], AD_ERROR_CACHE_BAD_FORMAT, @"Cache is not a dictionary!");
-    
+
     NSDictionary* tokens = [cache objectForKey:@"tokens"];
-    
+
     if (tokens)
     {
         CHECK_ERROR([tokens isKindOfClass:[NSMutableDictionary class]], AD_ERROR_CACHE_BAD_FORMAT, @"tokens must be a mutable dictionary.");
@@ -394,7 +446,7 @@
             CHECK_ERROR([userId isKindOfClass:[NSString class]], AD_ERROR_CACHE_BAD_FORMAT, @"User ID key is not of the expected class type");
             id userDict = [tokens objectForKey:userId];
             CHECK_ERROR([userDict isKindOfClass:[NSMutableDictionary class]], AD_ERROR_CACHE_BAD_FORMAT, @"User ID should have mutable dictionaries in the cache");
-            
+
             for (id adkey in userDict)
             {
                 // On the first level we're expecting NSDictionaries keyed off of ADTokenCacheStoreKey
@@ -404,7 +456,7 @@
             }
         }
     }
-    
+
     return YES;
 }
 
@@ -425,7 +477,7 @@
 {
     NSArray<ADTokenCacheItem *> * items = [self getItemsWithKey:key userId:userId correlationId:correlationId error:error];
     NSArray<ADTokenCacheItem *> * itemsExcludingTombstones = [self filterOutTombstones:items];
-    
+
     if (!itemsExcludingTombstones || itemsExcludingTombstones.count == 0)
     {
         for (ADTokenCacheItem* item in items)
@@ -436,12 +488,12 @@
         }
         return nil;
     }
-    
+
     if (itemsExcludingTombstones.count == 1)
     {
         return itemsExcludingTombstones.firstObject;
     }
-    
+
     ADAuthenticationError* adError =
     [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_CACHE_MULTIPLE_USERS
                                            protocolCode:nil
@@ -451,7 +503,7 @@
     {
         *error = adError;
     }
-    
+
     return nil;
 
 }
@@ -466,9 +518,16 @@
                   error:(ADAuthenticationError * __autoreleasing *)error
 {
     [_delegate willWriteCache:self];
+    int err = pthread_rwlock_wrlock(&_lock);
+    if (err != 0)
+    {
+        AD_LOG_ERROR(@"pthread_rwlock_wrlock failed in addOrUpdateItem", err, correlationId, nil);
+        return NO;
+    }
     BOOL result = [self addOrUpdateImpl:item correlationId:correlationId error:error];
+    pthread_rwlock_unlock(&_lock);
     [_delegate didWriteCache:self];
-    
+
     return result;
 }
 
@@ -485,19 +544,19 @@
         }
         return NO;
     }
-    
+
     // Copy the item to make sure it doesn't change under us.
     item = [item copy];
     SAFE_ARC_AUTORELEASE(item);
-    
+
     ADTokenCacheKey* key = [item extractKey:error];
     if (!key)
     {
         return NO;
     }
-    
+
     NSMutableDictionary* tokens = nil;
-    
+
     if (!_cache)
     {
         // If we don't have a cache that means we need to create one.
@@ -510,7 +569,7 @@
     {
         tokens = [_cache objectForKey:@"tokens"];
     }
-    
+
     // Grab the userId first
     id userId = item.userInformation.userId;
     if (!userId)
@@ -518,7 +577,7 @@
         // If we don't have one (ADFS case) then use an empty string
         userId = @"";
     }
-    
+
     // Grab the token dictionary for this user id.
     NSMutableDictionary* userDict = [tokens objectForKey:userId];
     if (!userDict)
@@ -527,7 +586,7 @@
         [tokens setObject:userDict forKey:userId];
         SAFE_ARC_RELEASE(userDict);
     }
-    
+
     [userDict setObject:item forKey:key];
     return YES;
 }
@@ -539,15 +598,20 @@
 {
     (void)error;
     (void)correlationId;
-    
-    @synchronized(self)
+
+    [_delegate willAccessCache:self];
+    int err = pthread_rwlock_rdlock(&_lock);
+    if (err != 0)
     {
-        [_delegate willAccessCache:self];
-        NSArray<ADTokenCacheItem *> * result = [self getItemsImplKey:key userId:userId];
-        [_delegate didAccessCache:self];
-        
-        return result;
+        AD_LOG_ERROR(@"pthread_rwlock_rdlock failed in getItemsWithKey", err, correlationId, nil);
+        return nil;
     }
+    NSArray<ADTokenCacheItem *> * result = [self getItemsImplKey:key userId:userId];
+    pthread_rwlock_unlock(&_lock);
+
+    [_delegate didAccessCache:self];
+
+    return result;
 }
 
 - (NSArray<ADTokenCacheItem *> *)allTombstones:(ADAuthenticationError * __autoreleasing *)error
