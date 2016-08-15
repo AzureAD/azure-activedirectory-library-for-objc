@@ -62,8 +62,11 @@ static NSUUID * _reqCorId(NSURLRequest* request)
 
 + (BOOL)registerProtocol:(NSString*)endURL
 {
-    s_endURL = endURL;
-    SAFE_ARC_RETAIN(s_endURL);
+    if (s_endURL!=endURL)
+    {
+        s_endURL = endURL;
+        SAFE_ARC_RETAIN(s_endURL);
+    }
     return [NSURLProtocol registerClass:self];
 }
 
@@ -208,8 +211,13 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     // Disallow HTTP for ADURLProtocol
     if ([request.URL.scheme isEqualToString:@"http"])
     {
+        if (!s_endURL)
+        {
+            return nil;
+        }
+        
         // end url is whitelisted regardless of the url format
-        if (s_endURL && ![[request.URL.absoluteString lowercaseString] hasPrefix:[s_endURL lowercaseString]])
+        if (![[request.URL.absoluteString lowercaseString] hasPrefix:[s_endURL lowercaseString]])
         {
             return nil;
         }
