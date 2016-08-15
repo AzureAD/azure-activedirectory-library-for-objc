@@ -41,6 +41,6 @@
 - (void)setGrantType:(NSString*)grantType;
 - (void)setAPIStatus:(NSString*)status;
 
-- (void)setAPIId:(NSString*)apiId;
+- (void)setApiId:(NSString*)apiId;
 
 @end

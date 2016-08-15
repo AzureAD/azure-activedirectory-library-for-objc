@@ -103,6 +103,7 @@
 - (void)setCorrelationId:(NSUUID*)correlationId;
 - (NSUUID*)correlationId;
 - (NSString*)telemetryRequestId;
+- (ADRequestParameters*)requestParams;
 #if AD_BROKER
 - (NSString*)redirectUri;
 - (void)setRedirectUri:(NSString*)redirectUri;

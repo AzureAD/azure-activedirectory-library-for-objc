@@ -296,6 +296,11 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
     return [_requestParams telemetryRequestId];
 }
 
+- (ADRequestParameters*)requestParams
+{
+    return _requestParams;
+}
+
 - (BOOL)takeUserInterationLock
 {
     return !dispatch_semaphore_wait(sInteractionInProgress, DISPATCH_TIME_NOW);

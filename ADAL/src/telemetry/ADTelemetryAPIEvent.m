@@ -105,7 +105,7 @@
     [self setProperty:@"api_status" value:status];
 }
 
-- (void)setAPIId:(NSString*)apiId
+- (void)setApiId:(NSString*)apiId
 {
     [self setProperty:@"api_id" value:apiId];
 }

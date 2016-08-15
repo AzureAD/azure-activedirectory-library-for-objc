@@ -324,8 +324,8 @@
     ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:@"http_request" requestId:_telemetryRequestId correlationId:_correlationId];
     
     [event setHttpMethod:_isGetRequest ? @"GET" : @"POST"];
-    [event setHttpPath:[NSString stringWithFormat:@"%@://%@/%@", _requestURL.scheme, _requestURL.host, _requestURL.path]];
-    [event setHttpRequestQueryParams:[_requestURL query]];
+    [event setHttpPath:[_requestURL absoluteString]];
+    [event setHttpRequestQueryParams:[[NSString alloc] initWithData:[self body] encoding:NSUTF8StringEncoding]];
     if (error)
     {
         [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
