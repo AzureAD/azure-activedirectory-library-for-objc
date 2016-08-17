@@ -104,7 +104,7 @@
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_lookup"
                                                                      requestId:[requestParams telemetryRequestId]
                                                                  correlationId:[requestParams correlationId]];
-    [event setTokenType:@"access token/refresh token"];
+    [event setTokenType:@"access token"];
     [event setStatus:item? @"succeeded" : @"failed"];
     [[ADTelemetry sharedInstance] stopEvent:[requestParams telemetryRequestId] event:event];
     SAFE_ARC_RELEASE(event);

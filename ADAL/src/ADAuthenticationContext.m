@@ -320,7 +320,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenWithAssertion:assertionType:resource:clientId:userId:completionBlock:"
                                                                      requestId:[request telemetryRequestId]
                                                                  correlationId:[request correlationId]];
-        [event setApiId:@"21"];
+        [event setApiId:@"6"];
         [self fillTelemetryForAcquireTokenCall:event request:request result:result];
         [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
         SAFE_ARC_RELEASE(event);
@@ -351,7 +351,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenWithResource:clientId:redirectUri:completionBlock:"
                                                                      requestId:[request telemetryRequestId]
                                                                  correlationId:[request correlationId]];
-        [event setApiId:@"121"];
+        [event setApiId:@"118"];
         [self fillTelemetryForAcquireTokenCall:event request:request result:result];
         [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
         SAFE_ARC_RELEASE(event);
@@ -383,7 +383,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenWithResource:clientId:redirectUri:userId:completionBlock:"
                                                                      requestId:[request telemetryRequestId]
                                                                  correlationId:[request correlationId]];
-        [event setApiId:@"122"];
+        [event setApiId:@"121"];
         [self fillTelemetryForAcquireTokenCall:event request:request result:result];
         [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
         SAFE_ARC_RELEASE(event);
@@ -418,7 +418,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenWithResource:clientId:redirectUri:userId:extraQueryParameters:completionBlock:"
                                                                      requestId:[request telemetryRequestId]
                                                                  correlationId:[request correlationId]];
-        [event setApiId:@"123"];
+        [event setApiId:@"124"];
         [self fillTelemetryForAcquireTokenCall:event request:request result:result];
         [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
         SAFE_ARC_RELEASE(event);
@@ -449,7 +449,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenSilentWithResource:clientId:redirectId:redirectUri:completionBlock:"
                                                                      requestId:[request telemetryRequestId]
                                                                  correlationId:[request correlationId]];
-        [event setApiId:@"22"];
+        [event setApiId:@"7"];
         [self fillTelemetryForAcquireTokenCall:event request:request result:result];
         [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
         SAFE_ARC_RELEASE(event);
@@ -482,7 +482,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenSilentWithResource:clientId:redirectId:redirectUri:userId:completionBlock:"
                                                                      requestId:[request telemetryRequestId]
                                                                  correlationId:[request correlationId]];
-        [event setApiId:@"23"];
+        [event setApiId:@"8"];
         [self fillTelemetryForAcquireTokenCall:event request:request result:result];
         [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
         SAFE_ARC_RELEASE(event);
@@ -518,7 +518,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenWithResource:clientId:redirectUri:promptBehavior:userId:extraQueryParameters:completionBlock:"
                                                                      requestId:[request telemetryRequestId]
                                                                  correlationId:[request correlationId]];
-        [event setApiId:@"124"];
+        [event setApiId:@"127"];
         [self fillTelemetryForAcquireTokenCall:event request:request result:result];
         [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
         SAFE_ARC_RELEASE(event);
@@ -554,7 +554,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquireTokenWithResource:clientId:redirectUri:promptBehavior:userIdentifier:extraQueryParameters:completionBlock:"
                                                                      requestId:[request telemetryRequestId]
                                                                  correlationId:[request correlationId]];
-        [event setApiId:@"125"];
+        [event setApiId:@"130"];
         [self fillTelemetryForAcquireTokenCall:event request:request result:result];
         [[ADTelemetry sharedInstance] stopEvent:[request telemetryRequestId] event:event];
         SAFE_ARC_RELEASE(event);
