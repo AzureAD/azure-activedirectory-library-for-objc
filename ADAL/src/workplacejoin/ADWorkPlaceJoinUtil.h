@@ -30,6 +30,4 @@
 + (ADRegistrationInformation*)getRegistrationInformation:(NSUUID *)correlationId
                                                    error:(ADAuthenticationError * __autoreleasing *)error;
 
-+ (NSString*)keychainTeamId;
-
 @end

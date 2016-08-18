@@ -118,7 +118,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
          else if (iOS9OrGreater)
          {
              NSString* typeEncoding = [NSString stringWithFormat:@"%s%s%s%s%s%s", @encode(BOOL), @encode(id), @encode(SEL), @encode(UIApplication*), @encode(NSURL*), @encode(NSDictionary<NSString*, id>*)];
-             class_addMethod([appDelegate class], sel, (IMP)__swizzle_ApplicationOpenURLiOS9, [typeEncoding UTF8String]);
+             class_addMethod([appDelegate class], seliOS9, (IMP)__swizzle_ApplicationOpenURLiOS9, [typeEncoding UTF8String]);
              
              // UIApplication caches whether or not the delegate responds to certain selectors. Clearing out the delegate and resetting it gaurantees that gets updated
              [[UIApplication sharedApplication] setDelegate:nil];
