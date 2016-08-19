@@ -67,7 +67,7 @@ static NSUUID * _reqCorId(NSURLRequest* request)
 {
     if (s_endURL!=endURL)
     {
-        s_endURL = endURL;
+        s_endURL = endURL.lowercaseString;
         SAFE_ARC_RETAIN(s_endURL);
     }
     return [NSURLProtocol registerClass:self];
@@ -222,16 +222,18 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     // Disallow HTTP for ADURLProtocol
     if ([request.URL.scheme isEqualToString:@"http"])
     {
-        if (!s_endURL)
+        if ([request.URL.absoluteString.lowercaseString hasPrefix:s_endURL])
         {
-            return nil;
+            // In this case we want to create an NSURLError so we can intercept the URL in the webview
+            // delegate, while still forcing the connection to cancel. This error is the same one the
+            // OS sends if it's unable to connect to the host
+            [connection cancel];
+            NSError* failingError = [NSError errorWithDomain:NSURLErrorDomain
+                                                        code:-1003
+                                                    userInfo:@{ NSURLErrorFailingURLErrorKey : request.URL }];
+            [self.client URLProtocol:self didFailWithError:failingError];
         }
-        
-        // end url is whitelisted regardless of the url format
-        if (![[request.URL.absoluteString lowercaseString] hasPrefix:[s_endURL lowercaseString]])
-        {
-            return nil;
-        }
+        return nil;
     }
     
     NSMutableURLRequest* mutableRequest = [request mutableCopy];

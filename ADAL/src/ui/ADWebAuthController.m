@@ -335,15 +335,6 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         return NO;
     }
     
-    // check for pkeyauth challenge.
-    if ([requestURL hasPrefix: pKeyAuthUrn])
-    {
-        // We still continue onwards from a pkeyauth challenge after it's handled, so the web auth flow
-        // is not complete yet.
-        [self handlePKeyAuthChallenge: requestURL];
-        return NO;
-    }
-    
     // Stop at the end URL.
     if ([[requestURL lowercaseString] hasPrefix:[_endURL lowercaseString]] ||
         [[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"])
@@ -419,16 +410,25 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     }
     
     // If we failed on an invalid URL check to see if it matches our end URL
-    if ([error.domain isEqualToString:@"NSURLErrorDomain"] && error.code == -1002)
+    if ([error.domain isEqualToString:@"NSURLErrorDomain"] && (error.code == -1002 || error.code == -1003))
     {
         NSURL* url = [error.userInfo objectForKey:NSURLErrorFailingURLErrorKey];
-        if ([[[url absoluteString] lowercaseString] hasPrefix:_endURL])
+        NSString* urlString = [url absoluteString];
+        if ([[urlString lowercaseString] hasPrefix:_endURL.lowercaseString])
         {
             _complete = YES;
             [self webAuthDidCompleteWithURL:url];
             return;
         }
         
+        // check for pkeyauth challenge.
+        if ([urlString hasPrefix:pKeyAuthUrn])
+        {
+            // We still continue onwards from a pkeyauth challenge after it's handled, so the web auth flow
+            // is not complete yet.
+            [self handlePKeyAuthChallenge:urlString];
+            return;
+        }
     }
 
     if (error)
