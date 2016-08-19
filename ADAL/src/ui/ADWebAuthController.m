@@ -417,6 +417,19 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     {
         return;
     }
+    
+    // If we failed on an invalid URL check to see if it matches our end URL
+    if ([error.domain isEqualToString:@"NSURLErrorDomain"] && error.code == -1002)
+    {
+        NSURL* url = [error.userInfo objectForKey:NSURLErrorFailingURLErrorKey];
+        if ([[[url absoluteString] lowercaseString] hasPrefix:_endURL])
+        {
+            _complete = YES;
+            [self webAuthDidCompleteWithURL:url];
+            return;
+        }
+        
+    }
 
     if (error)
     {
