@@ -53,7 +53,6 @@
     NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
                              (id)kSecAttrAccount : @"teamIDHint",
                              (id)kSecAttrService : @"",
-                             (id)kSecAttrAccessible : (id)kSecAttrAccessibleAlways,
                              (id)kSecReturnAttributes : @YES };
     CFDictionaryRef result = nil;
     
@@ -61,7 +60,9 @@
     
     if (status == errSecItemNotFound)
     {
-        status = SecItemAdd((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+        NSMutableDictionary* addQuery = [query mutableCopy];
+        [addQuery setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
+        status = SecItemAdd((__bridge CFDictionaryRef)addQuery, (CFTypeRef *)&result);
     }
     
     if (status != errSecSuccess)
