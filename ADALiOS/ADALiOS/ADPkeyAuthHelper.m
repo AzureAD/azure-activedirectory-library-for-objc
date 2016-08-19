@@ -1,30 +1,36 @@
-// Copyright © Microsoft Open Technologies, Inc.
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-// All Rights Reserved
+// This code is licensed under the MIT License.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-//
-// See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import "ADPkeyAuthHelper.h"
 #import <Foundation/Foundation.h>
 #import <CommonCrypto/CommonDigest.h>
 #import "ADRegistrationInformation.h"
 #import "NSString+ADHelperMethods.h"
-#import "ADWorkPlaceJoin.h"
+#import "ADWorkPlaceJoinUtil.h"
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
 #import "ADJwtHelper.h"
+#import "ADAuthenticationError.h"
 
 @implementation ADPkeyAuthHelper
 
@@ -61,10 +67,30 @@
 }
 
 
-+ (nonnull NSString*)createDeviceAuthResponse:(NSString*)authorizationServer
-                                challengeData:(NSDictionary*) challengeData
++ (nullable NSString*)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
+                                 challengeData:(nullable NSDictionary*)challengeData
+                                 correlationId:(nullable NSUUID *)correlationId
+                                         error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
-    ADRegistrationInformation *info = [[ADWorkPlaceJoin WorkPlaceJoinManager] getRegistrationInformation];
+    ADAuthenticationError* adError = nil;
+    ADRegistrationInformation *info =
+    [ADWorkPlaceJoinUtil getRegistrationInformation:correlationId
+                                              error:&adError];
+    
+    if (!info && adError)
+    {
+        // If some error ocurred other then "I found nothing in the keychain" we want to short circuit out of
+        // the rest of the code, but if there was no error, we still create a response header, even if we
+        // don't have registration info
+        AD_LOG_ERROR(@"Failed to create PKeyAuth request.", adError.code, nil);
+        
+        if (error)
+        {
+            *error = adError;
+        }
+        return nil;
+    }
+    
     
     if (!challengeData)
     {
@@ -85,7 +111,6 @@
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
                 AD_LOG_ERROR(@"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
-                [info releaseData];
                 info = nil;
             }
         }
@@ -94,7 +119,6 @@
             if (![NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]])
             {
                 AD_LOG_ERROR(@"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.", AD_ERROR_WPJ_REQUIRED, nil);
-                [info releaseData];
                 info = nil;
             }
         }
@@ -104,10 +128,11 @@
     if (info)
     {
         pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
-        
-        [info releaseData];
+        AD_LOG_INFO(@"Found WPJ Info and responded to PKeyAuth Request", nil);
         info = nil;
     }
+    
+    
     
     return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
 }
@@ -150,10 +175,15 @@
     return false;
 }
 
-+ (NSString *) createDeviceAuthResponse:(NSString*) audience
-                                  nonce:(NSString*) nonce
-                               identity:(ADRegistrationInformation *) identity{
-    
++ (NSString *)createDeviceAuthResponse:(NSString *)audience
+                                 nonce:(NSString *)nonce
+                              identity:(ADRegistrationInformation *)identity
+{
+    if (!audience || !nonce)
+    {
+        AD_LOG_ERROR(@"audience or nonce is nil in device auth request!", AD_ERROR_UNEXPECTED, nil);
+        return nil;
+    }
     NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];
     NSDictionary *header = @{
                              @"alg" : @"RS256",
@@ -168,69 +198,6 @@
                               };
     
     return [ADJwtHelper createSignedJWTforHeader:header payload:payload signingKey:[identity privateKey]];
-}
-
-+(NSData *) sign: (SecKeyRef) privateKey
-            data:(NSData *) plainData
-{
-    NSData* signedHash = nil;
-    size_t signedHashBytesSize = SecKeyGetBlockSize(privateKey);
-    uint8_t* signedHashBytes = malloc(signedHashBytesSize);
-    if(!signedHashBytes){
-        return nil;
-    }
-    
-    memset(signedHashBytes, 0x0, signedHashBytesSize);
-    
-    size_t hashBytesSize = CC_SHA256_DIGEST_LENGTH;
-    uint8_t* hashBytes = malloc(hashBytesSize);
-    if(!hashBytes){
-        free(signedHashBytes);
-        return nil;
-    }
-    
-    if (!CC_SHA256([plainData bytes], (CC_LONG)[plainData length], hashBytes)) {
-        [ADLogger log:ADAL_LOG_LEVEL_ERROR message:@"Could not compute SHA265 hash." errorCode:AD_ERROR_UNEXPECTED info:nil ];
-        if (hashBytes)
-            free(hashBytes);
-        if (signedHashBytes)
-            free(signedHashBytes);
-        return nil;
-    }
-    
-    OSStatus status = SecKeyRawSign(privateKey,
-                                    kSecPaddingPKCS1SHA256,
-                                    hashBytes,
-                                    hashBytesSize,
-                                    signedHashBytes,
-                                    &signedHashBytesSize);
-    
-    [ADLogger log:ADAL_LOG_LEVEL_INFO message:@"Status returned from data signing - " errorCode:status info:nil ];
-    signedHash = [NSData dataWithBytes:signedHashBytes
-                                length:(NSUInteger)signedHashBytesSize];
-    
-    if (hashBytes) {
-        free(hashBytes);
-    }
-    
-    if (signedHashBytes) {
-        free(signedHashBytes);
-    }
-    return signedHash;
-}
-
-+ (NSString *) createJSONFromDictionary:(NSDictionary *) dictionary{
-    
-    NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary
-                                                       options:NSJSONWritingPrettyPrinted
-                                                         error:&error];
-    if (! jsonData) {
-        [ADLogger log:ADAL_LOG_LEVEL_ERROR message:[NSString stringWithFormat:@"Got an error: %@",error] errorCode:error.code info:nil ];
-    } else {
-        return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    }
-    return nil;
 }
 
 @end

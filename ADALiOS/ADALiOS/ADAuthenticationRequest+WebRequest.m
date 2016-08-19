@@ -24,7 +24,7 @@
 #import "ADWebResponse.h"
 #import "ADPkeyAuthHelper.h"
 #import "ADAuthenticationSettings.h"
-#import "ADAuthenticationBroker.h"
+#import "ADWebAuthController+Internal.h"
 #import "ADHelpers.h"
 #import "NSURL+ADExtensions.h"
 #import "ADUserIdentifier.h"
@@ -381,14 +381,14 @@ static volatile int sDialogInProgress = 0;
 - (void)launchWebView:(NSString*)startUrl
       completionBlock:(void (^)(ADAuthenticationError*, NSURL*))completionBlock
 {
-    [[ADAuthenticationBroker sharedInstance] start:[NSURL URLWithString:startUrl]
-                                               end:[NSURL URLWithString:_redirectUri]
-                            refreshTokenCredential:_refreshTokenCredential
-                                  parentController:_context.parentController
-                                           webView:_context.webView
-                                        fullScreen:[ADAuthenticationSettings sharedInstance].enableFullScreen
-                                     correlationId:_correlationId
-                                        completion:completionBlock];
+    [[ADWebAuthController sharedInstance] start:[NSURL URLWithString:startUrl]
+                                            end:[NSURL URLWithString:_redirectUri]
+                                    refreshCred:_refreshTokenCredential
+                                         parent:_context.parentController
+                                     fullScreen:[ADAuthenticationSettings sharedInstance].enableFullScreen
+                                        webView:_context.webView
+                                  correlationId:_correlationId
+                                     completion:completionBlock];
 }
 
 //Requests an OAuth2 code to be used for obtaining a token:
@@ -536,7 +536,9 @@ static volatile int sDialogInProgress = 0;
     }
     
     NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer
-                                                        challengeData:authHeaderParams];
+                                                        challengeData:authHeaderParams
+                                                        correlationId:_correlationId
+                                                                error:nil];
     
     NSDictionary* additionalHeaders = @{ @"Authorization" : authHeader };
 

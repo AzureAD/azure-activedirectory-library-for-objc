@@ -21,25 +21,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "ADRegistrationInformation.h"
-
 @class ADAuthenticationError;
 
-typedef enum
-{
-    AD_ISSUER,
-    AD_THUMBPRINT,
-} ADChallengeType;
+#import "ADAuthenticationContext.h"
+#import "ADWebAuthController.h"
 
-@interface ADPkeyAuthHelper : NSObject
+typedef void (^ADBrokerCallback)(ADAuthenticationError* error, NSURL*);
+@interface ADWebAuthController (Internal)
 
-+ (nullable NSString*)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
-                                 challengeData:(nullable NSDictionary*)challengeData
-                                 correlationId:(nullable NSUUID *)correlationId
-                                         error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
++ (ADWebAuthController *)sharedInstance;
 
-+ (nonnull NSString*)computeThumbprint:(nonnull NSData*)data
-                                isSha2:(BOOL)isSha2;
+// Start the authentication process. Note that there are two different behaviours here dependent on whether the caller has provided
+// a WebView to host the browser interface. If no WebView is provided, then a full window is launched that hosts a WebView to run
+// the authentication process.
+- (void)start:(NSURL *)startURL
+          end:(NSURL *)endURL
+  refreshCred:(NSString *)refreshCred
+#if TARGET_OS_IPHONE
+       parent:(UIViewController *)parent
+   fullScreen:(BOOL)fullScreen
+#endif
+      webView:(WebViewType*)webView
+correlationId:(NSUUID*)correlationId
+   completion:(ADBrokerCallback)completionBlock;
+
+//Cancel the web authentication session which might be happening right now
+//Note that it only works if there's an active web authentication session going on
+- (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError *)error;
+
+#if TARGET_OS_IPHONE
++ (void)setInterruptedBrokerResult:(ADAuthenticationResult*)result;
+#endif // TARGET_OS_IPHONE
 
 @end

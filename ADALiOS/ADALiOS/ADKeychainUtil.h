@@ -22,24 +22,9 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "ADRegistrationInformation.h"
 
-@class ADAuthenticationError;
+@interface ADKeychainUtil : NSObject
 
-typedef enum
-{
-    AD_ISSUER,
-    AD_THUMBPRINT,
-} ADChallengeType;
-
-@interface ADPkeyAuthHelper : NSObject
-
-+ (nullable NSString*)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
-                                 challengeData:(nullable NSDictionary*)challengeData
-                                 correlationId:(nullable NSUUID *)correlationId
-                                         error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
-
-+ (nonnull NSString*)computeThumbprint:(nonnull NSData*)data
-                                isSha2:(BOOL)isSha2;
++ (NSString*)keychainTeamId:(ADAuthenticationError* __autoreleasing *)error;
 
 @end

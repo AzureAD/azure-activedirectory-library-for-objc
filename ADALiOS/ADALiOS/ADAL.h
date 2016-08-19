@@ -26,7 +26,7 @@
 #import "ADUserInformation.h"
 #import "ADTokenCacheStoreKey.h"
 #import "ADAuthenticationSettings.h"
-#import "ADAuthenticationBroker.h"
+#import "ADWebAuthController.h"
 #import "ADErrorCodes.h"
 #import "ADAuthenticationParameters.h"
 #import "ADUserIdentifier.h"

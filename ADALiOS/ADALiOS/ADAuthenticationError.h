@@ -63,5 +63,10 @@ extern NSString* const ADBrokerResponseErrorDomain;
 /*! Generates an error from cancel operations. E.g. the user pressed "Cancel" button
  on the authorization UI page. */
 + (ADAuthenticationError*)errorFromCancellation;
++ (ADAuthenticationError*)errorFromNonHttpsRedirect;
+
++ (ADAuthenticationError *)keychainErrorFromOperation:(NSString *)operation
+                                               status:(OSStatus)status
+                                        correlationId:(NSUUID *)correlationId;;
 
 @end
