@@ -30,6 +30,9 @@
 static NSMutableDictionary* s_handlers = nil;
 static NSString* s_endURL = nil;
 
+static NSString* kADURLProtocolPropertyKey = @"ADURLProtocol";
+
+
 static NSUUID * _reqCorId(NSURLRequest* request)
 {
     return [NSURLProtocol propertyForKey:@"correlationId" inRequest:request];
@@ -64,7 +67,7 @@ static NSUUID * _reqCorId(NSURLRequest* request)
 {
     if (s_endURL!=endURL)
     {
-        s_endURL = endURL;
+        s_endURL = endURL.lowercaseString;
         SAFE_ARC_RETAIN(s_endURL);
     }
     return [NSURLProtocol registerClass:self];
@@ -99,17 +102,25 @@ static NSUUID * _reqCorId(NSURLRequest* request)
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
+    // If we've already handled this request, don't pick it up again
+    if ([NSURLProtocol propertyForKey:kADURLProtocolPropertyKey inRequest:request])
+    {
+        return NO;
+    }
+    
     //TODO: Experiment with filtering of the URL to ensure that this class intercepts only
     //ADAL initiated webview traffic, INCLUDING redirects. This may have issues, if requests are
     //made from javascript code, instead of full page redirection. As such, I am intercepting
     //all traffic while authorization webview session is displayed for now.
-    if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"] )
+    if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"])
     {
+        
+        AD_LOG_VERBOSE_F(@"+[ADURLProtocol canInitWithRequest:] handling host", _reqCorId(request), @"host: %@", [request.URL host]);
         //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checking
         //for initialization
         if (![NSURLProtocol propertyForKey:@"ADURLProtocol" inRequest:request])
         {
-            AD_LOG_VERBOSE_F(@"+[ADURLProtocol canInitWithRequest:] handling host", _reqCorId(request), @"host: %@", [request.URL host]);
+            
 
             return YES;
         }
@@ -147,7 +158,7 @@ static NSUUID * _reqCorId(NSURLRequest* request)
         [ADURLProtocol addCorrelationId:_correlationId toRequest:request];
     }
     
-    [NSURLProtocol setProperty:@YES forKey:@"ADURLProtocol" inRequest:request];
+    [NSURLProtocol setProperty:@YES forKey:kADURLProtocolPropertyKey inRequest:request];
     
     SAFE_ARC_RELEASE(_connection);
     _connection = [[NSURLConnection alloc] initWithRequest:request
@@ -202,36 +213,38 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 
 #pragma mark - NSURLConnectionDataDelegate Methods
 
-- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response
+- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse
 {
     (void)connection;
     
-    AD_LOG_VERBOSE_F(@"-[ADURLProtocol connection:willSendRequest:]", _correlationId, @"Redirect response: %@. New request:%@", response.URL, request.URL);
+    AD_LOG_VERBOSE_F(@"-[ADURLProtocol connection:willSendRequest:]", _correlationId, @"Redirect response: %@. New request:%@", redirectResponse.URL, request.URL);
     
     // Disallow HTTP for ADURLProtocol
     if ([request.URL.scheme isEqualToString:@"http"])
     {
-        if (!s_endURL)
+        if ([request.URL.absoluteString.lowercaseString hasPrefix:s_endURL])
         {
-            return nil;
+            // In this case we want to create an NSURLError so we can intercept the URL in the webview
+            // delegate, while still forcing the connection to cancel. This error is the same one the
+            // OS sends if it's unable to connect to the host
+            [connection cancel];
+            NSError* failingError = [NSError errorWithDomain:NSURLErrorDomain
+                                                        code:-1003
+                                                    userInfo:@{ NSURLErrorFailingURLErrorKey : request.URL }];
+            [self.client URLProtocol:self didFailWithError:failingError];
         }
-        
-        // end url is whitelisted regardless of the url format
-        if (![[request.URL.absoluteString lowercaseString] hasPrefix:[s_endURL lowercaseString]])
-        {
-            return nil;
-        }
+        return nil;
     }
     
     NSMutableURLRequest* mutableRequest = [request mutableCopy];
     SAFE_ARC_AUTORELEASE(mutableRequest);
     
-    //it is a redirect if response is not nil (otherwise this method is called because of URL canonicalization)
-    if (response)
+    if (redirectResponse)
     {
-        [[self class] removePropertyForKey:@"ADURLProtocol" inRequest:mutableRequest];
-        [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
+        // If we're being redirected by the server that will create a whole new connection that we still need to observe
+        [NSURLProtocol removePropertyForKey:kADURLProtocolPropertyKey inRequest:mutableRequest];
     }
+    
     [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
     [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
     
