@@ -39,4 +39,11 @@
 #include "../../../aad_overrides.h"
 #endif
 
+#define SAFE_ARC_RELEASE(_x)
+#define SAFE_ARC_RETAIN(_x)
+#define SAFE_ARC_AUTORELEASE(_x)
+#define SAFE_ARC_SUPER_DEALLOC()
+
+#include "ADALiOS.h"
+
 #endif

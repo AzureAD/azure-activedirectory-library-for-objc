@@ -26,7 +26,6 @@
 @property (nonatomic, readonly) NSString *certificateIssuer;
 @property (nonatomic, readonly) NSData *certificateData;
 @property (nonatomic, readonly) SecKeyRef privateKey;
-@property (nonatomic, readonly) NSData *privateKeyData;
 @property (nonatomic, readonly) NSString *userPrincipalName;
 
 -(id)initWithSecurityIdentity:(SecIdentityRef)identity
@@ -35,8 +34,7 @@
                   certificate:(SecCertificateRef)certificate
            certificateSubject:(NSString*)certificateSubject
               certificateData:(NSData*)certificateData
-                   privateKey:(SecKeyRef)privateKey
-               privateKeyData:(NSData*)privateKeyData;
+                   privateKey:(SecKeyRef)privateKey;
 
 -(BOOL) isWorkPlaceJoined;
 

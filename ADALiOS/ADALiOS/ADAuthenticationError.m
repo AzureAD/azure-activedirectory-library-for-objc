@@ -23,10 +23,12 @@ NSString* const ADAuthenticationErrorDomain = @"ADAuthenticationErrorDomain";
 NSString* const ADInvalidArgumentDomain = @"ADAuthenticationErrorDomain";
 NSString* const ADUnauthorizedResponseErrorDomain = @"ADUnauthorizedResponseErrorDomain";
 NSString* const ADBrokerResponseErrorDomain = @"ADBrokerResponseErrorDomain";
+NSString* const ADKeychainErrorDomain = @"ADKeychainErrorDomain";
 
 NSString* const ADInvalidArgumentMessage = @"The argument '%@' is invalid. Value:%@";
 
 NSString* const ADCancelError = @"The user has cancelled the authorization.";
+NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-https url.";
 
 @implementation ADAuthenticationError
 
@@ -180,5 +182,25 @@ NSString* const ADCancelError = @"The user has cancelled the authorization.";
                                                   errorDetails:ADCancelError];
 }
 
++ (ADAuthenticationError*)errorFromNonHttpsRedirect
+{
+    return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NON_HTTPS_REDIRECT
+                                                  protocolCode:nil
+                                                  errorDetails:ADNonHttpsRedirectError];
+}
+
++ (ADAuthenticationError *)keychainErrorFromOperation:(NSString *)operation
+                                               status:(OSStatus)status
+                                        correlationId:(NSUUID *)correlationId
+{
+    (void)correlationId;
+    NSString* details = [NSString stringWithFormat:@"Keychain failed during \"%@\" operation", operation];
+    
+    return [self errorWithDomainInternal:ADKeychainErrorDomain
+                                    code:status
+                       protocolErrorCode:nil
+                            errorDetails:details
+                                userInfo:nil];
+};
 
 @end

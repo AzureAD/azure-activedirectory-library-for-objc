@@ -27,7 +27,6 @@
 @synthesize certificateData = _certificateData;
 @synthesize certificateIssuer = _certificateIssuer;
 @synthesize privateKey = _privateKey;
-@synthesize privateKeyData = _privateKeyData;
 
 -(id)initWithSecurityIdentity:(SecIdentityRef)identity
             userPrincipalName:(NSString*)userPrincipalName
@@ -36,7 +35,6 @@
            certificateSubject:(NSString*)certificateSubject
               certificateData:(NSData*)certificateData
                    privateKey:(SecKeyRef)privateKey
-               privateKeyData:(NSData *)privateKeyData
 
 {
     self = [super init];
@@ -48,7 +46,6 @@
         _certificateSubject = certificateSubject;
         _certificateData = certificateData;
         _privateKey = privateKey;
-        _privateKeyData = privateKeyData;
         _certificateIssuer = certificateIssuer;
         return self;
     }

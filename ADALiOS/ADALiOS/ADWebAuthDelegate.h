@@ -21,25 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "ADRegistrationInformation.h"
+@protocol ADWebAuthDelegate <NSObject>
 
-@class ADAuthenticationError;
-
-typedef enum
-{
-    AD_ISSUER,
-    AD_THUMBPRINT,
-} ADChallengeType;
-
-@interface ADPkeyAuthHelper : NSObject
-
-+ (nullable NSString*)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
-                                 challengeData:(nullable NSDictionary*)challengeData
-                                 correlationId:(nullable NSUUID *)correlationId
-                                         error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error;
-
-+ (nonnull NSString*)computeThumbprint:(nonnull NSData*)data
-                                isSha2:(BOOL)isSha2;
+@required
+- (void)webAuthDidCancel;
+- (void)webAuthDidStartLoad:(NSURL*)url;
+- (void)webAuthDidFinishLoad:(NSURL*)url;
+- (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest*)request;
+- (void)webAuthDidCompleteWithURL:(NSURL *)endURL;
+- (void)webAuthDidFailWithError:(NSError *)error;
 
 @end

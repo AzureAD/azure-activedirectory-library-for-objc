@@ -17,8 +17,7 @@
 // governing permissions and limitations under the License.
 #import "ADALiOS.h"
 #import "ADKeyChainHelper.h"
-#import "ADKeyChainHelper.h"
-#import "ADWorkPlaceJoinUtil.h"
+#import "ADKeychainUtil.h"
 
 extern NSString* const sKeyChainlog;
 
@@ -49,7 +48,15 @@ extern NSString* const sKeyChainlog;
     _classValue = classValue;
     _genericValue = generic;
     if(sharedGroup){
-        _sharedGroup = [NSString stringWithFormat:@"%@.%@", [[ADWorkPlaceJoinUtil WorkPlaceJoinUtilManager]  getApplicationIdentifierPrefix], sharedGroup];
+        NSString* teamId = [ADKeychainUtil keychainTeamId:nil];
+        if (teamId)
+        {
+            _sharedGroup = [NSString stringWithFormat:@"%@.%@", teamId, sharedGroup];
+        }
+        else
+        {
+            _sharedGroup = sharedGroup;
+        }
     }
     return self;
 }

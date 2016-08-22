@@ -1,35 +1,116 @@
-// Copyright © Microsoft Open Technologies, Inc.
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-// All Rights Reserved
+// This code is licensed under the MIT License.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-//
-// See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
-#import "ADAuthenticationDelegate.h"
-#import "ADAuthenticationWebViewController.h"
+#import "ADWebAuthDelegate.h"
 #import "ADAuthenticationViewController.h"
 #import "ADLogger.h"
+//#import "ADALFrameworkUtils.h"
+#import "UIApplication+ADExtensions.h"
+#import "ADLogger+Internal.h"
+#import "ADAuthenticationError.h"
+#import "ADErrorCodes.h"
 
-@interface ADAuthenticationViewController ( ) <ADAuthenticationDelegate, UIWebViewDelegate>
+NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a current ViewController";
+
+@interface ADAuthenticationViewController ( ) <UIWebViewDelegate>
+{
+    UIActivityIndicatorView* _activityIndicator;
+    UINavigationController* _navController;
+}
+
 @end
 
 @implementation ADAuthenticationViewController
-{
-    ADAuthenticationWebViewController *_webAuthenticationWebViewController;
 
-    BOOL        _loading;
-    NSTimer*    _loadingTimer;
+- (void)loadView
+{
+    [self loadView:nil];
+}
+
+- (BOOL)loadView:(ADAuthenticationError * __autoreleasing *)error
+{
+    // If we already have a webview then we assume it's already being displayed and just need to
+    // hijack the delegate on the webview.
+    if (_webView)
+    {
+        _webView.delegate = self;
+        return YES;
+    }
+    
+    if (!_parentController)
+    {
+        _parentController = [UIApplication adCurrentViewController];
+    }
+    
+    if (!_parentController)
+    {
+        // Must have a parent view controller to start the authentication view
+        ADAuthenticationError* adError =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_NO_MAIN_VIEW_CONTROLLER
+                                               protocolCode:nil
+                                               errorDetails:AD_FAILED_NO_CONTROLLER];
+        
+        if (error)
+        {
+            *error = adError;
+        }
+        return NO;
+    }
+    
+    UIView* rootView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    [rootView setAutoresizesSubviews:YES];
+    [rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+    UIWebView* webView = [[UIWebView alloc] initWithFrame:rootView.frame];
+    [webView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+    [webView setDelegate:self];
+    [rootView addSubview:webView];
+    _webView = webView;
+    
+    _activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    [_activityIndicator setColor:[UIColor blackColor]];
+    [_activityIndicator setCenter:rootView.center];
+    [rootView addSubview:_activityIndicator];
+    
+    self.view = rootView;
+    
+    _navController = [[UINavigationController alloc] init];
+    _navController.navigationBar.hidden = NO;
+    
+    UIBarButtonItem* cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                  target:self
+                                                                                  action:@selector(onCancel:)];
+    self.navigationItem.leftBarButtonItem = cancelButton;
+    [_navController pushViewController:self animated:NO];
+    
+    return YES;
+}
+
+/*! set webview's delegate to nil when the view controller
+ is deallocated, or it might crash ADAL. */
+-(void)dealloc
+{
+    [_webView setDelegate:nil];
+    _webView = nil;
 }
 
 #pragma mark - UIViewController Methods
@@ -37,8 +118,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    _loading   = NO;
     
     if ( (NSUInteger)[[[UIDevice currentDevice] systemVersion] doubleValue] < 7)
     {
@@ -68,65 +147,55 @@
 - (IBAction)onCancel:(id)sender
 {
 #pragma unused(sender)
-    
-    [self webAuthenticationDidCancel];
+    [_delegate webAuthDidCancel];
 }
 
 // Fired 2 seconds after a page loads starts to show waiting indicator
-- (void)onStartActivityIndicator:(id)sender
-{
-#pragma unused(sender)
-    
-    if ( _loading )
-        [_activityIndicator startAnimating];
-}
 
-// Launches the UIWebView with a start URL. The UIWebView is halted when a
-// prefix of the end URL is reached.
-- (BOOL)startWithURL:(NSURL *)startURL
-            endAtURL:(NSURL *)endURL
+- (void)stop:(void (^)(void))completion
 {
-    _webAuthenticationWebViewController = [[ADAuthenticationWebViewController alloc] initWithWebView:_webView startAtURL:startURL endAtURL:endURL];
-    
-    if ( _webAuthenticationWebViewController )
+    //if webview is created by us, dismiss and then complete and return;
+    //otherwise just complete and return.
+    if (_parentController)
     {
-        // Delegate set up: this object is the delegate for the ADAuthenticationWebViewController,
-        // and the controller will have established itself as the delegate for the UIWebView. However,
-        // this object also wants events from the UIWebView to control the activity indicator so we
-        // hijack the delegate here and forward events as they are seen in this object.
-        _webAuthenticationWebViewController.delegate = self;
-        _webView.delegate                            = self;
-        
-        [_webAuthenticationWebViewController start];
-        return YES;
+        [_parentController dismissViewControllerAnimated:YES completion:completion];
     }
     else
     {
-        return NO;
+        completion();
     }
+    
+    _parentController = nil;
+    _delegate = nil;
 }
 
-#pragma mark - ADAuthenticationDelegate
-
-- (void)webAuthenticationDidCancel
+- (void)startRequest:(NSURLRequest *)request
 {
-    [_webAuthenticationWebViewController stop];
-    NSAssert( nil != _delegate, @"Delegate object was lost" );
-    [_delegate webAuthenticationDidCancel];
+    [self loadRequest:request];
+    
+    if (_fullScreen)
+    {
+        [_navController setModalPresentationStyle:UIModalPresentationFullScreen];
+    }
+    else
+    {
+        [_navController setModalPresentationStyle:UIModalPresentationFormSheet];
+    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_parentController presentViewController:_navController animated:YES completion:nil];
+    });
 }
 
-- (void)webAuthenticationDidCompleteWithURL:(NSURL *)endURL
+- (void)loadRequest:(NSURLRequest*)request
 {
-    [_webAuthenticationWebViewController stop];
-    NSAssert( nil != _delegate, @"Delegate object was lost" );
-    [_delegate webAuthenticationDidCompleteWithURL:endURL];
+    [_webView loadRequest:request];
 }
 
-- (void)webAuthenticationDidFailWithError:(NSError *)error
+- (void)startSpinner
 {
-    [_webAuthenticationWebViewController stop];
-    NSAssert( nil != _delegate, @"Delegate object was lost" );
-    [_delegate webAuthenticationDidFailWithError:error];
+    [_activityIndicator setHidden:NO];
+    [_activityIndicator startAnimating];
 }
 
 #pragma mark - UIWebViewDelegate Protocol
@@ -137,60 +206,32 @@
 #pragma unused(navigationType)
     
     // Forward to the UIWebView controller
-    return [_webAuthenticationWebViewController webView:webView shouldStartLoadWithRequest:request navigationType:navigationType];
+    return [_delegate webAuthShouldStartLoadRequest:request];
 }
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
-
-    // Start the activity indicator after 2 second delay
-    if (!_loading)
-    {
-        _loading = YES;
-        _loadingTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
-                                                         target:self
-                                                       selector:@selector(onStartActivityIndicator:)
-                                                       userInfo:nil
-                                                        repeats:NO];
-    }
     
-    
-    // Forward to the UIWebView controller
-    [_webAuthenticationWebViewController webViewDidStartLoad:webView];
+    [_delegate webAuthDidStartLoad:webView.request.URL];
 }
 
 - (void)stopSpinner
 {
-    if (!_loading)
-        return;
-    
-    _loading = NO;
-    if (_loadingTimer)
-    {
-        [_loadingTimer invalidate];
-        _loadingTimer = nil;
-    }
-    
+    [_activityIndicator setHidden:YES];
     [_activityIndicator stopAnimating];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
 #pragma unused(webView)
-    [self stopSpinner];
-    
-    // Forward to the UIWebView controller
-    [_webAuthenticationWebViewController webViewDidFinishLoad:webView];
+    [_delegate webAuthDidFinishLoad:webView.request.URL];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
 #pragma unused(webView)
-    [self stopSpinner];
-    
-    // Forward to the UIWebView controller
-    [_webAuthenticationWebViewController webView:webView didFailLoadWithError:error];
+    [_delegate webAuthDidFailWithError:error];
 }
 
 @end

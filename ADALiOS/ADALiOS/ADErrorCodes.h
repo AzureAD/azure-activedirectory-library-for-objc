@@ -110,6 +110,12 @@ typedef enum
     /*! The redirect URI cannot be used for invoking broker. */
     AD_ERROR_INVALID_REDIRECT_URI = 23,
     
+    /*! The error code was not sent to us due to an older version of the broker */
+    AD_ERROR_BROKER_UNKNOWN = 24,
+    
+    /*! Server redirects authentication process to a non-https url */
+    AD_ERROR_NON_HTTPS_REDIRECT = 25
+    
 } ADErrorCode;
 
 /* HTTP status codes used by the library */
