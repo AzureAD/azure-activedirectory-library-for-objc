@@ -160,10 +160,15 @@ static NSUUID* s_requestCorrelationId;
   errorCode:(NSInteger)code
      format:(NSString*)format, ...
 {
-    va_list args;
-    va_start(args, format);
-    NSString* info = [[NSString alloc] initWithFormat:format arguments:args];
-    va_end(args);
+    NSString* info = nil;
+    
+    if (format)
+    {
+        va_list args;
+        va_start(args, format);
+        NSString* info = [[NSString alloc] initWithFormat:format arguments:args];
+        va_end(args);
+    }
     
     [self log:level message:message errorCode:code info:info];
 }
