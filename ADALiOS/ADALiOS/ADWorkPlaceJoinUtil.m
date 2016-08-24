@@ -75,7 +75,7 @@ goto _error; \
     
     
     
-    AD_LOG_VERBOSE_F(@"Attempting to get registration information - ", nil, @"%@ shared access Group", sharedAccessGroup);
+    AD_LOG_VERBOSE_F(@"Attempting to get registration information - ", @"%@ shared access Group", sharedAccessGroup);
     
     SecIdentityRef identity = NULL;
     SecCertificateRef certificate = NULL;
