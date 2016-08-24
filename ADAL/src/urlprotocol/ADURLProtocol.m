@@ -238,7 +238,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     
     NSMutableURLRequest* mutableRequest = [request mutableCopy];
     SAFE_ARC_AUTORELEASE(mutableRequest);
-    
+     
     if (redirectResponse)
     {
         // If we're being redirected by the server that will create a whole new connection that we still need to observe
@@ -247,7 +247,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     
     [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
     [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
-    
+    [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:redirectResponse];
     return mutableRequest;
 }
 

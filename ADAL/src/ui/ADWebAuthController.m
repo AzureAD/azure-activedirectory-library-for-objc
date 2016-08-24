@@ -361,6 +361,15 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         return NO;
     }
     
+    // check for pkeyauth challenge.
+    if ([requestURL hasPrefix:pKeyAuthUrn])
+    {
+        // We still continue onwards from a pkeyauth challenge after it's handled, so the web auth flow
+        // is not complete yet.
+        [self handlePKeyAuthChallenge:requestURL];
+        return NO;
+    }
+    
     // redirecting to non-https url is not allowed
     if (![[[request.URL scheme] lowercaseString] isEqualToString:@"https"])
     {
