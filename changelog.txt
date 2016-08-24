@@ -1,3 +1,8 @@
+Version 2.2.4 (08.23.2016)
+-------------
+* Fixed an issue caused with some redirects where the webview would not update the base URL properly.
+
+
 Version 2.2.3 (08.22.2016)
 -------------
 * Fixed an issue where federated endpoints redirecting to URLs that would trigger URL canonicalization would cause ADAL to go to that endpoint twice. This was causing some non-ADFS federated endpoints to fail.

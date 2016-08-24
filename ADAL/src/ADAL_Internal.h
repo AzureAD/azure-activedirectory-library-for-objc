@@ -29,7 +29,7 @@
 
 #define STR_ADAL_VER_HIGH   "2"
 #define STR_ADAL_VER_LOW    "2"
-#define STR_ADAL_VER_PATCH  "3"
+#define STR_ADAL_VER_PATCH  "4"
 
 // Framework versions only support high and low for the double value, sadly.
 #define ADAL_VERSION_NUMBER 2.2
@@ -40,7 +40,7 @@
 #define ADAL_VERSION_(high, low, patch) adalVersion_ ## high ## _ ## low ## _ ## patch
 
 // This is specially crafted so the name of the variable matches the full ADAL version
-#define ADAL_VERSION_VAR ADAL_VERSION_(2, 2, 2)
+#define ADAL_VERSION_VAR ADAL_VERSION_(2, 2, 4)
 
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"
