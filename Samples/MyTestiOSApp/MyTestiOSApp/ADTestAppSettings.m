@@ -150,6 +150,7 @@ static NSUInteger s_currentProfileIdx = 0;
 - (void)setProfileFromIndex:(NSInteger)idx
 {
     NSString* title = [s_profileTitles objectAtIndex:idx];
+    s_currentProfileIdx = idx;
     NSDictionary* settings = [s_additionalProfiles objectForKey:title];
     if (!settings)
     {
