@@ -2569,7 +2569,7 @@
 		};
 		D61001021D3984F00087AB81 /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */;
+			baseConfigurationReference = D61001581D398A560087AB81 /* adal__ios__app_extension__framework.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
@@ -2601,7 +2601,7 @@
 		};
 		D61001031D3984F00087AB81 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */;
+			baseConfigurationReference = D61001581D398A560087AB81 /* adal__ios__app_extension__framework.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
