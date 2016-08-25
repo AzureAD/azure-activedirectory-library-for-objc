@@ -32,14 +32,14 @@ extern NSString* ADTestAppCacheChangeNotification;
 @property NSURL* redirectUri;
 @property NSString* clientId;
 @property NSString* resource;
+@property NSString* defaultUser;
 
 + (ADTestAppSettings*)settings;
-
-+ (NSDictionary*)profiles;
-+ (NSArray*)profileTitles;
++ (NSUInteger)numberOfProfiles;
++ (NSString*)profileTitleForIndex:(NSUInteger)idx;
 + (NSString*)currentProfileTitle;
++ (NSUInteger)currentProfileIdx;
 
-
-- (void)setFromDictionary:(NSDictionary*)settings;
+- (void)setProfileFromIndex:(NSInteger)idx;
 
 @end
