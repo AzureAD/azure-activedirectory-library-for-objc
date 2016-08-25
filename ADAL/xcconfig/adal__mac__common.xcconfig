@@ -4,9 +4,8 @@
 
 #include "adal__common.xcconfig"
 
-ARCHS = i386 x86_64;
-CLANG_ENABLE_OBJC_ARC = NO;
-CLANG_ENABLE_OBJC_ARC[arch=x86_64] = YES;
-MACOSX_DEPLOYMENT_TARGET = 10.10;
-
-LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+ARCHS = i386 x86_64
+CLANG_ENABLE_OBJC_ARC = NO
+CLANG_ENABLE_OBJC_ARC[arch=x86_64] = YES
+LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/../Frameworks @loader_path/Frameworks
+MACOSX_DEPLOYMENT_TARGET = 10.10
