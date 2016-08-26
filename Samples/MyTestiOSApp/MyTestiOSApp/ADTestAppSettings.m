@@ -23,10 +23,26 @@
 
 #import "ADTestAppSettings.h"
 
+#if __has_include("ADAdditionalTestAppSettings.h")
+#include "ADAdditionalTestAppSettings.h"
+#else
+// If you put a header file at ~/aadoverrides/ADAdditionalTestAppSettings.h with
+// function named _addtionalProfiles() that returns an NSDictionary that will
+// be folded into the profiles list without you having to constantly alter your
+// github enlistment!
+static NSDictionary* _additionalProfiles()
+{
+    return nil;
+}
+#endif
+static NSDictionary* s_additionalProfiles = nil;
+
+
 NSString* ADTestAppCacheChangeNotification = @"ADTestAppCacheChangeNotification";
 
 static NSDictionary* s_profiles = nil;
 static NSArray* s_profileTitles = nil;
+static NSUInteger s_currentProfileIdx = 0;
 
 @implementation ADTestAppSettings
 {
@@ -55,24 +71,58 @@ static NSArray* s_profileTitles = nil;
                            },
        };
     
-    NSMutableArray* titles = [[NSMutableArray alloc] initWithCapacity:[s_profiles count]];
+    s_additionalProfiles = _additionalProfiles();
+    
+    NSMutableArray* titles = [[NSMutableArray alloc] initWithCapacity:[s_profiles count] + [s_additionalProfiles count]];
     
     for (NSString* profileTitle in s_profiles)
     {
         [titles addObject:profileTitle];
     }
     
+    for (NSString* profileTitle in s_additionalProfiles)
+    {
+        [titles addObject:profileTitle];
+    }
+    
+    [titles sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+    
     s_profileTitles = titles;
+    
+    NSString* currentProfile = [[NSUserDefaults standardUserDefaults] stringForKey:@"CurrentProfile"];
+    if (!currentProfile)
+    {
+        currentProfile = @"Test App";
+    }
+    s_currentProfileIdx = [s_profileTitles indexOfObject:currentProfile];
+    if (s_currentProfileIdx == NSNotFound)
+    {
+        s_currentProfileIdx = [s_profileTitles indexOfObject:@"Test App"];
+    }
+    if (s_currentProfileIdx == NSNotFound)
+    {
+        s_currentProfileIdx = 0;
+    }
 }
 
-+ (NSDictionary*)profiles
++ (NSUInteger)numberOfProfiles;
 {
-    return s_profiles;
+    return [s_profileTitles count];
 }
 
-+ (NSArray*)profileTitles
++ (NSString*)profileTitleForIndex:(NSUInteger)idx
 {
-    return s_profileTitles;
+    return [s_profileTitles objectAtIndex:idx];
+}
+
++ (NSString*)currentProfileTitle
+{
+    return [s_profileTitles objectAtIndex:s_currentProfileIdx];
+}
+
++ (NSUInteger)currentProfileIdx
+{
+    return s_currentProfileIdx;
 }
 
 + (ADTestAppSettings*)settings
@@ -85,13 +135,6 @@ static NSArray* s_profileTitles = nil;
     return s_settings;
 }
 
-+ (NSString*)currentProfileTitle
-{
-    NSString* currentProfile = [[NSUserDefaults standardUserDefaults] stringForKey:@"CurrentProfile"];
-    
-    return currentProfile ? currentProfile : @"Test App";
-}
-
 - (id)init
 {
     if (!(self = [super init]))
@@ -99,18 +142,26 @@ static NSArray* s_profileTitles = nil;
         return nil;
     }
     
-    NSDictionary* profileDict = [s_profiles objectForKey:[ADTestAppSettings currentProfileTitle]];
-    [self setFromDictionary:profileDict];
+    [self setProfileFromIndex:[ADTestAppSettings currentProfileIdx]];
     
     return self;
 }
 
-- (void)setFromDictionary:(NSDictionary *)settings
+- (void)setProfileFromIndex:(NSInteger)idx
 {
+    NSString* title = [s_profileTitles objectAtIndex:idx];
+    s_currentProfileIdx = idx;
+    NSDictionary* settings = [s_additionalProfiles objectForKey:title];
+    if (!settings)
+    {
+        settings = [s_profiles objectForKey:title];
+    }
+    
     self.authority = [settings objectForKey:@"authority"];
     self.clientId = [settings objectForKey:@"clientId"];
     self.redirectUri = [NSURL URLWithString:[settings objectForKey:@"redirectUri"]];
     self.resource = [settings objectForKey:@"resource"];
+    self.defaultUser = [settings objectForKey:@"defaultUser"];
 }
 
 @end

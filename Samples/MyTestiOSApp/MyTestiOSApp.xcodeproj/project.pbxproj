@@ -330,6 +330,7 @@
 					};
 					D6EA53A61D541011008A0BC3 = {
 						CreatedOnToolsVersion = 7.3.1;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -499,7 +500,7 @@
 				PROVISIONING_PROFILE = "8F81601F-2AC4-483A-BBC3-5E49C47791BD";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "../../ADAL/src/**";
+				USER_HEADER_SEARCH_PATHS = "../../ADAL/src/** $(HOME)/aadoverrides";
 			};
 			name = CodeCoverage;
 		};
@@ -595,7 +596,7 @@
 				PROVISIONING_PROFILE = "8F81601F-2AC4-483A-BBC3-5E49C47791BD";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "../../ADAL/src/**";
+				USER_HEADER_SEARCH_PATHS = "../../ADAL/src/** $(HOME)/aadoverrides";
 			};
 			name = Debug;
 		};
@@ -631,7 +632,7 @@
 				PROVISIONING_PROFILE = "8F81601F-2AC4-483A-BBC3-5E49C47791BD";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "../../ADAL/src/**";
+				USER_HEADER_SEARCH_PATHS = "../../ADAL/src/** $(HOME)/aadoverrides";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
