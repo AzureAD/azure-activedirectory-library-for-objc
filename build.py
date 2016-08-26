@@ -18,23 +18,17 @@ class tclr:
 
 build_targets = [
 	{
-		"name" : "iOS Library",
-	  	"scheme" : "ADAL",
-	  	"operations" : [ "build", "test" ],
-	  	"platform" : "iOS",
-	},
-	{
-		"name" : "iOS Extension Library",
-		"scheme" : "ADAL (extension safe)",
-		"operations" : [ "build" ],
-		"platform" : "iOS"
+		"name" : "iOS Framework",
+		"scheme" : "ADAL",
+		"operations" : [ "build", "test" ],
+		"platform" : "iOS",
 	},
 	{
 		"name" : "iOS Test App",
-	  	"scheme" : "MyTestiOSApp",
-	  	"operations" : [ "build" ],
-	  	"platform" : "iOS",
-	  	"dependencies" : [ "iOS Library", "iOS Extension Library" ]
+		"scheme" : "MyTestiOSApp",
+		"operations" : [ "build" ],
+		"platform" : "iOS",
+		"dependencies" : [ "iOS Framework" ]
 	},
 	{
 		"name" : "Sample Swift App",
@@ -44,9 +38,9 @@ build_targets = [
 	},
 	{
 		"name" : "Mac Framework",
-	  	"scheme" : "ADAL Mac",
-	  	"operations" : [ "build", "test" ],
-	  	"platform" : "Mac"
+		"scheme" : "ADAL Mac",
+		"operations" : [ "build", "test" ],
+		"platform" : "Mac"
 	},
 	{
 		"name" : "Mac Framework 32-bit",
