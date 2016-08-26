@@ -818,7 +818,9 @@
 				8B0965AC17F25770002BDFB8 /* Frameworks */,
 				8B0965AB17F25770002BDFB8 /* Products */,
 			);
+			indentWidth = 4;
 			sourceTree = "<group>";
+			tabWidth = 4;
 		};
 		8B0965AB17F25770002BDFB8 /* Products */ = {
 			isa = PBXGroup;
