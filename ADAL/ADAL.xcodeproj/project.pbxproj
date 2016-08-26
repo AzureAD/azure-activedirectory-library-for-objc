@@ -1200,9 +1200,10 @@
 		94886EED1C63BE3800503C04 /* xcconfig */ = {
 			isa = PBXGroup;
 			children = (
-				946347801C644E13000A6DA1 /* adal__codecov.xcconfig */,
-				946347811C644E13000A6DA1 /* adal__common.xcconfig */,
 				946347821C644E13000A6DA1 /* adal__debug.xcconfig */,
+				946347801C644E13000A6DA1 /* adal__codecov.xcconfig */,
+				946347881C644E13000A6DA1 /* adal__release.xcconfig */,
+				946347811C644E13000A6DA1 /* adal__common.xcconfig */,
 				946347831C644E13000A6DA1 /* adal__ios__common.xcconfig */,
 				946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */,
 				946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */,
@@ -1211,7 +1212,6 @@
 				D616AD171D25EEA7006EF8B5 /* adal__ios__app_extension__staticlib.xcconfig */,
 				946347861C644E13000A6DA1 /* adal__mac__common.xcconfig */,
 				946347871C644E13000A6DA1 /* adal__mac__framework.xcconfig */,
-				946347881C644E13000A6DA1 /* adal__release.xcconfig */,
 			);
 			path = xcconfig;
 			sourceTree = "<group>";
@@ -2569,7 +2569,7 @@
 		};
 		D61001021D3984F00087AB81 /* CodeCoverage */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */;
+			baseConfigurationReference = D61001581D398A560087AB81 /* adal__ios__app_extension__framework.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
@@ -2601,7 +2601,7 @@
 		};
 		D61001031D3984F00087AB81 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946347841C644E13000A6DA1 /* adal__ios__framework.xcconfig */;
+			baseConfigurationReference = D61001581D398A560087AB81 /* adal__ios__app_extension__framework.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;

@@ -4,5 +4,5 @@
 
 #include "adal__ios__app_extension__common.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL.appextension";
-MODULEMAP_FILE=resources/ios/Framework/adal.modulemap
+MODULEMAP_FILE = resources/ios/Framework/adal.modulemap
+PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADAL.appextension

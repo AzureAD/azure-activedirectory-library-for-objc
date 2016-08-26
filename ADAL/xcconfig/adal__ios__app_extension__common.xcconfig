@@ -2,7 +2,11 @@
 //  adal__ios__app_extension__common.xcconfig
 //
 
-#include "adal__ios__common.xcconfig"
+#include "adal__common.xcconfig"
 
-APPLICATION_EXTENSION_API_ONLY = YES;
+APPLICATION_EXTENSION_API_ONLY = YES
+CLANG_ENABLE_OBJC_ARC = YES
+IPHONEOS_DEPLOYMENT_TARGET = 8.0
 OTHER_CFLAGS = -DADAL_EXTENSION_SAFE=1
+PRODUCT_NAME = ADAL
+SKIP_INSTALL = YES

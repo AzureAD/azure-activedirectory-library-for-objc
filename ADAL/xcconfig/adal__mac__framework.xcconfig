@@ -4,12 +4,11 @@
 
 #include "adal__mac__common.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADAL;
-PRODUCT_NAME = ADAL;
-MODULEMAP_FILE = resources/mac/adal_mac.modulemap;
-DEFINES_MODULE = YES;
-INFOPLIST_FILE = resources/mac/Info.plist;
-SKIP_INSTALL = NO;
-INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks" @rpath;
-SKIP_INSTALL = YES;
+DEFINES_MODULE = YES
+INFOPLIST_FILE = resources/mac/Info.plist
+INSTALL_PATH = $(LOCAL_LIBRARY_DIR)/Frameworks @rpath
+MODULEMAP_FILE = resources/mac/adal_mac.modulemap
+PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADAL
+PRODUCT_NAME = ADAL
+SKIP_INSTALL = YES
 
