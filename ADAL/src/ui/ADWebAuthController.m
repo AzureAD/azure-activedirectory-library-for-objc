@@ -23,6 +23,7 @@
 
 #if TARGET_OS_IPHONE
 #import "UIApplication+ADExtensions.h"
+#import "ADAppExtensionUtil.h"
 #endif
 #import "NSDictionary+ADExtensions.h"
 
@@ -322,13 +323,22 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     {
         _complete = YES;
 #if TARGET_OS_IPHONE
-#if !ADAL_EXTENSION_SAFE
-        dispatch_async( dispatch_get_main_queue(), ^{[self webAuthDidCancel];});
-        requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
-        dispatch_async( dispatch_get_main_queue(), ^{[[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];});
-#else // ADAL_EXTENSION_SAFE
-        AD_LOG_ERROR(@"unable to redirect to browser from extension", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _correlationId, nil);
-#endif // ADAL_EXTENSION_SAFE
+        if (![ADAppExtensionUtil isExecutingInAppExtension])
+        {
+            dispatch_async( dispatch_get_main_queue(), ^{
+                [self webAuthDidCancel];
+            });
+            
+            requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
+            
+            dispatch_async( dispatch_get_main_queue(), ^{
+                [ADAppExtensionUtil sharedApplicationOpenURL:[[NSURL alloc] initWithString:requestURL]];
+            });
+        }
+        else
+        {
+            AD_LOG_ERROR(@"unable to redirect to browser from extension", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _correlationId, nil);
+        }
 #else // !TARGET_OS_IPHONE
         AD_LOG_ERROR(@"server is redirecting us to browser, this behavior is not defined on Mac OS X yet", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _correlationId, nil);
 #endif // TARGET_OS_IPHONE

@@ -24,16 +24,19 @@
 #import <UIKit/UIKit.h>
 
 #import "UIApplication+ADExtensions.h"
+#import "ADAppExtensionUtil.h"
 
 @implementation UIApplication ( internal )
 
-+ (UIViewController *)adCurrentViewController
++ (UIViewController*)adCurrentViewController
 {
-#if !ADAL_EXTENSION_SAFE
-    return [self adCurrentViewControllerWithRootViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-#else
-    return nil;
-#endif
+    if (![ADAppExtensionUtil isExecutingInAppExtension])
+    {
+        return [self adCurrentViewControllerWithRootViewController:[ADAppExtensionUtil sharedApplication].keyWindow.rootViewController];
+    }
+    else {
+        return nil;
+    }
 }
 
 + (UIViewController*)adCurrentViewControllerWithRootViewController:(UIViewController*)rootViewController
