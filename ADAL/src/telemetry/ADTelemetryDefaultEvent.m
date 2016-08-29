@@ -106,7 +106,8 @@ if (OBJECT) \
 
 - (void)setResponseTime:(NSTimeInterval)responseTime
 {
-    [_propertyMap addObject:@[@"response_time", [NSString stringWithFormat:@"%f", responseTime]]];
+    //the property is set in milliseconds
+    [_propertyMap addObject:@[@"response_time", [NSString stringWithFormat:@"%f", responseTime*1000]]];
 }
 
 - (NSString*)getStringFromDate:(NSDate*)date
