@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
     :type => "MIT", 
     :file => "LICENSE.txt" 
   }
-  s.authors      = { "Brandon Werner" => "brandwe@microsoft.com" }
+  s.authors      = { "Microsoft" => "nugetaad@microsoft.com" }
   s.social_media_url   = "https://twitter.com/azuread"
   s.platform     = :ios, :osx
   s.ios.deployment_target = "8.0"
