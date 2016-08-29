@@ -18,23 +18,16 @@ class tclr:
 
 build_targets = [
 	{
-		"name" : "iOS Library",
-	  	"scheme" : "ADAL",
-	  	"operations" : [ "build", "test" ],
-	  	"platform" : "iOS",
-	},
-	{
-		"name" : "iOS Extension Library",
-		"scheme" : "ADAL (extension safe)",
-		"operations" : [ "build" ],
-		"platform" : "iOS"
+		"name" : "iOS Framework",
+		"scheme" : "ADAL",
+		"operations" : [ "build", "test" ],
+		"platform" : "iOS",
 	},
 	{
 		"name" : "iOS Test App",
-	  	"scheme" : "MyTestiOSApp",
-	  	"operations" : [ "build" ],
-	  	"platform" : "iOS",
-	  	"dependencies" : [ "iOS Library", "iOS Extension Library" ]
+		"scheme" : "MyTestiOSApp",
+		"operations" : [ "build" ],
+		"platform" : "iOS"
 	},
 	{
 		"name" : "Sample Swift App",
@@ -44,9 +37,9 @@ build_targets = [
 	},
 	{
 		"name" : "Mac Framework",
-	  	"scheme" : "ADAL Mac",
-	  	"operations" : [ "build", "test" ],
-	  	"platform" : "Mac"
+		"scheme" : "ADAL Mac",
+		"operations" : [ "build", "test" ],
+		"platform" : "Mac"
 	},
 	{
 		"name" : "Mac Framework 32-bit",
@@ -59,8 +52,7 @@ build_targets = [
 		"name" : "Mac Test App",
 		"scheme" : "MyTestMacOSApp",
 		"operations" : [ "build" ],
-		"platform" : "Mac",
-		"dependencies" : [ "Mac Framework" ]
+		"platform" : "Mac"
 	}
 ]
 
@@ -69,8 +61,8 @@ def print_operation_start(name, operation) :
 	print "travis_fold:start:" + (name + "_" + operation).replace(" ", "_")
 
 def print_operation_end(name, operation, exit_code) :
-	print "travis_fold:end:" + (name + "_" + operation).replace(" ", "_") 
-	
+	print "travis_fold:end:" + (name + "_" + operation).replace(" ", "_")
+
 	if (exit_code == 0) :
 		print tclr.OK + name + " [" + operation + "] Succeeded" + tclr.END
 	else :
@@ -79,13 +71,13 @@ def print_operation_end(name, operation, exit_code) :
 def do_ios_build(target, operation) :
 	name = target["name"]
 	scheme = target["scheme"]
-	
+
 	print_operation_start(name, operation)
-	
+
 	command = "xcodebuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest + " | xcpretty"
 	print command
 	exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
-	
+
 	print_operation_end(name, operation, exit_code)
 	return exit_code
 
@@ -93,21 +85,21 @@ def do_mac_build(target, operation) :
 	arch = target.get("arch")
 	name = target["name"]
 	scheme = target["scheme"]
-	
+
 	print_operation_start(name, operation)
-	
+
 	command = "xcodebuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\""
-	
+
 	if (arch != None) :
 		command = command + " -destination 'arch=" + arch + "'"
-	
+
 	command = command + " | xcpretty"
-	
+
 	print command
 	exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
 
 	print_operation_end(name, operation, exit_code)
-	
+
 	return exit_code
 
 build_status = dict()
@@ -116,19 +108,19 @@ def check_dependencies(target) :
 	dependencies = target.get("dependencies")
 	if (dependencies == None) :
 		return True
-	
+
 	for dependency in dependencies :
 		dependency_status = build_status.get(dependency)
 		if (dependency_status == None) :
 			print tclr.SKIP + "Skipping " + name + " dependency " + dependency + " not built yet." + tclr.END
 			build_status[name] = "Skipped"
 			return False
-		
+
 		if (build_status[dependency] != "Succeeded") :
 			print tclr.SKIP + "Skipping " + name + " dependency " + dependency + " failed." + tclr.END
 			build_status[name] = "Skipped"
 			return False
-	
+
 	return True
 
 clean = True
@@ -145,22 +137,22 @@ for target in build_targets:
 	exit_code = 0
 	name = target["name"]
 	platform = target["platform"]
-	
+
 	# If we don't have the dependencies for this target built yet skip it.
 	if (not check_dependencies(target)) :
 		continue
-	
+
 	for operation in target["operations"] :
 		if (exit_code != 0) :
 			break; # If one operation fails, then the others are almost certainly going to fail too
-			
+
 		if (platform == "iOS") :
 			exit_code = do_ios_build(target, operation)
 		elif (platform == "Mac") :
 			exit_code = do_mac_build(target, operation)
 		else :
 			raise Exception('Unrecognized platform type ' + platform)
-	
+
 	if (exit_code == 0) :
 		print tclr.OK + name + " Succeeded" + tclr.END
 		build_status[name] = "Succeeded"
