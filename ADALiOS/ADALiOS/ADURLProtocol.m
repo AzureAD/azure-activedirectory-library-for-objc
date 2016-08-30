@@ -222,7 +222,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     }
     
     [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
-    
+    [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:redirectResponse];
     return mutableRequest;
 }
 
