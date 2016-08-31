@@ -269,6 +269,27 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		60967E131D76B5CC00863853 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 60967E071D76B56D00863853;
+			remoteInfo = "ADAL Preprocessing";
+		};
+		60967E151D76B5D300863853 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 60967E071D76B56D00863853;
+			remoteInfo = "ADAL Preprocessing";
+		};
+		60967E171D76B5E000863853 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 60967E071D76B56D00863853;
+			remoteInfo = "ADAL Preprocessing";
+		};
 		9453C45C1C5866D8006B9E79 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
@@ -307,6 +328,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		60967E061D76B56D00863853 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8B0965A817F25770002BDFB8 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
@@ -349,6 +379,8 @@
 		601BEE331C6DCB0B004AA8C1 /* ADWebAuthControllerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthControllerTests.m; sourceTree = "<group>"; };
 		6071B5E21C14C0B0006F6CC2 /* ADTestURLConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestURLConnection.h; sourceTree = "<group>"; };
 		6071B5E31C14C0B0006F6CC2 /* ADTestURLConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestURLConnection.m; sourceTree = "<group>"; };
+		60967E081D76B56D00863853 /* libADAL Preprocessing.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libADAL Preprocessing.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		60967E191D76B62B00863853 /* tools */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tools; sourceTree = SOURCE_ROOT; };
 		8B0965AA17F25770002BDFB8 /* libADALiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libADALiOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B0965AD17F25770002BDFB8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8B0965BA17F25770002BDFB8 /* ADALiOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADALiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -527,6 +559,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		60967E051D76B56D00863853 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8B0965A717F25770002BDFB8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -607,6 +646,7 @@
 				8B0965C317F25770002BDFB8 /* tests */,
 				9453C3151C57EE57006B9E79 /* resouces */,
 				94886EED1C63BE3800503C04 /* xcconfig */,
+				60967E191D76B62B00863853 /* tools */,
 				8B0965AC17F25770002BDFB8 /* Frameworks */,
 				8B0965AB17F25770002BDFB8 /* Products */,
 			);
@@ -623,6 +663,7 @@
 				9453C3FD1C586425006B9E79 /* ADAL.framework */,
 				94DD18E11C5ACFBF00F80C62 /* ADAL Mac Tests.xctest */,
 				D664F1B41D302B9C0017B799 /* libADAL-core.a */,
+				60967E081D76B56D00863853 /* libADAL Preprocessing.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1127,6 +1168,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		60967E071D76B56D00863853 /* ADAL Preprocessing */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 60967E111D76B56D00863853 /* Build configuration list for PBXNativeTarget "ADAL Preprocessing" */;
+			buildPhases = (
+				60967E041D76B56D00863853 /* Sources */,
+				60967E051D76B56D00863853 /* Frameworks */,
+				60967E061D76B56D00863853 /* CopyFiles */,
+				60967E121D76B5AC00863853 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ADAL Preprocessing";
+			productName = "ADAL Preprocessing";
+			productReference = 60967E081D76B56D00863853 /* libADAL Preprocessing.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		8B0965A917F25770002BDFB8 /* ADALiOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8B0965CD17F25770002BDFB8 /* Build configuration list for PBXNativeTarget "ADALiOS" */;
@@ -1138,6 +1197,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				60967E141D76B5CC00863853 /* PBXTargetDependency */,
 			);
 			name = ADALiOS;
 			productName = ADALiOS;
@@ -1193,6 +1253,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				60967E181D76B5E000863853 /* PBXTargetDependency */,
 			);
 			name = "ADAL Mac";
 			productName = "ADAL Mac";
@@ -1227,6 +1288,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				60967E161D76B5D300863853 /* PBXTargetDependency */,
 			);
 			name = "ADAL-core";
 			productName = ADALiOS;
@@ -1242,6 +1304,9 @@
 				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = "MS Open Tech";
 				TargetAttributes = {
+					60967E071D76B56D00863853 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
 					9453C3CB1C583E07006B9E79 = {
 						CreatedOnToolsVersion = 7.2;
 					};
@@ -1268,6 +1333,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				60967E071D76B56D00863853 /* ADAL Preprocessing */,
 				8B0965A917F25770002BDFB8 /* ADALiOS */,
 				D664F16A1D302B9C0017B799 /* ADAL-core */,
 				9453C3CB1C583E07006B9E79 /* ADAL */,
@@ -1311,7 +1377,30 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		60967E121D76B5AC00863853 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/bin/python ${PROJECT_DIR}/tools/update_build_version.py ${PROJECT_DIR}/src/ADAL_Internal.h ${PROJECT_DIR}/resources/ios/Framework/Info.plist ${PROJECT_DIR}/resources/ios/ADALiOSBundle/ADALiOSBundle-Info.plist";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		60967E041D76B56D00863853 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8B0965A617F25770002BDFB8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1509,6 +1598,21 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		60967E141D76B5CC00863853 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 60967E071D76B56D00863853 /* ADAL Preprocessing */;
+			targetProxy = 60967E131D76B5CC00863853 /* PBXContainerItemProxy */;
+		};
+		60967E161D76B5D300863853 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 60967E071D76B56D00863853 /* ADAL Preprocessing */;
+			targetProxy = 60967E151D76B5D300863853 /* PBXContainerItemProxy */;
+		};
+		60967E181D76B5E000863853 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 60967E071D76B56D00863853 /* ADAL Preprocessing */;
+			targetProxy = 60967E171D76B5E000863853 /* PBXContainerItemProxy */;
+		};
 		9453C45D1C5866D8006B9E79 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 9453C3FC1C586425006B9E79 /* ADAL Mac */;
@@ -1556,6 +1660,65 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		60967E0E1D76B56D00863853 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		60967E0F1D76B56D00863853 /* CodeCoverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = CodeCoverage;
+		};
+		60967E101D76B56D00863853 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
 		8B0965CB17F25770002BDFB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 946347821C644E13000A6DA1 /* adal__debug.xcconfig */;
@@ -2189,6 +2352,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		60967E111D76B56D00863853 /* Build configuration list for PBXNativeTarget "ADAL Preprocessing" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60967E0E1D76B56D00863853 /* Debug */,
+				60967E0F1D76B56D00863853 /* CodeCoverage */,
+				60967E101D76B56D00863853 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		8B0965A517F25770002BDFB8 /* Build configuration list for PBXProject "ADAL" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
