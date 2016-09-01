@@ -52,6 +52,9 @@ static NSString* s_brokerProtocolVersion = nil;
 
 + (BOOL)validBrokerRedirectUri:(NSString*)url
 {
+    (void)s_brokerAppVersion;
+    (void)s_brokerProtocolVersion;
+    
     NSArray* urlTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleURLTypes"];
     
     NSURL* redirectURI = [NSURL URLWithString:url];
@@ -222,13 +225,13 @@ static NSString* s_brokerProtocolVersion = nil;
         completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
         return;
     }
-    
+#if AD_TELEMETRY
     [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"launch_broker"];
-    
+#endif
     void(^requestCompletion)(ADAuthenticationResult* result) = ^void(ADAuthenticationResult* result)
     {
         [self releaseUserInterationLock]; // Release the lock when completion block is called.
-        
+#if AD_TELEMETRY
         ADTelemetryBrokerEvent* event = [[ADTelemetryBrokerEvent alloc] initWithName:@"launch_broker"
                                                                            requestId:[_requestParams telemetryRequestId]
                                                                        correlationId:correlationId];
@@ -236,7 +239,7 @@ static NSString* s_brokerProtocolVersion = nil;
         [event setBrokerAppVersion:s_brokerAppVersion];
         [event setBrokerProtocolVersion:s_brokerProtocolVersion];
         [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
-        
+#endif
         completionBlock(result);
     };
     
@@ -330,9 +333,12 @@ static NSString* s_brokerProtocolVersion = nil;
     
     if ([ADBrokerHelper canUseBroker])
     {
+#if AD_TELEMETRY
         [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"launch_broker"];
+#endif
         void(^requestCompletion)(ADAuthenticationResult* result) = ^void(ADAuthenticationResult* result)
         {
+#if AD_TELEMETRY
             ADTelemetryBrokerEvent* event = [[ADTelemetryBrokerEvent alloc] initWithName:@"launch_broker"
                                                                                requestId:[_requestParams telemetryRequestId]
                                                                            correlationId:correlationId];
@@ -340,7 +346,7 @@ static NSString* s_brokerProtocolVersion = nil;
             [event setBrokerAppVersion:s_brokerAppVersion];
             [event setBrokerProtocolVersion:s_brokerProtocolVersion];
             [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
-            
+#endif
             completionBlock(result);
         };
         

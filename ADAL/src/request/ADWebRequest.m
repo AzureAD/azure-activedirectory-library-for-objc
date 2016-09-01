@@ -150,8 +150,9 @@
     
     SAFE_ARC_RELEASE(_connection);
     _connection     = nil;
-    
+#if AD_TELEMETRY
     [self stopTelemetryEvent:error response:response];
+#endif
     _completionHandler(error, response);
 }
 
@@ -180,8 +181,9 @@
 
 - (void)send
 {
+#if AD_TELEMETRY
     [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:@"http_request"];
-    
+#endif
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
     //Correlation id:
     if (_correlationId)
@@ -322,7 +324,7 @@
                   response:(ADWebResponse *)response
 {
     ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:@"http_request" requestId:_telemetryRequestId correlationId:_correlationId];
-    
+
     [event setHttpMethod:_isGetRequest ? @"GET" : @"POST"];
     [event setHttpPath:[NSString stringWithFormat:@"%@://%@/%@", _requestURL.scheme, _requestURL.host, _requestURL.path]];
     if (error)
@@ -334,10 +336,9 @@
     {
         [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[response statusCode]]];
     }
-    
+
     [[ADTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
     SAFE_ARC_RELEASE(event);
-
 }
 
 @end

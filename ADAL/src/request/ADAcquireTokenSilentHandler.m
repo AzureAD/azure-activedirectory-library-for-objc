@@ -204,11 +204,14 @@
              completionBlock:(ADAuthenticationCallback)completionBlock
                     fallback:(ADAuthenticationCallback)fallback
 {
+#if AD_TELEMETRY
     [[ADTelemetry sharedInstance] startEvent:[_requestParams telemetryRequestId] eventName:@"token_grant"];
+#endif
     [self acquireTokenByRefreshToken:item.refreshToken
                            cacheItem:item
                      completionBlock:^(ADAuthenticationResult *result)
      {
+#if AD_TELEMETRY
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"token_grant"
                                                                       requestId:[_requestParams telemetryRequestId]
                                                                   correlationId:[_requestParams correlationId]];
@@ -216,6 +219,7 @@
          [event setResultStatus:[result status]];
          [[ADTelemetry sharedInstance] stopEvent:[_requestParams telemetryRequestId] event:event];
          SAFE_ARC_RELEASE(event);
+#endif
 
          NSString* resultStatus = @"Succeded";
          
