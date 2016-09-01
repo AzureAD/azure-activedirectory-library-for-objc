@@ -31,8 +31,8 @@
 - (id)initWithDispatcher:(id<ADDispatcher>)dispatcher;
 
 - (void)receive:(NSString *)requestId
-          event:(id<ADEventInterface>)event;
+          event:(id<ADTelemetryEventInterface>)event;
 
-- (void)flush;
+- (void)flush:(NSString*)requestId;
 
 @end

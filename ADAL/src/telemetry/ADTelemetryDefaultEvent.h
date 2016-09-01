@@ -21,13 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADEventInterface.h"
+#import "ADTelemetryEventInterface.h"
 
-@interface ADDefaultEvent : NSObject <ADEventInterface>
+@interface ADTelemetryDefaultEvent : NSObject <ADTelemetryEventInterface>
 {
     NSMutableArray* _propertyMap;
+    NSInteger _defaultPropertyCount;
 }
 
-- (id)initWithName:(NSString*)eventName;
+- (id)initWithName:(NSString*)eventName
+         requestId:(NSString*)requestId
+     correlationId:(NSUUID*)correlationId;
 
 @end

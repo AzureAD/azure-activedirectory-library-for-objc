@@ -23,7 +23,7 @@
 
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
-#import "ADEventInterface.h"
+#import "ADTelemetryEventInterface.h"
 #import "ADDefaultDispatcher.h"
 #import "ADAggregatedDispatcher.h"
 
@@ -48,7 +48,7 @@ static NSString* const s_delimiter = @"|";
     return self;
 }
 
-+ (ADTelemetry*)getInstance
++ (ADTelemetry*)sharedInstance
 {
     static dispatch_once_t once;
     static ADTelemetry* singleton = nil;
@@ -75,17 +75,6 @@ static NSString* const s_delimiter = @"|";
             _dispatcher = [[ADDefaultDispatcher alloc] initWithDispatcher:dispatcher];
         }
         SAFE_ARC_RETAIN(_dispatcher);
-    }
-}
-
-- (void)flush
-{
-    @synchronized(self)
-    {
-        if (_dispatcher)
-        {
-            [_dispatcher flush];
-        }
     }
 }
 
@@ -122,8 +111,9 @@ static NSString* const s_delimiter = @"|";
 }
 
 - (void)stopEvent:(NSString*)requestId
-            event:(id<ADEventInterface>)event
+            event:(id<ADTelemetryEventInterface>)event
 {
+    NSDate* stopTime = [NSDate date];
     NSString* eventName = [self getPropertyFromEvent:event propertyName:@"event_name"];
     
     if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName] || !event)
@@ -138,16 +128,15 @@ static NSString* const s_delimiter = @"|";
         return;
     }
     [event setStartTime:startTime];
+    [event setStopTime:stopTime];
+    [event setResponseTime:[stopTime timeIntervalSinceDate:startTime]];
     [_eventTracking removeObjectForKey:key];
     
-    NSDate* stopTime = [NSDate date];
-    [event setStopTime:stopTime];
-    
-    [self dispatchEventNow:requestId event:event];
+    [_dispatcher receive:requestId event:event];
 }
 
 - (void)dispatchEventNow:(NSString*)requestId
-                   event:(id<ADEventInterface>)event
+                   event:(id<ADTelemetryEventInterface>)event
 {
     @synchronized(self)//Guard against thread-unsafe callback and modification of _dispatcher after the check
     {
@@ -164,7 +153,7 @@ static NSString* const s_delimiter = @"|";
     return [NSString stringWithFormat:@"%@%@%@", requestId, s_delimiter, eventName];
 }
 
-- (NSString*)getPropertyFromEvent:(id<ADEventInterface>)event
+- (NSString*)getPropertyFromEvent:(id<ADTelemetryEventInterface>)event
                      propertyName:(NSString*)propertyName
 {
     NSArray* properties = [event getProperties];
@@ -176,6 +165,17 @@ static NSString* const s_delimiter = @"|";
         }
     }
     return nil;
+}
+
+- (void)flush:(NSString*)requestId
+{
+    @synchronized(self)
+    {
+        if (_dispatcher)
+        {
+            [_dispatcher flush:requestId];
+        }
+    }
 }
 
 @end

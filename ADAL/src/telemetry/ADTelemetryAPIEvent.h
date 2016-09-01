@@ -21,27 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADTelemetryDefaultEvent.h"
 
-#import <Foundation/Foundation.h>
+@interface ADTelemetryAPIEvent : ADTelemetryDefaultEvent
 
-@class ADTokenCacheAccessor;
+- (void)setResultStatus:(ADAuthenticationResultStatus)status;
+- (void)setCorrelationId:(NSUUID*)correlationId;
+- (void)setUserId:(NSString*)userId;
+- (void)setClientId:(NSString*)clientId;
+- (void)setIsExtendedLifeTimeToken:(NSString*)isExtendedLifeToken;
+- (void)setErrorCode:(NSString*)errorCode;
+- (void)setProtocolCode:(NSString*)protocolCode;
+- (void)setErrorDescription:(NSString*)errorDescription;
+- (void)setErrorDomain:(NSString*)errorDomain;
 
-@interface ADAcquireTokenSilentHandler : NSObject
-{
-    ADRequestParameters* _requestParams;
-    
-    ADTokenCacheItem* _mrrtItem;
-    ADTokenCacheItem* _extendedLifetimeAccessTokenItem; //store valid AT in terms of ext_expires_in (if find any)
-    
-    // We only return underlying errors from the MRRT Result, because the FRT is a
-    // "best attempt" method, which is not necessarily tied to the client ID we're
-    // trying, so the MRRT error will be more accurate.
-    ADAuthenticationResult* _mrrtResult;
-    
-    BOOL _attemptedFRT;
-}
+- (void)setAuthorityValidationStatus:(NSString*)status;
+- (void)setAuthority:(NSString*)authority;
 
-+ (void)acquireTokenSilentForRequestParams:(ADRequestParameters*)requestParams
-                           completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)setGrantType:(NSString*)grantType;
+- (void)setAPIStatus:(NSString*)status;
+
+- (void)setApiId:(NSString*)apiId;
 
 @end

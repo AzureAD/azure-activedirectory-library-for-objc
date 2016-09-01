@@ -21,27 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+@protocol ADTelemetryEventInterface <NSObject>
 
-#import <Foundation/Foundation.h>
+@property (readonly) NSMutableArray* propertyMap;
 
-@class ADTokenCacheAccessor;
-
-@interface ADAcquireTokenSilentHandler : NSObject
-{
-    ADRequestParameters* _requestParams;
-    
-    ADTokenCacheItem* _mrrtItem;
-    ADTokenCacheItem* _extendedLifetimeAccessTokenItem; //store valid AT in terms of ext_expires_in (if find any)
-    
-    // We only return underlying errors from the MRRT Result, because the FRT is a
-    // "best attempt" method, which is not necessarily tied to the client ID we're
-    // trying, so the MRRT error will be more accurate.
-    ADAuthenticationResult* _mrrtResult;
-    
-    BOOL _attemptedFRT;
-}
-
-+ (void)acquireTokenSilentForRequestParams:(ADRequestParameters*)requestParams
-                           completionBlock:(ADAuthenticationCallback)completionBlock;
+- (NSInteger)getDefaultPropertyCount;
+- (void)setProperty:(NSString*)name value:(NSString*)value;
+- (NSArray*)getProperties;
+- (void)setStartTime:(NSDate*)time;
+- (void)setStopTime:(NSDate*)time;
+- (void)setResponseTime:(NSTimeInterval)responseTime;
 
 @end

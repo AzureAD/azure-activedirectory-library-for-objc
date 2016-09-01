@@ -58,7 +58,7 @@
 /*!
     Get a singleton instance of ADTelemetry.
  */
-+ (ADTelemetry*)getInstance;
++ (ADTelemetry*)sharedInstance;
 
 /*!
     Register a telemetry dispatcher for receiving telemetry events.
@@ -68,10 +68,5 @@
  */
 - (void)registerDispatcher:(id<ADDispatcher>)dispatcher
        aggregationRequired:(BOOL)aggregationRequired;
-
-/*!
-    Flush all cached telemetry events to the registered dispatcher.
- */
-- (void)flush;
 
 @end
