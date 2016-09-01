@@ -61,8 +61,7 @@
     [_profileTable setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [_profileTable setDataSource:self];
     
-    NSString* currentProfile = [ADTestAppSettings currentProfileTitle];
-    NSIndexPath* indexPath = [NSIndexPath indexPathForRow:[[ADTestAppSettings profileTitles] indexOfObject:currentProfile] inSection:0];
+    NSIndexPath* indexPath = [NSIndexPath indexPathForRow:[ADTestAppSettings currentProfileIdx] inSection:0];
     [_profileTable selectRowAtIndexPath:indexPath
                                animated:NO
                          scrollPosition:UITableViewScrollPositionNone];
@@ -79,16 +78,14 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSString* rowTitle = [[ADTestAppSettings profileTitles] objectAtIndex:indexPath.row];
-    NSDictionary* rowDict = [[ADTestAppSettings profiles] objectForKey:rowTitle];
-    [[ADTestAppSettings settings] setFromDictionary:rowDict];
-    [[NSUserDefaults standardUserDefaults] setObject:rowTitle forKey:@"CurrentProfile"];
+    [[ADTestAppSettings settings] setProfileFromIndex:indexPath.row];
+    [[NSUserDefaults standardUserDefaults] setObject:[ADTestAppSettings profileTitleForIndex:indexPath.row] forKey:@"CurrentProfile"];
     [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return [[ADTestAppSettings profileTitles] count];
+    return [ADTestAppSettings numberOfProfiles];
 }
 
 // Row display. Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier:
@@ -102,7 +99,7 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"profileCell"];
     }
 
-    NSString* title = [[ADTestAppSettings profileTitles] objectAtIndex:indexPath.row];
+    NSString* title = [ADTestAppSettings profileTitleForIndex:indexPath.row];
     [[cell textLabel] setText:title];
     
     return cell;

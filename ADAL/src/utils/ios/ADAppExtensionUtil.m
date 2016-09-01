@@ -21,25 +21,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "ADAppExtensionUtil.h"
 
+@implementation ADAppExtensionUtil
 
-extern NSString* ADTestAppCacheChangeNotification;
++ (BOOL)isExecutingInAppExtension
+{
+    NSString* mainBundlePath = [[NSBundle mainBundle] bundlePath];
 
-@interface ADTestAppSettings : NSObject
+    if (mainBundlePath.length == 0)
+    {
+        AD_LOG_ERROR(@"Expected `[[NSBundle mainBundle] bundlePath]` to be non-nil. Defaulting to non-application-extension safe API.", AD_ERROR_UNEXPECTED, nil, nil);
+        return NO;
+    }
 
-@property NSString* authority;
-@property NSURL* redirectUri;
-@property NSString* clientId;
-@property NSString* resource;
-@property NSString* defaultUser;
+    return [mainBundlePath hasSuffix:@"appex"];
+}
 
-+ (ADTestAppSettings*)settings;
-+ (NSUInteger)numberOfProfiles;
-+ (NSString*)profileTitleForIndex:(NSUInteger)idx;
-+ (NSString*)currentProfileTitle;
-+ (NSUInteger)currentProfileIdx;
+#pragma mark - UIApplication
 
-- (void)setProfileFromIndex:(NSInteger)idx;
++ (UIApplication*)sharedApplication
+{
+    if ([self isExecutingInAppExtension])
+    {
+        // The caller should do this check but we will double check to fail safely
+        return nil;
+    }
+
+    return [UIApplication performSelector:NSSelectorFromString(@"sharedApplication")];
+}
+
++ (void)sharedApplicationOpenURL:(NSURL*)url
+{
+    if ([self isExecutingInAppExtension])
+    {
+        // The caller should do this check but we will double check to fail safely
+        return;
+    }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+    [[self sharedApplication] performSelector:NSSelectorFromString(@"openURL:") withObject:url];
+#pragma clang diagnostic pop
+}
 
 @end

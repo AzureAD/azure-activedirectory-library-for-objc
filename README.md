@@ -92,7 +92,7 @@ If you need to inspect the cache in your app, you can do it through the ADKeycha
 
 #### Mac OS X
 
-Keychain is not directly supported by ADAL on Mac OS X. The default caching implementation will keep around tokens for the life time of the process, but they will not be persisted. If you wish to persis tokens you must implement the ADTokenCacheDelegate and provide it on AuthenticationContext creation
+Keychain is not directly supported by ADAL on Mac OS X. The default caching implementation will keep around tokens for the life time of the process, but they will not be persisted. If you wish to persist tokens you must implement the ADTokenCacheDelegate and provide it on AuthenticationContext creation
 
 ```Objective-C
 @protocol ADTokenCacheDelegate <NSObject>
@@ -121,11 +121,9 @@ The starting point for the API is in ADAuthenticationContext.h header. ADAuthent
     ADAuthenticationError *error = nil;
     authContext = [ADAuthenticationContext authenticationContextWithAuthority:@"https://login.microsoftonline.com/common"
                                                                         error:&error];
-    
-    NSURL *redirectUri = [NSURL URLWithString:redirectUriString];
-    
+        
     [authContext acquireTokenWithResource:@"https://graph.windows.net"                 
-                                 clientId:@"<Your Client ID">                          // Comes from App Portal
+                                 clientId:@"<Your Client ID>"                          // Comes from App Portal
                               redirectUri:[NSURL URLWithString:@"<Your Redirect URI>"] // Comes from App Portal
                           completionBlock:^(ADAuthenticationResult *result)
     {

@@ -23,23 +23,14 @@
 
 #import <Foundation/Foundation.h>
 
+/// Collection of utilities to execute methods normally marked as non-application-extension safe. This allows us to produce a single framework that can be marked as application-extension-safe while still exercising capabilites when linked against a main app executable.
+@interface ADAppExtensionUtil : NSObject
 
-extern NSString* ADTestAppCacheChangeNotification;
-
-@interface ADTestAppSettings : NSObject
-
-@property NSString* authority;
-@property NSURL* redirectUri;
-@property NSString* clientId;
-@property NSString* resource;
-@property NSString* defaultUser;
-
-+ (ADTestAppSettings*)settings;
-+ (NSUInteger)numberOfProfiles;
-+ (NSString*)profileTitleForIndex:(NSUInteger)idx;
-+ (NSString*)currentProfileTitle;
-+ (NSUInteger)currentProfileIdx;
-
-- (void)setProfileFromIndex:(NSInteger)idx;
+/// Determine whether or not the host app is an application extension based on the main bundle path
++ (BOOL)isExecutingInAppExtension;
+/// Application extension safe replacement for `[UIApplication sharedApplication]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
++ (UIApplication*)sharedApplication;
+/// Application extension safe replacement for `[[UIApplication sharedApplication] openURL:]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
++ (void)sharedApplicationOpenURL:(NSURL*)url;
 
 @end
