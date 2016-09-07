@@ -96,7 +96,7 @@ static NSURLConnection *_conn = nil;
             } else {
                 _challengeCancelled = YES;
                 [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
-                [protocol stopLoading];
+                [protocol connection:connection didFailWithError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_USER_CANCEL userInfo:nil]];
             }
         }];
         succeeded = YES;
