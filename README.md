@@ -6,6 +6,11 @@
 
 The ADAL SDK for iOS and Mac OS X gives you the ability to add support for Work Accounts to your application with just a few lines of additional code. This SDK gives your application the full functionality of Microsoft Azure AD, including industry standard protocol support for OAuth2, Web API integration with user level consent, and two factor authentication support. Best of all, it’s FOSS (Free and Open Source Software) so that you can participate in the development process as we build these libraries. 
 
+## Versions
+Current version - 2.2.4  
+Minimum recommended version - 2.2.4  
+You can find the changes for each version in the [change log](https://github.com/AzureAD/azure-activedirectory-library-for-objc/blob/master/changelog.txt).
+
 ## Contribution History
 
 [![Stories in Ready](https://badge.waffle.io/AzureAD/azure-activedirectory-library-for-objc.png?label=ready&title=Ready)](https://waffle.io/AzureAD/azure-activedirectory-library-for-objc)
