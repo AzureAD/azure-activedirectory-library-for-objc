@@ -219,10 +219,10 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     {
         // If we're being redirected by the server that will create a whole new connection that we still need to observe
         [NSURLProtocol removePropertyForKey:kADURLProtocolPropertyKey inRequest:mutableRequest];
+        [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:redirectResponse];
     }
     
     [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
-    [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:redirectResponse];
     return mutableRequest;
 }
 
