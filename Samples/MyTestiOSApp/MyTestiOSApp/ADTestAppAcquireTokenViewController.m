@@ -89,7 +89,7 @@
     }
     
     [_validateAuthority setSelectedSegmentIndex:settings.validateAuthority ? 0 : 1];
-    [_credentialsType setSelectedSegmentIndex:settings.enableBroker ? 0 : 1];
+    [_credentialsType setSelectedSegmentIndex:settings.enableBroker ? 1 : 0];
 }
 
 - (void)didReceiveMemoryWarning {
