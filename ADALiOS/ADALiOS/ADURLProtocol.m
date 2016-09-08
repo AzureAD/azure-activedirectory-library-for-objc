@@ -194,7 +194,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 {
     (void)connection;
     
-    AD_LOG_VERBOSE_F(@"-[ADURLProtocol connection:willSendRequest:]",  @"Redirect response: %@. New request:%@", redirectResponse.URL, request.URL);
+    AD_LOG_VERBOSE_F(@"-[ADURLProtocol connection:willSendRequest:]", @"Redirect response: %@. New request:%@", redirectResponse.URL, request.URL);
     
     // Disallow HTTP for ADURLProtocol
     if ([request.URL.scheme isEqualToString:@"http"])
@@ -214,15 +214,43 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     }
     
     NSMutableURLRequest* mutableRequest = [request mutableCopy];
-    
-    if (redirectResponse)
-    {
-        // If we're being redirected by the server that will create a whole new connection that we still need to observe
-        [NSURLProtocol removePropertyForKey:kADURLProtocolPropertyKey inRequest:mutableRequest];
-        [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:redirectResponse];
-    }
+    SAFE_ARC_AUTORELEASE(mutableRequest);
     
     [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
+    
+    if (!redirectResponse)
+    {
+        // If there wasn't a redirect response that means that we're canonicalizing
+        // the URL and don't need to cancel the connection or worry about an infinite
+        // loop happening so we can just return the response now.
+        
+        return mutableRequest;
+    }
+    
+    // If we don't have this line in the redirectResponse case then we get a HTTP too many redirects
+    // error.
+    [NSURLProtocol removePropertyForKey:kADURLProtocolPropertyKey inRequest:mutableRequest];
+    
+    [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:redirectResponse];
+    
+    // If we don't cancel out the connection in the redirectResponse case then we will end up
+    // with duplicate connections
+    
+    // Here are the comments from Apple's CustomHTTPProtocol demo code:
+    // https://developer.apple.com/library/ios/samplecode/CustomHTTPProtocol/Introduction/Intro.html
+    
+    // Stop our load.  The CFNetwork infrastructure will create a new NSURLProtocol instance to run
+    // the load of the redirect.
+    
+    // The following ends up calling -URLSession:task:didCompleteWithError: with NSURLErrorDomain / NSURLErrorCancelled,
+    // which specificallys traps and ignores the error.
+    
+    [_connection cancel];
+    [self.client URLProtocol:self
+            didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain
+                                                 code:NSUserCancelledError
+                                             userInfo:nil]];
+    
     return mutableRequest;
 }
 
