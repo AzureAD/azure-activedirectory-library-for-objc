@@ -1,3 +1,8 @@
+Version 2.2.5 (09.09.2016)
+-------------
+* Fixed an issue where NTLM authentication did not show if the authentication prompt came after the first redirect.
+* Switched to a single framework/library build that can be included in both applications and extensions
+
 Version 2.2.4 (08.23.2016)
 -------------
 * Fixed an issue caused with some redirects where the webview would not update the base URL properly.
