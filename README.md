@@ -1,6 +1,5 @@
 
 #Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and OSX
-
 =====================================
 
 ## URGENT: iOS 10 and Azure Authentication
