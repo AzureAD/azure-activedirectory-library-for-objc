@@ -1,10 +1,11 @@
 
 #Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and OSX
+
 =====================================
 
 ## URGENT: iOS 10 and Azure Authentication
 
-* If you are using ADAL versions <= 1.2.x or <= 2.2.4 you need to immediately upgrade your application to the latest version of our SDKs. Without this step, your users will not be able to sign-in once iOS 10 is released.* If a user is already signed in to your application it will continue to work temporarily, but the next time they need to sign in again they will experience this issue. 
+*If you are using ADAL versions <= 1.2.x or <= 2.2.4 you need to immediately upgrade your application to the latest version of our SDKs. Without this step, your users will not be able to sign-in once iOS 10 is released.* If a user is already signed in to your application it will continue to work temporarily, but the next time they need to sign in again they will experience this issue. 
 
 *NOTE: Fix to the 1.2 branch is coming soon. Please stand by.*
 
@@ -35,6 +36,9 @@ Once this is complete, run the `pod update` command to update your application.
 6.	If it isn’t there or in red color, press the “+” icon. You should see ADALiOS.a in your available libraries. Select it and click OK. 
 7.	OPTIONAL: You may also select the .framework version if you would rather use the framework. Make sure that you are selecting the iOS Target and not the Mac Target for the framework.
 8.	Compile as and test your application.
+
+
+=====================================
 
 
 [![Build Status](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc.svg?branch=1.2.x)](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc)
