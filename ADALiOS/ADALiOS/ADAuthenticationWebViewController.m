@@ -209,7 +209,16 @@ NSTimer *timer;
         return;
     }
 
-    if([error.domain isEqual:@"WebKitErrorDomain"]){
+    // Ignore WebKitError 102 for OAuth 2.0 flow.
+    if ([error.domain isEqual:@"WebKitErrorDomain"] && error.code == 102)
+    {
+        return;
+    }
+    
+    // Prior to iOS 10 the WebView trapped out this error code and didn't pass it along to us
+    // now we have to trap it out ourselves.
+    if ([error.domain isEqualToString:NSCocoaErrorDomain] && error.code == NSUserCancelledError)
+    {
         return;
     }
     
