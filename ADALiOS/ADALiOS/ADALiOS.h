@@ -22,6 +22,23 @@
 #define ADAL_VER_LOW    2
 #define ADAL_VER_PATCH  9
 
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+#define INT_CONCAT_HELPER(x,y) x ## . ## y
+#define INT_CONCAT(x,y) INT_CONCAT_HELPER(x,y)
+
+// Framework versions only support high and low for the double value, sadly.
+#define ADAL_VERSION_NUMBER INT_CONCAT(ADAL_VER_HIGH, ADAL_VER_LOW)
+
+#define ADAL_VERSION_STRING     STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH)
+#define ADAL_VERSION_NSSTRING   @"" STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH)
+
+#define ADAL_VERSION_HELPER(high, low, patch) adalVersion_ ## high ## _ ## low ## _ ## patch
+#define ADAL_VERSION_(high, low, patch) ADAL_VERSION_HELPER(high, low, patch)
+
+// This is specially crafted so the name of the variable matches the full ADAL version
+#define ADAL_VERSION_VAR ADAL_VERSION_(ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH)
+
 #import "ADLogger.h"
 #import "ADErrorCodes.h"
 #import "ADAuthenticationError.h"
