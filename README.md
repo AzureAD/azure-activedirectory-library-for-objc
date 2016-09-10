@@ -2,6 +2,41 @@
 #Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and OSX
 =====================================
 
+## URGENT: iOS 10 and Azure Authentication
+
+* If you are using ADAL versions <= 1.2.x or <= 2.2.4 you need to immediately upgrade your application to the latest version of our SDKs. Without this step, your users will not be able to sign-in once iOS 10 is released.* If a user is already signed in to your application it will continue to work temporarily, but the next time they need to sign in again they will experience this issue. 
+
+*NOTE: Fix to the 1.2 branch is coming soon. Please stand by.*
+
+To update your application, you may use cocoapods or manually download the SDK from source on GitHub. Once you’ve update your SDK to the latest version your application will continue to work, there is no further code changes required for your application to continue working. 
+
+## How to Update Your Application with Cocoapods (recommended)
+
+If you are using the 2.x version of our library, ensure the following line is in your `Podfile` in the root directory of your application:
+
+```
+pod 'ADAL', '~> 2.2'
+```
+If you are using the 1.2 version of our library, ensure the following line is in your `Podfile` in the root directory of your application:
+
+```
+pod 'ADALiOS', '~> 1.2'
+```
+Once this is complete, run the `pod update` command to update your application. 
+
+
+## How to Update Your Application with source
+
+1.	Download the latest code from the branch you require, either 2.2.5 or 1.2.?
+2.	In your XCode 8 or higher project, Click File -> Add Files
+3.	In the Finder that appears, navigate to where you downloaded the ADAL source. Go to the ADAL folder, and select `ADAL.xcodeproj` and click Add.
+4.	You’ll see you have another Project in your Project list to the left called `ADAL.xcodeproj`
+5.	Under “Linked Frameworks and Libraries” in your application’s General project settings, ensure ADALiOS.a is listed and not in red color font. Red color font means XCode can’t find the library and you need to update the location by removing the entry and adding it again.
+6.	If it isn’t there or in red color, press the “+” icon. You should see ADALiOS.a in your available libraries. Select it and click OK. 
+7.	OPTIONAL: You may also select the .framework version if you would rather use the framework. Make sure that you are selecting the iOS Target and not the Mac Target for the framework.
+8.	Compile as and test your application.
+
+
 [![Build Status](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc.svg?branch=1.2.x)](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc)
 
 The ADAL SDK for iOS and Mac OS X gives you the ability to add support for Work Accounts to your application with just a few lines of additional code. This SDK gives your application the full functionality of Microsoft Azure AD, including industry standard protocol support for OAuth2, Web API integration with user level consent, and two factor authentication support. Best of all, it’s FOSS (Free and Open Source Software) so that you can participate in the development process as we build these libraries. 
