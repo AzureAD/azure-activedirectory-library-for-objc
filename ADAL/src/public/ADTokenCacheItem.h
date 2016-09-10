@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (copy, nullable) NSDate* expiresOn;
 
 
-@property (retain) ADUserInformation* userInformation;
+@property (retain, nullable) ADUserInformation* userInformation;
 
 /*!
  The item is a tombstone if this property if not nil;
