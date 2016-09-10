@@ -23,6 +23,7 @@
 
 #import "ADTestAppAcquireTokenViewController.h"
 #import "ADTestAppSettings.h"
+#import "NSString+ADHelperMethods.h"
 #import <ADALiOS/ADAL.h>
 
 @interface ADTestAppAcquireTokenViewController ()
@@ -35,12 +36,18 @@
     IBOutlet UITextField* _userIdField;
     IBOutlet UISegmentedControl* _userIdType;
 
-    IBOutlet UISegmentedControl* _credentialsType;
+    // 2.x only
+    //IBOutlet UISegmentedControl* _credentialsType;
     IBOutlet UISegmentedControl* _webViewType;
     IBOutlet UISegmentedControl* _fullScreen;
+    IBOutlet UISegmentedControl* _validateAuthority;
+    
+    IBOutlet UITextView* _resultView;
     
     IBOutlet UIView* _authView;
     IBOutlet UIWebView* _webView;
+    
+    BOOL _userIdEdited;
 }
 
 - (id)init
@@ -58,9 +65,6 @@
     return self;
 }
 
-
-
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -70,6 +74,21 @@
     [_authView setHidden:YES];
     [self.view addSubview:_authView];
     
+    [_userIdField addTarget:self action:@selector(textFieldChanged:) forControlEvents:UIControlEventEditingChanged];
+}
+
+- (void)textFieldChanged:(id)sender
+{
+    _userIdEdited = ![NSString adIsStringNilOrBlank:_userIdField.text];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    if (!_userIdEdited)
+    {
+        NSString* defaultUser = [[ADTestAppSettings settings] defaultUser];
+        [_userIdField setText:defaultUser];
+    }
 }
 
 - (void)didReceiveMemoryWarning {

@@ -32,10 +32,16 @@ extern NSString* ADTestAppCacheChangeNotification;
 @property NSURL* redirectUri;
 @property NSString* clientId;
 @property NSString* resource;
+@property NSString* defaultUser;
+@property BOOL validateAuthority;
+@property BOOL enableBroker;
 
 + (ADTestAppSettings*)settings;
++ (NSUInteger)numberOfProfiles;
++ (NSString*)profileTitleForIndex:(NSUInteger)idx;
++ (NSString*)currentProfileTitle;
++ (NSUInteger)currentProfileIdx;
 
-
-- (void)setFromDictionary:(NSDictionary*)settings;
+- (void)setProfileFromIndex:(NSInteger)idx;
 
 @end

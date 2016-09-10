@@ -55,6 +55,7 @@
     
     _tabBar = [UITabBarController new];
     
+    
     ADTestAppAcquireTokenViewController* tokenController = [ADTestAppAcquireTokenViewController new];
     [_tabBar addChildViewController:tokenController];
     
