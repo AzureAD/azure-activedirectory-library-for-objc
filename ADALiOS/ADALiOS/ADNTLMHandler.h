@@ -26,7 +26,8 @@
  If this method succeeds, it should be paired with endWebViewNTLMHandler. The method attempts
  to retrieve the workplace join identity and certificate. The interception should be as 
  short as possible, as this is a very specific fix to overcome the webview limitations. */
-+(BOOL) startWebViewNTLMHandlerWithError: (ADAuthenticationError* __autoreleasing*) error;
++(BOOL) startWebViewNTLMHandler:(NSString *)endUrl
+                          error:(ADAuthenticationError *__autoreleasing *) error;
 /* Stops the HTTPS interception. */
 +(void) endWebViewNTLMHandler;
 

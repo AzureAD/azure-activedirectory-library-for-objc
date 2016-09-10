@@ -46,14 +46,15 @@ NSURLConnection *_conn = nil;
     return _challengeCancelled;
 }
 
-+(BOOL) startWebViewNTLMHandlerWithError: (ADAuthenticationError *__autoreleasing *) error
++(BOOL) startWebViewNTLMHandler:(NSString *)endUrl
+                          error:(ADAuthenticationError *__autoreleasing *) error
 {
     @synchronized(self)//Protect the sAD_Identity_Ref from being cleared while used.
     {
         AD_LOG_VERBOSE(AD_WPJ_LOG, @"Attempting to start the NTLM session for webview.");
         
         BOOL succeeded = NO;
-        if ([NSURLProtocol registerClass:[ADURLProtocol class]])
+        if ([ADURLProtocol registerProtocol:endUrl])
         {
             succeeded = YES;
             AD_LOG_VERBOSE(AD_WPJ_LOG, @"NTLM session started.");
@@ -75,7 +76,7 @@ NSURLConnection *_conn = nil;
 {
     @synchronized(self)//Protect the sAD_Identity_Ref from being cleared while used.
     {
-        [NSURLProtocol unregisterClass:[ADURLProtocol class]];
+        [ADURLProtocol unregisterProtocol];
         _username = nil;
         _password = nil;
         _challengeUrl = nil;

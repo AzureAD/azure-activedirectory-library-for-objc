@@ -198,7 +198,7 @@ correlationId:(NSUUID *)correlationId
     _completionBlock = [completionBlock copy];
     ADAuthenticationError* error = nil;
     
-    _ntlmSession = [ADNTLMHandler startWebViewNTLMHandlerWithError:nil];
+    _ntlmSession = [ADNTLMHandler startWebViewNTLMHandler:[endURL absoluteString] error:nil];
     if (_ntlmSession)
     {
         AD_LOG_INFO(@"Authorization UI", @"NTLM support enabled.");

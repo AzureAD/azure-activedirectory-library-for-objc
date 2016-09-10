@@ -22,4 +22,7 @@
 //NTLM with client-authentication. The class is not thread-safe.
 @interface ADURLProtocol : NSURLProtocol <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 
++ (BOOL)registerProtocol:(NSString*)endURL;
++ (void)unregisterProtocol;
+
 @end

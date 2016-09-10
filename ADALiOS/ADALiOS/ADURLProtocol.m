@@ -22,10 +22,27 @@
 #import "ADNTLMHandler.h"
 
 NSString* const sLog = @"HTTP Protocol";
+static NSString* s_endURL = nil;
+static NSString* kADURLProtocolPropertyKey = @"ADURLProtocol";
 
 @implementation ADURLProtocol
 {
     NSURLConnection *_connection;
+}
+
++ (BOOL)registerProtocol:(NSString*)endURL
+{
+    if (s_endURL!=endURL)
+    {
+        s_endURL = endURL.lowercaseString;
+    }
+    return [NSURLProtocol registerClass:self];
+}
+
++ (void)unregisterProtocol
+{
+    [NSURLProtocol unregisterClass:self];
+    s_endURL = nil;
 }
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
@@ -38,7 +55,7 @@ NSString* const sLog = @"HTTP Protocol";
     {
         //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checking
         //for initialization
-        if ( [NSURLProtocol propertyForKey:@"ADURLProtocol" inRequest:request] == nil )
+        if ( [NSURLProtocol propertyForKey:kADURLProtocolPropertyKey inRequest:request] == nil )
         {
             AD_LOG_VERBOSE_F(sLog, @"Requested handling of URL host: %@", [request.URL host]);
 
@@ -68,7 +85,7 @@ NSString* const sLog = @"HTTP Protocol";
     
     AD_LOG_VERBOSE_F(sLog, @"startLoading host: %@", [self.request.URL host] );
     NSMutableURLRequest *mutableRequest = [self.request mutableCopy];
-    [NSURLProtocol setProperty:@"YES" forKey:@"ADURLProtocol" inRequest:mutableRequest];
+    [NSURLProtocol setProperty:@"YES" forKey:kADURLProtocolPropertyKey inRequest:mutableRequest];
     _connection = [[NSURLConnection alloc] initWithRequest:mutableRequest
                                                   delegate:self
                                           startImmediately:YES];
@@ -102,28 +119,65 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 
 #pragma mark - NSURLConnectionDataDelegate Methods
 
-- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response
+- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse
 {
-    AD_LOG_VERBOSE_F(sLog, @"HTTPProtocol::connection:willSendRequest:. Redirect response: %@. New request:%@", response.URL, request.URL);
+    AD_LOG_VERBOSE_F(sLog, @"HTTPProtocol::connection:willSendRequest:. Redirect response: %@. New request:%@", redirectResponse.URL, request.URL);
     
     // Disallow HTTP for ADURLProtocol
     if ([request.URL.scheme isEqualToString:@"http"])
     {
+        if ([request.URL.absoluteString.lowercaseString hasPrefix:s_endURL])
+        {
+            // In this case we want to create an NSURLError so we can intercept the URL in the webview
+            // delegate, while still forcing the connection to cancel. This error is the same one the
+            // OS sends if it's unable to connect to the host
+            [connection cancel];
+            NSError* failingError = [NSError errorWithDomain:NSURLErrorDomain
+                                                        code:-1003
+                                                    userInfo:@{ NSURLErrorFailingURLErrorKey : request.URL }];
+            [self.client URLProtocol:self didFailWithError:failingError];
+        }
         return nil;
     }
     
-    //Ensure that the webview gets the redirect notifications:
     NSMutableURLRequest* mutableRequest = [request mutableCopy];
     if(![mutableRequest.allHTTPHeaderFields valueForKey:@"x-ms-PkeyAuth"])
     {
         [mutableRequest addValue:@"1.0" forHTTPHeaderField:@"x-ms-PkeyAuth"];
     }
     
-    if (response)
+    if (!redirectResponse)
     {
-        [[self class] removePropertyForKey:@"ADURLProtocol" inRequest:mutableRequest];
-        [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
+        // If there wasn't a redirect response that means that we're canonicalizing
+        // the URL and don't need to cancel the connection or worry about an infinite
+        // loop happening so we can just return the response now.
+        
+        return mutableRequest;
     }
+    
+    // If we don't have this line in the redirectResponse case then we get a HTTP too many redirects
+    // error.
+    [NSURLProtocol removePropertyForKey:kADURLProtocolPropertyKey inRequest:mutableRequest];
+    
+    [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:redirectResponse];
+    
+    // If we don't cancel out the connection in the redirectResponse case then we will end up
+    // with duplicate connections
+    
+    // Here are the comments from Apple's CustomHTTPProtocol demo code:
+    // https://developer.apple.com/library/ios/samplecode/CustomHTTPProtocol/Introduction/Intro.html
+    
+    // Stop our load.  The CFNetwork infrastructure will create a new NSURLProtocol instance to run
+    // the load of the redirect.
+    
+    // The following ends up calling -URLSession:task:didCompleteWithError: with NSURLErrorDomain / NSURLErrorCancelled,
+    // which specificallys traps and ignores the error.
+    
+    [_connection cancel];
+    [self.client URLProtocol:self
+            didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain
+                                                 code:NSUserCancelledError
+                                             userInfo:nil]];
     
     return mutableRequest;
 }
