@@ -101,7 +101,7 @@
     [_clientId setText:settings.clientId];
     [_redirectUri setText:settings.redirectUri.absoluteString];
     [_resource setTitle:settings.resource forState:UIControlStateNormal];
-    [_profile setTitle:[ADTestAppProfileViewController currentProfileTitle] forState:UIControlStateNormal];
+    [_profile setTitle:[ADTestAppSettings currentProfileTitle] forState:UIControlStateNormal];
 }
 
 @end
