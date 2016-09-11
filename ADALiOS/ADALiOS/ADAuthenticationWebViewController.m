@@ -216,7 +216,7 @@ NSTimer *timer;
     }
     
     // If we failed on an invalid URL check to see if it matches our end URL
-    if ([error.domain isEqualToString:@"NSURLErrorDomain"] && (error.code == -1002 || error.code == -1003))
+    if ([error.domain isEqualToString:NSURLErrorDomain] && (error.code == NSURLErrorUnsupportedURL || error.code == NSURLErrorCannotFindHost))
     {
         NSURL* url = [error.userInfo objectForKey:NSURLErrorFailingURLErrorKey];
         NSString* urlString = [url absoluteString];

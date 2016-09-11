@@ -133,7 +133,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
             // OS sends if it's unable to connect to the host
             [connection cancel];
             NSError* failingError = [NSError errorWithDomain:NSURLErrorDomain
-                                                        code:-1003
+                                                        code:NSURLErrorCannotFindHost
                                                     userInfo:@{ NSURLErrorFailingURLErrorKey : request.URL }];
             [self.client URLProtocol:self didFailWithError:failingError];
         }
