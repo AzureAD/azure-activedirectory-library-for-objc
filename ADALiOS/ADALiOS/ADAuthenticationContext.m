@@ -42,6 +42,12 @@ NSString* const unknownError = @"Uknown error.";
 NSString* const credentialsNeeded = @"The user credentials are need to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
 NSString* const serverError = @"The authentication server returned an error: %@.";
 
+
+// This variable is purposefully a global so that way we can more easily pull it out of the
+// symbols in a binary to detect what version of ADAL is being used without needing to
+// run the application.
+NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
+
 //Used for the callback of obtaining the OAuth2 code:
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 static volatile int sDialogInProgress = 0;
@@ -49,6 +55,14 @@ static volatile int sDialogInProgress = 0;
 BOOL isCorrelationIdUserProvided = NO;
 
 @implementation ADAuthenticationContext
+
++ (void)load
+{
+    // +load is called by the ObjC runtime before main() as it loads in ObjC symbols and
+    // populates the runtime.
+    
+    NSLog(@"ADAL version %@", ADAL_VERSION_VAR);
+}
 
 -(id) init
 {

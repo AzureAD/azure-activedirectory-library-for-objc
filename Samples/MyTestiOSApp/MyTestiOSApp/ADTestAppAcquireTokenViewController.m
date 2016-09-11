@@ -23,6 +23,7 @@
 
 #import "ADTestAppAcquireTokenViewController.h"
 #import "ADTestAppSettings.h"
+#import "NSString+ADHelperMethods.h"
 #import <ADALiOS/ADAL.h>
 
 @interface ADTestAppAcquireTokenViewController ()
@@ -35,12 +36,18 @@
     IBOutlet UITextField* _userIdField;
     IBOutlet UISegmentedControl* _userIdType;
 
-    IBOutlet UISegmentedControl* _credentialsType;
+    // 2.x only
+    //IBOutlet UISegmentedControl* _credentialsType;
     IBOutlet UISegmentedControl* _webViewType;
     IBOutlet UISegmentedControl* _fullScreen;
+    IBOutlet UISegmentedControl* _validateAuthority;
+    
+    IBOutlet UITextView* _resultView;
     
     IBOutlet UIView* _authView;
     IBOutlet UIWebView* _webView;
+    
+    BOOL _userIdEdited;
 }
 
 - (id)init
@@ -58,9 +65,6 @@
     return self;
 }
 
-
-
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -70,6 +74,21 @@
     [_authView setHidden:YES];
     [self.view addSubview:_authView];
     
+    [_userIdField addTarget:self action:@selector(textFieldChanged:) forControlEvents:UIControlEventEditingChanged];
+}
+
+- (void)textFieldChanged:(id)sender
+{
+    _userIdEdited = ![NSString adIsStringNilOrBlank:_userIdField.text];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    if (!_userIdEdited)
+    {
+        NSString* defaultUser = [[ADTestAppSettings settings] defaultUser];
+        [_userIdField setText:defaultUser];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -106,6 +125,27 @@
     [self acquireTokenInteractive:AD_PROMPT_AUTO];
 }
 
+- (void)updateResultView:(ADAuthenticationResult*)result
+{
+    NSString* resultStatus = nil;
+    
+    switch (result.status)
+    {
+        case AD_SUCCEEDED : resultStatus = @"AD_SUCCEEDED"; break;
+        case AD_FAILED : resultStatus = @"AD_FAILED"; break;
+        case AD_USER_CANCELLED : resultStatus = @"AD_USER_CANCELLED"; break;
+        default:
+            resultStatus = [NSString stringWithFormat:@"Unknown (%d)", result.status];
+            break;
+    }
+    
+    NSString* resultText = [NSString stringWithFormat:@"{\n\tstatus = %@;\n\terror = %@\n\ttokenCacheItem = %@\n}", resultStatus, result.error, result.tokenCacheStoreItem];
+    
+    [_resultView setText:resultText];
+    
+    printf("%s", [resultText UTF8String]);
+}
+
 - (void)acquireTokenInteractive:(ADPromptBehavior)promptBehavior
 {
     ADTestAppSettings* settings = [ADTestAppSettings settings];
@@ -115,12 +155,17 @@
     NSURL* redirectUri = [settings redirectUri];
     NSString* userId = [_userIdField text];
     
+    BOOL validateAuthority = _validateAuthority.selectedSegmentIndex == 0;
+    
+    ADAuthenticationError* error = nil;
     ADAuthenticationContext* context =
     [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                              validateAuthority:YES
-                                                          error:nil];
+                                              validateAuthority:validateAuthority
+                                                          error:&error];
     if (!context)
     {
+        NSString* resultText = [NSString stringWithFormat:@"Failed to create AuthenticationContext:\n%@", error];
+        [_resultView setText:resultText];
         return;
     }
     
@@ -163,6 +208,8 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             if ([_acquireSettingsView isHidden])
             {
+                [self updateResultView:result];
+                
                 [_webView loadHTMLString:@"<html><head></head><body>done!</body></html>" baseURL:nil];
                 [_authView setHidden:YES];
                 [_acquireSettingsView setHidden:NO];
@@ -188,13 +235,17 @@
     NSString* clientId = [settings clientId];
     NSURL* redirectUri = [settings redirectUri];
     NSString* userId = [_userIdField text];
+    BOOL validateAuthority = _validateAuthority.selectedSegmentIndex == 0;
     
+    ADAuthenticationError* error = nil;
     ADAuthenticationContext* context =
     [ADAuthenticationContext authenticationContextWithAuthority:authority
-                                              validateAuthority:YES
-                                                          error:nil];
+                                              validateAuthority:validateAuthority
+                                                          error:&error];
     if (!context)
     {
+        NSString* resultText = [NSString stringWithFormat:@"Failed to create AuthenticationContext:\n%@", error];
+        [_resultView setText:resultText];
         return;
     }
     
@@ -213,7 +264,11 @@
         fBlockHit = YES;
         NSLog(@"result: %@", result);
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:ADTestAppCacheChangeNotification object:self];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self updateResultView:result];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:ADTestAppCacheChangeNotification object:self];
+        });
     }];
     
 }

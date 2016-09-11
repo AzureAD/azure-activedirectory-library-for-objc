@@ -430,7 +430,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.MSOpenTech.adal.1.2.6.TestApp;
 				PRODUCT_NAME = "ADAL Test App";
 				PROVISIONING_PROFILE = "";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../../ADALiOS/ADALiOS";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $HOME/aadoverrides ../../../ADALiOS/ADALiOS";
 				WRAPPER_EXTENSION = app;
 			};
 			name = CodeCoverage;
@@ -559,7 +559,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.MSOpenTech.adal.1.2.6.TestApp;
 				PRODUCT_NAME = "ADAL Test App";
 				PROVISIONING_PROFILE = "";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../../ADALiOS/ADALiOS";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $HOME/aadoverrides ../../../ADALiOS/ADALiOS";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -583,7 +583,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.MSOpenTech.adal.1.2.6.TestApp;
 				PRODUCT_NAME = "ADAL Test App";
 				PROVISIONING_PROFILE = "";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../../ADALiOS/ADALiOS";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $HOME/aadoverrides ../../../ADALiOS/ADALiOS";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
