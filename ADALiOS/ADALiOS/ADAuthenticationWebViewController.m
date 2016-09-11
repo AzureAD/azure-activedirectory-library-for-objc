@@ -215,6 +215,19 @@ NSTimer *timer;
         return;
     }
     
+    // If we failed on an invalid URL check to see if it matches our end URL
+    if ([error.domain isEqualToString:@"NSURLErrorDomain"] && (error.code == -1002 || error.code == -1003))
+    {
+        NSURL* url = [error.userInfo objectForKey:NSURLErrorFailingURLErrorKey];
+        NSString* urlString = [url absoluteString];
+        if ([[urlString lowercaseString] hasPrefix:_endURL.lowercaseString])
+        {
+            _complete = YES;
+            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCompleteWithURL:url]; } );
+            return;
+        }
+    }
+    
     // Prior to iOS 10 the WebView trapped out this error code and didn't pass it along to us
     // now we have to trap it out ourselves.
     if ([error.domain isEqualToString:NSCocoaErrorDomain] && error.code == NSUserCancelledError)
