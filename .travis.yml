@@ -9,16 +9,7 @@ install:
 before_script:
   - set -o pipefail
 script:
-  - xcodebuild -workspace ADALiOS.xcworkspace -scheme ADALiOS -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty
-  - xcodebuild test -workspace ADALiOS.xcworkspace -scheme ADALiOS -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty
-  - find ~/Library/Developer/Xcode/DerivedData/ -not -path "*x86_64*" -not -path "*ADALiOSTests*" -name "*.gcno" -exec cp -v '{}' . \;
-  - find ~/Library/Developer/Xcode/DerivedData/ -not -path "*x86_64*" -not -path "*ADALiOSTests*" -name "*.gcda" -exec cp -v '{}' . \;
- # - coveralls -e ADALiOS/ADALiOSTests
-  - xcodebuild -workspace ADALiOS.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty
-#  - xcodebuild test -workspace ADALiOS.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty
-  - find ~/Library/Developer/Xcode/DerivedData/ -not -path "*x86_64*" -not -path "*ADALiOSTests*" -not -path "*MyTestiOSApp*" -name "*.gcno" -exec cp -v '{}' . \;
-  - find ~/Library/Developer/Xcode/DerivedData/ -not -path "*x86_64*" -not -path "*ADALiOSTests*" -not -path "*MyTestiOSApp*" -name "*.gcda" -exec cp -v '{}' . \;
-  #- coveralls -e ADALiOS/ADALiOSTests
+  - ./build.py
 notifications:
   slack:
     secure: BIziStN+8QJLjdqNbLyRWWw9kI/MQsX+rZq+xz/bfTANk0gbEryLgMSiEoHxdoctu0dOqOet1voYuDKs3RQW3W0yh0AhDwVgWThNkTA0oDXF8zqm9AXettXNtmYHipaYb6+z6L4lpJOkClQp3hAheu8cM2igqye1O0FQla9g/PA=
