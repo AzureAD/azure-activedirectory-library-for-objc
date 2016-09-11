@@ -84,11 +84,14 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    ADTestAppSettings* settings = [ADTestAppSettings settings];
     if (!_userIdEdited)
     {
-        NSString* defaultUser = [[ADTestAppSettings settings] defaultUser];
+        NSString* defaultUser = [settings defaultUser];
         [_userIdField setText:defaultUser];
     }
+    
+    [_validateAuthority setSelectedSegmentIndex:settings.validateAuthority ? 0 : 1];
 }
 
 - (void)didReceiveMemoryWarning {
