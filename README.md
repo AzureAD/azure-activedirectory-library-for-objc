@@ -4,7 +4,7 @@
 
 ## URGENT: iOS 10 NOTICE
 
-**If you are using ADAL versions <= 1.2.x or <= 2.2.4 you need to immediately upgrade your application to the latest version of our SDKs. Without this step, your users will not be able to sign-in once iOS 10 is released.** If a user is already signed in to your application it will continue to work temporarily, but the next time they need to sign in again they will experience this issue. 
+**If you are using ADAL versions <= 1.2.8 or <= 2.2.4 you need to immediately upgrade your application to the latest version of our SDKs. Without this step, your users will not be able to sign-in once iOS 10 is released.** If a user is already signed in to your application it will continue to work temporarily, but the next time they need to sign in again they will experience this issue. 
 
 **NOTE: Fix to the 1.2 branch is coming soon. Please stand by.**
 
