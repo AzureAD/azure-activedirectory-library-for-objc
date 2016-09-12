@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "ADALiOS"
-  s.version      = "1.2.8"
+  s.version      = "1.2.9"
   s.summary      = "The ADAL SDK for iOS gives you the ability to add Azure Identity authentication to your application"
 
   s.description  = <<-DESC
@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
     :type => "Apache License, Version 2.0", 
     :file => "LICENSE.txt" 
   }
-  s.authors      = { "Brandon Werner" => "brandwe@microsoft.com" }
+  s.authors      = { "Microsoft" => "nugetaad@microsoft.com" }
   s.social_media_url   = "https://twitter.com/azuread"
   s.platform     = :ios, "7.0"
   s.source       = { 
