@@ -62,18 +62,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (copy) NSString* authority;
 
-@property (copy) NSString* clientId;
+@property (copy, nullable) NSString* clientId;
 
-@property (copy) NSString* familyId;
+@property (copy, nullable) NSString* familyId;
 
 /*! The access token received. Should be nil, in case the item stores multi-resource refresh token. */
 @property (copy, nullable) NSString* accessToken;
 
-@property (copy) NSString* accessTokenType;
+@property (copy, nullable) NSString* accessTokenType;
 
 @property (copy, nullable) NSString* refreshToken;
 
-@property (copy) NSData* sessionKey;
+@property (copy, nullable) NSData* sessionKey;
 
 @property (copy, nullable) NSDate* expiresOn;
 
