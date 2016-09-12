@@ -27,7 +27,7 @@ Once this is complete, run the `pod update` command to update your application.
 
 ## How to Update Your Application with source
 
-1.	Download the latest code from the task you require, either 2.2.9 or 1.2.
+1.	Download the latest code from the task you require, either 2.2.5 or 1.2.9
 2.	In your XCode 8 or higher project, Click File -> Add Files
 3.	In the Finder that appears, navigate to where you downloaded the ADAL source. Go to the ADAL folder, and select `ADAL.xcodeproj` and click Add.
 4.	You’ll see you have another Project in your Project list to the left called `ADAL.xcodeproj`
