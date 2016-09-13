@@ -262,7 +262,7 @@
         return nil;
     }
     
-    NSString* query = [components query];
+    NSString* query = [components percentEncodedQuery];
     // Don't bother adding it if it's already there
     if (query && [query containsString:ADAL_ID_VERSION])
     {
@@ -271,11 +271,11 @@
     
     if (query)
     {
-        [components setQuery:[query stringByAppendingString:[NSString stringWithFormat:@"&%@=%@", ADAL_ID_VERSION, ADAL_VERSION_NSSTRING]]];
+        [components setPercentEncodedQuery:[query stringByAppendingString:[NSString stringWithFormat:@"&%@=%@", ADAL_ID_VERSION, ADAL_VERSION_NSSTRING]]];
     }
     else
     {
-        [components setQuery:[NSString stringWithFormat:@"%@=%@", ADAL_ID_VERSION, ADAL_VERSION_NSSTRING]];
+        [components setPercentEncodedQuery:[NSString stringWithFormat:@"%@=%@", ADAL_ID_VERSION, ADAL_VERSION_NSSTRING]];
     }
     
     return [components URL];
