@@ -27,7 +27,6 @@
 #import "ADWorkPlaceJoinConstants.h"
 #import "NSDictionary+ADExtensions.h"
 #import "ADAuthenticationSettings.h"
-#import "ADNTLMHandler.h"
 #import "ADBrokerKeyHelper.h"
 #import "ADHelpers.h"
 
@@ -60,7 +59,6 @@ NSTimer *timer;
         _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
         _webView          = webView;
         _webView.delegate = self;
-        [ADNTLMHandler setCancellationUrl:[_startURL absoluteString]];
     }
     
     return self;
@@ -117,12 +115,6 @@ NSTimer *timer;
 {
 #pragma unused(webView)
 #pragma unused(navigationType)
-    
-    if([ADNTLMHandler isChallengeCancelled]){
-        _complete = YES;
-        dispatch_async( dispatch_get_main_queue(), ^{[_delegate webAuthenticationDidCancel];});
-        return NO;
-    }
     
     NSString *requestURL = [request.URL absoluteString];
     if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"]) {
@@ -219,11 +211,7 @@ NSTimer *timer;
     if (_delegate)
     {
         AD_LOG_ERROR(@"authorization error", error.code, [error localizedDescription]);
-        if([ADNTLMHandler isChallengeCancelled]){
-            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidCancel]; } );
-        } else{
-            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidFailWithError:error]; } );
-        }
+        dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthenticationDidFailWithError:error]; } );
     }
     else
     {
