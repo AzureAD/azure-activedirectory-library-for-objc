@@ -97,7 +97,7 @@ def do_ios_build(target, operation) :
 
 	print_operation_start(name, operation)
 
-	command = "xcbuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest + " | xcpretty"
+	command = "xcodebuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest + " | xcpretty"
 	print command
 	exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
 
@@ -111,7 +111,7 @@ def do_mac_build(target, operation) :
 
 	print_operation_start(name, operation)
 
-	command = "xcbuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\""
+	command = "xcodebuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\""
 
 	if (arch != None) :
 		command = command + " -destination 'arch=" + arch + "'"
