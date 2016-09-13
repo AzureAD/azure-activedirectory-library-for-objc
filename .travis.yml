@@ -4,18 +4,12 @@ osx_image: xcode7.1
 # Set up our rubygems (slather and xcpretty, namely)
 install: gem install slather xcpretty -N
 
-script: 
-# Start by nuking any lingering codecov files. These can cause issues when the xcode version changes
-  - find . -name "*.gcda" -print0 | xargs -0 rm
+before_script:
+  - set -o pipefail
   
-# Build and Test the ADALiOS library
-  - xcodebuild test -workspace ADALiOS.xcworkspace -scheme ADALiOS -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty -c; exit ${PIPESTATUS[0]}
+script: 
+ - ./build.py
 
-# Build the Test App (to make sure it doesn't break
-  - xcodebuild -workspace ADALiOS.xcworkspace -scheme MyTestiOSApp -configuration CodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty -c; exit ${PIPESTATUS[0]}
-
-after_success:
-# Run slather once to have it print out the results in the travis log
-  - slather coverage -s ADALiOS/ADALiOS.xcodeproj
-# And again to send it to coveralls
-  - slather
+notifications:
+  slack:
+    secure: BIziStN+8QJLjdqNbLyRWWw9kI/MQsX+rZq+xz/bfTANk0gbEryLgMSiEoHxdoctu0dOqOet1voYuDKs3RQW3W0yh0AhDwVgWThNkTA0oDXF8zqm9AXettXNtmYHipaYb6+z6L4lpJOkClQp3hAheu8cM2igqye1O0FQla9g/PA=
