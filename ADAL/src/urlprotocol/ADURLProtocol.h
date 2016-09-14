@@ -46,7 +46,7 @@
 + (void)registerHandler:(Class<ADAuthMethodHandler>)handler
              authMethod:(NSString *)authMethod;
 
-+ (BOOL)registerProtocol;
++ (BOOL)registerProtocol:(NSString*)endURL;
 + (void)unregisterProtocol;
 
 + (void)addCorrelationId:(NSUUID *)correlationId

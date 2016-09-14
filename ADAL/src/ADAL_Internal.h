@@ -21,26 +21,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-//iOS does not support resources in client libraries. Hence putting the
-//version in static define until we identify a better place:
+// iOS does not support resources in client libraries. Hence putting the
+// version in static define until we identify a better place.
+// (Note: All Info.plist files read version numbers from the following three lines
+// through build script. Don't change its format unless changing build script as well.)
 #define ADAL_VER_HIGH       2
 #define ADAL_VER_LOW        2
-#define ADAL_VER_PATCH      2
+#define ADAL_VER_PATCH      5
 
-#define STR_ADAL_VER_HIGH   "2"
-#define STR_ADAL_VER_LOW    "2"
-#define STR_ADAL_VER_PATCH  "2"
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+#define INT_CONCAT_HELPER(x,y) x ## . ## y
+#define INT_CONCAT(x,y) INT_CONCAT_HELPER(x,y)
 
 // Framework versions only support high and low for the double value, sadly.
-#define ADAL_VERSION_NUMBER 2.2
+#define ADAL_VERSION_NUMBER INT_CONCAT(ADAL_VER_HIGH, ADAL_VER_LOW)
 
-#define ADAL_VERSION_STRING     STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH
-#define ADAL_VERSION_NSSTRING   @"" STR_ADAL_VER_HIGH "." STR_ADAL_VER_LOW "." STR_ADAL_VER_PATCH
+#define ADAL_VERSION_STRING     STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH)
+#define ADAL_VERSION_NSSTRING   @"" STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH)
 
-#define ADAL_VERSION_(high, low, patch) adalVersion_ ## high ## _ ## low ## _ ## patch
+#define ADAL_VERSION_HELPER(high, low, patch) adalVersion_ ## high ## _ ## low ## _ ## patch
+#define ADAL_VERSION_(high, low, patch) ADAL_VERSION_HELPER(high, low, patch)
 
 // This is specially crafted so the name of the variable matches the full ADAL version
-#define ADAL_VERSION_VAR ADAL_VERSION_(2, 2, 2)
+#define ADAL_VERSION_VAR ADAL_VERSION_(ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH)
 
 #import "ADLogger+Internal.h"
 #import "ADErrorCodes.h"

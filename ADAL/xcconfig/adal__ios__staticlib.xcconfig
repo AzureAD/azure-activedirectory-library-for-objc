@@ -3,6 +3,3 @@
 //
 
 #include "adal__ios__common.xcconfig"
-
-PRODUCT_NAME = ADAL;
-SKIP_INSTALL = YES;

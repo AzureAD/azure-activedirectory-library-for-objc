@@ -41,12 +41,34 @@
 static ADAL_LOG_LEVEL s_LogLevel = ADAL_LOG_LEVEL_ERROR;
 static LogCallback s_LogCallback = nil;
 static BOOL s_NSLogging = YES;
+static NSString* s_OSString = @"UnkOS";
 
 static NSMutableDictionary* s_adalId = nil;
 
 static dispatch_once_t s_logOnce;
 
 @implementation ADLogger
+
++ (void)initialize
+{
+#if TARGET_OS_IPHONE
+    UIDevice* device = [UIDevice currentDevice];
+
+#if TARGET_OS_SIMULATOR
+    s_OSString = [NSString stringWithFormat:@"iOS Sim %@", device.systemVersion];
+#else
+    s_OSString = [NSString stringWithFormat:@"iOS %@", device.systemVersion];
+#endif
+#elif TARGET_OS_WATCH
+#error watchOS is not supported
+#elif TARGET_OS_TV
+#error tvOS is not supported
+#else
+    NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
+    s_OSString = [NSString stringWithFormat:@"Mac %ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion];
+    SAFE_ARC_RETAIN(s_OSString);
+#endif
+}
 
 + (void)setLevel:(ADAL_LOG_LEVEL)logLevel
 {
@@ -155,7 +177,7 @@ correlationId:(NSUUID*)correlationId
         {
             NSString* levelString = [self stringForLevel:logLevel];
             
-            NSString* msg = [NSString stringWithFormat:@"ADAL [%@%@]%@ %@: %@", dateString, correlationIdStr,
+            NSString* msg = [NSString stringWithFormat:@"ADAL " ADAL_VERSION_STRING " %@ [%@%@]%@ %@: %@", s_OSString, dateString, correlationIdStr,
                              component, levelString, message];
             
             //NSLog is documented as thread-safe:
@@ -164,7 +186,7 @@ correlationId:(NSUUID*)correlationId
         
         if (s_LogCallback)
         {
-            NSString* msg = [NSString stringWithFormat:@"ADAL [%@%@]%@ %@", dateString, correlationIdStr, component, message];
+            NSString* msg = [NSString stringWithFormat:@"ADAL " ADAL_VERSION_STRING " %@ [%@%@]%@ %@", s_OSString, dateString, correlationIdStr, component, message];
             s_LogCallback(logLevel, msg, info, errorCode, userInfo);
         }
     }
@@ -232,13 +254,12 @@ correlationId:(NSUUID*)correlationId
                                          }];
 
 #else
-        NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:
-                                                 @"/System/Library/CoreServices/SystemVersion.plist"];
+        NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
         NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
                                        @{
                                          ADAL_ID_PLATFORM:@"OSX",
                                          ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW],
-                                         ADAL_ID_OS_VER:[systemVersionDictionary objectForKey:@"ProductVersion"],
+                                         ADAL_ID_OS_VER:[NSString stringWithFormat:@"%ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion],
                                          }];
 #endif
         NSString* CPUVer = [self getCPUInfo];

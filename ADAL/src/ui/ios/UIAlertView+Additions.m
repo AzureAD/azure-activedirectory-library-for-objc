@@ -1,51 +1,63 @@
 #import <objc/runtime.h>
 #import "ADWebAuthController.h"
 #import "ADALFrameworkUtils.h"
+#import "ADAppExtensionUtil.h"
 
 @implementation UIAlertView (Additions)
 
-static const char *HANDLER_KEY = "com.microsoft.adal.alertviewHandler";
+static const char* HANDLER_KEY = "com.microsoft.adal.alertviewHandler";
 
-static UIAlertView *alert;
+static UIAlertView* alert;
 
-+ (void)presentCredentialAlert:(void (^)(NSUInteger))handler {
-    
-#if !ADAL_EXTENSION_SAFE
-    NSBundle* bundle = [ADALFrameworkUtils frameworkBundle];
-    if (!bundle)
++ (void)presentCredentialAlert:(void (^)(NSUInteger))handler
+{
+    if (![ADAppExtensionUtil isExecutingInAppExtension])
     {
-        bundle = [NSBundle mainBundle];
+        NSBundle* bundle = [ADALFrameworkUtils frameworkBundle];
+        
+        if (!bundle)
+        {
+            bundle = [NSBundle mainBundle];
+        }
+
+        alert = [[UIAlertView alloc] initWithFrame:CGRectZero];
+        alert.title = NSLocalizedStringFromTableInBundle(@"Enter your credentials", nil, bundle, nil);
+        alert.alertViewStyle = UIAlertViewStyleLoginAndPasswordInput;
+        
+        [alert addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Cancel", nil, bundle, nil)];
+        [alert addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Login", nil, bundle, nil)];
+        [alert setCancelButtonIndex:0];
+        
+        [alert setDelegate:alert];
+
+        if (handler)
+        {
+            objc_setAssociatedObject(alert, HANDLER_KEY, handler, OBJC_ASSOCIATION_COPY_NONATOMIC);
+        }
+
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            [alert show];
+        });
     }
-    
-    alert = [[UIAlertView alloc] initWithTitle:NSLocalizedStringFromTableInBundle(@"Enter your credentials", nil, bundle, nil)
-                                       message:nil
-                                      delegate:nil
-                             cancelButtonTitle:NSLocalizedStringFromTableInBundle(@"Cancel", nil, bundle, nil)
-                             otherButtonTitles: nil];
-    
-    alert.alertViewStyle = UIAlertViewStyleLoginAndPasswordInput;
-    [alert addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Login", nil, bundle, nil)];
-    [alert setDelegate:alert];
-    
-    if (handler)
-        objc_setAssociatedObject(alert, HANDLER_KEY, handler, OBJC_ASSOCIATION_COPY_NONATOMIC);
-    
-    dispatch_async(dispatch_get_main_queue(), ^(void){
-        [alert show];
-    });
-#else
-    handler(0);
-#endif
+    else
+    {
+        // Show nothing
+        handler(0);
+    }
 }
 
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+- (void)alertView:(UIAlertView*)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
     id handler = objc_getAssociatedObject(alertView, HANDLER_KEY);
     
     if (handler)
+    {
+        // Execute associated handler
         ((void(^)())handler)(buttonIndex);
+    }
 }
 
-+ (id) getAlertInstance
++ (id)getAlertInstance
 {
     return alert;
 }

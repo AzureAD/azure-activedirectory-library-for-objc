@@ -166,16 +166,22 @@
     }
     
     //can't pop UI or go to broker in an extension
-    if ([[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"]) {
-        // this is an app extension
-        ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION
-                                               protocolCode:nil
-                                               errorDetails:ADInteractionNotSupportedInExtension
-                                              correlationId:_correlationId];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
-        completionBlock(result);
-        return;
+    if ([[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"])
+    {
+        // This is an app extension. Return an error unless a webview is specified by the
+        // extension and embedded auth is being used.
+        BOOL isEmbeddedWebView = (nil != _context.webView) && (AD_CREDENTIALS_EMBEDDED == _context.credentialsType);
+        if (!isEmbeddedWebView)
+        {
+            ADAuthenticationError* error =
+            [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_SUPPORTED_IN_APP_EXTENSION
+                                                   protocolCode:nil
+                                                   errorDetails:ADInteractionNotSupportedInExtension
+                                                  correlationId:_correlationId];
+            ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error correlationId:_correlationId];
+            completionBlock(result);
+            return;
+        }
     }
 
 #if !AD_BROKER

@@ -23,6 +23,7 @@
 
 #if TARGET_OS_IPHONE
 #import "UIApplication+ADExtensions.h"
+#import "ADAppExtensionUtil.h"
 #endif
 #import "NSDictionary+ADExtensions.h"
 
@@ -322,25 +323,25 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     {
         _complete = YES;
 #if TARGET_OS_IPHONE
-#if !ADAL_EXTENSION_SAFE
-        dispatch_async( dispatch_get_main_queue(), ^{[self webAuthDidCancel];});
-        requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
-        dispatch_async( dispatch_get_main_queue(), ^{[[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:requestURL]];});
-#else // ADAL_EXTENSION_SAFE
-        AD_LOG_ERROR(@"unable to redirect to browser from extension", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _correlationId, nil);
-#endif // ADAL_EXTENSION_SAFE
+        if (![ADAppExtensionUtil isExecutingInAppExtension])
+        {
+            dispatch_async( dispatch_get_main_queue(), ^{
+                [self webAuthDidCancel];
+            });
+            
+            requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
+            
+            dispatch_async( dispatch_get_main_queue(), ^{
+                [ADAppExtensionUtil sharedApplicationOpenURL:[[NSURL alloc] initWithString:requestURL]];
+            });
+        }
+        else
+        {
+            AD_LOG_ERROR(@"unable to redirect to browser from extension", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _correlationId, nil);
+        }
 #else // !TARGET_OS_IPHONE
         AD_LOG_ERROR(@"server is redirecting us to browser, this behavior is not defined on Mac OS X yet", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _correlationId, nil);
 #endif // TARGET_OS_IPHONE
-        return NO;
-    }
-    
-    // check for pkeyauth challenge.
-    if ([requestURL hasPrefix: pKeyAuthUrn])
-    {
-        // We still continue onwards from a pkeyauth challenge after it's handled, so the web auth flow
-        // is not complete yet.
-        [self handlePKeyAuthChallenge: requestURL];
         return NO;
     }
     
@@ -367,6 +368,15 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         [self webAuthDidCompleteWithURL:url];
         
         // Tell the web view that this URL should not be loaded.
+        return NO;
+    }
+    
+    // check for pkeyauth challenge.
+    if ([requestURL hasPrefix:pKeyAuthUrn])
+    {
+        // We still continue onwards from a pkeyauth challenge after it's handled, so the web auth flow
+        // is not complete yet.
+        [self handlePKeyAuthChallenge:requestURL];
         return NO;
     }
     
@@ -416,6 +426,35 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     if ([error.domain isEqualToString:@"WebKitErrorDomain"] && error.code == 102)
     {
         return;
+    }
+    
+    // Prior to iOS 10 the WebView trapped out this error code and didn't pass it along to us
+    // now we have to trap it out ourselves.
+    if ([error.domain isEqualToString:NSCocoaErrorDomain] && error.code == NSUserCancelledError)
+    {
+        return;
+    }
+    
+    // If we failed on an invalid URL check to see if it matches our end URL
+    if ([error.domain isEqualToString:@"NSURLErrorDomain"] && (error.code == -1002 || error.code == -1003))
+    {
+        NSURL* url = [error.userInfo objectForKey:NSURLErrorFailingURLErrorKey];
+        NSString* urlString = [url absoluteString];
+        if ([[urlString lowercaseString] hasPrefix:_endURL.lowercaseString])
+        {
+            _complete = YES;
+            [self webAuthDidCompleteWithURL:url];
+            return;
+        }
+        
+        // check for pkeyauth challenge.
+        if ([urlString hasPrefix:pKeyAuthUrn])
+        {
+            // We still continue onwards from a pkeyauth challenge after it's handled, so the web auth flow
+            // is not complete yet.
+            [self handlePKeyAuthChallenge:urlString];
+            return;
+        }
     }
 
     if (error)
@@ -555,7 +594,7 @@ correlationId:(NSUUID *)correlationId
     _completionBlock = [completionBlock copy];
     ADAuthenticationError* error = nil;
     
-    [ADURLProtocol registerProtocol];
+    [ADURLProtocol registerProtocol:[endURL absoluteString]];
     
     if(![NSString adIsStringNilOrBlank:refreshCred])
     {

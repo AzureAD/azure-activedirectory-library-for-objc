@@ -1,3 +1,24 @@
+Version 2.2.5 (09.09.2016)
+-------------
+* Fixed an issue where NTLM authentication did not show if the authentication prompt came after the first redirect.
+* Switched to a single framework/library build that can be included in both applications and extensions
+
+Version 2.2.4 (08.23.2016)
+-------------
+* Fixed an issue caused with some redirects where the webview would not update the base URL properly.
+
+
+Version 2.2.3 (08.22.2016)
+-------------
+* Fixed an issue where federated endpoints redirecting to URLs that would trigger URL canonicalization would cause ADAL to go to that endpoint twice. This was causing some non-ADFS federated endpoints to fail.
+* (Mac Only) Fixed thread safety issues in -[ADTokenCache serialize] (#710)
+* Allow redirect URIs that start with "http://". however we still will not traverse those pages but we will get the authorization code from the URL. (#720)
+* Separate out the library build targets so applications including ADAL's project file as a subproject can pull in either the Framework cleanly. However using both the framework and static library can still cause issues. This is an unavoidable side effect of the header search order in Xcode. (#693)
+* Created a separate framework build target for iOS extension-safe ADAL.
+* Properly set the minimum supported SDK version for ADAL framework to iOS 8.0 (#694)
+* Added a Swift Sample App (#97)
+
+
 Version 2.2.2 (07.18.2016)
 -------------
 * Fixed a newly-uncovered issue where ADAL could not get the application's code signing Team ID while the device is locked. (#698)

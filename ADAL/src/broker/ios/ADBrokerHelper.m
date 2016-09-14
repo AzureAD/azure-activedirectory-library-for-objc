@@ -29,6 +29,7 @@
 #import "ADBrokerNotificationManager.h"
 #import "ADOAuth2Constants.h"
 #import "ADWebAuthController+Internal.h"
+#import "ADAppExtensionUtil.h"
 
 typedef BOOL (*applicationOpenURLPtr)(id, SEL, UIApplication*, NSURL*, NSString*, id);
 IMP __original_ApplicationOpenURL = NULL;
@@ -77,7 +78,12 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
 
 + (void)load
 {
-#if !ADAL_EXTENSION_SAFE
+    if ([ADAppExtensionUtil isExecutingInAppExtension])
+    {
+        // Avoid any setup in application extension hosts
+        return;
+    }
+
     __block id observer = nil;
     
     observer =
@@ -94,7 +100,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
          SEL seliOS9 = @selector(application:openURL:options:);
          
          // Dig out the app delegate (if there is one)
-         __strong id appDelegate = [[UIApplication sharedApplication] delegate];
+         __strong id appDelegate = [[ADAppExtensionUtil sharedApplication] delegate];
          
          // There's not much we can do if there's no app delegate and there might be scenarios where
          // that is valid...
@@ -118,13 +124,13 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
          else if (iOS9OrGreater)
          {
              NSString* typeEncoding = [NSString stringWithFormat:@"%s%s%s%s%s%s", @encode(BOOL), @encode(id), @encode(SEL), @encode(UIApplication*), @encode(NSURL*), @encode(NSDictionary<NSString*, id>*)];
-             class_addMethod([appDelegate class], sel, (IMP)__swizzle_ApplicationOpenURLiOS9, [typeEncoding UTF8String]);
+             class_addMethod([appDelegate class], seliOS9, (IMP)__swizzle_ApplicationOpenURLiOS9, [typeEncoding UTF8String]);
              
              // UIApplication caches whether or not the delegate responds to certain selectors. Clearing out the delegate and resetting it gaurantees that gets updated
-             [[UIApplication sharedApplication] setDelegate:nil];
+             [[ADAppExtensionUtil sharedApplication] setDelegate:nil];
              // UIApplication employs dark magic to assume ownership of the app delegate when it gets the app delegate at launch, it won't do that for setDelegate calls so we
              // have to add a retain here to make sure it doesn't turn into a zombie
-             [[UIApplication sharedApplication] setDelegate:(__bridge id)CFRetain((__bridge CFTypeRef)appDelegate)];
+             [[ADAppExtensionUtil sharedApplication] setDelegate:(__bridge id)CFRetain((__bridge CFTypeRef)appDelegate)];
          }
          else
          {
@@ -132,29 +138,38 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
              class_addMethod([appDelegate class], sel, (IMP)__swizzle_ApplicationOpenURL, [typeEncoding UTF8String]);
              
              // UIApplication caches whether or not the delegate responds to certain selectors. Clearing out the delegate and resetting it gaurantees that gets updated
-             [[UIApplication sharedApplication] setDelegate:nil];
+             [[ADAppExtensionUtil sharedApplication] setDelegate:nil];
              // UIApplication employs dark magic to assume ownership of the app delegate when it gets the app delegate at launch, it won't do that for setDelegate calls so we
              // have to add a retain here to make sure it doesn't turn into a zombie
-             [[UIApplication sharedApplication] setDelegate:(__bridge id)CFRetain((__bridge CFTypeRef)appDelegate)];
+             [[ADAppExtensionUtil sharedApplication] setDelegate:(__bridge id)CFRetain((__bridge CFTypeRef)appDelegate)];
          }
-         
      }];
-#endif
 }
 
 + (BOOL)canUseBroker
 {
-#if !ADAL_EXTENSION_SAFE
-    return [[UIApplication sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", ADAL_BROKER_SCHEME]]];
-#else
-    return NO;
-#endif
+    if (![ADAppExtensionUtil isExecutingInAppExtension])
+    {
+        // Verify broker app url can be opened
+        return [[ADAppExtensionUtil sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", ADAL_BROKER_SCHEME]]];
+    }
+    else
+    {
+        // Cannot perform app switching from application extension hosts
+        return NO;
+    }
 }
 
 + (void)invokeBroker:(NSDictionary *)brokerParams
    completionHandler:(ADAuthenticationCallback)completion
 {
-#if !ADAL_EXTENSION_SAFE
+    if ([ADAppExtensionUtil isExecutingInAppExtension])
+    {
+        // Ignore invocation in application extension hosts
+        completion(nil);
+        return;
+    }
+
     NSString* query = [brokerParams adURLFormEncode];
     
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
@@ -164,12 +179,8 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     dispatch_async(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthWillSwitchToBrokerApp object:nil];
         
-        [[UIApplication sharedApplication] openURL:appUrl];
+        [ADAppExtensionUtil sharedApplicationOpenURL:appUrl];
     });
-#else
-    (void)brokerParams;
-    completion(nil);
-#endif
 }
 
 + (void)saveToPasteBoard:(NSURL*) url
@@ -184,7 +195,13 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
 + (void)promptBrokerInstall:(NSDictionary *)brokerParams
           completionHandler:(ADAuthenticationCallback)completion
 {
-#if !ADAL_EXTENSION_SAFE
+    if ([ADAppExtensionUtil isExecutingInAppExtension])
+    {
+        // Ignore invocation in application extension hosts
+        completion(nil);
+        return;
+    }
+
     NSString* query = [brokerParams adURLFormEncode];
     
     NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
@@ -197,12 +214,8 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     NSString* url = [qpDict valueForKey:@"app_link"];
     [self saveToPasteBoard:appUrl];
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[UIApplication sharedApplication] openURL:[[NSURL alloc] initWithString:url]];
+        [ADAppExtensionUtil sharedApplicationOpenURL:[[NSURL alloc] initWithString:url]];
     });
-#else
-    (void)brokerParams;
-    completion(nil);
-#endif
 }
 
 + (ADAuthenticationCallback)copyAndClearCompletionBlock

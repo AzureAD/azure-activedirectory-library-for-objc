@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D616AD181D25EF12006EF8B5"
-               BuildableName = "libADALiOS-AppExtension.a"
-               BlueprintName = "ADALiOS-AppExtension"
+               BlueprintIdentifier = "D664F16A1D302B9C0017B799"
+               BuildableName = "libADAL-core.a"
+               BlueprintName = "ADAL-core"
                ReferencedContainer = "container:ADAL.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,7 +28,26 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8B0965B917F25770002BDFB8"
+               BuildableName = "ADALiOSTests.xctest"
+               BlueprintName = "ADALiOSTests"
+               ReferencedContainer = "container:ADAL.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "D664F16A1D302B9C0017B799"
+            BuildableName = "libADAL-core.a"
+            BlueprintName = "ADAL-core"
+            ReferencedContainer = "container:ADAL.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -45,9 +64,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D616AD181D25EF12006EF8B5"
-            BuildableName = "libADALiOS-AppExtension.a"
-            BlueprintName = "ADALiOS-AppExtension"
+            BlueprintIdentifier = "D664F16A1D302B9C0017B799"
+            BuildableName = "libADAL-core.a"
+            BlueprintName = "ADAL-core"
             ReferencedContainer = "container:ADAL.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,9 +82,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D616AD181D25EF12006EF8B5"
-            BuildableName = "libADALiOS-AppExtension.a"
-            BlueprintName = "ADALiOS-AppExtension"
+            BlueprintIdentifier = "D664F16A1D302B9C0017B799"
+            BuildableName = "libADAL-core.a"
+            BlueprintName = "ADAL-core"
             ReferencedContainer = "container:ADAL.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

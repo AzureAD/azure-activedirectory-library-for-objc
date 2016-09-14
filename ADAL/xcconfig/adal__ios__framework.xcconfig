@@ -4,6 +4,5 @@
 
 #include "adal__ios__common.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.ADAL";
-PRODUCT_NAME = ADAL;
-SKIP_INSTALL = YES;
+MODULEMAP_FILE = resources/ios/Framework/adal.modulemap
+PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.ADAL
