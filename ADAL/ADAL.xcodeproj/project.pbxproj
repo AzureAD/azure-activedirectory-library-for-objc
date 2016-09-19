@@ -1332,7 +1332,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/bin/python ${PROJECT_DIR}/tools/update_build_version.py ${PROJECT_DIR}/src/ADAL_Internal.h ${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}";
+			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"";
 		};
 		6079EB5B1D79558000E95AB1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1345,7 +1345,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/bin/python ${PROJECT_DIR}/tools/update_build_version.py ${PROJECT_DIR}/src/ADAL_Internal.h ${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}";
+			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"";
 		};
 		6079EB5C1D79558700E95AB1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1358,7 +1358,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/bin/python ${PROJECT_DIR}/tools/update_build_version.py ${PROJECT_DIR}/src/ADAL_Internal.h ${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}";
+			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"";
 		};
 		6079EB5D1D79559500E95AB1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1371,7 +1371,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/bin/python ${PROJECT_DIR}/tools/update_build_version.py ${PROJECT_DIR}/src/ADAL_Internal.h ${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}";
+			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
