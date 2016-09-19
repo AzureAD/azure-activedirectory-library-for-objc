@@ -23,9 +23,11 @@
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
+extern NSString* kAdalResumeDictionaryKey;
+
 @interface ADAuthenticationRequest (Broker)
 
-+ (void)internalHandleBrokerResponse:(NSURL*)response;
++ (BOOL)internalHandleBrokerResponse:(NSURL*)response;
 
 + (BOOL)validBrokerRedirectUri:(NSString*)url;
 

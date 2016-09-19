@@ -47,6 +47,6 @@
                            error:(ADAuthenticationError *__autoreleasing *)error;
 
 // NOTE: Used for testing purposes only. Does not change keychain entries.
-- (void)setSymmetricKey:(NSData *)symmetricKey;
++ (void)setSymmetricKey:(NSString *)base64Key;
 
 @end

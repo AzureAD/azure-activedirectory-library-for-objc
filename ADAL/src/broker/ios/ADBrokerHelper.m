@@ -48,8 +48,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
         }
     }
     
-    [ADAuthenticationContext handleBrokerResponse:url];
-    return YES;
+    return [ADAuthenticationContext handleBrokerResponse:url];
 }
 
 typedef BOOL (*applicationOpenURLiOS9Ptr)(id, SEL, UIApplication*, NSURL*, NSDictionary<NSString*, id>*);
