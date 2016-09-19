@@ -85,8 +85,8 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     ADAuthenticationResult* result = [self processBrokerResponse:response];
     
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kAdalResumeDictionaryKey];
-    // If we didn't a authentication result then assume it wasn't actually a broker message. This
-    // allows the message to pass through to other handlers
+    // If we didn't get an authentication result then assume it wasn't actually a broker
+    // message. This allows the message to pass through to other handlers
     if (!result)
     {
         if (completionBlock)
