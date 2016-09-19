@@ -327,13 +327,13 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"extra_qp"       : _queryParams ? _queryParams : @"",
       };
     
-    NSDictionary* resumeDictionary =
+    NSDictionary<NSString *, NSString *>* resumeDictionary =
   @{
     @"authority"        : _context.authority,
     @"resource"         : _resource,
     @"client_id"        : _clientId,
     @"redirect_uri"     : _redirectUri,
-    @"correlation_id"   : _correlationId,
+    @"correlation_id"   : _correlationId.UUIDString,
     };
     
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
