@@ -389,6 +389,7 @@
 		6071B5E31C14C0B0006F6CC2 /* ADTestURLConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestURLConnection.m; sourceTree = "<group>"; };
 		60D2F3FE1D524F7A008725D9 /* ADRequestParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADRequestParameters.h; sourceTree = "<group>"; };
 		60D2F4001D531F16008725D9 /* ADRequestParameters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADRequestParameters.m; sourceTree = "<group>"; };
+		60967E191D76B62B00863853 /* tools */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tools; sourceTree = SOURCE_ROOT; };
 		8B0965AA17F25770002BDFB8 /* libADALiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libADALiOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B0965AD17F25770002BDFB8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8B0965BA17F25770002BDFB8 /* ADALiOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADALiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -657,6 +658,7 @@
 				8B0965C317F25770002BDFB8 /* tests */,
 				9453C3151C57EE57006B9E79 /* resouces */,
 				94886EED1C63BE3800503C04 /* xcconfig */,
+				60967E191D76B62B00863853 /* tools */,
 				8B0965AC17F25770002BDFB8 /* Frameworks */,
 				8B0965AB17F25770002BDFB8 /* Products */,
 			);
@@ -1189,6 +1191,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8B0965CD17F25770002BDFB8 /* Build configuration list for PBXNativeTarget "ADALiOS" */;
 			buildPhases = (
+				6079EB5B1D79558000E95AB1 /* ShellScript */,
 				8B0965A817F25770002BDFB8 /* Copy Files */,
 				8B0965A617F25770002BDFB8 /* Sources */,
 				8B0965A717F25770002BDFB8 /* Frameworks */,
@@ -1224,6 +1227,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9453C3D11C583E07006B9E79 /* Build configuration list for PBXNativeTarget "ADAL" */;
 			buildPhases = (
+				6079EB5A1D7954EF00E95AB1 /* ShellScript */,
 				9453C3C71C583E07006B9E79 /* Sources */,
 				9453C3C81C583E07006B9E79 /* Frameworks */,
 				9453C3C91C583E07006B9E79 /* Headers */,
@@ -1243,6 +1247,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9453C4051C586425006B9E79 /* Build configuration list for PBXNativeTarget "ADAL Mac" */;
 			buildPhases = (
+				6079EB5D1D79559500E95AB1 /* ShellScript */,
 				9453C3F81C586425006B9E79 /* Sources */,
 				9453C3F91C586425006B9E79 /* Frameworks */,
 				9453C3FA1C586425006B9E79 /* Headers */,
@@ -1279,6 +1284,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D664F1B01D302B9C0017B799 /* Build configuration list for PBXNativeTarget "ADAL-core" */;
 			buildPhases = (
+				6079EB5C1D79558700E95AB1 /* ShellScript */,
 				D664F1791D302B9C0017B799 /* Sources */,
 				D664F1AD1D302B9C0017B799 /* Frameworks */,
 			);
@@ -1368,6 +1374,61 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		6079EB5A1D7954EF00E95AB1 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"";
+		};
+		6079EB5B1D79558000E95AB1 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"";
+		};
+		6079EB5C1D79558700E95AB1 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"";
+		};
+		6079EB5D1D79559500E95AB1 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8B0965A617F25770002BDFB8 /* Sources */ = {

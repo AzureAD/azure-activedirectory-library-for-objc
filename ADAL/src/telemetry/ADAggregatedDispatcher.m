@@ -68,7 +68,7 @@
             [aggregatedEvent addObject:properties[i]];
         }
     }
-    [_dispatcher dispatch:aggregatedEvent];
+    [_dispatcher dispatchEvent:aggregatedEvent];
 }
 
 - (void)receive:(NSString *)requestId
