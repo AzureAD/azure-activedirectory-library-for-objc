@@ -56,7 +56,7 @@
 
 /*! The completion block declaration. */
 typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
-
+typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 #if TARGET_OS_IPHONE
 //iOS:
@@ -67,6 +67,7 @@ typedef UIWebView WebViewType;
 #   include <WebKit/WebKit.h>
 typedef WebView   WebViewType;
 #endif
+
 
 #import "ADAuthenticationRequest.h"
 

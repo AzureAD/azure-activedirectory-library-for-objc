@@ -30,6 +30,8 @@
 #import "ADTokenCacheKey.h"
 #import "ADAcquireTokenSilentHandler.h"
 
+static ADAuthenticationRequest* s_modalRequest = nil;
+
 @implementation ADAuthenticationRequest (AcquireToken)
 
 #pragma mark -
@@ -171,10 +173,24 @@
             return;
         }
     }
+    
+    if (![self takeExclusionLock:completionBlock])
+    {
+        return;
+    }
+    
+    [self requestTokenImpl:^(ADAuthenticationResult *result)
+    {
+        [ADAuthenticationRequest releaseExclusionLock];
+        completionBlock(result);
+    }];
+}
 
+- (void)requestTokenImpl:(ADAuthenticationCallback)completionBlock
+{
 #if !AD_BROKER
     //call the broker.
-    if([self canUseBroker])
+    if ([self canUseBroker])
     {
         [self callBroker:completionBlock];
         return;
@@ -203,8 +219,7 @@
          {
              if([code hasPrefix:@"msauth://"])
              {
-                 [self handleBrokerFromWebiewResponse:code
-                                      completionBlock:completionBlock];
+                 [self callBroker:completionBlock];
              }
              else
              {
@@ -238,7 +253,7 @@
                                          _clientId, OAUTH2_CLIENT_ID,
                                          _redirectUri, OAUTH2_REDIRECT_URI,
                                          nil];
-    if(![NSString adIsStringNilOrBlank:_scope])
+    if (![NSString adIsStringNilOrBlank:_scope])
     {
         [request_data setValue:_scope forKey:OAUTH2_SCOPE];
     }
@@ -246,6 +261,5 @@
     [self executeRequest:request_data
               completion:completionBlock];
 }
-
 
 @end

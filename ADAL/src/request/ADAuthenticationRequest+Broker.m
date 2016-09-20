@@ -272,24 +272,6 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         return;
     }
     
-    // get the interaction lock before calling broker
-    if (![self takeUserInterationLock])
-    {
-        NSString* message = @"The user is currently prompted for credentials as result of another acquireToken request. Please retry the acquireToken call later.";
-        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS
-                                                                              protocolCode:nil
-                                                                              errorDetails:message
-                                                                             correlationId:_correlationId];
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
-        return;
-    }
-    
-    void(^requestCompletion)(ADAuthenticationResult* result) = ^void(ADAuthenticationResult* result)
-    {
-        [self releaseUserInterationLock]; // Release the lock when completion block is called.
-        completionBlock(result);
-    };
-    
     AD_LOG_INFO(@"Invoking broker for authentication", _correlationId, nil);
 #if TARGET_OS_IPHONE // Broker Message Encryption
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
@@ -338,64 +320,13 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     
-    [ADBrokerHelper invokeBroker:queryDictionary completionHandler:requestCompletion];
-}
-
-- (void)handleBrokerFromWebiewResponse:(NSString*)urlString
-                       completionBlock:(ADAuthenticationCallback)completionBlock
-{
-    CHECK_FOR_NIL(_resource);
-    
-    ADAuthenticationError* error = nil;
-    if(![ADAuthenticationRequest validBrokerRedirectUri:_redirectUri])
-    {
-        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
-                                                       protocolCode:nil
-                                                       errorDetails:ADRedirectUriInvalidError
-                                                      correlationId:_correlationId];
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
-        return;
-    }
-    
-#if TARGET_OS_IPHONE // Broker Message Encryption
-    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
-    NSData* key = [brokerHelper getBrokerKey:&error];
-    NSString* base64Key = [NSString Base64EncodeData:key];
-    NSString* base64UrlKey = [base64Key adUrlFormEncode];
-    CHECK_FOR_NIL(base64UrlKey);
-#endif // TARGET_OS_IPHONE Broker Message Encryption
-    
-    NSString* adalVersion = [ADLogger getAdalVersion];
-    NSString* correlationIdStr = [_correlationId UUIDString];
-    NSString* authority = _context.authority;
-    
-    CHECK_FOR_NIL(adalVersion);
-    CHECK_FOR_NIL(authority);
-    
-    NSString* query = [[NSURL URLWithString:urlString] query];
-    NSMutableDictionary* urlParams = [[NSDictionary adURLFormDecode:query] mutableCopy];
-    
-    [urlParams addEntriesFromDictionary:@{@"authority": _context.authority,
-                                          @"resource" : _resource,
-                                          @"client_id": _clientId,
-                                          @"redirect_uri": _redirectUri,
-                                          @"username_type": _identifier ? [_identifier typeAsString] : @"",
-                                          @"username": _identifier.userId ? _identifier.userId : @"",
-                                          @"correlation_id": correlationIdStr,
-#if TARGET_OS_IPHONE // Broker Message Encryption
-                                          @"broker_key": base64UrlKey,
-#endif // TARGET_OS_IPHONE Broker Message Encryption
-                                          @"client_version": adalVersion,
-                                          @"extra_qp": _queryParams ? _queryParams : @"",
-                                          }];
-    
     if ([ADBrokerHelper canUseBroker])
     {
-        [ADBrokerHelper invokeBroker:urlParams completionHandler:completionBlock];
+        [ADBrokerHelper invokeBroker:queryDictionary completionHandler:completionBlock];
     }
     else
     {
-        [ADBrokerHelper promptBrokerInstall:urlParams completionHandler:completionBlock];
+        [ADBrokerHelper promptBrokerInstall:queryDictionary completionHandler:completionBlock];
     }
 }
 

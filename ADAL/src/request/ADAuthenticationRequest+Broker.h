@@ -35,7 +35,4 @@ extern NSString* kAdalResumeDictionaryKey;
 
 - (void)callBroker:(ADAuthenticationCallback)completionBlock;
 
-- (void)handleBrokerFromWebiewResponse:(NSString*)urlString
-                       completionBlock:(ADAuthenticationCallback)completionBlock;
-
 @end

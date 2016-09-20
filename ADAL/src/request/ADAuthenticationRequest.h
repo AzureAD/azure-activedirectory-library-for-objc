@@ -97,9 +97,6 @@
 // This message is sent before any stage of processing is done, it marks all the fields as un-editable and grabs the
 // correlation ID from the logger
 - (void)ensureRequest;
-// This exclusion lock should be obtained before launching webview/broker for interaction
-- (BOOL)takeUserInterationLock;
-- (BOOL)releaseUserInterationLock;
 
 // These can only be set before the request gets sent out.
 - (void)setScope:(NSString*)scope;
@@ -118,6 +115,27 @@
 #endif
 - (void)setSamlAssertion:(NSString*)samlAssertion;
 - (void)setAssertionType:(ADAssertionType)assertionType;
+
+/*!
+    Takes the UI interaction lock for the current request, will send an error
+    to completionBlock if it fails.
+ 
+    @param copmletionBlock  the ADAuthenticationCallback to send an error to if
+                            one occurs.
+ 
+    @return NO if we fail to take the exclusion lock
+ */
+- (BOOL)takeExclusionLock:(ADAuthenticationCallback)completionBlock;
+
+/*!
+    Releases the exclusion lock
+ */
++ (void)releaseExclusionLock;
+
+/*!
+    The current interactive request ADAL is displaying UI for (if any)
+ */
++ (ADAuthenticationRequest*)currentModalRequest;
 
 @end
 
