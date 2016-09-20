@@ -83,7 +83,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
         return;
     }
 
-    __block id observer = nil;
+    __block __weak id observer = nil;
     
     observer =
     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification
