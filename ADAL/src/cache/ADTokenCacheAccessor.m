@@ -30,6 +30,7 @@
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryCacheEvent.h"
+#import "ADTelemetryEventStrings.h"
 
 @implementation ADTokenCacheAccessor
 
@@ -131,7 +132,11 @@
                                                                      requestId:[requestParams telemetryRequestId]
                                                                  correlationId:[requestParams correlationId]];
     [event setTokenType:@"multi-resource refresh token"];
-    [event setStatus:item? @"succeeded" : @"failed"];
+    if (item)
+    {
+        [event setIsMRRT:TELEMETRY_YES];
+    }
+    [event setStatus:item? @"succeeded":@"failed"];
     [[ADTelemetry sharedInstance] stopEvent:[requestParams telemetryRequestId] event:event];
     SAFE_ARC_RELEASE(event);
 #endif
@@ -157,6 +162,10 @@
                                                                      requestId:[requestParams telemetryRequestId]
                                                                  correlationId:[requestParams correlationId]];
     [event setTokenType:@"family refresh token"];
+    if (item)
+    {
+        [event setIsFRT:TELEMETRY_YES];
+    }
     [event setStatus:item? @"succeeded" : @"failed"];
     [[ADTelemetry sharedInstance] stopEvent:[requestParams telemetryRequestId] event:event];
     SAFE_ARC_RELEASE(event);
@@ -190,6 +199,10 @@
                                                                      requestId:[requestParams telemetryRequestId]
                                                                  correlationId:[requestParams correlationId]];
     [event setTokenType:@"ADFS access token/refresh token"];
+    if ([item refreshToken])
+    {
+        [event setIsRT:TELEMETRY_YES];
+    }
     [event setStatus:item? @"succeeded" : @"failed"];
     [[ADTelemetry sharedInstance] stopEvent:[requestParams telemetryRequestId] event:event];
     SAFE_ARC_RELEASE(event);
@@ -278,6 +291,7 @@
         ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_write"
                                                                          requestId:telemetryRequestId
                                                                      correlationId:correlationId];
+        [event setIsMRRT:TELEMETRY_YES];
         [event setTokenType:@"multi-resource refresh token"];
         [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
         SAFE_ARC_RELEASE(event);
@@ -299,6 +313,7 @@
             ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_write"
                                                                              requestId:telemetryRequestId
                                                                          correlationId:correlationId];
+            [event setIsFRT:TELEMETRY_YES];
             [event setTokenType:@"family refresh token"];
             [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
             SAFE_ARC_RELEASE(event);

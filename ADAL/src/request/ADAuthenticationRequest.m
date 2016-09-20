@@ -296,6 +296,11 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
     return [_requestParams telemetryRequestId];
 }
 
+- (ADPromptBehavior)promptBehavior
+{
+    return _promptBehavior;
+}
+
 - (ADRequestParameters*)requestParams
 {
     return _requestParams;

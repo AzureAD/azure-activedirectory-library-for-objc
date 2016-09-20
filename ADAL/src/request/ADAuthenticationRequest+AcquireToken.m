@@ -32,6 +32,7 @@
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
+#import "ADTelemetryEventStrings.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -92,7 +93,7 @@
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authority_validation"
                                                                       requestId:telemetryRequestId
                                                                   correlationId:correlationId];
-         [event setAuthorityValidationStatus:validated ? @"YES" : @"NO"];
+         [event setAuthorityValidationStatus:validated ? TELEMETRY_YES:TELEMETRY_NO];
          [event setAuthority:_context.authority];
          [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
          SAFE_ARC_RELEASE(event);

@@ -22,12 +22,35 @@
 // THE SOFTWARE.
 
 #import "ADTelemetryUIEvent.h"
+#import "ADTelemetryEventStrings.h"
 
 @implementation ADTelemetryUIEvent
 
 - (void)setLoginHint:(NSString*)hint
 {
-    [self setProperty:@"login_hint" value:[hint adComputeSHA256]];
+    [self setProperty:TELEMETRY_LOGIN_HINT value:[hint adComputeSHA256]];
+}
+
+- (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
+{
+    [super processEvent:eventToBeDispatched];
+    
+    (void)eventToBeDispatched;
+    NSArray* properties = [self getProperties];
+    for (NSArray* property in properties)
+    {
+        if ([property[0] isEqualToString:TELEMETRY_LOGIN_HINT])
+        {
+            [eventToBeDispatched setObject:property[1] forKey:property[0]];
+        }
+    }
+    
+    int UIEventCount = 1;
+    if ([eventToBeDispatched objectForKey:TELEMETRY_UI_EVENT_COUNT])
+    {
+        UIEventCount = [[eventToBeDispatched objectForKey:TELEMETRY_UI_EVENT_COUNT] intValue] + 1;
+    }
+    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", UIEventCount] forKey:TELEMETRY_UI_EVENT_COUNT];
 }
 
 @end

@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADTelemetryBrokerEvent.h"
+#import "ADTelemetryEventStrings.h"
 
 @implementation ADTelemetryBrokerEvent
 
@@ -40,7 +41,7 @@
 
 - (void)setBrokerAppVersion:(NSString*)version
 {
-    [self setProperty:@"broker_app_version" value:version];
+    [self setProperty:TELEMETRY_BROKER_VERSION value:version];
 }
 
 - (void)setBrokerProtocolVersion:(NSString*)version
@@ -70,7 +71,24 @@
 
 - (void)setBrokerApp:(NSString*)appName
 {
-    [self setProperty:@"broker_app" value:appName];
+    [self setProperty:TELEMETRY_BROKER_APP value:appName];
+}
+
+- (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
+{
+    [super processEvent:eventToBeDispatched];
+    
+    (void)eventToBeDispatched;
+    NSArray* properties = [self getProperties];
+    for (NSArray* property in properties)
+    {
+        if ([property[0] isEqualToString:TELEMETRY_BROKER_APP]
+            ||[property[0] isEqualToString:TELEMETRY_BROKER_VERSION])
+        {
+            [eventToBeDispatched setObject:property[1] forKey:property[0]];
+        }
+    }
+    [eventToBeDispatched setObject:TELEMETRY_YES forKey:TELEMETRY_BROKER_APP_USED];
 }
 
 @end

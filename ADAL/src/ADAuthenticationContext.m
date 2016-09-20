@@ -33,7 +33,9 @@
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
+#import "ADTelemetryEventStrings.h"
 #import "ADUserIdentifier.h"
+#import "ADTokenCacheItem.h"
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
@@ -598,10 +600,12 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
                                   result:(ADAuthenticationResult*)result
 {
     [event setCorrelationId:[request.requestParams correlationId]];
-    [event setUserId:[[request.requestParams identifier] userId]];
     [event setClientId:[request.requestParams clientId]];
+    [event setExtendedExpiresOnSetting:[request.requestParams extendedLifetime]? TELEMETRY_YES:TELEMETRY_NO];
+    [event setPromptBehavior:[request promptBehavior]];
+    [event setUserInformation:[[result tokenCacheItem] userInformation]];
     [event setResultStatus:[result status]];
-    [event setIsExtendedLifeTimeToken:[result extendedLifeTimeToken]? @"YES":@"NO"];
+    [event setIsExtendedLifeTimeToken:[result extendedLifeTimeToken]? TELEMETRY_YES:TELEMETRY_NO];
     [event setErrorCode:[NSString stringWithFormat:@"%ld",(long)[result.error code]]];
     [event setErrorDomain:[result.error domain]];
     [event setProtocolCode:[[result error] protocolCode]];

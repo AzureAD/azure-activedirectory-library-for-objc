@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADTelemetryHttpEvent.h"
+#import "ADTelemetryEventStrings.h"
 
 @implementation ADTelemetryHttpEvent
 
@@ -58,6 +59,20 @@
 - (void)setHttpErrorDomain:(NSString*)errorDomain
 {
     [self setProperty:@"http_error_domain" value:errorDomain];
+}
+
+- (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
+{
+    [super processEvent:eventToBeDispatched];
+    
+    (void)eventToBeDispatched;
+    
+    int httpEventCount = 1;
+    if ([eventToBeDispatched objectForKey:TELEMETRY_HTTP_EVENT_COUNT])
+    {
+        httpEventCount = [[eventToBeDispatched objectForKey:TELEMETRY_HTTP_EVENT_COUNT] intValue] + 1;
+    }
+    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", httpEventCount] forKey:TELEMETRY_HTTP_EVENT_COUNT];
 }
 
 - (NSString*)scrubTenantFromUrl:(NSString*)url

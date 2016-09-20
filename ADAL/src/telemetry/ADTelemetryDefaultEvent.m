@@ -23,6 +23,7 @@
 
 #import "ADTelemetryDefaultEvent.h"
 #import "ADTelemetryEventInterface.h"
+#import "ADTelemetryEventStrings.h"
 #import "ADLogger.h"
 
 #if !TARGET_OS_IPHONE
@@ -107,7 +108,7 @@ if (OBJECT) \
 - (void)setResponseTime:(NSTimeInterval)responseTime
 {
     //the property is set in milliseconds
-    [_propertyMap addObject:@[@"response_time", [NSString stringWithFormat:@"%f", responseTime*1000]]];
+    [_propertyMap addObject:@[TELEMETRY_RESPONSE_TIME, [NSString stringWithFormat:@"%f", responseTime*1000]]];
 }
 
 - (NSString*)getStringFromDate:(NSDate*)date
@@ -122,6 +123,14 @@ if (OBJECT) \
     });
     
     return [s_dateFormatter stringFromDate:date];
+}
+
+- (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
+{
+    for (int i=0; i<[self getDefaultPropertyCount]; i++)
+    {
+        [eventToBeDispatched setObject:_propertyMap[i][1] forKey:_propertyMap[i][0]];
+    }
 }
 
 - (NSArray*)defaultParameters
