@@ -1,3 +1,7 @@
+Version 2.2.6 (09.20.2016)
+-------------
+* Renamed an internal API that shared the name with a banned private Apple API causing some app store rejections. (#776) 
+
 Version 2.2.5 (09.09.2016)
 -------------
 * Fixed an issue where NTLM authentication did not show if the authentication prompt came after the first redirect.

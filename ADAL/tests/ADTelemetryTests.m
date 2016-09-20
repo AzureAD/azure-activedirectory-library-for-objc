@@ -43,7 +43,7 @@ typedef void(^TestCallback)(NSArray* event);
     _testCallback = callback;
 }
 
-- (void)dispatch:(NSArray*)event
+- (void)dispatchEvent:(NSArray*)event
 {
     // call _testCallback when it receives telemetry event
     // this is for the purpose of unit test

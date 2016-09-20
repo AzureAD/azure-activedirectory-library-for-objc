@@ -70,7 +70,7 @@
                 [aggregatedEvent addObject:properties[i]];
             }
         }
-        [_dispatcher dispatch:aggregatedEvent];
+        [_dispatcher dispatchEvent:aggregatedEvent];
     }
     
     SAFE_ARC_RELEASE(objectsToBeDispatched);
