@@ -537,6 +537,7 @@
 		946818A41C59B7EE00CA0378 /* ADWebAuthController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthController.m; sourceTree = "<group>"; };
 		946818A51C59B7EE00CA0378 /* ADWebAuthController+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADWebAuthController+Internal.h"; sourceTree = "<group>"; };
 		946818A81C59B80800CA0378 /* ADAuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationViewController.m; sourceTree = "<group>"; };
+		94A0BDE61D779AB0007BEB63 /* ADRequestContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADRequestContext.h; sourceTree = "<group>"; };
 		94DD18C91C5A00BC00F80C62 /* ADAuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthenticationViewController.m; sourceTree = "<group>"; };
 		94DD18E11C5ACFBF00F80C62 /* ADAL Mac Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADAL Mac Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		94DD19011C5AD39A00F80C62 /* ADALiOSTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ADALiOSTests-Info.plist"; sourceTree = "<group>"; };
@@ -720,6 +721,7 @@
 				97A522481A1A752D001D77CE /* ADClientMetrics.m */,
 				97A522511A1A89C4001D77CE /* ADClientMetrics.h */,
 				D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */,
+				94A0BDE61D779AB0007BEB63 /* ADRequestContext.h */,
 				60D2F3FE1D524F7A008725D9 /* ADRequestParameters.h */,
 				60D2F4001D531F16008725D9 /* ADRequestParameters.m */,
 				9453C3771C58017F006B9E79 /* broker */,

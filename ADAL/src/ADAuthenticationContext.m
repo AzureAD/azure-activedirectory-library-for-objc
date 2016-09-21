@@ -87,33 +87,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 
 - (id)initWithAuthority:(NSString *)authority
       validateAuthority:(BOOL)validateAuthority
-             tokenCache:(id<ADTokenCacheDataSource>)tokenCache
-                  error:(ADAuthenticationError *__autoreleasing *)error
-{
-    API_ENTRY;
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
-    if (!extractedAuthority)
-    {
-        SAFE_ARC_RELEASE(self);
-        RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
-    }
-    
-    _authority = extractedAuthority;
-    _validateAuthority = validateAuthority;
-    _credentialsType = AD_CREDENTIALS_EMBEDDED;
-    _extendedLifetimeEnabled = NO;
-    [self setTokenCacheStore:tokenCache];
-
-    return self;
-}
-
-- (id)initWithAuthority:(NSString *)authority
-      validateAuthority:(BOOL)validateAuthority
           cacheDelegate:(id<ADTokenCacheDelegate>) delegate
                   error:(ADAuthenticationError * __autoreleasing *)error
 {

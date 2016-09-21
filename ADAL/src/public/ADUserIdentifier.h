@@ -51,7 +51,7 @@ typedef enum ADUserIdentifierType
 
 @class ADUserInformation;
 
-@interface ADUserIdentifier : NSObject
+@interface ADUserIdentifier : NSObject <NSCopying>
 {
     NSString* _userId;
     ADUserIdentifierType _type;

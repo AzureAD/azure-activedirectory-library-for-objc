@@ -118,8 +118,8 @@
 #if AD_TELEMETRY
         [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"acquire_token_silent_handler"];
 #endif
-        [ADAcquireTokenSilentHandler acquireTokenSilentForRequestParams:_requestParams
-                                                        completionBlock:^(ADAuthenticationResult *result)
+        ADAcquireTokenSilentHandler* request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams];
+        [request getToken:^(ADAuthenticationResult *result)
         {
 #if AD_TELEMETRY
             ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquire_token_silent_handler"
@@ -271,7 +271,10 @@
 #endif
                       if (AD_SUCCEEDED == result.status)
                       {
-                          [[_requestParams tokenCache] updateCacheToResult:result cacheItem:nil refreshToken:nil requestParams:_requestParams];
+                          [[_requestParams tokenCache] updateCacheToResult:result
+                                                                 cacheItem:nil
+                                                              refreshToken:nil
+                                                                   context:_requestParams];
                           result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
                       }
                       completionBlock(result);

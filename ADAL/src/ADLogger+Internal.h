@@ -87,6 +87,8 @@
  the actual contents, but still want to log something that can be correlated. */
 + (NSString*)getHash:(NSString*)input;
 
++ (void)setAdalVersion:(NSString*)version;
+
 + (NSString*)getAdalVersion;
 
 + (NSString*)getCPUInfo;

@@ -79,7 +79,7 @@
     if (!response)
     {
         ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
-                                                                              protocolCode:@"adal cachce"
+                                                                              protocolCode:nil
                                                                               errorDetails:@"processTokenResponse called without a response dictionary"
                                                                              correlationId:requestCorrelationId];
         return [ADAuthenticationResult resultFromError:error];

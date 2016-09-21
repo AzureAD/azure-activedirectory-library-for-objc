@@ -204,19 +204,14 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
 
 - (NSString*)redirectUri
 {
-    return _redirectUri;
+    return _requestParams.redirectUri;
 }
 
 - (void)setRedirectUri:(NSString *)redirectUri
 {
     // We knowingly do this mid-request when we have to change auth types
     // Thus no CHECK_REQUEST_STARTED
-    if (_redirectUri == redirectUri)
-    {
-        return;
-    }
-    SAFE_ARC_RELEASE(_redirectUri);
-    _redirectUri = [redirectUri copy];
+    [_requestParams setRedirectUri:redirectUri];
 }
 
 - (void)setAllowSilentRequests:(BOOL)allowSilent

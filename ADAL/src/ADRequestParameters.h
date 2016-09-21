@@ -21,7 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@interface ADRequestParameters : NSObject
+#import "ADTokenCacheDataSource.h"
+#import "ADRequestContext.h"
+
+@class ADTokenCacheAccessor;
+
+@interface ADRequestParameters : NSObject <ADRequestContext>
 {
     NSString* _authority;
     NSString* _resource;

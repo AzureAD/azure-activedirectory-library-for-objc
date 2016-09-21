@@ -164,7 +164,7 @@ static NSString* s_brokerProtocolVersion = nil;
         ADTokenCacheAccessor* cache = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache defaultKeychainCache]
                                                                              authority:result.tokenCacheItem.authority];
         
-        [cache updateCacheToResult:result cacheItem:nil refreshToken:nil requestParams:nil];
+        [cache updateCacheToResult:result cacheItem:nil refreshToken:nil context:nil];
         
         NSString* userId = [[[result tokenCacheItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result

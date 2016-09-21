@@ -46,7 +46,7 @@ typedef enum
 {
 @protected
     //See the corresponding properties for details.
-    ADTokenCacheItem*          _tokenCacheItem;
+    ADTokenCacheItem*               _tokenCacheItem;
     ADAuthenticationResultStatus    _status;
     ADAuthenticationError*          _error;
     NSUUID*                         _correlationId;

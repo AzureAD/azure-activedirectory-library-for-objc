@@ -359,7 +359,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         // client cert auth flow
         if ([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"])
         {
-            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthDidCompleteWithURL:request.URL]; } );
+            [self webAuthDidCompleteWithURL:request.URL];
             return NO;
         }
 #endif

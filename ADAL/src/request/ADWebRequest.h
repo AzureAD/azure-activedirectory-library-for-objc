@@ -24,6 +24,8 @@
 @class ADWebRequest;
 @class ADWebResponse;
 
+typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
+
 @interface ADWebRequest : NSObject <NSURLConnectionDelegate>
 {
     NSURLConnection * _connection;
@@ -55,8 +57,8 @@
 @property BOOL isGetRequest;
 @property (readonly) NSUUID* correlationId;
 
-- (id)initWithURL: (NSURL*)url
-    requestParams:(ADRequestParameters*)requestParams;
+- (id)initWithURL:(NSURL *)url
+          context:(id<ADRequestContext>)context;
 
 - (void)send:( void (^)( NSError *, ADWebResponse *) )completionHandler;
 

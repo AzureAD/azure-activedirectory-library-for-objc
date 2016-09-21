@@ -70,6 +70,11 @@ extern NSString* const ADRedirectUriInvalidError;
                                     errorCode:(ADErrorCode)errorCode;
 
 
+- (id)initWithAuthority:(NSString *)authority
+      validateAuthority:(BOOL)validateAuthority
+             tokenCache:(id<ADTokenCacheDataSource>)tokenCache
+                  error:(ADAuthenticationError *__autoreleasing *)error;
+
 + (BOOL)isFinalResult:(ADAuthenticationResult *)result;
 
 + (NSString*)getPromptParameter:(ADPromptBehavior)prompt;
