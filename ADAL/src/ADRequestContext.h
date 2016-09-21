@@ -21,28 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADWebRequest.h"
 
-@interface ADWebAuthRequest : ADWebRequest
-{
-    NSDate* _startTime;
-    BOOL _retryIfServerError;
-    BOOL _handledPkeyAuthChallenge;
-    BOOL _returnRawResponse;
-    
-    NSMutableDictionary* _responseDictionary;
-    
-    // A dictionary of key/value pairs that is either included as the query parameters on a GET
-    // request or serialized into JSON for a POST request
-    NSDictionary<NSString*,NSString*> * _requestDictionary;
-}
+#import <Foundation/Foundation.h>
 
-@property BOOL returnRawResponse;
-@property BOOL retryIfServerError;
-@property BOOL handledPkeyAuthChallenge;
-@property (readonly) NSDate* startTime;
+@protocol ADRequestContext <NSObject>
 
-- (void)setRequestDictionary:(NSDictionary<NSString*, NSString*> *)requestDictionary;
-- (void)sendRequest:(ADWebResponseCallback)completionBlock;
+- (NSUUID *)correlationId;
+- (NSString *)telemetryRequestId;
 
 @end

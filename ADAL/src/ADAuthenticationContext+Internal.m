@@ -24,6 +24,7 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem+Internal.h"
+#import "ADInstanceDiscovery.h"
 
 NSString* const ADUnknownError = @"Uknown error.";
 NSString* const ADCredentialsNeeded = @"The user credentials are needed to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
@@ -33,6 +34,33 @@ NSString* const ADBrokerAppIdentifier = @"com.microsoft.azureadauthenticator";
 NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is configured to allow brokered authentication but your redirect URI is not setup properly. Make sure your redirect URI is in the form of <app-scheme>://<bundle-id> (e.g. \"x-msauth-testapp://com.microsoft.adal.testapp\") and that the \"app-scheme\" you choose is registered in your application's info.plist.";
 
 @implementation ADAuthenticationContext (Internal)
+
+- (id)initWithAuthority:(NSString *)authority
+      validateAuthority:(BOOL)validateAuthority
+             tokenCache:(id<ADTokenCacheDataSource>)tokenCache
+                  error:(ADAuthenticationError *__autoreleasing *)error
+{
+    API_ENTRY;
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
+    if (!extractedAuthority)
+    {
+        SAFE_ARC_RELEASE(self);
+        RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
+    }
+    
+    _authority = extractedAuthority;
+    _validateAuthority = validateAuthority;
+    _credentialsType = AD_CREDENTIALS_EMBEDDED;
+    _extendedLifetimeEnabled = NO;
+    [self setTokenCacheStore:tokenCache];
+    
+    return self;
+}
 
 // ADAL_RESILIENCY_NOT_YET: Remove when feature goes into public API
 - (BOOL)extendedLifetimeEnabled

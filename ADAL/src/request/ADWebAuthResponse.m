@@ -34,7 +34,7 @@
 
 + (void)processError:(NSError *)error
        correlationId:(NSUUID *)correlationId
-          completion:(void (^)(NSDictionary *))completionBlock
+          completion:(ADWebResponseCallback)completionBlock
 {
     ADWebAuthResponse* response = [ADWebAuthResponse new];
     response->_correlationId = correlationId;
@@ -46,7 +46,7 @@
 
 + (void)processResponse:(ADWebResponse *)webResponse
                 request:(ADWebAuthRequest *)request
-             completion:(void (^)(NSDictionary *))completionBlock
+             completion:(ADWebResponseCallback)completionBlock
 {
     ADWebAuthResponse* response = [ADWebAuthResponse new];
     response->_request = request;
@@ -92,7 +92,7 @@
 }
 
 - (void)handleResponse:(ADWebResponse *)webResponse
-       completionBlock:(void (^)(NSDictionary *))completionBlock
+       completionBlock:(ADWebResponseCallback)completionBlock
 {
     [self checkCorrelationId:webResponse];
     [_responseDictionary setObject:webResponse.URL forKey:@"url"];
@@ -162,7 +162,7 @@
 }
 
 - (void)handleJSONResponse:(ADWebResponse*)webResponse
-           completionBlock:(void (^)(NSDictionary *))completionBlock
+           completionBlock:(ADWebResponseCallback)completionBlock
 {
     NSError   *jsonError  = nil;
     id         jsonObject = [NSJSONSerialization JSONObjectWithData:webResponse.body options:0 error:&jsonError];
@@ -189,7 +189,7 @@
 }
 
 - (void)handlePKeyAuthChallenge:(NSString *)wwwAuthHeaderValue
-                     completion:(void (^)(NSDictionary *))completionBlock
+                     completion:(ADWebResponseCallback)completionBlock
 {
     //pkeyauth word length=8 + 1 whitespace
     wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[pKeyAuthName length] + 1];
@@ -219,7 +219,7 @@
     [_request resend];
 }
 
-- (void)handleSuccess:(void (^)(NSDictionary *))completionBlock
+- (void)handleSuccess:(ADWebResponseCallback)completionBlock
 {
     [[ADClientMetrics getInstance] endClientMetricsRecord:[[_request URL] absoluteString]
                                                 startTime:[_request startTime]
@@ -234,7 +234,7 @@
 
 - (void)handleJSONError:(NSError*)jsonError
                    body:(NSData*)body
-        completionBlock:(void (^)(NSDictionary *))completionBlock
+        completionBlock:(ADWebResponseCallback)completionBlock
 {
     
     // Unrecognized JSON response
@@ -268,7 +268,8 @@
     [self handleNSError:jsonError completionBlock:completionBlock];
 }
 
-- (void)handleNSError:(NSError*)error completionBlock:(void (^)(NSDictionary*))completionBlock
+- (void)handleNSError:(NSError*)error
+      completionBlock:(ADWebResponseCallback)completionBlock
 {
     if ([[error domain] isEqualToString:@"NSURLErrorDomain"] && [error code] == -1002)
     {
@@ -289,7 +290,8 @@
     [self handleADError:adError completionBlock:completionBlock];
 }
 
-- (void)handleADError:(ADAuthenticationError*)adError completionBlock:(void (^)(NSDictionary*))completionBlock
+- (void)handleADError:(ADAuthenticationError*)adError
+      completionBlock:(ADWebResponseCallback)completionBlock
 {
     [_responseDictionary setObject:adError
                             forKey:AUTH_NON_PROTOCOL_ERROR];

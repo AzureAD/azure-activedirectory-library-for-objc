@@ -57,7 +57,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
 {
     NSString* urlString = [_context.authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
     ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString]
-                                                    requestParams:_requestParams];
+                                                          context:_requestParams];
     [req setRequestDictionary:request_data];
     [req sendRequest:^(NSDictionary *response)
      {
@@ -244,7 +244,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                      NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
                                                         code:AD_ERROR_SERVER_WPJ_REQUIRED
                                                     userInfo:userInfo];
-                     error = [ADAuthenticationError errorFromNSError:err errorDetails:@"work place join is required"];
+                     error = [ADAuthenticationError errorFromNSError:err errorDetails:@"work place join is required" correlationId:_requestParams.correlationId];
                  }
 #else
                  code = end.absoluteString;
@@ -304,7 +304,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         
         NSURL* reqURL = [NSURL URLWithString:[_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]];
         ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:reqURL
-                                                        requestParams:_requestParams];
+                                                              context:_requestParams];
         [req setIsGetRequest:YES];
         [req setRequestDictionary:requestData];
         [req sendRequest:^(NSDictionary * parameters)

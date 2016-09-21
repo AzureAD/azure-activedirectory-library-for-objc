@@ -41,7 +41,8 @@
     BOOL _attemptedFRT;
 }
 
-+ (void)acquireTokenSilentForRequestParams:(ADRequestParameters*)requestParams
-                           completionBlock:(ADAuthenticationCallback)completionBlock;
++ (ADAcquireTokenSilentHandler *)requestWithParams:(ADRequestParameters*)requestParams;
+
+- (void)getToken:(ADAuthenticationCallback)completionBlock;
 
 @end
