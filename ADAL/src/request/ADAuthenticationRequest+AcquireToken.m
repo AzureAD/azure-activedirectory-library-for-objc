@@ -30,8 +30,6 @@
 #import "ADTokenCacheKey.h"
 #import "ADAcquireTokenSilentHandler.h"
 
-static ADAuthenticationRequest* s_modalRequest = nil;
-
 @implementation ADAuthenticationRequest (AcquireToken)
 
 #pragma mark -
