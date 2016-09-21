@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADEventInterface.h"
+#import "ADTelemetryEventInterface.h"
 
 @interface ADTelemetry (Internal)
 
@@ -31,9 +31,11 @@
          eventName:(NSString*)eventName;
 
 - (void)stopEvent:(NSString*)requestId
-            event:(id<ADEventInterface>)event;
+            event:(id<ADTelemetryEventInterface>)event;
 
 - (void)dispatchEventNow:(NSString*)requestId
-                   event:(id<ADEventInterface>)event;
+                   event:(id<ADTelemetryEventInterface>)event;
+
+- (void)flush:(NSString*)requestId;
 
 @end

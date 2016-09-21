@@ -21,27 +21,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADTelemetryBrokerEvent.h"
 
-#import <Foundation/Foundation.h>
+@implementation ADTelemetryBrokerEvent
 
-@class ADTokenCacheAccessor;
-
-@interface ADAcquireTokenSilentHandler : NSObject
+-(id) init
 {
-    ADRequestParameters* _requestParams;
+    self = [super init];
+    if(self)
+    {
+        //this is the only broker for iOS
+        [self setBrokerApp:@"Azure Authenticator"];
+    }
     
-    ADTokenCacheItem* _mrrtItem;
-    ADTokenCacheItem* _extendedLifetimeAccessTokenItem; //store valid AT in terms of ext_expires_in (if find any)
-    
-    // We only return underlying errors from the MRRT Result, because the FRT is a
-    // "best attempt" method, which is not necessarily tied to the client ID we're
-    // trying, so the MRRT error will be more accurate.
-    ADAuthenticationResult* _mrrtResult;
-    
-    BOOL _attemptedFRT;
+    return self;
 }
 
-+ (void)acquireTokenSilentForRequestParams:(ADRequestParameters*)requestParams
-                           completionBlock:(ADAuthenticationCallback)completionBlock;
+
+- (void)setBrokerAppVersion:(NSString*)version
+{
+    [self setProperty:@"broker_app_version" value:version];
+}
+
+- (void)setBrokerProtocolVersion:(NSString*)version
+{
+    [self setProperty:@"broker_protocol_version" value:version];
+}
+
+- (void)setResultStatus:(ADAuthenticationResultStatus)status
+{
+    NSString* statusStr = nil;
+    switch (status) {
+        case AD_SUCCEEDED:
+            statusStr = @"SUCCEEDED";
+            break;
+        case AD_FAILED:
+            statusStr = @"FAILED";
+            break;
+        case AD_USER_CANCELLED:
+            statusStr = @"USER_CANCELLED";
+            break;
+        default:
+            statusStr = @"UNKNOWN";
+    }
+    
+    [self setProperty:@"status" value:statusStr];
+}
+
+- (void)setBrokerApp:(NSString*)appName
+{
+    [self setProperty:@"broker_app" value:appName];
+}
 
 @end

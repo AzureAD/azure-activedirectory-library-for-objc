@@ -21,10 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADDefaultEvent.h"
-#import "ADEventInterface.h"
+#import "ADTelemetryDefaultEvent.h"
+#import "ADTelemetryEventInterface.h"
+#import "ADLogger.h"
 
-@implementation ADDefaultEvent
+#if !TARGET_OS_IPHONE
+#include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/IOKitLib.h>
+#endif
+
+#define SET_IF_NOT_NIL(DICT, NAME, OBJECT) \
+{ \
+if (OBJECT) \
+{ \
+[(DICT) addObject:@[(NAME), (OBJECT)]]; \
+} \
+}
+
+@implementation ADTelemetryDefaultEvent
 
 @synthesize propertyMap = _propertyMap;
 
@@ -36,6 +50,8 @@
 }
 
 - (id)initWithName:(NSString*)eventName
+         requestId:(NSString*)requestId
+     correlationId:(NSUUID*)correlationId
 {
     if (!(self = [super init]))
     {
@@ -43,7 +59,11 @@
     }
     
     _propertyMap = [[self defaultParameters] mutableCopy];
-    [_propertyMap addObject:@[@"event_name", eventName]];
+    SET_IF_NOT_NIL(_propertyMap, @"request_id", requestId);
+    SET_IF_NOT_NIL(_propertyMap, @"correlation_id", [correlationId UUIDString]);
+    _defaultPropertyCount = [_propertyMap count];
+    
+    SET_IF_NOT_NIL(_propertyMap, @"event_name", eventName);
     
     return self;
 }
@@ -84,6 +104,12 @@
     [_propertyMap addObject:@[@"stop_time", [self getStringFromDate:time]]];
 }
 
+- (void)setResponseTime:(NSTimeInterval)responseTime
+{
+    //the property is set in milliseconds
+    [_propertyMap addObject:@[@"response_time", [NSString stringWithFormat:@"%f", responseTime*1000]]];
+}
+
 - (NSString*)getStringFromDate:(NSDate*)date
 {
     static NSDateFormatter* s_dateFormatter = nil;
@@ -98,17 +124,9 @@
     return [s_dateFormatter stringFromDate:date];
 }
 
-#define SET_IF_NOT_NIL(DICT, NAME, OBJECT) \
-{ \
-if (OBJECT) \
-{ \
-[(DICT) addObject:@[(NAME), (OBJECT)]]; \
-} \
-}
-
 - (NSArray*)defaultParameters
 {
-    static NSMutableArray* s_defaultParameters = nil;
+    static NSMutableArray* s_defaultParameters;
     static dispatch_once_t s_parametersOnce;
     
     dispatch_once(&s_parametersOnce, ^{
@@ -118,20 +136,23 @@ if (OBJECT) \
 #if TARGET_OS_IPHONE
         //iOS:
         NSString* deviceId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-        NSString* deviceName = [[UIDevice currentDevice] name];
-        SET_IF_NOT_NIL(s_defaultParameters, @"device_id", [[deviceId dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:0]);
-        SET_IF_NOT_NIL(s_defaultParameters, @"device_name", [[deviceName dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:0]);
-        
-        SET_IF_NOT_NIL(s_defaultParameters, @"application_name", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"]);
-        SET_IF_NOT_NIL(s_defaultParameters, @"sdk_id", @"iOS");
+        NSString* applicationName = [[NSBundle mainBundle] bundleIdentifier];
 #else
-        SET_IF_NOT_NIL(s_defaultParameters, @"application_name",  [[NSProcessInfo processInfo] processName]);
-        SET_IF_NOT_NIL(s_defaultParameters, @"sdk_id", @"OSX");
+        CFStringRef macSerialNumber = nil;
+        CopySerialNumber(&macSerialNumber);
+        NSString* deviceId = CFBridgingRelease(macSerialNumber);
+        NSString* applicationName = [[NSProcessInfo processInfo] processName];
 #endif
         
+        SET_IF_NOT_NIL(s_defaultParameters, @"device_id", [deviceId adComputeSHA256]);
+        SET_IF_NOT_NIL(s_defaultParameters, @"application_name", applicationName);
         SET_IF_NOT_NIL(s_defaultParameters, @"application_version", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
-        SET_IF_NOT_NIL(s_defaultParameters, @"sdk_version", ADAL_VERSION_NSSTRING);
         
+        NSDictionary* adalId = [ADLogger adalId];
+        for (NSString* key in adalId)
+        {
+            SET_IF_NOT_NIL(s_defaultParameters, key, [adalId objectForKey:key]);
+        }
     });
     
     return s_defaultParameters;
@@ -139,7 +160,7 @@ if (OBJECT) \
 
 - (NSInteger)getDefaultPropertyCount
 {
-    return [[self defaultParameters] count];
+    return _defaultPropertyCount;
 }
 
 - (void)dealloc
@@ -150,5 +171,30 @@ if (OBJECT) \
     SAFE_ARC_SUPER_DEALLOC();
 }
 
+#if !TARGET_OS_IPHONE
+// Returns the serial number as a CFString.
+// It is the caller's responsibility to release the returned CFString when done with it.
+void CopySerialNumber(CFStringRef *serialNumber)
+{
+    if (serialNumber != NULL) {
+        *serialNumber = NULL;
+        
+        io_service_t    platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
+                                                                     IOServiceMatching("IOPlatformExpertDevice"));
+        
+        if (platformExpert) {
+            CFTypeRef serialNumberAsCFString =
+            IORegistryEntryCreateCFProperty(platformExpert,
+                                            CFSTR(kIOPlatformSerialNumberKey),
+                                            kCFAllocatorDefault, 0);
+            if (serialNumberAsCFString) {
+                *serialNumber = serialNumberAsCFString;
+            }
+            
+            IOObjectRelease(platformExpert);
+        }
+    }
+}
+#endif
 
 @end

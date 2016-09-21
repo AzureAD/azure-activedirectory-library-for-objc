@@ -32,6 +32,9 @@
 #import "ADHelpers.h"
 #import "ADLogger+Internal.h"
 #import "ADURLProtocol.h"
+#import "ADTelemetry.h"
+#import "ADTelemetry+Internal.h"
+#import "ADTelemetryHttpEvent.h"
 
 @interface ADWebRequest () <NSURLConnectionDelegate>
 
@@ -77,7 +80,7 @@
 #pragma mark - Initialization
 
 - (id)initWithURL:(NSURL *)requestURL
-    correlationId:(NSUUID *)correlationId
+    requestParams:(ADRequestParameters*)requestParams
 {
     if (!(self = [super init]))
     {
@@ -90,8 +93,11 @@
     // Default timeout for ADWebRequest is 30 seconds
     _timeout           = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
     
-    _correlationId     = correlationId;
+    _correlationId     = [requestParams correlationId];
     SAFE_ARC_RETAIN(_correlationId);
+    
+    _telemetryRequestId = [requestParams telemetryRequestId];
+    SAFE_ARC_RETAIN(_telemetryRequestId);
     
     _operationQueue = [[NSOperationQueue alloc] init];
     [_operationQueue setMaxConcurrentOperationCount:1];
@@ -121,6 +127,9 @@
     SAFE_ARC_RELEASE(_correlationId);
     _correlationId = nil;
     
+    SAFE_ARC_RELEASE(_telemetryRequestId);
+    _telemetryRequestId = nil;
+    
     SAFE_ARC_RELEASE(_operationQueue);
     _operationQueue = nil;
     
@@ -141,7 +150,9 @@
     
     SAFE_ARC_RELEASE(_connection);
     _connection     = nil;
-    
+#if AD_TELEMETRY
+    [self stopTelemetryEvent:error response:response];
+#endif
     _completionHandler(error, response);
 }
 
@@ -170,6 +181,9 @@
 
 - (void)send
 {
+#if AD_TELEMETRY
+    [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:@"http_request"];
+#endif
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
     //Correlation id:
     if (_correlationId)
@@ -304,6 +318,27 @@
 #pragma unused(totalBytesWritten)
 #pragma unused(totalBytesExpectedToWrite)
     
+}
+
+- (void)stopTelemetryEvent:(NSError *)error
+                  response:(ADWebResponse *)response
+{
+    ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:@"http_request" requestId:_telemetryRequestId correlationId:_correlationId];
+
+    [event setHttpMethod:_isGetRequest ? @"GET" : @"POST"];
+    [event setHttpPath:[NSString stringWithFormat:@"%@://%@/%@", _requestURL.scheme, _requestURL.host, _requestURL.path]];
+    if (error)
+    {
+        [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
+        [event setHttpErrorDomain:[error domain]];
+    }
+    else if (response)
+    {
+        [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[response statusCode]]];
+    }
+
+    [[ADTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
+    SAFE_ARC_RELEASE(event);
 }
 
 @end

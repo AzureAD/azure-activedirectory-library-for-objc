@@ -21,27 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADTelemetryDefaultEvent.h"
 
-#import <Foundation/Foundation.h>
+@interface ADTelemetryHttpEvent : ADTelemetryDefaultEvent
 
-@class ADTokenCacheAccessor;
-
-@interface ADAcquireTokenSilentHandler : NSObject
-{
-    ADRequestParameters* _requestParams;
-    
-    ADTokenCacheItem* _mrrtItem;
-    ADTokenCacheItem* _extendedLifetimeAccessTokenItem; //store valid AT in terms of ext_expires_in (if find any)
-    
-    // We only return underlying errors from the MRRT Result, because the FRT is a
-    // "best attempt" method, which is not necessarily tied to the client ID we're
-    // trying, so the MRRT error will be more accurate.
-    ADAuthenticationResult* _mrrtResult;
-    
-    BOOL _attemptedFRT;
-}
-
-+ (void)acquireTokenSilentForRequestParams:(ADRequestParameters*)requestParams
-                           completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)setHttpMethod:(NSString*)method;
+- (void)setHttpPath:(NSString*)path;
+- (void)setHttpResponseCode:(NSString*)code;
+- (void)setHttpResponseMethod:(NSString*)method;
+- (void)setHttpRequestQueryParams:(NSString*)params;
+- (void)setHttpUserAgent:(NSString*)userAgent;
+- (void)setHttpErrorDomain:(NSString*)errorDomain;
 
 @end
