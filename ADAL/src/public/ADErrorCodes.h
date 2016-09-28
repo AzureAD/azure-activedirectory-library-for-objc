@@ -158,6 +158,9 @@ typedef enum
     /*! Failed to decrypt the message we received from Azure Authenticator */
     AD_ERROR_TOKENBROKER_DECRYPTION_FAILED = 505,
     
+    /*! We were launched with a URL, however that URL did not come from the broker app, or was
+        not a broker response. */
+    AD_ERROR_TOKENBROKER_NOT_A_BROKER_RESPONSE = 506,
     
 } ADErrorCode;
 

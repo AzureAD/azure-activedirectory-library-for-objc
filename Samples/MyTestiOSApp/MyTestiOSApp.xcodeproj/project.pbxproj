@@ -399,6 +399,7 @@
 				ORGANIZATIONNAME = MS;
 				TargetAttributes = {
 					8BA42AF517E3C150002D206E = {
+						DevelopmentTeam = UBF8T346G9;
 						SystemCapabilities = {
 							com.apple.Keychain = {
 								enabled = 1;
@@ -410,6 +411,7 @@
 					};
 					D6EA53A61D541011008A0BC3 = {
 						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = UBF8T346G9;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -653,6 +655,7 @@
 				CODE_SIGN_ENTITLEMENTS = MyTestiOSApp/MyTestiOSApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = UBF8T346G9;
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -786,6 +789,7 @@
 				CODE_SIGN_ENTITLEMENTS = MyTestiOSApp/MyTestiOSApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = UBF8T346G9;
 				GCC_GENERATE_TEST_COVERAGE_FILES = NO;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -809,6 +813,7 @@
 				CODE_SIGN_ENTITLEMENTS = MyTestiOSApp/MyTestiOSApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = UBF8T346G9;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MyTestiOSApp/MyTestiOSApp-Prefix.pch";
 				INFOPLIST_FILE = "MyTestiOSApp/MyTestiOSApp-Info.plist";
@@ -872,6 +877,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = UBF8T346G9;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/extension-safe";
@@ -896,6 +902,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UBF8T346G9;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/extension-safe";
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -919,6 +926,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UBF8T346G9;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/extension-safe";
 				GCC_NO_COMMON_BLOCKS = YES;
