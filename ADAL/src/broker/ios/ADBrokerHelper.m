@@ -36,19 +36,27 @@ IMP __original_ApplicationOpenURL = NULL;
 
 BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application, NSURL* url, NSString* sourceApplication, id annotation)
 {
-    if (![ADAuthenticationContext isResponseFromBroker:sourceApplication response:url])
+    if ([ADAuthenticationContext isResponseFromBroker:sourceApplication response:url])
     {
-        if (__original_ApplicationOpenURL)
+        // Attempt to handle response from broker
+        BOOL result = [ADAuthenticationContext handleBrokerResponse:url];
+
+        if (result)
         {
-            return ((applicationOpenURLPtr)__original_ApplicationOpenURL)(self, _cmd, application, url, sourceApplication, annotation);
-        }
-        else
-        {
-            return NO;
+            // Successfully handled broker response
+            return YES;
         }
     }
-    
-    return [ADAuthenticationContext handleBrokerResponse:url];
+
+    // Fallback to original delegate if defined
+    if (__original_ApplicationOpenURL)
+    {
+        return ((applicationOpenURLPtr)__original_ApplicationOpenURL)(self, _cmd, application, url, sourceApplication, annotation);
+    }
+    else
+    {
+        return NO;
+    }
 }
 
 typedef BOOL (*applicationOpenURLiOS9Ptr)(id, SEL, UIApplication*, NSURL*, NSDictionary<NSString*, id>*);
@@ -57,20 +65,29 @@ IMP __original_ApplicationOpenURLiOS9 = NULL;
 BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* application, NSURL* url, NSDictionary<NSString*, id>* options)
 {
     NSString* sourceApplication = [options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey];
-    if (![ADAuthenticationContext isResponseFromBroker:sourceApplication response:url])
+
+    if ([ADAuthenticationContext isResponseFromBroker:sourceApplication response:url])
     {
-        if (__original_ApplicationOpenURLiOS9)
+        // Attempt to handle response from broker
+        BOOL result = [ADAuthenticationContext handleBrokerResponse:url];
+
+        if (result)
         {
-            return ((applicationOpenURLiOS9Ptr)__original_ApplicationOpenURLiOS9)(self, _cmd, application, url, options);
+            // Successfully handled broker response
+            return YES;
         }
-        else
-        {
-            return NO;
-        }
+
     }
-    
-    [ADAuthenticationContext handleBrokerResponse:url];
-    return YES;
+
+    // Fallback to original delegate if defined
+    if (__original_ApplicationOpenURLiOS9)
+    {
+        return ((applicationOpenURLiOS9Ptr)__original_ApplicationOpenURLiOS9)(self, _cmd, application, url, options);
+    }
+    else
+    {
+        return NO;
+    }
 }
 
 @implementation ADBrokerHelper
