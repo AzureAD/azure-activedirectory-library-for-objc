@@ -45,6 +45,7 @@
 		601BEE341C6DCB0B004AA8C1 /* ADWebAuthControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 601BEE331C6DCB0B004AA8C1 /* ADWebAuthControllerTests.m */; };
 		601BEE351C6DCB0B004AA8C1 /* ADWebAuthControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 601BEE331C6DCB0B004AA8C1 /* ADWebAuthControllerTests.m */; };
 		6071B5E41C14C0B0006F6CC2 /* ADTestURLConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 6071B5E31C14C0B0006F6CC2 /* ADTestURLConnection.m */; };
+		60C351BA1DA0D588006C8435 /* ADAL.m in Sources */ = {isa = PBXBuildFile; fileRef = 60C351B91DA0D588006C8435 /* ADAL.m */; };
 		8B0965AE17F25770002BDFB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
 		8B0965BC17F25770002BDFB8 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965BB17F25770002BDFB8 /* XCTest.framework */; };
 		8B0965BD17F25770002BDFB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
@@ -375,6 +376,7 @@
 		6071B5E21C14C0B0006F6CC2 /* ADTestURLConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestURLConnection.h; sourceTree = "<group>"; };
 		6071B5E31C14C0B0006F6CC2 /* ADTestURLConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestURLConnection.m; sourceTree = "<group>"; };
 		60967E191D76B62B00863853 /* tools */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tools; sourceTree = SOURCE_ROOT; };
+		60C351B91DA0D588006C8435 /* ADAL.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAL.m; sourceTree = "<group>"; };
 		8B0965AA17F25770002BDFB8 /* libADALiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libADALiOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B0965AD17F25770002BDFB8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8B0965BA17F25770002BDFB8 /* ADALiOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADALiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -707,6 +709,7 @@
 			isa = PBXGroup;
 			children = (
 				9453C3A41C583AA8006B9E79 /* public */,
+				60C351B91DA0D588006C8435 /* ADAL.m */,
 				9453C3A31C583A9C006B9E79 /* ADAL_Internal.h */,
 				8BB8345B18074A58007F9F0D /* ADAuthenticationContext.m */,
 				D6E43A681B04026D000F5BE2 /* ADAuthenticationContext+Internal.h */,
@@ -1492,6 +1495,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				60C351BA1DA0D588006C8435 /* ADAL.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
