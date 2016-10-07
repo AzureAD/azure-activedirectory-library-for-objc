@@ -236,6 +236,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     return result;
 #else
     (void)response;
+    AUTH_ERROR(AD_ERROR_UNEXPECTED, @"broker response parsing not supported on Mac", nil);
     return nil;
 #endif
 }
