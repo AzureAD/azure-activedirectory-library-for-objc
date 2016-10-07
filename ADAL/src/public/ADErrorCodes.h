@@ -162,6 +162,18 @@ typedef enum
         not a broker response. */
     AD_ERROR_TOKENBROKER_NOT_A_BROKER_RESPONSE = 506,
     
+    /*! No resume dictionary was found in NSUserDefaults, so either we aren't expecting a broker response, or something else unexpected happened */
+    AD_ERROR_TOKENBROKER_NO_RESUME_STATE = 507,
+    
+    /*! Missing data from the broker response resume dictionary */
+    AD_ERROR_TOKENBROKER_BAD_RESUME_STATE = 508,
+    
+    /*! Data from the broker response does not match the resume state from our broker request */
+    AD_ERROR_TOKENBROKER_MISMATCHED_RESUME_STATE = 509,
+    
+    /*! The key hash was missing from the response */
+    AD_ERROR_TOKENBROKER_HASH_MISSING = 510,
+    
 } ADErrorCode;
 
 /* HTTP status codes used by the library */
