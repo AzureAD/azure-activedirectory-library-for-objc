@@ -91,7 +91,7 @@ static NSString* s_kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     {
         XCTAssertNotNil(result);
         XCTAssertNotNil(result.error);
-        XCTAssertEqual(result.error.code, AD_ERROR_TOKENBROKER_NOT_A_BROKER_RESPONSE);
+        XCTAssertEqual(result.error.code, AD_ERROR_TOKENBROKER_HASH_MISSING);
         
         dispatch_semaphore_signal(sem);
         
@@ -118,7 +118,7 @@ static NSString* s_kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
      {
          XCTAssertNotNil(result);
          XCTAssertNotNil(result.error);
-         XCTAssertEqual(result.error.code, AD_ERROR_TOKENBROKER_NOT_A_BROKER_RESPONSE);
+         XCTAssertEqual(result.error.code, AD_ERROR_TOKENBROKER_MISMATCHED_RESUME_STATE);
          
          dispatch_semaphore_signal(sem);
          

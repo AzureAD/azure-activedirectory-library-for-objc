@@ -77,174 +77,166 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     return NO;
 }
 
+/*!
+    Process the broker response and call the completion block, if it is available.
+ 
+    @return YES if the URL was a properly decoded broker response
+ */
 + (BOOL)internalHandleBrokerResponse:(NSURL *)response
 {
 #if TARGET_OS_IPHONE
     __block ADAuthenticationCallback completionBlock = [ADBrokerHelper copyAndClearCompletionBlock];
-        
-    ADAuthenticationResult* result = [self processBrokerResponse:response];
+    
+    ADAuthenticationError* error = nil;
+    ADAuthenticationResult* result = [self processBrokerResponse:response
+                                                           error:&error];
+    BOOL fReturn = YES;
     
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kAdalResumeDictionaryKey];
-    // If we didn't get an authentication result then assume it wasn't actually a broker
-    // message. This allows the message to pass through to other handlers
     if (!result)
     {
-        if (completionBlock)
-        {
-            // If we had a completion block, but didn't get a result from processBrokerResponse
-            // we still need to hit the completion block to make sure there isn't any UI sitting
-            // waiting on a response that won't come.
-            ADAuthenticationError* adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_NOT_A_BROKER_RESPONSE
-                                                                                    protocolCode:nil
-                                                                                    errorDetails:@"Application received a URL that was not a broker response"
-                                                                                   correlationId:nil];
-            ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:adError];
-            completionBlock(result);
-        }
-        return NO;
+        result = [ADAuthenticationResult resultFromError:error];
+        fReturn = NO;
     }
     
+    [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidReceieveResponseFromBroker
+                                                        object:nil
+                                                      userInfo:@{ @"response" : result }];
+    
+    // Regardless of whether or not processing the broker response succeeded we always have to call
+    // the completion block.
     if (completionBlock)
     {
         completionBlock(result);
     }
-    else
+    else if (fReturn)
     {
         AD_LOG_ERROR(@"Received broker response without a completionBlock.", AD_FAILED, nil, nil);
         
-        // TODO: Add this result to cache as well
         [ADWebAuthController setInterruptedBrokerResult:result];
     }
     
-    return YES;
+    return fReturn;
 #else
     (void)response;
     return NO;
 #endif // TARGET_OS_IPHONE
 }
 
+/*!
+    Processes the broker response from the URL
+ 
+    @param  response    The URL the application received from the openURL: handler
+    @param  error       (Optional) Any error that occurred trying to process the broker response (note: errors
+                        sent in the response itself will be returned as a result, and not populate this parameter)
+
+    @return The result contained in the broker response, nil if the URL could not be processed
+ */
 + (ADAuthenticationResult *)processBrokerResponse:(NSURL *)response
+                                            error:(ADAuthenticationError * __autoreleasing *)error
 {
 #if TARGET_OS_IPHONE
 
     if (!response)
     {
+        
         return nil;
     }
     
     NSDictionary* resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:kAdalResumeDictionaryKey];
     if (!resumeDictionary)
     {
+        AUTH_ERROR(AD_ERROR_TOKENBROKER_NO_RESUME_STATE, @"No resume state found in NSUserDefaults", nil);
         return nil;
     }
     
+    NSUUID* correlationId = [[NSUUID alloc] initWithUUIDString:[resumeDictionary objectForKey:@"correlation_id"]];
     NSString* redirectUri = [resumeDictionary objectForKey:@"redirect_uri"];
     if (!redirectUri)
     {
+        AUTH_ERROR(AD_ERROR_TOKENBROKER_BAD_RESUME_STATE, @"Resume state is missing the redirect uri!", correlationId);
         return nil;
     }
     
     // Check to make sure this response is coming from the redirect URI we're expecting.
     if (![[[response absoluteString] lowercaseString] hasPrefix:[redirectUri lowercaseString]])
     {
+        AUTH_ERROR(AD_ERROR_TOKENBROKER_MISMATCHED_RESUME_STATE, @"URL not coming from the expected redirect URI!", correlationId);
         return nil;
     }
     
     NSString *qp = [response query];
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
-    ADAuthenticationResult* result;
     
-    if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION]){
-        result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
-    }
-    else
+    if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION])
     {
-        // Encrypting the broker response should not be a requirement on Mac as there shouldn't be a possibility of the response
-        // accidentally going to the wrong app
-        NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
-        if (!hash)
-        {
-            return nil;
-        }
-        
-        NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
-        NSString* msgVer = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
-        NSInteger protocolVersion = 1;
-        
-        NSUUID* correlationId = [queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
-        [[NSUUID alloc] initWithUUIDString:[queryParamsMap valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]]
-        : nil;
-        
-        if (msgVer)
-        {
-            protocolVersion = [msgVer integerValue];
-        }
-        
-        //decrypt response first
-        ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
-        ADAuthenticationError* error = nil;
-        NSData *encryptedResponse = [NSString Base64DecodeData:encryptedBase64Response ];
-        NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
-                                                        version:protocolVersion
-                                                          error:&error];
-        if (!decrypted)
-        {
-            return [ADAuthenticationResult resultFromError:error];
-        }
-        
-        
-        NSString* decryptedString = nil;
-        
-        if(!error)
-        {
-            decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
-            //now compute the hash on the unencrypted data
-            NSString* actualHash = [ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES];
-            if([NSString adSame:hash toString:actualHash])
-            {
-                //create response from the decrypted payload
-                queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
-                [ADHelpers removeNullStringFrom:queryParamsMap];
-                result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
-                
-            }
-            else
-            {
-                NSError* nsErr = [NSError errorWithDomain:ADAuthenticationErrorDomain
-                                                     code:AD_ERROR_TOKENBROKER_RESPONSE_HASH_MISMATCH
-                                                 userInfo:nil];
-                ADAuthenticationError* adErr = [ADAuthenticationError errorFromNSError:nsErr
-                                                                          errorDetails:@"Decrypted response does not match the hash"
-                                                                         correlationId:correlationId];
-
-                result = [ADAuthenticationResult resultFromError:adErr];
-            }
-        }
-        else
-        {
-            result = [ADAuthenticationResult resultFromError:error correlationId:correlationId];
-        }
+        return [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
     }
     
-    if (AD_SUCCEEDED == result.status)
+    // Encrypting the broker response should not be a requirement on Mac as there shouldn't be a possibility of the response
+    // accidentally going to the wrong app
+    NSString* hash = [queryParamsMap valueForKey:BROKER_HASH_KEY];
+    if (!hash)
     {
-        ADTokenCacheAccessor* cache = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache defaultKeychainCache]
+        AUTH_ERROR(AD_ERROR_TOKENBROKER_HASH_MISSING, @"Key hash is missing from the broker response", correlationId);
+        return nil;
+    }
+    
+    NSString* encryptedBase64Response = [queryParamsMap valueForKey:BROKER_RESPONSE_KEY];
+    NSString* msgVer = [queryParamsMap valueForKey:BROKER_MESSAGE_VERSION];
+    NSInteger protocolVersion = 1;
+    
+    if (msgVer)
+    {
+        protocolVersion = [msgVer integerValue];
+    }
+    
+    //decrypt response first
+    ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
+    ADAuthenticationError* decryptionError = nil;
+    NSData *encryptedResponse = [NSString Base64DecodeData:encryptedBase64Response ];
+    NSData* decrypted = [brokerHelper decryptBrokerResponse:encryptedResponse
+                                                    version:protocolVersion
+                                                      error:&decryptionError];
+    if (!decrypted)
+    {
+        AUTH_ERROR_UNDERLYING(AD_ERROR_TOKENBROKER_DECRYPTION_FAILED, @"Failed to decrypt broker message", decryptionError, correlationId)
+        return nil;
+    }
+    
+    
+    NSString* decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
+    //now compute the hash on the unencrypted data
+    NSString* actualHash = [ADPkeyAuthHelper computeThumbprint:decrypted isSha2:YES];
+    if(![NSString adSame:hash toString:actualHash])
+    {
+        AUTH_ERROR(AD_ERROR_TOKENBROKER_RESPONSE_HASH_MISMATCH, @"Decrypted response does not match the hash", correlationId);
+        return nil;
+    }
+    
+    // create response from the decrypted payload
+    queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
+    [ADHelpers removeNullStringFrom:queryParamsMap];
+    ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+    
+    NSString* keychainGroup = resumeDictionary[@"keychain_group"];
+    if (AD_SUCCEEDED == result.status && keychainGroup)
+    {
+        ADTokenCacheAccessor* cache = [[ADTokenCacheAccessor alloc] initWithDataSource:[ADKeychainTokenCache keychainCacheForGroup:keychainGroup]
                                                                              authority:result.tokenCacheItem.authority];
         
         [cache updateCacheToResult:result cacheItem:nil refreshToken:nil correlationId:nil];
         
         NSString* userId = [[[result tokenCacheItem] userInformation] userId];
         [ADAuthenticationContext updateResult:result
-                   toUser:[ADUserIdentifier identifierWithId:userId]];
+                                       toUser:[ADUserIdentifier identifierWithId:userId]];
     }
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidReceieveResponseFromBroker
-                                                        object:nil
-                                                      userInfo:@{ @"response" : result }];
     return result;
 #else
     (void)response;
+    AUTH_ERROR(AD_ERROR_UNEXPECTED, @"broker response parsing not supported on Mac", nil);
     return nil;
 #endif
 }
@@ -309,16 +301,36 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"extra_qp"       : _queryParams ? _queryParams : @"",
       };
     
-    NSDictionary<NSString *, NSString *>* resumeDictionary =
-  @{
-    @"authority"        : _context.authority,
-    @"resource"         : _resource,
-    @"client_id"        : _clientId,
-    @"redirect_uri"     : _redirectUri,
-    @"correlation_id"   : _correlationId.UUIDString,
-    };
-    
+    NSDictionary<NSString *, NSString *>* resumeDictionary = nil;
+#if TARGET_OS_IPHONE
+    id<ADTokenCacheDataSource> dataSource = [_tokenCache dataSource];
+    if (dataSource && [dataSource isKindOfClass:[ADKeychainTokenCache class]])
+    {
+        resumeDictionary =
+        @{
+          @"authority"        : _context.authority,
+          @"resource"         : _resource,
+          @"client_id"        : _clientId,
+          @"redirect_uri"     : _redirectUri,
+          @"correlation_id"   : _correlationId.UUIDString,
+          @"keychain_group"   : [(ADKeychainTokenCache*)dataSource sharedGroup]
+          };
+
+    }
+    else
+#endif
+    {
+        resumeDictionary =
+        @{
+          @"authority"        : _context.authority,
+          @"resource"         : _resource,
+          @"client_id"        : _clientId,
+          @"redirect_uri"     : _redirectUri,
+          @"correlation_id"   : _correlationId.UUIDString,
+          };
+    }
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
     
     if ([ADBrokerHelper canUseBroker])
     {
