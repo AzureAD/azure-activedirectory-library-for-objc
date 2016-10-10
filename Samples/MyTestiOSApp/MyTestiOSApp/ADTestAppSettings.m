@@ -151,6 +151,7 @@ static NSUInteger s_currentProfileIdx = 0;
 {
     NSString* title = [s_profileTitles objectAtIndex:idx];
     s_currentProfileIdx = idx;
+    [[NSUserDefaults standardUserDefaults] setObject:title forKey:@"CurrentProfile"];
     NSDictionary* settings = [s_additionalProfiles objectForKey:title];
     if (!settings)
     {

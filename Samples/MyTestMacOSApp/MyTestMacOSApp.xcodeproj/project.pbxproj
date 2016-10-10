@@ -21,8 +21,12 @@
 		8BD92F0518C93BE70026A014 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD92EE118C93BE70026A014 /* Cocoa.framework */; };
 		8BD92F0D18C93BE70026A014 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BD92F0B18C93BE70026A014 /* InfoPlist.strings */; };
 		94DD18C51C59FE9700F80C62 /* ADTestAppSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 94DD18C21C59FE9700F80C62 /* ADTestAppSettings.m */; };
-		94DD18C61C59FE9700F80C62 /* ADTestInstance.m in Sources */ = {isa = PBXBuildFile; fileRef = 94DD18C41C59FE9700F80C62 /* ADTestInstance.m */; };
 		94DD18DC1C5ACF1900F80C62 /* TestData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 94DD18DB1C5ACF1900F80C62 /* TestData.plist */; };
+		D623B1991D9F1188004D51F0 /* AcquireTokenWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = D623B1981D9F1188004D51F0 /* AcquireTokenWindow.xib */; };
+		D623B1A21D9F1246004D51F0 /* ADTestAppAcquireTokenWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = D623B1A11D9F1246004D51F0 /* ADTestAppAcquireTokenWindowController.m */; };
+		D669AE131DA47AE300763477 /* ADTestAppCacheWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = D669AE111DA47AE300763477 /* ADTestAppCacheWindowController.m */; };
+		D669AE141DA47AE300763477 /* CacheWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = D669AE121DA47AE300763477 /* CacheWindow.xib */; };
+		D669AE1D1DA584B600763477 /* ADTestAppCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D669AE1C1DA584B600763477 /* ADTestAppCache.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -121,10 +125,16 @@
 		8BD92F0C18C93BE70026A014 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		94DD18C11C59FE9700F80C62 /* ADTestAppSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppSettings.h; sourceTree = "<group>"; };
 		94DD18C21C59FE9700F80C62 /* ADTestAppSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppSettings.m; sourceTree = "<group>"; };
-		94DD18C31C59FE9700F80C62 /* ADTestInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestInstance.h; sourceTree = "<group>"; };
-		94DD18C41C59FE9700F80C62 /* ADTestInstance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestInstance.m; sourceTree = "<group>"; };
 		94DD18DB1C5ACF1900F80C62 /* TestData.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = TestData.plist; sourceTree = "<group>"; };
 		9722233519A813BB00092E85 /* MyTestMacOSApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MyTestMacOSApp.entitlements; sourceTree = "<group>"; };
+		D623B1981D9F1188004D51F0 /* AcquireTokenWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AcquireTokenWindow.xib; sourceTree = "<group>"; };
+		D623B1A01D9F1246004D51F0 /* ADTestAppAcquireTokenWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppAcquireTokenWindowController.h; sourceTree = "<group>"; };
+		D623B1A11D9F1246004D51F0 /* ADTestAppAcquireTokenWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppAcquireTokenWindowController.m; sourceTree = "<group>"; };
+		D669AE101DA47AE300763477 /* ADTestAppCacheWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppCacheWindowController.h; sourceTree = "<group>"; };
+		D669AE111DA47AE300763477 /* ADTestAppCacheWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppCacheWindowController.m; sourceTree = "<group>"; };
+		D669AE121DA47AE300763477 /* CacheWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CacheWindow.xib; sourceTree = "<group>"; };
+		D669AE1B1DA584B600763477 /* ADTestAppCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppCache.h; sourceTree = "<group>"; };
+		D669AE1C1DA584B600763477 /* ADTestAppCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppCache.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -208,10 +218,16 @@
 				9722233519A813BB00092E85 /* MyTestMacOSApp.entitlements */,
 				94DD18C11C59FE9700F80C62 /* ADTestAppSettings.h */,
 				94DD18C21C59FE9700F80C62 /* ADTestAppSettings.m */,
-				94DD18C31C59FE9700F80C62 /* ADTestInstance.h */,
-				94DD18C41C59FE9700F80C62 /* ADTestInstance.m */,
 				8BD92EF318C93BE70026A014 /* ADTestAppDelegate.h */,
 				8BD92EF418C93BE70026A014 /* ADTestAppDelegate.m */,
+				D669AE1B1DA584B600763477 /* ADTestAppCache.h */,
+				D669AE1C1DA584B600763477 /* ADTestAppCache.m */,
+				D623B1A01D9F1246004D51F0 /* ADTestAppAcquireTokenWindowController.h */,
+				D623B1A11D9F1246004D51F0 /* ADTestAppAcquireTokenWindowController.m */,
+				D669AE101DA47AE300763477 /* ADTestAppCacheWindowController.h */,
+				D669AE111DA47AE300763477 /* ADTestAppCacheWindowController.m */,
+				D669AE121DA47AE300763477 /* CacheWindow.xib */,
+				D623B1981D9F1188004D51F0 /* AcquireTokenWindow.xib */,
 				8BD92EF618C93BE70026A014 /* MainMenu.xib */,
 				8BD92EFC18C93BE70026A014 /* Images.xcassets */,
 				8BD92EF918C93BE70026A014 /* MyTestMacOSApp.xcdatamodeld */,
@@ -296,7 +312,7 @@
 		8BD92ED618C93BE70026A014 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				CLASSPREFIX = BV;
+				CLASSPREFIX = ADTestApp;
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Microsoft Open Technologies, Inc";
 				TargetAttributes = {
@@ -391,7 +407,9 @@
 				8BD92EEC18C93BE70026A014 /* InfoPlist.strings in Resources */,
 				8BD92EFD18C93BE70026A014 /* Images.xcassets in Resources */,
 				8BD92EF218C93BE70026A014 /* Credits.rtf in Resources */,
+				D669AE141DA47AE300763477 /* CacheWindow.xib in Resources */,
 				94DD18DC1C5ACF1900F80C62 /* TestData.plist in Resources */,
+				D623B1991D9F1188004D51F0 /* AcquireTokenWindow.xib in Resources */,
 				8BD92EF818C93BE70026A014 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -411,9 +429,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D669AE131DA47AE300763477 /* ADTestAppCacheWindowController.m in Sources */,
 				94DD18C51C59FE9700F80C62 /* ADTestAppSettings.m in Sources */,
+				D623B1A21D9F1246004D51F0 /* ADTestAppAcquireTokenWindowController.m in Sources */,
+				D669AE1D1DA584B600763477 /* ADTestAppCache.m in Sources */,
 				8BD92EF518C93BE70026A014 /* ADTestAppDelegate.m in Sources */,
-				94DD18C61C59FE9700F80C62 /* ADTestInstance.m in Sources */,
 				8BD92EEE18C93BE70026A014 /* main.m in Sources */,
 				8BD92EFB18C93BE70026A014 /* MyTestMacOSApp.xcdatamodeld in Sources */,
 			);
@@ -481,9 +501,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -509,6 +530,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "../../ADAL/src/** $(HOME)/aadoverrides";
 			};
 			name = Debug;
 		};
@@ -516,9 +538,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -539,6 +562,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "../../ADAL/src/** $(HOME)/aadoverrides";
 			};
 			name = Release;
 		};

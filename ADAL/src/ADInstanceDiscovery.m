@@ -343,12 +343,12 @@ static NSString* const sValidationServerError = @"The authority validation serve
         return nil;
     }
     NSString* scheme = url.scheme;
-    if (![scheme isEqualToString:@"https"])
-    {
-        AD_LOG_WARN_F(@"Non HTTPS protocol for the authority", nil, @"Authority %@", authority);
-        return nil;
-    }
-    
+//    if (![scheme isEqualToString:@"https"])
+//    {
+//        AD_LOG_WARN_F(@"Non HTTPS protocol for the authority", nil, @"Authority %@", authority);
+//        return nil;
+//    }
+//    
     url = url.absoluteURL;//Resolve any relative paths.
     NSArray* paths = url.pathComponents;//Returns '/' as the first and the tenant as the second element.
     if (paths.count < 2)
@@ -365,7 +365,15 @@ static NSString* const sValidationServerError = @"The authority validation serve
     {
         return nil;
     }
-    trimmedAuthority = [NSString stringWithFormat:@"%@://%@/%@", scheme, host, tenant];
+    NSNumber* port = url.port;
+    if (port)
+    {
+        trimmedAuthority = [NSString stringWithFormat:@"%@://%@:%d/%@", scheme, host, port.intValue, tenant];
+    }
+    else
+    {
+        trimmedAuthority = [NSString stringWithFormat:@"%@://%@/%@", scheme, host, tenant];
+    }
     
     return trimmedAuthority;
 }
