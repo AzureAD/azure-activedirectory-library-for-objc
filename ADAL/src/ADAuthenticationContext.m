@@ -144,8 +144,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         return nil;
     }
 #else
-    tokenCache = [ADTokenCache new];
-    [(ADTokenCache*)tokenCache setDelegate:[ADAuthenticationSettings sharedInstance].defaultStorageDelegate];
+    tokenCache = [ADTokenCache defaultCache];
 #endif
     
     return [self initWithAuthority:authority
