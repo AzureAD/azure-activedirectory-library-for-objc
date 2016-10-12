@@ -2,11 +2,41 @@
 #Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and OSX
 =====================================
 
-####NOTE regarding iOS 9
+## URGENT: iOS 10 NOTICE
 
-Apple has released iOS 9 which includes support for App Transport Security (ATS). ATS restricts apps from accessing the internet unless they meet several security requirements including TLS 1.2 and SHA-256. While Microsoft's APIs support these standards some third party APIs and content delivery networks we use have yet to be upgraded. This means that any app that relies on Azure Active Directory or Microsoft Accounts will fail when compiled with iOS 9. For now our recommendation is to disable ATS, which reverts to iOS 8 functionality. Please refer to the [documentation on the NSAppTransport info.plist key](https://developer.apple.com/library/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW33) for more information.
+**If you are using ADAL versions <= 1.2.8 or <= 2.2.4 you need to immediately upgrade your application to the latest version of our SDKs. Without this step, your users will not be able to sign-in once iOS 10 is released.** If a user is already signed in to your application it will continue to work temporarily, but the next time they need to sign in again they will experience this issue. 
 
-----
+To update your application, you may use cocoapods or manually download the SDK from source on GitHub. Once you’ve update your SDK to the latest version your application will continue to work, there is no further code changes required for your application to continue working. 
+
+## How to Update Your Application with Cocoapods (recommended)
+
+If you are using the 2.x version of our library, ensure the following line is in your `Podfile` in the root directory of your application:
+
+```
+pod 'ADAL', '~> 2.2'
+```
+If you are using the 1.2 version of our library, ensure the following line is in your `Podfile` in the root directory of your application:
+
+```
+pod 'ADALiOS', '~> 1.2'
+```
+Once this is complete, run the `pod update` command to update your application. 
+
+
+## How to Update Your Application with source
+
+1.	Download the latest code from the task you require, either 2.2.5 or 1.2.9
+2.	In your XCode 8 or higher project, Click File -> Add Files
+3.	In the Finder that appears, navigate to where you downloaded the ADAL source. Go to the ADAL folder, and select `ADAL.xcodeproj` and click Add.
+4.	You’ll see you have another Project in your Project list to the left called `ADAL.xcodeproj`
+5.	Under “Linked Frameworks and Libraries” in your application’s General project settings, ensure ADALiOS.a is listed and not in red color font. Red color font means XCode can’t find the library and you need to update the location by removing the entry and adding it again.
+6.	If it isn’t there or in red color, press the “+” icon. You should see ADALiOS.a in your available libraries. Select it and click OK. 
+7.	OPTIONAL: You may also select the .framework version if you would rather use the framework. Make sure that you are selecting the iOS Target and not the Mac Target for the framework.
+8.	Compile as and test your application.
+
+
+=====================================
+
 
 
 [![Build Status](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc.svg?branch=1.2.x)](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-objc)
