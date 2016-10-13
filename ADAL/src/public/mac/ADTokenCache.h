@@ -46,6 +46,10 @@
     pthread_rwlock_t _lock;
 }
 
+/*! Returns the default cache object using the ADTokenCacheDelegate set in
+    ADAuthenticationSettings */
++ (nonnull ADTokenCache *)defaultCache;
+
 - (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate;
 
 - (nullable NSData *)serialize;
