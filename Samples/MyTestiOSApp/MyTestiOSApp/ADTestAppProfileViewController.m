@@ -79,7 +79,6 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [[ADTestAppSettings settings] setProfileFromIndex:indexPath.row];
-    [[NSUserDefaults standardUserDefaults] setObject:[ADTestAppSettings profileTitleForIndex:indexPath.row] forKey:@"CurrentProfile"];
     [self.navigationController popViewControllerAnimated:YES];
 }
 
