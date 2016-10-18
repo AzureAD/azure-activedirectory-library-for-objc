@@ -40,6 +40,7 @@
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADBrokerKeyHelper.h"
 #import "ADBrokerNotificationManager.h"
+#import "ADKeychainUtil.h"
 #endif // TARGET_OS_IPHONE
 
 NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
@@ -306,6 +307,17 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     id<ADTokenCacheDataSource> dataSource = [_tokenCache dataSource];
     if (dataSource && [dataSource isKindOfClass:[ADKeychainTokenCache class]])
     {
+        NSString* keychainGroup = [(ADKeychainTokenCache*)dataSource sharedGroup];
+        NSString* teamId = [ADKeychainUtil keychainTeamId:&error];
+        if (!teamId && error)
+        {
+            completionBlock([ADAuthenticationResult resultFromError:error]);
+            return;
+        }
+        if (teamId && [keychainGroup hasPrefix:teamId])
+        {
+            keychainGroup = [keychainGroup substringFromIndex:teamId.length + 1];
+        }
         resumeDictionary =
         @{
           @"authority"        : _context.authority,
@@ -313,7 +325,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
           @"client_id"        : _clientId,
           @"redirect_uri"     : _redirectUri,
           @"correlation_id"   : _correlationId.UUIDString,
-          @"keychain_group"   : [(ADKeychainTokenCache*)dataSource sharedGroup]
+          @"keychain_group"   : keychainGroup
           };
 
     }
