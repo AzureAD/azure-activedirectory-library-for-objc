@@ -21,33 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
 
-extern NSString* ADTestAppCacheChangeNotification;
+#import <Cocoa/Cocoa.h>
 
-@interface ADTestAppSettings : NSObject
+@interface ADTestAppCacheWindowController : NSWindowController
 {
-    NSDictionary* _settings;
-    
-    NSString * _authority;
-    NSURL * _redirectUri;
-    NSString * _clientId;
-    NSString * _resource;
-    NSString * _defaultUser;
+    IBOutlet NSTableView* _tableView;
+    NSArray* _allItems;
 }
 
-@property NSString * authority;
-@property NSURL * redirectUri;
-@property NSString * clientId;
-@property NSString * resource;
-@property NSString * defaultUser;
-
-+ (ADTestAppSettings *)settings;
-+ (NSUInteger)numberOfProfiles;
-+ (NSString *)profileTitleForIndex:(NSUInteger)idx;
-+ (NSString *)currentProfileTitle;
-+ (NSUInteger)currentProfileIdx;
-
-- (void)setProfileFromIndex:(NSInteger)idx;
++ (void)showWindow;
 
 @end

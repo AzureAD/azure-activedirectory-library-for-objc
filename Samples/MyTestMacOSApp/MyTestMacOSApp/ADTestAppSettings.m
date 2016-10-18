@@ -22,56 +22,150 @@
 // THE SOFTWARE.
 
 #import "ADTestAppSettings.h"
-#import "ADTestInstance.h"
 
-NSString* const sAADTestInstance = @"AAD Instance";
+#if __has_include("ADAdditionalTestAppSettings.h")
+#include "ADAdditionalTestAppSettings.h"
+#else
+// If you put a header file at ~/aadoverrides/ADAdditionalTestAppSettings.h with
+// function named _addtionalProfiles() that returns an NSDictionary that will
+// be folded into the profiles list without you having to constantly alter your
+// github enlistment!
+static NSDictionary* _additionalProfiles()
+{
+    return nil;
+}
+#endif
+static NSDictionary* s_additionalProfiles = nil;
+
+
+NSString* ADTestAppCacheChangeNotification = @"ADTestAppCacheChangeNotification";
+
+static NSDictionary* s_profiles = nil;
+static NSArray* s_profileTitles = nil;
+static NSUInteger s_currentProfileIdx = 0;
 
 @implementation ADTestAppSettings
 
-@synthesize testAuthorities = _testAuthorities;
+@synthesize authority = _authority;
+@synthesize redirectUri = _redirectUri;
+@synthesize clientId = _clientId;
+@synthesize resource = _resource;
+@synthesize defaultUser = _defaultUser;
 
--(id) init
++ (void)initialize
 {
-    self = [super init];
-    if (!self)
+    s_profiles =
+    @{ @"Test App"    : @{ @"authority" : @"https://login.microsoftonline.com/common",
+                           @"resource" : @"https://graph.windows.net",
+                           // NOTE: The settings below should come from your registered application on
+                           //       the azure management portal.
+                           @"clientId" : @"b92e0ba5-f86e-4411-8e18-6b5f928d968a",
+                           @"redirectUri" : @"x-msauth-adaltestapp-210://com.microsoft.adal.2.1.0.TestApp",
+                           },
+       @"Office"      : @{ @"authority" : @"https://login.microsoftonline.com/common",
+                           @"resource" : @"https://api.office.com/discovery",
+                           @"clientId" : @"d3590ed6-52b3-4102-aeff-aad2292ab01c",
+                           @"redirectUri" : @"urn:ietf:wg:oauth:2.0:oob",
+                           },
+       @"OneDrive"    : @{ @"authority" : @"https://login.microsoftonline.com/common",
+                           @"resource" : @"https://api.office.com/discovery",
+                           @"clientId" : @"af124e86-4e96-495a-b70a-90f90ab96707",
+                           @"redirectUri" : @"ms-onedrive://com.microsoft.skydrive",
+                           },
+       };
+    
+    s_additionalProfiles = _additionalProfiles();
+    
+    NSMutableArray* titles = [[NSMutableArray alloc] initWithCapacity:[s_profiles count] + [s_additionalProfiles count]];
+    
+    for (NSString* profileTitle in s_profiles)
+    {
+        [titles addObject:profileTitle];
+    }
+    
+    for (NSString* profileTitle in s_additionalProfiles)
+    {
+        [titles addObject:profileTitle];
+    }
+    
+    [titles sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+    
+    s_profileTitles = titles;
+    
+    NSString* currentProfile = [[NSUserDefaults standardUserDefaults] stringForKey:@"CurrentProfile"];
+    if (!currentProfile)
+    {
+        currentProfile = @"Test App";
+    }
+    s_currentProfileIdx = [s_profileTitles indexOfObject:currentProfile];
+    if (s_currentProfileIdx == NSNotFound)
+    {
+        s_currentProfileIdx = [s_profileTitles indexOfObject:@"Test App"];
+    }
+    if (s_currentProfileIdx == NSNotFound)
+    {
+        s_currentProfileIdx = 0;
+    }
+}
+
++ (NSUInteger)numberOfProfiles;
+{
+    return [s_profileTitles count];
+}
+
++ (NSString*)profileTitleForIndex:(NSUInteger)idx
+{
+    return [s_profileTitles objectAtIndex:idx];
+}
+
++ (NSString*)currentProfileTitle
+{
+    return [s_profileTitles objectAtIndex:s_currentProfileIdx];
+}
+
++ (NSUInteger)currentProfileIdx
+{
+    return s_currentProfileIdx;
+}
+
++ (ADTestAppSettings*)settings
+{
+    static dispatch_once_t s_settingsOnce;
+    static ADTestAppSettings* s_settings = nil;
+    
+    dispatch_once(&s_settingsOnce,^{ s_settings = [ADTestAppSettings new]; });
+    
+    return s_settings;
+}
+
+- (id)init
+{
+    if (!(self = [super init]))
     {
         return nil;
     }
     
-    NSString* path = [[NSBundle mainBundle] pathForResource:@"TestData" ofType:@"plist"];
-    if (!path || !path.length)
-    {
-        return nil;
-    }
-    
-    NSDictionary* all = [NSDictionary dictionaryWithContentsOfFile:path];
-    NSMutableDictionary* testAuthorities = [[NSMutableDictionary alloc] initWithCapacity:all.count];
-    
-    for(NSDictionary* instanceName in all.allKeys)
-    {
-        NSDictionary* instanceData = [all objectForKey:instanceName];
-        if (!instanceData || ![instanceData isKindOfClass:[NSDictionary class]])
-        {
-            NSLog(@"Bad data for the instance: '%@'. Contents: %@", instanceName, instanceData);
-            continue;
-        }
-        ADTestInstance* instance = [[ADTestInstance alloc] initWithDictionary:instanceData];
-        [testAuthorities setObject:instance forKey:instanceName];
-#if !__has_feature(objc_arc)
-        [instance release];
-#endif
-    }
-    _testAuthorities = testAuthorities;
+    [self setProfileFromIndex:[ADTestAppSettings currentProfileIdx]];
     
     return self;
 }
 
-- (void)dealloc
+- (void)setProfileFromIndex:(NSInteger)idx
 {
-    [_testAuthorities release];
-    _testAuthorities = nil;
+    NSString* title = [s_profileTitles objectAtIndex:idx];
+    s_currentProfileIdx = idx;
+    [[NSUserDefaults standardUserDefaults] setObject:title forKey:@"CurrentProfile"];
+    NSDictionary* settings = [s_additionalProfiles objectForKey:title];
+    if (!settings)
+    {
+        settings = [s_profiles objectForKey:title];
+    }
     
-    [super dealloc];
+    self.authority = [settings objectForKey:@"authority"];
+    self.clientId = [settings objectForKey:@"clientId"];
+    self.redirectUri = [NSURL URLWithString:[settings objectForKey:@"redirectUri"]];
+    self.resource = [settings objectForKey:@"resource"];
+    self.defaultUser = [settings objectForKey:@"defaultUser"];
 }
 
 @end
