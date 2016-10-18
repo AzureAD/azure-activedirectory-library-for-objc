@@ -27,7 +27,7 @@
 // through build script. Don't change its format unless changing build script as well.)
 #define ADAL_VER_HIGH       2
 #define ADAL_VER_LOW        2
-#define ADAL_VER_PATCH      7
+#define ADAL_VER_PATCH      8
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
@@ -37,8 +37,8 @@
 // Framework versions only support high and low for the double value, sadly.
 #define ADAL_VERSION_NUMBER INT_CONCAT(ADAL_VER_HIGH, ADAL_VER_LOW)
 
-#define ADAL_VERSION_STRING     STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH)
-#define ADAL_VERSION_NSSTRING   @"" STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH)
+#define ADAL_VERSION_STRING     STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH) "-dev"
+#define ADAL_VERSION_NSSTRING   @"" STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH) "-dev"
 
 #define ADAL_VERSION_HELPER(high, low, patch) adalVersion_ ## high ## _ ## low ## _ ## patch
 #define ADAL_VERSION_(high, low, patch) ADAL_VERSION_HELPER(high, low, patch)
