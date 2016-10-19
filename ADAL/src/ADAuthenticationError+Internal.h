@@ -23,6 +23,23 @@
 
 #import "ADAuthenticationError.h"
 
+#define AUTH_ERROR(_CODE, _DETAILS, _CORRELATION) \
+    ADAuthenticationError* adError = \
+    [ADAuthenticationError errorFromAuthenticationError:_CODE \
+                                           protocolCode:nil \
+                                           errorDetails:_DETAILS \
+                                          correlationId:_CORRELATION]; \
+    if (error) { *error = adError; }
+
+#define AUTH_ERROR_UNDERLYING(_CODE, _DETAILS, _UNDERLYING, _CORRELATION) \
+    ADAuthenticationError* adError = \
+    [ADAuthenticationError errorFromAuthenticationError:_CODE \
+                                           protocolCode:nil \
+                                           errorDetails:_DETAILS \
+                                               userInfo:@{ NSUnderlyingErrorKey : _UNDERLYING } \
+                                          correlationId:_CORRELATION]; \
+    if (error) { *error = adError; }
+
 @interface ADAuthenticationError (Internal)
 
 /*! Generates an error for invalid method argument. */
