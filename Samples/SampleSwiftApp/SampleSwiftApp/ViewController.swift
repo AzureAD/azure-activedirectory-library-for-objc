@@ -57,8 +57,8 @@ class ViewController: UIViewController {
                 self.updateStatusField(result.error.description)
                 return;
             }
-            
-            let status = String(format: "Access token: %@\nexpiration:%@", result.accessToken, result.tokenCacheItem.expiresOn)
+
+            let status = String(format: "Access token: %@\nexpiration:%@", result.accessToken, result.tokenCacheItem.expiresOn ?? "(nil)")
             self.updateStatusField(status)
         }
     }

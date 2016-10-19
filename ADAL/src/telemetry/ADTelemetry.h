@@ -37,7 +37,7 @@
     @param  event        An array of property-value pairs. Each pair is also stored in an array whose size is 2. 
                          So event is a two-dimentional array.
  */
-- (void)dispatch:(NSArray*)event;
+- (void)dispatchEvent:(NSArray*)event;
 
 @end
 

@@ -64,7 +64,7 @@
             NSArray* properties = [event getProperties];
             if (properties)
             {
-                [_dispatcher dispatch:properties];
+                [_dispatcher dispatchEvent:properties];
             }
         }
         

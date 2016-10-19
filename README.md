@@ -4,9 +4,7 @@
 
 ## URGENT: iOS 10 NOTICE
 
-**If you are using ADAL versions <= 1.2.x or <= 2.2.4 you need to immediately upgrade your application to the latest version of our SDKs. Without this step, your users will not be able to sign-in once iOS 10 is released.** If a user is already signed in to your application it will continue to work temporarily, but the next time they need to sign in again they will experience this issue. 
-
-**NOTE: Fix to the 1.2 branch is coming soon. Please stand by.**
+**If you are using ADAL versions <= 1.2.8 or <= 2.2.4 you need to immediately upgrade your application to the latest version of our SDKs. Without this step, your users will not be able to sign-in once iOS 10 is released.** If a user is already signed in to your application it will continue to work temporarily, but the next time they need to sign in again they will experience this issue. 
 
 To update your application, you may use cocoapods or manually download the SDK from source on GitHub. Once you’ve update your SDK to the latest version your application will continue to work, there is no further code changes required for your application to continue working. 
 
@@ -27,7 +25,7 @@ Once this is complete, run the `pod update` command to update your application.
 
 ## How to Update Your Application with source
 
-1.	Download the latest code from the branch you require, either 2.2.5 or 1.2.?
+1.	Download the latest code from the task you require, either 2.2.5 or 1.2.9
 2.	In your XCode 8 or higher project, Click File -> Add Files
 3.	In the Finder that appears, navigate to where you downloaded the ADAL source. Go to the ADAL folder, and select `ADAL.xcodeproj` and click Add.
 4.	You’ll see you have another Project in your Project list to the left called `ADAL.xcodeproj`
@@ -52,7 +50,7 @@ The ADAL SDK for iOS and Mac OS X gives you the ability to add support for Work 
 
 ## Samples and Documentation
 
-[We provide a full suite of sample applications and documentation on GitHub](https://github.com/AzureADSamples) to help you get started with learning the Azure Identity system. This includes tutorials for native clients such as Windows, Windows Phone, iOS, OSX, Android, and Linux. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect, Graph API, and other awesome features. 
+We provide a full suite of [sample applications](https://github.com/AzureADSamples) and [documentation](http://cocoadocs.org/docsets/ADAL/2.2.6/) on GitHub to help you get started with learning the Azure Identity system. This includes tutorials for native clients such as Windows, Windows Phone, iOS, OSX, Android, and Linux. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect, Graph API, and other awesome features. 
 
 Azure Identity samples for iOS is here: [https://github.com/AzureADSamples/NativeClient-iOS](https://github.com/AzureADSamples/NativeClient-iOS)
 

@@ -29,5 +29,7 @@
 - (BOOL)validateCache:(nullable NSDictionary *)dict
                 error:(ADAuthenticationError * __nullable  __autoreleasing * __nullable)error;
 
+- (nullable id<ADTokenCacheDelegate>)delegate;
+
 @end
 
