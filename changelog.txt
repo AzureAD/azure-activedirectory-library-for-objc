@@ -1,3 +1,9 @@
+Version 2.2.7 (10.19.2016)
+-------------
+* Improved the robustness of the broker message parser (#779)
+* Created more fine grained error result codes for the broker message parser (#802)
+* Fixed an NSNotificationCenter observer memory leak (#778)
+
 Version 2.2.6 (09.20.2016)
 -------------
 * Renamed an internal API that shared the name with a banned private Apple API causing some app store rejections. (#776) 
