@@ -240,7 +240,7 @@ typedef enum
 
 /*!
  */
-+ (void)handleBrokerResponse:(NSURL*)response;
++ (BOOL)handleBrokerResponse:(NSURL*)response;
 
 /*! Represents the authority used by the context. */
 @property (readonly) NSString* authority;

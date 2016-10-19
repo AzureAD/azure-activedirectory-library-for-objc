@@ -27,7 +27,7 @@
 // through build script. Don't change its format unless changing build script as well.)
 #define ADAL_VER_HIGH       2
 #define ADAL_VER_LOW        2
-#define ADAL_VER_PATCH      6
+#define ADAL_VER_PATCH      7
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
@@ -56,7 +56,7 @@
 
 /*! The completion block declaration. */
 typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
-
+typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
 #if TARGET_OS_IPHONE
 //iOS:
@@ -67,6 +67,7 @@ typedef UIWebView WebViewType;
 #   include <WebKit/WebKit.h>
 typedef WebView   WebViewType;
 #endif
+
 
 #import "ADAuthenticationRequest.h"
 
