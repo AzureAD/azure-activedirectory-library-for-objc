@@ -277,7 +277,9 @@ correlationId:(NSUUID*)correlationId
     {
         [toReturn appendFormat:@"%02x", hash[i]];
     }
-    return toReturn;
+    
+    // 7 characters is sufficient to differentiate tokens in the log, otherwise the hashes start making log lines hard to read
+    return [toReturn substringToIndex:7];
 }
 
 + (NSString*) getAdalVersion
@@ -285,12 +287,28 @@ correlationId:(NSUUID*)correlationId
     return ADAL_VERSION_NSSTRING;
 }
 
-+ (void)logToken:(NSString*)token
-       tokenType:(NSString*)tokenType
-       expiresOn:(NSDate*)expiresOn
-   correlationId:(NSUUID*)correlationId
++ (void)logToken:(NSString *)token
+       tokenType:(NSString *)tokenType
+       expiresOn:(NSDate *)expiresOn
+         context:(NSString *)context
+   correlationId:(NSUUID *)correlationId
 {
-    AD_LOG_VERBOSE_F(@"Token returned", nil, @"Obtained %@ with hash %@, expiring on %@ and correlationId: %@", tokenType, [self getHash:token], expiresOn, [correlationId UUIDString]);
+    
+    NSMutableString* logString = nil;
+    
+    if (context)
+    {
+        [logString appendFormat:@"%@ ", context];
+    }
+    
+    [logString appendFormat:@"%@ (%@)", tokenType, [self getHash:token]];
+    
+    if (expiresOn)
+    {
+        [logString appendFormat:@" expires on %@", expiresOn];
+    }
+    
+    AD_LOG_INFO(logString, correlationId, nil);
 }
 
 + (void)setIdValue:(NSString*)value

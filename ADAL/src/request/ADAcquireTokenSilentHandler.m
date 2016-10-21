@@ -75,8 +75,9 @@
              
              // give the stale token as result
              [ADLogger logToken:handler->_extendedLifetimeAccessTokenItem.accessToken
-                      tokenType:@"access token (extended lifetime)"
+                      tokenType:@"AT (extended lifetime)"
                       expiresOn:handler->_extendedLifetimeAccessTokenItem.expiresOn
+                        context:@"Returning"
                   correlationId:handler->_correlationId];
              
              result = [ADAuthenticationResult resultFromTokenCacheItem:handler->_extendedLifetimeAccessTokenItem
@@ -133,9 +134,11 @@
                          cacheItem:(ADTokenCacheItem*)cacheItem
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", _correlationId, @"Resource: %@", _resource);
-
-    [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:_correlationId];
+    [ADLogger logToken:refreshToken
+             tokenType:@"RT"
+             expiresOn:nil
+               context:[NSString stringWithFormat:@"Attempting to acquire for %@ using", _resource]
+         correlationId:_correlationId];
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = nil;
     
@@ -323,7 +326,11 @@
     // If we have a good (non-expired) access token then return it right away
     if (item.accessToken && !item.isExpired)
     {
-        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:_correlationId];
+        [ADLogger logToken:item.accessToken
+                 tokenType:@"AT"
+                 expiresOn:item.expiresOn
+                   context:@"Returning"
+             correlationId:_correlationId];
         ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheItem:item multiResourceRefreshToken:NO correlationId:_correlationId];
         completionBlock(result);
         return;
