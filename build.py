@@ -56,7 +56,8 @@ build_targets = [
 		"name" : "Sample Swift App",
 		"scheme" : "SampleSwiftApp",
 		"operations" : [ "build" ],
-		"platform" : "iOS"
+		"platform" : "iOS",
+		"project" : "Samples/SampleSwiftApp/SampleSwiftApp.xcodeproj",
 	},
 	{
 		"name" : "Mac Framework",
@@ -94,10 +95,17 @@ def print_operation_end(name, operation, exit_code) :
 def do_ios_build(target, operation) :
 	name = target["name"]
 	scheme = target["scheme"]
+	project = target.get("project")
 
 	print_operation_start(name, operation)
 
-	command = "xcodebuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest + " | xcpretty"
+	command = "xcodebuild " + operation
+	if (project != None) :
+		command += " -project " + project
+	else :
+		command += " -workspace " + default_workspace
+		
+	command += " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest + " | xcpretty"
 	print command
 	exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
 
