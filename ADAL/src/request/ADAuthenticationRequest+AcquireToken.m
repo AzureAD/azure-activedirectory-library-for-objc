@@ -41,9 +41,29 @@
     AD_REQUEST_CHECK_ARGUMENT(_resource);
     [self ensureRequest];
     
-    NSString* log = [NSString stringWithFormat:@"acquireToken (authority = %@, resource = %@, clientId = %@, idtype = %@)",
-                     _context.authority, _resource, _clientId, [_identifier typeAsString]];
+    __block NSString* log = [NSString stringWithFormat:@"##### BEGIN acquireToken%@ (authority = %@, resource = %@, clientId = %@, idtype = %@) #####",
+                             _silent ? @"Silent" : @"", _context.authority, _resource, _clientId, [_identifier typeAsString]];
     AD_LOG_INFO_F(log, _correlationId, @"userId = %@", _identifier.userId);
+    
+    ADAuthenticationCallback wrappedCallback = ^void(ADAuthenticationResult* result)
+    {
+        NSString* finalLog = nil;
+        if (result.status == AD_SUCCEEDED)
+        {
+            finalLog = [NSString stringWithFormat:@"##### END %@ succeeded. #####", log];
+        }
+        else
+        {
+            ADAuthenticationError* error = result.error;
+            finalLog = [NSString stringWithFormat:@"##### END %@ failed { domain: %@ code: %ld protocolCode: %@ errorDetails: %@} #####",
+                        log, error.domain, (long)error.code, error.protocolCode, error.errorDetails];
+        }
+        
+        
+        AD_LOG_INFO(finalLog, _correlationId, nil);
+        
+        completionBlock(result);
+    };
     
     if (!_silent && ![NSThread isMainThread])
     {
@@ -53,7 +73,7 @@
                                                errorDetails:@"Interactive authentication requests must originate from the main thread"
                                               correlationId:_correlationId];
         
-        completionBlock([ADAuthenticationResult resultFromError:error]);
+        wrappedCallback([ADAuthenticationResult resultFromError:error]);
         return;
     }
     
@@ -64,13 +84,13 @@
                                                protocolCode:nil
                                                errorDetails:ADRedirectUriInvalidError
                                               correlationId:_correlationId];
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+        wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
         return;
     }
     
     if (!_context.validateAuthority)
     {
-        [self validatedAcquireToken:completionBlock];
+        [self validatedAcquireToken:wrappedCallback];
         return;
     }
     
@@ -81,14 +101,14 @@
          (void)validated;
          if (error)
          {
-             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+             wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
          }
          else
          {
-             [self validatedAcquireToken:completionBlock];
+             [self validatedAcquireToken:wrappedCallback];
          }
      }];
-
+    
 }
 
 - (void)validatedAcquireToken:(ADAuthenticationCallback)completionBlock
