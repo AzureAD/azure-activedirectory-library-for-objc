@@ -163,6 +163,10 @@ static NSUInteger s_currentProfileIdx = 0;
     self.redirectUri = [NSURL URLWithString:[settings objectForKey:@"redirectUri"]];
     self.resource = [settings objectForKey:@"resource"];
     self.defaultUser = [settings objectForKey:@"defaultUser"];
+    NSNumber* validate = [settings objectForKey:@"validateAuthority"];
+    self.validateAuthority = validate ? [validate boolValue] : YES;
+    NSNumber* enableBroker = [settings objectForKey:@"enableBroker"];
+    self.enableBroker = [enableBroker boolValue];
 }
 
 @end
