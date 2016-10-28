@@ -163,8 +163,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)handlePKeyAuthChallenge:(NSString *)challengeUrl
 {
-    
-    AD_LOG_VERBOSE(@"Handling PKeyAuth Challenge", nil, nil);
+    AD_LOG_INFO(@"Handling PKeyAuth Challenge", nil, nil);
     
     NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
@@ -531,6 +530,7 @@ static ADAuthenticationResult* s_result = nil;
 
 - (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError*)error
 {
+    AD_LOG_ERROR_F(@"Application is cancelling current web auth session.", error.code, _correlationId, @"error = %@", error);
     return [self endWebAuthenticationWithError:error orURL:nil];
 }
 
