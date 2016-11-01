@@ -22,6 +22,12 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		04AB6D461D9D619B007E9A83 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 04AB6D451D9D619B007E9A83 /* main.m */; };
+		04AB6D491D9D619B007E9A83 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 04AB6D481D9D619B007E9A83 /* AppDelegate.m */; };
+		04AB6D4C1D9D619B007E9A83 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04AB6D4B1D9D619B007E9A83 /* ViewController.m */; };
+		04AB6D4F1D9D619B007E9A83 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D4D1D9D619B007E9A83 /* Main.storyboard */; };
+		04AB6D511D9D619B007E9A83 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D501D9D619B007E9A83 /* Assets.xcassets */; };
+		04AB6D541D9D619B007E9A83 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D521D9D619B007E9A83 /* LaunchScreen.storyboard */; };
 		600401A51D3421480020EAAB /* ADTelemetry.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401A31D3421480020EAAB /* ADTelemetry.m */; };
 		600401A71D3426250020EAAB /* ADTelemetry+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 600401A61D3426250020EAAB /* ADTelemetry+Internal.h */; };
 		600401A91D3428770020EAAB /* ADTelemetryDefaultEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 600401A81D3428770020EAAB /* ADTelemetryDefaultEvent.h */; };
@@ -63,6 +69,7 @@
 		6071B5E41C14C0B0006F6CC2 /* ADTestURLConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 6071B5E31C14C0B0006F6CC2 /* ADTestURLConnection.m */; };
 		60D2F3FF1D524F7A008725D9 /* ADRequestParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 60D2F3FE1D524F7A008725D9 /* ADRequestParameters.h */; };
 		60D2F4021D531F16008725D9 /* ADRequestParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 60D2F4001D531F16008725D9 /* ADRequestParameters.m */; };
+		60C351BA1DA0D588006C8435 /* ADAL.m in Sources */ = {isa = PBXBuildFile; fileRef = 60C351B91DA0D588006C8435 /* ADAL.m */; };
 		8B0965AE17F25770002BDFB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
 		8B0965BC17F25770002BDFB8 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965BB17F25770002BDFB8 /* XCTest.framework */; };
 		8B0965BD17F25770002BDFB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
@@ -80,6 +87,7 @@
 		8BB8346D1807C5F5007F9F0D /* ADAuthenticationParametersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8346C1807C5F5007F9F0D /* ADAuthenticationParametersTests.m */; };
 		8BBF678618358544004E0F4D /* ADUserInformationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BBF678518358544004E0F4D /* ADUserInformationTests.m */; };
 		8BBF6788183588EC004E0F4D /* ADTokenCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BBF6787183588EC004E0F4D /* ADTokenCacheItemTests.m */; };
+		940CC8881D8A34610087E9EA /* ADBrokerMessageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 940CC8871D8A34610087E9EA /* ADBrokerMessageTests.m */; };
 		9424B6841CDD39E400729698 /* ADTokenCacheAccessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 9424B6811CDD1B2B00729698 /* ADTokenCacheAccessor.m */; };
 		9430C3411C4631C200D6506D /* ADTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9430C3401C4631C200D6506D /* ADTokenCacheTests.m */; };
 		9430C34E1C54320400D6506D /* ADAuthenticationContextTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9430C34D1C54320400D6506D /* ADAuthenticationContextTests.m */; };
@@ -297,6 +305,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		04AB6D5B1D9D61E2007E9A83 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 04AB6D411D9D619B007E9A83;
+			remoteInfo = UnitTestHostApp;
+		};
 		9453C45C1C5866D8006B9E79 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8B0965A217F25770002BDFB8 /* Project object */;
@@ -361,6 +376,17 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		04AB6D421D9D619B007E9A83 /* UnitTestHostApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnitTestHostApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		04AB6D451D9D619B007E9A83 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		04AB6D471D9D619B007E9A83 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		04AB6D481D9D619B007E9A83 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		04AB6D4A1D9D619B007E9A83 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		04AB6D4B1D9D619B007E9A83 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		04AB6D4E1D9D619B007E9A83 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		04AB6D501D9D619B007E9A83 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		04AB6D531D9D619B007E9A83 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		04AB6D551D9D619B007E9A83 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		04AB6D5A1D9D61CA007E9A83 /* UnitTestHostApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = UnitTestHostApp.entitlements; sourceTree = "<group>"; };
 		6004019F1D340B760020EAAB /* ADTelemetry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTelemetry.h; sourceTree = "<group>"; };
 		600401A31D3421480020EAAB /* ADTelemetry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetry.m; sourceTree = "<group>"; };
 		600401A61D3426250020EAAB /* ADTelemetry+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADTelemetry+Internal.h"; sourceTree = "<group>"; };
@@ -390,6 +416,7 @@
 		60D2F3FE1D524F7A008725D9 /* ADRequestParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADRequestParameters.h; sourceTree = "<group>"; };
 		60D2F4001D531F16008725D9 /* ADRequestParameters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADRequestParameters.m; sourceTree = "<group>"; };
 		60967E191D76B62B00863853 /* tools */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tools; sourceTree = SOURCE_ROOT; };
+		60C351B91DA0D588006C8435 /* ADAL.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAL.m; sourceTree = "<group>"; };
 		8B0965AA17F25770002BDFB8 /* libADALiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libADALiOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B0965AD17F25770002BDFB8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8B0965BA17F25770002BDFB8 /* ADALiOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADALiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -433,6 +460,7 @@
 		8BFEF065182DA57800122C0C /* ADALiOSBundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ADALiOSBundle-Info.plist"; sourceTree = "<group>"; };
 		8BFEF067182DA57800122C0C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BFEF069182DA57800122C0C /* ADALiOSBundle-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADALiOSBundle-Prefix.pch"; sourceTree = "<group>"; };
+		940CC8871D8A34610087E9EA /* ADBrokerMessageTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADBrokerMessageTests.m; sourceTree = "<group>"; };
 		941674431C9CCCAF00D8D52A /* ADAuthenticationError+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationError+Internal.h"; sourceTree = "<group>"; };
 		9424B6811CDD1B2B00729698 /* ADTokenCacheAccessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheAccessor.m; sourceTree = "<group>"; };
 		9424B6831CDD1B4600729698 /* ADTokenCacheDataSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTokenCacheDataSource.h; sourceTree = "<group>"; };
@@ -569,6 +597,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		04AB6D3F1D9D619B007E9A83 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8B0965A717F25770002BDFB8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -625,6 +660,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		04AB6D431D9D619B007E9A83 /* UnitTestHostApp */ = {
+			isa = PBXGroup;
+			children = (
+				04AB6D5A1D9D61CA007E9A83 /* UnitTestHostApp.entitlements */,
+				04AB6D471D9D619B007E9A83 /* AppDelegate.h */,
+				04AB6D481D9D619B007E9A83 /* AppDelegate.m */,
+				04AB6D4A1D9D619B007E9A83 /* ViewController.h */,
+				04AB6D4B1D9D619B007E9A83 /* ViewController.m */,
+				04AB6D4D1D9D619B007E9A83 /* Main.storyboard */,
+				04AB6D501D9D619B007E9A83 /* Assets.xcassets */,
+				04AB6D521D9D619B007E9A83 /* LaunchScreen.storyboard */,
+				04AB6D551D9D619B007E9A83 /* Info.plist */,
+				04AB6D441D9D619B007E9A83 /* Supporting Files */,
+			);
+			name = UnitTestHostApp;
+			path = ../UnitTestHostApp;
+			sourceTree = "<group>";
+		};
+		04AB6D441D9D619B007E9A83 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				04AB6D451D9D619B007E9A83 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		600401A21D3420C10020EAAB /* telemetry */ = {
 			isa = PBXGroup;
 			children = (
@@ -676,6 +737,7 @@
 				9453C3FD1C586425006B9E79 /* ADAL.framework */,
 				94DD18E11C5ACFBF00F80C62 /* ADAL Mac Tests.xctest */,
 				D664F1B41D302B9C0017B799 /* libADAL-core.a */,
+				04AB6D421D9D619B007E9A83 /* UnitTestHostApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -698,6 +760,7 @@
 			isa = PBXGroup;
 			children = (
 				9453C3A41C583AA8006B9E79 /* public */,
+				60C351B91DA0D588006C8435 /* ADAL.m */,
 				9453C3A31C583A9C006B9E79 /* ADAL_Internal.h */,
 				8BB8345B18074A58007F9F0D /* ADAuthenticationContext.m */,
 				D6E43A681B04026D000F5BE2 /* ADAuthenticationContext+Internal.h */,
@@ -739,6 +802,7 @@
 		8B0965C317F25770002BDFB8 /* tests */ = {
 			isa = PBXGroup;
 			children = (
+				04AB6D431D9D619B007E9A83 /* UnitTestHostApp */,
 				6071B5E21C14C0B0006F6CC2 /* ADTestURLConnection.h */,
 				6071B5E31C14C0B0006F6CC2 /* ADTestURLConnection.m */,
 				8BB8346A1807BE3F007F9F0D /* ADAcquireTokenTests.m */,
@@ -1066,6 +1130,7 @@
 				94DD19021C5AD39A00F80C62 /* ADBrokerKeyHelperTests.m */,
 				94DD19031C5AD39A00F80C62 /* ADKeychainTokenCacheTests.m */,
 				94DD19041C5AD39A00F80C62 /* InfoPlist.strings */,
+				940CC8871D8A34610087E9EA /* ADBrokerMessageTests.m */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -1189,6 +1254,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		04AB6D411D9D619B007E9A83 /* UnitTestHostApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 04AB6D591D9D619B007E9A83 /* Build configuration list for PBXNativeTarget "UnitTestHostApp" */;
+			buildPhases = (
+				04AB6D3E1D9D619B007E9A83 /* Sources */,
+				04AB6D3F1D9D619B007E9A83 /* Frameworks */,
+				04AB6D401D9D619B007E9A83 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = UnitTestHostApp;
+			productName = UnitTestHostApp;
+			productReference = 04AB6D421D9D619B007E9A83 /* UnitTestHostApp.app */;
+			productType = "com.apple.product-type.application";
+		};
 		8B0965A917F25770002BDFB8 /* ADALiOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8B0965CD17F25770002BDFB8 /* Build configuration list for PBXNativeTarget "ADALiOS" */;
@@ -1219,6 +1301,7 @@
 			);
 			dependencies = (
 				D69A720A1D4FEC4200E91DB3 /* PBXTargetDependency */,
+				04AB6D5C1D9D61E2007E9A83 /* PBXTargetDependency */,
 			);
 			name = ADALiOSTests;
 			productName = ADALiOSTests;
@@ -1308,6 +1391,19 @@
 				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = "MS Open Tech";
 				TargetAttributes = {
+					04AB6D411D9D619B007E9A83 = {
+						CreatedOnToolsVersion = 8.0;
+						DevelopmentTeam = UBF8T346G9;
+						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Keychain = {
+								enabled = 1;
+							};
+						};
+					};
+					8B0965B917F25770002BDFB8 = {
+						TestTargetID = 04AB6D411D9D619B007E9A83;
+					};
 					9453C3CB1C583E07006B9E79 = {
 						CreatedOnToolsVersion = 7.2;
 					};
@@ -1328,6 +1424,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 8B0965A117F25770002BDFB8;
 			productRefGroup = 8B0965AB17F25770002BDFB8 /* Products */;
@@ -1341,11 +1438,22 @@
 				9453C3FC1C586425006B9E79 /* ADAL Mac */,
 				94DD18E01C5ACFBF00F80C62 /* ADAL Mac Tests */,
 				9453C4571C5866D0006B9E79 /* Build All */,
+				04AB6D411D9D619B007E9A83 /* UnitTestHostApp */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		04AB6D401D9D619B007E9A83 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04AB6D541D9D619B007E9A83 /* LaunchScreen.storyboard in Resources */,
+				04AB6D511D9D619B007E9A83 /* Assets.xcassets in Resources */,
+				04AB6D4F1D9D619B007E9A83 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8B0965B817F25770002BDFB8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1433,10 +1541,21 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		04AB6D3E1D9D619B007E9A83 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04AB6D4C1D9D619B007E9A83 /* ViewController.m in Sources */,
+				04AB6D491D9D619B007E9A83 /* AppDelegate.m in Sources */,
+				04AB6D461D9D619B007E9A83 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8B0965A617F25770002BDFB8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				60C351BA1DA0D588006C8435 /* ADAL.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1447,6 +1566,7 @@
 				D6F999801D235ACF004E682C /* ADAcquireTokenPkeyAuthTests.m in Sources */,
 				D60D8FE81D25C8D400F3E6C9 /* ADHelpersTests.m in Sources */,
 				601BEE341C6DCB0B004AA8C1 /* ADWebAuthControllerTests.m in Sources */,
+				940CC8881D8A34610087E9EA /* ADBrokerMessageTests.m in Sources */,
 				6071B5E41C14C0B0006F6CC2 /* ADTestURLConnection.m in Sources */,
 				8BBF678618358544004E0F4D /* ADUserInformationTests.m in Sources */,
 				94DD19081C5AD3A600F80C62 /* ADKeychainTokenCacheTests.m in Sources */,
@@ -1642,6 +1762,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		04AB6D5C1D9D61E2007E9A83 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 04AB6D411D9D619B007E9A83 /* UnitTestHostApp */;
+			targetProxy = 04AB6D5B1D9D61E2007E9A83 /* PBXContainerItemProxy */;
+		};
 		9453C45D1C5866D8006B9E79 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 9453C3FC1C586425006B9E79 /* ADAL Mac */;
@@ -1670,6 +1795,22 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		04AB6D4D1D9D619B007E9A83 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				04AB6D4E1D9D619B007E9A83 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		04AB6D521D9D619B007E9A83 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				04AB6D531D9D619B007E9A83 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
 		8BFEF066182DA57800122C0C /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -1689,6 +1830,89 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		04AB6D561D9D619B007E9A83 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_ENTITLEMENTS = UnitTestHostApp/UnitTestHostApp.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = UnitTestHostApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MSOpenTech.UnitTestHostApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		04AB6D571D9D619B007E9A83 /* CodeCoverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_ENTITLEMENTS = UnitTestHostApp/UnitTestHostApp.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = UnitTestHostApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MSOpenTech.UnitTestHostApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = CodeCoverage;
+		};
+		04AB6D581D9D619B007E9A83 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_ENTITLEMENTS = UnitTestHostApp/UnitTestHostApp.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = UnitTestHostApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MSOpenTech.UnitTestHostApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		8B0965CB17F25770002BDFB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 946347821C644E13000A6DA1 /* adal__debug.xcconfig */;
@@ -1852,6 +2076,7 @@
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "MS-Open-Tech.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHostApp.app/UnitTestHostApp";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
@@ -1880,6 +2105,7 @@
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "MS-Open-Tech.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHostApp.app/UnitTestHostApp";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
@@ -1982,6 +2208,7 @@
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "MS-Open-Tech.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestHostApp.app/UnitTestHostApp";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = CodeCoverage;
@@ -2322,6 +2549,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		04AB6D591D9D619B007E9A83 /* Build configuration list for PBXNativeTarget "UnitTestHostApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				04AB6D561D9D619B007E9A83 /* Debug */,
+				04AB6D571D9D619B007E9A83 /* CodeCoverage */,
+				04AB6D581D9D619B007E9A83 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		8B0965A517F25770002BDFB8 /* Build configuration list for PBXProject "ADAL" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

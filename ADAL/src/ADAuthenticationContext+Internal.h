@@ -45,8 +45,6 @@
 #import "ADOAuth2Constants.h"
 #import "ADTokenCacheAccessor.h"
 
-typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
-
 extern NSString* const ADUnknownError;
 extern NSString* const ADCredentialsNeeded;
 extern NSString* const ADInteractionNotSupportedInExtension;

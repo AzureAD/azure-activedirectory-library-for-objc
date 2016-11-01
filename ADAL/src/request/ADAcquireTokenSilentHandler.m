@@ -63,9 +63,10 @@
              
              // give the stale token as result
              [ADLogger logToken:_extendedLifetimeAccessTokenItem.accessToken
-                      tokenType:@"access token (extended lifetime)"
+                      tokenType:@"AT (extended lifetime)"
                       expiresOn:_extendedLifetimeAccessTokenItem.expiresOn
-                  correlationId:[_requestParams correlationId]];
+                        context:@"Returning"
+                  correlationId:_requestParams.correlationId];
              
              result = [ADAuthenticationResult resultFromTokenCacheItem:_extendedLifetimeAccessTokenItem
                                              multiResourceRefreshToken:NO
@@ -103,11 +104,11 @@
                          cacheItem:(ADTokenCacheItem*)cacheItem
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    NSUUID* correlationId = [_requestParams correlationId];
-    
-    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", correlationId, @"Resource: %@", [_requestParams resource]);
-
-    [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:correlationId];
+    [ADLogger logToken:refreshToken
+             tokenType:@"RT"
+             expiresOn:nil
+               context:[NSString stringWithFormat:@"Attempting to acquire for %@ using", _requestParams.resource]
+         correlationId:_requestParams.correlationId];
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = nil;
     
@@ -115,8 +116,8 @@
     {
         NSString* jwtToken = [self createAccessTokenRequestJWTUsingRT:cacheItem];
         request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                        [_requestParams redirectUri], @"redirect_uri",
-                        [_requestParams clientId], @"client_id",
+                        _requestParams.redirectUri, @"redirect_uri",
+                        _requestParams.clientId, @"client_id",
                         @"2.0", @"windows_api_version",
                         @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
                         jwtToken, @"request",
@@ -153,7 +154,7 @@
          resultItem.authority = [_requestParams authority];
          
          
-         ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:correlationId];
+         ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:_requestParams.correlationId];
          if (cacheItem)//The request came from the cache item, update it:
          {
              [[_requestParams tokenCache] updateCacheToResult:result
@@ -312,8 +313,15 @@
     // If we have a good (non-expired) access token then return it right away
     if (item.accessToken && !item.isExpired)
     {
-        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:correlationId];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheItem:item multiResourceRefreshToken:NO correlationId:correlationId];
+        [ADLogger logToken:item.accessToken
+                 tokenType:@"AT"
+                 expiresOn:item.expiresOn
+                   context:@"Returning"
+             correlationId:_requestParams.correlationId];
+        ADAuthenticationResult* result =
+        [ADAuthenticationResult resultFromTokenCacheItem:item
+                               multiResourceRefreshToken:NO
+                                           correlationId:correlationId];
         completionBlock(result);
         return;
     }

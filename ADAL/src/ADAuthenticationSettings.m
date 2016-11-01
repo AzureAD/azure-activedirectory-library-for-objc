@@ -25,16 +25,15 @@
 
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache.h"
+#else
+#import "ADTokenCache+Internal.h"
 #endif // TARGET_OS_IPHONE
+
 
 @implementation ADAuthenticationSettings
 
 @synthesize requestTimeOut = _requestTimeOut;
 @synthesize expirationBuffer = _expirationBuffer;
-
-#if !TARGET_OS_IPHONE
-@synthesize defaultStorageDelegate = _defaultStorageDelegate;
-#endif // !TARGET_OS_IPHONE
 
 /*!
  An internal initializer used from the static creation function.
@@ -57,7 +56,7 @@
 +(ADAuthenticationSettings*)sharedInstance
 {
     /* Below is a standard objective C singleton pattern*/
-    static ADAuthenticationSettings* instance;
+    static ADAuthenticationSettings* instance = nil;
     static dispatch_once_t onceToken;
     @synchronized(self)
     {
@@ -77,6 +76,16 @@
 - (void)setDefaultKeychainGroup:(NSString*)keychainGroup
 {
     [ADKeychainTokenCache setDefaultKeychainGroup:keychainGroup];
+}
+#elif !TARGET_OS_IPHONE
+- (id<ADTokenCacheDelegate>)defaultStorageDelegate
+{
+    return [[ADTokenCache defaultCache] delegate];
+}
+
+- (void)setDefaultStorageDelegate:(id<ADTokenCacheDelegate>)defaultStorageDelegate
+{
+    [[ADTokenCache defaultCache] setDelegate:defaultStorageDelegate];
 }
 #endif
 

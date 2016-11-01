@@ -48,6 +48,7 @@
 #import "ADUserInformation.h"
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheKey.h"
+#import "ADAuthenticationSettings.h"
 
 #include <pthread.h>
 
@@ -60,6 +61,18 @@
 }
 
 @implementation ADTokenCache
+
++ (ADTokenCache *)defaultCache
+{
+    static dispatch_once_t once;
+    static ADTokenCache * cache = nil;
+    
+    dispatch_once(&once, ^{
+        cache = [ADTokenCache new];
+    });
+    
+    return cache;
+}
 
 - (id)init
 {
@@ -421,6 +434,11 @@
 
 
 @implementation ADTokenCache (Internal)
+
+- (id<ADTokenCacheDelegate>)delegate
+{
+    return _delegate;
+}
 
 - (BOOL)validateCache:(NSDictionary*)dict
                 error:(ADAuthenticationError * __autoreleasing *)error

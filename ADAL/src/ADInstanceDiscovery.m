@@ -364,7 +364,15 @@ static NSString* const sValidationServerError = @"The authority validation serve
     {
         return nil;
     }
-    trimmedAuthority = [NSString stringWithFormat:@"%@://%@/%@", scheme, host, tenant];
+    NSNumber* port = url.port;
+    if (port)
+    {
+        trimmedAuthority = [NSString stringWithFormat:@"%@://%@:%d/%@", scheme, host, port.intValue, tenant];
+    }
+    else
+    {
+        trimmedAuthority = [NSString stringWithFormat:@"%@://%@/%@", scheme, host, tenant];
+    }
     
     return trimmedAuthority;
 }

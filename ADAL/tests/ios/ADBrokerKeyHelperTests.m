@@ -49,18 +49,15 @@ enum {
 
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
+    [ADBrokerKeyHelper setSymmetricKey:nil];
     [super tearDown];
 }
 
 - (void)testv1Decrypt
 {
-    NSString* base64Key = @"BU+bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U=";
-    NSData* key = [[NSData alloc] initWithBase64EncodedString:base64Key options:0];
+    [ADBrokerKeyHelper setSymmetricKey:@"BU+bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U="];
     ADBrokerKeyHelper* keyHelper = [[ADBrokerKeyHelper alloc] init];
     ADAuthenticationError* error = nil;
-     
-    [keyHelper setSymmetricKey:key];
-    XCTAssertNil(error);
     
     NSString* v1EncryptedPayload = @"OxDgUethOjve95lfr1OIFjv9ExbhxTTESae11KZChY2SAsDBZCyRI87/HCutimLfIpvqWHJ7P6ygVGJlnr1yHZf4aguJ4zq1auczsXeTPPYoNVxHNGbbMJgAkjcnCI6SJG9JqXlS8IjVNFDTZvVswlLWzwsQLL5O36/gGM77eONyhMkRexN36wMMgSkrtTzov1OOn2od9ErutVTyBNZ+bNbAhzYQgNzkvbgERFdBMlDN7EIuFO4TMgizcYhbvaGY+jNb8Ktwbk0hXxKfMKm8HL332ub3RbRrW0BWPJACPtyzN3X9pnxncZHg8hZJzYh3";
     
@@ -76,13 +73,9 @@ enum {
 
 - (void)testv2Decrypt
 {
-    NSString* base64Key = @"BU+bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U=";
-    NSData* key = [[NSData alloc] initWithBase64EncodedString:base64Key options:0];
+    [ADBrokerKeyHelper setSymmetricKey:@"BU+bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U="];
     ADBrokerKeyHelper* keyHelper = [[ADBrokerKeyHelper alloc] init];
     ADAuthenticationError* error = nil;
-    
-    [keyHelper setSymmetricKey:key];
-    XCTAssertNil(error);
     
     NSString* v2EncryptedPayload = @"OwkUbeZ63OlLI1xsNUXOJKmJgjhApcV6bEzFI6cdtE4UtsboGnJLjUtJRySO8ol97W431BdpwnuFD8tImkjUx++oNAMU483Q1xpuc5mCNVZcpDpnMoW2EC9oM5slGTPvvmDBxu3MHbLVVKWB616eKUdSKGOBnBUWDZp6QJJXpwEzwZuoycmmbQBF2SI1Ur5bluma8d23hANpV1c0qCGtPvEcLXWp7vNp5gkIsd6rGAkuuk31GJ3E8j+gfd8XymUEFc8g9ikx4JG0JnRwmRkzgVVKgszDPlPJrqlGlCZqa0SiF8V0pT3CqM6HURkqmCvK";
     

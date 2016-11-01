@@ -172,15 +172,16 @@
     }
 }
 
-- (void)logWithCorrelationId:(NSString*)correlationId
-                        mrrt:(BOOL)isMRRT
+- (void)logMessage:(NSString *)message
+     correlationId:(NSString *)correlationId
+              mrrt:(BOOL)isMRRT
 {
     (void)isMRRT;
     
     NSUUID* correlationUUID = [[NSUUID alloc] initWithUUIDString:correlationId];
     
-    [self logMessage:nil
-               level:ADAL_LOG_LEVEL_VERBOSE
+    [self logMessage:message
+               level:ADAL_LOG_LEVEL_INFO
        correlationId:correlationUUID];
     
     SAFE_ARC_RELEASE(correlationUUID);
@@ -221,7 +222,9 @@
     
     [self fillExpiration:responseDictionary];
     
-    [self logWithCorrelationId:[responseDictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE] mrrt:isMRRT];
+    [self logMessage:@"Received"
+       correlationId:[responseDictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]
+                mrrt:isMRRT];
     
     // Store what we haven't cached to _additionalServer
     SAFE_ARC_RELEASE(_additionalServer);

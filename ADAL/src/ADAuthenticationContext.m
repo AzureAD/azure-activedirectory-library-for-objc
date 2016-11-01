@@ -122,8 +122,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         return nil;
     }
 #else
-    tokenCache = [ADTokenCache new];
-    [(ADTokenCache*)tokenCache setDelegate:[ADAuthenticationSettings sharedInstance].defaultStorageDelegate];
+    tokenCache = [ADTokenCache defaultCache];
 #endif
     
     return [self initWithAuthority:authority
@@ -243,9 +242,9 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [NSString adSame:sourceApplication toString:@"com.microsoft.azureauthenticator"];
 }
 
-+ (void)handleBrokerResponse:(NSURL*)response
++ (BOOL)handleBrokerResponse:(NSURL*)response
 {
-    [ADAuthenticationRequest internalHandleBrokerResponse:response];
+    return [ADAuthenticationRequest internalHandleBrokerResponse:response];
 }
 
 #define REQUEST_WITH_REDIRECT_STRING(_redirect, _clientId, _resource) \

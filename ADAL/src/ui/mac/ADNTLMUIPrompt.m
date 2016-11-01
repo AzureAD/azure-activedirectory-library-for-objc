@@ -35,32 +35,34 @@
 
 + (void)presentPrompt:(void (^)(NSString * username, NSString * password))completionHandler
 {
-    NSAlert* alert = [NSAlert new];
-    
-    [alert setMessageText:NSLocalizedString(@"Enter your credentials", nil)];
-    [alert addButtonWithTitle:NSLocalizedString(@"Login", nil)];
-    [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
-    
-    ADCredentialCollectionController* view = [ADCredentialCollectionController new];
-    SAFE_ARC_AUTORELEASE(view);
-    [view.usernameLabel setStringValue:NSLocalizedString(@"Username", nil)];
-    [view.passwordLabel setStringValue:NSLocalizedString(@"Password", nil)];
-    [alert setAccessoryView:view.customView];
-    
-    [alert beginSheetModalForWindow:[NSApp keyWindow] completionHandler:^(NSModalResponse returnCode)
-    {
-        if (returnCode == 1000)
-        {
-            NSString* username = [view.usernameField stringValue];
-            NSString* password = [view.passwordField stringValue];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSAlert* alert = [NSAlert new];
         
-            completionHandler(username, password);
-        }
-        else
-        {
-            completionHandler(nil, nil);
-        }
-    }];
+        [alert setMessageText:NSLocalizedString(@"Enter your credentials", nil)];
+        [alert addButtonWithTitle:NSLocalizedString(@"Login", nil)];
+        [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+        
+        ADCredentialCollectionController* view = [ADCredentialCollectionController new];
+        SAFE_ARC_AUTORELEASE(view);
+        [view.usernameLabel setStringValue:NSLocalizedString(@"Username", nil)];
+        [view.passwordLabel setStringValue:NSLocalizedString(@"Password", nil)];
+        [alert setAccessoryView:view.customView];
+        
+        [alert beginSheetModalForWindow:[NSApp keyWindow] completionHandler:^(NSModalResponse returnCode)
+         {
+             if (returnCode == 1000)
+             {
+                 NSString* username = [view.usernameField stringValue];
+                 NSString* password = [view.passwordField stringValue];
+                 
+                 completionHandler(username, password);
+             }
+             else
+             {
+                 completionHandler(nil, nil);
+             }
+         }];
+    });
 }
 
 @end
