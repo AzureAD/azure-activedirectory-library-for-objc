@@ -415,6 +415,25 @@ typedef enum
                                 userId:(NSString*)userId
                        completionBlock:(ADAuthenticationCallback)completionBlock;
 
+#if TARGET_OS_WATCH
+/*! This is an API exposed for WatchOS only. The authData is the ADTokenCacheItem transmitted from paired phone to watch. Internally, this method will save this authData info into the cache on Watch, and then call acquireTokenSilentWithResource to finish the authentication process as the standard ADAL library does
+ @param authData: the ADTokenCacheItem saved on the paired phone cache and then transmitted from phone to watch
+ @param resource: the resource whose token is needed.
+ @param clientId: the client identifier
+ @param redirectUri: The redirect URI according to OAuth2 protocol
+ @param userId: The user to be prepopulated in the credentials form. Additionally, if token is found in the cache,
+ it may not be used if it belongs to different token. This parameter can be nil.
+ @param completionBlock: the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenSlientWithAuthData:(NSData *)authData
+                              resource:(NSString *)resource
+                              clientId:(NSString *)clientId
+                           redirectUri:(NSURL *)redirectUri
+                       completionBlock:(ADAuthenticationCallback)completionBlock;
+#endif
+
+
+
 @end
 
 

@@ -28,6 +28,9 @@
 #include <sys/sysctl.h>
 #include <mach/machine.h>
 #include <CommonCrypto/CommonDigest.h>
+#if TARGET_OS_WATCH
+#include <WatchKit/WatchKit.h>
+#endif
 
 @protocol LoggerContext <NSObject>
 
@@ -230,7 +233,7 @@ correlationId:(NSUUID*)correlationId
 + (NSDictionary*)adalId
 {
     dispatch_once(&s_logOnce, ^{
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
         //iOS:
         UIDevice* device = [UIDevice currentDevice];
         NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
@@ -240,6 +243,16 @@ correlationId:(NSUUID*)correlationId
                                          ADAL_ID_OS_VER:device.systemVersion,
                                          ADAL_ID_DEVICE_MODEL:device.model,//Prints out only "iPhone" or "iPad".
                                          }];
+#elif TARGET_OS_WATCH
+        WKInterfaceDevice* device = [WKInterfaceDevice currentDevice];
+        NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
+                                       @{
+                                         ADAL_ID_PLATFORM:@"watchOS",
+                                         ADAL_ID_VERSION:[ADLogger getAdalVersion],
+                                         ADAL_ID_OS_VER:device.systemVersion,
+                                         ADAL_ID_DEVICE_MODEL:device.model,
+                                         }];
+
 #else
         NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
         NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:

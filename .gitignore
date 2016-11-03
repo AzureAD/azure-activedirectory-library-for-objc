@@ -1,4 +1,4 @@
-#Contains files that the source control should ignore
+.DS_Store
 xcuserdata
 *.xccheckout
 Pods/*

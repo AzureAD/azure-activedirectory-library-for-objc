@@ -24,12 +24,16 @@
 @class ADWebRequest;
 @class ADWebResponse;
 
-@interface ADWebRequest : NSObject <NSURLConnectionDelegate>
+typedef enum
 {
-    NSURLConnection * _connection;
-    
+    ADWebRequestGet,
+    ADWebRequestPost,
+} ADWebRequestMethodType;
+
+@interface ADWebRequest : NSObject
+{
     NSURL * _requestURL;
-    NSMutableDictionary* _requestHeaders;
+    NSMutableDictionary * _requestHeaders;
     NSData * _requestData;
     
     NSHTTPURLResponse * _response;
@@ -43,27 +47,25 @@
     
     BOOL _isGetRequest;
     
-    void (^_completionHandler)( NSError *, ADWebResponse *);
+    void (^_completionHandler)(NSError *, ADWebResponse *);
 }
 
-@property (strong, readonly, nonatomic) NSURL               *URL;
-@property (strong, nonatomic)           NSMutableDictionary *headers;
-@property (strong)                      NSData              *body;
-@property (nonatomic)                   NSUInteger           timeout;
-@property BOOL isGetRequest;
-@property (readonly) NSUUID* correlationId;
+@property (strong, readonly, nonatomic)     NSURL               *URL;
+@property (strong, nonatomic)               NSMutableDictionary *headers;
+@property (strong)                          NSData              *body;
+@property (nonatomic)                       NSUInteger          timeout;
+@property                                   BOOL                isGetRequest;
+@property (readonly)                        NSUUID              *correlationId;
 
-- (id)initWithURL: (NSURL*)url
-    correlationId: (NSUUID*) correlationId;
+- (id)initWithURL: (NSURL *)url correlationId: (NSUUID*)correlationId;
 
-- (void)send:( void (^)( NSError *, ADWebResponse *) )completionHandler;
+- (void)send: ( void(^)(NSError *, ADWebResponse *) )completionHandler;
 
 /*!
-    Resends a request. Note, this will cause the completionHandler previously set
-    in -send: to be hit again. As such this method should only be called from
-    within the completionHandler block on -send:
+ Resends a request. Note, this will cause the completionHandler previously set
+ in -send: to be hit again. As such this method should only be called from
+ within the completionHandler block on -send:
  */
 - (void)resend;
 
 @end
-
