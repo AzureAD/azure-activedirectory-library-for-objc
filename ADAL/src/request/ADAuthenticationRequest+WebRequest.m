@@ -89,14 +89,13 @@
              adURLFormEncode] adBase64UrlEncode];
 }
 
-//Generates the query url, encoding the state:
-- (NSURL*)generateQueryUrlForRequestType:(NSString*)requestType
-                                   error:(ADAuthenticationError * __autoreleasing *)error
+//Generates the query string, encoding the state:
+- (NSString*)generateQueryStringForRequestType:(NSString*)requestType
 {
     NSString* state = [self encodeProtocolState];
     NSString* queryParams = nil;
     // Start the web navigation process for the Implicit grant profile.
-    NSMutableString* startUrlStr = [NSMutableString stringWithFormat:@"%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
+    NSMutableString* startUrl = [NSMutableString stringWithFormat:@"%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
                                  [_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX],
                                  OAUTH2_RESPONSE_TYPE, requestType,
                                  OAUTH2_CLIENT_ID, [_clientId adUrlFormEncode],
@@ -104,31 +103,20 @@
                                  OAUTH2_REDIRECT_URI, [_redirectUri adUrlFormEncode],
                                  OAUTH2_STATE, state];
     
-    [startUrlStr appendFormat:@"&%@", [[ADLogger adalId] adURLFormEncode]];
+    [startUrl appendFormat:@"&%@", [[ADLogger adalId] adURLFormEncode]];
     
     if (_identifier && [_identifier isDisplayable] && ![NSString adIsStringNilOrBlank:_identifier.userId])
     {
-        [startUrlStr appendFormat:@"&%@=%@", OAUTH2_LOGIN_HINT, [_identifier.userId adUrlFormEncode]];
+        [startUrl appendFormat:@"&%@=%@", OAUTH2_LOGIN_HINT, [_identifier.userId adUrlFormEncode]];
     }
     NSString* promptParam = [ADAuthenticationContext getPromptParameter:_promptBehavior];
     if (promptParam)
     {
         //Force the server to ignore cookies, by specifying explicitly the prompt behavior:
-        [startUrlStr appendString:[NSString stringWithFormat:@"&prompt=%@", promptParam]];
+        [startUrl appendString:[NSString stringWithFormat:@"&prompt=%@", promptParam]];
     }
     
-    [startUrlStr appendString:@"&haschrome=1"]; //to hide back button in UI
-    
-    NSURL* startUrl = [NSURL URLWithString:startUrlStr];
-    if (!startUrl)
-    {
-        AD_LOG_ERROR_F(@"Failed to construct query URL before launching webview.", AD_ERROR_UNEXPECTED, _correlationId, @"URL String: %@", startUrlStr);
-        *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UNEXPECTED
-                                                        protocolCode:nil
-                                                        errorDetails:@"Failed to construct query URL before launching webview."
-                                                       correlationId:_correlationId];
-        return startUrl;
-    }
+    [startUrl appendString:@"&haschrome=1"]; //to hide back button in UI
     
     if (![NSString adIsStringNilOrBlank:_queryParams])
     {//Append the additional query parameters if specified:
@@ -137,27 +125,21 @@
         //Add the '&' for the additional params if not there already:
         if ([queryParams hasPrefix:@"&"])
         {
-            [startUrlStr appendString:queryParams];
+            [startUrl appendString:queryParams];
         }
         else
         {
-            [startUrlStr appendFormat:@"&%@", queryParams];
+            [startUrl appendFormat:@"&%@", queryParams];
         }
-    }
-    
-    startUrl = [NSURL URLWithString:startUrlStr];
-    if (!startUrl)
-    {
-        *error = [ADAuthenticationError errorFromArgument:_queryParams argumentName:@"extraQueryParameters" correlationId:_correlationId];
     }
     
     return startUrl;
 }
 
-- (void)launchWebView:(NSURL*)startUrl
+- (void)launchWebView:(NSString*)startUrl
       completionBlock:(void (^)(ADAuthenticationError*, NSURL*))completionBlock
 {
-    [[ADWebAuthController sharedInstance] start:startUrl
+    [[ADWebAuthController sharedInstance] start:[NSURL URLWithString:startUrl]
                                             end:[NSURL URLWithString:_redirectUri]
                                     refreshCred:_refreshTokenCredential
 #if TARGET_OS_IPHONE
@@ -177,13 +159,7 @@
     
     AD_LOG_VERBOSE_F(@"Requesting authorization code.", _correlationId, @"Requesting authorization code for resource: %@", _resource);
     
-    ADAuthenticationError* error = nil;
-    NSURL* startUrl = [self generateQueryUrlForRequestType:OAUTH2_CODE error:&error];
-    if (error)
-    {
-        completionBlock(nil, error);
-        return;
-    }
+    NSString* startUrl = [self generateQueryStringForRequestType:OAUTH2_CODE];
     
     void(^requestCompletion)(ADAuthenticationError *error, NSURL *end) = ^void(ADAuthenticationError *error, NSURL *end)
     {
