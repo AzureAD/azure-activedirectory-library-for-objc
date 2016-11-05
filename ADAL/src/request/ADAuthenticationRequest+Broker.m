@@ -36,6 +36,8 @@
 #import "ADWebAuthController+Internal.h"
 #import "ADAuthenticationResult.h"
 
+#import "ADOAuth2Constants.h"
+
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADBrokerKeyHelper.h"
@@ -247,42 +249,29 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     return _context.credentialsType == AD_CREDENTIALS_AUTO && _context.validateAuthority == YES && [ADBrokerHelper canUseBroker];
 }
 
-- (void)callBroker:(ADAuthenticationCallback)completionBlock
+- (NSURL *)composeBrokerRequest:(ADAuthenticationError* __autoreleasing *)error
 {
-    CHECK_FOR_NIL(_context.authority);
-    CHECK_FOR_NIL(_resource);
-    CHECK_FOR_NIL(_clientId);
-    CHECK_FOR_NIL(_correlationId);
+    ARG_RETURN_IF_NIL(_context.authority, _correlationId);
+    ARG_RETURN_IF_NIL(_resource, _correlationId);
+    ARG_RETURN_IF_NIL(_clientId, _correlationId);
+    ARG_RETURN_IF_NIL(_correlationId, _correlationId);
     
-    ADAuthenticationError* error = nil;
-    if(![ADAuthenticationRequest validBrokerRedirectUri:_redirectUri])
-    {
-        error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
-                                                       protocolCode:nil
-                                                       errorDetails:ADRedirectUriInvalidError
-                                                      correlationId:_correlationId];
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
-        return;
-    }
+    AUTH_ERROR(AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI, ADRedirectUriInvalidError, _correlationId);
     
     AD_LOG_INFO(@"Invoking broker for authentication", _correlationId, nil);
 #if TARGET_OS_IPHONE // Broker Message Encryption
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
-    NSData* key = [brokerHelper getBrokerKey:&error];
-    if (!key)
-    {
-        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Unable to retrieve broker key." correlationId:_correlationId];
-        completionBlock([ADAuthenticationResult resultFromError:adError correlationId:_correlationId]);
-        return;
-    }
+    NSData* key = [brokerHelper getBrokerKey:error];
+    AUTH_ERROR_RETURN_IF_NIL(key, AD_ERROR_UNEXPECTED, @"Unable to retrieve broker key.", _correlationId);
     
     NSString* base64Key = [NSString Base64EncodeData:key];
+    AUTH_ERROR_RETURN_IF_NIL(base64Key, AD_ERROR_UNEXPECTED, @"Unable to base64 encode broker key.", _correlationId);
     NSString* base64UrlKey = [base64Key adUrlFormEncode];
-    CHECK_FOR_NIL(base64UrlKey);
+    AUTH_ERROR_RETURN_IF_NIL(base64UrlKey, AD_ERROR_UNEXPECTED, @"Unable to URL encode broker key.", _correlationId);
 #endif // TARGET_OS_IPHONE Broker Message Encryption
     
     NSString* adalVersion = [ADLogger getAdalVersion];
-    CHECK_FOR_NIL(adalVersion);
+    AUTH_ERROR_RETURN_IF_NIL(adalVersion, AD_ERROR_UNEXPECTED, @"Unable to retrieve ADAL version.", _correlationId);
     
     NSDictionary* queryDictionary =
     @{
@@ -308,11 +297,10 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     if (dataSource && [dataSource isKindOfClass:[ADKeychainTokenCache class]])
     {
         NSString* keychainGroup = [(ADKeychainTokenCache*)dataSource sharedGroup];
-        NSString* teamId = [ADKeychainUtil keychainTeamId:&error];
-        if (!teamId && error)
+        NSString* teamId = [ADKeychainUtil keychainTeamId:error];
+        if (!teamId)
         {
-            completionBlock([ADAuthenticationResult resultFromError:error]);
-            return;
+            return nil;
         }
         if (teamId && [keychainGroup hasPrefix:teamId])
         {
@@ -344,14 +332,12 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:kAdalResumeDictionaryKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
-    if ([ADBrokerHelper canUseBroker])
-    {
-        [ADBrokerHelper invokeBroker:queryDictionary completionHandler:completionBlock];
-    }
-    else
-    {
-        [ADBrokerHelper promptBrokerInstall:queryDictionary completionHandler:completionBlock];
-    }
+    NSString* query = [queryDictionary adURLFormEncode];
+    
+    NSURL* brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
+    AUTH_ERROR_RETURN_IF_NIL(brokerRequestURL, AD_ERROR_UNEXPECTED, @"Unable to encode broker request URL", _correlationId);
+    
+    return brokerRequestURL;
 }
 
 @end

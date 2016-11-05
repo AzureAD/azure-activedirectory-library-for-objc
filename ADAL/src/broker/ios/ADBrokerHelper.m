@@ -176,26 +176,26 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     }
 }
 
-+ (void)invokeBroker:(NSDictionary *)brokerParams
++ (void)invokeBroker:(NSURL *)brokerURL
    completionHandler:(ADAuthenticationCallback)completion
 {
     if ([ADAppExtensionUtil isExecutingInAppExtension])
     {
         // Ignore invocation in application extension hosts
-        completion(nil);
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_NOT_SUPPORTED_IN_EXTENSION
+                                                                              protocolCode:nil
+                                                                              errorDetails:@"Calling to broker is not supported in app extensions"
+                                                                             correlationId:nil];
+        completion([ADAuthenticationResult resultFromError:error]);
         return;
     }
-
-    NSString* query = [brokerParams adURLFormEncode];
-    
-    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
     
     [[ADBrokerNotificationManager sharedInstance] enableNotifications:completion];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthWillSwitchToBrokerApp object:nil];
         
-        [ADAppExtensionUtil sharedApplicationOpenURL:appUrl];
+        [ADAppExtensionUtil sharedApplicationOpenURL:brokerURL];
     });
 }
 
@@ -208,7 +208,8 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     [appPasteBoard setURL:url];
 }
 
-+ (void)promptBrokerInstall:(NSDictionary *)brokerParams
++ (void)promptBrokerInstall:(NSURL *)redirectURL
+              brokerRequest:(NSURL *)brokerRequest
           completionHandler:(ADAuthenticationCallback)completion
 {
     if ([ADAppExtensionUtil isExecutingInAppExtension])
@@ -217,20 +218,16 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
         completion(nil);
         return;
     }
-
-    NSString* query = [brokerParams adURLFormEncode];
     
-    NSURL* appUrl = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", ADAL_BROKER_SCHEME, query]];
-    
+    NSString* query = [redirectURL query];
+    NSDictionary* queryParams = [NSDictionary adURLFormDecode:query];
+    NSString* appURLString = [queryParams objectForKey:@"app_link"];
+    __block NSURL* appURL = [NSURL URLWithString:appURLString];
+                        
     [[ADBrokerNotificationManager sharedInstance] enableNotifications:completion];
-    
-    //no broker installed. go to app store
-    NSString* qp = [appUrl query];
-    NSDictionary* qpDict = [NSDictionary adURLFormDecode:qp];
-    NSString* url = [qpDict valueForKey:@"app_link"];
-    [self saveToPasteBoard:appUrl];
+    [self saveToPasteBoard:brokerRequest];
     dispatch_async(dispatch_get_main_queue(), ^{
-        [ADAppExtensionUtil sharedApplicationOpenURL:[[NSURL alloc] initWithString:url]];
+        [ADAppExtensionUtil sharedApplicationOpenURL:appURL];
     });
 }
 

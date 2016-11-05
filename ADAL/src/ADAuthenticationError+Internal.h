@@ -31,6 +31,22 @@
                                           correlationId:_CORRELATION]; \
     if (error) { *error = adError; }
 
+
+
+#define AUTH_ERROR_RETURN_IF_NIL(_VAL, _CODE, _DETAILS, _CORRELATION) \
+    if (_VAL == nil) { \
+        AUTH_ERROR(_CODE, _DETAILS, _CORRELATION); \
+        return nil; \
+    }
+
+#define ARG_RETURN_IF_NIL(_ARG, _CORRELATION) \
+    if (_ARG == nil) { \
+        AUTH_ERROR(AD_ERROR_DEVELOPER_INVALID_ARGUMENT, @#_ARG " should not be nil.", _CORRELATION); \
+        return nil; \
+    }
+
+
+
 #define AUTH_ERROR_UNDERLYING(_CODE, _DETAILS, _UNDERLYING, _CORRELATION) \
     ADAuthenticationError* adError = \
     [ADAuthenticationError errorFromAuthenticationError:_CODE \

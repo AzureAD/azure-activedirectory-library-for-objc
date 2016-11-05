@@ -29,6 +29,7 @@
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheKey.h"
 #import "ADAcquireTokenSilentHandler.h"
+#import "ADBrokerHelper.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -210,7 +211,14 @@
     //call the broker.
     if ([self canUseBroker])
     {
-        [self callBroker:completionBlock];
+        ADAuthenticationError* error = nil;
+        NSURL* brokerURL = [self composeBrokerRequest:&error];
+        if (!brokerURL)
+        {
+            completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+            return;
+        }
+        [ADBrokerHelper invokeBroker:brokerURL completionHandler:completionBlock];
         return;
     }
 #endif
@@ -237,7 +245,18 @@
          {
              if([code hasPrefix:@"msauth://"])
              {
-                 [self callBroker:completionBlock];
+                 ADAuthenticationError* error = nil;
+                 NSURL* brokerRequestURL = [self composeBrokerRequest:&error];
+                 if (!brokerRequestURL)
+                 {
+                     completionBlock([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+                     return;
+                 }
+                 
+                 [ADBrokerHelper promptBrokerInstall:[NSURL URLWithString:code]
+                                       brokerRequest:brokerRequestURL
+                                   completionHandler:completionBlock];
+                 return;
              }
              else
              {

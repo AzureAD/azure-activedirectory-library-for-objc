@@ -26,9 +26,10 @@
 @interface ADBrokerHelper : NSObject
 
 + (BOOL)canUseBroker;
-+ (void)invokeBroker:(NSDictionary *)brokerParams
++ (void)invokeBroker:(NSURL *)brokerURL
    completionHandler:(ADAuthenticationCallback)completion;
-+ (void)promptBrokerInstall:(NSDictionary *)brokerParams
++ (void)promptBrokerInstall:(NSURL *)redirectURL
+              brokerRequest:(NSURL *)brokerURL
           completionHandler:(ADAuthenticationCallback)completion;
 
 + (ADAuthenticationCallback)copyAndClearCompletionBlock;
