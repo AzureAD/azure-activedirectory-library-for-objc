@@ -77,6 +77,17 @@
         return;
     }
     
+    if (![self checkExtraQueryParameters])
+    {
+        ADAuthenticationError* error =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+                                               protocolCode:nil
+                                               errorDetails:@"extraQueryParameters is not properly encoded. Please make sure it is URL encoded."
+                                              correlationId:_correlationId];
+        wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_correlationId]);
+        return;
+    }
+    
     if (!_silent && _context.credentialsType == AD_CREDENTIALS_AUTO && ![ADAuthenticationRequest validBrokerRedirectUri:_redirectUri])
     {
         ADAuthenticationError* error =
@@ -109,6 +120,23 @@
          }
      }];
     
+}
+
+- (BOOL)checkExtraQueryParameters
+{
+    if ([NSString adIsStringNilOrBlank:_queryParams])
+    {
+        return YES;
+    }
+    
+    NSString* queryParams = _queryParams.adTrimmedString;
+    if ([queryParams hasPrefix:@"&"])
+    {
+        queryParams = [queryParams substringFromIndex:1];
+    }
+    NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?%@", _context.authority, queryParams]];
+    
+    return url!=nil;
 }
 
 - (void)validatedAcquireToken:(ADAuthenticationCallback)completionBlock
