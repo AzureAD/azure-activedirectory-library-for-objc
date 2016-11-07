@@ -26,6 +26,8 @@
 @interface ADBrokerHelper : NSObject
 
 + (BOOL)canUseBroker;
+
+#if TARGET_OS_IPHONE
 + (void)invokeBroker:(NSURL *)brokerURL
    completionHandler:(ADAuthenticationCallback)completion;
 + (void)promptBrokerInstall:(NSURL *)redirectURL
@@ -33,5 +35,6 @@
           completionHandler:(ADAuthenticationCallback)completion;
 
 + (ADAuthenticationCallback)copyAndClearCompletionBlock;
+#endif
 
 @end

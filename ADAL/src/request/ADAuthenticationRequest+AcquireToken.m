@@ -207,7 +207,7 @@
 
 - (void)requestTokenImpl:(ADAuthenticationCallback)completionBlock
 {
-#if !AD_BROKER
+#if !AD_BROKER && TARGET_OS_IPHONE
     //call the broker.
     if ([self canUseBroker])
     {
@@ -243,6 +243,7 @@
          }
          else
          {
+#if TARGET_OS_IPHONE
              if([code hasPrefix:@"msauth://"])
              {
                  ADAuthenticationError* error = nil;
@@ -259,6 +260,7 @@
                  return;
              }
              else
+#endif
              {
                  [self requestTokenByCode:code
                           completionBlock:^(ADAuthenticationResult *result)
