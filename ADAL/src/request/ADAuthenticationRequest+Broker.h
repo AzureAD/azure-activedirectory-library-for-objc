@@ -33,6 +33,6 @@ extern NSString* kAdalResumeDictionaryKey;
 
 - (BOOL)canUseBroker;
 
-- (void)callBroker:(ADAuthenticationCallback)completionBlock;
+- (NSURL *)composeBrokerRequest:(ADAuthenticationError* __autoreleasing *)error;
 
 @end
