@@ -32,6 +32,7 @@
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
+#import "ADBrokerHelper.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -83,7 +84,18 @@
         return;
     }
     
-    if (!_silent && _context.credentialsType == AD_CREDENTIALS_AUTO && ![ADAuthenticationRequest validBrokerRedirectUri:[_requestParams redirectUri]])
+    if (![self checkExtraQueryParameters])
+    {
+        ADAuthenticationError* error =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+                                               protocolCode:nil
+                                               errorDetails:@"extraQueryParameters is not properly encoded. Please make sure it is URL encoded."
+                                              correlationId:_requestParams.correlationId];
+        wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+        return;
+    }
+    
+    if (!_silent && _context.credentialsType == AD_CREDENTIALS_AUTO && ![ADAuthenticationRequest validBrokerRedirectUri:_requestParams.redirectUri])
     {
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
@@ -126,6 +138,23 @@
          }
      }];
     
+}
+
+- (BOOL)checkExtraQueryParameters
+{
+    if ([NSString adIsStringNilOrBlank:_queryParams])
+    {
+        return YES;
+    }
+    
+    NSString* queryParams = _queryParams.adTrimmedString;
+    if ([queryParams hasPrefix:@"&"])
+    {
+        queryParams = [queryParams substringFromIndex:1];
+    }
+    NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?%@", _context.authority, queryParams]];
+    
+    return url!=nil;
 }
 
 - (void)validatedAcquireToken:(ADAuthenticationCallback)completionBlock
@@ -230,11 +259,18 @@
 
 - (void)requestTokenImpl:(ADAuthenticationCallback)completionBlock
 {
-#if !AD_BROKER
+#if !AD_BROKER && TARGET_OS_IPHONE
     //call the broker.
     if ([self canUseBroker])
     {
-        [self callBroker:completionBlock];
+        ADAuthenticationError* error = nil;
+        NSURL* brokerURL = [self composeBrokerRequest:&error];
+        if (!brokerURL)
+        {
+            completionBlock([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+            return;
+        }
+        [ADBrokerHelper invokeBroker:brokerURL completionHandler:completionBlock];
         return;
     }
 #endif
@@ -272,15 +308,24 @@
          }
          else
          {
+#if TARGET_OS_IPHONE
              if([code hasPrefix:@"msauth://"])
              {
-#if AD_TELEMETRY
-                 [event setAPIStatus:@"try to invoke broker from webview"];
-                 [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
-#endif
-                 [self callBroker:completionBlock];
+                 ADAuthenticationError* error = nil;
+                 NSURL* brokerRequestURL = [self composeBrokerRequest:&error];
+                 if (!brokerRequestURL)
+                 {
+                     completionBlock([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+                     return;
+                 }
+                 
+                 [ADBrokerHelper promptBrokerInstall:[NSURL URLWithString:code]
+                                       brokerRequest:brokerRequestURL
+                                   completionHandler:completionBlock];
+                 return;
              }
              else
+#endif
              {
 #if AD_TELEMETRY
                  [event setAPIStatus:@"succeeded"];

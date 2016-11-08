@@ -34,28 +34,4 @@
     return NO;
 }
 
-+ (void)invokeBroker:(NSDictionary *)brokerParams
-   completionHandler:(ADAuthenticationCallback)completion
-{
-    (void)brokerParams;
-    (void)completion;
-    
-    AD_LOG_ERROR(@"invokeBroker is called on Mac! This code should be unreachable.", AD_ERROR_TOKENBROKER_UNKNOWN, nil, nil);
-}
-
-+ (void)promptBrokerInstall:(NSDictionary *)brokerParams
-          completionHandler:(ADAuthenticationCallback)completion
-{
-    (void)brokerParams;
-    (void)completion;
-    
-    AD_LOG_ERROR(@"promptBrokerInstall is called on Mac! This code should be unreachable.", AD_ERROR_TOKENBROKER_UNKNOWN, nil, nil);
-}
-
-+ (ADAuthenticationCallback)copyAndClearCompletionBlock
-{
-    AD_LOG_ERROR(@"copyAndClearCompletionBlock is called on Mac! This code should be unreachable.", AD_ERROR_TOKENBROKER_UNKNOWN, nil, nil);
-    return nil;
-}
-
 @end
