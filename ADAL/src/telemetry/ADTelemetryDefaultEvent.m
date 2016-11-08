@@ -68,6 +68,12 @@ if (OBJECT) \
     return self;
 }
 
+- (id)initWithName:(NSString*)eventName
+           context:(id<ADRequestContext>)requestParams
+{
+    return [self initWithName:eventName requestId:requestParams.telemetryRequestId correlationId:requestParams.correlationId];
+}
+
 - (void)setProperty:(NSString*)name value:(NSString*)value
 {
     // value can be empty but not nil

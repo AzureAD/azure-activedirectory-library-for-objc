@@ -25,9 +25,11 @@
 
 @implementation ADTelemetryBrokerEvent
 
--(id) init
+- (id)initWithName:(NSString*)eventName
+         requestId:(NSString*)requestId
+     correlationId:(NSUUID*)correlationId
 {
-    self = [super init];
+    self = [super initWithName:eventName requestId:requestId correlationId:correlationId];
     if(self)
     {
         //this is the only broker for iOS

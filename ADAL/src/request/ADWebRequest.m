@@ -150,9 +150,8 @@
     
     SAFE_ARC_RELEASE(_connection);
     _connection     = nil;
-#if AD_TELEMETRY
+    
     [self stopTelemetryEvent:error response:response];
-#endif
     _completionHandler(error, response);
 }
 
@@ -181,9 +180,7 @@
 
 - (void)send
 {
-#if AD_TELEMETRY
     [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:@"http_request"];
-#endif
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
     //Correlation id:
     if (_correlationId)
