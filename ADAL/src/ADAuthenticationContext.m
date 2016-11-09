@@ -48,7 +48,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 @synthesize validateAuthority = _validateAuthority;
 @synthesize correlationId = _correlationId;
 @synthesize credentialsType = _credentialsType;
-//@synthesize extendedLifetimeEnabled = _extendedLifetimeEnabled; ADAL_RESILIENCY_NOT_YET
+@synthesize extendedLifetimeEnabled = _extendedLifetimeEnabled;
 @synthesize logComponent = _logComponent;
 @synthesize webView = _webView;
 
