@@ -24,11 +24,16 @@
 #import "ADAuthenticationSettings.h"
 #import "ADInstanceDiscovery.h"
 #import "ADTokenCache+Internal.h"
+#import "ADRequestParameters.h"
 #if TARGET_OS_IPHONE
 #import "ADKeychainTokenCache+Internal.h"
 #endif 
 
 #import "ADAuthenticationContext+Internal.h"
+#import "ADTelemetry.h"
+#import "ADTelemetry+Internal.h"
+#import "ADTelemetryAPIEvent.h"
+#import "ADUserIdentifier.h"
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 
@@ -43,7 +48,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 @synthesize validateAuthority = _validateAuthority;
 @synthesize correlationId = _correlationId;
 @synthesize credentialsType = _credentialsType;
-//@synthesize extendedLifetimeEnabled = _extendedLifetimeEnabled; ADAL_RESILIENCY_NOT_YET
+@synthesize extendedLifetimeEnabled = _extendedLifetimeEnabled;
 @synthesize logComponent = _logComponent;
 @synthesize webView = _webView;
 
@@ -79,33 +84,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     return self;
 }
 #endif
-
-- (id)initWithAuthority:(NSString *)authority
-      validateAuthority:(BOOL)validateAuthority
-             tokenCache:(id<ADTokenCacheDataSource>)tokenCache
-                  error:(ADAuthenticationError *__autoreleasing *)error
-{
-    API_ENTRY;
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
-    if (!extractedAuthority)
-    {
-        SAFE_ARC_RELEASE(self);
-        RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
-    }
-    
-    _authority = extractedAuthority;
-    _validateAuthority = validateAuthority;
-    _credentialsType = AD_CREDENTIALS_EMBEDDED;
-    _extendedLifetimeEnabled = NO;
-    [self setTokenCacheStore:tokenCache];
-
-    return self;
-}
 
 - (id)initWithAuthority:(NSString *)authority
       validateAuthority:(BOOL)validateAuthority
@@ -169,10 +147,16 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 {
     ADAuthenticationError* error = nil;
     
+    ADRequestParameters* requestParams = [[ADRequestParameters alloc] init];
+    [requestParams setAuthority:_authority];
+    [requestParams setResource:resource];
+    [requestParams setClientId:clientId];
+    [requestParams setRedirectUri:redirectUri];
+    [requestParams setTokenCache:_tokenCacheStore];
+    [requestParams setExtendedLifetime:_extendedLifetimeEnabled];
+
     ADAuthenticationRequest* request = [ADAuthenticationRequest requestWithContext:self
-                                                                       redirectUri:redirectUri
-                                                                          clientId:clientId
-                                                                          resource:resource
+                                                                     requestParams:requestParams
                                                                              error:&error];
     
     if (!request)
@@ -300,7 +284,9 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setSamlAssertion:assertion];
     [request setAssertionType:assertionType];
     
-    [request acquireToken:completionBlock];
+    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
+                    apiId:@"6"
+          completionBlock:completionBlock];
     
 }
 
@@ -313,7 +299,9 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     API_ENTRY;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     
-    [request acquireToken:completionBlock];
+    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
+                    apiId:@"118"
+          completionBlock:completionBlock];
 }
 
 - (void)acquireTokenWithResource:(NSString*)resource
@@ -326,9 +314,11 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     
     [request setUserId:userId];
-    [request acquireToken:completionBlock];
+    
+    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
+                    apiId:@"121"
+          completionBlock:completionBlock];
 }
-
 
 - (void)acquireTokenWithResource:(NSString*)resource
                         clientId:(NSString*)clientId
@@ -342,7 +332,10 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     
     [request setUserId:userId];
     [request setExtraQueryParameters:queryParams];
-    [request acquireToken:completionBlock];
+    
+    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
+                    apiId:@"124"
+          completionBlock:completionBlock];
 }
 
 - (void)acquireTokenSilentWithResource:(NSString*)resource
@@ -354,7 +347,9 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     
     [request setSilent:YES];
-    [request acquireToken:completionBlock];
+    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
+                    apiId:@"7"
+          completionBlock:completionBlock];
 }
 
 - (void)acquireTokenSilentWithResource:(NSString*)resource
@@ -368,7 +363,9 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     
     [request setUserId:userId];
     [request setSilent:YES];
-    [request acquireToken:completionBlock];
+    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
+                    apiId:@"8"
+          completionBlock:completionBlock];
 }
 
 - (void)acquireTokenWithResource:(NSString*)resource
@@ -385,7 +382,9 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setUserId:userId];
     [request setPromptBehavior:promptBehavior];
     [request setExtraQueryParameters:queryParams];
-    [request acquireToken:completionBlock];
+    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
+                    apiId:@"127"
+          completionBlock:completionBlock];
 }
 
 - (void)acquireTokenWithResource:(NSString*)resource
@@ -402,7 +401,9 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setPromptBehavior:promptBehavior];
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
-    [request acquireToken:completionBlock];
+    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
+                    apiId:@"130"
+          completionBlock:completionBlock];
 }
 
 @end

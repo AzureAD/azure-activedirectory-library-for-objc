@@ -245,7 +245,7 @@ correlationId:(NSUUID*)correlationId
         NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
                                        @{
                                          ADAL_ID_PLATFORM:@"OSX",
-                                         ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW],
+                                         ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH],
                                          ADAL_ID_OS_VER:[NSString stringWithFormat:@"%ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion],
                                          }];
 #endif
@@ -260,6 +260,11 @@ correlationId:(NSUUID*)correlationId
     });
     
     return s_adalId;
+}
+
++ (void)setAdalVersion:(NSString*)version
+{
+    [s_adalId setObject:version forKey:ADAL_ID_VERSION];
 }
 
 + (NSString*)getHash:(NSString*)input
@@ -282,7 +287,7 @@ correlationId:(NSUUID*)correlationId
     return [toReturn substringToIndex:7];
 }
 
-+ (NSString*) getAdalVersion
++ (NSString*)getAdalVersion
 {
     return ADAL_VERSION_NSSTRING;
 }

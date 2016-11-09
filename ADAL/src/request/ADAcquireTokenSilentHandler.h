@@ -28,13 +28,7 @@
 
 @interface ADAcquireTokenSilentHandler : NSObject
 {
-    NSString* _authority;
-    NSString* _resource;
-    NSString* _clientId;
-    NSString* _redirectUri;
-    ADUserIdentifier* _identifier;
-    NSUUID* _correlationId;
-    ADTokenCacheAccessor* _tokenCache;
+    ADRequestParameters* _requestParams;
     
     ADTokenCacheItem* _mrrtItem;
     ADTokenCacheItem* _extendedLifetimeAccessTokenItem; //store valid AT in terms of ext_expires_in (if find any)
@@ -47,14 +41,8 @@
     BOOL _attemptedFRT;
 }
 
-+ (void)acquireTokenSilentForAuthority:(NSString *)authority
-                              resource:(NSString *)resource
-                              clientId:(NSString *)clientId
-                           redirectUri:(NSString *)redirectUri
-                            identifier:(ADUserIdentifier *)identifier
-                         correlationId:(NSUUID *)correlationId
-                            tokenCache:(ADTokenCacheAccessor *)tokenCache
-                      extendedLifetime:(BOOL)extendedLifetime
-                       completionBlock:(ADAuthenticationCallback)completionBlock;
++ (ADAcquireTokenSilentHandler *)requestWithParams:(ADRequestParameters*)requestParams;
+
+- (void)getToken:(ADAuthenticationCallback)completionBlock;
 
 @end

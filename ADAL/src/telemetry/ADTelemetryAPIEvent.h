@@ -21,23 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAuthenticationRequest.h"
+#import "ADTelemetryDefaultEvent.h"
 
-@interface ADAuthenticationRequest (AcquireToken)
+@interface ADTelemetryAPIEvent : ADTelemetryDefaultEvent
 
-- (void)acquireToken:(NSString *)eventName
-               apiId:(NSString *)apiId
-     completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)setResultStatus:(ADAuthenticationResultStatus)status;
+- (void)setCorrelationId:(NSUUID*)correlationId;
+- (void)setUserId:(NSString*)userId;
+- (void)setClientId:(NSString*)clientId;
+- (void)setIsExtendedLifeTimeToken:(NSString*)isExtendedLifeToken;
+- (void)setErrorCode:(NSString*)errorCode;
+- (void)setProtocolCode:(NSString*)protocolCode;
+- (void)setErrorDescription:(NSString*)errorDescription;
+- (void)setErrorDomain:(NSString*)errorDomain;
 
-// For use after the authority has been validated
-- (void)validatedAcquireToken:(ADAuthenticationCallback)completionBlock;
+- (void)setAuthorityValidationStatus:(NSString*)status;
+- (void)setAuthority:(NSString*)authority;
 
-// Bypasses the cache and attempts to request a token from the server, generally called after
-// attempts to use cached tokens failed
-- (void)requestToken:(ADAuthenticationCallback)completionBlock;
+- (void)setGrantType:(NSString*)grantType;
+- (void)setAPIStatus:(NSString*)status;
 
-// Generic OAuth2 Authorization Request, obtains a token from an authorization code.
-- (void)requestTokenByCode:(NSString*)code
-           completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)setApiId:(NSString*)apiId;
 
 @end

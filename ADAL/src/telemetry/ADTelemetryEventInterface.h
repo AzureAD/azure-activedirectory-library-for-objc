@@ -21,23 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAuthenticationRequest.h"
+@protocol ADTelemetryEventInterface <NSObject>
 
-@interface ADAuthenticationRequest (AcquireToken)
+@property (readonly) NSMutableArray* propertyMap;
 
-- (void)acquireToken:(NSString *)eventName
-               apiId:(NSString *)apiId
-     completionBlock:(ADAuthenticationCallback)completionBlock;
-
-// For use after the authority has been validated
-- (void)validatedAcquireToken:(ADAuthenticationCallback)completionBlock;
-
-// Bypasses the cache and attempts to request a token from the server, generally called after
-// attempts to use cached tokens failed
-- (void)requestToken:(ADAuthenticationCallback)completionBlock;
-
-// Generic OAuth2 Authorization Request, obtains a token from an authorization code.
-- (void)requestTokenByCode:(NSString*)code
-           completionBlock:(ADAuthenticationCallback)completionBlock;
+- (NSInteger)getDefaultPropertyCount;
+- (void)setProperty:(NSString*)name value:(NSString*)value;
+- (NSArray*)getProperties;
+- (void)setStartTime:(NSDate*)time;
+- (void)setStopTime:(NSDate*)time;
+- (void)setResponseTime:(NSTimeInterval)responseTime;
 
 @end

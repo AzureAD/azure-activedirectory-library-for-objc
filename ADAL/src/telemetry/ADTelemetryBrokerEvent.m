@@ -21,61 +21,58 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADTelemetry.h"
-#import "ADTelemetryEventInterface.h"
-#import "ADDefaultDispatcher.h"
+#import "ADTelemetryBrokerEvent.h"
 
-@implementation ADDefaultDispatcher
+@implementation ADTelemetryBrokerEvent
 
-- (id)init
+- (id)initWithName:(NSString*)eventName
+         requestId:(NSString*)requestId
+     correlationId:(NSUUID*)correlationId
 {
-    //Ensure that the appropriate init function is called. This will cause the runtime to throw.
-    [super doesNotRecognizeSelector:_cmd];
-    return nil;
-}
-
-- (id)initWithDispatcher:(id<ADDispatcher>)dispatcher
-{
-    self = [super init];
-    if (self)
+    self = [super initWithName:eventName requestId:requestId correlationId:correlationId];
+    if(self)
     {
-        _objectsToBeDispatched = [NSMutableDictionary new];
-        _dispatchLock = [NSLock new];
-        
-        _dispatcher = dispatcher;
-        SAFE_ARC_RETAIN(_dispatcher);
+        //this is the only broker for iOS
+        [self setBrokerApp:@"Azure Authenticator"];
     }
+    
     return self;
 }
 
-- (void)flush:(NSString*)requestId
+
+- (void)setBrokerAppVersion:(NSString*)version
 {
-#pragma unused(requestId)
-    //default dispatcher does not cache any event
-    //so here is empty
+    [self setProperty:@"broker_app_version" value:version];
 }
 
-- (void)receive:(NSString *)requestId
-          event:(id<ADTelemetryEventInterface>)event
+- (void)setBrokerProtocolVersion:(NSString*)version
 {
-#pragma unused(requestId)
-    NSArray* properties = [event getProperties];
-    if (properties)
-    {
-        [_dispatcher dispatchEvent:properties];
+    [self setProperty:@"broker_protocol_version" value:version];
+}
+
+- (void)setResultStatus:(ADAuthenticationResultStatus)status
+{
+    NSString* statusStr = nil;
+    switch (status) {
+        case AD_SUCCEEDED:
+            statusStr = @"SUCCEEDED";
+            break;
+        case AD_FAILED:
+            statusStr = @"FAILED";
+            break;
+        case AD_USER_CANCELLED:
+            statusStr = @"USER_CANCELLED";
+            break;
+        default:
+            statusStr = @"UNKNOWN";
     }
+    
+    [self setProperty:@"status" value:statusStr];
 }
 
-- (void)dealloc
+- (void)setBrokerApp:(NSString*)appName
 {
-    SAFE_ARC_RELEASE(_dispatcher);
-    _dispatcher = nil;
-    SAFE_ARC_RELEASE(_objectsToBeDispatched);
-    _objectsToBeDispatched = nil;
-    SAFE_ARC_RELEASE(_dispatchLock);
-    _dispatchLock = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
+    [self setProperty:@"broker_app" value:appName];
 }
 
 @end

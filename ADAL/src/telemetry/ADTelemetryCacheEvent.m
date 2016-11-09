@@ -21,23 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADAuthenticationRequest.h"
+#import "ADTelemetryCacheEvent.h"
 
-@interface ADAuthenticationRequest (AcquireToken)
+@implementation ADTelemetryCacheEvent
 
-- (void)acquireToken:(NSString *)eventName
-               apiId:(NSString *)apiId
-     completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)setTokenType:(NSString*)tokenType
+{
+    [self setProperty:@"token_type" value:tokenType];
+}
 
-// For use after the authority has been validated
-- (void)validatedAcquireToken:(ADAuthenticationCallback)completionBlock;
-
-// Bypasses the cache and attempts to request a token from the server, generally called after
-// attempts to use cached tokens failed
-- (void)requestToken:(ADAuthenticationCallback)completionBlock;
-
-// Generic OAuth2 Authorization Request, obtains a token from an authorization code.
-- (void)requestTokenByCode:(NSString*)code
-           completionBlock:(ADAuthenticationCallback)completionBlock;
+- (void)setStatus:(NSString*)status
+{
+    [self setProperty:@"status" value:status];
+}
 
 @end

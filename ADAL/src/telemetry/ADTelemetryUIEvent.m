@@ -21,14 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@protocol ADEventInterface <NSObject>
+#import "ADTelemetryUIEvent.h"
 
-@property (readonly) NSMutableArray* propertyMap;
+@implementation ADTelemetryUIEvent
 
-- (NSInteger)getDefaultPropertyCount;
-- (void)setProperty:(NSString*)name value:(NSString*)value;
-- (NSArray*)getProperties;
-- (void)setStartTime:(NSDate*)time;
-- (void)setStopTime:(NSDate*)time;
+- (void)setLoginHint:(NSString*)hint
+{
+    [self setProperty:@"login_hint" value:[hint adComputeSHA256]];
+}
 
 @end
