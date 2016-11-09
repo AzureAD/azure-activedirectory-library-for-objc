@@ -43,21 +43,14 @@
 
 #import <libkern/OSAtomic.h>
 
-static ADAuthenticationRequest* s_modalRequest = nil;
-
 @implementation ADAuthenticationRequest (WebRequest)
-
-+ (ADAuthenticationRequest*)currentModalRequest
-{
-    return s_modalRequest;
-}
 
 - (void)executeRequest:(NSDictionary *)request_data
             completion:(ADAuthenticationCallback)completionBlock
 {
     NSString* urlString = [_context.authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
     ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString]
-                                                    requestParams:_requestParams];
+                                                          context:_requestParams];
     [req setRequestDictionary:request_data];
     [req sendRequest:^(NSDictionary *response)
      {
@@ -74,35 +67,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
      }];
 }
 
-//Ensures that a single UI login dialog can be requested at a time.
-//Returns true if successfully acquired the lock. If not, calls the callback with
-//the error and returns false.
-- (BOOL)takeExclusionLockWithCallback: (ADAuthorizationCodeCallback) completionBlock
-{
-    THROW_ON_NIL_ARGUMENT(completionBlock);
-    if ( ![self takeUserInterationLock] )
-    {
-        NSString* message = @"The user is currently prompted for credentials as result of another acquireToken request. Please retry the acquireToken call later.";
-        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS
-                                                                              protocolCode:nil
-                                                                              errorDetails:message
-                                                                             correlationId:[_requestParams correlationId]];
-        completionBlock(nil, error);
-        return NO;
-    }
-    
-    s_modalRequest = self;
-    return YES;
-}
-
-//Attempts to release the lock. Logs warning if the lock was already released.
--(void) releaseExclusionLock
-{
-    [self releaseUserInterationLock];
-    s_modalRequest = nil;
-}
-
-//Ensures that the state comes back in the response:
+// Ensures that the state comes back in the response:
 - (BOOL)verifyStateFromDictionary: (NSDictionary*) dictionary
 {
     NSDictionary *state = [NSDictionary adURLFormDecode:[[dictionary objectForKey:OAUTH2_STATE] adBase64UrlDecode]];
@@ -211,17 +176,13 @@ static ADAuthenticationRequest* s_modalRequest = nil;
     THROW_ON_NIL_ARGUMENT(completionBlock);
     [self ensureRequest];
     
-    AD_LOG_VERBOSE_F(@"Requesting authorization code.", [_requestParams correlationId], @"Requesting authorization code for resource: %@", [_requestParams resource]);
-    if (![self takeExclusionLockWithCallback:completionBlock])
-    {
-        return;
-    }
+    AD_LOG_VERBOSE_F(@"Requesting authorization code.", _requestParams.correlationId, @"Requesting authorization code for resource: %@", _requestParams.resource);
     
     NSString* startUrl = [self generateQueryStringForRequestType:OAUTH2_CODE];
     
     void(^requestCompletion)(ADAuthenticationError *error, NSURL *end) = ^void(ADAuthenticationError *error, NSURL *end)
     {
-        [self releaseExclusionLock]; // Allow other operations that use the UI for credentials.
+        [ADAuthenticationRequest releaseExclusionLock]; // Allow other operations that use the UI for credentials.
          
          NSString* code = nil;
          if (!error)
@@ -244,7 +205,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
                      NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
                                                         code:AD_ERROR_SERVER_WPJ_REQUIRED
                                                     userInfo:userInfo];
-                     error = [ADAuthenticationError errorFromNSError:err errorDetails:@"work place join is required"];
+                     error = [ADAuthenticationError errorFromNSError:err errorDetails:@"work place join is required" correlationId:_requestParams.correlationId];
                  }
 #else
                  code = end.absoluteString;
@@ -304,7 +265,7 @@ static ADAuthenticationRequest* s_modalRequest = nil;
         
         NSURL* reqURL = [NSURL URLWithString:[_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]];
         ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:reqURL
-                                                        requestParams:_requestParams];
+                                                              context:_requestParams];
         [req setIsGetRequest:YES];
         [req setRequestDictionary:requestData];
         [req sendRequest:^(NSDictionary * parameters)

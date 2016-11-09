@@ -38,8 +38,7 @@
 
 @implementation ADAcquireTokenSilentHandler
 
-+ (void)acquireTokenSilentForRequestParams:(ADRequestParameters*)requestParams
-                           completionBlock:(ADAuthenticationCallback)completionBlock
++ (ADAcquireTokenSilentHandler *)requestWithParams:(ADRequestParameters*)requestParams
 {
     ADAcquireTokenSilentHandler* handler = [ADAcquireTokenSilentHandler new];
     
@@ -49,23 +48,29 @@
     handler->_requestParams = requestParams;
     SAFE_ARC_RETAIN(requestParams);
     
-    [handler getAccessToken:^(ADAuthenticationResult *result)
+    return handler;
+}
+
+- (void)getToken:(ADAuthenticationCallback)completionBlock
+{
+    [self getAccessToken:^(ADAuthenticationResult *result)
      {
          // Logic for returning extended lifetime token
-         if ([requestParams extendedLifetime] && [handler isServerUnavailable:result] && handler->_extendedLifetimeAccessTokenItem)
+         if ([_requestParams extendedLifetime] && [self isServerUnavailable:result] && _extendedLifetimeAccessTokenItem)
          {
-             handler->_extendedLifetimeAccessTokenItem.expiresOn =
-             [handler->_extendedLifetimeAccessTokenItem.additionalServer valueForKey:@"ext_expires_on"];
+             _extendedLifetimeAccessTokenItem.expiresOn =
+             [_extendedLifetimeAccessTokenItem.additionalServer valueForKey:@"ext_expires_on"];
              
              // give the stale token as result
-             [ADLogger logToken:handler->_extendedLifetimeAccessTokenItem.accessToken
-                      tokenType:@"access token (extended lifetime)"
-                      expiresOn:handler->_extendedLifetimeAccessTokenItem.expiresOn
-                  correlationId:[handler->_requestParams correlationId]];
+             [ADLogger logToken:_extendedLifetimeAccessTokenItem.accessToken
+                      tokenType:@"AT (extended lifetime)"
+                      expiresOn:_extendedLifetimeAccessTokenItem.expiresOn
+                        context:@"Returning"
+                  correlationId:_requestParams.correlationId];
              
-             result = [ADAuthenticationResult resultFromTokenCacheItem:handler->_extendedLifetimeAccessTokenItem
+             result = [ADAuthenticationResult resultFromTokenCacheItem:_extendedLifetimeAccessTokenItem
                                              multiResourceRefreshToken:NO
-                                                         correlationId:[handler->_requestParams correlationId]];
+                                                         correlationId:[_requestParams correlationId]];
              [result setExtendedLifeTimeToken:YES];
          }
          
@@ -99,11 +104,11 @@
                          cacheItem:(ADTokenCacheItem*)cacheItem
                    completionBlock:(ADAuthenticationCallback)completionBlock
 {
-    NSUUID* correlationId = [_requestParams correlationId];
-    
-    AD_LOG_VERBOSE_F(@"Attempting to acquire an access token from refresh token.", correlationId, @"Resource: %@", [_requestParams resource]);
-
-    [ADLogger logToken:refreshToken tokenType:@"refresh token" expiresOn:nil correlationId:correlationId];
+    [ADLogger logToken:refreshToken
+             tokenType:@"RT"
+             expiresOn:nil
+               context:[NSString stringWithFormat:@"Attempting to acquire for %@ using", _requestParams.resource]
+         correlationId:_requestParams.correlationId];
     //Fill the data for the token refreshing:
     NSMutableDictionary *request_data = nil;
     
@@ -111,8 +116,8 @@
     {
         NSString* jwtToken = [self createAccessTokenRequestJWTUsingRT:cacheItem];
         request_data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                        [_requestParams redirectUri], @"redirect_uri",
-                        [_requestParams clientId], @"client_id",
+                        _requestParams.redirectUri, @"redirect_uri",
+                        _requestParams.clientId, @"client_id",
                         @"2.0", @"windows_api_version",
                         @"urn:ietf:params:oauth:grant-type:jwt-bearer", OAUTH2_GRANT_TYPE,
                         jwtToken, @"request",
@@ -135,7 +140,7 @@
     
     ADWebAuthRequest* webReq =
     [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:[[_requestParams authority] stringByAppendingString:OAUTH2_TOKEN_SUFFIX]]
-                            requestParams:_requestParams];
+                                  context:_requestParams];
     [webReq setRequestDictionary:request_data];
     AD_LOG_INFO_F(@"Attempting to acquire an access token from refresh token", nil, @"clientId: '%@'; resource: '%@';", [_requestParams clientId], [_requestParams resource]);
     [webReq sendRequest:^(NSDictionary *response)
@@ -149,13 +154,13 @@
          resultItem.authority = [_requestParams authority];
          
          
-         ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:correlationId];
+         ADAuthenticationResult *result = [resultItem processTokenResponse:response fromRefresh:YES requestCorrelationId:_requestParams.correlationId];
          if (cacheItem)//The request came from the cache item, update it:
          {
              [[_requestParams tokenCache] updateCacheToResult:result
                                                     cacheItem:resultItem
                                                  refreshToken:refreshToken
-                                                requestParams:_requestParams];
+                                                      context:_requestParams];
          }
          result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];//Verify the user (just in case)
          //
@@ -273,7 +278,7 @@
     ADTokenCacheItem* item = [[_requestParams tokenCache] getATRTItemForUser:[_requestParams identifier]
                                                                     resource:[_requestParams resource]
                                                                     clientId:[_requestParams clientId]
-                                                               requestParams:_requestParams
+                                                                     context:_requestParams
                                                                        error:&error];
     // If some error ocurred during the cache lookup then we need to fail out right away.
     if (!item && error)
@@ -286,7 +291,10 @@
     // and we need to check the unknown user ADFS token as well
     if (!item)
     {
-        item = [[_requestParams tokenCache] getADFSUserTokenForResource:[_requestParams resource] clientId:[_requestParams clientId] requestParams:_requestParams error:&error];
+        item = [[_requestParams tokenCache] getADFSUserTokenForResource:[_requestParams resource]
+                                                               clientId:[_requestParams clientId]
+                                                                context:_requestParams
+                                                                  error:&error];
         if (!item && error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
@@ -305,8 +313,15 @@
     // If we have a good (non-expired) access token then return it right away
     if (item.accessToken && !item.isExpired)
     {
-        [ADLogger logToken:item.accessToken tokenType:@"access token" expiresOn:item.expiresOn correlationId:correlationId];
-        ADAuthenticationResult* result = [ADAuthenticationResult resultFromTokenCacheItem:item multiResourceRefreshToken:NO correlationId:correlationId];
+        [ADLogger logToken:item.accessToken
+                 tokenType:@"AT"
+                 expiresOn:item.expiresOn
+                   context:@"Returning"
+             correlationId:_requestParams.correlationId];
+        ADAuthenticationResult* result =
+        [ADAuthenticationResult resultFromTokenCacheItem:item
+                               multiResourceRefreshToken:NO
+                                           correlationId:correlationId];
         completionBlock(result);
         return;
     }
@@ -368,7 +383,10 @@
     // If we don't have an item yet see if we can pull one out of the cache
     if (!_mrrtItem)
     {
-        _mrrtItem = [[_requestParams tokenCache] getMRRTItemForUser:[_requestParams identifier] clientId:[_requestParams clientId] requestParams:_requestParams error:&error];
+        _mrrtItem = [[_requestParams tokenCache] getMRRTItemForUser:[_requestParams identifier]
+                                                           clientId:[_requestParams clientId]
+                                                            context:_requestParams
+                                                              error:&error];
         if (!_mrrtItem && error)
         {
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);
@@ -429,7 +447,10 @@
     _attemptedFRT = YES;
     
     ADAuthenticationError* error = nil;
-    ADTokenCacheItem* frtItem = [[_requestParams tokenCache] getFRTItemForUser:[_requestParams identifier] familyId:familyId requestParams:_requestParams error:&error];
+    ADTokenCacheItem* frtItem = [[_requestParams tokenCache] getFRTItemForUser:[_requestParams identifier]
+                                                                      familyId:familyId
+                                                                       context:_requestParams
+                                                                         error:&error];
     if (!frtItem && error)
     {
         completionBlock([ADAuthenticationResult resultFromError:error correlationId:[_requestParams correlationId]]);

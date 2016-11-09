@@ -43,6 +43,6 @@
 @property (readonly) NSDate* startTime;
 
 - (void)setRequestDictionary:(NSDictionary<NSString*, NSString*> *)requestDictionary;
-- (void)sendRequest:(void(^)(NSDictionary *))completionBlock;
+- (void)sendRequest:(ADWebResponseCallback)completionBlock;
 
 @end

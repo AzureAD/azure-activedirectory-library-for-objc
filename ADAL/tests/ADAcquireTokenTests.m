@@ -187,6 +187,29 @@ const int sAsyncContextTimeout = 10;
     TEST_WAIT;
 }
 
+- (void)testBadExtraQueryParameters
+{
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                               userId:TEST_USER_ID
+                 extraQueryParameters:@"login_hint=test1@馬克英家.com"
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+         ADTAssertContains(result.error.errorDetails, @"extraQueryParameters");
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+}
+
 - (void)testAssertionBadAssertion
 {
     ADAuthenticationContext* context = [self getTestAuthenticationContext];

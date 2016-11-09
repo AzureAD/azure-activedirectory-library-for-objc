@@ -22,32 +22,17 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "ADTokenCache.h"
 
-//Identifies one testable instance, e.g.
-//an AAD tenant with suitable user name password
-//and a client accessing a resource
-@interface ADTestInstance : NSObject
+@interface ADTestAppCache : NSObject <ADTokenCacheDelegate>
 {
-//@private:
-    NSString *_authority;
-    NSString *_clientId;
-    NSString *_resource;
-    NSString *_redirectUri;
-    NSString *_userId;
-    NSString *_password;
-    NSString *_extraQueryParameters;
-    BOOL      _validateAuthority;
+    NSData* _data;
+    NSDate* _lastUpdated;
 }
 
--(id) initWithDictionary: (NSDictionary*) contents;
++ (ADTestAppCache *)sharedCache;
 
-@property (retain) NSString* authority;
-@property BOOL      validateAuthority;
-@property (retain) NSString* clientId;
-@property (retain) NSString* resource;
-@property (retain) NSString* redirectUri;
-@property (retain) NSString* userId;
-@property (retain) NSString* password;//used for automation in the tests
-@property (retain) NSString* extraQueryParameters;//Typically null and set by tests when needed
+- (void)readFromFile:(NSString *)filePath;
+- (void)writeToFile:(NSString *)filePath;
 
 @end

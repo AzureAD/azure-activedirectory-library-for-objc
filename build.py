@@ -1,5 +1,28 @@
 #!/usr/bin/env python
 
+# Copyright (c) Microsoft Corporation.
+# All rights reserved.
+#
+# This code is licensed under the MIT License.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files(the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions :
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
 import subprocess
 import sys
 
@@ -33,7 +56,8 @@ build_targets = [
 		"name" : "Sample Swift App",
 		"scheme" : "SampleSwiftApp",
 		"operations" : [ "build" ],
-		"platform" : "iOS"
+		"platform" : "iOS",
+		"project" : "Samples/SampleSwiftApp/SampleSwiftApp.xcodeproj",
 	},
 	{
 		"name" : "Mac Framework",
@@ -71,10 +95,17 @@ def print_operation_end(name, operation, exit_code) :
 def do_ios_build(target, operation) :
 	name = target["name"]
 	scheme = target["scheme"]
+	project = target.get("project")
 
 	print_operation_start(name, operation)
 
-	command = "xcodebuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest + " | xcpretty"
+	command = "xcodebuild " + operation
+	if (project != None) :
+		command += " -project " + project
+	else :
+		command += " -workspace " + default_workspace
+		
+	command += " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest + " | xcpretty"
 	print command
 	exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
 

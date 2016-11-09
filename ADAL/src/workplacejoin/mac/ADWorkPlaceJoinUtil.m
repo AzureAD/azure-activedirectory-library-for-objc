@@ -28,17 +28,8 @@
 + (ADRegistrationInformation*)getRegistrationInformation:(NSUUID *)correlationId
                                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
-    ADAuthenticationError* adError =
-    [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_SERVER_UNSUPPORTED_REQUEST
-                                           protocolCode:nil
-                                           errorDetails:@"Conditional Access is not supported on macOS."
-                                          correlationId:correlationId];
-    
-    if (error)
-    {
-        *error = adError;
-    }
-    
+    (void)correlationId;
+    (void)error;
     return nil;
 }
 

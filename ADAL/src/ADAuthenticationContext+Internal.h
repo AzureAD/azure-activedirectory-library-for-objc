@@ -45,8 +45,6 @@
 #import "ADOAuth2Constants.h"
 #import "ADTokenCacheAccessor.h"
 
-typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
-
 extern NSString* const ADUnknownError;
 extern NSString* const ADCredentialsNeeded;
 extern NSString* const ADInteractionNotSupportedInExtension;
@@ -69,6 +67,11 @@ extern NSString* const ADRedirectUriInvalidError;
 + (ADAuthenticationError*)errorFromDictionary:(NSDictionary *)dictionary
                                     errorCode:(ADErrorCode)errorCode;
 
+
+- (id)initWithAuthority:(NSString *)authority
+      validateAuthority:(BOOL)validateAuthority
+             tokenCache:(id<ADTokenCacheDataSource>)tokenCache
+                  error:(ADAuthenticationError *__autoreleasing *)error;
 
 + (BOOL)isFinalResult:(ADAuthenticationResult *)result;
 

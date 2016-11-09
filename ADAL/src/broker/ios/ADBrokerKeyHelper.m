@@ -30,6 +30,8 @@
 #import <Security/Security.h>
 #import "ADLogger+Internal.h"
 
+static NSData* s_symmetricKeyOverride = nil;
+
 @implementation ADBrokerKeyHelper
 
 enum {
@@ -165,6 +167,11 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
         return _symmetricKey;
     }
     
+    if (s_symmetricKeyOverride)
+    {
+        return s_symmetricKeyOverride;
+    }
+    
     NSDictionary* symmetricKeyQuery =
     @{
       (id)kSecClass : (id)kSecClassKey,
@@ -279,4 +286,17 @@ static const uint8_t symmetricKeyIdentifier[]   = kSymmetricKeyTag;
     SAFE_ARC_RETAIN(_symmetricKey);
 }
 
-@end;
++ (void)setSymmetricKey:(NSString *)base64Key
+{
+    SAFE_ARC_RELEASE(s_symmetricKeyOverride);
+    if (base64Key)
+    {
+        s_symmetricKeyOverride = [[NSData alloc] initWithBase64EncodedString:base64Key options:0];
+    }
+    else
+    {
+        s_symmetricKeyOverride = nil;
+    }
+}
+
+@end

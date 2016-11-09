@@ -42,9 +42,8 @@
 
 #include <libkern/OSAtomic.h>
 
-// Used to make sure one interactive request is going on at a time,
-// either launching webview or broker
-static dispatch_semaphore_t sInteractionInProgress = nil;
+static ADAuthenticationRequest* s_modalRequest = nil;
+static dispatch_semaphore_t s_interactionLock = nil;
 
 @implementation ADAuthenticationRequest
 
@@ -62,7 +61,7 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
 
 + (void)initialize
 {
-    sInteractionInProgress = dispatch_semaphore_create(1);
+    s_interactionLock = dispatch_semaphore_create(1);
 }
 
 + (ADAuthenticationRequest *)requestWithAuthority:(NSString *)authority
@@ -204,19 +203,14 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
 
 - (NSString*)redirectUri
 {
-    return _redirectUri;
+    return _requestParams.redirectUri;
 }
 
 - (void)setRedirectUri:(NSString *)redirectUri
 {
     // We knowingly do this mid-request when we have to change auth types
     // Thus no CHECK_REQUEST_STARTED
-    if (_redirectUri == redirectUri)
-    {
-        return;
-    }
-    SAFE_ARC_RELEASE(_redirectUri);
-    _redirectUri = [redirectUri copy];
+    [_requestParams setRedirectUri:redirectUri];
 }
 
 - (void)setAllowSilentRequests:(BOOL)allowSilent
@@ -306,15 +300,45 @@ static dispatch_semaphore_t sInteractionInProgress = nil;
     return _requestParams;
 }
 
-- (BOOL)takeUserInterationLock
+/*!
+    Takes the UI interaction lock for the current request, will send an error
+    to completionBlock if it fails.
+ 
+    @param copmletionBlock  the ADAuthenticationCallback to send an error to if
+                            one occurs.
+ 
+    @return NO if we fail to take the exclusion lock
+ */
+- (BOOL)takeExclusionLock:(ADAuthenticationCallback)completionBlock
 {
-    return !dispatch_semaphore_wait(sInteractionInProgress, DISPATCH_TIME_NOW);
+    THROW_ON_NIL_ARGUMENT(completionBlock);
+    if (dispatch_semaphore_wait(s_interactionLock, DISPATCH_TIME_NOW) != 0)
+    {
+        NSString* message = @"The user is currently prompted for credentials as result of another acquireToken request. Please retry the acquireToken call later.";
+        ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_MULTLIPLE_INTERACTIVE_REQUESTS
+                                                                              protocolCode:nil
+                                                                              errorDetails:message
+                                                                             correlationId:_requestParams.correlationId];
+        completionBlock([ADAuthenticationResult resultFromError:error]);
+        return NO;
+    }
+    
+    s_modalRequest = self;
+    return YES;
 }
 
-- (BOOL)releaseUserInterationLock
+/*!
+    Releases the exclusion lock
+ */
++ (void)releaseExclusionLock
 {
-    dispatch_semaphore_signal(sInteractionInProgress);
-    return YES;
+    dispatch_semaphore_signal(s_interactionLock);
+    s_modalRequest = nil;
+}
+
++ (ADAuthenticationRequest*)currentModalRequest
+{
+    return s_modalRequest;
 }
 
 @end

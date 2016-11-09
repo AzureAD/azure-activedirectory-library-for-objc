@@ -89,33 +89,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 
 - (id)initWithAuthority:(NSString *)authority
       validateAuthority:(BOOL)validateAuthority
-             tokenCache:(id<ADTokenCacheDataSource>)tokenCache
-                  error:(ADAuthenticationError *__autoreleasing *)error
-{
-    API_ENTRY;
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
-    if (!extractedAuthority)
-    {
-        SAFE_ARC_RELEASE(self);
-        RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
-    }
-    
-    _authority = extractedAuthority;
-    _validateAuthority = validateAuthority;
-    _credentialsType = AD_CREDENTIALS_EMBEDDED;
-    _extendedLifetimeEnabled = NO;
-    [self setTokenCacheStore:tokenCache];
-
-    return self;
-}
-
-- (id)initWithAuthority:(NSString *)authority
-      validateAuthority:(BOOL)validateAuthority
           cacheDelegate:(id<ADTokenCacheDelegate>) delegate
                   error:(ADAuthenticationError * __autoreleasing *)error
 {
@@ -151,8 +124,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         return nil;
     }
 #else
-    tokenCache = [ADTokenCache new];
-    [(ADTokenCache*)tokenCache setDelegate:[ADAuthenticationSettings sharedInstance].defaultStorageDelegate];
+    tokenCache = [ADTokenCache defaultCache];
 #endif
     
     return [self initWithAuthority:authority
@@ -272,9 +244,9 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [NSString adSame:sourceApplication toString:@"com.microsoft.azureauthenticator"];
 }
 
-+ (void)handleBrokerResponse:(NSURL*)response
++ (BOOL)handleBrokerResponse:(NSURL*)response
 {
-    [ADAuthenticationRequest internalHandleBrokerResponse:response];
+    return [ADAuthenticationRequest internalHandleBrokerResponse:response];
 }
 
 #define REQUEST_WITH_REDIRECT_STRING(_redirect, _clientId, _resource) \

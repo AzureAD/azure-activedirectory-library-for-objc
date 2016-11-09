@@ -291,7 +291,7 @@ static NSString* const sValidationServerError = @"The authority validation serve
     
     AD_LOG_VERBOSE(@"Authority Validation Request", correlationId, endPoint);
     ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
-                                                   requestParams:requestParams];
+                                                         context:requestParams];
     
     [webRequest setIsGetRequest:YES];
     [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
@@ -364,7 +364,15 @@ static NSString* const sValidationServerError = @"The authority validation serve
     {
         return nil;
     }
-    trimmedAuthority = [NSString stringWithFormat:@"%@://%@/%@", scheme, host, tenant];
+    NSNumber* port = url.port;
+    if (port)
+    {
+        trimmedAuthority = [NSString stringWithFormat:@"%@://%@:%d/%@", scheme, host, port.intValue, tenant];
+    }
+    else
+    {
+        trimmedAuthority = [NSString stringWithFormat:@"%@://%@/%@", scheme, host, tenant];
+    }
     
     return trimmedAuthority;
 }

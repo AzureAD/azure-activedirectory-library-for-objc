@@ -163,8 +163,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)handlePKeyAuthChallenge:(NSString *)challengeUrl
 {
-    
-    AD_LOG_VERBOSE(@"Handling PKeyAuth Challenge", nil, nil);
+    AD_LOG_INFO(@"Handling PKeyAuth Challenge", nil, nil);
     
     NSArray * parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
@@ -359,7 +358,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         // client cert auth flow
         if ([[[request.URL scheme] lowercaseString] isEqualToString:@"msauth"])
         {
-            dispatch_async( dispatch_get_main_queue(), ^{ [_delegate webAuthDidCompleteWithURL:request.URL]; } );
+            [self webAuthDidCompleteWithURL:request.URL];
             return NO;
         }
 #endif
@@ -424,6 +423,13 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 {
     // Ignore WebKitError 102 for OAuth 2.0 flow.
     if ([error.domain isEqualToString:@"WebKitErrorDomain"] && error.code == 102)
+    {
+        return;
+    }
+    
+    // Prior to iOS 10 the WebView trapped out this error code and didn't pass it along to us
+    // now we have to trap it out ourselves.
+    if ([error.domain isEqualToString:NSCocoaErrorDomain] && error.code == NSUserCancelledError)
     {
         return;
     }
@@ -524,6 +530,7 @@ static ADAuthenticationResult* s_result = nil;
 
 - (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError*)error
 {
+    AD_LOG_ERROR_F(@"Application is cancelling current web auth session.", error.code, _correlationId, @"error = %@", error);
     return [self endWebAuthenticationWithError:error orURL:nil];
 }
 

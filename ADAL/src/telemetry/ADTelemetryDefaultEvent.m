@@ -61,7 +61,7 @@ if (OBJECT) \
     
     _propertyMap = [[self defaultParameters] mutableCopy];
     SET_IF_NOT_NIL(_propertyMap, @"request_id", requestId);
-    SET_IF_NOT_NIL(_propertyMap, @"correlation_id", [correlationId UUIDString]);
+    SET_IF_NOT_NIL(_propertyMap, TELEMETRY_CORRELATION_ID, [correlationId UUIDString]);
     _defaultPropertyCount = [_propertyMap count];
     
     SET_IF_NOT_NIL(_propertyMap, @"event_name", eventName);

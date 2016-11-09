@@ -33,6 +33,7 @@
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
 #import "ADTelemetryEventStrings.h"
+#import "ADBrokerHelper.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -44,14 +45,33 @@
     THROW_ON_NIL_ARGUMENT(completionBlock);
     AD_REQUEST_CHECK_ARGUMENT([_requestParams resource]);
     [self ensureRequest];
-    NSUUID* correlationId = [_requestParams correlationId];
 #if AD_TELEMETRY
     NSString* telemetryRequestId = [_requestParams telemetryRequestId];
 #endif
     
-    NSString* log = [NSString stringWithFormat:@"acquireToken (authority = %@, resource = %@, clientId = %@, idtype = %@)",
-                     [_requestParams authority], [_requestParams resource], [_requestParams clientId], [[_requestParams identifier] typeAsString]];
-    AD_LOG_INFO_F(log, correlationId, @"userId = %@", [_requestParams identifier].userId);
+    __block NSString* log = [NSString stringWithFormat:@"##### BEGIN acquireToken%@ (authority = %@, resource = %@, clientId = %@, idtype = %@) #####",
+                             _silent ? @"Silent" : @"", _requestParams.authority, _requestParams.resource, _requestParams.clientId, [_requestParams.identifier typeAsString]];
+    AD_LOG_INFO_F(log, _requestParams.correlationId, @"userId = %@", _requestParams.identifier.userId);
+    
+    ADAuthenticationCallback wrappedCallback = ^void(ADAuthenticationResult* result)
+    {
+        NSString* finalLog = nil;
+        if (result.status == AD_SUCCEEDED)
+        {
+            finalLog = [NSString stringWithFormat:@"##### END %@ succeeded. #####", log];
+        }
+        else
+        {
+            ADAuthenticationError* error = result.error;
+            finalLog = [NSString stringWithFormat:@"##### END %@ failed { domain: %@ code: %ld protocolCode: %@ errorDetails: %@} #####",
+                        log, error.domain, (long)error.code, error.protocolCode, error.errorDetails];
+        }
+        
+        
+        AD_LOG_INFO(finalLog, result.correlationId, nil);
+        
+        completionBlock(result);
+    };
     
     if (!_silent && ![NSThread isMainThread])
     {
@@ -59,26 +79,37 @@
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_UI_NOT_ON_MAIN_THREAD
                                                protocolCode:nil
                                                errorDetails:@"Interactive authentication requests must originate from the main thread"
-                                              correlationId:correlationId];
+                                              correlationId:_requestParams.correlationId];
         
-        completionBlock([ADAuthenticationResult resultFromError:error]);
+        wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
         return;
     }
     
-    if (!_silent && _context.credentialsType == AD_CREDENTIALS_AUTO && ![ADAuthenticationRequest validBrokerRedirectUri:[_requestParams redirectUri]])
+    if (![self checkExtraQueryParameters])
+    {
+        ADAuthenticationError* error =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+                                               protocolCode:nil
+                                               errorDetails:@"extraQueryParameters is not properly encoded. Please make sure it is URL encoded."
+                                              correlationId:_requestParams.correlationId];
+        wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+        return;
+    }
+    
+    if (!_silent && _context.credentialsType == AD_CREDENTIALS_AUTO && ![ADAuthenticationRequest validBrokerRedirectUri:_requestParams.redirectUri])
     {
         ADAuthenticationError* error =
         [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI
                                                protocolCode:nil
                                                errorDetails:ADRedirectUriInvalidError
-                                              correlationId:correlationId];
-        completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
+                                              correlationId:_requestParams.correlationId];
+        wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
         return;
     }
     
     if (!_context.validateAuthority)
     {
-        [self validatedAcquireToken:completionBlock];
+        [self validatedAcquireToken:wrappedCallback];
         return;
     }
 #if AD_TELEMETRY
@@ -100,14 +131,31 @@
 #endif
          if (error)
          {
-             completionBlock([ADAuthenticationResult resultFromError:error correlationId:correlationId]);
+             wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
          }
          else
          {
-             [self validatedAcquireToken:completionBlock];
+             [self validatedAcquireToken:wrappedCallback];
          }
      }];
+    
+}
 
+- (BOOL)checkExtraQueryParameters
+{
+    if ([NSString adIsStringNilOrBlank:_queryParams])
+    {
+        return YES;
+    }
+    
+    NSString* queryParams = _queryParams.adTrimmedString;
+    if ([queryParams hasPrefix:@"&"])
+    {
+        queryParams = [queryParams substringFromIndex:1];
+    }
+    NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?%@", _context.authority, queryParams]];
+    
+    return url!=nil;
 }
 
 - (void)validatedAcquireToken:(ADAuthenticationCallback)completionBlock
@@ -119,8 +167,8 @@
 #if AD_TELEMETRY
         [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"acquire_token_silent_handler"];
 #endif
-        [ADAcquireTokenSilentHandler acquireTokenSilentForRequestParams:_requestParams
-                                                        completionBlock:^(ADAuthenticationResult *result)
+        ADAcquireTokenSilentHandler* request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams];
+        [request getToken:^(ADAuthenticationResult *result)
         {
 #if AD_TELEMETRY
             ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquire_token_silent_handler"
@@ -197,12 +245,33 @@
             return;
         }
     }
-
-#if !AD_BROKER
-    //call the broker.
-    if([self canUseBroker])
+    
+    if (![self takeExclusionLock:completionBlock])
     {
-        [self callBroker:completionBlock];
+        return;
+    }
+    
+    [self requestTokenImpl:^(ADAuthenticationResult *result)
+    {
+        [ADAuthenticationRequest releaseExclusionLock];
+        completionBlock(result);
+    }];
+}
+
+- (void)requestTokenImpl:(ADAuthenticationCallback)completionBlock
+{
+#if !AD_BROKER && TARGET_OS_IPHONE
+    //call the broker.
+    if ([self canUseBroker])
+    {
+        ADAuthenticationError* error = nil;
+        NSURL* brokerURL = [self composeBrokerRequest:&error];
+        if (!brokerURL)
+        {
+            completionBlock([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+            return;
+        }
+        [ADBrokerHelper invokeBroker:brokerURL completionHandler:completionBlock];
         return;
     }
 #endif
@@ -218,7 +287,7 @@
 #if AD_TELEMETRY
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authorization_code"
                                                                       requestId:telemetryRequestId
-                                                                  correlationId:correlationId];
+                                                                  correlationId:_requestParams.correlationId];
 #endif
 
          if (error)
@@ -230,49 +299,59 @@
                  return;
              }
              
-             ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:correlationId]
-             : [ADAuthenticationResult resultFromError:error correlationId:correlationId];
+             ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_requestParams.correlationId]
+             : [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
 #if AD_TELEMETRY
              [event setAPIStatus:(AD_ERROR_UI_USER_CANCEL == error.code) ? @"canceled":@"failed"];
-             [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
+             [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
 #endif
              completionBlock(result);
          }
          else
          {
+#if TARGET_OS_IPHONE
              if([code hasPrefix:@"msauth://"])
              {
-#if AD_TELEMETRY
-                 [event setAPIStatus:@"try to invoke broker from webview"];
-                 [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
-#endif
+                 ADAuthenticationError* error = nil;
+                 NSURL* brokerRequestURL = [self composeBrokerRequest:&error];
+                 if (!brokerRequestURL)
+                 {
+                     completionBlock([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+                     return;
+                 }
                  
-                 [self handleBrokerFromWebiewResponse:code
-                                      completionBlock:completionBlock];
+                 [ADBrokerHelper promptBrokerInstall:[NSURL URLWithString:code]
+                                       brokerRequest:brokerRequestURL
+                                   completionHandler:completionBlock];
+                 return;
              }
              else
+#endif
              {
 #if AD_TELEMETRY
                  [event setAPIStatus:@"succeeded"];
-                 [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
+                 [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
                  
-                 [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:@"token_grant"];
+                 [[ADTelemetry sharedInstance] startEvent:_requestParams.telemetryRequestId eventName:@"token_grant"];
 #endif
                  [self requestTokenByCode:code
                           completionBlock:^(ADAuthenticationResult *result)
                   {
 #if AD_TELEMETRY
                       ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"token_grant"
-                                                                                   requestId:telemetryRequestId
-                                                                               correlationId:correlationId];
+                                                                                   requestId:_requestParams.telemetryRequestId
+                                                                               correlationId:_requestParams.correlationId];
                       [event setGrantType:@"by code"];
                       [event setResultStatus:[result status]];
-                      [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
+                      [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
                       SAFE_ARC_RELEASE(event);
 #endif
                       if (AD_SUCCEEDED == result.status)
                       {
-                          [[_requestParams tokenCache] updateCacheToResult:result cacheItem:nil refreshToken:nil requestParams:_requestParams];
+                          [[_requestParams tokenCache] updateCacheToResult:result
+                                                                 cacheItem:nil
+                                                              refreshToken:nil
+                                                                   context:_requestParams];
                           result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
                       }
                       completionBlock(result);
@@ -300,7 +379,7 @@
                                          [_requestParams clientId], OAUTH2_CLIENT_ID,
                                          [_requestParams redirectUri], OAUTH2_REDIRECT_URI,
                                          nil];
-    if(![NSString adIsStringNilOrBlank:_scope])
+    if (![NSString adIsStringNilOrBlank:_scope])
     {
         [request_data setValue:_scope forKey:OAUTH2_SCOPE];
     }

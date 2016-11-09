@@ -28,37 +28,42 @@
 
 - (void)setHttpMethod:(NSString*)method
 {
-    [self setProperty:@"http_method" value:method];
+    [self setProperty:TELEMETRY_HTTP_METHOD value:method];
 }
 
 - (void)setHttpPath:(NSString*)path
 {
-    [self setProperty:@"http_path" value:path];
+    [self setProperty:TELEMETRY_HTTP_PATH value:path];
 }
 
 - (void)setHttpResponseCode:(NSString*)code
 {
-    [self setProperty:@"http_response_code" value:code];
+    [self setProperty:TELEMETRY_HTTP_RESPONSE_CODE value:code];
+}
+
+- (void)setOAuthErrorCode:(NSString*)code
+{
+    [self setProperty:TELEMETRY_OAUTH_ERROR_CODE value:code];
 }
 
 - (void)setHttpResponseMethod:(NSString*)method
 {
-    [self setProperty:@"http_response_method" value:method];
+    [self setProperty:TELEMETRY_HTTP_RESPONSE_METHOD value:method];
 }
 
 - (void)setHttpRequestQueryParams:(NSString*)params
 {
-    [self setProperty:@"request_query_params" value:params];
+    [self setProperty:TELEMETRY_REQUEST_QUERY_PARAMS value:params];
 }
 
 - (void)setHttpUserAgent:(NSString*)userAgent
 {
-    [self setProperty:@"user_agent" value:userAgent];
+    [self setProperty:TELEMETRY_USER_AGENT value:userAgent];
 }
 
 - (void)setHttpErrorDomain:(NSString*)errorDomain
 {
-    [self setProperty:@"http_error_domain" value:errorDomain];
+    [self setProperty:TELEMETRY_HTTP_ERROR_DOMAIN value:errorDomain];
 }
 
 - (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
@@ -73,6 +78,18 @@
         httpEventCount = [[eventToBeDispatched objectForKey:TELEMETRY_HTTP_EVENT_COUNT] intValue] + 1;
     }
     [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", httpEventCount] forKey:TELEMETRY_HTTP_EVENT_COUNT];
+    
+    NSArray* properties = [self getProperties];
+    for (NSArray* property in properties)
+    {
+        if ([property[0] isEqualToString:TELEMETRY_HTTP_RESPONSE_CODE]
+            ||[property[0] isEqualToString:TELEMETRY_OAUTH_ERROR_CODE]
+            ||[property[0] isEqualToString:TELEMETRY_HTTP_ERROR_DOMAIN]
+            ||[property[0] isEqualToString:TELEMETRY_HTTP_PATH])
+        {
+            [eventToBeDispatched setObject:property[1] forKey:property[0]];
+        }
+    }
 }
 
 - (NSString*)scrubTenantFromUrl:(NSString*)url

@@ -51,7 +51,7 @@
 
 - (void)setCorrelationId:(NSUUID*)correlationId
 {
-    [self setProperty:@"correlation_id" value:[correlationId UUIDString]];
+    [self setProperty:TELEMETRY_CORRELATION_ID value:[correlationId UUIDString]];
 }
 
 - (void)setExtendedExpiresOnSetting:(NSString*)extendedExpiresOnSetting
@@ -68,32 +68,32 @@
 
 - (void)setClientId:(NSString*)clientId
 {
-    [self setProperty:@"client_id" value:clientId];
+    [self setProperty:TELEMETRY_CLIENT_ID value:clientId];
 }
 
 - (void)setIsExtendedLifeTimeToken:(NSString*)isExtendedLifeToken
 {
-    [self setProperty:@"is_extended_life_time_token" value:isExtendedLifeToken];
+    [self setProperty:TELEMETRY_IS_EXTENED_LIFE_TIME_TOKEN value:isExtendedLifeToken];
 }
 
 - (void)setErrorCode:(NSString*)errorCode
 {
-    [self setProperty:@"error_code" value:errorCode];
+    [self setProperty:TELEMETRY_ERROR_CODE value:errorCode];
 }
 
 - (void)setProtocolCode:(NSString*)protocolCode
 {
-    [self setProperty:@"protocol_code" value:protocolCode];
+    [self setProperty:TELEMETRY_PROTOCOL_CODE value:protocolCode];
 }
 
 - (void)setErrorDescription:(NSString*)errorDescription
 {
-    [self setProperty:@"error_description" value:errorDescription];
+    [self setProperty:TELEMETRY_ERROR_DESCRIPTION value:errorDescription];
 }
 
 - (void)setErrorDomain:(NSString*)errorDomain
 {
-    [self setProperty:@"error_domain" value:errorDomain];
+    [self setProperty:TELEMETRY_ERROR_DOMAIN value:errorDomain];
 }
 
 - (void)setAuthorityValidationStatus:(NSString*)status
@@ -156,7 +156,6 @@
 {
     [super processEvent:eventToBeDispatched];
     
-    (void)eventToBeDispatched;
     NSArray* properties = [self getProperties];
     for (NSArray* property in properties)
     {

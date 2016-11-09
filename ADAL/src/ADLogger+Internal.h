@@ -87,6 +87,8 @@
  the actual contents, but still want to log something that can be correlated. */
 + (NSString*)getHash:(NSString*)input;
 
++ (void)setAdalVersion:(NSString*)version;
+
 + (NSString*)getAdalVersion;
 
 + (NSString*)getCPUInfo;
@@ -124,10 +126,11 @@ correlationId:(NSUUID *)correlationId
  @param correlationId: In case the token was just obtained from the server, the correlation id of the call.
  This parameter can be nil.
  */
-+ (void)logToken:(NSString*)token
-       tokenType:(NSString*)tokenType
-       expiresOn:(NSDate*)expiresOn
-   correlationId:(NSUUID*)correlationId;
++ (void)logToken:(NSString *)token
+       tokenType:(NSString *)tokenType
+       expiresOn:(NSDate *)expiresOn
+         context:(NSString *)context
+   correlationId:(NSUUID *)correlationId;
 
 + (void)setIdValue:(NSString*)value
             forKey:(NSString*)key;

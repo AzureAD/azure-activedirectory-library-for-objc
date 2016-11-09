@@ -17,6 +17,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		04AB6D7D1D9D91FD007E9A83 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8BD644301D74EFA400EE0AB4 /* ADAL.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 04AB6D421D9D619B007E9A83;
+			remoteInfo = UnitTestHostApp;
+		};
 		8BD6443A1D74EFA400EE0AB4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8BD644301D74EFA400EE0AB4 /* ADAL.xcodeproj */;
@@ -114,6 +121,7 @@
 				8BD644411D74EFA400EE0AB4 /* ADALiOSTests.xctest */,
 				8BD644431D74EFA400EE0AB4 /* ADAL.framework */,
 				8BD644451D74EFA400EE0AB4 /* ADAL Mac Tests.xctest */,
+				04AB6D7E1D9D91FD007E9A83 /* UnitTestHostApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -182,6 +190,7 @@
 				TargetAttributes = {
 					D664F1521D3014F60017B799 = {
 						CreatedOnToolsVersion = 7.3.1;
+						LastSwiftMigration = 0800;
 					};
 				};
 			};
@@ -210,6 +219,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		04AB6D7E1D9D91FD007E9A83 /* UnitTestHostApp.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = UnitTestHostApp.app;
+			remoteRef = 04AB6D7D1D9D91FD007E9A83 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		8BD6443B1D74EFA400EE0AB4 /* libADALiOS.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -404,6 +420,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.SampleSwiftApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Debug;
 		};
@@ -415,6 +432,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.SampleSwiftApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Release;
 		};
@@ -474,6 +492,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.SampleSwiftApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 2.3;
 			};
 			name = CodeCoverage;
 		};
