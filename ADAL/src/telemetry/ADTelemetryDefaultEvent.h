@@ -33,4 +33,7 @@
          requestId:(NSString*)requestId
      correlationId:(NSUUID*)correlationId;
 
+- (id)initWithName:(NSString*)eventName
+           context:(id<ADRequestContext>)requestParams;
+
 @end

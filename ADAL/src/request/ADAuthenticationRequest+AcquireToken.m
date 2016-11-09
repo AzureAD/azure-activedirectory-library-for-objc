@@ -40,14 +40,17 @@
 #pragma mark -
 #pragma mark AcquireToken
 
-- (void)acquireToken:(ADAuthenticationCallback)completionBlock
+- (void)acquireToken:(NSString *)eventName
+               apiId:(NSString *)apiId
+     completionBlock:(ADAuthenticationCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(completionBlock);
+    [[ADTelemetry sharedInstance] startEvent:self.telemetryRequestId
+                                   eventName:eventName];
+    
     AD_REQUEST_CHECK_ARGUMENT([_requestParams resource]);
     [self ensureRequest];
-#if AD_TELEMETRY
     NSString* telemetryRequestId = [_requestParams telemetryRequestId];
-#endif
     
     __block NSString* log = [NSString stringWithFormat:@"##### BEGIN acquireToken%@ (authority = %@, resource = %@, clientId = %@, idtype = %@) #####",
                              _silent ? @"Silent" : @"", _requestParams.authority, _requestParams.resource, _requestParams.clientId, [_requestParams.identifier typeAsString]];
@@ -69,6 +72,27 @@
         
         
         AD_LOG_INFO(finalLog, result.correlationId, nil);
+        
+        ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:eventName
+                                                                       context:self];
+        [event setApiId:apiId];
+        
+        [event setCorrelationId:self.correlationId];
+        [event setClientId:_requestParams.clientId];
+        [event setExtendedExpiresOnSetting:[_requestParams extendedLifetime]? TELEMETRY_YES:TELEMETRY_NO];
+        [event setPromptBehavior:_promptBehavior];
+        [event setUserInformation:[[result tokenCacheItem] userInformation]];
+        [event setResultStatus:result.status];
+        [event setIsExtendedLifeTimeToken:[result extendedLifeTimeToken]? TELEMETRY_YES:TELEMETRY_NO];
+        [event setErrorCode:[NSString stringWithFormat:@"%ld",(long)[result.error code]]];
+        [event setErrorDomain:[result.error domain]];
+        [event setProtocolCode:[[result error] protocolCode]];
+        [event setErrorDescription:[[result error] errorDetails]];
+        
+        [[ADTelemetry sharedInstance] stopEvent:self.telemetryRequestId event:event];
+        SAFE_ARC_RELEASE(event);
+        //flush all events in the end of the acquireToken call
+        [[ADTelemetry sharedInstance] flush:self.telemetryRequestId];
         
         completionBlock(result);
     };
@@ -112,23 +136,19 @@
         [self validatedAcquireToken:wrappedCallback];
         return;
     }
-#if AD_TELEMETRY
+    
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:@"authority_validation"];
-#endif
     [[ADInstanceDiscovery sharedInstance] validateAuthority:_context.authority
                                               requestParams:_requestParams
                                             completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          (void)validated;
-#if AD_TELEMETRY
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authority_validation"
-                                                                      requestId:telemetryRequestId
-                                                                  correlationId:correlationId];
+                                                                        context:_requestParams];
          [event setAuthorityValidationStatus:validated ? TELEMETRY_YES:TELEMETRY_NO];
          [event setAuthority:_context.authority];
          [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
          SAFE_ARC_RELEASE(event);
-#endif
          if (error)
          {
              wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
@@ -164,19 +184,14 @@
     
     if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && [_context hasCacheStore])
     {
-#if AD_TELEMETRY
         [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"acquire_token_silent_handler"];
-#endif
         ADAcquireTokenSilentHandler* request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams];
         [request getToken:^(ADAuthenticationResult *result)
         {
-#if AD_TELEMETRY
             ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"acquire_token_silent_handler"
-                                                                         requestId:[self telemetryRequestId]
-                                                                     correlationId:[self correlationId]];
+                                                                           context:_requestParams];
             [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
             SAFE_ARC_RELEASE(event);
-#endif
             if ([ADAuthenticationContext isFinalResult:result])
             {
                 completionBlock(result);
@@ -199,9 +214,6 @@
 {
     [self ensureRequest];
     NSUUID* correlationId = [_requestParams correlationId];
-#if AD_TELEMETRY
-    NSString* telemetryRequestId = [_requestParams telemetryRequestId];
-#endif
     
     if (_samlAssertion)
     {
@@ -278,17 +290,14 @@
     
     __block BOOL silentRequest = _allowSilent;
     
+    NSString* telemetryRequestId = [_requestParams telemetryRequestId];
+    
 // Get the code first:
-#if AD_TELEMETRY
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:@"authorization_code"];
-#endif
     [self requestCode:^(NSString * code, ADAuthenticationError *error)
      {
-#if AD_TELEMETRY
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authorization_code"
-                                                                      requestId:telemetryRequestId
-                                                                  correlationId:_requestParams.correlationId];
-#endif
+                                                                        context:_requestParams];
 
          if (error)
          {
@@ -301,10 +310,8 @@
              
              ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_requestParams.correlationId]
              : [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
-#if AD_TELEMETRY
              [event setAPIStatus:(AD_ERROR_UI_USER_CANCEL == error.code) ? @"canceled":@"failed"];
              [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
-#endif
              completionBlock(result);
          }
          else
@@ -328,24 +335,19 @@
              else
 #endif
              {
-#if AD_TELEMETRY
                  [event setAPIStatus:@"succeeded"];
                  [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
                  
                  [[ADTelemetry sharedInstance] startEvent:_requestParams.telemetryRequestId eventName:@"token_grant"];
-#endif
                  [self requestTokenByCode:code
                           completionBlock:^(ADAuthenticationResult *result)
                   {
-#if AD_TELEMETRY
                       ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"token_grant"
-                                                                                   requestId:_requestParams.telemetryRequestId
-                                                                               correlationId:_requestParams.correlationId];
+                                                                                     context:_requestParams];
                       [event setGrantType:@"by code"];
                       [event setResultStatus:[result status]];
                       [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
                       SAFE_ARC_RELEASE(event);
-#endif
                       if (AD_SUCCEEDED == result.status)
                       {
                           [[_requestParams tokenCache] updateCacheToResult:result
@@ -358,9 +360,7 @@
                   }];
              }
          }
-#if AD_TELEMETRY
          SAFE_ARC_RELEASE(event);
-#endif
      }];
 }
 
