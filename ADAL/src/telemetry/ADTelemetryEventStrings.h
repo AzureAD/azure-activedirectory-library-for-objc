@@ -74,3 +74,5 @@ extern NSString *const TELEMETRY_AUTHORITY_AAD;
 extern NSString *const TELEMETRY_AUTHORITY_ADFS;
 extern NSString *const TELEMETRY_GRANT_TYPE;
 extern NSString *const TELEMETRY_API_STATUS;
+extern NSString *const TELEMETRY_EVENT_NAME;
+extern NSString *const TELEMETRY_REQUEST_ID;

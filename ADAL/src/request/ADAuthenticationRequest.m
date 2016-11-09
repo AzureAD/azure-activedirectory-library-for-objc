@@ -290,11 +290,6 @@ static dispatch_semaphore_t s_interactionLock = nil;
     return [_requestParams telemetryRequestId];
 }
 
-- (ADPromptBehavior)promptBehavior
-{
-    return _promptBehavior;
-}
-
 - (ADRequestParameters*)requestParams
 {
     return _requestParams;

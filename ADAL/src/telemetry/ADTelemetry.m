@@ -26,6 +26,7 @@
 #import "ADTelemetryEventInterface.h"
 #import "ADDefaultDispatcher.h"
 #import "ADAggregatedDispatcher.h"
+#import "ADTelemetryEventStrings.h"
 
 static NSString* const s_delimiter = @"|";
 
@@ -114,7 +115,7 @@ static NSString* const s_delimiter = @"|";
             event:(id<ADTelemetryEventInterface>)event
 {
     NSDate* stopTime = [NSDate date];
-    NSString* eventName = [self getPropertyFromEvent:event propertyName:@"event_name"];
+    NSString* eventName = [self getPropertyFromEvent:event propertyName:TELEMETRY_EVENT_NAME];
     
     if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName] || !event)
     {

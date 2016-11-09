@@ -90,7 +90,8 @@
         if ([property[0] isEqualToString:TELEMETRY_HTTP_RESPONSE_CODE]
             ||[property[0] isEqualToString:TELEMETRY_OAUTH_ERROR_CODE]
             ||[property[0] isEqualToString:TELEMETRY_HTTP_ERROR_DOMAIN]
-            ||[property[0] isEqualToString:TELEMETRY_HTTP_PATH])
+            ||[property[0] isEqualToString:TELEMETRY_HTTP_PATH]
+            ||[property[0] isEqualToString:TELEMETRY_HTTP_REQUEST_ID_HEADER])
         {
             [eventToBeDispatched setObject:property[1] forKey:property[0]];
         }

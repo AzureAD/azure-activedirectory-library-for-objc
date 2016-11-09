@@ -73,3 +73,5 @@ NSString *const TELEMETRY_AUTHORITY_AAD                = @"aad";
 NSString *const TELEMETRY_AUTHORITY_ADFS               = @"adfs";
 NSString *const TELEMETRY_GRANT_TYPE                   = @"grant_type";
 NSString *const TELEMETRY_API_STATUS                   = @"api_status";
+NSString *const TELEMETRY_EVENT_NAME                   = @"event_name";
+NSString *const TELEMETRY_REQUEST_ID                   = @"request_id";
