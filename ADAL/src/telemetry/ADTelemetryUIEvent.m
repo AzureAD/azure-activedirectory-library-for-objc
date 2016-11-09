@@ -31,6 +31,11 @@
     [self setProperty:TELEMETRY_LOGIN_HINT value:[hint adComputeSHA256]];
 }
 
+- (void)setNtlm:(NSString*)ntlmHandled
+{
+    [self setProperty:TELEMETRY_NTLM_HANDLED value:ntlmHandled];
+}
+
 - (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
 {
     [super processEvent:eventToBeDispatched];
@@ -39,7 +44,8 @@
     NSArray* properties = [self getProperties];
     for (NSArray* property in properties)
     {
-        if ([property[0] isEqualToString:TELEMETRY_LOGIN_HINT])
+        if ([property[0] isEqualToString:TELEMETRY_LOGIN_HINT]
+            ||[property[0] isEqualToString:TELEMETRY_NTLM_HANDLED])
         {
             [eventToBeDispatched setObject:property[1] forKey:property[0]];
         }

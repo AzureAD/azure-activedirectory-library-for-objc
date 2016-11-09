@@ -36,6 +36,11 @@
     [self setProperty:TELEMETRY_HTTP_PATH value:path];
 }
 
+- (void)setHttpRequestIdHeader:(NSString*)requestIdHeader
+{
+    [self setProperty:TELEMETRY_HTTP_REQUEST_ID_HEADER value:requestIdHeader];
+}
+
 - (void)setHttpResponseCode:(NSString*)code
 {
     [self setProperty:TELEMETRY_HTTP_RESPONSE_CODE value:code];

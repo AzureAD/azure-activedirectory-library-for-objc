@@ -25,6 +25,7 @@
 @class ADAuthenticationViewController;
 
 #import "ADAuthenticationContext.h"
+#import "ADTelemetryUIEvent.h"
 
 /*! Fired at the start of a resource load in the webview. The URL of the load, if available, will be in the @"url" key in the userInfo dictionary */
 extern NSString* ADWebAuthDidStartLoadNotification;
@@ -62,7 +63,8 @@ extern NSString* ADWebAuthDidReceieveResponseFromBroker;
     
     BOOL _complete;
     
-    NSUUID * _correlationId;
+    ADRequestParameters* _requestParams;
+    ADTelemetryUIEvent* _telemetryEvent;
     
     void (^_completionBlock)( ADAuthenticationError *, NSURL *);
 }

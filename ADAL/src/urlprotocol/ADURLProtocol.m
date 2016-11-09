@@ -26,9 +26,12 @@
 #import "ADLogger.h"
 #import "ADNTLMHandler.h"
 #import "ADCustomHeaderHandler.h"
+#import "ADTelemetryUIEvent.h"
+#import "ADTelemetryEventStrings.h"
 
 static NSMutableDictionary* s_handlers = nil;
 static NSString* s_endURL = nil;
+static ADTelemetryUIEvent* s_telemetryEvent = nil;
 
 static NSString* kADURLProtocolPropertyKey = @"ADURLProtocol";
 
@@ -64,12 +67,14 @@ static NSUUID * _reqCorId(NSURLRequest* request)
 
 
 + (BOOL)registerProtocol:(NSString*)endURL
+          telemetryEvent:(ADTelemetryUIEvent*)telemetryEvent
 {
     if (s_endURL!=endURL)
     {
         s_endURL = endURL.lowercaseString;
         SAFE_ARC_RETAIN(s_endURL);
     }
+    s_telemetryEvent = telemetryEvent;
     return [NSURLProtocol registerClass:self];
 }
 
@@ -78,6 +83,7 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     [NSURLProtocol unregisterClass:self];
     SAFE_ARC_RELEASE(s_endURL);
     s_endURL = nil;
+    s_telemetryEvent = nil;
     
     @synchronized(self)
     {
@@ -208,6 +214,12 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     {
         // Do default handling
         [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
+        return;
+    }
+    
+    if ([authMethod isEqualToString:NSURLAuthenticationMethodNTLM])
+    {
+        [s_telemetryEvent setNtlm:TELEMETRY_YES];
     }
 }
 

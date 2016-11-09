@@ -25,6 +25,7 @@
 
 @class ADAuthenticationError;
 @class ADURLProtocol;
+@class ADTelemetryUIEvent;
 
 @protocol ADAuthMethodHandler
 
@@ -46,7 +47,8 @@
 + (void)registerHandler:(Class<ADAuthMethodHandler>)handler
              authMethod:(NSString *)authMethod;
 
-+ (BOOL)registerProtocol:(NSString*)endURL;
++ (BOOL)registerProtocol:(NSString*)endURL
+          telemetryEvent:(ADTelemetryUIEvent*)telemetryEvent;
 + (void)unregisterProtocol;
 
 + (void)addCorrelationId:(NSUUID *)correlationId
