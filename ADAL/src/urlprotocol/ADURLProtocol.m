@@ -217,9 +217,9 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
         return;
     }
     
-    if ([authMethod isEqualToString:NSURLAuthenticationMethodNTLM])
+    if ([authMethod caseInsensitiveCompare:NSURLAuthenticationMethodNTLM] == NSOrderedSame)
     {
-        [s_telemetryEvent setNtlm:TELEMETRY_YES];
+        [s_telemetryEvent setNtlm:AD_TELEMETRY_YES];
     }
 }
 

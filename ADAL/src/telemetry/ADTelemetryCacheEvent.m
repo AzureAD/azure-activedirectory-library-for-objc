@@ -28,7 +28,7 @@
 
 - (void)setTokenType:(NSString*)tokenType
 {
-    [self setProperty:TELEMETRY_TOKEN_TYPE value:tokenType];
+    [self setProperty:AD_TELEMETRY_TOKEN_TYPE value:tokenType];
 }
 
 - (void)setStatus:(NSString*)status
@@ -38,17 +38,32 @@
 
 - (void)setIsRT:(NSString*)isRT
 {
-    [self setProperty:TELEMETRY_IS_RT value:isRT];
+    [self setProperty:AD_TELEMETRY_IS_RT value:isRT];
 }
 
 - (void)setIsMRRT:(NSString*)isMRRT
 {
-    [self setProperty:TELEMETRY_IS_MRRT value:isMRRT];
+    [self setProperty:AD_TELEMETRY_IS_MRRT value:isMRRT];
 }
 
 - (void)setIsFRT:(NSString*)isFRT
 {
-    [self setProperty:TELEMETRY_IS_FRT value:isFRT];
+    [self setProperty:AD_TELEMETRY_IS_FRT value:isFRT];
+}
+
+- (void)setRTStatus:(NSString*)status
+{
+    [self setProperty:AD_TELEMETRY_RT_STATUS value:status];
+}
+
+- (void)setMRRTStatus:(NSString*)status
+{
+    [self setProperty:AD_TELEMETRY_MRRT_STATUS value:status];
+}
+
+- (void)setFRTStatus:(NSString*)status
+{
+    [self setProperty:AD_TELEMETRY_FRT_STATUS value:status];
 }
 
 - (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
@@ -59,23 +74,20 @@
     NSArray* properties = [self getProperties];
     for (NSArray* property in properties)
     {
-        if ([property[0] isEqualToString:TELEMETRY_IS_RT]
-            ||[property[0] isEqualToString:TELEMETRY_IS_MRRT]
-            ||[property[0] isEqualToString:TELEMETRY_IS_FRT])
+        if ([property[0] isEqualToString:AD_TELEMETRY_RT_STATUS]
+            ||[property[0] isEqualToString:AD_TELEMETRY_FRT_STATUS]
+            ||[property[0] isEqualToString:AD_TELEMETRY_MRRT_STATUS])
         {
-            [eventToBeDispatched removeObjectForKey:TELEMETRY_IS_RT];
-            [eventToBeDispatched removeObjectForKey:TELEMETRY_IS_MRRT];
-            [eventToBeDispatched removeObjectForKey:TELEMETRY_IS_FRT];
             [eventToBeDispatched setObject:property[1] forKey:property[0]];
         }
     }
     
     int cacheEventCount = 1;
-    if ([eventToBeDispatched objectForKey:TELEMETRY_CACHE_EVENT_COUNT])
+    if ([eventToBeDispatched objectForKey:AD_TELEMETRY_CACHE_EVENT_COUNT])
     {
-        cacheEventCount = [[eventToBeDispatched objectForKey:TELEMETRY_CACHE_EVENT_COUNT] intValue] + 1;
+        cacheEventCount = [[eventToBeDispatched objectForKey:AD_TELEMETRY_CACHE_EVENT_COUNT] intValue] + 1;
     }
-    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", cacheEventCount] forKey:TELEMETRY_CACHE_EVENT_COUNT];
+    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", cacheEventCount] forKey:AD_TELEMETRY_CACHE_EVENT_COUNT];
 }
 
 @end

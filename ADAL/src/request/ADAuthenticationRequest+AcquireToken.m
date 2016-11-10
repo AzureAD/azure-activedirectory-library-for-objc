@@ -80,11 +80,11 @@
         
         [event setCorrelationId:self.correlationId];
         [event setClientId:_requestParams.clientId];
-        [event setExtendedExpiresOnSetting:[_requestParams extendedLifetime]? TELEMETRY_YES:TELEMETRY_NO];
+        [event setExtendedExpiresOnSetting:[_requestParams extendedLifetime]? AD_TELEMETRY_YES:AD_TELEMETRY_NO];
         [event setPromptBehavior:_promptBehavior];
         [event setUserInformation:[[result tokenCacheItem] userInformation]];
         [event setResultStatus:result.status];
-        [event setIsExtendedLifeTimeToken:[result extendedLifeTimeToken]? TELEMETRY_YES:TELEMETRY_NO];
+        [event setIsExtendedLifeTimeToken:[result extendedLifeTimeToken]? AD_TELEMETRY_YES:AD_TELEMETRY_NO];
         [event setErrorCode:[NSString stringWithFormat:@"%ld",(long)[result.error code]]];
         [event setErrorDomain:[result.error domain]];
         [event setProtocolCode:[[result error] protocolCode]];
@@ -146,7 +146,7 @@
          (void)validated;
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authority_validation"
                                                                         context:_requestParams];
-         [event setAuthorityValidationStatus:validated ? TELEMETRY_YES:TELEMETRY_NO];
+         [event setAuthorityValidationStatus:validated ? AD_TELEMETRY_YES:AD_TELEMETRY_NO];
          [event setAuthority:_context.authority];
          [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
          SAFE_ARC_RELEASE(event);

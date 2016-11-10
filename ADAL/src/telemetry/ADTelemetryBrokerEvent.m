@@ -43,7 +43,7 @@
 
 - (void)setBrokerAppVersion:(NSString*)version
 {
-    [self setProperty:TELEMETRY_BROKER_VERSION value:version];
+    [self setProperty:AD_TELEMETRY_BROKER_VERSION value:version];
 }
 
 - (void)setBrokerProtocolVersion:(NSString*)version
@@ -73,7 +73,7 @@
 
 - (void)setBrokerApp:(NSString*)appName
 {
-    [self setProperty:TELEMETRY_BROKER_APP value:appName];
+    [self setProperty:AD_TELEMETRY_BROKER_APP value:appName];
 }
 
 - (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
@@ -84,13 +84,13 @@
     NSArray* properties = [self getProperties];
     for (NSArray* property in properties)
     {
-        if ([property[0] isEqualToString:TELEMETRY_BROKER_APP]
-            ||[property[0] isEqualToString:TELEMETRY_BROKER_VERSION])
+        if ([property[0] isEqualToString:AD_TELEMETRY_BROKER_APP]
+            ||[property[0] isEqualToString:AD_TELEMETRY_BROKER_VERSION])
         {
             [eventToBeDispatched setObject:property[1] forKey:property[0]];
         }
     }
-    [eventToBeDispatched setObject:TELEMETRY_YES forKey:TELEMETRY_BROKER_APP_USED];
+    [eventToBeDispatched setObject:AD_TELEMETRY_YES forKey:AD_TELEMETRY_BROKER_APP_USED];
 }
 
 @end

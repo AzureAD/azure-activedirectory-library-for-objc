@@ -60,11 +60,11 @@ if (OBJECT) \
     }
     
     _propertyMap = [[self defaultParameters] mutableCopy];
-    SET_IF_NOT_NIL(_propertyMap, TELEMETRY_REQUEST_ID, requestId);
-    SET_IF_NOT_NIL(_propertyMap, TELEMETRY_CORRELATION_ID, [correlationId UUIDString]);
+    SET_IF_NOT_NIL(_propertyMap, AD_TELEMETRY_REQUEST_ID, requestId);
+    SET_IF_NOT_NIL(_propertyMap, AD_TELEMETRY_CORRELATION_ID, [correlationId UUIDString]);
     _defaultPropertyCount = [_propertyMap count];
     
-    SET_IF_NOT_NIL(_propertyMap, TELEMETRY_EVENT_NAME, eventName);
+    SET_IF_NOT_NIL(_propertyMap, AD_TELEMETRY_EVENT_NAME, eventName);
     
     return self;
 }
@@ -114,7 +114,7 @@ if (OBJECT) \
 - (void)setResponseTime:(NSTimeInterval)responseTime
 {
     //the property is set in milliseconds
-    [_propertyMap addObject:@[TELEMETRY_RESPONSE_TIME, [NSString stringWithFormat:@"%f", responseTime*1000]]];
+    [_propertyMap addObject:@[AD_TELEMETRY_RESPONSE_TIME, [NSString stringWithFormat:@"%f", responseTime*1000]]];
 }
 
 - (NSString*)getStringFromDate:(NSDate*)date

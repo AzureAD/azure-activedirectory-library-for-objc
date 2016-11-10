@@ -28,47 +28,47 @@
 
 - (void)setHttpMethod:(NSString*)method
 {
-    [self setProperty:TELEMETRY_HTTP_METHOD value:method];
+    [self setProperty:AD_TELEMETRY_HTTP_METHOD value:method];
 }
 
 - (void)setHttpPath:(NSString*)path
 {
-    [self setProperty:TELEMETRY_HTTP_PATH value:path];
+    [self setProperty:AD_TELEMETRY_HTTP_PATH value:path];
 }
 
 - (void)setHttpRequestIdHeader:(NSString*)requestIdHeader
 {
-    [self setProperty:TELEMETRY_HTTP_REQUEST_ID_HEADER value:requestIdHeader];
+    [self setProperty:AD_TELEMETRY_HTTP_REQUEST_ID_HEADER value:requestIdHeader];
 }
 
 - (void)setHttpResponseCode:(NSString*)code
 {
-    [self setProperty:TELEMETRY_HTTP_RESPONSE_CODE value:code];
+    [self setProperty:AD_TELEMETRY_HTTP_RESPONSE_CODE value:code];
 }
 
 - (void)setOAuthErrorCode:(NSString*)code
 {
-    [self setProperty:TELEMETRY_OAUTH_ERROR_CODE value:code];
+    [self setProperty:AD_TELEMETRY_OAUTH_ERROR_CODE value:code];
 }
 
 - (void)setHttpResponseMethod:(NSString*)method
 {
-    [self setProperty:TELEMETRY_HTTP_RESPONSE_METHOD value:method];
+    [self setProperty:AD_TELEMETRY_HTTP_RESPONSE_METHOD value:method];
 }
 
 - (void)setHttpRequestQueryParams:(NSString*)params
 {
-    [self setProperty:TELEMETRY_REQUEST_QUERY_PARAMS value:params];
+    [self setProperty:AD_TELEMETRY_REQUEST_QUERY_PARAMS value:params];
 }
 
 - (void)setHttpUserAgent:(NSString*)userAgent
 {
-    [self setProperty:TELEMETRY_USER_AGENT value:userAgent];
+    [self setProperty:AD_TELEMETRY_USER_AGENT value:userAgent];
 }
 
 - (void)setHttpErrorDomain:(NSString*)errorDomain
 {
-    [self setProperty:TELEMETRY_HTTP_ERROR_DOMAIN value:errorDomain];
+    [self setProperty:AD_TELEMETRY_HTTP_ERROR_DOMAIN value:errorDomain];
 }
 
 - (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
@@ -78,20 +78,20 @@
     (void)eventToBeDispatched;
     
     int httpEventCount = 1;
-    if ([eventToBeDispatched objectForKey:TELEMETRY_HTTP_EVENT_COUNT])
+    if ([eventToBeDispatched objectForKey:AD_TELEMETRY_HTTP_EVENT_COUNT])
     {
-        httpEventCount = [[eventToBeDispatched objectForKey:TELEMETRY_HTTP_EVENT_COUNT] intValue] + 1;
+        httpEventCount = [[eventToBeDispatched objectForKey:AD_TELEMETRY_HTTP_EVENT_COUNT] intValue] + 1;
     }
-    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", httpEventCount] forKey:TELEMETRY_HTTP_EVENT_COUNT];
+    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", httpEventCount] forKey:AD_TELEMETRY_HTTP_EVENT_COUNT];
     
     NSArray* properties = [self getProperties];
     for (NSArray* property in properties)
     {
-        if ([property[0] isEqualToString:TELEMETRY_HTTP_RESPONSE_CODE]
-            ||[property[0] isEqualToString:TELEMETRY_OAUTH_ERROR_CODE]
-            ||[property[0] isEqualToString:TELEMETRY_HTTP_ERROR_DOMAIN]
-            ||[property[0] isEqualToString:TELEMETRY_HTTP_PATH]
-            ||[property[0] isEqualToString:TELEMETRY_HTTP_REQUEST_ID_HEADER])
+        if ([property[0] isEqualToString:AD_TELEMETRY_HTTP_RESPONSE_CODE]
+            ||[property[0] isEqualToString:AD_TELEMETRY_OAUTH_ERROR_CODE]
+            ||[property[0] isEqualToString:AD_TELEMETRY_HTTP_ERROR_DOMAIN]
+            ||[property[0] isEqualToString:AD_TELEMETRY_HTTP_PATH]
+            ||[property[0] isEqualToString:AD_TELEMETRY_HTTP_REQUEST_ID_HEADER])
         {
             [eventToBeDispatched setObject:property[1] forKey:property[0]];
         }

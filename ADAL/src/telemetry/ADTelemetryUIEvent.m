@@ -28,12 +28,12 @@
 
 - (void)setLoginHint:(NSString*)hint
 {
-    [self setProperty:TELEMETRY_LOGIN_HINT value:[hint adComputeSHA256]];
+    [self setProperty:AD_TELEMETRY_LOGIN_HINT value:[hint adComputeSHA256]];
 }
 
 - (void)setNtlm:(NSString*)ntlmHandled
 {
-    [self setProperty:TELEMETRY_NTLM_HANDLED value:ntlmHandled];
+    [self setProperty:AD_TELEMETRY_NTLM_HANDLED value:ntlmHandled];
 }
 
 - (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
@@ -44,19 +44,19 @@
     NSArray* properties = [self getProperties];
     for (NSArray* property in properties)
     {
-        if ([property[0] isEqualToString:TELEMETRY_LOGIN_HINT]
-            ||[property[0] isEqualToString:TELEMETRY_NTLM_HANDLED])
+        if ([property[0] isEqualToString:AD_TELEMETRY_LOGIN_HINT]
+            ||[property[0] isEqualToString:AD_TELEMETRY_NTLM_HANDLED])
         {
             [eventToBeDispatched setObject:property[1] forKey:property[0]];
         }
     }
     
     int UIEventCount = 1;
-    if ([eventToBeDispatched objectForKey:TELEMETRY_UI_EVENT_COUNT])
+    if ([eventToBeDispatched objectForKey:AD_TELEMETRY_UI_EVENT_COUNT])
     {
-        UIEventCount = [[eventToBeDispatched objectForKey:TELEMETRY_UI_EVENT_COUNT] intValue] + 1;
+        UIEventCount = [[eventToBeDispatched objectForKey:AD_TELEMETRY_UI_EVENT_COUNT] intValue] + 1;
     }
-    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", UIEventCount] forKey:TELEMETRY_UI_EVENT_COUNT];
+    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", UIEventCount] forKey:AD_TELEMETRY_UI_EVENT_COUNT];
 }
 
 @end
