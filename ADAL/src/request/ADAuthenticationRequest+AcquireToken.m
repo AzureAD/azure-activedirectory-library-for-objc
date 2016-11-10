@@ -32,6 +32,7 @@
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
+#import "ADTelemetryBrokerEvent.h"
 #import "ADTelemetryEventStrings.h"
 #import "ADBrokerHelper.h"
 
@@ -283,7 +284,19 @@
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
             return;
         }
-        [ADBrokerHelper invokeBroker:brokerURL completionHandler:completionBlock];
+        
+        [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"launch_broker"];
+        [ADBrokerHelper invokeBroker:brokerURL completionHandler:^(ADAuthenticationResult* result)
+         {
+             ADTelemetryBrokerEvent* event = [[ADTelemetryBrokerEvent alloc] initWithName:@"launch_broker"
+                                                                                requestId:_requestParams.telemetryRequestId
+                                                                            correlationId:_requestParams.correlationId];
+             [event setResultStatus:[result status]];
+             [event setBrokerAppVersion:s_brokerAppVersion];
+             [event setBrokerProtocolVersion:s_brokerProtocolVersion];
+             [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+             completionBlock(result);
+         }];
         return;
     }
 #endif
@@ -319,6 +332,9 @@
 #if TARGET_OS_IPHONE
              if([code hasPrefix:@"msauth://"])
              {
+                 [event setAPIStatus:@"try to prompt to install broker"];
+                 [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
+                 
                  ADAuthenticationError* error = nil;
                  NSURL* brokerRequestURL = [self composeBrokerRequest:&error];
                  if (!brokerRequestURL)
