@@ -346,7 +346,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
             AD_LOG_ERROR(@"unable to redirect to browser from extension", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _requestParams.correlationId, nil);
         }
 #else // !TARGET_OS_IPHONE
-        AD_LOG_ERROR(@"server is redirecting us to browser, this behavior is not defined on Mac OS X yet", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _correlationId, nil);
+        AD_LOG_ERROR(@"server is redirecting us to browser, this behavior is not defined on Mac OS X yet", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _requestParams.correlationId, nil);
 #endif // TARGET_OS_IPHONE
         return NO;
     }
