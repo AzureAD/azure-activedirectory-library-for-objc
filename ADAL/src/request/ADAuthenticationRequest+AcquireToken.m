@@ -32,6 +32,8 @@
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
+#import "ADTelemetryBrokerEvent.h"
+#import "ADTelemetryEventStrings.h"
 #import "ADBrokerHelper.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
@@ -77,10 +79,12 @@
         [event setApiId:apiId];
         
         [event setCorrelationId:self.correlationId];
-        [event setUserId:_requestParams.identifier.userId];
         [event setClientId:_requestParams.clientId];
+        [event setExtendedExpiresOnSetting:[_requestParams extendedLifetime]? AD_TELEMETRY_YES:AD_TELEMETRY_NO];
+        [event setPromptBehavior:_promptBehavior];
+        [event setUserInformation:[[result tokenCacheItem] userInformation]];
         [event setResultStatus:result.status];
-        [event setIsExtendedLifeTimeToken:[result extendedLifeTimeToken]? @"YES":@"NO"];
+        [event setIsExtendedLifeTimeToken:[result extendedLifeTimeToken]? AD_TELEMETRY_YES:AD_TELEMETRY_NO];
         [event setErrorCode:[NSString stringWithFormat:@"%ld",(long)[result.error code]]];
         [event setErrorDomain:[result.error domain]];
         [event setProtocolCode:[[result error] protocolCode]];
@@ -142,7 +146,7 @@
          (void)validated;
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authority_validation"
                                                                         context:_requestParams];
-         [event setAuthorityValidationStatus:validated ? @"YES" : @"NO"];
+         [event setAuthorityValidationStatus:validated ? AD_TELEMETRY_YES:AD_TELEMETRY_NO];
          [event setAuthority:_context.authority];
          [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
          SAFE_ARC_RELEASE(event);
@@ -280,7 +284,19 @@
             completionBlock([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
             return;
         }
-        [ADBrokerHelper invokeBroker:brokerURL completionHandler:completionBlock];
+        
+        [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"launch_broker"];
+        [ADBrokerHelper invokeBroker:brokerURL completionHandler:^(ADAuthenticationResult* result)
+         {
+             ADTelemetryBrokerEvent* event = [[ADTelemetryBrokerEvent alloc] initWithName:@"launch_broker"
+                                                                                requestId:_requestParams.telemetryRequestId
+                                                                            correlationId:_requestParams.correlationId];
+             [event setResultStatus:[result status]];
+             [event setBrokerAppVersion:s_brokerAppVersion];
+             [event setBrokerProtocolVersion:s_brokerProtocolVersion];
+             [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+             completionBlock(result);
+         }];
         return;
     }
 #endif
@@ -316,6 +332,9 @@
 #if TARGET_OS_IPHONE
              if([code hasPrefix:@"msauth://"])
              {
+                 [event setAPIStatus:@"try to prompt to install broker"];
+                 [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
+                 
                  ADAuthenticationError* error = nil;
                  NSURL* brokerRequestURL = [self composeBrokerRequest:&error];
                  if (!brokerRequestURL)

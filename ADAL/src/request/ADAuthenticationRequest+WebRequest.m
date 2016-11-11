@@ -37,9 +37,6 @@
 #import "ADAuthenticationRequest.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADWebAuthRequest.h"
-#import "ADTelemetry.h"
-#import "ADTelemetry+Internal.h"
-#import "ADTelemetryUIEvent.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -143,16 +140,6 @@
 - (void)launchWebView:(NSString*)startUrl
       completionBlock:(void (^)(ADAuthenticationError*, NSURL*))completionBlock
 {
-    [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:@"launch_web_view"];
-    void(^requestCompletion)(ADAuthenticationError *error, NSURL *end) = ^void(ADAuthenticationError *error, NSURL *end)
-    {
-        ADTelemetryUIEvent* event = [[ADTelemetryUIEvent alloc] initWithName:@"launch_web_view"
-                                                                     context:_requestParams];
-        [self fillTelemetryUIEvent:event];
-        [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
-        completionBlock(error, end);
-    };
-    
     [[ADWebAuthController sharedInstance] start:[NSURL URLWithString:startUrl]
                                             end:[NSURL URLWithString:[_requestParams redirectUri]]
                                     refreshCred:_refreshTokenCredential
@@ -161,8 +148,8 @@
                                      fullScreen:[ADAuthenticationSettings sharedInstance].enableFullScreen
 #endif
                                         webView:_context.webView
-                                  correlationId:[_requestParams correlationId]
-                                     completion:requestCompletion];
+                                        context:_requestParams
+                                     completion:completionBlock];
 }
 
 //Requests an OAuth2 code to be used for obtaining a token:
@@ -287,14 +274,6 @@
              
              requestCompletion(error, endURL);
          }];
-    }
-}
-
-- (void)fillTelemetryUIEvent:(ADTelemetryUIEvent*)event
-{
-    if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString adIsStringNilOrBlank:[_requestParams identifier].userId])
-    {
-        [event setLoginHint:[_requestParams identifier].userId];
     }
 }
 

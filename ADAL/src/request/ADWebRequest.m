@@ -324,9 +324,10 @@
 
     [event setHttpMethod:_isGetRequest ? @"GET" : @"POST"];
     [event setHttpPath:[NSString stringWithFormat:@"%@://%@/%@", _requestURL.scheme, _requestURL.host, _requestURL.path]];
+    [event setHttpRequestIdHeader:[response.headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE]];
     if (error)
     {
-        [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
+        [event setOAuthErrorCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
         [event setHttpErrorDomain:[error domain]];
     }
     else if (response)

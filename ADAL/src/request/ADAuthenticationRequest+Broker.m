@@ -48,8 +48,8 @@
 #import "ADKeychainUtil.h"
 #endif // TARGET_OS_IPHONE
 
-static NSString* s_brokerAppVersion = nil;
-static NSString* s_brokerProtocolVersion = nil;
+NSString* s_brokerAppVersion = nil;
+NSString* s_brokerProtocolVersion = nil;
 
 NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 

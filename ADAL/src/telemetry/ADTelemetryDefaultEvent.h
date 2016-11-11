@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADTelemetryEventInterface.h"
+#import "ADRequestContext.h"
 
 @interface ADTelemetryDefaultEvent : NSObject <ADTelemetryEventInterface>
 {

@@ -47,26 +47,18 @@
     [_objectsToBeDispatched removeObjectForKey:requestId];
     [_dispatchLock unlock];
     
-    // Integrate events of a particular request id into one single event
-    NSMutableArray* aggregatedEvent = [NSMutableArray new];
-    SAFE_ARC_AUTORELEASE(aggregatedEvent);
-    
+    NSMutableDictionary* aggregatedEventMap = [NSMutableDictionary new];
     for (id<ADTelemetryEventInterface> event in eventsToBeDispatched)
     {
-        NSArray* properties = [event getProperties];
-        
-        NSInteger propertiesToSkip = 0;
-        // default properties are duplicate for all events,
-        // so they are skipped from 2nd event onwards
-        if (event != [eventsToBeDispatched objectAtIndex:0])
-        {
-            propertiesToSkip = [event getDefaultPropertyCount];
-        }
-        
-        for (NSInteger i = propertiesToSkip; i < [properties count]; i++)
-        {
-            [aggregatedEvent addObject:properties[i]];
-        }
+        [event addAggregatedPropertiesToDictionary:aggregatedEventMap];
+    }
+    
+    // convert the aggregated event from a map to a list
+    NSMutableArray* aggregatedEvent = [NSMutableArray new];
+    SAFE_ARC_AUTORELEASE(aggregatedEvent);
+    for (NSString* key in aggregatedEventMap)
+    {
+        [aggregatedEvent addObject:[[ADTelemetryProperty alloc] initWithName:key value:[aggregatedEventMap objectForKey:key]]];
     }
     [_dispatcher dispatchEvent:aggregatedEvent];
 }

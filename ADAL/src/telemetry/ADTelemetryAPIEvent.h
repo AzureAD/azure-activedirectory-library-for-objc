@@ -27,7 +27,9 @@
 
 - (void)setResultStatus:(ADAuthenticationResultStatus)status;
 - (void)setCorrelationId:(NSUUID*)correlationId;
-- (void)setUserId:(NSString*)userId;
+- (void)setExtendedExpiresOnSetting:(NSString*)extendedExpiresOnSetting;
+- (void)setPromptBehavior:(ADPromptBehavior)promptBehavior;
+- (void)setUserInformation:(ADUserInformation*)userInfo;
 - (void)setClientId:(NSString*)clientId;
 - (void)setIsExtendedLifeTimeToken:(NSString*)isExtendedLifeToken;
 - (void)setErrorCode:(NSString*)errorCode;

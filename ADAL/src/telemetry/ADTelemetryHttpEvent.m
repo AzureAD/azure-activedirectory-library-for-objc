@@ -21,43 +21,82 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADTelemetry.h"
 #import "ADTelemetryHttpEvent.h"
+#import "ADTelemetryEventStrings.h"
 
 @implementation ADTelemetryHttpEvent
 
 - (void)setHttpMethod:(NSString*)method
 {
-    [self setProperty:@"http_method" value:method];
+    [self setProperty:AD_TELEMETRY_HTTP_METHOD value:method];
 }
 
 - (void)setHttpPath:(NSString*)path
 {
-    [self setProperty:@"http_path" value:path];
+    [self setProperty:AD_TELEMETRY_HTTP_PATH value:path];
+}
+
+- (void)setHttpRequestIdHeader:(NSString*)requestIdHeader
+{
+    [self setProperty:AD_TELEMETRY_HTTP_REQUEST_ID_HEADER value:requestIdHeader];
 }
 
 - (void)setHttpResponseCode:(NSString*)code
 {
-    [self setProperty:@"http_response_code" value:code];
+    [self setProperty:AD_TELEMETRY_HTTP_RESPONSE_CODE value:code];
+}
+
+- (void)setOAuthErrorCode:(NSString*)code
+{
+    [self setProperty:AD_TELEMETRY_OAUTH_ERROR_CODE value:code];
 }
 
 - (void)setHttpResponseMethod:(NSString*)method
 {
-    [self setProperty:@"http_response_method" value:method];
+    [self setProperty:AD_TELEMETRY_HTTP_RESPONSE_METHOD value:method];
 }
 
 - (void)setHttpRequestQueryParams:(NSString*)params
 {
-    [self setProperty:@"request_query_params" value:params];
+    [self setProperty:AD_TELEMETRY_REQUEST_QUERY_PARAMS value:params];
 }
 
 - (void)setHttpUserAgent:(NSString*)userAgent
 {
-    [self setProperty:@"user_agent" value:userAgent];
+    [self setProperty:AD_TELEMETRY_USER_AGENT value:userAgent];
 }
 
 - (void)setHttpErrorDomain:(NSString*)errorDomain
 {
-    [self setProperty:@"http_error_domain" value:errorDomain];
+    [self setProperty:AD_TELEMETRY_HTTP_ERROR_DOMAIN value:errorDomain];
+}
+
+- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
+{
+    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
+    
+    (void)eventToBeDispatched;
+    
+    int httpEventCount = 1;
+    if ([eventToBeDispatched objectForKey:AD_TELEMETRY_HTTP_EVENT_COUNT])
+    {
+        httpEventCount = [[eventToBeDispatched objectForKey:AD_TELEMETRY_HTTP_EVENT_COUNT] intValue] + 1;
+    }
+    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", httpEventCount] forKey:AD_TELEMETRY_HTTP_EVENT_COUNT];
+    
+    NSArray* properties = [self getProperties];
+    for (ADTelemetryProperty* property in properties)
+    {
+        if ([property.name isEqualToString:AD_TELEMETRY_HTTP_RESPONSE_CODE]
+            ||[property.name isEqualToString:AD_TELEMETRY_OAUTH_ERROR_CODE]
+            ||[property.name isEqualToString:AD_TELEMETRY_HTTP_ERROR_DOMAIN]
+            ||[property.name isEqualToString:AD_TELEMETRY_HTTP_PATH]
+            ||[property.name isEqualToString:AD_TELEMETRY_HTTP_REQUEST_ID_HEADER])
+        {
+            [eventToBeDispatched setObject:property.value forKey:property.name];
+        }
+    }
 }
 
 - (NSString*)scrubTenantFromUrl:(NSString*)url

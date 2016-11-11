@@ -26,5 +26,6 @@
 @interface ADTelemetryUIEvent : ADTelemetryDefaultEvent
 
 - (void)setLoginHint:(NSString*)hint;
+- (void)setNtlm:(NSString*)ntlmHandled;
 
 @end

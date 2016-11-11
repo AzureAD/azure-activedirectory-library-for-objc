@@ -60,12 +60,9 @@
 		6033892A1D595AD50024A9BF /* ADTelemetryHttpEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 6010EDEF1D47B2A600B62072 /* ADTelemetryHttpEvent.m */; };
 		6033892B1D595AD50024A9BF /* ADTelemetryCacheEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 6010EDF41D47B2CE00B62072 /* ADTelemetryCacheEvent.m */; };
 		6033892C1D595AD50024A9BF /* ADTelemetryBrokerEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 6010EDF91D47B2F300B62072 /* ADTelemetryBrokerEvent.m */; };
-		6033892D1D595AFF0024A9BF /* ADRequestParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 60D2F4001D531F16008725D9 /* ADRequestParameters.m */; };
-		6033892E1D595AFF0024A9BF /* ADTelemetryAPIEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 6010EDE51D47B21600B62072 /* ADTelemetryAPIEvent.m */; };
-		6033892F1D595AFF0024A9BF /* ADTelemetryUIEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 6010EDEA1D47B27400B62072 /* ADTelemetryUIEvent.m */; };
-		603389301D595AFF0024A9BF /* ADTelemetryHttpEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 6010EDEF1D47B2A600B62072 /* ADTelemetryHttpEvent.m */; };
-		603389311D595AFF0024A9BF /* ADTelemetryCacheEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 6010EDF41D47B2CE00B62072 /* ADTelemetryCacheEvent.m */; };
-		603389321D595AFF0024A9BF /* ADTelemetryBrokerEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 6010EDF91D47B2F300B62072 /* ADTelemetryBrokerEvent.m */; };
+		605C167C1D8FBA5A0097DBA0 /* ADTelemetryEventStrings.h in Headers */ = {isa = PBXBuildFile; fileRef = 605C167B1D8FBA590097DBA0 /* ADTelemetryEventStrings.h */; };
+		605C16821D8FD0AC0097DBA0 /* ADTelemetryEventStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 605C16801D8FD0AC0097DBA0 /* ADTelemetryEventStrings.m */; };
+		605C16831D8FD1AC0097DBA0 /* ADTelemetryEventStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 605C16801D8FD0AC0097DBA0 /* ADTelemetryEventStrings.m */; };
 		6071B5E41C14C0B0006F6CC2 /* ADTestURLConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 6071B5E31C14C0B0006F6CC2 /* ADTestURLConnection.m */; };
 		60D2F3FF1D524F7A008725D9 /* ADRequestParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 60D2F3FE1D524F7A008725D9 /* ADRequestParameters.h */; };
 		60D2F4021D531F16008725D9 /* ADRequestParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 60D2F4001D531F16008725D9 /* ADRequestParameters.m */; };
@@ -292,10 +289,6 @@
 		D69A721A1D4FF68300E91DB3 /* ADDefaultDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401BC1D377E9F0020EAAB /* ADDefaultDispatcher.m */; };
 		D69A721B1D4FF68300E91DB3 /* ADAggregatedDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401B51D37658C0020EAAB /* ADAggregatedDispatcher.m */; };
 		D69A721C1D4FF68300E91DB3 /* ADTelemetryDefaultEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401AA1D3443D30020EAAB /* ADTelemetryDefaultEvent.m */; };
-		D69A721D1D4FF68400E91DB3 /* ADTelemetry.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401A31D3421480020EAAB /* ADTelemetry.m */; };
-		D69A721E1D4FF68400E91DB3 /* ADDefaultDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401BC1D377E9F0020EAAB /* ADDefaultDispatcher.m */; };
-		D69A721F1D4FF68400E91DB3 /* ADAggregatedDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401B51D37658C0020EAAB /* ADAggregatedDispatcher.m */; };
-		D69A72201D4FF68400E91DB3 /* ADTelemetryDefaultEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401AA1D3443D30020EAAB /* ADTelemetryDefaultEvent.m */; };
 		D6D8A8401D4FD14E00D20DE6 /* ADKeychainUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D8A83F1D4FD14E00D20DE6 /* ADKeychainUtil.m */; };
 		D6F095151CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D6F095131CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h */; };
 		D6F095171CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F095141CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m */; };
@@ -411,6 +404,8 @@
 		601BEE2F1C6D9CCE004AA8C1 /* ADTestAuthenticationViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADTestAuthenticationViewController.h; sourceTree = "<group>"; };
 		601BEE301C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAuthenticationViewController.m; sourceTree = "<group>"; };
 		601BEE331C6DCB0B004AA8C1 /* ADWebAuthControllerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthControllerTests.m; sourceTree = "<group>"; };
+		605C167B1D8FBA590097DBA0 /* ADTelemetryEventStrings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTelemetryEventStrings.h; sourceTree = "<group>"; };
+		605C16801D8FD0AC0097DBA0 /* ADTelemetryEventStrings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryEventStrings.m; sourceTree = "<group>"; };
 		6071B5E21C14C0B0006F6CC2 /* ADTestURLConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestURLConnection.h; sourceTree = "<group>"; };
 		6071B5E31C14C0B0006F6CC2 /* ADTestURLConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestURLConnection.m; sourceTree = "<group>"; };
 		60D2F3FE1D524F7A008725D9 /* ADRequestParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADRequestParameters.h; sourceTree = "<group>"; };
@@ -709,6 +704,8 @@
 				6010EDF41D47B2CE00B62072 /* ADTelemetryCacheEvent.m */,
 				6010EDF71D47B2E300B62072 /* ADTelemetryBrokerEvent.h */,
 				6010EDF91D47B2F300B62072 /* ADTelemetryBrokerEvent.m */,
+				605C167B1D8FBA590097DBA0 /* ADTelemetryEventStrings.h */,
+				605C16801D8FD0AC0097DBA0 /* ADTelemetryEventStrings.m */,
 			);
 			path = telemetry;
 			sourceTree = "<group>";
@@ -1204,6 +1201,7 @@
 				9453C4221C586462006B9E79 /* ADTokenCacheAccessor.h in Headers */,
 				D68040331D22F686007A61AC /* ADWebAuthResponse.h in Headers */,
 				9453C44A1C586485006B9E79 /* ADRegistrationInformation.h in Headers */,
+				605C167C1D8FBA5A0097DBA0 /* ADTelemetryEventStrings.h in Headers */,
 				9453C4261C586462006B9E79 /* ADTokenCacheKey.h in Headers */,
 				60D2F3FF1D524F7A008725D9 /* ADRequestParameters.h in Headers */,
 				94DD18D21C5AC8DE00F80C62 /* ADAuthenticationParameters.h in Headers */,
@@ -1618,6 +1616,7 @@
 				9453C40C1C586456006B9E79 /* ADAuthenticationParameters+Internal.m in Sources */,
 				9453C4491C58647E006B9E79 /* NSUUID+ADExtensions.m in Sources */,
 				9453C40A1C586456006B9E79 /* ADAuthenticationError.m in Sources */,
+				605C16821D8FD0AC0097DBA0 /* ADTelemetryEventStrings.m in Sources */,
 				9453C4451C58647E006B9E79 /* NSString+ADHelperMethods.m in Sources */,
 				9453C46E1C5872B0006B9E79 /* ADJwtHelper.m in Sources */,
 				9453C4471C58647E006B9E79 /* NSURL+ADExtensions.m in Sources */,
@@ -1693,6 +1692,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				605C16831D8FD1AC0097DBA0 /* ADTelemetryEventStrings.m in Sources */,
 				603389291D595AD50024A9BF /* ADTelemetryUIEvent.m in Sources */,
 				6033892A1D595AD50024A9BF /* ADTelemetryHttpEvent.m in Sources */,
 				6033892B1D595AD50024A9BF /* ADTelemetryCacheEvent.m in Sources */,

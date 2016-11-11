@@ -21,7 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADTelemetry.h"
 #import "ADTelemetryAPIEvent.h"
+#import "ADUserInformation.h"
+#import "ADTelemetryEventStrings.h"
+#import "ADHelpers.h"
 
 @implementation ADTelemetryAPIEvent
 
@@ -30,84 +34,152 @@
     NSString* statusStr = nil;
     switch (status) {
         case AD_SUCCEEDED:
-            statusStr = @"SUCCEEDED";
+            statusStr = AD_TELEMETRY_SUCCEEDED;
             break;
         case AD_FAILED:
-            statusStr = @"FAILED";
+            statusStr = AD_TELEMETRY_FAILED;
             break;
         case AD_USER_CANCELLED:
-            statusStr = @"USER_CANCELLED";
+            statusStr = AD_TELEMETRY_USER_CANCELLED;
+            [self setProperty:AD_TELEMETRY_USER_CANCEL value:AD_TELEMETRY_YES];
             break;
         default:
-            statusStr = @"UNKNOWN";
+            statusStr = AD_TELEMETRY_UNKNOWN;
     }
     
-    [self setProperty:@"status" value:statusStr];
+    [self setProperty:AD_TELEMETRY_RESULT_STATUS value:statusStr];
 }
 
 - (void)setCorrelationId:(NSUUID*)correlationId
 {
-    [self setProperty:@"correlation_id" value:[correlationId UUIDString]];
+    [self setProperty:AD_TELEMETRY_CORRELATION_ID value:[correlationId UUIDString]];
 }
 
-- (void)setUserId:(NSString*)userId;
+- (void)setExtendedExpiresOnSetting:(NSString*)extendedExpiresOnSetting
 {
-    [self setProperty:@"user_id" value:[userId adComputeSHA256]];
+    [self setProperty:AD_TELEMETRY_EXTENDED_EXPIRES_ON_SETTING value:extendedExpiresOnSetting];
+}
+
+- (void)setUserInformation:(ADUserInformation*)userInfo
+{
+    [self setProperty:AD_TELEMETRY_USER_ID value:[[userInfo userId] adComputeSHA256]];
+    [self setProperty:AD_TELEMETRY_TENANT_ID value:[[userInfo tenantId] adComputeSHA256]];
+    [self setProperty:AD_TELEMETRY_IDP value:[userInfo identityProvider]];
 }
 
 - (void)setClientId:(NSString*)clientId
 {
-    [self setProperty:@"client_id" value:clientId];
+    [self setProperty:AD_TELEMETRY_CLIENT_ID value:clientId];
 }
 
 - (void)setIsExtendedLifeTimeToken:(NSString*)isExtendedLifeToken
 {
-    [self setProperty:@"is_extended_life_time_token" value:isExtendedLifeToken];
+    [self setProperty:AD_TELEMETRY_IS_EXTENED_LIFE_TIME_TOKEN value:isExtendedLifeToken];
 }
 
 - (void)setErrorCode:(NSString*)errorCode
 {
-    [self setProperty:@"error_code" value:errorCode];
+    [self setProperty:AD_TELEMETRY_ERROR_CODE value:errorCode];
 }
 
 - (void)setProtocolCode:(NSString*)protocolCode
 {
-    [self setProperty:@"protocol_code" value:protocolCode];
+    [self setProperty:AD_TELEMETRY_PROTOCOL_CODE value:protocolCode];
 }
 
 - (void)setErrorDescription:(NSString*)errorDescription
 {
-    [self setProperty:@"error_description" value:errorDescription];
+    [self setProperty:AD_TELEMETRY_ERROR_DESCRIPTION value:errorDescription];
 }
 
 - (void)setErrorDomain:(NSString*)errorDomain
 {
-    [self setProperty:@"error_domain" value:errorDomain];
+    [self setProperty:AD_TELEMETRY_ERROR_DOMAIN value:errorDomain];
 }
 
 - (void)setAuthorityValidationStatus:(NSString*)status
 {
-    [self setProperty:@"validation_status" value:status];
+    [self setProperty:AD_TELEMETRY_AUTHORITY_VALIDATION_STATUS value:status];
 }
 
 - (void)setAuthority:(NSString*)authority
 {
-    [self setProperty:@"authority" value:authority];
+    [self setProperty:AD_TELEMETRY_AUTHORITY value:authority];
+    
+    // set authority type
+    NSString* authorityType = AD_TELEMETRY_AUTHORITY_AAD;
+    if ([ADHelpers isADFSInstance:authority])
+    {
+        authorityType = AD_TELEMETRY_AUTHORITY_ADFS;
+    }
+    [self setProperty:AD_TELEMETRY_AUTHORITY_TYPE value:authorityType];
 }
 
 - (void)setGrantType:(NSString*)grantType
 {
-    [self setProperty:@"grant_type" value:grantType];
+    [self setProperty:AD_TELEMETRY_GRANT_TYPE value:grantType];
 }
 
 - (void)setAPIStatus:(NSString*)status
 {
-    [self setProperty:@"api_status" value:status];
+    [self setProperty:AD_TELEMETRY_API_STATUS value:status];
 }
 
 - (void)setApiId:(NSString*)apiId
 {
-    [self setProperty:@"api_id" value:apiId];
+    [self setProperty:AD_TELEMETRY_API_ID value:apiId];
+}
+
+- (void)setPromptBehavior:(ADPromptBehavior)promptBehavior
+{
+    NSString* promptBehaviorString = nil;
+    switch (promptBehavior) {
+        case AD_PROMPT_AUTO:
+            promptBehaviorString = @"AD_PROMPT_AUTO";
+            break;
+        case AD_PROMPT_ALWAYS:
+            promptBehaviorString = @"AD_PROMPT_ALWAYS";
+            break;
+        case AD_PROMPT_REFRESH_SESSION:
+            promptBehaviorString = @"AD_PROMPT_REFRESH_SESSION";
+            break;
+        case AD_FORCE_PROMPT:
+            promptBehaviorString = @"AD_FORCE_PROMPT";
+            break;
+        default:
+            promptBehaviorString = AD_TELEMETRY_UNKNOWN;
+    }
+    
+    [self setProperty:AD_TELEMETRY_PROMPT_BEHAVIOR value:promptBehaviorString];
+}
+
+- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
+{
+    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
+    
+    NSArray* properties = [self getProperties];
+    for (ADTelemetryProperty* property in properties)
+    {
+        if ([property.name isEqualToString:AD_TELEMETRY_AUTHORITY_TYPE]
+            ||[property.name isEqualToString:AD_TELEMETRY_AUTHORITY_VALIDATION_STATUS]
+            ||[property.name isEqualToString:AD_TELEMETRY_EXTENDED_EXPIRES_ON_SETTING]
+            ||[property.name isEqualToString:AD_TELEMETRY_PROMPT_BEHAVIOR]
+            ||[property.name isEqualToString:AD_TELEMETRY_RESULT_STATUS]
+            ||[property.name isEqualToString:AD_TELEMETRY_IDP]
+            ||[property.name isEqualToString:AD_TELEMETRY_TENANT_ID]
+            ||[property.name isEqualToString:AD_TELEMETRY_USER_ID]
+            ||[property.name isEqualToString:AD_TELEMETRY_RESPONSE_TIME]
+            ||[property.name isEqualToString:AD_TELEMETRY_CLIENT_ID]
+            ||[property.name isEqualToString:AD_TELEMETRY_API_ID]
+            ||[property.name isEqualToString:AD_TELEMETRY_USER_CANCEL]
+            ||[property.name isEqualToString:AD_TELEMETRY_ERROR_CODE]
+            ||[property.name isEqualToString:AD_TELEMETRY_ERROR_DOMAIN]
+            ||[property.name isEqualToString:AD_TELEMETRY_PROTOCOL_CODE]
+            ||[property.name isEqualToString:AD_TELEMETRY_ERROR_DESCRIPTION])
+        {
+            [eventToBeDispatched setObject:property.value forKey:property.name];
+        }
+    }
 }
 
 @end

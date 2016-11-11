@@ -27,10 +27,12 @@
 
 - (void)setHttpMethod:(NSString*)method;
 - (void)setHttpPath:(NSString*)path;
+- (void)setHttpRequestIdHeader:(NSString*)requestIdHeader;
 - (void)setHttpResponseCode:(NSString*)code;
 - (void)setHttpResponseMethod:(NSString*)method;
 - (void)setHttpRequestQueryParams:(NSString*)params;
 - (void)setHttpUserAgent:(NSString*)userAgent;
+- (void)setOAuthErrorCode:(NSString*)code;
 - (void)setHttpErrorDomain:(NSString*)errorDomain;
 
 @end

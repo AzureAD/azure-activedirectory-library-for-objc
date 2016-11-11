@@ -21,8 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADTelemetry.h"
 #import "ADTelemetryDefaultEvent.h"
 #import "ADTelemetryEventInterface.h"
+#import "ADTelemetryEventStrings.h"
 #import "ADLogger.h"
 
 #if !TARGET_OS_IPHONE
@@ -34,7 +36,7 @@
 { \
 if (OBJECT) \
 { \
-[(DICT) addObject:@[(NAME), (OBJECT)]]; \
+[(DICT) addObject:[[ADTelemetryProperty alloc] initWithName:(NAME) value:(OBJECT)]]; \
 } \
 }
 
@@ -59,11 +61,11 @@ if (OBJECT) \
     }
     
     _propertyMap = [[self defaultParameters] mutableCopy];
-    SET_IF_NOT_NIL(_propertyMap, @"request_id", requestId);
-    SET_IF_NOT_NIL(_propertyMap, @"correlation_id", [correlationId UUIDString]);
+    SET_IF_NOT_NIL(_propertyMap, AD_TELEMETRY_REQUEST_ID, requestId);
+    SET_IF_NOT_NIL(_propertyMap, AD_TELEMETRY_CORRELATION_ID, [correlationId UUIDString]);
     _defaultPropertyCount = [_propertyMap count];
     
-    SET_IF_NOT_NIL(_propertyMap, @"event_name", eventName);
+    SET_IF_NOT_NIL(_propertyMap, AD_TELEMETRY_EVENT_NAME, eventName);
     
     return self;
 }
@@ -82,7 +84,7 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:@[name, value]];
+    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:name value:value]];
 }
 
 - (NSArray*)getProperties
@@ -97,7 +99,7 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:@[@"start_time", [self getStringFromDate:time]]];
+    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:@"start_time" value:[self getStringFromDate:time]]];
 }
 
 - (void)setStopTime:(NSDate*)time
@@ -107,13 +109,14 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:@[@"stop_time", [self getStringFromDate:time]]];
+    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:@"stop_time" value:[self getStringFromDate:time]]];
 }
 
 - (void)setResponseTime:(NSTimeInterval)responseTime
 {
     //the property is set in milliseconds
-    [_propertyMap addObject:@[@"response_time", [NSString stringWithFormat:@"%f", responseTime*1000]]];
+    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:AD_TELEMETRY_RESPONSE_TIME
+                                                                value:[NSString stringWithFormat:@"%f", responseTime*1000]]];
 }
 
 - (NSString*)getStringFromDate:(NSDate*)date
@@ -128,6 +131,16 @@ if (OBJECT) \
     });
     
     return [s_dateFormatter stringFromDate:date];
+}
+
+- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
+{
+    for (int i=0; i<[self getDefaultPropertyCount]; i++)
+    {
+        NSString* propertyName = [(ADTelemetryProperty*)_propertyMap[i] name];
+        NSString* propertyValue = [(ADTelemetryProperty*)_propertyMap[i] value];
+        [eventToBeDispatched setObject:propertyValue forKey:propertyName];
+    }
 }
 
 - (NSArray*)defaultParameters
