@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADAutoInputViewController.h"
+#import "UIApplication+ADExtensions.h"
 
 @interface ADAutoInputViewController ()
 
@@ -31,18 +32,6 @@
 {
     ADAutoParamBlock _completionBlock;
     UITextView * _inputTextview;
-}
-
-- (id)initWithCompletionBlock:(ADAutoParamBlock)completionBlock
-{
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    
-    _completionBlock = completionBlock;
-    
-    return self;
 }
 
 - (void)loadView
@@ -56,7 +45,7 @@
     
     UITextView* textView = [[UITextView alloc] init];
     textView.autocorrectionType = UITextAutocorrectionTypeNo;
-    textView.accessibilityIdentifier = @"inputTextview";
+    textView.accessibilityIdentifier = @"requestInfo";
     textView.translatesAutoresizingMaskIntoConstraints = NO;
     textView.editable = YES;
     textView.layer.cornerRadius = 8.0;
@@ -73,7 +62,7 @@
     goButton.backgroundColor = UIColor.greenColor;
     goButton.titleLabel.textColor = UIColor.whiteColor;
     goButton.translatesAutoresizingMaskIntoConstraints = NO;
-    goButton.accessibilityIdentifier = @"GoButton";
+    goButton.accessibilityIdentifier = @"requestGo";
     
     [rootView addSubview:textView];
     [rootView addSubview:goButton];
@@ -106,6 +95,12 @@
     @synchronized (self)
     {
         NSString* text = _inputTextview.text;
+        
+        _inputTextview.editable = NO;
+        UIButton *button = (UIButton *)sender;
+        button.enabled = NO;
+        [button setTitle:@"Running.." forState:UIControlStateDisabled];
+        
         NSError* error = nil;
         NSDictionary* params = [NSJSONSerialization JSONObjectWithData:[text dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
         if (!params)
@@ -116,6 +111,15 @@
         _completionBlock(params);
     }
 }
+
+- (void)startWithCompletionBlock:(ADAutoParamBlock)completionBlock
+{
+    _completionBlock = completionBlock;
+    [[UIApplication adCurrentViewController] presentViewController:self animated:NO completion:^{
+        NSLog(@"presented!");
+    }];
+}
+
 
 /*
 #pragma mark - Navigation

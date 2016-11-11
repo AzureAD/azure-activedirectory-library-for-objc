@@ -19,9 +19,8 @@
 #import <UIKit/UIKit.h>
 #import "ADALAutomation.h"
 
-@interface ADAutoParameterViewController : UIViewController
+@interface ADAutoResultViewController : UIViewController
 
-- (id)initWithParameters:(NSArray<NSString*>*)parameters
-         completionBlock:(ADAutoParamBlock)completionBlock;
+- (id)initWithResultJson:(NSString*) result;
 
 @end
