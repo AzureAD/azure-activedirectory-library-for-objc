@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADTelemetry.h"
 #import "ADTelemetryDefaultEvent.h"
 #import "ADTelemetryEventInterface.h"
 #import "ADTelemetryEventStrings.h"
@@ -35,7 +36,7 @@
 { \
 if (OBJECT) \
 { \
-[(DICT) addObject:@[(NAME), (OBJECT)]]; \
+[(DICT) addObject:[[ADTelemetryProperty alloc] initWithName:(NAME) value:(OBJECT)]]; \
 } \
 }
 
@@ -83,7 +84,7 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:@[name, value]];
+    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:name value:value]];
 }
 
 - (NSArray*)getProperties
@@ -98,7 +99,7 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:@[@"start_time", [self getStringFromDate:time]]];
+    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:@"start_time" value:[self getStringFromDate:time]]];
 }
 
 - (void)setStopTime:(NSDate*)time
@@ -108,13 +109,14 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:@[@"stop_time", [self getStringFromDate:time]]];
+    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:@"stop_time" value:[self getStringFromDate:time]]];
 }
 
 - (void)setResponseTime:(NSTimeInterval)responseTime
 {
     //the property is set in milliseconds
-    [_propertyMap addObject:@[AD_TELEMETRY_RESPONSE_TIME, [NSString stringWithFormat:@"%f", responseTime*1000]]];
+    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:AD_TELEMETRY_RESPONSE_TIME
+                                                                value:[NSString stringWithFormat:@"%f", responseTime*1000]]];
 }
 
 - (NSString*)getStringFromDate:(NSDate*)date
@@ -131,11 +133,13 @@ if (OBJECT) \
     return [s_dateFormatter stringFromDate:date];
 }
 
-- (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
+- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
 {
     for (int i=0; i<[self getDefaultPropertyCount]; i++)
     {
-        [eventToBeDispatched setObject:_propertyMap[i][1] forKey:_propertyMap[i][0]];
+        NSString* propertyName = [(ADTelemetryProperty*)_propertyMap[i] name];
+        NSString* propertyValue = [(ADTelemetryProperty*)_propertyMap[i] value];
+        [eventToBeDispatched setObject:propertyValue forKey:propertyName];
     }
 }
 

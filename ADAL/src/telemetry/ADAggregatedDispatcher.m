@@ -50,7 +50,7 @@
     NSMutableDictionary* aggregatedEventMap = [NSMutableDictionary new];
     for (id<ADTelemetryEventInterface> event in eventsToBeDispatched)
     {
-        [event processEvent:aggregatedEventMap];
+        [event addAggregatedPropertiesToDictionary:aggregatedEventMap];
     }
     
     // convert the aggregated event from a map to a list
@@ -58,7 +58,7 @@
     SAFE_ARC_AUTORELEASE(aggregatedEvent);
     for (NSString* key in aggregatedEventMap)
     {
-        [aggregatedEvent addObject:@[key, [aggregatedEventMap objectForKey:key]]];
+        [aggregatedEvent addObject:[[ADTelemetryProperty alloc] initWithName:key value:[aggregatedEventMap objectForKey:key]]];
     }
     [_dispatcher dispatchEvent:aggregatedEvent];
 }

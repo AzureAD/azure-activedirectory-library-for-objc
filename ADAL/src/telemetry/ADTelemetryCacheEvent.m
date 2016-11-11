@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADTelemetry.h"
 #import "ADTelemetryCacheEvent.h"
 #import "ADTelemetryEventStrings.h"
 
@@ -66,19 +67,19 @@
     [self setProperty:AD_TELEMETRY_FRT_STATUS value:status];
 }
 
-- (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
+- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
 {
-    [super processEvent:eventToBeDispatched];
+    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
     
     (void)eventToBeDispatched;
     NSArray* properties = [self getProperties];
-    for (NSArray* property in properties)
+    for (ADTelemetryProperty* property in properties)
     {
-        if ([property[0] isEqualToString:AD_TELEMETRY_RT_STATUS]
-            ||[property[0] isEqualToString:AD_TELEMETRY_FRT_STATUS]
-            ||[property[0] isEqualToString:AD_TELEMETRY_MRRT_STATUS])
+        if ([property.name isEqualToString:AD_TELEMETRY_RT_STATUS]
+            ||[property.name isEqualToString:AD_TELEMETRY_FRT_STATUS]
+            ||[property.name isEqualToString:AD_TELEMETRY_MRRT_STATUS])
         {
-            [eventToBeDispatched setObject:property[1] forKey:property[0]];
+            [eventToBeDispatched setObject:property.value forKey:property.name];
         }
     }
     

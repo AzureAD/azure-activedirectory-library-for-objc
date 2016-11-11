@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADTelemetry.h"
 #import "ADTelemetryAPIEvent.h"
 #import "ADUserInformation.h"
 #import "ADTelemetryEventStrings.h"
@@ -152,31 +153,31 @@
     [self setProperty:AD_TELEMETRY_PROMPT_BEHAVIOR value:promptBehaviorString];
 }
 
-- (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
+- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
 {
-    [super processEvent:eventToBeDispatched];
+    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
     
     NSArray* properties = [self getProperties];
-    for (NSArray* property in properties)
+    for (ADTelemetryProperty* property in properties)
     {
-        if ([property[0] isEqualToString:AD_TELEMETRY_AUTHORITY_TYPE]
-            ||[property[0] isEqualToString:AD_TELEMETRY_AUTHORITY_VALIDATION_STATUS]
-            ||[property[0] isEqualToString:AD_TELEMETRY_EXTENDED_EXPIRES_ON_SETTING]
-            ||[property[0] isEqualToString:AD_TELEMETRY_PROMPT_BEHAVIOR]
-            ||[property[0] isEqualToString:AD_TELEMETRY_RESULT_STATUS]
-            ||[property[0] isEqualToString:AD_TELEMETRY_IDP]
-            ||[property[0] isEqualToString:AD_TELEMETRY_TENANT_ID]
-            ||[property[0] isEqualToString:AD_TELEMETRY_USER_ID]
-            ||[property[0] isEqualToString:AD_TELEMETRY_RESPONSE_TIME]
-            ||[property[0] isEqualToString:AD_TELEMETRY_CLIENT_ID]
-            ||[property[0] isEqualToString:AD_TELEMETRY_API_ID]
-            ||[property[0] isEqualToString:AD_TELEMETRY_USER_CANCEL]
-            ||[property[0] isEqualToString:AD_TELEMETRY_ERROR_CODE]
-            ||[property[0] isEqualToString:AD_TELEMETRY_ERROR_DOMAIN]
-            ||[property[0] isEqualToString:AD_TELEMETRY_PROTOCOL_CODE]
-            ||[property[0] isEqualToString:AD_TELEMETRY_ERROR_DESCRIPTION])
+        if ([property.name isEqualToString:AD_TELEMETRY_AUTHORITY_TYPE]
+            ||[property.name isEqualToString:AD_TELEMETRY_AUTHORITY_VALIDATION_STATUS]
+            ||[property.name isEqualToString:AD_TELEMETRY_EXTENDED_EXPIRES_ON_SETTING]
+            ||[property.name isEqualToString:AD_TELEMETRY_PROMPT_BEHAVIOR]
+            ||[property.name isEqualToString:AD_TELEMETRY_RESULT_STATUS]
+            ||[property.name isEqualToString:AD_TELEMETRY_IDP]
+            ||[property.name isEqualToString:AD_TELEMETRY_TENANT_ID]
+            ||[property.name isEqualToString:AD_TELEMETRY_USER_ID]
+            ||[property.name isEqualToString:AD_TELEMETRY_RESPONSE_TIME]
+            ||[property.name isEqualToString:AD_TELEMETRY_CLIENT_ID]
+            ||[property.name isEqualToString:AD_TELEMETRY_API_ID]
+            ||[property.name isEqualToString:AD_TELEMETRY_USER_CANCEL]
+            ||[property.name isEqualToString:AD_TELEMETRY_ERROR_CODE]
+            ||[property.name isEqualToString:AD_TELEMETRY_ERROR_DOMAIN]
+            ||[property.name isEqualToString:AD_TELEMETRY_PROTOCOL_CODE]
+            ||[property.name isEqualToString:AD_TELEMETRY_ERROR_DESCRIPTION])
         {
-            [eventToBeDispatched setObject:property[1] forKey:property[0]];
+            [eventToBeDispatched setObject:property.value forKey:property.name];
         }
     }
 }

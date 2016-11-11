@@ -587,11 +587,11 @@ typedef void(^TestCallback)(NSArray* event);
 - (NSString*)getPropertyFromEvent:(NSArray*)event
                  propertyName:(NSString*)propertyName
 {
-    for (NSArray* propertyValuePair in event)
+    for (ADTelemetryProperty* property in event)
     {
-        if ([[propertyValuePair objectAtIndex:0] isEqualToString:propertyName])
+        if ([property.name isEqualToString:propertyName])
         {
-            return [propertyValuePair objectAtIndex:1];
+            return property.value;
         }
     }
     return nil;
@@ -601,9 +601,9 @@ typedef void(^TestCallback)(NSArray* event);
                  propertyName:(NSString*)propertyName
 {
     NSInteger count = 0;
-    for (NSArray* propertyValuePair in event)
+    for (ADTelemetryProperty* property in event)
     {
-        if ([[propertyValuePair objectAtIndex:0] isEqualToString:propertyName])
+        if ([property.name isEqualToString:propertyName])
         {
             count++;
         }

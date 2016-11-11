@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADTelemetry.h"
 #import "ADTelemetryHttpEvent.h"
 #import "ADTelemetryEventStrings.h"
 
@@ -71,9 +72,9 @@
     [self setProperty:AD_TELEMETRY_HTTP_ERROR_DOMAIN value:errorDomain];
 }
 
-- (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
+- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
 {
-    [super processEvent:eventToBeDispatched];
+    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
     
     (void)eventToBeDispatched;
     
@@ -85,15 +86,15 @@
     [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", httpEventCount] forKey:AD_TELEMETRY_HTTP_EVENT_COUNT];
     
     NSArray* properties = [self getProperties];
-    for (NSArray* property in properties)
+    for (ADTelemetryProperty* property in properties)
     {
-        if ([property[0] isEqualToString:AD_TELEMETRY_HTTP_RESPONSE_CODE]
-            ||[property[0] isEqualToString:AD_TELEMETRY_OAUTH_ERROR_CODE]
-            ||[property[0] isEqualToString:AD_TELEMETRY_HTTP_ERROR_DOMAIN]
-            ||[property[0] isEqualToString:AD_TELEMETRY_HTTP_PATH]
-            ||[property[0] isEqualToString:AD_TELEMETRY_HTTP_REQUEST_ID_HEADER])
+        if ([property.name isEqualToString:AD_TELEMETRY_HTTP_RESPONSE_CODE]
+            ||[property.name isEqualToString:AD_TELEMETRY_OAUTH_ERROR_CODE]
+            ||[property.name isEqualToString:AD_TELEMETRY_HTTP_ERROR_DOMAIN]
+            ||[property.name isEqualToString:AD_TELEMETRY_HTTP_PATH]
+            ||[property.name isEqualToString:AD_TELEMETRY_HTTP_REQUEST_ID_HEADER])
         {
-            [eventToBeDispatched setObject:property[1] forKey:property[0]];
+            [eventToBeDispatched setObject:property.value forKey:property.name];
         }
     }
 }

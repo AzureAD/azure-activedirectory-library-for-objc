@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADTelemetry.h"
 #import "ADTelemetryUIEvent.h"
 #import "ADTelemetryEventStrings.h"
 
@@ -36,18 +37,18 @@
     [self setProperty:AD_TELEMETRY_NTLM_HANDLED value:ntlmHandled];
 }
 
-- (void)processEvent:(NSMutableDictionary*)eventToBeDispatched
+- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
 {
-    [super processEvent:eventToBeDispatched];
+    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
     
     (void)eventToBeDispatched;
     NSArray* properties = [self getProperties];
-    for (NSArray* property in properties)
+    for (ADTelemetryProperty* property in properties)
     {
-        if ([property[0] isEqualToString:AD_TELEMETRY_LOGIN_HINT]
-            ||[property[0] isEqualToString:AD_TELEMETRY_NTLM_HANDLED])
+        if ([property.name isEqualToString:AD_TELEMETRY_LOGIN_HINT]
+            ||[property.name isEqualToString:AD_TELEMETRY_NTLM_HANDLED])
         {
-            [eventToBeDispatched setObject:property[1] forKey:property[0]];
+            [eventToBeDispatched setObject:property.value forKey:property.name];
         }
     }
     

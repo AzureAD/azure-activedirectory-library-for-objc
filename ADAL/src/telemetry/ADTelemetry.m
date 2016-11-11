@@ -158,11 +158,11 @@ static NSString* const s_delimiter = @"|";
                      propertyName:(NSString*)propertyName
 {
     NSArray* properties = [event getProperties];
-    for (NSArray* propertyValuePair in properties)
+    for (ADTelemetryProperty* property in properties)
     {
-        if ([[propertyValuePair objectAtIndex:0] isEqualToString:propertyName])
+        if ([property.name isEqualToString:propertyName])
         {
-            return [propertyValuePair objectAtIndex:1];
+            return [property value];
         }
     }
     return nil;
@@ -177,6 +177,27 @@ static NSString* const s_delimiter = @"|";
             [_dispatcher flush:requestId];
         }
     }
+}
+
+@end
+
+@implementation ADTelemetryProperty
+
+@synthesize name = _name;
+@synthesize value = _value;
+
+- (id)initWithName:(NSString*)name
+             value:(NSString*)value
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    _name = name;
+    _value = value;
+    
+    return self;
 }
 
 @end
