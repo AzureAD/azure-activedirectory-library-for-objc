@@ -26,6 +26,6 @@
 
 @interface ADAutoInputViewController : UIViewController
 
-- (id)initWithCompletionBlock:(ADAutoParamBlock)completionBlock;
+- (void)startWithCompletionBlock:(ADAutoParamBlock)completionBlock;
 
 @end

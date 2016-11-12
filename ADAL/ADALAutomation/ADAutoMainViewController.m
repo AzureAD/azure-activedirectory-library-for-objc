@@ -17,9 +17,10 @@
 // governing permissions and limitations under the License.
 
 #import "ADAutoMainViewController.h"
-#import "ADAutoParameterViewController.h"
 #import "ADAutoInputViewController.h"
+#import "ADAutoResultViewController.h"
 #import "ADAL_Internal.h"
+#import "UIApplication+ADExtensions.h"
 
 @interface ADAutoMainViewController ()
 
@@ -41,29 +42,45 @@
 
 - (IBAction)acquireToken:(id)sender
 {
-   /* ADAutoParameterViewController* paramController =
-    [[ADAutoParameterViewController alloc] initWithParameters:@[@"userId", @"authority", @"clientId", @"resource", @"redirectUri"]
-                                              completionBlock:^(NSDictionary<NSString *,NSString *> *parameters)*/
-    ADAutoInputViewController* inputController =
-    [[ADAutoInputViewController alloc] initWithCompletionBlock:^(NSDictionary<NSString *,NSString *> *parameters)
-    {
+    ADAutoInputViewController* inputController = [ADAutoInputViewController new];
+    
+    [inputController startWithCompletionBlock:^(NSDictionary<NSString *,NSString *> *parameters)
+     {
          ADAuthenticationContext* context =
          [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
                                           validateAuthority:YES
                                                       error:nil];
          
          [context acquireTokenWithResource:parameters[@"resource"]
-                                  clientId:parameters[@"clientId"]
-                               redirectUri:[NSURL URLWithString:parameters[@"redirectUri"]]
+                                  clientId:parameters[@"client_id"]
+                               redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
                            completionBlock:^(ADAuthenticationResult *result)
-         {
-             NSLog(@"Yay! %@", result);
-         }];
+          {
+              [self dismissViewControllerAnimated:NO completion:^{
+                  
+                  [self displayAuthenticationResult:result];
+              }];
+          }];
      }];
-    
-    [self presentViewController:inputController animated:NO completion:^{
-        NSLog(@"presented!");
+}
+
+-(void) displayAuthenticationResult:(ADAuthenticationResult*) result {
+    ADAutoResultViewController* resultController = [[ADAutoResultViewController alloc] initWithResultJson:[self createJsonFromResult:result]];
+    [[UIApplication adCurrentViewController] presentViewController:resultController animated:NO completion:^{
+        NSLog(@"Result view controller loaded");
     }];
+}
+
+- (NSString*) createJsonFromResult:(ADAuthenticationResult*) result
+{
+    NSDictionary* resultDictionary = [NSDictionary new];
+    [resultDictionary setValue:result.accessToken forKey:@"access_token"];
+    [resultDictionary setValue:result.multiResourceRefreshToken forKey:@"mrrt";
+     [resultDictionary setValue:result.correlationId forKey:@"correlation_id"];
+     [resultDictionary setValue:result.error forKey:@"error"];
+     [resultDictionary setValue:result.error. forKey:@"error"];
+    
+    return @"cancelled";
 }
 
 @end
