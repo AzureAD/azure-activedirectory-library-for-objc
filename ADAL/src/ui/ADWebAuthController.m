@@ -258,6 +258,8 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:@"WebView timed out" correlationId:_requestParams.correlationId];
         [self dispatchCompletionBlock:adError URL:nil];
     }];
+    SAFE_ARC_RELEASE(_authenticationViewController);
+    _authenticationViewController = nil;
 }
 
 #pragma mark - ADWebAuthDelegate
