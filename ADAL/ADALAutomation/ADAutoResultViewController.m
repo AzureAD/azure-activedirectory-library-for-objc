@@ -18,15 +18,18 @@
 
 
 #import "ADAutoResultViewController.h"
+#import "ADAutoTextAndButtonView.h"
 
 @interface ADAutoResultViewController ()
+{
+    ADAutoTextAndButtonView* _myView;
+}
 
 @end
 
 @implementation ADAutoResultViewController
 {
     NSString* _result;
-    UITextView * _outputTextview;
 }
 
 - (id)initWithResultJson:(NSString*) result
@@ -43,48 +46,17 @@
 
 - (void)loadView
 {
-    UIView* rootView = [[UIView alloc] initWithFrame:UIScreen.mainScreen.bounds];
-    rootView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    rootView.translatesAutoresizingMaskIntoConstraints = YES;
-    rootView.autoresizesSubviews = NO;
-    rootView.backgroundColor = UIColor.whiteColor;
-    self.view = rootView;
+    _myView = [[ADAutoTextAndButtonView alloc] initWithFrame:UIScreen.mainScreen.bounds];
     
-    UITextView* textView = [[UITextView alloc] init];
-    textView.autocorrectionType = UITextAutocorrectionTypeNo;
-    textView.accessibilityIdentifier = @"resultInfo";
-    textView.translatesAutoresizingMaskIntoConstraints = NO;
-    textView.editable = NO;
-    textView.scrollEnabled = YES;
-    textView.text = _result;
-    textView.layer.cornerRadius = 8.0;
-    textView.layer.borderWidth = 1.0;
-    textView.layer.borderColor = UIColor.lightGrayColor.CGColor;
+    _myView.dataTextView.accessibilityIdentifier = @"resultInfo";
     
-    _outputTextview = textView;
+    [_myView.actionButton setTitle:@"Done" forState:UIControlStateNormal];
+    [_myView.actionButton addTarget:self
+                             action:@selector(done:)
+                   forControlEvents:UIControlEventTouchUpInside];
+    _myView.actionButton.accessibilityIdentifier = @"resultDone";
     
-    UIButton* doneButton = [[UIButton alloc] init];
-    [doneButton setTitle:@"Done" forState:UIControlStateNormal];
-    [doneButton addTarget:self
-                 action:@selector(done:)
-       forControlEvents:UIControlEventTouchUpInside];
-    doneButton.backgroundColor = UIColor.greenColor;
-    doneButton.titleLabel.textColor = UIColor.whiteColor;
-    doneButton.translatesAutoresizingMaskIntoConstraints = NO;
-    doneButton.accessibilityIdentifier = @"resultDone";
-    
-    [rootView addSubview:textView];
-    [rootView addSubview:doneButton];
-    
-    UILayoutGuide* margins = self.view.layoutMarginsGuide;
-    [textView.topAnchor constraintEqualToAnchor:self.topLayoutGuide.bottomAnchor constant:8.0].active = YES;
-    [textView.leadingAnchor constraintEqualToAnchor:margins.leadingAnchor].active = YES;
-    [textView.trailingAnchor constraintEqualToAnchor:margins.trailingAnchor].active = YES;
-    [textView.bottomAnchor constraintEqualToAnchor:doneButton.topAnchor constant:-8.0].active = YES;
-    [doneButton.leadingAnchor constraintEqualToAnchor:margins.leadingAnchor].active = YES;
-    [doneButton.trailingAnchor constraintEqualToAnchor:margins.trailingAnchor].active = YES;
-    [doneButton.heightAnchor constraintEqualToConstant:20.0];
-    [doneButton.bottomAnchor constraintEqualToAnchor:self.bottomLayoutGuide.topAnchor constant:-8.0].active = YES;
+    self.view = _myView;
 }
 
 - (void)viewDidLoad {

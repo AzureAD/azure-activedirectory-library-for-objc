@@ -208,6 +208,7 @@
 		94DD19081C5AD3A600F80C62 /* ADKeychainTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 94DD19031C5AD39A00F80C62 /* ADKeychainTokenCacheTests.m */; };
 		94E0FD8E1C59614B00CD707B /* ADTokenCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 9453C3C61C583AE6006B9E79 /* ADTokenCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		975EF21A1DD294D700ABF2C9 /* ADAutoResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 975EF2191DD294D600ABF2C9 /* ADAutoResultViewController.m */; };
+		975EF2201DDBB2CB00ABF2C9 /* ADAutoTextAndButtonView.m in Sources */ = {isa = PBXBuildFile; fileRef = 975EF21F1DDBB2CB00ABF2C9 /* ADAutoTextAndButtonView.m */; };
 		97A522501A1A8999001D77CE /* ADClientMetricsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */; };
 		D60D8FE81D25C8D400F3E6C9 /* ADHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D60D8FE71D25C8D400F3E6C9 /* ADHelpersTests.m */; };
 		D60D8FE91D25C8D400F3E6C9 /* ADHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D60D8FE71D25C8D400F3E6C9 /* ADHelpersTests.m */; };
@@ -582,6 +583,8 @@
 		975EF2191DD294D600ABF2C9 /* ADAutoResultViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoResultViewController.m; sourceTree = "<group>"; };
 		975EF21B1DD2951700ABF2C9 /* ADAutoResultViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAutoResultViewController.h; sourceTree = "<group>"; };
 		975EF21D1DD7E2A500ABF2C9 /* ADALAutomation.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ADALAutomation.entitlements; sourceTree = "<group>"; };
+		975EF21E1DDBB2CB00ABF2C9 /* ADAutoTextAndButtonView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAutoTextAndButtonView.h; sourceTree = "<group>"; };
+		975EF21F1DDBB2CB00ABF2C9 /* ADAutoTextAndButtonView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoTextAndButtonView.m; sourceTree = "<group>"; };
 		97A522481A1A752D001D77CE /* ADClientMetrics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetrics.m; sourceTree = "<group>"; };
 		97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetricsTests.m; sourceTree = "<group>"; };
 		97A522511A1A89C4001D77CE /* ADClientMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADClientMetrics.h; sourceTree = "<group>"; };
@@ -1201,6 +1204,8 @@
 				D64C1F691DBADAF900850036 /* ADALAutomation.h */,
 				975EF2191DD294D600ABF2C9 /* ADAutoResultViewController.m */,
 				975EF21B1DD2951700ABF2C9 /* ADAutoResultViewController.h */,
+				975EF21E1DDBB2CB00ABF2C9 /* ADAutoTextAndButtonView.h */,
+				975EF21F1DDBB2CB00ABF2C9 /* ADAutoTextAndButtonView.m */,
 			);
 			path = ADALAutomation;
 			sourceTree = "<group>";
@@ -1797,6 +1802,7 @@
 				D64C1F681DBAD90100850036 /* ADAutoInputViewController.m in Sources */,
 				D64C1F521DB9B05900850036 /* ADAutoMainViewController.m in Sources */,
 				975EF21A1DD294D700ABF2C9 /* ADAutoResultViewController.m in Sources */,
+				975EF2201DDBB2CB00ABF2C9 /* ADAutoTextAndButtonView.m in Sources */,
 				D64C1F4F1DB9B05900850036 /* ADAutoAppDelegate.m in Sources */,
 				D64C1F4C1DB9B05900850036 /* main.m in Sources */,
 			);

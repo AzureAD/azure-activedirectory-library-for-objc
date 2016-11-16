@@ -51,6 +51,13 @@
     
     [inputController startWithCompletionBlock:^(NSDictionary<NSString *,NSString *> *parameters)
      {
+         if(parameters[@"error"])
+         {
+             [self dismissViewControllerAnimated:NO completion:^{
+                 [self displayResultJson:parameters[@"error"]];
+             }];
+         }
+         
          ADAuthenticationContext* context =
          [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
                                           validateAuthority:YES
@@ -76,6 +83,13 @@
     
     [inputController startWithCompletionBlock:^(NSDictionary<NSString *,NSString *> *parameters)
      {
+         if(parameters[@"error"])
+         {
+             [self dismissViewControllerAnimated:NO completion:^{
+                 [self displayResultJson:parameters[@"error"]];
+             }];
+         }
+         
          ADAuthenticationContext* context =
          [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
                                           validateAuthority:[parameters[@"validate_authority"] boolValue]
@@ -120,6 +134,13 @@
     
     [inputController startWithCompletionBlock:^(NSDictionary<NSString *,NSString *> *parameters)
      {
+         if(parameters[@"error"])
+         {
+             [self dismissViewControllerAnimated:NO completion:^{
+                 [self displayResultJson:parameters[@"error"]];
+             }];
+         }
+         
          ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
          
          ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:parameters[@"authority"]
@@ -156,8 +177,14 @@
     
     [inputController startWithCompletionBlock:^(NSDictionary<NSString *,NSString *> *parameters)
      {
-         ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
+         if(parameters[@"error"])
+         {
+             [self dismissViewControllerAnimated:NO completion:^{
+                 [self displayResultJson:parameters[@"error"]];
+             }];
+         }
          
+         ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
          ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:parameters[@"authority"]
                                                          resource:parameters[@"resource"]
                                                          clientId:parameters[@"client_id"]

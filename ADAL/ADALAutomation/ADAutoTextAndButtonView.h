@@ -16,12 +16,12 @@
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
 
+
 #import <UIKit/UIKit.h>
-#import "ADALAutomation.h"
-#import "ADAutoInputViewController.h"
 
-@interface ADAutoResultViewController : UIViewController
+@interface ADAutoTextAndButtonView : UIView
 
-- (id)initWithResultJson:(NSString*) result;
+    @property (strong, nonatomic) UITextView* dataTextView;
+    @property (strong, nonatomic) UIButton* actionButton;
 
 @end

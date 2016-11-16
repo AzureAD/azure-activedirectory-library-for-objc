@@ -22,60 +22,33 @@
 // THE SOFTWARE.
 
 #import "ADAutoInputViewController.h"
+#import "ADAutoTextAndButtonView.h"
 #import "UIApplication+ADExtensions.h"
 
 @interface ADAutoInputViewController ()
-
 @end
 
 @implementation ADAutoInputViewController
 {
     ADAutoParamBlock _completionBlock;
-    UITextView * _inputTextview;
+    ADAutoTextAndButtonView* _myView;
 }
 
 - (void)loadView
 {
-    UIView* rootView = [[UIView alloc] initWithFrame:UIScreen.mainScreen.bounds];
-    rootView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    rootView.translatesAutoresizingMaskIntoConstraints = YES;
-    rootView.autoresizesSubviews = NO;
-    rootView.backgroundColor = UIColor.whiteColor;
-    self.view = rootView;
+    _myView = [[ADAutoTextAndButtonView alloc] initWithFrame:UIScreen.mainScreen.bounds];
+    _myView.dataTextView.accessibilityIdentifier = @"requestInfo";
+    [_myView.actionButton setTitle:@"Go" forState:UIControlStateNormal];
+    [_myView.actionButton addTarget:self
+                             action:@selector(go:)
+                   forControlEvents:UIControlEventTouchUpInside];
+    _myView.actionButton.accessibilityIdentifier = @"requestGo";
     
-    UITextView* textView = [[UITextView alloc] init];
-    textView.autocorrectionType = UITextAutocorrectionTypeNo;
-    textView.accessibilityIdentifier = @"requestInfo";
-    textView.translatesAutoresizingMaskIntoConstraints = NO;
-    textView.editable = YES;
-    textView.layer.cornerRadius = 8.0;
-    textView.layer.borderWidth = 1.0;
-    textView.layer.borderColor = UIColor.lightGrayColor.CGColor;
-
-    _inputTextview = textView;
-    
-    UIButton* goButton = [[UIButton alloc] init];
-    [goButton setTitle:@"Go" forState:UIControlStateNormal];
-    [goButton addTarget:self
+    [_myView.actionButton addTarget:self
                  action:@selector(go:)
-       forControlEvents:UIControlEventTouchUpInside];
-    goButton.backgroundColor = UIColor.greenColor;
-    goButton.titleLabel.textColor = UIColor.whiteColor;
-    goButton.translatesAutoresizingMaskIntoConstraints = NO;
-    goButton.accessibilityIdentifier = @"requestGo";
+                   forControlEvents:UIControlEventTouchUpInside];
     
-    [rootView addSubview:textView];
-    [rootView addSubview:goButton];
-    
-    UILayoutGuide* margins = self.view.layoutMarginsGuide;
-    [textView.topAnchor constraintEqualToAnchor:self.topLayoutGuide.bottomAnchor constant:8.0].active = YES;
-    [textView.leadingAnchor constraintEqualToAnchor:margins.leadingAnchor].active = YES;
-    [textView.trailingAnchor constraintEqualToAnchor:margins.trailingAnchor].active = YES;
-    [textView.bottomAnchor constraintEqualToAnchor:goButton.topAnchor constant:-8.0].active = YES;
-    [goButton.leadingAnchor constraintEqualToAnchor:margins.leadingAnchor].active = YES;
-    [goButton.trailingAnchor constraintEqualToAnchor:margins.trailingAnchor].active = YES;
-    [goButton.heightAnchor constraintEqualToConstant:20.0];
-    [goButton.bottomAnchor constraintEqualToAnchor:self.bottomLayoutGuide.topAnchor constant:-8.0].active = YES;
+    self.view = _myView;
 }
 
 - (void)viewDidLoad {
@@ -94,9 +67,9 @@
     
     @synchronized (self)
     {
-        NSString* text = _inputTextview.text;
+        NSString* text = _myView.dataTextView.text;
         
-        _inputTextview.editable = NO;
+        _myView.dataTextView.editable = NO;
         UIButton *button = (UIButton *)sender;
         button.enabled = NO;
         [button setTitle:@"Running.." forState:UIControlStateDisabled];
