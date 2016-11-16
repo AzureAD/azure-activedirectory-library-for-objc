@@ -58,14 +58,71 @@
              }];
          }
          
+         bool validateAuthority = YES;
+         if(parameters[@"validate_authority"])
+         {
+             validateAuthority = [parameters[@"validate_authority"] boolValue];
+         }
+         
          ADAuthenticationContext* context =
          [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
-                                          validateAuthority:YES
+                                          validateAuthority:validateAuthority
                                                       error:nil];
+         
+         if(parameters[@"use_broker"] && ![parameters[@"use_broker"] boolValue])
+         {
+             context.credentialsType = AD_CREDENTIALS_EMBEDDED;
+         }
+         
+         if(parameters[@"correlation_id"])
+         {
+             context.correlationId = [[NSUUID alloc] initWithUUIDString:parameters[@"correlation_id"]];
+         }
+         
+         
+         ADPromptBehavior promptBehavior = AD_PROMPT_AUTO;
+         NSString* promptValue = parameters[@"prompt_behavior"];
+         if(promptValue)
+         {
+             if ([NSString adSame:[promptValue lowercaseString] toString:@"refresh_session"])
+             {
+                 promptBehavior = AD_PROMPT_REFRESH_SESSION;
+             }
+             else if ([NSString adSame:[promptValue lowercaseString] toString:@"always"])
+             {
+                 promptBehavior = AD_PROMPT_ALWAYS;
+             }
+         }
+         
+         NSString* userId = parameters[@"user_identifier"];
+         ADUserIdentifier* userIdentifier = nil;
+         if(userId)
+         {
+             //default identifier type is RequiredDisplayableId
+             userIdentifier = [ADUserIdentifier identifierWithId:userId];
+             NSString* userIdType = parameters[@"user_identifier_type"];
+             if(userIdType)
+             {
+                 if ([NSString adSame:[userIdType lowercaseString] toString:@"unique_id"])
+                 {
+                     userIdentifier = [ADUserIdentifier identifierWithId:userId
+                                                          typeFromString:@"UniqueId"];
+                 }
+                 else if ([NSString adSame:[userIdType lowercaseString] toString:@"optional_displayable"])
+                 {
+                     userIdentifier = [ADUserIdentifier identifierWithId:userId
+                                                          typeFromString:@"OptionalDisplayableId"];
+                 }
+             }
+         }
+         
          
          [context acquireTokenWithResource:parameters[@"resource"]
                                   clientId:parameters[@"client_id"]
                                redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
+                            promptBehavior:promptBehavior
+                            userIdentifier:userIdentifier
+                      extraQueryParameters:parameters[@"extra_qp"]
                            completionBlock:^(ADAuthenticationResult *result)
           {
               [self dismissViewControllerAnimated:NO completion:^{
@@ -95,10 +152,21 @@
                                           validateAuthority:[parameters[@"validate_authority"] boolValue]
                                                       error:nil];
          
+         if(parameters[@"use_broker"] && ![parameters[@"use_broker"] boolValue])
+         {
+             context.credentialsType = AD_CREDENTIALS_EMBEDDED;
+         }
+         
+         if(parameters[@"correlation_id"])
+         {
+             context.correlationId = [[NSUUID alloc] initWithUUIDString:parameters[@"correlation_id"]];
+         }
+         
          [context acquireTokenSilentWithResource:parameters[@"resource"]
-                                  clientId:parameters[@"client_id"]
-                               redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
-                           completionBlock:^(ADAuthenticationResult *result)
+                                        clientId:parameters[@"client_id"]
+                                     redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
+                                          userId:parameters[@"user_identifier"]
+                                 completionBlock:^(ADAuthenticationResult *result)
           {
               [self dismissViewControllerAnimated:NO completion:^{
                   
@@ -112,7 +180,17 @@
 {
     ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
     NSArray* allItems = [cache allItems:nil];
-    [self displayResultJson:[NSString stringWithFormat:@"{\"item_count\":\"%lu\"}", (unsigned long)allItems.count]];
+    NSMutableDictionary* cacheDictionary = [NSMutableDictionary new];
+    [cacheDictionary setValue:[NSString stringWithFormat:@"%lu", (unsigned long)allItems.count] forKey:@"item_count"];
+    
+    NSMutableArray * arr = [[NSMutableArray alloc] init];
+    for(ADTokenCacheItem* item in allItems)
+    {
+        [arr addObject:[self createDictionaryFromTokenCacheItem:item]];
+    }
+    
+    [cacheDictionary setValue:arr forKey:@"items"];
+    [self displayResultJson:[self createJsonStringFromDictionary:cacheDictionary]];
 }
 
 - (IBAction)clearCache:(id)sender
@@ -147,11 +225,11 @@
                                                          resource:parameters[@"resource"]
                                                          clientId:parameters[@"client_id"]
                                                             error:nil];
-
+         
          NSArray<ADTokenCacheItem *>* items = [cache getItemsWithKey:key
-                                          userId:parameters[@"user_id"]
-                                   correlationId:nil
-                                           error:nil];
+                                                              userId:parameters[@"user_id"]
+                                                       correlationId:nil
+                                                               error:nil];
          
          int refreshTokenCount = 0;
          
@@ -235,26 +313,67 @@
     }
     else {
         
-        [resultDict setValue:result.accessToken forKey:@"access_token"];
-        if(result.tokenCacheItem.userInformation){
-            [resultDict setValue:result.tokenCacheItem.userInformation.rawIdToken
-                          forKey:@"id_token"];
-            [resultDict setValue:result.tokenCacheItem.userInformation.upn
-                          forKey:@"upn"];
+        NSString * isExtLtString = (result.extendedLifeTimeToken) ? @"true" : @"false";
+        [resultDict setValue:isExtLtString forKey:@"extended_lifetime_token"];
+        
+        [result setValuesForKeysWithDictionary:[self createDictionaryFromTokenCacheItem:result.tokenCacheItem]];
+    }
+    
+    return [self createJsonStringFromDictionary:resultDict];
+}
+
+- (NSDictionary*) createDictionaryFromTokenCacheItem:(ADTokenCacheItem*) item
+{
+    NSMutableDictionary* resultDict = [NSMutableDictionary new];
+    [resultDict setValue:item.accessToken forKey:@"access_token"];
+    [resultDict setValue:item.refreshToken forKey:@"refresh_token"];
+    [resultDict setValue:item.accessTokenType forKey:@"access_token_type"];
+    [resultDict setValue:[NSString stringWithFormat:@"%ld", (long)item.expiresOn.timeIntervalSince1970] forKey:@"expires_on"];
+    
+    
+    NSString * isMrrtString = (item.isMultiResourceRefreshToken) ? @"true" : @"false";
+    [resultDict setValue:isMrrtString forKey:@"mrrt"];
+    
+    if(item.userInformation){
+        [resultDict setValue:item.userInformation.rawIdToken
+                      forKey:@"id_token"];
+        [resultDict setValue:item.userInformation.identityProvider
+                      forKey:@"identity_provider"];
+        [resultDict setValue:item.userInformation.tenantId
+                      forKey:@"tenant_id"];
+        [resultDict setValue:item.userInformation.givenName
+                      forKey:@"given_name"];
+        [resultDict setValue:item.userInformation.guestId
+                      forKey:@"guest_id"];
+        [resultDict setValue:item.userInformation.familyName
+                      forKey:@"family_name"];
+        [resultDict setValue:item.userInformation.uniqueId
+                      forKey:@"unique_id"];
+        if(item.userInformation.userIdDisplayable)
+        {
+            [resultDict setValue:item.userInformation.userId
+                          forKey:@"displayable_id"];
         }
     }
     
+    return resultDict;
+}
+
+
+- (NSString*) createJsonStringFromDictionary:(NSDictionary*) dictionary
+{
+    
     NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:resultDict
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary
                                                        options:NSJSONWritingPrettyPrinted
                                                          error:&error];
-    NSString* resultString = nil;
-    
+
     if (! jsonData) {
         return [NSString stringWithFormat:@"{\"error\" : \"%@\"}", error.description];
     }
     
     return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
+
 
 @end
