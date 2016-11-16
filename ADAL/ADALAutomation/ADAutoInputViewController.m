@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADAutoInputViewController.h"
-#import "ADTextAndButtonView.h"
+#import "ADAutoTextAndButtonView.h"
 
 @interface ADAutoInputViewController ()
 
@@ -31,7 +31,7 @@
 @implementation ADAutoInputViewController
 {
     ADAutoParamBlock _completionBlock;
-    ADTextAndButtonView* _textAndButtonView;
+    ADAutoTextAndButtonView* _textAndButtonView;
 }
 
 - (id)initWithCompletionBlock:(ADAutoParamBlock)completionBlock
@@ -51,7 +51,7 @@
     UIView* contentView = [[UIView alloc] initWithFrame:UIScreen.mainScreen.bounds];
     contentView.backgroundColor = UIColor.whiteColor;
     self.view = contentView;
-    _textAndButtonView = [[ADTextAndButtonView alloc] initWithFrame:UIScreen.mainScreen.bounds];
+    _textAndButtonView = [[ADAutoTextAndButtonView alloc] initWithFrame:UIScreen.mainScreen.bounds];
     [contentView addSubview:_textAndButtonView];
     [_textAndButtonView.actionButton addTarget:self
                                         action:@selector(go:)

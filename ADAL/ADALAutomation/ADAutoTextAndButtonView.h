@@ -23,7 +23,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ADTextAndButtonView : UIView
+@interface ADAutoTextAndButtonView : UIView
 
 @property (readonly) UIButton* actionButton;
 @property (readonly) UITextView* textView;

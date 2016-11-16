@@ -23,7 +23,7 @@
 
 #import "ADTextAndButtonView.h"
 
-@implementation ADTextAndButtonView
+@implementation ADAutoTextAndButtonView
 
 - (id)initWithFrame:(CGRect)frame
 {
