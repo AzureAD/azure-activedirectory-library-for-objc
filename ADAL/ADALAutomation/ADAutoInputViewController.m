@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADAutoInputViewController.h"
+#import "ADTextAndButtonView.h"
 
 @interface ADAutoInputViewController ()
 
@@ -30,7 +31,7 @@
 @implementation ADAutoInputViewController
 {
     ADAutoParamBlock _completionBlock;
-    UITextView * _inputTextview;
+    ADTextAndButtonView* _textAndButtonView;
 }
 
 - (id)initWithCompletionBlock:(ADAutoParamBlock)completionBlock
@@ -47,46 +48,33 @@
 
 - (void)loadView
 {
-    UIView* rootView = [[UIView alloc] initWithFrame:UIScreen.mainScreen.bounds];
-    rootView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    rootView.translatesAutoresizingMaskIntoConstraints = YES;
-    rootView.autoresizesSubviews = NO;
-    rootView.backgroundColor = UIColor.whiteColor;
-    self.view = rootView;
+    UIView* contentView = [[UIView alloc] initWithFrame:UIScreen.mainScreen.bounds];
+    contentView.backgroundColor = UIColor.whiteColor;
+    self.view = contentView;
+    _textAndButtonView = [[ADTextAndButtonView alloc] initWithFrame:UIScreen.mainScreen.bounds];
+    [contentView addSubview:_textAndButtonView];
+    [_textAndButtonView.actionButton addTarget:self
+                                        action:@selector(go:)
+                              forControlEvents:UIControlEventTouchUpInside];
     
-    UITextView* textView = [[UITextView alloc] init];
-    textView.autocorrectionType = UITextAutocorrectionTypeNo;
-    textView.accessibilityIdentifier = @"inputTextview";
-    textView.translatesAutoresizingMaskIntoConstraints = NO;
-    textView.editable = YES;
-    textView.layer.cornerRadius = 8.0;
-    textView.layer.borderWidth = 1.0;
-    textView.layer.borderColor = UIColor.lightGrayColor.CGColor;
-
-    _inputTextview = textView;
+    NSDictionary* views = @{ @"textAndButtonView" : _textAndButtonView,
+                             @"topLayoutGuide" : self.topLayoutGuide,
+                             @"bottomLayoutGuide" : self.bottomLayoutGuide };
     
-    UIButton* goButton = [[UIButton alloc] init];
-    [goButton setTitle:@"Go" forState:UIControlStateNormal];
-    [goButton addTarget:self
-                 action:@selector(go:)
-       forControlEvents:UIControlEventTouchUpInside];
-    goButton.backgroundColor = UIColor.greenColor;
-    goButton.titleLabel.textColor = UIColor.whiteColor;
-    goButton.translatesAutoresizingMaskIntoConstraints = NO;
-    goButton.accessibilityIdentifier = @"GoButton";
+    NSArray* verticalConstraints =
+    [NSLayoutConstraint constraintsWithVisualFormat:@"V:[topLayoutGuide]-[textAndButtonView]-[bottomLayoutGuide]"
+                                            options:0
+                                            metrics:nil
+                                              views:views];
     
-    [rootView addSubview:textView];
-    [rootView addSubview:goButton];
+    NSArray* horizontalConstraints =
+    [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[textAndButtonView]-|"
+                                            options:0
+                                            metrics:nil
+                                              views:views];
     
-    UILayoutGuide* margins = self.view.layoutMarginsGuide;
-    [textView.topAnchor constraintEqualToAnchor:self.topLayoutGuide.bottomAnchor constant:8.0].active = YES;
-    [textView.leadingAnchor constraintEqualToAnchor:margins.leadingAnchor].active = YES;
-    [textView.trailingAnchor constraintEqualToAnchor:margins.trailingAnchor].active = YES;
-    [textView.bottomAnchor constraintEqualToAnchor:goButton.topAnchor constant:-8.0].active = YES;
-    [goButton.leadingAnchor constraintEqualToAnchor:margins.leadingAnchor].active = YES;
-    [goButton.trailingAnchor constraintEqualToAnchor:margins.trailingAnchor].active = YES;
-    [goButton.heightAnchor constraintEqualToConstant:20.0];
-    [goButton.bottomAnchor constraintEqualToAnchor:self.bottomLayoutGuide.topAnchor constant:-8.0].active = YES;
+    [self.view addConstraints:verticalConstraints];
+    [self.view addConstraints:horizontalConstraints];
 }
 
 - (void)viewDidLoad {
@@ -105,7 +93,7 @@
     
     @synchronized (self)
     {
-        NSString* text = _inputTextview.text;
+        NSString* text = _textAndButtonView.textView.text;
         NSError* error = nil;
         NSDictionary* params = [NSJSONSerialization JSONObjectWithData:[text dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
         if (!params)
