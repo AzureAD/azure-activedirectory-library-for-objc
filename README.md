@@ -4,9 +4,9 @@
 
 ## Release Versions
 
-We recommend remaining up-to-date with the latest version of ADAL. The best place to check what the most recent version is is the [releases page][https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases] on GitHub, you can also subscribe the the [Atom Feed][https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases.atom] from GitHub, or use a 3rd party tool like [Sibbell][https://sibbell.com/about/] to receive emails when a new version is released.
+We recommend remaining up-to-date with the latest version of ADAL. The best place to check what the most recent version is is the [releases page](https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases) on GitHub, you can also subscribe the the [Atom Feed](https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases.atom) from GitHub, or use a 3rd party tool like [Sibbell](https://sibbell.com/about/) to receive emails when a new version is released.
 
-The only approved way to get the latest version is through a tagged release on GitHub, or a tool that relies on that data. Tools like [CocoaPods][https://cocoapods.org] can make it easier to set up your project dependencies and update to the latest release. ADAL follows the [GitFlow branching model][http://danielkummer.github.io/git-flow-cheatsheet/]. You should never pull an ADAL version for release from any branch other then master, any other branch is for versions of ADAL still in development or testing, and are subject to change.
+The only approved way to get the latest version is through a tagged release on GitHub, or a tool that relies on that data. Tools like [CocoaPods](https://cocoapods.org) can make it easier to set up your project dependencies and update to the latest release. ADAL follows the [GitFlow branching model](http://danielkummer.github.io/git-flow-cheatsheet/). You should never pull an ADAL version for release from any branch other then master, any other branch is for versions of ADAL still in development or testing, and are subject to change.
 
 NOTE: To work with iOS 10 you must have at least version 2.2.5, or 1.2.9.
 
@@ -56,7 +56,7 @@ We've made it easy for you to have multiple options to use this library in your 
 
 ###Option 1: Git Submodule
 
- If your project is managed in a git repository you can include ADAL as a git submodule. First check the [GitHub Releases Page][https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases] for the latest release tag. Replace `<latest_release_tag>` with that version.
+ If your project is managed in a git repository you can include ADAL as a git submodule. First check the [GitHub Releases Page](https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases) for the latest release tag. Replace `<latest_release_tag>` with that version.
 
     git submodule add https://github.com/AzureAD/azure-activedirectory-library-for-objc adal
     cd adal
@@ -80,7 +80,7 @@ See [CocoaPods](https://cocoapods.org) for more information on setting up a PodF
 
 ###Option 3: Source Zip
 
-To download a copy of the source code, first make sure you're on the "master" branch and click "Clone or download" then "Download ZIP" in the upper right hand corner, or you can download it [here][https://github.com/AzureAD/azure-activedirectory-library-for-objc/archive/master.zip]
+To download a copy of the source code, first make sure you're on the "master" branch and click "Clone or download" then "Download ZIP" in the upper right hand corner, or you can download it [here](https://github.com/AzureAD/azure-activedirectory-library-for-objc/archive/master.zip)
 
 This is not recommended, as it leaves no infrastructure in place for being able to easily update to the latest version.
 
