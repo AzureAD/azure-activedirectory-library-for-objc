@@ -53,6 +53,7 @@
     self.view = contentView;
     _textAndButtonView = [[ADAutoTextAndButtonView alloc] initWithFrame:UIScreen.mainScreen.bounds];
     [contentView addSubview:_textAndButtonView];
+    
     [_textAndButtonView.actionButton addTarget:self
                                         action:@selector(go:)
                               forControlEvents:UIControlEventTouchUpInside];
@@ -93,9 +94,9 @@
     
     @synchronized (self)
     {
-        NSString* text = _myView.dataTextView.text;
+        NSString* text = _textAndButtonView.textView.text;
         
-        _myView.dataTextView.editable = NO;
+        _textAndButtonView.textView.editable = NO;
         UIButton *button = (UIButton *)sender;
         button.enabled = NO;
         [button setTitle:@"Running.." forState:UIControlStateDisabled];

@@ -315,8 +315,7 @@
         
         NSString * isExtLtString = (result.extendedLifeTimeToken) ? @"true" : @"false";
         [resultDict setValue:isExtLtString forKey:@"extended_lifetime_token"];
-        
-        [result setValuesForKeysWithDictionary:[self createDictionaryFromTokenCacheItem:result.tokenCacheItem]];
+        [resultDict addEntriesFromDictionary:[self createDictionaryFromTokenCacheItem:result.tokenCacheItem]];
     }
     
     return [self createJsonStringFromDictionary:resultDict];

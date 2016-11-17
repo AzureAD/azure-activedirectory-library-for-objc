@@ -46,9 +46,14 @@
 
 - (void)loadView
 {
+    UIView* contentView = [[UIView alloc] initWithFrame:UIScreen.mainScreen.bounds];
+    contentView.backgroundColor = UIColor.whiteColor;
+    self.view = contentView;
     _myView = [[ADAutoTextAndButtonView alloc] initWithFrame:UIScreen.mainScreen.bounds];
+    [contentView addSubview:_myView];
     
-    _myView.dataTextView.accessibilityIdentifier = @"resultInfo";
+    _myView.textView.text = _result;
+    _myView.textView.accessibilityIdentifier = @"resultInfo";
     
     [_myView.actionButton setTitle:@"Done" forState:UIControlStateNormal];
     [_myView.actionButton addTarget:self
@@ -56,7 +61,24 @@
                    forControlEvents:UIControlEventTouchUpInside];
     _myView.actionButton.accessibilityIdentifier = @"resultDone";
     
-    self.view = _myView;
+    NSDictionary* views = @{ @"textAndButtonView" : _myView,
+                             @"topLayoutGuide" : self.topLayoutGuide,
+                             @"bottomLayoutGuide" : self.bottomLayoutGuide };
+    
+    NSArray* verticalConstraints =
+    [NSLayoutConstraint constraintsWithVisualFormat:@"V:[topLayoutGuide]-[textAndButtonView]-[bottomLayoutGuide]"
+                                            options:0
+                                            metrics:nil
+                                              views:views];
+    
+    NSArray* horizontalConstraints =
+    [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[textAndButtonView]-|"
+                                            options:0
+                                            metrics:nil
+                                              views:views];
+    
+    [self.view addConstraints:verticalConstraints];
+    [self.view addConstraints:horizontalConstraints];
 }
 
 - (void)viewDidLoad {
