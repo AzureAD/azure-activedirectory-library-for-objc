@@ -605,7 +605,9 @@ correlationId:(NSUUID *)correlationId
         _completionBlock(error, nil);
     }
     
-    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]
+                                                                cachePolicy:NSURLRequestUseProtocolCachePolicy
+                                                            timeoutInterval:0];
     [_authenticationViewController startRequest:request];
     SAFE_ARC_RELEASE(request);
 }
