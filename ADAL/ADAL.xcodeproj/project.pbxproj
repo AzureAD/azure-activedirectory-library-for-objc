@@ -1808,11 +1808,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-<<<<<<< HEAD
-=======
 				947135881DDBD01C001BBD60 /* ADAutoTextAndButtonView.m in Sources */,
 				D64C1F621DB9B15800850036 /* ADAutoParameterViewController.m in Sources */,
->>>>>>> dev
 				D64C1F681DBAD90100850036 /* ADAutoInputViewController.m in Sources */,
 				D64C1F521DB9B05900850036 /* ADAutoMainViewController.m in Sources */,
 				975EF21A1DD294D700ABF2C9 /* ADAutoResultViewController.m in Sources */,
