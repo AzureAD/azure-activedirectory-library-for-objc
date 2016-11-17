@@ -21,7 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADTelemetry.h"
 #import "ADTelemetryBrokerEvent.h"
+#import "ADTelemetryEventStrings.h"
 
 @implementation ADTelemetryBrokerEvent
 
@@ -42,7 +44,7 @@
 
 - (void)setBrokerAppVersion:(NSString*)version
 {
-    [self setProperty:@"broker_app_version" value:version];
+    [self setProperty:AD_TELEMETRY_BROKER_VERSION value:version];
 }
 
 - (void)setBrokerProtocolVersion:(NSString*)version
@@ -72,7 +74,24 @@
 
 - (void)setBrokerApp:(NSString*)appName
 {
-    [self setProperty:@"broker_app" value:appName];
+    [self setProperty:AD_TELEMETRY_BROKER_APP value:appName];
+}
+
+- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
+{
+    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
+    
+    (void)eventToBeDispatched;
+    NSArray* properties = [self getProperties];
+    for (ADTelemetryProperty* property in properties)
+    {
+        if ([property.name isEqualToString:AD_TELEMETRY_BROKER_APP]
+            ||[property.name isEqualToString:AD_TELEMETRY_BROKER_VERSION])
+        {
+            [eventToBeDispatched setObject:property.value forKey:property.name];
+        }
+    }
+    [eventToBeDispatched setObject:AD_TELEMETRY_YES forKey:AD_TELEMETRY_BROKER_APP_USED];
 }
 
 @end

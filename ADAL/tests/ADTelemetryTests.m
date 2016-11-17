@@ -25,6 +25,7 @@
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryDefaultEvent.h"
+#import "ADTelemetryAPIEvent.h"
 
 typedef void(^TestCallback)(NSArray* event);
 
@@ -206,6 +207,7 @@ typedef void(^TestCallback)(NSArray* event);
     // new a dispatcher
     TestDispatcher* dispatcher = [TestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
+    NSUUID* correlationId = [NSUUID UUID];
     
     // the dispatcher will store the telemetry events it receives
     [dispatcher setTestCallback:^(NSArray* event)
@@ -220,15 +222,15 @@ typedef void(^TestCallback)(NSArray* event);
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent1"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"
+                                   event:[[ADTelemetryAPIEvent alloc] initWithName:@"testEvent1"
                                                                              requestId:requestId
-                                                                         correlationId:nil]];
+                                                                         correlationId:correlationId]];
     
     // generate telemetry event 2
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
     ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
                                                                           requestId:requestId
-                                                                      correlationId:nil];
+                                                                      correlationId:correlationId];
     [event2 setProperty:@"customized_property" value:@"customized_value"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                    event:event2];
@@ -238,19 +240,27 @@ typedef void(^TestCallback)(NSArray* event);
     // there should be 1 telemetry event recorded as aggregation flag is on
     XCTAssertEqual([receivedEvents count], 1);
     
-    // make sure the aggregated event has 2 event_name, start_time and stop_time
+    // the aggregated event outputs the default properties like correlation_id, request_id, etc.
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"event_name"], 2);
+                             propertyName:@"correlation_id"], 1);
+    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+                             propertyName:@"request_id"], 1);
+    
+    // it will also outputs some designated properties like response_time, but not for event_name, etc.
+    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+                             propertyName:@"response_time"], 1);
     
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"start_time"], 2);
+                             propertyName:@"event_name"], 0);
     
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"stop_time"], 2);
+                             propertyName:@"start_time"], 0);
     
-    // the aggregated event should have 1 customized_property
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"customized_property"], 1);
+                             propertyName:@"stop_time"], 0);
+    
+    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+                             propertyName:@"customized_property"], 0);
     
 }
 
@@ -335,6 +345,7 @@ typedef void(^TestCallback)(NSArray* event);
     // new a dispatcher
     TestDispatcher* dispatcher = [TestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
+    NSUUID* correlationId = [NSUUID UUID];
     
     // the dispatcher will store the telemetry events it receives
     [dispatcher setTestCallback:^(NSArray* event)
@@ -352,33 +363,42 @@ typedef void(^TestCallback)(NSArray* event);
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent2"];
     ADTelemetryDefaultEvent* event2 = [[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
                                                                           requestId:requestId
-                                                                      correlationId:nil];
+                                                                      correlationId:correlationId];
     [event2 setProperty:@"customized_property" value:@"customized_value"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                    event:event2];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"
+                                   event:[[ADTelemetryAPIEvent alloc] initWithName:@"testEvent1"
                                                                              requestId:requestId
-                                                                         correlationId:nil]];
+                                                                         correlationId:correlationId]];
     
     [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry event recorded as aggregation flag is ON
     XCTAssertEqual([receivedEvents count], 1);
     
-    // make sure there is one customized_property, two event_name, start_time and stop_time
+    // the aggregated event outputs the default properties like correlation_id, request_id, etc.
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"customized_property"], 1);
+                             propertyName:@"correlation_id"], 1);
+    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+                             propertyName:@"request_id"], 1);
+    
+    // it will also outputs some designated properties like response_time, but not for event_name, etc.
+    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+                             propertyName:@"response_time"], 1);
     
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"event_name"], 2);
+                             propertyName:@"event_name"], 0);
     
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"start_time"], 2);
+                             propertyName:@"start_time"], 0);
     
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"stop_time"], 2);
+                             propertyName:@"stop_time"], 0);
+    
+    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+                             propertyName:@"customized_property"], 0);
 }
 
 - (void)testComplexEvents {
@@ -497,6 +517,7 @@ typedef void(^TestCallback)(NSArray* event);
     // new a dispatcher
     TestDispatcher* dispatcher = [TestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
+    NSUUID* correlationId = [NSUUID UUID];
     
     // the dispatcher will store the telemetry events it receives
     [dispatcher setTestCallback:^(NSArray* event)
@@ -517,7 +538,7 @@ typedef void(^TestCallback)(NSArray* event);
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                    event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent3"
                                                                              requestId:requestId
-                                                                         correlationId:nil]];
+                                                                         correlationId:correlationId]];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                    event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent2"
@@ -525,40 +546,52 @@ typedef void(^TestCallback)(NSArray* event);
                                                                          correlationId:nil]];
     
     [[ADTelemetry sharedInstance] stopEvent:requestId
-                                   event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent1"
+                                   event:[[ADTelemetryAPIEvent alloc] initWithName:@"testEvent1"
                                                                              requestId:requestId
-                                                                         correlationId:nil]];
+                                                                         correlationId:correlationId]];
     
     [[ADTelemetry sharedInstance] startEvent:requestId eventName:@"testEvent4"];
     [[ADTelemetry sharedInstance] stopEvent:requestId
                                    event:[[ADTelemetryDefaultEvent alloc] initWithName:@"testEvent4"
                                                                              requestId:requestId
-                                                                         correlationId:nil]];
+                                                                         correlationId:correlationId]];
     
     [[ADTelemetry sharedInstance] flush:requestId];
     
     // there should be 1 telemetry events recorded as aggregation flag is ON
     XCTAssertEqual([receivedEvents count], 1);
     
-    // // make sure there are four event_name, start_time and stop_time
+    // the aggregated event outputs the default properties like correlation_id, request_id, etc.
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"event_name"], 4);
+                             propertyName:@"correlation_id"], 1);
+    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+                             propertyName:@"request_id"], 1);
+    
+    // it will also outputs some designated properties like response_time, but not for event_name, etc.
+    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+                             propertyName:@"response_time"], 1);
     
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"start_time"], 4);
+                             propertyName:@"event_name"], 0);
     
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"stop_time"], 4);
+                             propertyName:@"start_time"], 0);
+    
+    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+                             propertyName:@"stop_time"], 0);
+    
+    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+                             propertyName:@"customized_property"], 0);
 }
 
 - (NSString*)getPropertyFromEvent:(NSArray*)event
                  propertyName:(NSString*)propertyName
 {
-    for (NSArray* propertyValuePair in event)
+    for (ADTelemetryProperty* property in event)
     {
-        if ([[propertyValuePair objectAtIndex:0] isEqualToString:propertyName])
+        if ([property.name isEqualToString:propertyName])
         {
-            return [propertyValuePair objectAtIndex:1];
+            return property.value;
         }
     }
     return nil;
@@ -568,9 +601,9 @@ typedef void(^TestCallback)(NSArray* event);
                  propertyName:(NSString*)propertyName
 {
     NSInteger count = 0;
-    for (NSArray* propertyValuePair in event)
+    for (ADTelemetryProperty* property in event)
     {
-        if ([[propertyValuePair objectAtIndex:0] isEqualToString:propertyName])
+        if ([property.name isEqualToString:propertyName])
         {
             count++;
         }

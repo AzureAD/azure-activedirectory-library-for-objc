@@ -21,13 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADTelemetry.h"
 #import "ADTelemetryUIEvent.h"
+#import "ADTelemetryEventStrings.h"
 
 @implementation ADTelemetryUIEvent
 
 - (void)setLoginHint:(NSString*)hint
 {
-    [self setProperty:@"login_hint" value:[hint adComputeSHA256]];
+    [self setProperty:AD_TELEMETRY_LOGIN_HINT value:[hint adComputeSHA256]];
+}
+
+- (void)setNtlm:(NSString*)ntlmHandled
+{
+    [self setProperty:AD_TELEMETRY_NTLM_HANDLED value:ntlmHandled];
+}
+
+- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
+{
+    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
+    
+    (void)eventToBeDispatched;
+    NSArray* properties = [self getProperties];
+    for (ADTelemetryProperty* property in properties)
+    {
+        if ([property.name isEqualToString:AD_TELEMETRY_LOGIN_HINT]
+            ||[property.name isEqualToString:AD_TELEMETRY_NTLM_HANDLED])
+        {
+            [eventToBeDispatched setObject:property.value forKey:property.name];
+        }
+    }
+    
+    int UIEventCount = 1;
+    if ([eventToBeDispatched objectForKey:AD_TELEMETRY_UI_EVENT_COUNT])
+    {
+        UIEventCount = [[eventToBeDispatched objectForKey:AD_TELEMETRY_UI_EVENT_COUNT] intValue] + 1;
+    }
+    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", UIEventCount] forKey:AD_TELEMETRY_UI_EVENT_COUNT];
 }
 
 @end

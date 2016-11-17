@@ -39,6 +39,10 @@
 #import "ADURLProtocol.h"
 #import "ADWebAuthDelegate.h"
 #import "ADWorkPlaceJoinConstants.h"
+#import "ADUserIdentifier.h"
+#import "ADTelemetry.h"
+#import "ADTelemetry+Internal.h"
+#import "ADTelemetryUIEvent.h"
 
 /*! Fired at the start of a resource load in the webview. */
 NSString* ADWebAuthDidStartLoadNotification = @"ADWebAuthDidStartLoadNotification";
@@ -147,6 +151,9 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     
     [ADURLProtocol unregisterProtocol];
     
+    [self fillTelemetryUIEvent:_telemetryEvent];
+    [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:_telemetryEvent];
+    
     if ( _completionBlock )
     {
         void (^completionBlock)( ADAuthenticationError *, NSURL *) = _completionBlock;
@@ -176,7 +183,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     ADAuthenticationError* adError = nil;
     NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority
                                                         challengeData:queryParamsMap
-                                                        correlationId:_correlationId
+                                                        correlationId:_requestParams.correlationId
                                                                 error:&adError];
     if (!authHeader)
     {
@@ -185,7 +192,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     }
     
     NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:value]];
-    [ADURLProtocol addCorrelationId:_correlationId toRequest:responseUrl];
+    [ADURLProtocol addCorrelationId:_requestParams.correlationId toRequest:responseUrl];
     
     [responseUrl setValue:pKeyAuthHeaderVersion forHTTPHeaderField: pKeyAuthHeader];
     [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
@@ -248,9 +255,11 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         NSError* error = [NSError errorWithDomain:NSURLErrorDomain
                                              code:NSURLErrorTimedOut
                                          userInfo:nil];
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:@"WebView timed out" correlationId:_correlationId];
+        ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:@"WebView timed out" correlationId:_requestParams.correlationId];
         [self dispatchCompletionBlock:adError URL:nil];
     }];
+    SAFE_ARC_RELEASE(_authenticationViewController);
+    _authenticationViewController = nil;
 }
 
 #pragma mark - ADWebAuthDelegate
@@ -296,14 +305,14 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)webAuthDidFinishLoad:(NSURL*)url
 {
-    AD_LOG_VERBOSE_F(@"-webAuthDidFinishLoad:", _correlationId, @"host: %@", url.host);
+    AD_LOG_VERBOSE_F(@"-webAuthDidFinishLoad:", _requestParams.correlationId, @"host: %@", url.host);
     [self stopSpinner];
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFinishLoadNotification object:self userInfo:url ? @{ @"url" : url } : nil];
 }
 
 - (BOOL)webAuthShouldStartLoadRequest:(NSURLRequest *)request
 {
-    AD_LOG_VERBOSE_F(@"-webAuthShouldStartLoadRequest:", _correlationId, @"host: %@", request.URL.host);
+    AD_LOG_VERBOSE_F(@"-webAuthShouldStartLoadRequest:", _requestParams.correlationId, @"host: %@", request.URL.host);
     if([ADNTLMHandler isChallengeCancelled])
     {
         _complete = YES;
@@ -336,10 +345,10 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         }
         else
         {
-            AD_LOG_ERROR(@"unable to redirect to browser from extension", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _correlationId, nil);
+            AD_LOG_ERROR(@"unable to redirect to browser from extension", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _requestParams.correlationId, nil);
         }
 #else // !TARGET_OS_IPHONE
-        AD_LOG_ERROR(@"server is redirecting us to browser, this behavior is not defined on Mac OS X yet", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _correlationId, nil);
+        AD_LOG_ERROR(@"server is redirecting us to browser, this behavior is not defined on Mac OS X yet", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _requestParams.correlationId, nil);
 #endif // TARGET_OS_IPHONE
         return NO;
     }
@@ -384,7 +393,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     {
         AD_LOG_ERROR(@"Server is redirecting to a non-https url", AD_ERROR_SERVER_NON_HTTPS_REDIRECT, nil, nil);
         _complete = YES;
-        ADAuthenticationError* error = [ADAuthenticationError errorFromNonHttpsRedirect:_correlationId];
+        ADAuthenticationError* error = [ADAuthenticationError errorFromNonHttpsRedirect:_requestParams.correlationId];
         dispatch_async( dispatch_get_main_queue(), ^{[self endWebAuthenticationWithError:error orURL:nil];} );
         
         return NO;
@@ -392,7 +401,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     
     if ([request isKindOfClass:[NSMutableURLRequest class]])
     {
-        [ADURLProtocol addCorrelationId:_correlationId toRequest:(NSMutableURLRequest*)request];
+        [ADURLProtocol addCorrelationId:_requestParams.correlationId toRequest:(NSMutableURLRequest*)request];
     }
     
     return YES;
@@ -401,18 +410,18 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 // The user cancelled authentication
 - (void)webAuthDidCancel
 {
-    AD_LOG_INFO(@"-webAuthDidCancel", _correlationId, nil);
+    AD_LOG_INFO(@"-webAuthDidCancel", _requestParams.correlationId, nil);
     
     // Dispatch the completion block
     
-    ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation:_correlationId];
+    ADAuthenticationError* error = [ADAuthenticationError errorFromCancellation:_requestParams.correlationId];
     [self endWebAuthenticationWithError:error orURL:nil];
 }
 
 // Authentication completed at the end URL
 - (void)webAuthDidCompleteWithURL:(NSURL *)endURL
 {
-    AD_LOG_INFO_F(@"-webAuthDidCompleteWithURL:", _correlationId, @"%@", endURL);
+    AD_LOG_INFO_F(@"-webAuthDidCompleteWithURL:", _requestParams.correlationId, @"%@", endURL);
 
     [self endWebAuthenticationWithError:nil orURL:endURL];
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidCompleteNotification object:self userInfo:nil];
@@ -458,7 +467,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
     if (error)
     {
-        AD_LOG_ERROR_F(@"-webAuthDidFailWithError:", error.code, _correlationId, @"error: %@", error);
+        AD_LOG_ERROR_F(@"-webAuthDidFailWithError:", error.code, _requestParams.correlationId, @"error: %@", error);
 
         [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidFailNotification
                                                             object:self
@@ -489,12 +498,12 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     if (_complete == YES)
     {
         //We expect to get an error here, as we intentionally fail to navigate to the final redirect URL.
-        AD_LOG_VERBOSE(@"Expected error", _correlationId, [error localizedDescription]);
+        AD_LOG_VERBOSE(@"Expected error", _requestParams.correlationId, [error localizedDescription]);
         return;
     }
     
     // Dispatch the completion block
-    __block ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription correlationId:_correlationId];
+    __block ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:error.localizedDescription correlationId:_requestParams.correlationId];
     
     dispatch_async(dispatch_get_main_queue(), ^{ [self endWebAuthenticationWithError:adError orURL:nil]; });
 }
@@ -509,6 +518,14 @@ static ADAuthenticationResult* s_result = nil;
     return result;
 }
 #endif // TARGET_OS_IPHONE
+
+- (void)fillTelemetryUIEvent:(ADTelemetryUIEvent*)event
+{
+    if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString adIsStringNilOrBlank:[_requestParams identifier].userId])
+    {
+        [event setLoginHint:[_requestParams identifier].userId];
+    }
+}
 
 @end
 
@@ -530,7 +547,7 @@ static ADAuthenticationResult* s_result = nil;
 
 - (BOOL)cancelCurrentWebAuthSessionWithError:(ADAuthenticationError*)error
 {
-    AD_LOG_ERROR_F(@"Application is cancelling current web auth session.", error.code, _correlationId, @"error = %@", error);
+    AD_LOG_ERROR_F(@"Application is cancelling current web auth session.", error.code, _requestParams.correlationId, @"error = %@", error);
     return [self endWebAuthenticationWithError:error orURL:nil];
 }
 
@@ -549,12 +566,12 @@ static ADAuthenticationResult* s_result = nil;
    fullScreen:(BOOL)fullScreen
 #endif
       webView:(WebViewType *)webView
-correlationId:(NSUUID *)correlationId
+      context:(ADRequestParameters*)requestParams
    completion:(ADBrokerCallback)completionBlock
 {
     THROW_ON_NIL_ARGUMENT(startURL);
     THROW_ON_NIL_ARGUMENT(endURL);
-    THROW_ON_NIL_ARGUMENT(correlationId);
+    THROW_ON_NIL_ARGUMENT(requestParams.correlationId);
     THROW_ON_NIL_ARGUMENT(completionBlock);
     
     // If we're not on the main thread when trying to kick up the UI then
@@ -570,31 +587,35 @@ correlationId:(NSUUID *)correlationId
              fullScreen:fullScreen
 #endif
                 webView:webView
-          correlationId:correlationId
+                context:requestParams
              completion:completionBlock];
         });
         return;
     }
     
+    [[ADTelemetry sharedInstance] startEvent:requestParams.telemetryRequestId eventName:@"launch_web_view"];
+    SAFE_ARC_RELEASE(_telemetryEvent);
+    _telemetryEvent = [[ADTelemetryUIEvent alloc] initWithName:@"launch_web_view"
+                                                                 context:_requestParams];
     
     _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
     
-    startURL = [self addToURL:startURL correlationId:correlationId];//Append the correlation id
+    startURL = [self addToURL:startURL correlationId:requestParams.correlationId];//Append the correlation id
     SAFE_ARC_RELEASE(_endURL);
     _endURL = [endURL absoluteString];
     SAFE_ARC_RETAIN(_endURL);
     _complete = NO;
     
-    SAFE_ARC_RELEASE(_correlationId);
-    _correlationId = correlationId;
-    SAFE_ARC_RETAIN(_correlationId);
+    SAFE_ARC_RELEASE(_requestParams);
+    _requestParams = requestParams;
+    SAFE_ARC_RETAIN(_requestParams);
     
     // Save the completion block
     SAFE_ARC_RELEASE(_completionBlock);
     _completionBlock = [completionBlock copy];
     ADAuthenticationError* error = nil;
     
-    [ADURLProtocol registerProtocol:[endURL absoluteString]];
+    [ADURLProtocol registerProtocol:[endURL absoluteString] telemetryEvent:_telemetryEvent];
     
     if(![NSString adIsStringNilOrBlank:refreshCred])
     {
@@ -618,7 +639,7 @@ correlationId:(NSUUID *)correlationId
     }
     
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
-    [ADURLProtocol addCorrelationId:_correlationId toRequest:request];
+    [ADURLProtocol addCorrelationId:_requestParams.correlationId toRequest:request];
     [_authenticationViewController startRequest:request];
     SAFE_ARC_RELEASE(request);
 }

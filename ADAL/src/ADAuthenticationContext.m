@@ -33,7 +33,9 @@
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
+#import "ADTelemetryEventStrings.h"
 #import "ADUserIdentifier.h"
+#import "ADTokenCacheItem.h"
 
 typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
 

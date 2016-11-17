@@ -106,7 +106,8 @@
                 [_responseDictionary setObject:rawResponse
                                         forKey:@"raw_response"];
                 SAFE_ARC_RELEASE(rawResponse);
-                break;
+                completionBlock(_responseDictionary);
+                return;
             }
         case 400:
         case 401:

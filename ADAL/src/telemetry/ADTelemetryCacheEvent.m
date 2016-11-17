@@ -21,18 +21,74 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADTelemetry.h"
 #import "ADTelemetryCacheEvent.h"
+#import "ADTelemetryEventStrings.h"
 
 @implementation ADTelemetryCacheEvent
 
 - (void)setTokenType:(NSString*)tokenType
 {
-    [self setProperty:@"token_type" value:tokenType];
+    [self setProperty:AD_TELEMETRY_TOKEN_TYPE value:tokenType];
 }
 
 - (void)setStatus:(NSString*)status
 {
     [self setProperty:@"status" value:status];
+}
+
+- (void)setIsRT:(NSString*)isRT
+{
+    [self setProperty:AD_TELEMETRY_IS_RT value:isRT];
+}
+
+- (void)setIsMRRT:(NSString*)isMRRT
+{
+    [self setProperty:AD_TELEMETRY_IS_MRRT value:isMRRT];
+}
+
+- (void)setIsFRT:(NSString*)isFRT
+{
+    [self setProperty:AD_TELEMETRY_IS_FRT value:isFRT];
+}
+
+- (void)setRTStatus:(NSString*)status
+{
+    [self setProperty:AD_TELEMETRY_RT_STATUS value:status];
+}
+
+- (void)setMRRTStatus:(NSString*)status
+{
+    [self setProperty:AD_TELEMETRY_MRRT_STATUS value:status];
+}
+
+- (void)setFRTStatus:(NSString*)status
+{
+    [self setProperty:AD_TELEMETRY_FRT_STATUS value:status];
+}
+
+- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
+{
+    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
+    
+    (void)eventToBeDispatched;
+    NSArray* properties = [self getProperties];
+    for (ADTelemetryProperty* property in properties)
+    {
+        if ([property.name isEqualToString:AD_TELEMETRY_RT_STATUS]
+            ||[property.name isEqualToString:AD_TELEMETRY_FRT_STATUS]
+            ||[property.name isEqualToString:AD_TELEMETRY_MRRT_STATUS])
+        {
+            [eventToBeDispatched setObject:property.value forKey:property.name];
+        }
+    }
+    
+    int cacheEventCount = 1;
+    if ([eventToBeDispatched objectForKey:AD_TELEMETRY_CACHE_EVENT_COUNT])
+    {
+        cacheEventCount = [[eventToBeDispatched objectForKey:AD_TELEMETRY_CACHE_EVENT_COUNT] intValue] + 1;
+    }
+    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", cacheEventCount] forKey:AD_TELEMETRY_CACHE_EVENT_COUNT];
 }
 
 @end

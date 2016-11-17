@@ -21,36 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#pragma once
+#import <UIKit/UIKit.h>
 
-@class ADAuthenticationError;
-@class ADURLProtocol;
-@class ADTelemetryUIEvent;
+@interface ADAutoTextAndButtonView : UIView
 
-@protocol ADAuthMethodHandler
+@property (readonly) UIButton* actionButton;
+@property (readonly) UITextView* textView;
 
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge*)challenge
-             connection:(NSURLConnection*)connection
-               protocol:(ADURLProtocol*)protocol;
-+ (void)resetHandler;
-
-@end
-
-//Intercepts HTTPS protocol for the application in order to allow
-//NTLM with client-authentication. The class is not thread-safe.
-@interface ADURLProtocol : NSURLProtocol <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
-{
-    NSURLConnection *_connection;
-    NSUUID *_correlationId;
-}
-
-+ (void)registerHandler:(Class<ADAuthMethodHandler>)handler
-             authMethod:(NSString *)authMethod;
-
-+ (BOOL)registerProtocol:(NSString*)endURL
-          telemetryEvent:(ADTelemetryUIEvent*)telemetryEvent;
-+ (void)unregisterProtocol;
-
-+ (void)addCorrelationId:(NSUUID *)correlationId
-               toRequest:(NSMutableURLRequest *)request;
 @end

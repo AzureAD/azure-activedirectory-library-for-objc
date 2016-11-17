@@ -31,24 +31,50 @@
 @implementation ADAutoInputViewController
 {
     ADAutoParamBlock _completionBlock;
-    ADAutoTextAndButtonView* _myView;
+    ADAutoTextAndButtonView* _textAndButtonView;
+}
+
+- (id)initWithCompletionBlock:(ADAutoParamBlock)completionBlock
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    _completionBlock = completionBlock;
+    
+    return self;
 }
 
 - (void)loadView
 {
-    _myView = [[ADAutoTextAndButtonView alloc] initWithFrame:UIScreen.mainScreen.bounds];
-    _myView.dataTextView.accessibilityIdentifier = @"requestInfo";
-    [_myView.actionButton setTitle:@"Go" forState:UIControlStateNormal];
-    [_myView.actionButton addTarget:self
-                             action:@selector(go:)
-                   forControlEvents:UIControlEventTouchUpInside];
-    _myView.actionButton.accessibilityIdentifier = @"requestGo";
+    UIView* contentView = [[UIView alloc] initWithFrame:UIScreen.mainScreen.bounds];
+    contentView.backgroundColor = UIColor.whiteColor;
+    self.view = contentView;
+    _textAndButtonView = [[ADAutoTextAndButtonView alloc] initWithFrame:UIScreen.mainScreen.bounds];
+    [contentView addSubview:_textAndButtonView];
+    [_textAndButtonView.actionButton addTarget:self
+                                        action:@selector(go:)
+                              forControlEvents:UIControlEventTouchUpInside];
     
-    [_myView.actionButton addTarget:self
-                 action:@selector(go:)
-                   forControlEvents:UIControlEventTouchUpInside];
+    NSDictionary* views = @{ @"textAndButtonView" : _textAndButtonView,
+                             @"topLayoutGuide" : self.topLayoutGuide,
+                             @"bottomLayoutGuide" : self.bottomLayoutGuide };
     
-    self.view = _myView;
+    NSArray* verticalConstraints =
+    [NSLayoutConstraint constraintsWithVisualFormat:@"V:[topLayoutGuide]-[textAndButtonView]-[bottomLayoutGuide]"
+                                            options:0
+                                            metrics:nil
+                                              views:views];
+    
+    NSArray* horizontalConstraints =
+    [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[textAndButtonView]-|"
+                                            options:0
+                                            metrics:nil
+                                              views:views];
+    
+    [self.view addConstraints:verticalConstraints];
+    [self.view addConstraints:horizontalConstraints];
 }
 
 - (void)viewDidLoad {

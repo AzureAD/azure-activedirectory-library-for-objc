@@ -57,7 +57,7 @@ build_targets = [
 		"scheme" : "SampleSwiftApp",
 		"operations" : [ "build" ],
 		"platform" : "iOS",
-		"project" : "Samples/SampleSwiftApp/SampleSwiftApp.xcodeproj",
+		"workspace" : "Samples/SampleSwiftApp/SampleSwiftApp.xcworkspace",
 	},
 	{
 		"name" : "Mac Framework",
@@ -96,6 +96,10 @@ def do_ios_build(target, operation) :
 	name = target["name"]
 	scheme = target["scheme"]
 	project = target.get("project")
+	workspace = target.get("workspace")
+
+	if (workspace == None) :
+		workspace = default_workspace
 
 	print_operation_start(name, operation)
 
@@ -103,7 +107,7 @@ def do_ios_build(target, operation) :
 	if (project != None) :
 		command += " -project " + project
 	else :
-		command += " -workspace " + default_workspace
+		command += " -workspace " + workspace
 		
 	command += " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest + " | xcpretty"
 	print command
@@ -163,6 +167,7 @@ for arg in sys.argv :
 # start by cleaning up any derived data that might be lying around
 if (clean) :
 	subprocess.call("rm -rf ~/Library/Developer/Xcode/DerivedData/ADAL-*", shell=True)
+	subprocess.call("rm -rf ~/Library/Developer/Xcode/DerivedData/SampleSwiftApp-*", shell=True)
 
 for target in build_targets:
 	exit_code = 0
