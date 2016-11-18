@@ -26,6 +26,7 @@
 #import "ADLogger.h"
 #import "ADNTLMHandler.h"
 #import "ADCustomHeaderHandler.h"
+#import "ADAuthenticationSettings.h"
 
 static NSMutableDictionary* s_handlers = nil;
 static NSString* s_endURL = nil;
@@ -137,7 +138,7 @@ static NSString* kADURLProtocolPropertyKey = @"ADURLProtocol";
     AD_LOG_VERBOSE_F(@"-[ADURLProtocol startLoading]", @"host: %@", [self.request.URL host]);
     
     NSMutableURLRequest* request = [self.request mutableCopy];
-    [request setTimeoutInterval:60.0];//set default timeout interval after copy
+    [request setTimeoutInterval:[[ADAuthenticationSettings sharedInstance] requestTimeOut]];
     
     [NSURLProtocol setProperty:@YES forKey:kADURLProtocolPropertyKey inRequest:request];
     
