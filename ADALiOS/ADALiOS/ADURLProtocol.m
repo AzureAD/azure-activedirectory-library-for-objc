@@ -137,7 +137,6 @@ static NSString* kADURLProtocolPropertyKey = @"ADURLProtocol";
     AD_LOG_VERBOSE_F(@"-[ADURLProtocol startLoading]", @"host: %@", [self.request.URL host]);
     
     NSMutableURLRequest* request = [self.request mutableCopy];
-    [request setTimeoutInterval:60.0];//set default timeout interval after copy
     
     [NSURLProtocol setProperty:@YES forKey:kADURLProtocolPropertyKey inRequest:request];
     
