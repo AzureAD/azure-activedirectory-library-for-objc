@@ -27,6 +27,10 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
+#import "ADTelemetry.h"
+#import "ADTelemetry+Internal.h"
+#import "ADTelemetryCacheEvent.h"
+#import "ADTelemetryEventStrings.h"
 
 @implementation ADTokenCacheAccessor
 
@@ -65,7 +69,7 @@
 - (ADTokenCacheItem *)getItemForUser:(ADUserIdentifier *)identifier
                             resource:(NSString *)resource
                             clientId:(NSString *)clientId
-                       correlationId:(NSUUID *)correlationId
+                             context:(id<ADRequestContext>)context
                                error:(ADAuthenticationError * __autoreleasing *)error
 {
     ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:_authority
@@ -79,7 +83,7 @@
     
     return [_dataSource getItemWithKey:key
                                 userId:identifier.userId
-                         correlationId:correlationId
+                         correlationId:[context correlationId]
                                  error:error];
 }
 
@@ -91,10 +95,19 @@
 - (ADTokenCacheItem *)getATRTItemForUser:(ADUserIdentifier *)identifier
                                 resource:(NSString *)resource
                                 clientId:(NSString *)clientId
-                           correlationId:(NSUUID *)correlationId
+                                 context:(id<ADRequestContext>)context
                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
-    return [self getItemForUser:identifier resource:resource clientId:clientId correlationId:correlationId error:error];
+    [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:@"token_cache_lookup"];
+    
+    ADTokenCacheItem* item = [self getItemForUser:identifier resource:resource clientId:clientId context:context error:error];
+    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_lookup"
+                                                                       context:context];
+    [event setTokenType:@"access token"];
+    [event setStatus:item? @"succeeded" : @"failed"];
+    [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
+    SAFE_ARC_RELEASE(event);
+    return item;
 }
 
 /*!
@@ -103,10 +116,25 @@
  */
 - (ADTokenCacheItem *)getMRRTItemForUser:(ADUserIdentifier *)identifier
                                 clientId:(NSString *)clientId
-                           correlationId:(NSUUID *)correlationId
+                                 context:(id<ADRequestContext>)context
                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
-    return [self getItemForUser:identifier resource:nil clientId:clientId correlationId:correlationId error:error];
+    [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:@"token_cache_lookup"];
+    ADTokenCacheItem* item = [self getItemForUser:identifier resource:nil clientId:clientId context:context error:error];
+    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_lookup"
+                                                                     requestId:[context telemetryRequestId]
+                                                                 correlationId:[context correlationId]];
+    [event setTokenType:@"multi-resource refresh token"];
+    [event setMRRTStatus:AD_TELEMETRY_NOT_FOUND];
+    if (item)
+    {
+        [event setIsMRRT:AD_TELEMETRY_YES];
+        [event setMRRTStatus:AD_TELEMETRY_TRIED];
+    }
+    [event setStatus:item? @"succeeded" : @"failed"];
+    [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
+    SAFE_ARC_RELEASE(event);
+    return item;
 }
 
 /*!
@@ -115,17 +143,32 @@
  */
 - (ADTokenCacheItem *)getFRTItemForUser:(ADUserIdentifier *)identifier
                                familyId:(NSString *)familyId
-                          correlationId:(NSUUID *)correlationId
+                                context:(id<ADRequestContext>)context
                                   error:(ADAuthenticationError * __autoreleasing *)error
 {
-    NSString* fociClientId = [ADTokenCacheAccessor familyClientId:familyId];
+    [[ADTelemetry sharedInstance] startEvent:context.telemetryRequestId eventName:@"token_cache_lookup"];
     
-    return [self getItemForUser:identifier resource:nil clientId:fociClientId correlationId:correlationId error:error];
+    NSString* fociClientId = [ADTokenCacheAccessor familyClientId:familyId];
+    ADTokenCacheItem* item = [self getItemForUser:identifier resource:nil clientId:fociClientId context:context error:error];
+
+    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_lookup"
+                                                                       context:context];
+    [event setTokenType:@"family refresh token"];
+    [event setFRTStatus:AD_TELEMETRY_NOT_FOUND];
+    if (item)
+    {
+        [event setIsFRT:AD_TELEMETRY_YES];
+        [event setFRTStatus:AD_TELEMETRY_TRIED];
+    }
+    [event setStatus:item? @"succeeded" : @"failed"];
+    [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
+    SAFE_ARC_RELEASE(event);
+    return item;
 }
 
 - (ADTokenCacheItem*)getADFSUserTokenForResource:(NSString *)resource
                                         clientId:(NSString *)clientId
-                                   correlationId:(NSUUID *)correlationId
+                                         context:(id<ADRequestContext>)context
                                            error:(ADAuthenticationError * __autoreleasing *)error
 {
     // ADFS fix: When talking to ADFS directly we can get ATs and RTs (but not MRRTs or FRTs) without
@@ -140,8 +183,22 @@
     {
         return nil;
     }
-    
-    return [_dataSource getItemWithKey:key userId:@"" correlationId:correlationId error:error];
+
+    [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:@"token_cache_lookup"];
+    ADTokenCacheItem* item = [_dataSource getItemWithKey:key userId:@"" correlationId:[context correlationId] error:error];
+    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_lookup"
+                                                                       context:context];
+    [event setTokenType:@"ADFS access token/refresh token"];
+    [event setRTStatus:AD_TELEMETRY_NOT_FOUND];
+    if ([item refreshToken])
+    {
+        [event setIsRT:AD_TELEMETRY_YES];
+        [event setRTStatus:AD_TELEMETRY_TRIED];
+    }
+    [event setStatus:item? @"succeeded" : @"failed"];
+    [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
+    SAFE_ARC_RELEASE(event);
+    return item;
 }
 
 
@@ -150,7 +207,7 @@
 - (void)updateCacheToResult:(ADAuthenticationResult *)result
                   cacheItem:(ADTokenCacheItem *)cacheItem
                refreshToken:(NSString *)refreshToken
-              correlationId:(NSUUID *)correlationId
+                    context:(id<ADRequestContext>)context
 {
     
     if(!result)
@@ -167,13 +224,13 @@
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:item argumentName:@"resource" authenticationResult:&result]
            || ![ADAuthenticationContext handleNilOrEmptyAsResult:item argumentName:@"accessToken" authenticationResult:&result])
         {
-            AD_LOG_WARN(@"Told to update cache to an invalid token cache item", correlationId, nil);
+            AD_LOG_WARN(@"Told to update cache to an invalid token cache item", [context correlationId], nil);
             return;
         }
         
         [self updateCacheToItem:item
                            MRRT:[result multiResourceRefreshToken]
-                  correlationId:correlationId];
+                        context:context];
         return;
     }
     
@@ -190,18 +247,22 @@
     
     [self removeItemFromCache:cacheItem
                  refreshToken:refreshToken
-                correlationId:correlationId
+                      context:context
                         error:result.error];
 }
 
 - (void)updateCacheToItem:(ADTokenCacheItem *)cacheItem
                      MRRT:(BOOL)isMRRT
-            correlationId:(NSUUID *)correlationId
+                  context:(id<ADRequestContext>)context
 {
+    NSUUID* correlationId = [context correlationId];
+    NSString* telemetryRequestId = [context telemetryRequestId];
+    
     NSString* savedRefreshToken = cacheItem.refreshToken;
     if (isMRRT)
     {
         AD_LOG_VERBOSE_F(@"Token cache store", correlationId, @"Storing multi-resource refresh token for authority: %@", _authority);
+        [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:@"token_cache_write"];
         
         //If the server returned a multi-resource refresh token, we break
         //the item into two: one with the access token and no refresh token and
@@ -214,29 +275,50 @@
         multiRefreshTokenItem.resource = nil;
         multiRefreshTokenItem.expiresOn = nil;
         [_dataSource addOrUpdateItem:multiRefreshTokenItem correlationId:correlationId error:nil];
+        ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_write"
+                                                                           context:context];
+        [event setIsMRRT:AD_TELEMETRY_YES];
+        [event setTokenType:@"multi-resource refresh token"];
+        [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
+        SAFE_ARC_RELEASE(event);
         
         // If the item is also a Family Refesh Token (FRT) we update the FRT
         // as well so we have a guaranteed spot to look for the most recent FRT.
         NSString* familyId = cacheItem.familyId;
         if (familyId)
         {
+            [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:@"token_cache_write"];
+            
             ADTokenCacheItem* frtItem = [multiRefreshTokenItem copy];
             NSString* fociClientId = [ADTokenCacheAccessor familyClientId:familyId];
             frtItem.clientId = fociClientId;
             [_dataSource addOrUpdateItem:frtItem correlationId:correlationId error:nil];
             SAFE_ARC_RELEASE(frtItem);
+            
+            ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_write"
+                                                                               context:context];
+            [event setIsFRT:AD_TELEMETRY_YES];
+            [event setTokenType:@"family refresh token"];
+            [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
+            SAFE_ARC_RELEASE(event);
         }
         SAFE_ARC_RELEASE(multiRefreshTokenItem);
     }
     
     AD_LOG_VERBOSE_F(@"Token cache store", correlationId, @"Storing access token for resource: %@", cacheItem.resource);
+    [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:@"token_cache_write"];
     [_dataSource addOrUpdateItem:cacheItem correlationId:correlationId error:nil];
     cacheItem.refreshToken = savedRefreshToken;//Restore for the result
+    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_write"
+                                                                       context:context];
+    [event setTokenType:@"access token"];
+    [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
+    SAFE_ARC_RELEASE(event);
 }
 
 - (void)removeItemFromCache:(ADTokenCacheItem *)cacheItem
                refreshToken:(NSString *)refreshToken
-              correlationId:(NSUUID *)correlationId
+                    context:(id<ADRequestContext>)context
                       error:(ADAuthenticationError *)error
 {
     if (!cacheItem && !refreshToken)
@@ -244,6 +326,8 @@
         return;
     }
     
+    NSUUID* correlationId = [context correlationId];
+    [[ADTelemetry sharedInstance] startEvent:[context telemetryRequestId] eventName:@"token_cache_delete_token"];
     BOOL removed = NO;
     //The refresh token didn't work. We need to tombstone this refresh item in the cache.
     ADTokenCacheKey* exactKey = [cacheItem extractKey:nil];
@@ -283,6 +367,10 @@
             }
         }
     }
+    ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:@"token_cache_delete_token"
+                                                                       context:context];
+    [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
+    SAFE_ARC_RELEASE(event);
 }
 
 @end

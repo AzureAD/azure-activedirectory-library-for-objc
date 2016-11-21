@@ -112,6 +112,20 @@
     return NO;
 }
 
+- (id)copyWithZone:(NSZone*)zone
+{
+    ADUserIdentifier* identifier = [[ADUserIdentifier allocWithZone:zone] init];
+    if (!identifier)
+    {
+        return nil;
+    }
+    
+    identifier->_type = _type;
+    identifier->_userId = [_userId copyWithZone:zone];
+    
+    return identifier;
+}
+
 - (NSString*)userIdMatchString:(ADUserInformation*)info
 {
     switch(_type)

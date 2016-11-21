@@ -38,9 +38,9 @@
 @synthesize handledPkeyAuthChallenge = _handledPkeyAuthChallenge;
 
 - (id)initWithURL:(NSURL *)url
-    correlationId:(NSUUID *)correlationId
+          context:(id<ADRequestContext>)context
 {
-    self = [super initWithURL:url correlationId:correlationId];
+    self = [super initWithURL:url context:context];
     if (!self)
     {
         return nil;
@@ -66,7 +66,7 @@
     _requestDictionary = [requestDictionary copy];
 }
 
-- (void)sendRequest:(void (^)(NSDictionary *))completionBlock
+- (void)sendRequest:(ADWebResponseCallback)completionBlock
 {
     if ([self isGetRequest])
     {

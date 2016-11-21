@@ -56,7 +56,8 @@ build_targets = [
 		"name" : "Sample Swift App",
 		"scheme" : "SampleSwiftApp",
 		"operations" : [ "build" ],
-		"platform" : "iOS"
+		"platform" : "iOS",
+		"workspace" : "Samples/SampleSwiftApp/SampleSwiftApp.xcworkspace",
 	},
 	{
 		"name" : "Mac Framework",
@@ -94,10 +95,21 @@ def print_operation_end(name, operation, exit_code) :
 def do_ios_build(target, operation) :
 	name = target["name"]
 	scheme = target["scheme"]
+	project = target.get("project")
+	workspace = target.get("workspace")
+
+	if (workspace == None) :
+		workspace = default_workspace
 
 	print_operation_start(name, operation)
 
-	command = "xcodebuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest + " | xcpretty"
+	command = "xcodebuild " + operation
+	if (project != None) :
+		command += " -project " + project
+	else :
+		command += " -workspace " + workspace
+		
+	command += " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest + " | xcpretty"
 	print command
 	exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
 
@@ -155,6 +167,7 @@ for arg in sys.argv :
 # start by cleaning up any derived data that might be lying around
 if (clean) :
 	subprocess.call("rm -rf ~/Library/Developer/Xcode/DerivedData/ADAL-*", shell=True)
+	subprocess.call("rm -rf ~/Library/Developer/Xcode/DerivedData/SampleSwiftApp-*", shell=True)
 
 for target in build_targets:
 	exit_code = 0

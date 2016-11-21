@@ -23,6 +23,8 @@
 
 @class ADAuthenticationError;
 @class ADAuthenticationViewController;
+@class ADTelemetryUIEvent;
+@class ADRequestParameters;
 
 #import "ADAuthenticationContext.h"
 
@@ -62,7 +64,8 @@ extern NSString* ADWebAuthDidReceieveResponseFromBroker;
     
     BOOL _complete;
     
-    NSUUID * _correlationId;
+    ADRequestParameters* _requestParams;
+    ADTelemetryUIEvent* _telemetryEvent;
     
     void (^_completionBlock)( ADAuthenticationError *, NSURL *);
 }

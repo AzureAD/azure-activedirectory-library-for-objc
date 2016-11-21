@@ -245,7 +245,7 @@ correlationId:(NSUUID*)correlationId
         NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:
                                        @{
                                          ADAL_ID_PLATFORM:@"OSX",
-                                         ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW],
+                                         ADAL_ID_VERSION:[NSString stringWithFormat:@"%d.%d.%d", ADAL_VER_HIGH, ADAL_VER_LOW, ADAL_VER_PATCH],
                                          ADAL_ID_OS_VER:[NSString stringWithFormat:@"%ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion],
                                          }];
 #endif
@@ -260,6 +260,11 @@ correlationId:(NSUUID*)correlationId
     });
     
     return s_adalId;
+}
+
++ (void)setAdalVersion:(NSString*)version
+{
+    [s_adalId setObject:version forKey:ADAL_ID_VERSION];
 }
 
 + (NSString*)getHash:(NSString*)input
@@ -277,20 +282,38 @@ correlationId:(NSUUID*)correlationId
     {
         [toReturn appendFormat:@"%02x", hash[i]];
     }
-    return toReturn;
+    
+    // 7 characters is sufficient to differentiate tokens in the log, otherwise the hashes start making log lines hard to read
+    return [toReturn substringToIndex:7];
 }
 
-+ (NSString*) getAdalVersion
++ (NSString*)getAdalVersion
 {
     return ADAL_VERSION_NSSTRING;
 }
 
-+ (void)logToken:(NSString*)token
-       tokenType:(NSString*)tokenType
-       expiresOn:(NSDate*)expiresOn
-   correlationId:(NSUUID*)correlationId
++ (void)logToken:(NSString *)token
+       tokenType:(NSString *)tokenType
+       expiresOn:(NSDate *)expiresOn
+         context:(NSString *)context
+   correlationId:(NSUUID *)correlationId
 {
-    AD_LOG_VERBOSE_F(@"Token returned", nil, @"Obtained %@ with hash %@, expiring on %@ and correlationId: %@", tokenType, [self getHash:token], expiresOn, [correlationId UUIDString]);
+    
+    NSMutableString* logString = nil;
+    
+    if (context)
+    {
+        [logString appendFormat:@"%@ ", context];
+    }
+    
+    [logString appendFormat:@"%@ (%@)", tokenType, [self getHash:token]];
+    
+    if (expiresOn)
+    {
+        [logString appendFormat:@" expires on %@", expiresOn];
+    }
+    
+    AD_LOG_INFO(logString, correlationId, nil);
 }
 
 + (void)setIdValue:(NSString*)value

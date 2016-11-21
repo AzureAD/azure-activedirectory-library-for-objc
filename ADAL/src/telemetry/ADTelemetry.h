@@ -34,10 +34,28 @@
 
 /*!
     Callback function that will be called by ADAL when telemetry events are flushed.
-    @param  event        An array of property-value pairs. Each pair is also stored in an array whose size is 2. 
-                         So event is a two-dimentional array.
+    @param  event        An event is represented by an array of ADTelemetryProperty.
  */
 - (void)dispatchEvent:(NSArray*)event;
+
+@end
+
+/*!
+    @class ADTelemetryProperty
+ 
+    Each telemetry event dispatched to the above callback function is represented by an array of ADTelemetryProperty.
+    It includes property name and property value.
+ */
+@interface ADTelemetryProperty : NSObject
+{
+    NSString* _name;
+    NSString* _value;
+}
+
+@property (readonly) NSString* name;
+@property (readonly) NSString* value;
+
+- (id)initWithName:(NSString*)name value:(NSString*)value;
 
 @end
 
@@ -58,7 +76,7 @@
 /*!
     Get a singleton instance of ADTelemetry.
  */
-+ (ADTelemetry*)getInstance;
++ (ADTelemetry*)sharedInstance;
 
 /*!
     Register a telemetry dispatcher for receiving telemetry events.
@@ -68,10 +86,5 @@
  */
 - (void)registerDispatcher:(id<ADDispatcher>)dispatcher
        aggregationRequired:(BOOL)aggregationRequired;
-
-/*!
-    Flush all cached telemetry events to the registered dispatcher.
- */
-- (void)flush;
 
 @end

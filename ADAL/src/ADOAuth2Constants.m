@@ -64,6 +64,7 @@ NSString *const ADAL_CLIENT_FAMILY_ID = @"foci";
 NSString *const BROKER_MAX_PROTOCOL_VERSION              = @"max_protocol_ver";
 
 NSString *const BROKER_MESSAGE_VERSION          = @"msg_protocol_ver";
+NSString *const BROKER_APP_VERSION              = @"x-broker-app-ver";
 NSString *const BROKER_RESPONSE_KEY             = @"response";
 NSString *const BROKER_HASH_KEY                 = @"hash";
 

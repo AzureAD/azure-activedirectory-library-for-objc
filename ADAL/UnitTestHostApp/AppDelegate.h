@@ -21,13 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADEventInterface.h"
+#import <UIKit/UIKit.h>
 
-@interface ADDefaultEvent : NSObject <ADEventInterface>
-{
-    NSMutableArray* _propertyMap;
-}
+@interface AppDelegate : UIResponder <UIApplicationDelegate>
 
-- (id)initWithName:(NSString*)eventName;
+@property (strong, nonatomic) UIWindow *window;
+
 
 @end
+

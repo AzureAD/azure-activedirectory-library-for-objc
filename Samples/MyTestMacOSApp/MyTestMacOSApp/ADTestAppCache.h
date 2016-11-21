@@ -21,14 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@protocol ADEventInterface <NSObject>
+#import <Foundation/Foundation.h>
+#import "ADTokenCache.h"
 
-@property (readonly) NSMutableArray* propertyMap;
+@interface ADTestAppCache : NSObject <ADTokenCacheDelegate>
+{
+    NSData* _data;
+    NSDate* _lastUpdated;
+}
 
-- (NSInteger)getDefaultPropertyCount;
-- (void)setProperty:(NSString*)name value:(NSString*)value;
-- (NSArray*)getProperties;
-- (void)setStartTime:(NSDate*)time;
-- (void)setStopTime:(NSDate*)time;
++ (ADTestAppCache *)sharedCache;
+
+- (void)readFromFile:(NSString *)filePath;
+- (void)writeToFile:(NSString *)filePath;
 
 @end

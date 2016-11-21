@@ -32,6 +32,9 @@
 #import "ADHelpers.h"
 #import "ADLogger+Internal.h"
 #import "ADURLProtocol.h"
+#import "ADTelemetry.h"
+#import "ADTelemetry+Internal.h"
+#import "ADTelemetryHttpEvent.h"
 
 @interface ADWebRequest () <NSURLConnectionDelegate>
 
@@ -77,7 +80,7 @@
 #pragma mark - Initialization
 
 - (id)initWithURL:(NSURL *)requestURL
-    correlationId:(NSUUID *)correlationId
+          context:(id<ADRequestContext>)context
 {
     if (!(self = [super init]))
     {
@@ -90,8 +93,11 @@
     // Default timeout for ADWebRequest is 30 seconds
     _timeout           = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
     
-    _correlationId     = correlationId;
+    _correlationId     = context.correlationId;
     SAFE_ARC_RETAIN(_correlationId);
+    
+    _telemetryRequestId = context.telemetryRequestId;
+    SAFE_ARC_RETAIN(_telemetryRequestId);
     
     _operationQueue = [[NSOperationQueue alloc] init];
     [_operationQueue setMaxConcurrentOperationCount:1];
@@ -121,6 +127,9 @@
     SAFE_ARC_RELEASE(_correlationId);
     _correlationId = nil;
     
+    SAFE_ARC_RELEASE(_telemetryRequestId);
+    _telemetryRequestId = nil;
+    
     SAFE_ARC_RELEASE(_operationQueue);
     _operationQueue = nil;
     
@@ -142,6 +151,7 @@
     SAFE_ARC_RELEASE(_connection);
     _connection     = nil;
     
+    [self stopTelemetryEvent:error response:response];
     _completionHandler(error, response);
 }
 
@@ -170,6 +180,7 @@
 
 - (void)send
 {
+    [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:@"http_request"];
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
     //Correlation id:
     if (_correlationId)
@@ -304,6 +315,28 @@
 #pragma unused(totalBytesWritten)
 #pragma unused(totalBytesExpectedToWrite)
     
+}
+
+- (void)stopTelemetryEvent:(NSError *)error
+                  response:(ADWebResponse *)response
+{
+    ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:@"http_request" requestId:_telemetryRequestId correlationId:_correlationId];
+
+    [event setHttpMethod:_isGetRequest ? @"GET" : @"POST"];
+    [event setHttpPath:[NSString stringWithFormat:@"%@://%@/%@", _requestURL.scheme, _requestURL.host, _requestURL.path]];
+    [event setHttpRequestIdHeader:[response.headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE]];
+    if (error)
+    {
+        [event setOAuthErrorCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
+        [event setHttpErrorDomain:[error domain]];
+    }
+    else if (response)
+    {
+        [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[response statusCode]]];
+    }
+
+    [[ADTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
+    SAFE_ARC_RELEASE(event);
 }
 
 @end
