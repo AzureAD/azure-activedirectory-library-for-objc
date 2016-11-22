@@ -605,9 +605,8 @@ correlationId:(NSUUID *)correlationId
         _completionBlock(error, nil);
     }
     
-    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]
-                                                                cachePolicy:NSURLRequestUseProtocolCachePolicy
-                                                            timeoutInterval:0];
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
+    [request setTimeoutInterval:[[ADAuthenticationSettings sharedInstance] requestTimeOut]];
     [_authenticationViewController startRequest:request];
     SAFE_ARC_RELEASE(request);
 }
