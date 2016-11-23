@@ -32,7 +32,6 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 @interface ADAuthenticationViewController ( ) <UIWebViewDelegate>
 {
     UIActivityIndicatorView* _activityIndicator;
-    UINavigationController* _navController;
 }
 
 @end
@@ -91,14 +90,10 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     
     self.view = rootView;
     
-    _navController = [[UINavigationController alloc] init];
-    _navController.navigationBar.hidden = NO;
-    
     UIBarButtonItem* cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self
                                                                                   action:@selector(onCancel:)];
     self.navigationItem.leftBarButtonItem = cancelButton;
-    [_navController pushViewController:self animated:NO];
     
     return YES;
 }
@@ -170,18 +165,20 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 - (void)startRequest:(NSURLRequest *)request
 {
     [self loadRequest:request];
-    
+	
+	UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
+	
     if (_fullScreen)
     {
-        [_navController setModalPresentationStyle:UIModalPresentationFullScreen];
+        [navController setModalPresentationStyle:UIModalPresentationFullScreen];
     }
     else
     {
-        [_navController setModalPresentationStyle:UIModalPresentationFormSheet];
+        [navController setModalPresentationStyle:UIModalPresentationFormSheet];
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_parentController presentViewController:_navController animated:YES completion:nil];
+        [_parentController presentViewController:navController animated:YES completion:nil];
     });
 }
 
