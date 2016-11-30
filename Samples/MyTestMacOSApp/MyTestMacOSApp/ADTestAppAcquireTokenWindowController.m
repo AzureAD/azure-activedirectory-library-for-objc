@@ -28,7 +28,7 @@
 #import "ADTokenCache.h"
 #import "ADAuthenticationSettings.h"
 #import "ADWebAuthController.h"
-
+#import "ADTestAppCache.h"
 
 
 @interface ADTestAppAcquireTokenWindowController ()
@@ -299,6 +299,25 @@
 - (IBAction)cancelAuth:(id)sender
 {
     [ADWebAuthController cancelCurrentWebAuthSession];
+}
+
+- (IBAction)clearCache:(id)sender
+{
+    OSStatus status = [[ADTestAppCache sharedCache] deleteFromKeychain];
+    
+    [_resultView setString:[NSString stringWithFormat:@"Cache cleared (%d)", (int)status]];
+}
+
+- (IBAction)clearCookies:(id)sender
+{
+    NSHTTPCookieStorage* cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSArray* cookies = cookieStore.cookies;
+    for (NSHTTPCookie* cookie in cookies)
+    {
+        [cookieStore deleteCookie:cookie];
+    }
+    
+    [_resultView setString:[NSString stringWithFormat:@"Cleared %lu cookies.", (unsigned long)cookies.count]];
 }
 
 - (IBAction)acquireTokenSilent:(id)sender
