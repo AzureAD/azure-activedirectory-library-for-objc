@@ -35,4 +35,6 @@
 - (void)readFromFile:(NSString *)filePath;
 - (void)writeToFile:(NSString *)filePath;
 
+- (OSStatus)deleteFromKeychain;
+
 @end

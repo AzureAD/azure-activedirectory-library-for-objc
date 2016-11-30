@@ -44,8 +44,8 @@
     
     dispatch_once(&once, ^{
         cache = [[ADTestAppCache alloc] init];
-        [cache readFromFile:[self defaultSavePath]];
-        
+        //[cache readFromFile:[self defaultSavePath]];
+        [cache readFromKeychain];
         [[ADAuthenticationSettings sharedInstance] setDefaultStorageDelegate:cache];
     });
     
@@ -58,7 +58,7 @@
     static NSString* path = nil;
     
     dispatch_once(&once, ^{
-        NSURL* homeDir = [[NSFileManager defaultManager] homeDirectoryForCurrentUser];
+        NSURL* homeDir = [NSURL fileURLWithPath:NSHomeDirectory()];
         path = [homeDir URLByAppendingPathComponent:@"TestApp.adalcache"].path;
     });
     
@@ -181,6 +181,14 @@
             status = SecItemAdd((CFDictionaryRef)writeQuery, NULL);
         }
         return status;
+    }
+}
+
+- (OSStatus)deleteFromKeychain
+{
+    @synchronized (self)
+    {
+        return SecItemDelete((CFDictionaryRef)@{ DEFAULT_KEYCHAIN_ATTRS });
     }
 }
 

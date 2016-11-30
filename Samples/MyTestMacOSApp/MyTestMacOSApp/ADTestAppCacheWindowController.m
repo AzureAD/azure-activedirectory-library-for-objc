@@ -38,7 +38,7 @@
 
 - (NSString *)truncatedHash
 {
-    return [[ADLogger getHash:self] substringToIndex:10];
+    return [ADLogger getHash:self];
 }
 
 @end
@@ -135,12 +135,34 @@
     }
     else if ([identifier isEqualToString:@"refreshToken"])
     {
+        NSString* refreshToken = item.refreshToken;
+        if ([refreshToken isEqualToString:@"<bad-refresh-token>"])
+        {
+            return @"<bad-rt>";
+        }
         return item.refreshToken.truncatedHash;
     }
     else
     {
         @throw @"Unrecongized identifier";
     }
+}
+
+static NSLineBreakMode linebreakForColumn(NSTableColumn* tableColumn)
+{
+    if (!tableColumn)
+    {
+        return NSLineBreakByTruncatingMiddle;
+    }
+    
+    NSString* identifier = tableColumn.identifier;
+    
+    if ([identifier isEqualToString:@"upn"] || [identifier isEqualToString:@"expiresOn"])
+    {
+        return NSLineBreakByTruncatingTail;
+    }
+    
+    return NSLineBreakByTruncatingMiddle;
 }
 
 /* View Based TableView:
@@ -157,6 +179,7 @@
         cell.bordered = NO;
         cell.drawsBackground = NO;
         cell.identifier = @"CacheTextCell";
+        cell.lineBreakMode = linebreakForColumn(tableColumn);
     }
     
     NSString* text = [self dataForTableColumn:tableColumn row:row];
