@@ -24,6 +24,7 @@
 		8BA42B2717E3C150002D206E /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA42AFF17E3C150002D206E /* CoreData.framework */; };
 		8BA42B2F17E3C150002D206E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B2D17E3C150002D206E /* InfoPlist.strings */; };
 		8BA42B3117E3C150002D206E /* MyTestiOSAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */; };
+		D6119CE61DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = D6119CE51DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.m */; };
 		D68ACD301CD42710008EFA17 /* ADTestAppProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68ACD2F1CD42710008EFA17 /* ADTestAppProfileViewController.m */; };
 		D68B4A2B1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A2A1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m */; };
 		D68B4A311CB5A85D00758FB3 /* ADTestAppCacheViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A301CB5A85D00758FB3 /* ADTestAppCacheViewController.m */; };
@@ -163,6 +164,8 @@
 		8BA42B2C17E3C150002D206E /* MyTestiOSAppTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MyTestiOSAppTests-Info.plist"; sourceTree = "<group>"; };
 		8BA42B2E17E3C150002D206E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyTestiOSAppTests.m; sourceTree = "<group>"; };
+		D6119CE41DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppAcquireLayoutBuilder.h; sourceTree = "<group>"; };
+		D6119CE51DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppAcquireLayoutBuilder.m; sourceTree = "<group>"; };
 		D68ACD2E1CD42710008EFA17 /* ADTestAppProfileViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppProfileViewController.h; sourceTree = "<group>"; };
 		D68ACD2F1CD42710008EFA17 /* ADTestAppProfileViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppProfileViewController.m; sourceTree = "<group>"; };
 		D68B4A291CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppAcquireTokenViewController.h; sourceTree = "<group>"; };
@@ -276,6 +279,8 @@
 				8BA42B0217E3C150002D206E /* Supporting Files */,
 				D68B4A291CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.h */,
 				D68B4A2A1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m */,
+				D6119CE41DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.h */,
+				D6119CE51DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.m */,
 				D6D034841CB6D74E00406721 /* ADTestAppSettingsViewController.h */,
 				D6D034851CB6D74E00406721 /* ADTestAppSettingsViewController.m */,
 				D68B4A2F1CB5A85D00758FB3 /* ADTestAppCacheViewController.h */,
@@ -539,6 +544,7 @@
 				8BA42B0C17E3C150002D206E /* ADTestAppDelegate.m in Sources */,
 				D68B4A2B1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m in Sources */,
 				D68ACD301CD42710008EFA17 /* ADTestAppProfileViewController.m in Sources */,
+				D6119CE61DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.m in Sources */,
 				D6D034871CB6D74E00406721 /* ADTestAppSettingsViewController.m in Sources */,
 				D68B4A311CB5A85D00758FB3 /* ADTestAppCacheViewController.m in Sources */,
 				8B87548C189978350061999F /* ADTestAppSettings.m in Sources */,

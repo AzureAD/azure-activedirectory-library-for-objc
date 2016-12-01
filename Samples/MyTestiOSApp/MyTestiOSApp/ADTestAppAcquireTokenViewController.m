@@ -24,134 +24,9 @@
 #import "ADTestAppAcquireTokenViewController.h"
 #import "ADTestAppSettings.h"
 #import "ADKeychainTokenCache+Internal.h"
+#import "ADTestAppAcquireLayoutBuilder.h"
 
 @interface ADTestAppAcquireTokenViewController ()
-
-@end
-
-// Apple provides a lot of this in UIStackView in iOS 9, but prior to that we need to build it by hand
-@interface ADTestAppSettingsLayoutBuilder : NSObject
-{
-    UIView* _contentView;
-    NSMutableDictionary* _views;
-    NSMutableArray* _keys;
-    CGRect _screenRect;
-}
-
-- (void)addControl:(UIControl *)control
-             title:(NSString *)title;
-
-- (void)addView:(UIView*)view key:(NSString *)key;
-
-- (void)addCenteredView:(UIView *)view
-                    key:(NSString *)key;
-
-- (UIView*)contentView;
-
-@end
-
-@implementation ADTestAppSettingsLayoutBuilder
-
-- (id)init
-{
-    if (!(self = [super init]))
-        return nil;
-    
-    _screenRect = UIScreen.mainScreen.bounds;
-    _contentView = [[UIView alloc] initWithFrame:_screenRect];
-    _contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-    
-    _views = [NSMutableDictionary new];
-    _keys = [NSMutableArray new];
-    
-    return self;
-}
-
-- (void)addControl:(UIControl *)control
-             title:(NSString *)title
-{
-    UIView* view = [[UIView alloc] init];
-    UILabel* label = [[UILabel alloc] init];
-    label.textColor = UIColor.blackColor;
-    label.text = title;
-    label.font = [UIFont systemFontOfSize:12.0];
-    label.translatesAutoresizingMaskIntoConstraints = NO;
-    label.textAlignment = NSTextAlignmentRight;
-    
-    [view addSubview:label];
-    
-    control.translatesAutoresizingMaskIntoConstraints = NO;
-    [view addSubview:control];
-    
-    NSDictionary* views = @{ @"label" : label, @"control" : control };
-    NSArray* verticalConstraints1 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[label]|" options:0 metrics:NULL views:views];
-    NSArray* verticalConstraints2 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[control(29)]|" options:0 metrics:NULL views:views];
-    NSArray* horizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[label(60)]-[control]|" options:NSLayoutFormatAlignAllCenterY metrics:NULL views:views];
-    
-    [view addConstraints:verticalConstraints1];
-    [view addConstraints:verticalConstraints2];
-    [view addConstraints:horizontalConstraints];
-    
-    [self addView:view key:title];
-}
-
-- (void)addViewInternal:(UIView*)view key:(NSString *)key
-{
-    view.translatesAutoresizingMaskIntoConstraints = NO;
-    [_contentView addSubview:view];
-    [_views setObject:view forKey:key];
-    [_keys addObject:key];
-}
-
-- (void)addView:(UIView*)view key:(NSString *)key
-{
-    [self addViewInternal:view key:key];
-    
-    NSString* horizontalConstraint = [NSString stringWithFormat:@"H:|-6-[%@]-6-|", key];
-    NSArray* horizontalConstraints2 = [NSLayoutConstraint constraintsWithVisualFormat:horizontalConstraint options:0 metrics:NULL views:_views];
-    [_contentView addConstraints:horizontalConstraints2];
-}
-
-- (void)addCenteredView:(UIView *)view key:(NSString *)key
-{
-    [self addViewInternal:view key:key];
-    
-    NSLayoutConstraint* centerConstraint =
-    [NSLayoutConstraint constraintWithItem:view
-                                 attribute:NSLayoutAttributeCenterX
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:_contentView
-                                 attribute:NSLayoutAttributeCenterX
-                                multiplier:1.0
-                                  constant:0.0];
-    [_contentView addConstraint:centerConstraint];
-}
-
-- (UIView*)contentView
-{
-    if (_keys.count == 0)
-    {
-        return _contentView;
-    }
-    
-    NSMutableString* verticalConstraint = [NSMutableString new];
-    [verticalConstraint appendString:@"V:|-24-"];
-    
-    for (int i = 0; i < _keys.count - 1; i++)
-    {
-        NSString* key = _keys[i];
-        [verticalConstraint appendFormat:@"[%@]-", key];
-    }
-    
-    NSString* lastKey = _keys.lastObject;
-    [verticalConstraint appendFormat:@"[%@(>=200)]-36-|", lastKey];
-    
-    //[verticalConstraint appendString:@"-|"];
-    NSArray* verticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:verticalConstraint options:0 metrics:NULL views:_views];
-    [_contentView addConstraints:verticalConstraints];
-    
-    return _contentView;
-}
 
 @end
 
@@ -226,7 +101,7 @@
     scrollView.showsVerticalScrollIndicator = YES;
     scrollView.showsHorizontalScrollIndicator = NO;
     scrollView.userInteractionEnabled = YES;
-    ADTestAppSettingsLayoutBuilder* layout = [ADTestAppSettingsLayoutBuilder new];
+    ADTestAppAcquireLayoutBuilder* layout = [ADTestAppAcquireLayoutBuilder new];
     
     _userIdField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 400, 20)];
     _userIdField.borderStyle = UITextBorderStyleRoundedRect;
@@ -281,15 +156,8 @@
     return scrollView;
 }
 
-
-- (void)loadView
+- (UIView *)createAcquireButtonsView
 {
-    CGRect screenFrame = UIScreen.mainScreen.bounds;
-    UIView* mainView = [[UIView alloc] initWithFrame:screenFrame];
-    
-    UIView* settingsView = [self createSettingsAndResultView];
-    [mainView addSubview:settingsView];
-    
     UIButton* acquireButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [acquireButton setTitle:@"acquire" forState:UIControlStateNormal];
     [acquireButton addTarget:self action:@selector(acquireTokenInteractive:) forControlEvents:UIControlEventTouchUpInside];
@@ -304,8 +172,6 @@
     acquireBlurView.translatesAutoresizingMaskIntoConstraints = NO;
     [acquireBlurView.contentView addSubview:acquireButtonsView];
     
-    NSDictionary* views = @{ @"settings" : settingsView, @"acquire" : acquireBlurView, @"buttons" : acquireButtonsView };
-    
     // Constraint to center the acquire buttons in the blur view
     [acquireBlurView addConstraint:[NSLayoutConstraint constraintWithItem:acquireButtonsView
                                                                 attribute:NSLayoutAttributeCenterX
@@ -314,12 +180,70 @@
                                                                 attribute:NSLayoutAttributeCenterX
                                                                multiplier:1.0
                                                                  constant:0.0]];
+    NSDictionary* views = @{ @"buttons" : acquireButtonsView };
     [acquireBlurView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-6-[buttons]-6-|" options:0 metrics:nil views:views]];
     
+    return acquireBlurView;
+}
+
+- (UIView *)createWebOverlay
+{
+    UIVisualEffect* blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+    UIVisualEffectView* blurView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+    blurView.translatesAutoresizingMaskIntoConstraints = NO;
+    blurView.layer.borderWidth = 1.0f;
+    blurView.layer.borderColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f].CGColor;
+    blurView.layer.cornerRadius = 8.0f;
+    blurView.clipsToBounds = YES;
     
+    UIView* contentView = blurView.contentView;
+    
+    _webView = [[UIWebView alloc] init];
+    _webView.translatesAutoresizingMaskIntoConstraints = NO;
+    [contentView addSubview:_webView];
+    
+    UIButton* cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    cancelButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [cancelButton setTitle:@"Cancel" forState:UIControlStateNormal];
+    [cancelButton addTarget:self action:@selector(cancelAuth:) forControlEvents:UIControlEventTouchUpInside];
+    [contentView addSubview:cancelButton];
+    
+    NSDictionary* views = @{ @"webView" : _webView, @"cancelButton" : cancelButton };
+    [contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-8-[webView]-[cancelButton]-8-|" options:0 metrics:nil views:views]];
+    [contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-8-[webView]-|" options:0 metrics:nil views:views]];
+    [contentView addConstraint:[NSLayoutConstraint constraintWithItem:cancelButton
+                                                            attribute:NSLayoutAttributeCenterX
+                                                            relatedBy:NSLayoutRelationEqual
+                                                               toItem:contentView
+                                                            attribute:NSLayoutAttributeCenterX
+                                                           multiplier:1.0
+                                                             constant:0.0]];
+    
+    return blurView;
+}
+
+
+- (void)loadView
+{
+    CGRect screenFrame = UIScreen.mainScreen.bounds;
+    UIView* mainView = [[UIView alloc] initWithFrame:screenFrame];
+    
+    UIView* settingsView = [self createSettingsAndResultView];
+    [mainView addSubview:settingsView];
+    
+    UIView* acquireBlurView = [self createAcquireButtonsView];
     [mainView addSubview:acquireBlurView];
     
+    _authView = [self createWebOverlay];
+    _authView.hidden = YES;
+    [mainView addSubview:_authView];
+    
     self.view = mainView;
+    
+    NSDictionary* views = @{ @"settings" : settingsView, @"acquire" : acquireBlurView, @"authView" : _authView };
+    // Set up constraints for the web overlay
+    [mainView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-34-[authView]-10-|" options:0 metrics:nil views:views]];
+    [mainView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-10-[authView]-10-|" options:0 metrics:nil views:views]];
     
     // Set up constraints to make the settings scroll view take up the whole screen
     [mainView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[settings]|" options:0 metrics:nil views:views]];
@@ -545,7 +469,7 @@
     if ([self embeddedWebView])
     {
         [context setWebView:_webView];
-        [_authView setFrame:self.view.frame];
+        //[_authView setFrame:self.view.frame];
         
         [UIView animateWithDuration:0.5 animations:^{
             [_acquireSettingsView setHidden:YES];
