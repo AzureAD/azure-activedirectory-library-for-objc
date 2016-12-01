@@ -506,13 +506,9 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             [self updateResultView:result];
             
-            if ([_acquireSettingsView isHidden])
-            {
-                [_webView loadHTMLString:@"<html><head></head><body>done!</body></html>" baseURL:nil];
-                [_authView setHidden:YES];
-                [_acquireSettingsView setHidden:NO];
-                [self.view setNeedsDisplay];
-            }
+            [_webView loadHTMLString:@"<html><head></head><body>done!</body></html>" baseURL:nil];
+            [_authView setHidden:YES];
+            [self.view setNeedsDisplay];
             
             [[NSNotificationCenter defaultCenter] postNotificationName:ADTestAppCacheChangeNotification object:self];
         });
