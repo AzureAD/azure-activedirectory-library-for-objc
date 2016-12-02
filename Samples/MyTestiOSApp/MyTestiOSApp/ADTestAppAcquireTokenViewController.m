@@ -23,6 +23,8 @@
 
 #import "ADTestAppAcquireTokenViewController.h"
 #import "ADTestAppSettings.h"
+#import "ADKeychainTokenCache+Internal.h"
+#import "ADTestAppAcquireLayoutBuilder.h"
 
 @interface ADTestAppAcquireTokenViewController ()
 
@@ -33,8 +35,10 @@
     IBOutlet UIView* _acquireSettingsView;
     IBOutlet UITextField* _userIdField;
     IBOutlet UISegmentedControl* _userIdType;
+    
+    UISegmentedControl* _promptBehavior;
 
-    IBOutlet UISegmentedControl* _credentialsType;
+    IBOutlet UISegmentedControl* _brokerEnabled;
     IBOutlet UISegmentedControl* _webViewType;
     IBOutlet UISegmentedControl* _fullScreen;
     IBOutlet UISegmentedControl* _validateAuthority;
@@ -44,12 +48,15 @@
     IBOutlet UIView* _authView;
     IBOutlet UIWebView* _webView;
     
+    NSLayoutConstraint* _bottomConstraint;
+    NSLayoutConstraint* _bottomConstraint2;
+    
     BOOL _userIdEdited;
 }
 
 - (id)init
 {
-    if (!(self = [super initWithNibName:@"ADTestAppAcquireTokenView" bundle:nil]))
+    if (!(self = [super init]))
     {
         return nil;
     }
@@ -62,22 +69,256 @@
     return self;
 }
 
+- (UIView*)createTwoItemLayoutView:(UIView*)item1
+                             item2:(UIView*)item2
+{
+    item1.translatesAutoresizingMaskIntoConstraints = NO;
+    item2.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    UIView* view = [[UIView alloc] init];
+    view.translatesAutoresizingMaskIntoConstraints = NO;
+    [view addSubview:item1];
+    [view addSubview:item2];
+    
+    NSDictionary* views = @{@"item1" : item1, @"item2" : item2 };
+    NSArray* verticalConstraints1 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[item1(20)]|" options:0 metrics:NULL views:views];
+    NSArray* verticalConstraints2 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[item2(20)]|" options:0 metrics:NULL views:views];
+    NSArray* horizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[item1]-[item2]|" options:0 metrics:NULL views:views];
+    
+    [view addConstraints:verticalConstraints1];
+    [view addConstraints:verticalConstraints2];
+    [view addConstraints:horizontalConstraints];
+    
+    return view;
+}
+
+- (UIView*)createSettingsAndResultView
+{
+    CGRect screenFrame = UIScreen.mainScreen.bounds;
+    UIScrollView* scrollView = [[UIScrollView alloc] initWithFrame:screenFrame];
+    scrollView.translatesAutoresizingMaskIntoConstraints = NO;
+    scrollView.scrollEnabled = YES;
+    scrollView.showsVerticalScrollIndicator = YES;
+    scrollView.showsHorizontalScrollIndicator = NO;
+    scrollView.userInteractionEnabled = YES;
+    ADTestAppAcquireLayoutBuilder* layout = [ADTestAppAcquireLayoutBuilder new];
+    
+    _userIdField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 400, 20)];
+    _userIdField.borderStyle = UITextBorderStyleRoundedRect;
+    [layout addControl:_userIdField title:@"userId"];
+    
+    _userIdType = [[UISegmentedControl alloc] initWithItems:@[@"Optional", @"Required", @"Unique"]];
+    _userIdType.selectedSegmentIndex = 0;
+    [layout addControl:_userIdType title:@"idType"];
+    
+    _promptBehavior = [[UISegmentedControl alloc] initWithItems:@[@"Always", @"Auto"]];
+    _promptBehavior.selectedSegmentIndex = 0;
+    [layout addControl:_promptBehavior title:@"prompt"];
+    
+    _webViewType = [[UISegmentedControl alloc] initWithItems:@[@"Passed In", @"ADAL"]];
+    _webViewType.selectedSegmentIndex = 1;
+    [layout addControl:_webViewType title:@"webView"];
+    
+    _fullScreen = [[UISegmentedControl alloc] initWithItems:@[@"Yes", @"No"]];
+    _fullScreen.selectedSegmentIndex = 0;
+    [layout addControl:_fullScreen title:@"fullScreen"];
+    
+    _brokerEnabled = [[UISegmentedControl alloc] initWithItems:@[@"Disabled", @"Auto"]];
+    [_brokerEnabled setSelectedSegmentIndex:0];
+    [layout addControl:_brokerEnabled title:@"broker"];
+    
+    _validateAuthority = [[UISegmentedControl alloc] initWithItems:@[@"Yes", @"No"]];
+    [layout addControl:_validateAuthority title:@"valAuth"];
+    
+    UIButton* clearCookies = [UIButton buttonWithType:UIButtonTypeSystem];
+    [clearCookies setTitle:@"Clear Cookies" forState:UIControlStateNormal];
+    [clearCookies addTarget:self action:@selector(clearCookies:) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIButton* clearCache = [UIButton buttonWithType:UIButtonTypeSystem];
+    [clearCache setTitle:@"Clear Cache" forState:UIControlStateNormal];
+    [clearCache addTarget:self action:@selector(clearCache:) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIView* clearButtonsView = [self createTwoItemLayoutView:clearCookies item2:clearCache];
+    [layout addCenteredView:clearButtonsView key:@"clearButtons"];
+    
+    _resultView = [[UITextView alloc] init];
+    _resultView.layer.borderWidth = 1.0f;
+    _resultView.layer.borderColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f].CGColor;
+    _resultView.layer.cornerRadius = 8.0f;
+    _resultView.backgroundColor = [UIColor colorWithRed:0.96f green:0.96f blue:0.96f alpha:1.0f];
+    _resultView.editable = NO;
+    [layout addView:_resultView key:@"result"];
+    
+    UIView* contentView = [layout contentView];
+    [scrollView addSubview:contentView];
+    scrollView.contentSize = contentView.bounds.size;
+    
+    return scrollView;
+}
+
+- (UIView *)createAcquireButtonsView
+{
+    UIButton* acquireButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [acquireButton setTitle:@"acquire" forState:UIControlStateNormal];
+    [acquireButton addTarget:self action:@selector(acquireTokenInteractive:) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIButton* acquireSilentButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [acquireSilentButton setTitle:@"acquireSilent" forState:UIControlStateNormal];
+    [acquireSilentButton addTarget:self action:@selector(acquireTokenSilent:) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIView* acquireButtonsView = [self createTwoItemLayoutView:acquireButton item2:acquireSilentButton];
+    UIVisualEffect* blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+    UIVisualEffectView* acquireBlurView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+    acquireBlurView.translatesAutoresizingMaskIntoConstraints = NO;
+    [acquireBlurView.contentView addSubview:acquireButtonsView];
+    
+    // Constraint to center the acquire buttons in the blur view
+    [acquireBlurView addConstraint:[NSLayoutConstraint constraintWithItem:acquireButtonsView
+                                                                attribute:NSLayoutAttributeCenterX
+                                                                relatedBy:NSLayoutRelationEqual
+                                                                   toItem:acquireBlurView
+                                                                attribute:NSLayoutAttributeCenterX
+                                                               multiplier:1.0
+                                                                 constant:0.0]];
+    NSDictionary* views = @{ @"buttons" : acquireButtonsView };
+    [acquireBlurView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-6-[buttons]-6-|" options:0 metrics:nil views:views]];
+    
+    return acquireBlurView;
+}
+
+- (UIView *)createWebOverlay
+{
+    UIVisualEffect* blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+    UIVisualEffectView* blurView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+    blurView.translatesAutoresizingMaskIntoConstraints = NO;
+    blurView.layer.borderWidth = 1.0f;
+    blurView.layer.borderColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f].CGColor;
+    blurView.layer.cornerRadius = 8.0f;
+    blurView.clipsToBounds = YES;
+    
+    UIView* contentView = blurView.contentView;
+    
+    _webView = [[UIWebView alloc] init];
+    _webView.translatesAutoresizingMaskIntoConstraints = NO;
+    [contentView addSubview:_webView];
+    
+    UIButton* cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    cancelButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [cancelButton setTitle:@"Cancel" forState:UIControlStateNormal];
+    [cancelButton addTarget:self action:@selector(cancelAuth:) forControlEvents:UIControlEventTouchUpInside];
+    [contentView addSubview:cancelButton];
+    
+    NSDictionary* views = @{ @"webView" : _webView, @"cancelButton" : cancelButton };
+    [contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-8-[webView]-[cancelButton]-8-|" options:0 metrics:nil views:views]];
+    [contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-8-[webView]-|" options:0 metrics:nil views:views]];
+    [contentView addConstraint:[NSLayoutConstraint constraintWithItem:cancelButton
+                                                            attribute:NSLayoutAttributeCenterX
+                                                            relatedBy:NSLayoutRelationEqual
+                                                               toItem:contentView
+                                                            attribute:NSLayoutAttributeCenterX
+                                                           multiplier:1.0
+                                                             constant:0.0]];
+    
+    return blurView;
+}
+
+
+- (void)loadView
+{
+    CGRect screenFrame = UIScreen.mainScreen.bounds;
+    UIView* mainView = [[UIView alloc] initWithFrame:screenFrame];
+    
+    UIView* settingsView = [self createSettingsAndResultView];
+    [mainView addSubview:settingsView];
+    
+    UIView* acquireBlurView = [self createAcquireButtonsView];
+    [mainView addSubview:acquireBlurView];
+    
+    _authView = [self createWebOverlay];
+    _authView.hidden = YES;
+    [mainView addSubview:_authView];
+    
+    self.view = mainView;
+    
+    NSDictionary* views = @{ @"settings" : settingsView, @"acquire" : acquireBlurView, @"authView" : _authView };
+    // Set up constraints for the web overlay
+    [mainView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-34-[authView]-10-|" options:0 metrics:nil views:views]];
+    [mainView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-10-[authView]-10-|" options:0 metrics:nil views:views]];
+    
+    // Set up constraints to make the settings scroll view take up the whole screen
+    [mainView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[settings]|" options:0 metrics:nil views:views]];
+    [mainView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[settings(>=200)]" options:0 metrics:nil views:views]];
+    _bottomConstraint2 = [NSLayoutConstraint constraintWithItem:settingsView
+                                                      attribute:NSLayoutAttributeBottom
+                                                      relatedBy:NSLayoutRelationEqual
+                                                         toItem:self.bottomLayoutGuide
+                                                      attribute:NSLayoutAttributeTop
+                                                     multiplier:1.0
+                                                       constant:0];
+    [mainView addConstraint:_bottomConstraint2];
+    
+    
+    // And more constraints to make the acquire buttons view float on top
+    [mainView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[acquire]|" options:0 metrics:nil views:views]];
+    
+    // This constraint is the one that gets adjusted when the keyboard hides or shows. It moves the acquire buttons to make sure
+    // they remain in view above the keyboard
+    _bottomConstraint = [NSLayoutConstraint constraintWithItem:acquireBlurView
+                                                     attribute:NSLayoutAttributeBottom
+                                                     relatedBy:NSLayoutRelationEqual
+                                                        toItem:self.bottomLayoutGuide
+                                                     attribute:NSLayoutAttributeTop
+                                                    multiplier:1.0
+                                                      constant:0];
+    [mainView addConstraint:_bottomConstraint];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
     
-    [self.view addSubview:_acquireSettingsView];
-    [_authView setHidden:YES];
-    [self.view addSubview:_authView];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillShow:)
+                                                 name:UIKeyboardWillShowNotification
+                                               object:nil];
     
-    [_userIdField addTarget:self action:@selector(textFieldChanged:) forControlEvents:UIControlEventEditingChanged];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillHide:)
+                                                 name:UIKeyboardWillHideNotification
+                                               object:nil];
     
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
 
-- (void)textFieldChanged:(id)sender
+- (void)keyboardWillShow:(NSNotification *)aNotification
 {
-    _userIdEdited = ![NSString adIsStringNilOrBlank:_userIdField.text];
+    NSDictionary* userInfo = aNotification.userInfo;
+    NSTimeInterval duration = [userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    UIViewAnimationCurve curve = [userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
+    
+    CGRect keyboardFrameEnd = [userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    keyboardFrameEnd = [self.view convertRect:keyboardFrameEnd fromView:nil];
+    
+    [UIView animateWithDuration:duration delay:0 options:UIViewAnimationOptionBeginFromCurrentState | curve animations:^{
+        _bottomConstraint.constant = -keyboardFrameEnd.size.height + 49.0; // 49.0 is the height of a tab bar
+        _bottomConstraint2.constant = -keyboardFrameEnd.size.height + 49.0;
+        [self.view layoutIfNeeded];
+    } completion:nil];
+}
+
+- (void)keyboardWillHide:(NSNotification *)note {
+    NSDictionary *userInfo = note.userInfo;
+    NSTimeInterval duration = [userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    UIViewAnimationCurve curve = [userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
+    
+    CGRect keyboardFrameEnd = [userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    keyboardFrameEnd = [self.view convertRect:keyboardFrameEnd fromView:nil];
+    
+    [UIView animateWithDuration:duration delay:0 options:UIViewAnimationOptionBeginFromCurrentState | curve animations:^{
+        _bottomConstraint.constant = 0;
+        _bottomConstraint2.constant = 0;
+        [self.view layoutIfNeeded];
+    } completion:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -89,7 +330,7 @@
     }
     
     [_validateAuthority setSelectedSegmentIndex:settings.validateAuthority ? 0 : 1];
-    [_credentialsType setSelectedSegmentIndex:settings.enableBroker ? 1 : 0];
+    [_brokerEnabled setSelectedSegmentIndex:settings.enableBroker ? 1 : 0];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -111,15 +352,15 @@
     
     ADUserIdentifierType idType = OptionalDisplayableId;
     
-    if ([userIdType isEqualToString:@"O"])
+    if ([userIdType isEqualToString:@"Optional"])
     {
         idType = OptionalDisplayableId;
     }
-    else if ([userIdType isEqualToString:@"R"])
+    else if ([userIdType isEqualToString:@"Required"])
     {
         idType = RequiredDisplayableId;
     }
-    else if ([userIdType isEqualToString:@"U"])
+    else if ([userIdType isEqualToString:@"Unique"])
     {
         idType = UniqueId;
     }
@@ -133,7 +374,7 @@
 
 - (ADCredentialsType)credType
 {
-    NSString* credType = [_credentialsType titleForSegmentAtIndex:[_credentialsType selectedSegmentIndex]];
+    NSString* credType = [_brokerEnabled titleForSegmentAtIndex:[_brokerEnabled selectedSegmentIndex]];
     
     if ([credType isEqualToString:@"Disabled"])
     {
@@ -153,7 +394,7 @@
 {
     NSString* webViewType = [_webViewType titleForSegmentAtIndex:[_webViewType selectedSegmentIndex]];
     
-    if ([webViewType isEqualToString:@"ADAL UI"])
+    if ([webViewType isEqualToString:@"ADAL"])
     {
         return NO;
     }
@@ -165,16 +406,6 @@
     {
         @throw @"unexpected webview type";
     }
-}
-
-- (IBAction)acquireTokenPromptAlways:(id)sender
-{
-    [self acquireTokenInteractive:AD_PROMPT_ALWAYS];
-}
-
-- (IBAction)acquireTokenPromptAuto:(id)sender
-{
-    [self acquireTokenInteractive:AD_PROMPT_AUTO];
 }
 
 - (void)updateResultView:(ADAuthenticationResult*)result
@@ -198,7 +429,19 @@
     printf("%s", [resultText UTF8String]);
 }
 
-- (void)acquireTokenInteractive:(ADPromptBehavior)promptBehavior
+- (ADPromptBehavior)promptBehavior
+{
+    NSString* label = [_promptBehavior titleForSegmentAtIndex:_promptBehavior.selectedSegmentIndex];
+    
+    if ([label isEqualToString:@"Always"])
+        return AD_PROMPT_ALWAYS;
+    if ([label isEqualToString:@"Auto"])
+        return AD_PROMPT_AUTO;
+    
+    @throw @"Do not recognize prompt behavior";
+}
+
+- (void)acquireTokenInteractive:(id)sender
 {
     ADTestAppSettings* settings = [ADTestAppSettings settings];
     NSString* authority = [settings authority];
@@ -226,7 +469,7 @@
     if ([self embeddedWebView])
     {
         [context setWebView:_webView];
-        [_authView setFrame:self.view.frame];
+        //[_authView setFrame:self.view.frame];
         
         [UIView animateWithDuration:0.5 animations:^{
             [_acquireSettingsView setHidden:YES];
@@ -239,7 +482,7 @@
     [context acquireTokenWithResource:resource
                              clientId:clientId
                           redirectUri:redirectUri
-                       promptBehavior:promptBehavior
+                       promptBehavior:[self promptBehavior]
                        userIdentifier:identifier
                  extraQueryParameters:nil
                       completionBlock:^(ADAuthenticationResult *result)
@@ -263,13 +506,9 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             [self updateResultView:result];
             
-            if ([_acquireSettingsView isHidden])
-            {
-                [_webView loadHTMLString:@"<html><head></head><body>done!</body></html>" baseURL:nil];
-                [_authView setHidden:YES];
-                [_acquireSettingsView setHidden:NO];
-                [self.view setNeedsDisplay];
-            }
+            [_webView loadHTMLString:@"<html><head></head><body>done!</body></html>" baseURL:nil];
+            [_authView setHidden:YES];
+            [self.view setNeedsDisplay];
             
             [[NSNotificationCenter defaultCenter] postNotificationName:ADTestAppCacheChangeNotification object:self];
         });
@@ -324,6 +563,26 @@
             [[NSNotificationCenter defaultCenter] postNotificationName:ADTestAppCacheChangeNotification object:self];
         });
     }];
+}
+
+- (IBAction)clearCache:(id)sender
+{
+    NSDictionary* query = [[ADKeychainTokenCache defaultKeychainCache] defaultKeychainQuery];
+    OSStatus status = SecItemDelete((CFDictionaryRef)query);
+    
+    _resultView.text = [NSString stringWithFormat:@"Deleted keychain items (%d)", (int)status];
+}
+
+- (IBAction)clearCookies:(id)sender
+{
+    NSHTTPCookieStorage* cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSArray* cookies = cookieStore.cookies;
+    for (NSHTTPCookie* cookie in cookies)
+    {
+        [cookieStore deleteCookie:cookie];
+    }
+    
+    _resultView.text = [NSString stringWithFormat:@"Cleared %lu cookies.", (unsigned long)cookies.count];
 }
 
 @end
