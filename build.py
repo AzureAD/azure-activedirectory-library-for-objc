@@ -113,7 +113,7 @@ def do_ios_build(target, operation) :
 		
 	command += " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest
 	if (use_xcpretty) :
-		commanmd += " | xcpretty"
+		command += " | xcpretty"
 		
 	print command
 	exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
