@@ -11,15 +11,21 @@ static UIAlertView* alert;
 
 + (void)presentCredentialAlert:(void (^)(NSUInteger))handler
 {
-    if (![ADAppExtensionUtil isExecutingInAppExtension])
+    if ([ADAppExtensionUtil isExecutingInAppExtension])
     {
+        handler(0);
+        return;
+    }
+    
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
         NSBundle* bundle = [ADALFrameworkUtils frameworkBundle];
         
         if (!bundle)
         {
             bundle = [NSBundle mainBundle];
         }
-
+        
         alert = [[UIAlertView alloc] initWithFrame:CGRectZero];
         alert.title = NSLocalizedStringFromTableInBundle(@"Enter your credentials", nil, bundle, nil);
         alert.alertViewStyle = UIAlertViewStyleLoginAndPasswordInput;
@@ -29,21 +35,8 @@ static UIAlertView* alert;
         [alert setCancelButtonIndex:0];
         
         [alert setDelegate:alert];
-
-        if (handler)
-        {
-            objc_setAssociatedObject(alert, HANDLER_KEY, handler, OBJC_ASSOCIATION_COPY_NONATOMIC);
-        }
-
-        dispatch_async(dispatch_get_main_queue(), ^(void){
-            [alert show];
-        });
-    }
-    else
-    {
-        // Show nothing
-        handler(0);
-    }
+        [alert show];
+    });
 }
 
 - (void)alertView:(UIAlertView*)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
