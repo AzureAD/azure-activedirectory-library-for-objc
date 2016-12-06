@@ -31,50 +31,59 @@
 
 + (void)presentPrompt:(void (^)(NSString * username, NSString * password))block
 {
-    UIViewController* viewController = [[ADWebAuthController sharedInstance] viewController];
-    if ([ADAppExtensionUtil isExecutingInAppExtension] || !viewController)
+    
+    if ([ADAppExtensionUtil isExecutingInAppExtension])
     {
         block(nil, nil);
         return;
     }
     
-    NSBundle* bundle = [ADALFrameworkUtils frameworkBundle];
-    
-    NSString* title = NSLocalizedStringFromTableInBundle(@"Enter your credentials", nil, bundle, nil);
-    UIAlertController* alert = [UIAlertController alertControllerWithTitle:title
-                                                                   message:nil
-                                                            preferredStyle:UIAlertControllerStyleAlert];
-    
-    UIAlertAction* cancelAction =
-    [UIAlertAction actionWithTitle:NSLocalizedStringFromTableInBundle(@"Cancel", nil, bundle, nil)
-                             style:UIAlertActionStyleCancel
-                           handler:^(UIAlertAction * _Nonnull action)
-     {
-         (void)action;
-         block(nil, nil);
-     }];
-    
-    UIAlertAction* loginAction =
-    [UIAlertAction actionWithTitle:NSLocalizedStringFromTableInBundle(@"Login", nil, bundle, nil)
-                             style:UIAlertActionStyleDefault
-                           handler:^(UIAlertAction * _Nonnull action)
-    {
-        (void)action;
-        UITextField* username = alert.textFields.firstObject;
-        UITextField* password = alert.textFields.lastObject;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIViewController* viewController = [[ADWebAuthController sharedInstance] viewController];
+        if (!viewController)
+        {
+            block(nil, nil);
+            return;
+        }
         
-        block(username.text, password.text);
-    }];
-    
-    [alert addAction:cancelAction];
-    [alert addAction:loginAction];
-    
-    [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) { (void)textField; }];
-    [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-        textField.secureTextEntry = YES;
-    }];
-    
-    [viewController presentViewController:alert animated:YES completion:^{}];
+        NSBundle* bundle = [ADALFrameworkUtils frameworkBundle];
+        
+        NSString* title = NSLocalizedStringFromTableInBundle(@"Enter your credentials", nil, bundle, nil);
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:title
+                                                                       message:nil
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction* cancelAction =
+        [UIAlertAction actionWithTitle:NSLocalizedStringFromTableInBundle(@"Cancel", nil, bundle, nil)
+                                 style:UIAlertActionStyleCancel
+                               handler:^(UIAlertAction * _Nonnull action)
+         {
+             (void)action;
+             block(nil, nil);
+         }];
+        
+        UIAlertAction* loginAction =
+        [UIAlertAction actionWithTitle:NSLocalizedStringFromTableInBundle(@"Login", nil, bundle, nil)
+                                 style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * _Nonnull action)
+         {
+             (void)action;
+             UITextField* username = alert.textFields.firstObject;
+             UITextField* password = alert.textFields.lastObject;
+             
+             block(username.text, password.text);
+         }];
+        
+        [alert addAction:cancelAction];
+        [alert addAction:loginAction];
+        
+        [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) { (void)textField; }];
+        [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+            textField.secureTextEntry = YES;
+        }];
+        
+        [viewController presentViewController:alert animated:YES completion:^{}];
+    });
 }
 
 @end
