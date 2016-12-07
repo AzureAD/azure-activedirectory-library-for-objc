@@ -651,4 +651,9 @@ static ADAuthenticationResult* s_result = nil;
 }
 #endif // TARGET_OS_IPHONE
 
+- (ADAuthenticationViewController*)viewController
+{
+    return _authenticationViewController;
+}
+
 @end
