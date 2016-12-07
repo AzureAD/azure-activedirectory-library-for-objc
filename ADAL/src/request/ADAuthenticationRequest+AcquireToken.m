@@ -80,6 +80,7 @@
         
         [event setCorrelationId:self.correlationId];
         [event setClientId:_requestParams.clientId];
+        [event setAuthority:_context.authority];
         [event setExtendedExpiresOnSetting:[_requestParams extendedLifetime]? AD_TELEMETRY_YES:AD_TELEMETRY_NO];
         [event setPromptBehavior:_promptBehavior];
         [event setUserInformation:[[result tokenCacheItem] userInformation]];
