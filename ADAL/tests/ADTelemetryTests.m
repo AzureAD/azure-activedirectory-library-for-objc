@@ -134,9 +134,11 @@ typedef void(^TestCallback)(NSArray* event);
     
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
                              propertyName:@"correlation_id"], 1);
-    
+#if TARGET_OS_IPHONE
+    // application_version is only available in unit test framework with host app
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
                              propertyName:@"application_version"], 1);
+#endif
     
     XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
                              propertyName:@"application_name"], 1);
@@ -611,8 +613,11 @@ typedef void(^TestCallback)(NSArray* event);
                                   propertyName:@"request_id"], 1);
          XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
                                   propertyName:@"correlation_id"], 1);
+#if TARGET_OS_IPHONE
+         // application_version is only available in unit test framework with host app
          XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
                                   propertyName:@"application_version"], 1);
+#endif
          XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
                                   propertyName:@"application_name"], 1);
          XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
