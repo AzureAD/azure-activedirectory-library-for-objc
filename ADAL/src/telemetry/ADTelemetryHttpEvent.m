@@ -85,15 +85,7 @@
     }
     [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", httpEventCount] forKey:AD_TELEMETRY_HTTP_EVENT_COUNT];
     
-    NSArray* properties = [self getProperties];
-    for (ADTelemetryProperty* property in properties)
-    {
-        if ([property.name isEqualToString:AD_TELEMETRY_OAUTH_ERROR_CODE]
-            ||[property.name isEqualToString:AD_TELEMETRY_HTTP_ERROR_DOMAIN])
-        {
-            [eventToBeDispatched setObject:property.value forKey:property.name];
-        }
-    }
+    //TODO: output http event properties to aggregated event
 }
 
 - (NSString*)scrubTenantFromUrl:(NSString*)url

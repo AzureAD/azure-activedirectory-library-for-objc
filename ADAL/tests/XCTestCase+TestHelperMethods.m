@@ -508,8 +508,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
 
 }
 
-- (NSString*)adGetPropertyFromEvent:(NSArray*)event
-                     propertyName:(NSString*)propertyName
+- (NSString *)adGetPropertyFromEvent:(NSArray *)event
+                     propertyName:(NSString *)propertyName
 {
     for (ADTelemetryProperty* property in event)
     {
@@ -521,8 +521,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     return nil;
 }
 
-- (NSInteger)adGetPropertyCount:(NSArray*)event
-                 propertyName:(NSString*)propertyName
+- (NSInteger)adGetPropertyCount:(NSArray *)event
+                 propertyName:(NSString *)propertyName
 {
     NSInteger count = 0;
     for (ADTelemetryProperty* property in event)

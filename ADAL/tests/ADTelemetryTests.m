@@ -78,27 +78,29 @@
     
     // make sure the default properties are recorded in the telemetry event,
     // i.e. sdk_id, sdk_version, device_id, device_name
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    NSArray* event = [receivedEvents firstObject];
+    
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"x-client-SKU"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"x-client-Ver"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"device_id"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"request_id"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"correlation_id"], 1);
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"application_version"], 1);
 #endif
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"application_name"], 1);
 }
 
@@ -139,26 +141,30 @@
     XCTAssertEqual([receivedEvents count], 2);
     
     // make sure the 1st event has an event_name, start_time and stop_time
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    NSArray* firstEvent = [receivedEvents firstObject];
+    
+    XCTAssertEqual([self adGetPropertyCount:firstEvent
                              propertyName:@"event_name"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:firstEvent
                              propertyName:@"start_time"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:firstEvent
                              propertyName:@"stop_time"], 1);
 
     // make sure the 2nd event has customized_property, event_name, start_time and stop_time
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:1]
+    NSArray* secondEvent = [receivedEvents objectAtIndex:1];
+    
+    XCTAssertEqual([self adGetPropertyCount:secondEvent
                              propertyName:@"customized_property"], 1);
 
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:secondEvent
                              propertyName:@"event_name"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:secondEvent
                              propertyName:@"start_time"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:secondEvent
                              propertyName:@"stop_time"], 1);
     
 }
@@ -201,25 +207,26 @@
     XCTAssertEqual([receivedEvents count], 1);
     
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    NSArray* event = [receivedEvents firstObject];
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"correlation_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"request_id"], 1);
     
     // it will also outputs some designated properties like response_time, but not for event_name, etc.
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"response_time"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"event_name"], 0);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"start_time"], 0);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"stop_time"], 0);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"customized_property"], 0);
     
 }
@@ -262,31 +269,33 @@
     
     // the first event recorded is event2
     // make sure it has customized_property, event_name, start_time and stop_time
-    XCTAssertTrue([[self adGetPropertyFromEvent:[receivedEvents firstObject]
+    NSArray* firstEvent = [receivedEvents firstObject];
+    XCTAssertTrue([[self adGetPropertyFromEvent:firstEvent
                                   propertyName:@"event_name"] isEqualToString:@"testEvent2"]);
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:firstEvent
                              propertyName:@"event_name"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:firstEvent
                              propertyName:@"customized_property"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:firstEvent
                              propertyName:@"start_time"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:firstEvent
                              propertyName:@"stop_time"], 1);
     
     // the second event recorded is event1
     // make sure it has event_name, start_time and stop_time
-    XCTAssertTrue([[self adGetPropertyFromEvent:[receivedEvents objectAtIndex:1]
+    NSArray* secondEvent = [receivedEvents objectAtIndex:1];
+    XCTAssertTrue([[self adGetPropertyFromEvent:secondEvent
                                   propertyName:@"event_name"] isEqualToString:@"testEvent1"]);
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:1]
+    XCTAssertEqual([self adGetPropertyCount:secondEvent
                              propertyName:@"event_name"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:1]
+    XCTAssertEqual([self adGetPropertyCount:secondEvent
                              propertyName:@"start_time"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:1]
+    XCTAssertEqual([self adGetPropertyCount:secondEvent
                              propertyName:@"stop_time"], 1);
     
 }
@@ -329,25 +338,26 @@
     XCTAssertEqual([receivedEvents count], 1);
     
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    NSArray* event = [receivedEvents firstObject];
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"correlation_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"request_id"], 1);
     
     // it will also outputs some designated properties like response_time, but not for event_name, etc.
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"response_time"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"event_name"], 0);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"start_time"], 0);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"stop_time"], 0);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"customized_property"], 0);
 }
 
@@ -496,25 +506,27 @@
     XCTAssertEqual([receivedEvents count], 1);
     
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    NSArray* event = [receivedEvents firstObject];
+    
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"correlation_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"request_id"], 1);
     
     // it will also outputs some designated properties like response_time, but not for event_name, etc.
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"response_time"], 1);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"event_name"], 0);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"start_time"], 0);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"stop_time"], 0);
     
-    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:event
                              propertyName:@"customized_property"], 0);
 }
 

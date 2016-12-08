@@ -85,9 +85,10 @@
         [event setPromptBehavior:_promptBehavior];
         if ([result tokenCacheItem])
         {
-            [event setUserInformation:[[result tokenCacheItem] userInformation]];
+            [event setUserInformation:result.tokenCacheItem.userInformation];
         }
-        else{
+        else
+        {
             [event setUserId:_requestParams.identifier.userId];
         }
         [event setResultStatus:result.status];
