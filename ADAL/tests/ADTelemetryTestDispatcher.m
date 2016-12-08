@@ -21,29 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADTelemetryDefaultEvent.h"
+#import "ADTelemetryTestDispatcher.h"
 
-@interface ADTelemetryAPIEvent : ADTelemetryDefaultEvent
+@implementation ADTelemetryTestDispatcher
 
-- (void)setResultStatus:(ADAuthenticationResultStatus)status;
-- (void)setCorrelationId:(NSUUID*)correlationId;
-- (void)setExtendedExpiresOnSetting:(NSString*)extendedExpiresOnSetting;
-- (void)setPromptBehavior:(ADPromptBehavior)promptBehavior;
-- (void)setUserInformation:(ADUserInformation*)userInfo;
-- (void)setUserId:(NSString*)userId;
-- (void)setClientId:(NSString*)clientId;
-- (void)setIsExtendedLifeTimeToken:(NSString*)isExtendedLifeToken;
-- (void)setErrorCode:(NSString*)errorCode;
-- (void)setProtocolCode:(NSString*)protocolCode;
-- (void)setErrorDescription:(NSString*)errorDescription;
-- (void)setErrorDomain:(NSString*)errorDomain;
+- (void)setTestCallback:(TestCallback)callback
+{
+    _testCallback = callback;
+}
 
-- (void)setAuthorityValidationStatus:(NSString*)status;
-- (void)setAuthority:(NSString*)authority;
-
-- (void)setGrantType:(NSString*)grantType;
-- (void)setAPIStatus:(NSString*)status;
-
-- (void)setApiId:(NSString*)apiId;
+- (void)dispatchEvent:(NSArray*)event
+{
+    // call _testCallback when it receives telemetry event
+    // this is for the purpose of unit test
+    if (_testCallback)
+    {
+        _testCallback(event);
+    }
+}
 
 @end

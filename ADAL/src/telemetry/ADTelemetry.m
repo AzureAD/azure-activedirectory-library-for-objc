@@ -67,6 +67,12 @@ static NSString* const s_delimiter = @"|";
     @synchronized(self)
     {
         SAFE_ARC_RELEASE(_dispatcher);
+        if (!dispatcher)
+        {
+            _dispatcher = nil;
+            return;
+        }
+        
         if (aggregationRequired)
         {
             _dispatcher = [[ADAggregatedDispatcher alloc] initWithDispatcher:dispatcher];

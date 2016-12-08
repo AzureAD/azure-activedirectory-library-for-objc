@@ -67,6 +67,11 @@
     [self setProperty:AD_TELEMETRY_IDP value:[userInfo identityProvider]];
 }
 
+- (void)setUserId:(NSString*)userId
+{
+    [self setProperty:AD_TELEMETRY_USER_ID value:[userId adComputeSHA256]];
+}
+
 - (void)setClientId:(NSString*)clientId
 {
     [self setProperty:AD_TELEMETRY_CLIENT_ID value:clientId];

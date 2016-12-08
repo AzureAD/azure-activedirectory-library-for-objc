@@ -83,7 +83,13 @@
         [event setAuthority:_context.authority];
         [event setExtendedExpiresOnSetting:[_requestParams extendedLifetime]? AD_TELEMETRY_YES:AD_TELEMETRY_NO];
         [event setPromptBehavior:_promptBehavior];
-        [event setUserInformation:[[result tokenCacheItem] userInformation]];
+        if ([result tokenCacheItem])
+        {
+            [event setUserInformation:[[result tokenCacheItem] userInformation]];
+        }
+        else{
+            [event setUserId:_requestParams.identifier.userId];
+        }
         [event setResultStatus:result.status];
         [event setIsExtendedLifeTimeToken:[result extendedLifeTimeToken]? AD_TELEMETRY_YES:AD_TELEMETRY_NO];
         [event setErrorCode:[NSString stringWithFormat:@"%ld",(long)[result.error code]]];

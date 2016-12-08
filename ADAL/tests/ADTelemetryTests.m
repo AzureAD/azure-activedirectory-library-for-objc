@@ -31,69 +31,27 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheItem.h"
-
-typedef void(^TestCallback)(NSArray* event);
-
-@interface TestDispatcher : NSObject <ADDispatcher>
-{
-    TestCallback _testCallback;
-}
-
-- (void)setTestCallback:(TestCallback)callback;
-@end
-
-@implementation TestDispatcher
-
-- (void)setTestCallback:(TestCallback)callback
-{
-    _testCallback = callback;
-}
-
-- (void)dispatchEvent:(NSArray*)event
-{
-    // call _testCallback when it receives telemetry event
-    // this is for the purpose of unit test
-    if (_testCallback)
-    {
-        _testCallback(event);
-    }
-}
-
-@end
+#import "ADTelemetryTestDispatcher.h"
 
 @interface ADTelemetryTests : XCTestCase
-{
-@private
-    dispatch_semaphore_t _dsem;
-}
+
 @end
 
 @implementation ADTelemetryTests
 
-- (void)setUp
-{
+- (void)setUp {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
-    _dsem = dispatch_semaphore_create(0);
+    // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
-- (void)tearDown
-{
-#if !__has_feature(objc_arc)
-    dispatch_release(_dsem);
-#endif
-    _dsem = nil;
-    
-    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
-    [ADTestURLConnection clearResponses];
-    [self adTestEnd];
+- (void)tearDown {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
 }
 
-
 - (void)testDefaultEventProperties {
     // new a dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
     
     // the dispatcher will store the telemetry events it receives
@@ -120,33 +78,33 @@ typedef void(^TestCallback)(NSArray* event);
     
     // make sure the default properties are recorded in the telemetry event,
     // i.e. sdk_id, sdk_version, device_id, device_name
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"x-client-SKU"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"x-client-Ver"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"device_id"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"request_id"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"correlation_id"], 1);
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"application_version"], 1);
 #endif
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"application_name"], 1);
 }
 
 - (void)testSequentialEvents {
     // new a dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
     
     // the dispatcher will store the telemetry events it receives
@@ -181,33 +139,33 @@ typedef void(^TestCallback)(NSArray* event);
     XCTAssertEqual([receivedEvents count], 2);
     
     // make sure the 1st event has an event_name, start_time and stop_time
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"event_name"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"start_time"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"stop_time"], 1);
 
     // make sure the 2nd event has customized_property, event_name, start_time and stop_time
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:1]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:1]
                              propertyName:@"customized_property"], 1);
 
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"event_name"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"start_time"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"stop_time"], 1);
     
 }
 
 - (void)testSequentialEventsWithAggregation {
     // new a dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
     NSUUID* correlationId = [NSUUID UUID];
     
@@ -243,32 +201,32 @@ typedef void(^TestCallback)(NSArray* event);
     XCTAssertEqual([receivedEvents count], 1);
     
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"correlation_id"], 1);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"request_id"], 1);
     
     // it will also outputs some designated properties like response_time, but not for event_name, etc.
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"response_time"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"event_name"], 0);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"start_time"], 0);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"stop_time"], 0);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"customized_property"], 0);
     
 }
 
 - (void)testNestedEvents {
     // new a dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
     
     // the dispatcher will store the telemetry events it receives
@@ -304,38 +262,38 @@ typedef void(^TestCallback)(NSArray* event);
     
     // the first event recorded is event2
     // make sure it has customized_property, event_name, start_time and stop_time
-    XCTAssertTrue([[self getPropertyFromEvent:[receivedEvents firstObject]
+    XCTAssertTrue([[self adGetPropertyFromEvent:[receivedEvents firstObject]
                                   propertyName:@"event_name"] isEqualToString:@"testEvent2"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"event_name"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"customized_property"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"start_time"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"stop_time"], 1);
     
     // the second event recorded is event1
     // make sure it has event_name, start_time and stop_time
-    XCTAssertTrue([[self getPropertyFromEvent:[receivedEvents objectAtIndex:1]
+    XCTAssertTrue([[self adGetPropertyFromEvent:[receivedEvents objectAtIndex:1]
                                   propertyName:@"event_name"] isEqualToString:@"testEvent1"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:1]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:1]
                              propertyName:@"event_name"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:1]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:1]
                              propertyName:@"start_time"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:1]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:1]
                              propertyName:@"stop_time"], 1);
     
 }
 
 - (void)testNestedEventsWithAggregation {
     // new a dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
     NSUUID* correlationId = [NSUUID UUID];
     
@@ -371,31 +329,31 @@ typedef void(^TestCallback)(NSArray* event);
     XCTAssertEqual([receivedEvents count], 1);
     
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"correlation_id"], 1);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"request_id"], 1);
     
     // it will also outputs some designated properties like response_time, but not for event_name, etc.
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"response_time"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"event_name"], 0);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"start_time"], 0);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"stop_time"], 0);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"customized_property"], 0);
 }
 
 - (void)testComplexEvents {
     // new a dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
     
     // the dispatcher will store the telemetry events it receives
@@ -441,57 +399,57 @@ typedef void(^TestCallback)(NSArray* event);
     XCTAssertEqual([receivedEvents count], 4);
     
     // the first event recorded is event3
-    XCTAssertTrue([[self getPropertyFromEvent:[receivedEvents firstObject]
+    XCTAssertTrue([[self adGetPropertyFromEvent:[receivedEvents firstObject]
                                  propertyName:@"event_name"] isEqualToString:@"testEvent3"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"event_name"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"start_time"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"stop_time"], 1);
     
     // the second event recorded is event2
-    XCTAssertTrue([[self getPropertyFromEvent:[receivedEvents objectAtIndex:1]
+    XCTAssertTrue([[self adGetPropertyFromEvent:[receivedEvents objectAtIndex:1]
                                  propertyName:@"event_name"] isEqualToString:@"testEvent2"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:1]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:1]
                              propertyName:@"event_name"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:1]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:1]
                              propertyName:@"start_time"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:1]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:1]
                              propertyName:@"stop_time"], 1);
     
     // the third event recorded is event1
-    XCTAssertTrue([[self getPropertyFromEvent:[receivedEvents objectAtIndex:2]
+    XCTAssertTrue([[self adGetPropertyFromEvent:[receivedEvents objectAtIndex:2]
                                  propertyName:@"event_name"] isEqualToString:@"testEvent1"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:2]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:2]
                              propertyName:@"event_name"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:2]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:2]
                              propertyName:@"start_time"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:2]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:2]
                              propertyName:@"stop_time"], 1);
     
     // the fourth event recorded is event4
-    XCTAssertTrue([[self getPropertyFromEvent:[receivedEvents objectAtIndex:3]
+    XCTAssertTrue([[self adGetPropertyFromEvent:[receivedEvents objectAtIndex:3]
                                  propertyName:@"event_name"] isEqualToString:@"testEvent4"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:3]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:3]
                              propertyName:@"event_name"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:3]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:3]
                              propertyName:@"start_time"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:3]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents objectAtIndex:3]
                              propertyName:@"stop_time"], 1);
 }
 
 - (void)testComplexEventsWithAggregation {
     // new a dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
     NSUUID* correlationId = [NSUUID UUID];
     
@@ -538,172 +496,26 @@ typedef void(^TestCallback)(NSArray* event);
     XCTAssertEqual([receivedEvents count], 1);
     
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"correlation_id"], 1);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"request_id"], 1);
     
     // it will also outputs some designated properties like response_time, but not for event_name, etc.
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"response_time"], 1);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"event_name"], 0);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"start_time"], 0);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"stop_time"], 0);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
+    XCTAssertEqual([self adGetPropertyCount:[receivedEvents firstObject]
                              propertyName:@"customized_property"], 0);
-}
-
-- (void)testAcquireTokenOutputAggregation
-{
-    // prepare the dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
-    NSMutableArray* receivedEvents = [NSMutableArray new];
-    [dispatcher setTestCallback:^(NSArray* event)
-     {
-         [receivedEvents addObject:event];
-     }];
-    
-    // register the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:YES];
-
-    // Simplest FRT case, the only RT available is the FRT so that would should be the one used
-    ADAuthenticationError* error = nil;
-    ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    
-    id<ADTokenCacheDataSource> cache = [context tokenCacheStore].dataSource;
-    XCTAssertNotNil(cache);
-    
-    XCTAssertTrue([cache addOrUpdateItem:[self adCreateFRTCacheItem] correlationId:nil error:&error]);
-    XCTAssertNil(error);
-    
-    ADTestURLResponse* response = [self adResponseRefreshToken:@"family refresh token"
-                                                     authority:TEST_AUTHORITY
-                                                      resource:TEST_RESOURCE
-                                                      clientId:TEST_CLIENT_ID
-                                                 correlationId:TEST_CORRELATION_ID
-                                               newRefreshToken:@"new family refresh token"
-                                                newAccessToken:TEST_ACCESS_TOKEN
-                                              additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
-    
-    [ADTestURLConnection addResponse:response];
-    
-    [context acquireTokenSilentWithResource:TEST_RESOURCE
-                                   clientId:TEST_CLIENT_ID
-                                redirectUri:TEST_REDIRECT_URL
-                                     userId:TEST_USER_ID
-                            completionBlock:^(ADAuthenticationResult *result)
-     {
-         XCTAssertNotNil(result);
-         XCTAssertEqual(result.status, AD_SUCCEEDED);
-         
-         // there should be 1 telemetry events recorded as aggregation flag is ON
-         XCTAssertEqual([receivedEvents count], 1);
-         
-         // the following properties are expected in an aggregrated event
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"api_id"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"request_id"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"correlation_id"], 1);
-#if TARGET_OS_IPHONE
-         // application_version is only available in unit test framework with host app
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"application_version"], 1);
-#endif
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"application_name"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"x-client-Ver"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"x-client-SKU"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"client_id"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"device_id"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"authority_type"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"extended_expires_on_setting"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"prompt_behavior"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"status"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"tenant_id"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"user_id"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"response_time"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"cache_event_count"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"token_rt_status"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"token_mrrt_status"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"token_frt_status"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"http_event_count"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"http_event_count"], 1);
-         XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                                  propertyName:@"error_code"], 1);
-         TEST_SIGNAL;
-     }];
-    TEST_WAIT;
-}
-
-- (NSString*)getPropertyFromEvent:(NSArray*)event
-                 propertyName:(NSString*)propertyName
-{
-    for (ADTelemetryProperty* property in event)
-    {
-        if ([property.name isEqualToString:propertyName])
-        {
-            return property.value;
-        }
-    }
-    return nil;
-}
-
-- (NSInteger)getPropertyCount:(NSArray*)event
-                 propertyName:(NSString*)propertyName
-{
-    NSInteger count = 0;
-    for (ADTelemetryProperty* property in event)
-    {
-        if ([property.name isEqualToString:propertyName])
-        {
-            count++;
-        }
-    }
-    return count;
-}
-
-- (ADAuthenticationContext *)getTestAuthenticationContext
-{
-    ADAuthenticationContext* context =
-    [[ADAuthenticationContext alloc] initWithAuthority:TEST_AUTHORITY
-                                     validateAuthority:NO
-                                                 error:nil];
-    
-    NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
-    ADTokenCache *tokenCache = [ADTokenCache new];
-    SAFE_ARC_AUTORELEASE(tokenCache);
-    [context setTokenCacheStore:tokenCache];
-    [context setCorrelationId:TEST_CORRELATION_ID];
-    
-    SAFE_ARC_AUTORELEASE(context);
-    
-    return context;
 }
 
 @end
