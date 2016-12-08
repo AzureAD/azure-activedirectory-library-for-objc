@@ -26,7 +26,7 @@
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADTestAppAcquireLayoutBuilder.h"
 
-@interface ADTestAppAcquireTokenViewController ()
+@interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate>
 
 @end
 
@@ -105,6 +105,7 @@
     
     _userIdField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 400, 20)];
     _userIdField.borderStyle = UITextBorderStyleRoundedRect;
+    _userIdField.delegate = self;
     [layout addControl:_userIdField title:@"userId"];
     
     _userIdType = [[UISegmentedControl alloc] initWithItems:@[@"Optional", @"Required", @"Unique"]];
@@ -271,6 +272,12 @@
                                                     multiplier:1.0
                                                       constant:0];
     [mainView addConstraint:_bottomConstraint];
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+    return YES;
 }
 
 - (void)viewDidLoad
