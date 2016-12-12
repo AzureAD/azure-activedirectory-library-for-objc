@@ -53,14 +53,18 @@
     
     _tabBar = [UITabBarController new];
     
+    
     ADTestAppAcquireTokenViewController* tokenController = [ADTestAppAcquireTokenViewController new];
-    [_tabBar addChildViewController:tokenController];
+    UINavigationController* tokenNavController = [[UINavigationController alloc] initWithRootViewController:tokenController];
+    tokenNavController.tabBarItem = tokenController.tabBarItem;
+    tokenNavController.navigationBar.hidden = YES;
+    [_tabBar addChildViewController:tokenNavController];
     
     // Settings controller is contained in a navigation controller
     ADTestAppSettingsViewController* settingsController = [ADTestAppSettingsViewController new];
     
     UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:settingsController];
-    navController.navigationBar.hidden = NO;
+    navController.navigationBar.hidden = YES;
     navController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Settings"
                                                              image:[UIImage imageNamed:@"Settings"]
                                                                tag:0];

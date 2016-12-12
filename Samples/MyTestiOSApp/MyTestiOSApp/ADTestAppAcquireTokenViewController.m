@@ -25,6 +25,7 @@
 #import "ADTestAppSettings.h"
 #import "ADKeychainTokenCache+Internal.h"
 #import "ADTestAppAcquireLayoutBuilder.h"
+#import "ADTestAppProfileViewController.h"
 
 @interface ADTestAppAcquireTokenViewController () <UITextFieldDelegate>
 
@@ -32,21 +33,23 @@
 
 @implementation ADTestAppAcquireTokenViewController
 {
-    IBOutlet UIView* _acquireSettingsView;
-    IBOutlet UITextField* _userIdField;
-    IBOutlet UISegmentedControl* _userIdType;
+    UIView* _acquireSettingsView;
+    UITextField* _userIdField;
+    UISegmentedControl* _userIdType;
     
     UISegmentedControl* _promptBehavior;
+    
+    UIButton* _profileButton;
 
-    IBOutlet UISegmentedControl* _brokerEnabled;
-    IBOutlet UISegmentedControl* _webViewType;
-    IBOutlet UISegmentedControl* _fullScreen;
-    IBOutlet UISegmentedControl* _validateAuthority;
+    UISegmentedControl* _brokerEnabled;
+    UISegmentedControl* _webViewType;
+    UISegmentedControl* _fullScreen;
+    UISegmentedControl* _validateAuthority;
     
-    IBOutlet UITextView* _resultView;
+    UITextView* _resultView;
     
-    IBOutlet UIView* _authView;
-    IBOutlet UIWebView* _webView;
+    UIView* _authView;
+    UIWebView* _webView;
     
     NSLayoutConstraint* _bottomConstraint;
     NSLayoutConstraint* _bottomConstraint2;
@@ -60,7 +63,6 @@
     {
         return nil;
     }
-    
     UITabBarItem* tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Acquire" image:nil tag:0];
     [self setTabBarItem:tabBarItem];
     
@@ -116,6 +118,12 @@
     _promptBehavior.selectedSegmentIndex = 0;
     [layout addControl:_promptBehavior title:@"prompt"];
     
+    _profileButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [_profileButton setTitle:ADTestAppSettings.currentProfileTitle forState:UIControlStateNormal];
+    [_profileButton addTarget:self action:@selector(changeProfile:) forControlEvents:UIControlEventTouchUpInside];
+    _profileButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    [layout addControl:_profileButton title:@"profile"];
+    
     _webViewType = [[UISegmentedControl alloc] initWithItems:@[@"Passed In", @"ADAL"]];
     _webViewType.selectedSegmentIndex = 1;
     [layout addControl:_webViewType title:@"webView"];
@@ -152,7 +160,11 @@
     
     UIView* contentView = [layout contentView];
     [scrollView addSubview:contentView];
-    scrollView.contentSize = contentView.bounds.size;
+    
+    NSDictionary* views = @{ @"contentView" : contentView, @"scrollView" : scrollView };
+    [scrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[contentView]|" options:0 metrics:nil views:views]];
+    [scrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[contentView]|" options:0 metrics:nil views:views]];
+    [scrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"[contentView(==scrollView)]" options:0 metrics:nil views:views]];
     
     return scrollView;
 }
@@ -160,11 +172,11 @@
 - (UIView *)createAcquireButtonsView
 {
     UIButton* acquireButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [acquireButton setTitle:@"acquire" forState:UIControlStateNormal];
+    [acquireButton setTitle:@"acquireToken" forState:UIControlStateNormal];
     [acquireButton addTarget:self action:@selector(acquireTokenInteractive:) forControlEvents:UIControlEventTouchUpInside];
     
     UIButton* acquireSilentButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [acquireSilentButton setTitle:@"acquireSilent" forState:UIControlStateNormal];
+    [acquireSilentButton setTitle:@"acquireTokenSilent" forState:UIControlStateNormal];
     [acquireSilentButton addTarget:self action:@selector(acquireTokenSilent:) forControlEvents:UIControlEventTouchUpInside];
     
     UIView* acquireButtonsView = [self createTwoItemLayoutView:acquireButton item2:acquireSilentButton];
@@ -331,13 +343,17 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     ADTestAppSettings* settings = [ADTestAppSettings settings];
-    if (!_userIdEdited)
+    NSString* defaultUser = settings.defaultUser;
+    if (![NSString adIsStringNilOrBlank:defaultUser])
     {
-        [_userIdField setText:settings.defaultUser];
+        _userIdField.text = defaultUser;
     }
     
-    [_validateAuthority setSelectedSegmentIndex:settings.validateAuthority ? 0 : 1];
-    [_brokerEnabled setSelectedSegmentIndex:settings.enableBroker ? 1 : 0];
+    self.navigationController.navigationBarHidden = YES;
+    _validateAuthority.selectedSegmentIndex = settings.validateAuthority ? 0 : 1;
+    _brokerEnabled.selectedSegmentIndex = settings.enableBroker ? 1 : 0;
+    [_profileButton setTitle:[ADTestAppSettings currentProfileTitle] forState:UIControlStateNormal];
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -577,7 +593,14 @@
     NSDictionary* query = [[ADKeychainTokenCache defaultKeychainCache] defaultKeychainQuery];
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
     
-    _resultView.text = [NSString stringWithFormat:@"Deleted keychain items (%d)", (int)status];
+    if (status == errSecSuccess || status == errSecItemNotFound)
+    {
+        _resultView.text = @"Successfully cleared cache.";
+    }
+    else
+    {
+        _resultView.text = [NSString stringWithFormat:@"Failed to clear cache, error = %d", (int)status];
+    }
 }
 
 - (IBAction)clearCookies:(id)sender
@@ -590,6 +613,11 @@
     }
     
     _resultView.text = [NSString stringWithFormat:@"Cleared %lu cookies.", (unsigned long)cookies.count];
+}
+
+- (IBAction)changeProfile:(id)sender
+{
+    [self.navigationController pushViewController:[ADTestAppProfileViewController sharedProfileViewController] animated:YES];
 }
 
 @end

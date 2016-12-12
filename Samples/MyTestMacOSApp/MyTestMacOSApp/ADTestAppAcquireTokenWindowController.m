@@ -305,7 +305,14 @@
 {
     OSStatus status = [[ADTestAppCache sharedCache] deleteFromKeychain];
     
-    [_resultView setString:[NSString stringWithFormat:@"Cache cleared (%d)", (int)status]];
+    if (status == errSecSuccess || status == errSecItemNotFound)
+    {
+        _resultView.string = @"Successfully cleared cache.";
+    }
+    else
+    {
+        _resultView.string = [NSString stringWithFormat:@"Failed to clear cache, error = %d", (int)status];
+    }
 }
 
 - (IBAction)clearCookies:(id)sender
