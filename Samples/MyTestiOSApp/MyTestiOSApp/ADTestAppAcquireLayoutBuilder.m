@@ -32,7 +32,7 @@
     
     _screenRect = UIScreen.mainScreen.bounds;
     _contentView = [[UIView alloc] initWithFrame:_screenRect];
-    _contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    _contentView.translatesAutoresizingMaskIntoConstraints = NO;
     
     _views = [NSMutableDictionary new];
     _keys = [NSMutableArray new];
@@ -108,7 +108,7 @@
     }
     
     NSMutableString* verticalConstraint = [NSMutableString new];
-    [verticalConstraint appendString:@"V:|-24-"];
+    [verticalConstraint appendString:@"V:|"];
     
     for (int i = 0; i < _keys.count - 1; i++)
     {
@@ -119,7 +119,6 @@
     NSString* lastKey = _keys.lastObject;
     [verticalConstraint appendFormat:@"[%@(>=200)]-36-|", lastKey];
     
-    //[verticalConstraint appendString:@"-|"];
     NSArray* verticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:verticalConstraint options:0 metrics:NULL views:_views];
     [_contentView addConstraints:verticalConstraints];
     
