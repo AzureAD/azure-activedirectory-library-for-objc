@@ -306,4 +306,20 @@
     return [[self addClientVersionToURL:[NSURL URLWithString:url]] absoluteString];
 }
 
++ (NSString *)getUPNSuffix:(NSString *)upn
+{
+    if (!upn)
+    {
+        return nil;
+    }
+    
+    NSArray *array = [upn componentsSeparatedByString:@"@"];
+    if (array.count != 2)
+    {
+        return nil;
+    }
+    
+    return array[1];
+}
+
 @end

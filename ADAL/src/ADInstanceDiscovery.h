@@ -29,6 +29,25 @@
 /*! The completion block declaration. */
 typedef void(^ADDiscoveryCallback)(BOOL validated, ADAuthenticationError* error);
 
+/*!
+ For ADFS authority, type can be specified to be on-prems, cloud, or auto (unknown).
+ It is used for ADFS authority validation. 
+ */
+typedef enum
+{
+    /*! Default option. ADFS server location is not determined.
+     The SDK will try to validate authority for on-prems first and then the cloud.
+     */
+    AD_ADFS_AUTO,
+    
+    /*! The SDK will only try to validate on-prems authority. */
+    AD_ADFS_ON_PREMS,
+    
+    /*! The SDK will only try to validate authority on cloud. */
+    AD_ADFS_CLOUD
+    
+} ADFSType;
+
 /*! A singleton class, used to validate authorities with in-memory caching of the previously validated ones.
  The class is thread-safe. */
 @interface ADInstanceDiscovery : NSObject
@@ -66,5 +85,10 @@ typedef void(^ADDiscoveryCallback)(BOOL validated, ADAuthenticationError* error)
                     trustedAuthority:(NSString *)trustedAuthority
                        requestParams:(ADRequestParameters*)requestParams
                      completionBlock:(ADDiscoveryCallback)completionBlock;
+
+- (void)requestValidationOfADFSAuthority:(NSString *)authority
+                                adfsType:(ADFSType)adfsType
+                           requestParams:(ADRequestParameters *)requestParams
+                         completionBlock:(ADDiscoveryCallback)completionBlock;
 
 @end

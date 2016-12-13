@@ -48,4 +48,5 @@
 + (NSURL *)addClientVersionToURL:(NSURL*)url;
 + (NSString *)addClientVersionToURLString:(NSString*)url;
 
++ (NSString *)getUPNSuffix:(NSString *)upn;
 @end

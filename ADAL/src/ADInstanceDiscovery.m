@@ -32,6 +32,8 @@
 #import "ADAuthenticationSettings.h"
 #import "NSString+ADHelperMethods.h"
 #import "ADClientMetrics.h"
+#import "ADUserIdentifier.h"
+#import "ADHelpers.h"
 
 static NSString* const sTrustedAuthority = @"https://login.windows.net";
 static NSString* const sApiVersionKey = @"api-version";
@@ -40,6 +42,12 @@ static NSString* const sAuthorizationEndPointKey = @"authorization_endpoint";
 static NSString* const sTenantDiscoveryEndpoint = @"tenant_discovery_endpoint";
 
 static NSString* const sValidationServerError = @"The authority validation server returned an error: %@.";
+
+static NSString* const sADFSCloudBase = @"https://enterpriseregistration.windows.net/";
+static NSString* const sADFSOnPremsBase = @"https://enterpriseregistration.";
+static NSString* const sADFSSuffix = @"/enrollmentserver/contract?api-version=1.0";
+
+static NSString* const sWebFinger = @".well-known/webfinger?";
 
 @implementation ADInstanceDiscovery
 
@@ -114,17 +122,6 @@ static NSString* const sValidationServerError = @"The authority validation serve
                                                              errorDetails:@"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com."
                                                             correlationId:correlationId];
         }
-        else
-        {
-            NSString* tenant = [paths objectAtIndex:1];
-            if ([@"adfs" isEqualToString:tenant])
-            {
-                adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
-                                                                 protocolCode:nil
-                                                                 errorDetails:@"Authority validation is not supported for ADFS instances. Consider disabling the authority validation in the authentication context."
-                                                                correlationId:correlationId];
-            }
-        }
     }
     
     if (adError)
@@ -138,6 +135,29 @@ static NSString* const sValidationServerError = @"The authority validation serve
     
     return [NSString stringWithFormat:@"https://%@", fullUrl.host];
 }
+
+
+/*! Checks whether the authority is an ADFS or not by looking for "adfs" in the the url path.
+ e.g./ "https://.../adfs", or "https://.../adfs/...". */
+- (BOOL)isADFS:(NSString *)authority
+{
+    NSURL *fullUrl = [NSURL URLWithString:authority.lowercaseString];
+    NSArray *paths = fullUrl.pathComponents;
+    
+    if (paths.count < 2)
+    {
+        return NO;
+    }
+    else {
+        NSString *tenant = [paths objectAtIndex:1];
+        if ([@"adfs" isEqualToString:tenant])
+        {
+            return YES;
+        }
+        return NO;
+    }
+}
+
 
 - (void)validateAuthority:(NSString *)authority
             requestParams:(ADRequestParameters*)requestParams
@@ -166,14 +186,25 @@ static NSString* const sValidationServerError = @"The authority validation serve
         completionBlock(YES, nil);
         return;
     }
-    
+
     //Nothing in the cache, ask the server:
-    [self requestValidationOfAuthority:authority
-                                  host:authorityHost
-                      trustedAuthority:sTrustedAuthority
-                         requestParams:requestParams
-                       completionBlock:completionBlock];
+    if ([self isADFS:authority])
+    {
+        [self requestValidationOfADFSAuthority:authority
+                                      adfsType:AD_ADFS_AUTO
+                                 requestParams:requestParams
+                               completionBlock:completionBlock];
+    }
+    else
+    {
+        [self requestValidationOfAuthority:authority
+                                      host:authorityHost
+                          trustedAuthority:sTrustedAuthority
+                             requestParams:requestParams
+                           completionBlock:completionBlock];
+    }
 }
+
 
 //Checks the cache for previously validated authority.
 //Note that the authority host should be normalized: no ending "/" and lowercase.
@@ -206,42 +237,83 @@ static NSString* const sValidationServerError = @"The authority validation serve
     return YES;
 }
 
-- (ADAuthenticationError *)processWebReponse:(ADWebResponse *)webResponse
-                               authorityHost:(NSString *)authorityHost
-                               correlationId:(NSUUID *)correlationId
+
+//Processes web response. Checks for accepted codes and returns a JSON object if possible.
+- (id)getJsonFromWebResponse:(ADWebResponse *)webResponse
+               correlationId:(NSUUID *)correlationId
+         acceptedStatusCodes:(NSArray *)acceptedStatusCodes
+                       error:(ADAuthenticationError **)error
 {
-    NSInteger code = webResponse.statusCode;
-    if (!(code == 200 || code == 400 || code == 401))
+    THROW_ON_NIL_ARGUMENT(webResponse)
+    THROW_ON_NIL_ARGUMENT(correlationId)
+    
+    NSNumber *code = [NSNumber numberWithInteger:webResponse.statusCode];
+    if (![acceptedStatusCodes containsObject:code])
     {
         NSString* logMessage = [NSString stringWithFormat:@"Server HTTP Status %ld", (long)webResponse.statusCode];
         NSString* responseBodyString = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
         SAFE_ARC_AUTORELEASE(responseBodyString);
         NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", responseBodyString];
         AD_LOG_WARN(logMessage, correlationId, errorData);
-        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData correlationId:correlationId];
-    }
 
+        if (error)
+        {
+            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
+                                                            protocolCode:nil
+                                                            errorDetails:errorData
+                                                           correlationId:correlationId];
+        }
+        
+        return nil;
+    }
+    
     NSError   *jsonError  = nil;
     id         jsonObject = [NSJSONSerialization JSONObjectWithData:webResponse.body options:0 error:&jsonError];
     
     if (!jsonObject)
     {
-        NSString* details = jsonError ? jsonError.localizedDescription :
-        @"No JSON object was in the web response data";
+        NSString* details = jsonError ? jsonError.localizedDescription : @"No JSON object was in the web response data";
         
-        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
-                                                      protocolCode:nil
-                                                      errorDetails:details
-                                                     correlationId:correlationId];
+        if (error)
+        {
+            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
+                                                            protocolCode:nil
+                                                            errorDetails:details
+                                                           correlationId:correlationId];
+        }
+        
+        return nil;
     }
+
+    return jsonObject;
+}
+
+
+- (ADAuthenticationError *)addValidAuthoritiesFromWebReponse:(ADWebResponse *)webResponse
+                                               authorityHost:(NSString *)authorityHost
+                                               correlationId:(NSUUID *)correlationId
+{
+    ADAuthenticationError *adError = nil;
+    id jsonObject = [self getJsonFromWebResponse:webResponse
+                                   correlationId:correlationId
+                             acceptedStatusCodes:@[@200, @400, @401]
+                                           error:&adError];
     
+    if (adError)
+    {
+        return adError;
+    }
+
     if (![jsonObject isKindOfClass:[NSDictionary class]])
     {
         NSString* errorMessage = [NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]];
-        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
-                                                      protocolCode:nil
-                                                      errorDetails:errorMessage
-                                                     correlationId:correlationId];
+        
+        adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
+                                                         protocolCode:nil
+                                                         errorDetails:errorMessage
+                                                        correlationId:correlationId];
+    
+        return adError;
     }
     
     // Load the response
@@ -287,7 +359,8 @@ static NSString* const sValidationServerError = @"The authority validation serve
                                          authorizationEndpoint, sAuthorizationEndPointKey,
                                          nil];
     
-    NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@", trustedAuthority, OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data adURLFormEncode]];
+    NSString* endPoint = [NSString stringWithFormat:@"%@/%@?%@",
+                          trustedAuthority, OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data adURLFormEncode]];
     
     AD_LOG_VERBOSE(@"Authority Validation Request", correlationId, endPoint);
     ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:[NSURL URLWithString:endPoint]
@@ -311,9 +384,9 @@ static NSString* const sValidationServerError = @"The authority validation serve
         }
         else
         {
-            adError = [self processWebReponse:webResponse
-                                authorityHost:authorityHost
-                                correlationId:correlationId];
+            adError = [self addValidAuthoritiesFromWebReponse:webResponse
+                                                authorityHost:authorityHost
+                                                correlationId:correlationId];
         }
         
         NSString* errorDetails = [adError errorDetails];
@@ -323,9 +396,246 @@ static NSString* const sValidationServerError = @"The authority validation serve
                                                  errorDetails:errorDetails];
         SAFE_ARC_RELEASE(startTime);
         
-         completionBlock(!adError, adError);
+        completionBlock(!adError, adError);
      }];
 }
+
+
+//Checks validity of the ADFS authority by checking for passive authentication endpoint
+//from DRS discovery and then using the webFinger to validate the authority.
+- (void)requestValidationOfADFSAuthority:(NSString *)authority
+                                adfsType:(ADFSType)adfsType
+                           requestParams:(ADRequestParameters *)requestParams
+                         completionBlock:(ADDiscoveryCallback)completionBlock
+{
+    THROW_ON_NIL_ARGUMENT(completionBlock);
+    THROW_ON_NIL_ARGUMENT(requestParams);
+    THROW_ON_NIL_ARGUMENT(authority);
+    
+    NSString *upn = [requestParams.identifier userId];
+    NSUUID *correlationId = [requestParams correlationId];//Should be set by the caller
+    THROW_ON_NIL_ARGUMENT(correlationId);
+    
+    NSString *upnSuffix = [ADHelpers getUPNSuffix:upn];
+    AD_LOG_VERBOSE(@"Authority Validation for ADFS", correlationId, upnSuffix);
+    
+    if (!upnSuffix)
+    {
+        ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:upn
+                                                                   argumentName:@"user principal name"
+                                                                  correlationId:correlationId];
+        completionBlock(NO, error);
+        return;
+    }
+    
+    // DRS payload process
+    [self requestDRSDiscovery:upnSuffix
+                     adfsType:adfsType
+                      context:requestParams
+            completionHandler:^(id drsMetaData, NSError *error)
+    {
+        if (error)
+        {
+            AD_LOG_WARN(@"Error while making DRS discovery request.", correlationId, error.description);
+            ADAuthenticationError *adError = [ADAuthenticationError errorFromNSError:error
+                                                                        errorDetails:error.localizedDescription
+                                                                       correlationId:correlationId];
+            completionBlock(NO, adError);
+        }
+        else
+        {
+            NSString *passiveEndPoint = [self passiveEndpointFromDRSMetaData:drsMetaData];
+            if ([NSString adIsStringNilOrBlank:passiveEndPoint])
+            {
+                ADAuthenticationError *adError = [ADAuthenticationError
+                                                    errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
+                                                                    protocolCode:nil
+                                                                    errorDetails:@"DRS discovery meta data doesnot contain passiveAuthEndpoint"
+                                                                   correlationId:correlationId];
+                completionBlock(NO, adError);
+            }
+            else
+            {
+                [self validateWithWebfingerForAuthority:authority
+                                    passiveAuthEndpoint:passiveEndPoint
+                                                context:requestParams
+                                      completionHandler:^(BOOL validated, ADAuthenticationError *error) {
+                                          completionBlock(validated, error);
+                                      }];
+            }
+        }
+        
+    }];
+}
+
+
+- (void)requestDRSDiscovery:(NSString *)upnSuffix
+                   adfsType:(ADFSType)adfsType
+                    context:(id<ADRequestContext>)context
+          completionHandler:(void (^)(id drsMetaData, NSError *error))completionHandler
+{
+    THROW_ON_NIL_ARGUMENT(context);
+    THROW_ON_NIL_ARGUMENT(upnSuffix);
+
+    NSUUID *correlationId = [context correlationId];
+    THROW_ON_NIL_ARGUMENT(correlationId);
+
+    AD_LOG_VERBOSE(@"Requesting DRS payload", correlationId, upnSuffix);
+    
+    NSURL *onPremsURL = [NSURL URLWithString:
+                         [NSString stringWithFormat:@"%@%@%@", sADFSOnPremsBase, upnSuffix, sADFSSuffix]];
+    NSURL *cloudURL = [NSURL URLWithString:
+                       [NSString stringWithFormat:@"%@%@%@", sADFSCloudBase, upnSuffix, sADFSSuffix]];
+
+    if (adfsType == AD_ADFS_AUTO)
+    {
+        [self tryRequestDRSDiscovery:onPremsURL
+                             context:context
+                   completionHandler:^(id drsMetaData, NSError *error)
+        {
+                       
+            if (error)
+            {
+                [self tryRequestDRSDiscovery:cloudURL
+                                     context:context
+                           completionHandler:^(id drsMetaData, NSError *error)
+                 {
+                     completionHandler(drsMetaData, error);
+                 }];
+            }
+            else
+            {
+                completionHandler(drsMetaData, nil);
+            }
+        }];
+    }
+    else
+    {
+        NSURL *url = nil;
+        if (adfsType == AD_ADFS_ON_PREMS)
+        {
+            url = onPremsURL;
+        }
+        else
+        {
+            url = cloudURL;
+        }
+        
+        [self tryRequestDRSDiscovery:url
+                             context:context
+                   completionHandler:^(id drsMetaData, NSError *error)
+        {
+            completionHandler(drsMetaData, error);
+        }];
+    }
+}
+
+
+- (void)tryRequestDRSDiscovery:(NSURL *)url
+                       context:(id<ADRequestContext>)context
+             completionHandler:(void (^)(id drsMetaData, NSError *error))completionHandler {
+    
+    THROW_ON_NIL_ARGUMENT(url)
+    THROW_ON_NIL_ARGUMENT(context)
+
+    NSUUID *correlationId = [context correlationId];
+    THROW_ON_NIL_ARGUMENT(correlationId);
+
+    AD_LOG_VERBOSE(@"Request for DRS discovery", correlationId, url.absoluteString);
+    
+    ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:url context:context];
+    [webRequest setIsGetRequest:YES];
+    [webRequest.headers setObject:@"application/json" forKey:@"Accept"];
+    
+    __block NSDate* startTime = [NSDate new];
+    [[ADClientMetrics getInstance] addClientMetrics:webRequest.headers endpoint:url.absoluteString];
+    
+    [webRequest send:^(NSError *error, ADWebResponse *webResponse)
+    {
+        id jsonObject = nil;
+        NSError *webRequestError = nil;
+        
+        if (error)
+        {
+            AD_LOG_WARN(@"System error while making request.", correlationId, error.description);
+            webRequestError = error;
+        }
+        else
+        {
+            jsonObject = [self getJsonFromWebResponse:webResponse
+                                        correlationId:correlationId
+                                  acceptedStatusCodes:@[@200]
+                                                error:&webRequestError];
+        }
+        
+        NSString* errorDetails = [webRequestError localizedDescription];
+        [[ADClientMetrics getInstance] endClientMetricsRecord:url.absoluteString
+                                                    startTime:startTime
+                                                correlationId:correlationId
+                                                 errorDetails:errorDetails];
+        SAFE_ARC_RELEASE(startTime);
+        
+        completionHandler(jsonObject, webRequestError);
+    }];
+}
+
+
+
+- (void)validateWithWebfingerForAuthority:(NSString *)authority
+                      passiveAuthEndpoint:(NSString *)passiveAuthEndpoint
+                                  context:(id<ADRequestContext>)context
+                        completionHandler:(ADDiscoveryCallback)completionHandler
+{
+    NSUUID *correlationId = [context correlationId];
+    
+    // Construct webFingerURL
+    NSURL *fullUrl = [NSURL URLWithString:passiveAuthEndpoint.lowercaseString];
+    NSURL *webFingerURL = [NSURL URLWithString:
+                           [NSString stringWithFormat:@"%@://%@/%@resource=%@", fullUrl.scheme, fullUrl.host, sWebFinger, authority]];
+    
+    AD_LOG_VERBOSE(@"WebFinger Request", correlationId, webFingerURL.absoluteString);
+    
+    ADWebRequest *webRequest = [[ADWebRequest alloc] initWithURL:webFingerURL
+                                                         context:context];
+    
+    [webRequest setIsGetRequest:YES];
+    
+    [[ADClientMetrics getInstance] addClientMetrics:webRequest.headers endpoint:webFingerURL.absoluteString];
+    
+    __block NSDate* startTime = [NSDate new];
+    [webRequest send:^(NSError *error, ADWebResponse *webResponse) {
+        ADAuthenticationError *adError = nil;
+        
+        if (error)
+        {
+            adError = [ADAuthenticationError errorFromNSError:error
+                                                 errorDetails:error.localizedDescription
+                                                correlationId:correlationId];
+        }
+        else
+        {
+            [self getJsonFromWebResponse:webResponse
+                           correlationId:correlationId
+                     acceptedStatusCodes:@[@200]
+                                   error:&adError];
+        }
+        
+        [[ADClientMetrics getInstance] endClientMetricsRecord:webFingerURL.absoluteString
+                                                    startTime:startTime
+                                                correlationId:correlationId
+                                                 errorDetails:adError.localizedDescription];
+        SAFE_ARC_RELEASE(startTime);
+        
+        completionHandler(!adError, adError);
+    }];
+}
+
+
+- (NSString*)passiveEndpointFromDRSMetaData:(id)metaData
+{
+    return [[metaData objectForKey:@"IdentityProviderService"] objectForKey:@"PassiveAuthEndpoint"];
+}
+
 
 + (NSString*)canonicalizeAuthority:(NSString *)authority
 {
