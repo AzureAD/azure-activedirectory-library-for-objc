@@ -43,9 +43,8 @@ static NSString* const sTenantDiscoveryEndpoint = @"tenant_discovery_endpoint";
 
 static NSString* const sValidationServerError = @"The authority validation server returned an error: %@.";
 
-static NSString* const sADFSCloudBase = @"https://enterpriseregistration.windows.net/";
-static NSString* const sADFSOnPremsBase = @"https://enterpriseregistration.";
-static NSString* const sADFSSuffix = @"/enrollmentserver/contract?api-version=1.0";
+static NSString* const sADFSCloudDiscovery = @"https://enterpriseregistration.windows.net/%@/enrollmentserver/contract?api-version=1.0";
+static NSString* const sADFSOnPremsDiscovery = @"https://enterpriseregistration.%@/enrollmentserver/contract?api-version=1.0";
 
 static NSString* const sWebFinger = @".well-known/webfinger?";
 static NSString* const sTrustedRelation = @"http://schemas.microsoft.com/rel/trusted-realm";
@@ -483,9 +482,9 @@ static NSString* const sTrustedRelation = @"http://schemas.microsoft.com/rel/tru
     AD_LOG_VERBOSE(@"Requesting DRS payload", correlationId, upnSuffix);
     
     NSURL *onPremsURL = [NSURL URLWithString:
-                         [NSString stringWithFormat:@"%@%@%@", sADFSOnPremsBase, upnSuffix, sADFSSuffix]];
+                         [NSString stringWithFormat:sADFSOnPremsDiscovery, upnSuffix]];
     NSURL *cloudURL = [NSURL URLWithString:
-                       [NSString stringWithFormat:@"%@%@%@", sADFSCloudBase, upnSuffix, sADFSSuffix]];
+                       [NSString stringWithFormat:sADFSCloudDiscovery, upnSuffix]];
 
     if (adfsType == AD_ADFS_AUTO)
     {
