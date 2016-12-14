@@ -40,7 +40,6 @@
 
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response;
 - (void)send;
-- (BOOL)verifyRequestURL:(NSURL *)requestURL;
 
 @end
 
@@ -214,17 +213,6 @@
     SAFE_ARC_RELEASE(request);
     [_connection setDelegateQueue:_operationQueue];
     [_connection start];
-}
-
-- (BOOL)verifyRequestURL:(NSURL *)requestURL
-{
-    if ( requestURL == nil )
-        return NO;
-    
-    if ( ![requestURL.scheme isEqualToString:@"http"] && ![requestURL.scheme isEqualToString:@"https"] )
-        return NO;
-    
-    return YES;
 }
 
 #pragma mark - NSURLConnectionDelegate

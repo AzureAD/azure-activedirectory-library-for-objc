@@ -21,11 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#pragma once
+#import "ADTelemetryTestDispatcher.h"
 
-@interface NSURL ( ADAL )
+@implementation ADTelemetryTestDispatcher
 
-@property (readonly, nonatomic) NSDictionary *adFragmentParameters;
-@property (readonly, nonatomic) NSDictionary *adQueryParameters;
+- (void)setTestCallback:(TestCallback)callback
+{
+    _testCallback = callback;
+}
+
+- (void)dispatchEvent:(NSArray*)event
+{
+    // call _testCallback when it receives telemetry event
+    // this is for the purpose of unit test
+    if (_testCallback)
+    {
+        _testCallback(event);
+    }
+}
 
 @end

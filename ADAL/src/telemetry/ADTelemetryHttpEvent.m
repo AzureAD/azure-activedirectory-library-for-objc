@@ -88,11 +88,8 @@
     NSArray* properties = [self getProperties];
     for (ADTelemetryProperty* property in properties)
     {
-        if ([property.name isEqualToString:AD_TELEMETRY_HTTP_RESPONSE_CODE]
-            ||[property.name isEqualToString:AD_TELEMETRY_OAUTH_ERROR_CODE]
-            ||[property.name isEqualToString:AD_TELEMETRY_HTTP_ERROR_DOMAIN]
-            ||[property.name isEqualToString:AD_TELEMETRY_HTTP_PATH]
-            ||[property.name isEqualToString:AD_TELEMETRY_HTTP_REQUEST_ID_HEADER])
+        if ([property.name isEqualToString:AD_TELEMETRY_OAUTH_ERROR_CODE]
+            ||[property.name isEqualToString:AD_TELEMETRY_HTTP_ERROR_DOMAIN])
         {
             [eventToBeDispatched setObject:property.value forKey:property.name];
         }

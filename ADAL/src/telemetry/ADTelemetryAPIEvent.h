@@ -26,23 +26,24 @@
 @interface ADTelemetryAPIEvent : ADTelemetryDefaultEvent
 
 - (void)setResultStatus:(ADAuthenticationResultStatus)status;
-- (void)setCorrelationId:(NSUUID*)correlationId;
-- (void)setExtendedExpiresOnSetting:(NSString*)extendedExpiresOnSetting;
+- (void)setCorrelationId:(NSUUID *)correlationId;
+- (void)setExtendedExpiresOnSetting:(NSString *)extendedExpiresOnSetting;
 - (void)setPromptBehavior:(ADPromptBehavior)promptBehavior;
-- (void)setUserInformation:(ADUserInformation*)userInfo;
-- (void)setClientId:(NSString*)clientId;
-- (void)setIsExtendedLifeTimeToken:(NSString*)isExtendedLifeToken;
-- (void)setErrorCode:(NSString*)errorCode;
-- (void)setProtocolCode:(NSString*)protocolCode;
-- (void)setErrorDescription:(NSString*)errorDescription;
-- (void)setErrorDomain:(NSString*)errorDomain;
+- (void)setUserInformation:(ADUserInformation *)userInfo;
+- (void)setUserId:(NSString *)userId;
+- (void)setClientId:(NSString *)clientId;
+- (void)setIsExtendedLifeTimeToken:(NSString *)isExtendedLifeToken;
+- (void)setErrorCode:(NSString *)errorCode;
+- (void)setProtocolCode:(NSString *)protocolCode;
+- (void)setErrorDescription:(NSString *)errorDescription;
+- (void)setErrorDomain:(NSString *)errorDomain;
 
-- (void)setAuthorityValidationStatus:(NSString*)status;
-- (void)setAuthority:(NSString*)authority;
+- (void)setAuthorityValidationStatus:(NSString *)status;
+- (void)setAuthority:(NSString *)authority;
 
-- (void)setGrantType:(NSString*)grantType;
-- (void)setAPIStatus:(NSString*)status;
+- (void)setGrantType:(NSString *)grantType;
+- (void)setAPIStatus:(NSString *)status;
 
-- (void)setApiId:(NSString*)apiId;
+- (void)setApiId:(NSString *)apiId;
 
 @end

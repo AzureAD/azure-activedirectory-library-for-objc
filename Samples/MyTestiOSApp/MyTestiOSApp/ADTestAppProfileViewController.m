@@ -49,8 +49,6 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
-    self.navigationController.navigationBarHidden = NO;
     self.navigationItem.hidesBackButton = NO;
     self.navigationItem.title = @"Select Application Profile";
     
@@ -69,6 +67,13 @@
     [rootView addSubview:_profileTable];
     
     self.view = rootView;
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    (void)animated;
+    
+     self.navigationController.navigationBarHidden = NO;
 }
 
 - (void)didReceiveMemoryWarning {

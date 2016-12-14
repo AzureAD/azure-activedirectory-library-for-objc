@@ -88,8 +88,6 @@ static NSArray* s_deviceRows = nil;
     {
         return nil;
     }
-    
-    self.navigationController.navigationBarHidden = YES;
     self.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Settings"
                                                     image:[UIImage imageNamed:@"Settings"]
                                                       tag:0];
@@ -152,6 +150,8 @@ static NSArray* s_deviceRows = nil;
     }
     
     _wpjState = wpjLabel;
+    
+    self.navigationController.navigationBarHidden = YES;
     
     [_tableView reloadData];
 }

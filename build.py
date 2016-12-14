@@ -31,6 +31,8 @@ ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUI
 
 default_workspace = "ADAL.xcworkspace"
 
+use_xcpretty = True
+
 class tclr:
 	HDR = '\033[1m'
 	OK = '\033[32m\033[1m'
@@ -109,7 +111,10 @@ def do_ios_build(target, operation) :
 	else :
 		command += " -workspace " + workspace
 		
-	command += " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest + " | xcpretty"
+	command += " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest
+	if (use_xcpretty) :
+		command += " | xcpretty"
+		
 	print command
 	exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
 
@@ -126,9 +131,10 @@ def do_mac_build(target, operation) :
 	command = "xcodebuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\""
 
 	if (arch != None) :
-		command = command + " -destination 'arch=" + arch + "'"
+		command += " -destination 'arch=" + arch + "'"
 
-	command = command + " | xcpretty"
+	if (use_xcpretty) :
+		command += " | xcpretty"
 
 	print command
 	exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
@@ -163,6 +169,8 @@ clean = True
 for arg in sys.argv :
 	if (arg == "--no-clean") :
 		clean = False
+	if (arg == "--no-xcpretty") :
+		use_xcpretty = False
 
 # start by cleaning up any derived data that might be lying around
 if (clean) :

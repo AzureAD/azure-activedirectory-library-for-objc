@@ -30,25 +30,6 @@ const unichar queryStringSeparator = '?';
 
 @implementation NSURL ( ADAL )
 
-- (NSString *) adAuthority
-{
-    NSInteger port = self.port.integerValue;
-    
-    if ( port == 0 )
-    {
-        if ( [self.scheme isEqualToString:@"http"] )
-        {
-            port = 80;
-        }
-        else if ( [self.scheme isEqualToString:@"https"] )
-        {
-            port = 443;
-        }
-    }
-    
-    return [NSString stringWithFormat:@"%@:%ld", self.host, (long)port];
-}
-
 //Used for getting the parameters from either the fragment or the query
 //string. This internal helper method attempts to extract the parameters
 //for the substring of the URL succeeding the separator. Also, if the

@@ -50,59 +50,64 @@
     [self setProperty:AD_TELEMETRY_RESULT_STATUS value:statusStr];
 }
 
-- (void)setCorrelationId:(NSUUID*)correlationId
+- (void)setCorrelationId:(NSUUID *)correlationId
 {
     [self setProperty:AD_TELEMETRY_CORRELATION_ID value:[correlationId UUIDString]];
 }
 
-- (void)setExtendedExpiresOnSetting:(NSString*)extendedExpiresOnSetting
+- (void)setExtendedExpiresOnSetting:(NSString *)extendedExpiresOnSetting
 {
     [self setProperty:AD_TELEMETRY_EXTENDED_EXPIRES_ON_SETTING value:extendedExpiresOnSetting];
 }
 
-- (void)setUserInformation:(ADUserInformation*)userInfo
+- (void)setUserInformation:(ADUserInformation *)userInfo
 {
     [self setProperty:AD_TELEMETRY_USER_ID value:[[userInfo userId] adComputeSHA256]];
     [self setProperty:AD_TELEMETRY_TENANT_ID value:[[userInfo tenantId] adComputeSHA256]];
     [self setProperty:AD_TELEMETRY_IDP value:[userInfo identityProvider]];
 }
 
-- (void)setClientId:(NSString*)clientId
+- (void)setUserId:(NSString *)userId
+{
+    [self setProperty:AD_TELEMETRY_USER_ID value:[userId adComputeSHA256]];
+}
+
+- (void)setClientId:(NSString *)clientId
 {
     [self setProperty:AD_TELEMETRY_CLIENT_ID value:clientId];
 }
 
-- (void)setIsExtendedLifeTimeToken:(NSString*)isExtendedLifeToken
+- (void)setIsExtendedLifeTimeToken:(NSString *)isExtendedLifeToken
 {
     [self setProperty:AD_TELEMETRY_IS_EXTENED_LIFE_TIME_TOKEN value:isExtendedLifeToken];
 }
 
-- (void)setErrorCode:(NSString*)errorCode
+- (void)setErrorCode:(NSString *)errorCode
 {
     [self setProperty:AD_TELEMETRY_ERROR_CODE value:errorCode];
 }
 
-- (void)setProtocolCode:(NSString*)protocolCode
+- (void)setProtocolCode:(NSString *)protocolCode
 {
     [self setProperty:AD_TELEMETRY_PROTOCOL_CODE value:protocolCode];
 }
 
-- (void)setErrorDescription:(NSString*)errorDescription
+- (void)setErrorDescription:(NSString *)errorDescription
 {
     [self setProperty:AD_TELEMETRY_ERROR_DESCRIPTION value:errorDescription];
 }
 
-- (void)setErrorDomain:(NSString*)errorDomain
+- (void)setErrorDomain:(NSString *)errorDomain
 {
     [self setProperty:AD_TELEMETRY_ERROR_DOMAIN value:errorDomain];
 }
 
-- (void)setAuthorityValidationStatus:(NSString*)status
+- (void)setAuthorityValidationStatus:(NSString *)status
 {
     [self setProperty:AD_TELEMETRY_AUTHORITY_VALIDATION_STATUS value:status];
 }
 
-- (void)setAuthority:(NSString*)authority
+- (void)setAuthority:(NSString *)authority
 {
     [self setProperty:AD_TELEMETRY_AUTHORITY value:authority];
     
@@ -115,17 +120,17 @@
     [self setProperty:AD_TELEMETRY_AUTHORITY_TYPE value:authorityType];
 }
 
-- (void)setGrantType:(NSString*)grantType
+- (void)setGrantType:(NSString *)grantType
 {
     [self setProperty:AD_TELEMETRY_GRANT_TYPE value:grantType];
 }
 
-- (void)setAPIStatus:(NSString*)status
+- (void)setAPIStatus:(NSString *)status
 {
     [self setProperty:AD_TELEMETRY_API_STATUS value:status];
 }
 
-- (void)setApiId:(NSString*)apiId
+- (void)setApiId:(NSString *)apiId
 {
     [self setProperty:AD_TELEMETRY_API_ID value:apiId];
 }
@@ -153,7 +158,7 @@
     [self setProperty:AD_TELEMETRY_PROMPT_BEHAVIOR value:promptBehaviorString];
 }
 
-- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
+- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary *)eventToBeDispatched
 {
     [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
     

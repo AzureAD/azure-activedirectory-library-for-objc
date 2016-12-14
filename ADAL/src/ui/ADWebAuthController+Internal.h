@@ -53,4 +53,6 @@ typedef void (^ADBrokerCallback)(ADAuthenticationError* error, NSURL*);
 + (void)setInterruptedBrokerResult:(ADAuthenticationResult*)result;
 #endif // TARGET_OS_IPHONE
 
+- (ADAuthenticationViewController*)viewController;
+
 @end
