@@ -48,6 +48,7 @@ static NSString* const sADFSOnPremsBase = @"https://enterpriseregistration.";
 static NSString* const sADFSSuffix = @"/enrollmentserver/contract?api-version=1.0";
 
 static NSString* const sWebFinger = @".well-known/webfinger?";
+static NSString* const sTrustedRelation = @"http://schemas.microsoft.com/rel/trusted-realm";
 
 @implementation ADInstanceDiscovery
 
@@ -204,7 +205,6 @@ static NSString* const sWebFinger = @".well-known/webfinger?";
                            completionBlock:completionBlock];
     }
 }
-
 
 //Checks the cache for previously validated authority.
 //Note that the authority host should be normalized: no ending "/" and lowercase.
@@ -428,7 +428,7 @@ static NSString* const sWebFinger = @".well-known/webfinger?";
         return;
     }
     
-    // DRS payload process
+    // DRS discovery
     [self requestDRSDiscovery:upnSuffix
                      adfsType:adfsType
                       context:requestParams
@@ -436,16 +436,16 @@ static NSString* const sWebFinger = @".well-known/webfinger?";
     {
         if (error)
         {
-            AD_LOG_WARN(@"Error while making DRS discovery request.", correlationId, error.description);
+            NSString *errorMessage = [NSString stringWithFormat:@"DRS discovery error - NSError %@", error.localizedDescription];
             ADAuthenticationError *adError = [ADAuthenticationError errorFromNSError:error
-                                                                        errorDetails:error.localizedDescription
+                                                                        errorDetails:errorMessage
                                                                        correlationId:correlationId];
             completionBlock(NO, adError);
         }
         else
         {
-            NSString *passiveEndPoint = [self passiveEndpointFromDRSMetaData:drsMetaData];
-            if ([NSString adIsStringNilOrBlank:passiveEndPoint])
+            NSString *passiveAuthEndpoint = [self passiveEndpointFromDRSMetaData:drsMetaData];
+            if ([NSString adIsStringNilOrBlank:passiveAuthEndpoint])
             {
                 ADAuthenticationError *adError = [ADAuthenticationError
                                                     errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
@@ -457,7 +457,7 @@ static NSString* const sWebFinger = @".well-known/webfinger?";
             else
             {
                 [self validateWithWebfingerForAuthority:authority
-                                    passiveAuthEndpoint:passiveEndPoint
+                                    passiveAuthEndpoint:passiveAuthEndpoint
                                                 context:requestParams
                                       completionHandler:^(BOOL validated, ADAuthenticationError *error) {
                                           completionBlock(validated, error);
@@ -614,10 +614,19 @@ static NSString* const sWebFinger = @".well-known/webfinger?";
         }
         else
         {
-            [self getJsonFromWebResponse:webResponse
-                           correlationId:correlationId
-                     acceptedStatusCodes:@[@200]
-                                   error:&adError];
+            id json = [self getJsonFromWebResponse:webResponse
+                                     correlationId:correlationId
+                               acceptedStatusCodes:@[@200]
+                                             error:&adError];
+            
+            if (![self isRealmTrusted:json authority:authority])
+            {
+                NSString *errorMessage = [NSString stringWithFormat:@"WebFinger does not verify authority as a trusted realm - json: %@", json];
+                adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
+                                                                 protocolCode:nil
+                                                                 errorDetails:errorMessage
+                                                                correlationId:correlationId];
+            }
         }
         
         [[ADClientMetrics getInstance] endClientMetricsRecord:webFingerURL.absoluteString
@@ -634,6 +643,28 @@ static NSString* const sWebFinger = @".well-known/webfinger?";
 - (NSString*)passiveEndpointFromDRSMetaData:(id)metaData
 {
     return [[metaData objectForKey:@"IdentityProviderService"] objectForKey:@"PassiveAuthEndpoint"];
+}
+
+
+- (BOOL)isRealmTrusted:(id)json
+             authority:(NSString *)authority
+{
+    NSArray *links = [json objectForKey:@"links"];
+    for (id link in links)
+    {
+        NSString *rel = [link objectForKey:@"rel"];
+        NSString *target = [link objectForKey:@"href"];
+        
+        NSURL *authorityURL = [NSURL URLWithString:authority];
+        NSString *authorityHost = [NSString stringWithFormat:@"%@://%@", authorityURL.scheme, authorityURL.host];
+        
+        if ([rel caseInsensitiveCompare:sTrustedRelation] == NSOrderedSame &&
+            [target caseInsensitiveCompare:authorityHost] == NSOrderedSame)
+        {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 
