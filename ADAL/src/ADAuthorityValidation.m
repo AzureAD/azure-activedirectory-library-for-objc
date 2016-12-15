@@ -112,7 +112,11 @@ static NSString* const sTrustedRelation = @"http://schemas.microsoft.com/rel/tru
                                        completionBlock:^(BOOL validated, ADAuthenticationError *error)
                     {
                         // if validated, add to the cache
-                        [self addValidAuthority:authority domain:domain];
+                        if(validated)
+                        {
+                            [self addValidAuthority:authority domain:domain];
+                        }
+                        
                         completionBlock(validated, error);
                     }];
                 }
@@ -125,7 +129,10 @@ static NSString* const sTrustedRelation = @"http://schemas.microsoft.com/rel/tru
                                completionBlock:^(BOOL validated, ADAuthenticationError *error)
             {
                 // if validated, add to the cache
-                [self addValidAuthority:authority domain:domain];
+                if(validated)
+                {
+                    [self addValidAuthority:authority domain:domain];
+                }
                 completionBlock(validated, error);
             }];
         }
