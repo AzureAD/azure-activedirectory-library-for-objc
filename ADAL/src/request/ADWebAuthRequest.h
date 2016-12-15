@@ -27,8 +27,8 @@
 {
     NSDate* _startTime;
     BOOL _retryIfServerError;
-    BOOL _handledPkeyAuthChallenge;
     BOOL _returnRawResponse;
+    BOOL _acceptOnlyOKResponse;
     
     NSMutableDictionary* _responseDictionary;
     
@@ -39,7 +39,8 @@
 
 @property BOOL returnRawResponse;
 @property BOOL retryIfServerError;
-@property BOOL handledPkeyAuthChallenge;
+@property BOOL acceptOnlyOKResponse;
+
 @property (readonly) NSDate* startTime;
 
 - (void)setRequestDictionary:(NSDictionary<NSString*, NSString*> *)requestDictionary;

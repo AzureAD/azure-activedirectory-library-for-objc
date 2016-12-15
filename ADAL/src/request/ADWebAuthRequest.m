@@ -35,7 +35,7 @@
 @synthesize returnRawResponse = _returnRawResponse;
 @synthesize retryIfServerError = _retryIfServerError;
 @synthesize startTime = _startTime;
-@synthesize handledPkeyAuthChallenge = _handledPkeyAuthChallenge;
+@synthesize acceptOnlyOKResponse = _acceptOnlyOKResponse;
 
 - (id)initWithURL:(NSURL *)url
           context:(id<ADRequestContext>)context
@@ -68,7 +68,7 @@
 
 - (void)sendRequest:(ADWebResponseCallback)completionBlock
 {
-    if ([self isGetRequest])
+    if ([self isGetRequest] && _requestDictionary && [_requestDictionary allKeys].count > 0)
     {
         NSString* newURL = [NSString stringWithFormat:@"%@?%@", [_requestURL absoluteString], [_requestDictionary adURLFormEncode]];
         SAFE_ARC_RELEASE(_requestURL);
