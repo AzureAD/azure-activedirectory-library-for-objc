@@ -27,6 +27,33 @@
 
 @implementation ADTelemetryCacheEvent
 
+- (id)initWithName:(NSString*)eventName
+         requestId:(NSString*)requestId
+     correlationId:(NSUUID*)correlationId
+{
+    if (!(self = [super initWithName:eventName requestId:requestId correlationId:correlationId]))
+    {
+        return nil;
+    }
+    
+    [self initCacheEventProperties];
+    
+    return self;
+}
+
+- (id)initWithName:(NSString*)eventName
+           context:(id<ADRequestContext>)requestParams
+{
+    if (!(self = [super initWithName:eventName context:requestParams]))
+    {
+        return nil;
+    }
+    
+    [self initCacheEventProperties];
+    
+    return self;
+}
+
 - (void)setTokenType:(NSString*)tokenType
 {
     [self setProperty:AD_TELEMETRY_TOKEN_TYPE value:tokenType];
@@ -72,14 +99,14 @@
     [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
     
     (void)eventToBeDispatched;
-    NSArray* properties = [self getProperties];
-    for (ADTelemetryProperty* property in properties)
+    NSDictionary* properties = [self getProperties];
+    for (NSString* name in properties)
     {
-        if ([property.name isEqualToString:AD_TELEMETRY_RT_STATUS]
-            ||[property.name isEqualToString:AD_TELEMETRY_FRT_STATUS]
-            ||[property.name isEqualToString:AD_TELEMETRY_MRRT_STATUS])
+        if ([name isEqualToString:AD_TELEMETRY_RT_STATUS]
+            ||[name isEqualToString:AD_TELEMETRY_FRT_STATUS]
+            ||[name isEqualToString:AD_TELEMETRY_MRRT_STATUS])
         {
-            [eventToBeDispatched setObject:property.value forKey:property.name];
+            [eventToBeDispatched setObject:[properties objectForKey:name] forKey:name];
         }
     }
     
@@ -89,6 +116,15 @@
         cacheEventCount = [[eventToBeDispatched objectForKey:AD_TELEMETRY_CACHE_EVENT_COUNT] intValue] + 1;
     }
     [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", cacheEventCount] forKey:AD_TELEMETRY_CACHE_EVENT_COUNT];
+}
+
+- (void)initCacheEventProperties
+{
+    [self setProperty:AD_TELEMETRY_TOKEN_TYPE value:@""];
+    [self setProperty:AD_TELEMETRY_RESULT_STATUS value:@""];
+    [self setProperty:AD_TELEMETRY_IS_RT value:@""];
+    [self setProperty:AD_TELEMETRY_IS_MRRT value:@""];
+    [self setProperty:AD_TELEMETRY_IS_FRT value:@""];
 }
 
 @end

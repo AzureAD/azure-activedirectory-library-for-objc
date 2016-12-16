@@ -348,7 +348,7 @@ const int sAsyncContextTimeout = 10;
     // prepare and register telemetry dispatcher
     ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
-    [dispatcher setTestCallback:^(NSArray* event)
+    [dispatcher setTestCallback:^(NSDictionary* event)
      {
          [receivedEvents addObject:event];
      }];
@@ -385,46 +385,32 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqual([receivedEvents count], 1);
     
     // the following properties are expected in an aggregrated event
-    NSArray* event = [receivedEvents firstObject];
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"api_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"request_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"correlation_id"], 1);
+    NSDictionary* event = [receivedEvents firstObject];
+    XCTAssertNotNil([event objectForKey:@"api_id"]);
+    XCTAssertNotNil([event objectForKey:@"request_id"]);
+    XCTAssertNotNil([event objectForKey:@"correlation_id"]);
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"application_version"], 1);
+    XCTAssertNotNil([event objectForKey:@"application_version"]);
 #endif
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"application_name"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"x-client-Ver"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"x-client-SKU"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"client_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"device_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"authority_type"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"extended_expires_on_setting"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"prompt_behavior"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"status"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"response_time"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"cache_event_count"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"error_code"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"error_domain"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                             propertyName:@"error_description"], 1);
+    XCTAssertNotNil([event objectForKey:@"application_name"]);
+    XCTAssertNotNil([event objectForKey:@"x-client-Ver"]);
+    XCTAssertNotNil([event objectForKey:@"x-client-SKU"]);
+    XCTAssertNotNil([event objectForKey:@"client_id"]);
+    XCTAssertNotNil([event objectForKey:@"device_id"]);
+    XCTAssertNotNil([event objectForKey:@"authority_type"]);
+    XCTAssertNotNil([event objectForKey:@"tenant_id"]);
+    XCTAssertNotNil([event objectForKey:@"idp"]);
+    XCTAssertTrue([[event objectForKey:@"extended_expires_on_setting"] isEqualToString:@"no"]);
+    XCTAssertNotNil([event objectForKey:@"prompt_behavior"]);
+    XCTAssertTrue([[event objectForKey:@"status"] isEqualToString:@"failed"]);
+    XCTAssertNotNil([event objectForKey:@"user_id"]);
+    XCTAssertNotNil([event objectForKey:@"response_time"]);
+    XCTAssertNotNil([event objectForKey:@"cache_event_count"]);
+    XCTAssertTrue([[event objectForKey:@"error_code"] isEqualToString:@"300"]);
+    XCTAssertNotNil([event objectForKey:@"error_domain"]);
+    XCTAssertNotNil([event objectForKey:@"error_description"]);
+    XCTAssertNotNil([event objectForKey:@"error_protocol_code"]);
     
     //unregister the dispatcher
     [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];
@@ -588,7 +574,7 @@ const int sAsyncContextTimeout = 10;
     // prepare and register telemetry dispatcher
     ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
-    [dispatcher setTestCallback:^(NSArray* event)
+    [dispatcher setTestCallback:^(NSDictionary* event)
      {
          [receivedEvents addObject:event];
      }];
@@ -660,104 +646,68 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqual([receivedEvents count], 2);
     
     // the following properties are expected for the 1st acquire token call
-    NSArray* firstEvent = [receivedEvents firstObject];
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"api_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"request_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"correlation_id"], 1);
+    NSDictionary* firstEvent = [receivedEvents firstObject];
+    XCTAssertNotNil([firstEvent objectForKey:@"api_id"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"request_id"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"correlation_id"]);
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"application_version"], 1);
+    XCTAssertNotNil([firstEvent objectForKey:@"application_version"]);
 #endif
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"application_name"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"x-client-Ver"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"x-client-SKU"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"client_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"device_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"authority_type"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"extended_expires_on_setting"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"prompt_behavior"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"status"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"user_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"response_time"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"cache_event_count"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"token_mrrt_status"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"token_frt_status"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"http_event_count"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"error_code"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"error_domain"], 1);
-    XCTAssertEqual([self adGetPropertyCount:firstEvent
-                             propertyName:@"error_description"], 1);
+    XCTAssertNotNil([firstEvent objectForKey:@"application_name"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"x-client-Ver"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"x-client-SKU"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"client_id"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"device_id"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"authority_type"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"tenant_id"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"idp"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"extended_expires_on_setting"] isEqualToString:@"no"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"prompt_behavior"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"status"] isEqualToString:@"failed"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"user_id"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"response_time"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"cache_event_count"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"token_mrrt_status"] isEqualToString:@"tried"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"token_frt_status"] isEqualToString:@"not_found"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"http_event_count"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"http_error_domain"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"error_code"] isEqualToString:@"200"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"error_domain"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"error_description"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"oauth_error_code"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"error_protocol_code"]);
     
     // the following properties are expected for 2nd acquire token call
-    NSArray* secondEvent = [receivedEvents objectAtIndex:1];
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"api_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"request_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"correlation_id"], 1);
+    NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
+    XCTAssertNotNil([secondEvent objectForKey:@"api_id"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"request_id"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"correlation_id"]);
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"application_version"], 1);
+    XCTAssertNotNil([secondEvent objectForKey:@"application_version"]);
 #endif
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"application_name"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"x-client-Ver"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"x-client-SKU"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"client_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"device_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"authority_type"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"extended_expires_on_setting"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"prompt_behavior"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"status"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"user_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"response_time"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"cache_event_count"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"token_rt_status"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"token_mrrt_status"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"token_frt_status"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"error_code"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"error_domain"], 1);
-    XCTAssertEqual([self adGetPropertyCount:secondEvent
-                             propertyName:@"error_description"], 1);
+    XCTAssertNotNil([secondEvent objectForKey:@"application_name"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"x-client-Ver"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"x-client-SKU"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"client_id"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"device_id"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"authority_type"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"tenant_id"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"idp"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"extended_expires_on_setting"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"prompt_behavior"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"status"] isEqualToString:@"failed"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"user_id"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"response_time"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"cache_event_count"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"token_rt_status"] isEqualToString:@"not_found"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"token_mrrt_status"], @"not_found");
+    XCTAssertTrue([[secondEvent objectForKey:@"token_frt_status"] isEqualToString:@"not_found"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"error_code"] isEqualToString:@"200"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"error_domain"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"error_description"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"error_protocol_code"]);
     
     //unregister the dispatcher
     [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];
@@ -1127,7 +1077,7 @@ const int sAsyncContextTimeout = 10;
     // prepare and register telemetry dispatcher
     ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
-    [dispatcher setTestCallback:^(NSArray* event)
+    [dispatcher setTestCallback:^(NSDictionary* event)
      {
          [receivedEvents addObject:event];
      }];
@@ -1176,54 +1126,38 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqual([receivedEvents count], 1);
     
     // the following properties are expected in an aggregrated event
-    NSArray* event = [receivedEvents firstObject];
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"api_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"request_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"correlation_id"], 1);
+    NSDictionary* event = [receivedEvents firstObject];
+    XCTAssertNotNil([event objectForKey:@"api_id"]);
+    XCTAssertNotNil([event objectForKey:@"request_id"]);
+    XCTAssertNotNil([event objectForKey:@"correlation_id"]);
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"application_version"], 1);
+    XCTAssertNotNil([event objectForKey:@"application_version"]);
 #endif
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"application_name"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"x-client-Ver"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"x-client-SKU"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"client_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"device_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"authority_type"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"extended_expires_on_setting"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"prompt_behavior"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"status"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"tenant_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"user_id"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"response_time"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"cache_event_count"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"token_rt_status"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"token_mrrt_status"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"token_frt_status"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"http_event_count"], 1);
-    XCTAssertEqual([self adGetPropertyCount:event
-                               propertyName:@"error_code"], 1);
+    XCTAssertNotNil([event objectForKey:@"application_name"]);
+    XCTAssertNotNil([event objectForKey:@"x-client-Ver"]);
+    XCTAssertNotNil([event objectForKey:@"x-client-SKU"]);
+    XCTAssertNotNil([event objectForKey:@"client_id"]);
+    XCTAssertNotNil([event objectForKey:@"device_id"]);
+    XCTAssertNotNil([event objectForKey:@"authority_type"]);
+    XCTAssertNotNil([event objectForKey:@"tenant_id"]);
+    XCTAssertNotNil([event objectForKey:@"idp"]);
+    XCTAssertTrue([[event objectForKey:@"extended_expires_on_setting"] isEqualToString:@"no"]);
+    XCTAssertNotNil([event objectForKey:@"prompt_behavior"]);
+    XCTAssertTrue([[event objectForKey:@"status"] isEqualToString:@"succeeded"]);
+    XCTAssertNotNil([event objectForKey:@"user_id"]);
+    XCTAssertNotNil([event objectForKey:@"response_time"]);
+    XCTAssertNotNil([event objectForKey:@"cache_event_count"]);
+    XCTAssertTrue([[event objectForKey:@"token_rt_status"] isEqualToString:@"not_found"]);
+    XCTAssertTrue([[event objectForKey:@"token_mrrt_status"] isEqualToString:@"not_found"]);
+    XCTAssertTrue([[event objectForKey:@"token_frt_status"] isEqualToString:@"tried"]);
+    XCTAssertNotNil([event objectForKey:@"http_event_count"]);
+    XCTAssertNotNil([event objectForKey:@"http_error_domain"]);
+    XCTAssertTrue([[event objectForKey:@"error_code"] isEqualToString:@"0"]);
+    XCTAssertNotNil([event objectForKey:@"error_domain"]);
+    XCTAssertNotNil([event objectForKey:@"error_description"]);
+    XCTAssertNotNil([event objectForKey:@"oauth_error_code"]);
+    XCTAssertNotNil([event objectForKey:@"error_protocol_code"]);
     
     //unregister the dispatcher
     [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];

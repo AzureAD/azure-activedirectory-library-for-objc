@@ -36,7 +36,7 @@
 { \
 if (OBJECT) \
 { \
-[(DICT) addObject:[[ADTelemetryProperty alloc] initWithName:(NAME) value:(OBJECT)]]; \
+[(DICT) setValue:(OBJECT) forKey:(NAME)]; \
 } \
 }
 
@@ -84,10 +84,10 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:name value:value]];
+    [_propertyMap setValue:value forKey:name];
 }
 
-- (NSArray*)getProperties
+- (NSDictionary*)getProperties
 {
     return _propertyMap;
 }
@@ -99,7 +99,7 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:@"start_time" value:[self getStringFromDate:time]]];
+    [_propertyMap setValue:[self getStringFromDate:time] forKey:@"start_time"];
 }
 
 - (void)setStopTime:(NSDate*)time
@@ -109,14 +109,13 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:@"stop_time" value:[self getStringFromDate:time]]];
+    [_propertyMap setValue:[self getStringFromDate:time] forKey:@"stop_time"];
 }
 
 - (void)setResponseTime:(NSTimeInterval)responseTime
 {
     //the property is set in milliseconds
-    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:AD_TELEMETRY_RESPONSE_TIME
-                                                                value:[NSString stringWithFormat:@"%f", responseTime*1000]]];
+    [_propertyMap setValue:[NSString stringWithFormat:@"%f", responseTime*1000] forKey:AD_TELEMETRY_RESPONSE_TIME];
 }
 
 - (NSString*)getStringFromDate:(NSDate*)date
@@ -135,22 +134,19 @@ if (OBJECT) \
 
 - (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
 {
-    for (int i=0; i<[self getDefaultPropertyCount]; i++)
-    {
-        NSString* propertyName = [(ADTelemetryProperty*)_propertyMap[i] name];
-        NSString* propertyValue = [(ADTelemetryProperty*)_propertyMap[i] value];
-        [eventToBeDispatched setObject:propertyValue forKey:propertyName];
-    }
+    [eventToBeDispatched addEntriesFromDictionary:[self defaultParameters]];
+    SET_IF_NOT_NIL(eventToBeDispatched, AD_TELEMETRY_REQUEST_ID, [_propertyMap objectForKey:AD_TELEMETRY_REQUEST_ID]);
+    SET_IF_NOT_NIL(eventToBeDispatched, AD_TELEMETRY_CORRELATION_ID, [_propertyMap objectForKey:AD_TELEMETRY_CORRELATION_ID]);
 }
 
-- (NSArray*)defaultParameters
+- (NSDictionary*)defaultParameters
 {
-    static NSMutableArray* s_defaultParameters;
+    static NSMutableDictionary* s_defaultParameters;
     static dispatch_once_t s_parametersOnce;
     
     dispatch_once(&s_parametersOnce, ^{
         
-        s_defaultParameters = [NSMutableArray new];
+        s_defaultParameters = [NSMutableDictionary new];
         
 #if TARGET_OS_IPHONE
         //iOS:

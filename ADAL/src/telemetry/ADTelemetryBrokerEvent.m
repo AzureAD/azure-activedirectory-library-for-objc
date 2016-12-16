@@ -31,16 +31,34 @@
          requestId:(NSString*)requestId
      correlationId:(NSUUID*)correlationId
 {
-    self = [super initWithName:eventName requestId:requestId correlationId:correlationId];
-    if(self)
+    if (!(self = [super initWithName:eventName requestId:requestId correlationId:correlationId]))
     {
-        //this is the only broker for iOS
-        [self setBrokerApp:@"Azure Authenticator"];
+        return nil;
     }
+    
+    [self initBrokerEventProperties];
+    
+    //this is the only broker for iOS
+    [self setBrokerApp:@"Microsoft Authenticator"];
     
     return self;
 }
 
+- (id)initWithName:(NSString*)eventName
+           context:(id<ADRequestContext>)requestParams
+{
+    if (!(self = [super initWithName:eventName context:requestParams]))
+    {
+        return nil;
+    }
+    
+    [self initBrokerEventProperties];
+    
+    //this is the only broker for iOS
+    [self setBrokerApp:@"Microsoft Authenticator"];
+    
+    return self;
+}
 
 - (void)setBrokerAppVersion:(NSString*)version
 {
@@ -49,7 +67,7 @@
 
 - (void)setBrokerProtocolVersion:(NSString*)version
 {
-    [self setProperty:@"broker_protocol_version" value:version];
+    [self setProperty:AD_TELEMETRY_BROKER_PROTOCOL_VERSION value:version];
 }
 
 - (void)setResultStatus:(ADAuthenticationResultStatus)status
@@ -81,17 +99,25 @@
 {
     [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
     
-    (void)eventToBeDispatched;
-    NSArray* properties = [self getProperties];
-    for (ADTelemetryProperty* property in properties)
+    NSDictionary* properties = [self getProperties];
+    for (NSString* name in properties)
     {
-        if ([property.name isEqualToString:AD_TELEMETRY_BROKER_APP]
-            ||[property.name isEqualToString:AD_TELEMETRY_BROKER_VERSION])
+        if ([name isEqualToString:AD_TELEMETRY_BROKER_APP]
+            ||[name isEqualToString:AD_TELEMETRY_BROKER_VERSION])
         {
-            [eventToBeDispatched setObject:property.value forKey:property.name];
+            [eventToBeDispatched setObject:[properties objectForKey:name] forKey:name];
         }
     }
     [eventToBeDispatched setObject:AD_TELEMETRY_YES forKey:AD_TELEMETRY_BROKER_APP_USED];
+}
+
+- (void)initBrokerEventProperties
+{
+    [self setProperty:AD_TELEMETRY_BROKER_VERSION value:@""];
+    [self setProperty:AD_TELEMETRY_BROKER_PROTOCOL_VERSION value:@""];
+    [self setProperty:AD_TELEMETRY_RESULT_STATUS value:@""];
+    [self setProperty:AD_TELEMETRY_BROKER_APP value:@""];
+    [self setProperty:AD_TELEMETRY_BROKER_APP_USED value:AD_TELEMETRY_YES];
 }
 
 @end

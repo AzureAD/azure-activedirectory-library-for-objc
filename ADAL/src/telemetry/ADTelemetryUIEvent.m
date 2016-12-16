@@ -27,6 +27,33 @@
 
 @implementation ADTelemetryUIEvent
 
+- (id)initWithName:(NSString*)eventName
+         requestId:(NSString*)requestId
+     correlationId:(NSUUID*)correlationId
+{
+    if (!(self = [super initWithName:eventName requestId:requestId correlationId:correlationId]))
+    {
+        return nil;
+    }
+    
+    [self initUIEventProperties];
+    
+    return self;
+}
+
+- (id)initWithName:(NSString*)eventName
+           context:(id<ADRequestContext>)requestParams
+{
+    if (!(self = [super initWithName:eventName context:requestParams]))
+    {
+        return nil;
+    }
+    
+    [self initUIEventProperties];
+    
+    return self;
+}
+
 - (void)setLoginHint:(NSString*)hint
 {
     [self setProperty:AD_TELEMETRY_LOGIN_HINT value:[hint adComputeSHA256]];
@@ -42,13 +69,13 @@
     [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
     
     (void)eventToBeDispatched;
-    NSArray* properties = [self getProperties];
-    for (ADTelemetryProperty* property in properties)
+    NSDictionary* properties = [self getProperties];
+    for (NSString* name in properties)
     {
-        if ([property.name isEqualToString:AD_TELEMETRY_LOGIN_HINT]
-            ||[property.name isEqualToString:AD_TELEMETRY_NTLM_HANDLED])
+        if ([name isEqualToString:AD_TELEMETRY_LOGIN_HINT]
+            ||[name isEqualToString:AD_TELEMETRY_NTLM_HANDLED])
         {
-            [eventToBeDispatched setObject:property.value forKey:property.name];
+            [eventToBeDispatched setObject:[properties objectForKey:name] forKey:name];
         }
     }
     
@@ -58,6 +85,12 @@
         UIEventCount = [[eventToBeDispatched objectForKey:AD_TELEMETRY_UI_EVENT_COUNT] intValue] + 1;
     }
     [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", UIEventCount] forKey:AD_TELEMETRY_UI_EVENT_COUNT];
+}
+
+- (void)initUIEventProperties
+{
+    [self setProperty:AD_TELEMETRY_LOGIN_HINT value:@""];
+    [self setProperty:AD_TELEMETRY_NTLM_HANDLED value:AD_TELEMETRY_NO];
 }
 
 @end
