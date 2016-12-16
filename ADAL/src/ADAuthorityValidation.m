@@ -1,10 +1,26 @@
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-//  ADAdfsValidation.m
-//  ADAL
+// This code is licensed under the MIT License.
 //
-//  Created by Jason Kim on 12/14/16.
-//  Copyright © 2016 MS Open Tech. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
 
 #import "ADAuthorityValidation.h"
 #import "ADDrsDiscoveryRequest.h"
@@ -83,60 +99,52 @@ static NSString* const sTrustedRelation = @"http://schemas.microsoft.com/rel/tru
     
     
     // DRS discovery
-    [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
-                                               adfsType:AD_ADFS_ON_PREMS
-                                                context:self
-                                        completionBlock:^(id result, ADAuthenticationError *error)
+    [self requestDrsDiscovery:domain
+              completionBlock:^(id result, ADAuthenticationError *error)
     {
-        (void)error;
-        if (!result)
-        {
-            [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
-                                                       adfsType:AD_ADFS_CLOUD
-                                                        context:self
-                                                completionBlock:^(id result, ADAuthenticationError *error)
-            {
-                if (!result)
-                {
-                    NSString *newErrorMessage = [NSString stringWithFormat:@"DRS discovery error - %@", error.errorDetails];
-                    ADAuthenticationError *newError = [ADAuthenticationError errorFromAuthenticationError:error.code
-                                                                                             protocolCode:nil
-                                                                                             errorDetails:newErrorMessage
-                                                                                            correlationId:_correlationId];
-                    completionBlock(NO, newError);
-                }
-                else
-                {
-                    [self requestWebFingerWithMetaData:result
-                                             authority:authority
-                                       completionBlock:^(BOOL validated, ADAuthenticationError *error)
-                    {
-                        // if validated, add to the cache
-                        if(validated)
-                        {
-                            [self addValidAuthority:authority domain:domain];
-                        }
-                        
-                        completionBlock(validated, error);
-                    }];
-                }
-            }];
-        }
-        else
+        if (result)
         {
             [self requestWebFingerWithMetaData:result
                                      authority:authority
-                               completionBlock:^(BOOL validated, ADAuthenticationError *error)
+                               completionBlock:^(BOOL validated, ADAuthenticationError *error) {
+                                   completionBlock(validated, error);
+                               }];
+        }
+        else
+        {
+            if (!error)
             {
-                // if validated, add to the cache
-                if(validated)
-                {
-                    [self addValidAuthority:authority domain:domain];
-                }
-                completionBlock(validated, error);
-            }];
+                error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
+                                                               protocolCode:nil
+                                                               errorDetails:@"DRS discovery failure"
+                                                              correlationId:_correlationId];
+            }
+            completionBlock(NO, error);
         }
     }];
+}
+
+- (void)requestDrsDiscovery:(NSString *)domain
+            completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock
+{
+    [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
+                                               adfsType:AD_ADFS_ON_PREMS
+                                                context:self
+                                        completionBlock:^(id result, ADAuthenticationError *error) {
+                                            if (!result)
+                                            {
+                                                [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
+                                                                                           adfsType:AD_ADFS_CLOUD
+                                                                                            context:self
+                                                                                    completionBlock:^(id result, ADAuthenticationError *error) {
+                                                                                        completionBlock(result, error);
+                                                                                    }];
+                                            }
+                                            else
+                                            {
+                                                completionBlock(result, error);
+                                            }
+                                        }];
 }
 
 

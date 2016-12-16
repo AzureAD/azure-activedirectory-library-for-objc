@@ -171,7 +171,7 @@ static NSString* const sValidationServerError = @"The authority validation serve
         
         [adfsValidation validateADFSAuthority:authority
                                        domain:upnSuffix
-                              completionBlock:completionBlock];
+                              completionBlock:completionBlock]; 
     }
     else
     {

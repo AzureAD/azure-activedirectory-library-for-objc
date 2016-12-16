@@ -68,4 +68,5 @@ typedef void(^ADDiscoveryCallback)(BOOL validated, ADAuthenticationError* error)
                        requestParams:(ADRequestParameters*)requestParams
                      completionBlock:(ADDiscoveryCallback)completionBlock;
 
+
 @end

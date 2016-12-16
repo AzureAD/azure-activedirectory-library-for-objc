@@ -222,6 +222,9 @@
 		965EDDE31E02436700CBB723 /* ADDrsDiscoveryRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 965EDDD21E0232EE00CBB723 /* ADDrsDiscoveryRequest.m */; };
 		965EDDE41E02436A00CBB723 /* ADWebFingerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 965EDDD51E02330200CBB723 /* ADWebFingerRequest.m */; };
 		965EDDE51E02436B00CBB723 /* ADWebFingerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 965EDDD51E02330200CBB723 /* ADWebFingerRequest.m */; };
+		9671AEFC1E03752200CAADB8 /* ADAuthorityValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = 965EDDDA1E023B3D00CBB723 /* ADAuthorityValidation.h */; };
+		9671AEFD1E03752E00CAADB8 /* ADDrsDiscoveryRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 965EDDD11E0232EE00CBB723 /* ADDrsDiscoveryRequest.h */; };
+		9671AEFE1E03753000CAADB8 /* ADWebFingerRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 965EDDD41E02330200CBB723 /* ADWebFingerRequest.h */; };
 		97A522501A1A8999001D77CE /* ADClientMetricsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */; };
 		D60D8FE81D25C8D400F3E6C9 /* ADHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D60D8FE71D25C8D400F3E6C9 /* ADHelpersTests.m */; };
 		D60D8FE91D25C8D400F3E6C9 /* ADHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D60D8FE71D25C8D400F3E6C9 /* ADHelpersTests.m */; };
@@ -1305,10 +1308,12 @@
 				9453C4261C586462006B9E79 /* ADTokenCacheKey.h in Headers */,
 				60D2F3FF1D524F7A008725D9 /* ADRequestParameters.h in Headers */,
 				94DD18D21C5AC8DE00F80C62 /* ADAuthenticationParameters.h in Headers */,
+				9671AEFC1E03752200CAADB8 /* ADAuthorityValidation.h in Headers */,
 				9453C4081C586456006B9E79 /* ADAuthenticationContext+Internal.h in Headers */,
 				9453C42A1C58646D006B9E79 /* ADAuthenticationRequest+AcquireAssertion.h in Headers */,
 				94DD18D51C5AC8DE00F80C62 /* ADErrorCodes.h in Headers */,
 				600401C41D3D58D50020EAAB /* ADAggregatedDispatcher.h in Headers */,
+				9671AEFE1E03753000CAADB8 /* ADWebFingerRequest.h in Headers */,
 				9453C41C1C586456006B9E79 /* ADClientMetrics.h in Headers */,
 				9453C4381C586476006B9E79 /* ADNTLMHandler.h in Headers */,
 				9453C4641C58707B006B9E79 /* ADCredentialCollectionController.h in Headers */,
@@ -1343,6 +1348,7 @@
 				94DD18D91C5AC8DE00F80C62 /* ADUserInformation.h in Headers */,
 				9453C4281C58646D006B9E79 /* ADAuthenticationRequest.h in Headers */,
 				6010EDF81D47B2E300B62072 /* ADTelemetryBrokerEvent.h in Headers */,
+				9671AEFD1E03752E00CAADB8 /* ADDrsDiscoveryRequest.h in Headers */,
 				9453C4061C586456006B9E79 /* ADAL_Internal.h in Headers */,
 				9453C4441C58647E006B9E79 /* NSString+ADHelperMethods.h in Headers */,
 				9453C4361C586476006B9E79 /* ADCustomHeaderHandler.h in Headers */,
