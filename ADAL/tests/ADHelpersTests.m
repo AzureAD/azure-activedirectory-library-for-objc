@@ -23,6 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "ADHelpers.h"
+#import "XCTestCase+TestHelperMethods.h"
 
 @interface ADHelpersTests : XCTestCase
 
@@ -62,5 +63,111 @@
     NSString* result = [ADHelpers addClientVersionToURLString:testURLString];
     XCTAssertEqualObjects(testURLString, result);
 }
+
+- (void)testCanonicalizeAuthority
+{
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    //Nil or empty:
+    XCTAssertNil([ADHelpers canonicalizeAuthority:nil]);
+    XCTAssertNil([ADHelpers canonicalizeAuthority:@""]);
+    XCTAssertNil([ADHelpers canonicalizeAuthority:@"    "]);
+    
+    //Invalid URL
+    XCTAssertNil([ADHelpers canonicalizeAuthority:@"&-23425 5345g"]);
+    XCTAssertNil([ADHelpers canonicalizeAuthority:@"https:///login.windows.Net/something"], "Bad URL. Three slashes");
+    XCTAssertNil([ADHelpers canonicalizeAuthority:@"https:////"]);
+    
+    //Non-ssl:
+    XCTAssertNil([ADHelpers canonicalizeAuthority:@"something"]);
+    XCTAssertNil([ADHelpers canonicalizeAuthority:@"http://something"]);
+    XCTAssertNil([ADHelpers canonicalizeAuthority:@"http://www.microsoft.com"]);
+    XCTAssertNil([ADHelpers canonicalizeAuthority:@"abcde://login.windows.net/common"]);
+    
+    //Canonicalization to the supported extent:
+    NSString* authority = @"    https://www.microsoft.com/something.com/";
+    ADAssertStringEquals([ADHelpers canonicalizeAuthority:authority], @"https://www.microsoft.com/something.com");
+    
+    authority = @"https://www.microsoft.com/something.com";
+    //Without the trailing "/":
+    ADAssertStringEquals([ADHelpers canonicalizeAuthority:@"https://www.microsoft.com/something.com"], authority);
+    //Ending with non-white characters:
+    ADAssertStringEquals([ADHelpers canonicalizeAuthority:@"https://www.microsoft.com/something.com   "], authority);
+    
+    authority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
+    //Test canonicalizing the endpoints:
+    ADAssertStringEquals([ADHelpers canonicalizeAuthority:@"https://login.windows.Net/MSOpenTechBV.onmicrosoft.com/OAuth2/Token"], authority);
+    ADAssertStringEquals([ADHelpers canonicalizeAuthority:@"https://login.windows.Net/MSOpenTechBV.onmicrosoft.com/OAuth2/Authorize"], authority);
+    
+    XCTAssertNil([ADHelpers canonicalizeAuthority:@"https://login.windows.Net"], "No tenant");
+    XCTAssertNil([ADHelpers canonicalizeAuthority:@"https://login.windows.Net/"], "No tenant");
+    
+    //Trimming beyond the tenant:
+    authority = @"https://login.windows.net/something.com";
+    ADAssertStringEquals([ADHelpers canonicalizeAuthority:@"https://login.windows.Net/something.com/bar"], authority);
+    ADAssertStringEquals([ADHelpers canonicalizeAuthority:@"https://login.windows.Net/something.com"], authority);
+    ADAssertStringEquals([ADHelpers canonicalizeAuthority:@"https://login.windows.Net/something.com/"], authority);
+    ADAssertStringEquals([ADHelpers canonicalizeAuthority:@"https://login.windows.Net/something.com#bar"], authority);
+    authority = @"https://login.windows.net/common";//Use "common" for a change
+    ADAssertStringEquals([ADHelpers canonicalizeAuthority:@"https://login.windows.net/common?abc=123&vc=3"], authority);
+}
+
+
+- (void)testExtractBaseBadAuthority
+{
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    
+    ADHelpers* helper = [[ADHelpers alloc] init];
+    
+    NSArray* cases = @[ [NSNull null],
+                        // White space string:
+                        @"   ",
+                        // Invalid URL:
+                        @"a sdfasdfasas;djfasd jfaosjd fasj;",
+                        // Invalid URL scheme (not using SSL):
+                        @"http://login.windows.net",
+                        // Path
+                        @"././login.windows.net",
+                        // Relative URL
+                        @"login"];
+    
+    for (id testCase in cases)
+    {
+        id testCaseVal = [testCase isKindOfClass:[NSNull class]] ? nil : testCase;
+        
+        ADAuthenticationError* error = nil;
+        NSString* result = [helper extractHost:testCaseVal
+                                 correlationId:nil
+                                         error:&error];
+        XCTAssertNil(result, @"extractHost: should return nil for \"%@\"", testCaseVal);
+        XCTAssertNotNil(error, @"extractHost: did not fill out the error for \"%@\"", testCaseVal);
+        XCTAssertEqual(error.domain, ADAuthenticationErrorDomain);
+        XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+        XCTAssertNil(error.protocolCode);
+        XCTAssertTrue([error.errorDetails containsString:@"authority"]);
+    }
+    
+    SAFE_ARC_RELEASE(discovery);
+}
+
+- (void)testExtractBaseNormal
+{
+    ADHelpers* helper = [[ADHelpers alloc] init];
+    
+    NSArray* cases = @[ @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize",
+                        @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize/",
+                        @"httpS://Login.Windows.Net/stuff"];
+    
+    for (NSString* testCase in cases)
+    {
+        ADAuthenticationError* error = nil;
+        NSString* result = [helper extractHost:testCase correlationId:nil error:&error];
+        XCTAssertNotNil(result);
+        XCTAssertNil(error);
+        XCTAssertEqualObjects(result, @"https://login.windows.net");
+    }
+    
+    SAFE_ARC_RELEASE(discovery);
+}
+
 
 @end

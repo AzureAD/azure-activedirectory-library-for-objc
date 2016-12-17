@@ -33,11 +33,6 @@ typedef void(^ADDiscoveryCallback)(BOOL validated, ADAuthenticationError* error)
 /*! A singleton class, used to validate authorities with in-memory caching of the previously validated ones.
  The class is thread-safe. */
 @interface ADInstanceDiscovery : NSObject
-{
-    NSMutableSet* _validatedAuthorities;
-}
-
-@property (readonly) NSSet* validatedAuthorities;
 
 /*! The shared instance of the class.*/
 + (ADInstanceDiscovery *)sharedInstance;
@@ -51,22 +46,10 @@ typedef void(^ADDiscoveryCallback)(BOOL validated, ADAuthenticationError* error)
             requestParams:(ADRequestParameters*)requestParams
           completionBlock:(ADDiscoveryCallback) completionBlock;
 
-/*! Takes the string and makes it canonical URL, e.g. lowercase with
- ending trailing "/". If the authority is not a valid URL, the method
- will return nil. */
-+ (NSString*)canonicalizeAuthority:(NSString *)authority;
-
-- (NSString*)extractHost:(NSString *)authority
-           correlationId:(NSUUID *)correlationId
-                   error:(ADAuthenticationError * __autoreleasing *)error;
-- (BOOL)isAuthorityValidated:(NSString *)authorityHost;
-- (BOOL)addValidAuthority:(NSString *)authorityHost;
-
 - (void)requestValidationOfAuthority:(NSString *)authority
                                 host:(NSString *)authorityHost
                     trustedAuthority:(NSString *)trustedAuthority
                        requestParams:(ADRequestParameters*)requestParams
                      completionBlock:(ADDiscoveryCallback)completionBlock;
-
 
 @end

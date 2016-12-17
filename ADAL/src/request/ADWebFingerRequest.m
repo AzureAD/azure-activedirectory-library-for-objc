@@ -41,11 +41,11 @@ static NSString *const s_kWebFingerConstructor = @"https://%@/.well-known/webfin
     NSURL *url = [NSURL URLWithString:
                   [NSString stringWithFormat:s_kWebFingerConstructor, fullUrl.host, authority]];
     
-    ADWebAuthRequest *webReq = [[ADWebAuthRequest alloc] initWithURL:url context:context];
-    [webReq setIsGetRequest:YES];
-    [webReq setAcceptOnlyOKResponse:YES];
+    ADWebAuthRequest *webRequest = [[ADWebAuthRequest alloc] initWithURL:url context:context];
+    [webRequest setIsGetRequest:YES];
+    [webRequest setAcceptOnlyOKResponse:YES];
     
-    [webReq sendRequest:^(NSMutableDictionary *response)
+    [webRequest sendRequest:^(NSMutableDictionary *response)
     {
         ADAuthenticationError *error = [response objectForKey:AUTH_NON_PROTOCOL_ERROR];
         

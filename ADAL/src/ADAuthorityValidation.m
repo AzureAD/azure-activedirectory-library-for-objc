@@ -25,11 +25,27 @@
 #import "ADAuthorityValidation.h"
 #import "ADDrsDiscoveryRequest.h"
 #import "ADWebFingerRequest.h"
+#import "ADAuthorityValidationRequest.h"
+#import "ADOAuth2Constants.h"
+#import "ADHelpers.h"
 
-static NSString* const sWebFinger = @".well-known/webfinger?";
-static NSString* const sTrustedRelation = @"http://schemas.microsoft.com/rel/trusted-realm";
+static NSString* const s_kTrustedRelation = @"http://schemas.microsoft.com/rel/trusted-realm";
+
+static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
+static NSString* const s_kTrustedAuthorityChina = @"https://login.chinacloudapi.cn";
+static NSString* const s_kTrustedAuthorityGermany = @"https://login.microsoftonline.de";
+static NSString* const s_kTrustedAuthorityWorldWide = @"https://login.microsoftonline.com";
+static NSString* const s_kTrustedAuthorityUSGovernment = @"https://login-us.microsoftonline.com";
+
+static NSString* const s_kTenantDiscoveryEndpoint = @"tenant_discovery_endpoint";
+
+static NSString* const s_kValidationServerError = @"The authority validation server returned an error.";
+
 
 @implementation ADAuthorityValidation
+
+@synthesize telemetryRequestId = _telemetryRequestId;
+@synthesize correlationId = _correlationId;
 
 + (ADAuthorityValidation *)sharedInstance
 {
@@ -52,8 +68,29 @@ static NSString* const sTrustedRelation = @"http://schemas.microsoft.com/rel/tru
     
     _validatedAdfsAuthorities = [NSMutableDictionary new];
     
+    _validatedADAuthorities = [NSMutableSet new];
+    //List of prevalidated authorities (Azure Active Directory cloud instances).
+    //Only the sThrustedAuthority is used for validation of new authorities.
+    [_validatedADAuthorities addObject:s_kTrustedAuthority];
+    [_validatedADAuthorities addObject:s_kTrustedAuthorityChina]; // Microsoft Azure China
+    [_validatedADAuthorities addObject:s_kTrustedAuthorityGermany]; // Microsoft Azure Germany
+    [_validatedADAuthorities addObject:s_kTrustedAuthorityWorldWide]; // Microsoft Azure Worldwide
+    [_validatedADAuthorities addObject:s_kTrustedAuthorityUSGovernment]; // Microsoft Azure US Government
+    
     return self;
 }
+
+- (void)dealloc
+{
+    SAFE_ARC_RELEASE(_validatedADAuthorities);
+    _validatedADAuthorities = nil;
+    
+    SAFE_ARC_RELEASE(_validatedAdfsAuthorities);
+    _validatedAdfsAuthorities = nil;
+    
+    SAFE_ARC_SUPER_DEALLOC();
+}
+
 
 #pragma mark - caching
 - (BOOL)addValidAuthority:(NSString *)authority domain:(NSString *)domain
@@ -72,6 +109,17 @@ static NSString* const sTrustedRelation = @"http://schemas.microsoft.com/rel/tru
     return YES;
 }
 
+- (BOOL)addValidAuthority:(NSString *)authorityHost
+{
+    if ([NSString adIsStringNilOrBlank:authorityHost])
+    {
+        return NO;
+    }
+    [_validatedADAuthorities addObject:authorityHost];
+    return YES;
+}
+
+
 - (BOOL)isAuthorityValidated:(NSString *)authority domain:(NSString *)domain
 {
     // Check for authority
@@ -83,6 +131,131 @@ static NSString* const sTrustedRelation = @"http://schemas.microsoft.com/rel/tru
     
     return NO;
 }
+
+// Checks the cache for previously validated authority.
+// Note that the authority host should be normalized: no ending "/" and lowercase.
+- (BOOL)isAuthorityValidated:(NSString *)authorityHost
+{
+    if (!authorityHost)
+    {
+        return NO;
+    }
+    
+    BOOL validated = [_validatedADAuthorities containsObject:authorityHost];
+    return validated;
+}
+
+#pragma mark - Authority validation
+- (void)validateAuthority:(NSString *)authority
+          completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock
+{
+    [self validateAuthority:authority upn:nil completionBlock:completionBlock];
+}
+
+- (void)validateAuthority:(NSString *)authority
+                      upn:(NSString *)upn
+          completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock
+{
+    // TODO: Check for valid authority
+    
+    
+    
+    
+    ADAuthenticationError *authorityCheckError = nil;
+    
+    NSString *authorityHost = [ADHelpers extractHost:authority correlationId:_correlationId error:&authorityCheckError];
+    if (!authorityHost)
+    {
+        completionBlock(NO, authorityCheckError);
+        return;
+    }
+    
+    
+    // Check for AAD or ADFS
+    if ([ADHelpers isADFSInstance:authority])
+    {
+        // Check for upn suffix
+        NSString *upnSuffix = [ADHelpers getUPNSuffix:upn];
+        if ([NSString adIsStringNilOrBlank:upnSuffix])
+        {
+            ADAuthenticationError *adError = [ADAuthenticationError errorFromArgument:upnSuffix
+                                                                         argumentName:@"user principal name"
+                                                                        correlationId:_correlationId];
+            completionBlock(NO, adError);
+            return;
+        }
+        
+        // Check cache
+        if ([self isAuthorityValidated:authority domain:upnSuffix])
+        {
+            completionBlock(YES, nil);
+            return;
+        }
+        
+        // Try authority validation
+        [self validateADFSAuthority:authority domain:upnSuffix completionBlock:completionBlock];
+    }
+    
+    else
+    {
+        // Check for cache
+        if ([self isAuthorityValidated:authorityHost])
+        {
+            completionBlock(YES, nil);
+            return;
+        }
+        
+        // Try authority validation
+        [self validateAuthority:authority authorityHost:authorityHost completionBlock:completionBlock];
+    
+    }
+}
+
+
+
+#pragma mark - AAD authority validation
+//Sends authority validation to the trustedAuthority by leveraging the instance discovery endpoint
+//If the authority is known, the server will set the "tenant_discovery_endpoint" parameter in the response.
+//The method should be executed on a thread that is guarranteed to exist upon completion, e.g. the UI thread.
+- (void)validateAuthority:(NSString *)authority
+            authorityHost:authorityHost
+          completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock
+{
+    // Check cache
+    if ([self isAuthorityValidated:authority.lowercaseString]) {
+        completionBlock(YES, nil);
+        return;
+    }
+    
+    [ADAuthorityValidationRequest requestAuthorityValidationForAuthority:authority
+                                                        trustedAuthority:s_kTrustedAuthority
+                                                                 context:self
+                                                         completionBlock:^(id response, ADAuthenticationError *error)
+    {
+        BOOL verified = ![NSString adIsStringNilOrBlank:[response objectForKey:s_kTenantDiscoveryEndpoint]];
+        if (!verified)
+        {
+            //First check for explicit OAuth2 protocol error:
+            NSString* serverOAuth2Error = [response objectForKey:OAUTH2_ERROR];
+            NSString* errorDetails = [response objectForKey:OAUTH2_ERROR_DESCRIPTION];
+            // Error response from the server
+            errorDetails = errorDetails ? errorDetails : [NSString stringWithFormat:@"%@ - %@", s_kValidationServerError, serverOAuth2Error];
+            
+            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
+                                                           protocolCode:serverOAuth2Error
+                                                           errorDetails:errorDetails
+                                                          correlationId:_correlationId];
+        }
+        else
+        {
+            [self addValidAuthority:authorityHost];
+        }
+        
+        completionBlock(verified, error);
+    }];
+}
+
+
 
 #pragma mark - ADFS authority validation
 - (void)validateADFSAuthority:(NSString *)authority
@@ -107,6 +280,10 @@ static NSString* const sTrustedRelation = @"http://schemas.microsoft.com/rel/tru
             [self requestWebFingerWithMetaData:result
                                      authority:authority
                                completionBlock:^(BOOL validated, ADAuthenticationError *error) {
+                                   if (validated)
+                                   {
+                                       [self addValidAuthority:authority domain:domain];
+                                   }
                                    completionBlock(validated, error);
                                }];
         }
@@ -184,29 +361,6 @@ static NSString* const sTrustedRelation = @"http://schemas.microsoft.com/rel/tru
 
 #pragma mark - Helper functions
 
-/*! Checks whether the authority is an ADFS or not by looking for "adfs" in the the url path.
- e.g./ "https://.../adfs", or "https://.../adfs/...". */
-+ (BOOL)isAdfsAuthority:(NSString *)authority
-{
-    NSURL *fullUrl = [NSURL URLWithString:authority.lowercaseString];
-    NSArray *paths = fullUrl.pathComponents;
-    
-    if (paths.count < 2)
-    {
-        return NO;
-    }
-    else
-    {
-        NSString *tenant = [paths objectAtIndex:1];
-        if ([@"adfs" isEqualToString:tenant])
-        {
-            return YES;
-        }
-        return NO;
-    }
-}
-
-
 - (NSString*)passiveEndpointFromDRSMetaData:(id)metaData
 {
     return [[metaData objectForKey:@"IdentityProviderService"] objectForKey:@"PassiveAuthEndpoint"];
@@ -224,7 +378,7 @@ static NSString* const sTrustedRelation = @"http://schemas.microsoft.com/rel/tru
         NSURL *authorityURL = [NSURL URLWithString:authority];
         NSString *authorityHost = [NSString stringWithFormat:@"%@://%@", authorityURL.scheme, authorityURL.host];
         
-        if ([rel caseInsensitiveCompare:sTrustedRelation] == NSOrderedSame &&
+        if ([rel caseInsensitiveCompare:s_kTrustedRelation] == NSOrderedSame &&
             [target caseInsensitiveCompare:authorityHost] == NSOrderedSame)
         {
             return YES;

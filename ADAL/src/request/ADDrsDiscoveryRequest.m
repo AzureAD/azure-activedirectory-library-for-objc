@@ -39,11 +39,11 @@ static NSString *const s_kAdfsOnPremsDiscovery = @"https://enterpriseregistratio
     NSURL *url = [NSURL URLWithString:
                   [NSString stringWithFormat: (type == AD_ADFS_ON_PREMS) ? s_kAdfsOnPremsDiscovery : s_kAdfsCloudDiscovery, domain]];
     
-    ADWebAuthRequest *webReq = [[ADWebAuthRequest alloc] initWithURL:url context:context];
-    [webReq setIsGetRequest:YES];
-    [webReq setAcceptOnlyOKResponse:YES];
+    ADWebAuthRequest *webRequest = [[ADWebAuthRequest alloc] initWithURL:url context:context];
+    [webRequest setIsGetRequest:YES];
+    [webRequest setAcceptOnlyOKResponse:YES];
     
-    [webReq sendRequest:^(NSMutableDictionary *response)
+    [webRequest sendRequest:^(NSMutableDictionary *response)
     {
         ADAuthenticationError *error = [response objectForKey:AUTH_NON_PROTOCOL_ERROR];
 

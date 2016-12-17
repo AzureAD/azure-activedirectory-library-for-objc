@@ -27,6 +27,7 @@
 #import "NSString+ADHelperMethods.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADInstanceDiscovery.h"
+#import "ADAuthorityValidation.h"
 #import <libkern/OSAtomic.h>
 #import "ADAuthenticationSettings.h"
 #import "ADTestURLConnection.h"
@@ -61,63 +62,6 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     
     [self adTestEnd];
     [super tearDown];
-}
-
-- (void)testExtractBaseBadAuthority
-{
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    
-    ADInstanceDiscovery* discovery = [[ADInstanceDiscovery alloc] init];
-    
-    NSArray* cases = @[ [NSNull null],
-                        // White space string:
-                        @"   ",
-                        // Invalid URL:
-                        @"a sdfasdfasas;djfasd jfaosjd fasj;",
-                        // Invalid URL scheme (not using SSL):
-                        @"http://login.windows.net",
-                        // Path
-                        @"././login.windows.net",
-                        // Relative URL
-                        @"login"];
-    
-    for (id testCase in cases)
-    {
-        id testCaseVal = [testCase isKindOfClass:[NSNull class]] ? nil : testCase;
-        
-        ADAuthenticationError* error = nil;
-        NSString* result = [discovery extractHost:testCaseVal
-                                    correlationId:nil
-                                            error:&error];
-        XCTAssertNil(result, @"extractHost: should return nil for \"%@\"", testCaseVal);
-        XCTAssertNotNil(error, @"extractHost: did not fill out the error for \"%@\"", testCaseVal);
-        XCTAssertEqual(error.domain, ADAuthenticationErrorDomain);
-        XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
-        XCTAssertNil(error.protocolCode);
-        XCTAssertTrue([error.errorDetails containsString:@"authority"]);
-    }
-    
-    SAFE_ARC_RELEASE(discovery);
-}
-
-- (void)testExtractBaseNormal
-{
-    ADInstanceDiscovery* discovery = [[ADInstanceDiscovery alloc] init];
-    
-    NSArray* cases = @[ @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize",
-                        @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize/",
-                        @"httpS://Login.Windows.Net/stuff"];
-    
-    for (NSString* testCase in cases)
-    {
-        ADAuthenticationError* error = nil;
-        NSString* result = [discovery extractHost:testCase correlationId:nil error:&error];
-        XCTAssertNotNil(result);
-        XCTAssertNil(error);
-        XCTAssertEqualObjects(result, @"https://login.windows.net");
-    }
-    
-    SAFE_ARC_RELEASE(discovery);
 }
 
 - (void)testIsAuthorityValidated
@@ -178,52 +122,6 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     }
 }
 
-- (void)testCanonicalizeAuthority
-{
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    //Nil or empty:
-    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:nil]);
-    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@""]);
-    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"    "]);
-    
-    //Invalid URL
-    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"&-23425 5345g"]);
-    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"https:///login.windows.Net/something"], "Bad URL. Three slashes");
-    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"https:////"]);
-    
-    //Non-ssl:
-    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"something"]);
-    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"http://something"]);
-    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"http://www.microsoft.com"]);
-    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"abcde://login.windows.net/common"]);
-    
-    //Canonicalization to the supported extent:
-    NSString* authority = @"    https://www.microsoft.com/something.com/";
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:authority], @"https://www.microsoft.com/something.com");
-    
-    authority = @"https://www.microsoft.com/something.com";
-    //Without the trailing "/":
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://www.microsoft.com/something.com"], authority);
-    //Ending with non-white characters:
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://www.microsoft.com/something.com   "], authority);
-    
-    authority = @"https://login.windows.net/msopentechbv.onmicrosoft.com";
-    //Test canonicalizing the endpoints:
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/MSOpenTechBV.onmicrosoft.com/OAuth2/Token"], authority);
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/MSOpenTechBV.onmicrosoft.com/OAuth2/Authorize"], authority);
-    
-    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net"], "No tenant");
-    XCTAssertNil([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/"], "No tenant");
-    
-    //Trimming beyond the tenant:
-    authority = @"https://login.windows.net/something.com";
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/something.com/bar"], authority);
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/something.com"], authority);
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/something.com/"], authority);
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.Net/something.com#bar"], authority);
-    authority = @"https://login.windows.net/common";//Use "common" for a change
-    ADAssertStringEquals([ADInstanceDiscovery canonicalizeAuthority:@"https://login.windows.net/common?abc=123&vc=3"], authority);
-}
 
 // Tests a real authority
 - (void)testNormalFlow
@@ -245,7 +143,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     }];
     
     TEST_WAIT;
-    XCTAssertTrue([[discovery validatedAuthorities] containsObject:@"https://login.windows-ppe.net"]);
+    XCTAssertTrue([[ADAuthorityValidation sharedInstance] isAuthorityValidated:@"https://login.windows-ppe.net"]);
     SAFE_ARC_RELEASE(discovery);
     SAFE_ARC_RELEASE(requestParams);
 }

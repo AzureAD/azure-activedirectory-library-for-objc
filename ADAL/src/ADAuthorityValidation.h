@@ -26,23 +26,55 @@
 
 @interface ADAuthorityValidation : NSObject<ADRequestContext> {
     NSMutableDictionary *_validatedAdfsAuthorities;
+    NSMutableSet *_validatedADAuthorities;
+    
+    NSUUID *_correlationId;
+    NSString *_telemetryRequestId;
 }
 
 + (ADAuthorityValidation *)sharedInstance;
 
-// Cache
+/*!
+ This is for caching of valid authorities.
+ For ADFS, it will cache the authority and the domain. 
+ For AAD, it will simply cache the authority
+ */
+// Cache - ADFS
 - (BOOL)addValidAuthority:(NSString *)authority domain:(NSString *)domain;
 - (BOOL)isAuthorityValidated:(NSString *)authority domain:(NSString *)domain;
+// Cache - AD
+- (BOOL)isAuthorityValidated:(NSString *)authorityHost;
+- (BOOL)addValidAuthority:(NSString *)authorityHost;
 
-// Request
+/*!
+ Validates an authority.
+ 
+ @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
+ @param upn                  User principal name. This is used for ADFS validation.
+ @param completionBlock      The block to execute upon completion.
+
+ */
+- (void)validateAuthority:(NSString *)authority
+                      upn:(NSString *)upn
+          completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock;
+
+// Convenience method
+- (void)validateAuthority:(NSString *)authority
+          completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock;
+
+// Validation for ADFS authority.
 - (void)validateADFSAuthority:(NSString *)authority
                        domain:(NSString *)domain
               completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock;
 
-+ (BOOL)isAdfsAuthority:(NSString *)authority;
 
-// To conform to ADRequestContext
-@property NSUUID *correlationId;
-@property NSString *telemetryRequestId;
+// Validation for AAD authority
+- (void)validateAuthority:(NSString *)authority
+            authorityHost:authorityHost
+          completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock;
+
+// ADRequestContext
+@property(retain, nonatomic) NSUUID *correlationId;
+@property(retain, nonatomic) NSString *telemetryRequestId;
 
 @end

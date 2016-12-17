@@ -49,4 +49,14 @@
 + (NSString *)addClientVersionToURLString:(NSString*)url;
 
 + (NSString *)getUPNSuffix:(NSString *)upn;
+
+/*! Takes the string and makes it canonical URL, e.g. lowercase with
+ ending trailing "/". If the authority is not a valid URL, the method
+ will return nil. */
++ (NSString*)canonicalizeAuthority:(NSString *)authority;
+
++ (NSString*)extractHost:(NSString *)authority
+           correlationId:(NSUUID *)correlationId
+                   error:(ADAuthenticationError * __autoreleasing *)error;
+
 @end
