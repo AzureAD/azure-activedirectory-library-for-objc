@@ -27,33 +27,6 @@
 
 @implementation ADTelemetryUIEvent
 
-- (id)initWithName:(NSString*)eventName
-         requestId:(NSString*)requestId
-     correlationId:(NSUUID*)correlationId
-{
-    if (!(self = [super initWithName:eventName requestId:requestId correlationId:correlationId]))
-    {
-        return nil;
-    }
-    
-    [self initUIEventProperties];
-    
-    return self;
-}
-
-- (id)initWithName:(NSString*)eventName
-           context:(id<ADRequestContext>)requestParams
-{
-    if (!(self = [super initWithName:eventName context:requestParams]))
-    {
-        return nil;
-    }
-    
-    [self initUIEventProperties];
-    
-    return self;
-}
-
 - (void)setLoginHint:(NSString*)hint
 {
     [self setProperty:AD_TELEMETRY_LOGIN_HINT value:[hint adComputeSHA256]];
@@ -85,12 +58,6 @@
         UIEventCount = [[eventToBeDispatched objectForKey:AD_TELEMETRY_UI_EVENT_COUNT] intValue] + 1;
     }
     [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", UIEventCount] forKey:AD_TELEMETRY_UI_EVENT_COUNT];
-}
-
-- (void)initUIEventProperties
-{
-    [self setProperty:AD_TELEMETRY_LOGIN_HINT value:@""];
-    [self setProperty:AD_TELEMETRY_NTLM_HANDLED value:AD_TELEMETRY_NO];
 }
 
 @end

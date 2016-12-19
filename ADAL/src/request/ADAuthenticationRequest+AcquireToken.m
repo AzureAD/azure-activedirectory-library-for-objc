@@ -96,7 +96,6 @@
         [event setErrorCode:[NSString stringWithFormat:@"%ld",(long)[result.error code]]];
         [event setErrorDomain:[result.error domain]];
         [event setProtocolCode:[[result error] protocolCode]];
-        [event setErrorDescription:[[result error] errorDetails]];
         
         [[ADTelemetry sharedInstance] stopEvent:self.telemetryRequestId event:event];
         SAFE_ARC_RELEASE(event);

@@ -29,33 +29,6 @@
 
 @implementation ADTelemetryAPIEvent
 
-- (id)initWithName:(NSString*)eventName
-         requestId:(NSString*)requestId
-     correlationId:(NSUUID*)correlationId
-{
-    if (!(self = [super initWithName:eventName requestId:requestId correlationId:correlationId]))
-    {
-        return nil;
-    }
-    
-    [self initAPIEventProperties];
-    
-    return self;
-}
-
-- (id)initWithName:(NSString*)eventName
-           context:(id<ADRequestContext>)requestParams
-{
-    if (!(self = [super initWithName:eventName context:requestParams]))
-    {
-        return nil;
-    }
-    
-    [self initAPIEventProperties];
-    
-    return self;
-}
-
 - (void)setResultStatus:(ADAuthenticationResultStatus)status
 {
     NSString* statusStr = nil;
@@ -206,33 +179,11 @@
             ||[name isEqualToString:AD_TELEMETRY_USER_CANCEL]
             ||[name isEqualToString:AD_TELEMETRY_ERROR_CODE]
             ||[name isEqualToString:AD_TELEMETRY_ERROR_DOMAIN]
-            ||[name isEqualToString:AD_TELEMETRY_PROTOCOL_CODE]
-            ||[name isEqualToString:AD_TELEMETRY_ERROR_DESCRIPTION])
+            ||[name isEqualToString:AD_TELEMETRY_PROTOCOL_CODE])
         {
             [eventToBeDispatched setObject:[properties objectForKey:name] forKey:name];
         }
     }
-}
-
-- (void)initAPIEventProperties
-{
-    [self setProperty:AD_TELEMETRY_RESULT_STATUS value:@""];
-    [self setProperty:AD_TELEMETRY_CORRELATION_ID value:@""];
-    [self setProperty:AD_TELEMETRY_EXTENDED_EXPIRES_ON_SETTING value:@""];
-    [self setProperty:AD_TELEMETRY_USER_ID value:@""];
-    [self setProperty:AD_TELEMETRY_TENANT_ID value:@""];
-    [self setProperty:AD_TELEMETRY_IDP value:@""];
-    [self setProperty:AD_TELEMETRY_CLIENT_ID value:@""];
-    [self setProperty:AD_TELEMETRY_IS_EXTENED_LIFE_TIME_TOKEN value:@""];
-    [self setProperty:AD_TELEMETRY_ERROR_CODE value:@""];
-    [self setProperty:AD_TELEMETRY_PROTOCOL_CODE value:@""];
-    [self setProperty:AD_TELEMETRY_ERROR_DESCRIPTION value:@""];
-    [self setProperty:AD_TELEMETRY_ERROR_DOMAIN value:@""];
-    [self setProperty:AD_TELEMETRY_AUTHORITY value:@""];
-    [self setProperty:AD_TELEMETRY_GRANT_TYPE value:@""];
-    [self setProperty:AD_TELEMETRY_API_STATUS value:@""];
-    [self setProperty:AD_TELEMETRY_API_ID value:@""];
-    [self setProperty:AD_TELEMETRY_PROMPT_BEHAVIOR value:@""];
 }
 
 @end

@@ -27,33 +27,6 @@
 
 @implementation ADTelemetryHttpEvent
 
-- (id)initWithName:(NSString*)eventName
-         requestId:(NSString*)requestId
-     correlationId:(NSUUID*)correlationId
-{
-    if (!(self = [super initWithName:eventName requestId:requestId correlationId:correlationId]))
-    {
-        return nil;
-    }
-    
-    [self initHttpEventProperties];
-    
-    return self;
-}
-
-- (id)initWithName:(NSString*)eventName
-           context:(id<ADRequestContext>)requestParams
-{
-    if (!(self = [super initWithName:eventName context:requestParams]))
-    {
-        return nil;
-    }
-    
-    [self initHttpEventProperties];
-    
-    return self;
-}
-
 - (void)setHttpMethod:(NSString*)method
 {
     [self setProperty:AD_TELEMETRY_HTTP_METHOD value:method];
@@ -112,6 +85,10 @@
     }
     [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", httpEventCount] forKey:AD_TELEMETRY_HTTP_EVENT_COUNT];
     
+    //erase the previous http event properties if any
+    [eventToBeDispatched setObject:@"" forKey:AD_TELEMETRY_OAUTH_ERROR_CODE];
+    [eventToBeDispatched setObject:@"" forKey:AD_TELEMETRY_HTTP_ERROR_DOMAIN];
+    
     NSDictionary* properties = [self getProperties];
     for (NSString* name in properties)
     {
@@ -121,19 +98,6 @@
             [eventToBeDispatched setObject:[properties objectForKey:name] forKey:name];
         }
     }
-}
-
-- (void)initHttpEventProperties
-{
-    [self setProperty:AD_TELEMETRY_HTTP_METHOD value:@""];
-    [self setProperty:AD_TELEMETRY_HTTP_PATH value:@""];
-    [self setProperty:AD_TELEMETRY_HTTP_REQUEST_ID_HEADER value:@""];
-    [self setProperty:AD_TELEMETRY_HTTP_RESPONSE_CODE value:@""];
-    [self setProperty:AD_TELEMETRY_OAUTH_ERROR_CODE value:@""];
-    [self setProperty:AD_TELEMETRY_HTTP_RESPONSE_METHOD value:@""];
-    [self setProperty:AD_TELEMETRY_REQUEST_QUERY_PARAMS value:@""];
-    [self setProperty:AD_TELEMETRY_USER_AGENT value:@""];
-    [self setProperty:AD_TELEMETRY_HTTP_ERROR_DOMAIN value:@""];
 }
 
 - (NSString*)scrubTenantFromUrl:(NSString*)url

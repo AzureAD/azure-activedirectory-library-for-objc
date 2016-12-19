@@ -399,18 +399,13 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNotNil([event objectForKey:@"client_id"]);
     XCTAssertNotNil([event objectForKey:@"device_id"]);
     XCTAssertNotNil([event objectForKey:@"authority_type"]);
-    XCTAssertNotNil([event objectForKey:@"tenant_id"]);
-    XCTAssertNotNil([event objectForKey:@"idp"]);
     XCTAssertTrue([[event objectForKey:@"extended_expires_on_setting"] isEqualToString:@"no"]);
     XCTAssertNotNil([event objectForKey:@"prompt_behavior"]);
     XCTAssertTrue([[event objectForKey:@"status"] isEqualToString:@"failed"]);
-    XCTAssertNotNil([event objectForKey:@"user_id"]);
     XCTAssertNotNil([event objectForKey:@"response_time"]);
     XCTAssertNotNil([event objectForKey:@"cache_event_count"]);
     XCTAssertTrue([[event objectForKey:@"error_code"] isEqualToString:@"300"]);
     XCTAssertNotNil([event objectForKey:@"error_domain"]);
-    XCTAssertNotNil([event objectForKey:@"error_description"]);
-    XCTAssertNotNil([event objectForKey:@"error_protocol_code"]);
     
     //unregister the dispatcher
     [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];
@@ -660,8 +655,6 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNotNil([firstEvent objectForKey:@"client_id"]);
     XCTAssertNotNil([firstEvent objectForKey:@"device_id"]);
     XCTAssertNotNil([firstEvent objectForKey:@"authority_type"]);
-    XCTAssertNotNil([firstEvent objectForKey:@"tenant_id"]);
-    XCTAssertNotNil([firstEvent objectForKey:@"idp"]);
     XCTAssertTrue([[firstEvent objectForKey:@"extended_expires_on_setting"] isEqualToString:@"no"]);
     XCTAssertNotNil([firstEvent objectForKey:@"prompt_behavior"]);
     XCTAssertTrue([[firstEvent objectForKey:@"status"] isEqualToString:@"failed"]);
@@ -674,9 +667,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNotNil([firstEvent objectForKey:@"http_error_domain"]);
     XCTAssertTrue([[firstEvent objectForKey:@"error_code"] isEqualToString:@"200"]);
     XCTAssertNotNil([firstEvent objectForKey:@"error_domain"]);
-    XCTAssertNotNil([firstEvent objectForKey:@"error_description"]);
     XCTAssertNotNil([firstEvent objectForKey:@"oauth_error_code"]);
-    XCTAssertNotNil([firstEvent objectForKey:@"error_protocol_code"]);
     
     // the following properties are expected for 2nd acquire token call
     NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
@@ -693,8 +684,6 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNotNil([secondEvent objectForKey:@"client_id"]);
     XCTAssertNotNil([secondEvent objectForKey:@"device_id"]);
     XCTAssertNotNil([secondEvent objectForKey:@"authority_type"]);
-    XCTAssertNotNil([secondEvent objectForKey:@"tenant_id"]);
-    XCTAssertNotNil([secondEvent objectForKey:@"idp"]);
     XCTAssertNotNil([secondEvent objectForKey:@"extended_expires_on_setting"]);
     XCTAssertNotNil([secondEvent objectForKey:@"prompt_behavior"]);
     XCTAssertTrue([[secondEvent objectForKey:@"status"] isEqualToString:@"failed"]);
@@ -706,8 +695,6 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[secondEvent objectForKey:@"token_frt_status"] isEqualToString:@"not_found"]);
     XCTAssertTrue([[secondEvent objectForKey:@"error_code"] isEqualToString:@"200"]);
     XCTAssertNotNil([secondEvent objectForKey:@"error_domain"]);
-    XCTAssertNotNil([secondEvent objectForKey:@"error_description"]);
-    XCTAssertNotNil([secondEvent objectForKey:@"error_protocol_code"]);
     
     //unregister the dispatcher
     [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];
@@ -1141,7 +1128,6 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNotNil([event objectForKey:@"device_id"]);
     XCTAssertNotNil([event objectForKey:@"authority_type"]);
     XCTAssertNotNil([event objectForKey:@"tenant_id"]);
-    XCTAssertNotNil([event objectForKey:@"idp"]);
     XCTAssertTrue([[event objectForKey:@"extended_expires_on_setting"] isEqualToString:@"no"]);
     XCTAssertNotNil([event objectForKey:@"prompt_behavior"]);
     XCTAssertTrue([[event objectForKey:@"status"] isEqualToString:@"succeeded"]);
@@ -1154,10 +1140,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNotNil([event objectForKey:@"http_event_count"]);
     XCTAssertNotNil([event objectForKey:@"http_error_domain"]);
     XCTAssertTrue([[event objectForKey:@"error_code"] isEqualToString:@"0"]);
-    XCTAssertNotNil([event objectForKey:@"error_domain"]);
-    XCTAssertNotNil([event objectForKey:@"error_description"]);
     XCTAssertNotNil([event objectForKey:@"oauth_error_code"]);
-    XCTAssertNotNil([event objectForKey:@"error_protocol_code"]);
     
     //unregister the dispatcher
     [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];

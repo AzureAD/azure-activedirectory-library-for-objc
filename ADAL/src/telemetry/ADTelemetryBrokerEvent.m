@@ -31,31 +31,12 @@
          requestId:(NSString*)requestId
      correlationId:(NSUUID*)correlationId
 {
-    if (!(self = [super initWithName:eventName requestId:requestId correlationId:correlationId]))
+    self = [super initWithName:eventName requestId:requestId correlationId:correlationId];
+    if(self)
     {
-        return nil;
+        //this is the only broker for iOS
+        [self setBrokerApp:@"Microsoft Authenticator"];
     }
-    
-    [self initBrokerEventProperties];
-    
-    //this is the only broker for iOS
-    [self setBrokerApp:@"Microsoft Authenticator"];
-    
-    return self;
-}
-
-- (id)initWithName:(NSString*)eventName
-           context:(id<ADRequestContext>)requestParams
-{
-    if (!(self = [super initWithName:eventName context:requestParams]))
-    {
-        return nil;
-    }
-    
-    [self initBrokerEventProperties];
-    
-    //this is the only broker for iOS
-    [self setBrokerApp:@"Microsoft Authenticator"];
     
     return self;
 }
@@ -109,15 +90,6 @@
         }
     }
     [eventToBeDispatched setObject:AD_TELEMETRY_YES forKey:AD_TELEMETRY_BROKER_APP_USED];
-}
-
-- (void)initBrokerEventProperties
-{
-    [self setProperty:AD_TELEMETRY_BROKER_VERSION value:@""];
-    [self setProperty:AD_TELEMETRY_BROKER_PROTOCOL_VERSION value:@""];
-    [self setProperty:AD_TELEMETRY_RESULT_STATUS value:@""];
-    [self setProperty:AD_TELEMETRY_BROKER_APP value:@""];
-    [self setProperty:AD_TELEMETRY_BROKER_APP_USED value:AD_TELEMETRY_YES];
 }
 
 @end
