@@ -24,7 +24,7 @@
 #import "ADAuthenticationRequest.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "ADTokenCacheItem+Internal.h"
-#import "ADInstanceDiscovery.h"
+#import "ADAuthorityValidation.h"
 #import "ADHelpers.h"
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheKey.h"
@@ -147,9 +147,14 @@
     }
     
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:@"authority_validation"];
-    [[ADInstanceDiscovery sharedInstance] validateAuthority:_context.authority
-                                              requestParams:_requestParams
-                                            completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    
+    ADAuthorityValidation* authorityValidation = [ADAuthorityValidation sharedInstance];
+    authorityValidation.correlationId = [_requestParams correlationId];
+    authorityValidation.telemetryRequestId = [_requestParams telemetryRequestId];
+    
+    [authorityValidation validateAuthority:_context.authority
+                                       upn:[_requestParams identifier].userId
+                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          (void)validated;
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authority_validation"
