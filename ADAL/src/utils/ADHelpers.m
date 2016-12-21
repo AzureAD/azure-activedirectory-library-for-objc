@@ -372,44 +372,5 @@
     return trimmedAuthority;
 }
 
-/*! Extracts the base URL host, e.g. if the authority is
- "https://login.windows.net/mytenant.com/oauth2/authorize", the host will be
- "https://login.windows.net". Returns nil and reaises an error if the protocol
- is not https or the authority is not a valid URL.*/
-+ (NSString*)extractHost:(NSString *)authority
-           correlationId:(NSUUID *)correlationId
-                   error:(ADAuthenticationError * __autoreleasing *)error
-{
-    NSURL* fullUrl = [NSURL URLWithString:authority.lowercaseString];
-    
-    ADAuthenticationError* adError = nil;
-    if (!fullUrl || ![fullUrl.scheme isEqualToString:@"https"])
-    {
-        adError = [ADAuthenticationError errorFromArgument:authority argumentName:@"authority" correlationId:correlationId];
-    }
-    else
-    {
-        NSArray* paths = fullUrl.pathComponents;
-        if (paths.count < 2)
-        {
-            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
-                                                             protocolCode:nil
-                                                             errorDetails:@"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com."
-                                                            correlationId:correlationId];
-        }
-    }
-    
-    if (adError)
-    {
-        if (error)
-        {
-            *error = adError;
-        }
-        return nil;
-    }
-    
-    return [NSString stringWithFormat:@"https://%@", fullUrl.host];
-}
-
 
 @end

@@ -116,8 +116,6 @@
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     
-    ADHelpers* helper = [[ADHelpers alloc] init];
-    
     NSArray* cases = @[ [NSNull null],
                         // White space string:
                         @"   ",
@@ -133,17 +131,18 @@
     for (id testCase in cases)
     {
         id testCaseVal = [testCase isKindOfClass:[NSNull class]] ? nil : testCase;
-        
+#TODO: canonicalize instead of extract
         ADAuthenticationError* error = nil;
-        NSString* result = [helper extractHost:testCaseVal
-                                 correlationId:nil
-                                         error:&error];
+        
+        // change to canonicalize
+        NSString* result = [ADHelpers canonicalizeAuthority:testCaseVal];
+        
         XCTAssertNil(result, @"extractHost: should return nil for \"%@\"", testCaseVal);
         XCTAssertNotNil(error, @"extractHost: did not fill out the error for \"%@\"", testCaseVal);
-        XCTAssertEqual(error.domain, ADAuthenticationErrorDomain);
-        XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
-        XCTAssertNil(error.protocolCode);
-        XCTAssertTrue([error.errorDetails containsString:@"authority"]);
+//        XCTAssertEqual(error.domain, ADAuthenticationErrorDomain);
+//        XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+//        XCTAssertNil(error.protocolCode);
+//        XCTAssertTrue([error.errorDetails containsString:@"authority"]);
     }
     
     SAFE_ARC_RELEASE(discovery);
@@ -151,8 +150,6 @@
 
 - (void)testExtractBaseNormal
 {
-    ADHelpers* helper = [[ADHelpers alloc] init];
-    
     NSArray* cases = @[ @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize",
                         @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize/",
                         @"httpS://Login.Windows.Net/stuff"];
@@ -160,7 +157,7 @@
     for (NSString* testCase in cases)
     {
         ADAuthenticationError* error = nil;
-        NSString* result = [helper extractHost:testCase correlationId:nil error:&error];
+        NSString* result = [ADHelpers canonicalizeAuthority:testCaseVal];
         XCTAssertNotNil(result);
         XCTAssertNil(error);
         XCTAssertEqualObjects(result, @"https://login.windows.net");

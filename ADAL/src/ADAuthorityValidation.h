@@ -40,11 +40,11 @@
  For AAD, it will simply cache the authority
  */
 // Cache - ADFS
-- (BOOL)addValidAuthority:(NSString *)authority domain:(NSString *)domain;
-- (BOOL)isAuthorityValidated:(NSString *)authority domain:(NSString *)domain;
-// Cache - AD
-- (BOOL)isAuthorityValidated:(NSString *)authorityHost;
-- (BOOL)addValidAuthority:(NSString *)authorityHost;
+- (BOOL)addValidAuthority:(NSURL *)authority domain:(NSString *)domain;
+- (BOOL)isAuthorityValidated:(NSURL *)authority domain:(NSString *)domain;
+// Cache - AAD
+- (BOOL)isAuthorityValidated:(NSURL *)authorityHost;
+- (BOOL)addValidAuthority:(NSURL *)authorityHost;
 
 /*!
  Validates an authority.
@@ -60,17 +60,6 @@
 
 // Convenience method
 - (void)validateAuthority:(NSString *)authority
-          completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock;
-
-// Validation for ADFS authority.
-- (void)validateADFSAuthority:(NSString *)authority
-                       domain:(NSString *)domain
-              completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock;
-
-
-// Validation for AAD authority
-- (void)validateAuthority:(NSString *)authority
-            authorityHost:authorityHost
           completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock;
 
 // ADRequestContext

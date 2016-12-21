@@ -55,8 +55,4 @@
  will return nil. */
 + (NSString*)canonicalizeAuthority:(NSString *)authority;
 
-+ (NSString*)extractHost:(NSString *)authority
-           correlationId:(NSUUID *)correlationId
-                   error:(ADAuthenticationError * __autoreleasing *)error;
-
 @end
