@@ -37,4 +37,7 @@
 - (id)initWithName:(NSString*)eventName
            context:(id<ADRequestContext>)requestParams;
 
+- (void)addPropertiesToAggregatedEvent:(NSMutableDictionary *)eventToBeDispatched
+                         propertyNames:(NSArray *)propertyNames;
+
 @end

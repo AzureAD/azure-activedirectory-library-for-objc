@@ -162,28 +162,24 @@
 {
     [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
     
-    NSDictionary* properties = [self getProperties];
-    for (NSString* name in properties)
-    {
-        if ([name isEqualToString:AD_TELEMETRY_AUTHORITY_TYPE]
-            ||[name isEqualToString:AD_TELEMETRY_AUTHORITY_VALIDATION_STATUS]
-            ||[name isEqualToString:AD_TELEMETRY_EXTENDED_EXPIRES_ON_SETTING]
-            ||[name isEqualToString:AD_TELEMETRY_PROMPT_BEHAVIOR]
-            ||[name isEqualToString:AD_TELEMETRY_RESULT_STATUS]
-            ||[name isEqualToString:AD_TELEMETRY_IDP]
-            ||[name isEqualToString:AD_TELEMETRY_TENANT_ID]
-            ||[name isEqualToString:AD_TELEMETRY_USER_ID]
-            ||[name isEqualToString:AD_TELEMETRY_RESPONSE_TIME]
-            ||[name isEqualToString:AD_TELEMETRY_CLIENT_ID]
-            ||[name isEqualToString:AD_TELEMETRY_API_ID]
-            ||[name isEqualToString:AD_TELEMETRY_USER_CANCEL]
-            ||[name isEqualToString:AD_TELEMETRY_ERROR_CODE]
-            ||[name isEqualToString:AD_TELEMETRY_ERROR_DOMAIN]
-            ||[name isEqualToString:AD_TELEMETRY_PROTOCOL_CODE])
-        {
-            [eventToBeDispatched setObject:[properties objectForKey:name] forKey:name];
-        }
-    }
+    NSArray* propertiesToCopyOver = @[
+                                      AD_TELEMETRY_AUTHORITY_TYPE,
+                                      AD_TELEMETRY_AUTHORITY_VALIDATION_STATUS,
+                                      AD_TELEMETRY_EXTENDED_EXPIRES_ON_SETTING,
+                                      AD_TELEMETRY_PROMPT_BEHAVIOR,
+                                      AD_TELEMETRY_RESULT_STATUS,
+                                      AD_TELEMETRY_IDP,
+                                      AD_TELEMETRY_TENANT_ID,
+                                      AD_TELEMETRY_USER_ID,
+                                      AD_TELEMETRY_RESPONSE_TIME,
+                                      AD_TELEMETRY_CLIENT_ID,
+                                      AD_TELEMETRY_API_ID,
+                                      AD_TELEMETRY_USER_CANCEL,
+                                      AD_TELEMETRY_ERROR_CODE,
+                                      AD_TELEMETRY_ERROR_DOMAIN,
+                                      AD_TELEMETRY_PROTOCOL_CODE
+                                      ];
+    [self addPropertiesToAggregatedEvent:eventToBeDispatched propertyNames:propertiesToCopyOver];
 }
 
 @end

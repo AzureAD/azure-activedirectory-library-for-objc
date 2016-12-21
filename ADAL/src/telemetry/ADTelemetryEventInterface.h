@@ -23,7 +23,7 @@
 
 @protocol ADTelemetryEventInterface <NSObject>
 
-@property (readonly) NSMutableDictionary* propertyMap;
+@property (readonly) NSDictionary* propertyMap;
 
 - (NSInteger)getDefaultPropertyCount;
 - (void)setProperty:(NSString*)name value:(NSString*)value;

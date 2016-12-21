@@ -186,6 +186,16 @@ if (OBJECT) \
     SAFE_ARC_SUPER_DEALLOC();
 }
 
+- (void)addPropertiesToAggregatedEvent:(NSMutableDictionary *)eventToBeDispatched
+                         propertyNames:(NSArray *)propertyNames
+{
+    NSDictionary* properties = [self getProperties];
+    for (NSString* name in propertyNames)
+    {
+        SET_IF_NOT_NIL(eventToBeDispatched, name, [properties objectForKey:name]);
+    }
+}
+
 #if !TARGET_OS_IPHONE
 // Returns the serial number as a CFString.
 // It is the caller's responsibility to release the returned CFString when done with it.

@@ -89,15 +89,11 @@
     [eventToBeDispatched setObject:@"" forKey:AD_TELEMETRY_OAUTH_ERROR_CODE];
     [eventToBeDispatched setObject:@"" forKey:AD_TELEMETRY_HTTP_ERROR_DOMAIN];
     
-    NSDictionary* properties = [self getProperties];
-    for (NSString* name in properties)
-    {
-        if ([name isEqualToString:AD_TELEMETRY_OAUTH_ERROR_CODE]
-            ||[name isEqualToString:AD_TELEMETRY_HTTP_ERROR_DOMAIN])
-        {
-            [eventToBeDispatched setObject:[properties objectForKey:name] forKey:name];
-        }
-    }
+    NSArray* propertiesToCopyOver = @[
+                                      AD_TELEMETRY_OAUTH_ERROR_CODE,
+                                      AD_TELEMETRY_HTTP_ERROR_DOMAIN
+                                      ];
+    [self addPropertiesToAggregatedEvent:eventToBeDispatched propertyNames:propertiesToCopyOver];
 }
 
 - (NSString*)scrubTenantFromUrl:(NSString*)url

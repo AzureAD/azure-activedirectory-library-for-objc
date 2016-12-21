@@ -80,15 +80,12 @@
 {
     [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
     
-    NSDictionary* properties = [self getProperties];
-    for (NSString* name in properties)
-    {
-        if ([name isEqualToString:AD_TELEMETRY_BROKER_APP]
-            ||[name isEqualToString:AD_TELEMETRY_BROKER_VERSION])
-        {
-            [eventToBeDispatched setObject:[properties objectForKey:name] forKey:name];
-        }
-    }
+    NSArray* propertiesToCopyOver = @[
+                                      AD_TELEMETRY_BROKER_APP,
+                                      AD_TELEMETRY_BROKER_VERSION
+                                      ];
+    [self addPropertiesToAggregatedEvent:eventToBeDispatched propertyNames:propertiesToCopyOver];
+    
     [eventToBeDispatched setObject:AD_TELEMETRY_YES forKey:AD_TELEMETRY_BROKER_APP_USED];
 }
 
