@@ -112,59 +112,15 @@
 }
 
 
-- (void)testExtractBaseBadAuthority
+- (void)testGetSuffix
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    //Nil or empty:
+    XCTAssertNil([ADHelpers getUPNSuffix:nil]);
+    XCTAssertNil([ADHelpers getUPNSuffix:@""]);
+    XCTAssertNil([ADHelpers getUPNSuffix:@"    "]);
     
-    NSArray* cases = @[ [NSNull null],
-                        // White space string:
-                        @"   ",
-                        // Invalid URL:
-                        @"a sdfasdfasas;djfasd jfaosjd fasj;",
-                        // Invalid URL scheme (not using SSL):
-                        @"http://login.windows.net",
-                        // Path
-                        @"././login.windows.net",
-                        // Relative URL
-                        @"login"];
-    
-    for (id testCase in cases)
-    {
-        id testCaseVal = [testCase isKindOfClass:[NSNull class]] ? nil : testCase;
-#TODO: canonicalize instead of extract
-        ADAuthenticationError* error = nil;
-        
-        // change to canonicalize
-        NSString* result = [ADHelpers canonicalizeAuthority:testCaseVal];
-        
-        XCTAssertNil(result, @"extractHost: should return nil for \"%@\"", testCaseVal);
-        XCTAssertNotNil(error, @"extractHost: did not fill out the error for \"%@\"", testCaseVal);
-//        XCTAssertEqual(error.domain, ADAuthenticationErrorDomain);
-//        XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
-//        XCTAssertNil(error.protocolCode);
-//        XCTAssertTrue([error.errorDetails containsString:@"authority"]);
-    }
-    
-    SAFE_ARC_RELEASE(discovery);
+    //Test right cases
+    ADAssertStringEquals([ADHelpers getUPNSuffix:@"user@microsoft.com"], @"microsoft.com");
 }
-
-- (void)testExtractBaseNormal
-{
-    NSArray* cases = @[ @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize",
-                        @"httpS://Login.Windows.Net/MSopentech.onmicrosoft.com/oauth2/authorize/",
-                        @"httpS://Login.Windows.Net/stuff"];
-    
-    for (NSString* testCase in cases)
-    {
-        ADAuthenticationError* error = nil;
-        NSString* result = [ADHelpers canonicalizeAuthority:testCaseVal];
-        XCTAssertNotNil(result);
-        XCTAssertNil(error);
-        XCTAssertEqualObjects(result, @"https://login.windows.net");
-    }
-    
-    SAFE_ARC_RELEASE(discovery);
-}
-
 
 @end
