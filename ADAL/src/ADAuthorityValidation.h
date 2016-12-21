@@ -50,16 +50,12 @@
  Validates an authority.
  
  @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
- @param upn                  User principal name. This is used for ADFS validation.
+ @param requestParams        Request parameters
  @param completionBlock      The block to execute upon completion.
 
  */
 - (void)validateAuthority:(NSString *)authority
-                      upn:(NSString *)upn
-          completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock;
-
-// Convenience method
-- (void)validateAuthority:(NSString *)authority
+            requestParams:(ADRequestParameters*)requestParams
           completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock;
 
 // ADRequestContext

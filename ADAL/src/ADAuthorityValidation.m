@@ -29,6 +29,7 @@
 #import "ADOAuth2Constants.h"
 #import "ADHelpers.h"
 #import "NSURL+ADHelperMethods.h"
+#import "ADUserIdentifier.h"
 
 // Trusted relation for webFinger
 static NSString* const s_kTrustedRelation = @"http://schemas.microsoft.com/rel/trusted-realm";
@@ -165,17 +166,16 @@ static NSString* const s_kWebFingerError = @"WebFinger request was invalid or fa
 
 
 #pragma mark - Authority validation
-- (void)validateAuthority:(NSString *)authority
-          completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock
-{
-    [self validateAuthority:authority upn:nil completionBlock:completionBlock];
-}
-
 
 - (void)validateAuthority:(NSString *)authority
-                      upn:(NSString *)upn
+            requestParams:(ADRequestParameters*)requestParams
           completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock
 {
+    _correlationId = requestParams.correlationId;
+    _telemetryRequestId = requestParams.telemetryRequestId;
+    
+    NSString *upn = requestParams.identifier.userId;
+
     NSURL *authorityURL = [NSURL URLWithString:authority];
     if (!authorityURL)
     {

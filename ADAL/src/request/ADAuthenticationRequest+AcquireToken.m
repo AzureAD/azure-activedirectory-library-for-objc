@@ -149,14 +149,10 @@
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:@"authority_validation"];
     
     ADAuthorityValidation* authorityValidation = [ADAuthorityValidation sharedInstance];
-    authorityValidation.correlationId = [_requestParams correlationId];
-    authorityValidation.telemetryRequestId = [_requestParams telemetryRequestId];
-    
     [authorityValidation validateAuthority:_context.authority
-                                       upn:[_requestParams identifier].userId
+                             requestParams:_requestParams
                            completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
-         (void)validated;
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authority_validation"
                                                                         context:_requestParams];
          [event setAuthorityValidationStatus:validated ? AD_TELEMETRY_YES:AD_TELEMETRY_NO];
