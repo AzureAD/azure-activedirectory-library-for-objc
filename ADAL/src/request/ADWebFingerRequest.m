@@ -26,9 +26,6 @@
 #import "ADWebAuthRequest.h"
 #import "ADOAuth2Constants.h"
 
-// First argument is the authentication endpoint and the second is the authority to check against.
-static NSString *const s_kWebFingerConstructor = @"https://%@/.well-known/webfinger?resource=%@";
-
 @implementation ADWebFingerRequest
 
 + (void)requestWebFinger:(NSString *)authenticationEndpoint
@@ -39,7 +36,7 @@ static NSString *const s_kWebFingerConstructor = @"https://%@/.well-known/webfin
     NSURL *fullUrl = [NSURL URLWithString:authenticationEndpoint.lowercaseString];
     
     NSURL *url = [NSURL URLWithString:
-                  [NSString stringWithFormat:s_kWebFingerConstructor, fullUrl.host, authority]];
+                  [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@", fullUrl.host, authority]];
     
     ADWebAuthRequest *webRequest = [[ADWebAuthRequest alloc] initWithURL:url context:context];
     [webRequest setIsGetRequest:YES];
