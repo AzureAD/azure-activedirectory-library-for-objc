@@ -38,13 +38,8 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
                                        context:(id<ADRequestContext>)context
                                completionBlock:(void (^)(id response, ADAuthenticationError *error))completionBlock
 {
-    NSString *authorizationEndpoint = [authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX];
-    NSDictionary *request_data = @{s_kApiVersionKey:s_kApiVersion,
-                                   s_kAuthorizationEndPointKey: authorizationEndpoint};
-    NSString *endpoint = [NSString stringWithFormat:@"%@/%@?%@",
-                           trustedAuthority, OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data adURLFormEncode]];
-    
-    ADWebAuthRequest *webRequest = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:endpoint]
+    NSURL *endpoint = [self urlForAuthorityValidation:authority trustedAuthority:trustedAuthority];
+    ADWebAuthRequest *webRequest = [[ADWebAuthRequest alloc] initWithURL:endpoint
                                                                  context:context];
     
     [webRequest setIsGetRequest:YES];
@@ -62,5 +57,15 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
     }];
 }
 
++ (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedAuthority:(NSString *)trustedAuthority
+{
+    NSString *authorizationEndpoint = [authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX];
+    NSDictionary *request_data = @{s_kApiVersionKey:s_kApiVersion,
+                                   s_kAuthorizationEndPointKey: authorizationEndpoint};
+    NSString *endpoint = [NSString stringWithFormat:@"%@/%@?%@",
+                          trustedAuthority, OAUTH2_INSTANCE_DISCOVERY_SUFFIX, [request_data adURLFormEncode]];
+    
+    return [NSURL URLWithString:endpoint];
+}
 
 @end

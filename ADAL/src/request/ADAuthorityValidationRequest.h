@@ -31,4 +31,7 @@
                                        context:(id<ADRequestContext>)context
                                completionBlock:(void (^)(id response, ADAuthenticationError *error))completionBlock;
 
++ (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedAuthority:(NSString *)trustedAuthority;
+
+
 @end

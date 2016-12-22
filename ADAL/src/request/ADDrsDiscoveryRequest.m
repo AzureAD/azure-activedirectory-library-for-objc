@@ -33,11 +33,7 @@
                              context:(id<ADRequestContext>)context
                      completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock
 {
-    NSString *urlString = (type == AD_ADFS_ON_PREMS) ?
-        [NSString stringWithFormat:@"https://enterpriseregistration.%@/enrollmentserver/contract?api-version=1.0", domain.lowercaseString] :
-        [NSString stringWithFormat:@"https://enterpriseregistration.windows.net/%@/enrollmentserver/contract?api-version=1.0", domain.lowercaseString];
-    
-    NSURL *url = [NSURL URLWithString:urlString];
+    NSURL *url = [self urlForDrsDiscoveryForDomain:domain adfsType:type];
     
     ADWebAuthRequest *webRequest = [[ADWebAuthRequest alloc] initWithURL:url context:context];
     [webRequest setIsGetRequest:YES];
