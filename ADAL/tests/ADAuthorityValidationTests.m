@@ -58,7 +58,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
 
 - (void)testIsAADAuthorityValidated
 {
-    ADAuthorityValidation* authValidation = [ADAuthorityValidation sharedInstance];
+    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     XCTAssertFalse([authValidation isAuthorityValidated:nil]);
@@ -74,7 +74,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
 
 - (void)testAddAADValidAuthority
 {
-    ADAuthorityValidation* authValidation = [ADAuthorityValidation sharedInstance];
+    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     XCTAssertFalse([authValidation addValidAuthority:nil]);
@@ -92,7 +92,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
 
 - (void)testAdfsAuthorityValidated
 {
-    ADAuthorityValidation* authValidation = [ADAuthorityValidation sharedInstance];
+    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
   
@@ -108,7 +108,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
 
 - (void)testAddAdfsAuthority
 {
-    ADAuthorityValidation* authValidation = [ADAuthorityValidation sharedInstance];
+    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     
@@ -135,7 +135,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     ADRequestParameters* requestParams = [ADRequestParameters new];
     [requestParams setCorrelationId:[NSUUID UUID]];
     
-    ADAuthorityValidation* authValidation = [ADAuthorityValidation sharedInstance];
+    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
     
     for (NSString* testCase in cases)
     {
@@ -150,6 +150,9 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
         TEST_WAIT;
     }
 }
+
+
+
 //
 //
 //// Tests a real authority
@@ -172,7 +175,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
 //     }];
 //    
 //    TEST_WAIT;
-//    XCTAssertTrue([[ADAuthorityValidation sharedInstance] isAuthorityValidated:@"https://login.windows-ppe.net"]);
+//    XCTAssertTrue([[[ADAuthorityValidation alloc] init] isAuthorityValidated:@"https://login.windows-ppe.net"]);
 //    SAFE_ARC_RELEASE(discovery);
 //    SAFE_ARC_RELEASE(requestParams);
 //}
