@@ -44,4 +44,6 @@ typedef enum
                              context:(id<ADRequestContext>)context
                      completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock;
 
++ (NSURL *)urlForDrsDiscoveryForDomain:(NSString *)domain adfsType:(AdfsType)type;
+
 @end

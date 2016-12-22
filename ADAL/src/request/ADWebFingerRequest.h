@@ -30,4 +30,6 @@
                  context:(id<ADRequestContext>)context
          completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock;
 
++ (NSURL *)urlForWebFinger:(NSString *)authenticationEndpoint authority:(NSString *)authority;
+
 @end

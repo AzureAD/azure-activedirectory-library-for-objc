@@ -33,10 +33,10 @@
                  context:(id<ADRequestContext>)context
          completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock
 {
-    NSURL *fullUrl = [NSURL URLWithString:authenticationEndpoint.lowercaseString];
+    NSURL *endpointFullUrl = [NSURL URLWithString:authenticationEndpoint.lowercaseString];
     
     NSURL *url = [NSURL URLWithString:
-                  [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@", fullUrl.host, authority]];
+                  [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@", endpointFullUrl.host, authority]];
     
     ADWebAuthRequest *webRequest = [[ADWebAuthRequest alloc] initWithURL:url context:context];
     [webRequest setIsGetRequest:YES];
@@ -57,6 +57,18 @@
 
     }];
 }
+
+
++ (NSURL *)urlForWebFinger:(NSString *)authenticationEndpoint authority:(NSString *)authority
+{
+    NSURL *endpointFullUrl = [NSURL URLWithString:authenticationEndpoint.lowercaseString];
+    NSURL *url = [NSURL URLWithString:
+                  [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@", endpointFullUrl.host, authority]];
+    
+    
+    return url;
+}
+
 
 
 @end

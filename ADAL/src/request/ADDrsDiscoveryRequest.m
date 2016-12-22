@@ -58,4 +58,13 @@
     }];
 }
 
++ (NSURL *)urlForDrsDiscoveryForDomain:(NSString *)domain adfsType:(AdfsType)type
+{
+    NSString *urlString = (type == AD_ADFS_ON_PREMS) ?
+    [NSString stringWithFormat:@"https://enterpriseregistration.%@/enrollmentserver/contract?api-version=1.0", domain.lowercaseString] :
+    [NSString stringWithFormat:@"https://enterpriseregistration.windows.net/%@/enrollmentserver/contract?api-version=1.0", domain.lowercaseString];
+    
+    return [NSURL URLWithString:urlString];
+}
+
 @end
