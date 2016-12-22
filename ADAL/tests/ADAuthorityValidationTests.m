@@ -28,8 +28,11 @@
 #import "ADTestURLConnection.h"
 #import "ADAuthenticationResult.h"
 #import "ADAuthorityValidation.h"
+#import "ADAuthorityValidationRequest.h"
+#import "ADDrsDiscoveryRequest.h"
+#import "ADWebFingerRequest.h"
 
-static NSString* const sAlwaysTrusted = @"https://login.windows.net";
+static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 
 @interface ADAuthortyValidationTests : XCTestCase
 {
@@ -65,7 +68,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     XCTAssertFalse([authValidation isAuthorityValidated:[NSURL URLWithString:@"  "]]);
     NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
     XCTAssertFalse([authValidation isAuthorityValidated:anotherHost]);
-    XCTAssertTrue([authValidation isAuthorityValidated:[NSURL URLWithString:sAlwaysTrusted]]);
+    XCTAssertTrue([authValidation isAuthorityValidated:[NSURL URLWithString:s_kTrustedAuthority]]);
     
     SAFE_ARC_RELEASE(authValidation);
 }
@@ -80,7 +83,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     XCTAssertFalse([authValidation addValidAuthority:nil]);
     XCTAssertFalse([authValidation addValidAuthority:[NSURL URLWithString:@"  "]]);
     //Test that re-adding is ok. This can happen in multi-threaded scenarios:
-    XCTAssertTrue([authValidation addValidAuthority:[NSURL URLWithString:sAlwaysTrusted]]);
+    XCTAssertTrue([authValidation addValidAuthority:[NSURL URLWithString:s_kTrustedAuthority]]);
     
     NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
     [authValidation addValidAuthority:anotherHost];
@@ -206,43 +209,9 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     SAFE_ARC_RELEASE(requestParams);
 }
 
-//
-//
-//- (void)testUnreachableServer
-//{
-//    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-//    ADInstanceDiscovery* discovery = [[ADInstanceDiscovery alloc] init];
-//    ADRequestParameters* requestParams = [ADRequestParameters new];
-//    [requestParams setCorrelationId:[NSUUID UUID]];
-//    
-//    NSURL* requestURL = [NSURL URLWithString:@"https://SomeValidURLButNotExistentInTheNet.com/common/discovery/instance?api-version=1.0&authorization_endpoint=https://login.windows.cn/MSOpenTechBV.onmicrosoft.com/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING];
-//    NSError* responseError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCannotFindHost userInfo:nil];
-//    
-//    [ADTestURLConnection addResponse:[ADTestURLResponse request:requestURL
-//                                               respondWithError:responseError]];
-//    
-//    [discovery requestValidationOfAuthority:@"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com"
-//                                       host:@"https://login.windows.cn"
-//                           trustedAuthority:@"https://SomeValidURLButNotExistentInTheNet.com"
-//                              requestParams:requestParams
-//                            completionBlock:^(BOOL validated, ADAuthenticationError *error)
-//     {
-//         XCTAssertFalse(validated);
-//         XCTAssertNotNil(error);
-//         
-//         TEST_SIGNAL;
-//         
-//     }];
-//    
-//    TEST_WAIT;
-//    
-//    SAFE_ARC_RELEASE(discovery);
-//    SAFE_ARC_RELEASE(requestParams);
-//}
-//
-//
-//
-- (void)testBadAuthorityWithValidation
+
+
+- (void)testBadAadAuthorityWithValidation
 {
     ADAuthenticationError* error = nil;
     NSString* authority = @"https://myfakeauthority.microsoft.com/contoso.com";
@@ -261,17 +230,53 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
                           redirectUri:TEST_REDIRECT_URL
                                userId:TEST_USER_ID
                       completionBlock:^(ADAuthenticationResult *result)
-    {
-        XCTAssertNotNil(result);
-        XCTAssertEqual(result.status, AD_FAILED);
-        XCTAssertNotNil(result.error);
-        XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION);
-        
-        dispatch_semaphore_signal(dsem);
-    }];
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION);
+         
+         dispatch_semaphore_signal(dsem);
+     }];
     
     dispatch_semaphore_wait(dsem, DISPATCH_TIME_FOREVER);
     SAFE_ARC_RELEASE(context);
 }
+
+
+- (void)testUnreachableAadServer
+{
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    [requestParams setCorrelationId:[NSUUID UUID]];
+    
+    NSString* authority = @"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com";
+    
+    NSURL* requestURL = [ADAuthorityValidationRequest urlForAuthorityValidation:authority trustedAuthority:s_kTrustedAuthority];
+    NSString* requestURLString = [NSString stringWithFormat:@"%@&x-client-Ver=" ADAL_VERSION_STRING, requestURL.absoluteString];
+    
+    requestURL = [NSURL URLWithString:requestURLString];
+
+    NSError* responseError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCannotFindHost userInfo:nil];
+
+    [ADTestURLConnection addResponse:[ADTestURLResponse request:requestURL
+                                               respondWithError:responseError]];
+    
+    [authValidation validateAuthority:authority
+                        requestParams:requestParams
+                      completionBlock:^(BOOL validated, ADAuthenticationError *error) {
+                          XCTAssertFalse(validated);
+                          XCTAssertNotNil(error);
+                          
+                          TEST_SIGNAL;
+                      }];
+    TEST_WAIT;
+    
+    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(requestParams);
+}
+
+
 
 @end
