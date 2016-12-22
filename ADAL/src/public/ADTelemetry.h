@@ -46,7 +46,6 @@
     The central class for ADAL telemetry.
  
     Usage: Get a singleton instance of ADTelemetry; register a dispatcher for receiving telemetry events.
-    Telemetry events will be flushed when function flush is called by developer.
  */
 @interface ADTelemetry : NSObject
 {
@@ -62,7 +61,7 @@
 /*!
     Register a telemetry dispatcher for receiving telemetry events.
     @param dispatcher            An instance of ADDispatcher implementation.
-    @param aggregationRequired   Specifies if telemetry events will be aggregated on client, 
+    @param aggregationRequired   Specifies if telemetry events will be aggregated before dispatched to developers,
                                  i.e. all events of a single request will be aggregated as one single event.
  */
 - (void)registerDispatcher:(nullable id<ADDispatcher>)dispatcher
