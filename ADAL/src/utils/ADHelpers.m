@@ -395,17 +395,6 @@
                                                              errorDetails:@"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com."
                                                             correlationId:correlationId];
         }
-        else
-        {
-            NSString* tenant = [paths objectAtIndex:1];
-            if ([@"adfs" isEqualToString:tenant])
-            {
-                adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
-                                                                 protocolCode:nil
-                                                                 errorDetails:@"Authority validation is not supported for ADFS instances. Consider disabling the authority validation in the authentication context."
-                                                                correlationId:correlationId];
-            }
-        }
     }
     return adError;
 }

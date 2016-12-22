@@ -378,7 +378,7 @@ static NSString* const s_kWebFingerError = @"WebFinger request was invalid or fa
         NSURL *targetURL = [NSURL URLWithString:target];
         
         if ([rel caseInsensitiveCompare:s_kTrustedRelation] == NSOrderedSame &&
-            [targetURL isEquivalentAuthority:authority] == NSOrderedSame)
+            [targetURL isEquivalentAuthority:authority])
         {
             return YES;
         }
