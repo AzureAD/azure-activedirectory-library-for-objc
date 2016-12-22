@@ -176,12 +176,20 @@ static NSString* const s_kWebFingerError = @"WebFinger request was invalid or fa
     
     NSString *upn = requestParams.identifier.userId;
 
+    ADAuthenticationError *error = [ADHelpers checkAuthority:authority correlationId:_correlationId];
+    if (error)
+    {
+        completionBlock(NO, error);
+        return;
+    }
+    
     NSURL *authorityURL = [NSURL URLWithString:authority];
+    
     if (!authorityURL)
     {
-        ADAuthenticationError *error = [ADAuthenticationError errorFromArgument:authority
-                                                                   argumentName:@"authority"
-                                                                  correlationId:_correlationId];
+        error = [ADAuthenticationError errorFromArgument:authority
+                                            argumentName:@"authority"
+                                           correlationId:_correlationId];
         completionBlock(NO, error);
         return;
     }
@@ -193,10 +201,10 @@ static NSString* const s_kWebFingerError = @"WebFinger request was invalid or fa
         NSString *upnSuffix = [ADHelpers getUPNSuffix:upn];
         if ([NSString adIsStringNilOrBlank:upnSuffix])
         {
-            ADAuthenticationError *adError = [ADAuthenticationError errorFromArgument:upnSuffix
-                                                                         argumentName:@"user principal name"
-                                                                        correlationId:_correlationId];
-            completionBlock(NO, adError);
+            error = [ADAuthenticationError errorFromArgument:upnSuffix
+                                                argumentName:@"user principal name"
+                                               correlationId:_correlationId];
+            completionBlock(NO, error);
             return;
         }
         

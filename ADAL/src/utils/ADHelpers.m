@@ -372,5 +372,43 @@
     return trimmedAuthority;
 }
 
+/*! Check if it is a valid authority URL.
+ Returns nil if it is valid. 
+ Otherwise, returns an error if the protocol is not https or the authority is not a valid URL.*/
++ (ADAuthenticationError *)checkAuthority:(NSString *)authority
+                            correlationId:(NSUUID *)correlationId
+{
+    NSURL* fullUrl = [NSURL URLWithString:authority.lowercaseString];
+    
+    ADAuthenticationError* adError = nil;
+    if (!fullUrl || ![fullUrl.scheme isEqualToString:@"https"])
+    {
+        adError = [ADAuthenticationError errorFromArgument:authority argumentName:@"authority" correlationId:correlationId];
+    }
+    else
+    {
+        NSArray* paths = fullUrl.pathComponents;
+        if (paths.count < 2)
+        {
+            adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+                                                             protocolCode:nil
+                                                             errorDetails:@"Missing tenant in the authority URL. Please add the tenant or use 'common', e.g. https://login.windows.net/example.com."
+                                                            correlationId:correlationId];
+        }
+        else
+        {
+            NSString* tenant = [paths objectAtIndex:1];
+            if ([@"adfs" isEqualToString:tenant])
+            {
+                adError = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+                                                                 protocolCode:nil
+                                                                 errorDetails:@"Authority validation is not supported for ADFS instances. Consider disabling the authority validation in the authentication context."
+                                                                correlationId:correlationId];
+            }
+        }
+    }
+    return adError;
+}
+
 
 @end
