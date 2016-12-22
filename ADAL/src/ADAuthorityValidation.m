@@ -183,7 +183,7 @@ static NSString* const s_kWebFingerError = @"WebFinger request was invalid or fa
         return;
     }
     
-    NSURL *authorityURL = [NSURL URLWithString:authority];
+    NSURL *authorityURL = [NSURL URLWithString:authority.lowercaseString];
     
     if (!authorityURL)
     {
@@ -195,7 +195,7 @@ static NSString* const s_kWebFingerError = @"WebFinger request was invalid or fa
     }
     
     // Check for AAD or ADFS
-    if ([ADHelpers isADFSInstance:authority])
+    if ([ADHelpers isADFSInstanceURL:authorityURL])
     {
         // Check for upn suffix
         NSString *upnSuffix = [ADHelpers getUPNSuffix:upn];
