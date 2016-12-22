@@ -67,7 +67,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     XCTAssertFalse([authValidation isAuthorityValidated:anotherHost]);
     XCTAssertTrue([authValidation isAuthorityValidated:[NSURL URLWithString:sAlwaysTrusted]]);
     
-    SAFE_ARC_RELEASE(discovery);
+    SAFE_ARC_RELEASE(authValidation);
 }
 
 
@@ -86,7 +86,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     [authValidation addValidAuthority:anotherHost];
     XCTAssertTrue([authValidation isAuthorityValidated:anotherHost]);
     
-    SAFE_ARC_RELEASE(discovery);
+    SAFE_ARC_RELEASE(authValidation);
 }
 
 
@@ -103,7 +103,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     XCTAssertFalse([authValidation isAuthorityValidated:anotherHost domain:nil]);
     XCTAssertFalse([authValidation isAuthorityValidated:anotherHost domain:upnSuffix]);
     
-    SAFE_ARC_RELEASE(discovery);
+    SAFE_ARC_RELEASE(authValidation);
 }
 
 - (void)testAddAdfsAuthority
@@ -121,12 +121,12 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     XCTAssertFalse([authValidation isAuthorityValidated:anotherHost domain:nil]);
     XCTAssertTrue([authValidation isAuthorityValidated:anotherHost domain:upnSuffix]);
     
-    SAFE_ARC_RELEASE(discovery);
+    SAFE_ARC_RELEASE(authValidation);
 }
 
 
 //Does not call the server, just passes invalid authority
--(void) testValidateAuthorityError
+- (void)testValidateAuthorityError
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     
@@ -149,6 +149,8 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
                           }];
         TEST_WAIT;
     }
+    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(requestParams);
 }
 
 
@@ -174,7 +176,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     
     TEST_WAIT;
     XCTAssertTrue([authValidation isAuthorityValidated:[NSURL URLWithString:@"https://login.windows-ppe.net"]]);
-    SAFE_ARC_RELEASE(discovery);
+    SAFE_ARC_RELEASE(authValidation);
     SAFE_ARC_RELEASE(requestParams);
 }
 
@@ -200,7 +202,10 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
      }];
     
     TEST_WAIT;
+    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(requestParams);
 }
+
 //
 //
 //- (void)testUnreachableServer
@@ -266,6 +271,7 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     }];
     
     dispatch_semaphore_wait(dsem, DISPATCH_TIME_FOREVER);
+    SAFE_ARC_RELEASE(context);
 }
 
 @end
