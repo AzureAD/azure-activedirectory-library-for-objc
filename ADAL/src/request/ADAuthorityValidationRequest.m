@@ -59,7 +59,7 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
 
 + (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedAuthority:(NSString *)trustedAuthority
 {
-    NSString *authorizationEndpoint = [authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX];
+    NSString *authorizationEndpoint = [authority.lowercaseString stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX];
     NSDictionary *request_data = @{s_kApiVersionKey:s_kApiVersion,
                                    s_kAuthorizationEndPointKey: authorizationEndpoint};
     NSString *endpoint = [NSString stringWithFormat:@"%@/%@?%@",
