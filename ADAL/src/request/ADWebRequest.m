@@ -315,7 +315,7 @@
     [event setHttpRequestIdHeader:[response.headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE]];
     if (error)
     {
-        [event setOAuthErrorCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
+        [event setHttpErrorCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
         [event setHttpErrorDomain:[error domain]];
     }
     else if (response)
@@ -323,6 +323,8 @@
         [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[response statusCode]]];
     }
 
+    [event setOAuthErrorCode:response];
+    
     [[ADTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
     SAFE_ARC_RELEASE(event);
 }

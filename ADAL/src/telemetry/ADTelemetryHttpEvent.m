@@ -24,6 +24,7 @@
 #import "ADTelemetry.h"
 #import "ADTelemetryHttpEvent.h"
 #import "ADTelemetryEventStrings.h"
+#import "ADOAuth2Constants.h"
 
 @implementation ADTelemetryHttpEvent
 
@@ -47,9 +48,27 @@
     [self setProperty:AD_TELEMETRY_HTTP_RESPONSE_CODE value:code];
 }
 
-- (void)setOAuthErrorCode:(NSString*)code
+- (void)setHttpErrorCode:(NSString*)code
 {
-    [self setProperty:AD_TELEMETRY_OAUTH_ERROR_CODE value:code];
+    [self setProperty:AD_TELEMETRY_ERROR_CODE value:code];
+}
+
+- (void)setOAuthErrorCode:(ADWebResponse *)response
+{
+    if (!response.body)
+    {
+        return;
+    }
+    
+    NSError* jsonError  = nil;
+    id jsonObject = [NSJSONSerialization JSONObjectWithData:response.body options:0 error:&jsonError];
+    
+    if (!jsonObject || ![jsonObject isKindOfClass:[NSDictionary class]])
+    {
+        return;
+    }
+    
+    [self setProperty:AD_TELEMETRY_OAUTH_ERROR_CODE value:[(NSDictionary*)jsonObject objectForKey:OAUTH2_ERROR]];
 }
 
 - (void)setHttpResponseMethod:(NSString*)method
@@ -87,11 +106,9 @@
     
     //erase the previous http event properties if any
     [eventToBeDispatched setObject:@"" forKey:AD_TELEMETRY_OAUTH_ERROR_CODE];
-    [eventToBeDispatched setObject:@"" forKey:AD_TELEMETRY_HTTP_ERROR_DOMAIN];
     
     NSArray* propertiesToCopyOver = @[
-                                      AD_TELEMETRY_OAUTH_ERROR_CODE,
-                                      AD_TELEMETRY_HTTP_ERROR_DOMAIN
+                                      AD_TELEMETRY_OAUTH_ERROR_CODE
                                       ];
     [self addPropertiesToAggregatedEvent:eventToBeDispatched propertyNames:propertiesToCopyOver];
 }

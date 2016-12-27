@@ -61,8 +61,9 @@
 /*!
     Register a telemetry dispatcher for receiving telemetry events.
     @param dispatcher            An instance of ADDispatcher implementation.
-    @param aggregationRequired   Specifies if telemetry events will be aggregated before dispatched to developers,
-                                 i.e. all events of a single request will be aggregated as one single event.
+    @param aggregationRequired   If set NO, all telemetry events collected by ADAL will be dispatched;
+                                 If set YES, ADAL will dispatch only one event for each acquire token call, 
+                                    where the event is a brief summary (but with far less details) of all telemetry events for that acquire token call.
  */
 - (void)registerDispatcher:(nullable id<ADDispatcher>)dispatcher
        aggregationRequired:(BOOL)aggregationRequired;
