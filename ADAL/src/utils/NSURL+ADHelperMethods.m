@@ -36,16 +36,24 @@
     }
     
     // Check scheme and host
-    if (([[self scheme] caseInsensitiveCompare:[aURL scheme]] != NSOrderedSame)
-        || ([[self host] caseInsensitiveCompare:[aURL host]] != NSOrderedSame))
+    if (!self.scheme ||
+        !aURL.scheme ||
+        [self.scheme caseInsensitiveCompare:aURL.scheme] != NSOrderedSame)
     {
         return NO;
     }
-    
-    // Check port
-    if ([self port] || [aURL port])
+
+    if (!self.host ||
+        !aURL.host ||
+        [self.host caseInsensitiveCompare:aURL.host] != NSOrderedSame)
     {
-        if (![[self port] isEqual:[aURL port]])
+        return NO;
+    }
+
+    // Check port
+    if (self.port || aURL.port)
+    {
+        if (![self.port isEqual:aURL.port])
         {
             return NO;
         }
