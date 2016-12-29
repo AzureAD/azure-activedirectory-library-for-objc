@@ -31,6 +31,7 @@
 #import "ADAuthorityValidationRequest.h"
 #import "ADDrsDiscoveryRequest.h"
 #import "ADWebFingerRequest.h"
+#import "ADUserIdentifier.h"
 
 static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 
@@ -277,6 +278,220 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     SAFE_ARC_RELEASE(requestParams);
 }
 
+- (void)testAdfsNormalOnPrems
+{
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    
+    NSString* authority = @"https://login.windows.com/adfs";
+    NSString* upn       = @"someuser@somehost.com";
+    NSString* upnSuffix = @"somehost.com";
+    NSString* passiveEndpoint = @"https://somepassiveauth.com";
+    
+    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    [requestParams setCorrelationId:[NSUUID UUID]];
+    requestParams.identifier = user;
+    
+    [ADTestURLConnection addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
+                                                                         onPrems:YES
+                                                   passiveAuthenticationEndpoint:passiveEndpoint]];
 
+    [ADTestURLConnection addResponse:[ADTestURLResponse responseValidWebFinger:passiveEndpoint
+                                                                     authority:authority]];
+    
+    [authValidation validateAuthority:authority
+                        requestParams:requestParams
+                      completionBlock:^(BOOL validated, ADAuthenticationError *error) {
+                          XCTAssertTrue(validated);
+                          XCTAssertNil(error);
+                          
+                          TEST_SIGNAL;
+                      }];
+    TEST_WAIT;
+    
+    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(requestParams);
+}
+
+- (void)testAdfsNormalOnCloud
+{
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    
+    NSString* authority = @"https://login.windows.com/adfs";
+    NSString* upn       = @"someuser@somehost.com";
+    NSString* upnSuffix = @"somehost.com";
+    NSString* passiveEndpoint = @"https://somepassiveauth.com";
+    
+    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    [requestParams setCorrelationId:[NSUUID UUID]];
+    requestParams.identifier = user;
+    
+    [ADTestURLConnection addResponse: [ADTestURLResponse responseUnreachableDrsService:upnSuffix
+                                                                               onPrems:YES]];
+    
+    [ADTestURLConnection addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
+                                                                         onPrems:NO
+                                                   passiveAuthenticationEndpoint:passiveEndpoint]];
+    
+    [ADTestURLConnection addResponse:[ADTestURLResponse responseValidWebFinger:passiveEndpoint
+                                                                     authority:authority]];
+    
+    [authValidation validateAuthority:authority
+                        requestParams:requestParams
+                      completionBlock:^(BOOL validated, ADAuthenticationError *error) {
+                          XCTAssertTrue(validated);
+                          XCTAssertNil(error);
+                          
+                          TEST_SIGNAL;
+                      }];
+    TEST_WAIT;
+    
+    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(requestParams);
+}
+
+
+- (void)testAdfsInvalidDrs
+{
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    
+    NSString* authority = @"https://login.windows.com/adfs";
+    NSString* upn       = @"someuser@somehost.com";
+    NSString* upnSuffix = @"somehost.com";
+    
+    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    [requestParams setCorrelationId:[NSUUID UUID]];
+    requestParams.identifier = user;
+    
+    [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidDrsPayload:upnSuffix onPrems:YES]];
+    [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidDrsPayload:upnSuffix onPrems:NO]];
+    
+    [authValidation validateAuthority:authority
+                        requestParams:requestParams
+                      completionBlock:^(BOOL validated, ADAuthenticationError *error) {
+                          XCTAssertFalse(validated);
+                          XCTAssertNotNil(error);
+                          
+                          TEST_SIGNAL;
+                      }];
+    TEST_WAIT;
+    
+    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(requestParams);
+}
+
+
+// test invalid webfinger - 400
+- (void)testAdfsInvalidWebfinger
+{
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    
+    NSString* authority = @"https://login.windows.com/adfs";
+    NSString* upn       = @"someuser@somehost.com";
+    NSString* upnSuffix = @"somehost.com";
+    NSString* passiveEndpoint = @"https://somepassiveauth.com";
+    
+    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    [requestParams setCorrelationId:[NSUUID UUID]];
+    requestParams.identifier = user;
+    
+    [ADTestURLConnection addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
+                                                                         onPrems:YES
+                                                   passiveAuthenticationEndpoint:passiveEndpoint]];
+    [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidWebFinger:passiveEndpoint
+                                                                        authority:authority]];
+    
+    [authValidation validateAuthority:authority
+                        requestParams:requestParams
+                      completionBlock:^(BOOL validated, ADAuthenticationError *error) {
+                          XCTAssertFalse(validated);
+                          XCTAssertNotNil(error);
+                          
+                          TEST_SIGNAL;
+                      }];
+    TEST_WAIT;
+    
+    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(requestParams);
+}
+
+// test invalid webfinger - 200 but not match
+- (void)testAdfsInvalidWebFingerNotTrusted
+{
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    
+    NSString* authority = @"https://login.windows.com/adfs";
+    NSString* upn       = @"someuser@somehost.com";
+    NSString* upnSuffix = @"somehost.com";
+    NSString* passiveEndpoint = @"https://somepassiveauth.com";
+    
+    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    [requestParams setCorrelationId:[NSUUID UUID]];
+    requestParams.identifier = user;
+    
+    [ADTestURLConnection addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
+                                                                         onPrems:YES
+                                                   passiveAuthenticationEndpoint:passiveEndpoint]];
+    [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidWebFingerNotTrusted:passiveEndpoint
+                                                                                  authority:authority]];
+    
+    [authValidation validateAuthority:authority
+                        requestParams:requestParams
+                      completionBlock:^(BOOL validated, ADAuthenticationError *error) {
+                          XCTAssertFalse(validated);
+                          XCTAssertNotNil(error);
+                          
+                          TEST_SIGNAL;
+                      }];
+    TEST_WAIT;
+    
+    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(requestParams);
+}
+
+// test invalid webfinger - not reachable
+- (void)testAdfsUnreachableWebFinger
+{
+    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    
+    NSString* authority = @"https://login.windows.com/adfs";
+    NSString* upn       = @"someuser@somehost.com";
+    NSString* upnSuffix = @"somehost.com";
+    NSString* passiveEndpoint = @"https://somepassiveauth.com";
+    
+    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
+    ADRequestParameters* requestParams = [ADRequestParameters new];
+    [requestParams setCorrelationId:[NSUUID UUID]];
+    requestParams.identifier = user;
+    
+    [ADTestURLConnection addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
+                                                                         onPrems:YES
+                                                   passiveAuthenticationEndpoint:passiveEndpoint]];
+    [ADTestURLConnection addResponse: [ADTestURLResponse responseUnreachableWebFinger:passiveEndpoint authority:authority]];
+    
+    [authValidation validateAuthority:authority
+                        requestParams:requestParams
+                      completionBlock:^(BOOL validated, ADAuthenticationError *error) {
+                          XCTAssertFalse(validated);
+                          XCTAssertNotNil(error);
+                          
+                          TEST_SIGNAL;
+                      }];
+    TEST_WAIT;
+    
+    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(requestParams);
+
+}
 
 @end
