@@ -25,12 +25,21 @@
 
 @interface ADAuthorityValidationRequest : NSObject
 
-
+/*!
+ This handles request for authority validation to the trusted authority.
+ 
+ @param authority                   Authority to be validated.
+ @param trustedAuthority      Trusted authority to ask for validation.
+ @param context                     Context to be used for the internal web request
+ @param completionBlock             Completion block for this asynchronous request.
+ 
+ */
 + (void)requestAuthorityValidationForAuthority:(NSString *)authority
                               trustedAuthority:(NSString *)trustedAuthority
                                        context:(id<ADRequestContext>)context
                                completionBlock:(void (^)(id response, ADAuthenticationError *error))completionBlock;
 
+// Fetches the corresponding URL for the request
 + (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedAuthority:(NSString *)trustedAuthority;
 
 

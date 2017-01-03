@@ -361,7 +361,7 @@ static NSString* const s_kWebFingerError = @"WebFinger request was invalid or fa
 
 #pragma mark - Helper functions
 
-- (NSString*)passiveEndpointFromDRSMetaData:(id)metaData
+- (NSString *)passiveEndpointFromDRSMetaData:(id)metaData
 {
     return [[metaData objectForKey:@"IdentityProviderService"] objectForKey:@"PassiveAuthEndpoint"];
 }

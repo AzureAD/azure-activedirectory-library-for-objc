@@ -37,6 +37,15 @@ typedef enum
     
 } AdfsType;
 
+/*!
+ This handles DRS discovery request to be used for ADFS authority validation/
+ 
+ @param domain          The domain to be used. Usually this is from the UPN suffix.
+ @param type            Indicates whether the DRS is on prems or on cloud.
+ @param context         Context to be used for the internal web request
+ @param completionBlock Completion block for this asynchronous request.
+ 
+ */
 @interface ADDrsDiscoveryRequest : NSObject
 
 + (void)requestDrsDiscoveryForDomain:(NSString *)domain
@@ -44,6 +53,7 @@ typedef enum
                              context:(id<ADRequestContext>)context
                      completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock;
 
+// Fetches the corresponding URL for the request
 + (NSURL *)urlForDrsDiscoveryForDomain:(NSString *)domain adfsType:(AdfsType)type;
 
 @end

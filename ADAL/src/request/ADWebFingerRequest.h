@@ -25,11 +25,21 @@
 
 @interface ADWebFingerRequest : NSObject
 
+/*!
+ This handles WebFinger request (https://webfinger.net/) to validate the authority.
+ 
+ @param authenticationEndpoint      Endpoint used to request the validation.
+ @param authority                   Authority to be validated.
+ @param context                     Context to be used for the internal web request
+ @param completionBlock             Completion block for this asynchronous request.
+ 
+ */
 + (void)requestWebFinger:(NSString *)authenticationEndpoint
                authority:(NSString *)authority
                  context:(id<ADRequestContext>)context
          completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock;
 
+// Fetches the corresponding URL for the request
 + (NSURL *)urlForWebFinger:(NSString *)authenticationEndpoint authority:(NSString *)authority;
 
 @end
