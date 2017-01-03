@@ -22,19 +22,24 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "ADTokenCache.h"
 
-@interface ADTestAppCache : NSObject <ADTokenCacheDelegate>
+// Apple provides a lot of this in UIStackView in iOS 9, but prior to that we need to build it by hand
+@interface ADTestAppAcquireLayoutBuilder : NSObject
 {
-    NSData* _data;
-    NSDate* _lastUpdated;
+    UIView* _contentView;
+    NSMutableDictionary* _views;
+    NSMutableArray* _keys;
+    CGRect _screenRect;
 }
 
-+ (ADTestAppCache *)sharedCache;
+- (void)addControl:(UIControl *)control
+             title:(NSString *)title;
 
-- (void)readFromFile:(NSString *)filePath;
-- (void)writeToFile:(NSString *)filePath;
+- (void)addView:(UIView*)view key:(NSString *)key;
 
-- (OSStatus)deleteFromKeychain;
+- (void)addCenteredView:(UIView *)view
+                    key:(NSString *)key;
+
+- (UIView*)contentView;
 
 @end

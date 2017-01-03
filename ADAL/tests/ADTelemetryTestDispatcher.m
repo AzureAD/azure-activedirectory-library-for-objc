@@ -21,20 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "ADTokenCache.h"
+#import "ADTelemetryTestDispatcher.h"
 
-@interface ADTestAppCache : NSObject <ADTokenCacheDelegate>
+@implementation ADTelemetryTestDispatcher
+
+- (void)setTestCallback:(TestCallback)callback
 {
-    NSData* _data;
-    NSDate* _lastUpdated;
+    _testCallback = callback;
 }
 
-+ (ADTestAppCache *)sharedCache;
-
-- (void)readFromFile:(NSString *)filePath;
-- (void)writeToFile:(NSString *)filePath;
-
-- (OSStatus)deleteFromKeychain;
+- (void)dispatchEvent:(NSArray*)event
+{
+    // call _testCallback when it receives telemetry event
+    // this is for the purpose of unit test
+    if (_testCallback)
+    {
+        _testCallback(event);
+    }
+}
 
 @end
