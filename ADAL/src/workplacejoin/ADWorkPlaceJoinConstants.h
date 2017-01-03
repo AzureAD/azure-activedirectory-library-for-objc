@@ -27,7 +27,7 @@ static const UInt8 certificateIdentifier[]          = "WorkPlaceJoin-Access\0";
 static NSString* _defaultSharedGroup                = @"com.microsoft.workplacejoin";
 static NSString* privateKeyIdentifier               = @"com.microsoft.workplacejoin.privatekey\0";
 static NSString* publicKeyIdentifier                = @"com.microsoft.workplacejoin.publickey\0";
-static NSString* upnIdentifier                      = @"registeredUserPrincipalName";
+static NSString* upnIdentifier                      = @"com.microsoft.workplacejoin.registeredUserPrincipalName";
 static NSString* applicationIdentifierPrefix        = @"applicationIdentifierPrefix";
 static NSString* _oauthRedirectUri                  = @"ms-app://windows.immersivecontrolpanel";
 

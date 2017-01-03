@@ -330,14 +330,14 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     if ([[[request.URL scheme] lowercaseString] isEqualToString:@"browser"])
     {
         _complete = YES;
+        requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
+        
 #if TARGET_OS_IPHONE
         if (![ADAppExtensionUtil isExecutingInAppExtension])
         {
             dispatch_async( dispatch_get_main_queue(), ^{
                 [self webAuthDidCancel];
             });
-            
-            requestURL = [requestURL stringByReplacingOccurrencesOfString:@"browser://" withString:@"https://"];
             
             dispatch_async( dispatch_get_main_queue(), ^{
                 [ADAppExtensionUtil sharedApplicationOpenURL:[[NSURL alloc] initWithString:requestURL]];
@@ -348,7 +348,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
             AD_LOG_ERROR(@"unable to redirect to browser from extension", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _requestParams.correlationId, nil);
         }
 #else // !TARGET_OS_IPHONE
-        AD_LOG_ERROR(@"server is redirecting us to browser, this behavior is not defined on Mac OS X yet", AD_ERROR_SERVER_UNSUPPORTED_REQUEST, _requestParams.correlationId, nil);
+        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:requestURL]];
 #endif // TARGET_OS_IPHONE
         return NO;
     }

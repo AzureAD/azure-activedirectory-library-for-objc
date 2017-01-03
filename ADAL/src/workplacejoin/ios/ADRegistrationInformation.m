@@ -56,11 +56,15 @@
     _privateKey = privateKey;
     CFRetain(privateKey);
     
+    SAFE_ARC_RETAIN(userPrincipalName);
     _userPrincipalName = userPrincipalName;
+    SAFE_ARC_RETAIN(certificateSubject);
     _certificateSubject = certificateSubject;
+    SAFE_ARC_RETAIN(certificateData);
     _certificateData = certificateData;
+    SAFE_ARC_RETAIN(certificateIssuer);
     _certificateIssuer = certificateIssuer;
-
+    
     return self;
 }
 
@@ -76,6 +80,13 @@
     
     CFRelease(_privateKey);
     _privateKey = NULL;
+    
+    SAFE_ARC_RELEASE(_userPrincipalName);
+    SAFE_ARC_RELEASE(_certificateSubject);
+    SAFE_ARC_RELEASE(_certificateData);
+    SAFE_ARC_RELEASE(_certificateIssuer);
+    
+    SAFE_ARC_SUPER_DEALLOC();    
 }
 
 - (BOOL)isWorkPlaceJoined
