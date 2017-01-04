@@ -22,16 +22,16 @@
 // THE SOFTWARE.
 
 
-#import <XCTest/XCTest.h>
-#import "XCTestCase+TestHelperMethods.h"
 #import "ADAuthenticationContext.h"
-#import "ADTestURLConnection.h"
 #import "ADAuthenticationResult.h"
 #import "ADAuthorityValidation.h"
 #import "ADAuthorityValidationRequest.h"
 #import "ADDrsDiscoveryRequest.h"
-#import "ADWebFingerRequest.h"
+#import "ADTestURLConnection.h"
 #import "ADUserIdentifier.h"
+#import "ADWebFingerRequest.h"
+#import "XCTestCase+TestHelperMethods.h"
+#import <XCTest/XCTest.h>
 
 static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 
@@ -62,70 +62,70 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 
 - (void)testIsAADAuthorityValidated
 {
-    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    XCTAssertFalse([authValidation isAuthorityValidated:nil]);
-    XCTAssertFalse([authValidation isAuthorityValidated:[NSURL URLWithString:@"  "]]);
+    XCTAssertFalse([authorityValidation isAuthorityValidated:nil]);
+    XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:@"  "]]);
     NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
-    XCTAssertFalse([authValidation isAuthorityValidated:anotherHost]);
-    XCTAssertTrue([authValidation isAuthorityValidated:[NSURL URLWithString:s_kTrustedAuthority]]);
+    XCTAssertFalse([authorityValidation isAuthorityValidated:anotherHost]);
+    XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:s_kTrustedAuthority]]);
     
-    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(authorityValidation);
 }
 
 
 
 - (void)testAddAADValidAuthority
 {
-    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    XCTAssertFalse([authValidation addValidAuthority:nil]);
-    XCTAssertFalse([authValidation addValidAuthority:[NSURL URLWithString:@"  "]]);
+    XCTAssertFalse([authorityValidation addValidAuthority:nil]);
+    XCTAssertFalse([authorityValidation addValidAuthority:[NSURL URLWithString:@"  "]]);
     //Test that re-adding is ok. This can happen in multi-threaded scenarios:
-    XCTAssertTrue([authValidation addValidAuthority:[NSURL URLWithString:s_kTrustedAuthority]]);
+    XCTAssertTrue([authorityValidation addValidAuthority:[NSURL URLWithString:s_kTrustedAuthority]]);
     
     NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
-    [authValidation addValidAuthority:anotherHost];
-    XCTAssertTrue([authValidation isAuthorityValidated:anotherHost]);
+    [authorityValidation addValidAuthority:anotherHost];
+    XCTAssertTrue([authorityValidation isAuthorityValidated:anotherHost]);
     
-    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(authorityValidation);
 }
 
 
 - (void)testAdfsAuthorityValidated
 {
-    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
   
     NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
     NSString* upnSuffix = @"user@foo.com";
     
-    XCTAssertFalse([authValidation isAuthorityValidated:nil domain:upnSuffix]);
-    XCTAssertFalse([authValidation isAuthorityValidated:anotherHost domain:nil]);
-    XCTAssertFalse([authValidation isAuthorityValidated:anotherHost domain:upnSuffix]);
+    XCTAssertFalse([authorityValidation isAuthorityValidated:nil domain:upnSuffix]);
+    XCTAssertFalse([authorityValidation isAuthorityValidated:anotherHost domain:nil]);
+    XCTAssertFalse([authorityValidation isAuthorityValidated:anotherHost domain:upnSuffix]);
     
-    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(authorityValidation);
 }
 
 - (void)testAddAdfsAuthority
 {
-    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     
     NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
     NSString* upnSuffix = @"user@foo.com";
     
-    [authValidation addValidAuthority:anotherHost domain:upnSuffix];
+    [authorityValidation addValidAuthority:anotherHost domain:upnSuffix];
     
-    XCTAssertFalse([authValidation isAuthorityValidated:nil domain:upnSuffix]);
-    XCTAssertFalse([authValidation isAuthorityValidated:anotherHost domain:nil]);
-    XCTAssertTrue([authValidation isAuthorityValidated:anotherHost domain:upnSuffix]);
+    XCTAssertFalse([authorityValidation isAuthorityValidated:nil domain:upnSuffix]);
+    XCTAssertFalse([authorityValidation isAuthorityValidated:anotherHost domain:nil]);
+    XCTAssertTrue([authorityValidation isAuthorityValidated:anotherHost domain:upnSuffix]);
     
-    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(authorityValidation);
 }
 
 
@@ -139,11 +139,11 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     ADRequestParameters* requestParams = [ADRequestParameters new];
     [requestParams setCorrelationId:[NSUUID UUID]];
     
-    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     
     for (NSString* testCase in cases)
     {
-        [authValidation validateAuthority:testCase
+        [authorityValidation validateAuthority:testCase
                             requestParams:requestParams
                           completionBlock:^(BOOL validated, ADAuthenticationError *error) {
                               XCTAssertFalse(validated, @"\"%@\" should come back invalid.", testCase);
@@ -153,7 +153,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
                           }];
         TEST_WAIT;
     }
-    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(authorityValidation);
     SAFE_ARC_RELEASE(requestParams);
 }
 
@@ -162,13 +162,13 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 - (void)testAadNormalFlow
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADRequestParameters* requestParams = [ADRequestParameters new];
     [requestParams setCorrelationId:[NSUUID UUID]];
     
     [ADTestURLConnection addResponse:[ADTestURLResponse responseValidAuthority:@"https://login.windows-ppe.net/common"]];
     
-    [authValidation validateAuthority:@"https://login.windows-ppe.net/common"
+    [authorityValidation validateAuthority:@"https://login.windows-ppe.net/common"
                    requestParams:requestParams
                  completionBlock:^(BOOL validated, ADAuthenticationError * error)
      {
@@ -179,8 +179,8 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
      }];
     
     TEST_WAIT;
-    XCTAssertTrue([authValidation isAuthorityValidated:[NSURL URLWithString:@"https://login.windows-ppe.net"]]);
-    SAFE_ARC_RELEASE(authValidation);
+    XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:@"https://login.windows-ppe.net"]]);
+    SAFE_ARC_RELEASE(authorityValidation);
     SAFE_ARC_RELEASE(requestParams);
 }
 
@@ -191,13 +191,13 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     
     NSString* authority = @"https://myfakeauthority.microsoft.com/contoso.com";
     
-    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADRequestParameters* requestParams = [ADRequestParameters new];
     [requestParams setCorrelationId:[NSUUID UUID]];
     
     [ADTestURLConnection addResponse:[ADTestURLResponse responseInvalidAuthority:@"https://myfakeauthority.microsoft.com/contoso.com"]];
     
-    [authValidation validateAuthority:authority
+    [authorityValidation validateAuthority:authority
                         requestParams:requestParams
                       completionBlock:^(BOOL validated, ADAuthenticationError * error)
      {
@@ -210,9 +210,9 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     
     TEST_WAIT;
     
-    XCTAssertFalse([authValidation isAuthorityValidated:[NSURL URLWithString:authority]]);
+    XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority]]);
     
-    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(authorityValidation);
     SAFE_ARC_RELEASE(requestParams);
 }
 
@@ -255,7 +255,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 - (void)testUnreachableAadServer
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADRequestParameters* requestParams = [ADRequestParameters new];
     [requestParams setCorrelationId:[NSUUID UUID]];
     
@@ -271,7 +271,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLConnection addResponse:[ADTestURLResponse request:requestURL
                                                respondWithError:responseError]];
     
-    [authValidation validateAuthority:authority
+    [authorityValidation validateAuthority:authority
                         requestParams:requestParams
                       completionBlock:^(BOOL validated, ADAuthenticationError *error) {
                           XCTAssertFalse(validated);
@@ -281,9 +281,9 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
                       }];
     TEST_WAIT;
     
-    XCTAssertFalse([authValidation isAuthorityValidated:[NSURL URLWithString:authority]]);
+    XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority]]);
     
-    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(authorityValidation);
     SAFE_ARC_RELEASE(requestParams);
 }
 
@@ -296,7 +296,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     NSString* upnSuffix = @"somehost.com";
     NSString* passiveEndpoint = @"https://somepassiveauth.com";
     
-    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
     ADRequestParameters* requestParams = [ADRequestParameters new];
     [requestParams setCorrelationId:[NSUUID UUID]];
@@ -309,7 +309,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLConnection addResponse:[ADTestURLResponse responseValidWebFinger:passiveEndpoint
                                                                      authority:authority]];
     
-    [authValidation validateAuthority:authority
+    [authorityValidation validateAuthority:authority
                         requestParams:requestParams
                       completionBlock:^(BOOL validated, ADAuthenticationError *error) {
                           XCTAssertTrue(validated);
@@ -319,9 +319,9 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
                       }];
     TEST_WAIT;
     
-    XCTAssertTrue([authValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
+    XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
     
-    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(authorityValidation);
     SAFE_ARC_RELEASE(requestParams);
 }
 
@@ -334,7 +334,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     NSString* upnSuffix = @"somehost.com";
     NSString* passiveEndpoint = @"https://somepassiveauth.com";
     
-    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
     ADRequestParameters* requestParams = [ADRequestParameters new];
     [requestParams setCorrelationId:[NSUUID UUID]];
@@ -350,7 +350,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLConnection addResponse:[ADTestURLResponse responseValidWebFinger:passiveEndpoint
                                                                      authority:authority]];
     
-    [authValidation validateAuthority:authority
+    [authorityValidation validateAuthority:authority
                         requestParams:requestParams
                       completionBlock:^(BOOL validated, ADAuthenticationError *error) {
                           XCTAssertTrue(validated);
@@ -360,9 +360,9 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
                       }];
     TEST_WAIT;
     
-    XCTAssertTrue([authValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
+    XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
     
-    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(authorityValidation);
     SAFE_ARC_RELEASE(requestParams);
 }
 
@@ -375,7 +375,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     NSString* upn       = @"someuser@somehost.com";
     NSString* upnSuffix = @"somehost.com";
     
-    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
     ADRequestParameters* requestParams = [ADRequestParameters new];
     [requestParams setCorrelationId:[NSUUID UUID]];
@@ -384,7 +384,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidDrsPayload:upnSuffix onPrems:YES]];
     [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidDrsPayload:upnSuffix onPrems:NO]];
     
-    [authValidation validateAuthority:authority
+    [authorityValidation validateAuthority:authority
                         requestParams:requestParams
                       completionBlock:^(BOOL validated, ADAuthenticationError *error) {
                           XCTAssertFalse(validated);
@@ -394,9 +394,9 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
                       }];
     TEST_WAIT;
     
-    XCTAssertFalse([authValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
+    XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
     
-    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(authorityValidation);
     SAFE_ARC_RELEASE(requestParams);
 }
 
@@ -411,7 +411,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     NSString* upnSuffix = @"somehost.com";
     NSString* passiveEndpoint = @"https://somepassiveauth.com";
     
-    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
     ADRequestParameters* requestParams = [ADRequestParameters new];
     [requestParams setCorrelationId:[NSUUID UUID]];
@@ -423,7 +423,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidWebFinger:passiveEndpoint
                                                                         authority:authority]];
     
-    [authValidation validateAuthority:authority
+    [authorityValidation validateAuthority:authority
                         requestParams:requestParams
                       completionBlock:^(BOOL validated, ADAuthenticationError *error) {
                           XCTAssertFalse(validated);
@@ -433,9 +433,9 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
                       }];
     TEST_WAIT;
     
-    XCTAssertFalse([authValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
+    XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
     
-    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(authorityValidation);
     SAFE_ARC_RELEASE(requestParams);
 }
 
@@ -449,7 +449,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     NSString* upnSuffix = @"somehost.com";
     NSString* passiveEndpoint = @"https://somepassiveauth.com";
     
-    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
     ADRequestParameters* requestParams = [ADRequestParameters new];
     [requestParams setCorrelationId:[NSUUID UUID]];
@@ -461,7 +461,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidWebFingerNotTrusted:passiveEndpoint
                                                                                   authority:authority]];
     
-    [authValidation validateAuthority:authority
+    [authorityValidation validateAuthority:authority
                         requestParams:requestParams
                       completionBlock:^(BOOL validated, ADAuthenticationError *error) {
                           XCTAssertFalse(validated);
@@ -471,9 +471,9 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
                       }];
     TEST_WAIT;
     
-    XCTAssertFalse([authValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
+    XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
     
-    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(authorityValidation);
     SAFE_ARC_RELEASE(requestParams);
 }
 
@@ -487,7 +487,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     NSString* upnSuffix = @"somehost.com";
     NSString* passiveEndpoint = @"https://somepassiveauth.com";
     
-    ADAuthorityValidation* authValidation = [[ADAuthorityValidation alloc] init];
+    ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
     ADRequestParameters* requestParams = [ADRequestParameters new];
     [requestParams setCorrelationId:[NSUUID UUID]];
@@ -498,7 +498,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
                                                    passiveAuthenticationEndpoint:passiveEndpoint]];
     [ADTestURLConnection addResponse: [ADTestURLResponse responseUnreachableWebFinger:passiveEndpoint authority:authority]];
     
-    [authValidation validateAuthority:authority
+    [authorityValidation validateAuthority:authority
                         requestParams:requestParams
                       completionBlock:^(BOOL validated, ADAuthenticationError *error) {
                           XCTAssertFalse(validated);
@@ -509,9 +509,9 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     TEST_WAIT;
     
     
-    XCTAssertFalse([authValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
+    XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
     
-    SAFE_ARC_RELEASE(authValidation);
+    SAFE_ARC_RELEASE(authorityValidation);
     SAFE_ARC_RELEASE(requestParams);
 
 }

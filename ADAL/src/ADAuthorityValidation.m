@@ -23,32 +23,33 @@
 
 
 #import "ADAuthorityValidation.h"
-#import "ADDrsDiscoveryRequest.h"
-#import "ADWebFingerRequest.h"
 #import "ADAuthorityValidationRequest.h"
-#import "ADOAuth2Constants.h"
+#import "ADDrsDiscoveryRequest.h"
 #import "ADHelpers.h"
-#import "NSURL+ADHelperMethods.h"
+#import "ADOAuth2Constants.h"
 #import "ADUserIdentifier.h"
+#import "ADWebFingerRequest.h"
+#import "NSURL+ADHelperMethods.h"
+
 
 // Trusted relation for webFinger
-static NSString* const s_kTrustedRelation = @"http://schemas.microsoft.com/rel/trusted-realm";
+static NSString* const s_kTrustedRelation              = @"http://schemas.microsoft.com/rel/trusted-realm";
 
 // Trusted authorities
-static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
-static NSString* const s_kTrustedAuthorityChina = @"https://login.chinacloudapi.cn";
-static NSString* const s_kTrustedAuthorityGermany = @"https://login.microsoftonline.de";
-static NSString* const s_kTrustedAuthorityWorldWide = @"https://login.microsoftonline.com";
+static NSString* const s_kTrustedAuthority             = @"https://login.windows.net";
+static NSString* const s_kTrustedAuthorityChina        = @"https://login.chinacloudapi.cn";
+static NSString* const s_kTrustedAuthorityGermany      = @"https://login.microsoftonline.de";
+static NSString* const s_kTrustedAuthorityWorldWide    = @"https://login.microsoftonline.com";
 static NSString* const s_kTrustedAuthorityUSGovernment = @"https://login-us.microsoftonline.com";
 
 // AAD validation check constant
-static NSString* const s_kTenantDiscoveryEndpoint = @"tenant_discovery_endpoint";
+static NSString* const s_kTenantDiscoveryEndpoint      = @"tenant_discovery_endpoint";
 
 // AAD authority validation error message constant
-static NSString* const s_kValidationServerError = @"The authority validation server returned an error.";
+static NSString* const s_kValidationServerError        = @"The authority validation server returned an error.";
 // DRS server error message constant
-static NSString* const s_kDrsDiscoveryError = @"DRS discovery was invalid or failed to return PassiveAuthEndpoint";
-static NSString* const s_kWebFingerError = @"WebFinger request was invalid or failed";
+static NSString* const s_kDrsDiscoveryError            = @"DRS discovery was invalid or failed to return PassiveAuthEndpoint";
+static NSString* const s_kWebFingerError               = @"WebFinger request was invalid or failed";
 
 @implementation ADAuthorityValidation
 
@@ -168,7 +169,7 @@ static NSString* const s_kWebFingerError = @"WebFinger request was invalid or fa
 #pragma mark - Authority validation
 
 - (void)validateAuthority:(NSString *)authority
-            requestParams:(ADRequestParameters*)requestParams
+            requestParams:(ADRequestParameters *)requestParams
           completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock
 {
     _correlationId = requestParams.correlationId;
@@ -229,7 +230,8 @@ static NSString* const s_kWebFingerError = @"WebFinger request was invalid or fa
           completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock
 {
     // Check cache
-    if ([self isAuthorityValidated:authority]) {
+    if ([self isAuthorityValidated:authority])
+    {
         completionBlock(YES, nil);
         return;
     }
@@ -297,14 +299,15 @@ static NSString* const s_kWebFingerError = @"WebFinger request was invalid or fa
         
         [self requestWebFingerValidation:passiveAuthEndpoint
                                authority:authority
-                         completionBlock:^(BOOL validated, ADAuthenticationError *error) {
-                                          if (validated)
-                                          {
-                                              [self addValidAuthority:authority domain:domain];
-                                          }
-                                          completionBlock(validated, error);
-                                      }];
+                         completionBlock:^(BOOL validated, ADAuthenticationError *error)
+        {
+            if (validated)
+            {
+                [self addValidAuthority:authority domain:domain];
+            }
+            completionBlock(validated, error);
         }];
+    }];
 }
 
 - (void)requestDrsDiscovery:(NSString *)domain
@@ -313,21 +316,23 @@ static NSString* const s_kWebFingerError = @"WebFinger request was invalid or fa
     [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
                                                adfsType:AD_ADFS_ON_PREMS
                                                 context:self
-                                        completionBlock:^(id result, ADAuthenticationError *error) {
-                                            if (!result)
-                                            {
-                                                [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
-                                                                                           adfsType:AD_ADFS_CLOUD
-                                                                                            context:self
-                                                                                    completionBlock:^(id result, ADAuthenticationError *error) {
-                                                                                        completionBlock(result, error);
-                                                                                    }];
-                                            }
-                                            else
-                                            {
-                                                completionBlock(result, error);
-                                            }
-                                        }];
+                                        completionBlock:^(id result, ADAuthenticationError *error)
+    {
+        if (!result)
+        {
+            [ADDrsDiscoveryRequest requestDrsDiscoveryForDomain:domain
+                                                       adfsType:AD_ADFS_CLOUD
+                                                        context:self
+                                                completionBlock:^(id result, ADAuthenticationError *error)
+             {
+                 completionBlock(result, error);
+             }];
+        }
+        else
+        {
+            completionBlock(result, error);
+        }
+    }];
 }
 
 
@@ -339,24 +344,25 @@ static NSString* const s_kWebFingerError = @"WebFinger request was invalid or fa
     [ADWebFingerRequest requestWebFinger:passiveAuthEndpoint
                                authority:authority.absoluteString
                                  context:self
-                         completionBlock:^(id result, ADAuthenticationError *error) {
-                                 
-                                 BOOL validated = NO;
-                                 if (result)
-                                 {
-                                    validated = [self isRealmTrustedFromWebFingerPayload:result
-                                                                               authority:authority];
-                                 }
-                                 
-                                 if (!validated && !error)
-                                 {
-                                     error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
-                                                                                    protocolCode:nil
-                                                                                    errorDetails:s_kWebFingerError
-                                                                                   correlationId:_correlationId];
-                                 }
-                                 completionBlock(validated, error);
-                             }];
+                         completionBlock:^(id result, ADAuthenticationError *error)
+    {
+                             
+        BOOL validated = NO;
+        if (result)
+        {
+            validated = [self isRealmTrustedFromWebFingerPayload:result
+                                                       authority:authority];
+        }
+        
+        if (!validated && !error)
+        {
+            error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION
+                                                           protocolCode:nil
+                                                           errorDetails:s_kWebFingerError
+                                                          correlationId:_correlationId];
+        }
+        completionBlock(validated, error);
+    }];
 }
 
 #pragma mark - Helper functions
@@ -365,6 +371,7 @@ static NSString* const s_kWebFingerError = @"WebFinger request was invalid or fa
 {
     return [[metaData objectForKey:@"IdentityProviderService"] objectForKey:@"PassiveAuthEndpoint"];
 }
+
 
 - (BOOL)isRealmTrustedFromWebFingerPayload:(id)json
                                  authority:(NSURL *)authority

@@ -24,11 +24,11 @@
 
 #import "ADAuthorityValidationRequest.h"
 #import "ADOAuth2Constants.h"
-#import "NSDictionary+ADExtensions.h"
 #import "ADWebAuthRequest.h"
+#import "NSDictionary+ADExtensions.h"
 
-static NSString* const s_kApiVersionKey = @"api-version";
-static NSString* const s_kApiVersion = @"1.0";
+static NSString* const s_kApiVersionKey            = @"api-version";
+static NSString* const s_kApiVersion               = @"1.0";
 static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
 
 @implementation ADAuthorityValidationRequest
