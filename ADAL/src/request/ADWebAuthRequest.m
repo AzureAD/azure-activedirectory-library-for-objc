@@ -68,7 +68,7 @@
 
 - (void)sendRequest:(ADWebResponseCallback)completionBlock
 {
-    if ([self isGetRequest] && _requestDictionary && [_requestDictionary allKeys].count > 0)
+    if ([self isGetRequest] && [_requestDictionary allKeys].count > 0)
     {
         NSString* newURL = [NSString stringWithFormat:@"%@?%@", [_requestURL absoluteString], [_requestDictionary adURLFormEncode]];
         SAFE_ARC_RELEASE(_requestURL);

@@ -149,8 +149,7 @@
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:@"authority_validation"];
     
     ADAuthorityValidation* authorityValidation = [ADAuthorityValidation sharedInstance];
-    [authorityValidation validateAuthority:_context.authority
-                             requestParams:_requestParams
+    [authorityValidation validateAuthority:_requestParams
                            completionBlock:^(BOOL validated, ADAuthenticationError *error)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"authority_validation"

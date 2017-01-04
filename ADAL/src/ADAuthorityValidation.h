@@ -24,12 +24,14 @@
 
 #import <Foundation/Foundation.h>
 
-@interface ADAuthorityValidation : NSObject<ADRequestContext> {
+/*! The completion block declaration. */
+typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationError *error);
+
+/*! A singleton class, used to validate authorities with in-memory caching of the previously validated ones.
+ The class is thread-safe. */
+@interface ADAuthorityValidation : NSObject {
     NSMutableDictionary *_validatedAdfsAuthorities;
     NSMutableSet *_validatedADAuthorities;
-    
-    NSUUID *_correlationId;
-    NSString *_telemetryRequestId;
 }
 
 + (ADAuthorityValidation *)sharedInstance;
@@ -54,12 +56,7 @@
  @param completionBlock      The block to execute upon completion.
 
  */
-- (void)validateAuthority:(NSString *)authority
-            requestParams:(ADRequestParameters*)requestParams
-          completionBlock:(void (^)(BOOL validated, ADAuthenticationError *error))completionBlock;
-
-// ADRequestContext
-@property(retain, nonatomic) NSUUID *correlationId;
-@property(retain, nonatomic) NSString *telemetryRequestId;
+- (void)validateAuthority:(ADRequestParameters*)requestParams
+          completionBlock:(ADAuthorityValidationCallback)completionBlock;
 
 @end

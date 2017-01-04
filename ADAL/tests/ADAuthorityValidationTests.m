@@ -137,20 +137,21 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     NSArray* cases = @[@"http://invalidscheme.com",
                        @"https://Invalid URL 2305 8 -0238460-820-386"];
     ADRequestParameters* requestParams = [ADRequestParameters new];
-    [requestParams setCorrelationId:[NSUUID UUID]];
+    requestParams.correlationId = [NSUUID UUID];
     
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     
     for (NSString* testCase in cases)
     {
-        [authorityValidation validateAuthority:testCase
-                            requestParams:requestParams
-                          completionBlock:^(BOOL validated, ADAuthenticationError *error) {
-                              XCTAssertFalse(validated, @"\"%@\" should come back invalid.", testCase);
-                              XCTAssertNotNil(error);
-                              
-                              TEST_SIGNAL;
-                          }];
+        [requestParams setAuthority:testCase];
+        [authorityValidation validateAuthority:requestParams
+                               completionBlock:^(BOOL validated, ADAuthenticationError *error)
+        {
+                                   XCTAssertFalse(validated, @"\"%@\" should come back invalid.", testCase);
+                                   XCTAssertNotNil(error);
+                                   
+                                   TEST_SIGNAL;
+        }];
         TEST_WAIT;
     }
     SAFE_ARC_RELEASE(authorityValidation);
@@ -162,15 +163,18 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 - (void)testAadNormalFlow
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+    
+    NSString* authority = @"https://login.windows-ppe.net/common";
+    
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADRequestParameters* requestParams = [ADRequestParameters new];
-    [requestParams setCorrelationId:[NSUUID UUID]];
+    requestParams.correlationId = [NSUUID UUID];
+    [requestParams setAuthority:authority];
     
-    [ADTestURLConnection addResponse:[ADTestURLResponse responseValidAuthority:@"https://login.windows-ppe.net/common"]];
+    [ADTestURLConnection addResponse:[ADTestURLResponse responseValidAuthority:authority]];
     
-    [authorityValidation validateAuthority:@"https://login.windows-ppe.net/common"
-                   requestParams:requestParams
-                 completionBlock:^(BOOL validated, ADAuthenticationError * error)
+    [authorityValidation validateAuthority:requestParams
+                           completionBlock:^(BOOL validated, ADAuthenticationError * error)
      {
          XCTAssertTrue(validated);
          XCTAssertNil(error);
@@ -193,13 +197,13 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADRequestParameters* requestParams = [ADRequestParameters new];
-    [requestParams setCorrelationId:[NSUUID UUID]];
+    [requestParams setAuthority:authority];
+    requestParams.correlationId = [NSUUID UUID];
     
-    [ADTestURLConnection addResponse:[ADTestURLResponse responseInvalidAuthority:@"https://myfakeauthority.microsoft.com/contoso.com"]];
+    [ADTestURLConnection addResponse:[ADTestURLResponse responseInvalidAuthority:authority]];
     
-    [authorityValidation validateAuthority:authority
-                        requestParams:requestParams
-                      completionBlock:^(BOOL validated, ADAuthenticationError * error)
+    [authorityValidation validateAuthority:requestParams
+                           completionBlock:^(BOOL validated, ADAuthenticationError * error)
      {
          XCTAssertFalse(validated);
          XCTAssertNotNil(error);
@@ -221,7 +225,9 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 - (void)testBadAadAuthorityWithValidation
 {
     ADAuthenticationError* error = nil;
+    
     NSString* authority = @"https://myfakeauthority.microsoft.com/contoso.com";
+    
     ADAuthenticationContext* context = [[ADAuthenticationContext alloc] initWithAuthority:authority
                                                                         validateAuthority:YES
                                                                                     error:&error];
@@ -255,11 +261,14 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 - (void)testUnreachableAadServer
 {
     [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
+
+    NSString* authority = @"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com";
+
+    
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADRequestParameters* requestParams = [ADRequestParameters new];
-    [requestParams setCorrelationId:[NSUUID UUID]];
-    
-    NSString* authority = @"https://login.windows.cn/MSOpenTechBV.onmicrosoft.com";
+    [requestParams setAuthority:authority];
+    requestParams.correlationId = [NSUUID UUID];
     
     NSURL* requestURL = [ADAuthorityValidationRequest urlForAuthorityValidation:authority trustedAuthority:s_kTrustedAuthority];
     NSString* requestURLString = [NSString stringWithFormat:@"%@&x-client-Ver=" ADAL_VERSION_STRING, requestURL.absoluteString];
@@ -271,14 +280,15 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLConnection addResponse:[ADTestURLResponse request:requestURL
                                                respondWithError:responseError]];
     
-    [authorityValidation validateAuthority:authority
-                        requestParams:requestParams
-                      completionBlock:^(BOOL validated, ADAuthenticationError *error) {
-                          XCTAssertFalse(validated);
-                          XCTAssertNotNil(error);
-                          
-                          TEST_SIGNAL;
-                      }];
+    [authorityValidation validateAuthority:requestParams
+                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    {
+        XCTAssertFalse(validated);
+        XCTAssertNotNil(error);
+        
+        TEST_SIGNAL;
+    }];
+    
     TEST_WAIT;
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority]]);
@@ -299,7 +309,8 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
     ADRequestParameters* requestParams = [ADRequestParameters new];
-    [requestParams setCorrelationId:[NSUUID UUID]];
+    requestParams.authority = authority;
+    requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
     [ADTestURLConnection addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
@@ -309,14 +320,14 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLConnection addResponse:[ADTestURLResponse responseValidWebFinger:passiveEndpoint
                                                                      authority:authority]];
     
-    [authorityValidation validateAuthority:authority
-                        requestParams:requestParams
-                      completionBlock:^(BOOL validated, ADAuthenticationError *error) {
-                          XCTAssertTrue(validated);
-                          XCTAssertNil(error);
-                          
-                          TEST_SIGNAL;
-                      }];
+    [authorityValidation validateAuthority:requestParams
+                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    {
+        XCTAssertTrue(validated);
+        XCTAssertNil(error);
+ 
+        TEST_SIGNAL;
+    }];
     TEST_WAIT;
     
     XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
@@ -337,7 +348,8 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
     ADRequestParameters* requestParams = [ADRequestParameters new];
-    [requestParams setCorrelationId:[NSUUID UUID]];
+    requestParams.authority = authority;
+    requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
     [ADTestURLConnection addResponse: [ADTestURLResponse responseUnreachableDrsService:upnSuffix
@@ -350,14 +362,15 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLConnection addResponse:[ADTestURLResponse responseValidWebFinger:passiveEndpoint
                                                                      authority:authority]];
     
-    [authorityValidation validateAuthority:authority
-                        requestParams:requestParams
-                      completionBlock:^(BOOL validated, ADAuthenticationError *error) {
-                          XCTAssertTrue(validated);
-                          XCTAssertNil(error);
-                          
-                          TEST_SIGNAL;
-                      }];
+    [authorityValidation validateAuthority:requestParams
+                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    {
+        XCTAssertTrue(validated);
+        XCTAssertNil(error);
+        
+        TEST_SIGNAL;
+    }];
+    
     TEST_WAIT;
     
     XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
@@ -378,20 +391,22 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
     ADRequestParameters* requestParams = [ADRequestParameters new];
-    [requestParams setCorrelationId:[NSUUID UUID]];
+    requestParams.authority = authority;
+    requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
     [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidDrsPayload:upnSuffix onPrems:YES]];
     [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidDrsPayload:upnSuffix onPrems:NO]];
     
-    [authorityValidation validateAuthority:authority
-                        requestParams:requestParams
-                      completionBlock:^(BOOL validated, ADAuthenticationError *error) {
-                          XCTAssertFalse(validated);
-                          XCTAssertNotNil(error);
-                          
-                          TEST_SIGNAL;
-                      }];
+    [authorityValidation validateAuthority:requestParams
+                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    {
+        XCTAssertFalse(validated);
+        XCTAssertNotNil(error);
+     
+        TEST_SIGNAL;
+    }];
+    
     TEST_WAIT;
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
@@ -414,7 +429,8 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
     ADRequestParameters* requestParams = [ADRequestParameters new];
-    [requestParams setCorrelationId:[NSUUID UUID]];
+    requestParams.authority = authority;
+    requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
     [ADTestURLConnection addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
@@ -423,14 +439,15 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidWebFinger:passiveEndpoint
                                                                         authority:authority]];
     
-    [authorityValidation validateAuthority:authority
-                        requestParams:requestParams
-                      completionBlock:^(BOOL validated, ADAuthenticationError *error) {
-                          XCTAssertFalse(validated);
-                          XCTAssertNotNil(error);
-                          
-                          TEST_SIGNAL;
-                      }];
+    [authorityValidation validateAuthority:requestParams
+                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    {
+        XCTAssertFalse(validated);
+        XCTAssertNotNil(error);
+        
+        TEST_SIGNAL;
+    }];
+    
     TEST_WAIT;
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
@@ -452,7 +469,8 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
     ADRequestParameters* requestParams = [ADRequestParameters new];
-    [requestParams setCorrelationId:[NSUUID UUID]];
+    requestParams.authority = authority;
+    requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
     [ADTestURLConnection addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
@@ -461,14 +479,15 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidWebFingerNotTrusted:passiveEndpoint
                                                                                   authority:authority]];
     
-    [authorityValidation validateAuthority:authority
-                        requestParams:requestParams
-                      completionBlock:^(BOOL validated, ADAuthenticationError *error) {
-                          XCTAssertFalse(validated);
-                          XCTAssertNotNil(error);
-                          
-                          TEST_SIGNAL;
-                      }];
+    [authorityValidation validateAuthority:requestParams
+                           completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    {
+        XCTAssertFalse(validated);
+        XCTAssertNotNil(error);
+        
+        TEST_SIGNAL;
+    }];
+    
     TEST_WAIT;
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
@@ -490,7 +509,8 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADUserIdentifier* user = [ADUserIdentifier identifierWithId:upn];
     ADRequestParameters* requestParams = [ADRequestParameters new];
-    [requestParams setCorrelationId:[NSUUID UUID]];
+    requestParams.authority = authority;
+    requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
     [ADTestURLConnection addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
@@ -498,14 +518,14 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
                                                    passiveAuthenticationEndpoint:passiveEndpoint]];
     [ADTestURLConnection addResponse: [ADTestURLResponse responseUnreachableWebFinger:passiveEndpoint authority:authority]];
     
-    [authorityValidation validateAuthority:authority
-                        requestParams:requestParams
-                      completionBlock:^(BOOL validated, ADAuthenticationError *error) {
-                          XCTAssertFalse(validated);
-                          XCTAssertNotNil(error);
-                          
-                          TEST_SIGNAL;
-                      }];
+    [authorityValidation validateAuthority:requestParams
+                      completionBlock:^(BOOL validated, ADAuthenticationError *error)
+    {
+        XCTAssertFalse(validated);
+        XCTAssertNotNil(error);
+        
+        TEST_SIGNAL;
+    }];
     TEST_WAIT;
     
     
