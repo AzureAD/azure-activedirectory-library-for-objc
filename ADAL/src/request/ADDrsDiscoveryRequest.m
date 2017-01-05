@@ -61,10 +61,14 @@
         return [NSURL URLWithString:
                 [NSString stringWithFormat:@"https://enterpriseregistration.%@/enrollmentserver/contract?api-version=1.0", domain.lowercaseString]];
     }
-    else
+    else if (type == AD_ADFS_CLOUD)
     {
         return [NSURL URLWithString:
                 [NSString stringWithFormat:@"https://enterpriseregistration.windows.net/%@/enrollmentserver/contract?api-version=1.0", domain.lowercaseString]];
+    }
+    else
+    {
+        @throw @"unrecognized type";
     }
 }
 

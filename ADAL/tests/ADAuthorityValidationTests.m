@@ -168,8 +168,8 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADRequestParameters* requestParams = [ADRequestParameters new];
+    requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
-    [requestParams setAuthority:authority];
     
     [ADTestURLConnection addResponse:[ADTestURLResponse responseValidAuthority:authority]];
     
@@ -197,7 +197,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADRequestParameters* requestParams = [ADRequestParameters new];
-    [requestParams setAuthority:authority];
+    requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     
     [ADTestURLConnection addResponse:[ADTestURLResponse responseInvalidAuthority:authority]];
@@ -267,7 +267,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     ADRequestParameters* requestParams = [ADRequestParameters new];
-    [requestParams setAuthority:authority];
+    requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     
     NSURL* requestURL = [ADAuthorityValidationRequest urlForAuthorityValidation:authority trustedAuthority:s_kTrustedAuthority];

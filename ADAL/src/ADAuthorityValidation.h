@@ -29,7 +29,8 @@ typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationErr
 
 /*! A singleton class, used to validate authorities with in-memory caching of the previously validated ones.
  The class is thread-safe. */
-@interface ADAuthorityValidation : NSObject {
+@interface ADAuthorityValidation : NSObject
+{
     NSMutableDictionary *_validatedAdfsAuthorities;
     NSMutableSet *_validatedADAuthorities;
 }
