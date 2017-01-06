@@ -48,7 +48,6 @@ static NSURLConnection *_conn = nil;
     {
         return;
     }
-    SAFE_ARC_RELEASE(_cancellationUrl);
     _cancellationUrl = [url copy];
 }
 

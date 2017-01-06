@@ -45,6 +45,13 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
 
 
 @interface ADAuthenticationViewController ( ) <WebResourceLoadDelegate, WebPolicyDelegate, WebFrameLoadDelegate, NSWindowDelegate>
+{
+    // In the legacy ObjC runtime (which is what we're stuck at for 32-bit Mac builds)
+    // you can't define the ivars of a class in the implementation file.
+    __weak id<ADWebAuthDelegate> _delegate;
+    __weak WebViewType* _webView;
+    __weak NSProgressIndicator* _progressIndicator;
+}
 
 @end
 
@@ -126,13 +133,12 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
     return YES;
 }
 
--(void)dealloc
+- (void)dealloc
 {
     [_webView setFrameLoadDelegate:nil];
     [_webView setResourceLoadDelegate:nil];
     [_webView setPolicyDelegate:nil];
     _webView = nil;
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 #pragma mark - UIViewController Methods

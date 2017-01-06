@@ -96,8 +96,6 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
         XCTAssertNil(error.protocolCode);
         XCTAssertTrue([error.errorDetails containsString:@"authority"]);
     }
-    
-    SAFE_ARC_RELEASE(discovery);
 }
 
 - (void)testExtractBaseNormal
@@ -116,8 +114,6 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
         XCTAssertNil(error);
         XCTAssertEqualObjects(result, @"https://login.windows.net");
     }
-    
-    SAFE_ARC_RELEASE(discovery);
 }
 
 - (void)testIsAuthorityValidated
@@ -130,8 +126,6 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     NSString* anotherHost = @"https://somedomain.com";
     XCTAssertFalse([discovery isAuthorityValidated:anotherHost]);
     XCTAssertTrue([discovery isAuthorityValidated:sAlwaysTrusted]);
-    
-    SAFE_ARC_RELEASE(discovery);
 }
 
 - (void)testAddValidAuthority
@@ -147,8 +141,6 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     NSString* anotherHost = @"https://another.host.com";
     [discovery addValidAuthority:anotherHost];
     XCTAssertTrue([discovery isAuthorityValidated:anotherHost]);
-    
-    SAFE_ARC_RELEASE(discovery);
 }
 
 //Does not call the server, just passes invalid authority
@@ -246,8 +238,6 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
     
     TEST_WAIT;
     XCTAssertTrue([[discovery validatedAuthorities] containsObject:@"https://login.windows-ppe.net"]);
-    SAFE_ARC_RELEASE(discovery);
-    SAFE_ARC_RELEASE(requestParams);
 }
 
 //Ensures that an invalid authority is not approved
@@ -301,9 +291,6 @@ static NSString* const sAlwaysTrusted = @"https://login.windows.net";
      }];
     
     TEST_WAIT;
-    
-    SAFE_ARC_RELEASE(discovery);
-    SAFE_ARC_RELEASE(requestParams);
 }
 
 @end

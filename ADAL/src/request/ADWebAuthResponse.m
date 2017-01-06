@@ -38,7 +38,6 @@
 {
     ADWebAuthResponse* response = [ADWebAuthResponse new];
     response->_correlationId = correlationId;
-    SAFE_ARC_RETAIN(correlationId);
     
     [response handleNSError:error completionBlock:completionBlock];
 }
@@ -50,10 +49,8 @@
 {
     ADWebAuthResponse* response = [ADWebAuthResponse new];
     response->_request = request;
-    SAFE_ARC_RETAIN(request);
     
     NSUUID* correlationId = request.correlationId;
-    SAFE_ARC_RETAIN(correlationId);
     response->_correlationId = correlationId;
     
     [response handleResponse:webResponse completionBlock:completionBlock];
@@ -69,15 +66,6 @@
     _responseDictionary = [NSMutableDictionary new];
     
     return self;
-}
-
-
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_responseDictionary);
-    SAFE_ARC_RELEASE(_request);
-    SAFE_ARC_RELEASE(_correlationId);
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 - (void)checkCorrelationId:(ADWebResponse*)webResponse
@@ -105,7 +93,6 @@
                 NSString* rawResponse = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
                 [_responseDictionary setObject:rawResponse
                                         forKey:@"raw_response"];
-                SAFE_ARC_RELEASE(rawResponse);
                 completionBlock(_responseDictionary);
                 return;
             }
@@ -154,7 +141,6 @@
             ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
                                                                              body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
                                                                     correlationId:_correlationId];
-            SAFE_ARC_RELEASE(body);
             
             //Now add the information to the dictionary, so that the parser can extract it:
             [self handleADError:adError completionBlock:completionBlock];
@@ -263,7 +249,6 @@
         NSString* errorMsg = [NSString stringWithFormat:@"JSON deserialization error: %@", jsonError.description];
         
         AD_LOG_ERROR_F(errorMsg, jsonError.code, _correlationId, @"%@", bodyStr);
-        SAFE_ARC_RELEASE(bodyStr);
     }
     
     [self handleNSError:jsonError completionBlock:completionBlock];

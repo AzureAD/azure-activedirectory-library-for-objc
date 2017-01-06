@@ -61,14 +61,6 @@ static NSString* const sValidationServerError = @"The authority validation serve
     return self;
 }
 
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_validatedAuthorities);
-    _validatedAuthorities = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
-}
-
 /*! The getter of the public "validatedAuthorities" property. */
 - (NSSet*)validatedAuthorities
 {
@@ -215,7 +207,6 @@ static NSString* const sValidationServerError = @"The authority validation serve
     {
         NSString* logMessage = [NSString stringWithFormat:@"Server HTTP Status %ld", (long)webResponse.statusCode];
         NSString* responseBodyString = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
-        SAFE_ARC_AUTORELEASE(responseBodyString);
         NSString* errorData = [NSString stringWithFormat:@"Server HTTP Response %@", responseBodyString];
         AD_LOG_WARN(logMessage, correlationId, errorData);
         return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION protocolCode:nil errorDetails:errorData correlationId:correlationId];
@@ -321,8 +312,6 @@ static NSString* const sValidationServerError = @"The authority validation serve
                                                     startTime:startTime
                                                 correlationId:correlationId
                                                  errorDetails:errorDetails];
-        SAFE_ARC_RELEASE(startTime);
-        
          completionBlock(!adError, adError);
      }];
 }

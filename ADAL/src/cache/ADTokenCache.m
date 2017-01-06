@@ -88,14 +88,7 @@
 
 - (void)dealloc
 {
-    SAFE_ARC_RELEASE(_cache);
-    _cache = nil;
-    SAFE_ARC_RELEASE(_delegate);
-    _delegate = nil;
-    
     pthread_rwlock_destroy(&_lock);
-    
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 - (void)setDelegate:(nullable id<ADTokenCacheDelegate>)delegate
@@ -112,10 +105,7 @@
         return;
     }
     
-    SAFE_ARC_RELEASE(_delegate);
     _delegate = delegate;
-    SAFE_ARC_RETAIN(_delegate);
-    SAFE_ARC_RELEASE(_cache);
     _cache = nil;
     
     pthread_rwlock_unlock(&_lock);
@@ -149,7 +139,6 @@
     // Using the dictionary @{ key : value } syntax here causes _cache to leak. Yay legacy runtime!
     NSDictionary* wrapper = [NSDictionary dictionaryWithObjectsAndKeys:cacheCopy, @"tokenCache",
                              @CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
-    SAFE_ARC_RELEASE(cacheCopy);
     
     @try
     {
@@ -203,7 +192,6 @@
     // If they pass in nil on deserialize that means to drop the cache
     if (!data)
     {
-        SAFE_ARC_RELEASE(_cache);
         _cache = nil;
         return YES;
     }
@@ -219,9 +207,7 @@
         return NO;
     }
     
-    SAFE_ARC_RELEASE(_cache);
     _cache = [cache objectForKey:@"tokenCache"];
-    SAFE_ARC_RETAIN(_cache);
     return YES;
 }
 
@@ -234,7 +220,6 @@
         if (_cache)
         {
             AD_LOG_WARN(@"nil data provided to -updateCache, dropping old cache", nil, nil);
-            SAFE_ARC_RELEASE(_cache);
             _cache = nil;
         }
         else
@@ -253,9 +238,7 @@
         return NO;
     }
     
-    SAFE_ARC_RELEASE(_cache);
     _cache = [dict objectForKey:@"tokenCache"];
-    SAFE_ARC_RETAIN(_cache);
     
     return YES;
 }
@@ -272,7 +255,6 @@
         item = [item copy];
         
         [items addObject:item];
-        SAFE_ARC_RELEASE(item);
     }
 }
 
@@ -316,7 +298,6 @@
     }
     
     NSMutableArray* items = [NSMutableArray new];
-    SAFE_ARC_AUTORELEASE(items);
     
     if (userId)
     {
@@ -426,7 +407,6 @@
             [itemsKept addObject:item];
         }
     }
-    SAFE_ARC_AUTORELEASE(itemsKept);
     return itemsKept;
 }
 
@@ -565,7 +545,6 @@
     
     // Copy the item to make sure it doesn't change under us.
     item = [item copy];
-    SAFE_ARC_AUTORELEASE(item);
     
     ADTokenCacheKey* key = [item extractKey:error];
     if (!key)
@@ -581,7 +560,6 @@
         _cache = [NSMutableDictionary new];
         tokens = [NSMutableDictionary new];
         [_cache setObject:tokens forKey:@"tokens"];
-        SAFE_ARC_RELEASE(tokens);
     }
     else
     {
@@ -602,7 +580,6 @@
     {
         userDict = [NSMutableDictionary new];
         [tokens setObject:userDict forKey:userId];
-        SAFE_ARC_RELEASE(userDict);
     }
     
     [userDict setObject:item forKey:key];
@@ -643,7 +620,6 @@
             [tombstones addObject:item];
         }
     }
-    SAFE_ARC_AUTORELEASE(tombstones);
     return tombstones;
 }
 

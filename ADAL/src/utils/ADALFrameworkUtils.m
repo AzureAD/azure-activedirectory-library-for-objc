@@ -43,7 +43,6 @@ static NSString *_resourcePath = nil;
     {
         return;
     }
-    SAFE_ARC_RELEASE(_resourcePath)
     _resourcePath = [resourcePath copy];
 }
 

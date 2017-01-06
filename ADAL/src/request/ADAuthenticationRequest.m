@@ -49,7 +49,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
 
 @synthesize logComponent = _logComponent;
 
-#define RETURN_IF_NIL(_X) { if (!_X) { AD_LOG_ERROR(@#_X " must not be nil!", AD_FAILED, nil, nil); SAFE_ARC_RELEASE(self); return nil; } }
+#define RETURN_IF_NIL(_X) { if (!_X) { AD_LOG_ERROR(@#_X " must not be nil!", AD_FAILED, nil, nil); return nil; } }
 #define ERROR_RETURN_IF_NIL(_X) { \
     if (!_X) { \
         if (error) { \
@@ -78,7 +78,6 @@ static dispatch_semaphore_t s_interactionLock = nil;
     {
         return nil;
     }
-    SAFE_ARC_AUTORELEASE(request);
     
     request->_context = context;
     
@@ -93,7 +92,6 @@ static dispatch_semaphore_t s_interactionLock = nil;
     ERROR_RETURN_IF_NIL([requestParams clientId]);
     
     ADAuthenticationRequest *request = [[ADAuthenticationRequest alloc] initWithContext:context requestParams:requestParams];
-    SAFE_ARC_AUTORELEASE(request);
     return request;
 }
 
@@ -106,9 +104,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
     if (!(self = [super init]))
         return nil;
     
-    SAFE_ARC_RETAIN(context);
     _context = context;
-    SAFE_ARC_RETAIN(requestParams);
     _requestParams = requestParams;
     
     _promptBehavior = AD_PROMPT_AUTO;
@@ -117,18 +113,6 @@ static dispatch_semaphore_t s_interactionLock = nil;
     _allowSilent = NO;
     
     return self;
-}
-
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_context);
-    SAFE_ARC_RELEASE(_requestParams);
-    SAFE_ARC_RELEASE(_scope);
-    SAFE_ARC_RELEASE(_queryParams);
-    SAFE_ARC_RELEASE(_refreshTokenCredential);
-    SAFE_ARC_RELEASE(_underlyingError);
-    
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 #define CHECK_REQUEST_STARTED { \
@@ -146,7 +130,6 @@ static dispatch_semaphore_t s_interactionLock = nil;
     {
         return;
     }
-    SAFE_ARC_RELEASE(_scope);
     _scope = [scope copy];
 }
 
@@ -157,7 +140,6 @@ static dispatch_semaphore_t s_interactionLock = nil;
     {
         return;
     }
-    SAFE_ARC_RELEASE(_queryParams);
     _queryParams = [queryParams copy];
 }
 
@@ -225,8 +207,6 @@ static dispatch_semaphore_t s_interactionLock = nil;
     if (_refreshTokenCredential == refreshTokenCredential)
     {
         return;
-    }
-    SAFE_ARC_RELEASE(_refreshTokenCredential);
     _refreshTokenCredential = [refreshTokenCredential copy];
 }
 #endif
@@ -238,8 +218,6 @@ static dispatch_semaphore_t s_interactionLock = nil;
     {
         return;
     }
-    
-    SAFE_ARC_RELEASE(_samlAssertion);
     _samlAssertion = [samlAssertion copy];
 }
 

@@ -38,6 +38,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 
 @implementation ADAuthenticationViewController
 
+
 - (void)loadView
 {
     [self loadView:nil];

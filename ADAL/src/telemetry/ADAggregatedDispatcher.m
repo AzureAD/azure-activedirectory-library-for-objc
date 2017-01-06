@@ -55,7 +55,6 @@
     
     // convert the aggregated event from a map to a list
     NSMutableArray* aggregatedEvent = [NSMutableArray new];
-    SAFE_ARC_AUTORELEASE(aggregatedEvent);
     for (NSString* key in aggregatedEventMap)
     {
         [aggregatedEvent addObject:[[ADTelemetryProperty alloc] initWithName:key value:[aggregatedEventMap objectForKey:key]]];

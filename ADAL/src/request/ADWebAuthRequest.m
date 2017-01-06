@@ -55,25 +55,12 @@
     return self;
 }
 
-- (void)setRequestDictionary:(NSDictionary*)requestDictionary
-{
-    if (requestDictionary == _requestDictionary)
-    {
-        return;
-    }
-    
-    SAFE_ARC_RELEASE(_requestDictionary);
-    _requestDictionary = [requestDictionary copy];
-}
-
 - (void)sendRequest:(ADWebResponseCallback)completionBlock
 {
     if ([self isGetRequest])
     {
         NSString* newURL = [NSString stringWithFormat:@"%@?%@", [_requestURL absoluteString], [_requestDictionary adURLFormEncode]];
-        SAFE_ARC_RELEASE(_requestURL);
         _requestURL = [NSURL URLWithString:newURL];
-        SAFE_ARC_RETAIN(_requestURL);
     }
 
     [self setBody:[[_requestDictionary adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding]];

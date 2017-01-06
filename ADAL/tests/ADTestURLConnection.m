@@ -41,8 +41,6 @@
     response->_response = urlResponse;
     response->_responseData = data;
     
-    SAFE_ARC_AUTORELEASE(response);
-    
     return response;
 }
 
@@ -56,8 +54,6 @@
     response->_response = urlResponse;
     response->_responseData = data;
     
-    SAFE_ARC_AUTORELEASE(response);
-    
     return response;
 }
 
@@ -69,8 +65,6 @@
     [response setRequestURL:request];
     response->_response = urlResponse;
     
-    SAFE_ARC_AUTORELEASE(response);
-    
     return response;
 }
 
@@ -81,8 +75,6 @@
     
     [response setRequestURL:request];
     response->_error = error;
-    
-    SAFE_ARC_AUTORELEASE(response);
     
     return response;
 }
@@ -133,8 +125,6 @@
     [response setResponseURL:responseUrlString code:responseCode headerFields:headerFields];
     [response setJSONResponse:data];
     
-    SAFE_ARC_AUTORELEASE(response);
-    
     return response;
 }
 
@@ -151,8 +141,6 @@
     response->_requestJSONBody = requestJSONBody;
     [response setJSONResponse:data];
     
-    SAFE_ARC_AUTORELEASE(response);
-    
     return response;
 }
 
@@ -168,12 +156,8 @@
     [response setRequestURL:[NSURL URLWithString:requestUrlString]];
     [response setResponseURL:responseUrlString code:responseCode headerFields:headerFields];
     response->_requestHeaders = requestHeaders;
-    SAFE_ARC_RETAIN(requestHeaders);
     response->_requestParamsBody = requestParams;
-    SAFE_ARC_RETAIN(requestParams);
     [response setJSONResponse:data];
-    
-    SAFE_ARC_AUTORELEASE(response);
     
     return response;
 }
@@ -186,58 +170,31 @@
                                                               statusCode:code
                                                              HTTPVersion:@"1.1"
                                                             headerFields:headerFields];
-    
-    if (_response == response)
-    {
-        return;
-    }
-    SAFE_ARC_RELEASE(_response);
+
     _response = response;
-    SAFE_ARC_RETAIN(_response);
 }
 
 - (void)setJSONResponse:(id)jsonResponse
 {
     if (!jsonResponse)
     {
-        SAFE_ARC_RELEASE(_responseData);
         _responseData = nil;
         return;
     }
     
     NSError* error = nil;
     NSData* responseData = [NSJSONSerialization dataWithJSONObject:jsonResponse options:0 error:&error];
-    if (_responseData == responseData)
-    {
-        return;
-    }
-    SAFE_ARC_RELEASE(_responseData);
     _responseData = responseData;
-    SAFE_ARC_RETAIN(_responseData);
     
     NSAssert(_responseData, @"Invalid JSON object set for test response! %@", error);
 }
 
 - (void)setRequestURL:(NSURL*)requestURL
 {
-    if (_requestURL == requestURL)
-    {
-        return;
-    }
-    SAFE_ARC_RELEASE(_requestURL);
+
     _requestURL = requestURL;
-    SAFE_ARC_RETAIN(_requestURL);
     NSString* query = [requestURL query];
-    SAFE_ARC_RELEASE(_QPs);
-    if (![NSString adIsStringNilOrBlank:query])
-    {
-        _QPs = [NSDictionary adURLFormDecode:query];
-        SAFE_ARC_RETAIN(_QPs);
-    }
-    else
-    {
-        _QPs = nil;
-    }
+    _QPs = [NSString adIsStringNilOrBlank:query] ? nil : [NSDictionary adURLFormDecode:query];
 }
 
 - (BOOL)matchesURL:(NSURL*)url
@@ -292,7 +249,6 @@
     {
         NSString* string = [[NSString alloc] initWithData:body encoding:NSUTF8StringEncoding];
         id obj = [NSDictionary adURLFormDecode:string];
-        SAFE_ARC_RELEASE(string);
         return [obj isEqual:_requestParamsBody];
     }
     
@@ -357,6 +313,10 @@
 #pragma clang diagnostic pop
 
 @implementation ADTestURLConnection
+{
+    NSURLRequest* _request;
+    id _delegate;
+}
 
 static NSMutableArray* s_responses = nil;
 
@@ -379,7 +339,6 @@ static NSMutableArray* s_responses = nil;
     }
     NSArray* copy = [requestsAndResponses mutableCopy];
     [s_responses addObject:copy];
-    SAFE_ARC_RELEASE(copy);
 }
 
 + (void)addNotFoundResponseForURLString:(NSString *)URLString
@@ -450,9 +409,7 @@ static NSMutableArray* s_responses = nil;
     }
     
     _delegate = delegate;
-    SAFE_ARC_RETAIN(_delegate);
     _request = request;
-    SAFE_ARC_RETAIN(_request);
     
     if (startImmediately)
     {
@@ -460,17 +417,6 @@ static NSMutableArray* s_responses = nil;
     }
     
     return self;
-}
-
-- (void)setDelegateQueue:(NSOperationQueue*)queue
-{
-    if (_delegateQueue == queue)
-    {
-        return;
-    }
-    SAFE_ARC_RELEASE(_delegateQueue);
-    _delegateQueue = queue;
-    SAFE_ARC_RETAIN(_delegateQueue);
 }
 
 - (void)dispatchIfNeed:(void (^)(void))block

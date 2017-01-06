@@ -46,7 +46,6 @@
     // authentication request, which created copies of them.
     
     handler->_requestParams = requestParams;
-    SAFE_ARC_RETAIN(requestParams);
     
     return handler;
 }
@@ -80,19 +79,10 @@
 
 - (void)dealloc
 {
-    SAFE_ARC_RELEASE(_requestParams);
     _requestParams = nil;
-    
-    SAFE_ARC_RELEASE(_mrrtItem);
     _mrrtItem = nil;
-    
-    SAFE_ARC_RELEASE(_mrrtResult);
     _mrrtResult = nil;
-    
-    SAFE_ARC_RELEASE(_extendedLifetimeAccessTokenItem);
     _extendedLifetimeAccessTokenItem = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 #pragma mark -
@@ -163,11 +153,6 @@
                                                       context:_requestParams];
          }
          result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];//Verify the user (just in case)
-         //
-         if (!cacheItem)
-         {
-             SAFE_ARC_RELEASE(resultItem);
-         }
          
          completionBlock(result);
      }];
@@ -219,7 +204,6 @@
          [event setGrantType:@"by refresh token"];
          [event setResultStatus:[result status]];
          [[ADTelemetry sharedInstance] stopEvent:[_requestParams telemetryRequestId] event:event];
-         SAFE_ARC_RELEASE(event);
 
          NSString* resultStatus = @"Succeded";
          
@@ -325,7 +309,6 @@
     if (item.accessToken && item.isExtendedLifetimeValid)
     {
         _extendedLifetimeAccessTokenItem = item;
-        SAFE_ARC_RETAIN(_extendedLifetimeAccessTokenItem);
     }
     
     [self tryRT:item completionBlock:completionBlock];
@@ -396,8 +379,6 @@
         return;
     }
     
-    SAFE_ARC_RETAIN(_mrrtItem);
-    
     // If our MRRT is marked with an Family ID and we haven't tried a FRT yet
     // try that first
     if (_mrrtItem.familyId && !_attemptedFRT)
@@ -415,11 +396,8 @@
          NSString* familyId = _mrrtItem.familyId;
          
          // Clear out the MRRT as it's not good anymore anyways
-         SAFE_ARC_RELEASE(_mrrtItem);
          _mrrtItem = nil;
-         
          _mrrtResult = result;
-         SAFE_ARC_RETAIN(_mrrtResult);
          
          // Try the FRT in case it's there.
          [self tryFRT:familyId completionBlock:completionBlock];
