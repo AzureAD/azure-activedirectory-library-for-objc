@@ -136,7 +136,6 @@
            cHMAC);
     NSData* signedData = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
     NSString* signedEncodedDataString = [NSString Base64EncodeData:signedData];
-    SAFE_ARC_RELEASE(signedData);
     return [NSString stringWithFormat:@"%@.%@",
             signingInput,
             signedEncodedDataString];
@@ -156,8 +155,6 @@
     }
     
     NSString* json = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    
-    SAFE_ARC_AUTORELEASE(json);
     return json;
 }
 
@@ -177,7 +174,6 @@
                                      keyDerivationKeyLength:key.length
                                                  fixedInput:(uint8_t*)mutData.bytes
                                            fixedInputLength:mutData.length];
-    SAFE_ARC_RELEASE(mutData);
     mutData = nil;
     NSData* returnedData = [NSData dataWithBytes:(const void *)pbDerivedKey length:32];
     free(pbDerivedKey);
@@ -274,8 +270,6 @@
     {
         return nil;
     }
-    
-    SAFE_ARC_AUTORELEASE(components);
     
     NSString* query = [components percentEncodedQuery];
     // Don't bother adding it if it's already there
