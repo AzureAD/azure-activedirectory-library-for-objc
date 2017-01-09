@@ -21,29 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADWebRequest.h"
+#import <Foundation/Foundation.h>
 
-@interface ADWebAuthRequest : ADWebRequest
-{
-    NSDate* _startTime;
-    BOOL _retryIfServerError;
-    BOOL _returnRawResponse;
-    BOOL _acceptOnlyOKResponse;
-    
-    NSMutableDictionary* _responseDictionary;
-    
-    // A dictionary of key/value pairs that is either included as the query parameters on a GET
-    // request or serialized into JSON for a POST request
-    NSDictionary<NSString*,NSString*> * _requestDictionary;
-}
+@interface ADAuthorityValidationRequest : NSObject
 
-@property BOOL returnRawResponse;
-@property BOOL retryIfServerError;
-@property BOOL acceptOnlyOKResponse;
+/*!
+ This handles request for authority validation to the trusted authority.
+ 
+ @param authority                   Authority to be validated.
+ @param trustedAuthority            Trusted authority to ask for validation.
+ @param context                     Context to be used for the internal web request
+ @param completionBlock             Completion block for this asynchronous request.
+ 
+ */
++ (void)requestAuthorityValidationForAuthority:(NSString *)authority
+                              trustedAuthority:(NSString *)trustedAuthority
+                                       context:(id<ADRequestContext>)context
+                               completionBlock:(void (^)(id response, ADAuthenticationError *error))completionBlock;
 
-@property (readonly) NSDate* startTime;
-@property (copy) NSDictionary<NSString *, NSString *> * requestDictionary;
+// Fetches the corresponding URL for the request
++ (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedAuthority:(NSString *)trustedAuthority;
 
-- (void)sendRequest:(ADWebResponseCallback)completionBlock;
 
 @end

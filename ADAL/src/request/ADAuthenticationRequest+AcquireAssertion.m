@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "ADAuthenticationContext+Internal.h"
-#import "ADInstanceDiscovery.h"
 #import "ADUserIdentifier.h"
 #import "ADAuthenticationRequest.h"
 #import "ADTokenCacheKey.h"

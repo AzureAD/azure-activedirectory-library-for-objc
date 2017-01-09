@@ -24,7 +24,7 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem+Internal.h"
-#import "ADInstanceDiscovery.h"
+#import "ADHelpers.h"
 
 NSString* const ADUnknownError = @"Uknown error.";
 NSString* const ADCredentialsNeeded = @"The user credentials are needed to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
@@ -46,7 +46,7 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
         return nil;
     }
     
-    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
+    NSString* extractedAuthority = [ADHelpers canonicalizeAuthority:authority];
     if (!extractedAuthority)
     {
         RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);

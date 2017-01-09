@@ -94,7 +94,7 @@
     NSString* authorityValidationURL = [NSString stringWithFormat:@"https://login.windows.net/common/discovery/instance?api-version=1.0&authorization_endpoint=%@/oauth2/authorize&x-client-Ver=" ADAL_VERSION_STRING, [authority lowercaseString]];
     ADTestURLResponse* response = [ADTestURLResponse requestURLString:authorityValidationURL
                                                     responseURLString:@"https://idontmatter.com"
-                                                         responseCode:400
+                                                         responseCode:200
                                                      httpHeaderFields:@{}
                                                      dictionaryAsJSON:@{@"tenant_discovery_endpoint" : @"totally valid!"}];
     
@@ -113,6 +113,121 @@
     
     return response;
 }
+
++ (ADTestURLResponse*)responseValidDrsPayload:(NSString *)domain
+                                      onPrems:(BOOL)onPrems
+                passiveAuthenticationEndpoint:(NSString *)passiveAuthEndpoint
+{
+    NSString* validationPayloadURL = [NSString stringWithFormat:@"%@%@/enrollmentserver/contract?api-version=1.0&x-client-Ver=" ADAL_VERSION_STRING,
+                                      onPrems ? @"https://enterpriseregistration." : @"https://enterpriseregistration.windows.net/", domain];
+    
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:validationPayloadURL
+                                                    responseURLString:@"https://idontmatter.com"
+                                                         responseCode:200
+                                                     httpHeaderFields:@{}
+                                                     dictionaryAsJSON:@{@"DeviceRegistrationService" :
+                                                                            @{@"RegistrationEndpoint" : @"https://idontmatter.com/EnrollmentServer/DeviceEnrollmentWebService.svc",
+                                                                              @"RegistrationResourceId" : @"urn:ms-drs:UUID"
+                                                                            },
+                                                                        @"AuthenticationService" :
+                                                                            @{@"AuthCodeEndpoint" : @"https://idontmatter.com/adfs/oauth2/authorize",
+                                                                              @"TokenEndpoint" : @"https://idontmatter.com/adfs/oauth2/token"
+                                                                            },
+                                                                        @"IdentityProviderService" :
+                                                                            @{@"PassiveAuthEndpoint" : passiveAuthEndpoint}
+                                                                        }];
+    return response;
+}
+
+
++ (ADTestURLResponse*)responseInvalidDrsPayload:(NSString *)domain
+                                        onPrems:(BOOL)onPrems
+{
+    NSString* validationPayloadURL = [NSString stringWithFormat:@"%@%@/enrollmentserver/contract?api-version=1.0&x-client-Ver=" ADAL_VERSION_STRING,
+                                      onPrems ? @"https://enterpriseregistration." : @"https://enterpriseregistration.windows.net/", domain];
+    
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:validationPayloadURL
+                                                    responseURLString:@"https://idontmatter.com"
+                                                         responseCode:400
+                                                     httpHeaderFields:@{}
+                                                     dictionaryAsJSON:@{}];
+    return response;
+}
+
+
++ (ADTestURLResponse*)responseUnreachableDrsService:(NSString *)domain
+                                            onPrems:(BOOL)onPrems
+{
+    NSString* drsURL = [NSString stringWithFormat:@"%@%@/enrollmentserver/contract?api-version=1.0&x-client-Ver=" ADAL_VERSION_STRING,
+                            onPrems ? @"https://enterpriseregistration." : @"https://enterpriseregistration.windows.net/", domain];
+    
+    return [self serverNotFoundResponseForURLString:drsURL];
+}
+
+
++ (ADTestURLResponse*)responseValidWebFinger:(NSString *)passiveEndpoint
+                                   authority:(NSString *)authority
+{
+    NSURL *endpointFullUrl = [NSURL URLWithString:passiveEndpoint.lowercaseString];
+    NSString *url = [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@&x-client-Ver=" ADAL_VERSION_STRING, endpointFullUrl.host, authority];
+    
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:url
+                                                    responseURLString:@"https://idontmatter.com"
+                                                         responseCode:200
+                                                     httpHeaderFields:@{}
+                                                     dictionaryAsJSON:@{@"subject" : authority,
+                                                                        @"links" : @[@{
+                                                                                @"rel" : @"http://schemas.microsoft.com/rel/trusted-realm",
+                                                                                @"href" : authority
+                                                                                }]
+                                                                        }];
+    return response;
+}
+
++ (ADTestURLResponse*)responseInvalidWebFinger:(NSString *)passiveEndpoint
+                                   authority:(NSString *)authority
+{
+    NSURL *endpointFullUrl = [NSURL URLWithString:passiveEndpoint.lowercaseString];
+    NSString *url = [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@&x-client-Ver=" ADAL_VERSION_STRING, endpointFullUrl.host, authority];
+    
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:url
+                                                    responseURLString:@"https://idontmatter.com"
+                                                         responseCode:400
+                                                     httpHeaderFields:@{}
+                                                     dictionaryAsJSON:@{}];
+    return response;
+}
+
++ (ADTestURLResponse*)responseInvalidWebFingerNotTrusted:(NSString *)passiveEndpoint
+                                               authority:(NSString *)authority
+{
+    NSURL *endpointFullUrl = [NSURL URLWithString:passiveEndpoint.lowercaseString];
+    NSString *url = [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@&x-client-Ver=" ADAL_VERSION_STRING, endpointFullUrl.host, authority];
+    
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:url
+                                                    responseURLString:@"https://idontmatter.com"
+                                                         responseCode:200
+                                                     httpHeaderFields:@{}
+                                                     dictionaryAsJSON:@{@"subject" : authority,
+                                                                        @"links" : @[@{
+                                                                                @"rel" : @"http://schemas.microsoft.com/rel/trusted-realm",
+                                                                                @"href" : @"idontmatch.com"
+                                                                                }]
+                                                                        }];
+    return response;
+}
+
++ (ADTestURLResponse*)responseUnreachableWebFinger:(NSString *)passiveEndpoint
+                                         authority:(NSString *)authority
+
+{
+    (void)authority;
+    NSURL *endpointFullUrl = [NSURL URLWithString:passiveEndpoint.lowercaseString];
+    NSString *url = [NSString stringWithFormat:@"https://%@/.well-known/webfinger?resource=%@&x-client-Ver=" ADAL_VERSION_STRING, endpointFullUrl.host, authority];
+    
+    return [self serverNotFoundResponseForURLString:url];
+}
+
 
 + (ADTestURLResponse*)requestURLString:(NSString*)requestUrlString
                      responseURLString:(NSString*)responseUrlString

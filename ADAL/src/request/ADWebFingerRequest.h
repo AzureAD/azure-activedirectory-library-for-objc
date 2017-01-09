@@ -21,29 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADWebRequest.h"
+#import <Foundation/Foundation.h>
 
-@interface ADWebAuthRequest : ADWebRequest
-{
-    NSDate* _startTime;
-    BOOL _retryIfServerError;
-    BOOL _returnRawResponse;
-    BOOL _acceptOnlyOKResponse;
-    
-    NSMutableDictionary* _responseDictionary;
-    
-    // A dictionary of key/value pairs that is either included as the query parameters on a GET
-    // request or serialized into JSON for a POST request
-    NSDictionary<NSString*,NSString*> * _requestDictionary;
-}
+@interface ADWebFingerRequest : NSObject
 
-@property BOOL returnRawResponse;
-@property BOOL retryIfServerError;
-@property BOOL acceptOnlyOKResponse;
+/*!
+ This handles WebFinger request (https://webfinger.net/) to validate the authority.
+ 
+ @param authenticationEndpoint      Endpoint used to request the validation.
+ @param authority                   Authority to be validated.
+ @param context                     Context to be used for the internal web request
+ @param completionBlock             Completion block for this asynchronous request.
+ 
+ */
++ (void)requestWebFinger:(NSString *)authenticationEndpoint
+               authority:(NSString *)authority
+                 context:(id<ADRequestContext>)context
+         completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock;
 
-@property (readonly) NSDate* startTime;
-@property (copy) NSDictionary<NSString *, NSString *> * requestDictionary;
-
-- (void)sendRequest:(ADWebResponseCallback)completionBlock;
+// Fetches the corresponding URL for the request
++ (NSURL *)urlForWebFinger:(NSString *)authenticationEndpoint authority:(NSString *)authority;
 
 @end

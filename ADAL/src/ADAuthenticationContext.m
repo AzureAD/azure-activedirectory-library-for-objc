@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "ADAuthenticationSettings.h"
-#import "ADInstanceDiscovery.h"
 #import "ADTokenCache+Internal.h"
 #import "ADRequestParameters.h"
 #if TARGET_OS_IPHONE

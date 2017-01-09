@@ -21,29 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADWebRequest.h"
 
-@interface ADWebAuthRequest : ADWebRequest
+#import <Foundation/Foundation.h>
+
+/*!
+ For ADFS authority, type can be specified to be on-prems, or cloud.
+  */
+typedef enum
 {
-    NSDate* _startTime;
-    BOOL _retryIfServerError;
-    BOOL _returnRawResponse;
-    BOOL _acceptOnlyOKResponse;
+    /*! The SDK will try DRS discovery service for on-prems. */
+    AD_ADFS_ON_PREMS,
     
-    NSMutableDictionary* _responseDictionary;
+    /*! The SDK will try DRS discovery service for cloud. */
+    AD_ADFS_CLOUD
     
-    // A dictionary of key/value pairs that is either included as the query parameters on a GET
-    // request or serialized into JSON for a POST request
-    NSDictionary<NSString*,NSString*> * _requestDictionary;
-}
+} AdfsType;
 
-@property BOOL returnRawResponse;
-@property BOOL retryIfServerError;
-@property BOOL acceptOnlyOKResponse;
+/*!
+ This handles DRS discovery request to be used for ADFS authority validation/
+ 
+ @param domain          The domain to be used. Usually this is from the UPN suffix.
+ @param type            Indicates whether the DRS is on prems or on cloud.
+ @param context         Context to be used for the internal web request
+ @param completionBlock Completion block for this asynchronous request.
+ 
+ */
+@interface ADDrsDiscoveryRequest : NSObject
 
-@property (readonly) NSDate* startTime;
-@property (copy) NSDictionary<NSString *, NSString *> * requestDictionary;
++ (void)requestDrsDiscoveryForDomain:(NSString *)domain
+                            adfsType:(AdfsType)type
+                             context:(id<ADRequestContext>)context
+                     completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock;
 
-- (void)sendRequest:(ADWebResponseCallback)completionBlock;
+// Fetches the corresponding URL for the request
++ (NSURL *)urlForDrsDiscoveryForDomain:(NSString *)domain adfsType:(AdfsType)type;
 
 @end
