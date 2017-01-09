@@ -267,7 +267,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     ARG_RETURN_IF_NIL(_requestParams.clientId, _requestParams.correlationId);
     ARG_RETURN_IF_NIL(_requestParams.correlationId, _requestParams.correlationId);
     
-    if(![ADAuthenticationRequest validBrokerRedirectUri:_redirectUri])
+    if(![ADAuthenticationRequest validBrokerRedirectUri:_requestParams.redirectUri])
     {
         AUTH_ERROR(AD_ERROR_TOKENBROKER_INVALID_REDIRECT_URI, ADRedirectUriInvalidError, _requestParams.correlationId);
         return nil;
