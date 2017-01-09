@@ -340,8 +340,7 @@ correlationId:(NSUUID *)correlationId
         [self dispatchCompletionBlock:error URL:nil];
     }
     
-    _authenticationViewController    = nil;
-    _authenticationWebViewController = nil;
+    [self resetViewControllers];
 }
 
 // Authentication completed at the end URL
@@ -362,8 +361,7 @@ correlationId:(NSUUID *)correlationId
         [self dispatchCompletionBlock:nil URL:endURL];
     }
     
-    _authenticationViewController    = nil;
-    _authenticationWebViewController = nil;
+    [self resetViewControllers];
 }
 
 // Authentication failed somewhere
@@ -385,6 +383,12 @@ correlationId:(NSUUID *)correlationId
         [self dispatchCompletionBlock:adError URL:nil];
     }
     
+    [self resetViewControllers];
+}
+
+- (void)resetViewControllers
+{
+    parentController = nil;
     _authenticationViewController    = nil;
     _authenticationWebViewController = nil;
 }
