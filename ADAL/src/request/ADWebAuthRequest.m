@@ -48,7 +48,11 @@
     
     [self.headers setObject:@"application/json" forKey:@"Accept"];
     [self.headers setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
+    
+    // Mac OS does not use PKeyAuth.
+#if TARGET_OS_IPHONE
     [self.headers setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
+#endif
     
     _retryIfServerError = YES;
     

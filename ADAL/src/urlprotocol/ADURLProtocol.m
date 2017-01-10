@@ -44,6 +44,8 @@ static NSUUID * _reqCorId(NSURLRequest* request)
 
 @implementation ADURLProtocol
 
+@synthesize correlationId = _correlationId;
+
 + (void)registerHandler:(id)handler
              authMethod:(NSString*)authMethod
 {

@@ -21,39 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#pragma once
+#import <Foundation/Foundation.h>
+#import "ADURLProtocol.h"
 
 @class ADAuthenticationError;
-@class ADURLProtocol;
-@class ADTelemetryUIEvent;
 
-@protocol ADAuthMethodHandler
+@interface ADWorkPlaceJoinAuthHandler : NSObject <ADAuthMethodHandler>
 
+// Handles a client authentication challenge by returning the WPJ certificate.
+// Returns YES, if the challenge has been handled.
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge*)challenge
              connection:(NSURLConnection*)connection
                protocol:(ADURLProtocol*)protocol;
+
 + (void)resetHandler;
-
-@end
-
-//Intercepts HTTPS protocol for the application in order to allow
-//NTLM with client-authentication. The class is not thread-safe.
-@interface ADURLProtocol : NSURLProtocol <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
-{
-    NSURLConnection *_connection;
-    NSUUID *_correlationId;
-}
-
-+ (void)registerHandler:(Class<ADAuthMethodHandler>)handler
-             authMethod:(NSString *)authMethod;
-
-+ (BOOL)registerProtocol:(NSString*)endURL
-          telemetryEvent:(ADTelemetryUIEvent*)telemetryEvent;
-+ (void)unregisterProtocol;
-
-+ (void)addCorrelationId:(NSUUID *)correlationId
-               toRequest:(NSMutableURLRequest *)request;
-
-@property (readonly) NSUUID* correlationId;
 
 @end
