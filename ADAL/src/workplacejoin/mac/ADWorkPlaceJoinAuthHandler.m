@@ -37,15 +37,15 @@
 {
 }
 
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge*)challenge
-             connection:(NSURLConnection*)connection
-               protocol:(ADURLProtocol*)protocol
++ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
+             connection:(NSURLConnection *)connection
+               protocol:(ADURLProtocol *)protocol
 {
 #pragma unused(connection)
     
     AD_LOG_INFO_F(@"Attempting to handle WPJ client challenge", protocol.correlationId, @"host: %@", challenge.protectionSpace.host);
     
-    ADAuthenticationError* adError = nil;    
+    ADAuthenticationError *adError = nil;
     ADRegistrationInformation *info = [ADWorkPlaceJoinUtil getRegistrationInformation:protocol.correlationId error:&adError];
     
     if (!info || ![info isWorkPlaceJoined])
@@ -54,8 +54,8 @@
         return NO;
     }
     
-    NSURLCredential* creds = [NSURLCredential credentialWithIdentity:info.securityIdentity
-                                                        certificates:[NSArray arrayWithObject:(__bridge id)info.certificate]
+    NSURLCredential *creds = [NSURLCredential credentialWithIdentity:info.securityIdentity
+                                                        certificates:@[(__bridge id)info.certificate]
                                                          persistence:NSURLCredentialPersistenceNone];
     [[challenge sender] useCredential:creds forAuthenticationChallenge:challenge];
     
