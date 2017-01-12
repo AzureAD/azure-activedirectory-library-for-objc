@@ -105,7 +105,7 @@
     // Get user principal name
     AD_LOG_VERBOSE(@"Retrieving WPJ user principal name", context.correlationId, nil);
     
-    userPrincipalName = [self stringForIdentifier:upnIdentifier context:context error:&adError];
+    userPrincipalName = [self wpjStringForIdentifier:upnIdentifier context:context error:&adError];
     if (adError)
     {
         if (error)
@@ -303,9 +303,9 @@ _error:
     return nil;
 }
 
-+ (nullable NSString *)stringForIdentifier:(nonnull NSString *)identifier
-                                   context:(id<ADRequestContext>)context
-                                     error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
++ (nullable NSString *)wpjStringForIdentifier:(nonnull NSString *)identifier
+                                      context:(id<ADRequestContext>)context
+                                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     // Building dictionary to retrieve UPN from the keychain
     NSDictionary *query = @{ (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
