@@ -68,12 +68,12 @@
 
 + (nullable NSString*)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
                                 challengeData:(nullable NSDictionary*)challengeData
-                                correlationId:(nullable NSUUID *)correlationId
+                                      context:(nullable id<ADRequestContext>)context
                                         error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     ADAuthenticationError* adError = nil;
     ADRegistrationInformation *info =
-    [ADWorkPlaceJoinUtil getRegistrationInformation:correlationId
+    [ADWorkPlaceJoinUtil getRegistrationInformation:context
                                               error:&adError];
     
     if (!info && adError)
@@ -81,7 +81,7 @@
         // If some error ocurred other then "I found nothing in the keychain" we want to short circuit out of
         // the rest of the code, but if there was no error, we still create a response header, even if we
         // don't have registration info
-        AD_LOG_ERROR(@"Failed to create PKeyAuth request.", adError.code, correlationId, nil);
+        AD_LOG_ERROR(@"Failed to create PKeyAuth request.", adError.code, context.correlationId, nil);
         
         if (error)
         {
@@ -127,7 +127,7 @@
     if (info)
     {
         pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [ADPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
-        AD_LOG_INFO(@"Found WPJ Info and responded to PKeyAuth Request", correlationId, nil);
+        AD_LOG_INFO(@"Found WPJ Info and responded to PKeyAuth Request", context.correlationId, nil);
         info = nil;
     }
     

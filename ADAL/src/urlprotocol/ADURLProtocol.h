@@ -41,7 +41,7 @@
 @interface ADURLProtocol : NSURLProtocol <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 {
     NSURLConnection *_connection;
-    NSUUID *_correlationId;
+    id<ADRequestContext> _context;
 }
 
 + (void)registerHandler:(Class<ADAuthMethodHandler>)handler
@@ -51,9 +51,9 @@
           telemetryEvent:(ADTelemetryUIEvent*)telemetryEvent;
 + (void)unregisterProtocol;
 
-+ (void)addCorrelationId:(NSUUID *)correlationId
-               toRequest:(NSMutableURLRequest *)request;
++ (void)addContext:(id<ADRequestContext>)context
+         toRequest:(NSMutableURLRequest *)request;
 
-@property (readonly) NSUUID* correlationId;
+@property (readonly) id<ADRequestContext> context;
 
 @end

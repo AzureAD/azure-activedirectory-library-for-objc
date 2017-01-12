@@ -32,7 +32,7 @@
 { \
   if (status != noErr) \
   { \
-    ADAuthenticationError* adError = [ADAuthenticationError keychainErrorFromOperation:OPERATION status:status correlationId:correlationId];\
+    ADAuthenticationError* adError = [ADAuthenticationError keychainErrorFromOperation:OPERATION status:status correlationId:context.correlationId];\
     if (error) { *error = adError; } \
     goto _error; \
   } \
@@ -41,7 +41,7 @@
 
 @implementation ADWorkPlaceJoinUtil
 
-+ (ADRegistrationInformation *)getRegistrationInformation:(NSUUID *)correlationId
++ (ADRegistrationInformation *)getRegistrationInformation:(id<ADRequestContext>)context
                                                     error:(ADAuthenticationError * __autoreleasing *)error
 {
     ADRegistrationInformation *info = nil;
@@ -59,16 +59,16 @@
         *error = nil;
     }
     
-    AD_LOG_VERBOSE(@"Attempting to get WPJ registration information", correlationId, nil);
+    AD_LOG_VERBOSE(@"Attempting to get WPJ registration information", context.correlationId, nil);
     
-    [self copyCertificate:&certificate identity:&identity issuer:&certificateIssuer correlationId:correlationId error:&adError];
+    [self copyCertificate:&certificate identity:&identity issuer:&certificateIssuer context:context error:&adError];
     if (adError)
     {
         if (error)
         {
             *error = adError;
         }
-        AD_LOG_ERROR_F(@"Failed to retrieve WPJ certificate and identify - ", adError.code, nil, @"%@ correlation id.", correlationId);
+        AD_LOG_ERROR_F(@"Failed to retrieve WPJ certificate and identify - ", adError.code, nil, @"%@ correlation id.", context.correlationId);
         goto _error;
     }
     
@@ -88,38 +88,38 @@
     certificateData = (__bridge_transfer NSData*)(SecCertificateCopyData(certificate));
     
     // Get the private key
-    AD_LOG_VERBOSE(@"Retrieving WPJ private key reference", correlationId, nil);
+    AD_LOG_VERBOSE(@"Retrieving WPJ private key reference", context.correlationId, nil);
     
-    privateKey = [self copyPrivateKeyRefForIdentifier:privateKeyIdentifier correlationId:correlationId error:&adError];
+    privateKey = [self copyPrivateKeyRefForIdentifier:privateKeyIdentifier context:context error:&adError];
     if (adError)
     {
         if (error)
         {
             *error = adError;
         }
-        AD_LOG_ERROR_F(@"Failed to retrieve WPJ private key reference - ", adError.code, nil, @"%@ correlation id.", correlationId);
+        AD_LOG_ERROR_F(@"Failed to retrieve WPJ private key reference - ", adError.code, nil, @"%@ correlation id.", context.correlationId);
         goto _error;
     }
     
     
     // Get user principal name
-    AD_LOG_VERBOSE(@"Retrieving WPJ user principal name", correlationId, nil);
+    AD_LOG_VERBOSE(@"Retrieving WPJ user principal name", context.correlationId, nil);
     
-    userPrincipalName = [self stringForIdentifier:upnIdentifier correlationId:correlationId error:&adError];
+    userPrincipalName = [self stringForIdentifier:upnIdentifier context:context error:&adError];
     if (adError)
     {
         if (error)
         {
             *error = adError;
         }
-        AD_LOG_ERROR_F(@"Failed to retrieve WPJ user principal name from the keychain - ", adError.code, nil, @"%@ correlation id.", correlationId);
+        AD_LOG_ERROR_F(@"Failed to retrieve WPJ user principal name from the keychain - ", adError.code, nil, @"%@ correlation id.", context.correlationId);
         goto _error;
     }
     
     if (!identity || !userPrincipalName || !certificateIssuer || !certificateSubject || !certificateData || !privateKey)
     {
         // The code above will catch missing security items, but not missing item attributes. These are caught here.
-        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Missing some piece of WPJ data" correlationId:correlationId];
+        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Missing some piece of WPJ data" correlationId:context.correlationId];
         if (error)
         {
             *error = adError;
@@ -164,7 +164,7 @@ _error:
 + (void)copyCertificate:(SecCertificateRef __nullable * __nonnull)certificate
                identity:(SecIdentityRef __nullable * __nonnull)identity
                  issuer:(NSString * __nullable * __nonnull)issuer
-          correlationId:(NSUUID *)correlationId
+                context:(id<ADRequestContext>)context
                 error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     OSStatus status = noErr;
@@ -180,7 +180,7 @@ _error:
         *error = nil;
     }
     
-    *certificate = [self copyWPJCertificateRef:correlationId error:&adError];
+    *certificate = [self copyWPJCertificateRef:context error:&adError];
     
     if (adError)
     {
@@ -189,7 +189,7 @@ _error:
             *error = adError;
         }
         
-        AD_LOG_ERROR_F(@"Failed to retrieve WPJ client certificate from keychain - ", adError.code, nil, @"%@ correlation id.", correlationId);
+        AD_LOG_ERROR_F(@"Failed to retrieve WPJ client certificate from keychain - ", adError.code, nil, @"%@ correlation id.", context.correlationId);
         goto _error;
     }
     
@@ -245,7 +245,7 @@ _error:
 }
 
 
-+ (SecCertificateRef)copyWPJCertificateRef:(NSUUID *)correlationId
++ (SecCertificateRef)copyWPJCertificateRef:(id<ADRequestContext>)context
                                      error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     OSStatus status= noErr;
@@ -278,7 +278,7 @@ _error:
 }
 
 + (SecKeyRef)copyPrivateKeyRefForIdentifier:(NSString *)identifier
-                              correlationId:(NSUUID *)correlationId
+                                    context:(id<ADRequestContext>)context
                                       error:(ADAuthenticationError* __nullable __autoreleasing * __nullable)error
 {
     OSStatus status= noErr;
@@ -304,7 +304,7 @@ _error:
 }
 
 + (nullable NSString *)stringForIdentifier:(nonnull NSString *)identifier
-                             correlationId:(NSUUID *)correlationId
+                                   context:(id<ADRequestContext>)context
                                      error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
 {
     // Building dictionary to retrieve UPN from the keychain
@@ -332,7 +332,7 @@ _error:
     {
         if (error)
         {
-            *error = [ADAuthenticationError unexpectedInternalError:@"WPJ user principal name is empty" correlationId:correlationId];
+            *error = [ADAuthenticationError unexpectedInternalError:@"WPJ user principal name is empty" correlationId:context.correlationId];
         }
         return nil;
     }

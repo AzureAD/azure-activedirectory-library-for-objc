@@ -27,7 +27,7 @@
 
 @interface ADWorkPlaceJoinUtil : NSObject
 
-+ (ADRegistrationInformation*)getRegistrationInformation:(NSUUID *)correlationId
++ (ADRegistrationInformation*)getRegistrationInformation:(id<ADRequestContext>)context
                                                    error:(ADAuthenticationError * __autoreleasing *)error;
 
 @end

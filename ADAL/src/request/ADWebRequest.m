@@ -52,6 +52,7 @@
 @synthesize timeout  = _timeout;
 @synthesize isGetRequest = _isGetRequest;
 @synthesize correlationId = _correlationId;
+@synthesize telemetryRequestId = _telemetryRequestId;
 
 - (NSData *)body
 {
@@ -206,7 +207,7 @@
     request.allHTTPHeaderFields = _requestHeaders;
     request.HTTPBody            = _requestData;
     
-    [ADURLProtocol addCorrelationId:_correlationId toRequest:request];
+    [ADURLProtocol addContext:self toRequest:request];
     
     SAFE_ARC_RELEASE(_connection);
     _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
@@ -276,7 +277,7 @@
     }
     
     NSMutableURLRequest* mutableRequest = [NSMutableURLRequest requestWithURL:modifiedURL];
-    [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
+    [ADURLProtocol addContext:self toRequest:mutableRequest];
     return mutableRequest;
 }
 

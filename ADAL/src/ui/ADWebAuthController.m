@@ -183,7 +183,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     ADAuthenticationError* adError = nil;
     NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:authority
                                                         challengeData:queryParamsMap
-                                                        correlationId:_requestParams.correlationId
+                                                              context:_requestParams
                                                                 error:&adError];
     if (!authHeader)
     {
@@ -192,7 +192,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     }
     
     NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:value]];
-    [ADURLProtocol addCorrelationId:_requestParams.correlationId toRequest:responseUrl];
+    [ADURLProtocol addContext:_requestParams toRequest:responseUrl];
     
     [responseUrl setValue:pKeyAuthHeaderVersion forHTTPHeaderField: pKeyAuthHeader];
     [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
@@ -401,7 +401,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     
     if ([request isKindOfClass:[NSMutableURLRequest class]])
     {
-        [ADURLProtocol addCorrelationId:_requestParams.correlationId toRequest:(NSMutableURLRequest*)request];
+        [ADURLProtocol addContext:_requestParams toRequest:(NSMutableURLRequest*)request];
     }
     
     return YES;
@@ -639,7 +639,7 @@ static ADAuthenticationResult* s_result = nil;
     }
     
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
-    [ADURLProtocol addCorrelationId:_requestParams.correlationId toRequest:request];
+    [ADURLProtocol addContext:_requestParams toRequest:request];
     [_authenticationViewController startRequest:request];
     SAFE_ARC_RELEASE(request);
 }

@@ -43,14 +43,14 @@
 {
 #pragma unused(connection)
     
-    AD_LOG_INFO_F(@"Attempting to handle WPJ client challenge", protocol.correlationId, @"host: %@", challenge.protectionSpace.host);
+    AD_LOG_INFO_F(@"Attempting to handle WPJ client challenge", protocol.context.correlationId, @"host: %@", challenge.protectionSpace.host);
     
     ADAuthenticationError *adError = nil;
-    ADRegistrationInformation *info = [ADWorkPlaceJoinUtil getRegistrationInformation:protocol.correlationId error:&adError];
+    ADRegistrationInformation *info = [ADWorkPlaceJoinUtil getRegistrationInformation:protocol.context error:&adError];
     
     if (!info || ![info isWorkPlaceJoined])
     {
-        AD_LOG_INFO_F(@"Device is not workplace joined.", protocol.correlationId, @"host: %@", challenge.protectionSpace.host);
+        AD_LOG_INFO_F(@"Device is not workplace joined.", protocol.context.correlationId, @"host: %@", challenge.protectionSpace.host);
         return NO;
     }
     

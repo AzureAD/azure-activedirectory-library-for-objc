@@ -33,11 +33,10 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
     NSMutableDictionary* _responseDictionary;
     ADWebAuthRequest* _request;
     ADWebAuthRequest* _retryRequest;
-    NSUUID* _correlationId;
 }
 
 + (void)processError:(NSError *)error
-       correlationId:(NSUUID *)correlationId
+             request:(ADWebAuthRequest *)request
           completion:(ADWebResponseCallback)completionBlock;
 
 + (void)processResponse:(ADWebResponse *)webResponse

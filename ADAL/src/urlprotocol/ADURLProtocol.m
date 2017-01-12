@@ -36,15 +36,15 @@ static ADTelemetryUIEvent* s_telemetryEvent = nil;
 static NSString* kADURLProtocolPropertyKey = @"ADURLProtocol";
 
 
-static NSUUID * _reqCorId(NSURLRequest* request)
+static id<ADRequestContext> _reqContext(NSURLRequest* request)
 {
-    return [NSURLProtocol propertyForKey:@"correlationId" inRequest:request];
+    return [NSURLProtocol propertyForKey:@"context" inRequest:request];
 }
 
 
 @implementation ADURLProtocol
 
-@synthesize correlationId = _correlationId;
+@synthesize context = _context;
 
 + (void)registerHandler:(id)handler
              authMethod:(NSString*)authMethod
@@ -97,15 +97,15 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     }
 }
 
-+ (void)addCorrelationId:(NSUUID *)correlationId
++ (void)addContext:(id<ADRequestContext>)context
                toRequest:(NSMutableURLRequest *)request
 {
-    if (!correlationId)
+    if (!context)
     {
         return;
     }
     
-    [NSURLProtocol setProperty:correlationId forKey:@"correlationId" inRequest:request];
+    [NSURLProtocol setProperty:context forKey:@"context" inRequest:request];
 }
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
@@ -123,7 +123,7 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"])
     {
         
-        AD_LOG_VERBOSE_F(@"+[ADURLProtocol canInitWithRequest:] handling host", _reqCorId(request), @"host: %@", [request.URL host]);
+        AD_LOG_VERBOSE_F(@"+[ADURLProtocol canInitWithRequest:] handling host", _reqContext(request).correlationId, @"host: %@", [request.URL host]);
         //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checking
         //for initialization
         if (![NSURLProtocol propertyForKey:@"ADURLProtocol" inRequest:request])
@@ -134,36 +134,36 @@ static NSUUID * _reqCorId(NSURLRequest* request)
         }
     }
     
-    AD_LOG_VERBOSE_F(@"+[ADURLProtocol canInitWithRequest:] ignoring handling of host", _reqCorId(request), @"host: %@", [request.URL host]);
+    AD_LOG_VERBOSE_F(@"+[ADURLProtocol canInitWithRequest:] ignoring handling of host", _reqContext(request).correlationId, @"host: %@", [request.URL host]);
     
     return NO;
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
-    AD_LOG_VERBOSE_F(@"+[ADURLProtocol canonicalRequestForRequest:]", _reqCorId(request), @"host: %@", [request.URL host] );
+    AD_LOG_VERBOSE_F(@"+[ADURLProtocol canonicalRequestForRequest:]", _reqContext(request).correlationId, @"host: %@", [request.URL host] );
     
     return request;
 }
 
 - (void)startLoading
 {
-    NSUUID* correlationId = _reqCorId(self.request);
-    if (correlationId)
+    id<ADRequestContext> context = _reqContext(self.request);
+    if (context)
     {
-        SAFE_ARC_RELEASE(_correlationId);
-        _correlationId = correlationId;
-        SAFE_ARC_RETAIN(_correlationId);
+        SAFE_ARC_RELEASE(_context);
+        _context = context;
+        SAFE_ARC_RETAIN(_context);
     }
     
-    AD_LOG_VERBOSE_F(@"-[ADURLProtocol startLoading]", _correlationId, @"host: %@", [self.request.URL host]);
+    AD_LOG_VERBOSE_F(@"-[ADURLProtocol startLoading]", context.correlationId, @"host: %@", [self.request.URL host]);
     
     NSMutableURLRequest* request = [self.request mutableCopy];
     
     // Make sure the correlation ID propogates through the requests
-    if (!correlationId && _correlationId)
+    if (!context && _context)
     {
-        [ADURLProtocol addCorrelationId:_correlationId toRequest:request];
+        [ADURLProtocol addContext:_context toRequest:request];
     }
     
     [NSURLProtocol setProperty:@YES forKey:kADURLProtocolPropertyKey inRequest:request];
@@ -177,7 +177,7 @@ static NSUUID * _reqCorId(NSURLRequest* request)
 
 - (void)stopLoading
 {
-    AD_LOG_VERBOSE_F(@"-[ADURLProtocol stopLoading]", _reqCorId(self.request), @"host: %@", [self.request.URL host]);
+    AD_LOG_VERBOSE_F(@"-[ADURLProtocol stopLoading]", _reqContext(self.request).correlationId, @"host: %@", [self.request.URL host]);
     
     [_connection cancel];
     SAFE_ARC_RELEASE(_connection);
@@ -190,7 +190,7 @@ static NSUUID * _reqCorId(NSURLRequest* request)
 {
     (void)connection;
     
-    AD_LOG_ERROR_F(@"-[ADURLProtocol connection:didFailedWithError:]", error.code, _correlationId, @"error: %@", error);
+    AD_LOG_ERROR_F(@"-[ADURLProtocol connection:didFailedWithError:]", error.code, _context.correlationId, @"error: %@", error);
     [self.client URLProtocol:self didFailWithError:error];
 }
 
@@ -199,7 +199,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 {
     NSString* authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
     
-    AD_LOG_VERBOSE_F(@"connection:willSendRequestForAuthenticationChallenge:", _correlationId, @"%@. Previous challenge failure count: %ld", authMethod, (long)challenge.previousFailureCount);
+    AD_LOG_VERBOSE_F(@"connection:willSendRequestForAuthenticationChallenge:", _context.correlationId, @"%@. Previous challenge failure count: %ld", authMethod, (long)challenge.previousFailureCount);
     
     BOOL handled = NO;
     Class<ADAuthMethodHandler> handler = nil;
@@ -233,7 +233,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
 {
     (void)connection;
     
-    AD_LOG_VERBOSE_F(@"-[ADURLProtocol connection:willSendRequest:]", _correlationId, @"Redirect response: %@. New request:%@", redirectResponse.URL, request.URL);
+    AD_LOG_VERBOSE_F(@"-[ADURLProtocol connection:willSendRequest:]", _context.correlationId, @"Redirect response: %@. New request:%@", redirectResponse.URL, request.URL);
     
     // Disallow HTTP for ADURLProtocol
     if ([request.URL.scheme isEqualToString:@"http"])
@@ -256,7 +256,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     SAFE_ARC_AUTORELEASE(mutableRequest);
     
     [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
-    [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
+    [ADURLProtocol addContext:_context toRequest:mutableRequest];
 
     if (!redirectResponse)
     {

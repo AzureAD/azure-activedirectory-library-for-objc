@@ -89,7 +89,7 @@
     {
         if (error)
         {
-            [ADWebAuthResponse processError:error correlationId:_correlationId completion:completionBlock];
+            [ADWebAuthResponse processError:error request:self completion:completionBlock];
         }
         else
         {
