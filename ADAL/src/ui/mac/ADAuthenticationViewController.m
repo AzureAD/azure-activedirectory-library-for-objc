@@ -46,11 +46,9 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
 
 @interface ADAuthenticationViewController ( ) <WebResourceLoadDelegate, WebPolicyDelegate, WebFrameLoadDelegate, NSWindowDelegate>
 {
-    // In the legacy ObjC runtime (which is what we're stuck at for 32-bit Mac builds)
-    // you can't define the ivars of a class in the implementation file.
     __weak id<ADWebAuthDelegate> _delegate;
-    __weak WebViewType* _webView;
-    __weak NSProgressIndicator* _progressIndicator;
+    WebViewType* _webView;
+    NSProgressIndicator* _progressIndicator;
 }
 
 @end
