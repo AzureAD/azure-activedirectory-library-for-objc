@@ -46,8 +46,6 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
 
 @interface ADAuthenticationViewController ( ) <WebResourceLoadDelegate, WebPolicyDelegate, WebFrameLoadDelegate, NSWindowDelegate>
 {
-    __weak id<ADWebAuthDelegate> _delegate;
-    WebViewType* _webView;
     NSProgressIndicator* _progressIndicator;
 }
 

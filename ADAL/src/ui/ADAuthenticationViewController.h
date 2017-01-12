@@ -32,11 +32,11 @@ NSWindowController
 
 @property (weak, nonatomic) id<ADWebAuthDelegate>     delegate;
 #if TARGET_OS_IPHONE
-@property (weak, nonatomic) UIWebView * webView;
+@property (nonatomic) UIWebView * webView;
 @property (weak, nonatomic) UIViewController * parentController;
 @property BOOL fullScreen;
 #else
-@property (weak, nonatomic) WebView * webView;
+@property (nonatomic) WebView * webView;
 #endif
 
 - (BOOL)loadView:(ADAuthenticationError * __autoreleasing *)error;
