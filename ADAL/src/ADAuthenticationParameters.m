@@ -42,13 +42,6 @@
     return nil;
 }
 
-- (void)dealloc
-{
-    _authority = nil;
-    _resource = nil;
-    _extractedParameters = nil;
-}
-
 + (void)raiseErrorWithCode:(ADErrorCode)code
                    details:(NSString *)details
                      error:(ADAuthenticationError * __autoreleasing *)error

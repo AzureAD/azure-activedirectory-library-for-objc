@@ -77,14 +77,6 @@
      }];
 }
 
-- (void)dealloc
-{
-    _requestParams = nil;
-    _mrrtItem = nil;
-    _mrrtResult = nil;
-    _extendedLifetimeAccessTokenItem = nil;
-}
-
 #pragma mark -
 #pragma mark Refresh Token Helper Methods
 
