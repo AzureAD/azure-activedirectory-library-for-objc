@@ -133,21 +133,21 @@
     // there should be 2 telemetry events recorded as we generated two
     XCTAssertEqual([receivedEvents count], 2);
     
-    // make sure the 1st event has an event_name, start_time and stop_time
+    // make sure the 1st event has an event_name, start_time and end_time
     NSDictionary* firstEvent = [receivedEvents firstObject];
     
     XCTAssertEqual([firstEvent objectForKey:@"event_name"], @"testEvent1");
     XCTAssertNotNil([firstEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([firstEvent objectForKey:@"stop_time"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"end_time"]);
     XCTAssertNotNil([firstEvent objectForKey:@"response_time"]);
 
-    // make sure the 2nd event has customized_property, event_name, start_time and stop_time
+    // make sure the 2nd event has customized_property, event_name, start_time and end_time
     NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
     
     XCTAssertEqual([secondEvent objectForKey:@"customized_property"], @"customized_value");
     XCTAssertEqual([secondEvent objectForKey:@"event_name"], @"testEvent2");
     XCTAssertNotNil([secondEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([secondEvent objectForKey:@"stop_time"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"end_time"]);
     XCTAssertNotNil([secondEvent objectForKey:@"response_time"]);
     
 }
@@ -199,7 +199,7 @@
     
     XCTAssertNil([event objectForKey:@"event_name"]);
     XCTAssertNil([event objectForKey:@"start_time"]);
-    XCTAssertNil([event objectForKey:@"stop_time"]);
+    XCTAssertNil([event objectForKey:@"end_time"]);
     XCTAssertNil([event objectForKey:@"customized_property"]);
     
 }
@@ -241,19 +241,19 @@
     XCTAssertEqual([receivedEvents count], 2);
     
     // the first event recorded is event2
-    // make sure it has customized_property, event_name, start_time and stop_time
+    // make sure it has customized_property, event_name, start_time and end_time
     NSDictionary* firstEvent = [receivedEvents firstObject];
     XCTAssertEqual([firstEvent objectForKey:@"event_name"], @"testEvent2");
     XCTAssertEqual([firstEvent objectForKey:@"customized_property"], @"customized_value");
     XCTAssertNotNil([firstEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([firstEvent objectForKey:@"stop_time"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"end_time"]);
     
     // the second event recorded is event1
-    // make sure it has event_name, start_time and stop_time
+    // make sure it has event_name, start_time and end_time
     NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
     XCTAssertEqual([secondEvent objectForKey:@"event_name"], @"testEvent1");
     XCTAssertNotNil([secondEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([secondEvent objectForKey:@"stop_time"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"end_time"]);
     
 }
 
@@ -304,7 +304,7 @@
     
     XCTAssertNil([event objectForKey:@"event_name"]);
     XCTAssertNil([event objectForKey:@"start_time"]);
-    XCTAssertNil([event objectForKey:@"stop_time"]);
+    XCTAssertNil([event objectForKey:@"end_time"]);
     XCTAssertNil([event objectForKey:@"customized_property"]);
 }
 
@@ -359,25 +359,25 @@
     NSDictionary* firstEvent = [receivedEvents firstObject];
     XCTAssertEqual([firstEvent objectForKey:@"event_name"], @"testEvent3");
     XCTAssertNotNil([firstEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([firstEvent objectForKey:@"stop_time"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"end_time"]);
     
     // the second event recorded is event2
     NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
     XCTAssertEqual([secondEvent objectForKey:@"event_name"], @"testEvent2");
     XCTAssertNotNil([secondEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([secondEvent objectForKey:@"stop_time"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"end_time"]);
     
     // the third event recorded is event1
     NSDictionary* thirdEvent = [receivedEvents objectAtIndex:2];
     XCTAssertEqual([thirdEvent objectForKey:@"event_name"], @"testEvent1");
     XCTAssertNotNil([thirdEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([thirdEvent objectForKey:@"stop_time"]);
+    XCTAssertNotNil([thirdEvent objectForKey:@"end_time"]);
     
     // the fourth event recorded is event4
     NSDictionary* fourthEvent = [receivedEvents objectAtIndex:3];
     XCTAssertEqual([fourthEvent objectForKey:@"event_name"], @"testEvent4");
     XCTAssertNotNil([fourthEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([fourthEvent objectForKey:@"stop_time"]);
+    XCTAssertNotNil([fourthEvent objectForKey:@"end_time"]);
 }
 
 - (void)testComplexEventsWithAggregation {
@@ -439,7 +439,7 @@
     
     XCTAssertNil([event objectForKey:@"event_name"]);
     XCTAssertNil([event objectForKey:@"start_time"]);
-    XCTAssertNil([event objectForKey:@"stop_time"]);
+    XCTAssertNil([event objectForKey:@"end_time"]);
     XCTAssertNil([event objectForKey:@"customized_property"]);
 }
 

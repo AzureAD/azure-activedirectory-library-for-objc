@@ -56,19 +56,19 @@
     NSString* statusStr = nil;
     switch (status) {
         case AD_SUCCEEDED:
-            statusStr = @"SUCCEEDED";
+            statusStr = AD_TELEMETRY_SUCCEEDED;
             break;
         case AD_FAILED:
-            statusStr = @"FAILED";
+            statusStr = AD_TELEMETRY_FAILED;
             break;
         case AD_USER_CANCELLED:
-            statusStr = @"USER_CANCELLED";
+            statusStr = AD_TELEMETRY_USER_CANCELLED;
             break;
         default:
-            statusStr = @"UNKNOWN";
+            statusStr = AD_TELEMETRY_UNKNOWN;
     }
     
-    [self setProperty:@"status" value:statusStr];
+    [self setProperty:AD_TELEMETRY_RESULT_STATUS value:statusStr];
 }
 
 - (void)setBrokerApp:(NSString*)appName

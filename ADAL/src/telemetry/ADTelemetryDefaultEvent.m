@@ -99,7 +99,7 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap setValue:[self getStringFromDate:time] forKey:@"start_time"];
+    [_propertyMap setValue:[self getStringFromDate:time] forKey:AD_TELEMETRY_START_TIME];
 }
 
 - (void)setStopTime:(NSDate*)time
@@ -109,7 +109,7 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap setValue:[self getStringFromDate:time] forKey:@"stop_time"];
+    [_propertyMap setValue:[self getStringFromDate:time] forKey:AD_TELEMETRY_END_TIME];
 }
 
 - (void)setResponseTime:(NSTimeInterval)responseTime
@@ -159,9 +159,9 @@ if (OBJECT) \
         NSString* applicationName = [[NSProcessInfo processInfo] processName];
 #endif
         
-        SET_IF_NOT_NIL(s_defaultParameters, @"device_id", [deviceId adComputeSHA256]);
-        SET_IF_NOT_NIL(s_defaultParameters, @"application_name", applicationName);
-        SET_IF_NOT_NIL(s_defaultParameters, @"application_version", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
+        SET_IF_NOT_NIL(s_defaultParameters, AD_TELEMETRY_DEVICE_ID, [deviceId adComputeSHA256]);
+        SET_IF_NOT_NIL(s_defaultParameters, AD_TELEMETRY_APPLICATION_NAME, applicationName);
+        SET_IF_NOT_NIL(s_defaultParameters, AD_TELEMETRY_APPLICATION_VERSION, [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
         
         NSDictionary* adalId = [ADLogger adalId];
         for (NSString* key in adalId)

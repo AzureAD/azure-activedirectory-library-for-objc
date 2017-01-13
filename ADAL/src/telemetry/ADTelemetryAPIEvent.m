@@ -35,13 +35,16 @@
     switch (status) {
         case AD_SUCCEEDED:
             statusStr = AD_TELEMETRY_SUCCEEDED;
+            [self setProperty:AD_TELEMETRY_IS_SUCCESSFUL value:AD_TELEMETRY_YES];
             break;
         case AD_FAILED:
             statusStr = AD_TELEMETRY_FAILED;
+            [self setProperty:AD_TELEMETRY_IS_SUCCESSFUL value:AD_TELEMETRY_NO];
             break;
         case AD_USER_CANCELLED:
             statusStr = AD_TELEMETRY_USER_CANCELLED;
             [self setProperty:AD_TELEMETRY_USER_CANCEL value:AD_TELEMETRY_YES];
+            [self setProperty:AD_TELEMETRY_IS_SUCCESSFUL value:AD_TELEMETRY_NO];
             break;
         default:
             statusStr = AD_TELEMETRY_UNKNOWN;
@@ -177,7 +180,8 @@
                                       AD_TELEMETRY_USER_CANCEL,
                                       AD_TELEMETRY_ERROR_CODE,
                                       AD_TELEMETRY_ERROR_DOMAIN,
-                                      AD_TELEMETRY_PROTOCOL_CODE
+                                      AD_TELEMETRY_PROTOCOL_CODE,
+                                      AD_TELEMETRY_IS_SUCCESSFUL
                                       ];
     [self addPropertiesToAggregatedEvent:eventToBeDispatched propertyNames:propertiesToCopyOver];
 }

@@ -406,6 +406,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[event objectForKey:@"cache_event_count"] isEqualToString:@"1"]);
     XCTAssertTrue([[event objectForKey:@"error_code"] isEqualToString:@"300"]);
     XCTAssertTrue([[event objectForKey:@"error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
+    XCTAssertTrue([[event objectForKey:@"is_successfull"] isEqualToString:@"no"]);
     
     //unregister the dispatcher
     [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];
@@ -667,6 +668,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[firstEvent objectForKey:@"error_code"] isEqualToString:@"200"]);
     XCTAssertTrue([[firstEvent objectForKey:@"error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
     XCTAssertTrue([[firstEvent objectForKey:@"oauth_error_code"] isEqualToString:@"invalid_grant"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"is_successfull"] isEqualToString:@"no"]);
     
     // the following properties are expected for 2nd acquire token call
     NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
@@ -694,6 +696,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[secondEvent objectForKey:@"token_frt_status"] isEqualToString:@"not_found"]);
     XCTAssertTrue([[secondEvent objectForKey:@"error_code"] isEqualToString:@"200"]);
     XCTAssertTrue([[secondEvent objectForKey:@"error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"is_successfull"] isEqualToString:@"no"]);
     
     //unregister the dispatcher
     [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];
@@ -1139,6 +1142,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[event objectForKey:@"http_event_count"] isEqualToString:@"1"]);
     XCTAssertTrue([[event objectForKey:@"error_code"] isEqualToString:@"0"]);
     XCTAssertTrue([[event objectForKey:@"oauth_error_code"] isEqualToString:@""]);
+    XCTAssertTrue([[event objectForKey:@"is_successfull"] isEqualToString:@"yes"]);
     
     //unregister the dispatcher
     [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];

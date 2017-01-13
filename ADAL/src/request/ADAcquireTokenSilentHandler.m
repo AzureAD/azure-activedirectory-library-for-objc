@@ -35,6 +35,7 @@
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryAPIEvent.h"
+#import "ADTelemetryEventStrings.h"
 
 @implementation ADAcquireTokenSilentHandler
 
@@ -209,14 +210,14 @@
              completionBlock:(ADAuthenticationCallback)completionBlock
                     fallback:(ADAuthenticationCallback)fallback
 {
-    [[ADTelemetry sharedInstance] startEvent:[_requestParams telemetryRequestId] eventName:@"token_grant"];
+    [[ADTelemetry sharedInstance] startEvent:[_requestParams telemetryRequestId] eventName:AD_TELEMETRY_EVENT_TOKEN_GRANT];
     [self acquireTokenByRefreshToken:item.refreshToken
                            cacheItem:item
                      completionBlock:^(ADAuthenticationResult *result)
      {
-         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:@"token_grant"
+         ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_GRANT
                                                                         context:_requestParams];
-         [event setGrantType:@"by refresh token"];
+         [event setGrantType:AD_TELEMETRY_BY_REFRESH_TOKEN];
          [event setResultStatus:[result status]];
          [[ADTelemetry sharedInstance] stopEvent:[_requestParams telemetryRequestId] event:event];
          SAFE_ARC_RELEASE(event);
