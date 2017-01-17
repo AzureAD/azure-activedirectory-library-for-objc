@@ -79,11 +79,6 @@
         return nil;
     }
     
-    if (certificateIssuer)
-    {
-        SAFE_ARC_AUTORELEASE(certificateIssuer);
-    }
-    
     certificateSubject = (__bridge_transfer NSString*)(SecCertificateCopySubjectSummary(certificate));
     certificateData = (__bridge_transfer NSData*)(SecCertificateCopyData(certificate));
     
@@ -135,14 +130,10 @@
                                                     certificateSubject:certificateSubject
                                                        certificateData:certificateData
                                                             privateKey:privateKey];
-    SAFE_ARC_AUTORELEASE(info);
     
     // Fall through to clean up resources.
     
 _error:
-    
-    SAFE_ARC_RELEASE(certificateSubject);
-    SAFE_ARC_RELEASE(certificateData);
     
     if (identity)
     {
@@ -321,7 +312,6 @@ _error:
     
     resultDict = (__bridge NSDictionary*)result;
     stringData = [[resultDict objectForKey:(__bridge id)(kSecAttrService)] copy];
-    SAFE_ARC_AUTORELEASE(stringData);
     
     if (result)
     {
