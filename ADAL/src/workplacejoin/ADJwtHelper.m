@@ -149,7 +149,6 @@
     }
 
     NSString* json = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    SAFE_ARC_AUTORELEASE(json);
     return json;
 }
 

@@ -78,7 +78,6 @@
     
     // "copy" doesn't make much sense on the token cache object, as it's just a proxy around a data source
     parameters->_tokenCache = _tokenCache;
-    SAFE_ARC_RETAIN(parameters->_tokenCache);
     parameters->_correlationId = [_correlationId copyWithZone:zone];
     parameters->_extendedLifetime = _extendedLifetime;
     parameters->_telemetryRequestId = [_telemetryRequestId copyWithZone:zone];
@@ -88,37 +87,17 @@
 
 - (void)setResource:(NSString *)resource
 {
-    SAFE_ARC_RELEASE(_resource);
     _resource = [resource adTrimmedString];
-    SAFE_ARC_RETAIN(_resource);
 }
 
 - (void)setClientId:(NSString *)clientId
 {
-    SAFE_ARC_RELEASE(_clientId);
     _clientId = [clientId adTrimmedString];
-    SAFE_ARC_RETAIN(_clientId);
 }
 
 - (void)setRedirectUri:(NSString *)redirectUri
 {
-    SAFE_ARC_RELEASE(_redirectUri);
     _redirectUri = [redirectUri adTrimmedString];
-    SAFE_ARC_RETAIN(_redirectUri);
-}
-
-- (void)dealloc
-{
-    self.authority = nil;
-    self.resource = nil;
-    self.clientId = nil;
-    self.redirectUri = nil;
-    self.identifier = nil;
-    self.tokenCache = nil;
-    self.correlationId = nil;
-    self.telemetryRequestId = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 @end

@@ -87,17 +87,6 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     return self;
 }
 
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_validatedADAuthorities);
-    _validatedADAuthorities = nil;
-    
-    SAFE_ARC_RELEASE(_validatedAdfsAuthorities);
-    _validatedAdfsAuthorities = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
-}
-
 
 #pragma mark - caching
 - (BOOL)addValidAuthority:(NSURL *)authority domain:(NSString *)domain

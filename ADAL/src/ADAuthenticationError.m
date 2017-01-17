@@ -90,9 +90,7 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
     }
     
     _errorDetails = details;
-    SAFE_ARC_RETAIN(_errorDetails);
     _protocolCode = protocolCode;
-    SAFE_ARC_RETAIN(_protocolCode);
     
     if (!quiet)
     {
@@ -115,14 +113,6 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
     return self;
 }
 
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_errorDetails);
-    SAFE_ARC_RELEASE(_protocolCode);
-    
-    SAFE_ARC_SUPER_DEALLOC();
-}
-
 + (ADAuthenticationError *)errorWithDomainInternal:(NSString *)domain
                                               code:(NSInteger)code
                                  protocolErrorCode:(NSString *)protocolCode
@@ -137,7 +127,6 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                     correlationId:correlationId
                                          userInfo:userInfo
                                             quiet:NO];
-    SAFE_ARC_AUTORELEASE(obj);
     return obj;
 }
 
@@ -219,8 +208,6 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
                                             correlationId:nil
                                                  userInfo:nil
                                                     quiet:YES];
-    
-    SAFE_ARC_AUTORELEASE(error);
     return error;
 }
 

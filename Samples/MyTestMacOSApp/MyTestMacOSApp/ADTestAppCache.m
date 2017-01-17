@@ -101,9 +101,7 @@
 {
     @synchronized(self)
     {
-        SAFE_ARC_RELEASE(_data);
         _data = [cache serialize];
-        SAFE_ARC_RETAIN(_data);
         //[self writeToFile:[ADTestAppCache defaultSavePath]];
         [self writeToKeychain];
     }
@@ -113,9 +111,7 @@
 {
     @synchronized (self)
     {
-        SAFE_ARC_RELEASE(_data);
         _data = [NSData dataWithContentsOfFile:filePath];
-        SAFE_ARC_RETAIN(_data);
     }
 }
 

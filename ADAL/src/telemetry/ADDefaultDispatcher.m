@@ -43,7 +43,6 @@
         _dispatchLock = [NSLock new];
         
         _dispatcher = dispatcher;
-        SAFE_ARC_RETAIN(_dispatcher);
     }
     return self;
 }
@@ -64,18 +63,6 @@
     {
         [_dispatcher dispatchEvent:properties];
     }
-}
-
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_dispatcher);
-    _dispatcher = nil;
-    SAFE_ARC_RELEASE(_objectsToBeDispatched);
-    _objectsToBeDispatched = nil;
-    SAFE_ARC_RELEASE(_dispatchLock);
-    _dispatchLock = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 @end

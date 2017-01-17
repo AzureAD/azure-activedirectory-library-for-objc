@@ -50,9 +50,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         
         // ObjC Objects
         _tokenCacheItem = item;
-        SAFE_ARC_RETAIN(_tokenCacheItem);
         _correlationId = correlationId;
-        SAFE_ARC_RETAIN(_correlationId);
     }
     return self;
 }
@@ -68,9 +66,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     {
         _status = status;
         _error = error;
-        SAFE_ARC_RETAIN(_error);
         _correlationId = correlationId;
-        SAFE_ARC_RETAIN(_correlationId);
     }
     return self;
 }
@@ -90,8 +86,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
                                                         multiResourceRefreshToken:multiResourceRefreshToken
                                                                     correlationId:correlationId];
     
-    SAFE_ARC_AUTORELEASE(result);
-    
     return result;
 }
 
@@ -106,7 +100,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithError:error
                                                                             status:AD_FAILED
                                                                      correlationId:correlationId];
-    SAFE_ARC_AUTORELEASE(result);
     
     return result;
 }
@@ -124,8 +117,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
                                                                             status:AD_FAILED
                                                                      correlationId:correlationId];
     
-    SAFE_ARC_AUTORELEASE(result);
-    
     return result;
 }
 
@@ -137,7 +128,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 + (ADAuthenticationResult*)resultFromCancellation:(NSUUID *)correlationId
 {
     ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithCancellation:correlationId];
-    SAFE_ARC_AUTORELEASE(result);
     return result;
 }
 
@@ -159,7 +149,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     if (uuidString)
     {
         correlationId = [[NSUUID alloc] initWithUUIDString:[response valueForKey:OAUTH2_CORRELATION_ID_RESPONSE]];
-        SAFE_ARC_AUTORELEASE(correlationId);
     }
     
     // Otherwise parse out the error condition
@@ -222,7 +211,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     if (correlationIdStr)
     {
         correlationId = [[NSUUID alloc] initWithUUIDString:correlationIdStr];
-        SAFE_ARC_AUTORELEASE(correlationId);
     }
 
     ADTokenCacheItem* item = [ADTokenCacheItem new];
@@ -231,8 +219,6 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     ADAuthenticationResult* result = [[ADAuthenticationResult alloc] initWithItem:item
                                                         multiResourceRefreshToken:isMRRT
                                                                     correlationId:correlationId];
-    SAFE_ARC_RELEASE(item);
-    SAFE_ARC_AUTORELEASE(result);
     return result;
     
 }

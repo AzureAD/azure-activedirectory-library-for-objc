@@ -93,11 +93,8 @@
 @end
 
 @interface ADTestURLConnection : NSObject
-{
-    NSOperationQueue* _delegateQueue;
-    NSURLRequest* _request;
-    id _delegate;
-}
+
+@property NSOperationQueue* delegateQueue;
 
 // This adds an expected request, and response to it.
 + (void)addResponse:(ADTestURLResponse*)response;
