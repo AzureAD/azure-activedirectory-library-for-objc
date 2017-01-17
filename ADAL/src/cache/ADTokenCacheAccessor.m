@@ -53,10 +53,7 @@
     }
     
     _dataSource = dataSource;
-    SAFE_ARC_RETAIN(dataSource);
-    
     _authority = authority;
-    SAFE_ARC_RETAIN(authority);
     
     return self;
 }
@@ -106,7 +103,6 @@
     [event setTokenType:AD_TELEMETRY_ACCESS_TOKEN];
     [event setStatus:item? AD_TELEMETRY_SUCCEEDED : AD_TELEMETRY_FAILED];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
-    SAFE_ARC_RELEASE(event);
     return item;
 }
 
@@ -133,7 +129,6 @@
     }
     [event setStatus:item? AD_TELEMETRY_SUCCEEDED : AD_TELEMETRY_FAILED];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
-    SAFE_ARC_RELEASE(event);
     return item;
 }
 
@@ -162,7 +157,6 @@
     }
     [event setStatus:item? AD_TELEMETRY_SUCCEEDED : AD_TELEMETRY_FAILED];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
-    SAFE_ARC_RELEASE(event);
     return item;
 }
 
@@ -197,7 +191,6 @@
     }
     [event setStatus:item? AD_TELEMETRY_SUCCEEDED : AD_TELEMETRY_FAILED];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
-    SAFE_ARC_RELEASE(event);
     return item;
 }
 
@@ -280,7 +273,6 @@
         [event setIsMRRT:AD_TELEMETRY_YES];
         [event setTokenType:AD_TELEMETRY_MULTI_RESOURCE_REFRESH_TOKEN];
         [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
-        SAFE_ARC_RELEASE(event);
         
         // If the item is also a Family Refesh Token (FRT) we update the FRT
         // as well so we have a guaranteed spot to look for the most recent FRT.
@@ -293,16 +285,13 @@
             NSString* fociClientId = [ADTokenCacheAccessor familyClientId:familyId];
             frtItem.clientId = fociClientId;
             [_dataSource addOrUpdateItem:frtItem correlationId:correlationId error:nil];
-            SAFE_ARC_RELEASE(frtItem);
             
             ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                                context:context];
             [event setIsFRT:AD_TELEMETRY_YES];
             [event setTokenType:AD_TELEMETRY_FAMILY_REFRESH_TOKEN];
             [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
-            SAFE_ARC_RELEASE(event);
         }
-        SAFE_ARC_RELEASE(multiRefreshTokenItem);
     }
     
     AD_LOG_VERBOSE_F(@"Token cache store", correlationId, @"Storing access token for resource: %@", cacheItem.resource);
@@ -313,7 +302,6 @@
                                                                        context:context];
     [event setTokenType:AD_TELEMETRY_ACCESS_TOKEN];
     [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
-    SAFE_ARC_RELEASE(event);
 }
 
 - (void)removeItemFromCache:(ADTokenCacheItem *)cacheItem
@@ -370,7 +358,6 @@
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_DELETE
                                                                        context:context];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
-    SAFE_ARC_RELEASE(event);
 }
 
 @end

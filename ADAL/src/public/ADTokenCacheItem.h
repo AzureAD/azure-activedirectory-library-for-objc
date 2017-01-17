@@ -77,7 +77,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (copy, nullable) NSDate* expiresOn;
 
-
 @property (retain, nullable) ADUserInformation* userInformation;
 
 /*!

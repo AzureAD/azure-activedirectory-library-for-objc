@@ -56,7 +56,7 @@ const CGFloat CUSTOM_VIEW_HEIGHT = 63;
 @synthesize usernameLabel = _usernameLabel;
 @synthesize passwordLabel = _passwordLabel;
 
--(id) init
+- (id)init
 {
     self = [super init];
     if(self)
@@ -64,7 +64,6 @@ const CGFloat CUSTOM_VIEW_HEIGHT = 63;
         //Generate the NTLM input dialog by code for Mac
         //usename field
         _usernameLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(USERNAME_LABEL_X, USERNAME_LABEL_Y, USERNAME_LABEL_WIDTH, USERNAME_LABEL_HEIGHT)];
-        SAFE_ARC_AUTORELEASE(_usernameLabel);
         [_usernameLabel setStringValue:NSLocalizedString(@"Username", nil)];
         [_usernameLabel setBezeled:NO];
         [_usernameLabel setDrawsBackground:NO];
@@ -72,11 +71,9 @@ const CGFloat CUSTOM_VIEW_HEIGHT = 63;
         [_usernameLabel setSelectable:NO];
         
         _usernameField = [[NSTextField alloc] initWithFrame:NSMakeRect(USERNAME_FIELD_X, USERNAME_FIELD_Y, USERNAME_FIELD_WIDTH, USERNAME_FIELD_HEIGHT)];
-        SAFE_ARC_AUTORELEASE(_usernameField);
         
         //password field
         _passwordLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(PASSWORD_LABEL_X, PASSWORD_LABEL_Y, PASSWORD_LABEL_WIDTH, PASSWORD_LABEL_HEIGHT)];
-        SAFE_ARC_AUTORELEASE(_passwordLabel);
         [_passwordLabel setStringValue:NSLocalizedString(@"Password", nil)];
         [_passwordLabel setBezeled:NO];
         [_passwordLabel setDrawsBackground:NO];
@@ -84,11 +81,9 @@ const CGFloat CUSTOM_VIEW_HEIGHT = 63;
         [_passwordLabel setSelectable:NO];
         
         _passwordField = [[NSSecureTextField alloc] initWithFrame:NSMakeRect(PASSWORD_FIELD_X, PASSWORD_FIELD_Y, PASSWORD_FIELD_WIDTH, PASSWORD_FIELD_HEIGHT)];
-        SAFE_ARC_AUTORELEASE(_passwordField);
         
         //add labels and fileds to view
         _customView = [[NSView alloc] initWithFrame:NSMakeRect(CUSTOM_VIEW_X, CUSTOM_VIEW_Y, CUSTOM_VIEW_WIDTH, CUSTOM_VIEW_HEIGHT)];
-        SAFE_ARC_AUTORELEASE(_customView);
         [_customView addSubview:_usernameLabel];
         [_customView addSubview:_usernameField];
         [_customView addSubview:_passwordLabel];

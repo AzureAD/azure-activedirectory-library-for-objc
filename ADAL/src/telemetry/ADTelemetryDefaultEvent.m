@@ -178,14 +178,6 @@ if (OBJECT) \
     return _defaultPropertyCount;
 }
 
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_propertyMap);
-    _propertyMap = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
-}
-
 - (void)addPropertiesToAggregatedEvent:(NSMutableDictionary *)eventToBeDispatched
                          propertyNames:(NSArray *)propertyNames
 {

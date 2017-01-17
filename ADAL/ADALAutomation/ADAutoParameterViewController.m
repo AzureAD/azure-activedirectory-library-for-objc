@@ -30,11 +30,6 @@
     UIStackView* _stackView;
 }
 
-- (void)dealloc
-{
-    NSLog(@"dealloced");
-}
-
 - (void)loadView
 {
     UIView* rootView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];

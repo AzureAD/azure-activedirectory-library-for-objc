@@ -72,7 +72,6 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     if (s_endURL!=endURL)
     {
         s_endURL = endURL.lowercaseString;
-        SAFE_ARC_RETAIN(s_endURL);
     }
     s_telemetryEvent = telemetryEvent;
     return [NSURLProtocol registerClass:self];
@@ -81,7 +80,6 @@ static NSUUID * _reqCorId(NSURLRequest* request)
 + (void)unregisterProtocol
 {
     [NSURLProtocol unregisterClass:self];
-    SAFE_ARC_RELEASE(s_endURL);
     s_endURL = nil;
     s_telemetryEvent = nil;
     
@@ -149,9 +147,7 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     NSUUID* correlationId = _reqCorId(self.request);
     if (correlationId)
     {
-        SAFE_ARC_RELEASE(_correlationId);
         _correlationId = correlationId;
-        SAFE_ARC_RETAIN(_correlationId);
     }
     
     AD_LOG_VERBOSE_F(@"-[ADURLProtocol startLoading]", _correlationId, @"host: %@", [self.request.URL host]);
@@ -166,11 +162,9 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     
     [NSURLProtocol setProperty:@YES forKey:kADURLProtocolPropertyKey inRequest:request];
     
-    SAFE_ARC_RELEASE(_connection);
     _connection = [[NSURLConnection alloc] initWithRequest:request
                                                   delegate:self
                                           startImmediately:YES];
-    SAFE_ARC_RELEASE(request);
 }
 
 - (void)stopLoading
@@ -178,7 +172,6 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     AD_LOG_VERBOSE_F(@"-[ADURLProtocol stopLoading]", _reqCorId(self.request), @"host: %@", [self.request.URL host]);
     
     [_connection cancel];
-    SAFE_ARC_RELEASE(_connection);
     _connection = nil;
 }
 
@@ -251,7 +244,6 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     }
     
     NSMutableURLRequest* mutableRequest = [request mutableCopy];
-    SAFE_ARC_AUTORELEASE(mutableRequest);
     
     [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
     [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];

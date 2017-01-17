@@ -42,8 +42,8 @@
 @property BOOL acceptOnlyOKResponse;
 
 @property (readonly) NSDate* startTime;
+@property (copy) NSDictionary<NSString *, NSString *> * requestDictionary;
 
-- (void)setRequestDictionary:(NSDictionary<NSString*, NSString*> *)requestDictionary;
 - (void)sendRequest:(ADWebResponseCallback)completionBlock;
 
 @end

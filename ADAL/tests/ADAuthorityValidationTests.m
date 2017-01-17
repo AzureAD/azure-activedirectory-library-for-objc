@@ -70,8 +70,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
     XCTAssertFalse([authorityValidation isAuthorityValidated:anotherHost]);
     XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:s_kTrustedAuthority]]);
-    
-    SAFE_ARC_RELEASE(authorityValidation);
 }
 
 
@@ -89,8 +87,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
     [authorityValidation addValidAuthority:anotherHost];
     XCTAssertTrue([authorityValidation isAuthorityValidated:anotherHost]);
-    
-    SAFE_ARC_RELEASE(authorityValidation);
 }
 
 
@@ -106,8 +102,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     XCTAssertFalse([authorityValidation isAuthorityValidated:nil domain:upnSuffix]);
     XCTAssertFalse([authorityValidation isAuthorityValidated:anotherHost domain:nil]);
     XCTAssertFalse([authorityValidation isAuthorityValidated:anotherHost domain:upnSuffix]);
-    
-    SAFE_ARC_RELEASE(authorityValidation);
 }
 
 - (void)testAddAdfsAuthority
@@ -124,8 +118,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     XCTAssertFalse([authorityValidation isAuthorityValidated:nil domain:upnSuffix]);
     XCTAssertFalse([authorityValidation isAuthorityValidated:anotherHost domain:nil]);
     XCTAssertTrue([authorityValidation isAuthorityValidated:anotherHost domain:upnSuffix]);
-    
-    SAFE_ARC_RELEASE(authorityValidation);
 }
 
 
@@ -154,8 +146,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
         }];
         TEST_WAIT;
     }
-    SAFE_ARC_RELEASE(authorityValidation);
-    SAFE_ARC_RELEASE(requestParams);
 }
 
 
@@ -184,8 +174,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     
     TEST_WAIT;
     XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:@"https://login.windows-ppe.net"]]);
-    SAFE_ARC_RELEASE(authorityValidation);
-    SAFE_ARC_RELEASE(requestParams);
 }
 
 //Ensures that an invalid authority is not approved
@@ -215,9 +203,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     TEST_WAIT;
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority]]);
-    
-    SAFE_ARC_RELEASE(authorityValidation);
-    SAFE_ARC_RELEASE(requestParams);
 }
 
 
@@ -253,8 +238,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
      }];
     
     dispatch_semaphore_wait(dsem, DISPATCH_TIME_FOREVER);
-    
-    SAFE_ARC_RELEASE(context);
 }
 
 
@@ -292,9 +275,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     TEST_WAIT;
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority]]);
-    
-    SAFE_ARC_RELEASE(authorityValidation);
-    SAFE_ARC_RELEASE(requestParams);
 }
 
 - (void)testAdfsNormalOnPrems
@@ -331,9 +311,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     TEST_WAIT;
     
     XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
-    
-    SAFE_ARC_RELEASE(authorityValidation);
-    SAFE_ARC_RELEASE(requestParams);
 }
 
 - (void)testAdfsNormalOnCloud
@@ -374,9 +351,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     TEST_WAIT;
     
     XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
-    
-    SAFE_ARC_RELEASE(authorityValidation);
-    SAFE_ARC_RELEASE(requestParams);
 }
 
 
@@ -410,9 +384,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     TEST_WAIT;
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
-    
-    SAFE_ARC_RELEASE(authorityValidation);
-    SAFE_ARC_RELEASE(requestParams);
 }
 
 
@@ -451,9 +422,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     TEST_WAIT;
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
-    
-    SAFE_ARC_RELEASE(authorityValidation);
-    SAFE_ARC_RELEASE(requestParams);
 }
 
 // test invalid webfinger - 200 but not match
@@ -491,9 +459,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     TEST_WAIT;
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
-    
-    SAFE_ARC_RELEASE(authorityValidation);
-    SAFE_ARC_RELEASE(requestParams);
 }
 
 // test invalid webfinger - not reachable
@@ -530,10 +495,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
-    
-    SAFE_ARC_RELEASE(authorityValidation);
-    SAFE_ARC_RELEASE(requestParams);
-
 }
 
 @end

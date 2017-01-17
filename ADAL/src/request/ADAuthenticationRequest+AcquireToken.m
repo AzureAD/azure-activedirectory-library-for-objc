@@ -97,7 +97,6 @@
         [event setProtocolCode:[[result error] protocolCode]];
         
         [[ADTelemetry sharedInstance] stopEvent:self.telemetryRequestId event:event];
-        SAFE_ARC_RELEASE(event);
         //flush all events in the end of the acquireToken call
         [[ADTelemetry sharedInstance] flush:self.telemetryRequestId];
         
@@ -155,7 +154,6 @@
          [event setAuthorityValidationStatus:validated ? AD_TELEMETRY_YES:AD_TELEMETRY_NO];
          [event setAuthority:_context.authority];
          [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
-         SAFE_ARC_RELEASE(event);
          if (error)
          {
              wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
@@ -198,16 +196,13 @@
             ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT
                                                                            context:_requestParams];
             [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
-            SAFE_ARC_RELEASE(event);
             if ([ADAuthenticationContext isFinalResult:result])
             {
                 completionBlock(result);
                 return;
             }
             
-            SAFE_ARC_RELEASE(_underlyingError);
             _underlyingError = result.error;
-            SAFE_ARC_RETAIN(_underlyingError);
             
             [self requestToken:completionBlock];
         }];
@@ -369,7 +364,6 @@
                       [event setGrantType:AD_TELEMETRY_BY_CODE];
                       [event setResultStatus:[result status]];
                       [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
-                      SAFE_ARC_RELEASE(event);
                       if (AD_SUCCEEDED == result.status)
                       {
                           [[_requestParams tokenCache] updateCacheToResult:result
@@ -382,7 +376,6 @@
                   }];
              }
          }
-         SAFE_ARC_RELEASE(event);
      }];
 }
 
