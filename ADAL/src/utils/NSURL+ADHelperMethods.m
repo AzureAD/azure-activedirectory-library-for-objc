@@ -21,29 +21,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADWebRequest.h"
 
-@interface ADWebAuthRequest : ADWebRequest
+#import "NSURL+ADHelperMethods.h"
+
+@implementation NSURL (ADMethodHelpers)
+
+- (BOOL)isEquivalentAuthority:(NSURL *)aURL
 {
-    NSDate* _startTime;
-    BOOL _retryIfServerError;
-    BOOL _returnRawResponse;
-    BOOL _acceptOnlyOKResponse;
     
-    NSMutableDictionary* _responseDictionary;
+    // Check if equal
+    if ([self isEqual:aURL])
+    {
+        return YES;
+    }
     
-    // A dictionary of key/value pairs that is either included as the query parameters on a GET
-    // request or serialized into JSON for a POST request
-    NSDictionary<NSString*,NSString*> * _requestDictionary;
+    // Check scheme and host
+    if (!self.scheme ||
+        !aURL.scheme ||
+        [self.scheme caseInsensitiveCompare:aURL.scheme] != NSOrderedSame)
+    {
+        return NO;
+    }
+
+    if (!self.host ||
+        !aURL.host ||
+        [self.host caseInsensitiveCompare:aURL.host] != NSOrderedSame)
+    {
+        return NO;
+    }
+
+    // Check port
+    if (self.port || aURL.port)
+    {
+        if (![self.port isEqual:aURL.port])
+        {
+            return NO;
+        }
+    }
+    
+    return YES;
 }
-
-@property BOOL returnRawResponse;
-@property BOOL retryIfServerError;
-@property BOOL acceptOnlyOKResponse;
-
-@property (readonly) NSDate* startTime;
-
-- (void)setRequestDictionary:(NSDictionary<NSString*, NSString*> *)requestDictionary;
-- (void)sendRequest:(ADWebResponseCallback)completionBlock;
 
 @end

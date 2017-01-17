@@ -74,6 +74,22 @@
 + (ADTestURLResponse*)responseValidAuthority:(NSString*)authority;
 + (ADTestURLResponse*)responseInvalidAuthority:(NSString*)authority;
 
++ (ADTestURLResponse*)responseValidDrsPayload:(NSString *)domain
+                                      onPrems:(BOOL)onPrems
+                passiveAuthenticationEndpoint:(NSString *)passiveAuthEndpoint;
++ (ADTestURLResponse*)responseInvalidDrsPayload:(NSString *)domain
+                                        onPrems:(BOOL)onPrems;
++ (ADTestURLResponse*)responseUnreachableDrsService:(NSString *)domain
+                                            onPrems:(BOOL)onPrems;
++ (ADTestURLResponse*)responseValidWebFinger:(NSString *)passiveEndpoint
+                                   authority:(NSString *)authority;
++ (ADTestURLResponse*)responseInvalidWebFinger:(NSString *)passiveEndpoint
+                                     authority:(NSString *)authority;
++ (ADTestURLResponse*)responseInvalidWebFingerNotTrusted:(NSString *)passiveEndpoint
+                                               authority:(NSString *)authority;
++ (ADTestURLResponse*)responseUnreachableWebFinger:(NSString *)passiveEndpoint
+                                         authority:(NSString *)authority;
+
 @end
 
 @interface ADTestURLConnection : NSObject

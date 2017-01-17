@@ -112,19 +112,24 @@
         case 400:
         case 401:
         {
-            if(!_request.handledPkeyAuthChallenge)
+
+            NSString* wwwAuthValue = [webResponse.headers valueForKey:wwwAuthenticateHeader];
+            if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName])
             {
-                NSString* wwwAuthValue = [webResponse.headers valueForKey:wwwAuthenticateHeader];
-                if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName])
-                {
-                    [self handlePKeyAuthChallenge:wwwAuthValue
-                                       completion:completionBlock];
-                    return;
-                }
+                [self handlePKeyAuthChallenge:wwwAuthValue
+                                   completion:completionBlock];
+                return;
             }
             
-            [self handleJSONResponse:webResponse completionBlock:completionBlock];
-            break;
+            if(_request.acceptOnlyOKResponse && webResponse.statusCode != 200)
+            {
+                _request.retryIfServerError = NO;
+            }
+            else
+            {
+                [self handleJSONResponse:webResponse completionBlock:completionBlock];
+                break;
+            }
         }
         case 500:
         case 503:

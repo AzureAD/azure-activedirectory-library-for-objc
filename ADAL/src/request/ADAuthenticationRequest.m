@@ -24,7 +24,7 @@
 
 #import "ADAL_Internal.h"
 #import "ADAuthenticationRequest.h"
-#import "ADInstanceDiscovery.h"
+#import "ADAuthorityValidation.h"
 #import "ADAuthenticationResult+Internal.h"
 #import "ADAuthenticationContext+Internal.h"
 #import "NSDictionary+ADExtensions.h"

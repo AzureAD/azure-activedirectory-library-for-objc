@@ -24,7 +24,7 @@
 
 #import "ADAL_Internal.h"
 #import "ADAuthenticationContext.h"
-#import "ADInstanceDiscovery.h"
+#import "ADHelpers.h"
 #import "ADTokenCacheKey.h"
 #import "NSString+ADHelperMethods.h"
 
@@ -82,7 +82,7 @@
     // Trim first for faster nil or empty checks. Also lowercase and trimming is
     // needed to ensure that the cache handles correctly same items with different
     // character case:
-    authority = [ADInstanceDiscovery canonicalizeAuthority:authority];
+    authority = [ADHelpers canonicalizeAuthority:authority];
     resource = resource.adTrimmedString.lowercaseString;
     clientId = clientId.adTrimmedString.lowercaseString;
     RETURN_NIL_ON_NIL_ARGUMENT(authority);
