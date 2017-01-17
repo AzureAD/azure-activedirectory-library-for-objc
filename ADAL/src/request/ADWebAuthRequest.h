@@ -27,8 +27,8 @@
 {
     NSDate* _startTime;
     BOOL _retryIfServerError;
-    BOOL _handledPkeyAuthChallenge;
     BOOL _returnRawResponse;
+    BOOL _acceptOnlyOKResponse;
     
     NSMutableDictionary* _responseDictionary;
     
@@ -39,10 +39,11 @@
 
 @property BOOL returnRawResponse;
 @property BOOL retryIfServerError;
-@property BOOL handledPkeyAuthChallenge;
-@property (readonly) NSDate* startTime;
+@property BOOL acceptOnlyOKResponse;
 
-- (void)setRequestDictionary:(NSDictionary<NSString*, NSString*> *)requestDictionary;
+@property (readonly) NSDate* startTime;
+@property (copy) NSDictionary<NSString *, NSString *> * requestDictionary;
+
 - (void)sendRequest:(ADWebResponseCallback)completionBlock;
 
 @end

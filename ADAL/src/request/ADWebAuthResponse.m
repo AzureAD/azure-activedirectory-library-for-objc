@@ -38,7 +38,6 @@
 {
     ADWebAuthResponse* response = [ADWebAuthResponse new];
     response->_request = request;
-    SAFE_ARC_RETAIN(request);
     
     [response handleNSError:error completionBlock:completionBlock];
 }
@@ -50,7 +49,6 @@
 {
     ADWebAuthResponse* response = [ADWebAuthResponse new];
     response->_request = request;
-    SAFE_ARC_RETAIN(request);
     
     [response handleResponse:webResponse completionBlock:completionBlock];
 }
@@ -65,14 +63,6 @@
     _responseDictionary = [NSMutableDictionary new];
     
     return self;
-}
-
-
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_responseDictionary);
-    SAFE_ARC_RELEASE(_request);
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 - (void)checkCorrelationId:(ADWebResponse*)webResponse
@@ -100,26 +90,30 @@
                 NSString* rawResponse = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
                 [_responseDictionary setObject:rawResponse
                                         forKey:@"raw_response"];
-                SAFE_ARC_RELEASE(rawResponse);
                 completionBlock(_responseDictionary);
                 return;
             }
         case 400:
         case 401:
         {
-            if(!_request.handledPkeyAuthChallenge)
+
+            NSString* wwwAuthValue = [webResponse.headers valueForKey:wwwAuthenticateHeader];
+            if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName])
             {
-                NSString* wwwAuthValue = [webResponse.headers valueForKey:wwwAuthenticateHeader];
-                if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName])
-                {
-                    [self handlePKeyAuthChallenge:wwwAuthValue
-                                       completion:completionBlock];
-                    return;
-                }
+                [self handlePKeyAuthChallenge:wwwAuthValue
+                                   completion:completionBlock];
+                return;
             }
             
-            [self handleJSONResponse:webResponse completionBlock:completionBlock];
-            break;
+            if(_request.acceptOnlyOKResponse && webResponse.statusCode != 200)
+            {
+                _request.retryIfServerError = NO;
+            }
+            else
+            {
+                [self handleJSONResponse:webResponse completionBlock:completionBlock];
+                break;
+            }
         }
         case 500:
         case 503:
@@ -149,7 +143,6 @@
             ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
                                                                              body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
                                                                     correlationId:_request.correlationId];
-            SAFE_ARC_RELEASE(body);
             
             //Now add the information to the dictionary, so that the parser can extract it:
             [self handleADError:adError completionBlock:completionBlock];
@@ -258,7 +251,6 @@
         NSString* errorMsg = [NSString stringWithFormat:@"JSON deserialization error: %@", jsonError.description];
         
         AD_LOG_ERROR_F(errorMsg, jsonError.code, _request.correlationId, @"%@", bodyStr);
-        SAFE_ARC_RELEASE(bodyStr);
     }
     
     [self handleNSError:jsonError completionBlock:completionBlock];

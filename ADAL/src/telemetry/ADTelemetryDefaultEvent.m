@@ -182,14 +182,6 @@ if (OBJECT) \
     return _defaultPropertyCount;
 }
 
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_propertyMap);
-    _propertyMap = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
-}
-
 #if !TARGET_OS_IPHONE
 // Returns the serial number as a CFString.
 // It is the caller's responsibility to release the returned CFString when done with it.

@@ -21,47 +21,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADWebResponse.h"
 
-@implementation ADWebResponse
+#import "NSURL+ADHelperMethods.h"
 
-@synthesize body = _body;
+@implementation NSURL (ADMethodHelpers)
 
-- (id)init
+- (BOOL)isEquivalentAuthority:(NSURL *)aURL
 {
-    return nil;
-}
-
-- (id)initWithResponse:(NSHTTPURLResponse *)response data:(NSData *)data
-{
-    if ( response == nil )
+    
+    // Check if equal
+    if ([self isEqual:aURL])
     {
-        NSAssert( false, @"Invalid Parameters" );
-        return nil;
+        return YES;
     }
     
-    if ( ( self = [super init] ) != nil )
+    // Check scheme and host
+    if (!self.scheme ||
+        !aURL.scheme ||
+        [self.scheme caseInsensitiveCompare:aURL.scheme] != NSOrderedSame)
     {
-        _response = response;
-        _body     = data;
+        return NO;
+    }
+
+    if (!self.host ||
+        !aURL.host ||
+        [self.host caseInsensitiveCompare:aURL.host] != NSOrderedSame)
+    {
+        return NO;
+    }
+
+    // Check port
+    if (self.port || aURL.port)
+    {
+        if (![self.port isEqual:aURL.port])
+        {
+            return NO;
+        }
     }
     
-    return self;
-}
-
-- (NSDictionary *)headers
-{
-    return _response.allHeaderFields;
-}
-
-- (NSInteger)statusCode
-{
-    return _response.statusCode;
-}
-
-- (NSURL*)URL
-{
-    return [_response URL];
+    return YES;
 }
 
 @end

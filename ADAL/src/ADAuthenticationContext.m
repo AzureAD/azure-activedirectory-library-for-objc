@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "ADAuthenticationSettings.h"
-#import "ADInstanceDiscovery.h"
 #import "ADTokenCache+Internal.h"
 #import "ADRequestParameters.h"
 #if TARGET_OS_IPHONE
@@ -102,7 +101,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [cache setDelegate:delegate];
     
     [self setTokenCacheStore:cache];
-    SAFE_ARC_RELEASE(cache);
     return self;
 }
 
@@ -131,14 +129,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
                  validateAuthority:validateAuthority
                         tokenCache:tokenCache
                              error:error];
-}
-
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_authority);
-    SAFE_ARC_RELEASE(_tokenCacheStore);
-    
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 - (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
@@ -204,8 +194,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         
         return nil;
     }
-    
-    SAFE_ARC_AUTORELEASE(context);
     return context;
 }
 
@@ -419,7 +407,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         return;
     }
     
-    SAFE_ARC_RELEASE(_tokenCacheStore);
     _tokenCacheStore = [[ADTokenCacheAccessor alloc] initWithDataSource:dataSource authority:_authority];
 }
 

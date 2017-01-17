@@ -167,9 +167,7 @@ BOOL validBase64Characters(const byte* data, const int size)
 {
     NSData *decodedData = [self.class Base64DecodeData:self];
     
-    NSString *string = [[NSString alloc] initWithData:decodedData encoding:NSUTF8StringEncoding];
-    SAFE_ARC_AUTORELEASE(string);
-    return string;
+    return [[NSString alloc] initWithData:decodedData encoding:NSUTF8StringEncoding];
 }
 
 //Helper method to encode 3 bytes into a sequence of 4 bytes:
@@ -282,7 +280,6 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
         dispatch_once(&once, ^{
             //Instance initialization (only once):
             nonWhiteCharSet = [[NSCharacterSet whitespaceAndNewlineCharacterSet] invertedSet];
-            SAFE_ARC_RETAIN(nonWhiteCharSet);
         });
     }
     return nonWhiteCharSet;
@@ -439,8 +436,6 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 - (NSDictionary*)authHeaderParams
 {
     NSMutableDictionary* params = [NSMutableDictionary new];
-    SAFE_ARC_AUTORELEASE(params);
-    
     NSUInteger strLength = [self length];
     NSRange currentRange = NSMakeRange(0, strLength);
     NSCharacterSet* whiteChars = [NSCharacterSet whitespaceAndNewlineCharacterSet];

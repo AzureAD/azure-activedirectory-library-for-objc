@@ -174,8 +174,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     }
     item.accessTokenType = TEST_ACCESS_TOKEN_TYPE;
     
-    SAFE_ARC_AUTORELEASE(item);
-    
     return item;
 }
 
@@ -201,8 +199,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
         item.userInformation = [self adCreateUserInformation:userId];
     }
     item.accessTokenType = TEST_ACCESS_TOKEN_TYPE;
-    
-    SAFE_ARC_AUTORELEASE(item);
     
     return item;
 }
@@ -232,8 +228,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
         item.userInformation = [self adCreateUserInformation:userId];
     }
     
-    SAFE_ARC_AUTORELEASE(item);
-    
     return item;
 }
 
@@ -256,8 +250,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     {
         item.userInformation = [self adCreateUserInformation:userId];
     }
-    
-    SAFE_ARC_AUTORELEASE(item);
     
     return item;
 }
@@ -485,7 +477,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
         NSMutableDictionary* mutableHeaders = [requestHeaders mutableCopy];
         [mutableHeaders setObject:[correlationId UUIDString] forKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE];
         requestHeaders = mutableHeaders;
-        SAFE_ARC_AUTORELEASE(mutableHeaders);
     }
     else if (correlationId)
     {

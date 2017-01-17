@@ -74,7 +74,6 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
     if (s_endURL!=endURL)
     {
         s_endURL = endURL.lowercaseString;
-        SAFE_ARC_RETAIN(s_endURL);
     }
     s_telemetryEvent = telemetryEvent;
     return [NSURLProtocol registerClass:self];
@@ -83,7 +82,6 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
 + (void)unregisterProtocol
 {
     [NSURLProtocol unregisterClass:self];
-    SAFE_ARC_RELEASE(s_endURL);
     s_endURL = nil;
     s_telemetryEvent = nil;
     
@@ -151,9 +149,7 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
     id<ADRequestContext> context = _reqContext(self.request);
     if (context)
     {
-        SAFE_ARC_RELEASE(_context);
         _context = context;
-        SAFE_ARC_RETAIN(_context);
     }
     
     AD_LOG_VERBOSE_F(@"-[ADURLProtocol startLoading]", context.correlationId, @"host: %@", [self.request.URL host]);
@@ -168,11 +164,9 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
     
     [NSURLProtocol setProperty:@YES forKey:kADURLProtocolPropertyKey inRequest:request];
     
-    SAFE_ARC_RELEASE(_connection);
     _connection = [[NSURLConnection alloc] initWithRequest:request
                                                   delegate:self
                                           startImmediately:YES];
-    SAFE_ARC_RELEASE(request);
 }
 
 - (void)stopLoading
@@ -180,7 +174,6 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
     AD_LOG_VERBOSE_F(@"-[ADURLProtocol stopLoading]", _reqContext(self.request).correlationId, @"host: %@", [self.request.URL host]);
     
     [_connection cancel];
-    SAFE_ARC_RELEASE(_connection);
     _connection = nil;
 }
 
@@ -253,7 +246,6 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     }
     
     NSMutableURLRequest* mutableRequest = [request mutableCopy];
-    SAFE_ARC_AUTORELEASE(mutableRequest);
     
     [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
     [ADURLProtocol addContext:_context toRequest:mutableRequest];

@@ -21,47 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADWebResponse.h"
+#import <Foundation/Foundation.h>
 
-@implementation ADWebResponse
+@interface ADWebFingerRequest : NSObject
 
-@synthesize body = _body;
+/*!
+ This handles WebFinger request (https://webfinger.net/) to validate the authority.
+ 
+ @param authenticationEndpoint      Endpoint used to request the validation.
+ @param authority                   Authority to be validated.
+ @param context                     Context to be used for the internal web request
+ @param completionBlock             Completion block for this asynchronous request.
+ 
+ */
++ (void)requestWebFinger:(NSString *)authenticationEndpoint
+               authority:(NSString *)authority
+                 context:(id<ADRequestContext>)context
+         completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock;
 
-- (id)init
-{
-    return nil;
-}
-
-- (id)initWithResponse:(NSHTTPURLResponse *)response data:(NSData *)data
-{
-    if ( response == nil )
-    {
-        NSAssert( false, @"Invalid Parameters" );
-        return nil;
-    }
-    
-    if ( ( self = [super init] ) != nil )
-    {
-        _response = response;
-        _body     = data;
-    }
-    
-    return self;
-}
-
-- (NSDictionary *)headers
-{
-    return _response.allHeaderFields;
-}
-
-- (NSInteger)statusCode
-{
-    return _response.statusCode;
-}
-
-- (NSURL*)URL
-{
-    return [_response URL];
-}
+// Fetches the corresponding URL for the request
++ (NSURL *)urlForWebFinger:(NSString *)authenticationEndpoint authority:(NSString *)authority;
 
 @end

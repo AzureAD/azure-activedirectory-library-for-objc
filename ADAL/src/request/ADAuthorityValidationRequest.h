@@ -21,47 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADWebResponse.h"
+#import <Foundation/Foundation.h>
 
-@implementation ADWebResponse
+@interface ADAuthorityValidationRequest : NSObject
 
-@synthesize body = _body;
+/*!
+ This handles request for authority validation to the trusted authority.
+ 
+ @param authority                   Authority to be validated.
+ @param trustedAuthority            Trusted authority to ask for validation.
+ @param context                     Context to be used for the internal web request
+ @param completionBlock             Completion block for this asynchronous request.
+ 
+ */
++ (void)requestAuthorityValidationForAuthority:(NSString *)authority
+                              trustedAuthority:(NSString *)trustedAuthority
+                                       context:(id<ADRequestContext>)context
+                               completionBlock:(void (^)(id response, ADAuthenticationError *error))completionBlock;
 
-- (id)init
-{
-    return nil;
-}
+// Fetches the corresponding URL for the request
++ (NSURL *)urlForAuthorityValidation:(NSString *)authority trustedAuthority:(NSString *)trustedAuthority;
 
-- (id)initWithResponse:(NSHTTPURLResponse *)response data:(NSData *)data
-{
-    if ( response == nil )
-    {
-        NSAssert( false, @"Invalid Parameters" );
-        return nil;
-    }
-    
-    if ( ( self = [super init] ) != nil )
-    {
-        _response = response;
-        _body     = data;
-    }
-    
-    return self;
-}
-
-- (NSDictionary *)headers
-{
-    return _response.allHeaderFields;
-}
-
-- (NSInteger)statusCode
-{
-    return _response.statusCode;
-}
-
-- (NSURL*)URL
-{
-    return [_response URL];
-}
 
 @end

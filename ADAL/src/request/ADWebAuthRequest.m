@@ -35,7 +35,7 @@
 @synthesize returnRawResponse = _returnRawResponse;
 @synthesize retryIfServerError = _retryIfServerError;
 @synthesize startTime = _startTime;
-@synthesize handledPkeyAuthChallenge = _handledPkeyAuthChallenge;
+@synthesize acceptOnlyOKResponse = _acceptOnlyOKResponse;
 
 - (id)initWithURL:(NSURL *)url
           context:(id<ADRequestContext>)context
@@ -59,25 +59,12 @@
     return self;
 }
 
-- (void)setRequestDictionary:(NSDictionary*)requestDictionary
-{
-    if (requestDictionary == _requestDictionary)
-    {
-        return;
-    }
-    
-    SAFE_ARC_RELEASE(_requestDictionary);
-    _requestDictionary = [requestDictionary copy];
-}
-
 - (void)sendRequest:(ADWebResponseCallback)completionBlock
 {
-    if ([self isGetRequest])
+    if ([self isGetRequest] && [_requestDictionary allKeys].count > 0)
     {
         NSString* newURL = [NSString stringWithFormat:@"%@?%@", [_requestURL absoluteString], [_requestDictionary adURLFormEncode]];
-        SAFE_ARC_RELEASE(_requestURL);
         _requestURL = [NSURL URLWithString:newURL];
-        SAFE_ARC_RETAIN(_requestURL);
     }
 
     [self setBody:[[_requestDictionary adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding]];

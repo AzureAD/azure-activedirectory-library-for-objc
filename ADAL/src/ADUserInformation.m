@@ -84,7 +84,6 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     { \
         *error = idTokenError; \
     } \
-    SAFE_ARC_RELEASE(self); \
     return nil; \
 }
 
@@ -107,7 +106,6 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     
     if (!idToken)
     {
-        SAFE_ARC_RELEASE(self);
         return nil;
     }
 
@@ -117,7 +115,6 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     
     _rawIdToken = idToken;
-    SAFE_ARC_RETAIN(_rawIdToken);
     
     NSArray* parts = [idToken componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"."]];
     if (parts.count < 1)
@@ -126,7 +123,6 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     
     NSMutableDictionary* allClaims = [NSMutableDictionary new];
-    SAFE_ARC_AUTORELEASE(allClaims);
     NSString* type = nil;
     for (NSString* part in parts)
     {
@@ -180,7 +176,6 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
     }
     
     _allClaims = allClaims;
-    SAFE_ARC_RETAIN(_allClaims);
     
     //Now attempt to extract an unique user id:
     if (![NSString adIsStringNilOrBlank:self.upn])
@@ -215,7 +210,6 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
         RETURN_ID_TOKEN_ERROR;
     }
     _userId = [self.class normalizeUserId:_userId];
-    SAFE_ARC_RETAIN(_userId);
     
     if (![NSString adIsStringNilOrBlank:self.userObjectId])
     {
@@ -226,23 +220,8 @@ NSString* const ID_TOKEN_GUEST_ID = @"altsecid";
         _uniqueId = self.subject;
     }
     _uniqueId = [ADUserInformation normalizeUserId:_uniqueId];
-    SAFE_ARC_RETAIN(_uniqueId);
     
     return self;
-}
-
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_userId);
-    _userId = nil;
-    SAFE_ARC_RELEASE(_uniqueId);
-    _uniqueId = nil;
-    SAFE_ARC_RELEASE(_allClaims);
-    _allClaims = nil;
-    SAFE_ARC_RELEASE(_rawIdToken);
-    _rawIdToken = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 //Declares a propperty getter, which extracts the property from the claims dictionary
@@ -268,7 +247,6 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
 {
     RETURN_NIL_ON_NIL_ARGUMENT(idToken);
     ADUserInformation* userInfo = [[ADUserInformation alloc] initWithIdToken:idToken error:error];
-    SAFE_ARC_AUTORELEASE(userInfo);
     return userInfo;
 }
 
@@ -278,7 +256,6 @@ ID_TOKEN_PROPERTY_GETTER(guestId, ID_TOKEN_GUEST_ID);
     NSString* idtoken = [_rawIdToken copyWithZone:zone];
     ADUserInformation* info = [[ADUserInformation allocWithZone:zone] initWithIdToken:idtoken
                                                                                 error:nil];
-    SAFE_ARC_RELEASE(idtoken);
     return info;
 }
 

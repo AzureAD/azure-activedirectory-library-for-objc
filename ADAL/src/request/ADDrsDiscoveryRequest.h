@@ -21,47 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADWebResponse.h"
 
-@implementation ADWebResponse
+#import <Foundation/Foundation.h>
 
-@synthesize body = _body;
-
-- (id)init
+/*!
+ For ADFS authority, type can be specified to be on-prems, or cloud.
+  */
+typedef enum
 {
-    return nil;
-}
-
-- (id)initWithResponse:(NSHTTPURLResponse *)response data:(NSData *)data
-{
-    if ( response == nil )
-    {
-        NSAssert( false, @"Invalid Parameters" );
-        return nil;
-    }
+    /*! The SDK will try DRS discovery service for on-prems. */
+    AD_ADFS_ON_PREMS,
     
-    if ( ( self = [super init] ) != nil )
-    {
-        _response = response;
-        _body     = data;
-    }
+    /*! The SDK will try DRS discovery service for cloud. */
+    AD_ADFS_CLOUD
     
-    return self;
-}
+} AdfsType;
 
-- (NSDictionary *)headers
-{
-    return _response.allHeaderFields;
-}
+/*!
+ This handles DRS discovery request to be used for ADFS authority validation/
+ 
+ @param domain          The domain to be used. Usually this is from the UPN suffix.
+ @param type            Indicates whether the DRS is on prems or on cloud.
+ @param context         Context to be used for the internal web request
+ @param completionBlock Completion block for this asynchronous request.
+ 
+ */
+@interface ADDrsDiscoveryRequest : NSObject
 
-- (NSInteger)statusCode
-{
-    return _response.statusCode;
-}
++ (void)requestDrsDiscoveryForDomain:(NSString *)domain
+                            adfsType:(AdfsType)type
+                             context:(id<ADRequestContext>)context
+                     completionBlock:(void (^)(id result, ADAuthenticationError *error))completionBlock;
 
-- (NSURL*)URL
-{
-    return [_response URL];
-}
+// Fetches the corresponding URL for the request
++ (NSURL *)urlForDrsDiscoveryForDomain:(NSString *)domain adfsType:(AdfsType)type;
 
 @end

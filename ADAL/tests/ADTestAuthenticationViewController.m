@@ -59,7 +59,6 @@ typedef enum
     {
         _type = type;
         _parameter = [parameter copy];
-        SAFE_ARC_AUTORELEASE(_parameter);
     }
     return self;
 }
@@ -194,7 +193,6 @@ static NSMutableArray<WebAuthDelegateCall*> * s_delegateCalls = nil;
     WebAuthDelegateCall* call = [[WebAuthDelegateCall alloc] initWithCallType:WEB_AUTH_DID_CANCEL_CALL
                                                                     parameter:nil];
     [s_delegateCalls addObject:call];
-    SAFE_ARC_RELEASE(call);
 }
 
 + (void)addDelegateCallWebAuthDidStartLoad:(NSURL*)url
@@ -202,7 +200,6 @@ static NSMutableArray<WebAuthDelegateCall*> * s_delegateCalls = nil;
     WebAuthDelegateCall* call = [[WebAuthDelegateCall alloc] initWithCallType:WEB_AUTH_DID_START_LOAD_CALL
                                                                     parameter:url];
     [s_delegateCalls addObject:call];
-    SAFE_ARC_RELEASE(call);
 }
 
 + (void)addDelegateCallWebAuthDidFinishLoad:(NSURL*)url
@@ -210,7 +207,6 @@ static NSMutableArray<WebAuthDelegateCall*> * s_delegateCalls = nil;
     WebAuthDelegateCall* call = [[WebAuthDelegateCall alloc] initWithCallType:WEB_AUTH_DID_FINISH_LOAD_CALL
                                                                     parameter:url];
     [s_delegateCalls addObject:call];
-    SAFE_ARC_RELEASE(call);
 }
 
 + (void)addDelegateCallWebAuthShouldStartLoadRequest:(NSURLRequest*)request
@@ -218,7 +214,6 @@ static NSMutableArray<WebAuthDelegateCall*> * s_delegateCalls = nil;
     WebAuthDelegateCall* call = [[WebAuthDelegateCall alloc] initWithCallType:WEB_AUTH_SHOULD_START_LOAD_REQUEST_CALL
                                                                     parameter:request];
     [s_delegateCalls addObject:call];
-    SAFE_ARC_RELEASE(call);
 }
 
 + (void)addDelegateCallWebAuthDidCompleteWithURL:(NSURL *)endURL
@@ -226,14 +221,12 @@ static NSMutableArray<WebAuthDelegateCall*> * s_delegateCalls = nil;
     WebAuthDelegateCall* call = [[WebAuthDelegateCall alloc] initWithCallType:WEB_AUTH_DID_COMPLETE_WITH_URL_CALL
                                                                     parameter:endURL];
     [s_delegateCalls addObject:call];
-    SAFE_ARC_RELEASE(call);
 }
 
 + (void)addDelegateCallWebAuthDidFailWithError:(NSError *)error
 {
     WebAuthDelegateCall* call = [[WebAuthDelegateCall alloc] initWithCallType:WEB_AUTH_DID_FAIL_WITH_ERROR_CALL parameter:error];
     [s_delegateCalls addObject:call];
-    SAFE_ARC_RELEASE(call);
 }
 
 + (void)clearDelegateCalls

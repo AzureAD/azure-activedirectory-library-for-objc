@@ -75,7 +75,6 @@ static ADKeychainTokenCache* s_defaultCache = nil;
         return [self defaultKeychainCache];
     }
     ADKeychainTokenCache* cache = [[ADKeychainTokenCache alloc] initWithGroup:group];
-    SAFE_ARC_AUTORELEASE(cache);
     return cache;
 }
 
@@ -383,7 +382,6 @@ static ADKeychainTokenCache* s_defaultCache = nil;
             [itemsKept addObject:item];
         }
     }
-    SAFE_ARC_AUTORELEASE(itemsKept);
     return itemsKept;
 }
 
@@ -618,7 +616,6 @@ static ADKeychainTokenCache* s_defaultCache = nil;
     }
     
     NSMutableArray* tokenItems = [[NSMutableArray<ADTokenCacheItem *> alloc] initWithCapacity:items.count];
-    SAFE_ARC_AUTORELEASE(tokenItems);
     for (NSDictionary* attrs in items)
     {
         ADTokenCacheItem* item = [self itemFromKeychainAttributes:attrs];
@@ -780,7 +777,6 @@ static ADKeychainTokenCache* s_defaultCache = nil;
             [tombstones addObject:item];
         }
     }
-    SAFE_ARC_AUTORELEASE(tombstones);
     return tombstones;
 }
 

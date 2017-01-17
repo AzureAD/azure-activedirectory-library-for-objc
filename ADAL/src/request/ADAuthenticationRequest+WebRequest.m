@@ -59,7 +59,6 @@
          ADAuthenticationResult* result = [item processTokenResponse:response
                                                          fromRefresh:NO
                                                 requestCorrelationId:[_requestParams correlationId]];
-         SAFE_ARC_RELEASE(item);
          completionBlock(result);
      }];
 }

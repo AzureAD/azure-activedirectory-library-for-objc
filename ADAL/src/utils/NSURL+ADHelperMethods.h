@@ -21,47 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADWebResponse.h"
 
-@implementation ADWebResponse
+#import <Foundation/Foundation.h>
 
-@synthesize body = _body;
+@interface NSURL (ADMethodHelpers)
 
-- (id)init
-{
-    return nil;
-}
-
-- (id)initWithResponse:(NSHTTPURLResponse *)response data:(NSData *)data
-{
-    if ( response == nil )
-    {
-        NSAssert( false, @"Invalid Parameters" );
-        return nil;
-    }
-    
-    if ( ( self = [super init] ) != nil )
-    {
-        _response = response;
-        _body     = data;
-    }
-    
-    return self;
-}
-
-- (NSDictionary *)headers
-{
-    return _response.allHeaderFields;
-}
-
-- (NSInteger)statusCode
-{
-    return _response.statusCode;
-}
-
-- (NSURL*)URL
-{
-    return [_response URL];
-}
+- (BOOL)isEquivalentAuthority:(NSURL *)aURL;
 
 @end

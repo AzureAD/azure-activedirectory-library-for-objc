@@ -68,7 +68,6 @@
         {
             return;
         }
-        SAFE_ARC_RELEASE(_requestData);
         _requestData = [body copy];
         
         // Add default HTTP Headers to the request: Expect
@@ -94,10 +93,8 @@
     _timeout           = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
     
     _correlationId     = context.correlationId;
-    SAFE_ARC_RETAIN(_correlationId);
     
     _telemetryRequestId = context.telemetryRequestId;
-    SAFE_ARC_RETAIN(_telemetryRequestId);
     
     _operationQueue = [[NSOperationQueue alloc] init];
     [_operationQueue setMaxConcurrentOperationCount:1];
@@ -105,50 +102,12 @@
     return self;
 }
 
-
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_connection);
-    _connection = nil;
-    
-    SAFE_ARC_RELEASE(_requestURL);
-    _requestURL = nil;
-    
-    SAFE_ARC_RELEASE(_requestHeaders);
-    _requestHeaders = nil;
-    SAFE_ARC_RELEASE(_requestData);
-    _requestData = nil;
-    
-    SAFE_ARC_RELEASE(_response);
-    _response = nil;
-    SAFE_ARC_RELEASE(_responseData);
-    _responseData = nil;
-    
-    SAFE_ARC_RELEASE(_correlationId);
-    _correlationId = nil;
-    
-    SAFE_ARC_RELEASE(_telemetryRequestId);
-    _telemetryRequestId = nil;
-    
-    SAFE_ARC_RELEASE(_operationQueue);
-    _operationQueue = nil;
-    
-    SAFE_ARC_RELEASE(_completionHandler);
-    _completionHandler = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
-}
-
 // Cleans up and then calls the completion handler
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response
 {
     // Cleanup
-    SAFE_ARC_RELEASE(_response);
     _response       = nil;
-    SAFE_ARC_RELEASE(_responseData);
     _responseData   = nil;
-    
-    SAFE_ARC_RELEASE(_connection);
     _connection     = nil;
     
     [self stopTelemetryEvent:error response:response];
@@ -157,12 +116,8 @@
 
 - (void)send:(void (^)(NSError *, ADWebResponse *))completionHandler
 {
-    SAFE_ARC_RELEASE(_completionHandler);
     _completionHandler = [completionHandler copy];
-    
-    SAFE_ARC_RELEASE(_response);
     _response          = nil;
-    SAFE_ARC_RELEASE(_responseData);
     _responseData      = [[NSMutableData alloc] init];
     
     [self send];
@@ -170,9 +125,7 @@
 
 - (void)resend
 {
-    SAFE_ARC_RELEASE(_response);
     _response          = nil;
-    SAFE_ARC_RELEASE(_responseData);
     _responseData      = [[NSMutableData alloc] init];
 
     [self send];
@@ -209,9 +162,7 @@
     
     [ADURLProtocol addContext:self toRequest:request];
     
-    SAFE_ARC_RELEASE(_connection);
     _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
-    SAFE_ARC_RELEASE(request);
     [_connection setDelegateQueue:_operationQueue];
     [_connection start];
 }
@@ -252,10 +203,7 @@
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
 #pragma unused(connection)
-    
-    SAFE_ARC_RELEASE(_response);
     _response = (NSHTTPURLResponse *)response;
-    SAFE_ARC_RETAIN(_response);
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
@@ -292,7 +240,6 @@
     NSAssert( _response != nil, @"No HTTP Response available" );
     
     ADWebResponse* response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
-    SAFE_ARC_AUTORELEASE(response);
     [self completeWithError:nil andResponse:response];
 }
 
@@ -325,7 +272,6 @@
     }
 
     [[ADTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
-    SAFE_ARC_RELEASE(event);
 }
 
 @end

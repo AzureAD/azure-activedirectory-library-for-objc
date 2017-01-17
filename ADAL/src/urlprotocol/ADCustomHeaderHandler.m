@@ -39,7 +39,6 @@ static NSMutableDictionary* s_customHeadersForSingleUse = nil;
         s_customHeaders = [NSMutableDictionary dictionary];
 #endif
         
-        SAFE_ARC_RETAIN(s_customHeaders);
         s_customHeadersForSingleUse = [NSMutableDictionary new];
     }
 }
