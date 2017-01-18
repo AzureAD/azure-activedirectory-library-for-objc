@@ -168,7 +168,6 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     }
     
     AD_LOG_VERBOSE_F(@"-[ADURLProtocol startLoading]", _correlationId, @"host: %@", [self.request.URL host]);
-    NSLog(@"JK => %@", [self.request.URL absoluteString]);
     NSMutableURLRequest* request = [self.request mutableCopy];
     
     // Make sure the correlation ID propogates through the requests
