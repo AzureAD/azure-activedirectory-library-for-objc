@@ -174,6 +174,9 @@ typedef enum
     /*! The key hash was missing from the response */
     AD_ERROR_TOKENBROKER_HASH_MISSING = 510,
     
+    /*! We can't call out to tokenbroker in an extension */
+    AD_ERROR_TOKENBROKER_NOT_SUPPORTED_IN_EXTENSION = 511,
+    
 } ADErrorCode;
 
 /* HTTP status codes used by the library */

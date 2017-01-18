@@ -26,6 +26,8 @@
 @class ADWebResponse;
 @class ADWebAuthRequest;
 
+typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
+
 @interface ADWebAuthResponse : NSObject
 {
     NSMutableDictionary* _responseDictionary;
@@ -36,10 +38,10 @@
 
 + (void)processError:(NSError *)error
        correlationId:(NSUUID *)correlationId
-          completion:(void (^)(NSDictionary *))completionBlock;
+          completion:(ADWebResponseCallback)completionBlock;
 
 + (void)processResponse:(ADWebResponse *)webResponse
                 request:(ADWebAuthRequest *)request
-             completion:(void (^)(NSDictionary *))completionBlock;
+             completion:(ADWebResponseCallback)completionBlock;
 
 @end

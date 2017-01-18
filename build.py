@@ -31,6 +31,8 @@ ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUI
 
 default_workspace = "ADAL.xcworkspace"
 
+use_xcpretty = True
+
 class tclr:
 	HDR = '\033[1m'
 	OK = '\033[32m\033[1m'
@@ -56,7 +58,8 @@ build_targets = [
 		"name" : "Sample Swift App",
 		"scheme" : "SampleSwiftApp",
 		"operations" : [ "build" ],
-		"platform" : "iOS"
+		"platform" : "iOS",
+		"workspace" : "Samples/SampleSwiftApp/SampleSwiftApp.xcworkspace",
 	},
 	{
 		"name" : "Mac Framework",
@@ -94,10 +97,24 @@ def print_operation_end(name, operation, exit_code) :
 def do_ios_build(target, operation) :
 	name = target["name"]
 	scheme = target["scheme"]
+	project = target.get("project")
+	workspace = target.get("workspace")
+
+	if (workspace == None) :
+		workspace = default_workspace
 
 	print_operation_start(name, operation)
 
-	command = "xcodebuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest + " | xcpretty"
+	command = "xcodebuild " + operation
+	if (project != None) :
+		command += " -project " + project
+	else :
+		command += " -workspace " + workspace
+		
+	command += " -scheme \"" + scheme + "\" -configuration CodeCoverage " + ios_sim_flags + " " + ios_sim_dest
+	if (use_xcpretty) :
+		command += " | xcpretty"
+		
 	print command
 	exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
 
@@ -114,9 +131,10 @@ def do_mac_build(target, operation) :
 	command = "xcodebuild " + operation + " -workspace " + default_workspace + " -scheme \"" + scheme + "\""
 
 	if (arch != None) :
-		command = command + " -destination 'arch=" + arch + "'"
+		command += " -destination 'arch=" + arch + "'"
 
-	command = command + " | xcpretty"
+	if (use_xcpretty) :
+		command += " | xcpretty"
 
 	print command
 	exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
@@ -151,10 +169,13 @@ clean = True
 for arg in sys.argv :
 	if (arg == "--no-clean") :
 		clean = False
+	if (arg == "--no-xcpretty") :
+		use_xcpretty = False
 
 # start by cleaning up any derived data that might be lying around
 if (clean) :
 	subprocess.call("rm -rf ~/Library/Developer/Xcode/DerivedData/ADAL-*", shell=True)
+	subprocess.call("rm -rf ~/Library/Developer/Xcode/DerivedData/SampleSwiftApp-*", shell=True)
 
 for target in build_targets:
 	exit_code = 0

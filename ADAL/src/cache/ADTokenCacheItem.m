@@ -240,8 +240,8 @@
 {
     return [NSString stringWithFormat:@"(authority=%@ clientId=%@ accessToken=%@ accessTokenType=%@ refreshToken=%@ resource=%@)",
             _authority, _clientId,
-            [NSString adIsStringNilOrBlank:_accessToken] ? @"(nil)" : @"(present)", _accessTokenType,
-            [NSString adIsStringNilOrBlank:_refreshToken] ? @"(nil)" : @"(present)", _resource];
+            [NSString adIsStringNilOrBlank:_accessToken] ? @"(nil)" : [ADLogger getHash:_accessToken], _accessTokenType,
+            [NSString adIsStringNilOrBlank:_refreshToken] ? @"(nil)" : [ADLogger getHash:_refreshToken], _resource];
 }
 
 - (NSString *)clientId

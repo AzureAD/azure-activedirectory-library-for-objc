@@ -46,7 +46,7 @@ typedef enum
 {
 @protected
     //See the corresponding properties for details.
-    ADTokenCacheItem*          _tokenCacheItem;
+    ADTokenCacheItem*               _tokenCacheItem;
     ADAuthenticationResultStatus    _status;
     ADAuthenticationError*          _error;
     NSUUID*                         _correlationId;
@@ -73,6 +73,10 @@ typedef enum
 
 /*! The correlation ID of the request(s) that get this result. */
 @property (readonly) NSUUID* correlationId;
+
+/*! Some access tokens have extended lifetime when server is in an unavailable state.
+ This property indicates whether the access token is returned in such a state. */
+@property (readonly) BOOL extendedLifeTimeToken;
 
 @end
 

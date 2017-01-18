@@ -49,8 +49,6 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
-    self.navigationController.navigationBarHidden = NO;
     self.navigationItem.hidesBackButton = NO;
     self.navigationItem.title = @"Select Application Profile";
     
@@ -71,6 +69,13 @@
     self.view = rootView;
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    (void)animated;
+    
+     self.navigationController.navigationBarHidden = NO;
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -79,7 +84,6 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [[ADTestAppSettings settings] setProfileFromIndex:indexPath.row];
-    [[NSUserDefaults standardUserDefaults] setObject:[ADTestAppSettings profileTitleForIndex:indexPath.row] forKey:@"CurrentProfile"];
     [self.navigationController popViewControllerAnimated:YES];
 }
 

@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "ADAuthenticationError.h"
 #import "ADAL_Internal.h"
+#import "ADTelemetry.h"
 
 #define ADTAssertContains(_str, _contains) XCTAssertTrue([_str containsString:_contains], "%@ does not contain \"%@\"", _str, _contains)
 
@@ -210,6 +211,14 @@ typedef enum
                          line:(int)line
                     semaphore:(dispatch_semaphore_t)signal
                         block:(void (^)(void)) block;
+
+//The method retrieves property value from a telemetry event by property name
+- (NSString *)adGetPropertyFromEvent:(NSArray *)event
+                     propertyName:(NSString *)propertyName;
+
+//The method counts the properties in a telemetry event matching propertyName
+- (NSInteger)adGetPropertyCount:(NSArray *)event
+                 propertyName:(NSString *)propertyName;
 @end
 
 //Fixes the issue with XCTAssertEqual not comparing int and long values

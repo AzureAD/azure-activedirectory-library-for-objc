@@ -32,7 +32,7 @@
     }
 
 #define CHECK_FOR_NIL(_val) \
-    if (!_val) { completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"" #_val " is nil!" correlationId:_correlationId]]); return; }
+    if (!_val) { completionBlock([ADAuthenticationResult resultFromError:[ADAuthenticationError unexpectedInternalError:@"" #_val " is nil!" correlationId:[_requestParams correlationId]]]); return; }
 
 #import "ADAL_Internal.h"
 
@@ -68,6 +68,11 @@ extern NSString* const ADRedirectUriInvalidError;
                                     errorCode:(ADErrorCode)errorCode;
 
 
+- (id)initWithAuthority:(NSString *)authority
+      validateAuthority:(BOOL)validateAuthority
+             tokenCache:(id<ADTokenCacheDataSource>)tokenCache
+                  error:(ADAuthenticationError *__autoreleasing *)error;
+
 + (BOOL)isFinalResult:(ADAuthenticationResult *)result;
 
 + (NSString*)getPromptParameter:(ADPromptBehavior)prompt;
@@ -78,10 +83,6 @@ extern NSString* const ADRedirectUriInvalidError;
                                  toUser:(ADUserIdentifier *)userId;
 
 - (BOOL)hasCacheStore;
-
-// ADAL_RESILIENCY_NOT_YET: Move back to public header
-/*! Enable to return access token with extended lifetime during server outage. */
-@property BOOL extendedLifetimeEnabled;
 
 @end
 

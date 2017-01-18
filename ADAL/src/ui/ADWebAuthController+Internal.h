@@ -42,7 +42,7 @@ typedef void (^ADBrokerCallback)(ADAuthenticationError* error, NSURL*);
    fullScreen:(BOOL)fullScreen
 #endif
       webView:(WebViewType*)webView
-correlationId:(NSUUID*)correlationId
+      context:(ADRequestParameters*)requestParams
    completion:(ADBrokerCallback)completionBlock;
 
 //Cancel the web authentication session which might be happening right now
@@ -52,5 +52,7 @@ correlationId:(NSUUID*)correlationId
 #if TARGET_OS_IPHONE
 + (void)setInterruptedBrokerResult:(ADAuthenticationResult*)result;
 #endif // TARGET_OS_IPHONE
+
+- (ADAuthenticationViewController*)viewController;
 
 @end

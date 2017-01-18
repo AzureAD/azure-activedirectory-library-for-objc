@@ -2,38 +2,13 @@
 #Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and OSX
 =====================================
 
-## URGENT: iOS 10 NOTICE
+## Release Versions
 
-**If you are using ADAL versions <= 1.2.8 or <= 2.2.4 you need to immediately upgrade your application to the latest version of our SDKs. Without this step, your users will not be able to sign-in once iOS 10 is released.** If a user is already signed in to your application it will continue to work temporarily, but the next time they need to sign in again they will experience this issue. 
+We recommend remaining up-to-date with the latest version of ADAL. The best place to check what the most recent version is is the [releases page](https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases) on GitHub, you can also subscribe the the [Atom Feed](https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases.atom) from GitHub, or use a 3rd party tool like [Sibbell](https://sibbell.com/about/) to receive emails when a new version is released.
 
-To update your application, you may use cocoapods or manually download the SDK from source on GitHub. Once you’ve update your SDK to the latest version your application will continue to work, there is no further code changes required for your application to continue working. 
+The only approved way to get the latest version is through a tagged release on GitHub, or a tool that relies on that data. Tools like [CocoaPods](https://cocoapods.org) can make it easier to set up your project dependencies and update to the latest release. ADAL follows the [GitFlow branching model](http://danielkummer.github.io/git-flow-cheatsheet/). You should never pull an ADAL version for release from any branch other then master, any other branch is for versions of ADAL still in development or testing, and are subject to change.
 
-## How to Update Your Application with Cocoapods (recommended)
-
-If you are using the 2.x version of our library, ensure the following line is in your `Podfile` in the root directory of your application:
-
-```
-pod 'ADAL', '~> 2.2'
-```
-If you are using the 1.2 version of our library, ensure the following line is in your `Podfile` in the root directory of your application:
-
-```
-pod 'ADALiOS', '~> 1.2'
-```
-Once this is complete, run the `pod update` command to update your application. 
-
-
-## How to Update Your Application with source
-
-1.	Download the latest code from the task you require, either 2.2.5 or 1.2.9
-2.	In your XCode 8 or higher project, Click File -> Add Files
-3.	In the Finder that appears, navigate to where you downloaded the ADAL source. Go to the ADAL folder, and select `ADAL.xcodeproj` and click Add.
-4.	You’ll see you have another Project in your Project list to the left called `ADAL.xcodeproj`
-5.	Under “Linked Frameworks and Libraries” in your application’s General project settings, ensure ADALiOS.a is listed and not in red color font. Red color font means XCode can’t find the library and you need to update the location by removing the entry and adding it again.
-6.	If it isn’t there or in red color, press the “+” icon. You should see ADALiOS.a in your available libraries. Select it and click OK. 
-7.	OPTIONAL: You may also select the .framework version if you would rather use the framework. Make sure that you are selecting the iOS Target and not the Mac Target for the framework.
-8.	Compile as and test your application.
-
+NOTE: To work with iOS 10 you must have at least version 2.2.5, or 1.2.9.
 
 =====================================
 
@@ -50,7 +25,7 @@ The ADAL SDK for iOS and Mac OS X gives you the ability to add support for Work 
 
 ## Samples and Documentation
 
-[We provide a full suite of sample applications and documentation on GitHub](https://github.com/AzureADSamples) to help you get started with learning the Azure Identity system. This includes tutorials for native clients such as Windows, Windows Phone, iOS, OSX, Android, and Linux. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect, Graph API, and other awesome features. 
+We provide a full suite of [sample applications](https://github.com/AzureADSamples) and [documentation](http://cocoadocs.org/docsets/ADAL/2.2.6/) on GitHub to help you get started with learning the Azure Identity system. This includes tutorials for native clients such as Windows, Windows Phone, iOS, OSX, Android, and Linux. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect, Graph API, and other awesome features. 
 
 Azure Identity samples for iOS is here: [https://github.com/AzureADSamples/NativeClient-iOS](https://github.com/AzureADSamples/NativeClient-iOS)
 
@@ -81,27 +56,33 @@ We've made it easy for you to have multiple options to use this library in your 
 
 ###Option 1: Git Submodule
 
-If your project is managed in a git repository you can include ADAL as a git submodule:
+ If your project is managed in a git repository you can include ADAL as a git submodule. First check the [GitHub Releases Page](https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases) for the latest release tag. Replace `<latest_release_tag>` with that version.
 
     git submodule add https://github.com/AzureAD/azure-activedirectory-library-for-objc adal
     cd adal
-    git checkout tags/2.1.0
+    git checkout tags/<latest_release_tag>
     cd ..
     git add adal
-    git commit -m "Use ADAL git submodule at 2.1.0"
+    git commit -m "Use ADAL git submodule at <latest_release_tag>"
     git push
     
-We recommend only syncing to specific release tags to make sure you're at a known spot in the code.
+We recommend only syncing to specific release tags to make sure you're at a known good point. We will not support versions of ADAL between release tags.
 
-###Option 2: Source Zip
+###Option 2: Cocoapods
 
-To download a copy of the source code, click "Download ZIP" on the right side of the page or click [here](https://github.com/AzureAD/azure-activedirectory-library-for-objc/archive/1.2.5.tar.gz).
+You can use CocoaPods to remain up to date with ADAL within a specific major version. Include the following line in your podfile:
 
-###Option 3: Cocoapods
-
-    pod 'ADAL', '~> 2.1.0'
+    pod 'ADAL', '~> 2.2'
+    
+You then you can run either `pod install` (if it's a new PodFile) or `pod update` (if it's an existing PodFile) to get the latest version of ADAL. Subsequent calls to `pod update` will update to the latest released version of ADAL as well.
 
 See [CocoaPods](https://cocoapods.org) for more information on setting up a PodFile
+
+###Option 3: Source Zip
+
+To download a copy of the source code, first make sure you're on the "master" branch and click "Clone or download" then "Download ZIP" in the upper right hand corner, or you can download it [here](https://github.com/AzureAD/azure-activedirectory-library-for-objc/archive/master.zip)
+
+This is not recommended, as it leaves no infrastructure in place for being able to easily update to the latest version.
 
 ## Usage
 

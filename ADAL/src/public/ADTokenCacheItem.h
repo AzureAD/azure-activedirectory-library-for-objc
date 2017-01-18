@@ -55,28 +55,30 @@
     NSMutableDictionary* _additionalClient;
 }
 
+NS_ASSUME_NONNULL_BEGIN
+
 /*! Applicable resource. Should be nil, in case the item stores multi-resource refresh token. */
-@property (copy) NSString* resource;
+@property (copy, nullable) NSString* resource;
 
 @property (copy) NSString* authority;
 
-@property (copy) NSString* clientId;
+@property (copy, nullable) NSString* clientId;
 
-@property (copy) NSString* familyId;
+@property (copy, nullable) NSString* familyId;
 
 /*! The access token received. Should be nil, in case the item stores multi-resource refresh token. */
-@property (copy) NSString* accessToken;
+@property (copy, nullable) NSString* accessToken;
 
-@property (copy) NSString* accessTokenType;
+@property (copy, nullable) NSString* accessTokenType;
 
-@property (copy) NSString* refreshToken;
+@property (copy, nullable) NSString* refreshToken;
 
-@property (copy) NSData* sessionKey;
+@property (copy, nullable) NSData* sessionKey;
 
-@property (copy) NSDate* expiresOn;
+@property (copy, nullable) NSDate* expiresOn;
 
 
-@property (retain) ADUserInformation* userInformation;
+@property (retain, nullable) ADUserInformation* userInformation;
 
 /*!
  The item is a tombstone if this property if not nil;
@@ -86,12 +88,12 @@
  @"protocolCode":error code returned by the server for the rejected RT
   @"errorDetails":error details of the rejected RT
  */
-- (NSDictionary*)tombstone;
+- (nullable NSDictionary*)tombstone;
 
 /*! Obtains a key to be used for the internal cache from the full cache item.
  @param error: if a key cannot be extracted, the method will return nil and if this parameter is not nil,
  it will be filled with the appropriate error information.*/
-- (ADTokenCacheKey*) extractKey:(ADAuthenticationError * __autoreleasing *)error;
+- (nullable ADTokenCacheKey*)extractKey:(ADAuthenticationError * _Nullable __autoreleasing * _Nullable)error;
 
 /*! Compares expiresOn with the current time. If expiresOn is not nil, the function returns the
  comparison of expires on and the current time. If expiresOn is nil, the function returns NO,
@@ -110,3 +112,5 @@
 - (BOOL)isMultiResourceRefreshToken;
 
 @end
+
+NS_ASSUME_NONNULL_END

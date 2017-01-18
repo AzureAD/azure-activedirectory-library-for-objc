@@ -21,13 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADEventInterface.h"
+#import <UIKit/UIKit.h>
+#import "ADALAutomation.h"
 
-@interface ADDefaultEvent : NSObject <ADEventInterface>
-{
-    NSMutableArray* _propertyMap;
-}
+@interface ADAutoInputViewController : UIViewController
 
-- (id)initWithName:(NSString*)eventName;
+- (id)initWithCompletionBlock:(ADAutoParamBlock)completionBlock;
 
 @end

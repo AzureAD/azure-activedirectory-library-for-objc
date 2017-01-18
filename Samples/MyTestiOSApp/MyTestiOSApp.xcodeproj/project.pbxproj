@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8B3F7A021D74F0A700F95A44 /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3F79FB1D74F0A200F95A44 /* ADAL.framework */; };
-		8B3F7A031D74F0A700F95A44 /* ADAL.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3F79FB1D74F0A200F95A44 /* ADAL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		8B3F7A071D74F0B400F95A44 /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3F79FB1D74F0A200F95A44 /* ADAL.framework */; };
 		8B87548818988C4B0061999F /* TestData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8B87548718988C4B0061999F /* TestData.plist */; };
 		8B87548918988C4B0061999F /* TestData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8B87548718988C4B0061999F /* TestData.plist */; };
 		8B87548C189978350061999F /* ADTestAppSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B87548B189978350061999F /* ADTestAppSettings.m */; };
@@ -27,13 +24,14 @@
 		8BA42B2717E3C150002D206E /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA42AFF17E3C150002D206E /* CoreData.framework */; };
 		8BA42B2F17E3C150002D206E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8BA42B2D17E3C150002D206E /* InfoPlist.strings */; };
 		8BA42B3117E3C150002D206E /* MyTestiOSAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */; };
+		D6119CE61DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = D6119CE51DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.m */; };
 		D68ACD301CD42710008EFA17 /* ADTestAppProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68ACD2F1CD42710008EFA17 /* ADTestAppProfileViewController.m */; };
-		D68B4A261CB59DE100758FB3 /* ADTestAppAcquireTokenView.xib in Resources */ = {isa = PBXBuildFile; fileRef = D68B4A251CB59DE100758FB3 /* ADTestAppAcquireTokenView.xib */; };
 		D68B4A2B1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A2A1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m */; };
 		D68B4A311CB5A85D00758FB3 /* ADTestAppCacheViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A301CB5A85D00758FB3 /* ADTestAppCacheViewController.m */; };
 		D68B4A371CB5AB0C00758FB3 /* ADTestAppLogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B4A361CB5AB0C00758FB3 /* ADTestAppLogViewController.m */; };
 		D6D034871CB6D74E00406721 /* ADTestAppSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D034851CB6D74E00406721 /* ADTestAppSettingsViewController.m */; };
-		D6D034881CB6D74E00406721 /* ADTestAppSettingsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = D6D034861CB6D74E00406721 /* ADTestAppSettingsView.xib */; };
+		D6D64BB81D83319A0077C1A0 /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3F79F91D74F0A200F95A44 /* libADAL-core.a */; };
+		D6D64BB91D83320B0077C1A0 /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3F79F91D74F0A200F95A44 /* libADAL-core.a */; };
 		D6EA53AB1D541012008A0BC3 /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D6EA53AA1D541012008A0BC3 /* ShareViewController.m */; };
 		D6EA53AE1D541012008A0BC3 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D6EA53AC1D541012008A0BC3 /* MainInterface.storyboard */; };
 		D6EA53B21D541012008A0BC3 /* adal-extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D6EA53A71D541011008A0BC3 /* adal-extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -82,26 +80,33 @@
 			remoteGlobalIDString = 94DD18E11C5ACFBF00F80C62;
 			remoteInfo = "ADAL Mac Tests";
 		};
-		8B3F7A041D74F0A700F95A44 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8B3F79EC1D74F0A100F95A44 /* ADAL.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 9453C3CB1C583E07006B9E79;
-			remoteInfo = ADAL;
-		};
-		8B3F7A081D74F0DD00F95A44 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8B3F79EC1D74F0A100F95A44 /* ADAL.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 9453C3CB1C583E07006B9E79;
-			remoteInfo = ADAL;
-		};
 		8BA42B2817E3C150002D206E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8BA42AEE17E3C150002D206E /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 8BA42AF517E3C150002D206E;
 			remoteInfo = MyTestiOSApp;
+		};
+		D676180D1DEF976F00EC83FB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B3F79EC1D74F0A100F95A44 /* ADAL.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 04AB6D421D9D619B007E9A83;
+			remoteInfo = UnitTestHostApp;
+		};
+		D676180F1DEF976F00EC83FB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B3F79EC1D74F0A100F95A44 /* ADAL.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D64C1F481DB9B05900850036;
+			remoteInfo = ADALAutomation;
+		};
+		D6D64BBA1D83320F0077C1A0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B3F79EC1D74F0A100F95A44 /* ADAL.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D664F16A1D302B9C0017B799;
+			remoteInfo = "ADAL-core";
 		};
 		D6EA53B01D541012008A0BC3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -119,7 +124,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				8B3F7A031D74F0A700F95A44 /* ADAL.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -160,9 +164,10 @@
 		8BA42B2C17E3C150002D206E /* MyTestiOSAppTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MyTestiOSAppTests-Info.plist"; sourceTree = "<group>"; };
 		8BA42B2E17E3C150002D206E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8BA42B3017E3C150002D206E /* MyTestiOSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyTestiOSAppTests.m; sourceTree = "<group>"; };
+		D6119CE41DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppAcquireLayoutBuilder.h; sourceTree = "<group>"; };
+		D6119CE51DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppAcquireLayoutBuilder.m; sourceTree = "<group>"; };
 		D68ACD2E1CD42710008EFA17 /* ADTestAppProfileViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppProfileViewController.h; sourceTree = "<group>"; };
 		D68ACD2F1CD42710008EFA17 /* ADTestAppProfileViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppProfileViewController.m; sourceTree = "<group>"; };
-		D68B4A251CB59DE100758FB3 /* ADTestAppAcquireTokenView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ADTestAppAcquireTokenView.xib; sourceTree = "<group>"; };
 		D68B4A291CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppAcquireTokenViewController.h; sourceTree = "<group>"; };
 		D68B4A2A1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppAcquireTokenViewController.m; sourceTree = "<group>"; };
 		D68B4A2F1CB5A85D00758FB3 /* ADTestAppCacheViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppCacheViewController.h; sourceTree = "<group>"; };
@@ -171,7 +176,6 @@
 		D68B4A361CB5AB0C00758FB3 /* ADTestAppLogViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppLogViewController.m; sourceTree = "<group>"; };
 		D6D034841CB6D74E00406721 /* ADTestAppSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestAppSettingsViewController.h; sourceTree = "<group>"; };
 		D6D034851CB6D74E00406721 /* ADTestAppSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestAppSettingsViewController.m; sourceTree = "<group>"; };
-		D6D034861CB6D74E00406721 /* ADTestAppSettingsView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ADTestAppSettingsView.xib; sourceTree = "<group>"; };
 		D6EA53A71D541011008A0BC3 /* adal-extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "adal-extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6EA53A91D541012008A0BC3 /* ShareViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
 		D6EA53AA1D541012008A0BC3 /* ShareViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
@@ -184,9 +188,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6D64BB81D83319A0077C1A0 /* libADAL-core.a in Frameworks */,
 				8BA42AFC17E3C150002D206E /* CoreGraphics.framework in Frameworks */,
 				8BA42B0017E3C150002D206E /* CoreData.framework in Frameworks */,
-				8B3F7A021D74F0A700F95A44 /* ADAL.framework in Frameworks */,
 				8BA42AFE17E3C150002D206E /* UIKit.framework in Frameworks */,
 				8BA42AFA17E3C150002D206E /* Foundation.framework in Frameworks */,
 			);
@@ -207,7 +211,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B3F7A071D74F0B400F95A44 /* ADAL.framework in Frameworks */,
+				D6D64BB91D83320B0077C1A0 /* libADAL-core.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,6 +227,8 @@
 				8B3F79FD1D74F0A200F95A44 /* ADALiOSTests.xctest */,
 				8B3F79FF1D74F0A200F95A44 /* ADAL.framework */,
 				8B3F7A011D74F0A200F95A44 /* ADAL Mac Tests.xctest */,
+				D676180E1DEF976F00EC83FB /* UnitTestHostApp.app */,
+				D67618101DEF976F00EC83FB /* ADALAutomation.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -271,12 +277,12 @@
 				8BA42B0B17E3C150002D206E /* ADTestAppDelegate.m */,
 				8BA42B1C17E3C150002D206E /* Images.xcassets */,
 				8BA42B0217E3C150002D206E /* Supporting Files */,
-				D68B4A251CB59DE100758FB3 /* ADTestAppAcquireTokenView.xib */,
 				D68B4A291CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.h */,
 				D68B4A2A1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m */,
+				D6119CE41DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.h */,
+				D6119CE51DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.m */,
 				D6D034841CB6D74E00406721 /* ADTestAppSettingsViewController.h */,
 				D6D034851CB6D74E00406721 /* ADTestAppSettingsViewController.m */,
-				D6D034861CB6D74E00406721 /* ADTestAppSettingsView.xib */,
 				D68B4A2F1CB5A85D00758FB3 /* ADTestAppCacheViewController.h */,
 				D68B4A301CB5A85D00758FB3 /* ADTestAppCacheViewController.m */,
 				D68B4A351CB5AB0C00758FB3 /* ADTestAppLogViewController.h */,
@@ -345,7 +351,6 @@
 			);
 			dependencies = (
 				D6EA53B11D541012008A0BC3 /* PBXTargetDependency */,
-				8B3F7A051D74F0A700F95A44 /* PBXTargetDependency */,
 			);
 			name = MyTestiOSApp;
 			productName = MyTestiOSApp;
@@ -381,7 +386,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				8B3F7A091D74F0DD00F95A44 /* PBXTargetDependency */,
+				D6D64BBB1D83320F0077C1A0 /* PBXTargetDependency */,
 			);
 			name = "adal-extension";
 			productName = "adal-extension";
@@ -485,6 +490,20 @@
 			remoteRef = 8B3F7A001D74F0A200F95A44 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		D676180E1DEF976F00EC83FB /* UnitTestHostApp.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = UnitTestHostApp.app;
+			remoteRef = D676180D1DEF976F00EC83FB /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D67618101DEF976F00EC83FB /* ADALAutomation.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = ADALAutomation.app;
+			remoteRef = D676180F1DEF976F00EC83FB /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -493,8 +512,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BA42B1D17E3C150002D206E /* Images.xcassets in Resources */,
-				D6D034881CB6D74E00406721 /* ADTestAppSettingsView.xib in Resources */,
-				D68B4A261CB59DE100758FB3 /* ADTestAppAcquireTokenView.xib in Resources */,
 				8B87548818988C4B0061999F /* TestData.plist in Resources */,
 				8BA42B0617E3C150002D206E /* InfoPlist.strings in Resources */,
 			);
@@ -527,6 +544,7 @@
 				8BA42B0C17E3C150002D206E /* ADTestAppDelegate.m in Sources */,
 				D68B4A2B1CB5A80700758FB3 /* ADTestAppAcquireTokenViewController.m in Sources */,
 				D68ACD301CD42710008EFA17 /* ADTestAppProfileViewController.m in Sources */,
+				D6119CE61DF0D86A004EC0E0 /* ADTestAppAcquireLayoutBuilder.m in Sources */,
 				D6D034871CB6D74E00406721 /* ADTestAppSettingsViewController.m in Sources */,
 				D68B4A311CB5A85D00758FB3 /* ADTestAppCacheViewController.m in Sources */,
 				8B87548C189978350061999F /* ADTestAppSettings.m in Sources */,
@@ -554,20 +572,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		8B3F7A051D74F0A700F95A44 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = ADAL;
-			targetProxy = 8B3F7A041D74F0A700F95A44 /* PBXContainerItemProxy */;
-		};
-		8B3F7A091D74F0DD00F95A44 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = ADAL;
-			targetProxy = 8B3F7A081D74F0DD00F95A44 /* PBXContainerItemProxy */;
-		};
 		8BA42B2917E3C150002D206E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8BA42AF517E3C150002D206E /* MyTestiOSApp */;
 			targetProxy = 8BA42B2817E3C150002D206E /* PBXContainerItemProxy */;
+		};
+		D6D64BBB1D83320F0077C1A0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "ADAL-core";
+			targetProxy = D6D64BBA1D83320F0077C1A0 /* PBXContainerItemProxy */;
 		};
 		D6EA53B11D541012008A0BC3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -889,6 +902,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.adal.2.1.0.TestApp.adal-extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -913,6 +927,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.adal.2.1.0.TestApp.adal-extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 			};
 			name = CodeCoverage;
@@ -937,6 +952,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.microsoft.adal.2.1.0.TestApp.adal-extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Release;

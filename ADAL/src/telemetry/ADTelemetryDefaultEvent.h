@@ -21,33 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "ADTelemetryEventInterface.h"
+#import "ADRequestContext.h"
 
-//Identifies one testable instance, e.g.
-//an AAD tenant with suitable user name password
-//and a client accessing a resource
-@interface ADTestInstance : NSObject
+@interface ADTelemetryDefaultEvent : NSObject <ADTelemetryEventInterface>
 {
-//@private:
-    NSString *_authority;
-    NSString *_clientId;
-    NSString *_resource;
-    NSString *_redirectUri;
-    NSString *_userId;
-    NSString *_password;
-    NSString *_extraQueryParameters;
-    BOOL      _validateAuthority;
+    NSMutableArray* _propertyMap;
+    NSInteger _defaultPropertyCount;
 }
 
--(id) initWithDictionary: (NSDictionary*) contents;
+- (id)initWithName:(NSString*)eventName
+         requestId:(NSString*)requestId
+     correlationId:(NSUUID*)correlationId;
 
-@property (retain) NSString* authority;
-@property BOOL      validateAuthority;
-@property (retain) NSString* clientId;
-@property (retain) NSString* resource;
-@property (retain) NSString* redirectUri;
-@property (retain) NSString* userId;
-@property (retain) NSString* password;//used for automation in the tests
-@property (retain) NSString* extraQueryParameters;//Typically null and set by tests when needed
+- (id)initWithName:(NSString*)eventName
+           context:(id<ADRequestContext>)requestParams;
 
 @end

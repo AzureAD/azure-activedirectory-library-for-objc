@@ -34,7 +34,7 @@
 @synthesize error = _error;
 @synthesize multiResourceRefreshToken = _multiResourceRefreshToken;
 @synthesize correlationId = _correlationId;
-//@synthesize extendedLifeTimeToken = _extendedLifeTimeToken; ADAL_RESILIENCY_NOT_YET
+@synthesize extendedLifeTimeToken = _extendedLifeTimeToken;
 
 - (id)init
 {
