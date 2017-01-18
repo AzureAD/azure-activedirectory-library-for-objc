@@ -185,21 +185,11 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     
     _dataTask = [[[self class] sharedDemux] dataTaskWithRequest:request delegate:self];
     [_dataTask resume];
-    
-//    SAFE_ARC_RELEASE(_connection);
-//    _connection = [[NSURLConnection alloc] initWithRequest:request
-//                                                  delegate:self
-//                                          startImmediately:YES];
-//    SAFE_ARC_RELEASE(request);
 }
 
 - (void)stopLoading
 {
     AD_LOG_VERBOSE_F(@"-[ADURLProtocol stopLoading]", _reqCorId(self.request), @"host: %@", [self.request.URL host]);
-    
-    [_connection cancel];
-    _connection = nil;
-    
     
     [_dataTask cancel];
     _dataTask = nil;
@@ -208,15 +198,7 @@ static NSUUID * _reqCorId(NSURLRequest* request)
 
 
 #pragma mark - NSURLSessionTaskDelegate
-/* An HTTP request is attempting to perform a redirection to a different
- * URL. You must invoke the completion routine to allow the
- * redirection, allow the redirection with a modified request, or
- * pass nil to the completionHandler to cause the body of the redirection
- * response to be delivered as the payload of this request. The default
- * is to follow redirections.
- *
- * For tasks in background sessions, redirections will always be followed and this method will not be called.
- */
+
 - (void)URLSession:(NSURLSession *)session
               task:(NSURLSessionTask *)task
 willPerformHTTPRedirection:(NSHTTPURLResponse *)response
@@ -229,6 +211,9 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
     {
         if ([request.URL.absoluteString.lowercaseString hasPrefix:s_endURL])
         {
+            // In this case we want to create an NSURLError so we can intercept the URL in the webview
+            // delegate, while still forcing the connection to cancel. This error is the same one the
+            // OS sends if it's unable to connect to the host
             [task cancel];
             NSError* failingError = [NSError errorWithDomain:NSURLErrorDomain
                                                         code:-1003
@@ -249,6 +234,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
         // If there wasn't a redirect response that means that we're canonicalizing
         // the URL and don't need to cancel the connection or worry about an infinite
         // loop happening so we can just return the response now.
+        
         completionHandler(mutableRequest);
     }
     
@@ -275,15 +261,11 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
             didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain
                                                  code:NSUserCancelledError
                                              userInfo:nil]];
-
-//    completionHandler(mutableRequest);
+    
+    completionHandler(nil);
 }
 
-/* The task has received a request specific authentication challenge.
- * If this delegate is not implemented, the session specific authentication challenge
- * will *NOT* be called and the behavior will be the same as using the default handling
- * disposition.
- */
+
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
 didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
  completionHandler:(ChallengeCompletionHandler)completionHandler
@@ -317,9 +299,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     }
 }
 
-/* Sent as the last message related to a specific task.  Error may be
- * nil, which implies that no error occurred and this task is complete.
- */
+
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
 didCompleteWithError:(nullable NSError *)error
 {
@@ -333,12 +313,10 @@ didCompleteWithError:(nullable NSError *)error
     else if ([error.domain isEqual:NSURLErrorDomain] && error.code == NSURLErrorCancelled)
     {
         // Do nothing. Happens in two cases
-        //        // Do nothing.  This happens in two cases:
-        //
-        // o during a redirect, in which case the redirect code has already told the client about
+        // 1. during a redirect, in which case the redirect code has already told the client about
         //   the failure
         //
-        // o if the request is cancelled by a call to -stopLoading, in which case the client doesn't
+        // 2. if the request is cancelled by a call to -stopLoading, in which case the client doesn't
         //   want to know about the failure
     }
     else
@@ -358,11 +336,6 @@ didReceiveResponse:(NSURLResponse *)response
     completionHandler(NSURLSessionResponseAllow);
 }
 
-/* Sent when data is available for the delegate to consume.  It is
- * assumed that the delegate will retain and not copy the data.  As
- * the data may be discontiguous, you should use
- * [NSData enumerateByteRangesUsingBlock:] to access it.
- */
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data
 {
@@ -370,155 +343,7 @@ didReceiveResponse:(NSURLResponse *)response
     (void)dataTask;
     [self.client URLProtocol:self didLoadData:data];
 }
-//
-///* Invoke the completion routine with a valid NSCachedURLResponse to
-// * allow the resulting data to be cached, or pass nil to prevent
-// * caching. Note that there is no guarantee that caching will be
-// * attempted for a given resource, and you should not rely on this
-// * message to receive the resource data.
-// */
-//- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
-// willCacheResponse:(NSCachedURLResponse *)proposedResponse
-// completionHandler:(void (^)(NSCachedURLResponse * _Nullable cachedResponse))completionHandler;
-//
-//
-//
-//
-//
-//
-//
 
-
-
-#pragma mark - NSURLConnectionDelegate Methods
-
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
-{
-    (void)connection;
-    
-    AD_LOG_ERROR_F(@"-[ADURLProtocol connection:didFailedWithError:]", error.code, _correlationId, @"error: %@", error);
-    [self.client URLProtocol:self didFailWithError:error];
-}
-
-- (void)connection:(NSURLConnection *)connection
-willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
-{
-    NSString* authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
-    
-    AD_LOG_VERBOSE_F(@"connection:willSendRequestForAuthenticationChallenge:", _correlationId, @"%@. Previous challenge failure count: %ld", authMethod, (long)challenge.previousFailureCount);
-    
-    BOOL handled = NO;
-    Class<ADAuthMethodHandler> handler = nil;
-    @synchronized([self class])
-    {
-        handler = [s_handlers objectForKey:authMethod];
-    }
-    
-    handled = [handler handleChallenge:challenge
-                            connection:connection
-                              protocol:self];
-    
-    if (!handled)
-    {
-        // Do default handling
-        [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
-        return;
-    }
-    
-    if ([authMethod caseInsensitiveCompare:NSURLAuthenticationMethodNTLM] == NSOrderedSame)
-    {
-        [s_telemetryEvent setNtlm:AD_TELEMETRY_YES];
-    }
-}
-
-#pragma mark - NSURLConnectionDataDelegate Methods
-
-- (NSURLRequest *)connection:(NSURLConnection *)connection
-             willSendRequest:(NSURLRequest *)request
-            redirectResponse:(NSURLResponse *)redirectResponse
-{
-    (void)connection;
-    
-    AD_LOG_VERBOSE_F(@"-[ADURLProtocol connection:willSendRequest:]", _correlationId, @"Redirect response: %@. New request:%@", redirectResponse.URL, request.URL);
-    
-    // Disallow HTTP for ADURLProtocol
-    if ([request.URL.scheme isEqualToString:@"http"])
-    {
-        if ([request.URL.absoluteString.lowercaseString hasPrefix:s_endURL])
-        {
-            // In this case we want to create an NSURLError so we can intercept the URL in the webview
-            // delegate, while still forcing the connection to cancel. This error is the same one the
-            // OS sends if it's unable to connect to the host
-            [connection cancel];
-            NSError* failingError = [NSError errorWithDomain:NSURLErrorDomain
-                                                        code:-1003
-                                                    userInfo:@{ NSURLErrorFailingURLErrorKey : request.URL }];
-            [self.client URLProtocol:self didFailWithError:failingError];
-        }
-        return nil;
-    }
-    
-    NSMutableURLRequest* mutableRequest = [request mutableCopy];
-    
-    [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
-    [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
-
-    if (!redirectResponse)
-    {
-        // If there wasn't a redirect response that means that we're canonicalizing
-        // the URL and don't need to cancel the connection or worry about an infinite
-        // loop happening so we can just return the response now.
-        
-        return mutableRequest;
-    }
-    
-    // If we don't have this line in the redirectResponse case then we get a HTTP too many redirects
-    // error.
-    [NSURLProtocol removePropertyForKey:s_kADURLProtocolPropertyKey inRequest:mutableRequest];
-    
-    [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:redirectResponse];
-    
-    // If we don't cancel out the connection in the redirectResponse case then we will end up
-    // with duplicate connections
-    
-    // Here are the comments from Apple's CustomHTTPProtocol demo code:
-    // https://developer.apple.com/library/ios/samplecode/CustomHTTPProtocol/Introduction/Intro.html
-    
-    // Stop our load.  The CFNetwork infrastructure will create a new NSURLProtocol instance to run
-    // the load of the redirect.
-    
-    // The following ends up calling -URLSession:task:didCompleteWithError: with NSURLErrorDomain / NSURLErrorCancelled,
-    // which specificallys traps and ignores the error.
-    
-    [_connection cancel];
-    [self.client URLProtocol:self
-            didFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain
-                                                 code:NSUserCancelledError
-                                             userInfo:nil]];
-    
-    return mutableRequest;
-}
-
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
-{
-    (void)connection;
-    
-    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-}
-
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
-{
-    (void)connection;
-    
-    [self.client URLProtocol:self didLoadData:data];
-}
-
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection
-{
-    (void)connection;
-    
-    [self.client URLProtocolDidFinishLoading:self];
-}
 
 
 @end

@@ -103,7 +103,6 @@ static NSURLSession *_session = nil;
                  _challengeCancelled = YES;
                  AD_LOG_INFO_F(@"NTLM challenge cancelled", nil, @"host: %@", challenge.protectionSpace.host);
                  
-//                 [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
                  completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
 
                  NSError *error = [NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_USER_CANCEL userInfo:nil];
@@ -117,41 +116,5 @@ static NSURLSession *_session = nil;
 
 
 
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-             connection:(NSURLConnection*)connection
-               protocol:(ADURLProtocol*)protocol
-{
-    (void)connection;
-    @synchronized(self)
-    {
-        if(_conn){
-            _conn = nil;
-        }
-        // This is the NTLM challenge: use the identity to authenticate:
-        AD_LOG_INFO_F(@"Attempting to handle NTLM challenge", nil,  @"host: %@", challenge.protectionSpace.host);
-        
-        [ADNTLMUIPrompt presentPrompt:^(NSString *username, NSString *password)
-        {
-            if (username)
-            {
-                NSURLCredential *credential;
-                credential = [NSURLCredential
-                              credentialWithUser:username
-                              password:password
-                              persistence:NSURLCredentialPersistenceForSession];
-                [challenge.sender useCredential:credential
-                     forAuthenticationChallenge:challenge];
-                AD_LOG_INFO_F(@"NTLM credentials added", nil, @"host: %@", challenge.protectionSpace.host);
-            } else {
-                _challengeCancelled = YES;
-                AD_LOG_INFO_F(@"NTLM challenge cancelled", nil, @"host: %@", challenge.protectionSpace.host);
-                [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
-                [protocol connection:connection didFailWithError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_USER_CANCEL userInfo:nil]];
-            }
-        }];
-    }//@synchronized
-    
-    return YES;
-}
 
 @end

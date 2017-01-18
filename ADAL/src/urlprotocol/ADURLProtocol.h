@@ -31,10 +31,6 @@ typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition 
 
 @protocol ADAuthMethodHandler
 
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge*)challenge
-             connection:(NSURLConnection*)connection
-               protocol:(ADURLProtocol*)protocol;
-
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 session:(NSURLSession *)session
                    task:(NSURLSessionTask *)task
@@ -47,10 +43,8 @@ typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition 
 
 //Intercepts HTTPS protocol for the application in order to allow
 //NTLM with client-authentication. The class is not thread-safe.
-@interface ADURLProtocol : NSURLProtocol <NSURLConnectionDelegate, NSURLConnectionDataDelegate, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
+@interface ADURLProtocol : NSURLProtocol <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 {
-    NSURLConnection *_connection;
-    
     NSURLSessionDataTask *_dataTask;
     
     NSUUID *_correlationId;

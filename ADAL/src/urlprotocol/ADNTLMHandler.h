@@ -31,20 +31,14 @@
 /* Handles a client authentication NTLM challenge by collecting user credentials. Returns YES,
  if the challenge has been handled. */
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-             connection:(NSURLConnection *)connection
-               protocol:(ADURLProtocol *)protocol;
-
-+ (BOOL)isChallengeCancelled;
-
-+ (void)setCancellationUrl:(NSString*) url;
-
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 session:(NSURLSession *)session
                    task:(NSURLSessionTask *)task
                protocol:(ADURLProtocol *)protocol
       completionHandler:(ChallengeCompletionHandler)completionHandler;
 
 
++ (BOOL)isChallengeCancelled;
 
++ (void)setCancellationUrl:(NSString*) url;
 
 @end
