@@ -59,7 +59,6 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 #import <ADAL/ADUserInformation.h>
 #import <ADAL/ADWebAuthController.h>
 #import <ADAL/ADTelemetry.h>
-#import <ADAL/ADTelemetryEventStrings.h>
 
 #if TARGET_OS_IPHONE
 #import <ADAL/ADKeychainTokenCache.h>
