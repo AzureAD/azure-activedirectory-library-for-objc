@@ -87,12 +87,12 @@ NS_ASSUME_NONNULL_BEGIN
  @"protocolCode":error code returned by the server for the rejected RT
   @"errorDetails":error details of the rejected RT
  */
-- (NSDictionary*)tombstone;
+- (nullable NSDictionary*)tombstone;
 
 /*! Obtains a key to be used for the internal cache from the full cache item.
  @param error: if a key cannot be extracted, the method will return nil and if this parameter is not nil,
  it will be filled with the appropriate error information.*/
-- (ADTokenCacheKey*) extractKey:(ADAuthenticationError * _Nullable __autoreleasing * _Nullable)error;
+- (nullable ADTokenCacheKey*)extractKey:(ADAuthenticationError * _Nullable __autoreleasing * _Nullable)error;
 
 /*! Compares expiresOn with the current time. If expiresOn is not nil, the function returns the
  comparison of expires on and the current time. If expiresOn is nil, the function returns NO,
