@@ -52,6 +52,8 @@
 @synthesize timeout  = _timeout;
 @synthesize isGetRequest = _isGetRequest;
 @synthesize correlationId = _correlationId;
+@synthesize session = _session;
+@synthesize configuration = _configuration;
 
 - (NSData *)body
 {
@@ -98,6 +100,9 @@
     _operationQueue = [[NSOperationQueue alloc] init];
     [_operationQueue setMaxConcurrentOperationCount:1];
     
+    _configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    _session = [NSURLSession sessionWithConfiguration:_configuration delegate:self delegateQueue:_operationQueue];
+    
     return self;
 }
 
@@ -108,6 +113,10 @@
     _response       = nil;
     _responseData   = nil;
     _connection     = nil;
+
+    _task           = nil;
+    _session        = nil;
+    _configuration  = nil;
     
     [self stopTelemetryEvent:error response:response];
     _completionHandler(error, response);
@@ -161,10 +170,78 @@
     
     [ADURLProtocol addCorrelationId:_correlationId toRequest:request];
     
-    _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
-    [_connection setDelegateQueue:_operationQueue];
-    [_connection start];
+    _task = [_session dataTaskWithRequest:request];
+    [_task resume];
+
+//    _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
+//    [_connection setDelegateQueue:_operationQueue];
+//    [_connection start];
 }
+
+
+#pragma mark - NSURLSession delegates
+- (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
+{
+#pragma unused(session)
+#pragma unused(challenge)
+    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+}
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
+{
+    (void)session;
+    (void)task;
+    
+    if (error == nil)
+    {
+        ADWebResponse* response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
+        [self completeWithError:nil andResponse:response];
+    }
+    else
+    {
+        [self completeWithError:error andResponse:nil];
+    }
+}
+
+#pragma mark - NSURLSessionDataDelegate
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
+{
+#pragma unused(session)
+#pragma unused(dataTask)
+#pragma unused(completionHandler)
+    _response = (NSHTTPURLResponse *)response;
+    completionHandler(NSURLSessionResponseAllow);
+}
+
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
+{
+#pragma unused(session)
+#pragma unused(dataTask)
+    [_responseData appendData:data];
+}
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler
+{
+    (void)session;
+    (void)response;
+    (void)task;
+    
+    NSURL* requestURL = [request URL];
+    NSURL* modifiedURL = [ADHelpers addClientVersionToURL:requestURL];
+    
+    if (modifiedURL == requestURL)
+    {
+        completionHandler(request);
+        return;
+    }
+
+    NSMutableURLRequest* mutableRequest = [NSMutableURLRequest requestWithURL:modifiedURL];
+    [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
+    
+    completionHandler(mutableRequest);
+  
+}
+
 
 #pragma mark - NSURLConnectionDelegate
 

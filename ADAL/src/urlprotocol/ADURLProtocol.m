@@ -111,14 +111,10 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     static dispatch_once_t      sOnceToken;
     static ADURLSessionDemux * sDemux;
     dispatch_once(&sOnceToken, ^{
-        NSURLSessionConfiguration *     config;
+        NSURLSessionConfiguration *config;
         
         config = [NSURLSessionConfiguration defaultSessionConfiguration];
-        // You have to explicitly configure the session to use your own protocol subclass here
-        // otherwise you don't see redirects <rdar://problem/17384498>.
-
         config.protocolClasses = @[ self ];
-        config.HTTPMaximumConnectionsPerHost = 1;
         
         sDemux = [[ADURLSessionDemux alloc] initWithConfiguration:config];
     });
