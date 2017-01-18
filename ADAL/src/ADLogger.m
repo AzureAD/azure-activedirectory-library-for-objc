@@ -63,7 +63,6 @@ static dispatch_once_t s_logOnce;
 #else
     NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
     s_OSString = [NSString stringWithFormat:@"Mac %ld.%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion, (long)osVersion.patchVersion];
-    SAFE_ARC_RETAIN(s_OSString);
 #endif
 }
 
@@ -203,7 +202,6 @@ correlationId:(NSUUID*)correlationId
     va_end(args);
     
     [self log:level context:context message:message errorCode:code info:info correlationId:correlationId userInfo:userInfo];
-    SAFE_ARC_RELEASE(info);
 }
 
 //Extracts the CPU information according to the constants defined in
@@ -256,7 +254,6 @@ correlationId:(NSUUID*)correlationId
         }
         
         s_adalId = result;
-        SAFE_ARC_RETAIN(s_adalId);
     });
     
     return s_adalId;
@@ -277,7 +274,6 @@ correlationId:(NSUUID*)correlationId
     unsigned char hash[CC_SHA256_DIGEST_LENGTH];
     CC_SHA256(inputStr, (int)strlen(inputStr), hash);
     NSMutableString* toReturn = [[NSMutableString alloc] initWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
-    SAFE_ARC_AUTORELEASE(toReturn);
     for (int i = 0; i < sizeof(hash)/sizeof(hash[0]); ++i)
     {
         [toReturn appendFormat:@"%02x", hash[i]];

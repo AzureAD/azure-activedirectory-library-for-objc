@@ -49,7 +49,6 @@ static NSURLSession *_session = nil;
     {
         return;
     }
-    SAFE_ARC_RELEASE(_cancellationUrl);
     _cancellationUrl = [url copy];
 }
 

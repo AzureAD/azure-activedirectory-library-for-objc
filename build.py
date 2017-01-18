@@ -68,13 +68,6 @@ build_targets = [
 		"platform" : "Mac"
 	},
 	{
-		"name" : "Mac Framework 32-bit",
-		"scheme" : "ADAL Mac",
-		"operations" : [ "build", "test" ],
-		"platform" : "Mac",
-		"arch" : "i386"
-	},
-	{
 		"name" : "Mac Test App",
 		"scheme" : "MyTestMacOSApp",
 		"operations" : [ "build" ],

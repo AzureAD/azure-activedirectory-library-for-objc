@@ -66,7 +66,6 @@ static NSString* const s_delimiter = @"|";
 {
     @synchronized(self)
     {
-        SAFE_ARC_RELEASE(_dispatcher);
         if (!dispatcher)
         {
             _dispatcher = nil;
@@ -81,18 +80,7 @@ static NSString* const s_delimiter = @"|";
         {
             _dispatcher = [[ADDefaultDispatcher alloc] initWithDispatcher:dispatcher];
         }
-        SAFE_ARC_RETAIN(_dispatcher);
     }
-}
-
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_dispatcher);
-    _dispatcher = nil;
-    SAFE_ARC_RELEASE(_eventTracking);
-    _eventTracking = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 @end

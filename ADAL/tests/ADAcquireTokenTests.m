@@ -79,11 +79,8 @@ const int sAsyncContextTimeout = 10;
     
     NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
     ADTokenCache *tokenCache = [ADTokenCache new];
-    SAFE_ARC_AUTORELEASE(tokenCache);
     [context setTokenCacheStore:tokenCache];
     [context setCorrelationId:TEST_CORRELATION_ID];
-    
-    SAFE_ARC_AUTORELEASE(context);
     
     return context;
 }

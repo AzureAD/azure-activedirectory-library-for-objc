@@ -55,7 +55,6 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
     
     if (!extractedParameters)
     {
-        SAFE_ARC_RELEASE(self);
         return nil;
     }
     
@@ -73,16 +72,12 @@ NSString* const ExtractionExpression = @"\\s*([^,\\s=\"]+?)=\"([^\"]*?)\"";
         {
             *error = adError;
         }
-        SAFE_ARC_RELEASE(self);
         return nil;
     }
     
     _extractedParameters = extractedParameters;
-    SAFE_ARC_RETAIN(_extractedParameters);
     _authority = authority;
-    SAFE_ARC_RETAIN(_authority);
     _resource = [_extractedParameters objectForKey:OAuth2_Resource_Id];
-    SAFE_ARC_RETAIN(_resource);
     return self;
 }
 

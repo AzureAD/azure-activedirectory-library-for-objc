@@ -89,7 +89,6 @@
     NSDictionary *  cerDict = nil;
     
     NSMutableDictionary *identityAttr = [[NSMutableDictionary alloc] init];
-    SAFE_ARC_AUTORELEASE(identityAttr);
     [identityAttr setObject:(__bridge id)kSecClassIdentity forKey:(__bridge id)kSecClass];
     [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnRef)];
     [identityAttr setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
@@ -109,7 +108,6 @@
     assert([cerDict isKindOfClass:[NSDictionary class]]);
     issuer = [cerDict objectForKey:(__bridge id)kSecAttrIssuer];
     certificateIssuer = [[NSString alloc] initWithData:issuer encoding:NSISOLatin1StringEncoding];
-    SAFE_ARC_AUTORELEASE(certificateIssuer);
     CFRelease(result);
     result = NULL;
     
@@ -161,7 +159,6 @@
                                                                                certificateSubject:certificateSubject
                                                                                   certificateData:certificateData
                                                                                        privateKey:privateKey];
-        SAFE_ARC_AUTORELEASE(info);
         return info;
     }
 _error:

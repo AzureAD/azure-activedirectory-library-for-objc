@@ -51,8 +51,6 @@
             }
         }
     }
-    
-    SAFE_ARC_AUTORELEASE(parameters);
     return parameters;
 }
 
@@ -78,8 +76,6 @@
             [parameters appendFormat:@"&%@=%@", encodedKey, encodedValue];
         }
     }];
-    
-    SAFE_ARC_AUTORELEASE(parameters);
     return parameters;
 }
 
