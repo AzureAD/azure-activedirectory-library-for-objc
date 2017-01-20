@@ -115,8 +115,6 @@
     _connection     = nil;
 
     _task           = nil;
-    _session        = nil;
-    _configuration  = nil;
     
     [self stopTelemetryEvent:error response:response];
     _completionHandler(error, response);
