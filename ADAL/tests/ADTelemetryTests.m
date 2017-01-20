@@ -27,7 +27,7 @@
 #import "ADTelemetryDefaultEvent.h"
 #import "ADTelemetryAPIEvent.h"
 #import "ADAuthenticationContext+Internal.h"
-#import "ADTestURLConnection.h"
+#import "ADTestURLSession.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheItem.h"

@@ -27,7 +27,9 @@
 #import "ADAuthorityValidation.h"
 #import "ADAuthorityValidationRequest.h"
 #import "ADDrsDiscoveryRequest.h"
-#import "ADTestURLConnection.h"
+#import "ADTestURLSession.h"
+#import "ADTestURLSession.h"
+
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
 #import "XCTestCase+TestHelperMethods.h"
@@ -161,7 +163,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     
-    [ADTestURLConnection addResponse:[ADTestURLResponse responseValidAuthority:authority]];
+    [ADTestURLSession addResponse:[ADTestURLResponse responseValidAuthority:authority]];
     
     [authorityValidation validateAuthority:requestParams
                            completionBlock:^(BOOL validated, ADAuthenticationError * error)
@@ -188,7 +190,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     requestParams.authority = authority;
     requestParams.correlationId = [NSUUID UUID];
     
-    [ADTestURLConnection addResponse:[ADTestURLResponse responseInvalidAuthority:authority]];
+    [ADTestURLSession addResponse:[ADTestURLResponse responseInvalidAuthority:authority]];
     
     [authorityValidation validateAuthority:requestParams
                            completionBlock:^(BOOL validated, ADAuthenticationError * error)
@@ -220,7 +222,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     XCTAssertNotNil(context);
     XCTAssertNil(error);
     
-    [ADTestURLConnection addInvalidAuthorityResponse:authority];
+    [ADTestURLSession addInvalidAuthorityResponse:authority];
     
     __block dispatch_semaphore_t dsem = dispatch_semaphore_create(0);
     [context acquireTokenWithResource:TEST_RESOURCE
@@ -260,7 +262,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 
     NSError* responseError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCannotFindHost userInfo:nil];
 
-    [ADTestURLConnection addResponse:[ADTestURLResponse request:requestURL
+    [ADTestURLSession addResponse:[ADTestURLResponse request:requestURL
                                                respondWithError:responseError]];
     
     [authorityValidation validateAuthority:requestParams
@@ -293,11 +295,11 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
-    [ADTestURLConnection addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
+    [ADTestURLSession addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
                                                                          onPrems:YES
                                                    passiveAuthenticationEndpoint:passiveEndpoint]];
 
-    [ADTestURLConnection addResponse:[ADTestURLResponse responseValidWebFinger:passiveEndpoint
+    [ADTestURLSession addResponse:[ADTestURLResponse responseValidWebFinger:passiveEndpoint
                                                                      authority:authority]];
     
     [authorityValidation validateAuthority:requestParams
@@ -329,14 +331,14 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
-    [ADTestURLConnection addResponse: [ADTestURLResponse responseUnreachableDrsService:upnSuffix
+    [ADTestURLSession addResponse: [ADTestURLResponse responseUnreachableDrsService:upnSuffix
                                                                                onPrems:YES]];
     
-    [ADTestURLConnection addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
+    [ADTestURLSession addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
                                                                          onPrems:NO
                                                    passiveAuthenticationEndpoint:passiveEndpoint]];
     
-    [ADTestURLConnection addResponse:[ADTestURLResponse responseValidWebFinger:passiveEndpoint
+    [ADTestURLSession addResponse:[ADTestURLResponse responseValidWebFinger:passiveEndpoint
                                                                      authority:authority]];
     
     [authorityValidation validateAuthority:requestParams
@@ -369,8 +371,8 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
-    [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidDrsPayload:upnSuffix onPrems:YES]];
-    [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidDrsPayload:upnSuffix onPrems:NO]];
+    [ADTestURLSession addResponse: [ADTestURLResponse responseInvalidDrsPayload:upnSuffix onPrems:YES]];
+    [ADTestURLSession addResponse: [ADTestURLResponse responseInvalidDrsPayload:upnSuffix onPrems:NO]];
     
     [authorityValidation validateAuthority:requestParams
                            completionBlock:^(BOOL validated, ADAuthenticationError *error)
@@ -404,10 +406,10 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
-    [ADTestURLConnection addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
+    [ADTestURLSession addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
                                                                          onPrems:YES
                                                    passiveAuthenticationEndpoint:passiveEndpoint]];
-    [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidWebFinger:passiveEndpoint
+    [ADTestURLSession addResponse: [ADTestURLResponse responseInvalidWebFinger:passiveEndpoint
                                                                         authority:authority]];
     
     [authorityValidation validateAuthority:requestParams
@@ -441,10 +443,10 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
-    [ADTestURLConnection addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
+    [ADTestURLSession addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
                                                                          onPrems:YES
                                                    passiveAuthenticationEndpoint:passiveEndpoint]];
-    [ADTestURLConnection addResponse: [ADTestURLResponse responseInvalidWebFingerNotTrusted:passiveEndpoint
+    [ADTestURLSession addResponse: [ADTestURLResponse responseInvalidWebFingerNotTrusted:passiveEndpoint
                                                                                   authority:authority]];
     
     [authorityValidation validateAuthority:requestParams
@@ -478,10 +480,10 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     requestParams.correlationId = [NSUUID UUID];
     requestParams.identifier = user;
     
-    [ADTestURLConnection addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
+    [ADTestURLSession addResponse: [ADTestURLResponse responseValidDrsPayload:upnSuffix
                                                                          onPrems:YES
                                                    passiveAuthenticationEndpoint:passiveEndpoint]];
-    [ADTestURLConnection addResponse: [ADTestURLResponse responseUnreachableWebFinger:passiveEndpoint authority:authority]];
+    [ADTestURLSession addResponse: [ADTestURLResponse responseUnreachableWebFinger:passiveEndpoint authority:authority]];
     
     [authorityValidation validateAuthority:requestParams
                       completionBlock:^(BOOL validated, ADAuthenticationError *error)
