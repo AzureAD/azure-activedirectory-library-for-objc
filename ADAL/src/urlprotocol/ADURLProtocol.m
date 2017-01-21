@@ -35,10 +35,9 @@ static NSMutableDictionary *s_handlers      = nil;
 static NSString *s_endURL                   = nil;
 static ADTelemetryUIEvent *s_telemetryEvent = nil;
 
-static NSString* s_kADURLProtocolPropertyKey  = @"ADURLProtocol";
+static NSString *s_kADURLProtocolPropertyKey  = @"ADURLProtocol";
 
-
-static NSUUID * _reqCorId(NSURLRequest* request)
+static NSUUID *_reqCorId(NSURLRequest* request)
 {
     return [NSURLProtocol propertyForKey:@"correlationId" inRequest:request];
 }
@@ -47,7 +46,7 @@ static NSUUID * _reqCorId(NSURLRequest* request)
 @implementation ADURLProtocol
 
 + (void)registerHandler:(id)handler
-             authMethod:(NSString*)authMethod
+             authMethod:(NSString *)authMethod
 {
     if (!handler || !authMethod)
     {
@@ -67,9 +66,8 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     }
 }
 
-
-+ (BOOL)registerProtocol:(NSString*)endURL
-          telemetryEvent:(ADTelemetryUIEvent*)telemetryEvent
++ (BOOL)registerProtocol:(NSString *)endURL
+          telemetryEvent:(ADTelemetryUIEvent *)telemetryEvent
 {
     if (s_endURL!=endURL)
     {
@@ -120,7 +118,6 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     });
     return sDemux;
 }
-
 
 #pragma mark - Overrides
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
@@ -191,7 +188,6 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     
 }
 
-
 #pragma mark - NSURLSessionTaskDelegate
 
 - (void)URLSession:(NSURLSession *)session
@@ -210,7 +206,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
             // delegate, while still forcing the connection to cancel. This error is the same one the
             // OS sends if it's unable to connect to the host
             [task cancel];
-            NSError* failingError = [NSError errorWithDomain:NSURLErrorDomain
+            NSError *failingError = [NSError errorWithDomain:NSURLErrorDomain
                                                         code:-1003
                                                     userInfo:@{ NSURLErrorFailingURLErrorKey : request.URL }];
             [self.client URLProtocol:self didFailWithError:failingError];
@@ -257,9 +253,8 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
                                                  code:NSUserCancelledError
                                              userInfo:nil]];
     
-    completionHandler(nil);
+    completionHandler(mutableRequest);
 }
-
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
 didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
@@ -294,9 +289,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     }
 }
 
-
-- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
-didCompleteWithError:(nullable NSError *)error
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error
 {
     (void)session;
     (void)task;
@@ -307,12 +300,8 @@ didCompleteWithError:(nullable NSError *)error
     }
     else if ([error.domain isEqual:NSURLErrorDomain] && error.code == NSURLErrorCancelled)
     {
-        // Do nothing. Happens in two cases
-        // 1. during a redirect, in which case the redirect code has already told the client about
-        //   the failure
-        //
-        // 2. if the request is cancelled by a call to -stopLoading, in which case the client doesn't
-        //   want to know about the failure
+        // Do nothing.  This happens in two cases - 
+        // during a redirect, and request cancellation via -stopLoading.
     }
     else
     {

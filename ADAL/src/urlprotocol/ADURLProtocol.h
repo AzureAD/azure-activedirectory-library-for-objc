@@ -27,7 +27,7 @@
 @class ADURLProtocol;
 @class ADTelemetryUIEvent;
 
-typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * credential);
+typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential);
 
 @protocol ADAuthMethodHandler
 
@@ -46,7 +46,6 @@ typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition 
 @interface ADURLProtocol : NSURLProtocol <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 {
     NSURLSessionDataTask *_dataTask;
-    
     NSUUID *_correlationId;
 }
 

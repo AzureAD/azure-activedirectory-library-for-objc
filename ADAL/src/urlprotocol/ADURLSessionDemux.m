@@ -70,12 +70,7 @@
     self.thread = nil;
 }
 
-
 @end
-
-
-
-
 
 
 @interface ADURLSessionDemux() <NSURLSessionDataDelegate>
@@ -107,8 +102,6 @@
     
     return self;
 }
-
-
 
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request delegate:(id<NSURLSessionDataDelegate>)delegate
 {
@@ -207,7 +200,6 @@ didReceiveResponse:(NSURLResponse *)response
     }
 }
 
-
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
     ADURLSessionDemuxTaskInfo *    taskInfo;
@@ -219,8 +211,6 @@ didReceiveResponse:(NSURLResponse *)response
         }];
     }
 }
-
-
 
 
 @end

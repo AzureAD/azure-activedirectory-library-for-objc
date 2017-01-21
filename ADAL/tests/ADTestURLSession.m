@@ -536,8 +536,7 @@ static NSMutableArray* s_responses = nil;
             {
                 [subResponses removeObjectAtIndex:0];
                 if ([subResponses count] == 0)
-                {
-                    [s_responses removeObjectAtIndex:i];
+                {                    [s_responses removeObjectAtIndex:i];
                 }
                 return response;
             }
@@ -558,9 +557,9 @@ static NSMutableArray* s_responses = nil;
     }
 }
 
-
 #pragma mark - NSURLSession
-// This class is not a subclass of NSURLSession, and these NRURLSession calls are made.
+// Runtime methods for NSURLSession, needs to declare since this is a NSObject, not :NSURLSession
+// For now though, of no real usage
 - (void)set_isSharedSession:(BOOL)shared
 {
     (void)shared;
