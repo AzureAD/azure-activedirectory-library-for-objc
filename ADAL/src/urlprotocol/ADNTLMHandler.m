@@ -34,7 +34,6 @@
 static NSString *_cancellationUrl = nil;
 static BOOL _challengeCancelled = NO;
 static NSMutableURLRequest *_challengeUrl = nil;
-static NSURLConnection *_conn = nil;
 static NSURLSession *_session = nil;
 
 + (void)load
@@ -64,7 +63,7 @@ static NSURLSession *_session = nil;
     {
         _challengeUrl = nil;
         _cancellationUrl = nil;
-        _conn = nil;
+        _session = nil;
         _challengeCancelled = NO;
     }
 }

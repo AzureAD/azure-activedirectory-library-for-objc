@@ -28,7 +28,6 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
 
 @interface ADWebRequest : NSObject <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 {
-    NSURLConnection * _connection;
     NSURLSessionDataTask * _task;
     
     NSURLSessionConfiguration *_configuration;

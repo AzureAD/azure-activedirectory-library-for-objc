@@ -106,7 +106,7 @@ static NSUUID *_reqCorId(NSURLRequest* request)
 
 + (ADURLSessionDemux *)sharedDemux
 {
-    static dispatch_once_t      sOnceToken;
+    static dispatch_once_t sOnceToken;
     static ADURLSessionDemux * sDemux;
     dispatch_once(&sOnceToken, ^{
         NSURLSessionConfiguration *config;

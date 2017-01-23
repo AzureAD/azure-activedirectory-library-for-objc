@@ -112,7 +112,6 @@
     // Cleanup
     _response       = nil;
     _responseData   = nil;
-    _connection     = nil;
 
     _task           = nil;
     
@@ -192,6 +191,12 @@
     
     if (error == nil)
     {
+        //
+        // NOTE: There is a race condition between this method and the challenge handling methods
+        //       dependent on the the challenge processing that the application performs.
+        //
+        NSAssert( _response != nil, @"No HTTP Response available" );
+        
         ADWebResponse* response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
         [self completeWithError:nil andResponse:response];
     }
@@ -238,93 +243,6 @@
     
     completionHandler(mutableRequest);
   
-}
-
-
-#pragma mark - NSURLConnectionDelegate
-
-// Connection Authentication
-
-// Discussion
-// This method allows the delegate to make an informed decision about connection authentication at once.
-// If the delegate implements this method, it has no need to implement connection:canAuthenticateAgainstProtectionSpace:, connection:didReceiveAuthenticationChallenge:, connectionShouldUseCredentialStorage:.
-// In fact, these other methods are not invoked.
-- (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
-{
-#pragma unused(connection)
-    // Do default handling
-    [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
-}
-
-// Connection Completion
-
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
-{
-#pragma unused(connection)
-    
-    [self completeWithError:error andResponse:nil];
-}
-
-// Method Group
-- (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse
-{
-#pragma unused(connection)
-#pragma unused(cachedResponse)
-    
-    return nil;
-}
-
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
-{
-#pragma unused(connection)
-    _response = (NSHTTPURLResponse *)response;
-}
-
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
-{
-#pragma unused(connection)
-    
-    [_responseData appendData:data];
-}
-
-- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse
-{
-#pragma unused(connection)
-#pragma unused(redirectResponse)
-    NSURL* requestURL = [request URL];
-    NSURL* modifiedURL = [ADHelpers addClientVersionToURL:requestURL];
-    if (modifiedURL == requestURL)
-    {
-        return request;
-    }
-    
-    NSMutableURLRequest* mutableRequest = [NSMutableURLRequest requestWithURL:modifiedURL];
-    [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
-    return mutableRequest;
-}
-
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection
-{
-#pragma unused(connection)
-    
-    //
-    // NOTE: There is a race condition between this method and the challenge handling methods
-    //       dependent on the the challenge processing that the application performs.
-    //
-    NSAssert( _response != nil, @"No HTTP Response available" );
-    
-    ADWebResponse* response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
-    [self completeWithError:nil andResponse:response];
-}
-
-//required method Available in OS X v10.6 through OS X v10.7, then deprecated
--(void)connection:(NSURLConnection *)connection didSendBodyData:(NSInteger)bytesWritten totalBytesWritten:(NSInteger)totalBytesWritten totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
-{
-#pragma unused(connection)
-#pragma unused(bytesWritten)
-#pragma unused(totalBytesWritten)
-#pragma unused(totalBytesExpectedToWrite)
-    
 }
 
 - (void)stopTelemetryEvent:(NSError *)error
