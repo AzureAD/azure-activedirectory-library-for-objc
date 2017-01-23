@@ -28,6 +28,7 @@
 #import "ADCustomHeaderHandler.h"
 #import "ADTelemetryUIEvent.h"
 #import "ADTelemetryEventStrings.h"
+#import "ADAuthenticationSettings.h"
 
 static NSMutableDictionary* s_handlers = nil;
 static NSString* s_endURL = nil;
@@ -161,6 +162,7 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     }
     
     [NSURLProtocol setProperty:@YES forKey:kADURLProtocolPropertyKey inRequest:request];
+    [request setTimeoutInterval:[[ADAuthenticationSettings sharedInstance] requestTimeOut]];
     
     _connection = [[NSURLConnection alloc] initWithRequest:request
                                                   delegate:self
