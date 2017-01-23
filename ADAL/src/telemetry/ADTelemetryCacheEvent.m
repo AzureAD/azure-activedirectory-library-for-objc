@@ -71,17 +71,12 @@
 {
     [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
     
-    (void)eventToBeDispatched;
-    NSArray* properties = [self getProperties];
-    for (ADTelemetryProperty* property in properties)
-    {
-        if ([property.name isEqualToString:AD_TELEMETRY_RT_STATUS]
-            ||[property.name isEqualToString:AD_TELEMETRY_FRT_STATUS]
-            ||[property.name isEqualToString:AD_TELEMETRY_MRRT_STATUS])
-        {
-            [eventToBeDispatched setObject:property.value forKey:property.name];
-        }
-    }
+    NSArray* propertiesToCopyOver = @[
+                                      AD_TELEMETRY_RT_STATUS,
+                                      AD_TELEMETRY_FRT_STATUS,
+                                      AD_TELEMETRY_MRRT_STATUS
+                                      ];
+    [self addPropertiesToAggregatedEvent:eventToBeDispatched propertyNames:propertiesToCopyOver];
     
     int cacheEventCount = 1;
     if ([eventToBeDispatched objectForKey:AD_TELEMETRY_CACHE_EVENT_COUNT])

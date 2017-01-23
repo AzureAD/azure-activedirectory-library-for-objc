@@ -30,7 +30,7 @@
     _testCallback = callback;
 }
 
-- (void)dispatchEvent:(NSArray*)event
+- (void)dispatchEvent:(NSDictionary*)event
 {
     // call _testCallback when it receives telemetry event
     // this is for the purpose of unit test

@@ -58,7 +58,7 @@
           event:(id<ADTelemetryEventInterface>)event
 {
 #pragma unused(requestId)
-    NSArray* properties = [event getProperties];
+    NSDictionary* properties = [event getProperties];
     if (properties)
     {
         [_dispatcher dispatchEvent:properties];

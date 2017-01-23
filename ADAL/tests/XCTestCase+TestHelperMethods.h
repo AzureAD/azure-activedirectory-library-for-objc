@@ -212,13 +212,6 @@ typedef enum
                     semaphore:(dispatch_semaphore_t)signal
                         block:(void (^)(void)) block;
 
-//The method retrieves property value from a telemetry event by property name
-- (NSString *)adGetPropertyFromEvent:(NSArray *)event
-                     propertyName:(NSString *)propertyName;
-
-//The method counts the properties in a telemetry event matching propertyName
-- (NSInteger)adGetPropertyCount:(NSArray *)event
-                 propertyName:(NSString *)propertyName;
 @end
 
 //Fixes the issue with XCTAssertEqual not comparing int and long values

@@ -23,7 +23,7 @@
 
 #import "ADTelemetry.h"
 
-typedef void(^TestCallback)(NSArray* event);
+typedef void(^TestCallback)(NSDictionary* event);
 
 //A simple telemetry dispatcher implementation for test purpose
 //There is a callback function added to dispatcher only because of unit test

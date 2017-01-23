@@ -35,6 +35,7 @@
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryHttpEvent.h"
+#import "ADTelemetryEventStrings.h"
 
 @interface ADWebRequest () <NSURLConnectionDelegate>
 
@@ -132,7 +133,7 @@
 
 - (void)send
 {
-    [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:@"http_request"];
+    [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
     //Correlation id:
     if (_correlationId)
@@ -255,14 +256,14 @@
 - (void)stopTelemetryEvent:(NSError *)error
                   response:(ADWebResponse *)response
 {
-    ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:@"http_request" requestId:_telemetryRequestId correlationId:_correlationId];
+    ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST requestId:_telemetryRequestId correlationId:_correlationId];
 
     [event setHttpMethod:_isGetRequest ? @"GET" : @"POST"];
     [event setHttpPath:[NSString stringWithFormat:@"%@://%@/%@", _requestURL.scheme, _requestURL.host, _requestURL.path]];
     [event setHttpRequestIdHeader:[response.headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE]];
     if (error)
     {
-        [event setOAuthErrorCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
+        [event setHttpErrorCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
         [event setHttpErrorDomain:[error domain]];
     }
     else if (response)
@@ -270,6 +271,8 @@
         [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[response statusCode]]];
     }
 
+    [event setOAuthErrorCode:response];
+    
     [[ADTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
 }
 

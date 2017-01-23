@@ -36,7 +36,7 @@
 { \
 if (OBJECT) \
 { \
-[(DICT) addObject:[[ADTelemetryProperty alloc] initWithName:(NAME) value:(OBJECT)]]; \
+[(DICT) setValue:(OBJECT) forKey:(NAME)]; \
 } \
 }
 
@@ -84,10 +84,10 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:name value:value]];
+    [_propertyMap setValue:value forKey:name];
 }
 
-- (NSArray*)getProperties
+- (NSDictionary*)getProperties
 {
     return _propertyMap;
 }
@@ -99,7 +99,7 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:@"start_time" value:[self getStringFromDate:time]]];
+    [_propertyMap setValue:[self getStringFromDate:time] forKey:AD_TELEMETRY_START_TIME];
 }
 
 - (void)setStopTime:(NSDate*)time
@@ -109,14 +109,13 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:@"stop_time" value:[self getStringFromDate:time]]];
+    [_propertyMap setValue:[self getStringFromDate:time] forKey:AD_TELEMETRY_END_TIME];
 }
 
 - (void)setResponseTime:(NSTimeInterval)responseTime
 {
     //the property is set in milliseconds
-    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:AD_TELEMETRY_RESPONSE_TIME
-                                                                value:[NSString stringWithFormat:@"%f", responseTime*1000]]];
+    [_propertyMap setValue:[NSString stringWithFormat:@"%f", responseTime*1000] forKey:AD_TELEMETRY_RESPONSE_TIME];
 }
 
 - (NSString*)getStringFromDate:(NSDate*)date
@@ -135,22 +134,19 @@ if (OBJECT) \
 
 - (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
 {
-    for (int i=0; i<[self getDefaultPropertyCount]; i++)
-    {
-        NSString* propertyName = [(ADTelemetryProperty*)_propertyMap[i] name];
-        NSString* propertyValue = [(ADTelemetryProperty*)_propertyMap[i] value];
-        [eventToBeDispatched setObject:propertyValue forKey:propertyName];
-    }
+    [eventToBeDispatched addEntriesFromDictionary:[self defaultParameters]];
+    SET_IF_NOT_NIL(eventToBeDispatched, AD_TELEMETRY_REQUEST_ID, [_propertyMap objectForKey:AD_TELEMETRY_REQUEST_ID]);
+    SET_IF_NOT_NIL(eventToBeDispatched, AD_TELEMETRY_CORRELATION_ID, [_propertyMap objectForKey:AD_TELEMETRY_CORRELATION_ID]);
 }
 
-- (NSArray*)defaultParameters
+- (NSDictionary*)defaultParameters
 {
-    static NSMutableArray* s_defaultParameters;
+    static NSMutableDictionary* s_defaultParameters;
     static dispatch_once_t s_parametersOnce;
     
     dispatch_once(&s_parametersOnce, ^{
         
-        s_defaultParameters = [NSMutableArray new];
+        s_defaultParameters = [NSMutableDictionary new];
         
 #if TARGET_OS_IPHONE
         //iOS:
@@ -163,9 +159,9 @@ if (OBJECT) \
         NSString* applicationName = [[NSProcessInfo processInfo] processName];
 #endif
         
-        SET_IF_NOT_NIL(s_defaultParameters, @"device_id", [deviceId adComputeSHA256]);
-        SET_IF_NOT_NIL(s_defaultParameters, @"application_name", applicationName);
-        SET_IF_NOT_NIL(s_defaultParameters, @"application_version", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
+        SET_IF_NOT_NIL(s_defaultParameters, AD_TELEMETRY_DEVICE_ID, [deviceId adComputeSHA256]);
+        SET_IF_NOT_NIL(s_defaultParameters, AD_TELEMETRY_APPLICATION_NAME, applicationName);
+        SET_IF_NOT_NIL(s_defaultParameters, AD_TELEMETRY_APPLICATION_VERSION, [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
         
         NSDictionary* adalId = [ADLogger adalId];
         for (NSString* key in adalId)
@@ -180,6 +176,16 @@ if (OBJECT) \
 - (NSInteger)getDefaultPropertyCount
 {
     return _defaultPropertyCount;
+}
+
+- (void)addPropertiesToAggregatedEvent:(NSMutableDictionary *)eventToBeDispatched
+                         propertyNames:(NSArray *)propertyNames
+{
+    NSDictionary* properties = [self getProperties];
+    for (NSString* name in propertyNames)
+    {
+        SET_IF_NOT_NIL(eventToBeDispatched, name, [properties objectForKey:name]);
+    }
 }
 
 #if !TARGET_OS_IPHONE

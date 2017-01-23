@@ -43,6 +43,7 @@
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryUIEvent.h"
+#import "ADTelemetryEventStrings.h"
 
 /*! Fired at the start of a resource load in the webview. */
 NSString* ADWebAuthDidStartLoadNotification = @"ADWebAuthDidStartLoadNotification";
@@ -563,9 +564,9 @@ static ADAuthenticationResult* s_result = nil;
         });
         return;
     }
-    
-    [[ADTelemetry sharedInstance] startEvent:requestParams.telemetryRequestId eventName:@"launch_web_view"];
-    _telemetryEvent = [[ADTelemetryUIEvent alloc] initWithName:@"launch_web_view"
+
+    [[ADTelemetry sharedInstance] startEvent:requestParams.telemetryRequestId eventName:AD_TELEMETRY_EVENT_UI_EVENT];
+    _telemetryEvent = [[ADTelemetryUIEvent alloc] initWithName:AD_TELEMETRY_EVENT_UI_EVENT
                                                                  context:_requestParams];
     
     _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];

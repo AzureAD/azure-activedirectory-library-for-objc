@@ -180,8 +180,6 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     NSString *qp = [response query];
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
-
-	s_brokerAppVersion = [queryParamsMap valueForKey:BROKER_APP_VERSION];
     
     if([queryParamsMap valueForKey:OAUTH2_ERROR_DESCRIPTION])
     {
@@ -205,6 +203,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     {
         protocolVersion = [msgVer integerValue];
     }
+    s_brokerProtocolVersion = msgVer;
     
     //decrypt response first
     ADBrokerKeyHelper* brokerHelper = [[ADBrokerKeyHelper alloc] init];
@@ -233,6 +232,8 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     queryParamsMap = [NSDictionary adURLFormDecode:decryptedString];
     [ADHelpers removeNullStringFrom:queryParamsMap];
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromBrokerResponse:queryParamsMap];
+    
+    s_brokerAppVersion = [queryParamsMap valueForKey:BROKER_APP_VERSION];
     
     NSString* keychainGroup = resumeDictionary[@"keychain_group"];
     if (AD_SUCCEEDED == result.status && keychainGroup)

@@ -41,16 +41,11 @@
 {
     [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
     
-    (void)eventToBeDispatched;
-    NSArray* properties = [self getProperties];
-    for (ADTelemetryProperty* property in properties)
-    {
-        if ([property.name isEqualToString:AD_TELEMETRY_LOGIN_HINT]
-            ||[property.name isEqualToString:AD_TELEMETRY_NTLM_HANDLED])
-        {
-            [eventToBeDispatched setObject:property.value forKey:property.name];
-        }
-    }
+    NSArray* propertiesToCopyOver = @[
+                                      AD_TELEMETRY_LOGIN_HINT,
+                                      AD_TELEMETRY_NTLM_HANDLED
+                                      ];
+    [self addPropertiesToAggregatedEvent:eventToBeDispatched propertyNames:propertiesToCopyOver];
     
     int UIEventCount = 1;
     if ([eventToBeDispatched objectForKey:AD_TELEMETRY_UI_EVENT_COUNT])

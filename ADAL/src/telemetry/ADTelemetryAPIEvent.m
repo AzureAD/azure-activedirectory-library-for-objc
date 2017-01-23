@@ -35,13 +35,16 @@
     switch (status) {
         case AD_SUCCEEDED:
             statusStr = AD_TELEMETRY_SUCCEEDED;
+            [self setProperty:AD_TELEMETRY_IS_SUCCESSFUL value:AD_TELEMETRY_YES];
             break;
         case AD_FAILED:
             statusStr = AD_TELEMETRY_FAILED;
+            [self setProperty:AD_TELEMETRY_IS_SUCCESSFUL value:AD_TELEMETRY_NO];
             break;
         case AD_USER_CANCELLED:
             statusStr = AD_TELEMETRY_USER_CANCELLED;
             [self setProperty:AD_TELEMETRY_USER_CANCEL value:AD_TELEMETRY_YES];
+            [self setProperty:AD_TELEMETRY_IS_SUCCESSFUL value:AD_TELEMETRY_NO];
             break;
         default:
             statusStr = AD_TELEMETRY_UNKNOWN;
@@ -162,29 +165,25 @@
 {
     [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
     
-    NSArray* properties = [self getProperties];
-    for (ADTelemetryProperty* property in properties)
-    {
-        if ([property.name isEqualToString:AD_TELEMETRY_AUTHORITY_TYPE]
-            ||[property.name isEqualToString:AD_TELEMETRY_AUTHORITY_VALIDATION_STATUS]
-            ||[property.name isEqualToString:AD_TELEMETRY_EXTENDED_EXPIRES_ON_SETTING]
-            ||[property.name isEqualToString:AD_TELEMETRY_PROMPT_BEHAVIOR]
-            ||[property.name isEqualToString:AD_TELEMETRY_RESULT_STATUS]
-            ||[property.name isEqualToString:AD_TELEMETRY_IDP]
-            ||[property.name isEqualToString:AD_TELEMETRY_TENANT_ID]
-            ||[property.name isEqualToString:AD_TELEMETRY_USER_ID]
-            ||[property.name isEqualToString:AD_TELEMETRY_RESPONSE_TIME]
-            ||[property.name isEqualToString:AD_TELEMETRY_CLIENT_ID]
-            ||[property.name isEqualToString:AD_TELEMETRY_API_ID]
-            ||[property.name isEqualToString:AD_TELEMETRY_USER_CANCEL]
-            ||[property.name isEqualToString:AD_TELEMETRY_ERROR_CODE]
-            ||[property.name isEqualToString:AD_TELEMETRY_ERROR_DOMAIN]
-            ||[property.name isEqualToString:AD_TELEMETRY_PROTOCOL_CODE]
-            ||[property.name isEqualToString:AD_TELEMETRY_ERROR_DESCRIPTION])
-        {
-            [eventToBeDispatched setObject:property.value forKey:property.name];
-        }
-    }
+    NSArray* propertiesToCopyOver = @[
+                                      AD_TELEMETRY_AUTHORITY_TYPE,
+                                      AD_TELEMETRY_AUTHORITY_VALIDATION_STATUS,
+                                      AD_TELEMETRY_EXTENDED_EXPIRES_ON_SETTING,
+                                      AD_TELEMETRY_PROMPT_BEHAVIOR,
+                                      AD_TELEMETRY_RESULT_STATUS,
+                                      AD_TELEMETRY_IDP,
+                                      AD_TELEMETRY_TENANT_ID,
+                                      AD_TELEMETRY_USER_ID,
+                                      AD_TELEMETRY_RESPONSE_TIME,
+                                      AD_TELEMETRY_CLIENT_ID,
+                                      AD_TELEMETRY_API_ID,
+                                      AD_TELEMETRY_USER_CANCEL,
+                                      AD_TELEMETRY_ERROR_CODE,
+                                      AD_TELEMETRY_ERROR_DOMAIN,
+                                      AD_TELEMETRY_PROTOCOL_CODE,
+                                      AD_TELEMETRY_IS_SUCCESSFUL
+                                      ];
+    [self addPropertiesToAggregatedEvent:eventToBeDispatched propertyNames:propertiesToCopyOver];
 }
 
 @end
