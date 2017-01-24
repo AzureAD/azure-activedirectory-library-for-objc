@@ -35,12 +35,11 @@
     if(self)
     {
         //this is the only broker for iOS
-        [self setBrokerApp:@"Azure Authenticator"];
+        [self setBrokerApp:@"Microsoft Authenticator"];
     }
     
     return self;
 }
-
 
 - (void)setBrokerAppVersion:(NSString*)version
 {
@@ -49,7 +48,7 @@
 
 - (void)setBrokerProtocolVersion:(NSString*)version
 {
-    [self setProperty:@"broker_protocol_version" value:version];
+    [self setProperty:AD_TELEMETRY_BROKER_PROTOCOL_VERSION value:version];
 }
 
 - (void)setResultStatus:(ADAuthenticationResultStatus)status
@@ -57,19 +56,19 @@
     NSString* statusStr = nil;
     switch (status) {
         case AD_SUCCEEDED:
-            statusStr = @"SUCCEEDED";
+            statusStr = AD_TELEMETRY_SUCCEEDED;
             break;
         case AD_FAILED:
-            statusStr = @"FAILED";
+            statusStr = AD_TELEMETRY_FAILED;
             break;
         case AD_USER_CANCELLED:
-            statusStr = @"USER_CANCELLED";
+            statusStr = AD_TELEMETRY_USER_CANCELLED;
             break;
         default:
-            statusStr = @"UNKNOWN";
+            statusStr = AD_TELEMETRY_UNKNOWN;
     }
     
-    [self setProperty:@"status" value:statusStr];
+    [self setProperty:AD_TELEMETRY_RESULT_STATUS value:statusStr];
 }
 
 - (void)setBrokerApp:(NSString*)appName
@@ -81,16 +80,12 @@
 {
     [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
     
-    (void)eventToBeDispatched;
-    NSArray* properties = [self getProperties];
-    for (ADTelemetryProperty* property in properties)
-    {
-        if ([property.name isEqualToString:AD_TELEMETRY_BROKER_APP]
-            ||[property.name isEqualToString:AD_TELEMETRY_BROKER_VERSION])
-        {
-            [eventToBeDispatched setObject:property.value forKey:property.name];
-        }
-    }
+    NSArray* propertiesToCopyOver = @[
+                                      AD_TELEMETRY_BROKER_APP,
+                                      AD_TELEMETRY_BROKER_VERSION
+                                      ];
+    [self addPropertiesToAggregatedEvent:eventToBeDispatched propertyNames:propertiesToCopyOver];
+    
     [eventToBeDispatched setObject:AD_TELEMETRY_YES forKey:AD_TELEMETRY_BROKER_APP_USED];
 }
 

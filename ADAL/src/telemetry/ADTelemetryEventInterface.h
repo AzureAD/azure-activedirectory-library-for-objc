@@ -23,11 +23,11 @@
 
 @protocol ADTelemetryEventInterface <NSObject>
 
-@property (readonly) NSMutableArray* propertyMap;
+@property (readonly) NSDictionary* propertyMap;
 
 - (NSInteger)getDefaultPropertyCount;
 - (void)setProperty:(NSString*)name value:(NSString*)value;
-- (NSArray*)getProperties;
+- (NSDictionary*)getProperties;
 - (void)setStartTime:(NSDate*)time;
 - (void)setStopTime:(NSDate*)time;
 - (void)setResponseTime:(NSTimeInterval)responseTime;

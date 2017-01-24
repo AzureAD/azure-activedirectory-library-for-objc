@@ -47,18 +47,12 @@
     [_objectsToBeDispatched removeObjectForKey:requestId];
     [_dispatchLock unlock];
     
-    NSMutableDictionary* aggregatedEventMap = [NSMutableDictionary new];
+    NSMutableDictionary* aggregatedEvent = [NSMutableDictionary new];
     for (id<ADTelemetryEventInterface> event in eventsToBeDispatched)
     {
-        [event addAggregatedPropertiesToDictionary:aggregatedEventMap];
+        [event addAggregatedPropertiesToDictionary:aggregatedEvent];
     }
     
-    // convert the aggregated event from a map to a list
-    NSMutableArray* aggregatedEvent = [NSMutableArray new];
-    for (NSString* key in aggregatedEventMap)
-    {
-        [aggregatedEvent addObject:[[ADTelemetryProperty alloc] initWithName:key value:[aggregatedEventMap objectForKey:key]]];
-    }
     [_dispatcher dispatchEvent:aggregatedEvent];
 }
 

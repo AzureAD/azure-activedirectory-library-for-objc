@@ -26,7 +26,7 @@
 
 @interface ADTelemetryDefaultEvent : NSObject <ADTelemetryEventInterface>
 {
-    NSMutableArray* _propertyMap;
+    NSMutableDictionary* _propertyMap;
     NSInteger _defaultPropertyCount;
 }
 
@@ -36,5 +36,8 @@
 
 - (id)initWithName:(NSString*)eventName
            context:(id<ADRequestContext>)requestParams;
+
+- (void)addPropertiesToAggregatedEvent:(NSMutableDictionary *)eventToBeDispatched
+                         propertyNames:(NSArray *)propertyNames;
 
 @end
