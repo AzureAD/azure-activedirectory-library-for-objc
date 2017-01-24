@@ -29,7 +29,7 @@
 
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request delegate:(id<NSURLSessionDataDelegate>)delegate;
 
-@property (atomic, copy,   readonly)  NSURLSessionConfiguration* configuration;
+@property (atomic, copy,   readonly) NSURLSessionConfiguration* configuration;
 @property (atomic, strong, readonly) NSURLSession *session;
 
 @end

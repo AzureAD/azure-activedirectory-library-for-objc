@@ -85,7 +85,7 @@ static NSUUID *_reqCorId(NSURLRequest* request)
     
     @synchronized(self)
     {
-        for (NSString* key in s_handlers)
+        for (NSString *key in s_handlers)
         {
             Class<ADAuthMethodHandler> handler = [s_handlers objectForKey:key];
             [handler resetHandler];
@@ -144,7 +144,7 @@ static NSUUID *_reqCorId(NSURLRequest* request)
         }
     }
     
-    AD_LOG_VERBOSE_F(@"+[ADURLProtocol canInitWithRequest:] ignoring handling of host - scheme is not HTTPS", _reqCorId(request), @"host: %@", [request.URL host]);
+    AD_LOG_VERBOSE_F(@"+[ADURLProtocol canInitWithRequest:] ignoring handling of host", _reqCorId(request), @"host: %@", [request.URL host]);
     
     return NO;
 }

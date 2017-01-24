@@ -43,7 +43,8 @@
 - (instancetype)initWithTask:(NSURLSessionDataTask *)task delegate:(id<NSURLSessionDataDelegate>)delegate
 {
     self = [super init];
-    if (self != nil) {
+    if (self != nil)
+    {
         self->_task = task;
         self->_delegate = delegate;
         self->_thread = [NSThread currentThread];
@@ -111,7 +112,8 @@
     task = [self.session dataTaskWithRequest:request];
     taskInfo = [[ADURLSessionDemuxTaskInfo alloc] initWithTask:task
                                                       delegate:delegate];
-    @synchronized (self) {
+    @synchronized (self)
+    {
         self.taskInfoByTaskID[@(task.taskIdentifier)] = taskInfo;
     }
     
@@ -121,7 +123,8 @@
 - (ADURLSessionDemuxTaskInfo *)taskInfoForTask:(NSURLSessionTask *)task
 {
     ADURLSessionDemuxTaskInfo *result;
-    @synchronized (self) {
+    @synchronized (self)
+    {
         result = self.taskInfoByTaskID[@(task.taskIdentifier)];
     }
     return result;
@@ -138,47 +141,58 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
     ADURLSessionDemuxTaskInfo *taskInfo;
     
     taskInfo = [self taskInfoForTask:task];
-    if ([taskInfo.delegate respondsToSelector:@selector(URLSession:task:willPerformHTTPRedirection:newRequest:completionHandler:)]) {
+    if ([taskInfo.delegate respondsToSelector:@selector(URLSession:task:willPerformHTTPRedirection:newRequest:completionHandler:)])
+    {
         [taskInfo performBlock:^{
             [taskInfo.delegate URLSession:session task:task willPerformHTTPRedirection:response newRequest:newRequest completionHandler:completionHandler];
         }];
-    } else {
+    }
+    else
+    {
         completionHandler(newRequest);
     }
 }
 
-- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
+- (void)URLSession:(NSURLSession *)session
+              task:(NSURLSessionTask *)task
 didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
  completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler
 {
-    ADURLSessionDemuxTaskInfo *    taskInfo;
+    ADURLSessionDemuxTaskInfo *taskInfo;
     
     taskInfo = [self taskInfoForTask:task];
-    if ([taskInfo.delegate respondsToSelector:@selector(URLSession:task:didReceiveChallenge:completionHandler:)]) {
+    if ([taskInfo.delegate respondsToSelector:@selector(URLSession:task:didReceiveChallenge:completionHandler:)])
+    {
         [taskInfo performBlock:^{
             [taskInfo.delegate URLSession:session task:task didReceiveChallenge:challenge completionHandler:completionHandler];
         }];
-    } else {
+    }
+    else
+    {
         completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
     }
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    ADURLSessionDemuxTaskInfo *    taskInfo;
+    ADURLSessionDemuxTaskInfo *taskInfo;
     
     taskInfo = [self taskInfoForTask:task];
     
-    @synchronized (self) {
+    @synchronized (self)
+    {
         [self.taskInfoByTaskID removeObjectForKey:@(taskInfo.task.taskIdentifier)];
     }
     
-    if ([taskInfo.delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]) {
+    if ([taskInfo.delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)])
+    {
         [taskInfo performBlock:^{
             [taskInfo.delegate URLSession:session task:task didCompleteWithError:error];
             [taskInfo invalidate];
         }];
-    } else {
+    }
+    else
+    {
         [taskInfo invalidate];
     }
 }
@@ -191,11 +205,14 @@ didReceiveResponse:(NSURLResponse *)response
     ADURLSessionDemuxTaskInfo *    taskInfo;
     
     taskInfo = [self taskInfoForTask:dataTask];
-    if ([taskInfo.delegate respondsToSelector:@selector(URLSession:dataTask:didReceiveResponse:completionHandler:)]) {
+    if ([taskInfo.delegate respondsToSelector:@selector(URLSession:dataTask:didReceiveResponse:completionHandler:)])
+    {
         [taskInfo performBlock:^{
             [taskInfo.delegate URLSession:session dataTask:dataTask didReceiveResponse:response completionHandler:completionHandler];
         }];
-    } else {
+    }
+    else
+    {
         completionHandler(NSURLSessionResponseAllow);
     }
 }
@@ -205,7 +222,8 @@ didReceiveResponse:(NSURLResponse *)response
     ADURLSessionDemuxTaskInfo *    taskInfo;
     
     taskInfo = [self taskInfoForTask:dataTask];
-    if ([taskInfo.delegate respondsToSelector:@selector(URLSession:dataTask:didReceiveData:)]) {
+    if ([taskInfo.delegate respondsToSelector:@selector(URLSession:dataTask:didReceiveData:)])
+    {
         [taskInfo performBlock:^{
             [taskInfo.delegate URLSession:session dataTask:dataTask didReceiveData:data];
         }];

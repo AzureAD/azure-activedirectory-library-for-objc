@@ -180,8 +180,9 @@
 #pragma mark - NSURLSession delegates
 - (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
 {
-#pragma unused(session)
-#pragma unused(challenge)
+    (void)session;
+    (void)challenge;
+    
     completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
 }
 
@@ -210,17 +211,18 @@
 #pragma mark - NSURLSessionDataDelegate
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
 {
-#pragma unused(session)
-#pragma unused(dataTask)
-#pragma unused(completionHandler)
+    (void)session;
+    (void)dataTask;
+  
     _response = (NSHTTPURLResponse *)response;
     completionHandler(NSURLSessionResponseAllow);
 }
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
-#pragma unused(session)
-#pragma unused(dataTask)
+    (void)session;
+    (void)dataTask;
+    
     [_responseData appendData:data];
 }
 
