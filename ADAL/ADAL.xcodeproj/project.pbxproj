@@ -29,8 +29,8 @@
 		04AB6D511D9D619B007E9A83 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D501D9D619B007E9A83 /* Assets.xcassets */; };
 		04AB6D541D9D619B007E9A83 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D521D9D619B007E9A83 /* LaunchScreen.storyboard */; };
 		290750AC1E380F32000F0C29 /* ADTelemetryCollectionRules.h in Headers */ = {isa = PBXBuildFile; fileRef = 290750AA1E380F32000F0C29 /* ADTelemetryCollectionRules.h */; };
-		290750AD1E380F32000F0C29 /* ADTelemetryCollectionRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */; };
-		290750AE1E380F32000F0C29 /* ADTelemetryCollectionRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */; };
+		2949ABC01E395FC400F56C57 /* ADTelemetryCollectionRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */; };
+		2949ABC11E39605F00F56C57 /* ADTelemetryCollectionRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */; };
 		29DBF6D61E36D5A600D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */; };
 		29DBF6D71E36D5A900D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */; };
 		600401A51D3421480020EAAB /* ADTelemetry.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401A31D3421480020EAAB /* ADTelemetry.m */; };
@@ -1751,7 +1751,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				290750AE1E380F32000F0C29 /* ADTelemetryCollectionRules.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1782,6 +1781,7 @@
 				9453C4111C586456006B9E79 /* ADAuthenticationSettings.m in Sources */,
 				9453C4651C58707B006B9E79 /* ADCredentialCollectionController.m in Sources */,
 				9453C4201C586462006B9E79 /* ADTokenCache.m in Sources */,
+				2949ABC01E395FC400F56C57 /* ADTelemetryCollectionRules.m in Sources */,
 				9453C42B1C58646D006B9E79 /* ADAuthenticationRequest+AcquireAssertion.m in Sources */,
 				9453C4141C586456006B9E79 /* ADLogger.m in Sources */,
 				9453C41B1C586456006B9E79 /* ADClientMetrics.m in Sources */,
@@ -1901,7 +1901,7 @@
 				D664F18D1D302B9C0017B799 /* ADALFrameworkUtils.m in Sources */,
 				D664F18E1D302B9C0017B799 /* ADAuthenticationSettings.m in Sources */,
 				D664F18F1D302B9C0017B799 /* NSDictionary+ADExtensions.m in Sources */,
-				290750AD1E380F32000F0C29 /* ADTelemetryCollectionRules.m in Sources */,
+				2949ABC11E39605F00F56C57 /* ADTelemetryCollectionRules.m in Sources */,
 				D664F1901D302B9C0017B799 /* ADRegistrationInformation.m in Sources */,
 				D664F1911D302B9C0017B799 /* ADHelpers.m in Sources */,
 				D664F1921D302B9C0017B799 /* ADAuthenticationParameters.m in Sources */,
