@@ -43,12 +43,12 @@
 
 - (void)setBrokerAppVersion:(NSString*)version
 {
-    [self setProperty:AD_TELEMETRY_BROKER_VERSION value:version];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_BROKER_VERSION value:version];
 }
 
 - (void)setBrokerProtocolVersion:(NSString*)version
 {
-    [self setProperty:AD_TELEMETRY_BROKER_PROTOCOL_VERSION value:version];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_BROKER_PROTOCOL_VERSION value:version];
 }
 
 - (void)setResultStatus:(ADAuthenticationResultStatus)status
@@ -56,37 +56,24 @@
     NSString* statusStr = nil;
     switch (status) {
         case AD_SUCCEEDED:
-            statusStr = AD_TELEMETRY_SUCCEEDED;
+            statusStr = AD_TELEMETRY_PROPERTY_VALUE_SUCCEEDED;
             break;
         case AD_FAILED:
-            statusStr = AD_TELEMETRY_FAILED;
+            statusStr = AD_TELEMETRY_PROPERTY_VALUE_FAILED;
             break;
         case AD_USER_CANCELLED:
-            statusStr = AD_TELEMETRY_USER_CANCELLED;
+            statusStr = AD_TELEMETRY_PROPERTY_NAME_USER_CANCEL;
             break;
         default:
-            statusStr = AD_TELEMETRY_UNKNOWN;
+            statusStr = AD_TELEMETRY_PROPERTY_VALUE_UNKNOWN;
     }
     
-    [self setProperty:AD_TELEMETRY_RESULT_STATUS value:statusStr];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_RESULT_STATUS value:statusStr];
 }
 
 - (void)setBrokerApp:(NSString*)appName
 {
-    [self setProperty:AD_TELEMETRY_BROKER_APP value:appName];
-}
-
-- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
-{
-    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
-    
-    NSArray* propertiesToCopyOver = @[
-                                      AD_TELEMETRY_BROKER_APP,
-                                      AD_TELEMETRY_BROKER_VERSION
-                                      ];
-    [self addPropertiesToAggregatedEvent:eventToBeDispatched propertyNames:propertiesToCopyOver];
-    
-    [eventToBeDispatched setObject:AD_TELEMETRY_YES forKey:AD_TELEMETRY_BROKER_APP_USED];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_BROKER_APP value:appName];
 }
 
 @end

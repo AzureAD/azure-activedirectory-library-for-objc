@@ -29,30 +29,12 @@
 
 - (void)setLoginHint:(NSString*)hint
 {
-    [self setProperty:AD_TELEMETRY_LOGIN_HINT value:[hint adComputeSHA256]];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_LOGIN_HINT value:[hint adComputeSHA256]];
 }
 
 - (void)setNtlm:(NSString*)ntlmHandled
 {
-    [self setProperty:AD_TELEMETRY_NTLM_HANDLED value:ntlmHandled];
-}
-
-- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
-{
-    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
-    
-    NSArray* propertiesToCopyOver = @[
-                                      AD_TELEMETRY_LOGIN_HINT,
-                                      AD_TELEMETRY_NTLM_HANDLED
-                                      ];
-    [self addPropertiesToAggregatedEvent:eventToBeDispatched propertyNames:propertiesToCopyOver];
-    
-    int UIEventCount = 1;
-    if ([eventToBeDispatched objectForKey:AD_TELEMETRY_UI_EVENT_COUNT])
-    {
-        UIEventCount = [[eventToBeDispatched objectForKey:AD_TELEMETRY_UI_EVENT_COUNT] intValue] + 1;
-    }
-    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", UIEventCount] forKey:AD_TELEMETRY_UI_EVENT_COUNT];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_NTLM_HANDLED value:ntlmHandled];
 }
 
 @end

@@ -30,27 +30,27 @@
 
 - (void)setHttpMethod:(NSString*)method
 {
-    [self setProperty:AD_TELEMETRY_HTTP_METHOD value:method];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_HTTP_METHOD value:method];
 }
 
 - (void)setHttpPath:(NSString*)path
 {
-    [self setProperty:AD_TELEMETRY_HTTP_PATH value:path];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_HTTP_PATH value:path];
 }
 
 - (void)setHttpRequestIdHeader:(NSString*)requestIdHeader
 {
-    [self setProperty:AD_TELEMETRY_HTTP_REQUEST_ID_HEADER value:requestIdHeader];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_HTTP_REQUEST_ID_HEADER value:requestIdHeader];
 }
 
 - (void)setHttpResponseCode:(NSString*)code
 {
-    [self setProperty:AD_TELEMETRY_HTTP_RESPONSE_CODE value:code];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_HTTP_RESPONSE_CODE value:code];
 }
 
 - (void)setHttpErrorCode:(NSString*)code
 {
-    [self setProperty:AD_TELEMETRY_ERROR_CODE value:code];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_ERROR_CODE value:code];
 }
 
 - (void)setOAuthErrorCode:(ADWebResponse *)response
@@ -68,49 +68,27 @@
         return;
     }
     
-    [self setProperty:AD_TELEMETRY_OAUTH_ERROR_CODE value:[(NSDictionary*)jsonObject objectForKey:OAUTH2_ERROR]];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_OAUTH_ERROR_CODE value:[(NSDictionary*)jsonObject objectForKey:OAUTH2_ERROR]];
 }
 
 - (void)setHttpResponseMethod:(NSString*)method
 {
-    [self setProperty:AD_TELEMETRY_HTTP_RESPONSE_METHOD value:method];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_HTTP_RESPONSE_METHOD value:method];
 }
 
 - (void)setHttpRequestQueryParams:(NSString*)params
 {
-    [self setProperty:AD_TELEMETRY_REQUEST_QUERY_PARAMS value:params];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_REQUEST_QUERY_PARAMS value:params];
 }
 
 - (void)setHttpUserAgent:(NSString*)userAgent
 {
-    [self setProperty:AD_TELEMETRY_USER_AGENT value:userAgent];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_USER_AGENT value:userAgent];
 }
 
 - (void)setHttpErrorDomain:(NSString*)errorDomain
 {
-    [self setProperty:AD_TELEMETRY_HTTP_ERROR_DOMAIN value:errorDomain];
-}
-
-- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
-{
-    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
-    
-    (void)eventToBeDispatched;
-    
-    int httpEventCount = 1;
-    if ([eventToBeDispatched objectForKey:AD_TELEMETRY_HTTP_EVENT_COUNT])
-    {
-        httpEventCount = [[eventToBeDispatched objectForKey:AD_TELEMETRY_HTTP_EVENT_COUNT] intValue] + 1;
-    }
-    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", httpEventCount] forKey:AD_TELEMETRY_HTTP_EVENT_COUNT];
-    
-    //erase the previous http event properties if any
-    [eventToBeDispatched setObject:@"" forKey:AD_TELEMETRY_OAUTH_ERROR_CODE];
-    
-    NSArray* propertiesToCopyOver = @[
-                                      AD_TELEMETRY_OAUTH_ERROR_CODE
-                                      ];
-    [self addPropertiesToAggregatedEvent:eventToBeDispatched propertyNames:propertiesToCopyOver];
+    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_HTTP_ERROR_DOMAIN value:errorDomain];
 }
 
 - (NSString*)scrubTenantFromUrl:(NSString*)url

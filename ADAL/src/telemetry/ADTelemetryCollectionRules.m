@@ -1,0 +1,103 @@
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+#import "ADTelemetryCollectionRules.h"
+#import "ADTelemetryEventStrings.h"
+
+static NSDictionary *_telemetryEventRules;
+
+@implementation ADTelemetryCollectionRules
+
++ (void)initialize
+{
+    _telemetryEventRules = @{
+                             // Collect only
+                             AD_TELEMETRY_PROPERTY_NAME_AUTHORITY_TYPE: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_AUTHORITY_VALIDATION_STATUS: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_EXTENDED_EXPIRES_ON_SETTING: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_PROMPT_BEHAVIOR: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_RESULT_STATUS: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_IDP: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_TENANT_ID: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_USER_ID: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_START_TIME: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_END_TIME: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_RESPONSE_TIME: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_DEVICE_ID: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_APPLICATION_NAME: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_APPLICATION_VERSION: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_LOGIN_HINT: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_NTLM_HANDLED: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_BROKER_VERSION: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_BROKER_PROTOCOL_VERSION: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_BROKER_APP: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_BROKER_APP_USED: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_CLIENT_ID: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_API_ID: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_TOKEN_TYPE: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_USER_CANCEL: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_IS_RT: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_IS_MRRT: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_IS_FRT: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_RT_STATUS: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_MRRT_STATUS: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_FRT_STATUS: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_IS_SUCCESSFUL: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_USER_CANCEL: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_CORRELATION_ID: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_CLIENT_ID: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_IS_EXTENED_LIFE_TIME_TOKEN: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_ERROR_CODE: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_PROTOCOL_CODE: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_ERROR_DESCRIPTION: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_ERROR_DOMAIN: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_HTTP_METHOD: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_HTTP_PATH: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_HTTP_REQUEST_ID_HEADER: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_HTTP_RESPONSE_CODE: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_HTTP_RESPONSE_METHOD: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_REQUEST_QUERY_PARAMS: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_USER_AGENT: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_HTTP_ERROR_DOMAIN: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_AUTHORITY: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_GRANT_TYPE: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_API_STATUS: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_EVENT_NAME: @(CollectOnly),
+                             AD_TELEMETRY_PROPERTY_NAME_REQUEST_ID: @(CollectOnly),
+                             
+                             // Collect and count
+                             AD_TELEMETRY_PROPERTY_NAME_UI_EVENT_COUNT: @(CollectAndCount),
+                             AD_TELEMETRY_PROPERTY_NAME_HTTP_EVENT_COUNT: @(CollectAndCount),
+                             AD_TELEMETRY_PROPERTY_NAME_CACHE_EVENT_COUNT: @(CollectAndCount),
+                             
+                             // Collect and update
+                             AD_TELEMETRY_PROPERTY_NAME_OAUTH_ERROR_CODE: @(CollectAndUpdate)
+                             };
+}
+
++ (ADTelemetryCollectionBehavior)getTelemetryCollectionRule:(NSString *)propertyName
+{
+    return [[_telemetryEventRules objectForKey:propertyName] intValue];
+}
+
+@end
