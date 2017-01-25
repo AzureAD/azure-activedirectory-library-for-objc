@@ -141,7 +141,7 @@ static NSUUID * _reqCorId(NSURLRequest* request)
     AD_LOG_VERBOSE_F(@"+[ADURLProtocol canonicalRequestForRequest:]", _reqCorId(request), @"host: %@", [request.URL host] );
     
     NSMutableURLRequest* mutableRequest = [request mutableCopy];
-    [mutableRequest setTimeoutInterval:[[ADAuthenticationSettings sharedInstance] requestTimeOut]];
+    mutableRequest.timeoutInterval = ADAuthenticationSettings.sharedInstance.requestTimeOut;
     
     return mutableRequest;
 }
