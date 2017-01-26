@@ -99,46 +99,22 @@ static NSDictionary *s_eventPropertiesDictionary;
     
     for (NSString* propertyName in eventProperties)
     {
-        [self resetCollectedData:aggregatedEvent propertyName:propertyName];
-        
-        [aggregatedEvent setObjectWithNilCheck:[[event getProperties] objectForKey:propertyName] forKey:propertyName];
-        
-        [self applyTelemetryCollectionRule:aggregatedEvent propertyName:propertyName];
+        ADTelemetryCollectionBehavior collectionBehavior = [ADTelemetryCollectionRules getTelemetryCollectionRule:propertyName];
+        if (collectionBehavior == CollectAndUpdate)
+        {
+            //erase the previous event properties if any
+            [aggregatedEvent setObject:@"" forKey:propertyName];
+        }
+        if (collectionBehavior != CollectAndCount)
+        {
+            [aggregatedEvent setObjectWithNilCheck:[[event getProperties] objectForKey:propertyName] forKey:propertyName];
+        }
+        else
+        {
+            int eventCount = [[aggregatedEvent objectForKey:propertyName] intValue];
+            [aggregatedEvent setObject:[NSString stringWithFormat:@"%d", ++eventCount] forKey:propertyName];
+        }
     }
-}
-
-- (void)resetCollectedData:(NSMutableDictionary*)aggregatedEvent propertyName:(NSString *)propertyName
-{
-    ADTelemetryCollectionBehavior collectionBehavior = [ADTelemetryCollectionRules getTelemetryCollectionRule:propertyName];
-    
-    if (collectionBehavior == CollectAndUpdate)
-    {
-        //erase the previous event properties if any
-        [aggregatedEvent setObject:@"" forKey:propertyName];
-    }
-}
-
-- (void)applyTelemetryCollectionRule:(NSMutableDictionary*)aggregatedEvent propertyName:(NSString *)propertyName
-{
-    ADTelemetryCollectionBehavior collectionBehavior = [ADTelemetryCollectionRules getTelemetryCollectionRule:propertyName];
-    
-    switch (collectionBehavior) {
-        case CollectAndCount:
-            [self applyTelemetryCollectionRuleCount:aggregatedEvent propertyName:propertyName];
-            break;
-            
-        case CollectAndUpdate:
-        case CollectOnly:
-        default:
-            break;
-    }
-}
-
-- (void)applyTelemetryCollectionRuleCount:(NSMutableDictionary*)aggregatedEvent propertyName:(NSString *)propertyName
-{
-    int eventCount = [[aggregatedEvent objectForKey:propertyName] intValue];
-    
-    [aggregatedEvent setObject:[NSString stringWithFormat:@"%d", ++eventCount] forKey:propertyName];
 }
 
 + (void)initialize
@@ -174,14 +150,16 @@ static NSDictionary *s_eventPropertiesDictionary;
                                               AD_TELEMETRY_PROPERTY_NAME_CORRELATION_ID,
                                               
                                               AD_TELEMETRY_PROPERTY_NAME_LOGIN_HINT,
-                                              AD_TELEMETRY_PROPERTY_NAME_NTLM_HANDLED
+                                              AD_TELEMETRY_PROPERTY_NAME_NTLM_HANDLED,
+                                              AD_TELEMETRY_PROPERTY_NAME_UI_EVENT_COUNT
                                               ],
                                       NSStringFromClass([ADTelemetryHttpEvent class]): @[
                                               // default properties apply to all events
                                               AD_TELEMETRY_PROPERTY_NAME_REQUEST_ID,
                                               AD_TELEMETRY_PROPERTY_NAME_CORRELATION_ID,
                                               
-                                              AD_TELEMETRY_PROPERTY_NAME_OAUTH_ERROR_CODE
+                                              AD_TELEMETRY_PROPERTY_NAME_OAUTH_ERROR_CODE,
+                                              AD_TELEMETRY_PROPERTY_NAME_HTTP_EVENT_COUNT
                                               ],
                                       NSStringFromClass([ADTelemetryCacheEvent class]): @[
                                               // default properties apply to all events
@@ -190,7 +168,8 @@ static NSDictionary *s_eventPropertiesDictionary;
                                               
                                               AD_TELEMETRY_PROPERTY_NAME_RT_STATUS,
                                               AD_TELEMETRY_PROPERTY_NAME_FRT_STATUS,
-                                              AD_TELEMETRY_PROPERTY_NAME_MRRT_STATUS
+                                              AD_TELEMETRY_PROPERTY_NAME_MRRT_STATUS,
+                                              AD_TELEMETRY_PROPERTY_NAME_CACHE_EVENT_COUNT
                                               ],
                                       NSStringFromClass([ADTelemetryBrokerEvent class]): @[
                                               // default properties apply to all events
