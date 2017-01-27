@@ -113,8 +113,11 @@ static NSString* const s_delimiter = @"|";
     }
     
     NSDate* currentTime = [NSDate date];
-    [_eventTracking setObject:currentTime
-                       forKey: [self getEventTrackingKey:requestId eventName:eventName]];
+    @synchronized(self)
+    {
+        [_eventTracking setObject:currentTime
+                           forKey: [self getEventTrackingKey:requestId eventName:eventName]];
+    }
 }
 
 - (void)stopEvent:(NSString*)requestId
@@ -129,15 +132,19 @@ static NSString* const s_delimiter = @"|";
     }
     
     NSString* key = [self getEventTrackingKey:requestId eventName:eventName];
-    NSDate* startTime = [_eventTracking objectForKey:key];
-    if (!startTime)
+    
+    @synchronized(self)
     {
-        return;
+        NSDate* startTime = [_eventTracking objectForKey:key];
+        if (!startTime)
+        {
+            return;
+        }
+        [event setStartTime:startTime];
+        [event setStopTime:stopTime];
+        [event setResponseTime:[stopTime timeIntervalSinceDate:startTime]];
+        [_eventTracking removeObjectForKey:key];
     }
-    [event setStartTime:startTime];
-    [event setStopTime:stopTime];
-    [event setResponseTime:[stopTime timeIntervalSinceDate:startTime]];
-    [_eventTracking removeObjectForKey:key];
     
     [_dispatcher receive:requestId event:event];
 }
