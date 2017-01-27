@@ -107,39 +107,45 @@ static NSString* const s_delimiter = @"|";
 - (void)startEvent:(NSString*)requestId
          eventName:(NSString*)eventName
 {
-    if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName])
+    @synchronized(self)
     {
-        return;
+        if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName])
+        {
+            return;
+        }
+        
+        NSDate* currentTime = [NSDate date];
+        [_eventTracking setObject:currentTime
+                           forKey: [self getEventTrackingKey:requestId eventName:eventName]];
     }
-    
-    NSDate* currentTime = [NSDate date];
-    [_eventTracking setObject:currentTime
-                       forKey: [self getEventTrackingKey:requestId eventName:eventName]];
 }
 
 - (void)stopEvent:(NSString*)requestId
             event:(id<ADTelemetryEventInterface>)event
 {
-    NSDate* stopTime = [NSDate date];
-    NSString* eventName = [self getPropertyFromEvent:event propertyName:AD_TELEMETRY_EVENT_NAME];
-    
-    if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName] || !event)
+    @synchronized(self)
     {
-        return;
+        NSDate* stopTime = [NSDate date];
+        NSString* eventName = [self getPropertyFromEvent:event propertyName:AD_TELEMETRY_EVENT_NAME];
+        
+        if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName] || !event)
+        {
+            return;
+        }
+        
+        NSString* key = [self getEventTrackingKey:requestId eventName:eventName];
+        NSDate* startTime = [_eventTracking objectForKey:key];
+        if (!startTime)
+        {
+            return;
+        }
+        [event setStartTime:startTime];
+        [event setStopTime:stopTime];
+        [event setResponseTime:[stopTime timeIntervalSinceDate:startTime]];
+        [_eventTracking removeObjectForKey:key];
+        
+        [_dispatcher receive:requestId event:event];
     }
-    
-    NSString* key = [self getEventTrackingKey:requestId eventName:eventName];
-    NSDate* startTime = [_eventTracking objectForKey:key];
-    if (!startTime)
-    {
-        return;
-    }
-    [event setStartTime:startTime];
-    [event setStopTime:stopTime];
-    [event setResponseTime:[stopTime timeIntervalSinceDate:startTime]];
-    [_eventTracking removeObjectForKey:key];
-    
-    [_dispatcher receive:requestId event:event];
 }
 
 - (void)dispatchEventNow:(NSString*)requestId
