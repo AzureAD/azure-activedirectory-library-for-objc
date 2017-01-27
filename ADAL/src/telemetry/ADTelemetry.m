@@ -107,14 +107,14 @@ static NSString* const s_delimiter = @"|";
 - (void)startEvent:(NSString*)requestId
          eventName:(NSString*)eventName
 {
+    if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName])
+    {
+        return;
+    }
+    
+    NSDate* currentTime = [NSDate date];
     @synchronized(self)
     {
-        if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName])
-        {
-            return;
-        }
-        
-        NSDate* currentTime = [NSDate date];
         [_eventTracking setObject:currentTime
                            forKey: [self getEventTrackingKey:requestId eventName:eventName]];
     }
@@ -123,17 +123,18 @@ static NSString* const s_delimiter = @"|";
 - (void)stopEvent:(NSString*)requestId
             event:(id<ADTelemetryEventInterface>)event
 {
+    NSDate* stopTime = [NSDate date];
+    NSString* eventName = [self getPropertyFromEvent:event propertyName:AD_TELEMETRY_EVENT_NAME];
+    
+    if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName] || !event)
+    {
+        return;
+    }
+    
+    NSString* key = [self getEventTrackingKey:requestId eventName:eventName];
+    
     @synchronized(self)
     {
-        NSDate* stopTime = [NSDate date];
-        NSString* eventName = [self getPropertyFromEvent:event propertyName:AD_TELEMETRY_EVENT_NAME];
-        
-        if ([NSString adIsStringNilOrBlank:requestId] || [NSString adIsStringNilOrBlank:eventName] || !event)
-        {
-            return;
-        }
-        
-        NSString* key = [self getEventTrackingKey:requestId eventName:eventName];
         NSDate* startTime = [_eventTracking objectForKey:key];
         if (!startTime)
         {
