@@ -30,7 +30,7 @@
     NSInteger _defaultPropertyCount;
 }
 
-- (NSDictionary*)getProperties;
+@property (nonatomic, strong, readonly, getter=getProperties) NSDictionary *properties;
 
 - (NSDictionary*)defaultParameters;
 
