@@ -76,9 +76,6 @@
 
 @interface ADURLSessionDemux() <NSURLSessionDataDelegate>
 
-@property (atomic, strong, readonly) NSMutableDictionary *taskInfoByTaskID;
-@property (atomic, strong, readonly) NSOperationQueue *sessionDelegateQueue;
-
 @end
 
 
@@ -93,7 +90,6 @@ static const void *taskKey = &taskKey;
     if (self)
     {
         self->_configuration = [configuration copy];
-        self->_taskInfoByTaskID = [[NSMutableDictionary alloc] init];
         self->_session = [NSURLSession sessionWithConfiguration:self->_configuration delegate:self delegateQueue:delegateQueue];
     }
     
@@ -110,11 +106,6 @@ static const void *taskKey = &taskKey;
                                                       delegate:delegate];
     
     objc_setAssociatedObject(task, taskKey, taskInfo, OBJC_ASSOCIATION_RETAIN);
-    
-    @synchronized (self)
-    {
-        self.taskInfoByTaskID[@(task.taskIdentifier)] = taskInfo;
-    }
     
     return task;
 }
@@ -174,11 +165,6 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     ADURLSessionDemuxTaskInfo *taskInfo;
     
     taskInfo = [self taskInfoForTask:task];
-    
-    @synchronized (self)
-    {
-        [self.taskInfoByTaskID removeObjectForKey:@(taskInfo.task.taskIdentifier)];
-    }
     
     if ([taskInfo.delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)])
     {
