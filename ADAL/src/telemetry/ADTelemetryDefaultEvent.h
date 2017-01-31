@@ -41,4 +41,6 @@
 - (id)initWithName:(NSString*)eventName
            context:(id<ADRequestContext>)requestParams;
 
+- (void)sanitizePropertyNames;
+
 @end
