@@ -227,6 +227,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
         // loop happening so we can just return the response now.
         
         completionHandler(mutableRequest);
+        return;
     }
     
     // If we don't have this line in the redirectResponse case then we get a HTTP too many redirects
