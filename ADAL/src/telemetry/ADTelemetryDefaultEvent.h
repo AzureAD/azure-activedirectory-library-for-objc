@@ -30,9 +30,9 @@
     NSInteger _defaultPropertyCount;
 }
 
-@property (nonatomic, strong, readonly, getter=getProperties) NSDictionary *properties;
+@property (nonatomic, strong, readonly) NSDictionary *properties;
 
-- (NSDictionary*)defaultParameters;
++ (NSDictionary*)defaultParameters;
 
 - (id)initWithName:(NSString*)eventName
          requestId:(NSString*)requestId

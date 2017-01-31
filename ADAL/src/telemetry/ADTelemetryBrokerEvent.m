@@ -43,12 +43,12 @@
 
 - (void)setBrokerAppVersion:(NSString*)version
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_BROKER_VERSION value:version];
+    [self setProperty:AD_TELEMETRY_KEY_BROKER_VERSION value:version];
 }
 
 - (void)setBrokerProtocolVersion:(NSString*)version
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_BROKER_PROTOCOL_VERSION value:version];
+    [self setProperty:AD_TELEMETRY_KEY_BROKER_PROTOCOL_VERSION value:version];
 }
 
 - (void)setResultStatus:(ADAuthenticationResultStatus)status
@@ -56,24 +56,24 @@
     NSString* statusStr = nil;
     switch (status) {
         case AD_SUCCEEDED:
-            statusStr = AD_TELEMETRY_PROPERTY_VALUE_SUCCEEDED;
+            statusStr = AD_TELEMETRY_VALUE_SUCCEEDED;
             break;
         case AD_FAILED:
-            statusStr = AD_TELEMETRY_PROPERTY_VALUE_FAILED;
+            statusStr = AD_TELEMETRY_VALUE_FAILED;
             break;
         case AD_USER_CANCELLED:
-            statusStr = AD_TELEMETRY_PROPERTY_NAME_USER_CANCEL;
+            statusStr = AD_TELEMETRY_KEY_USER_CANCEL;
             break;
         default:
-            statusStr = AD_TELEMETRY_PROPERTY_VALUE_UNKNOWN;
+            statusStr = AD_TELEMETRY_VALUE_UNKNOWN;
     }
     
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_RESULT_STATUS value:statusStr];
+    [self setProperty:AD_TELEMETRY_KEY_RESULT_STATUS value:statusStr];
 }
 
 - (void)setBrokerApp:(NSString*)appName
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_BROKER_APP value:appName];
+    [self setProperty:AD_TELEMETRY_KEY_BROKER_APP value:appName];
 }
 
 @end

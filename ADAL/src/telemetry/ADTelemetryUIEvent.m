@@ -29,12 +29,12 @@
 
 - (void)setLoginHint:(NSString*)hint
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_LOGIN_HINT value:[hint adComputeSHA256]];
+    [self setProperty:AD_TELEMETRY_KEY_LOGIN_HINT value:[hint adComputeSHA256]];
 }
 
 - (void)setNtlm:(NSString*)ntlmHandled
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_NTLM_HANDLED value:ntlmHandled];
+    [self setProperty:AD_TELEMETRY_KEY_NTLM_HANDLED value:ntlmHandled];
 }
 
 @end

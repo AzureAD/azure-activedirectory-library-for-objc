@@ -53,12 +53,12 @@
         return nil;
     }
     
-    _propertyMap = [[self defaultParameters] mutableCopy];
-    [_propertyMap setObjectWithNilCheck:requestId forKey:AD_TELEMETRY_PROPERTY_NAME_REQUEST_ID];
-    [_propertyMap setObjectWithNilCheck:[correlationId UUIDString] forKey:AD_TELEMETRY_PROPERTY_NAME_CORRELATION_ID];
+    _propertyMap = [[ADTelemetryDefaultEvent defaultParameters] mutableCopy];
+    [_propertyMap adSetObjectIfNotNil:requestId forKey:AD_TELEMETRY_KEY_REQUEST_ID];
+    [_propertyMap adSetObjectIfNotNil:[correlationId UUIDString] forKey:AD_TELEMETRY_KEY_CORRELATION_ID];
     _defaultPropertyCount = [_propertyMap count];
     
-    [_propertyMap setObjectWithNilCheck:eventName forKey:AD_TELEMETRY_PROPERTY_NAME_EVENT_NAME];
+    [_propertyMap adSetObjectIfNotNil:eventName forKey:AD_TELEMETRY_KEY_EVENT_NAME];
     
     return self;
 }
@@ -92,7 +92,7 @@
         return;
     }
     
-    [_propertyMap setValue:[self getStringFromDate:time] forKey:AD_TELEMETRY_PROPERTY_NAME_START_TIME];
+    [_propertyMap setValue:[self getStringFromDate:time] forKey:AD_TELEMETRY_KEY_START_TIME];
 }
 
 - (void)setStopTime:(NSDate*)time
@@ -102,13 +102,13 @@
         return;
     }
     
-    [_propertyMap setValue:[self getStringFromDate:time] forKey:AD_TELEMETRY_PROPERTY_NAME_END_TIME];
+    [_propertyMap setValue:[self getStringFromDate:time] forKey:AD_TELEMETRY_KEY_END_TIME];
 }
 
 - (void)setResponseTime:(NSTimeInterval)responseTime
 {
     //the property is set in milliseconds
-    [_propertyMap setValue:[NSString stringWithFormat:@"%f", responseTime*1000] forKey:AD_TELEMETRY_PROPERTY_NAME_RESPONSE_TIME];
+    [_propertyMap setValue:[NSString stringWithFormat:@"%f", responseTime*1000] forKey:AD_TELEMETRY_KEY_RESPONSE_TIME];
 }
 
 - (NSString*)getStringFromDate:(NSDate*)date
@@ -125,7 +125,7 @@
     return [s_dateFormatter stringFromDate:date];
 }
 
-- (NSDictionary*)defaultParameters
++ (NSDictionary*)defaultParameters
 {
     static NSMutableDictionary* s_defaultParameters;
     static dispatch_once_t s_parametersOnce;
@@ -145,15 +145,15 @@
         NSString* applicationName = [[NSProcessInfo processInfo] processName];
 #endif
         
-        [s_defaultParameters setObjectWithNilCheck:[deviceId adComputeSHA256] forKey:AD_TELEMETRY_PROPERTY_NAME_DEVICE_ID];
-        [s_defaultParameters setObjectWithNilCheck:applicationName forKey:AD_TELEMETRY_PROPERTY_NAME_APPLICATION_NAME];
-        [s_defaultParameters setObjectWithNilCheck:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]
-                                            forKey:AD_TELEMETRY_PROPERTY_NAME_APPLICATION_VERSION];
+        [s_defaultParameters adSetObjectIfNotNil:[deviceId adComputeSHA256] forKey:AD_TELEMETRY_KEY_DEVICE_ID];
+        [s_defaultParameters adSetObjectIfNotNil:applicationName forKey:AD_TELEMETRY_KEY_APPLICATION_NAME];
+        [s_defaultParameters adSetObjectIfNotNil:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]
+                                            forKey:AD_TELEMETRY_KEY_APPLICATION_VERSION];
         
         NSDictionary* adalId = [ADLogger adalId];
         for (NSString* key in adalId)
         {
-            [s_defaultParameters setObjectWithNilCheck:[adalId objectForKey:key] forKey:key];
+            [s_defaultParameters adSetObjectIfNotNil:[adalId objectForKey:key] forKey:key];
         }
     });
     
@@ -171,7 +171,7 @@
     NSDictionary* properties = [self getProperties];
     for (NSString* name in propertyNames)
     {
-        [eventToBeDispatched setObjectWithNilCheck:[properties objectForKey:name] forKey:name];
+        [eventToBeDispatched adSetObjectIfNotNil:[properties objectForKey:name] forKey:name];
     }
 }
 

@@ -29,7 +29,7 @@
 
 - (void)setTokenType:(NSString*)tokenType
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_TOKEN_TYPE value:tokenType];
+    [self setProperty:AD_TELEMETRY_KEY_TOKEN_TYPE value:tokenType];
 }
 
 - (void)setStatus:(NSString*)status
@@ -39,32 +39,32 @@
 
 - (void)setIsRT:(NSString*)isRT
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_IS_RT value:isRT];
+    [self setProperty:AD_TELEMETRY_KEY_IS_RT value:isRT];
 }
 
 - (void)setIsMRRT:(NSString*)isMRRT
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_IS_MRRT value:isMRRT];
+    [self setProperty:AD_TELEMETRY_KEY_IS_MRRT value:isMRRT];
 }
 
 - (void)setIsFRT:(NSString*)isFRT
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_IS_FRT value:isFRT];
+    [self setProperty:AD_TELEMETRY_KEY_IS_FRT value:isFRT];
 }
 
 - (void)setRTStatus:(NSString*)status
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_RT_STATUS value:status];
+    [self setProperty:AD_TELEMETRY_KEY_RT_STATUS value:status];
 }
 
 - (void)setMRRTStatus:(NSString*)status
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_MRRT_STATUS value:status];
+    [self setProperty:AD_TELEMETRY_KEY_MRRT_STATUS value:status];
 }
 
 - (void)setFRTStatus:(NSString*)status
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_FRT_STATUS value:status];
+    [self setProperty:AD_TELEMETRY_KEY_FRT_STATUS value:status];
 }
 
 @end

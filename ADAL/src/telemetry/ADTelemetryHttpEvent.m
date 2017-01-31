@@ -30,27 +30,27 @@
 
 - (void)setHttpMethod:(NSString*)method
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_HTTP_METHOD value:method];
+    [self setProperty:AD_TELEMETRY_KEY_HTTP_METHOD value:method];
 }
 
 - (void)setHttpPath:(NSString*)path
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_HTTP_PATH value:path];
+    [self setProperty:AD_TELEMETRY_KEY_HTTP_PATH value:path];
 }
 
 - (void)setHttpRequestIdHeader:(NSString*)requestIdHeader
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_HTTP_REQUEST_ID_HEADER value:requestIdHeader];
+    [self setProperty:AD_TELEMETRY_KEY_HTTP_REQUEST_ID_HEADER value:requestIdHeader];
 }
 
 - (void)setHttpResponseCode:(NSString*)code
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_HTTP_RESPONSE_CODE value:code];
+    [self setProperty:AD_TELEMETRY_KEY_HTTP_RESPONSE_CODE value:code];
 }
 
 - (void)setHttpErrorCode:(NSString*)code
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_ERROR_CODE value:code];
+    [self setProperty:AD_TELEMETRY_KEY_ERROR_CODE value:code];
 }
 
 - (void)setOAuthErrorCode:(ADWebResponse *)response
@@ -68,27 +68,27 @@
         return;
     }
     
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_OAUTH_ERROR_CODE value:[(NSDictionary*)jsonObject objectForKey:OAUTH2_ERROR]];
+    [self setProperty:AD_TELEMETRY_KEY_OAUTH_ERROR_CODE value:[(NSDictionary*)jsonObject objectForKey:OAUTH2_ERROR]];
 }
 
 - (void)setHttpResponseMethod:(NSString*)method
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_HTTP_RESPONSE_METHOD value:method];
+    [self setProperty:AD_TELEMETRY_KEY_HTTP_RESPONSE_METHOD value:method];
 }
 
 - (void)setHttpRequestQueryParams:(NSString*)params
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_REQUEST_QUERY_PARAMS value:params];
+    [self setProperty:AD_TELEMETRY_KEY_REQUEST_QUERY_PARAMS value:params];
 }
 
 - (void)setHttpUserAgent:(NSString*)userAgent
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_USER_AGENT value:userAgent];
+    [self setProperty:AD_TELEMETRY_KEY_USER_AGENT value:userAgent];
 }
 
 - (void)setHttpErrorDomain:(NSString*)errorDomain
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_HTTP_ERROR_DOMAIN value:errorDomain];
+    [self setProperty:AD_TELEMETRY_KEY_HTTP_ERROR_DOMAIN value:errorDomain];
 }
 
 - (NSString*)scrubTenantFromUrl:(NSString*)url

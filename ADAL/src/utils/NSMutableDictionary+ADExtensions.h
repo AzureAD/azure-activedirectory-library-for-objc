@@ -25,6 +25,6 @@
 
 @interface NSMutableDictionary (ADAL)
 
-- (void)setObjectWithNilCheck:(id)dictObject forKey:(id<NSCopying>)dictKey;
+- (void)adSetObjectIfNotNil:(id)dictObject forKey:(id<NSCopying>)dictKey;
 
 @end

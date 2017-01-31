@@ -90,8 +90,7 @@ static NSDictionary *s_eventPropertiesDictionary;
 
 - (void)addPropertiesToDictionary:(NSMutableDictionary*)aggregatedEvent event:(id<ADTelemetryEventInterface>)event
 {
-    ADTelemetryDefaultEvent *baseEvent = (ADTelemetryDefaultEvent*)event;
-    [aggregatedEvent addEntriesFromDictionary:[baseEvent defaultParameters]];
+    [aggregatedEvent addEntriesFromDictionary:[ADTelemetryDefaultEvent defaultParameters]];
     
     NSString *eventClassName = NSStringFromClass([event class]);
     
@@ -107,7 +106,7 @@ static NSDictionary *s_eventPropertiesDictionary;
         }
         if (collectionBehavior != CollectAndCount)
         {
-            [aggregatedEvent setObjectWithNilCheck:[[event getProperties] objectForKey:propertyName] forKey:propertyName];
+            [aggregatedEvent adSetObjectIfNotNil:[[event getProperties] objectForKey:propertyName] forKey:propertyName];
         }
         else
         {
@@ -124,60 +123,60 @@ static NSDictionary *s_eventPropertiesDictionary;
         s_eventPropertiesDictionary = @{
                                       NSStringFromClass([ADTelemetryAPIEvent class]): @[
                                               // default properties apply to all events
-                                              AD_TELEMETRY_PROPERTY_NAME_REQUEST_ID,
-                                              AD_TELEMETRY_PROPERTY_NAME_CORRELATION_ID,
+                                              AD_TELEMETRY_KEY_REQUEST_ID,
+                                              AD_TELEMETRY_KEY_CORRELATION_ID,
                                               
-                                              AD_TELEMETRY_PROPERTY_NAME_AUTHORITY_TYPE,
-                                              AD_TELEMETRY_PROPERTY_NAME_AUTHORITY_VALIDATION_STATUS,
-                                              AD_TELEMETRY_PROPERTY_NAME_EXTENDED_EXPIRES_ON_SETTING,
-                                              AD_TELEMETRY_PROPERTY_NAME_PROMPT_BEHAVIOR,
-                                              AD_TELEMETRY_PROPERTY_NAME_RESULT_STATUS,
-                                              AD_TELEMETRY_PROPERTY_NAME_IDP,
-                                              AD_TELEMETRY_PROPERTY_NAME_TENANT_ID,
-                                              AD_TELEMETRY_PROPERTY_NAME_USER_ID,
-                                              AD_TELEMETRY_PROPERTY_NAME_RESPONSE_TIME,
-                                              AD_TELEMETRY_PROPERTY_NAME_CLIENT_ID,
-                                              AD_TELEMETRY_PROPERTY_NAME_API_ID,
-                                              AD_TELEMETRY_PROPERTY_NAME_USER_CANCEL,
-                                              AD_TELEMETRY_PROPERTY_NAME_ERROR_CODE,
-                                              AD_TELEMETRY_PROPERTY_NAME_ERROR_DOMAIN,
-                                              AD_TELEMETRY_PROPERTY_NAME_PROTOCOL_CODE,
-                                              AD_TELEMETRY_PROPERTY_NAME_IS_SUCCESSFUL
+                                              AD_TELEMETRY_KEY_AUTHORITY_TYPE,
+                                              AD_TELEMETRY_KEY_AUTHORITY_VALIDATION_STATUS,
+                                              AD_TELEMETRY_KEY_EXTENDED_EXPIRES_ON_SETTING,
+                                              AD_TELEMETRY_KEY_PROMPT_BEHAVIOR,
+                                              AD_TELEMETRY_KEY_RESULT_STATUS,
+                                              AD_TELEMETRY_KEY_IDP,
+                                              AD_TELEMETRY_KEY_TENANT_ID,
+                                              AD_TELEMETRY_KEY_USER_ID,
+                                              AD_TELEMETRY_KEY_RESPONSE_TIME,
+                                              AD_TELEMETRY_KEY_CLIENT_ID,
+                                              AD_TELEMETRY_KEY_API_ID,
+                                              AD_TELEMETRY_KEY_USER_CANCEL,
+                                              AD_TELEMETRY_KEY_ERROR_CODE,
+                                              AD_TELEMETRY_KEY_ERROR_DOMAIN,
+                                              AD_TELEMETRY_KEY_PROTOCOL_CODE,
+                                              AD_TELEMETRY_KEY_IS_SUCCESSFUL
                                               ],
                                       NSStringFromClass([ADTelemetryUIEvent class]): @[
                                               // default properties apply to all events
-                                              AD_TELEMETRY_PROPERTY_NAME_REQUEST_ID,
-                                              AD_TELEMETRY_PROPERTY_NAME_CORRELATION_ID,
+                                              AD_TELEMETRY_KEY_REQUEST_ID,
+                                              AD_TELEMETRY_KEY_CORRELATION_ID,
                                               
-                                              AD_TELEMETRY_PROPERTY_NAME_LOGIN_HINT,
-                                              AD_TELEMETRY_PROPERTY_NAME_NTLM_HANDLED,
-                                              AD_TELEMETRY_PROPERTY_NAME_UI_EVENT_COUNT
+                                              AD_TELEMETRY_KEY_LOGIN_HINT,
+                                              AD_TELEMETRY_KEY_NTLM_HANDLED,
+                                              AD_TELEMETRY_KEY_UI_EVENT_COUNT
                                               ],
                                       NSStringFromClass([ADTelemetryHttpEvent class]): @[
                                               // default properties apply to all events
-                                              AD_TELEMETRY_PROPERTY_NAME_REQUEST_ID,
-                                              AD_TELEMETRY_PROPERTY_NAME_CORRELATION_ID,
+                                              AD_TELEMETRY_KEY_REQUEST_ID,
+                                              AD_TELEMETRY_KEY_CORRELATION_ID,
                                               
-                                              AD_TELEMETRY_PROPERTY_NAME_OAUTH_ERROR_CODE,
-                                              AD_TELEMETRY_PROPERTY_NAME_HTTP_EVENT_COUNT
+                                              AD_TELEMETRY_KEY_OAUTH_ERROR_CODE,
+                                              AD_TELEMETRY_KEY_HTTP_EVENT_COUNT
                                               ],
                                       NSStringFromClass([ADTelemetryCacheEvent class]): @[
                                               // default properties apply to all events
-                                              AD_TELEMETRY_PROPERTY_NAME_REQUEST_ID,
-                                              AD_TELEMETRY_PROPERTY_NAME_CORRELATION_ID,
+                                              AD_TELEMETRY_KEY_REQUEST_ID,
+                                              AD_TELEMETRY_KEY_CORRELATION_ID,
                                               
-                                              AD_TELEMETRY_PROPERTY_NAME_RT_STATUS,
-                                              AD_TELEMETRY_PROPERTY_NAME_FRT_STATUS,
-                                              AD_TELEMETRY_PROPERTY_NAME_MRRT_STATUS,
-                                              AD_TELEMETRY_PROPERTY_NAME_CACHE_EVENT_COUNT
+                                              AD_TELEMETRY_KEY_RT_STATUS,
+                                              AD_TELEMETRY_KEY_FRT_STATUS,
+                                              AD_TELEMETRY_KEY_MRRT_STATUS,
+                                              AD_TELEMETRY_KEY_CACHE_EVENT_COUNT
                                               ],
                                       NSStringFromClass([ADTelemetryBrokerEvent class]): @[
                                               // default properties apply to all events
-                                              AD_TELEMETRY_PROPERTY_NAME_REQUEST_ID,
-                                              AD_TELEMETRY_PROPERTY_NAME_CORRELATION_ID,
+                                              AD_TELEMETRY_KEY_REQUEST_ID,
+                                              AD_TELEMETRY_KEY_CORRELATION_ID,
                                               
-                                              AD_TELEMETRY_PROPERTY_NAME_BROKER_APP,
-                                              AD_TELEMETRY_PROPERTY_NAME_BROKER_VERSION
+                                              AD_TELEMETRY_KEY_BROKER_APP,
+                                              AD_TELEMETRY_KEY_BROKER_VERSION
                                               ],
                                       };
     }

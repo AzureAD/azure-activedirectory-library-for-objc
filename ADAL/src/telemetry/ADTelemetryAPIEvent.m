@@ -34,108 +34,108 @@
     NSString* statusStr = nil;
     switch (status) {
         case AD_SUCCEEDED:
-            statusStr = AD_TELEMETRY_PROPERTY_VALUE_SUCCEEDED;
-            [self setProperty:AD_TELEMETRY_PROPERTY_NAME_IS_SUCCESSFUL value:AD_TELEMETRY_PROPERTY_VALUE_YES];
+            statusStr = AD_TELEMETRY_VALUE_SUCCEEDED;
+            [self setProperty:AD_TELEMETRY_KEY_IS_SUCCESSFUL value:AD_TELEMETRY_VALUE_YES];
             break;
         case AD_FAILED:
-            statusStr = AD_TELEMETRY_PROPERTY_VALUE_FAILED;
-            [self setProperty:AD_TELEMETRY_PROPERTY_NAME_IS_SUCCESSFUL value:AD_TELEMETRY_PROPERTY_VALUE_NO];
+            statusStr = AD_TELEMETRY_VALUE_FAILED;
+            [self setProperty:AD_TELEMETRY_KEY_IS_SUCCESSFUL value:AD_TELEMETRY_VALUE_NO];
             break;
         case AD_USER_CANCELLED:
-            statusStr = AD_TELEMETRY_PROPERTY_VALUE_CANCELLED;
-            [self setProperty:AD_TELEMETRY_PROPERTY_NAME_USER_CANCEL value:AD_TELEMETRY_PROPERTY_VALUE_YES];
-            [self setProperty:AD_TELEMETRY_PROPERTY_NAME_IS_SUCCESSFUL value:AD_TELEMETRY_PROPERTY_VALUE_NO];
+            statusStr = AD_TELEMETRY_VALUE_CANCELLED;
+            [self setProperty:AD_TELEMETRY_KEY_USER_CANCEL value:AD_TELEMETRY_VALUE_YES];
+            [self setProperty:AD_TELEMETRY_KEY_IS_SUCCESSFUL value:AD_TELEMETRY_VALUE_NO];
             break;
         default:
-            statusStr = AD_TELEMETRY_PROPERTY_VALUE_UNKNOWN;
+            statusStr = AD_TELEMETRY_VALUE_UNKNOWN;
     }
     
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_RESULT_STATUS value:statusStr];
+    [self setProperty:AD_TELEMETRY_KEY_RESULT_STATUS value:statusStr];
 }
 
 - (void)setCorrelationId:(NSUUID *)correlationId
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_CORRELATION_ID value:[correlationId UUIDString]];
+    [self setProperty:AD_TELEMETRY_KEY_CORRELATION_ID value:[correlationId UUIDString]];
 }
 
 - (void)setExtendedExpiresOnSetting:(NSString *)extendedExpiresOnSetting
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_EXTENDED_EXPIRES_ON_SETTING value:extendedExpiresOnSetting];
+    [self setProperty:AD_TELEMETRY_KEY_EXTENDED_EXPIRES_ON_SETTING value:extendedExpiresOnSetting];
 }
 
 - (void)setUserInformation:(ADUserInformation *)userInfo
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_USER_ID value:[[userInfo userId] adComputeSHA256]];
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_TENANT_ID value:[[userInfo tenantId] adComputeSHA256]];
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_IDP value:[userInfo identityProvider]];
+    [self setProperty:AD_TELEMETRY_KEY_USER_ID value:[[userInfo userId] adComputeSHA256]];
+    [self setProperty:AD_TELEMETRY_KEY_TENANT_ID value:[[userInfo tenantId] adComputeSHA256]];
+    [self setProperty:AD_TELEMETRY_KEY_IDP value:[userInfo identityProvider]];
 }
 
 - (void)setUserId:(NSString *)userId
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_USER_ID value:[userId adComputeSHA256]];
+    [self setProperty:AD_TELEMETRY_KEY_USER_ID value:[userId adComputeSHA256]];
 }
 
 - (void)setClientId:(NSString *)clientId
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_CLIENT_ID value:clientId];
+    [self setProperty:AD_TELEMETRY_KEY_CLIENT_ID value:clientId];
 }
 
 - (void)setIsExtendedLifeTimeToken:(NSString *)isExtendedLifeToken
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_IS_EXTENED_LIFE_TIME_TOKEN value:isExtendedLifeToken];
+    [self setProperty:AD_TELEMETRY_KEY_IS_EXTENED_LIFE_TIME_TOKEN value:isExtendedLifeToken];
 }
 
 - (void)setErrorCode:(NSString *)errorCode
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_ERROR_CODE value:errorCode];
+    [self setProperty:AD_TELEMETRY_KEY_ERROR_CODE value:errorCode];
 }
 
 - (void)setProtocolCode:(NSString *)protocolCode
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_PROTOCOL_CODE value:protocolCode];
+    [self setProperty:AD_TELEMETRY_KEY_PROTOCOL_CODE value:protocolCode];
 }
 
 - (void)setErrorDescription:(NSString *)errorDescription
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_ERROR_DESCRIPTION value:errorDescription];
+    [self setProperty:AD_TELEMETRY_KEY_ERROR_DESCRIPTION value:errorDescription];
 }
 
 - (void)setErrorDomain:(NSString *)errorDomain
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_ERROR_DOMAIN value:errorDomain];
+    [self setProperty:AD_TELEMETRY_KEY_ERROR_DOMAIN value:errorDomain];
 }
 
 - (void)setAuthorityValidationStatus:(NSString *)status
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_AUTHORITY_VALIDATION_STATUS value:status];
+    [self setProperty:AD_TELEMETRY_KEY_AUTHORITY_VALIDATION_STATUS value:status];
 }
 
 - (void)setAuthority:(NSString *)authority
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_AUTHORITY value:authority];
+    [self setProperty:AD_TELEMETRY_KEY_AUTHORITY value:authority];
     
     // set authority type
-    NSString* authorityType = AD_TELEMETRY_PROPERTY_VALUE_AUTHORITY_AAD;
+    NSString* authorityType = AD_TELEMETRY_VALUE_AUTHORITY_AAD;
     if ([ADHelpers isADFSInstance:authority])
     {
-        authorityType = AD_TELEMETRY_PROPERTY_VALUE_AUTHORITY_ADFS;
+        authorityType = AD_TELEMETRY_VALUE_AUTHORITY_ADFS;
     }
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_AUTHORITY_TYPE value:authorityType];
+    [self setProperty:AD_TELEMETRY_KEY_AUTHORITY_TYPE value:authorityType];
 }
 
 - (void)setGrantType:(NSString *)grantType
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_GRANT_TYPE value:grantType];
+    [self setProperty:AD_TELEMETRY_KEY_GRANT_TYPE value:grantType];
 }
 
 - (void)setAPIStatus:(NSString *)status
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_API_STATUS value:status];
+    [self setProperty:AD_TELEMETRY_KEY_API_STATUS value:status];
 }
 
 - (void)setApiId:(NSString *)apiId
 {
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_API_ID value:apiId];
+    [self setProperty:AD_TELEMETRY_KEY_API_ID value:apiId];
 }
 
 - (void)setPromptBehavior:(ADPromptBehavior)promptBehavior
@@ -155,10 +155,10 @@
             promptBehaviorString = @"AD_FORCE_PROMPT";
             break;
         default:
-            promptBehaviorString = AD_TELEMETRY_PROPERTY_VALUE_UNKNOWN;
+            promptBehaviorString = AD_TELEMETRY_VALUE_UNKNOWN;
     }
     
-    [self setProperty:AD_TELEMETRY_PROPERTY_NAME_PROMPT_BEHAVIOR value:promptBehaviorString];
+    [self setProperty:AD_TELEMETRY_KEY_PROMPT_BEHAVIOR value:promptBehaviorString];
 }
 
 @end
