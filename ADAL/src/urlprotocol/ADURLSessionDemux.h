@@ -25,7 +25,7 @@
 
 @interface ADURLSessionDemux : NSObject
 
-- (instancetype)initWithConfiguration:(NSURLSessionConfiguration *)configuration;
+- (instancetype)initWithConfiguration:(NSURLSessionConfiguration *)configuration delegateQueue:(NSOperationQueue *)delegateQueue;
 
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request delegate:(id<NSURLSessionDataDelegate>)delegate;
 

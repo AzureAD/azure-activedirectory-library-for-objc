@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADURLSessionDemux.h"
-
+#import <objc/runtime.h>
 
 @interface ADURLSessionDemuxTaskInfo : NSObject
 
@@ -84,21 +84,17 @@
 
 @implementation ADURLSessionDemux
 
+static const void *taskKey = &taskKey;
+
 - (instancetype)initWithConfiguration:(NSURLSessionConfiguration *)configuration
+                        delegateQueue:(NSOperationQueue *)delegateQueue
 {
     self = [super init];
     if (self)
     {
         self->_configuration = [configuration copy];
-        
         self->_taskInfoByTaskID = [[NSMutableDictionary alloc] init];
-        
-        self->_sessionDelegateQueue = [[NSOperationQueue alloc] init];
-        [self->_sessionDelegateQueue setMaxConcurrentOperationCount:1];
-        [self->_sessionDelegateQueue setName:@"ADURLSessionDemux"];
-
-        self->_session = [NSURLSession sessionWithConfiguration:self->_configuration delegate:self delegateQueue:self->_sessionDelegateQueue];
-        self->_session.sessionDescription = @"ADURLSessionDemux";
+        self->_session = [NSURLSession sessionWithConfiguration:self->_configuration delegate:self delegateQueue:delegateQueue];
     }
     
     return self;
@@ -112,6 +108,9 @@
     task = [self.session dataTaskWithRequest:request];
     taskInfo = [[ADURLSessionDemuxTaskInfo alloc] initWithTask:task
                                                       delegate:delegate];
+    
+    objc_setAssociatedObject(task, taskKey, taskInfo, OBJC_ASSOCIATION_RETAIN);
+    
     @synchronized (self)
     {
         self.taskInfoByTaskID[@(task.taskIdentifier)] = taskInfo;
@@ -123,10 +122,7 @@
 - (ADURLSessionDemuxTaskInfo *)taskInfoForTask:(NSURLSessionTask *)task
 {
     ADURLSessionDemuxTaskInfo *result;
-    @synchronized (self)
-    {
-        result = self.taskInfoByTaskID[@(task.taskIdentifier)];
-    }
+    result = objc_getAssociatedObject(task, taskKey);
     return result;
 }
 

@@ -98,7 +98,9 @@ static NSURLSession *_session = nil;
                  completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
                  
                  AD_LOG_INFO_F(@"NTLM credentials added", nil, @"host: %@", challenge.protectionSpace.host);
-             } else {
+             }
+             else
+             {
                  _challengeCancelled = YES;
                  AD_LOG_INFO_F(@"NTLM challenge cancelled", nil, @"host: %@", challenge.protectionSpace.host);
                  

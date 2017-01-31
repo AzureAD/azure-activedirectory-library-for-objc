@@ -114,7 +114,7 @@ static NSUUID *_reqCorId(NSURLRequest* request)
         config = [NSURLSessionConfiguration defaultSessionConfiguration];
         config.protocolClasses = @[ self ];
         
-        sDemux = [[ADURLSessionDemux alloc] initWithConfiguration:config];
+        sDemux = [[ADURLSessionDemux alloc] initWithConfiguration:config delegateQueue:nil];
     });
     return sDemux;
 }
@@ -266,7 +266,8 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     
     BOOL handled = NO;
     Class<ADAuthMethodHandler> handler = nil;
-    @synchronized ([self class]) {
+    @synchronized ([self class])
+    {
         handler = [s_handlers objectForKey:authMethod];
     }
     
