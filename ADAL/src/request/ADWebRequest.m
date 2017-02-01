@@ -62,7 +62,7 @@
 {
     if ( body != nil )
     {
-        
+        [self setIsGetRequest:NO];
         if (_requestData == body)
         {
             return;
