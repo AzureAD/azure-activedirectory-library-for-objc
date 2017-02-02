@@ -81,7 +81,7 @@
 
 @implementation ADURLSessionDemux
 
-static const void *taskKey = &taskKey;
+static const void *s_taskKey = &s_taskKey;
 
 - (instancetype)initWithConfiguration:(NSURLSessionConfiguration *)configuration
                         delegateQueue:(NSOperationQueue *)delegateQueue
@@ -105,7 +105,7 @@ static const void *taskKey = &taskKey;
     taskInfo = [[ADURLSessionDemuxTaskInfo alloc] initWithTask:task
                                                       delegate:delegate];
     
-    objc_setAssociatedObject(task, taskKey, taskInfo, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(task, s_taskKey, taskInfo, OBJC_ASSOCIATION_RETAIN);
     
     return task;
 }
@@ -113,7 +113,7 @@ static const void *taskKey = &taskKey;
 - (ADURLSessionDemuxTaskInfo *)taskInfoForTask:(NSURLSessionTask *)task
 {
     ADURLSessionDemuxTaskInfo *result;
-    result = objc_getAssociatedObject(task, taskKey);
+    result = objc_getAssociatedObject(task, s_taskKey);
     return result;
 }
 
