@@ -124,8 +124,6 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     _endURL = nil;
     SAFE_ARC_RELEASE(_spinnerTimer);
     _spinnerTimer = nil;
-    SAFE_ARC_RELEASE(_loadingTimer);
-    _loadingTimer = nil;
     SAFE_ARC_RELEASE(_completionBlock);
     _completionBlock = nil;
     
@@ -246,22 +244,6 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     [_authenticationViewController stopSpinner];
 }
 
-
-- (void)failWithTimeout
-{
-    SAFE_ARC_RELEASE(_loadingTimer);
-    _loadingTimer = nil;
-    [_authenticationViewController stop:^{
-        NSError* error = [NSError errorWithDomain:NSURLErrorDomain
-                                             code:NSURLErrorTimedOut
-                                         userInfo:nil];
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:@"WebView timed out" correlationId:_requestParams.correlationId];
-        [self dispatchCompletionBlock:adError URL:nil];
-    }];
-    SAFE_ARC_RELEASE(_authenticationViewController);
-    _authenticationViewController = nil;
-}
-
 #pragma mark - ADWebAuthDelegate
 
 - (void)webAuthDidStartLoad:(NSURL*)url
@@ -282,23 +264,6 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         [_spinnerTimer setTolerance:0.3];
         SAFE_ARC_RETAIN(_spinnerTimer);
     }
-    
-    if (_loadingTimer)
-    {
-        [_loadingTimer invalidate];
-        SAFE_ARC_RELEASE(_loadingTimer);
-        _loadingTimer = nil;
-    }
-    
-    _loadingTimer = [NSTimer scheduledTimerWithTimeInterval:_timeout
-                                                     target:self
-                                                   selector:@selector(failWithTimeout)
-                                                   userInfo:nil
-                                                    repeats:NO];
-    // Tolerance is how much "float" the system is allowed to use to try to group the timer with other events
-    // on the system.
-    [_loadingTimer setTolerance:4.0];
-    SAFE_ARC_RETAIN(_loadingTimer);
     
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidStartLoadNotification object:self userInfo:url ? @{ @"url" : url } : nil];
 }
@@ -475,12 +440,6 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     }
     
     [self stopSpinner];
-    if (_loadingTimer)
-    {
-        [_loadingTimer invalidate];
-        SAFE_ARC_RELEASE(_loadingTimer);
-        _loadingTimer = nil;
-    }
     
     if (NSURLErrorCancelled == error.code)
     {
@@ -598,8 +557,6 @@ static ADAuthenticationResult* s_result = nil;
     _telemetryEvent = [[ADTelemetryUIEvent alloc] initWithName:@"launch_web_view"
                                                                  context:_requestParams];
     
-    _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
-    
     startURL = [self addToURL:startURL correlationId:requestParams.correlationId];//Append the correlation id
     SAFE_ARC_RELEASE(_endURL);
     _endURL = [endURL absoluteString];
@@ -640,6 +597,8 @@ static ADAuthenticationResult* s_result = nil;
     
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
     [ADURLProtocol addCorrelationId:_requestParams.correlationId toRequest:request];
+    request.timeoutInterval = ADAuthenticationSettings.sharedInstance.requestTimeOut;
+    
     [_authenticationViewController startRequest:request];
     SAFE_ARC_RELEASE(request);
 }
