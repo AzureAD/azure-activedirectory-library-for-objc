@@ -30,14 +30,15 @@
     NSInteger _defaultPropertyCount;
 }
 
+@property (nonatomic, strong, readonly) NSDictionary *properties;
+
++ (NSDictionary*)defaultParameters;
+
 - (id)initWithName:(NSString*)eventName
          requestId:(NSString*)requestId
      correlationId:(NSUUID*)correlationId;
 
 - (id)initWithName:(NSString*)eventName
            context:(id<ADRequestContext>)requestParams;
-
-- (void)addPropertiesToAggregatedEvent:(NSMutableDictionary *)eventToBeDispatched
-                         propertyNames:(NSArray *)propertyNames;
 
 @end

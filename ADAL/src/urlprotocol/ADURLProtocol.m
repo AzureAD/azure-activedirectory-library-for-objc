@@ -212,7 +212,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
     
     if ([authMethod caseInsensitiveCompare:NSURLAuthenticationMethodNTLM] == NSOrderedSame)
     {
-        [s_telemetryEvent setNtlm:AD_TELEMETRY_YES];
+        [s_telemetryEvent setNtlm:AD_TELEMETRY_VALUE_YES];
     }
 }
 

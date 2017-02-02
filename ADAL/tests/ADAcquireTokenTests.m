@@ -391,8 +391,8 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"application_version"]]);
 #endif
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"x-client-Ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"x-client-SKU"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"x_client_Ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"x_client_SKU"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"client_id"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"device_id"]]);
     XCTAssertTrue([[event objectForKey:@"authority_type"] isEqualToString:@"aad"]);
@@ -648,8 +648,8 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"application_version"]]);
 #endif
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"x-client-Ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"x-client-SKU"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"x_client_Ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"x_client_SKU"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"client_id"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"device_id"]]);
     XCTAssertTrue([[firstEvent objectForKey:@"authority_type"] isEqualToString:@"aad"]);
@@ -677,8 +677,8 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"application_version"]]);
 #endif
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"x-client-Ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"x-client-SKU"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"x_client_Ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"x_client_SKU"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"client_id"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"device_id"]]);
     XCTAssertTrue([[secondEvent objectForKey:@"authority_type"] isEqualToString:@"aad"]);
@@ -1121,8 +1121,8 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"application_version"]]);
 #endif
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"x-client-Ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"x-client-SKU"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"x_client_Ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"x_client_SKU"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"client_id"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"device_id"]]);
     XCTAssertTrue([[event objectForKey:@"authority_type"] isEqualToString:@"aad"]);
