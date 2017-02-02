@@ -37,7 +37,7 @@
 #import "ADTelemetryHttpEvent.h"
 #import "ADTelemetryEventStrings.h"
 
-@interface ADWebRequest () <NSURLConnectionDelegate>
+@interface ADWebRequest ()
 
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response;
 - (void)send;
@@ -167,10 +167,6 @@
     
     _task = [_session dataTaskWithRequest:request];
     [_task resume];
-
-//    _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
-//    [_connection setDelegateQueue:_operationQueue];
-//    [_connection start];
 }
 
 
