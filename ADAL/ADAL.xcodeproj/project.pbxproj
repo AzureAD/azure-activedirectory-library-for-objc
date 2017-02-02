@@ -28,6 +28,11 @@
 		04AB6D4F1D9D619B007E9A83 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D4D1D9D619B007E9A83 /* Main.storyboard */; };
 		04AB6D511D9D619B007E9A83 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D501D9D619B007E9A83 /* Assets.xcassets */; };
 		04AB6D541D9D619B007E9A83 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D521D9D619B007E9A83 /* LaunchScreen.storyboard */; };
+		290750AC1E380F32000F0C29 /* ADTelemetryCollectionRules.h in Headers */ = {isa = PBXBuildFile; fileRef = 290750AA1E380F32000F0C29 /* ADTelemetryCollectionRules.h */; };
+		2949ABC01E395FC400F56C57 /* ADTelemetryCollectionRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */; };
+		2949ABC11E39605F00F56C57 /* ADTelemetryCollectionRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */; };
+		29DBF6D61E36D5A600D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */; };
+		29DBF6D71E36D5A900D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */; };
 		600401A51D3421480020EAAB /* ADTelemetry.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401A31D3421480020EAAB /* ADTelemetry.m */; };
 		600401A71D3426250020EAAB /* ADTelemetry+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 600401A61D3426250020EAAB /* ADTelemetry+Internal.h */; };
 		600401A91D3428770020EAAB /* ADTelemetryDefaultEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 600401A81D3428770020EAAB /* ADTelemetryDefaultEvent.h */; };
@@ -417,6 +422,10 @@
 		04AB6D531D9D619B007E9A83 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		04AB6D551D9D619B007E9A83 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		04AB6D5A1D9D61CA007E9A83 /* UnitTestHostApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = UnitTestHostApp.entitlements; sourceTree = "<group>"; };
+		290750AA1E380F32000F0C29 /* ADTelemetryCollectionRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTelemetryCollectionRules.h; sourceTree = "<group>"; };
+		290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryCollectionRules.m; sourceTree = "<group>"; };
+		29DBF6D31E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+ADExtensions.h"; sourceTree = "<group>"; };
+		29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+ADExtensions.m"; sourceTree = "<group>"; };
 		6004019F1D340B760020EAAB /* ADTelemetry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTelemetry.h; sourceTree = "<group>"; };
 		600401A31D3421480020EAAB /* ADTelemetry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetry.m; sourceTree = "<group>"; };
 		600401A61D3426250020EAAB /* ADTelemetry+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADTelemetry+Internal.h"; sourceTree = "<group>"; };
@@ -778,6 +787,8 @@
 				6010EDF91D47B2F300B62072 /* ADTelemetryBrokerEvent.m */,
 				605C167B1D8FBA590097DBA0 /* ADTelemetryEventStrings.h */,
 				605C16801D8FD0AC0097DBA0 /* ADTelemetryEventStrings.m */,
+				290750AA1E380F32000F0C29 /* ADTelemetryCollectionRules.h */,
+				290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */,
 			);
 			path = telemetry;
 			sourceTree = "<group>";
@@ -989,6 +1000,8 @@
 				96506FB11E0A946C00F92A53 /* NSURL+ADHelperMethods.m */,
 				9453C36A1C580157006B9E79 /* NSUUID+ADExtensions.h */,
 				9453C36B1C580157006B9E79 /* NSUUID+ADExtensions.m */,
+				29DBF6D31E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.h */,
+				29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */,
 				D6D8A83D1D4FD12300D20DE6 /* ios */,
 			);
 			path = utils;
@@ -1283,6 +1296,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9453C3D51C583E8B006B9E79 /* ADAL.h in Headers */,
+				290750AC1E380F32000F0C29 /* ADTelemetryCollectionRules.h in Headers */,
 				9453C3DE1C583E8B006B9E79 /* ADUserIdentifier.h in Headers */,
 				9453C3D71C583E8B006B9E79 /* ADAuthenticationError.h in Headers */,
 				9453C3D91C583E8B006B9E79 /* ADAuthenticationResult.h in Headers */,
@@ -1782,6 +1796,7 @@
 				9453C4111C586456006B9E79 /* ADAuthenticationSettings.m in Sources */,
 				9453C4651C58707B006B9E79 /* ADCredentialCollectionController.m in Sources */,
 				9453C4201C586462006B9E79 /* ADTokenCache.m in Sources */,
+				2949ABC01E395FC400F56C57 /* ADTelemetryCollectionRules.m in Sources */,
 				9453C42B1C58646D006B9E79 /* ADAuthenticationRequest+AcquireAssertion.m in Sources */,
 				9453C4141C586456006B9E79 /* ADLogger.m in Sources */,
 				9453C41B1C586456006B9E79 /* ADClientMetrics.m in Sources */,
@@ -1795,6 +1810,7 @@
 				9453C4741C5874FB006B9E79 /* ADBrokerHelper.m in Sources */,
 				600401AC1D3443D30020EAAB /* ADTelemetryDefaultEvent.m in Sources */,
 				600401BE1D377E9F0020EAAB /* ADDefaultDispatcher.m in Sources */,
+				29DBF6D71E36D5A900D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */,
 				9453C43B1C586476006B9E79 /* ADURLProtocol.m in Sources */,
 				9453C42D1C58646D006B9E79 /* ADAuthenticationRequest+AcquireToken.m in Sources */,
 				9453C40D1C586456006B9E79 /* ADAuthenticationParameters.m in Sources */,
@@ -1903,6 +1919,7 @@
 				D664F18D1D302B9C0017B799 /* ADALFrameworkUtils.m in Sources */,
 				D664F18E1D302B9C0017B799 /* ADAuthenticationSettings.m in Sources */,
 				D664F18F1D302B9C0017B799 /* NSDictionary+ADExtensions.m in Sources */,
+				2949ABC11E39605F00F56C57 /* ADTelemetryCollectionRules.m in Sources */,
 				D664F1901D302B9C0017B799 /* ADRegistrationInformation.m in Sources */,
 				D664F1911D302B9C0017B799 /* ADHelpers.m in Sources */,
 				D664F1921D302B9C0017B799 /* ADAuthenticationParameters.m in Sources */,
@@ -1913,6 +1930,7 @@
 				8B4EC4981D70BF850047CA62 /* ADAppExtensionUtil.m in Sources */,
 				D6D8A8401D4FD14E00D20DE6 /* ADKeychainUtil.m in Sources */,
 				D664F1981D302B9C0017B799 /* NSURL+ADExtensions.m in Sources */,
+				29DBF6D61E36D5A600D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */,
 				D664F1991D302B9C0017B799 /* ADUserIdentifier.m in Sources */,
 				D664F19A1D302B9C0017B799 /* NSUUID+ADExtensions.m in Sources */,
 				D664F19B1D302B9C0017B799 /* ADTokenCacheAccessor.m in Sources */,

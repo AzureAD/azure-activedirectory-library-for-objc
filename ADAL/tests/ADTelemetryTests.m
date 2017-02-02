@@ -85,8 +85,8 @@
     // i.e. sdk_id, sdk_version, device_id, device_name
     NSDictionary* event = [receivedEvents firstObject];
     
-    XCTAssertNotNil([event objectForKey:@"x-client-SKU"]);
-    XCTAssertNotNil([event objectForKey:@"x-client-Ver"]);
+    XCTAssertNotNil([event objectForKey:@"x_client_SKU"]);
+    XCTAssertNotNil([event objectForKey:@"x_client_Ver"]);
     XCTAssertNotNil([event objectForKey:@"device_id"]);
     XCTAssertNotNil([event objectForKey:@"request_id"]);
     XCTAssertNotNil([event objectForKey:@"correlation_id"]);

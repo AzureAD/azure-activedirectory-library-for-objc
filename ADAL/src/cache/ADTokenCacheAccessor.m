@@ -100,8 +100,8 @@
     ADTokenCacheItem* item = [self getItemForUser:identifier resource:resource clientId:clientId context:context error:error];
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
-    [event setTokenType:AD_TELEMETRY_ACCESS_TOKEN];
-    [event setStatus:item? AD_TELEMETRY_SUCCEEDED : AD_TELEMETRY_FAILED];
+    [event setTokenType:AD_TELEMETRY_VALUE_ACCESS_TOKEN];
+    [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
@@ -120,14 +120,14 @@
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                      requestId:[context telemetryRequestId]
                                                                  correlationId:[context correlationId]];
-    [event setTokenType:AD_TELEMETRY_MULTI_RESOURCE_REFRESH_TOKEN];
-    [event setMRRTStatus:AD_TELEMETRY_NOT_FOUND];
+    [event setTokenType:AD_TELEMETRY_VALUE_MULTI_RESOURCE_REFRESH_TOKEN];
+    [event setMRRTStatus:AD_TELEMETRY_VALUE_NOT_FOUND];
     if (item)
     {
-        [event setIsMRRT:AD_TELEMETRY_YES];
-        [event setMRRTStatus:AD_TELEMETRY_TRIED];
+        [event setIsMRRT:AD_TELEMETRY_VALUE_YES];
+        [event setMRRTStatus:AD_TELEMETRY_VALUE_TRIED];
     }
-    [event setStatus:item? AD_TELEMETRY_SUCCEEDED : AD_TELEMETRY_FAILED];
+    [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
@@ -148,14 +148,14 @@
 
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
-    [event setTokenType:AD_TELEMETRY_FAMILY_REFRESH_TOKEN];
-    [event setFRTStatus:AD_TELEMETRY_NOT_FOUND];
+    [event setTokenType:AD_TELEMETRY_VALUE_FAMILY_REFRESH_TOKEN];
+    [event setFRTStatus:AD_TELEMETRY_VALUE_NOT_FOUND];
     if (item)
     {
-        [event setIsFRT:AD_TELEMETRY_YES];
-        [event setFRTStatus:AD_TELEMETRY_TRIED];
+        [event setIsFRT:AD_TELEMETRY_VALUE_YES];
+        [event setFRTStatus:AD_TELEMETRY_VALUE_TRIED];
     }
-    [event setStatus:item? AD_TELEMETRY_SUCCEEDED : AD_TELEMETRY_FAILED];
+    [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
@@ -182,14 +182,14 @@
     ADTokenCacheItem* item = [_dataSource getItemWithKey:key userId:@"" correlationId:[context correlationId] error:error];
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP
                                                                        context:context];
-    [event setTokenType:AD_TELEMETRY_ADFS_TOKEN];
-    [event setRTStatus:AD_TELEMETRY_NOT_FOUND];
+    [event setTokenType:AD_TELEMETRY_VALUE_ADFS_TOKEN];
+    [event setRTStatus:AD_TELEMETRY_VALUE_NOT_FOUND];
     if ([item refreshToken])
     {
-        [event setIsRT:AD_TELEMETRY_YES];
-        [event setRTStatus:AD_TELEMETRY_TRIED];
+        [event setIsRT:AD_TELEMETRY_VALUE_YES];
+        [event setRTStatus:AD_TELEMETRY_VALUE_TRIED];
     }
-    [event setStatus:item? AD_TELEMETRY_SUCCEEDED : AD_TELEMETRY_FAILED];
+    [event setStatus:item? AD_TELEMETRY_VALUE_SUCCEEDED : AD_TELEMETRY_VALUE_FAILED];
     [[ADTelemetry sharedInstance] stopEvent:[context telemetryRequestId] event:event];
     return item;
 }
@@ -270,8 +270,8 @@
         [_dataSource addOrUpdateItem:multiRefreshTokenItem correlationId:correlationId error:nil];
         ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                            context:context];
-        [event setIsMRRT:AD_TELEMETRY_YES];
-        [event setTokenType:AD_TELEMETRY_MULTI_RESOURCE_REFRESH_TOKEN];
+        [event setIsMRRT:AD_TELEMETRY_VALUE_YES];
+        [event setTokenType:AD_TELEMETRY_VALUE_MULTI_RESOURCE_REFRESH_TOKEN];
         [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
         
         // If the item is also a Family Refesh Token (FRT) we update the FRT
@@ -288,8 +288,8 @@
             
             ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                                context:context];
-            [event setIsFRT:AD_TELEMETRY_YES];
-            [event setTokenType:AD_TELEMETRY_FAMILY_REFRESH_TOKEN];
+            [event setIsFRT:AD_TELEMETRY_VALUE_YES];
+            [event setTokenType:AD_TELEMETRY_VALUE_FAMILY_REFRESH_TOKEN];
             [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
         }
     }
@@ -300,7 +300,7 @@
     cacheItem.refreshToken = savedRefreshToken;//Restore for the result
     ADTelemetryCacheEvent* event = [[ADTelemetryCacheEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE
                                                                        context:context];
-    [event setTokenType:AD_TELEMETRY_ACCESS_TOKEN];
+    [event setTokenType:AD_TELEMETRY_VALUE_ACCESS_TOKEN];
     [[ADTelemetry sharedInstance] stopEvent:telemetryRequestId event:event];
 }
 

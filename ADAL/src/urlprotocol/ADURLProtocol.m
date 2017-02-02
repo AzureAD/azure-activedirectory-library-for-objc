@@ -185,7 +185,6 @@ static NSUUID *_reqCorId(NSURLRequest* request)
     
     [_dataTask cancel];
     _dataTask = nil;
-    
 }
 
 #pragma mark - NSURLSessionTaskDelegate

@@ -194,7 +194,7 @@
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_GRANT
                                                                         context:_requestParams];
-         [event setGrantType:AD_TELEMETRY_BY_REFRESH_TOKEN];
+         [event setGrantType:AD_TELEMETRY_VALUE_BY_REFRESH_TOKEN];
          [event setResultStatus:[result status]];
          [[ADTelemetry sharedInstance] stopEvent:[_requestParams telemetryRequestId] event:event];
 

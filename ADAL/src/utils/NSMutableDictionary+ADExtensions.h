@@ -21,15 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@protocol ADTelemetryEventInterface <NSObject>
+#pragma once
 
-@property (readonly) NSDictionary* propertyMap;
+@interface NSMutableDictionary (ADAL)
 
-- (NSInteger)getDefaultPropertyCount;
-- (void)setProperty:(NSString*)name value:(NSString*)value;
-- (NSDictionary*)getProperties;
-- (void)setStartTime:(NSDate*)time;
-- (void)setStopTime:(NSDate*)time;
-- (void)setResponseTime:(NSTimeInterval)responseTime;
+- (void)adSetObjectIfNotNil:(id)dictObject forKey:(id<NSCopying>)dictKey;
 
 @end
