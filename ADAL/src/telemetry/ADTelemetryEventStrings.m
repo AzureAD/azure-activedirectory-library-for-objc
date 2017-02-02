@@ -37,7 +37,7 @@ NSString *const AD_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP     = @"token_cache_lookup
 NSString *const AD_TELEMETRY_EVENT_TOKEN_CACHE_WRITE      = @"token_cache_write";
 NSString *const AD_TELEMETRY_EVENT_TOKEN_CACHE_DELETE     = @"token_cache_delete";
 
-// Telemetry property name
+// Telemetry property name, only alphabetic letters, dots, and underscores are allowed.
 NSString *const AD_TELEMETRY_KEY_EVENT_NAME                   = @"event_name";
 NSString *const AD_TELEMETRY_KEY_AUTHORITY_TYPE               = @"authority_type";
 NSString *const AD_TELEMETRY_KEY_AUTHORITY_VALIDATION_STATUS  = @"authority_validation_status";

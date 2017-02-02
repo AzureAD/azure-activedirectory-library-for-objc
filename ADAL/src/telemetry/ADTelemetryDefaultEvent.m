@@ -125,19 +125,6 @@
     return [s_dateFormatter stringFromDate:date];
 }
 
-- (void)sanitizePropertyNames
-{
-    NSMutableDictionary* propertyMapCopy = [_propertyMap copy];
-    [_propertyMap removeAllObjects];
-    
-    for (NSString* propertyName in propertyMapCopy)
-    {
-        // Some telemetry collectors only allow alphabetic characters, underscores, and dots in the property names
-        [_propertyMap setObject:[propertyMapCopy objectForKey:propertyName]
-                         forKey:[propertyName stringByReplacingOccurrencesOfString:@"-" withString:@"_"]];
-    }
-}
-
 + (NSDictionary*)defaultParameters
 {
     static NSMutableDictionary* s_defaultParameters;
@@ -166,7 +153,8 @@
         NSDictionary* adalId = [ADLogger adalId];
         for (NSString* key in adalId)
         {
-            [s_defaultParameters adSetObjectIfNotNil:[adalId objectForKey:key] forKey:key];
+            [s_defaultParameters adSetObjectIfNotNil:[adalId objectForKey:key]
+                                              forKey:[key stringByReplacingOccurrencesOfString:@"-" withString:@"_"]];
         }
     });
     
