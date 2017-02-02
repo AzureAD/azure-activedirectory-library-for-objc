@@ -98,11 +98,8 @@
     
     _telemetryRequestId = context.telemetryRequestId;
     
-    _operationQueue = [[NSOperationQueue alloc] init];
-    [_operationQueue setMaxConcurrentOperationCount:1];
-    
     _configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    _session = [NSURLSession sessionWithConfiguration:_configuration delegate:self delegateQueue:_operationQueue];
+    _session = [NSURLSession sessionWithConfiguration:_configuration delegate:self delegateQueue:nil];
     
     return self;
 }

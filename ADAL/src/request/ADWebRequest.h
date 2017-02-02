@@ -44,8 +44,6 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
     
     NSUInteger _timeout;
     
-    NSOperationQueue * _operationQueue;
-    
     BOOL _isGetRequest;
     
     NSString* _telemetryRequestId;
