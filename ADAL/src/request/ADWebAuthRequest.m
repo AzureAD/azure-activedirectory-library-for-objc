@@ -75,8 +75,10 @@
         _requestURL = [NSURL URLWithString:newURL];
         SAFE_ARC_RETAIN(_requestURL);
     }
-
-    [self setBody:[[_requestDictionary adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding]];
+    else
+    {
+        [self setBody:[[_requestDictionary adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding]];
+    }
     
     _startTime = [NSDate new];
     [[ADClientMetrics getInstance] addClientMetrics:self.headers endpoint:[_requestURL absoluteString]];
