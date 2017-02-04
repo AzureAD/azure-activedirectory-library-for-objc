@@ -59,7 +59,7 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     XCTAssertEqual(error.domain, ADAuthenticationErrorDomain, "Incorrect error domain.");
     XCTAssertNil(error.protocolCode, "The protocol code should not be set. Instead protocolCode ='%@'.", error.protocolCode);
     XCTAssertFalse([NSString adIsStringNilOrBlank:error.errorDetails], @"Error should have details.");
-    BOOL found = [error.errorDetails adContainsString:argument];
+    BOOL found = [error.errorDetails containsString:argument];
     XCTAssertTrue(found, "The parameter is not specified in the error details. Error details:%@", error.errorDetails);
 }
 
@@ -286,8 +286,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                       };
     
     NSString* idtoken = [NSString stringWithFormat:@"%@.%@",
-                         [NSString Base64EncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
-                         [NSString Base64EncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
+                         [NSString adBase64EncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
+                         [NSString adBase64EncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
     
     ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idtoken error:nil];
     

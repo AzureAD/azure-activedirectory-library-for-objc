@@ -224,12 +224,12 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 }
 #endif // TARGET_OS_IPHONE
 
-+ (BOOL)isResponseFromBroker:(NSString*)sourceApplication
-                    response:(NSURL*)response
++ (BOOL)isResponseFromBroker:(NSString *)sourceApplication
+                    response:(NSURL *)response
 {
     return //sourceApplication && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
     response &&
-    [NSString adSame:sourceApplication toString:@"com.microsoft.azureauthenticator"];
+    [sourceApplication isEqualToString:@"com.microsoft.azureauthenticator"];
 }
 
 + (BOOL)handleBrokerResponse:(NSURL*)response

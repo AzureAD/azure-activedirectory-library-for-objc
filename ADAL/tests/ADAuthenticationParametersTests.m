@@ -215,7 +215,7 @@
     {
         [self recordFailureWithDescription:@"Empty error details." inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
-    if (![error.errorDetails adContainsString:@"Unauthorized"])
+    if (![error.errorDetails containsString:@"Unauthorized"])
     {
         [self recordFailureWithDescription:@"Wrong error details." inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
