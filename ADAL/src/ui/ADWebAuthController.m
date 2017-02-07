@@ -597,7 +597,6 @@ static ADAuthenticationResult* s_result = nil;
     
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
     [ADURLProtocol addCorrelationId:_requestParams.correlationId toRequest:request];
-    request.timeoutInterval = ADAuthenticationSettings.sharedInstance.requestTimeOut;
     
     [_authenticationViewController startRequest:request];
     SAFE_ARC_RELEASE(request);
