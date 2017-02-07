@@ -34,28 +34,9 @@
 
 /*!
     Callback function that will be called by ADAL when telemetry events are flushed.
-    @param  event        An event is represented by an array of ADTelemetryProperty.
+    @param  event        An event is represented by a dictionary of key-value properties.
  */
-- (void)dispatchEvent:(NSArray*)event;
-
-@end
-
-/*!
-    @class ADTelemetryProperty
- 
-    Each telemetry event dispatched to the above callback function is represented by an array of ADTelemetryProperty.
-    It includes property name and property value.
- */
-@interface ADTelemetryProperty : NSObject
-{
-    NSString* _name;
-    NSString* _value;
-}
-
-@property (readonly) NSString* name;
-@property (readonly) NSString* value;
-
-- (id)initWithName:(NSString*)name value:(NSString*)value;
+- (void)dispatchEvent:(nonnull NSDictionary<NSString*, NSString*> *)event;
 
 @end
 
@@ -65,7 +46,6 @@
     The central class for ADAL telemetry.
  
     Usage: Get a singleton instance of ADTelemetry; register a dispatcher for receiving telemetry events.
-    Telemetry events will be flushed when function flush is called by developer.
  */
 @interface ADTelemetry : NSObject
 {
@@ -76,15 +56,16 @@
 /*!
     Get a singleton instance of ADTelemetry.
  */
-+ (ADTelemetry*)sharedInstance;
++ (nonnull ADTelemetry*)sharedInstance;
 
 /*!
     Register a telemetry dispatcher for receiving telemetry events.
     @param dispatcher            An instance of ADDispatcher implementation.
-    @param aggregationRequired   Specifies if telemetry events will be aggregated on client, 
-                                 i.e. all events of a single request will be aggregated as one single event.
+    @param aggregationRequired   If set NO, all telemetry events collected by ADAL will be dispatched;
+                                 If set YES, ADAL will dispatch only one event for each acquire token call, 
+                                    where the event is a brief summary (but with far less details) of all telemetry events for that acquire token call.
  */
-- (void)registerDispatcher:(id<ADDispatcher>)dispatcher
+- (void)registerDispatcher:(nullable id<ADDispatcher>)dispatcher
        aggregationRequired:(BOOL)aggregationRequired;
 
 @end

@@ -25,8 +25,7 @@
 
 @interface ADAuthenticationRequest (AcquireToken)
 
-- (void)acquireToken:(NSString *)eventName
-               apiId:(NSString *)apiId
+- (void)acquireToken:(NSString *)apiId
      completionBlock:(ADAuthenticationCallback)completionBlock;
 
 // For use after the authority has been validated

@@ -35,21 +35,20 @@
     if(self)
     {
         //this is the only broker for iOS
-        [self setBrokerApp:@"Azure Authenticator"];
+        [self setBrokerApp:@"Microsoft Authenticator"];
     }
     
     return self;
 }
 
-
 - (void)setBrokerAppVersion:(NSString*)version
 {
-    [self setProperty:AD_TELEMETRY_BROKER_VERSION value:version];
+    [self setProperty:AD_TELEMETRY_KEY_BROKER_VERSION value:version];
 }
 
 - (void)setBrokerProtocolVersion:(NSString*)version
 {
-    [self setProperty:@"broker_protocol_version" value:version];
+    [self setProperty:AD_TELEMETRY_KEY_BROKER_PROTOCOL_VERSION value:version];
 }
 
 - (void)setResultStatus:(ADAuthenticationResultStatus)status
@@ -57,41 +56,24 @@
     NSString* statusStr = nil;
     switch (status) {
         case AD_SUCCEEDED:
-            statusStr = @"SUCCEEDED";
+            statusStr = AD_TELEMETRY_VALUE_SUCCEEDED;
             break;
         case AD_FAILED:
-            statusStr = @"FAILED";
+            statusStr = AD_TELEMETRY_VALUE_FAILED;
             break;
         case AD_USER_CANCELLED:
-            statusStr = @"USER_CANCELLED";
+            statusStr = AD_TELEMETRY_KEY_USER_CANCEL;
             break;
         default:
-            statusStr = @"UNKNOWN";
+            statusStr = AD_TELEMETRY_VALUE_UNKNOWN;
     }
     
-    [self setProperty:@"status" value:statusStr];
+    [self setProperty:AD_TELEMETRY_KEY_RESULT_STATUS value:statusStr];
 }
 
 - (void)setBrokerApp:(NSString*)appName
 {
-    [self setProperty:AD_TELEMETRY_BROKER_APP value:appName];
-}
-
-- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
-{
-    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
-    
-    (void)eventToBeDispatched;
-    NSArray* properties = [self getProperties];
-    for (ADTelemetryProperty* property in properties)
-    {
-        if ([property.name isEqualToString:AD_TELEMETRY_BROKER_APP]
-            ||[property.name isEqualToString:AD_TELEMETRY_BROKER_VERSION])
-        {
-            [eventToBeDispatched setObject:property.value forKey:property.name];
-        }
-    }
-    [eventToBeDispatched setObject:AD_TELEMETRY_YES forKey:AD_TELEMETRY_BROKER_APP_USED];
+    [self setProperty:AD_TELEMETRY_KEY_BROKER_APP value:appName];
 }
 
 @end
