@@ -28,7 +28,6 @@
 #import "ADCustomHeaderHandler.h"
 #import "ADTelemetryUIEvent.h"
 #import "ADTelemetryEventStrings.h"
-#import "ADAuthenticationSettings.h"
 
 static NSMutableDictionary* s_handlers = nil;
 static NSString* s_endURL = nil;
@@ -142,10 +141,7 @@ static NSUUID * _reqCorId(NSURLRequest* request)
 {
     AD_LOG_VERBOSE_F(@"+[ADURLProtocol canonicalRequestForRequest:]", _reqCorId(request), @"host: %@", [request.URL host] );
     
-    NSMutableURLRequest* mutableRequest = [request mutableCopy];
-    mutableRequest.timeoutInterval = ADAuthenticationSettings.sharedInstance.requestTimeOut;
-    
-    return mutableRequest;
+    return request;
 }
 
 - (void)startLoading
