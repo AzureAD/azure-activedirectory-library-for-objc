@@ -26,9 +26,12 @@
 
 typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
 
-@interface ADWebRequest : NSObject <NSURLConnectionDelegate>
+@interface ADWebRequest : NSObject <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 {
-    NSURLConnection * _connection;
+    NSURLSessionDataTask * _task;
+    
+    NSURLSessionConfiguration *_configuration;
+    NSURLSession *_session;
     
     NSURL * _requestURL;
     NSMutableDictionary* _requestHeaders;
@@ -40,8 +43,6 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
     NSUUID * _correlationId;
     
     NSUInteger _timeout;
-    
-    NSOperationQueue * _operationQueue;
     
     BOOL _isGetRequest;
     
@@ -56,6 +57,9 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
 @property (nonatomic)                   NSUInteger           timeout;
 @property BOOL isGetRequest;
 @property (readonly) NSUUID* correlationId;
+
+@property (atomic, copy,   readonly) NSURLSessionConfiguration* configuration;
+@property (atomic, strong, readonly) NSURLSession *session;
 
 - (id)initWithURL:(NSURL *)url
           context:(id<ADRequestContext>)context;

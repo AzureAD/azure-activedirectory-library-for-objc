@@ -199,7 +199,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)onStartActivityIndicator:(id)sender
 {
-#pragma unused(sender)
+    (void)sender;
     
     if (_loading)
     {

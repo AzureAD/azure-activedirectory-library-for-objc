@@ -37,7 +37,7 @@
 #import "ADTelemetryHttpEvent.h"
 #import "ADTelemetryEventStrings.h"
 
-@interface ADWebRequest () <NSURLConnectionDelegate>
+@interface ADWebRequest ()
 
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response;
 - (void)send;
@@ -53,6 +53,8 @@
 @synthesize timeout  = _timeout;
 @synthesize isGetRequest = _isGetRequest;
 @synthesize correlationId = _correlationId;
+@synthesize session = _session;
+@synthesize configuration = _configuration;
 
 - (NSData *)body
 {
@@ -96,8 +98,8 @@
     
     _telemetryRequestId = context.telemetryRequestId;
     
-    _operationQueue = [[NSOperationQueue alloc] init];
-    [_operationQueue setMaxConcurrentOperationCount:1];
+    _configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    _session = [NSURLSession sessionWithConfiguration:_configuration delegate:self delegateQueue:nil];
     
     return self;
 }
@@ -108,7 +110,8 @@
     // Cleanup
     _response       = nil;
     _responseData   = nil;
-    _connection     = nil;
+
+    _task           = nil;
     
     [self stopTelemetryEvent:error response:response];
     _completionHandler(error, response);
@@ -162,95 +165,80 @@
     
     [ADURLProtocol addCorrelationId:_correlationId toRequest:request];
     
-    _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
-    [_connection setDelegateQueue:_operationQueue];
-    [_connection start];
+    _task = [_session dataTaskWithRequest:request];
+    [_task resume];
 }
 
-#pragma mark - NSURLConnectionDelegate
 
-// Connection Authentication
-
-// Discussion
-// This method allows the delegate to make an informed decision about connection authentication at once.
-// If the delegate implements this method, it has no need to implement connection:canAuthenticateAgainstProtectionSpace:, connection:didReceiveAuthenticationChallenge:, connectionShouldUseCredentialStorage:.
-// In fact, these other methods are not invoked.
-- (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+#pragma mark - NSURLSession delegates
+- (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
 {
-#pragma unused(connection)
-    // Do default handling
-    [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
-}
-
-// Connection Completion
-
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
-{
-#pragma unused(connection)
+    (void)session;
+    (void)challenge;
     
-    [self completeWithError:error andResponse:nil];
+    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
 }
 
-// Method Group
-- (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-#pragma unused(connection)
-#pragma unused(cachedResponse)
+    (void)session;
+    (void)task;
     
-    return nil;
+    if (error == nil)
+    {
+        //
+        // NOTE: There is a race condition between this method and the challenge handling methods
+        //       dependent on the the challenge processing that the application performs.
+        //
+        NSAssert( _response != nil, @"No HTTP Response available" );
+        
+        ADWebResponse* response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
+        [self completeWithError:nil andResponse:response];
+    }
+    else
+    {
+        [self completeWithError:error andResponse:nil];
+    }
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+#pragma mark - NSURLSessionDataDelegate
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
 {
-#pragma unused(connection)
+    (void)session;
+    (void)dataTask;
+  
     _response = (NSHTTPURLResponse *)response;
+    completionHandler(NSURLSessionResponseAllow);
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
-#pragma unused(connection)
+    (void)session;
+    (void)dataTask;
     
     [_responseData appendData:data];
 }
 
-- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler
 {
-#pragma unused(connection)
-#pragma unused(redirectResponse)
+    (void)session;
+    (void)response;
+    (void)task;
+    
     NSURL* requestURL = [request URL];
     NSURL* modifiedURL = [ADHelpers addClientVersionToURL:requestURL];
+    
     if (modifiedURL == requestURL)
     {
-        return request;
+        completionHandler(request);
+        return;
     }
-    
+
     NSMutableURLRequest* mutableRequest = [NSMutableURLRequest requestWithURL:modifiedURL];
     [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
-    return mutableRequest;
-}
-
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection
-{
-#pragma unused(connection)
     
-    //
-    // NOTE: There is a race condition between this method and the challenge handling methods
-    //       dependent on the the challenge processing that the application performs.
-    //
-    NSAssert( _response != nil, @"No HTTP Response available" );
-    
-    ADWebResponse* response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
-    [self completeWithError:nil andResponse:response];
-}
-
-//required method Available in OS X v10.6 through OS X v10.7, then deprecated
--(void)connection:(NSURLConnection *)connection didSendBodyData:(NSInteger)bytesWritten totalBytesWritten:(NSInteger)totalBytesWritten totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
-{
-#pragma unused(connection)
-#pragma unused(bytesWritten)
-#pragma unused(totalBytesWritten)
-#pragma unused(totalBytesExpectedToWrite)
-    
+    completionHandler(mutableRequest);
+  
 }
 
 - (void)stopTelemetryEvent:(NSError *)error

@@ -27,11 +27,10 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
 #import "ADWebRequest.h"
-#import "ADTestURLConnection.h"
+#import "ADTestURLSession.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
 #import "ADKeychainTokenCache+Internal.h"
-#import "ADTestURLConnection.h"
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADTokenCacheKey.h"
@@ -64,8 +63,8 @@ const int sAsyncContextTimeout = 10;
 #endif
     _dsem = nil;
     
-    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
-    [ADTestURLConnection clearResponses];
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
+    [ADTestURLSession clearResponses];
     [self adTestEnd];
     [super tearDown];
 }
@@ -286,7 +285,7 @@ const int sAsyncContextTimeout = 10;
                                                                          OAUTH2_GRANT_TYPE : OAUTH2_SAML11_BEARER_VALUE,
                                                                          OAUTH2_SCOPE : OAUTH2_SCOPE_OPENID_VALUE
                                                                          }];
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenForAssertion:assertion
                         assertionType:AD_SAML1_1
@@ -308,7 +307,7 @@ const int sAsyncContextTimeout = 10;
     
     TEST_WAIT;
     
-    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
 }
 
 
@@ -535,7 +534,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     
     // Set the response to reject the refresh token
-    [ADTestURLConnection addResponse:[self adDefaultBadRefreshTokenResponse]];
+    [ADTestURLSession addResponse:[self adDefaultBadRefreshTokenResponse]];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -554,7 +553,7 @@ const int sAsyncContextTimeout = 10;
     
     TEST_WAIT;
     
-    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
     
     // Also verify the expired item has been removed from the cache
     NSArray* allItems = [context.tokenCacheStore.dataSource allItems:&error];
@@ -587,7 +586,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     
     // Set the response to reject the refresh token
-    [ADTestURLConnection addResponse:[self adDefaultBadRefreshTokenResponse]];
+    [ADTestURLSession addResponse:[self adDefaultBadRefreshTokenResponse]];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -613,7 +612,7 @@ const int sAsyncContextTimeout = 10;
     NSArray* allItems = [context.tokenCacheStore.dataSource allItems:&error];
     XCTAssertNil(error);
     
-    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
     XCTAssertEqual(allItems.count, 0);
     
     // The next acquire token call should fail immediately without hitting network
@@ -714,7 +713,7 @@ const int sAsyncContextTimeout = 10;
     [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
     
-    [ADTestURLConnection addResponse:[self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token"]];
+    [ADTestURLSession addResponse:[self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token"]];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -787,7 +786,7 @@ const int sAsyncContextTimeout = 10;
               respondWithError:[NSError errorWithDomain:NSURLErrorDomain
                                                    code:NSURLErrorNotConnectedToInternet
                                                userInfo:nil]];
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     // Web UI should not attempt to launch when we fail to refresh the RT because there is no internet
     // connection
@@ -825,7 +824,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     
     // Set up the mock connection to reject the MRRT with an error that should cause it to not remove the MRRT
-    [ADTestURLConnection addResponse:[self adDefaultBadRefreshTokenResponseError:@"unauthorized_client"]];
+    [ADTestURLSession addResponse:[self adDefaultBadRefreshTokenResponseError:@"unauthorized_client"]];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -876,8 +875,8 @@ const int sAsyncContextTimeout = 10;
     //Then hit network twice again for broad refresh token for the same reason
     //So totally 4 responses are added
     //If there is an infinite retry, exception will be thrown becasuse there is not enough responses
-    [ADTestURLConnection addResponse:response];
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
@@ -922,7 +921,7 @@ const int sAsyncContextTimeout = 10;
                                                 newAccessToken:TEST_ACCESS_TOKEN
                                               additionalFields:additional];
     
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -973,7 +972,7 @@ const int sAsyncContextTimeout = 10;
                                                newRefreshToken:@"new-mrrt"
                                                 newAccessToken:TEST_ACCESS_TOKEN
                                               additionalFields:nil];
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -1022,7 +1021,7 @@ const int sAsyncContextTimeout = 10;
                                                 newAccessToken:TEST_ACCESS_TOKEN
                                               additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -1088,7 +1087,7 @@ const int sAsyncContextTimeout = 10;
                                                 newAccessToken:TEST_ACCESS_TOKEN
                                               additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -1176,7 +1175,7 @@ const int sAsyncContextTimeout = 10;
                   newAccessToken:TEST_ACCESS_TOKEN
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     
-    [ADTestURLConnection addResponses:@[badMRRT, frtResponse]];
+    [ADTestURLSession addResponses:@[badMRRT, frtResponse]];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -1254,7 +1253,7 @@ const int sAsyncContextTimeout = 10;
                   newAccessToken:@"new access token"
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     
-    [ADTestURLConnection addResponses:@[badFRTResponse, mrrtResponse]];
+    [ADTestURLSession addResponses:@[badFRTResponse, mrrtResponse]];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -1321,7 +1320,7 @@ const int sAsyncContextTimeout = 10;
                  newRefreshToken:@"new family refresh token"
                   newAccessToken:@"new access token"
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
-    [ADTestURLConnection addResponse:mrrtResponse];
+    [ADTestURLSession addResponse:mrrtResponse];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -1395,7 +1394,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     
     // Response with ext_expires_in value
-    [ADTestURLConnection addResponse:[self adResponseRefreshToken:TEST_REFRESH_TOKEN
+    [ADTestURLSession addResponse:[self adResponseRefreshToken:TEST_REFRESH_TOKEN
                                                         authority:TEST_AUTHORITY
                                                          resource:TEST_RESOURCE
                                                          clientId:TEST_CLIENT_ID
@@ -1449,8 +1448,8 @@ const int sAsyncContextTimeout = 10;
                                                      httpHeaderFields:@{ }
                                                      dictionaryAsJSON:@{ }];
     // Add the responsce twice because retry will happen
-    [ADTestURLConnection addResponse:response];
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     // Test whether valid stale access token is returned
     [context setExtendedLifetimeEnabled:YES];
@@ -1471,7 +1470,7 @@ const int sAsyncContextTimeout = 10;
     
     TEST_WAIT;
     
-    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
 }
 
 - (void)testResilencyTokenDeletion
@@ -1485,7 +1484,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     
     // Response with ext_expires_in value being 0
-    [ADTestURLConnection addResponse:[self adResponseRefreshToken:TEST_REFRESH_TOKEN
+    [ADTestURLSession addResponse:[self adResponseRefreshToken:TEST_REFRESH_TOKEN
                                                         authority:TEST_AUTHORITY
                                                          resource:TEST_RESOURCE
                                                          clientId:TEST_CLIENT_ID
@@ -1562,7 +1561,7 @@ const int sAsyncContextTimeout = 10;
     NSArray* allItems = [cache allItems:&error];
     XCTAssertNil(error);
     
-    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
     XCTAssertEqual(allItems.count, 0);
 }
 

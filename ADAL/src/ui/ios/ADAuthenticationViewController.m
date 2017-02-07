@@ -140,7 +140,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 // Authentication was cancelled by the user
 - (IBAction)onCancel:(id)sender
 {
-#pragma unused(sender)
+    (void)sender;
     [_delegate webAuthDidCancel];
 }
 
@@ -198,8 +198,8 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
-#pragma unused(webView)
-#pragma unused(navigationType)
+    (void)webView;
+    (void)navigationType;
     
     // Forward to the UIWebView controller
     return [_delegate webAuthShouldStartLoadRequest:request];
@@ -207,8 +207,6 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-#pragma unused(webView)
-    
     [_delegate webAuthDidStartLoad:webView.request.URL];
 }
 
@@ -220,13 +218,12 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-#pragma unused(webView)
     [_delegate webAuthDidFinishLoad:webView.request.URL];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
-#pragma unused(webView)
+    (void)webView;
     [_delegate webAuthDidFailWithError:error];
 }
 

@@ -26,7 +26,7 @@
 #import "ADAuthenticationSettings.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADAuthenticationParameters+Internal.h"
-#import "ADTestURLConnection.h"
+#import "ADTestURLSession.h"
 
 @interface ADAuthenticationParametersTests : XCTestCase
 {
@@ -141,7 +141,7 @@
 - (void) testParametersFromResourceURLNoResponse
 {
     NSURL* resource = [[NSURL alloc] initWithString:@"https://noneistingurl12345676789.com"];
-    [ADTestURLConnection addNotFoundResponseForURLString:@"https://noneistingurl12345676789.com?x-client-Ver=" ADAL_VERSION_STRING];
+    [ADTestURLSession addNotFoundResponseForURLString:@"https://noneistingurl12345676789.com?x-client-Ver=" ADAL_VERSION_STRING];
     [self callAsynchronousCreator:resource line:__LINE__];
     XCTAssertNil(mParameters, "No parameters should be extracted from non-existing resource.");
     XCTAssertNotNil(mError, "Error should be set.");
@@ -160,7 +160,7 @@
                                                      httpHeaderFields:@{@"WWW-Authenticate" : @"Bearer authorization_uri=\"https://login.windows.net/omercantest.onmicrosoft.com\"" }
                                                      dictionaryAsJSON:@{}];
     
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     [self callAsynchronousCreator:resourceUrl line:__LINE__];
     [self verifyWithAuthority:@"https://login.windows.net/omercantest.onmicrosoft.com"];
 
@@ -172,7 +172,7 @@
                                                      httpHeaderFields:@{@"WWW-Authenticate" : @"Bearer authorization_uri=\"https://login.windows.net/omercantest.onmicrosoft.com\"" }
                                                      dictionaryAsJSON:@{}];
     
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     [self callAsynchronousCreator:resourceUrl line:__LINE__];
     [self verifyWithAuthority:@"https://login.windows.net/omercantest.onmicrosoft.com"];
 }
