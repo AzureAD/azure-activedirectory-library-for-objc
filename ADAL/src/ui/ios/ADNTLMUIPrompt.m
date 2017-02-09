@@ -26,6 +26,7 @@
 #import "ADWebAuthController+Internal.h"
 #import "ADAuthenticationViewController.h"
 #import "ADALFrameworkUtils.h"
+#import "UIApplication+ADExtensions.h"
 
 @implementation ADNTLMUIPrompt
 
@@ -39,7 +40,7 @@
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        UIViewController* viewController = [[ADWebAuthController sharedInstance] viewController];
+        UIViewController* viewController = [UIApplication adCurrentViewController];
         if (!viewController)
         {
             block(nil, nil);
