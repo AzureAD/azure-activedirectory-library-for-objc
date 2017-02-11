@@ -21,41 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#pragma once
+#import <Foundation/Foundation.h>
 
-@class ADAuthenticationError;
-@class ADURLProtocol;
-@class ADTelemetryUIEvent;
+@interface ADURLSessionDemux : NSObject
 
-typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential);
+- (instancetype)initWithConfiguration:(NSURLSessionConfiguration *)configuration delegateQueue:(NSOperationQueue *)delegateQueue;
 
-@protocol ADAuthMethodHandler
+- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request delegate:(id<NSURLSessionDataDelegate>)delegate;
 
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-                session:(NSURLSession *)session
-                   task:(NSURLSessionTask *)task
-               protocol:(ADURLProtocol *)protocol
-      completionHandler:(ChallengeCompletionHandler)completionHandler;
+@property (atomic, copy,   readonly) NSURLSessionConfiguration* configuration;
+@property (atomic, strong, readonly) NSURLSession *session;
 
-+ (void)resetHandler;
-
-@end
-
-//Intercepts HTTPS protocol for the application in order to allow
-//NTLM with client-authentication. The class is not thread-safe.
-@interface ADURLProtocol : NSURLProtocol <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
-{
-    NSURLSessionDataTask *_dataTask;
-    NSUUID *_correlationId;
-}
-
-+ (void)registerHandler:(Class<ADAuthMethodHandler>)handler
-             authMethod:(NSString *)authMethod;
-
-+ (BOOL)registerProtocol:(NSString*)endURL
-          telemetryEvent:(ADTelemetryUIEvent*)telemetryEvent;
-+ (void)unregisterProtocol;
-
-+ (void)addCorrelationId:(NSUUID *)correlationId
-               toRequest:(NSMutableURLRequest *)request;
 @end
