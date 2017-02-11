@@ -55,8 +55,7 @@
     _dataSource = dataSource;
     SAFE_ARC_RETAIN(dataSource);
     
-    _authority = authority;
-    SAFE_ARC_RETAIN(authority);
+    _authority = [authority copy];
     
     return self;
 }
