@@ -44,4 +44,6 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
                 request:(ADWebAuthRequest *)request
              completion:(ADWebResponseCallback)completionBlock;
 
++ (NSDictionary *)parseAuthHeader:(NSString *)authHeader;
+
 @end
