@@ -166,6 +166,7 @@ static NSUUID *_reqCorId(NSURLRequest* request)
     
     AD_LOG_VERBOSE_F(@"-[ADURLProtocol startLoading]", _correlationId, @"host: %@", [self.request.URL host]);
     NSMutableURLRequest* request = [self.request mutableCopy];
+     [ADCustomHeaderHandler applyCustomHeadersTo:request];
     
     // Make sure the correlation ID propogates through the requests
     if (!correlationId && _correlationId)
@@ -221,10 +222,6 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
     
     if (!response)
     {
-        // If there wasn't a redirect response that means that we're canonicalizing
-        // the URL and don't need to cancel the connection or worry about an infinite
-        // loop happening so we can just return the response now.
-        
         completionHandler(mutableRequest);
         return;
     }
