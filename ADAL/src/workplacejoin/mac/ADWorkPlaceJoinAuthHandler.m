@@ -38,10 +38,13 @@
 }
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-             connection:(NSURLConnection *)connection
+                session:(NSURLSession *)session
+                   task:(NSURLSessionTask *)task
                protocol:(ADURLProtocol *)protocol
+      completionHandler:(ChallengeCompletionHandler)completionHandler;
 {
-#pragma unused(connection)
+#pragma unused(session)
+#pragma unused(task)
     
     AD_LOG_INFO_F(@"Attempting to handle WPJ client challenge", protocol.context.correlationId, @"host: %@", challenge.protectionSpace.host);
     
@@ -57,7 +60,8 @@
     NSURLCredential *creds = [NSURLCredential credentialWithIdentity:info.securityIdentity
                                                         certificates:@[(__bridge id)info.certificate]
                                                          persistence:NSURLCredentialPersistenceNone];
-    [[challenge sender] useCredential:creds forAuthenticationChallenge:challenge];
+    
+    completionHandler(NSURLSessionAuthChallengeUseCredential, creds);
     
     return YES;
 }

@@ -31,7 +31,7 @@
 #import "ADTelemetryCacheEvent.h"
 #import "ADTelemetryBrokerEvent.h"
 #import "ADAuthenticationContext+Internal.h"
-#import "ADTestURLConnection.h"
+#import "ADTestURLSession.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheItem.h"
@@ -85,16 +85,16 @@
     // i.e. sdk_id, sdk_version, device_id, device_name
     NSDictionary* event = [receivedEvents firstObject];
     
-    XCTAssertNotNil([event objectForKey:@"x_client_SKU"]);
-    XCTAssertNotNil([event objectForKey:@"x_client_Ver"]);
-    XCTAssertNotNil([event objectForKey:@"device_id"]);
-    XCTAssertNotNil([event objectForKey:@"request_id"]);
-    XCTAssertNotNil([event objectForKey:@"correlation_id"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.x_client_SKU"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.x_client_Ver"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.device_id"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.request_id"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.correlation_id"]);
 #if TARGET_OS_IPHONE
     // application_version is only available in unit test framework with host app
-    XCTAssertNotNil([event objectForKey:@"application_version"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.application_version"]);
 #endif
-    XCTAssertNotNil([event objectForKey:@"application_name"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.application_name"]);
 }
 
 - (void)testSequentialEvents {
@@ -136,19 +136,19 @@
     // make sure the 1st event has an event_name, start_time and end_time
     NSDictionary* firstEvent = [receivedEvents firstObject];
     
-    XCTAssertEqual([firstEvent objectForKey:@"event_name"], @"testEvent1");
-    XCTAssertNotNil([firstEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([firstEvent objectForKey:@"end_time"]);
-    XCTAssertNotNil([firstEvent objectForKey:@"response_time"]);
+    XCTAssertEqual([firstEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent1");
+    XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.response_time"]);
 
     // make sure the 2nd event has customized_property, event_name, start_time and end_time
     NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
     
     XCTAssertEqual([secondEvent objectForKey:@"customized_property"], @"customized_value");
-    XCTAssertEqual([secondEvent objectForKey:@"event_name"], @"testEvent2");
-    XCTAssertNotNil([secondEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([secondEvent objectForKey:@"end_time"]);
-    XCTAssertNotNil([secondEvent objectForKey:@"response_time"]);
+    XCTAssertEqual([secondEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent2");
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.response_time"]);
     
 }
 
@@ -191,15 +191,15 @@
     
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
     NSDictionary* event = [receivedEvents firstObject];
-    XCTAssertNotNil([event objectForKey:@"correlation_id"]);
-    XCTAssertNotNil([event objectForKey:@"request_id"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.correlation_id"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.request_id"]);
     
     // it will also outputs some designated properties like response_time, but not for event_name, etc.
-    XCTAssertNotNil([event objectForKey:@"response_time"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.response_time"]);
     
-    XCTAssertNil([event objectForKey:@"event_name"]);
-    XCTAssertNil([event objectForKey:@"start_time"]);
-    XCTAssertNil([event objectForKey:@"end_time"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.event_name"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.stop_time"]);
     XCTAssertNil([event objectForKey:@"customized_property"]);
     
 }
@@ -243,17 +243,17 @@
     // the first event recorded is event2
     // make sure it has customized_property, event_name, start_time and end_time
     NSDictionary* firstEvent = [receivedEvents firstObject];
-    XCTAssertEqual([firstEvent objectForKey:@"event_name"], @"testEvent2");
+    XCTAssertEqual([firstEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent2");
     XCTAssertEqual([firstEvent objectForKey:@"customized_property"], @"customized_value");
-    XCTAssertNotNil([firstEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([firstEvent objectForKey:@"end_time"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
     
     // the second event recorded is event1
     // make sure it has event_name, start_time and end_time
     NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
-    XCTAssertEqual([secondEvent objectForKey:@"event_name"], @"testEvent1");
-    XCTAssertNotNil([secondEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([secondEvent objectForKey:@"end_time"]);
+    XCTAssertEqual([secondEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent1");
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
     
 }
 
@@ -296,15 +296,15 @@
     
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
     NSDictionary* event = [receivedEvents firstObject];
-    XCTAssertNotNil([event objectForKey:@"correlation_id"]);
-    XCTAssertNotNil([event objectForKey:@"request_id"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.correlation_id"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.request_id"]);
     
     // it will also outputs some designated properties like response_time, but not for event_name, etc.
-    XCTAssertNotNil([event objectForKey:@"response_time"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.response_time"]);
     
-    XCTAssertNil([event objectForKey:@"event_name"]);
-    XCTAssertNil([event objectForKey:@"start_time"]);
-    XCTAssertNil([event objectForKey:@"end_time"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.event_name"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.stop_time"]);
     XCTAssertNil([event objectForKey:@"customized_property"]);
 }
 
@@ -357,27 +357,27 @@
     
     // the first event recorded is event3
     NSDictionary* firstEvent = [receivedEvents firstObject];
-    XCTAssertEqual([firstEvent objectForKey:@"event_name"], @"testEvent3");
-    XCTAssertNotNil([firstEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([firstEvent objectForKey:@"end_time"]);
+    XCTAssertEqual([firstEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent3");
+    XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
     
     // the second event recorded is event2
     NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
-    XCTAssertEqual([secondEvent objectForKey:@"event_name"], @"testEvent2");
-    XCTAssertNotNil([secondEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([secondEvent objectForKey:@"end_time"]);
+    XCTAssertEqual([secondEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent2");
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
     
     // the third event recorded is event1
     NSDictionary* thirdEvent = [receivedEvents objectAtIndex:2];
-    XCTAssertEqual([thirdEvent objectForKey:@"event_name"], @"testEvent1");
-    XCTAssertNotNil([thirdEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([thirdEvent objectForKey:@"end_time"]);
+    XCTAssertEqual([thirdEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent1");
+    XCTAssertNotNil([thirdEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([thirdEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
     
     // the fourth event recorded is event4
     NSDictionary* fourthEvent = [receivedEvents objectAtIndex:3];
-    XCTAssertEqual([fourthEvent objectForKey:@"event_name"], @"testEvent4");
-    XCTAssertNotNil([fourthEvent objectForKey:@"start_time"]);
-    XCTAssertNotNil([fourthEvent objectForKey:@"end_time"]);
+    XCTAssertEqual([fourthEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent4");
+    XCTAssertNotNil([fourthEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([fourthEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
 }
 
 - (void)testComplexEventsWithAggregation {
@@ -431,15 +431,15 @@
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
     NSDictionary* event = [receivedEvents firstObject];
     
-    XCTAssertNotNil([event objectForKey:@"correlation_id"]);
-    XCTAssertNotNil([event objectForKey:@"request_id"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.correlation_id"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.request_id"]);
     
     // it will also outputs some designated properties like response_time, but not for event_name, etc.
-    XCTAssertNotNil([event objectForKey:@"response_time"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.response_time"]);
     
-    XCTAssertNil([event objectForKey:@"event_name"]);
-    XCTAssertNil([event objectForKey:@"start_time"]);
-    XCTAssertNil([event objectForKey:@"end_time"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.event_name"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.stop_time"]);
     XCTAssertNil([event objectForKey:@"customized_property"]);
 }
 

@@ -41,7 +41,7 @@
     NSString* signingInput = [NSString stringWithFormat:@"%@.%@", [headerJSON adBase64UrlEncode], [payloadJSON adBase64UrlEncode]];
     NSData* signedData = [ADJwtHelper sign:signingKey
                                       data:[signingInput dataUsingEncoding:NSUTF8StringEncoding]];
-    NSString* signedEncodedDataString = [NSString Base64EncodeData: signedData];
+    NSString* signedEncodedDataString = [NSString adBase64EncodeData: signedData];
     
     return [NSString stringWithFormat:@"%@.%@", signingInput, signedEncodedDataString];
 }

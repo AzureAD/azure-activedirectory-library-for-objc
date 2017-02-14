@@ -199,7 +199,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
 
 - (void)onStartActivityIndicator:(id)sender
 {
-#pragma unused(sender)
+    (void)sender;
     
     if (_loading)
     {
@@ -225,20 +225,6 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     [_authenticationViewController stopSpinner];
 }
 
-
-- (void)failWithTimeout
-{
-    _loadingTimer = nil;
-    [_authenticationViewController stop:^{
-        NSError* error = [NSError errorWithDomain:NSURLErrorDomain
-                                             code:NSURLErrorTimedOut
-                                         userInfo:nil];
-        ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error errorDetails:@"WebView timed out" correlationId:_requestParams.correlationId];
-        [self dispatchCompletionBlock:adError URL:nil];
-    }];
-    _authenticationViewController = nil;
-}
-
 #pragma mark - ADWebAuthDelegate
 
 - (void)webAuthDidStartLoad:(NSURL*)url
@@ -257,21 +243,6 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
                                                         repeats:NO];
         [_spinnerTimer setTolerance:0.3];
     }
-    
-    if (_loadingTimer)
-    {
-        [_loadingTimer invalidate];
-        _loadingTimer = nil;
-    }
-    
-    _loadingTimer = [NSTimer scheduledTimerWithTimeInterval:_timeout
-                                                     target:self
-                                                   selector:@selector(failWithTimeout)
-                                                   userInfo:nil
-                                                    repeats:NO];
-    // Tolerance is how much "float" the system is allowed to use to try to group the timer with other events
-    // on the system.
-    [_loadingTimer setTolerance:4.0];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:ADWebAuthDidStartLoadNotification object:self userInfo:url ? @{ @"url" : url } : nil];
 }
@@ -448,11 +419,6 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     }
     
     [self stopSpinner];
-    if (_loadingTimer)
-    {
-        [_loadingTimer invalidate];
-        _loadingTimer = nil;
-    }
     
     if (NSURLErrorCancelled == error.code)
     {
@@ -569,8 +535,6 @@ static ADAuthenticationResult* s_result = nil;
     _telemetryEvent = [[ADTelemetryUIEvent alloc] initWithName:AD_TELEMETRY_EVENT_UI_EVENT
                                                                  context:_requestParams];
     
-    _timeout = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
-    
     startURL = [self addToURL:startURL correlationId:requestParams.correlationId];//Append the correlation id
     _endURL = [endURL absoluteString];
     _complete = NO;
@@ -604,7 +568,9 @@ static ADAuthenticationResult* s_result = nil;
     }
     
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[ADHelpers addClientVersionToURL:startURL]];
+
     [ADURLProtocol addContext:_requestParams toRequest:request];
+
     [_authenticationViewController startRequest:request];
 }
 

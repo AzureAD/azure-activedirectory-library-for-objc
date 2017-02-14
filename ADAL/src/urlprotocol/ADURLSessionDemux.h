@@ -22,23 +22,14 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "ADURLProtocol.h"
 
-@class ADAuthenticationError;
+@interface ADURLSessionDemux : NSObject
 
-@interface ADNTLMHandler : NSObject <ADAuthMethodHandler>
+- (instancetype)initWithConfiguration:(NSURLSessionConfiguration *)configuration delegateQueue:(NSOperationQueue *)delegateQueue;
 
-/* Handles a client authentication NTLM challenge by collecting user credentials. Returns YES,
- if the challenge has been handled. */
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-                session:(NSURLSession *)session
-                   task:(NSURLSessionTask *)task
-               protocol:(ADURLProtocol *)protocol
-      completionHandler:(ChallengeCompletionHandler)completionHandler;
+- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request delegate:(id<NSURLSessionDataDelegate>)delegate;
 
-
-+ (BOOL)isChallengeCancelled;
-
-+ (void)setCancellationUrl:(NSString*) url;
+@property (atomic, copy,   readonly) NSURLSessionConfiguration* configuration;
+@property (atomic, strong, readonly) NSURLSession *session;
 
 @end

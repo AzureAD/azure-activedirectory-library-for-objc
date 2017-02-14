@@ -31,8 +31,10 @@
 // Handles a client authentication challenge by returning the WPJ certificate.
 // Returns YES, if the challenge has been handled.
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-             connection:(NSURLConnection *)connection
-               protocol:(ADURLProtocol *)protocol;
+                session:(NSURLSession *)session
+                   task:(NSURLSessionTask *)task
+               protocol:(ADURLProtocol *)protocol
+      completionHandler:(ChallengeCompletionHandler)completionHandler;
 
 + (void)resetHandler;
 

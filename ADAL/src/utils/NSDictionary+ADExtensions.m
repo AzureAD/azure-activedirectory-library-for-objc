@@ -32,6 +32,11 @@
 // Always returns a dictionary, even if the string is nil, empty or contains no pairs
 + (NSDictionary *)adURLFormDecode:(NSString *)string
 {
+    if (!string)
+    {
+        return nil;
+    }
+    
     NSMutableDictionary *parameters = [[NSMutableDictionary alloc] init];
     
     if ( nil != string && string.length != 0 )

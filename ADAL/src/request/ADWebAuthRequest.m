@@ -66,8 +66,10 @@
         NSString* newURL = [NSString stringWithFormat:@"%@?%@", [_requestURL absoluteString], [_requestDictionary adURLFormEncode]];
         _requestURL = [NSURL URLWithString:newURL];
     }
-
-    [self setBody:[[_requestDictionary adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding]];
+    else
+    {
+        [self setBody:[[_requestDictionary adURLFormEncode] dataUsingEncoding:NSUTF8StringEncoding]];
+    }
     
     _startTime = [NSDate new];
     [[ADClientMetrics getInstance] addClientMetrics:self.headers endpoint:[_requestURL absoluteString]];

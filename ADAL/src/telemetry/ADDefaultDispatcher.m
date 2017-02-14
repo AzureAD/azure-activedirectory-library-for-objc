@@ -49,7 +49,7 @@
 
 - (void)flush:(NSString*)requestId
 {
-#pragma unused(requestId)
+    (void)requestId;
     //default dispatcher does not cache any event
     //so here is empty
 }
@@ -57,7 +57,7 @@
 - (void)receive:(NSString *)requestId
           event:(id<ADTelemetryEventInterface>)event
 {
-#pragma unused(requestId)
+    (void)requestId;
     NSDictionary* properties = [event getProperties];
     if (properties)
     {
