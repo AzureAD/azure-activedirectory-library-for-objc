@@ -234,12 +234,12 @@
         completionHandler(request);
         return;
     }
-    
+
     NSMutableURLRequest* mutableRequest = [NSMutableURLRequest requestWithURL:modifiedURL];
     [ADURLProtocol addContext:self toRequest:mutableRequest];
     
     completionHandler(mutableRequest);
-    
+  
 }
 
 - (void)stopTelemetryEvent:(NSError *)error

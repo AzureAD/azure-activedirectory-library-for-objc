@@ -234,7 +234,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
     // If we don't have this line in the redirectResponse case then we get a HTTP too many redirects
     // error.
     [NSURLProtocol removePropertyForKey:s_kADURLProtocolPropertyKey inRequest:mutableRequest];
-    
+
     [self.client URLProtocol:self wasRedirectedToRequest:mutableRequest redirectResponse:response];
     
     // If we don't cancel out the connection in the redirectResponse case then we will end up
