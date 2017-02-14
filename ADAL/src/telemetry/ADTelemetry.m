@@ -45,6 +45,7 @@ static NSString* const s_delimiter = @"|";
     if (self)
     {
         _eventTracking = [NSMutableDictionary new];
+        _dispatchers = [NSMutableArray new];
     }
     return self;
 }
@@ -66,19 +67,13 @@ static NSString* const s_delimiter = @"|";
 {
     @synchronized(self)
     {
-        if (!dispatcher)
-        {
-            _dispatcher = nil;
-            return;
-        }
-        
         if (aggregationRequired)
         {
-            _dispatcher = [[ADAggregatedDispatcher alloc] initWithDispatcher:dispatcher];
+            [_dispatchers addObject:[[ADAggregatedDispatcher alloc] initWithDispatcher:dispatcher]];
         }
         else
         {
-            _dispatcher = [[ADDefaultDispatcher alloc] initWithDispatcher:dispatcher];
+            [_dispatchers addObject:[[ADDefaultDispatcher alloc] initWithDispatcher:dispatcher]];
         }
     }
 }
@@ -134,18 +129,18 @@ static NSString* const s_delimiter = @"|";
         [_eventTracking removeObjectForKey:key];
     }
     
-    [_dispatcher receive:requestId event:event];
+    for (ADDefaultDispatcher *dispatcher in _dispatchers)
+    {
+        [dispatcher receive:requestId event:event];
+    }
 }
 
 - (void)dispatchEventNow:(NSString*)requestId
                    event:(id<ADTelemetryEventInterface>)event
 {
-    @synchronized(self)//Guard against thread-unsafe callback and modification of _dispatcher after the check
+    for (ADDefaultDispatcher *dispatcher in _dispatchers)
     {
-        if (_dispatcher)
-        {
-            [_dispatcher receive:requestId event:event];
-        }
+        [dispatcher receive:requestId event:event];
     }
 }
 
@@ -166,9 +161,9 @@ static NSString* const s_delimiter = @"|";
 {
     @synchronized(self)
     {
-        if (_dispatcher)
+        for (ADDefaultDispatcher *dispatcher in _dispatchers)
         {
-            [_dispatcher flush:requestId];
+            [dispatcher flush:requestId];
         }
     }
 }

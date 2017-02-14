@@ -49,7 +49,7 @@
  */
 @interface ADTelemetry : NSObject
 {
-    ADDefaultDispatcher* _dispatcher;
+    NSMutableArray<ADDefaultDispatcher *> *_dispatchers;
     NSMutableDictionary* _eventTracking;
 }
 
