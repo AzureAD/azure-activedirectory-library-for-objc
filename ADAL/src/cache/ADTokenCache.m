@@ -462,10 +462,10 @@
 #pragma mark ADTokenCacheAccessor Protocol Implementation
 
 /*! May return nil, if no cache item corresponds to the requested key
- @param key: The key of the item.
- @param user: The specific user whose item is needed. May be nil, in which
+ @param key The key of the item.
+ @param userId The specific user whose item is needed. May be nil, in which
  case the item for the first user in the cache will be returned.
- @param error: Will be set only in case of ambiguity. E.g. if userId is nil
+ @param error Will be set only in case of ambiguity. E.g. if userId is nil
  and we have tokens from multiple users. If the cache item is not present,
  the error will not be set. */
 - (ADTokenCacheItem *)getItemWithKey:(ADTokenCacheKey *)key
@@ -509,7 +509,7 @@
 /*! Extracts the key from the item and uses it to set the cache details. If another item with the
  same key exists, it will be overriden by the new one. 'getItemWithKey' method can be used to determine
  if an item already exists for the same key.
- @param error: in case of an error, if this parameter is not nil, it will be filled with
+ @param error in case of an error, if this parameter is not nil, it will be filled with
  the error details. */
 - (BOOL)addOrUpdateItem:(ADTokenCacheItem *)item
           correlationId:(NSUUID *)correlationId

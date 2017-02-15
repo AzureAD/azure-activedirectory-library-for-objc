@@ -97,10 +97,10 @@
 + (LogCallback)getLogCallBack;
 
 /*! Main logging function. Macros like ADAL_LOG_ERROR are provided on top for convenience
- @param logLevel: The applicable priority of the logged message. Use AD_LOG_LEVEL_NO_LOG to disable all logging.
- @param message: Short text defining the operation/condition.
- @param additionalInformation: Full details. May contain parameter names, stack traces, etc. May be nil.
- @param errorCode: if an explicit error has occurred, this code will contain its code.
+ @param logLevel The applicable priority of the logged message. Use AD_LOG_LEVEL_NO_LOG to disable all logging.
+ @param message Short text defining the operation/condition.
+ @param additionalInformation Full details. May contain parameter names, stack traces, etc. May be nil.
+ @param errorCode if an explicit error has occurred, this code will contain its code.
  */
 + (void)log:(ADAL_LOG_LEVEL)logLevel
     context:(id)context
@@ -120,10 +120,10 @@ correlationId:(NSUUID *)correlationId
      format:(NSString *)format, ... __attribute__((format(__NSString__, 7, 8)));
 
 /*! Logs obtaining of a token. The method does not log the actual token, only its hash.
- @param token: the token to log.
- @param tokenType: "access token", "refresh token", "multi-resource refresh token"
- @param expiresOn: the time when an access token will stop to be valid. Nil for refresh token types.
- @param correlationId: In case the token was just obtained from the server, the correlation id of the call.
+ @param token The token to log.
+ @param tokenType "access token", "refresh token", "multi-resource refresh token"
+ @param expiresOn The time when an access token will stop to be valid. Nil for refresh token types.
+ @param correlationId In case the token was just obtained from the server, the correlation id of the call.
  This parameter can be nil.
  */
 + (void)logToken:(NSString *)token
