@@ -35,6 +35,7 @@
 
 /*! Returns the same string, but without the leading and trailing whitespace */
 - (NSString *)adTrimmedString;
+
 /*! Decodes a previously URL encoded string. */
 - (NSString *)adUrlFormDecode;
 

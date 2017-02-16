@@ -114,7 +114,7 @@
     Takes the UI interaction lock for the current request, will send an error
     to completionBlock if it fails.
  
-    @param copmletionBlock  the ADAuthenticationCallback to send an error to if
+    @param completionBlock  the ADAuthenticationCallback to send an error to if
                             one occurs.
  
     @return NO if we fail to take the exclusion lock

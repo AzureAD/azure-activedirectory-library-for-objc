@@ -61,7 +61,7 @@
 - (nullable instancetype)init;
 
 /*! Initializes the token cache store.
- @param: sharedGroup: Optional. If the application needs to share the cached tokens
+ @param sharedGroup Optional. If the application needs to share the cached tokens
  with other applications from the same vendor, the app will need to specify the 
  shared group here and add the necessary entitlements to the application.
  See Apple's keychain services documentation for details. */
