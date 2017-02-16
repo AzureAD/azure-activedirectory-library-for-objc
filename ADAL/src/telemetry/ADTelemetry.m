@@ -116,31 +116,41 @@ static NSString* const s_delimiter = @"|";
     
     NSString* key = [self getEventTrackingKey:requestId eventName:eventName];
     
+    NSDate* startTime = nil;
+    
     @synchronized(self)
     {
-        NSDate* startTime = [_eventTracking objectForKey:key];
+        startTime = [_eventTracking objectForKey:key];
         if (!startTime)
         {
             return;
         }
-        [event setStartTime:startTime];
-        [event setStopTime:stopTime];
-        [event setResponseTime:[stopTime timeIntervalSinceDate:startTime]];
-        [_eventTracking removeObjectForKey:key];
     }
     
-    for (ADDefaultDispatcher *dispatcher in _dispatchers)
+    [event setStartTime:startTime];
+    [event setStopTime:stopTime];
+    [event setResponseTime:[stopTime timeIntervalSinceDate:startTime]];
+    
+    @synchronized(self)
     {
-        [dispatcher receive:requestId event:event];
+        [_eventTracking removeObjectForKey:key];
+        
+        for (ADDefaultDispatcher *dispatcher in _dispatchers)
+        {
+            [dispatcher receive:requestId event:event];
+        }
     }
 }
 
 - (void)dispatchEventNow:(NSString*)requestId
                    event:(id<ADTelemetryEventInterface>)event
 {
-    for (ADDefaultDispatcher *dispatcher in _dispatchers)
+    @synchronized(self)
     {
-        [dispatcher receive:requestId event:event];
+        for (ADDefaultDispatcher *dispatcher in _dispatchers)
+        {
+            [dispatcher receive:requestId event:event];
+        }
     }
 }
 
