@@ -66,7 +66,7 @@
                                     where the event is a brief summary (but with far less details) of all telemetry events for that acquire token call.
  */
 - (void)addDispatcher:(nonnull id<ADDispatcher>)dispatcher
-       aggregationRequired:(BOOL)aggregationRequired;
+  aggregationRequired:(BOOL)aggregationRequired;
 
 - (void)removeDispatcher:(nonnull id<ADDispatcher>)dispatcher;
 
