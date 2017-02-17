@@ -65,7 +65,11 @@
                                  If set YES, ADAL will dispatch only one event for each acquire token call, 
                                     where the event is a brief summary (but with far less details) of all telemetry events for that acquire token call.
  */
-- (void)registerDispatcher:(nullable id<ADDispatcher>)dispatcher
+- (void)addDispatcher:(nonnull id<ADDispatcher>)dispatcher
        aggregationRequired:(BOOL)aggregationRequired;
+
+- (void)removeDispatcher:(nonnull id<ADDispatcher>)dispatcher;
+
+- (void)removeAllDispatchers;
 
 @end

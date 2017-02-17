@@ -62,7 +62,7 @@ static NSString* const s_delimiter = @"|";
     return singleton;
 }
 
-- (void)registerDispatcher:(id<ADDispatcher>)dispatcher
+- (void)addDispatcher:(nonnull id<ADDispatcher>)dispatcher
        aggregationRequired:(BOOL)aggregationRequired
 {
     @synchronized(self)
@@ -75,6 +75,28 @@ static NSString* const s_delimiter = @"|";
         {
             [_dispatchers addObject:[[ADDefaultDispatcher alloc] initWithDispatcher:dispatcher]];
         }
+    }
+}
+
+- (void)removeDispatcher:(nonnull id<ADDispatcher>)dispatcher
+{
+    @synchronized(self)
+    {
+        for(ADDefaultDispatcher *adDispatcher in _dispatchers)
+        {
+            if ([adDispatcher containsDispatcher:dispatcher])
+            {
+                [_dispatchers removeObject:adDispatcher];
+            }
+        }
+    }
+}
+
+- (void)removeAllDispatchers
+{
+    @synchronized(self)
+    {
+        [_dispatchers removeAllObjects];
     }
 }
 
