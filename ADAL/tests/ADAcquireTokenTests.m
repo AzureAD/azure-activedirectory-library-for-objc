@@ -348,7 +348,7 @@ const int sAsyncContextTimeout = 10;
      {
          [receivedEvents addObject:event];
      }];
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
@@ -405,7 +405,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
     
     //unregister the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:[ADTelemetryTestDispatcher new] aggregationRequired:YES];
 }
 
 - (void)testCachedWithNoIdtoken
@@ -570,7 +570,7 @@ const int sAsyncContextTimeout = 10;
      {
          [receivedEvents addObject:event];
      }];
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
@@ -695,7 +695,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
     
     //unregister the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:[ADTelemetryTestDispatcher new] aggregationRequired:YES];
 }
 
 - (void)testSilentExpiredATRefreshMRRTNetwork
@@ -1066,7 +1066,7 @@ const int sAsyncContextTimeout = 10;
      {
          [receivedEvents addObject:event];
      }];
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     // Simplest FRT case, the only RT available is the FRT so that would should be the one used
     ADAuthenticationError* error = nil;
@@ -1141,7 +1141,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"yes"]);
     
     //unregister the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:[ADTelemetryTestDispatcher new] aggregationRequired:YES];
 }
 
 - (void)testAcquireTokenMRRTFailFRTFallback

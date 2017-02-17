@@ -49,7 +49,7 @@
  */
 @interface ADTelemetry : NSObject
 {
-    ADDefaultDispatcher* _dispatcher;
+    NSMutableArray<ADDefaultDispatcher *> *_dispatchers;
     NSMutableDictionary* _eventTracking;
 }
 
@@ -65,7 +65,18 @@
                                  If set YES, ADAL will dispatch only one event for each acquire token call, 
                                     where the event is a brief summary (but with far less details) of all telemetry events for that acquire token call.
  */
-- (void)registerDispatcher:(nullable id<ADDispatcher>)dispatcher
-       aggregationRequired:(BOOL)aggregationRequired;
+- (void)addDispatcher:(nonnull id<ADDispatcher>)dispatcher
+  aggregationRequired:(BOOL)aggregationRequired;
+
+/*!
+ Remove a telemetry dispatcher added for receiving telemetry events.
+ @param dispatcher            An instance of ADDispatcher implementation added to the dispatches before.
+ */
+- (void)removeDispatcher:(nonnull id<ADDispatcher>)dispatcher;
+
+/*!
+ Remove all telemetry dispatchers added to the dispatchers collection.
+ */
+- (void)removeAllDispatchers;
 
 @end
