@@ -68,8 +68,15 @@
 - (void)addDispatcher:(nonnull id<ADDispatcher>)dispatcher
   aggregationRequired:(BOOL)aggregationRequired;
 
+/*!
+ Remove a telemetry dispatcher added for receiving telemetry events.
+ @param dispatcher            An instance of ADDispatcher implementation added to the dispatches before.
+ */
 - (void)removeDispatcher:(nonnull id<ADDispatcher>)dispatcher;
 
+/*!
+ Remove all telemetry dispatchers added to the dispatchers collection.
+ */
 - (void)removeAllDispatchers;
 
 @end
