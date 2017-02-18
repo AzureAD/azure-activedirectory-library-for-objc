@@ -258,7 +258,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
 
 - (BOOL)canUseBroker
 {
-    return _context.credentialsType == AD_CREDENTIALS_AUTO && _context.validateAuthority == YES && [ADBrokerHelper canUseBroker];
+    return _context.credentialsType == AD_CREDENTIALS_AUTO && _context.validateAuthority == YES && [ADBrokerHelper canUseBroker] && ![ADHelpers isADFSInstance:_requestParams.authority];
 }
 
 - (NSURL *)composeBrokerRequest:(ADAuthenticationError* __autoreleasing *)error
