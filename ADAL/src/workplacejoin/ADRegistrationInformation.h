@@ -32,7 +32,6 @@
     NSString *_certificateIssuer;
     NSData *_certificateData;
     SecKeyRef _privateKey;
-    NSString *_userPrincipalName;
 }
 
 @property (nonatomic, readonly) SecIdentityRef securityIdentity;

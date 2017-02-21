@@ -30,6 +30,7 @@ static NSString* publicKeyIdentifier                = @"com.microsoft.workplacej
 static NSString* upnIdentifier                      = @"com.microsoft.workplacejoin.registeredUserPrincipalName";
 static NSString* applicationIdentifierPrefix        = @"applicationIdentifierPrefix";
 static NSString* _oauthRedirectUri                  = @"ms-app://windows.immersivecontrolpanel";
+static NSString* protectionSpaceDistinguishedName   = @"MS-Organization-Access";
 
 #pragma mark Error strings
 static NSString* errorDomain                        = @"com.microsoft.workplacejoin.errordomain";

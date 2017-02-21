@@ -24,6 +24,7 @@
 #import "ADClientCertAuthHandler.h"
 #import "ADWorkPlaceJoinUtil.h"
 #import "ADRegistrationInformation.h"
+#import "ADWorkPlaceJoinConstants.h"
 
 
 @implementation ADClientCertAuthHandler
@@ -46,11 +47,29 @@
 #pragma unused(session)
 #pragma unused(task)
     
-    AD_LOG_INFO_F(@"Attempting to handle WPJ client challenge", protocol.context.correlationId, @"host: %@", challenge.protectionSpace.host);
+    AD_LOG_INFO_F(@"Attempting to handle client certificate challenge", protocol.context.correlationId, @"host: %@", challenge.protectionSpace.host);
+    
+    // See if this is a challenge for the WPJ cert.
+    BOOL isWPJChallenge = FALSE;
+    NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
+    for (NSData *distinguishedName in distinguishedNames)
+    {
+        NSString *distinguishedNameString = [[NSString alloc] initWithData:distinguishedName encoding:NSISOLatin1StringEncoding];
+        if ([distinguishedNameString containsString:protectionSpaceDistinguishedName])
+        {
+            isWPJChallenge = TRUE;
+            break;
+        }
+    }
+    
+    if (!isWPJChallenge)
+    {
+        AD_LOG_INFO_F(@"Protection space distinguished names not recognized. Not handling client certificate challenge.", protocol.context.correlationId, @"host: %@", challenge.protectionSpace.host);
+        return NO;
+    }
     
     ADAuthenticationError *adError = nil;
     ADRegistrationInformation *info = [ADWorkPlaceJoinUtil getRegistrationInformation:protocol.context error:&adError];
-    
     if (!info || ![info isWorkPlaceJoined])
     {
         AD_LOG_INFO_F(@"Device is not workplace joined.", protocol.context.correlationId, @"host: %@", challenge.protectionSpace.host);
