@@ -50,14 +50,14 @@
     AD_LOG_INFO_F(@"Attempting to handle client certificate challenge", protocol.context.correlationId, @"host: %@", challenge.protectionSpace.host);
     
     // See if this is a challenge for the WPJ cert.
-    BOOL isWPJChallenge = FALSE;
+    BOOL isWPJChallenge = NO;
     NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
     for (NSData *distinguishedName in distinguishedNames)
     {
         NSString *distinguishedNameString = [[NSString alloc] initWithData:distinguishedName encoding:NSISOLatin1StringEncoding];
         if ([distinguishedNameString containsString:protectionSpaceDistinguishedName])
         {
-            isWPJChallenge = TRUE;
+            isWPJChallenge = YES;
             break;
         }
     }
