@@ -28,13 +28,15 @@
 		04AB6D4F1D9D619B007E9A83 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D4D1D9D619B007E9A83 /* Main.storyboard */; };
 		04AB6D511D9D619B007E9A83 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D501D9D619B007E9A83 /* Assets.xcassets */; };
 		04AB6D541D9D619B007E9A83 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AB6D521D9D619B007E9A83 /* LaunchScreen.storyboard */; };
-		38DD074E1DE4A2060028BC7C /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3561C580143006B9E79 /* ADRegistrationInformation.m */; };
-		38DD07631DEC8D0C0028BC7C /* ADWorkPlaceJoinAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 38DD07611DEC8D010028BC7C /* ADWorkPlaceJoinAuthHandler.m */; };
 		290750AC1E380F32000F0C29 /* ADTelemetryCollectionRules.h in Headers */ = {isa = PBXBuildFile; fileRef = 290750AA1E380F32000F0C29 /* ADTelemetryCollectionRules.h */; };
 		2949ABC01E395FC400F56C57 /* ADTelemetryCollectionRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */; };
 		2949ABC11E39605F00F56C57 /* ADTelemetryCollectionRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */; };
 		29DBF6D61E36D5A600D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */; };
 		29DBF6D71E36D5A900D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */; };
+		3889BE201E5C929600743037 /* ADClientCertAuthHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 3889BE1E1E5C929600743037 /* ADClientCertAuthHandler.h */; };
+		3889BE211E5C929600743037 /* ADClientCertAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 3889BE1F1E5C929600743037 /* ADClientCertAuthHandler.m */; };
+		3889BE221E5C929600743037 /* ADClientCertAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 3889BE1F1E5C929600743037 /* ADClientCertAuthHandler.m */; };
+		38DD074E1DE4A2060028BC7C /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3561C580143006B9E79 /* ADRegistrationInformation.m */; };
 		600401A51D3421480020EAAB /* ADTelemetry.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401A31D3421480020EAAB /* ADTelemetry.m */; };
 		600401A71D3426250020EAAB /* ADTelemetry+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 600401A61D3426250020EAAB /* ADTelemetry+Internal.h */; };
 		600401A91D3428770020EAAB /* ADTelemetryDefaultEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 600401A81D3428770020EAAB /* ADTelemetryDefaultEvent.h */; };
@@ -426,12 +428,12 @@
 		04AB6D531D9D619B007E9A83 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		04AB6D551D9D619B007E9A83 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		04AB6D5A1D9D61CA007E9A83 /* UnitTestHostApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = UnitTestHostApp.entitlements; sourceTree = "<group>"; };
-		38DD07601DEC8D010028BC7C /* ADWorkPlaceJoinAuthHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWorkPlaceJoinAuthHandler.h; sourceTree = "<group>"; };
-		38DD07611DEC8D010028BC7C /* ADWorkPlaceJoinAuthHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWorkPlaceJoinAuthHandler.m; sourceTree = "<group>"; };
 		290750AA1E380F32000F0C29 /* ADTelemetryCollectionRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTelemetryCollectionRules.h; sourceTree = "<group>"; };
 		290750AB1E380F32000F0C29 /* ADTelemetryCollectionRules.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetryCollectionRules.m; sourceTree = "<group>"; };
 		29DBF6D31E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+ADExtensions.h"; sourceTree = "<group>"; };
 		29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+ADExtensions.m"; sourceTree = "<group>"; };
+		3889BE1E1E5C929600743037 /* ADClientCertAuthHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADClientCertAuthHandler.h; sourceTree = "<group>"; };
+		3889BE1F1E5C929600743037 /* ADClientCertAuthHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientCertAuthHandler.m; sourceTree = "<group>"; };
 		6004019F1D340B760020EAAB /* ADTelemetry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTelemetry.h; sourceTree = "<group>"; };
 		600401A31D3421480020EAAB /* ADTelemetry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTelemetry.m; sourceTree = "<group>"; };
 		600401A61D3426250020EAAB /* ADTelemetry+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADTelemetry+Internal.h"; sourceTree = "<group>"; };
@@ -1251,8 +1253,8 @@
 			isa = PBXGroup;
 			children = (
 				D680402F1D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m */,
-				38DD07601DEC8D010028BC7C /* ADWorkPlaceJoinAuthHandler.h */,
-				38DD07611DEC8D010028BC7C /* ADWorkPlaceJoinAuthHandler.m */,
+				3889BE1E1E5C929600743037 /* ADClientCertAuthHandler.h */,
+				3889BE1F1E5C929600743037 /* ADClientCertAuthHandler.m */,
 			);
 			path = mac;
 			sourceTree = "<group>";
@@ -1360,6 +1362,7 @@
 				94DD18D81C5AC8DE00F80C62 /* ADUserIdentifier.h in Headers */,
 				9453C46A1C5870F5006B9E79 /* ADNTLMUIPrompt.h in Headers */,
 				96506FB31E0A947000F92A53 /* NSURL+ADHelperMethods.h in Headers */,
+				3889BE201E5C929600743037 /* ADClientCertAuthHandler.h in Headers */,
 				600401A71D3426250020EAAB /* ADTelemetry+Internal.h in Headers */,
 				600401B61D37658C0020EAAB /* ADAggregatedDispatcher.m in Headers */,
 				9453C42E1C58646D006B9E79 /* ADAuthenticationRequest+Broker.h in Headers */,
@@ -1735,6 +1738,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3889BE211E5C929600743037 /* ADClientCertAuthHandler.m in Sources */,
 				60C351BA1DA0D588006C8435 /* ADAL.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1803,7 +1807,6 @@
 				605C16821D8FD0AC0097DBA0 /* ADTelemetryEventStrings.m in Sources */,
 				9453C4451C58647E006B9E79 /* NSString+ADHelperMethods.m in Sources */,
 				9453C46E1C5872B0006B9E79 /* ADJwtHelper.m in Sources */,
-				38DD07631DEC8D0C0028BC7C /* ADWorkPlaceJoinAuthHandler.m in Sources */,
 				9453C4471C58647E006B9E79 /* NSURL+ADExtensions.m in Sources */,
 				9453C4111C586456006B9E79 /* ADAuthenticationSettings.m in Sources */,
 				9453C4651C58707B006B9E79 /* ADCredentialCollectionController.m in Sources */,
@@ -1835,6 +1838,7 @@
 				9453C42F1C58646D006B9E79 /* ADAuthenticationRequest+Broker.m in Sources */,
 				9453C4181C586456006B9E79 /* ADUserInformation.m in Sources */,
 				9424B6841CDD39E400729698 /* ADTokenCacheAccessor.m in Sources */,
+				3889BE221E5C929600743037 /* ADClientCertAuthHandler.m in Sources */,
 				965EDDE51E02436B00CBB723 /* ADWebFingerRequest.m in Sources */,
 				6010EDEC1D47B27400B62072 /* ADTelemetryUIEvent.m in Sources */,
 				9453C4331C58646D006B9E79 /* ADWebRequest.m in Sources */,

@@ -26,7 +26,7 @@
 
 @class ADAuthenticationError;
 
-@interface ADWorkPlaceJoinAuthHandler : NSObject <ADAuthMethodHandler>
+@interface ADClientCertAuthHandler : NSObject <ADAuthMethodHandler>
 
 // Handles a client authentication challenge by returning the WPJ certificate.
 // Returns YES, if the challenge has been handled.
