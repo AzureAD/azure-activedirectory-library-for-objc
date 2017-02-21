@@ -41,10 +41,8 @@
 @property (nonatomic, readonly) NSString *certificateIssuer;
 @property (nonatomic, readonly) NSData *certificateData;
 @property (nonatomic, readonly) SecKeyRef privateKey;
-@property (nonatomic, readonly) NSString *userPrincipalName;
 
 - (id)initWithSecurityIdentity:(SecIdentityRef)identity
-             userPrincipalName:(NSString*)userPrincipalName
              certificateIssuer:(NSString*)certificateIssuer
                    certificate:(SecCertificateRef)certificate
             certificateSubject:(NSString*)certificateSubject

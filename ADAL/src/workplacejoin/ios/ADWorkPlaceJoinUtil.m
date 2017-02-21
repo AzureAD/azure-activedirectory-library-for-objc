@@ -84,7 +84,6 @@
     NSString *certificateSubject = nil;
     NSData *certificateData = nil;
     NSString *certificateIssuer = nil;
-    NSString *userPrincipalName = nil;
     NSData *issuer = nil;
     NSDictionary *  cerDict = nil;
     
@@ -153,7 +152,6 @@
     
     {
         ADRegistrationInformation *info = [[ADRegistrationInformation alloc] initWithSecurityIdentity:identity
-                                                                                userPrincipalName:userPrincipalName
                                                                                 certificateIssuer:certificateIssuer
                                                                                       certificate:certificate
                                                                                certificateSubject:certificateSubject

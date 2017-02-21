@@ -26,7 +26,6 @@
 @implementation ADRegistrationInformation
 
 @synthesize securityIdentity = _securityIdentity;
-@synthesize userPrincipalName = _userPrincipalName;
 @synthesize certificate = _certificate;
 @synthesize certificateSubject = _certificateSubject;
 @synthesize certificateData = _certificateData;
@@ -34,7 +33,6 @@
 @synthesize privateKey = _privateKey;
 
 - (id)initWithSecurityIdentity:(SecIdentityRef)identity
-             userPrincipalName:(NSString*)userPrincipalName
              certificateIssuer:(NSString*)certificateIssuer
                    certificate:(SecCertificateRef)certificate
             certificateSubject:(NSString*)certificateSubject
@@ -56,7 +54,6 @@
     _privateKey = privateKey;
     CFRetain(privateKey);
     
-    _userPrincipalName = userPrincipalName;
     _certificateSubject = certificateSubject;
     _certificateData = certificateData;
     _certificateIssuer = certificateIssuer;

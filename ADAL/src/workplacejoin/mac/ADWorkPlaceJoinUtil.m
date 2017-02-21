@@ -50,7 +50,6 @@
     SecKeyRef privateKey = NULL;
     NSString *certificateSubject = nil;
     NSData *certificateData = nil;
-    NSString *userPrincipalName = nil;
     NSString *certificateIssuer  = nil;
     ADAuthenticationError *adError = nil;
     
@@ -97,21 +96,7 @@
     }
     
     
-    // Get user principal name
-    AD_LOG_VERBOSE(@"Retrieving WPJ user principal name", context.correlationId, nil);
-    
-    userPrincipalName = [self wpjStringForIdentifier:upnIdentifier context:context error:&adError];
-    if (adError)
-    {
-        if (error)
-        {
-            *error = adError;
-        }
-        AD_LOG_ERROR_F(@"Failed to retrieve WPJ user principal name from the keychain - ", adError.code, nil, @"%@ correlation id.", context.correlationId);
-        goto _error;
-    }
-    
-    if (!identity || !userPrincipalName || !certificateIssuer || !certificateSubject || !certificateData || !privateKey)
+    if (!identity || !certificateIssuer || !certificateSubject || !certificateData || !privateKey)
     {
         // The code above will catch missing security items, but not missing item attributes. These are caught here.
         ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Missing some piece of WPJ data" correlationId:context.correlationId];
@@ -124,7 +109,6 @@
     
     // We found all the required WPJ information.
     info = [[ADRegistrationInformation alloc] initWithSecurityIdentity:identity
-                                                     userPrincipalName:userPrincipalName
                                                      certificateIssuer:certificateIssuer
                                                            certificate:certificate
                                                     certificateSubject:certificateSubject
@@ -289,45 +273,6 @@ _error:
     CHECK_KEYCHAIN_STATUS(@"Failed to read WPJ private key for identifier.");
     
     return privateKeyReference;
-    
-_error:
-    return nil;
-}
-
-+ (nullable NSString *)wpjStringForIdentifier:(nonnull NSString *)identifier
-                                      context:(id<ADRequestContext>)context
-                                        error:(ADAuthenticationError * __nullable __autoreleasing * __nullable)error
-{
-    // Building dictionary to retrieve UPN from the keychain
-    NSDictionary *query = @{ (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
-                             (__bridge id)kSecAttrAccount : identifier,
-                             (__bridge id)kSecReturnAttributes : (__bridge id)kCFBooleanTrue
-                             };
-    
-    CFDictionaryRef result = nil;
-    NSString *stringData = nil;
-    NSDictionary *resultDict = nil;
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef*)&result);
-    CHECK_KEYCHAIN_STATUS(@"String data not found for WPJ identifier");
-    
-    resultDict = (__bridge NSDictionary*)result;
-    stringData = [[resultDict objectForKey:(__bridge id)(kSecAttrService)] copy];
-    
-    if (result)
-    {
-        CFRelease(result);
-    }
-    
-    if (!stringData || [[stringData stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] length] == 0)
-    {
-        if (error)
-        {
-            *error = [ADAuthenticationError unexpectedInternalError:@"WPJ user principal name is empty" correlationId:context.correlationId];
-        }
-        return nil;
-    }
-    
-    return stringData;
     
 _error:
     return nil;
