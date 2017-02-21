@@ -140,11 +140,7 @@ static NSArray* s_deviceRows = nil;
     
     NSString* wpjLabel = @"No WPJ Registration Found";
     
-    if (regInfo.userPrincipalName)
-    {
-        wpjLabel = regInfo.userPrincipalName;
-    }
-    else if (regInfo)
+    if (regInfo)
     {
         wpjLabel = @"WPJ Registration Found";
     }
