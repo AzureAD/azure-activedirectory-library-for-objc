@@ -34,7 +34,7 @@
 
 - (void)setStatus:(NSString*)status
 {
-    [self setProperty:@"status" value:status];
+    [self setProperty:AD_TELEMETRY_KEY_RESULT_STATUS value:status];
 }
 
 - (void)setIsRT:(NSString*)isRT

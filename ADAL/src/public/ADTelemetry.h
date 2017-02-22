@@ -21,8 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@class ADDefaultDispatcher;
-
 /*!
     @protocol ADDispatcher
  
@@ -48,10 +46,6 @@
     Usage: Get a singleton instance of ADTelemetry; register a dispatcher for receiving telemetry events.
  */
 @interface ADTelemetry : NSObject
-{
-    NSMutableArray<ADDefaultDispatcher *> *_dispatchers;
-    NSMutableDictionary* _eventTracking;
-}
 
 /*!
     Get a singleton instance of ADTelemetry.

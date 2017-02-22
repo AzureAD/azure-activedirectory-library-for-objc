@@ -30,6 +30,14 @@
 
 static NSString* const s_delimiter = @"|";
 
+@interface ADTelemetry()
+{
+    NSMutableArray<ADDefaultDispatcher *> *_dispatchers;
+    NSMutableDictionary* _eventTracking;
+}
+
+@end
+
 @implementation ADTelemetry
 
 - (id)init
