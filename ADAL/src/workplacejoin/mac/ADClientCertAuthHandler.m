@@ -54,8 +54,8 @@
     NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
     for (NSData *distinguishedName in distinguishedNames)
     {
-        NSString *distinguishedNameString = [[NSString alloc] initWithData:distinguishedName encoding:NSISOLatin1StringEncoding];
-        if ([distinguishedNameString containsString:protectionSpaceDistinguishedName])
+        NSString *distinguishedNameString = [[[NSString alloc] initWithData:distinguishedName encoding:NSISOLatin1StringEncoding] lowercaseString];
+        if ([distinguishedNameString containsString:[protectionSpaceDistinguishedName lowercaseString]])
         {
             isWPJChallenge = YES;
             break;
