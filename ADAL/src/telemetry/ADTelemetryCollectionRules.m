@@ -65,7 +65,6 @@ static NSDictionary *_telemetryEventRules;
                              AD_TELEMETRY_KEY_IS_SUCCESSFUL: @(CollectOnly),
                              AD_TELEMETRY_KEY_USER_CANCEL: @(CollectOnly),
                              AD_TELEMETRY_KEY_CORRELATION_ID: @(CollectOnly),
-                             AD_TELEMETRY_KEY_CLIENT_ID: @(CollectOnly),
                              AD_TELEMETRY_KEY_IS_EXTENED_LIFE_TIME_TOKEN: @(CollectOnly),
                              AD_TELEMETRY_KEY_ERROR_CODE: @(CollectOnly),
                              AD_TELEMETRY_KEY_PROTOCOL_CODE: @(CollectOnly),
