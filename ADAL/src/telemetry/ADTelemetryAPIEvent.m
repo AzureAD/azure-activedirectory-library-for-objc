@@ -87,7 +87,7 @@
 
 - (void)setErrorCode:(NSString *)errorCode
 {
-    [self setProperty:AD_TELEMETRY_KEY_ERROR_CODE value:errorCode];
+    [self setProperty:AD_TELEMETRY_KEY_API_ERROR_CODE value:errorCode];
 }
 
 - (void)setProtocolCode:(NSString *)protocolCode

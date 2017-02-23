@@ -400,7 +400,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"failed"]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.response_time"]]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"1"]);
-    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.error_code"] isEqualToString:@"300"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"300"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
     
@@ -661,7 +661,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.token_mrrt_status"] isEqualToString:@"tried"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"not_found"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.http_event_count"] isEqualToString:@"1"]);
-    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.error_code"] isEqualToString:@"200"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"200"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.oauth_error_code"] isEqualToString:@"invalid_grant"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
@@ -690,7 +690,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.token_rt_status"] isEqualToString:@"not_found"]);
     XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.token_mrrt_status"], @"not_found");
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"not_found"]);
-    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.error_code"] isEqualToString:@"200"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"200"]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
     
@@ -1136,7 +1136,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_mrrt_status"] isEqualToString:@"not_found"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"tried"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.http_event_count"] isEqualToString:@"1"]);
-    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.error_code"] isEqualToString:@"0"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"0"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.oauth_error_code"] isEqualToString:@""]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"yes"]);
     
