@@ -138,7 +138,7 @@ static NSDictionary *s_eventPropertiesDictionary;
                                               AD_TELEMETRY_KEY_CLIENT_ID,
                                               AD_TELEMETRY_KEY_API_ID,
                                               AD_TELEMETRY_KEY_USER_CANCEL,
-                                              AD_TELEMETRY_KEY_ERROR_CODE,
+                                              AD_TELEMETRY_KEY_API_ERROR_CODE,
                                               AD_TELEMETRY_KEY_ERROR_DOMAIN,
                                               AD_TELEMETRY_KEY_PROTOCOL_CODE,
                                               AD_TELEMETRY_KEY_IS_SUCCESSFUL
