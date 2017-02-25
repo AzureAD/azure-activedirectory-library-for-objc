@@ -51,6 +51,7 @@ NSString *const AD_TELEMETRY_KEY_START_TIME                   = @"Microsoft.ADAL
 NSString *const AD_TELEMETRY_KEY_END_TIME                     = @"Microsoft.ADAL.stop_time";
 NSString *const AD_TELEMETRY_KEY_RESPONSE_TIME                = @"Microsoft.ADAL.response_time";
 NSString *const AD_TELEMETRY_KEY_DEVICE_ID                    = @"Microsoft.ADAL.device_id";
+NSString *const AD_TELEMETRY_KEY_DEVICE_IP_ADDRESS            = @"Microsoft.ADAL.device_ip_address";
 NSString *const AD_TELEMETRY_KEY_APPLICATION_NAME             = @"Microsoft.ADAL.application_name";
 NSString *const AD_TELEMETRY_KEY_APPLICATION_VERSION          = @"Microsoft.ADAL.application_version";
 NSString *const AD_TELEMETRY_KEY_LOGIN_HINT                   = @"Microsoft.ADAL.login_hint";
