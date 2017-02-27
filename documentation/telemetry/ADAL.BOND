@@ -52,6 +52,9 @@ struct event_base : Microsoft.Telemetry.Base
    
    [Name("ClientDeviceType")]
    130: string Microsoft.ADAL.x_client_DM;
+
+   [Name("DeviceIpAddress")]
+   140: string Microsoft.ADAL.device_ip_address;
 }
 
 [DispatcherType("Default")]
@@ -405,8 +408,3 @@ struct aggregated_event : Microsoft.Telemetry.Base
    [Name("RedirectCount")]
    270: optional uint32 Microsoft.ADAL.redirect_count;
 }
-
-
-
-
-

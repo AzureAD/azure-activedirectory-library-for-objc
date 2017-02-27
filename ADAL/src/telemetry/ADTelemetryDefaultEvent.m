@@ -27,14 +27,12 @@
 #import "ADTelemetryEventStrings.h"
 #import "ADLogger.h"
 #import "NSMutableDictionary+ADExtensions.h"
+#import "UIDevice+ADExtension.h"
 
 #if !TARGET_OS_IPHONE
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOKitLib.h>
 #endif
-
-#import <ifaddrs.h>
-#import <arpa/inet.h>
 
 @implementation ADTelemetryDefaultEvent
 
@@ -162,7 +160,7 @@
         }
     });
     
-    [s_defaultParameters adSetObjectIfNotNil:[self ipAddress] forKey:AD_TELEMETRY_KEY_DEVICE_IP_ADDRESS];
+    [s_defaultParameters adSetObjectIfNotNil:[[UIDevice currentDevice] adDeviceIpAddress] forKey:AD_TELEMETRY_KEY_DEVICE_IP_ADDRESS];
     
     return s_defaultParameters;
 }
@@ -180,45 +178,6 @@
     {
         [eventToBeDispatched adSetObjectIfNotNil:[properties objectForKey:name] forKey:name];
     }
-}
-
-+ (NSString *)ipAddress
-{
-    NSString *ip = nil;
-    
-    struct ifaddrs * address = NULL;
-    struct ifaddrs * addressCopy = NULL;
-    
-    int success = getifaddrs(&address);
-    
-    if (success == 0)
-    {
-        addressCopy = address;
-        
-        while(addressCopy != NULL)
-        {
-            if(addressCopy->ifa_addr->sa_family == AF_INET)
-            {
-                if([[NSString stringWithUTF8String:addressCopy->ifa_name] isEqualToString:@"en0"])
-                {
-                    ip = [NSString stringWithUTF8String:inet_ntoa(((struct sockaddr_in *)addressCopy->ifa_addr)->sin_addr)];
-                    
-                    // mask last octet in the ip address with xxx
-                    NSInteger length = [[ip pathExtension] length];
-                    ip = [ip stringByDeletingPathExtension];
-                    NSString *mark = [@"" stringByPaddingToLength:length withString:@"x" startingAtIndex:0];
-                    ip = [ip stringByAppendingPathExtension:mark];
-                    
-                    break;
-                }
-            }
-            addressCopy = addressCopy->ifa_next;
-        }
-    }
-    
-    freeifaddrs(address);
-    
-    return ip;
 }
 
 #if !TARGET_OS_IPHONE
