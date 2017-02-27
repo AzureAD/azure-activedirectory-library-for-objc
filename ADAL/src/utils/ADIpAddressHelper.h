@@ -25,8 +25,8 @@
 
 #import <Foundation/Foundation.h>
 
-@interface UIDevice (ADAL)
+@interface ADIpAddressHelper : NSObject
 
-- (NSString *)adDeviceIpAddress;
++ (NSString *)adDeviceIpAddress;
 
 @end

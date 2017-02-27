@@ -21,14 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "UIDevice+ADExtension.h"
+#import "ADIpAddressHelper.h"
 
 #import <ifaddrs.h>
 #import <arpa/inet.h>
 
-@implementation UIDevice (ADAL)
+@implementation ADIpAddressHelper
 
-- (NSString *)adDeviceIpAddress
++ (NSString *)adDeviceIpAddress
 {
     NSString *ip = nil;
     

@@ -27,7 +27,7 @@
 #import "ADTelemetryEventStrings.h"
 #import "ADLogger.h"
 #import "NSMutableDictionary+ADExtensions.h"
-#import "UIDevice+ADExtension.h"
+#import "ADIpAddressHelper.h"
 
 #if !TARGET_OS_IPHONE
 #include <CoreFoundation/CoreFoundation.h>
@@ -160,7 +160,7 @@
         }
     });
     
-    [s_defaultParameters adSetObjectIfNotNil:[[UIDevice currentDevice] adDeviceIpAddress] forKey:AD_TELEMETRY_KEY_DEVICE_IP_ADDRESS];
+    [s_defaultParameters adSetObjectIfNotNil:[ADIpAddressHelper adDeviceIpAddress] forKey:AD_TELEMETRY_KEY_DEVICE_IP_ADDRESS];
     
     return s_defaultParameters;
 }
