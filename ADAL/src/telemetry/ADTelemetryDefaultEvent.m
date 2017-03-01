@@ -154,7 +154,8 @@
         NSDictionary* adalId = [ADLogger adalId];
         for (NSString* key in adalId)
         {
-            NSString* propertyName = [NSString stringWithFormat:@"Microsoft.ADAL.%@", [key stringByReplacingOccurrencesOfString:@"-" withString:@"_"]];
+            NSString* propertyName = [NSString stringWithFormat:@"Microsoft.ADAL.%@",
+                                      [[key lowercaseString] stringByReplacingOccurrencesOfString:@"-" withString:@"_"]];
             
             [s_defaultParameters adSetObjectIfNotNil:[adalId objectForKey:key] forKey:propertyName];
         }

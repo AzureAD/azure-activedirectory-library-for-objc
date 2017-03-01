@@ -39,19 +39,19 @@ struct event_base : Microsoft.Telemetry.Base
    80: string Microsoft.ADAL.correlation_id;
    
    [Name("ClientDeviceSKU")]
-   90: string Microsoft.ADAL.x_client_SKU;
+   90: string Microsoft.ADAL.x_client_sku;
    
    [Name("ClientADALVersion")]
    100: string Microsoft.ADAL.x_client_Ver;
    
    [Name("ClientDeviceCPU")]
-   110: string Microsoft.ADAL.x_client_CPU;
+   110: string Microsoft.ADAL.x_client_cpu;
    
    [Name("DeviceOSVersion")]
-   120: string Microsoft.ADAL.x_client_OS;
+   120: string Microsoft.ADAL.x_client_os;
    
    [Name("ClientDeviceType")]
-   130: string Microsoft.ADAL.x_client_DM;
+   130: string Microsoft.ADAL.x_client_dm;
 
    [Name("DeviceIpAddress")]
    140: string Microsoft.ADAL.device_ip_address;
@@ -390,19 +390,19 @@ struct aggregated_event : Microsoft.Telemetry.Base
    210: string Microsoft.ADAL.user_id;
    
    [Name("ClientDeviceCPU")]
-   220: string Microsoft.ADAL.x_client_CPU;
+   220: string Microsoft.ADAL.x_client_cpu;
    
    [Name("ClientDeviceType")]
-   230: string Microsoft.ADAL.x_client_DM;
+   230: string Microsoft.ADAL.x_client_dm;
    
    [Name("DeviceOSVersion")]
-   240: string Microsoft.ADAL.x_client_OS;
+   240: string Microsoft.ADAL.x_client_os;
    
    [Name("ClientDeviceSKU")]
-   250: string Microsoft.ADAL.x_client_SKU;
+   250: string Microsoft.ADAL.x_client_sku;
    
    [Name("ClientADALVersion")]
-   260: string Microsoft.ADAL.x_client_Ver;
+   260: string Microsoft.ADAL.x_client_ver;
    
    [Platform("Android")]
    [Name("RedirectCount")]

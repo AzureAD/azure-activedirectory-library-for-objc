@@ -26,6 +26,7 @@
 #import "ADTelemetryEventStrings.h"
 #import "ADOAuth2Constants.h"
 #import "NSString+ADHelperMethods.h"
+#import "NSDictionary+ADExtensions.h"
 
 @implementation ADTelemetryHttpEvent
 
@@ -84,16 +85,7 @@
         return;
     }
     
-    NSArray *queryParams = [params componentsSeparatedByString:@"&"];
-    NSMutableArray *parameterKeys = [NSMutableArray array];
-    
-    for (NSString *keyValuePair in queryParams)
-    {
-        NSArray *pairComponents = [keyValuePair componentsSeparatedByString:@"="];
-        NSString *key = [[pairComponents firstObject] stringByRemovingPercentEncoding];
-        
-        [parameterKeys addObject:key];
-    }
+    NSArray *parameterKeys = [[NSDictionary adURLFormDecode:params] allKeys];
     
     [self setProperty:AD_TELEMETRY_KEY_REQUEST_QUERY_PARAMS value:[parameterKeys componentsJoinedByString:@";"]];
 }
