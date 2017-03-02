@@ -50,4 +50,7 @@
 
 - (NSString*)adComputeSHA256;
 
+/*! Calls adFindCharactersFromSet with a single character set */
+- (long)adFindCharacter:(unichar)toFind start: (long) startIndex;
+
 @end
