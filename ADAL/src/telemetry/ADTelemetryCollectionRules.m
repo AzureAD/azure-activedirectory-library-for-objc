@@ -89,7 +89,7 @@ static NSDictionary *_telemetryEventRules;
                              // HTTPEvent
                              AD_TELEMETRY_KEY_HTTP_RESPONSE_CODE: @(CollectAndUpdate),
                              AD_TELEMETRY_KEY_HTTP_REQUEST_ID_HEADER: @(CollectAndUpdate),
-                             AD_TELEMETRY_KEY_OAUTH_ERROR_CODE: @(CollectAndUpdate)
+                             AD_TELEMETRY_KEY_OAUTH_ERROR_CODE: @(CollectAndUpdate),
                              // UIEvent
                              AD_TELEMETRY_KEY_USER_CANCEL: @(CollectAndUpdate),
                              AD_TELEMETRY_KEY_NTLM_HANDLED: @(CollectAndUpdate)

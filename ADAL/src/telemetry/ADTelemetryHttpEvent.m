@@ -34,7 +34,7 @@
          requestId:(NSString*)requestId
      correlationId:(NSUUID*)correlationId
 {
-    if (!(self = [super init]))
+    if (!(self = [super initWithName:eventName requestId:requestId correlationId:correlationId]))
     {
         return nil;
     }
