@@ -92,6 +92,8 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
 
 @implementation ADBrokerHelper
 
+// If we are in the broker, do not intercept openURL calls
+#if !AD_BROKER
 + (void)load
 {
     if ([ADAppExtensionUtil isExecutingInAppExtension])
@@ -161,6 +163,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
          }
      }];
 }
+#endif
 
 + (BOOL)canUseBroker
 {

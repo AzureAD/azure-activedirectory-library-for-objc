@@ -190,7 +190,7 @@ const int sAsyncContextTimeout = 10;
     [context setCredentialsType:AD_CREDENTIALS_AUTO];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
-                          redirectUri:[NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob"]
+                          redirectUri:[NSURL URLWithString:@"invalid://redirect_uri"]
                       completionBlock:^(ADAuthenticationResult *result)
      {
          XCTAssertNotNil(result);

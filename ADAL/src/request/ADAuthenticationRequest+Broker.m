@@ -60,6 +60,11 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     (void)s_brokerAppVersion;
     (void)s_brokerProtocolVersion;
     
+    if ([url isEqualToString:ADAL_BROKER_APP_REDIRECT_URI])
+    {
+        return YES;
+    }
+    
     NSArray* urlTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleURLTypes"];
     
     NSURL* redirectURI = [NSURL URLWithString:url];
@@ -177,7 +182,9 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         return nil;
     }
     
-    NSString *qp = [response query];
+    // NSURLComponents resolves some URLs which can't get resolved by NSURL
+    NSURLComponents* components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
+    NSString *qp = [components query];
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
 
