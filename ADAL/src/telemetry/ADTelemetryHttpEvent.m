@@ -30,6 +30,22 @@
 
 @implementation ADTelemetryHttpEvent
 
+- (id)initWithName:(NSString*)eventName
+         requestId:(NSString*)requestId
+     correlationId:(NSUUID*)correlationId
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    [self setProperty:AD_TELEMETRY_KEY_HTTP_REQUEST_ID_HEADER value:@""];
+    [self setProperty:AD_TELEMETRY_KEY_HTTP_RESPONSE_CODE value:@""];
+    [self setProperty:AD_TELEMETRY_KEY_OAUTH_ERROR_CODE value:@""];
+    
+    return self;
+}
+
 - (void)setHttpMethod:(NSString*)method
 {
     [self setProperty:AD_TELEMETRY_KEY_HTTP_METHOD value:method];

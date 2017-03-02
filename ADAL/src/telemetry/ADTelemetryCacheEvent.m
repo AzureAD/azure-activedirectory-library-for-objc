@@ -27,6 +27,22 @@
 
 @implementation ADTelemetryCacheEvent
 
+- (id)initWithName:(NSString*)eventName
+         requestId:(NSString*)requestId
+     correlationId:(NSUUID*)correlationId
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    [self setProperty:AD_TELEMETRY_KEY_IS_FRT value:@""];
+    [self setProperty:AD_TELEMETRY_KEY_IS_MRRT value:@""];
+    [self setProperty:AD_TELEMETRY_KEY_IS_RT value:@""];
+    
+    return self;
+}
+
 - (void)setTokenType:(NSString*)tokenType
 {
     [self setProperty:AD_TELEMETRY_KEY_TOKEN_TYPE value:tokenType];

@@ -47,7 +47,6 @@ static NSDictionary *_telemetryEventRules;
                              AD_TELEMETRY_KEY_APPLICATION_NAME: @(CollectOnly),
                              AD_TELEMETRY_KEY_APPLICATION_VERSION: @(CollectOnly),
                              AD_TELEMETRY_KEY_LOGIN_HINT: @(CollectOnly),
-                             AD_TELEMETRY_KEY_NTLM_HANDLED: @(CollectOnly),
                              AD_TELEMETRY_KEY_BROKER_VERSION: @(CollectOnly),
                              AD_TELEMETRY_KEY_BROKER_PROTOCOL_VERSION: @(CollectOnly),
                              AD_TELEMETRY_KEY_BROKER_APP: @(CollectOnly),
@@ -55,15 +54,10 @@ static NSDictionary *_telemetryEventRules;
                              AD_TELEMETRY_KEY_CLIENT_ID: @(CollectOnly),
                              AD_TELEMETRY_KEY_API_ID: @(CollectOnly),
                              AD_TELEMETRY_KEY_TOKEN_TYPE: @(CollectOnly),
-                             AD_TELEMETRY_KEY_USER_CANCEL: @(CollectOnly),
-                             AD_TELEMETRY_KEY_IS_RT: @(CollectOnly),
-                             AD_TELEMETRY_KEY_IS_MRRT: @(CollectOnly),
-                             AD_TELEMETRY_KEY_IS_FRT: @(CollectOnly),
                              AD_TELEMETRY_KEY_RT_STATUS: @(CollectOnly),
                              AD_TELEMETRY_KEY_MRRT_STATUS: @(CollectOnly),
                              AD_TELEMETRY_KEY_FRT_STATUS: @(CollectOnly),
                              AD_TELEMETRY_KEY_IS_SUCCESSFUL: @(CollectOnly),
-                             AD_TELEMETRY_KEY_USER_CANCEL: @(CollectOnly),
                              AD_TELEMETRY_KEY_CORRELATION_ID: @(CollectOnly),
                              AD_TELEMETRY_KEY_IS_EXTENED_LIFE_TIME_TOKEN: @(CollectOnly),
                              AD_TELEMETRY_KEY_API_ERROR_CODE: @(CollectOnly),
@@ -72,8 +66,6 @@ static NSDictionary *_telemetryEventRules;
                              AD_TELEMETRY_KEY_ERROR_DOMAIN: @(CollectOnly),
                              AD_TELEMETRY_KEY_HTTP_METHOD: @(CollectOnly),
                              AD_TELEMETRY_KEY_HTTP_PATH: @(CollectOnly),
-                             AD_TELEMETRY_KEY_HTTP_REQUEST_ID_HEADER: @(CollectOnly),
-                             AD_TELEMETRY_KEY_HTTP_RESPONSE_CODE: @(CollectOnly),
                              AD_TELEMETRY_KEY_HTTP_RESPONSE_METHOD: @(CollectOnly),
                              AD_TELEMETRY_KEY_REQUEST_QUERY_PARAMS: @(CollectOnly),
                              AD_TELEMETRY_KEY_USER_AGENT: @(CollectOnly),
@@ -89,8 +81,18 @@ static NSDictionary *_telemetryEventRules;
                              AD_TELEMETRY_KEY_HTTP_EVENT_COUNT: @(CollectAndCount),
                              AD_TELEMETRY_KEY_CACHE_EVENT_COUNT: @(CollectAndCount),
                              
-                             // Collect and update
+                             /* Collect and update */
+                             // CacheEvent
+                             AD_TELEMETRY_KEY_IS_RT: @(CollectAndUpdate),
+                             AD_TELEMETRY_KEY_IS_MRRT: @(CollectAndUpdate),
+                             AD_TELEMETRY_KEY_IS_FRT: @(CollectAndUpdate),
+                             // HTTPEvent
+                             AD_TELEMETRY_KEY_HTTP_RESPONSE_CODE: @(CollectAndUpdate),
+                             AD_TELEMETRY_KEY_HTTP_REQUEST_ID_HEADER: @(CollectAndUpdate),
                              AD_TELEMETRY_KEY_OAUTH_ERROR_CODE: @(CollectAndUpdate)
+                             // UIEvent
+                             AD_TELEMETRY_KEY_USER_CANCEL: @(CollectAndUpdate),
+                             AD_TELEMETRY_KEY_NTLM_HANDLED: @(CollectAndUpdate)
                              };
 }
 
