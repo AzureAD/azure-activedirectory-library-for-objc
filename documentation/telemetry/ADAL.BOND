@@ -1,0 +1,410 @@
+
+import "Microsoft.Telemetry.bond"
+
+namespace Microsoft.ADAL;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Schema Definition: Part A - Default Dispatcher
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+[DispatcherType("Default")]
+[Description("The ADAL telemetry event base for default dispatcher. The properties in the base event are included in all the events.")]
+struct event_base : Microsoft.Telemetry.Base
+{
+   [Name("EventName")]
+   0: string Microsoft.ADAL.event_name;
+   
+   [Name("EventStartTime")]
+   10: string Microsoft.ADAL.start_time;
+   
+   [Name("EventStopTime")]
+   20: string Microsoft.ADAL.stop_time;
+   
+   [Name("EventResponseTime")]
+   30: string Microsoft.ADAL.response_time;
+   
+   [Name("DeviceId")]
+   40: string Microsoft.ADAL.device_id;
+   
+   [Name("ApplicationName")]
+   50: string Microsoft.ADAL.application_name;
+   
+   [Name("ApplicationVersion")]
+   60: string Microsoft.ADAL.application_version;
+   
+   [Name("TokenRequestId")]
+   70: optional string Microsoft.ADAL.request_id;
+   
+   [Name("RequestCorrelationId")]
+   80: string Microsoft.ADAL.correlation_id;
+   
+   [Name("ClientDeviceSKU")]
+   90: string Microsoft.ADAL.x_client_sku;
+   
+   [Name("ClientADALVersion")]
+   100: string Microsoft.ADAL.x_client_Ver;
+   
+   [Name("ClientDeviceCPU")]
+   110: string Microsoft.ADAL.x_client_cpu;
+   
+   [Name("DeviceOSVersion")]
+   120: string Microsoft.ADAL.x_client_os;
+   
+   [Name("ClientDeviceType")]
+   130: string Microsoft.ADAL.x_client_dm;
+
+   [Name("DeviceIpAddress")]
+   140: string Microsoft.ADAL.device_ip_address;
+}
+
+[DispatcherType("Default")]
+[Description("The ADAL acquire token and related API event")]
+struct api_event : Microsoft.ADAL.event_base
+{
+   [Name("APIId")]
+   0: string Microsoft.ADAL.api_id;
+   
+   [Name("AppClientId")]
+   10: optional string Microsoft.ADAL.client_id;
+   
+   // AAD or ADFS
+   [Name("Authority")]
+   20: string Microsoft.ADAL.authority;
+   
+   [Name("AuthorityType")]
+   30: string Microsoft.ADAL.authority_type;
+   
+   // Optional boolean value. When set to true/YES, the expired refresh token is returned to caller if the server is not available; otherwise error is sent back
+   [Name("ExtendedExpirationTime")]
+   40: optional string Microsoft.ADAL.extended_expires_on_setting;
+   
+   [Name("PromptBehavior")]
+   50: string Microsoft.ADAL.prompt_behavior;
+   
+   [Name("UserId")]
+   60: string Microsoft.ADAL.user_id;
+   
+   [Name("TenantId")]
+   70: string Microsoft.ADAL.tenant_id;
+   
+   [Name("ResultStatus")]
+   80: string Microsoft.ADAL.status;
+   
+   // When set to true/YES, the token is stale token
+   [Platform("iOS")]
+   [Name("ExtendedLifeTimeToken")]
+   90: optional string Microsoft.ADAL.is_extended_life_time_token;
+      
+   [Name("IdentityProvider")]
+   100: optional string Microsoft.ADAL.idp;
+   
+   [Name("ErrorCode")]
+   110: optional string Microsoft.ADAL.api_error_code;
+   
+   [Platform("iOS")]
+   [Name("ErrorDomain")]
+   120: optional string Microsoft.ADAL.error_domain;
+   
+   [Platform("iOS")]
+   [Name("ErrorProtocolCode")]
+   130: optional string Microsoft.ADAL.error_protocol_code;
+   
+   [Name("ActionUserCancel")]
+   140: optional string Microsoft.ADAL.user_cancel;
+   
+   [Platform("Android")]
+   [Name("IsAPIDeprecated")]
+   150: optional string Microsoft.ADAL.is_deprecated;
+}
+
+[DispatcherType("Default")]
+[Description("The ADAL token grant and related event")]
+struct token_grant : Microsoft.ADAL.event_base
+{
+   [Platform("iOS")]
+   [Name("TokenGrantType")]
+   0: optional string Microsoft.ADAL.grant_type;
+   
+   [Name("TokenGrantSuccessful")]
+   10: string Microsoft.ADAL.is_successfull;
+   
+   [Name("TokenGrantStatus")]
+   20: string Microsoft.ADAL.status;
+}
+
+[DispatcherType("Default")]
+[Description("The ADAL authority validation and related event")]
+struct authority_validation : Microsoft.ADAL.event_base
+{
+   [Name("AuthorityValicationStatus")]
+   0: string Microsoft.ADAL.authority_validation_status;
+   
+   [Name("AuthorityValidationAuthority")]
+   10: string Microsoft.ADAL.authority;
+   
+   [Name("AuthorityValidationType")]
+   20: string Microsoft.ADAL.authority_type;
+}
+
+[DispatcherType("Default")]
+[Description("The ADAL acquire token silent and related event")]
+struct acquire_token_silent_handler : Microsoft.ADAL.event_base
+{
+   [Name("IGNORE")]
+   0: optional string PLACEHOLDER;
+}
+
+[DispatcherType("Default")]
+[Description("The ADAL authorization code and related event")]
+struct authorization_code : Microsoft.ADAL.event_base
+{
+   [Platform("iOS")]
+   [Name("AuthorizationCodeApiStatus")]
+   0: optional string Microsoft.ADAL.api_status;
+}
+
+[DispatcherType("Default")]
+[Description("The ADAL UI and related event")]
+struct ui_event : Microsoft.ADAL.event_base
+{  
+   [Name("AuthenticationMethodNtlm")]
+   0: optional string Microsoft.ADAL.ntlm;
+   
+   [Name("LoginHint")]
+   10: string Microsoft.ADAL.login_hint;
+   
+   [Name("UiEventCount")]
+   20: optional uint32 Microsoft.ADAL.ui_event_count;
+   
+   [Platform("Android")]
+   [Name("RedirectCount")]
+   30: optional uint32 Microsoft.ADAL.redirect_count;
+}
+
+[DispatcherType("Default")]
+[Description("The ADAL http and related event")]
+struct http_event : Microsoft.ADAL.event_base
+{  
+   [Name("HttpMethod")]
+   0: string Microsoft.ADAL.method;
+   
+   [Name("HttpPath")]
+   10: string Microsoft.ADAL.http_path;
+   
+   [Name("HttpRequestId")]
+   20: string Microsoft.ADAL.x_ms_request_id;
+   
+   [Name("HttpResponseCode")]
+   30: string Microsoft.ADAL.response_code;
+   
+   [Name("HttpErrorCode")]
+   40: optional string Microsoft.ADAL.error_code;
+   
+   [Platform("iOS")]
+   [Name("HttpErrorDomain")]
+   50: optional string Microsoft.ADAL.http_error_domain;
+   
+   [Name("OauthErrorCode")]
+   60: optional string Microsoft.ADAL.oauth_error_code;
+   
+   [Platform("iOS")]
+   [Name("HttpResponseMethod")]
+   70: optional string Microsoft.ADAL.response_method;
+   
+   [Name("HttpQueryParams")]
+   80: optional string Microsoft.ADAL.query_params;
+   
+   [Name("HttpUserAgent")]
+   90: optional string Microsoft.ADAL.user_agent;
+   
+   [Name("HttpEventCount")]
+   100: optional uint32 Microsoft.ADAL.http_event_count;
+}
+
+[DispatcherType("Default")]
+[Description("The ADAL broker and related event")]
+struct broker_event : Microsoft.ADAL.event_base
+{  
+   [Name("BrokerStatus")]
+   0: string Microsoft.ADAL.status;
+   
+   [Name("BrokerVersion")]
+   10: string Microsoft.ADAL.broker_version;
+   
+   [Platform("iOS")]
+   [Name("BrokerProtocolVersion")]
+   20: optional string Microsoft.ADAL.broker_protocol_version;
+   
+   [Name("BrokerApp")]
+   30: string Microsoft.ADAL.broker_app;
+   
+   [Name("BrokerAppUsed")]
+   40: string Microsoft.ADAL.broker_app_used;
+}
+
+[DispatcherType("Default")]
+[Description("The ADAL token cache base event")]
+struct token_cache : Microsoft.ADAL.event_base
+{  
+   [Name("TokenCacheType")]
+   0: string Microsoft.ADAL.token_type;
+   
+   [Name("TokenCacheStatus")]
+   10: string Microsoft.ADAL.status;
+   
+   [Name("CacheEventCount")]
+   20: optional uint32 Microsoft.ADAL.cache_event_count;
+}
+
+[DispatcherType("Default")]
+[Description("The ADAL token cache lookup and related event")]
+struct token_cache_lookup : Microsoft.ADAL.token_cache
+{
+   [Platform("iOS")]
+   [Name("MrrtLookupStatus")]
+   0: optional string Microsoft.ADAL.token_mrrt_status;
+   
+   [Platform("iOS")]
+   [Name("RTLookupStatus")]
+   10: optional string Microsoft.ADAL.token_rt_status;
+   
+   [Platform("iOS")]
+   [Name("FRTLookupStatus")]
+   20: optional string Microsoft.ADAL.token_frt_status;
+   
+   [Name("IsRTToken")]
+   30: optional string Microsoft.ADAL.is_rt;
+   
+   [Name("IsMRRTToken")]
+   40: optional string Microsoft.ADAL.is_mrrt;
+   
+   [Name("IsFRTToken")]
+   50: optional string Microsoft.ADAL.is_frt;
+   
+   [Platform("Android")]
+   [Name("TokenTypeRT")]
+   60: optional string Microsoft.ADAL.rt;
+   
+   [Platform("Android")]
+   [Name("TokenTypeMRRT")]
+   70: optional string Microsoft.ADAL.mrrt;
+   
+   [Platform("Android")]
+   [Name("TokenTypeFRT")]
+   80: optional string Microsoft.ADAL.frt;
+}
+
+[DispatcherType("Default")]
+[Description("The ADAL token cache write and related event")]
+struct token_cache_write : Microsoft.ADAL.token_cache
+{
+   [Name("IsMRRTToken")]
+   0: optional string Microsoft.ADAL.is_mrrt;
+   
+   [Name("IsFRTToken")]
+   10: optional string Microsoft.ADAL.is_frt;
+}
+
+[DispatcherType("Default")]
+[Description("The ADAL token cache delete and related event")]
+struct token_cache_delete : Microsoft.ADAL.token_cache
+{  
+   [Name("IGNORE")]
+   0: optional string PLACEHOLDER;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Schema Definition: Part B - Aggregated Dispatcher
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+[DispatcherType("Aggregated")]
+[Description("The ADAL event that is only sent at the end of the flow with aggregated event data.")]
+struct aggregated_event : Microsoft.Telemetry.Base
+{
+   [Name("APIId")]
+    0: string Microsoft.ADAL.api_id;
+   
+   [Name("ApplicationName")]
+    10: string Microsoft.ADAL.application_name;
+   
+   [Name("ApplicationVersion")]
+    20: string Microsoft.ADAL.application_version;
+   
+   [Name("AuthorityType")]
+    30: string Microsoft.ADAL.authority_type;
+   
+   [Name("AuthorityValicationStatus")]
+    40: string Microsoft.ADAL.authority_validation_status;
+   
+   [Name("CacheEventCount")]
+    50: uint32 Microsoft.ADAL.cache_event_count;
+   
+   [Name("AppClientId")]
+    60: string Microsoft.ADAL.client_id;
+   
+   [Name("RequestCorrelationId")]
+    70: string Microsoft.ADAL.correlation_id;
+   
+   [Name("DeviceId")]
+    80: string Microsoft.ADAL.device_id;
+   
+   [Name("ErrorCode")]
+    90: string Microsoft.ADAL.error_code;
+   
+   // Optional boolean value. When set to true/YES, the expired refresh token is returned to caller if the server is not available; otherwise error is sent back
+   [Name("ExtendedExpirationTime")]
+   100: string Microsoft.ADAL.extended_expires_on_setting;
+   
+   [Name("HttpEventCount")]
+   110: uint32 Microsoft.ADAL.http_event_count;
+   
+   [Platform("iOS")]
+   [Name("TokenGrantSuccessful")]
+   120: optional string Microsoft.ADAL.is_successfull;
+   
+   [Name("LoginHint")]
+   130: string Microsoft.ADAL.login_hint;
+   
+   [Name("OauthErrorCode")]
+   140: string Microsoft.ADAL.oauth_error_code;
+   
+   [Name("PromptBehavior")]
+   150: string Microsoft.ADAL.prompt_behavior;
+   
+   [Name("TokenRequestId")]
+   160: string Microsoft.ADAL.request_id;
+   
+   [Name("EventResponseTime")]
+   170: string Microsoft.ADAL.response_time;
+   
+   [Name("TokenCacheStatus")]
+   180: string Microsoft.ADAL.status;
+   
+   [Name("TenantId")]
+   190: string Microsoft.ADAL.tenant_id;
+   
+   [Name("UiEventCount")]
+   200: uint32 Microsoft.ADAL.ui_event_count;
+   
+   [Name("UserId")]
+   210: string Microsoft.ADAL.user_id;
+   
+   [Name("ClientDeviceCPU")]
+   220: string Microsoft.ADAL.x_client_cpu;
+   
+   [Name("ClientDeviceType")]
+   230: string Microsoft.ADAL.x_client_dm;
+   
+   [Name("DeviceOSVersion")]
+   240: string Microsoft.ADAL.x_client_os;
+   
+   [Name("ClientDeviceSKU")]
+   250: string Microsoft.ADAL.x_client_sku;
+   
+   [Name("ClientADALVersion")]
+   260: string Microsoft.ADAL.x_client_ver;
+   
+   [Platform("Android")]
+   [Name("RedirectCount")]
+   270: optional uint32 Microsoft.ADAL.redirect_count;
+}

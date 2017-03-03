@@ -390,8 +390,8 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_version"]]);
 #endif
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_Ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_SKU"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.client_id"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.device_id"]]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
@@ -647,8 +647,8 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.application_version"]]);
 #endif
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_Ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_SKU"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.client_id"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.device_id"]]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
@@ -676,8 +676,8 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.application_version"]]);
 #endif
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_Ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_SKU"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.client_id"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.device_id"]]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
@@ -1120,8 +1120,8 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_version"]]);
 #endif
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_Ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_SKU"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.client_id"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.device_id"]]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);

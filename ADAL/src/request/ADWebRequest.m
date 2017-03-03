@@ -261,6 +261,8 @@
 
     [event setOAuthErrorCode:response];
     
+    [event setHttpRequestQueryParams:_requestURL.query];
+    
     [[ADTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
 }
 

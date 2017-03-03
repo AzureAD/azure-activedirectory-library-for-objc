@@ -85,8 +85,8 @@
     // i.e. sdk_id, sdk_version, device_id, device_name
     NSDictionary* event = [receivedEvents firstObject];
     
-    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.x_client_SKU"]);
-    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.x_client_Ver"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.x_client_sku"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.x_client_ver"]);
     XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.device_id"]);
     XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.request_id"]);
     XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.correlation_id"]);
