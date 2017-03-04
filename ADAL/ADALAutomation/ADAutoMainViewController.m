@@ -84,11 +84,11 @@
          NSString* promptValue = parameters[@"prompt_behavior"];
          if(promptValue)
          {
-             if ([NSString adSame:[promptValue lowercaseString] toString:@"refresh_session"])
+             if ([[promptValue lowercaseString] isEqualToString:@"refresh_session"])
              {
                  promptBehavior = AD_PROMPT_REFRESH_SESSION;
              }
-             else if ([NSString adSame:[promptValue lowercaseString] toString:@"always"])
+             else if ([[promptValue lowercaseString] isEqualToString:@"always"])
              {
                  promptBehavior = AD_PROMPT_ALWAYS;
              }
@@ -103,12 +103,12 @@
              NSString* userIdType = parameters[@"user_identifier_type"];
              if(userIdType)
              {
-                 if ([NSString adSame:[userIdType lowercaseString] toString:@"unique_id"])
+                 if ([[userIdType lowercaseString] isEqualToString:@"unique_id"])
                  {
                      userIdentifier = [ADUserIdentifier identifierWithId:userId
                                                           typeFromString:@"UniqueId"];
                  }
-                 else if ([NSString adSame:[userIdType lowercaseString] toString:@"optional_displayable"])
+                 else if ([[userIdType lowercaseString] isEqualToString:@"optional_displayable"])
                  {
                      userIdentifier = [ADUserIdentifier identifierWithId:userId
                                                           typeFromString:@"OptionalDisplayableId"];
