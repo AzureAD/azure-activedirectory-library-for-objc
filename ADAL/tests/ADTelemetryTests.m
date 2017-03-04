@@ -26,35 +26,17 @@
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryDefaultEvent.h"
 #import "ADTelemetryAPIEvent.h"
-
-typedef void(^TestCallback)(NSArray* event);
-
-@interface TestDispatcher : NSObject <ADDispatcher>
-{
-    TestCallback _testCallback;
-}
-
-- (void)setTestCallback:(TestCallback)callback;
-@end
-
-@implementation TestDispatcher
-
-- (void)setTestCallback:(TestCallback)callback
-{
-    _testCallback = callback;
-}
-
-- (void)dispatchEvent:(NSArray*)event
-{
-    // call _testCallback when it receives telemetry event
-    // this is for the purpose of unit test
-    if (_testCallback)
-    {
-        _testCallback(event);
-    }
-}
-
-@end
+#import "ADTelemetryUIEvent.h"
+#import "ADTelemetryHttpEvent.h"
+#import "ADTelemetryCacheEvent.h"
+#import "ADTelemetryBrokerEvent.h"
+#import "ADAuthenticationContext+Internal.h"
+#import "ADTestURLSession.h"
+#import "XCTestCase+TestHelperMethods.h"
+#import "ADTokenCache+Internal.h"
+#import "ADTokenCacheItem.h"
+#import "ADTelemetryTestDispatcher.h"
+#import "ADTelemetryEventStrings.h"
 
 @interface ADTelemetryTests : XCTestCase
 
@@ -64,25 +46,27 @@ typedef void(^TestCallback)(NSArray* event);
 
 - (void)setUp {
     [super setUp];
+    // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
 - (void)tearDown {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
 }
 
 - (void)testDefaultEventProperties {
     // new a dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
     
     // the dispatcher will store the telemetry events it receives
-    [dispatcher setTestCallback:^(NSArray* event)
+    [dispatcher setTestCallback:^(NSDictionary* event)
     {
         [receivedEvents addObject:event];
     }];
     
     // register the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:NO];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:NO];
     
     // generate telemetry event
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -99,49 +83,33 @@ typedef void(^TestCallback)(NSArray* event);
     
     // make sure the default properties are recorded in the telemetry event,
     // i.e. sdk_id, sdk_version, device_id, device_name
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"x-client-SKU"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"x-client-SKU"], 1);
+    NSDictionary* event = [receivedEvents firstObject];
     
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"x-client-Ver"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"x-client-Ver"], 1);
-
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"device_id"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"device_id"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"request_id"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"request_id"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"correlation_id"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"correlation_id"], 1);
-    
-    // application_name, application_version are also default properties,
-    // but they are not available in unit test framework, so we omit them here
-    
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.x_client_sku"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.x_client_ver"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.device_id"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.request_id"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.correlation_id"]);
+#if TARGET_OS_IPHONE
+    // application_version is only available in unit test framework with host app
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.application_version"]);
+#endif
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.application_name"]);
 }
 
 - (void)testSequentialEvents {
     // new a dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
     
     // the dispatcher will store the telemetry events it receives
-    [dispatcher setTestCallback:^(NSArray* event)
+    [dispatcher setTestCallback:^(NSDictionary* event)
      {
          [receivedEvents addObject:event];
      }];
     
     // register the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:NO];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:NO];
     
     // generate telemetry event 1
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -165,58 +133,39 @@ typedef void(^TestCallback)(NSArray* event);
     // there should be 2 telemetry events recorded as we generated two
     XCTAssertEqual([receivedEvents count], 2);
     
-    // make sure the 1st event has an event_name, start_time and stop_time
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"event_name"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"event_name"], 1);
+    // make sure the 1st event has an event_name, start_time and end_time
+    NSDictionary* firstEvent = [receivedEvents firstObject];
     
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"start_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"start_time"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"stop_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"stop_time"], 1);
+    XCTAssertEqual([firstEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent1");
+    XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.response_time"]);
 
-    // make sure the 2nd event has customized_property, event_name, start_time and stop_time
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents objectAtIndex:1]
-                                  propertyName:@"customized_property"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:1]
-                             propertyName:@"customized_property"], 1);
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"event_name"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"event_name"], 1);
+    // make sure the 2nd event has customized_property, event_name, start_time and end_time
+    NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
     
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"start_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"start_time"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"stop_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"stop_time"], 1);
+    XCTAssertEqual([secondEvent objectForKey:@"customized_property"], @"customized_value");
+    XCTAssertEqual([secondEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent2");
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.response_time"]);
     
 }
 
 - (void)testSequentialEventsWithAggregation {
     // new a dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
     NSUUID* correlationId = [NSUUID UUID];
     
     // the dispatcher will store the telemetry events it receives
-    [dispatcher setTestCallback:^(NSArray* event)
+    [dispatcher setTestCallback:^(NSDictionary* event)
      {
          [receivedEvents addObject:event];
      }];
     
     // register the dispatcher with aggregation
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     // generate telemetry event 1
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -241,42 +190,33 @@ typedef void(^TestCallback)(NSArray* event);
     XCTAssertEqual([receivedEvents count], 1);
     
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"correlation_id"], 1);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"request_id"], 1);
+    NSDictionary* event = [receivedEvents firstObject];
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.correlation_id"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.request_id"]);
     
     // it will also outputs some designated properties like response_time, but not for event_name, etc.
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"response_time"], 1);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.response_time"]);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"event_name"], 0);
-    
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"start_time"], 0);
-    
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"stop_time"], 0);
-    
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"customized_property"], 0);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.event_name"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.stop_time"]);
+    XCTAssertNil([event objectForKey:@"customized_property"]);
     
 }
 
 - (void)testNestedEvents {
     // new a dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
     
     // the dispatcher will store the telemetry events it receives
-    [dispatcher setTestCallback:^(NSArray* event)
+    [dispatcher setTestCallback:^(NSDictionary* event)
      {
          [receivedEvents addObject:event];
      }];
     
     // register the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:NO];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:NO];
     
     // generate telemetry event1 nested with event2
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -301,60 +241,36 @@ typedef void(^TestCallback)(NSArray* event);
     XCTAssertEqual([receivedEvents count], 2);
     
     // the first event recorded is event2
-    // make sure it has customized_property, event_name, start_time and stop_time
-    XCTAssertTrue([[self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"event_name"] isEqualToString:@"testEvent2"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"event_name"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"customized_property"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"customized_property"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"start_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"start_time"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"stop_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"stop_time"], 1);
+    // make sure it has customized_property, event_name, start_time and end_time
+    NSDictionary* firstEvent = [receivedEvents firstObject];
+    XCTAssertEqual([firstEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent2");
+    XCTAssertEqual([firstEvent objectForKey:@"customized_property"], @"customized_value");
+    XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
     
     // the second event recorded is event1
-    // make sure it has event_name, start_time and stop_time
-    XCTAssertTrue([[self getPropertyFromEvent:[receivedEvents objectAtIndex:1]
-                                  propertyName:@"event_name"] isEqualToString:@"testEvent1"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:1]
-                             propertyName:@"event_name"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents objectAtIndex:1]
-                                  propertyName:@"start_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:1]
-                             propertyName:@"start_time"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents objectAtIndex:1]
-                                  propertyName:@"stop_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:1]
-                             propertyName:@"stop_time"], 1);
+    // make sure it has event_name, start_time and end_time
+    NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
+    XCTAssertEqual([secondEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent1");
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
     
 }
 
 - (void)testNestedEventsWithAggregation {
     // new a dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
     NSUUID* correlationId = [NSUUID UUID];
     
     // the dispatcher will store the telemetry events it receives
-    [dispatcher setTestCallback:^(NSArray* event)
+    [dispatcher setTestCallback:^(NSDictionary* event)
      {
          [receivedEvents addObject:event];
      }];
     
     // register the dispatcher with aggregation
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     // generate telemetry event1 nested with event2
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -379,41 +295,32 @@ typedef void(^TestCallback)(NSArray* event);
     XCTAssertEqual([receivedEvents count], 1);
     
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"correlation_id"], 1);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"request_id"], 1);
+    NSDictionary* event = [receivedEvents firstObject];
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.correlation_id"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.request_id"]);
     
     // it will also outputs some designated properties like response_time, but not for event_name, etc.
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"response_time"], 1);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.response_time"]);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"event_name"], 0);
-    
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"start_time"], 0);
-    
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"stop_time"], 0);
-    
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"customized_property"], 0);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.event_name"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.stop_time"]);
+    XCTAssertNil([event objectForKey:@"customized_property"]);
 }
 
 - (void)testComplexEvents {
     // new a dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
     
     // the dispatcher will store the telemetry events it receives
-    [dispatcher setTestCallback:^(NSArray* event)
+    [dispatcher setTestCallback:^(NSDictionary* event)
      {
          [receivedEvents addObject:event];
      }];
     
     // register the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:NO];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:NO];
     
     // generate telemetry event1 nested with event2
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -449,84 +356,44 @@ typedef void(^TestCallback)(NSArray* event);
     XCTAssertEqual([receivedEvents count], 4);
     
     // the first event recorded is event3
-    XCTAssertTrue([[self getPropertyFromEvent:[receivedEvents firstObject]
-                                 propertyName:@"event_name"] isEqualToString:@"testEvent3"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"event_name"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"start_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"start_time"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents firstObject]
-                                  propertyName:@"stop_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"stop_time"], 1);
+    NSDictionary* firstEvent = [receivedEvents firstObject];
+    XCTAssertEqual([firstEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent3");
+    XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([firstEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
     
     // the second event recorded is event2
-    XCTAssertTrue([[self getPropertyFromEvent:[receivedEvents objectAtIndex:1]
-                                 propertyName:@"event_name"] isEqualToString:@"testEvent2"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:1]
-                             propertyName:@"event_name"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents objectAtIndex:1]
-                                  propertyName:@"start_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:1]
-                             propertyName:@"start_time"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents objectAtIndex:1]
-                                  propertyName:@"stop_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:1]
-                             propertyName:@"stop_time"], 1);
+    NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
+    XCTAssertEqual([secondEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent2");
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
     
     // the third event recorded is event1
-    XCTAssertTrue([[self getPropertyFromEvent:[receivedEvents objectAtIndex:2]
-                                 propertyName:@"event_name"] isEqualToString:@"testEvent1"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:2]
-                             propertyName:@"event_name"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents objectAtIndex:2]
-                                  propertyName:@"start_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:2]
-                             propertyName:@"start_time"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents objectAtIndex:2]
-                                  propertyName:@"stop_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:2]
-                             propertyName:@"stop_time"], 1);
+    NSDictionary* thirdEvent = [receivedEvents objectAtIndex:2];
+    XCTAssertEqual([thirdEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent1");
+    XCTAssertNotNil([thirdEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([thirdEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
     
     // the fourth event recorded is event4
-    XCTAssertTrue([[self getPropertyFromEvent:[receivedEvents objectAtIndex:3]
-                                 propertyName:@"event_name"] isEqualToString:@"testEvent4"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:3]
-                             propertyName:@"event_name"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents objectAtIndex:3]
-                                  propertyName:@"start_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:3]
-                             propertyName:@"start_time"], 1);
-    
-    XCTAssertNotNil([self getPropertyFromEvent:[receivedEvents objectAtIndex:3]
-                                  propertyName:@"stop_time"]);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents objectAtIndex:3]
-                             propertyName:@"stop_time"], 1);
+    NSDictionary* fourthEvent = [receivedEvents objectAtIndex:3];
+    XCTAssertEqual([fourthEvent objectForKey:@"Microsoft.ADAL.event_name"], @"testEvent4");
+    XCTAssertNotNil([fourthEvent objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNotNil([fourthEvent objectForKey:@"Microsoft.ADAL.stop_time"]);
 }
 
 - (void)testComplexEventsWithAggregation {
     // new a dispatcher
-    TestDispatcher* dispatcher = [TestDispatcher new];
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
     NSMutableArray* receivedEvents = [NSMutableArray new];
     NSUUID* correlationId = [NSUUID UUID];
     
     // the dispatcher will store the telemetry events it receives
-    [dispatcher setTestCallback:^(NSArray* event)
+    [dispatcher setTestCallback:^(NSDictionary* event)
      {
          [receivedEvents addObject:event];
      }];
     
     // register the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     // generate telemetry event1 nested with event2
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -562,53 +429,18 @@ typedef void(^TestCallback)(NSArray* event);
     XCTAssertEqual([receivedEvents count], 1);
     
     // the aggregated event outputs the default properties like correlation_id, request_id, etc.
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"correlation_id"], 1);
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"request_id"], 1);
+    NSDictionary* event = [receivedEvents firstObject];
+    
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.correlation_id"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.request_id"]);
     
     // it will also outputs some designated properties like response_time, but not for event_name, etc.
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"response_time"], 1);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.response_time"]);
     
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"event_name"], 0);
-    
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"start_time"], 0);
-    
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"stop_time"], 0);
-    
-    XCTAssertEqual([self getPropertyCount:[receivedEvents firstObject]
-                             propertyName:@"customized_property"], 0);
-}
-
-- (NSString*)getPropertyFromEvent:(NSArray*)event
-                 propertyName:(NSString*)propertyName
-{
-    for (ADTelemetryProperty* property in event)
-    {
-        if ([property.name isEqualToString:propertyName])
-        {
-            return property.value;
-        }
-    }
-    return nil;
-}
-
-- (NSInteger)getPropertyCount:(NSArray*)event
-                 propertyName:(NSString*)propertyName
-{
-    NSInteger count = 0;
-    for (ADTelemetryProperty* property in event)
-    {
-        if ([property.name isEqualToString:propertyName])
-        {
-            count++;
-        }
-    }
-    return count;
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.event_name"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.start_time"]);
+    XCTAssertNil([event objectForKey:@"Microsoft.ADAL.stop_time"]);
+    XCTAssertNil([event objectForKey:@"customized_property"]);
 }
 
 @end

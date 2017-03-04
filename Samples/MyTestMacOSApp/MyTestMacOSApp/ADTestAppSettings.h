@@ -23,7 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString* ADTestAppCacheChangeNotification;
+extern NSString *ADTestAppCacheChangeNotification;
+extern NSString *ADTestAppProfileChangedNotification;
 
 @interface ADTestAppSettings : NSObject
 {

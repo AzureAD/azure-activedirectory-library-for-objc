@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ADTelemetryDefaultEvent.h"
+#import "ADWebResponse.h"
 
 @interface ADTelemetryHttpEvent : ADTelemetryDefaultEvent
 
@@ -32,7 +33,8 @@
 - (void)setHttpResponseMethod:(NSString*)method;
 - (void)setHttpRequestQueryParams:(NSString*)params;
 - (void)setHttpUserAgent:(NSString*)userAgent;
-- (void)setOAuthErrorCode:(NSString*)code;
+- (void)setHttpErrorCode:(NSString*)code;
+- (void)setOAuthErrorCode:(ADWebResponse *)response;
 - (void)setHttpErrorDomain:(NSString*)errorDomain;
 
 @end

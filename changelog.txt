@@ -1,3 +1,19 @@
+Version 2.3.1 (02.09.2017)
+-------------
+* Fixed a thread safety issue in ADTelemetry that occasionally caused crashes (#882)
+* Removed the 5-min-timeout timer on webview interaction (#862)
+* Fixed a bug that caused NTLM dialog failed to show when pass-in webview was used (#892)
+
+Version 2.3.0 (01.17.2017)
+-------------
+* Added the extendedLifetimeEnabled property on ADAuthenticationContext to allow ADAL to return tokens in the extended expiration window during an AAD service outage. (#643)
+* Fixed crashes caused by the NTLM dialog being launched on a background thread on iOS (#849) and Mac (#801)
+* (iOS) Replaced deprecated UIAlertView usage with UIAlertController (#849)
+* (Mac) Added the +[ADTokenCache defaultTokenCache] convenience method for accessing the default ADAL cache. (#808)
+* (Mac) ADAL on macOS no longer errors out immediately when receiving a conditional access request. Erroring out immediately was preventing ADAL from being able to continue further with authentication methods that might still work. (#804)
+* Added error checking on passed in extraQueryParameters to prevent crashes when invalid query parameters are passed in. (#819, #822)
+ 
+
 Version 2.2.7 (10.19.2016)
 -------------
 * Improved the robustness of the broker message parser (#779)

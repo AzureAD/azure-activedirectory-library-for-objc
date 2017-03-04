@@ -27,68 +27,60 @@
 
 @implementation ADTelemetryCacheEvent
 
+- (id)initWithName:(NSString*)eventName
+         requestId:(NSString*)requestId
+     correlationId:(NSUUID*)correlationId
+{
+    if (!(self = [super initWithName:eventName requestId:requestId correlationId:correlationId]))
+    {
+        return nil;
+    }
+    
+    [self setProperty:AD_TELEMETRY_KEY_IS_FRT value:@""];
+    [self setProperty:AD_TELEMETRY_KEY_IS_MRRT value:@""];
+    [self setProperty:AD_TELEMETRY_KEY_IS_RT value:@""];
+    
+    return self;
+}
+
 - (void)setTokenType:(NSString*)tokenType
 {
-    [self setProperty:AD_TELEMETRY_TOKEN_TYPE value:tokenType];
+    [self setProperty:AD_TELEMETRY_KEY_TOKEN_TYPE value:tokenType];
 }
 
 - (void)setStatus:(NSString*)status
 {
-    [self setProperty:@"status" value:status];
+    [self setProperty:AD_TELEMETRY_KEY_RESULT_STATUS value:status];
 }
 
 - (void)setIsRT:(NSString*)isRT
 {
-    [self setProperty:AD_TELEMETRY_IS_RT value:isRT];
+    [self setProperty:AD_TELEMETRY_KEY_IS_RT value:isRT];
 }
 
 - (void)setIsMRRT:(NSString*)isMRRT
 {
-    [self setProperty:AD_TELEMETRY_IS_MRRT value:isMRRT];
+    [self setProperty:AD_TELEMETRY_KEY_IS_MRRT value:isMRRT];
 }
 
 - (void)setIsFRT:(NSString*)isFRT
 {
-    [self setProperty:AD_TELEMETRY_IS_FRT value:isFRT];
+    [self setProperty:AD_TELEMETRY_KEY_IS_FRT value:isFRT];
 }
 
 - (void)setRTStatus:(NSString*)status
 {
-    [self setProperty:AD_TELEMETRY_RT_STATUS value:status];
+    [self setProperty:AD_TELEMETRY_KEY_RT_STATUS value:status];
 }
 
 - (void)setMRRTStatus:(NSString*)status
 {
-    [self setProperty:AD_TELEMETRY_MRRT_STATUS value:status];
+    [self setProperty:AD_TELEMETRY_KEY_MRRT_STATUS value:status];
 }
 
 - (void)setFRTStatus:(NSString*)status
 {
-    [self setProperty:AD_TELEMETRY_FRT_STATUS value:status];
-}
-
-- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
-{
-    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
-    
-    (void)eventToBeDispatched;
-    NSArray* properties = [self getProperties];
-    for (ADTelemetryProperty* property in properties)
-    {
-        if ([property.name isEqualToString:AD_TELEMETRY_RT_STATUS]
-            ||[property.name isEqualToString:AD_TELEMETRY_FRT_STATUS]
-            ||[property.name isEqualToString:AD_TELEMETRY_MRRT_STATUS])
-        {
-            [eventToBeDispatched setObject:property.value forKey:property.name];
-        }
-    }
-    
-    int cacheEventCount = 1;
-    if ([eventToBeDispatched objectForKey:AD_TELEMETRY_CACHE_EVENT_COUNT])
-    {
-        cacheEventCount = [[eventToBeDispatched objectForKey:AD_TELEMETRY_CACHE_EVENT_COUNT] intValue] + 1;
-    }
-    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", cacheEventCount] forKey:AD_TELEMETRY_CACHE_EVENT_COUNT];
+    [self setProperty:AD_TELEMETRY_KEY_FRT_STATUS value:status];
 }
 
 @end

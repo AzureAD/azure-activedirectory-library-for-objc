@@ -32,12 +32,12 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 @interface ADAuthenticationViewController ( ) <UIWebViewDelegate>
 {
     UIActivityIndicatorView* _activityIndicator;
-    UINavigationController* _navController;
 }
 
 @end
 
 @implementation ADAuthenticationViewController
+
 
 - (void)loadView
 {
@@ -91,14 +91,10 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
     
     self.view = rootView;
     
-    _navController = [[UINavigationController alloc] init];
-    _navController.navigationBar.hidden = NO;
-    
     UIBarButtonItem* cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                   target:self
                                                                                   action:@selector(onCancel:)];
     self.navigationItem.leftBarButtonItem = cancelButton;
-    [_navController pushViewController:self animated:NO];
     
     return YES;
 }
@@ -144,7 +140,7 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 // Authentication was cancelled by the user
 - (IBAction)onCancel:(id)sender
 {
-#pragma unused(sender)
+    (void)sender;
     [_delegate webAuthDidCancel];
 }
 
@@ -170,18 +166,20 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 - (void)startRequest:(NSURLRequest *)request
 {
     [self loadRequest:request];
-    
+	
+	UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
+	
     if (_fullScreen)
     {
-        [_navController setModalPresentationStyle:UIModalPresentationFullScreen];
+        [navController setModalPresentationStyle:UIModalPresentationFullScreen];
     }
     else
     {
-        [_navController setModalPresentationStyle:UIModalPresentationFormSheet];
+        [navController setModalPresentationStyle:UIModalPresentationFormSheet];
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_parentController presentViewController:_navController animated:YES completion:nil];
+        [_parentController presentViewController:navController animated:YES completion:nil];
     });
 }
 
@@ -200,8 +198,8 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
-#pragma unused(webView)
-#pragma unused(navigationType)
+    (void)webView;
+    (void)navigationType;
     
     // Forward to the UIWebView controller
     return [_delegate webAuthShouldStartLoadRequest:request];
@@ -209,8 +207,6 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-#pragma unused(webView)
-    
     [_delegate webAuthDidStartLoad:webView.request.URL];
 }
 
@@ -222,13 +218,12 @@ NSString *const AD_FAILED_NO_CONTROLLER = @"The Application does not have a curr
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-#pragma unused(webView)
     [_delegate webAuthDidFinishLoad:webView.request.URL];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
-#pragma unused(webView)
+    (void)webView;
     [_delegate webAuthDidFailWithError:error];
 }
 

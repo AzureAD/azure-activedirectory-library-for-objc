@@ -30,21 +30,57 @@
 #import "ADKeychainUtil.h"
 #import "ADRegistrationInformation.h"
 
+static NSArray* s_profileRows = nil;
+static NSArray* s_deviceRows = nil;
 
-@interface ADTestAppSettingsViewController ()
+@interface ADTestAppSettingsRow : NSObject
+
+@property (nonatomic, retain) NSString* title;
+@property (nonatomic, copy) NSString*(^valueBlock)();
+@property (nonatomic, copy) void(^action)();
+
++ (ADTestAppSettingsRow*)rowWithTitle:(NSString *)title;
+
+@end
+
+@implementation ADTestAppSettingsRow
+
++ (ADTestAppSettingsRow*)rowWithTitle:(NSString *)title
+{
+    ADTestAppSettingsRow* row = [ADTestAppSettingsRow new];
+    row.title = title;
+    return row;
+}
+
++ (ADTestAppSettingsRow*)rowWithTitle:(NSString *)title
+                                value:(NSString*(^)())value
+{
+    ADTestAppSettingsRow* row = [ADTestAppSettingsRow new];
+    row.title = title;
+    row.valueBlock = value;
+    return row;
+}
+
+@end
+
+@interface ADTestAppSettingsViewController () <UITableViewDelegate, UITableViewDataSource>
 
 @end
 
 @implementation ADTestAppSettingsViewController
 {
-    IBOutlet UIButton* _profile;
-    IBOutlet UIButton* _authority;
-    IBOutlet UILabel* _clientId;
-    IBOutlet UILabel* _redirectUri;
-    IBOutlet UIButton* _resource;
-    IBOutlet UILabel* _keychainId;
-    IBOutlet UILabel* _workplaceJoin;
+    UITableView* _tableView;
+    
+    NSArray* _profileRows;
+    NSArray* _deviceRows;
+    
+    NSString* _keychainId;
+    NSString* _wpjState;
 }
+
+#define SETTING_ROW(_SETTING) \
+    ADTestAppSettingsRow* _SETTING = [ADTestAppSettingsRow rowWithTitle:@#_SETTING]; \
+    _SETTING.valueBlock = ^NSString *{ return ADTestAppSettings.settings._SETTING; }
 
 - (id)init
 {
@@ -52,25 +88,50 @@
     {
         return nil;
     }
-    
-    self.navigationController.navigationBarHidden = YES;
     self.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Settings"
                                                     image:[UIImage imageNamed:@"Settings"]
                                                       tag:0];
     
+    
+    NSString* teamId = [ADKeychainUtil keychainTeamId:nil];
+    _keychainId = teamId ? teamId : @"<No Team ID>";
+    
+    ADTestAppSettingsRow* profileRow = [ADTestAppSettingsRow rowWithTitle:@"profile"];
+    profileRow.valueBlock = ^NSString *{ return ADTestAppSettings.currentProfileTitle; };
+    profileRow.action = ^{ [self gotoProfile:nil]; };
+    SETTING_ROW(authority);
+    SETTING_ROW(clientId);
+    SETTING_ROW(resource);
+    ADTestAppSettingsRow* redirectUri = [ADTestAppSettingsRow rowWithTitle:@"redirectUri"];
+    redirectUri.valueBlock = ^NSString *{ return [ADTestAppSettings.settings.redirectUri absoluteString]; };
+    
+    _profileRows = @[ profileRow, authority, clientId, redirectUri, resource];
+    
+    
+    
+    _deviceRows = @[ [ADTestAppSettingsRow rowWithTitle:@"TeamID" value:^NSString *{ return _keychainId; }],
+                     [ADTestAppSettingsRow rowWithTitle:@"WPJ State" value:^NSString *{ return _wpjState; }]];
+    
     return self;
+}
+
+- (void)loadView
+{
+    CGRect screenFrame = UIScreen.mainScreen.bounds;
+    _tableView = [[UITableView alloc] initWithFrame:screenFrame];
+    _tableView.delegate = self;
+    _tableView.dataSource = self;
+    _tableView.allowsSelection = YES;
+    
+    self.view = _tableView;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    NSString* teamId = [ADKeychainUtil keychainTeamId:nil];
-    
-    [_keychainId setText: teamId ? teamId : @"<No Team ID>" ];
-    
-    [self refreshProfileSettings];
 }
+
+
 
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -88,24 +149,99 @@
         wpjLabel = @"WPJ Registration Found";
     }
     
-    [_workplaceJoin setText:wpjLabel];
+    _wpjState = wpjLabel;
     
-    [self refreshProfileSettings];
+    self.navigationController.navigationBarHidden = YES;
+    
+    [_tableView reloadData];
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if (section == 0)
+        return _profileRows.count;
+    if (section == 1)
+        return _deviceRows.count;
+    
+    return 0;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView;
+{
+    return 2;
+}
+
+- (nullable NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    if (section == 0)
+        return @"Authentication Settings";
+    if (section == 1)
+        return @"Device State";
+    
+    return nil;
+}
+
+
+- (ADTestAppSettingsRow*)rowForIndexPath:(NSIndexPath *)indexPath
+{
+    NSInteger section = [indexPath indexAtPosition:0];
+    NSInteger row = [indexPath indexAtPosition:1];
+    
+    if (section == 0)
+    {
+        return _profileRows[row];
+    }
+    
+    if (section == 1)
+    {
+        return _deviceRows[row];
+    }
+    
+    return nil;
+}
+
+- (nullable NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    ADTestAppSettingsRow* row = [self rowForIndexPath:indexPath];
+    if (!row.action)
+        return nil;
+    
+    row.action();
+    return nil;
+}
+
+// Row display. Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier:
+// Cell gets various attributes set automatically based on table (separators) and data source (accessory views, editing controls)
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"settingsCell"];
+    if (!cell)
+    {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"settingsCell"];
+    }
+    
+    ADTestAppSettingsRow* row = [self rowForIndexPath:indexPath];
+    cell.textLabel.text = row.title;
+    cell.detailTextLabel.text = row.valueBlock();
+    
+    if (row.action)
+    {
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    }
+    
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
+{
+    ADTestAppSettingsRow* row = [self rowForIndexPath:indexPath];
+    row.action();
 }
 
 - (IBAction)gotoProfile:(id)sender
 {
     [self.navigationController pushViewController:[ADTestAppProfileViewController sharedProfileViewController] animated:YES];
-}
-
-- (void)refreshProfileSettings
-{
-    ADTestAppSettings* settings = [ADTestAppSettings settings];
-    [_authority setTitle:settings.authority forState:UIControlStateNormal];
-    [_clientId setText:settings.clientId];
-    [_redirectUri setText:settings.redirectUri.absoluteString];
-    [_resource setTitle:settings.resource forState:UIControlStateNormal];
-    [_profile setTitle:[ADTestAppSettings currentProfileTitle] forState:UIControlStateNormal];
 }
 
 @end

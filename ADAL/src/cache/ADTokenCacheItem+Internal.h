@@ -27,12 +27,14 @@
 @class ADAuthenticationError;
 @class ADAuthenticationResult;
 
+@interface ADTokenCacheItem ()
+
+@property (readwrite) NSMutableDictionary * additionalClient;
+@property (readonly) NSDictionary * additionalServer;
+
+@end
+
 @interface ADTokenCacheItem (Internal)
-
-- (NSDictionary*)additionalServer;
-- (NSMutableDictionary*)additionalClient;
-
-- (void)setAdditionalClient:(NSMutableDictionary*)additionalClient;
 
 - (void)checkCorrelationId:(NSDictionary*)response
       requestCorrelationId:(NSUUID*)requestCorrelationId;

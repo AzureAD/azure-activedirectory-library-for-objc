@@ -24,7 +24,7 @@
 
 #import "ADAL_Internal.h"
 #import "ADAuthenticationContext.h"
-#import "ADInstanceDiscovery.h"
+#import "ADHelpers.h"
 #import "ADTokenCacheKey.h"
 #import "NSString+ADHelperMethods.h"
 
@@ -50,27 +50,12 @@
     }
     
     _authority = authority;
-    SAFE_ARC_RETAIN(_authority);
     _resource = resource;
-    SAFE_ARC_RETAIN(_resource);
     _clientId = clientId;
-    SAFE_ARC_RETAIN(_clientId);
     
     [self calculateHash];
     
     return self;
-}
-
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_authority);
-    _authority = nil;
-    SAFE_ARC_RELEASE(_resource);
-    _resource = nil;
-    SAFE_ARC_RELEASE(_clientId);
-    _clientId = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 + (id)keyWithAuthority:(NSString *)authority
@@ -82,14 +67,13 @@
     // Trim first for faster nil or empty checks. Also lowercase and trimming is
     // needed to ensure that the cache handles correctly same items with different
     // character case:
-    authority = [ADInstanceDiscovery canonicalizeAuthority:authority];
+    authority = [ADHelpers canonicalizeAuthority:authority];
     resource = resource.adTrimmedString.lowercaseString;
     clientId = clientId.adTrimmedString.lowercaseString;
     RETURN_NIL_ON_NIL_ARGUMENT(authority);
     RETURN_NIL_ON_NIL_EMPTY_ARGUMENT(clientId);
     
     ADTokenCacheKey* key = [[ADTokenCacheKey alloc] initWithAuthority:authority resource:resource clientId:clientId];
-    SAFE_ARC_AUTORELEASE(key);
     return key;
 }
 
@@ -145,11 +129,8 @@
     }
     
     _authority = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"authority"];
-    SAFE_ARC_RETAIN(_authority);
     _resource = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"resource"];
-    SAFE_ARC_RETAIN(_resource);
     _clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
-    SAFE_ARC_RETAIN(_clientId);
     
     [self calculateHash];
     

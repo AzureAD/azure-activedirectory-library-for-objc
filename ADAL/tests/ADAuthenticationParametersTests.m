@@ -26,7 +26,7 @@
 #import "ADAuthenticationSettings.h"
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADAuthenticationParameters+Internal.h"
-#import "ADTestURLConnection.h"
+#import "ADTestURLSession.h"
 
 @interface ADAuthenticationParametersTests : XCTestCase
 {
@@ -44,9 +44,7 @@
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_ERROR];
     // Runs before each test case. Just in case, set them to nil.
-    SAFE_ARC_RELEASE(mParameters);
     mParameters = nil;
-    SAFE_ARC_RELEASE(mError);
     mError = nil;
     [ADAuthenticationSettings sharedInstance].requestTimeOut = 5;
 }
@@ -54,9 +52,7 @@
 - (void)tearDown
 {
     //Runs after each test case. Clean up to ensure that the memory is freed before the other test:
-    SAFE_ARC_RELEASE(mParameters);
     mParameters = nil;
-    SAFE_ARC_RELEASE(mError);
     mError = nil;
     [self adTestEnd];
     [super tearDown];
@@ -80,9 +76,7 @@
                            line: (int) sourceLine
 {
     //Reset
-    SAFE_ARC_RELEASE(mParameters);
     mParameters = nil;
-    SAFE_ARC_RELEASE(mError);
     mError = nil;
     __block dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     [self adCallAndWaitWithFile:@"" __FILE__ line:__LINE__ semaphore:sem block:^
@@ -92,12 +86,8 @@
                                               completionBlock:^(ADAuthenticationParameters * par, ADAuthenticationError* err)
          {
              //Fill in the class members with the result:
-             SAFE_ARC_RELEASE(mParameters);
              mParameters = par;
-             SAFE_ARC_RETAIN(mParameters);
-             SAFE_ARC_RELEASE(mError);
              mError = err;
-             SAFE_ARC_RETAIN(mError);
             dispatch_semaphore_signal(sem);
          }];
     }];
@@ -151,7 +141,7 @@
 - (void) testParametersFromResourceURLNoResponse
 {
     NSURL* resource = [[NSURL alloc] initWithString:@"https://noneistingurl12345676789.com"];
-    [ADTestURLConnection addNotFoundResponseForURLString:@"https://noneistingurl12345676789.com?x-client-Ver=" ADAL_VERSION_STRING];
+    [ADTestURLSession addNotFoundResponseForURLString:@"https://noneistingurl12345676789.com?x-client-Ver=" ADAL_VERSION_STRING];
     [self callAsynchronousCreator:resource line:__LINE__];
     XCTAssertNil(mParameters, "No parameters should be extracted from non-existing resource.");
     XCTAssertNotNil(mError, "Error should be set.");
@@ -170,7 +160,7 @@
                                                      httpHeaderFields:@{@"WWW-Authenticate" : @"Bearer authorization_uri=\"https://login.windows.net/omercantest.onmicrosoft.com\"" }
                                                      dictionaryAsJSON:@{}];
     
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     [self callAsynchronousCreator:resourceUrl line:__LINE__];
     [self verifyWithAuthority:@"https://login.windows.net/omercantest.onmicrosoft.com"];
 
@@ -182,24 +172,19 @@
                                                      httpHeaderFields:@{@"WWW-Authenticate" : @"Bearer authorization_uri=\"https://login.windows.net/omercantest.onmicrosoft.com\"" }
                                                      dictionaryAsJSON:@{}];
     
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     [self callAsynchronousCreator:resourceUrl line:__LINE__];
-    SAFE_ARC_RELEASE(resourceUrl);
     [self verifyWithAuthority:@"https://login.windows.net/omercantest.onmicrosoft.com"];
 }
 
 -(void) testParametersFromAnauthorizedResponseNilParameter
 {
     ADAuthenticationError* error;//A local variable is needed for __autoreleasing reference pointers.
-    SAFE_ARC_RELEASE(mParameters);
     mParameters  = [ADAuthenticationParameters parametersFromResponse:nil error:&error];
-    SAFE_ARC_RETAIN(mParameters);
     [self adValidateFactoryForInvalidArgument:@"response" error:error];
     
     //Now test that the method can handle passing nil for error:
-    SAFE_ARC_RELEASE(mParameters);
     mParameters = [ADAuthenticationParameters parametersFromResponse:nil error:nil];
-    SAFE_ARC_RETAIN(mParameters);
     XCTAssertNil(mParameters, "No parameters should be created.");
 }
 
@@ -207,14 +192,11 @@
 {
     ADAuthenticationError* error;//A local variable is needed for __autoreleasing reference pointers.
     mParameters = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:nil error:&error];
-    SAFE_ARC_RETAIN(mParameters);
     XCTAssertNil(mParameters);
     XCTAssertNotNil(error);
     
     //Now test that the method can handle passing nil for error:
-    SAFE_ARC_RELEASE(mParameters);
     mParameters = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:nil error:nil];
-    SAFE_ARC_RETAIN(mParameters);
     XCTAssertNil(mParameters, "No parameters should be created.");
 }
 
@@ -233,7 +215,7 @@
     {
         [self recordFailureWithDescription:@"Empty error details." inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
-    if (![error.errorDetails adContainsString:@"Unauthorized"])
+    if (![error.errorDetails containsString:@"Unauthorized"])
     {
         [self recordFailureWithDescription:@"Wrong error details." inFile:@"" __FILE__ atLine:sourceLine expected:NO];
     }
@@ -243,16 +225,12 @@
 {
     NSHTTPURLResponse* response = [NSHTTPURLResponse new];
     ADAuthenticationError* error;//A local variable is needed for __autoreleasing reference pointers.
-    SAFE_ARC_RELEASE(mParameters);
     mParameters = [ADAuthenticationParameters parametersFromResponse:response error:&error];
-    SAFE_ARC_RETAIN(mParameters);
     XCTAssertNil(mParameters, "Parameters object returned on a missing header.");
     [self expectedError:error line:__LINE__];
     
     //Now test that the method can handle passing nil for error:
-    SAFE_ARC_RELEASE(mParameters);
     mParameters = [ADAuthenticationParameters parametersFromResponse:response error:nil];
-    SAFE_ARC_RETAIN(mParameters);
     XCTAssertNil(mParameters, "No parameters should be created.");
 }
 
@@ -268,9 +246,7 @@
                                                               HTTPVersion:@"1.1"
                                                              headerFields:headerFields1];
     ADAuthenticationError* error = nil;//A local variable is needed for __autoreleasing reference pointers.
-    SAFE_ARC_RELEASE(mParameters);
     mParameters = [ADAuthenticationParameters parametersFromResponse:response1 error:&error];
-    SAFE_ARC_RETAIN(mParameters);
     XCTAssertNil(error);
     [self verifyWithAuthority:@"https://www.example.com"];
     
@@ -280,9 +256,7 @@
                                                                statusCode:401
                                                               HTTPVersion:@"1.1"
                                                              headerFields:headerFields2];
-    SAFE_ARC_RELEASE(mParameters);
     mParameters = [ADAuthenticationParameters parametersFromResponse:response2 error:&error];
-    SAFE_ARC_RETAIN(mParameters);
     XCTAssertNil(error);
     [self verifyWithAuthority:@"https://www.example.com"];
 

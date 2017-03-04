@@ -27,6 +27,7 @@
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
 #import "ADTokenCacheKey.h"
+#import "ADTokenCacheItem+Internal.h"
 
 @implementation ADTokenCacheItem
 
@@ -85,21 +86,6 @@
     [item calculateHash];
     
     return item;
-}
-
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_resource);
-    SAFE_ARC_RELEASE(_authority);
-    SAFE_ARC_RELEASE(_clientId);
-    SAFE_ARC_RELEASE(_accessToken);
-    SAFE_ARC_RELEASE(_accessTokenType);
-    SAFE_ARC_RELEASE(_refreshToken);
-    SAFE_ARC_RELEASE(_expiresOn);
-    SAFE_ARC_RELEASE(_userInformation);
-    SAFE_ARC_RELEASE(_sessionKey);
-    
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 - (ADTokenCacheKey*)extractKey:(ADAuthenticationError* __autoreleasing *)error
@@ -170,33 +156,20 @@
     }
     
     _resource = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"resource"];
-    SAFE_ARC_RETAIN(_resource);
     _authority = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"authority"];
-    SAFE_ARC_RETAIN(_authority);
     _clientId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
-    SAFE_ARC_RETAIN(_clientId);
 	_familyId = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
-	SAFE_ARC_RETAIN(_familyId);
 
     _accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
-    SAFE_ARC_RETAIN(_accessToken);
     _accessTokenType = [aDecoder decodeObjectOfClass:[NSString class]
                                                   forKey:@"accessTokenType"];
-    SAFE_ARC_RETAIN(_accessTokenType);
     _sessionKey = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"sessionKey"];
-    SAFE_ARC_RETAIN(_sessionKey);
     _refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
-    SAFE_ARC_RETAIN(_refreshToken);
     _expiresOn = [aDecoder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
-    SAFE_ARC_RETAIN(_expiresOn);
     _userInformation = [aDecoder decodeObjectOfClass:[ADUserInformation class] forKey:@"userInformation"];
-    SAFE_ARC_RETAIN(_userInformation);
 	_tombstone = [aDecoder decodeObjectOfClass:[NSMutableDictionary class] forKey:@"tombstone"];
-	SAFE_ARC_RETAIN(_tombstone);
     _additionalClient = [aDecoder decodeObjectOfClass:[NSMutableDictionary class] forKey:@"additionalClient"];
-    SAFE_ARC_RETAIN(_additionalClient);
     _additionalServer = [aDecoder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
-    SAFE_ARC_RETAIN(_additionalServer);
     
     [self calculateHash];
     
@@ -236,12 +209,12 @@
     return YES;
 }
 
-- (NSString*)description
+- (NSString *)description
 {
     return [NSString stringWithFormat:@"(authority=%@ clientId=%@ accessToken=%@ accessTokenType=%@ refreshToken=%@ resource=%@)",
             _authority, _clientId,
-            [NSString adIsStringNilOrBlank:_accessToken] ? @"(nil)" : @"(present)", _accessTokenType,
-            [NSString adIsStringNilOrBlank:_refreshToken] ? @"(nil)" : @"(present)", _resource];
+            [NSString adIsStringNilOrBlank:_accessToken] ? @"(nil)" : [ADLogger getHash:_accessToken], _accessTokenType,
+            [NSString adIsStringNilOrBlank:_refreshToken] ? @"(nil)" : [ADLogger getHash:_refreshToken], _resource];
 }
 
 - (NSString *)clientId
@@ -255,7 +228,6 @@
     {
         return;
     }
-    SAFE_ARC_RELEASE(_clientId);
     _clientId = [clientId copy];
     [self calculateHash];
 }
@@ -271,9 +243,7 @@
     {
         return;
     }
-    SAFE_ARC_RELEASE(_userInformation);
     _userInformation = userInformation;
-    SAFE_ARC_RETAIN(_userInformation);
     [self calculateHash];
 }
 
@@ -288,7 +258,6 @@
     {
         return;
     }
-    SAFE_ARC_RELEASE(_resource);
     _resource = [resource copy];
     [self calculateHash];
 }
@@ -304,11 +273,9 @@
     {
         return;
     }
-    SAFE_ARC_RELEASE(_authority);
     _authority = [authority copy];
     [self calculateHash];
 }
-
 - (NSDictionary *)tombstone
 {
     return _tombstone;

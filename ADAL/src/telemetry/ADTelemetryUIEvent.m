@@ -27,37 +27,29 @@
 
 @implementation ADTelemetryUIEvent
 
+- (id)initWithName:(NSString*)eventName
+         requestId:(NSString*)requestId
+     correlationId:(NSUUID*)correlationId
+{
+    if (!(self = [super initWithName:eventName requestId:requestId correlationId:correlationId]))
+    {
+        return nil;
+    }
+    
+    [self setProperty:AD_TELEMETRY_KEY_USER_CANCEL value:@""];
+    [self setProperty:AD_TELEMETRY_KEY_NTLM_HANDLED value:@""];
+    
+    return self;
+}
+
 - (void)setLoginHint:(NSString*)hint
 {
-    [self setProperty:AD_TELEMETRY_LOGIN_HINT value:[hint adComputeSHA256]];
+    [self setProperty:AD_TELEMETRY_KEY_LOGIN_HINT value:[hint adComputeSHA256]];
 }
 
 - (void)setNtlm:(NSString*)ntlmHandled
 {
-    [self setProperty:AD_TELEMETRY_NTLM_HANDLED value:ntlmHandled];
-}
-
-- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
-{
-    [super addAggregatedPropertiesToDictionary:eventToBeDispatched];
-    
-    (void)eventToBeDispatched;
-    NSArray* properties = [self getProperties];
-    for (ADTelemetryProperty* property in properties)
-    {
-        if ([property.name isEqualToString:AD_TELEMETRY_LOGIN_HINT]
-            ||[property.name isEqualToString:AD_TELEMETRY_NTLM_HANDLED])
-        {
-            [eventToBeDispatched setObject:property.value forKey:property.name];
-        }
-    }
-    
-    int UIEventCount = 1;
-    if ([eventToBeDispatched objectForKey:AD_TELEMETRY_UI_EVENT_COUNT])
-    {
-        UIEventCount = [[eventToBeDispatched objectForKey:AD_TELEMETRY_UI_EVENT_COUNT] intValue] + 1;
-    }
-    [eventToBeDispatched setObject:[NSString stringWithFormat:@"%d", UIEventCount] forKey:AD_TELEMETRY_UI_EVENT_COUNT];
+    [self setProperty:AD_TELEMETRY_KEY_NTLM_HANDLED value:ntlmHandled];
 }
 
 @end

@@ -35,12 +35,12 @@
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
 #import "ADTelemetryHttpEvent.h"
+#import "ADTelemetryEventStrings.h"
 
-@interface ADWebRequest () <NSURLConnectionDelegate>
+@interface ADWebRequest ()
 
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response;
 - (void)send;
-- (BOOL)verifyRequestURL:(NSURL *)requestURL;
 
 @end
 
@@ -53,6 +53,8 @@
 @synthesize timeout  = _timeout;
 @synthesize isGetRequest = _isGetRequest;
 @synthesize correlationId = _correlationId;
+@synthesize session = _session;
+@synthesize configuration = _configuration;
 
 - (NSData *)body
 {
@@ -68,7 +70,6 @@
         {
             return;
         }
-        SAFE_ARC_RELEASE(_requestData);
         _requestData = [body copy];
         
         // Add default HTTP Headers to the request: Expect
@@ -94,62 +95,23 @@
     _timeout           = [[ADAuthenticationSettings sharedInstance] requestTimeOut];
     
     _correlationId     = context.correlationId;
-    SAFE_ARC_RETAIN(_correlationId);
     
     _telemetryRequestId = context.telemetryRequestId;
-    SAFE_ARC_RETAIN(_telemetryRequestId);
     
-    _operationQueue = [[NSOperationQueue alloc] init];
-    [_operationQueue setMaxConcurrentOperationCount:1];
+    _configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    _session = [NSURLSession sessionWithConfiguration:_configuration delegate:self delegateQueue:nil];
     
     return self;
-}
-
-
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_connection);
-    _connection = nil;
-    
-    SAFE_ARC_RELEASE(_requestURL);
-    _requestURL = nil;
-    
-    SAFE_ARC_RELEASE(_requestHeaders);
-    _requestHeaders = nil;
-    SAFE_ARC_RELEASE(_requestData);
-    _requestData = nil;
-    
-    SAFE_ARC_RELEASE(_response);
-    _response = nil;
-    SAFE_ARC_RELEASE(_responseData);
-    _responseData = nil;
-    
-    SAFE_ARC_RELEASE(_correlationId);
-    _correlationId = nil;
-    
-    SAFE_ARC_RELEASE(_telemetryRequestId);
-    _telemetryRequestId = nil;
-    
-    SAFE_ARC_RELEASE(_operationQueue);
-    _operationQueue = nil;
-    
-    SAFE_ARC_RELEASE(_completionHandler);
-    _completionHandler = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 // Cleans up and then calls the completion handler
 - (void)completeWithError:(NSError *)error andResponse:(ADWebResponse *)response
 {
     // Cleanup
-    SAFE_ARC_RELEASE(_response);
     _response       = nil;
-    SAFE_ARC_RELEASE(_responseData);
     _responseData   = nil;
-    
-    SAFE_ARC_RELEASE(_connection);
-    _connection     = nil;
+
+    _task           = nil;
     
     [self stopTelemetryEvent:error response:response];
     _completionHandler(error, response);
@@ -157,12 +119,8 @@
 
 - (void)send:(void (^)(NSError *, ADWebResponse *))completionHandler
 {
-    SAFE_ARC_RELEASE(_completionHandler);
     _completionHandler = [completionHandler copy];
-    
-    SAFE_ARC_RELEASE(_response);
     _response          = nil;
-    SAFE_ARC_RELEASE(_responseData);
     _responseData      = [[NSMutableData alloc] init];
     
     [self send];
@@ -170,9 +128,7 @@
 
 - (void)resend
 {
-    SAFE_ARC_RELEASE(_response);
     _response          = nil;
-    SAFE_ARC_RELEASE(_responseData);
     _responseData      = [[NSMutableData alloc] init];
 
     [self send];
@@ -180,7 +136,7 @@
 
 - (void)send
 {
-    [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:@"http_request"];
+    [[ADTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:AD_TELEMETRY_EVENT_HTTP_REQUEST];
     [_requestHeaders addEntriesFromDictionary:[ADLogger adalId]];
     //Correlation id:
     if (_correlationId)
@@ -209,125 +165,93 @@
     
     [ADURLProtocol addCorrelationId:_correlationId toRequest:request];
     
-    SAFE_ARC_RELEASE(_connection);
-    _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
-    SAFE_ARC_RELEASE(request);
-    [_connection setDelegateQueue:_operationQueue];
-    [_connection start];
+    _task = [_session dataTaskWithRequest:request];
+    [_task resume];
 }
 
-- (BOOL)verifyRequestURL:(NSURL *)requestURL
+
+#pragma mark - NSURLSession delegates
+- (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
 {
-    if ( requestURL == nil )
-        return NO;
+    (void)session;
+    (void)challenge;
     
-    if ( ![requestURL.scheme isEqualToString:@"http"] && ![requestURL.scheme isEqualToString:@"https"] )
-        return NO;
-    
-    return YES;
+    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
 }
 
-#pragma mark - NSURLConnectionDelegate
-
-// Connection Authentication
-
-// Discussion
-// This method allows the delegate to make an informed decision about connection authentication at once.
-// If the delegate implements this method, it has no need to implement connection:canAuthenticateAgainstProtectionSpace:, connection:didReceiveAuthenticationChallenge:, connectionShouldUseCredentialStorage:.
-// In fact, these other methods are not invoked.
-- (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-#pragma unused(connection)
-    // Do default handling
-    [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
+    (void)session;
+    (void)task;
+    
+    if (error == nil)
+    {
+        //
+        // NOTE: There is a race condition between this method and the challenge handling methods
+        //       dependent on the the challenge processing that the application performs.
+        //
+        NSAssert( _response != nil, @"No HTTP Response available" );
+        
+        ADWebResponse* response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
+        [self completeWithError:nil andResponse:response];
+    }
+    else
+    {
+        [self completeWithError:error andResponse:nil];
+    }
 }
 
-// Connection Completion
-
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+#pragma mark - NSURLSessionDataDelegate
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
 {
-#pragma unused(connection)
-    
-    [self completeWithError:error andResponse:nil];
-}
-
-// Method Group
-- (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse
-{
-#pragma unused(connection)
-#pragma unused(cachedResponse)
-    
-    return nil;
-}
-
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
-{
-#pragma unused(connection)
-    
-    SAFE_ARC_RELEASE(_response);
+    (void)session;
+    (void)dataTask;
+  
     _response = (NSHTTPURLResponse *)response;
-    SAFE_ARC_RETAIN(_response);
+    completionHandler(NSURLSessionResponseAllow);
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
-#pragma unused(connection)
+    (void)session;
+    (void)dataTask;
     
     [_responseData appendData:data];
 }
 
-- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler
 {
-#pragma unused(connection)
-#pragma unused(redirectResponse)
+    (void)session;
+    (void)response;
+    (void)task;
+    
     NSURL* requestURL = [request URL];
     NSURL* modifiedURL = [ADHelpers addClientVersionToURL:requestURL];
+    
     if (modifiedURL == requestURL)
     {
-        return request;
+        completionHandler(request);
+        return;
     }
-    
+
     NSMutableURLRequest* mutableRequest = [NSMutableURLRequest requestWithURL:modifiedURL];
     [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
-    return mutableRequest;
-}
-
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection
-{
-#pragma unused(connection)
     
-    //
-    // NOTE: There is a race condition between this method and the challenge handling methods
-    //       dependent on the the challenge processing that the application performs.
-    //
-    NSAssert( _response != nil, @"No HTTP Response available" );
-    
-    ADWebResponse* response = [[ADWebResponse alloc] initWithResponse:_response data:_responseData];
-    SAFE_ARC_AUTORELEASE(response);
-    [self completeWithError:nil andResponse:response];
-}
-
-//required method Available in OS X v10.6 through OS X v10.7, then deprecated
--(void)connection:(NSURLConnection *)connection didSendBodyData:(NSInteger)bytesWritten totalBytesWritten:(NSInteger)totalBytesWritten totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
-{
-#pragma unused(connection)
-#pragma unused(bytesWritten)
-#pragma unused(totalBytesWritten)
-#pragma unused(totalBytesExpectedToWrite)
-    
+    completionHandler(mutableRequest);
+  
 }
 
 - (void)stopTelemetryEvent:(NSError *)error
                   response:(ADWebResponse *)response
 {
-    ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:@"http_request" requestId:_telemetryRequestId correlationId:_correlationId];
+    ADTelemetryHttpEvent* event = [[ADTelemetryHttpEvent alloc] initWithName:AD_TELEMETRY_EVENT_HTTP_REQUEST requestId:_telemetryRequestId correlationId:_correlationId];
 
     [event setHttpMethod:_isGetRequest ? @"GET" : @"POST"];
     [event setHttpPath:[NSString stringWithFormat:@"%@://%@/%@", _requestURL.scheme, _requestURL.host, _requestURL.path]];
     [event setHttpRequestIdHeader:[response.headers objectForKey:OAUTH2_CORRELATION_ID_REQUEST_VALUE]];
     if (error)
     {
-        [event setOAuthErrorCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
+        [event setHttpErrorCode:[NSString stringWithFormat: @"%ld", (long)[error code]]];
         [event setHttpErrorDomain:[error domain]];
     }
     else if (response)
@@ -335,8 +259,11 @@
         [event setHttpResponseCode:[NSString stringWithFormat: @"%ld", (long)[response statusCode]]];
     }
 
+    [event setOAuthErrorCode:response];
+    
+    [event setHttpRequestQueryParams:_requestURL.query];
+    
     [[ADTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
-    SAFE_ARC_RELEASE(event);
 }
 
 @end

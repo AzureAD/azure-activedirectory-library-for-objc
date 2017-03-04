@@ -34,7 +34,6 @@ static NSMutableDictionary* s_customHeadersForSingleUse = nil;
     {
         s_customHeaders =
             [NSMutableDictionary dictionaryWithDictionary: @{@"x-ms-PkeyAuth":@"1.0"}];
-        SAFE_ARC_RETAIN(s_customHeaders);
         s_customHeadersForSingleUse = [NSMutableDictionary new];
     }
 }

@@ -52,9 +52,9 @@ typedef void (^ADParametersCompletion)(ADAuthenticationParameters* parameters, A
 /*! Creates authentication parameters from the response received from the resource. The method 
  creates an HTTP GET request and expects the resource to have unauthorized status (401) and "WWW-Authenticate" 
  header, containing authentication parameters.
- @param: response: the response received from the server with the requirements above. May return null if
+ @param response The response received from the server with the requirements above. May return null if
  an error has occurred.
- @param: error: Can be nil. If this parameter is not nil and an error occurred, it will be set to
+ @param error Can be nil. If this parameter is not nil and an error occurred, it will be set to
  contain the error
  */
 +(ADAuthenticationParameters*) parametersFromResponse: (NSHTTPURLResponse*) response
@@ -62,8 +62,8 @@ typedef void (^ADParametersCompletion)(ADAuthenticationParameters* parameters, A
 
 /*! Creates authentication parameters from "WWW-Authenticate" header of the response received
  from the resource. The method expects the header to contain authentication parameters.
- @param: authenticateHeader: the http response header, containing the authentication parameters.
- @param: error: Can be nil. If this parameter is not nil and an error occurred, it will be set to
+ @param authenticateHeader The http response header, containing the authentication parameters.
+ @param error Can be nil. If this parameter is not nil and an error occurred, it will be set to
  contain the error
  */
 +(ADAuthenticationParameters*) parametersFromResponseAuthenticateHeader: (NSString*) authenticateHeader
@@ -72,8 +72,8 @@ typedef void (^ADParametersCompletion)(ADAuthenticationParameters* parameters, A
 /*! Extracts the authority from the the error code 401 http error code response. The method
  expects that the resource will respond with a HTTP 401 and "WWW-Authenticate" header, containing the
  authentication parameters.
- @param resourceUrl: address of the resource.
- @param completionBlock: the callback block to be executed upon completion.
+ @param resourceUrl The address of the resource.
+ @param completion The callback block to be executed upon completion.
  */
 +(void) parametersFromResourceUrl: (NSURL*)resourceUrl
                   completionBlock: (ADParametersCompletion) completion;

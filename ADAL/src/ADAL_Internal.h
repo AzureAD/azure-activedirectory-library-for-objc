@@ -26,7 +26,7 @@
 // (Note: All Info.plist files read version numbers from the following three lines
 // through build script. Don't change its format unless changing build script as well.)
 #define ADAL_VER_HIGH       2
-#define ADAL_VER_LOW        3
+#define ADAL_VER_LOW        4
 #define ADAL_VER_PATCH      0
 
 #define STR_HELPER(x) #x
@@ -37,8 +37,8 @@
 // Framework versions only support high and low for the double value, sadly.
 #define ADAL_VERSION_NUMBER INT_CONCAT(ADAL_VER_HIGH, ADAL_VER_LOW)
 
-#define ADAL_VERSION_STRING     STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH) "-dev1"
-#define ADAL_VERSION_NSSTRING   @"" STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH) "-dev1"
+#define ADAL_VERSION_STRING     STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH) "-dev"
+#define ADAL_VERSION_NSSTRING   @"" STR(ADAL_VER_HIGH) "." STR(ADAL_VER_LOW) "." STR(ADAL_VER_PATCH) "-dev"
 
 #define ADAL_VERSION_HELPER(high, low, patch) adalVersion_ ## high ## _ ## low ## _ ## patch
 #define ADAL_VERSION_(high, low, patch) ADAL_VERSION_HELPER(high, low, patch)
@@ -154,17 +154,3 @@ ADAL_VERSION; \
 AD_LOG_VERBOSE(__adalVersion, nil, __where); \
 }
 
-#if __has_feature(objc_arc)
-#define __WEAK __weak
-#define SAFE_ARC_RETAIN(x)
-#define SAFE_ARC_RELEASE(x)
-#define SAFE_ARC_AUTORELEASE(x)
-#define SAFE_ARC_SUPER_DEALLOC()
-
-#else // ! __has_feature(objc_arc)
-#define __WEAK
-#define SAFE_ARC_RETAIN(x) ([(x) retain])
-#define SAFE_ARC_RELEASE(x) { [(x) release]; }
-#define SAFE_ARC_AUTORELEASE(x) ([(x) autorelease])
-#define SAFE_ARC_SUPER_DEALLOC() ([super dealloc])
-#endif

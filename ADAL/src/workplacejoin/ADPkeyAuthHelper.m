@@ -115,7 +115,7 @@
         }
         else if (expectedThumbprint)
         {
-            if (![NSString adSame:expectedThumbprint toString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]])
+            if (![expectedThumbprint isEqualToString:[ADPkeyAuthHelper computeThumbprint:[info certificateData]]])
             {
                 AD_LOG_ERROR(@"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.", AD_ERROR_SERVER_WPJ_REQUIRED, nil, nil);
                 info = nil;
@@ -152,8 +152,8 @@
     return nil;
 }
 
-+ (BOOL)isValidIssuer:(NSString*)certAuths
-   keychainCertIssuer:(NSString*)keychainCertIssuer
++ (BOOL)isValidIssuer:(NSString *)certAuths
+   keychainCertIssuer:(NSString *)keychainCertIssuer
 {
     NSString *regexString = @"OU=[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
     keychainCertIssuer = [keychainCertIssuer uppercaseString];
@@ -165,7 +165,7 @@
         {
             NSRange matchedRange = [myMatch rangeAtIndex: i];
             NSString *text = [certAuths substringWithRange:matchedRange];
-            if([NSString adSame:text toString:keychainCertIssuer]){
+            if ([text isEqualToString:keychainCertIssuer]){
                 return true;
             }
         }

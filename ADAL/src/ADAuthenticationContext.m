@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "ADAuthenticationSettings.h"
-#import "ADInstanceDiscovery.h"
 #import "ADTokenCache+Internal.h"
 #import "ADRequestParameters.h"
 #if TARGET_OS_IPHONE
@@ -102,7 +101,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [cache setDelegate:delegate];
     
     [self setTokenCacheStore:cache];
-    SAFE_ARC_RELEASE(cache);
     return self;
 }
 
@@ -131,14 +129,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
                  validateAuthority:validateAuthority
                         tokenCache:tokenCache
                              error:error];
-}
-
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_authority);
-    SAFE_ARC_RELEASE(_tokenCacheStore);
-    
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 - (ADAuthenticationRequest*)requestWithRedirectString:(NSString*)redirectUri
@@ -204,8 +194,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         
         return nil;
     }
-    
-    SAFE_ARC_AUTORELEASE(context);
     return context;
 }
 
@@ -236,12 +224,12 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 }
 #endif // TARGET_OS_IPHONE
 
-+ (BOOL)isResponseFromBroker:(NSString*)sourceApplication
-                    response:(NSURL*)response
++ (BOOL)isResponseFromBroker:(NSString *)sourceApplication
+                    response:(NSURL *)response
 {
     return //sourceApplication && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
     response &&
-    [NSString adSame:sourceApplication toString:@"com.microsoft.azureauthenticator"];
+    [sourceApplication isEqualToString:@"com.microsoft.azureauthenticator"];
 }
 
 + (BOOL)handleBrokerResponse:(NSURL*)response
@@ -286,9 +274,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setSamlAssertion:assertion];
     [request setAssertionType:assertionType];
     
-    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
-                    apiId:@"6"
-          completionBlock:completionBlock];
+    [request acquireToken:@"6" completionBlock:completionBlock];
     
 }
 
@@ -301,9 +287,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     API_ENTRY;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     
-    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
-                    apiId:@"118"
-          completionBlock:completionBlock];
+    [request acquireToken:@"118" completionBlock:completionBlock];
 }
 
 - (void)acquireTokenWithResource:(NSString*)resource
@@ -317,9 +301,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     
     [request setUserId:userId];
     
-    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
-                    apiId:@"121"
-          completionBlock:completionBlock];
+    [request acquireToken:@"121" completionBlock:completionBlock];
 }
 
 - (void)acquireTokenWithResource:(NSString*)resource
@@ -335,9 +317,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setUserId:userId];
     [request setExtraQueryParameters:queryParams];
     
-    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
-                    apiId:@"124"
-          completionBlock:completionBlock];
+    [request acquireToken:@"124" completionBlock:completionBlock];
 }
 
 - (void)acquireTokenSilentWithResource:(NSString*)resource
@@ -349,9 +329,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
     
     [request setSilent:YES];
-    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
-                    apiId:@"7"
-          completionBlock:completionBlock];
+    [request acquireToken:@"7" completionBlock:completionBlock];
 }
 
 - (void)acquireTokenSilentWithResource:(NSString*)resource
@@ -365,9 +343,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     
     [request setUserId:userId];
     [request setSilent:YES];
-    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
-                    apiId:@"8"
-          completionBlock:completionBlock];
+    [request acquireToken:@"8" completionBlock:completionBlock];
 }
 
 - (void)acquireTokenWithResource:(NSString*)resource
@@ -384,9 +360,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setUserId:userId];
     [request setPromptBehavior:promptBehavior];
     [request setExtraQueryParameters:queryParams];
-    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
-                    apiId:@"127"
-          completionBlock:completionBlock];
+    [request acquireToken:@"127" completionBlock:completionBlock];
 }
 
 - (void)acquireTokenWithResource:(NSString*)resource
@@ -403,9 +377,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setPromptBehavior:promptBehavior];
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
-    [request acquireToken:[NSString stringWithUTF8String:__FUNCTION__]
-                    apiId:@"130"
-          completionBlock:completionBlock];
+    [request acquireToken:@"130" completionBlock:completionBlock];
 }
 
 @end
@@ -419,7 +391,6 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
         return;
     }
     
-    SAFE_ARC_RELEASE(_tokenCacheStore);
     _tokenCacheStore = [[ADTokenCacheAccessor alloc] initWithDataSource:dataSource authority:_authority];
 }
 

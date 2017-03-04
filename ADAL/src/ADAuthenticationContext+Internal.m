@@ -24,7 +24,7 @@
 #import "ADAuthenticationContext+Internal.h"
 #import "ADUserIdentifier.h"
 #import "ADTokenCacheItem+Internal.h"
-#import "ADInstanceDiscovery.h"
+#import "ADHelpers.h"
 
 NSString* const ADUnknownError = @"Uknown error.";
 NSString* const ADCredentialsNeeded = @"The user credentials are needed to obtain access token. Please call the non-silent acquireTokenWithResource methods.";
@@ -46,10 +46,9 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
         return nil;
     }
     
-    NSString* extractedAuthority = [ADInstanceDiscovery canonicalizeAuthority:authority];
+    NSString* extractedAuthority = [ADHelpers canonicalizeAuthority:authority];
     if (!extractedAuthority)
     {
-        SAFE_ARC_RELEASE(self);
         RETURN_ON_INVALID_ARGUMENT(!extractedAuthority, authority, nil);
     }
     
@@ -111,7 +110,6 @@ NSString* const ADRedirectUriInvalidError = @"Your AuthenticationContext is conf
         NSUUID* correlationId = [dictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE] ?
                                 [[NSUUID alloc] initWithUUIDString:[dictionary objectForKey:OAUTH2_CORRELATION_ID_RESPONSE]]:
                                 nil;
-        SAFE_ARC_AUTORELEASE(correlationId);
         return [ADAuthenticationError OAuthServerError:serverOAuth2Error description:errorDetails code:errorCode correlationId:correlationId];
     }
     //In the case of more generic error, e.g. server unavailable, DNS error or no internet connection, the error object will be directly placed in the dictionary:

@@ -68,7 +68,7 @@ BOOL validBase64Characters(const byte* data, const int size)
 /// See RFC 4648, Section 5 plus switch characters 62 and 63 and no padding.
 /// For a good overview of Base64 encoding, see http://en.wikipedia.org/wiki/Base64
 /// </remarks>
-+ (NSData *)Base64DecodeData:(NSString *)encodedString
++ (NSData *)adBase64DecodeData:(NSString *)encodedString
 {
     if ( nil == encodedString )
     {
@@ -165,11 +165,9 @@ BOOL validBase64Characters(const byte* data, const int size)
 
 - (NSString *)adBase64UrlDecode
 {
-    NSData *decodedData = [self.class Base64DecodeData:self];
+    NSData *decodedData = [self.class adBase64DecodeData:self];
     
-    NSString *string = [[NSString alloc] initWithData:decodedData encoding:NSUTF8StringEncoding];
-    SAFE_ARC_AUTORELEASE(string);
-    return string;
+    return [[NSString alloc] initWithData:decodedData encoding:NSUTF8StringEncoding];
 }
 
 //Helper method to encode 3 bytes into a sequence of 4 bytes:
@@ -189,7 +187,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 /// See RFC 4648, Section 5 plus switch characters 62 and 63 and no padding.
 /// For a good overview of Base64 encoding, see http://en.wikipedia.org/wiki/Base64
 /// </remarks>
-+ (NSString *)Base64EncodeData:(NSData *)data
++ (NSString *)adBase64EncodeData:(NSData *)data
 {
     if ( nil == data )
         return nil;
@@ -269,68 +267,23 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 {
     NSData *decodedData = [self dataUsingEncoding:NSUTF8StringEncoding];
     
-    return [self.class Base64EncodeData:decodedData];
-}
-
-/* Caches statically the non-white characterset */
-+ (NSCharacterSet*)nonWhiteCharSet
-{
-    static NSCharacterSet* nonWhiteCharSet;//Cached instance
-    static dispatch_once_t once;
-    @synchronized(self)
-    {
-        dispatch_once(&once, ^{
-            //Instance initialization (only once):
-            nonWhiteCharSet = [[NSCharacterSet whitespaceAndNewlineCharacterSet] invertedSet];
-            SAFE_ARC_RETAIN(nonWhiteCharSet);
-        });
-    }
-    return nonWhiteCharSet;
+    return [self.class adBase64EncodeData:decodedData];
 }
 
 + (BOOL)adIsStringNilOrBlank:(NSString *)string
 {
     if (!string || !string.length)
-        return YES;
-    else
     {
-        long nonWhite = [string adFindNonWhiteCharacterAfter:0];
-        return nonWhite >= string.length;
-    }
-}
-
-- (BOOL)adContainsString:(NSString *)contained
-{
-    THROW_ON_NIL_ARGUMENT(contained);
-    if (!contained.length)
         return YES;
-    return [self rangeOfString:contained].location != NSNotFound;
-}
-
-- (long)adFindCharactersFromSet:(NSCharacterSet *)set
-                          start:(long)startIndex
-{
-    THROW_ON_NIL_ARGUMENT(set);
-    long end = self.length;
-    if (startIndex >= end)
-        return end;
+    }
     
-    NSRange toSearch = {.location  = startIndex, .length = (end - startIndex)};
-    long found = [self rangeOfCharacterFromSet:set options:NSLiteralSearch range:toSearch].location;
-    return (found == NSNotFound) ? end : found;
-}
-
-- (long)adFindNonWhiteCharacterAfter:(long)startIndex
-{
-    return [self adFindCharactersFromSet:[NSString nonWhiteCharSet] start:startIndex];
-}
-
-- (long)adFindCharacter:(unichar)toFind
-                  start:(long)startIndex
-{
-    NSRange chars = {.location = toFind, .length = 1};
-    NSCharacterSet* set = [NSCharacterSet characterSetWithRange:chars];
-    return [self adFindCharactersFromSet:set start:startIndex];
+    static NSCharacterSet* nonWhiteCharSet;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        nonWhiteCharSet = [[NSCharacterSet whitespaceAndNewlineCharacterSet] invertedSet];
+    });
+    
+    return [string rangeOfCharacterFromSet:nonWhiteCharSet].location == NSNotFound;
 }
 
 - (NSString *)adTrimmedString
@@ -338,36 +291,6 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     //The white characters set is cached by the system:
     NSCharacterSet* set = [NSCharacterSet whitespaceAndNewlineCharacterSet];
     return [self stringByTrimmingCharactersInSet:set];
-}
-
-- (BOOL)adRangeHasPrefixWord:(NSString *)prefixWord
-                       range:(NSRange)range
-{
-    THROW_ON_NIL_ARGUMENT(prefixWord);
-    if (!prefixWord.length)
-        return YES;
-    if (range.location >= self.length)
-        return NO;//The range is beyond the string.
-    if (range.location + range.length >= self.length)
-        range.length = self.length - range.location;//Cut to the end of the string to avoid throwing below
-    
-    //Anchored search ensures that the search happens only at the start:
-    NSRange found =  [self rangeOfString:prefixWord options:NSAnchoredSearch range:range];//Can throw.
-    if (found.location == NSNotFound)
-        return NO;
-    long after = found.location + prefixWord.length;
-    if (after >= self.length || after >= (range.location + range.length))
-        return YES;//Full containment
-    
-    //The next character should be white space to complete the word:
-    return ([[NSCharacterSet whitespaceAndNewlineCharacterSet] characterIsMember:[self characterAtIndex:after]]);
-}
-
-- (BOOL)adSubstringHasPrefixWord:(NSString *)prefixWord
-                           start:(long)substringStart
-{
-    NSRange range = {.location = substringStart, .length = (self.length - substringStart)};
-    return [self adRangeHasPrefixWord:prefixWord range:range];
 }
 
 - (NSString *)adUrlFormDecode
@@ -387,31 +310,15 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 
 - (NSString *)adUrlFormEncode
 {
-    // Two step encode: first percent escape everything except spaces, then convert spaces to +
-    CFStringRef escapedString = CFURLCreateStringByAddingPercentEscapes( NULL,                         // Allocator
-                                                                        (__bridge CFStringRef)self,            // Original string
-                                                                        CFSTR(" "),                   // Characters to leave unescaped
-                                                                        CFSTR("!#$&'()*+,/:;=?@[]%"), // Legal Characters to be escaped
-                                                                        kCFStringEncodingUTF8 );      // Encoding
+    static NSCharacterSet* set = nil;
     
-    // Replace spaces with +
-    CFMutableStringRef encodedString = CFStringCreateMutableCopy( NULL, 0, escapedString );
-    CFStringFindAndReplace( encodedString, CFSTR(" "), CFSTR("+"), CFRangeMake( 0, CFStringGetLength( encodedString ) ), kCFCompareCaseInsensitive );
-    
-    CFRelease( escapedString );
-    
-    return CFBridgingRelease( encodedString );
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        set = [[NSCharacterSet characterSetWithCharactersInString:@"!#$&'()*+,/:;=?@[]%|^"] invertedSet];
+    });
+    NSString* encodedString = [self stringByAddingPercentEncodingWithAllowedCharacters:set];
+    return [encodedString stringByReplacingOccurrencesOfString:@" " withString:@"+"];
 }
-
-+ (BOOL)adSame:(NSString *)string1
-      toString:(NSString *)string2
-{
-    if (!string1)
-        return !string2; //if both are nil, they are equal
-    else
-        return [string1 isEqualToString:string2];
-}
-
 
 - (NSString*)adComputeSHA256
 {
@@ -424,139 +331,6 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
         [toReturn appendFormat:@"%02x", hash[i]];
     }
     return toReturn;
-}
-
-
-// Decodes the parameters that come in the Authorization header. We expect them in the following
-// format:
-//
-// <key>="<value>", key="<value>", key="<value>"
-// i.e. version="1.0",CertAuthorities="OU=MyOrganization,CN=MyThingy,DN=windows,DN=net,Context="context!"
-//
-// This parser is lenient on whitespace, and on the presence of enclosing quotation marks. It also
-// will allow commented out quotation marks
-
-- (NSDictionary*)authHeaderParams
-{
-    NSMutableDictionary* params = [NSMutableDictionary new];
-    SAFE_ARC_AUTORELEASE(params);
-    
-    NSUInteger strLength = [self length];
-    NSRange currentRange = NSMakeRange(0, strLength);
-    NSCharacterSet* whiteChars = [NSCharacterSet whitespaceAndNewlineCharacterSet];
-    NSCharacterSet* alphaNum = [NSCharacterSet alphanumericCharacterSet];
-    
-    while (currentRange.location < strLength)
-    {
-        // Eat up any whitepace at the beginning
-        while (currentRange.location < strLength && [whiteChars characterIsMember:[self characterAtIndex:currentRange.location]])
-        {
-            ++currentRange.location;
-            --currentRange.length;
-        }
-        
-        if (currentRange.location == strLength)
-        {
-            return params;
-        }
-        
-        if (![alphaNum characterIsMember:[self characterAtIndex:currentRange.location]])
-        {
-            // malformed string
-            return nil;
-        }
-        
-        // Find the key
-        NSUInteger found = [self rangeOfString:@"=" options:0 range:currentRange].location;
-        // If there are no keys left then exit out
-        if (found == NSNotFound)
-        {
-            // If there still is string left that means it's malformed
-            if (currentRange.length > 0)
-            {
-                return nil;
-            }
-            
-            // Otherwise we're at the end, return params
-            return params;
-        }
-        NSUInteger length = found - currentRange.location;
-        NSString* key = [self substringWithRange:NSMakeRange(currentRange.location, length)];
-        
-        // don't want the '='
-        ++length;
-        currentRange.location += length;
-        currentRange.length -= length;
-        
-        NSString* value = nil;
-        
-
-        if ([self characterAtIndex:currentRange.location] == '"')
-        {
-            ++currentRange.location;
-            --currentRange.length;
-            
-            found = currentRange.location;
-            
-            do {
-                NSRange range = NSMakeRange(found, strLength - found);
-                found = [self rangeOfString:@"\"" options:0 range:range].location;
-            } while (found != NSNotFound && [self characterAtIndex:found-1] == '\\');
-            
-            // If we couldn't find a matching closing quote then we have a malformed string and return NULL
-            if (found == NSNotFound)
-            {
-                return nil;
-            }
-            
-            length = found - currentRange.location;
-            value = [self substringWithRange:NSMakeRange(currentRange.location, length)];
-            
-            ++length;
-            currentRange.location += length;
-            currentRange.length -= length;
-            
-            // find the next comma
-            found = [self rangeOfString:@"," options:0 range:currentRange].location;
-            if (found != NSNotFound)
-            {
-                length = found - currentRange.location;
-            }
-            
-        }
-        else
-        {
-            found = [self rangeOfString:@"," options:0 range:currentRange].location;
-            // If we didn't find the comma that means we're at the end of the list
-            if (found == NSNotFound)
-            {
-                length = currentRange.length;
-            }
-            else
-            {
-                length = found - currentRange.location;
-            }
-            
-            value = [self substringWithRange:NSMakeRange(currentRange.location, length)];
-        }
-        
-        NSString* existingValue = [params valueForKey:key];
-        if (existingValue)
-        {
-            [params setValue:[existingValue stringByAppendingFormat:@".%@", value] forKey:key];
-        }
-        else
-        {
-            [params setValue:value forKey:key];
-        }
-        
-        ++length;
-        currentRange.location += length;
-        currentRange.length -= length;
-    }
-    
-    
-    return params;
 }
 
 @end

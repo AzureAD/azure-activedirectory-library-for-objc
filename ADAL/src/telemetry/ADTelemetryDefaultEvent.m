@@ -26,19 +26,13 @@
 #import "ADTelemetryEventInterface.h"
 #import "ADTelemetryEventStrings.h"
 #import "ADLogger.h"
+#import "NSMutableDictionary+ADExtensions.h"
+#import "ADIpAddressHelper.h"
 
 #if !TARGET_OS_IPHONE
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOKitLib.h>
 #endif
-
-#define SET_IF_NOT_NIL(DICT, NAME, OBJECT) \
-{ \
-if (OBJECT) \
-{ \
-[(DICT) addObject:[[ADTelemetryProperty alloc] initWithName:(NAME) value:(OBJECT)]]; \
-} \
-}
 
 @implementation ADTelemetryDefaultEvent
 
@@ -60,12 +54,12 @@ if (OBJECT) \
         return nil;
     }
     
-    _propertyMap = [[self defaultParameters] mutableCopy];
-    SET_IF_NOT_NIL(_propertyMap, AD_TELEMETRY_REQUEST_ID, requestId);
-    SET_IF_NOT_NIL(_propertyMap, AD_TELEMETRY_CORRELATION_ID, [correlationId UUIDString]);
+    _propertyMap = [[ADTelemetryDefaultEvent defaultParameters] mutableCopy];
+    [_propertyMap adSetObjectIfNotNil:requestId forKey:AD_TELEMETRY_KEY_REQUEST_ID];
+    [_propertyMap adSetObjectIfNotNil:[correlationId UUIDString] forKey:AD_TELEMETRY_KEY_CORRELATION_ID];
     _defaultPropertyCount = [_propertyMap count];
     
-    SET_IF_NOT_NIL(_propertyMap, AD_TELEMETRY_EVENT_NAME, eventName);
+    [_propertyMap adSetObjectIfNotNil:eventName forKey:AD_TELEMETRY_KEY_EVENT_NAME];
     
     return self;
 }
@@ -84,10 +78,10 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:name value:value]];
+    [_propertyMap setValue:value forKey:name];
 }
 
-- (NSArray*)getProperties
+- (NSDictionary*)getProperties
 {
     return _propertyMap;
 }
@@ -99,7 +93,7 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:@"start_time" value:[self getStringFromDate:time]]];
+    [_propertyMap setValue:[self getStringFromDate:time] forKey:AD_TELEMETRY_KEY_START_TIME];
 }
 
 - (void)setStopTime:(NSDate*)time
@@ -109,14 +103,13 @@ if (OBJECT) \
         return;
     }
     
-    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:@"stop_time" value:[self getStringFromDate:time]]];
+    [_propertyMap setValue:[self getStringFromDate:time] forKey:AD_TELEMETRY_KEY_END_TIME];
 }
 
 - (void)setResponseTime:(NSTimeInterval)responseTime
 {
     //the property is set in milliseconds
-    [_propertyMap addObject:[[ADTelemetryProperty alloc] initWithName:AD_TELEMETRY_RESPONSE_TIME
-                                                                value:[NSString stringWithFormat:@"%f", responseTime*1000]]];
+    [_propertyMap setValue:[NSString stringWithFormat:@"%f", responseTime*1000] forKey:AD_TELEMETRY_KEY_RESPONSE_TIME];
 }
 
 - (NSString*)getStringFromDate:(NSDate*)date
@@ -133,24 +126,14 @@ if (OBJECT) \
     return [s_dateFormatter stringFromDate:date];
 }
 
-- (void)addAggregatedPropertiesToDictionary:(NSMutableDictionary*)eventToBeDispatched
++ (NSDictionary*)defaultParameters
 {
-    for (int i=0; i<[self getDefaultPropertyCount]; i++)
-    {
-        NSString* propertyName = [(ADTelemetryProperty*)_propertyMap[i] name];
-        NSString* propertyValue = [(ADTelemetryProperty*)_propertyMap[i] value];
-        [eventToBeDispatched setObject:propertyValue forKey:propertyName];
-    }
-}
-
-- (NSArray*)defaultParameters
-{
-    static NSMutableArray* s_defaultParameters;
+    static NSMutableDictionary* s_defaultParameters;
     static dispatch_once_t s_parametersOnce;
     
     dispatch_once(&s_parametersOnce, ^{
         
-        s_defaultParameters = [NSMutableArray new];
+        s_defaultParameters = [NSMutableDictionary new];
         
 #if TARGET_OS_IPHONE
         //iOS:
@@ -163,16 +146,22 @@ if (OBJECT) \
         NSString* applicationName = [[NSProcessInfo processInfo] processName];
 #endif
         
-        SET_IF_NOT_NIL(s_defaultParameters, @"device_id", [deviceId adComputeSHA256]);
-        SET_IF_NOT_NIL(s_defaultParameters, @"application_name", applicationName);
-        SET_IF_NOT_NIL(s_defaultParameters, @"application_version", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
+        [s_defaultParameters adSetObjectIfNotNil:[deviceId adComputeSHA256] forKey:AD_TELEMETRY_KEY_DEVICE_ID];
+        [s_defaultParameters adSetObjectIfNotNil:applicationName forKey:AD_TELEMETRY_KEY_APPLICATION_NAME];
+        [s_defaultParameters adSetObjectIfNotNil:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]
+                                            forKey:AD_TELEMETRY_KEY_APPLICATION_VERSION];
         
         NSDictionary* adalId = [ADLogger adalId];
         for (NSString* key in adalId)
         {
-            SET_IF_NOT_NIL(s_defaultParameters, key, [adalId objectForKey:key]);
+            NSString* propertyName = [NSString stringWithFormat:@"Microsoft.ADAL.%@",
+                                      [[key lowercaseString] stringByReplacingOccurrencesOfString:@"-" withString:@"_"]];
+            
+            [s_defaultParameters adSetObjectIfNotNil:[adalId objectForKey:key] forKey:propertyName];
         }
     });
+    
+    [s_defaultParameters adSetObjectIfNotNil:[ADIpAddressHelper adDeviceIpAddress] forKey:AD_TELEMETRY_KEY_DEVICE_IP_ADDRESS];
     
     return s_defaultParameters;
 }
@@ -182,12 +171,14 @@ if (OBJECT) \
     return _defaultPropertyCount;
 }
 
-- (void)dealloc
+- (void)addPropertiesToAggregatedEvent:(NSMutableDictionary *)eventToBeDispatched
+                         propertyNames:(NSArray *)propertyNames
 {
-    SAFE_ARC_RELEASE(_propertyMap);
-    _propertyMap = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
+    NSDictionary* properties = [self getProperties];
+    for (NSString* name in propertyNames)
+    {
+        [eventToBeDispatched adSetObjectIfNotNil:[properties objectForKey:name] forKey:name];
+    }
 }
 
 #if !TARGET_OS_IPHONE

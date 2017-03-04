@@ -38,7 +38,6 @@
 {
     ADWebAuthResponse* response = [ADWebAuthResponse new];
     response->_correlationId = correlationId;
-    SAFE_ARC_RETAIN(correlationId);
     
     [response handleNSError:error completionBlock:completionBlock];
 }
@@ -50,13 +49,146 @@
 {
     ADWebAuthResponse* response = [ADWebAuthResponse new];
     response->_request = request;
-    SAFE_ARC_RETAIN(request);
     
     NSUUID* correlationId = request.correlationId;
-    SAFE_ARC_RETAIN(correlationId);
     response->_correlationId = correlationId;
     
     [response handleResponse:webResponse completionBlock:completionBlock];
+}
+
+
+// Decodes the parameters that come in the Authorization header. We expect them in the following
+// format:
+//
+// <key>="<value>", key="<value>", key="<value>"
+// i.e. version="1.0",CertAuthorities="OU=MyOrganization,CN=MyThingy,DN=windows,DN=net,Context="context!"
+//
+// This parser is lenient on whitespace, and on the presence of enclosing quotation marks. It also
+// will allow commented out quotation marks
++ (NSDictionary *)parseAuthHeader:(NSString *)authHeader
+{
+    if (!authHeader)
+    {
+        return nil;
+    }
+    
+    NSMutableDictionary* params = [NSMutableDictionary new];
+    NSUInteger strLength = [authHeader length];
+    NSRange currentRange = NSMakeRange(0, strLength);
+    NSCharacterSet* whiteChars = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+    NSCharacterSet* alphaNum = [NSCharacterSet alphanumericCharacterSet];
+    
+    while (currentRange.location < strLength)
+    {
+        // Eat up any whitepace at the beginning
+        while (currentRange.location < strLength && [whiteChars characterIsMember:[authHeader characterAtIndex:currentRange.location]])
+        {
+            ++currentRange.location;
+            --currentRange.length;
+        }
+        
+        if (currentRange.location == strLength)
+        {
+            return params;
+        }
+        
+        if (![alphaNum characterIsMember:[authHeader characterAtIndex:currentRange.location]])
+        {
+            // malformed string
+            return nil;
+        }
+        
+        // Find the key
+        NSUInteger found = [authHeader rangeOfString:@"=" options:0 range:currentRange].location;
+        // If there are no keys left then exit out
+        if (found == NSNotFound)
+        {
+            // If there still is string left that means it's malformed
+            if (currentRange.length > 0)
+            {
+                return nil;
+            }
+            
+            // Otherwise we're at the end, return params
+            return params;
+        }
+        NSUInteger length = found - currentRange.location;
+        NSString* key = [authHeader substringWithRange:NSMakeRange(currentRange.location, length)];
+        
+        // don't want the '='
+        ++length;
+        currentRange.location += length;
+        currentRange.length -= length;
+        
+        NSString* value = nil;
+        
+        
+        if ([authHeader characterAtIndex:currentRange.location] == '"')
+        {
+            ++currentRange.location;
+            --currentRange.length;
+            
+            found = currentRange.location;
+            
+            do {
+                NSRange range = NSMakeRange(found, strLength - found);
+                found = [authHeader rangeOfString:@"\"" options:0 range:range].location;
+            } while (found != NSNotFound && [authHeader characterAtIndex:found-1] == '\\');
+            
+            // If we couldn't find a matching closing quote then we have a malformed string and return NULL
+            if (found == NSNotFound)
+            {
+                return nil;
+            }
+            
+            length = found - currentRange.location;
+            value = [authHeader substringWithRange:NSMakeRange(currentRange.location, length)];
+            
+            ++length;
+            currentRange.location += length;
+            currentRange.length -= length;
+            
+            // find the next comma
+            found = [authHeader rangeOfString:@"," options:0 range:currentRange].location;
+            if (found != NSNotFound)
+            {
+                length = found - currentRange.location;
+            }
+            
+        }
+        else
+        {
+            found = [authHeader rangeOfString:@"," options:0 range:currentRange].location;
+            // If we didn't find the comma that means we're at the end of the list
+            if (found == NSNotFound)
+            {
+                length = currentRange.length;
+            }
+            else
+            {
+                length = found - currentRange.location;
+            }
+            
+            value = [authHeader substringWithRange:NSMakeRange(currentRange.location, length)];
+        }
+        
+        NSString* existingValue = [params valueForKey:key];
+        if (existingValue)
+        {
+            [params setValue:[existingValue stringByAppendingFormat:@".%@", value] forKey:key];
+        }
+        else
+        {
+            [params setValue:value forKey:key];
+        }
+        
+        ++length;
+        currentRange.location += length;
+        currentRange.length -= length;
+    }
+    
+    
+    return params;
 }
 
 - (id)init
@@ -69,15 +201,6 @@
     _responseDictionary = [NSMutableDictionary new];
     
     return self;
-}
-
-
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_responseDictionary);
-    SAFE_ARC_RELEASE(_request);
-    SAFE_ARC_RELEASE(_correlationId);
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 - (void)checkCorrelationId:(ADWebResponse*)webResponse
@@ -105,26 +228,30 @@
                 NSString* rawResponse = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
                 [_responseDictionary setObject:rawResponse
                                         forKey:@"raw_response"];
-                SAFE_ARC_RELEASE(rawResponse);
                 completionBlock(_responseDictionary);
                 return;
             }
         case 400:
         case 401:
         {
-            if(!_request.handledPkeyAuthChallenge)
+
+            NSString* wwwAuthValue = [webResponse.headers valueForKey:wwwAuthenticateHeader];
+            if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:pKeyAuthName])
             {
-                NSString* wwwAuthValue = [webResponse.headers valueForKey:wwwAuthenticateHeader];
-                if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue adContainsString:pKeyAuthName])
-                {
-                    [self handlePKeyAuthChallenge:wwwAuthValue
-                                       completion:completionBlock];
-                    return;
-                }
+                [self handlePKeyAuthChallenge:wwwAuthValue
+                                   completion:completionBlock];
+                return;
             }
             
-            [self handleJSONResponse:webResponse completionBlock:completionBlock];
-            break;
+            if(_request.acceptOnlyOKResponse && webResponse.statusCode != 200)
+            {
+                _request.retryIfServerError = NO;
+            }
+            else
+            {
+                [self handleJSONResponse:webResponse completionBlock:completionBlock];
+                break;
+            }
         }
         case 500:
         case 503:
@@ -154,7 +281,6 @@
             ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
                                                                              body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
                                                                     correlationId:_correlationId];
-            SAFE_ARC_RELEASE(body);
             
             //Now add the information to the dictionary, so that the parser can extract it:
             [self handleADError:adError completionBlock:completionBlock];
@@ -195,7 +321,7 @@
     //pkeyauth word length=8 + 1 whitespace
     wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[pKeyAuthName length] + 1];
     
-    NSDictionary* authHeaderParams = [wwwAuthHeaderValue authHeaderParams];
+    NSDictionary* authHeaderParams = [ADWebAuthResponse parseAuthHeader:wwwAuthHeaderValue];
     
     if (!authHeaderParams)
     {
@@ -263,7 +389,6 @@
         NSString* errorMsg = [NSString stringWithFormat:@"JSON deserialization error: %@", jsonError.description];
         
         AD_LOG_ERROR_F(errorMsg, jsonError.code, _correlationId, @"%@", bodyStr);
-        SAFE_ARC_RELEASE(bodyStr);
     }
     
     [self handleNSError:jsonError completionBlock:completionBlock];

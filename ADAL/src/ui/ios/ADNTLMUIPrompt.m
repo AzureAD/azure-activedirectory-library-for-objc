@@ -21,26 +21,70 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "UIAlertView+Additions.h"
 #import "ADNTLMUIPrompt.h"
+#import "ADAppExtensionUtil.h"
+#import "ADWebAuthController+Internal.h"
+#import "ADAuthenticationViewController.h"
+#import "ADALFrameworkUtils.h"
+#import "UIApplication+ADExtensions.h"
 
 @implementation ADNTLMUIPrompt
 
 + (void)presentPrompt:(void (^)(NSString * username, NSString * password))block
 {
-    [UIAlertView presentCredentialAlert:^(NSUInteger index) {
-        if (index == 1)
+    
+    if ([ADAppExtensionUtil isExecutingInAppExtension])
+    {
+        block(nil, nil);
+        return;
+    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIViewController* viewController = [UIApplication adCurrentViewController];
+        if (!viewController)
         {
-            UITextField* tfUsername = [[UIAlertView getAlertInstance] textFieldAtIndex:0];
-            NSString* username = tfUsername.text;
-            UITextField* tfPassword = [[UIAlertView getAlertInstance] textFieldAtIndex:1];
-            NSString* password = tfPassword.text;
-            
-            block(username, password);
-        } else {
             block(nil, nil);
+            return;
         }
-    }];
+        
+        NSBundle* bundle = [ADALFrameworkUtils frameworkBundle];
+        
+        NSString* title = NSLocalizedStringFromTableInBundle(@"Enter your credentials", nil, bundle, nil);
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:title
+                                                                       message:nil
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction* cancelAction =
+        [UIAlertAction actionWithTitle:NSLocalizedStringFromTableInBundle(@"Cancel", nil, bundle, nil)
+                                 style:UIAlertActionStyleCancel
+                               handler:^(UIAlertAction * _Nonnull action)
+         {
+             (void)action;
+             block(nil, nil);
+         }];
+        
+        UIAlertAction* loginAction =
+        [UIAlertAction actionWithTitle:NSLocalizedStringFromTableInBundle(@"Login", nil, bundle, nil)
+                                 style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * _Nonnull action)
+         {
+             (void)action;
+             UITextField* username = alert.textFields.firstObject;
+             UITextField* password = alert.textFields.lastObject;
+             
+             block(username.text, password.text);
+         }];
+        
+        [alert addAction:cancelAction];
+        [alert addAction:loginAction];
+        
+        [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) { (void)textField; }];
+        [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+            textField.secureTextEntry = YES;
+        }];
+        
+        [viewController presentViewController:alert animated:YES completion:^{}];
+    });
 }
 
 @end

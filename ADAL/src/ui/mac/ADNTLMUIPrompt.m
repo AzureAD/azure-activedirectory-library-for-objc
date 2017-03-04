@@ -39,14 +39,23 @@
         NSAlert* alert = [NSAlert new];
         
         [alert setMessageText:NSLocalizedString(@"Enter your credentials", nil)];
-        [alert addButtonWithTitle:NSLocalizedString(@"Login", nil)];
-        [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+        NSButton* loginButton = [alert addButtonWithTitle:NSLocalizedString(@"Login", nil)];
+        NSButton* cancelButton = [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
         
         ADCredentialCollectionController* view = [ADCredentialCollectionController new];
-        SAFE_ARC_AUTORELEASE(view);
         [view.usernameLabel setStringValue:NSLocalizedString(@"Username", nil)];
         [view.passwordLabel setStringValue:NSLocalizedString(@"Password", nil)];
         [alert setAccessoryView:view.customView];
+        
+        [view.usernameField setNextKeyView:view.passwordField];
+        [view.passwordField setNextKeyView:cancelButton];
+        [cancelButton setNextKeyView:loginButton];
+        [loginButton setNextKeyView:view.usernameField];
+        
+        // TODO: NSAlert some time after this overides the keyview loop so that
+        // it gets stuck between loginButton and cancel button.To fix this bug
+        // we'll have to ditch NSAlert entirely. (#851)
+        [[alert window] setInitialFirstResponder:view.usernameField];
         
         [alert beginSheetModalForWindow:[NSApp keyWindow] completionHandler:^(NSModalResponse returnCode)
          {

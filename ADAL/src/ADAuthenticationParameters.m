@@ -42,18 +42,6 @@
     return nil;
 }
 
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_authority);
-    _authority = nil;
-    SAFE_ARC_RELEASE(_resource);
-    _resource = nil;
-    SAFE_ARC_RELEASE(_extractedParameters);
-    _extractedParameters = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
-}
-
 + (void)raiseErrorWithCode:(ADErrorCode)code
                    details:(NSString *)details
                      error:(ADAuthenticationError * __autoreleasing *)error
@@ -158,7 +146,6 @@
     }
     
     ADAuthenticationParameters *parameters = [[ADAuthenticationParameters alloc] initInternalWithParameters:params error:error];
-    SAFE_ARC_AUTORELEASE(parameters);
     return parameters;
 }
 

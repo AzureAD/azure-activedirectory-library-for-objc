@@ -27,15 +27,15 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import <libkern/OSAtomic.h>
 #import "ADWebRequest.h"
-#import "ADTestURLConnection.h"
+#import "ADTestURLSession.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
 #import "ADKeychainTokenCache+Internal.h"
-#import "ADTestURLConnection.h"
 #import "ADTokenCache+Internal.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheDataSource.h"
+#import "ADTelemetryTestDispatcher.h"
 
 const int sAsyncContextTimeout = 10;
 
@@ -63,8 +63,8 @@ const int sAsyncContextTimeout = 10;
 #endif
     _dsem = nil;
     
-    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
-    [ADTestURLConnection clearResponses];
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
+    [ADTestURLSession clearResponses];
     [self adTestEnd];
     [super tearDown];
 }
@@ -78,11 +78,8 @@ const int sAsyncContextTimeout = 10;
     
     NSAssert(context, @"If this is failing for whatever reason you should probably fix it before trying to run tests.");
     ADTokenCache *tokenCache = [ADTokenCache new];
-    SAFE_ARC_AUTORELEASE(tokenCache);
     [context setTokenCacheStore:tokenCache];
     [context setCorrelationId:TEST_CORRELATION_ID];
-    
-    SAFE_ARC_AUTORELEASE(context);
     
     return context;
 }
@@ -288,7 +285,7 @@ const int sAsyncContextTimeout = 10;
                                                                          OAUTH2_GRANT_TYPE : OAUTH2_SAML11_BEARER_VALUE,
                                                                          OAUTH2_SCOPE : OAUTH2_SCOPE_OPENID_VALUE
                                                                          }];
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenForAssertion:assertion
                         assertionType:AD_SAML1_1
@@ -310,7 +307,7 @@ const int sAsyncContextTimeout = 10;
     
     TEST_WAIT;
     
-    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
 }
 
 
@@ -344,6 +341,15 @@ const int sAsyncContextTimeout = 10;
 
 - (void)testFailsWithNilUserIdAndMultipleCachedUsers
 {
+    // prepare and register telemetry dispatcher
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
+    NSMutableArray* receivedEvents = [NSMutableArray new];
+    [dispatcher setTestCallback:^(NSDictionary* event)
+     {
+         [receivedEvents addObject:event];
+     }];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
+    
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
@@ -369,6 +375,37 @@ const int sAsyncContextTimeout = 10;
      }];
     
     TEST_WAIT;
+    
+    // verify telemetry output
+    // there should be 1 telemetry events recorded as aggregation flag is ON
+    XCTAssertEqual([receivedEvents count], 1);
+    
+    // the following properties are expected in an aggregrated event
+    NSDictionary* event = [receivedEvents firstObject];
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_id"] isEqualToString:@"121"]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.request_id"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.correlation_id"]]);
+#if TARGET_OS_IPHONE
+    // application_version is only available in unit test framework with host app
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_version"]]);
+#endif
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_name"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.client_id"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.device_id"]]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.extended_expires_on_setting"] isEqualToString:@"no"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.prompt_behavior"] isEqualToString:@"AD_PROMPT_AUTO"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"failed"]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.response_time"]]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"1"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"300"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
+    
+    //unregister the dispatcher
+    [[ADTelemetry sharedInstance] addDispatcher:[ADTelemetryTestDispatcher new] aggregationRequired:YES];
 }
 
 - (void)testCachedWithNoIdtoken
@@ -497,7 +534,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     
     // Set the response to reject the refresh token
-    [ADTestURLConnection addResponse:[self adDefaultBadRefreshTokenResponse]];
+    [ADTestURLSession addResponse:[self adDefaultBadRefreshTokenResponse]];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -516,7 +553,7 @@ const int sAsyncContextTimeout = 10;
     
     TEST_WAIT;
     
-    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
     
     // Also verify the expired item has been removed from the cache
     NSArray* allItems = [context.tokenCacheStore.dataSource allItems:&error];
@@ -526,6 +563,15 @@ const int sAsyncContextTimeout = 10;
 
 - (void)testSilentExpiredATBadMRRT
 {
+    // prepare and register telemetry dispatcher
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
+    NSMutableArray* receivedEvents = [NSMutableArray new];
+    [dispatcher setTestCallback:^(NSDictionary* event)
+     {
+         [receivedEvents addObject:event];
+     }];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
+    
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
     
@@ -540,7 +586,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     
     // Set the response to reject the refresh token
-    [ADTestURLConnection addResponse:[self adDefaultBadRefreshTokenResponse]];
+    [ADTestURLSession addResponse:[self adDefaultBadRefreshTokenResponse]];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -566,7 +612,7 @@ const int sAsyncContextTimeout = 10;
     NSArray* allItems = [context.tokenCacheStore.dataSource allItems:&error];
     XCTAssertNil(error);
     
-    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
     XCTAssertEqual(allItems.count, 0);
     
     // The next acquire token call should fail immediately without hitting network
@@ -586,6 +632,70 @@ const int sAsyncContextTimeout = 10;
      }];
     
     TEST_WAIT;
+    
+    // verify telemetry output
+    // there should be 2 telemetry events recorded as there are 2 acquire token calls
+    XCTAssertEqual([receivedEvents count], 2);
+    
+    // the following properties are expected for the 1st acquire token call
+    NSDictionary* firstEvent = [receivedEvents firstObject];
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.api_id"] isEqualToString:@"8"]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.request_id"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.correlation_id"]]);
+#if TARGET_OS_IPHONE
+    // application_version is only available in unit test framework with host app
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.application_version"]]);
+#endif
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.application_name"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.client_id"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.device_id"]]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.extended_expires_on_setting"] isEqualToString:@"no"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.prompt_behavior"] isEqualToString:@"AD_PROMPT_AUTO"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"failed"]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.user_id"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.response_time"]]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"4"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.token_mrrt_status"] isEqualToString:@"tried"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"not_found"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.http_event_count"] isEqualToString:@"1"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"200"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.oauth_error_code"] isEqualToString:@"invalid_grant"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
+    
+    // the following properties are expected for 2nd acquire token call
+    NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.api_id"] isEqualToString:@"8"]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.request_id"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.correlation_id"]]);
+#if TARGET_OS_IPHONE
+    // application_version is only available in unit test framework with host app
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.application_version"]]);
+#endif
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.application_name"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.client_id"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.device_id"]]);
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.extended_expires_on_setting"] isEqualToString:@"no"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.prompt_behavior"] isEqualToString:@"AD_PROMPT_AUTO"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"failed"]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.user_id"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.response_time"]]);
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"4"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.token_rt_status"] isEqualToString:@"not_found"]);
+    XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.token_mrrt_status"], @"not_found");
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"not_found"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"200"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
+    
+    //unregister the dispatcher
+    [[ADTelemetry sharedInstance] addDispatcher:[ADTelemetryTestDispatcher new] aggregationRequired:YES];
 }
 
 - (void)testSilentExpiredATRefreshMRRTNetwork
@@ -603,7 +713,7 @@ const int sAsyncContextTimeout = 10;
     [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
     XCTAssertNil(error);
     
-    [ADTestURLConnection addResponse:[self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token"]];
+    [ADTestURLSession addResponse:[self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token"]];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -676,7 +786,7 @@ const int sAsyncContextTimeout = 10;
               respondWithError:[NSError errorWithDomain:NSURLErrorDomain
                                                    code:NSURLErrorNotConnectedToInternet
                                                userInfo:nil]];
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     // Web UI should not attempt to launch when we fail to refresh the RT because there is no internet
     // connection
@@ -714,7 +824,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     
     // Set up the mock connection to reject the MRRT with an error that should cause it to not remove the MRRT
-    [ADTestURLConnection addResponse:[self adDefaultBadRefreshTokenResponseError:@"unauthorized_client"]];
+    [ADTestURLSession addResponse:[self adDefaultBadRefreshTokenResponseError:@"unauthorized_client"]];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -765,8 +875,8 @@ const int sAsyncContextTimeout = 10;
     //Then hit network twice again for broad refresh token for the same reason
     //So totally 4 responses are added
     //If there is an infinite retry, exception will be thrown becasuse there is not enough responses
-    [ADTestURLConnection addResponse:response];
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
@@ -811,7 +921,7 @@ const int sAsyncContextTimeout = 10;
                                                 newAccessToken:TEST_ACCESS_TOKEN
                                               additionalFields:additional];
     
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -862,7 +972,7 @@ const int sAsyncContextTimeout = 10;
                                                newRefreshToken:@"new-mrrt"
                                                 newAccessToken:TEST_ACCESS_TOKEN
                                               additionalFields:nil];
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -911,7 +1021,7 @@ const int sAsyncContextTimeout = 10;
                                                 newAccessToken:TEST_ACCESS_TOKEN
                                               additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -949,6 +1059,15 @@ const int sAsyncContextTimeout = 10;
 
 - (void)testAcquireTokenUsingFRT
 {
+    // prepare and register telemetry dispatcher
+    ADTelemetryTestDispatcher* dispatcher = [ADTelemetryTestDispatcher new];
+    NSMutableArray* receivedEvents = [NSMutableArray new];
+    [dispatcher setTestCallback:^(NSDictionary* event)
+     {
+         [receivedEvents addObject:event];
+     }];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
+    
     // Simplest FRT case, the only RT available is the FRT so that would should be the one used
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
@@ -968,7 +1087,7 @@ const int sAsyncContextTimeout = 10;
                                                 newAccessToken:TEST_ACCESS_TOKEN
                                               additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -986,6 +1105,43 @@ const int sAsyncContextTimeout = 10;
      }];
     
     TEST_WAIT;
+    
+    // verify telemetry output
+    // there should be 1 telemetry events recorded as aggregation flag is ON
+    XCTAssertEqual([receivedEvents count], 1);
+    
+    // the following properties are expected in an aggregrated event
+    NSDictionary* event = [receivedEvents firstObject];
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_id"] isEqualToString:@"8"]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.request_id"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.correlation_id"]]);
+#if TARGET_OS_IPHONE
+    // application_version is only available in unit test framework with host app
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_version"]]);
+#endif
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_name"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.client_id"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.device_id"]]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.tenant_id"]]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.extended_expires_on_setting"] isEqualToString:@"no"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.prompt_behavior"] isEqualToString:@"AD_PROMPT_AUTO"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"succeeded"]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.user_id"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.response_time"]]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"7"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_rt_status"] isEqualToString:@"not_found"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_mrrt_status"] isEqualToString:@"not_found"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"tried"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.http_event_count"] isEqualToString:@"1"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"0"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.oauth_error_code"] isEqualToString:@""]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"yes"]);
+    
+    //unregister the dispatcher
+    [[ADTelemetry sharedInstance] addDispatcher:[ADTelemetryTestDispatcher new] aggregationRequired:YES];
 }
 
 - (void)testAcquireTokenMRRTFailFRTFallback
@@ -1019,7 +1175,7 @@ const int sAsyncContextTimeout = 10;
                   newAccessToken:TEST_ACCESS_TOKEN
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     
-    [ADTestURLConnection addResponses:@[badMRRT, frtResponse]];
+    [ADTestURLSession addResponses:@[badMRRT, frtResponse]];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -1097,7 +1253,7 @@ const int sAsyncContextTimeout = 10;
                   newAccessToken:@"new access token"
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
     
-    [ADTestURLConnection addResponses:@[badFRTResponse, mrrtResponse]];
+    [ADTestURLSession addResponses:@[badFRTResponse, mrrtResponse]];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -1164,7 +1320,7 @@ const int sAsyncContextTimeout = 10;
                  newRefreshToken:@"new family refresh token"
                   newAccessToken:@"new access token"
                 additionalFields:@{ ADAL_CLIENT_FAMILY_ID : @"1"}];
-    [ADTestURLConnection addResponse:mrrtResponse];
+    [ADTestURLSession addResponse:mrrtResponse];
     
     [context acquireTokenSilentWithResource:TEST_RESOURCE
                                    clientId:TEST_CLIENT_ID
@@ -1238,7 +1394,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     
     // Response with ext_expires_in value
-    [ADTestURLConnection addResponse:[self adResponseRefreshToken:TEST_REFRESH_TOKEN
+    [ADTestURLSession addResponse:[self adResponseRefreshToken:TEST_REFRESH_TOKEN
                                                         authority:TEST_AUTHORITY
                                                          resource:TEST_RESOURCE
                                                          clientId:TEST_CLIENT_ID
@@ -1292,8 +1448,8 @@ const int sAsyncContextTimeout = 10;
                                                      httpHeaderFields:@{ }
                                                      dictionaryAsJSON:@{ }];
     // Add the responsce twice because retry will happen
-    [ADTestURLConnection addResponse:response];
-    [ADTestURLConnection addResponse:response];
+    [ADTestURLSession addResponse:response];
+    [ADTestURLSession addResponse:response];
     
     // Test whether valid stale access token is returned
     [context setExtendedLifetimeEnabled:YES];
@@ -1314,7 +1470,7 @@ const int sAsyncContextTimeout = 10;
     
     TEST_WAIT;
     
-    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
 }
 
 - (void)testResilencyTokenDeletion
@@ -1328,7 +1484,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertNil(error);
     
     // Response with ext_expires_in value being 0
-    [ADTestURLConnection addResponse:[self adResponseRefreshToken:TEST_REFRESH_TOKEN
+    [ADTestURLSession addResponse:[self adResponseRefreshToken:TEST_REFRESH_TOKEN
                                                         authority:TEST_AUTHORITY
                                                          resource:TEST_RESOURCE
                                                          clientId:TEST_CLIENT_ID
@@ -1405,7 +1561,7 @@ const int sAsyncContextTimeout = 10;
     NSArray* allItems = [cache allItems:&error];
     XCTAssertNil(error);
     
-    XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
+    XCTAssertTrue([ADTestURLSession noResponsesLeft]);
     XCTAssertEqual(allItems.count, 0);
 }
 

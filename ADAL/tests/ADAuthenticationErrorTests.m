@@ -79,7 +79,7 @@
     ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:nil argumentName:parameter correlationId:nil];
     XCTAssertNotNil(error, "No error for nil prameter");
     [self adValidateForInvalidArgument:parameter error:error];
-    XCTAssertTrue([error.errorDetails adContainsString:@"(null)"], "'null' should be part of the text");
+    XCTAssertTrue([error.errorDetails containsString:@"(null)"], "'null' should be part of the text");
 }
 
 - (void)testErrorFromArgumentNormal
@@ -90,7 +90,7 @@
     XCTAssertNotNil(error, "No error for valid prameter");
     
     [self adValidateForInvalidArgument:parameter error:error];
-    XCTAssertTrue([error.errorDetails adContainsString:parameterValue], "Value should be part of the text");
+    XCTAssertTrue([error.errorDetails containsString:parameterValue], "Value should be part of the text");
 }
 
 - (void)testErrorFromOAuthError
@@ -109,8 +109,8 @@
     NSString* details = @"Some details";
     NSString* protocolCode = @"some-protocol-code";
     ADAuthenticationError* error = [ADAuthenticationError errorFromAuthenticationError:42 protocolCode:protocolCode errorDetails:details correlationId:nil];
-    XCTAssertTrue([error.description adContainsString:details]);
-    XCTAssertTrue([error.description adContainsString:protocolCode]);
+    XCTAssertTrue([error.description containsString:details]);
+    XCTAssertTrue([error.description containsString:protocolCode]);
 }
 
 @end

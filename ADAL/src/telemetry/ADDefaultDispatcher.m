@@ -43,14 +43,18 @@
         _dispatchLock = [NSLock new];
         
         _dispatcher = dispatcher;
-        SAFE_ARC_RETAIN(_dispatcher);
     }
     return self;
 }
 
+- (BOOL)containsDispatcher:(id<ADDispatcher>)dispatcher
+{
+    return _dispatcher == dispatcher;
+}
+
 - (void)flush:(NSString*)requestId
 {
-#pragma unused(requestId)
+    (void)requestId;
     //default dispatcher does not cache any event
     //so here is empty
 }
@@ -58,24 +62,12 @@
 - (void)receive:(NSString *)requestId
           event:(id<ADTelemetryEventInterface>)event
 {
-#pragma unused(requestId)
-    NSArray* properties = [event getProperties];
+    (void)requestId;
+    NSDictionary* properties = [event getProperties];
     if (properties)
     {
         [_dispatcher dispatchEvent:properties];
     }
-}
-
-- (void)dealloc
-{
-    SAFE_ARC_RELEASE(_dispatcher);
-    _dispatcher = nil;
-    SAFE_ARC_RELEASE(_objectsToBeDispatched);
-    _objectsToBeDispatched = nil;
-    SAFE_ARC_RELEASE(_dispatchLock);
-    _dispatchLock = nil;
-    
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 @end
