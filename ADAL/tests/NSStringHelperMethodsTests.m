@@ -52,10 +52,10 @@
     XCTAssertEqual(3, [testString adFindCharacter:':' start:0]);
     XCTAssertEqual(25, [testString adFindCharacter:'?' start:0]);
     
-    XCTAssertEqual([testString length], [testString adFindCharacter:':' start:100]);
-    XCTAssertEqual([testString length], [testString adFindCharacter:'?' start:100]);
+    XCTAssertEqual(NSNotFound, [testString adFindCharacter:':' start:100]);
+    XCTAssertEqual(NSNotFound, [testString adFindCharacter:'?' start:100]);
     
-    XCTAssertEqual([testString length], [testString adFindCharacter:'#' start:0]);
+    XCTAssertEqual(NSNotFound, [testString adFindCharacter:'#' start:0]);
     
     testString = nil;
     

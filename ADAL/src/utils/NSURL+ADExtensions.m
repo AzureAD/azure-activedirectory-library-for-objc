@@ -47,6 +47,11 @@ const unichar queryStringSeparator = '?';
     if (endSeparator)
     {
         long index = [last adFindCharacter:endSeparator start:0];
+        
+        if (index == NSNotFound)
+        {
+            return nil;
+        }
         last = [last substringWithRange:(NSRange){0, index}];
     }
     if ([NSString adIsStringNilOrBlank:last])
