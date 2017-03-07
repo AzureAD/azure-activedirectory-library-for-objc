@@ -21,36 +21,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
+#import "XCTestCase+TestHelperMethods.h"
+#import "NSString+ADHelperMethods.h"
 
-@interface NSString (ADHelperMethods)
+@interface NSStringHelperMethodsTests : XCTestCase
 
-/*! Encodes string to the Base64 encoding. */
-- (NSString *)adBase64UrlEncode;
-/*! Decodes string from the Base64 encoding. */
-- (NSString *)adBase64UrlDecode;
+@end
 
-/*! Returns YES if the string is nil, or contains only white space */
-+ (BOOL)adIsStringNilOrBlank:(NSString *)string;
+@implementation NSStringHelperMethodsTests
 
-/*! Returns the same string, but without the leading and trailing whitespace */
-- (NSString *)adTrimmedString;
+- (void)setUp
+{
+    [super setUp];
+    // Put setup code here; it will be run once, before the first test case.
+    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
+}
 
-/*! Decodes a previously URL encoded string. */
-- (NSString *)adUrlFormDecode;
+- (void)tearDown
+{
+    // Put teardown code here; it will be run once, after the last test case.
+    [self adTestEnd];
+    [super tearDown];
+}
 
-/*! Encodes the string to pass it as a URL agrument. */
-- (NSString *)adUrlFormEncode;
-
-/*! Converts base64 String to NSData */
-+ (NSData *)adBase64DecodeData:(NSString *)encodedString;
-
-/*! Converts NSData to base64 String */
-+ (NSString *)adBase64EncodeData:(NSData *)data;
-
-- (NSString*)adComputeSHA256;
-
-/*! Calls adFindCharactersFromSet with a single character set */
-- (long)adFindCharacter:(unichar)toFind start: (long) startIndex;
+- (void)testFindCharacter
+{
+    NSString *testString = @"urn:ietf:wg:oauth:2.0:oob?code=eiofjsfjsofeoi";
+    
+    XCTAssertEqual(3, [testString adFindCharacter:':' start:0]);
+    XCTAssertEqual(25, [testString adFindCharacter:'?' start:0]);
+    
+    XCTAssertEqual(NSNotFound, [testString adFindCharacter:':' start:100]);
+    XCTAssertEqual(NSNotFound, [testString adFindCharacter:'?' start:100]);
+    
+    XCTAssertEqual(NSNotFound, [testString adFindCharacter:'#' start:0]);
+    
+    testString = nil;
+    
+    XCTAssertEqual(0, [testString adFindCharacter:'@' start:10]);
+}
 
 @end

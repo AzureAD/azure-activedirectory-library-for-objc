@@ -286,6 +286,28 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     return [string rangeOfCharacterFromSet:nonWhiteCharSet].location == NSNotFound;
 }
 
+- (long)adFindCharactersFromSet:(NSCharacterSet *)set
+                           start:(long)startIndex
+{
+    THROW_ON_NIL_ARGUMENT(set);
+    long end = self.length;
+    if (startIndex >= end)
+    {
+        return NSNotFound;
+    }
+    
+    NSRange toSearch = {.location  = startIndex, .length = (end - startIndex)};
+    return [self rangeOfCharacterFromSet:set options:NSLiteralSearch range:toSearch].location;
+}
+
+- (long)adFindCharacter:(unichar)toFind
+                  start:(long)startIndex
+{
+    NSRange chars = {.location = toFind, .length = 1};
+    NSCharacterSet* set = [NSCharacterSet characterSetWithRange:chars];
+    return [self adFindCharactersFromSet:set start:startIndex];
+}
+
 - (NSString *)adTrimmedString
 {
     //The white characters set is cached by the system:
