@@ -81,6 +81,9 @@
     NSDictionary* simple = @{@"foo1":@"bar1", @"foo2":@"bar2"};
     XCTAssertEqualObjects(simple, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2"]).adQueryParameters);
     
+    // Valid redirect url
+    XCTAssertEqualObjects(simple, ((NSURL*)[NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob?foo1=bar1&foo2=bar2"]).adQueryParameters);
+    
     //Mixed query and fragment parameters:
     XCTAssertEqualObjects(simple, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2#foo3=bar3"]).adQueryParameters);
 }
