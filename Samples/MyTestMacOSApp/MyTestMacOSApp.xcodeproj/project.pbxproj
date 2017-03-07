@@ -94,6 +94,13 @@
 			remoteGlobalIDString = 04AB6D421D9D619B007E9A83;
 			remoteInfo = UnitTestHostApp;
 		};
+		E0326E6A1E53B280006221C8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B6B78E61D74F04700AA02E8 /* ADAL.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D64C1F481DB9B05900850036;
+			remoteInfo = ADALAutomation;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -179,6 +186,7 @@
 				8B6B78F91D74F04700AA02E8 /* ADAL.framework */,
 				8B6B78FB1D74F04700AA02E8 /* ADAL Mac Tests.xctest */,
 				D605341C1DAC66B200210C8A /* UnitTestHostApp.app */,
+				E0326E6B1E53B280006221C8 /* ADALAutomation.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -414,6 +422,13 @@
 			fileType = wrapper.application;
 			path = UnitTestHostApp.app;
 			remoteRef = D605341B1DAC66B200210C8A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E0326E6B1E53B280006221C8 /* ADALAutomation.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = ADALAutomation.app;
+			remoteRef = E0326E6A1E53B280006221C8 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
