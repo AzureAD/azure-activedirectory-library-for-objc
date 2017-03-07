@@ -55,6 +55,12 @@ build_targets = [
 		"platform" : "iOS"
 	},
 	{
+		"name" : "iOS Automation Test App",
+		"scheme" : "ADALAutomation",
+		"operations" : [ "build" ],
+		"platform" : "iOS"
+	},
+	{
 		"name" : "Sample Swift App",
 		"scheme" : "SampleSwiftApp",
 		"operations" : [ "build" ],
