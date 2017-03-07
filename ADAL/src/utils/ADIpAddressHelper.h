@@ -21,35 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADTelemetry.h"
-#import "ADTelemetryUIEvent.h"
-#import "ADTelemetryEventStrings.h"
+#pragma once
 
-@implementation ADTelemetryUIEvent
+#import <Foundation/Foundation.h>
 
-- (id)initWithName:(NSString*)eventName
-         requestId:(NSString*)requestId
-     correlationId:(NSUUID*)correlationId
-{
-    if (!(self = [super initWithName:eventName requestId:requestId correlationId:correlationId]))
-    {
-        return nil;
-    }
-    
-    [self setProperty:AD_TELEMETRY_KEY_USER_CANCEL value:@""];
-    [self setProperty:AD_TELEMETRY_KEY_NTLM_HANDLED value:@""];
-    
-    return self;
-}
+@interface ADIpAddressHelper : NSObject
 
-- (void)setLoginHint:(NSString*)hint
-{
-    [self setProperty:AD_TELEMETRY_KEY_LOGIN_HINT value:[hint adComputeSHA256]];
-}
-
-- (void)setNtlm:(NSString*)ntlmHandled
-{
-    [self setProperty:AD_TELEMETRY_KEY_NTLM_HANDLED value:ntlmHandled];
-}
++ (NSString *)adDeviceIpAddress;
 
 @end

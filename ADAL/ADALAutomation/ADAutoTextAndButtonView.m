@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ADTextAndButtonView.h"
+#import "ADAutoTextAndButtonView.h"
 
 @implementation ADAutoTextAndButtonView
 
@@ -46,7 +46,7 @@
     
     UITextView* textView = [[UITextView alloc] init];
     textView.autocorrectionType = UITextAutocorrectionTypeNo;
-    textView.accessibilityIdentifier = @"inputTextview";
+    textView.accessibilityIdentifier = @"requestInfo";
     textView.translatesAutoresizingMaskIntoConstraints = NO;
     textView.editable = YES;
     textView.layer.cornerRadius = 8.0;
@@ -60,7 +60,7 @@
     goButton.backgroundColor = UIColor.greenColor;
     goButton.titleLabel.textColor = UIColor.whiteColor;
     goButton.translatesAutoresizingMaskIntoConstraints = NO;
-    goButton.accessibilityIdentifier = @"GoButton";
+    goButton.accessibilityIdentifier = @"requestGo";
     _actionButton = goButton;
     
     [self addSubview:textView];

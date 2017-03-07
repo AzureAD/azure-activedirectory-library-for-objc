@@ -27,6 +27,7 @@
 #import "ADTelemetryEventStrings.h"
 #import "ADLogger.h"
 #import "NSMutableDictionary+ADExtensions.h"
+#import "ADIpAddressHelper.h"
 
 #if !TARGET_OS_IPHONE
 #include <CoreFoundation/CoreFoundation.h>
@@ -153,11 +154,14 @@
         NSDictionary* adalId = [ADLogger adalId];
         for (NSString* key in adalId)
         {
-            NSString* propertyName = [NSString stringWithFormat:@"Microsoft.ADAL.%@", [key stringByReplacingOccurrencesOfString:@"-" withString:@"_"]];
+            NSString* propertyName = [NSString stringWithFormat:@"Microsoft.ADAL.%@",
+                                      [[key lowercaseString] stringByReplacingOccurrencesOfString:@"-" withString:@"_"]];
             
             [s_defaultParameters adSetObjectIfNotNil:[adalId objectForKey:key] forKey:propertyName];
         }
     });
+    
+    [s_defaultParameters adSetObjectIfNotNil:[ADIpAddressHelper adDeviceIpAddress] forKey:AD_TELEMETRY_KEY_DEVICE_IP_ADDRESS];
     
     return s_defaultParameters;
 }

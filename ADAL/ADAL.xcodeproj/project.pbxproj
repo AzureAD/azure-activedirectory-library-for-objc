@@ -215,6 +215,7 @@
 		94DD19071C5AD3A600F80C62 /* ADBrokerKeyHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 94DD19021C5AD39A00F80C62 /* ADBrokerKeyHelperTests.m */; };
 		94DD19081C5AD3A600F80C62 /* ADKeychainTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 94DD19031C5AD39A00F80C62 /* ADKeychainTokenCacheTests.m */; };
 		94E0FD8E1C59614B00CD707B /* ADTokenCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 9453C3C61C583AE6006B9E79 /* ADTokenCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		975EF21A1DD294D700ABF2C9 /* ADAutoResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 975EF2191DD294D600ABF2C9 /* ADAutoResultViewController.m */; };
 		94E876BE1E46508D00FB96ED /* ADWebAuthResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 94E876BD1E46508D00FB96ED /* ADWebAuthResponseTests.m */; };
 		94E876BF1E46508D00FB96ED /* ADWebAuthResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 94E876BD1E46508D00FB96ED /* ADWebAuthResponseTests.m */; };
 		960E93751E296CC9008036C0 /* ADURLSessionDemux.h in Headers */ = {isa = PBXBuildFile; fileRef = 960E93721E296CC2008036C0 /* ADURLSessionDemux.h */; };
@@ -248,7 +249,6 @@
 		D64C1F551DB9B05900850036 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D64C1F531DB9B05900850036 /* Main.storyboard */; };
 		D64C1F571DB9B05A00850036 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D64C1F561DB9B05A00850036 /* Assets.xcassets */; };
 		D64C1F5A1DB9B05A00850036 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D64C1F581DB9B05A00850036 /* LaunchScreen.storyboard */; };
-		D64C1F621DB9B15800850036 /* ADAutoParameterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D64C1F611DB9B15800850036 /* ADAutoParameterViewController.m */; };
 		D64C1F631DB9C64E00850036 /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D664F1B41D302B9C0017B799 /* libADAL-core.a */; };
 		D64C1F681DBAD90100850036 /* ADAutoInputViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D64C1F671DBAD90100850036 /* ADAutoInputViewController.m */; };
 		D664F17A1D302B9C0017B799 /* ADWebAuthRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F095191CDC2BC300D28FC2 /* ADWebAuthRequest.m */; };
@@ -332,6 +332,8 @@
 		D6F0951C1CDC2BC300D28FC2 /* ADWebAuthRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F095191CDC2BC300D28FC2 /* ADWebAuthRequest.m */; };
 		D6F999801D235ACF004E682C /* ADAcquireTokenPkeyAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F9997F1D235ACF004E682C /* ADAcquireTokenPkeyAuthTests.m */; };
 		E067ACDE1E6F33DD00664F1B /* NSStringHelperMethodsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E067ACDD1E6F33DD00664F1B /* NSStringHelperMethodsTests.m */; };
+		E04F07751E64A050004BE649 /* ADIpAddressHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = E04F07731E649ED3004BE649 /* ADIpAddressHelper.m */; };
+		E04F07761E64A051004BE649 /* ADIpAddressHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = E04F07731E649ED3004BE649 /* ADIpAddressHelper.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -614,6 +616,9 @@
 		94DD19031C5AD39A00F80C62 /* ADKeychainTokenCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADKeychainTokenCacheTests.m; sourceTree = "<group>"; };
 		94DD19051C5AD39A00F80C62 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		94DD190A1C5AD3B200F80C62 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		975EF2191DD294D600ABF2C9 /* ADAutoResultViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoResultViewController.m; sourceTree = "<group>"; };
+		975EF21B1DD2951700ABF2C9 /* ADAutoResultViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAutoResultViewController.h; sourceTree = "<group>"; };
+		975EF21D1DD7E2A500ABF2C9 /* ADALAutomation.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ADALAutomation.entitlements; sourceTree = "<group>"; };
 		94E876BD1E46508D00FB96ED /* ADWebAuthResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthResponseTests.m; sourceTree = "<group>"; };
 		960E93721E296CC2008036C0 /* ADURLSessionDemux.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADURLSessionDemux.h; sourceTree = "<group>"; };
 		960E93731E296CC2008036C0 /* ADURLSessionDemux.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADURLSessionDemux.m; sourceTree = "<group>"; };
@@ -646,8 +651,6 @@
 		D64C1F561DB9B05A00850036 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D64C1F591DB9B05A00850036 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D64C1F5B1DB9B05A00850036 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D64C1F601DB9B15800850036 /* ADAutoParameterViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAutoParameterViewController.h; sourceTree = "<group>"; };
-		D64C1F611DB9B15800850036 /* ADAutoParameterViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoParameterViewController.m; sourceTree = "<group>"; };
 		D64C1F661DBAD90100850036 /* ADAutoInputViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAutoInputViewController.h; sourceTree = "<group>"; };
 		D64C1F671DBAD90100850036 /* ADAutoInputViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoInputViewController.m; sourceTree = "<group>"; };
 		D64C1F691DBADAF900850036 /* ADALAutomation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADALAutomation.h; sourceTree = "<group>"; };
@@ -668,6 +671,8 @@
 		D6F9997F1D235ACF004E682C /* ADAcquireTokenPkeyAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAcquireTokenPkeyAuthTests.m; sourceTree = "<group>"; };
 		D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADUserIdentifier.m; sourceTree = "<group>"; };
 		E067ACDD1E6F33DD00664F1B /* NSStringHelperMethodsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringHelperMethodsTests.m; sourceTree = "<group>"; };
+		E04F07721E649ED3004BE649 /* ADIpAddressHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADIpAddressHelper.h; sourceTree = "<group>"; };
+		E04F07731E649ED3004BE649 /* ADIpAddressHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADIpAddressHelper.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1009,6 +1014,8 @@
 				9453C36B1C580157006B9E79 /* NSUUID+ADExtensions.m */,
 				29DBF6D31E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.h */,
 				29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */,
+				E04F07721E649ED3004BE649 /* ADIpAddressHelper.h */,
+				E04F07731E649ED3004BE649 /* ADIpAddressHelper.m */,
 				D6D8A83D1D4FD12300D20DE6 /* ios */,
 			);
 			path = utils;
@@ -1257,6 +1264,7 @@
 		D64C1F491DB9B05900850036 /* ADALAutomation */ = {
 			isa = PBXGroup;
 			children = (
+				975EF21D1DD7E2A500ABF2C9 /* ADALAutomation.entitlements */,
 				D64C1F4D1DB9B05900850036 /* ADAutoAppDelegate.h */,
 				D64C1F661DBAD90100850036 /* ADAutoInputViewController.h */,
 				D64C1F671DBAD90100850036 /* ADAutoInputViewController.m */,
@@ -1265,14 +1273,14 @@
 				D64C1F4E1DB9B05900850036 /* ADAutoAppDelegate.m */,
 				D64C1F501DB9B05900850036 /* ADAutoMainViewController.h */,
 				D64C1F511DB9B05900850036 /* ADAutoMainViewController.m */,
-				D64C1F601DB9B15800850036 /* ADAutoParameterViewController.h */,
-				D64C1F611DB9B15800850036 /* ADAutoParameterViewController.m */,
 				D64C1F531DB9B05900850036 /* Main.storyboard */,
 				D64C1F561DB9B05A00850036 /* Assets.xcassets */,
 				D64C1F581DB9B05A00850036 /* LaunchScreen.storyboard */,
 				D64C1F5B1DB9B05A00850036 /* Info.plist */,
 				D64C1F4A1DB9B05900850036 /* Supporting Files */,
 				D64C1F691DBADAF900850036 /* ADALAutomation.h */,
+				975EF2191DD294D600ABF2C9 /* ADAutoResultViewController.m */,
+				975EF21B1DD2951700ABF2C9 /* ADAutoResultViewController.h */,
 			);
 			path = ADALAutomation;
 			sourceTree = "<group>";
@@ -1579,8 +1587,13 @@
 					};
 					D64C1F471DB9B05900850036 = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = UBF8T346G9;
+						DevelopmentTeam = 4XAC8VP2M2;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Keychain = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -1841,6 +1854,7 @@
 				9453C4171C586456006B9E79 /* ADOAuth2Constants.m in Sources */,
 				60D2F4021D531F16008725D9 /* ADRequestParameters.m in Sources */,
 				9453C4101C586456006B9E79 /* ADAuthenticationResult.m in Sources */,
+				E04F07761E64A051004BE649 /* ADIpAddressHelper.m in Sources */,
 				9453C4091C586456006B9E79 /* ADAuthenticationContext+Internal.m in Sources */,
 				D6F0951C1CDC2BC300D28FC2 /* ADWebAuthRequest.m in Sources */,
 				9453C43F1C58647E006B9E79 /* ADHelpers.m in Sources */,
@@ -1887,6 +1901,7 @@
 				D64C1F621DB9B15800850036 /* ADAutoParameterViewController.m in Sources */,
 				D64C1F681DBAD90100850036 /* ADAutoInputViewController.m in Sources */,
 				D64C1F521DB9B05900850036 /* ADAutoMainViewController.m in Sources */,
+				975EF21A1DD294D700ABF2C9 /* ADAutoResultViewController.m in Sources */,
 				D64C1F4F1DB9B05900850036 /* ADAutoAppDelegate.m in Sources */,
 				D64C1F4C1DB9B05900850036 /* main.m in Sources */,
 			);
@@ -1946,6 +1961,7 @@
 				D664F19B1D302B9C0017B799 /* ADTokenCacheAccessor.m in Sources */,
 				D664F19C1D302B9C0017B799 /* ADTokenCacheItem.m in Sources */,
 				965EDDE41E02436A00CBB723 /* ADWebFingerRequest.m in Sources */,
+				E04F07751E64A050004BE649 /* ADIpAddressHelper.m in Sources */,
 				D664F19D1D302B9C0017B799 /* ADAuthenticationRequest+WebRequest.m in Sources */,
 				9671AF031E03796900CAADB8 /* ADAuthorityValidationRequest.m in Sources */,
 				D664F19E1D302B9C0017B799 /* ADLogger.m in Sources */,
@@ -2710,9 +2726,10 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_ENTITLEMENTS = ADALAutomation/ADALAutomation.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = UBF8T346G9;
+				DEVELOPMENT_TEAM = 4XAC8VP2M2;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -2738,10 +2755,11 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_ENTITLEMENTS = ADALAutomation/ADALAutomation.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = UBF8T346G9;
+				DEVELOPMENT_TEAM = 4XAC8VP2M2;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -2767,10 +2785,11 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_ENTITLEMENTS = ADALAutomation/ADALAutomation.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = UBF8T346G9;
+				DEVELOPMENT_TEAM = 4XAC8VP2M2;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
