@@ -7,84 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C28C4DA45B107FA427C416E3 /* Pods_iOSSampleApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC7F3E5E4892429B033B24FC /* Pods_iOSSampleApp.framework */; };
 		E0D7205B1E53BC700026E9EB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E0D7205A1E53BC700026E9EB /* main.m */; };
 		E0D7205E1E53BC700026E9EB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E0D7205D1E53BC700026E9EB /* AppDelegate.m */; };
 		E0D720611E53BC700026E9EB /* ADHomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E0D720601E53BC700026E9EB /* ADHomeViewController.m */; };
 		E0D720641E53BC700026E9EB /* ADHomeViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E0D720621E53BC700026E9EB /* ADHomeViewController.storyboard */; };
 		E0D720661E53BC700026E9EB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E0D720651E53BC700026E9EB /* Assets.xcassets */; };
 		E0D720691E53BC700026E9EB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E0D720671E53BC700026E9EB /* LaunchScreen.storyboard */; };
-		E0D720A21E53D9830026E9EB /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0D720811E53D4E00026E9EB /* ADAL.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		E0D720A51E53DB2A0026E9EB /* AuthenticationService.m in Sources */ = {isa = PBXBuildFile; fileRef = E0D720A41E53DB2A0026E9EB /* AuthenticationService.m */; };
 		E0D720AB1E551C5E0026E9EB /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E0D7206A1E53BC700026E9EB /* Info.plist */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		E0D7207C1E53D4E00026E9EB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E0D720701E53D4E00026E9EB /* ADAL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 8B0965AA17F25770002BDFB8;
-			remoteInfo = ADALiOS;
-		};
-		E0D7207E1E53D4E00026E9EB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E0D720701E53D4E00026E9EB /* ADAL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D664F1B41D302B9C0017B799;
-			remoteInfo = "ADAL-core";
-		};
-		E0D720801E53D4E00026E9EB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E0D720701E53D4E00026E9EB /* ADAL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 9453C3CC1C583E07006B9E79;
-			remoteInfo = ADAL;
-		};
-		E0D720821E53D4E00026E9EB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E0D720701E53D4E00026E9EB /* ADAL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 8B0965BA17F25770002BDFB8;
-			remoteInfo = ADALiOSTests;
-		};
-		E0D720841E53D4E00026E9EB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E0D720701E53D4E00026E9EB /* ADAL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 9453C3FD1C586425006B9E79;
-			remoteInfo = "ADAL Mac";
-		};
-		E0D720861E53D4E00026E9EB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E0D720701E53D4E00026E9EB /* ADAL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 94DD18E11C5ACFBF00F80C62;
-			remoteInfo = "ADAL Mac Tests";
-		};
-		E0D720881E53D4E00026E9EB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E0D720701E53D4E00026E9EB /* ADAL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 04AB6D421D9D619B007E9A83;
-			remoteInfo = UnitTestHostApp;
-		};
-		E0D7208A1E53D4E00026E9EB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E0D720701E53D4E00026E9EB /* ADAL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D64C1F481DB9B05900850036;
-			remoteInfo = ADALAutomation;
-		};
-		E0D720A01E53D9700026E9EB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E0D720701E53D4E00026E9EB /* ADAL.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 9453C3CB1C583E07006B9E79;
-			remoteInfo = ADAL;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
+		04C85C74412EEC4E22CF3FD7 /* Pods-iOSSampleApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iOSSampleApp.release.xcconfig"; path = "Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp.release.xcconfig"; sourceTree = "<group>"; };
+		8B2B55006478BCF557780B01 /* Pods-iOSSampleApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iOSSampleApp.debug.xcconfig"; path = "Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp.debug.xcconfig"; sourceTree = "<group>"; };
 		E0D720561E53BC700026E9EB /* iOSSampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSSampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0D7205A1E53BC700026E9EB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E0D7205C1E53BC700026E9EB /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -95,9 +31,9 @@
 		E0D720651E53BC700026E9EB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E0D720681E53BC700026E9EB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E0D7206A1E53BC700026E9EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E0D720701E53D4E00026E9EB /* ADAL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ADAL.xcodeproj; path = ../../ADAL/ADAL.xcodeproj; sourceTree = "<group>"; };
 		E0D720A31E53DB2A0026E9EB /* AuthenticationService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthenticationService.h; sourceTree = "<group>"; };
 		E0D720A41E53DB2A0026E9EB /* AuthenticationService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthenticationService.m; sourceTree = "<group>"; };
+		FC7F3E5E4892429B033B24FC /* Pods_iOSSampleApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_iOSSampleApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,19 +41,37 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E0D720A21E53D9830026E9EB /* ADAL.framework in Frameworks */,
+				C28C4DA45B107FA427C416E3 /* Pods_iOSSampleApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		205D1444D7C2FC3D518D5E9F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FC7F3E5E4892429B033B24FC /* Pods_iOSSampleApp.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4F7D86285A834AD296451CDB /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				8B2B55006478BCF557780B01 /* Pods-iOSSampleApp.debug.xcconfig */,
+				04C85C74412EEC4E22CF3FD7 /* Pods-iOSSampleApp.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		E0D7204D1E53BC700026E9EB = {
 			isa = PBXGroup;
 			children = (
-				E0D720701E53D4E00026E9EB /* ADAL.xcodeproj */,
 				E0D720581E53BC700026E9EB /* iOSSampleApp */,
 				E0D720571E53BC700026E9EB /* Products */,
+				4F7D86285A834AD296451CDB /* Pods */,
+				205D1444D7C2FC3D518D5E9F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -155,21 +109,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		E0D720711E53D4E00026E9EB /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				E0D7207D1E53D4E00026E9EB /* libADALiOS.a */,
-				E0D7207F1E53D4E00026E9EB /* libADAL-core.a */,
-				E0D720811E53D4E00026E9EB /* ADAL.framework */,
-				E0D720831E53D4E00026E9EB /* ADALiOSTests.xctest */,
-				E0D720851E53D4E00026E9EB /* ADAL.framework */,
-				E0D720871E53D4E00026E9EB /* ADAL Mac Tests.xctest */,
-				E0D720891E53D4E00026E9EB /* UnitTestHostApp.app */,
-				E0D7208B1E53D4E00026E9EB /* ADALAutomation.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -177,14 +116,16 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E0D7206D1E53BC700026E9EB /* Build configuration list for PBXNativeTarget "iOSSampleApp" */;
 			buildPhases = (
+				F421794456C5076566AF34B2 /* [CP] Check Pods Manifest.lock */,
 				E0D720521E53BC700026E9EB /* Sources */,
 				E0D720531E53BC700026E9EB /* Frameworks */,
 				E0D720541E53BC700026E9EB /* Resources */,
+				7BBD13121558407FCEE0FFE9 /* [CP] Embed Pods Frameworks */,
+				65717F6F1917093A50222A8B /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				E0D720A11E53D9700026E9EB /* PBXTargetDependency */,
 			);
 			name = iOSSampleApp;
 			productName = iOSSampleApp;
@@ -218,77 +159,12 @@
 			mainGroup = E0D7204D1E53BC700026E9EB;
 			productRefGroup = E0D720571E53BC700026E9EB /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = E0D720711E53D4E00026E9EB /* Products */;
-					ProjectRef = E0D720701E53D4E00026E9EB /* ADAL.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				E0D720551E53BC700026E9EB /* iOSSampleApp */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		E0D7207D1E53D4E00026E9EB /* libADALiOS.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libADALiOS.a;
-			remoteRef = E0D7207C1E53D4E00026E9EB /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E0D7207F1E53D4E00026E9EB /* libADAL-core.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libADAL-core.a";
-			remoteRef = E0D7207E1E53D4E00026E9EB /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E0D720811E53D4E00026E9EB /* ADAL.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = ADAL.framework;
-			remoteRef = E0D720801E53D4E00026E9EB /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E0D720831E53D4E00026E9EB /* ADALiOSTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = ADALiOSTests.xctest;
-			remoteRef = E0D720821E53D4E00026E9EB /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E0D720851E53D4E00026E9EB /* ADAL.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = ADAL.framework;
-			remoteRef = E0D720841E53D4E00026E9EB /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E0D720871E53D4E00026E9EB /* ADAL Mac Tests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = "ADAL Mac Tests.xctest";
-			remoteRef = E0D720861E53D4E00026E9EB /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E0D720891E53D4E00026E9EB /* UnitTestHostApp.app */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.application;
-			path = UnitTestHostApp.app;
-			remoteRef = E0D720881E53D4E00026E9EB /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E0D7208B1E53D4E00026E9EB /* ADALAutomation.app */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.application;
-			path = ADALAutomation.app;
-			remoteRef = E0D7208A1E53D4E00026E9EB /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		E0D720541E53BC700026E9EB /* Resources */ = {
@@ -304,6 +180,54 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		65717F6F1917093A50222A8B /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		7BBD13121558407FCEE0FFE9 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F421794456C5076566AF34B2 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		E0D720521E53BC700026E9EB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -317,14 +241,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		E0D720A11E53D9700026E9EB /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = ADAL;
-			targetProxy = E0D720A01E53D9700026E9EB /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		E0D720621E53BC700026E9EB /* ADHomeViewController.storyboard */ = {
@@ -438,6 +354,7 @@
 		};
 		E0D7206E1E53BC700026E9EB /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8B2B55006478BCF557780B01 /* Pods-iOSSampleApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = UBF8T346G9;
@@ -452,6 +369,7 @@
 		};
 		E0D7206F1E53BC700026E9EB /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 04C85C74412EEC4E22CF3FD7 /* Pods-iOSSampleApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = UBF8T346G9;

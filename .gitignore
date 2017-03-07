@@ -6,3 +6,22 @@ ADAL/ObjectiveC.gcda
 ADAL/ObjectiveC.gcno
 ADAL/Security.gcda
 ADAL/Security.gcno
+Samples/iOSSampleApp/iOSSampleApp.xcworkspace/contents.xcworkspacedata
+Samples/iOSSampleApp/Pods/Manifest.lock
+Samples/iOSSampleApp/Pods/Local Podspecs/ADAL.podspec.json
+Samples/iOSSampleApp/Pods/Pods.xcodeproj/project.pbxproj
+Samples/iOSSampleApp/Pods/Target Support Files/ADAL/ADAL-dummy.m
+Samples/iOSSampleApp/Pods/Target Support Files/ADAL/ADAL-prefix.pch
+Samples/iOSSampleApp/Pods/Target Support Files/ADAL/ADAL.modulemap
+Samples/iOSSampleApp/Pods/Target Support Files/ADAL/ADAL.xcconfig
+Samples/iOSSampleApp/Pods/Target Support Files/ADAL/Info.plist
+Samples/iOSSampleApp/Pods/Target Support Files/Pods-iOSSampleApp/Info.plist
+Samples/iOSSampleApp/Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp-acknowledgements.markdown
+Samples/iOSSampleApp/Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp-acknowledgements.plist
+Samples/iOSSampleApp/Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp-dummy.m
+Samples/iOSSampleApp/Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp-frameworks.sh
+Samples/iOSSampleApp/Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp-resources.sh
+Samples/iOSSampleApp/Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp-umbrella.h
+Samples/iOSSampleApp/Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp.debug.xcconfig
+Samples/iOSSampleApp/Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp.modulemap
+Samples/iOSSampleApp/Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp.release.xcconfig

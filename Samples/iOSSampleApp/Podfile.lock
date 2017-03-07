@@ -1,0 +1,20 @@
+PODS:
+  - ADAL (2.3.1):
+    - ADAL/app-lib (= 2.3.1)
+  - ADAL/app-lib (2.3.1):
+    - ADAL/tokencacheheader
+  - ADAL/tokencacheheader (2.3.1)
+
+DEPENDENCIES:
+  - ADAL (from `../../`)
+
+EXTERNAL SOURCES:
+  ADAL:
+    :path: "../../"
+
+SPEC CHECKSUMS:
+  ADAL: 3fcacd30c96e77ca9ddf67e72785c4ddc5555222
+
+PODFILE CHECKSUM: f5a612fd958ddd172434bbd386591ce70f0abde5
+
+COCOAPODS: 1.2.0
