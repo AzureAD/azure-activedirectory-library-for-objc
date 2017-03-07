@@ -50,7 +50,7 @@ const unichar queryStringSeparator = '?';
         
         if (index == NSNotFound)
         {
-            return nil;
+            index = [last length];
         }
         last = [last substringWithRange:(NSRange){0, index}];
     }

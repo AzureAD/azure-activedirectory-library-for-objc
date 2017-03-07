@@ -292,7 +292,9 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     THROW_ON_NIL_ARGUMENT(set);
     long end = self.length;
     if (startIndex >= end)
+    {
         return NSNotFound;
+    }
     
     NSRange toSearch = {.location  = startIndex, .length = (end - startIndex)};
     return [self rangeOfCharacterFromSet:set options:NSLiteralSearch range:toSearch].location;
