@@ -21,6 +21,7 @@
 /* Begin PBXFileReference section */
 		04C85C74412EEC4E22CF3FD7 /* Pods-iOSSampleApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iOSSampleApp.release.xcconfig"; path = "Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp.release.xcconfig"; sourceTree = "<group>"; };
 		8B2B55006478BCF557780B01 /* Pods-iOSSampleApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iOSSampleApp.debug.xcconfig"; path = "Pods/Target Support Files/Pods-iOSSampleApp/Pods-iOSSampleApp.debug.xcconfig"; sourceTree = "<group>"; };
+		E05669301E6F6E4700CC1BA4 /* iOSSampleApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOSSampleApp.entitlements; sourceTree = "<group>"; };
 		E0D720561E53BC700026E9EB /* iOSSampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSSampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0D7205A1E53BC700026E9EB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E0D7205C1E53BC700026E9EB /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -86,6 +87,7 @@
 		E0D720581E53BC700026E9EB /* iOSSampleApp */ = {
 			isa = PBXGroup;
 			children = (
+				E05669301E6F6E4700CC1BA4 /* iOSSampleApp.entitlements */,
 				E0D7205C1E53BC700026E9EB /* AppDelegate.h */,
 				E0D7205D1E53BC700026E9EB /* AppDelegate.m */,
 				E0D7205F1E53BC700026E9EB /* ADHomeViewController.h */,
@@ -145,6 +147,11 @@
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = UBF8T346G9;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Keychain = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -357,6 +364,7 @@
 			baseConfigurationReference = 8B2B55006478BCF557780B01 /* Pods-iOSSampleApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = iOSSampleApp/iOSSampleApp.entitlements;
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = iOSSampleApp/Info.plist;
@@ -372,6 +380,7 @@
 			baseConfigurationReference = 04C85C74412EEC4E22CF3FD7 /* Pods-iOSSampleApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = iOSSampleApp/iOSSampleApp.entitlements;
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = iOSSampleApp/Info.plist;

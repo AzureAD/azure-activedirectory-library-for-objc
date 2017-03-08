@@ -9,7 +9,7 @@ static NSString *s_clientId = @"bc5beb43-ef30-4260-ab0a-d7603134248a";
 
 static NSString *s_resultStringFormat = @"<!DOCTYPE html> \
 <html><head><title>Authentication result</title></head><body><table> \
-<tr><td>Error: </td><td>%@</td></tr> \
+<tr><td>Error: </td><td><font color=\"red\">%@</font></td></tr> \
 <tr><td>Status: </td><td>%@</td></tr> \
 <tr><td>Identity Provider: </td><td>%@</td></tr> \
 <tr><td>Given Name: </td><td>%@</td></tr> \
@@ -52,8 +52,7 @@ static NSString *s_resultStringEmpty = @"<!DOCTYPE html><html><head><title></tit
     NSString *redirectUrl = [self readRedirectUrl];
     authService.redirectUri = [NSURL URLWithString:redirectUrl];
     
-    authService.resource = [_resourceTextView text];
-    authService.userId = [_userIdTextView text];
+    [self updateAuthInfo];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -109,10 +108,19 @@ static NSString *s_resultStringEmpty = @"<!DOCTYPE html><html><head><title></tit
 }
 
 - (IBAction)acquireTokenAction:(id)sender {
+    [self updateAuthInfo];
     [[AuthenticationService sharedInstance] acquireTokenSilent];
 }
 
 #pragma mark private methods
+
+- (void)updateAuthInfo
+{
+    AuthenticationService *authService = [AuthenticationService sharedInstance];
+    
+    authService.resource = [_resourceTextView text];
+    authService.userId = [_userIdTextView text];
+}
 
 - (void)displayResult:(id)result {
     NSString *htmlResult = s_resultStringEmpty;
@@ -144,14 +152,7 @@ static NSString *s_resultStringEmpty = @"<!DOCTYPE html><html><head><title></tit
 }
 
 - (void)addOrRemoveToolbarButton:(BOOL)userSignedIn {
-    NSMutableArray<UIBarButtonItem *> *toolbarItems = [_toolbar.items mutableCopy];
-    if (!userSignedIn && [toolbarItems containsObject:_acquireTokenButton]) {
-        [toolbarItems removeObject:_acquireTokenButton];
-        [self setToolbarItems:toolbarItems animated:YES];
-    } else if (userSignedIn && ![toolbarItems containsObject:_acquireTokenButton]) {
-        [toolbarItems addObject:_acquireTokenButton];
-        [self setToolbarItems:toolbarItems animated:YES];
-    }
+    [_acquireTokenButton setEnabled:userSignedIn];
 }
 
 - (NSString *)resultStatusToString:(ADAuthenticationResultStatus)status {

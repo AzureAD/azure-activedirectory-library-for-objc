@@ -30,7 +30,7 @@
                                             <action selector="signinButtonAction:" destination="BYZ-38-t0r" id="Aj2-TW-XRj"/>
                                         </connections>
                                     </barButtonItem>
-                                    <barButtonItem title="Acquire token" id="jo9-i1-EWa">
+                                    <barButtonItem title="Acquire token silent" id="jo9-i1-EWa">
                                         <connections>
                                             <action selector="acquireTokenAction:" destination="BYZ-38-t0r" id="IS2-UQ-SK9"/>
                                         </connections>

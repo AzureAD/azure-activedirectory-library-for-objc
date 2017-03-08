@@ -23,12 +23,14 @@
 
 - (void)useToken:(ADAuthenticationResult*)result
 {
-    //Do something with the token
+    // Do something with the token
+    // Send token to resources such as graph
 }
 
 - (void)handleWrongUser
 {
     // Show the user an error and give them another opportunity to sign in.
+    [self acquireTokenForNewUser];
 }
 
 // Sign in a new user.
@@ -229,10 +231,11 @@
     // Save this and add it to any ADAL related app logging or diagnostics.
     context.correlationId = [NSUUID UUID];
     
+    ADUserIdentifier *adUserId = [ADUserIdentifier identifierWithId:_userId type:OptionalDisplayableId];
     [context acquireTokenSilentWithResource:_resource
                                    clientId:_clientId
                                 redirectUri:_redirectUri
-                                     userId:_uniqueId
+                                     userId:adUserId.userId
                             completionBlock:^(ADAuthenticationResult *result)
      {
          if (result.status != AD_SUCCEEDED)
@@ -255,6 +258,10 @@
                  {
                      // Handle error
                  }
+             }
+             else if (result.error.code == AD_ERROR_SERVER_USER_INPUT_NEEDED)
+             {
+                 [self acquireTokenInteractionRequired];
              }
              return;
          }
