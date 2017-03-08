@@ -29,7 +29,7 @@
 #import "ADOAuth2Constants.h"
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"
-#import "NSURL+ADHelperMethods.h"
+#import "NSURL+ADExtensions.h"
 
 
 // Trusted relation for webFinger

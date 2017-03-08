@@ -70,22 +70,4 @@
     XCTAssertEqualObjects(simple, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#foo1=bar1&foo2=bar2&foo3=bar3=foo3"]).adFragmentParameters);
 }
 
-//As both fragment and query parameters are extracted
-//with the same helper method, for query parameters we have only basic tests:
--(void) testQueryParameters
-{
-    //Negative:
-    XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com"]).adQueryParameters);
-    
-    //Positive:
-    NSDictionary* simple = @{@"foo1":@"bar1", @"foo2":@"bar2"};
-    XCTAssertEqualObjects(simple, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2"]).adQueryParameters);
-    
-    // Valid redirect url
-    XCTAssertEqualObjects(simple, ((NSURL*)[NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob?foo1=bar1&foo2=bar2"]).adQueryParameters);
-    
-    //Mixed query and fragment parameters:
-    XCTAssertEqualObjects(simple, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2#foo3=bar3"]).adQueryParameters);
-}
-
 @end

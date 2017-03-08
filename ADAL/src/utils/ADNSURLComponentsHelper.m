@@ -21,45 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADNSURLComponentsHelper.h"
+#import "NSDictionary+ADExtensions.h"
 
-#import "NSURL+ADHelperMethods.h"
+@implementation ADNSURLComponentsHelper
 
-@implementation NSURL (ADMethodHelpers)
-
-- (BOOL)isEquivalentAuthority:(NSURL *)aURL
+// Decodes parameters contains in a URL query
++ (NSDictionary *)adQueryParameters:(NSURL *)url
 {
+    NSURLComponents* components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
     
-    // Check if equal
-    if ([self isEqual:aURL])
-    {
-        return YES;
-    }
-    
-    // Check scheme and host
-    if (!self.scheme ||
-        !aURL.scheme ||
-        [self.scheme caseInsensitiveCompare:aURL.scheme] != NSOrderedSame)
-    {
-        return NO;
-    }
-
-    if (!self.host ||
-        !aURL.host ||
-        [self.host caseInsensitiveCompare:aURL.host] != NSOrderedSame)
-    {
-        return NO;
-    }
-
-    // Check port
-    if (self.port || aURL.port)
-    {
-        if (![self.port isEqual:aURL.port])
-        {
-            return NO;
-        }
-    }
-    
-    return YES;
+    return [NSDictionary adURLFormDecode:components.query];
 }
 
 @end

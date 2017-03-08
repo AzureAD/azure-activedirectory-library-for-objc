@@ -23,13 +23,13 @@
 
 #import <XCTest/XCTest.h>
 #import "XCTestCase+TestHelperMethods.h"
-#import "NSString+ADHelperMethods.h"
+#import "ADNSURLComponentsHelper.h"
 
-@interface NSStringHelperMethodsTests : XCTestCase
+@interface ADNSURLComponentsHelperTests : XCTestCase
 
 @end
 
-@implementation NSStringHelperMethodsTests
+@implementation ADNSURLComponentsHelperTests
 
 - (void)setUp
 {
@@ -45,21 +45,20 @@
     [super tearDown];
 }
 
-- (void)testFindCharacter
+- (void)testAdQueryParameters
 {
-    NSString *testString = @"urn:ietf:wg:oauth:2.0:oob?code=eiofjsfjsofeoi";
+    //Negative:
+    XCTAssertNil([ADNSURLComponentsHelper adQueryParameters:[NSURL URLWithString:@"https://stuff.com"]]);
     
-    XCTAssertEqual(3, [testString adFindCharacter:':' start:0]);
-    XCTAssertEqual(25, [testString adFindCharacter:'?' start:0]);
+    //Positive:
+    NSDictionary* simple = @{@"foo1":@"bar1", @"foo2":@"bar2"};
+    XCTAssertEqualObjects(simple, ([ADNSURLComponentsHelper adQueryParameters:[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2"]]));
     
-    XCTAssertEqual(NSNotFound, [testString adFindCharacter:':' start:100]);
-    XCTAssertEqual(NSNotFound, [testString adFindCharacter:'?' start:100]);
+    // Valid redirect url
+    XCTAssertEqualObjects(simple, ([ADNSURLComponentsHelper adQueryParameters:[NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob?foo1=bar1&foo2=bar2"]]));
     
-    XCTAssertEqual(NSNotFound, [testString adFindCharacter:'#' start:0]);
-    
-    testString = nil;
-    
-    XCTAssertEqual(0, [testString adFindCharacter:'@' start:10]);
+    //Mixed query and fragment parameters:
+    XCTAssertEqualObjects(simple, ([ADNSURLComponentsHelper adQueryParameters:[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2#foo3=bar3"]]));
 }
 
 @end

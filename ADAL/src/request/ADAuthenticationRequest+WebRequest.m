@@ -37,6 +37,7 @@
 #import "ADAuthenticationRequest.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADWebAuthRequest.h"
+#import "ADNSURLComponentsHelper.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -175,7 +176,7 @@
                  NSString* host = [end host];
                  if ([host isEqualToString:@"microsoft.aad.brokerplugin"] || [host isEqualToString:@"code"])
                  {
-                     NSDictionary* queryParams = [end adQueryParameters];
+                     NSDictionary* queryParams = [ADNSURLComponentsHelper adQueryParameters:end];
                      code = [queryParams objectForKey:OAUTH2_CODE];
                  }
                  else
@@ -198,7 +199,7 @@
                  NSDictionary *parameters = [end adFragmentParameters];
                  if ( parameters.count == 0 )
                  {
-                     parameters = [end adQueryParameters];
+                     parameters = [ADNSURLComponentsHelper adQueryParameters:end];
                  }
                  
                  //OAuth2 error may be passed by the server:
