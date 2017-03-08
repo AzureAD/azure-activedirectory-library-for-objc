@@ -21,21 +21,25 @@
     return instance;
 }
 
-- (void)useToken:(ADAuthenticationResult*)result
-{
+- (void)useToken:(NSString *)accessToken {
     // Do something with the token
     // Send token to resources such as graph
 }
 
-- (void)handleWrongUser
-{
+- (void)handleWrongUser {
     // Show the user an error and give them another opportunity to sign in.
-    [self acquireTokenForNewUser];
+    
+    if ([NSThread isMainThread]) {
+        [self acquireTokenForNewUser];
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self acquireTokenForNewUser];
+        });
+    }
 }
 
 // Sign in a new user.
-- (void)acquireTokenForNewUser
-{
+- (void)acquireTokenForNewUser {
     ADUserIdentifier *adUserId = [ADUserIdentifier identifierWithId:_userId type:OptionalDisplayableId];
     
     ADAuthenticationError *error = nil;
@@ -45,9 +49,9 @@
     [ADAuthenticationContext authenticationContextWithAuthority:_authority
                                               validateAuthority:true
                                                           error:&error];
-    if (!context)
-    {
-        // Handle error.
+    if (!context) {
+        NSLog(@"Failed to create AuthenticationContext. Please make sure you pass in the correct authority.\n%@", error);
+        
         return;
     }
     
@@ -60,17 +64,11 @@
                        promptBehavior:AD_PROMPT_ALWAYS
                                userId:adUserId.userId
                  extraQueryParameters:@"msafed=0"
-                      completionBlock:^(ADAuthenticationResult *result)
-     {
+                      completionBlock:^(ADAuthenticationResult *result) {
+                          
          self.authenticationResult = result;
          
-         if (result.status == AD_USER_CANCELLED)
-         {
-             return;
-         }
-         
-         if (result.status != AD_SUCCEEDED)
-         {
+         if (result.status != AD_SUCCEEDED) {
              return;
          }
          
@@ -85,14 +83,12 @@
          
          self.userLoggedIn = YES;
          
-         [self useToken:result];
+         [self useToken:result.accessToken];
      }];
 }
 
-- (void)signoutUser
-{
-    @synchronized (self)
-    {
+- (void)signoutUser {
+    @synchronized (self) {
         [self deleteCookies];
         [self clearTokens];
         
@@ -104,8 +100,7 @@
 // Try to sign-in a user that was already signed in but whose session has
 // been invalidated for some reason such as a changed password or expired
 // refresh token.
-- (void)acquireTokenOnInvalidGrant
-{
+- (void)acquireTokenOnInvalidGrant {
     // Require the same user that was already signed in.
     ADUserIdentifier* adUserId = [ADUserIdentifier identifierWithId:_userId type:OptionalDisplayableId];
     
@@ -114,9 +109,9 @@
     [ADAuthenticationContext authenticationContextWithAuthority:_authority
                                               validateAuthority:true
                                                           error:&error];
-    if (!context)
-    {
-        // Handle error.
+    if (!context) {
+        NSLog(@"Failed to create AuthenticationContext. Please make sure you pass in the correct authority.\n%@", error);
+        
         return;
     }
     
@@ -129,40 +124,31 @@
                        promptBehavior:AD_PROMPT_ALWAYS
                                userId:adUserId.userId
                  extraQueryParameters:@"msafed=0"
-                      completionBlock:^(ADAuthenticationResult *result)
-     {
-         self.authenticationResult = result;
-         
-         if (result.status == AD_USER_CANCELLED)
-         {
-             // Handle the fact that the user canceled the sign-in. Maybe show them an error and let them try again.
-             return;
-         }
-         
-         if (result.status != AD_SUCCEEDED)
-         {
+                      completionBlock:^(ADAuthenticationResult *result) {
+         if (result.status != AD_SUCCEEDED) {
+             self.authenticationResult = result;
              return;
          }
          
          NSString* resultUniqueId = result.tokenCacheItem.userInformation.uniqueId;
-         if ([_uniqueId caseInsensitiveCompare:resultUniqueId] != NSOrderedSame)
-         {
-             // The user did not sign in with the same user that was previously signed in.  Display an error and perhaps try again.
+         if ([_uniqueId caseInsensitiveCompare:resultUniqueId] != NSOrderedSame) {
+             // The user did not sign in with the same user that was previously signed in.
+             // Display an error and perhaps try again.
              [self handleWrongUser];
              return;
          }
          
+         self.authenticationResult = result;
          self.userLoggedIn = YES;
          
-         [self useToken:result];
+         [self useToken:result.accessToken];
      }];
 }
 
 // Attempt to resolve an interaction required error.  If the cookies haven't yet expired in the
 // web view then the user should not have to enter full creds again.  Instead, they may
 // be able to go straight to MFA auth or consent.
-- (void)acquireTokenInteractionRequired
-{
+- (void)acquireTokenInteractionRequired {
     ADUserIdentifier* adUserId = [ADUserIdentifier identifierWithId:_userId type:OptionalDisplayableId];
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context =
@@ -170,9 +156,9 @@
                                               validateAuthority:true
                                                           error:&error];
     
-    if (!context)
-    {
-        // Handle error.
+    if (!context) {
+        NSLog(@"Failed to create AuthenticationContext. Please make sure you pass in the correct authority.\n%@", error);
+        
         return;
     }
     
@@ -185,46 +171,38 @@
                        promptBehavior:AD_PROMPT_AUTO
                                userId:adUserId.userId
                  extraQueryParameters:@"msafed=0"
-                      completionBlock:^(ADAuthenticationResult *result)
-     {
-         self.authenticationResult = result;
-         
-         if (result.status == AD_USER_CANCELLED)
-         {
-             // Handle the fact that the user canceled the sign-in. Maybe show them an error and let them try again.
-             return;
-         }
-         
-         if (result.status != AD_SUCCEEDED)
-         {
+                      completionBlock:^(ADAuthenticationResult *result) {
+         if (result.status != AD_SUCCEEDED) {
+             self.authenticationResult = result;
+             
              return;
          }
          
          NSString* resultUniqueId = result.tokenCacheItem.userInformation.uniqueId;
-         if ([_uniqueId caseInsensitiveCompare:resultUniqueId] != NSOrderedSame)
-         {
-             // The user did not sign in with the same user that was previously signed in.  Display an error and perhaps try again.
+         if ([_uniqueId caseInsensitiveCompare:resultUniqueId] != NSOrderedSame) {
+             // The user did not sign in with the same user that was previously signed in.
+             // Display an error and perhaps try again.
              [self handleWrongUser];
              return;
          }
          
+         self.authenticationResult = result;
          self.userLoggedIn = YES;
          
-         [self useToken:result];
+         [self useToken:result.accessToken];
      }];
 }
 
-- (void)acquireTokenSilent
-{
+- (void)acquireTokenSilent {
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context =
     [ADAuthenticationContext authenticationContextWithAuthority:_authority
                                               validateAuthority:true
                                                           error:&error];
     
-    if (!context)
-    {
-        // Handle error.
+    if (!context) {
+        NSLog(@"Failed to create AuthenticationContext. Please make sure you pass in the correct authority.\n%@", error);
+        
         return;
     }
     
@@ -236,55 +214,41 @@
                                    clientId:_clientId
                                 redirectUri:_redirectUri
                                      userId:adUserId.userId
-                            completionBlock:^(ADAuthenticationResult *result)
-     {
-         if (result.status != AD_SUCCEEDED)
-         {
-             self.authenticationResult = result;
-             
+                            completionBlock:^(ADAuthenticationResult *result) {
+                                
+         if (result.status != AD_SUCCEEDED) {
              NSString* protocolCode = result.error.protocolCode;
-             if (protocolCode != nil)
-             {
-                 if ([protocolCode isEqualToString:@"user_interaction_required"])
-                 {
+             
+             if (protocolCode != nil) {
+                 if ([protocolCode isEqualToString:@"user_interaction_required"]) {
                      // Interaction required can happen any time the user is required to MFA for the first time.
                      [self acquireTokenInteractionRequired];
-                 }
-                 else if ([protocolCode isEqualToString:@"invalid_grant"])
-                 {
+                 } else if ([protocolCode isEqualToString:@"invalid_grant"]) {
                      [self acquireTokenOnInvalidGrant];
                  }
-                 else
-                 {
-                     // Handle error
-                 }
-             }
-             else if (result.error.code == AD_ERROR_SERVER_USER_INPUT_NEEDED)
-             {
-                 [self acquireTokenInteractionRequired];
+             } else if (result.error.code == AD_ERROR_SERVER_USER_INPUT_NEEDED) {
+                 [self acquireTokenForNewUser];
              }
              return;
          }
          
+         self.authenticationResult = result;
          self.userLoggedIn = YES;
          
-         [self useToken:result];
+         [self useToken:result.accessToken];
      }];
 }
 
 - (void)deleteCookies {
     NSHTTPCookieStorage *cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     NSArray* cookies = cookieStore.cookies;
-    for (NSHTTPCookie *cookie in cookies)
-    {
+    for (NSHTTPCookie *cookie in cookies) {
         [cookieStore deleteCookie:cookie];
     }
 }
 
 - (void)clearTokens {
-    [[ADKeychainTokenCache defaultKeychainCache] removeAllForUserId:_userId
-                                                           clientId:_clientId
-                                                              error:nil];
+    [[ADKeychainTokenCache defaultKeychainCache] removeAllForClientId:_clientId error:nil];
 }
 
 @end

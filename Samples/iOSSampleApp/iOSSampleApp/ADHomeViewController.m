@@ -8,7 +8,7 @@ static NSString *s_authority = @"https://login.microsoftonline.com/common/oauth2
 static NSString *s_clientId = @"bc5beb43-ef30-4260-ab0a-d7603134248a";
 
 static NSString *s_resultStringFormat = @"<!DOCTYPE html> \
-<html><head><title>Authentication result</title></head><body><table> \
+<html><head><title>Authentication result</title></head><body><table style=\"font-size:10pt;\"> \
 <tr><td>Error: </td><td><font color=\"red\">%@</font></td></tr> \
 <tr><td>Status: </td><td>%@</td></tr> \
 <tr><td>Identity Provider: </td><td>%@</td></tr> \
@@ -16,6 +16,7 @@ static NSString *s_resultStringFormat = @"<!DOCTYPE html> \
 <tr><td>Family Name: </td><td>%@</td></tr> \
 <tr><td>Unique Name: </td><td>%@</td></tr><tr> \
 <td>upn: </td><td>%@</td></tr> \
+<td>Access token: </td><td>%@</td></tr> \
 </table></body></html>";
 
 static NSString *s_resultStringEmpty = @"<!DOCTYPE html><html><head><title></title></head><body></body></html>";
@@ -136,7 +137,13 @@ static NSString *s_resultStringEmpty = @"<!DOCTYPE html><html><head><title></tit
                       userInfo.givenName,
                       userInfo.familyName,
                       userInfo.uniqueName,
-                      userInfo.upn];
+                      userInfo.upn,
+                      authenticationResult.accessToken];
+        
+        if (authenticationResult.status != AD_SUCCEEDED || authenticationResult.error)
+        {
+            [[AuthenticationService sharedInstance] signoutUser];
+        }
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{

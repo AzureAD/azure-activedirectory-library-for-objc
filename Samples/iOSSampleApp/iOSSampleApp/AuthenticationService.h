@@ -18,7 +18,7 @@
 + (instancetype)new __attribute__((unavailable("new is unavailable, use sharedInstance instead.")));
 - (instancetype)init __attribute__((unavailable("init is unavailable, use sharedInstance instead.")));
 
-- (void)useToken:(ADAuthenticationResult*)result;
+- (void)useToken:(NSString *)accessToken;
 - (void)handleWrongUser;
 - (void)acquireTokenForNewUser;
 - (void)acquireTokenOnInvalidGrant;
