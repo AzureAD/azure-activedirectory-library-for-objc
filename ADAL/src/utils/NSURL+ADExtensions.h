@@ -29,4 +29,6 @@
 
 - (BOOL)isEquivalentAuthority:(NSURL *)aURL;
 
+- (NSDictionary *)adQueryParameters;
+
 @end

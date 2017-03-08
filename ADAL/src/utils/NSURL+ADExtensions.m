@@ -36,6 +36,14 @@ const unichar queryStringSeparator = '?';
     return [NSDictionary adURLFormDecode:self.fragment];
 }
 
+// Decodes parameters contains in a URL query
+- (NSDictionary *)adQueryParameters
+{
+    NSURLComponents* components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:YES];
+    
+    return [NSDictionary adURLFormDecode:components.query];
+}
+
 - (BOOL)isEquivalentAuthority:(NSURL *)aURL
 {
     

@@ -330,9 +330,6 @@
 		D6F999801D235ACF004E682C /* ADAcquireTokenPkeyAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F9997F1D235ACF004E682C /* ADAcquireTokenPkeyAuthTests.m */; };
 		E04F07751E64A050004BE649 /* ADIpAddressHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = E04F07731E649ED3004BE649 /* ADIpAddressHelper.m */; };
 		E04F07761E64A051004BE649 /* ADIpAddressHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = E04F07731E649ED3004BE649 /* ADIpAddressHelper.m */; };
-		E05669361E6F978400CC1BA4 /* ADNSURLComponentsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = E05669341E6F917A00CC1BA4 /* ADNSURLComponentsHelper.m */; };
-		E05669371E6F978500CC1BA4 /* ADNSURLComponentsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = E05669341E6F917A00CC1BA4 /* ADNSURLComponentsHelper.m */; };
-		E05669391E6F985E00CC1BA4 /* ADNSURLComponentsHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E05669381E6F985E00CC1BA4 /* ADNSURLComponentsHelperTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -668,9 +665,6 @@
 		D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADUserIdentifier.m; sourceTree = "<group>"; };
 		E04F07721E649ED3004BE649 /* ADIpAddressHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADIpAddressHelper.h; sourceTree = "<group>"; };
 		E04F07731E649ED3004BE649 /* ADIpAddressHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADIpAddressHelper.m; sourceTree = "<group>"; };
-		E05669331E6F917A00CC1BA4 /* ADNSURLComponentsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADNSURLComponentsHelper.h; sourceTree = "<group>"; };
-		E05669341E6F917A00CC1BA4 /* ADNSURLComponentsHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADNSURLComponentsHelper.m; sourceTree = "<group>"; };
-		E05669381E6F985E00CC1BA4 /* ADNSURLComponentsHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADNSURLComponentsHelperTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -911,7 +905,6 @@
 				8B7AD62018972E3D00652DDE /* NSURLExtensionsTests.m */,
 				97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */,
 				9430C3401C4631C200D6506D /* ADTokenCacheTests.m */,
-				E05669381E6F985E00CC1BA4 /* ADNSURLComponentsHelperTests.m */,
 				94DD19001C5AD39A00F80C62 /* ios */,
 				94DD19091C5AD3B200F80C62 /* mac */,
 				601BEE2F1C6D9CCE004AA8C1 /* ADTestAuthenticationViewController.h */,
@@ -1012,8 +1005,6 @@
 				29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */,
 				E04F07721E649ED3004BE649 /* ADIpAddressHelper.h */,
 				E04F07731E649ED3004BE649 /* ADIpAddressHelper.m */,
-				E05669331E6F917A00CC1BA4 /* ADNSURLComponentsHelper.h */,
-				E05669341E6F917A00CC1BA4 /* ADNSURLComponentsHelper.m */,
 				D6D8A83D1D4FD12300D20DE6 /* ios */,
 			);
 			path = utils;
@@ -1753,7 +1744,6 @@
 				8BBF678618358544004E0F4D /* ADUserInformationTests.m in Sources */,
 				94DD19081C5AD3A600F80C62 /* ADKeychainTokenCacheTests.m in Sources */,
 				600401B11D3578C30020EAAB /* ADTelemetryTests.m in Sources */,
-				E05669391E6F985E00CC1BA4 /* ADNSURLComponentsHelperTests.m in Sources */,
 				8BB8346D1807C5F5007F9F0D /* ADAuthenticationParametersTests.m in Sources */,
 				94DD19071C5AD3A600F80C62 /* ADBrokerKeyHelperTests.m in Sources */,
 				8B7AD62118972E3D00652DDE /* NSURLExtensionsTests.m in Sources */,
@@ -1823,7 +1813,6 @@
 				9453C4741C5874FB006B9E79 /* ADBrokerHelper.m in Sources */,
 				600401AC1D3443D30020EAAB /* ADTelemetryDefaultEvent.m in Sources */,
 				600401BE1D377E9F0020EAAB /* ADDefaultDispatcher.m in Sources */,
-				E05669371E6F978500CC1BA4 /* ADNSURLComponentsHelper.m in Sources */,
 				29DBF6D71E36D5A900D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */,
 				9453C43B1C586476006B9E79 /* ADURLProtocol.m in Sources */,
 				9453C42D1C58646D006B9E79 /* ADAuthenticationRequest+AcquireToken.m in Sources */,
@@ -1943,7 +1932,6 @@
 				D664F1971D302B9C0017B799 /* ADAcquireTokenSilentHandler.m in Sources */,
 				8B4EC4981D70BF850047CA62 /* ADAppExtensionUtil.m in Sources */,
 				D6D8A8401D4FD14E00D20DE6 /* ADKeychainUtil.m in Sources */,
-				E05669361E6F978400CC1BA4 /* ADNSURLComponentsHelper.m in Sources */,
 				D664F1981D302B9C0017B799 /* NSURL+ADExtensions.m in Sources */,
 				29DBF6D61E36D5A600D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */,
 				D664F1991D302B9C0017B799 /* ADUserIdentifier.m in Sources */,
