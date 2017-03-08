@@ -48,17 +48,17 @@
 - (void)testAdQueryParameters
 {
     //Negative:
-    XCTAssertNil([ADNSURLComponentsHelper adQueryParameters:[NSURL URLWithString:@"https://stuff.com"]]);
+    XCTAssertNil([ADNSURLComponentsHelper queryParameters:[NSURL URLWithString:@"https://stuff.com"]]);
     
     //Positive:
     NSDictionary* simple = @{@"foo1":@"bar1", @"foo2":@"bar2"};
-    XCTAssertEqualObjects(simple, ([ADNSURLComponentsHelper adQueryParameters:[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2"]]));
+    XCTAssertEqualObjects(simple, ([ADNSURLComponentsHelper queryParameters:[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2"]]));
     
     // Valid redirect url
-    XCTAssertEqualObjects(simple, ([ADNSURLComponentsHelper adQueryParameters:[NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob?foo1=bar1&foo2=bar2"]]));
+    XCTAssertEqualObjects(simple, ([ADNSURLComponentsHelper queryParameters:[NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob?foo1=bar1&foo2=bar2"]]));
     
     //Mixed query and fragment parameters:
-    XCTAssertEqualObjects(simple, ([ADNSURLComponentsHelper adQueryParameters:[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2#foo3=bar3"]]));
+    XCTAssertEqualObjects(simple, ([ADNSURLComponentsHelper queryParameters:[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2#foo3=bar3"]]));
 }
 
 @end

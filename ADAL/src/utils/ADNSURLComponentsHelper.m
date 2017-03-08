@@ -27,7 +27,7 @@
 @implementation ADNSURLComponentsHelper
 
 // Decodes parameters contains in a URL query
-+ (NSDictionary *)adQueryParameters:(NSURL *)url
++ (NSDictionary *)queryParameters:(NSURL *)url
 {
     NSURLComponents* components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
     

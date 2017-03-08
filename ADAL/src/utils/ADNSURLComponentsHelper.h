@@ -25,6 +25,6 @@
 
 @interface ADNSURLComponentsHelper : NSObject
 
-+ (NSDictionary *)adQueryParameters:(NSURL *)url;
++ (NSDictionary *)queryParameters:(NSURL *)url;
 
 @end
