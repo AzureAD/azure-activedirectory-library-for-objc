@@ -150,7 +150,9 @@
         NSDictionary* params = [NSJSONSerialization JSONObjectWithData:[text dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
         if (!params)
         {
-            params = @{ @"error" : error };
+            NSString *errorString = [NSString stringWithFormat:@"Error Domain=%@ Code=%ld Description=%@", error.domain, error.code, error.localizedDescription];
+
+            params = @{ @"error" : errorString };
         }
         
         _completionBlock(params);

@@ -56,6 +56,7 @@
              [self dismissViewControllerAnimated:NO completion:^{
                  [self displayResultJson:parameters[@"error"]];
              }];
+             return;
          }
          
          bool validateAuthority = YES;
