@@ -30,7 +30,7 @@
 
 @interface ADAutoMainViewController ()
 {
-    NSMutableString *_adalLog;
+    NSMutableString *_resultLog;
     
 }
 
@@ -49,9 +49,9 @@
         
         NSString* log = [NSString stringWithFormat:@"%@ %@", message, additionalInformation];
         
-        if (_adalLog)
+        if (_resultLog)
         {
-            [_adalLog appendString:log];
+            [_resultLog appendString:log];
         }
     }];
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
@@ -79,7 +79,7 @@
     {
         ADAutoResultViewController *resultVC = segue.destinationViewController;
         resultVC.resultInfoString = sender[@"resultInfo"];
-        resultVC.resultLogString = sender[@"adalLogs"];
+        resultVC.resultLogString = sender[@"resultLog"];
     }
 }
 
@@ -90,7 +90,7 @@
     
     ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
     {
-        _adalLog = [NSMutableString new];
+        _resultLog = [NSMutableString new];
         
         if(parameters[@"error"])
         {
@@ -181,7 +181,7 @@
     
     ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
     {
-        _adalLog = [NSMutableString new];
+        _resultLog = [NSMutableString new];
         
         if(parameters[@"error"])
         {
@@ -260,7 +260,7 @@
     
     ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
     {
-        _adalLog = [NSMutableString new];
+        _resultLog = [NSMutableString new];
         
         if(parameters[@"error"])
         {
@@ -305,7 +305,7 @@
     
     ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
     {
-        _adalLog = [NSMutableString new];
+        _resultLog = [NSMutableString new];
         if(parameters[@"error"])
         {
             [self dismissViewControllerAnimated:NO completion:^{
@@ -350,7 +350,7 @@
 -(void)displayResultJson:(NSString *)resultJson
 {
     [self performSegueWithIdentifier:@"showResult" sender:@{@"resultInfo":resultJson,
-                                                            @"adalLogs":(_adalLog) ? _adalLog : @""}];
+                                                            @"resultLog":(_resultLog) ? _resultLog : @""}];
 }
 
 - (NSString*) createJsonFromResult:(ADAuthenticationResult*) result
