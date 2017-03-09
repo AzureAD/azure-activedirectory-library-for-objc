@@ -26,7 +26,7 @@
 @interface ADAutoResultViewController ()
 
 @property (strong, nonatomic) IBOutlet UITextView *resultInfo;
-@property (strong, nonatomic) IBOutlet UITextView *adalLogs;
+@property (strong, nonatomic) IBOutlet UITextView *resultLogs;
 
 @end
 
@@ -37,7 +37,7 @@
     // Do any additional setup after loading the view.
     
     self.resultInfo.text = self.resultInfoString;
-    self.adalLogs.text = self.resultLogString;
+    self.resultLogs.text = self.resultLogString;
 }
 
 - (void)didReceiveMemoryWarning {

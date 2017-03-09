@@ -228,8 +228,8 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="adalLogs" destination="9TD-JH-DxI" id="esE-Hr-j5X"/>
                         <outlet property="resultInfo" destination="9iU-B8-IdJ" id="vlZ-my-zvZ"/>
+                        <outlet property="resultLogs" destination="9TD-JH-DxI" id="Ijm-g2-qAh"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Jw4-w8-pgo" userLabel="First Responder" sceneMemberID="firstResponder"/>
