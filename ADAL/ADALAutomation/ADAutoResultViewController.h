@@ -26,6 +26,6 @@
 @interface ADAutoResultViewController : UIViewController
 
 @property NSString *resultInfoString;
-@property NSString *resultLogString;
+@property NSString *resultLogsString;
 
 @end

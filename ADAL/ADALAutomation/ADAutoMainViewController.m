@@ -30,7 +30,7 @@
 
 @interface ADAutoMainViewController ()
 {
-    NSMutableString *_resultLog;
+    NSMutableString *_resultLogs;
     
 }
 
@@ -49,9 +49,9 @@
         
         NSString* log = [NSString stringWithFormat:@"%@ %@", message, additionalInformation];
         
-        if (_resultLog)
+        if (_resultLogs)
         {
-            [_resultLog appendString:log];
+            [_resultLogs appendString:log];
         }
     }];
     [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
@@ -79,7 +79,7 @@
     {
         ADAutoResultViewController *resultVC = segue.destinationViewController;
         resultVC.resultInfoString = sender[@"resultInfo"];
-        resultVC.resultLogString = sender[@"resultLog"];
+        resultVC.resultLogsString = sender[@"resultLogs"];
     }
 }
 
@@ -90,7 +90,7 @@
     
     ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
     {
-        _resultLog = [NSMutableString new];
+        _resultLogs = [NSMutableString new];
         
         if(parameters[@"error"])
         {
@@ -181,7 +181,7 @@
     
     ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
     {
-        _resultLog = [NSMutableString new];
+        _resultLogs = [NSMutableString new];
         
         if(parameters[@"error"])
         {
@@ -260,7 +260,7 @@
     
     ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
     {
-        _resultLog = [NSMutableString new];
+        _resultLogs = [NSMutableString new];
         
         if(parameters[@"error"])
         {
@@ -305,7 +305,7 @@
     
     ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
     {
-        _resultLog = [NSMutableString new];
+        _resultLogs = [NSMutableString new];
         if(parameters[@"error"])
         {
             [self dismissViewControllerAnimated:NO completion:^{
@@ -350,7 +350,7 @@
 -(void)displayResultJson:(NSString *)resultJson
 {
     [self performSegueWithIdentifier:@"showResult" sender:@{@"resultInfo":resultJson,
-                                                            @"resultLog":(_resultLog) ? _resultLog : @""}];
+                                                            @"resultLogs":(_resultLogs) ? _resultLogs : @""}];
 }
 
 - (NSString*) createJsonFromResult:(ADAuthenticationResult*) result
