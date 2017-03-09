@@ -24,8 +24,8 @@
 #import <UIKit/UIKit.h>
 #import "ADALAutomation.h"
 
-@interface ADAutoInputViewController : UIViewController
+@interface ADAutoRequestViewController : UIViewController
 
-- (void)startWithCompletionBlock:(ADAutoParamBlock)completionBlock;
+@property ADAutoParamBlock completionBlock;
 
 @end

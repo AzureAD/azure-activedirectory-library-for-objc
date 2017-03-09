@@ -17,7 +17,7 @@
 // governing permissions and limitations under the License.
 
 #import "ADAutoMainViewController.h"
-#import "ADAutoInputViewController.h"
+#import "ADAutoRequestViewController.h"
 #import "ADAutoResultViewController.h"
 #import "ADAL_Internal.h"
 #import "UIApplication+ADExtensions.h"
@@ -27,7 +27,12 @@
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
 
+
 @interface ADAutoMainViewController ()
+{
+    NSMutableString *_adalLog;
+    
+}
 
 @end
 
@@ -36,6 +41,21 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInformation, NSInteger errorCode, NSDictionary *userInfo) {
+        (void)errorCode;
+        (void)userInfo;
+        (void)logLevel;
+        
+        NSString* log = [NSString stringWithFormat:@"%@ %@", message, additionalInformation];
+        
+        if (_adalLog)
+        {
+            [_adalLog appendString:log];
+        }
+    }];
+    [ADLogger setLevel:ADAL_LOG_LEVEL_VERBOSE];
+    
 }
 
 
@@ -44,158 +64,185 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    (void)sender;
+    
+    if ([segue.identifier isEqualToString:@"showRequest"])
+    {
+        ADAutoRequestViewController *requestVC = segue.destinationViewController;
+        requestVC.completionBlock = sender[@"completionBlock"];
+    }
+    
+    
+    if ([segue.identifier isEqualToString:@"showResult"])
+    {
+        ADAutoResultViewController *resultVC = segue.destinationViewController;
+        resultVC.resultInfoString = sender[@"resultInfo"];
+        resultVC.resultLogString = sender[@"adalLogs"];
+    }
+}
+
 
 - (IBAction)acquireToken:(id)sender
 {
-    ADAutoInputViewController* inputController = [ADAutoInputViewController new];
+    (void)sender;
     
-    [inputController startWithCompletionBlock:^(NSDictionary<NSString *,NSString *> *parameters)
-     {
-         if(parameters[@"error"])
+    ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
+    {
+        _adalLog = [NSMutableString new];
+        
+        if(parameters[@"error"])
+        {
+            [self dismissViewControllerAnimated:NO completion:^{
+                [self displayResultJson:parameters[@"error"]];
+            }];
+            return;
+        }
+        
+        bool validateAuthority = YES;
+        if(parameters[@"validate_authority"])
+        {
+            validateAuthority = [parameters[@"validate_authority"] boolValue];
+        }
+        
+        ADAuthenticationContext* context =
+        [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
+                                         validateAuthority:validateAuthority
+                                                     error:nil];
+        
+        if(parameters[@"use_broker"] && ![parameters[@"use_broker"] boolValue])
+        {
+            context.credentialsType = AD_CREDENTIALS_EMBEDDED;
+        }
+        
+        if(parameters[@"correlation_id"])
+        {
+            context.correlationId = [[NSUUID alloc] initWithUUIDString:parameters[@"correlation_id"]];
+        }
+        
+        ADPromptBehavior promptBehavior = AD_PROMPT_AUTO;
+        NSString *promptValue = parameters[@"prompt_behavior"];
+        if(promptValue)
+        {
+            if ([[promptValue lowercaseString] isEqualToString:@"refresh_session"])
+            {
+                promptBehavior = AD_PROMPT_REFRESH_SESSION;
+            }
+            else if ([[promptValue lowercaseString] isEqualToString:@"always"])
+            {
+                promptBehavior = AD_PROMPT_ALWAYS;
+            }
+        }
+        
+        NSString *userId = parameters[@"user_identifier"];
+        ADUserIdentifier *userIdentifier = nil;
+        if(userId)
+        {
+            //default identifier type is RequiredDisplayableId
+            userIdentifier = [ADUserIdentifier identifierWithId:userId];
+            NSString *userIdType = parameters[@"user_identifier_type"];
+            if(userIdType)
+            {
+                if ([[userIdType lowercaseString] isEqualToString:@"unique_id"])
+                {
+                    userIdentifier = [ADUserIdentifier identifierWithId:userId
+                                                         typeFromString:@"UniqueId"];
+                }
+                else if ([[userIdType lowercaseString] isEqualToString:@"optional_displayable"])
+                {
+                    userIdentifier = [ADUserIdentifier identifierWithId:userId
+                                                         typeFromString:@"OptionalDisplayableId"];
+                }
+            }
+        }
+        
+        [context acquireTokenWithResource:parameters[@"resource"]
+                                 clientId:parameters[@"client_id"]
+                              redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
+                           promptBehavior:promptBehavior
+                           userIdentifier:userIdentifier
+                     extraQueryParameters:parameters[@"extra_qp"]
+                          completionBlock:^(ADAuthenticationResult *result)
          {
              [self dismissViewControllerAnimated:NO completion:^{
-                 [self displayResultJson:parameters[@"error"]];
+                 [self displayAuthenticationResult:result];
              }];
-             return;
-         }
-         
-         bool validateAuthority = YES;
-         if(parameters[@"validate_authority"])
-         {
-             validateAuthority = [parameters[@"validate_authority"] boolValue];
-         }
-         
-         ADAuthenticationContext* context =
-         [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
-                                          validateAuthority:validateAuthority
-                                                      error:nil];
-         
-         if(parameters[@"use_broker"] && ![parameters[@"use_broker"] boolValue])
-         {
-             context.credentialsType = AD_CREDENTIALS_EMBEDDED;
-         }
-         
-         if(parameters[@"correlation_id"])
-         {
-             context.correlationId = [[NSUUID alloc] initWithUUIDString:parameters[@"correlation_id"]];
-         }
-         
-         
-         ADPromptBehavior promptBehavior = AD_PROMPT_AUTO;
-         NSString* promptValue = parameters[@"prompt_behavior"];
-         if(promptValue)
-         {
-             if ([[promptValue lowercaseString] isEqualToString:@"refresh_session"])
-             {
-                 promptBehavior = AD_PROMPT_REFRESH_SESSION;
-             }
-             else if ([[promptValue lowercaseString] isEqualToString:@"always"])
-             {
-                 promptBehavior = AD_PROMPT_ALWAYS;
-             }
-         }
-         
-         NSString* userId = parameters[@"user_identifier"];
-         ADUserIdentifier* userIdentifier = nil;
-         if(userId)
-         {
-             //default identifier type is RequiredDisplayableId
-             userIdentifier = [ADUserIdentifier identifierWithId:userId];
-             NSString* userIdType = parameters[@"user_identifier_type"];
-             if(userIdType)
-             {
-                 if ([[userIdType lowercaseString] isEqualToString:@"unique_id"])
-                 {
-                     userIdentifier = [ADUserIdentifier identifierWithId:userId
-                                                          typeFromString:@"UniqueId"];
-                 }
-                 else if ([[userIdType lowercaseString] isEqualToString:@"optional_displayable"])
-                 {
-                     userIdentifier = [ADUserIdentifier identifierWithId:userId
-                                                          typeFromString:@"OptionalDisplayableId"];
-                 }
-             }
-         }
-         
-         
-         [context acquireTokenWithResource:parameters[@"resource"]
-                                  clientId:parameters[@"client_id"]
-                               redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
-                            promptBehavior:promptBehavior
-                            userIdentifier:userIdentifier
-                      extraQueryParameters:parameters[@"extra_qp"]
-                           completionBlock:^(ADAuthenticationResult *result)
-          {
-              [self dismissViewControllerAnimated:NO completion:^{
-                  
-                  [self displayAuthenticationResult:result];
-              }];
-          }];
-     }];
+         }];
+    };
+
+    [self performSegueWithIdentifier:@"showRequest" sender:@{@"completionBlock" : completionBlock}];
 }
 
 
 - (IBAction)acquireTokenSilent:(id)sender
 {
-    ADAutoInputViewController* inputController = [ADAutoInputViewController new];
+    (void)sender;
     
-    [inputController startWithCompletionBlock:^(NSDictionary<NSString *,NSString *> *parameters)
-     {
-         if(parameters[@"error"])
+    ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
+    {
+        _adalLog = [NSMutableString new];
+        
+        if(parameters[@"error"])
+        {
+            [self dismissViewControllerAnimated:NO completion:^{
+                [self displayResultJson:parameters[@"error"]];
+            }];
+            return;
+        }
+        
+        ADAuthenticationContext *context =
+        [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
+                                         validateAuthority:[parameters[@"validate_authority"] boolValue]
+                                                     error:nil];
+        
+        if(parameters[@"use_broker"] && ![parameters[@"use_broker"] boolValue])
+        {
+            context.credentialsType = AD_CREDENTIALS_EMBEDDED;
+        }
+        
+        if(parameters[@"correlation_id"])
+        {
+            context.correlationId = [[NSUUID alloc] initWithUUIDString:parameters[@"correlation_id"]];
+        }
+        
+        [context acquireTokenSilentWithResource:parameters[@"resource"]
+                                       clientId:parameters[@"client_id"]
+                                    redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
+                                         userId:parameters[@"user_identifier"]
+                                completionBlock:^(ADAuthenticationResult *result)
          {
              [self dismissViewControllerAnimated:NO completion:^{
-                 [self displayResultJson:parameters[@"error"]];
+                 [self displayAuthenticationResult:result];
              }];
-         }
-         
-         ADAuthenticationContext* context =
-         [[ADAuthenticationContext alloc] initWithAuthority:parameters[@"authority"]
-                                          validateAuthority:[parameters[@"validate_authority"] boolValue]
-                                                      error:nil];
-         
-         if(parameters[@"use_broker"] && ![parameters[@"use_broker"] boolValue])
-         {
-             context.credentialsType = AD_CREDENTIALS_EMBEDDED;
-         }
-         
-         if(parameters[@"correlation_id"])
-         {
-             context.correlationId = [[NSUUID alloc] initWithUUIDString:parameters[@"correlation_id"]];
-         }
-         
-         [context acquireTokenSilentWithResource:parameters[@"resource"]
-                                        clientId:parameters[@"client_id"]
-                                     redirectUri:[NSURL URLWithString:parameters[@"redirect_uri"]]
-                                          userId:parameters[@"user_identifier"]
-                                 completionBlock:^(ADAuthenticationResult *result)
-          {
-              [self dismissViewControllerAnimated:NO completion:^{
-                  
-                  [self displayAuthenticationResult:result];
-              }];
-          }];
-     }];
+         }];
+    };
+    [self performSegueWithIdentifier:@"showRequest" sender:@{@"completionBlock" : completionBlock}];
 }
 
 - (IBAction)readCache:(id)sender
 {
-    ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
-    NSArray* allItems = [cache allItems:nil];
-    NSMutableDictionary* cacheDictionary = [NSMutableDictionary new];
+    (void)sender;
+    
+    ADKeychainTokenCache *cache = [ADKeychainTokenCache new];
+    NSArray *allItems = [cache allItems:nil];
+    NSMutableDictionary *cacheDictionary = [NSMutableDictionary new];
     [cacheDictionary setValue:[NSString stringWithFormat:@"%lu", (unsigned long)allItems.count] forKey:@"item_count"];
     
-    NSMutableArray * arr = [[NSMutableArray alloc] init];
-    for(ADTokenCacheItem* item in allItems)
+    NSMutableArray *arr = [[NSMutableArray alloc] init];
+    for(ADTokenCacheItem *item in allItems)
     {
         [arr addObject:[self createDictionaryFromTokenCacheItem:item]];
     }
     
     [cacheDictionary setValue:arr forKey:@"items"];
+    
     [self displayResultJson:[self createJsonStringFromDictionary:cacheDictionary]];
 }
 
 - (IBAction)clearCache:(id)sender
 {
+    (void)sender;
     
     ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
     NSArray* allItems = [cache allItems:nil];
@@ -209,99 +256,101 @@
 
 - (IBAction)invalidateRefreshToken:(id)sender
 {
-    ADAutoInputViewController* inputController = [ADAutoInputViewController new];
+    (void)sender;
     
-    [inputController startWithCompletionBlock:^(NSDictionary<NSString *,NSString *> *parameters)
-     {
-         if(parameters[@"error"])
-         {
-             [self dismissViewControllerAnimated:NO completion:^{
-                 [self displayResultJson:parameters[@"error"]];
-             }];
-         }
-         
-         ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
-         
-         ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:parameters[@"authority"]
-                                                         resource:parameters[@"resource"]
-                                                         clientId:parameters[@"client_id"]
-                                                            error:nil];
-         
-         NSArray<ADTokenCacheItem *>* items = [cache getItemsWithKey:key
-                                                              userId:parameters[@"user_id"]
-                                                       correlationId:nil
-                                                               error:nil];
-         
-         int refreshTokenCount = 0;
-         
-         for(ADTokenCacheItem* item in items)
-         {
-             if(item.refreshToken){
-                 refreshTokenCount++;
-                 item.refreshToken = @"bad-refresh-token";
-                 [cache addOrUpdateItem:item correlationId:nil error:nil];
-             }
-         }
-         
-         [self dismissViewControllerAnimated:NO completion:^{
-             
-             [self displayResultJson:[NSString stringWithFormat:@"{\"invalidated_refresh_token_count\":\"%d\"}", refreshTokenCount]];
-         }];
-     }];
+    ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
+    {
+        _adalLog = [NSMutableString new];
+        
+        if(parameters[@"error"])
+        {
+            [self dismissViewControllerAnimated:NO completion:^{
+                [self displayResultJson:parameters[@"error"]];
+            }];
+        }
+        
+        ADKeychainTokenCache *cache = [ADKeychainTokenCache new];
+        
+        ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:parameters[@"authority"]
+                                                        resource:parameters[@"resource"]
+                                                        clientId:parameters[@"client_id"]
+                                                           error:nil];
+        
+        NSArray<ADTokenCacheItem *> *items = [cache getItemsWithKey:key
+                                                             userId:parameters[@"user_id"]
+                                                      correlationId:nil
+                                                              error:nil];
+        
+        int refreshTokenCount = 0;
+        
+        for(ADTokenCacheItem *item in items)
+        {
+            if(item.refreshToken){
+                refreshTokenCount++;
+                item.refreshToken = @"bad-refresh-token";
+                [cache addOrUpdateItem:item correlationId:nil error:nil];
+            }
+        }
+        
+        [self dismissViewControllerAnimated:NO completion:^{
+            [self displayResultJson:[NSString stringWithFormat:@"{\"invalidated_refresh_token_count\":\"%d\"}", refreshTokenCount]];
+        }];
+    };
+    [self performSegueWithIdentifier:@"showRequest" sender:@{@"completionBlock" : completionBlock}];
 }
 
 - (IBAction)expireAccessToken:(id)sender
 {
-    ADAutoInputViewController* inputController = [ADAutoInputViewController new];
+    (void)sender;
     
-    [inputController startWithCompletionBlock:^(NSDictionary<NSString *,NSString *> *parameters)
-     {
-         if(parameters[@"error"])
-         {
-             [self dismissViewControllerAnimated:NO completion:^{
-                 [self displayResultJson:parameters[@"error"]];
-             }];
-         }
-         
-         ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
-         ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:parameters[@"authority"]
-                                                         resource:parameters[@"resource"]
-                                                         clientId:parameters[@"client_id"]
-                                                            error:nil];
-         
-         NSArray<ADTokenCacheItem *>* items = [cache getItemsWithKey:key
-                                                              userId:parameters[@"user_id"]
-                                                       correlationId:nil
-                                                               error:nil];
-         
-         int accessTokenCount = 0;
-         
-         for(ADTokenCacheItem* item in items)
-         {
-             if(item.accessToken){
-                 accessTokenCount++;
-                 item.expiresOn = [NSDate new];
-                 [cache addOrUpdateItem:item correlationId:nil error:nil];
-             }
-         }
-         
-         [self dismissViewControllerAnimated:NO completion:^{
-             
-             [self displayResultJson:[NSString stringWithFormat:@"{\"expired_access_token_count\":\"%d\"}", accessTokenCount]];
-         }];
-     }];
+    ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
+    {
+        _adalLog = [NSMutableString new];
+        if(parameters[@"error"])
+        {
+            [self dismissViewControllerAnimated:NO completion:^{
+                [self displayResultJson:parameters[@"error"]];
+            }];
+            return;
+        }
+        
+        ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
+        ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:parameters[@"authority"]
+                                                        resource:parameters[@"resource"]
+                                                        clientId:parameters[@"client_id"]
+                                                           error:nil];
+        
+        NSArray<ADTokenCacheItem *>* items = [cache getItemsWithKey:key
+                                                             userId:parameters[@"user_id"]
+                                                      correlationId:nil
+                                                              error:nil];
+        
+        int accessTokenCount = 0;
+        
+        for(ADTokenCacheItem* item in items)
+        {
+            if(item.accessToken){
+                accessTokenCount++;
+                item.expiresOn = [NSDate new];
+                [cache addOrUpdateItem:item correlationId:nil error:nil];
+            }
+        }
+        
+        [self dismissViewControllerAnimated:NO completion:^{
+            [self displayResultJson:[NSString stringWithFormat:@"{\"expired_access_token_count\":\"%d\"}", accessTokenCount]];
+        }];
+    };
+    [self performSegueWithIdentifier:@"showRequest" sender:@{@"completionBlock" : completionBlock}];
 }
 
 -(void) displayAuthenticationResult:(ADAuthenticationResult*) result {
     [self displayResultJson:[self createJsonFromResult:result]];
 }
 
--(void) displayResultJson:(NSString*) resultJson {
-    
-    ADAutoResultViewController* resultController = [[ADAutoResultViewController alloc] initWithResultJson:resultJson];
-    [[UIApplication adCurrentViewController] presentViewController:resultController animated:NO completion:^{
-        NSLog(@"Result view controller loaded");
-    }];
+-(void)displayResultJson:(NSString *)resultJson
+{
+    [self performSegueWithIdentifier:@"showResult" sender:@{@"resultInfo":resultJson,
+                                                            @"adalLogs":(_adalLog) ? _adalLog : @""}];
 }
 
 - (NSString*) createJsonFromResult:(ADAuthenticationResult*) result

@@ -5,6 +5,7 @@
     </device>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -20,75 +21,202 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="UvV-3y-SRZ">
-                                <rect key="frame" x="0.0" y="20" width="375" height="30"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="LUW-fs-x0X">
+                                <rect key="frame" x="16" y="20" width="343" height="230"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zaw-w8-NKZ">
+                                        <rect key="frame" x="0.0" y="0.0" width="343" height="30"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="acquireToken"/>
+                                        <state key="normal" title="Acquire Token"/>
+                                        <connections>
+                                            <action selector="acquireToken:" destination="BYZ-38-t0r" eventType="touchUpInside" id="N3o-0w-baG"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uME-lC-mKb">
+                                        <rect key="frame" x="0.0" y="40" width="343" height="30"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="acquireTokenSilent"/>
+                                        <state key="normal" title="Acquire Token Silent"/>
+                                        <connections>
+                                            <action selector="acquireTokenSilent:" destination="BYZ-38-t0r" eventType="touchUpInside" id="AS1-rg-JFv"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8rU-Zm-o9a">
+                                        <rect key="frame" x="0.0" y="80" width="343" height="30"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="readCache"/>
+                                        <state key="normal" title="Read Cache"/>
+                                        <connections>
+                                            <action selector="readCache:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8QH-jv-6fG"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mrV-jg-Wvz">
+                                        <rect key="frame" x="0.0" y="120" width="343" height="30"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="clearCache"/>
+                                        <state key="normal" title="Clear Cache"/>
+                                        <connections>
+                                            <action selector="clearCache:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8cb-Dj-uVV"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Doy-1g-BAZ">
+                                        <rect key="frame" x="0.0" y="160" width="343" height="30"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="invalidateAccessToken"/>
+                                        <state key="normal" title="Expire Access Token"/>
+                                        <connections>
+                                            <action selector="expireAccessToken:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gvG-2u-zkS"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="njy-cs-WOL">
+                                        <rect key="frame" x="0.0" y="200" width="343" height="30"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="invalidateToken"/>
+                                        <state key="normal" title="Invalidate Refresh Token"/>
+                                        <connections>
+                                            <action selector="invalidateRefreshToken:" destination="BYZ-38-t0r" eventType="touchUpInside" id="t3h-9h-Xss"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
                             </stackView>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uME-lC-mKb">
-                                <rect key="frame" x="0.0" y="96" width="375" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <accessibility key="accessibilityConfiguration" identifier="acquireTokenSilent"/>
-                                <state key="normal" title="Acquire Token Silent"/>
-                                <connections>
-                                    <action selector="acquireTokenSilent:" destination="BYZ-38-t0r" eventType="touchUpInside" id="AS1-rg-JFv"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zaw-w8-NKZ">
-                                <rect key="frame" x="0.0" y="49" width="375" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <accessibility key="accessibilityConfiguration" identifier="acquireToken"/>
-                                <state key="normal" title="Acquire Token"/>
-                                <connections>
-                                    <action selector="acquireToken:" destination="BYZ-38-t0r" eventType="touchUpInside" id="N3o-0w-baG"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="njy-cs-WOL">
-                                <rect key="frame" x="0.0" y="281" width="375" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <accessibility key="accessibilityConfiguration" identifier="invalidateToken"/>
-                                <state key="normal" title="Invalidate Refresh Token"/>
-                                <connections>
-                                    <action selector="invalidateRefreshToken:" destination="BYZ-38-t0r" eventType="touchUpInside" id="t3h-9h-Xss"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Doy-1g-BAZ">
-                                <rect key="frame" x="0.0" y="234" width="375" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <accessibility key="accessibilityConfiguration" identifier="invalidateAccessToken"/>
-                                <state key="normal" title="Expire Access Token"/>
-                                <connections>
-                                    <action selector="expireAccessToken:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gvG-2u-zkS"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mrV-jg-Wvz">
-                                <rect key="frame" x="0.0" y="184" width="375" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <accessibility key="accessibilityConfiguration" identifier="clearCache"/>
-                                <state key="normal" title="Clear Cache"/>
-                                <connections>
-                                    <action selector="clearCache:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8cb-Dj-uVV"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8rU-Zm-o9a">
-                                <rect key="frame" x="0.0" y="140" width="375" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <accessibility key="accessibilityConfiguration" identifier="readCache"/>
-                                <state key="normal" title="Read Cache"/>
-                                <connections>
-                                    <action selector="readCache:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8QH-jv-6fG"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="UvV-3y-SRZ" secondAttribute="trailing" id="DMd-dj-gXC"/>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="UvV-3y-SRZ" secondAttribute="bottom" constant="617" id="GJn-MG-E90"/>
-                            <constraint firstItem="UvV-3y-SRZ" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="Jml-QF-BDk"/>
-                            <constraint firstItem="UvV-3y-SRZ" firstAttribute="leading" secondItem="Jzs-Wf-uPM" secondAttribute="leading" id="Rgf-JW-JQU"/>
+                            <constraint firstItem="LUW-fs-x0X" firstAttribute="leading" secondItem="Jzs-Wf-uPM" secondAttribute="leadingMargin" id="EWp-Vh-OXr"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="LUW-fs-x0X" secondAttribute="trailing" id="IDv-gA-gXD"/>
+                            <constraint firstItem="LUW-fs-x0X" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="Ibz-bn-DcV"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <segue destination="jTF-of-fQB" kind="show" identifier="showResult" animates="NO" id="T0l-uo-jyb"/>
+                        <segue destination="tjG-Lr-3ae" kind="show" identifier="showRequest" animates="NO" id="Zf7-yy-a2e"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+        </scene>
+        <!--Auto Request View Controller-->
+        <scene sceneID="KiM-QU-WMu">
+            <objects>
+                <viewController id="tjG-Lr-3ae" customClass="ADAutoRequestViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Oik-vh-GFH"/>
+                        <viewControllerLayoutGuide type="bottom" id="4kZ-1X-BlF"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="E0O-Na-gQ1">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="DPN-LG-26D">
+                                <rect key="frame" x="0.0" y="20" width="375" height="647"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="200" verticalCompressionResistancePriority="700" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YIB-fv-zB9">
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="25"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="25" id="x40-0g-L5a"/>
+                                        </constraints>
+                                        <state key="normal" title="Go"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="requestGo"/>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="go:" destination="tjG-Lr-3ae" eventType="touchUpInside" id="CWD-Yx-tHh"/>
+                                        </connections>
+                                    </button>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="gLh-uL-Rnz">
+                                        <rect key="frame" x="0.0" y="25" width="375" height="622"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="requestInfo"/>
+                                        </userDefinedRuntimeAttributes>
+                                    </textView>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="DPN-LG-26D" secondAttribute="trailing" id="fLk-Ow-9pm"/>
+                            <constraint firstItem="DPN-LG-26D" firstAttribute="leading" secondItem="E0O-Na-gQ1" secondAttribute="leading" id="kx2-Jb-SPP"/>
+                            <constraint firstItem="4kZ-1X-BlF" firstAttribute="top" secondItem="DPN-LG-26D" secondAttribute="bottom" id="lBY-gq-ALH"/>
+                            <constraint firstItem="DPN-LG-26D" firstAttribute="top" secondItem="Oik-vh-GFH" secondAttribute="bottom" id="yJO-if-J8d"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="requestGo" destination="YIB-fv-zB9" id="xhU-kb-LZE"/>
+                        <outlet property="requestInfo" destination="gLh-uL-Rnz" id="gHe-fC-2YB"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="EP7-Iq-tBH" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1142" y="-421"/>
+        </scene>
+        <!--Auto Result View Controller-->
+        <scene sceneID="LB1-og-VO5">
+            <objects>
+                <viewController id="jTF-of-fQB" customClass="ADAutoResultViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="ILP-h4-33b"/>
+                        <viewControllerLayoutGuide type="bottom" id="lqZ-Ih-yRO"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="LVe-jJ-huj">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="vbP-MI-y9I">
+                                <rect key="frame" x="0.0" y="20" width="375" height="647"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uJ0-LQ-8RD">
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="25"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="25" id="Ifa-j7-QCe"/>
+                                        </constraints>
+                                        <state key="normal" title="Done"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="resultDone"/>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="done:" destination="jTF-of-fQB" eventType="touchUpInside" id="rxe-Nl-CL8"/>
+                                        </connections>
+                                    </button>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="9iU-B8-IdJ">
+                                        <rect key="frame" x="0.0" y="25" width="375" height="311"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="resultInfo"/>
+                                        </userDefinedRuntimeAttributes>
+                                    </textView>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="9TD-JH-DxI">
+                                        <rect key="frame" x="0.0" y="336" width="375" height="311"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="adalLogs"/>
+                                        </userDefinedRuntimeAttributes>
+                                    </textView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="9iU-B8-IdJ" firstAttribute="height" secondItem="9TD-JH-DxI" secondAttribute="height" id="KtX-Hb-2kV"/>
+                                </constraints>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="lqZ-Ih-yRO" firstAttribute="top" secondItem="vbP-MI-y9I" secondAttribute="bottom" id="3ky-uW-7iw"/>
+                            <constraint firstAttribute="trailing" secondItem="vbP-MI-y9I" secondAttribute="trailing" id="VEb-3Z-gWl"/>
+                            <constraint firstItem="vbP-MI-y9I" firstAttribute="top" secondItem="ILP-h4-33b" secondAttribute="bottom" id="fU5-sC-Ksl"/>
+                            <constraint firstItem="vbP-MI-y9I" firstAttribute="leading" secondItem="LVe-jJ-huj" secondAttribute="leading" id="gmb-5s-eoi"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="adalLogs" destination="9TD-JH-DxI" id="esE-Hr-j5X"/>
+                        <outlet property="resultInfo" destination="9iU-B8-IdJ" id="vlZ-my-zvZ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Jw4-w8-pgo" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1133.5999999999999" y="279.31034482758622"/>
         </scene>
     </scenes>
 </document>
