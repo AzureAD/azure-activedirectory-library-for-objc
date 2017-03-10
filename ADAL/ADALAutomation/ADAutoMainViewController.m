@@ -103,7 +103,7 @@
         bool validateAuthority = YES;
         if(parameters[@"validate_authority"])
         {
-            validateAuthority = [parameters[@"validate_authority"] boolValue];
+            validateAuthority = parameters[@"validate_authority"] ? [parameters[@"validate_authority"] boolValue] : YES;
         }
         
         ADAuthenticationContext* context =
