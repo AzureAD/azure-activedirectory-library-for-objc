@@ -2,7 +2,7 @@
 #Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and OSX
 =====================================
 
-| [Code Samples](https://github.com/azure-samples?utf8=✓&q=active-directory-ios) | [Reference Docs](http://http://cocoadocs.org/docsets/ADAL/) | [Developer Guide](https://aka.ms/aaddev)
+| [Code Samples](https://github.com/azure-samples?utf8=✓&q=active-directory-ios) | [Reference Docs](http://cocoadocs.org/docsets/ADAL/) | [Developer Guide](https://aka.ms/aaddev)
 | --- | --- | --- |
 
 ## Release Versions
@@ -28,7 +28,7 @@ The ADAL SDK for iOS and Mac OS X gives you the ability to add support for Work 
 
 ## Samples and Documentation
 
-We provide a full suite of [sample applications](https://github.com/AzureADSamples) and [documentation](http://http://cocoadocs.org/docsets/ADAL/) on GitHub to help you get started with learning the Azure Identity system. This includes tutorials for native clients such as Windows, Windows Phone, iOS, OSX, Android, and Linux. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect, Graph API, and other awesome features. 
+We provide a full suite of [sample applications](https://github.com/AzureADSamples) and [documentation](http://cocoadocs.org/docsets/ADAL/) on GitHub to help you get started with learning the Azure Identity system. This includes tutorials for native clients such as Windows, Windows Phone, iOS, OSX, Android, and Linux. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect, Graph API, and other awesome features. 
 
 Azure Identity samples for iOS is here: [https://github.com/AzureADSamples/NativeClient-iOS](https://github.com/AzureADSamples/NativeClient-iOS)
 
