@@ -1,20 +1,25 @@
-// Copyright © Microsoft Open Technologies, Inc.
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-// All Rights Reserved
+// This code is licensed under the MIT License.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-//
-// See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import "ADAutoMainViewController.h"
 #import "ADAutoRequestViewController.h"
@@ -95,7 +100,8 @@
         if(parameters[@"error"])
         {
             [self dismissViewControllerAnimated:NO completion:^{
-                [self displayResultJson:parameters[@"error"]];
+                [self displayResultJson:parameters[@"error"]
+                                   logs:_resultLogs];
             }];
             return;
         }
@@ -166,7 +172,8 @@
                           completionBlock:^(ADAuthenticationResult *result)
          {
              [self dismissViewControllerAnimated:NO completion:^{
-                 [self displayAuthenticationResult:result];
+                 [self displayAuthenticationResult:result
+                                              logs:_resultLogs];
              }];
          }];
     };
@@ -186,7 +193,8 @@
         if(parameters[@"error"])
         {
             [self dismissViewControllerAnimated:NO completion:^{
-                [self displayResultJson:parameters[@"error"]];
+                [self displayResultJson:parameters[@"error"]
+                                   logs:_resultLogs];
             }];
             return;
         }
@@ -213,7 +221,8 @@
                                 completionBlock:^(ADAuthenticationResult *result)
          {
              [self dismissViewControllerAnimated:NO completion:^{
-                 [self displayAuthenticationResult:result];
+                 [self displayAuthenticationResult:result
+                                              logs:_resultLogs];
              }];
          }];
     };
@@ -237,7 +246,8 @@
     
     [cacheDictionary setValue:arr forKey:@"items"];
     
-    [self displayResultJson:[self createJsonStringFromDictionary:cacheDictionary]];
+    [self displayResultJson:[self createJsonStringFromDictionary:cacheDictionary]
+                       logs:_resultLogs];
 }
 
 - (IBAction)clearCache:(id)sender
@@ -251,7 +261,8 @@
         [cache removeItem:object error:nil];
     }
     
-    [self displayResultJson:[NSString stringWithFormat:@"{\"cleared_items_count\":\"%lu\"}", (unsigned long)allItems.count]];
+    [self displayResultJson:[NSString stringWithFormat:@"{\"cleared_items_count\":\"%lu\"}", (unsigned long)allItems.count]
+                       logs:_resultLogs];
 }
 
 - (IBAction)invalidateRefreshToken:(id)sender
@@ -265,7 +276,8 @@
         if(parameters[@"error"])
         {
             [self dismissViewControllerAnimated:NO completion:^{
-                [self displayResultJson:parameters[@"error"]];
+                [self displayResultJson:parameters[@"error"]
+                                   logs:_resultLogs];
             }];
         }
         
@@ -293,7 +305,8 @@
         }
         
         [self dismissViewControllerAnimated:NO completion:^{
-            [self displayResultJson:[NSString stringWithFormat:@"{\"invalidated_refresh_token_count\":\"%d\"}", refreshTokenCount]];
+            [self displayResultJson:[NSString stringWithFormat:@"{\"invalidated_refresh_token_count\":\"%d\"}", refreshTokenCount]
+                               logs:_resultLogs];
         }];
     };
     [self performSegueWithIdentifier:@"showRequest" sender:@{@"completionBlock" : completionBlock}];
@@ -303,24 +316,25 @@
 {
     (void)sender;
     
-    ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> * parameters)
+    ADAutoParamBlock completionBlock = ^void (NSDictionary<NSString *, NSString *> *parameters)
     {
         _resultLogs = [NSMutableString new];
         if(parameters[@"error"])
         {
             [self dismissViewControllerAnimated:NO completion:^{
-                [self displayResultJson:parameters[@"error"]];
+                [self displayResultJson:parameters[@"error"]
+                                   logs:_resultLogs];
             }];
             return;
         }
         
-        ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
-        ADTokenCacheKey* key = [ADTokenCacheKey keyWithAuthority:parameters[@"authority"]
+        ADKeychainTokenCache *cache = [ADKeychainTokenCache new];
+        ADTokenCacheKey *key = [ADTokenCacheKey keyWithAuthority:parameters[@"authority"]
                                                         resource:parameters[@"resource"]
                                                         clientId:parameters[@"client_id"]
                                                            error:nil];
         
-        NSArray<ADTokenCacheItem *>* items = [cache getItemsWithKey:key
+        NSArray<ADTokenCacheItem *> *items = [cache getItemsWithKey:key
                                                              userId:parameters[@"user_id"]
                                                       correlationId:nil
                                                               error:nil];
@@ -337,32 +351,33 @@
         }
         
         [self dismissViewControllerAnimated:NO completion:^{
-            [self displayResultJson:[NSString stringWithFormat:@"{\"expired_access_token_count\":\"%d\"}", accessTokenCount]];
+            [self displayResultJson:[NSString stringWithFormat:@"{\"expired_access_token_count\":\"%d\"}", accessTokenCount]
+                               logs:_resultLogs];
         }];
     };
     [self performSegueWithIdentifier:@"showRequest" sender:@{@"completionBlock" : completionBlock}];
 }
 
--(void) displayAuthenticationResult:(ADAuthenticationResult*) result {
-    [self displayResultJson:[self createJsonFromResult:result]];
+- (void)displayAuthenticationResult:(ADAuthenticationResult *)result logs:(NSString *)resultLogs
+{
+    [self displayResultJson:[self createJsonFromResult:result] logs:resultLogs];
 }
 
--(void)displayResultJson:(NSString *)resultJson
+- (void)displayResultJson:(NSString *)resultJson logs:(NSString *)resultLogs
 {
     [self performSegueWithIdentifier:@"showResult" sender:@{@"resultInfo":resultJson,
-                                                            @"resultLogs":(_resultLogs) ? _resultLogs : @""}];
+                                                            @"resultLogs":resultLogs}];
 }
 
-- (NSString*) createJsonFromResult:(ADAuthenticationResult*) result
+- (NSString *)createJsonFromResult:(ADAuthenticationResult *)result
 {
-    NSMutableDictionary* resultDict = [NSMutableDictionary new];
+    NSMutableDictionary *resultDict = [NSMutableDictionary new];
     
     if(result.error){
         [resultDict setValue:result.error.errorDetails forKey:@"error"];
         [resultDict setValue:result.error.description forKey:@"error_description"];
     }
     else {
-        
         NSString * isExtLtString = (result.extendedLifeTimeToken) ? @"true" : @"false";
         [resultDict setValue:isExtLtString forKey:@"extended_lifetime_token"];
         [resultDict addEntriesFromDictionary:[self createDictionaryFromTokenCacheItem:result.tokenCacheItem]];
@@ -371,7 +386,7 @@
     return [self createJsonStringFromDictionary:resultDict];
 }
 
-- (NSDictionary*) createDictionaryFromTokenCacheItem:(ADTokenCacheItem*) item
+- (NSDictionary *)createDictionaryFromTokenCacheItem:(ADTokenCacheItem *)item
 {
     NSMutableDictionary* resultDict = [NSMutableDictionary new];
     [resultDict setValue:item.accessToken forKey:@"access_token"];
@@ -409,7 +424,7 @@
 }
 
 
-- (NSString*) createJsonStringFromDictionary:(NSDictionary*) dictionary
+- (NSString *)createJsonStringFromDictionary:(NSDictionary *)dictionary
 {
     
     NSError *error;
