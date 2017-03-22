@@ -365,8 +365,8 @@
 
 - (void)displayResultJson:(NSString *)resultJson logs:(NSString *)resultLogs
 {
-    [self performSegueWithIdentifier:@"showResult" sender:@{@"resultInfo":resultJson,
-                                                            @"resultLogs":resultLogs}];
+    [self performSegueWithIdentifier:@"showResult" sender:@{@"resultInfo":resultJson ? resultJson : @"",
+                                                            @"resultLogs":resultLogs ? resultLogs : @""}];
 }
 
 - (NSString *)createJsonFromResult:(ADAuthenticationResult *)result
