@@ -245,6 +245,11 @@
             [requestData setObject:_scope forKey:OAUTH2_SCOPE];
         }
         
+        if ([_requestParams identifier] && [[_requestParams identifier] isDisplayable] && ![NSString adIsStringNilOrBlank:[_requestParams identifier].userId])
+        {
+            [requestData setObject:_requestParams.identifier.userId forKey:OAUTH2_LOGIN_HINT];
+        }
+        
         NSURL* reqURL = [NSURL URLWithString:[_context.authority stringByAppendingString:OAUTH2_AUTHORIZE_SUFFIX]];
         ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:reqURL
                                                               context:_requestParams];
