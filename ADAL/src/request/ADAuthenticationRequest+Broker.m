@@ -60,7 +60,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     (void)s_brokerAppVersion;
     (void)s_brokerProtocolVersion;
     
-#ifdef AD_BROKER
+#if AD_BROKER
     // Allow the broker app to use a special redirect URI when acquiring tokens
     if ([url isEqualToString:ADAL_BROKER_APP_REDIRECT_URI])
     {
