@@ -70,20 +70,37 @@
     XCTAssertEqualObjects(simple, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#foo1=bar1&foo2=bar2&foo3=bar3=foo3"]).adFragmentParameters);
 }
 
-- (void)testAdQueryParameters
+- (void)testAdQueryParameters_whenNoQPS
 {
     //Negative:
     XCTAssertNil([[NSURL URLWithString:@"https://stuff.com"] adQueryParameters]);
-    
+}
+
+- (void)testAdQueryParameters_whenSimpleQPs
+{
     //Positive:
-    NSDictionary* simple = @{@"foo1":@"bar1", @"foo2":@"bar2"};
+    NSDictionary *simple = @{@"foo1":@"bar1", @"foo2":@"bar2"};
     XCTAssertEqualObjects(simple, ([[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2"] adQueryParameters]));
-    
+}
+
+- (void)testAdQueryParameters_whenURINotURL
+{
     // Valid redirect url
+    NSDictionary *simple = @{@"foo1":@"bar1", @"foo2":@"bar2"};
     XCTAssertEqualObjects(simple, ([[NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob?foo1=bar1&foo2=bar2"] adQueryParameters]));
-    
+}
+
+- (void)testAdQueryParamters_whenMixedQueryFragment
+{
     //Mixed query and fragment parameters:
+    NSDictionary *simple = @{@"foo1":@"bar1", @"foo2":@"bar2"};
     XCTAssertEqualObjects(simple, ([[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2#foo3=bar3"] adQueryParameters]));
+}
+
+- (void)testAdQueryParameters_whenContainsPercentEncoding
+{
+    NSDictionary *withEncoded = @{@"foo1" : @"bar1", @"foo2" : @"bar2", @"foo3=bar3" : @"foo4&bar4=bar5"};
+    XCTAssertEqualObjects(withEncoded, ([[NSURL URLWithString:@"https://contoso.com?foo1=bar1&foo2=bar2&foo3%3Dbar3=foo4%26bar4%3Dbar5"] adQueryParameters]));
 }
 
 @end
