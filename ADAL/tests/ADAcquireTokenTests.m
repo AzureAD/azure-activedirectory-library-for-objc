@@ -1691,7 +1691,7 @@ const int sAsyncContextTimeout = 10;
                                                      dictionaryAsJSON:@{}];
     [ADTestURLConnection addResponse:response];
     
-    // We send send the actual silent network request
+    // We send the actual silent network request
     [req requestToken:^(ADAuthenticationResult *result)
      {
          // if request url is not expected,
