@@ -41,7 +41,7 @@ const unichar queryStringSeparator = '?';
 {
     NSURLComponents* components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:YES];
     
-    return [NSDictionary adURLFormDecode:components.query];
+    return [NSDictionary adURLFormDecode:[components percentEncodedQuery]];
 }
 
 - (BOOL)isEquivalentAuthority:(NSURL *)aURL
