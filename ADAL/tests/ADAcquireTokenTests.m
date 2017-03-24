@@ -37,8 +37,24 @@
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheDataSource.h"
 #import "ADTelemetryTestDispatcher.h"
+#import "ADUserIdentifier.h"
 
 const int sAsyncContextTimeout = 10;
+
+@interface ADAuthenticationRequest (UnitTestExtension)
+
+- (void)setAllowSilentRequests:(BOOL)allowSilent;
+
+@end
+
+@implementation ADAuthenticationRequest (UnitTestExtension)
+
+- (void)setAllowSilentRequests:(BOOL)allowSilent
+{
+    _allowSilent = allowSilent;
+}
+
+@end
 
 @interface ADAcquireTokenTests : XCTestCase
 {
@@ -1648,6 +1664,47 @@ const int sAsyncContextTimeout = 10;
     
     XCTAssertTrue([ADTestURLConnection noResponsesLeft]);
     XCTAssertEqual(allItems.count, 0);
+}
+
+- (void)testAllowSilentRequestParameters
+{
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
+                                                                        resource:TEST_RESOURCE
+                                                                        clientId:TEST_CLIENT_ID
+                                                                     redirectUri:TEST_REDIRECT_URL.absoluteString
+                                                                      identifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                                                                      tokenCache:context.tokenCacheStore
+                                                                extendedLifetime:NO
+                                                                   correlationId:nil
+                                                              telemetryRequestId:nil];
+    ADAuthenticationRequest* req = [ADAuthenticationRequest requestWithContext:context requestParams:params error:nil];
+    [req setSilent:YES];
+    [req setAllowSilentRequests:YES];
+    
+    
+    // Following we add a mock response and specify the request url we expect (it must include login_hint)
+    ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"https://login.windows.net/contoso.com/oauth2/authorize?client_id=c3c7f5e5-7153-44d4-90e6-329686d48d76&resource=resource&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&nux=1&response_type=code&login_hint=eric_cartman%40contoso.com&x-client-Ver=" ADAL_VERSION_STRING
+                                                    responseURLString:@"https://idontmatter.com"
+                                                         responseCode:401
+                                                     httpHeaderFields:@{}
+                                                     dictionaryAsJSON:@{}];
+    [ADTestURLConnection addResponse:response];
+    
+    // We send send the actual silent network request
+    [req requestToken:^(ADAuthenticationResult *result)
+     {
+         // if request url is not expected,
+         // our network mock will fail the unit test and it won't hit here
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_SERVER_USER_INPUT_NEEDED);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
 }
 
 @end
