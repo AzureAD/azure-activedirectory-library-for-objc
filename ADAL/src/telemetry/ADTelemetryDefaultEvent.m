@@ -161,9 +161,10 @@
         }
     });
     
-    [s_defaultParameters adSetObjectIfNotNil:[ADIpAddressHelper adDeviceIpAddress] forKey:AD_TELEMETRY_KEY_DEVICE_IP_ADDRESS];
+    NSMutableDictionary *defaultParameters = [s_defaultParameters mutableCopy];
+    [defaultParameters adSetObjectIfNotNil:[ADIpAddressHelper adDeviceIpAddress] forKey:AD_TELEMETRY_KEY_DEVICE_IP_ADDRESS];
     
-    return s_defaultParameters;
+    return defaultParameters;
 }
 
 - (NSInteger)getDefaultPropertyCount
