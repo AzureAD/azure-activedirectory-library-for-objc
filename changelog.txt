@@ -1,6 +1,13 @@
+Version 2.4.1 (03.29.2017)
+-------------
+* Fixed a bug that could cause 'Collection was mutated while being enumerated' exceptions (#932)
+* Fixed a query parameter decoding issue (#926)
+
+
 Version 2.4.0 (03.21.2017)
 -------------
 * ADAL no longer supports 32-bit macOS applications (#755)
+* ADFS on-premises authority validation (#529)
 * Added ADTelemetry interface for app developers to consume ADAL telemetry in their telemetry pipelines (#859)
 * Fixed documentation warnings in ADAL headers (#900)
 * Replaced NSURLConnection (which was deprecated in iOS 9) usage with NSURLSession (#646)
