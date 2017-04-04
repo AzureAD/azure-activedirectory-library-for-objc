@@ -21,33 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-@interface NSString (ADHelperMethods)
+@interface ADAutoResultViewController : UIViewController
 
-/*! Encodes string to the Base64 encoding. */
-- (NSString *)adBase64UrlEncode;
-/*! Decodes string from the Base64 encoding. */
-- (NSString *)adBase64UrlDecode;
-
-/*! Returns YES if the string is nil, or contains only white space */
-+ (BOOL)adIsStringNilOrBlank:(NSString *)string;
-
-/*! Returns the same string, but without the leading and trailing whitespace */
-- (NSString *)adTrimmedString;
-
-/*! Decodes a previously URL encoded string. */
-- (NSString *)adUrlFormDecode;
-
-/*! Encodes the string to pass it as a URL agrument. */
-- (NSString *)adUrlFormEncode;
-
-/*! Converts base64 String to NSData */
-+ (NSData *)adBase64DecodeData:(NSString *)encodedString;
-
-/*! Converts NSData to base64 String */
-+ (NSString *)adBase64EncodeData:(NSData *)data;
-
-- (NSString*)adComputeSHA256;
+@property NSString *resultInfoString;
+@property NSString *resultLogsString;
 
 @end

@@ -22,10 +22,10 @@
 // THE SOFTWARE.
 
 #import <UIKit/UIKit.h>
+#import "ADALAutomation.h"
 
-@interface ADAutoTextAndButtonView : UIView
+@interface ADAutoRequestViewController : UIViewController
 
-@property (readonly) UIButton* actionButton;
-@property (readonly) UITextView* textView;
+@property ADAutoParamBlock completionBlock;
 
 @end

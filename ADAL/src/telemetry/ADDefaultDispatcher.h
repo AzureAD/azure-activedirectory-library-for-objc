@@ -35,4 +35,6 @@
 
 - (void)flush:(NSString*)requestId;
 
+- (BOOL)containsDispatcher:(id<ADDispatcher>)dispatcher;
+
 @end

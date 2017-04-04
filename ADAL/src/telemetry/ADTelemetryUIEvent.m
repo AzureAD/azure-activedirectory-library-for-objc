@@ -27,6 +27,21 @@
 
 @implementation ADTelemetryUIEvent
 
+- (id)initWithName:(NSString*)eventName
+         requestId:(NSString*)requestId
+     correlationId:(NSUUID*)correlationId
+{
+    if (!(self = [super initWithName:eventName requestId:requestId correlationId:correlationId]))
+    {
+        return nil;
+    }
+    
+    [self setProperty:AD_TELEMETRY_KEY_USER_CANCEL value:@""];
+    [self setProperty:AD_TELEMETRY_KEY_NTLM_HANDLED value:@""];
+    
+    return self;
+}
+
 - (void)setLoginHint:(NSString*)hint
 {
     [self setProperty:AD_TELEMETRY_KEY_LOGIN_HINT value:[hint adComputeSHA256]];

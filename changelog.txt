@@ -1,3 +1,12 @@
+Version 2.4.0 (03.21.2017)
+-------------
+* ADAL no longer supports 32-bit macOS applications (#755)
+* Added ADTelemetry interface for app developers to consume ADAL telemetry in their telemetry pipelines (#859)
+* Fixed documentation warnings in ADAL headers (#900)
+* Replaced NSURLConnection (which was deprecated in iOS 9) usage with NSURLSession (#646)
+* Removed iOS 9 deprecated API usage in NSString+ADHelperMethods and NSURL+ADHelperMethods (#889, #914)
+
+
 Version 2.3.1 (02.09.2017)
 -------------
 * Fixed a thread safety issue in ADTelemetry that occasionally caused crashes (#882)

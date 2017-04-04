@@ -348,7 +348,7 @@ const int sAsyncContextTimeout = 10;
      {
          [receivedEvents addObject:event];
      }];
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
@@ -390,8 +390,8 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_version"]]);
 #endif
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_Ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_SKU"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.client_id"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.device_id"]]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
@@ -400,12 +400,12 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.status"] isEqualToString:@"failed"]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.response_time"]]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"1"]);
-    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.error_code"] isEqualToString:@"300"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"300"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
     
     //unregister the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:[ADTelemetryTestDispatcher new] aggregationRequired:YES];
 }
 
 - (void)testCachedWithNoIdtoken
@@ -570,7 +570,7 @@ const int sAsyncContextTimeout = 10;
      {
          [receivedEvents addObject:event];
      }];
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
@@ -647,8 +647,8 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.application_version"]]);
 #endif
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_Ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_SKU"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.client_id"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[firstEvent objectForKey:@"Microsoft.ADAL.device_id"]]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
@@ -661,7 +661,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.token_mrrt_status"] isEqualToString:@"tried"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"not_found"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.http_event_count"] isEqualToString:@"1"]);
-    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.error_code"] isEqualToString:@"200"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"200"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.oauth_error_code"] isEqualToString:@"invalid_grant"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
@@ -676,8 +676,8 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.application_version"]]);
 #endif
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_Ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_SKU"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.client_id"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[secondEvent objectForKey:@"Microsoft.ADAL.device_id"]]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
@@ -690,12 +690,12 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.token_rt_status"] isEqualToString:@"not_found"]);
     XCTAssertNotNil([secondEvent objectForKey:@"Microsoft.ADAL.token_mrrt_status"], @"not_found");
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"not_found"]);
-    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.error_code"] isEqualToString:@"200"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"200"]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
     
     //unregister the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:[ADTelemetryTestDispatcher new] aggregationRequired:YES];
 }
 
 - (void)testSilentExpiredATRefreshMRRTNetwork
@@ -1066,7 +1066,7 @@ const int sAsyncContextTimeout = 10;
      {
          [receivedEvents addObject:event];
      }];
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     // Simplest FRT case, the only RT available is the FRT so that would should be the one used
     ADAuthenticationError* error = nil;
@@ -1120,8 +1120,8 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_version"]]);
 #endif
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.application_name"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_Ver"]]);
-    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_SKU"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_ver"]]);
+    XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.x_client_sku"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.client_id"]]);
     XCTAssertTrue(![NSString adIsStringNilOrBlank:[event objectForKey:@"Microsoft.ADAL.device_id"]]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.authority_type"] isEqualToString:@"aad"]);
@@ -1136,12 +1136,12 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_mrrt_status"] isEqualToString:@"not_found"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"tried"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.http_event_count"] isEqualToString:@"1"]);
-    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.error_code"] isEqualToString:@"0"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"0"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.oauth_error_code"] isEqualToString:@""]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"yes"]);
     
     //unregister the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:nil aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:[ADTelemetryTestDispatcher new] aggregationRequired:YES];
 }
 
 - (void)testAcquireTokenMRRTFailFRTFallback

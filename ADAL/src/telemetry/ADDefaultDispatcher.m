@@ -47,6 +47,11 @@
     return self;
 }
 
+- (BOOL)containsDispatcher:(id<ADDispatcher>)dispatcher
+{
+    return _dispatcher == dispatcher;
+}
+
 - (void)flush:(NSString*)requestId
 {
     (void)requestId;

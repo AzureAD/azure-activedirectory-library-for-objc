@@ -284,6 +284,14 @@
                                                     multiplier:1.0
                                                       constant:0];
     [mainView addConstraint:_bottomConstraint];
+    [self updateSettings];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(profileDidChange:) name:ADTestAppProfileChangedNotification object:nil];
+}
+
+- (void)profileDidChange:(NSNotification *)notification
+{
+    [self updateSettings];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
@@ -342,6 +350,12 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    
+}
+
+- (void)updateSettings
+{
+    [_profileButton setTitle:[ADTestAppSettings currentProfileTitle] forState:UIControlStateNormal];
     ADTestAppSettings* settings = [ADTestAppSettings settings];
     NSString* defaultUser = settings.defaultUser;
     if (![NSString adIsStringNilOrBlank:defaultUser])
@@ -352,8 +366,6 @@
     self.navigationController.navigationBarHidden = YES;
     _validateAuthority.selectedSegmentIndex = settings.validateAuthority ? 0 : 1;
     _brokerEnabled.selectedSegmentIndex = settings.enableBroker ? 1 : 0;
-    [_profileButton setTitle:[ADTestAppSettings currentProfileTitle] forState:UIControlStateNormal];
-    
 }
 
 - (void)didReceiveMemoryWarning {

@@ -21,8 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@class ADDefaultDispatcher;
-
 /*!
     @protocol ADDispatcher
  
@@ -48,10 +46,6 @@
     Usage: Get a singleton instance of ADTelemetry; register a dispatcher for receiving telemetry events.
  */
 @interface ADTelemetry : NSObject
-{
-    ADDefaultDispatcher* _dispatcher;
-    NSMutableDictionary* _eventTracking;
-}
 
 /*!
     Get a singleton instance of ADTelemetry.
@@ -65,7 +59,18 @@
                                  If set YES, ADAL will dispatch only one event for each acquire token call, 
                                     where the event is a brief summary (but with far less details) of all telemetry events for that acquire token call.
  */
-- (void)registerDispatcher:(nullable id<ADDispatcher>)dispatcher
-       aggregationRequired:(BOOL)aggregationRequired;
+- (void)addDispatcher:(nonnull id<ADDispatcher>)dispatcher
+  aggregationRequired:(BOOL)aggregationRequired;
+
+/*!
+ Remove a telemetry dispatcher added for receiving telemetry events.
+ @param dispatcher            An instance of ADDispatcher implementation added to the dispatches before.
+ */
+- (void)removeDispatcher:(nonnull id<ADDispatcher>)dispatcher;
+
+/*!
+ Remove all telemetry dispatchers added to the dispatchers collection.
+ */
+- (void)removeAllDispatchers;
 
 @end

@@ -21,11 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <UIKit/UIKit.h>
-#import "ADALAutomation.h"
+#import "ADAutoResultViewController.h"
 
-@interface ADAutoInputViewController : UIViewController
+@interface ADAutoResultViewController ()
 
-- (id)initWithCompletionBlock:(ADAutoParamBlock)completionBlock;
+@property (strong, nonatomic) IBOutlet UITextView *resultInfo;
+@property (strong, nonatomic) IBOutlet UITextView *resultLogs;
+
+@end
+
+@implementation ADAutoResultViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    self.resultInfo.text = self.resultInfoString;
+    self.resultLogs.text = self.resultLogsString;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)done:(id)sender {
+    (void)sender;
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
 
 @end

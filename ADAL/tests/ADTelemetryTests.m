@@ -66,7 +66,7 @@
     }];
     
     // register the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:NO];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:NO];
     
     // generate telemetry event
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -85,8 +85,8 @@
     // i.e. sdk_id, sdk_version, device_id, device_name
     NSDictionary* event = [receivedEvents firstObject];
     
-    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.x_client_SKU"]);
-    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.x_client_Ver"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.x_client_sku"]);
+    XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.x_client_ver"]);
     XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.device_id"]);
     XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.request_id"]);
     XCTAssertNotNil([event objectForKey:@"Microsoft.ADAL.correlation_id"]);
@@ -109,7 +109,7 @@
      }];
     
     // register the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:NO];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:NO];
     
     // generate telemetry event 1
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -165,7 +165,7 @@
      }];
     
     // register the dispatcher with aggregation
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     // generate telemetry event 1
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -216,7 +216,7 @@
      }];
     
     // register the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:NO];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:NO];
     
     // generate telemetry event1 nested with event2
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -270,7 +270,7 @@
      }];
     
     // register the dispatcher with aggregation
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     // generate telemetry event1 nested with event2
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -320,7 +320,7 @@
      }];
     
     // register the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:NO];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:NO];
     
     // generate telemetry event1 nested with event2
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];
@@ -393,7 +393,7 @@
      }];
     
     // register the dispatcher
-    [[ADTelemetry sharedInstance] registerDispatcher:dispatcher aggregationRequired:YES];
+    [[ADTelemetry sharedInstance] addDispatcher:dispatcher aggregationRequired:YES];
     
     // generate telemetry event1 nested with event2
     NSString* requestId = [[ADTelemetry sharedInstance] registerNewRequest];

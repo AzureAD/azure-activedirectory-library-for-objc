@@ -38,7 +38,8 @@ static NSDictionary* _additionalProfiles()
 static NSDictionary* s_additionalProfiles = nil;
 
 
-NSString* ADTestAppCacheChangeNotification = @"ADTestAppCacheChangeNotification";
+NSString *ADTestAppCacheChangeNotification = @"ADTestAppCacheChangeNotification";
+NSString *ADTestAppProfileChangedNotification = @"ADTestAppProfileChangedNotification";
 
 static NSDictionary* s_profiles = nil;
 static NSArray* s_profileTitles = nil;
@@ -167,6 +168,8 @@ static NSUInteger s_currentProfileIdx = 0;
     self.validateAuthority = validate ? [validate boolValue] : YES;
     NSNumber* enableBroker = [settings objectForKey:@"enableBroker"];
     self.enableBroker = [enableBroker boolValue];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:ADTestAppProfileChangedNotification object:self];
 }
 
 @end

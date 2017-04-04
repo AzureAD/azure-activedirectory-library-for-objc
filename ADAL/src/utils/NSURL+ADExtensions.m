@@ -39,7 +39,45 @@ const unichar queryStringSeparator = '?';
 // Decodes parameters contains in a URL query
 - (NSDictionary *)adQueryParameters
 {
-    return [NSDictionary adURLFormDecode:self.query];
+    NSURLComponents* components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:YES];
+    
+    return [NSDictionary adURLFormDecode:[components percentEncodedQuery]];
+}
+
+- (BOOL)isEquivalentAuthority:(NSURL *)aURL
+{
+    
+    // Check if equal
+    if ([self isEqual:aURL])
+    {
+        return YES;
+    }
+    
+    // Check scheme and host
+    if (!self.scheme ||
+        !aURL.scheme ||
+        [self.scheme caseInsensitiveCompare:aURL.scheme] != NSOrderedSame)
+    {
+        return NO;
+    }
+    
+    if (!self.host ||
+        !aURL.host ||
+        [self.host caseInsensitiveCompare:aURL.host] != NSOrderedSame)
+    {
+        return NO;
+    }
+    
+    // Check port
+    if (self.port || aURL.port)
+    {
+        if (![self.port isEqual:aURL.port])
+        {
+            return NO;
+        }
+    }
+    
+    return YES;
 }
 
 @end

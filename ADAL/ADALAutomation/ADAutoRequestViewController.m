@@ -21,45 +21,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADAutoRequestViewController.h"
+#import "ADLogger+Internal.h"
 
-#import "NSURL+ADHelperMethods.h"
+@interface ADAutoRequestViewController ()
 
-@implementation NSURL (ADMethodHelpers)
+@property (strong, nonatomic) IBOutlet UITextView *requestInfo;
+@property (strong, nonatomic) IBOutlet UIButton *requestGo;
 
-- (BOOL)isEquivalentAuthority:(NSURL *)aURL
-{
+@end
+
+@implementation ADAutoRequestViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)go:(id)sender {
     
-    // Check if equal
-    if ([self isEqual:aURL])
+    (void)sender;
+    
+    self.requestInfo.editable = NO;
+    self.requestGo.enabled = NO;
+    [self.requestGo setTitle:@"Running..." forState:UIControlStateDisabled];
+
+    NSError* error = nil;
+    NSDictionary* params = [NSJSONSerialization JSONObjectWithData:[self.requestInfo.text dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (!params)
     {
-        return YES;
+        NSString *errorString = [NSString stringWithFormat:@"Error Domain=%@ Code=%ld Description=%@", error.domain, error.code, error.localizedDescription];
+        
+        params = @{ @"error" : errorString };
     }
     
-    // Check scheme and host
-    if (!self.scheme ||
-        !aURL.scheme ||
-        [self.scheme caseInsensitiveCompare:aURL.scheme] != NSOrderedSame)
-    {
-        return NO;
-    }
-
-    if (!self.host ||
-        !aURL.host ||
-        [self.host caseInsensitiveCompare:aURL.host] != NSOrderedSame)
-    {
-        return NO;
-    }
-
-    // Check port
-    if (self.port || aURL.port)
-    {
-        if (![self.port isEqual:aURL.port])
-        {
-            return NO;
-        }
-    }
-    
-    return YES;
+    self.completionBlock(params);
 }
 
 @end

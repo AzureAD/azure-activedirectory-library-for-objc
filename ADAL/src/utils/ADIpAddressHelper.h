@@ -21,11 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#pragma once
 
 #import <Foundation/Foundation.h>
 
-@interface NSURL (ADMethodHelpers)
+@interface ADIpAddressHelper : NSObject
 
-- (BOOL)isEquivalentAuthority:(NSURL *)aURL;
++ (NSString *)adDeviceIpAddress;
 
 @end

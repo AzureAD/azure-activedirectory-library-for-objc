@@ -38,7 +38,8 @@ static NSDictionary* _additionalProfiles()
 static NSDictionary* s_additionalProfiles = nil;
 
 
-NSString* ADTestAppCacheChangeNotification = @"ADTestAppCacheChangeNotification";
+NSString *ADTestAppCacheChangeNotification = @"ADTestAppCacheChangeNotification";
+NSString *ADTestAppProfileChangedNotification = @"ADTestAppProfileChangedNotification";
 
 static NSDictionary* s_profiles = nil;
 static NSArray* s_profileTitles = nil;
@@ -166,6 +167,8 @@ static NSUInteger s_currentProfileIdx = 0;
     self.redirectUri = [NSURL URLWithString:[settings objectForKey:@"redirectUri"]];
     self.resource = [settings objectForKey:@"resource"];
     self.defaultUser = [settings objectForKey:@"defaultUser"];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:ADTestAppProfileChangedNotification object:self];
 }
 
 @end
