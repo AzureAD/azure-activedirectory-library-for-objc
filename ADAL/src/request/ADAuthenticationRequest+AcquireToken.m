@@ -267,24 +267,23 @@
         }
     }
     
-    if (![self takeExclusionLock:completionBlock])
-    {
-        return;
-    }
-    
-    [self requestTokenImpl:^(ADAuthenticationResult *result)
-    {
-        [ADAuthenticationRequest releaseExclusionLock];
-        completionBlock(result);
-    }];
+    [self requestTokenImpl:completionBlock];
 }
 
 - (void)requestTokenImpl:(ADAuthenticationCallback)completionBlock
 {
-#if !AD_BROKER && TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
     //call the broker.
     if ([self canUseBroker])
     {
+        
+#if !AD_BROKER
+        if (![self takeExclusionLock:completionBlock])
+        {
+            return;
+        }
+#endif
+        
         ADAuthenticationError* error = nil;
         NSURL* brokerURL = [self composeBrokerRequest:&error];
         if (!brokerURL)
@@ -303,17 +302,35 @@
              [event setBrokerAppVersion:s_brokerAppVersion];
              [event setBrokerProtocolVersion:s_brokerProtocolVersion];
              [[ADTelemetry sharedInstance] stopEvent:[self telemetryRequestId] event:event];
+
+#if !AD_BROKER
+             [ADAuthenticationRequest releaseExclusionLock];
+#endif
+
              completionBlock(result);
          }];
         return;
     }
 #endif
-    
+
+    if (![self takeExclusionLock:completionBlock])
+    {
+        return;
+    }
+
+    // Always release the exclusion lock on completion
+    ADAuthenticationCallback originalCompletionBlock = completionBlock;
+    completionBlock = ^(ADAuthenticationResult* result)
+    {
+        [ADAuthenticationRequest releaseExclusionLock];
+        originalCompletionBlock(result);
+    };
+
     __block BOOL silentRequest = _allowSilent;
     
     NSString* telemetryRequestId = [_requestParams telemetryRequestId];
     
-// Get the code first:
+    // Get the code first:
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:@"authorization_code"];
     [self requestCode:^(NSString * code, ADAuthenticationError *error)
      {

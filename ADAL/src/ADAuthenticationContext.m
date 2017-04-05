@@ -239,9 +239,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
 + (BOOL)isResponseFromBroker:(NSString*)sourceApplication
                     response:(NSURL*)response
 {
-    return //sourceApplication && [NSString adSame:sourceApplication toString:brokerAppIdentifier];
-    response &&
-    [NSString adSame:sourceApplication toString:@"com.microsoft.azureauthenticator"];
+    return response && [sourceApplication isEqualToString:ADAL_BROKER_APP_BUNDLE_ID];
 }
 
 + (BOOL)handleBrokerResponse:(NSURL*)response

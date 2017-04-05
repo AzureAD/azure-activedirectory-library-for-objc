@@ -60,6 +60,14 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     (void)s_brokerAppVersion;
     (void)s_brokerProtocolVersion;
     
+#if AD_BROKER
+    // Allow the broker app to use a special redirect URI when acquiring tokens
+    if ([url isEqualToString:ADAL_BROKER_APP_REDIRECT_URI])
+    {
+        return YES;
+    }
+#endif
+    
     NSArray* urlTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleURLTypes"];
     
     NSURL* redirectURI = [NSURL URLWithString:url];
@@ -177,7 +185,9 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
         return nil;
     }
     
-    NSString *qp = [response query];
+    // NSURLComponents resolves some URLs which can't get resolved by NSURL
+    NSURLComponents* components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
+    NSString *qp = [components percentEncodedQuery];
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
 
