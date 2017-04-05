@@ -187,7 +187,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
     
     // NSURLComponents resolves some URLs which can't get resolved by NSURL
     NSURLComponents* components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
-    NSString *qp = [components query];
+    NSString *qp = [components percentEncodedQuery];
     //expect to either response or error and description, AND correlation_id AND hash.
     NSDictionary* queryParamsMap = [NSDictionary adURLFormDecode:qp];
 
