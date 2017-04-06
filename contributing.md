@@ -87,17 +87,6 @@ run `git shortlog` or `git log --oneline`.
 Check the output of `git log --oneline files_that_you_changed` to find out
 what directories your changes touch.
 
-
-### REBASE
-
-Use `git rebase` (not `git merge`) to sync your work from time to time.
-
-```
-$ git fetch upstream
-$ git rebase upstream/v0.1  # or upstream/master
-```
-
-
 ### TEST
 
 Bug fixes and features should come with tests.  Add your tests in the
