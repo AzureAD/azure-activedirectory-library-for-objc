@@ -37,13 +37,15 @@ static ADTelemetryUIEvent *s_telemetryEvent = nil;
 
 static NSString *s_kADURLProtocolPropertyKey  = @"ADURLProtocol";
 
-static NSUUID *_reqCorId(NSURLRequest* request)
+static id<ADRequestContext> _reqContext(NSURLRequest* request)
 {
-    return [NSURLProtocol propertyForKey:@"correlationId" inRequest:request];
+    return [NSURLProtocol propertyForKey:@"context" inRequest:request];
 }
 
 
 @implementation ADURLProtocol
+
+@synthesize context = _context;
 
 + (void)registerHandler:(id)handler
              authMethod:(NSString *)authMethod
@@ -93,15 +95,15 @@ static NSUUID *_reqCorId(NSURLRequest* request)
     }
 }
 
-+ (void)addCorrelationId:(NSUUID *)correlationId
++ (void)addContext:(id<ADRequestContext>)context
                toRequest:(NSMutableURLRequest *)request
 {
-    if (!correlationId)
+    if (!context)
     {
         return;
     }
     
-    [NSURLProtocol setProperty:correlationId forKey:@"correlationId" inRequest:request];
+    [NSURLProtocol setProperty:context forKey:@"context" inRequest:request];
 }
 
 + (ADURLSessionDemux *)sharedDemux
@@ -135,7 +137,7 @@ static NSUUID *_reqCorId(NSURLRequest* request)
     if ( [[request.URL.scheme lowercaseString] isEqualToString:@"https"])
     {
         
-        AD_LOG_VERBOSE_F(@"+[ADURLProtocol canInitWithRequest:] handling host", _reqCorId(request), @"host: %@", [request.URL host]);
+        AD_LOG_VERBOSE_F(@"+[ADURLProtocol canInitWithRequest:] handling host", _reqContext(request).correlationId, @"host: %@", [request.URL host]);
         //This class needs to handle only TLS. The check below is needed to avoid infinite recursion between starting and checking
         //for initialization
         if (![NSURLProtocol propertyForKey:s_kADURLProtocolPropertyKey inRequest:request])
@@ -144,34 +146,34 @@ static NSUUID *_reqCorId(NSURLRequest* request)
         }
     }
     
-    AD_LOG_VERBOSE_F(@"+[ADURLProtocol canInitWithRequest:] ignoring handling of host", _reqCorId(request), @"host: %@", [request.URL host]);
+    AD_LOG_VERBOSE_F(@"+[ADURLProtocol canInitWithRequest:] ignoring handling of host", _reqContext(request).correlationId, @"host: %@", [request.URL host]);
     
     return NO;
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
-    AD_LOG_VERBOSE_F(@"+[ADURLProtocol canonicalRequestForRequest:]", _reqCorId(request), @"host: %@", [request.URL host] );
+    AD_LOG_VERBOSE_F(@"+[ADURLProtocol canonicalRequestForRequest:]", _reqContext(request).correlationId, @"host: %@", [request.URL host] );
     
     return request;
 }
 
 - (void)startLoading
 {
-    NSUUID* correlationId = _reqCorId(self.request);
-    if (correlationId)
+    id<ADRequestContext> context = _reqContext(self.request);
+    if (context)
     {
-        _correlationId = correlationId;
+        _context = context;
     }
     
-    AD_LOG_VERBOSE_F(@"-[ADURLProtocol startLoading]", _correlationId, @"host: %@", [self.request.URL host]);
+    AD_LOG_VERBOSE_F(@"-[ADURLProtocol startLoading]", context.correlationId, @"host: %@", [self.request.URL host]);
     NSMutableURLRequest* request = [self.request mutableCopy];
      [ADCustomHeaderHandler applyCustomHeadersTo:request];
     
     // Make sure the correlation ID propogates through the requests
-    if (!correlationId && _correlationId)
+    if (!context && _context)
     {
-        [ADURLProtocol addCorrelationId:_correlationId toRequest:request];
+        [ADURLProtocol addContext:_context toRequest:request];
     }
     
     [NSURLProtocol setProperty:@YES forKey:s_kADURLProtocolPropertyKey inRequest:request];
@@ -182,7 +184,7 @@ static NSUUID *_reqCorId(NSURLRequest* request)
 
 - (void)stopLoading
 {
-    AD_LOG_VERBOSE_F(@"-[ADURLProtocol stopLoading]", _reqCorId(self.request), @"host: %@", [self.request.URL host]);
+    AD_LOG_VERBOSE_F(@"-[ADURLProtocol stopLoading]", _reqContext(self.request).correlationId, @"host: %@", [self.request.URL host]);
     
     [_dataTask cancel];
     _dataTask = nil;
@@ -218,7 +220,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
     NSMutableURLRequest *mutableRequest = [request mutableCopy];
     
     [ADCustomHeaderHandler applyCustomHeadersTo:mutableRequest];
-    [ADURLProtocol addCorrelationId:_correlationId toRequest:mutableRequest];
+    [ADURLProtocol addContext:_context toRequest:mutableRequest];
     
     if (!response)
     {
@@ -258,7 +260,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
  completionHandler:(ChallengeCompletionHandler)completionHandler
 {
     NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
-    AD_LOG_VERBOSE_F(@"session:task:didReceiveChallenge:completionHandler", _correlationId,
+    AD_LOG_VERBOSE_F(@"session:task:didReceiveChallenge:completionHandler", _context.correlationId,
                      @"%@. Previous challenge failure count: %ld", authMethod, (long)challenge.previousFailureCount);
     
     BOOL handled = NO;

@@ -21,12 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "ADRequestContext.h"
+
 @class ADWebRequest;
 @class ADWebResponse;
 
 typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
 
-@interface ADWebRequest : NSObject <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
+@interface ADWebRequest : NSObject <NSURLSessionTaskDelegate, NSURLSessionDataDelegate, ADRequestContext>
 {
     NSURLSessionDataTask * _task;
     
@@ -56,7 +58,8 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
 @property (strong)                      NSData              *body;
 @property (nonatomic)                   NSUInteger           timeout;
 @property BOOL isGetRequest;
-@property (readonly) NSUUID* correlationId;
+@property (readonly) NSUUID *correlationId;
+@property (readonly) NSString *telemetryRequestId;
 
 @property (atomic, copy,   readonly) NSURLSessionConfiguration* configuration;
 @property (atomic, strong, readonly) NSURLSession *session;

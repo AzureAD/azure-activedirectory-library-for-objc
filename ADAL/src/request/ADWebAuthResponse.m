@@ -33,11 +33,11 @@
 @implementation ADWebAuthResponse
 
 + (void)processError:(NSError *)error
-       correlationId:(NSUUID *)correlationId
+             request:(ADWebAuthRequest *)request
           completion:(ADWebResponseCallback)completionBlock
 {
     ADWebAuthResponse* response = [ADWebAuthResponse new];
-    response->_correlationId = correlationId;
+    response->_request = request;
     
     [response handleNSError:error completionBlock:completionBlock];
 }
@@ -49,9 +49,6 @@
 {
     ADWebAuthResponse* response = [ADWebAuthResponse new];
     response->_request = request;
-    
-    NSUUID* correlationId = request.correlationId;
-    response->_correlationId = correlationId;
     
     [response handleResponse:webResponse completionBlock:completionBlock];
 }
@@ -276,11 +273,11 @@
             // Request failure
             NSString* body = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
             NSString* errorData = [NSString stringWithFormat:@"Full response: %@", body];
-            AD_LOG_WARN(([NSString stringWithFormat:@"HTTP Error %ld", (long)webResponse.statusCode]), _correlationId, errorData);
+            AD_LOG_WARN(([NSString stringWithFormat:@"HTTP Error %ld", (long)webResponse.statusCode]), _request.correlationId, errorData);
             
             ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
                                                                              body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
-                                                                    correlationId:_correlationId];
+                                                                    correlationId:_request.correlationId];
             
             //Now add the information to the dictionary, so that the parser can extract it:
             [self handleADError:adError completionBlock:completionBlock];
@@ -304,7 +301,7 @@
     {
         ADAuthenticationError* adError =
         [ADAuthenticationError unexpectedInternalError:[NSString stringWithFormat:@"Unexpected object type: %@", [jsonObject class]]
-                                         correlationId:_correlationId];
+                                         correlationId:_request.correlationId];
         [self handleADError:adError completionBlock:completionBlock];
         return;
     }
@@ -325,13 +322,13 @@
     
     if (!authHeaderParams)
     {
-        AD_LOG_ERROR_F(@"Unparseable wwwAuthHeader received.", AD_ERROR_SERVER_WPJ_REQUIRED, _correlationId, @"%@", wwwAuthHeaderValue);
+        AD_LOG_ERROR_F(@"Unparseable wwwAuthHeader received.", AD_ERROR_SERVER_WPJ_REQUIRED, _request.correlationId, @"%@", wwwAuthHeaderValue);
     }
     
     ADAuthenticationError* adError = nil;
     NSString* authHeader = [ADPkeyAuthHelper createDeviceAuthResponse:[[_request URL] absoluteString]
                                                         challengeData:authHeaderParams
-                                                        correlationId:_correlationId
+                                                              context:_request
                                                                 error:&adError];
     
     if (!authHeader)
@@ -350,7 +347,7 @@
 {
     [[ADClientMetrics getInstance] endClientMetricsRecord:[[_request URL] absoluteString]
                                                 startTime:[_request startTime]
-                                            correlationId:_correlationId
+                                            correlationId:_request.correlationId
                                              errorDetails:nil];
     
     completionBlock(_responseDictionary);
@@ -373,7 +370,7 @@
     
     if (body.length == 0)
     {
-        AD_LOG_ERROR(@"Empty body received, expected JSON response.", jsonError.code, _correlationId, nil);
+        AD_LOG_ERROR(@"Empty body received, expected JSON response.", jsonError.code, _request.correlationId, nil);
     }
     else
     {
@@ -388,7 +385,7 @@
         
         NSString* errorMsg = [NSString stringWithFormat:@"JSON deserialization error: %@", jsonError.description];
         
-        AD_LOG_ERROR_F(errorMsg, jsonError.code, _correlationId, @"%@", bodyStr);
+        AD_LOG_ERROR_F(errorMsg, jsonError.code, _request.correlationId, @"%@", bodyStr);
     }
     
     [self handleNSError:jsonError completionBlock:completionBlock];
@@ -407,11 +404,11 @@
         [_responseDictionary setObject:url forKey:@"url"];
     }
     
-    AD_LOG_WARN(@"System error while making request.", _correlationId, error.description);
+    AD_LOG_WARN(@"System error while making request.", _request.correlationId, error.description);
     // System error
     ADAuthenticationError* adError = [ADAuthenticationError errorFromNSError:error
                                                                 errorDetails:error.localizedDescription
-                                                               correlationId:_correlationId];
+                                                               correlationId:_request.correlationId];
     
     [self handleADError:adError completionBlock:completionBlock];
 }
@@ -424,7 +421,7 @@
     
     [[ADClientMetrics getInstance] endClientMetricsRecord:[[_request URL] absoluteString]
                                                 startTime:[_request startTime]
-                                            correlationId:_correlationId
+                                            correlationId:_request.correlationId
                                              errorDetails:[adError errorDetails]];
     
     completionBlock(_responseDictionary);

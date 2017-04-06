@@ -44,7 +44,7 @@
             ADAuthenticationError* adError = \
             [ADAuthenticationError keychainErrorFromOperation:_operation \
                                                        status:status \
-                                                correlationId:correlationId];\
+                                                correlationId:context.correlationId];\
             if (error) { *error = adError; } \
         } \
         goto _error; \
@@ -52,7 +52,7 @@
 }
 
 
-+ (ADRegistrationInformation*)getRegistrationInformation:(NSUUID *)correlationId
++ (ADRegistrationInformation*)getRegistrationInformation:(id<ADRequestContext>)context
                                                    error:(ADAuthenticationError * __autoreleasing *)error
 {
     NSString* teamId = [ADKeychainUtil keychainTeamId:error];
@@ -84,7 +84,6 @@
     NSString *certificateSubject = nil;
     NSData *certificateData = nil;
     NSString *certificateIssuer = nil;
-    NSString *userPrincipalName = nil;
     NSData *issuer = nil;
     NSDictionary *  cerDict = nil;
     
@@ -120,7 +119,7 @@
         CFRelease(identity);
         ADAuthenticationError* adError =
         [ADAuthenticationError unexpectedInternalError:@"Wrong object type returned from identity query"
-                                         correlationId:correlationId];
+                                         correlationId:context.correlationId];
         
         if (error)
         {
@@ -141,7 +140,7 @@
     if(!(identity && certificate && certificateSubject && certificateData && privateKey && certificateIssuer))
     {
         // We never should hit this error anyways, as any of this stuff being missing will cause failures farther up.
-        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Missing some piece of WPJ data" correlationId:correlationId];
+        ADAuthenticationError* adError = [ADAuthenticationError unexpectedInternalError:@"Missing some piece of WPJ data" correlationId:context.correlationId];
         
         if (error)
         {
@@ -153,7 +152,6 @@
     
     {
         ADRegistrationInformation *info = [[ADRegistrationInformation alloc] initWithSecurityIdentity:identity
-                                                                                userPrincipalName:userPrincipalName
                                                                                 certificateIssuer:certificateIssuer
                                                                                       certificate:certificate
                                                                                certificateSubject:certificateSubject

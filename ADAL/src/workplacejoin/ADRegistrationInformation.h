@@ -24,6 +24,15 @@
 #import <Foundation/Foundation.h>
 
 @interface ADRegistrationInformation : NSObject
+{
+@protected
+    SecIdentityRef _securityIdentity;
+    SecCertificateRef _certificate;
+    NSString *_certificateSubject;
+    NSString *_certificateIssuer;
+    NSData *_certificateData;
+    SecKeyRef _privateKey;
+}
 
 @property (nonatomic, readonly) SecIdentityRef securityIdentity;
 @property (nonatomic, readonly) SecCertificateRef certificate;
@@ -31,10 +40,8 @@
 @property (nonatomic, readonly) NSString *certificateIssuer;
 @property (nonatomic, readonly) NSData *certificateData;
 @property (nonatomic, readonly) SecKeyRef privateKey;
-@property (nonatomic, readonly) NSString *userPrincipalName;
 
 - (id)initWithSecurityIdentity:(SecIdentityRef)identity
-             userPrincipalName:(NSString*)userPrincipalName
              certificateIssuer:(NSString*)certificateIssuer
                    certificate:(SecCertificateRef)certificate
             certificateSubject:(NSString*)certificateSubject
