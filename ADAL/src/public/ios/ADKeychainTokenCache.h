@@ -58,7 +58,7 @@
 
 /* Initializes the token cache store with default shared group value.
  */
-- (nullable instancetype)init;
+- (nonnull instancetype)init;
 
 /*! Initializes the token cache store.
  @param sharedGroup Optional. If the application needs to share the cached tokens

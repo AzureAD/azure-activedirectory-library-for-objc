@@ -38,27 +38,34 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
-    func updateStatusField(text: String)
+    func updateStatusField(_ text: String)
     {
         statusTextField?.text = text;
     }
     
-    @IBAction func acquireToken(sender:UIButton) {
+    @IBAction func acquireToken(_ sender:UIButton) {
         let authContext = ADAuthenticationContext(authority: "https://login.microsoftonline.com/common",
                                                   error: nil)
         
-        authContext.acquireTokenWithResource("https://graph.windows.net",
+        authContext!.acquireToken(withResource: "https://graph.windows.net",
                                              clientId: "b92e0ba5-f86e-4411-8e18-6b5f928d968a",
-                                             redirectUri: NSURL(string: "urn:ietf:wg:oauth:2.0:oob"))
+                                             redirectUri: URL(string: "urn:ietf:wg:oauth:2.0:oob"))
         {
-            (result:ADAuthenticationResult!) in
-            if (result.status != AD_SUCCEEDED)
+            (result) in
+            
+            if (result!.status != AD_SUCCEEDED)
             {
-                self.updateStatusField(result.error.description)
+                self.updateStatusField(result!.error.description)
                 return;
             }
-
-            let status = String(format: "Access token: %@\nexpiration:%@", result.accessToken, result.tokenCacheItem.expiresOn ?? "(nil)")
+            
+            var expiresOnString = "(nil)"
+            
+            if let expiresOn = result!.tokenCacheItem.expiresOn {
+                expiresOnString = String(describing: expiresOn)
+            }
+            
+            let status = String(format: "Access token: %@\nexpiration:%@", result!.accessToken, expiresOnString)
             self.updateStatusField(status)
         }
     }
