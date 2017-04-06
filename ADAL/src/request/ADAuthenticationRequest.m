@@ -207,6 +207,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
     if (_refreshTokenCredential == refreshTokenCredential)
     {
         return;
+    }
     _refreshTokenCredential = [refreshTokenCredential copy];
 }
 #endif
