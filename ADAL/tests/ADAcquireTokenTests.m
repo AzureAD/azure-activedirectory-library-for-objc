@@ -1583,7 +1583,7 @@ const int sAsyncContextTimeout = 10;
 
 - (void)testAllowSilentRequestParameters
 {
-    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
     ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
                                                                         resource:TEST_RESOURCE
                                                                         clientId:TEST_CLIENT_ID
@@ -1593,7 +1593,7 @@ const int sAsyncContextTimeout = 10;
                                                                 extendedLifetime:NO
                                                                    correlationId:nil
                                                               telemetryRequestId:nil];
-    ADAuthenticationRequest* req = [ADAuthenticationRequest requestWithContext:context requestParams:params error:nil];
+    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context requestParams:params error:nil];
     [req setSilent:YES];
     [req setAllowSilentRequests:YES];
     
