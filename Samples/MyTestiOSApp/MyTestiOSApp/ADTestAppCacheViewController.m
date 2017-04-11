@@ -125,7 +125,7 @@
 - (void)invalidateTokenAtPath:(NSIndexPath*)indexPath
 {
     ADTestAppCacheRowItem* rowItem = [self cacheItemForPath:indexPath];
-    rowItem.item.refreshToken = @"<bad-refresh-token>";
+    rowItem.item.refreshToken = @"bad-refresh-token";
     
     ADKeychainTokenCache* cache = [ADKeychainTokenCache new];
     [cache addOrUpdateItem:rowItem.item correlationId:nil error:nil];
@@ -385,7 +385,7 @@
         {
             [[cell textLabel] setTextColor:[UIColor brownColor]];
         }
-        else if ([cacheItem.item.refreshToken isEqualToString:@"<bad-refresh-token>"])
+        else if ([cacheItem.item.refreshToken isEqualToString:@"bad-refresh-token"])
         {
             [[cell textLabel] setTextColor:[UIColor yellowColor]];
         }
