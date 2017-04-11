@@ -238,7 +238,7 @@
                        [_requestParams redirectUri], OAUTH2_REDIRECT_URI,
                        [_requestParams resource], OAUTH2_RESOURCE,
                        OAUTH2_CODE, OAUTH2_RESPONSE_TYPE,
-					   @"1", @"nux",
+                       @"1", @"nux",
                        @"none", @"prompt", nil];
         
         if (_scope)
