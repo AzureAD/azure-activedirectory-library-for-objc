@@ -82,7 +82,7 @@
     
     if (!resourceUrl)
     {
-        //Nil passed, just call the callback on the same thread with the error:
+        // Nil passed, just call the callback on the same thread with the error:
         ADAuthenticationError* error = [ADAuthenticationError errorFromArgument:resourceUrl
                                                                    argumentName:@"resourceUrl"
                                                                   correlationId:nil];
