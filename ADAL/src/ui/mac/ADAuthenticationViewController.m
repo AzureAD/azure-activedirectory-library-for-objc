@@ -134,6 +134,8 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
     [_webView setFrameLoadDelegate:nil];
     [_webView setResourceLoadDelegate:nil];
     [_webView setPolicyDelegate:nil];
+    
+    [_webView close];
     _webView = nil;
 }
 
