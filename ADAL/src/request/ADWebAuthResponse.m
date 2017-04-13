@@ -338,7 +338,7 @@
     }
     
     // Add Authorization response header to the headers of the request
-    [_request.headers setObject:authHeader forKey:@"Authorization"];
+    [_request setAuthorizationHeader:authHeader];
     
     [_request resend];
 }

@@ -54,7 +54,6 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
 }
 
 @property (strong, readonly, nonatomic) NSURL               *URL;
-@property (copy, nonatomic)             NSMutableDictionary *headers;
 @property (strong)                      NSData              *body;
 @property (nonatomic)                   NSUInteger           timeout;
 @property BOOL isGetRequest;
@@ -68,6 +67,9 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
           context:(id<ADRequestContext>)context;
 
 - (void)send:( void (^)( NSError *, ADWebResponse *) )completionHandler;
+
+
+- (void)setAuthorizationHeader:(NSString *)header;
 
 /*!
     Resends a request. Note, this will cause the completionHandler previously set
