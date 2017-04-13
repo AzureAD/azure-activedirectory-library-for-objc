@@ -299,10 +299,9 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
     CFMutableStringRef decodedString = CFStringCreateMutableCopy( NULL, 0, (__bridge CFStringRef)self );
     CFStringFindAndReplace( decodedString, CFSTR("+"), CFSTR(" "), CFRangeMake( 0, CFStringGetLength( decodedString ) ), kCFCompareCaseInsensitive );
     
-    CFStringRef unescapedString = CFURLCreateStringByReplacingPercentEscapesUsingEncoding( NULL,                    // Allocator
+    CFStringRef unescapedString = CFURLCreateStringByReplacingPercentEscapes( NULL,                    // Allocator
                                                                                           decodedString,           // Original string
-                                                                                          CFSTR(""),               // Characters to leave escaped
-                                                                                          kCFStringEncodingUTF8 ); // Encoding
+                                                                                          CFSTR("")); // Encoding
     CFRelease( decodedString );
     
     return CFBridgingRelease(unescapedString);
