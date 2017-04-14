@@ -37,6 +37,7 @@ static NSString* const s_kTrustedRelation              = @"http://schemas.micros
 
 // Trusted authorities
 static NSString* const s_kTrustedAuthority             = @"https://login.windows.net";
+static NSString* const s_kTrustedAuthorityUs           = @"https://login.microsoftonline.us";
 static NSString* const s_kTrustedAuthorityChina        = @"https://login.chinacloudapi.cn";
 static NSString* const s_kTrustedAuthorityGermany      = @"https://login.microsoftonline.de";
 static NSString* const s_kTrustedAuthorityWorldWide    = @"https://login.microsoftonline.com";
@@ -79,6 +80,7 @@ static NSString* const s_kWebFingerError               = @"WebFinger request was
     //List of prevalidated authorities (Azure Active Directory cloud instances).
     //Only the sThrustedAuthority is used for validation of new authorities.
     [_validatedADAuthorities addObject:[NSURL URLWithString:s_kTrustedAuthority]];
+    [_validatedADAuthorities addObject:[NSURL URLWithString:s_kTrustedAuthorityUs]]; // Microsoft Azure US
     [_validatedADAuthorities addObject:[NSURL URLWithString:s_kTrustedAuthorityChina]]; // Microsoft Azure China
     [_validatedADAuthorities addObject:[NSURL URLWithString:s_kTrustedAuthorityGermany]]; // Microsoft Azure Germany
     [_validatedADAuthorities addObject:[NSURL URLWithString:s_kTrustedAuthorityWorldWide]]; // Microsoft Azure Worldwide
