@@ -241,15 +241,7 @@ decisionListener:(id<WebPolicyDecisionListener>)listener
 
 - (void)setWebView:(WebView *)webView
 {
-    if (webView)
-    {
-        _embeddedWebview = YES;
-    }
-    else
-    {
-        _embeddedWebview = NO;
-    }
-    
+    _embeddedWebview = webView ? YES : NO;
     _webView = webView;
 }
 
