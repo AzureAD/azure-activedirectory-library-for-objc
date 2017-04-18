@@ -68,8 +68,6 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
     
     if (_webView)
     {
-        _embeddedWebview = YES;
-        
         [_webView setFrameLoadDelegate:self];
         [_webView setResourceLoadDelegate:self];
         [_webView setPolicyDelegate:self];
@@ -237,6 +235,22 @@ decisionListener:(id<WebPolicyDecisionListener>)listener
     (void)sender;
     (void)frame;
     [_delegate webAuthDidFailWithError:error];
+}
+
+#pragma mark - Overriden properties
+
+- (void)setWebView:(WebView *)webView
+{
+    if (webView)
+    {
+        _embeddedWebview = YES;
+    }
+    else
+    {
+        _embeddedWebview = NO;
+    }
+    
+    _webView = webView;
 }
 
 @end
