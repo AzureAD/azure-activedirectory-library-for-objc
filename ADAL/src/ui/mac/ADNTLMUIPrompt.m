@@ -33,6 +33,20 @@
 
 @implementation ADNTLMUIPrompt
 
+__weak static NSAlert *_presentedPrompt = nil;
+
++ (void)dismissPrompt
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        if (_presentedPrompt)
+        {
+            [_presentedPrompt.window.sheetParent endSheet:_presentedPrompt.window];
+            _presentedPrompt = nil;
+        }
+    });
+}
+
 + (void)presentPrompt:(void (^)(NSString * username, NSString * password))completionHandler
 {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -71,6 +85,8 @@
                  completionHandler(nil, nil);
              }
          }];
+        
+        _presentedPrompt = alert;
     });
 }
 

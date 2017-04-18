@@ -61,6 +61,8 @@ static NSURLSession *_session = nil;
 {
     @synchronized(self)//Protect the sAD_Identity_Ref from being cleared while used.
     {
+        [ADNTLMUIPrompt dismissPrompt];
+        
         _challengeUrl = nil;
         _cancellationUrl = nil;
         _session = nil;

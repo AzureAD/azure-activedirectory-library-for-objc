@@ -26,5 +26,6 @@
 @interface ADNTLMUIPrompt : NSObject
 
 + (void)presentPrompt:(void (^)(NSString * username, NSString * password))completionHandler;
++ (void)dismissPrompt;
 
 @end

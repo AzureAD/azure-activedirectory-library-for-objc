@@ -30,6 +30,21 @@
 
 @implementation ADNTLMUIPrompt
 
+__weak static UIAlertController *_presentedPrompt = nil;
+
++ (void)dismissPrompt
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        if (_presentedPrompt.presentingViewController)
+        {
+            [_presentedPrompt.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+        }
+        
+        _presentedPrompt = nil;
+    });
+}
+
 + (void)presentPrompt:(void (^)(NSString * username, NSString * password))block
 {
     
@@ -84,6 +99,8 @@
         }];
         
         [viewController presentViewController:alert animated:YES completion:^{}];
+        
+        _presentedPrompt = alert;
     });
 }
 
