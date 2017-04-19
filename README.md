@@ -1,5 +1,5 @@
 
-#Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and OSX
+# Microsoft Azure Active Directory Authentication Library (ADAL) for iOS and OSX
 =====================================
 
 | [Code Samples](https://github.com/azure-samples?utf8=✓&q=active-directory-ios) | [Reference Docs](http://cocoadocs.org/docsets/ADAL/) | [Developer Guide](https://aka.ms/aaddev)
@@ -53,11 +53,11 @@ All code is licensed under the MIT license and we triage actively on GitHub. We 
 3. Add the ADAL library or framework your project
 
 
-##Download
+## Download
 
 We've made it easy for you to have multiple options to use this library in your iOS project:
 
-###Option 1: Git Submodule
+### Option 1: Git Submodule
 
  If your project is managed in a git repository you can include ADAL as a git submodule. First check the [GitHub Releases Page](https://github.com/AzureAD/azure-activedirectory-library-for-objc/releases) for the latest release tag. Replace `<latest_release_tag>` with that version.
 
@@ -71,7 +71,7 @@ We've made it easy for you to have multiple options to use this library in your 
     
 We recommend only syncing to specific release tags to make sure you're at a known good point. We will not support versions of ADAL between release tags.
 
-###Option 2: Cocoapods
+### Option 2: Cocoapods
 
 You can use CocoaPods to remain up to date with ADAL within a specific major version. Include the following line in your podfile:
 
@@ -81,7 +81,7 @@ You then you can run either `pod install` (if it's a new PodFile) or `pod update
 
 See [CocoaPods](https://cocoapods.org) for more information on setting up a PodFile
 
-###Option 3: Source Zip
+### Option 3: Source Zip
 
 To download a copy of the source code, first make sure you're on the "master" branch and click "Clone or download" then "Download ZIP" in the upper right hand corner, or you can download it [here](https://github.com/AzureAD/azure-activedirectory-library-for-objc/archive/master.zip)
 
