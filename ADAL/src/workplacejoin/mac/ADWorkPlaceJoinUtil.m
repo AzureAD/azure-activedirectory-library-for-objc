@@ -38,6 +38,7 @@
   } \
 }
 
+static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
 
 @implementation ADWorkPlaceJoinUtil
 
