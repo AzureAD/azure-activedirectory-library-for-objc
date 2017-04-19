@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B2708C6D1EA04FDB003E83D0 /* ADAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2708C6C1EA04FDB003E83D0 /* ADAL.framework */; };
+		B2708C6E1EA04FDB003E83D0 /* ADAL.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B2708C6C1EA04FDB003E83D0 /* ADAL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D664F1571D3014F70017B799 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D664F1561D3014F70017B799 /* AppDelegate.swift */; };
 		D664F1591D3014F70017B799 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D664F1581D3014F70017B799 /* ViewController.swift */; };
 		D664F15C1D3014F70017B799 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D664F15A1D3014F70017B799 /* Main.storyboard */; };
@@ -21,6 +23,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				B2708C6E1EA04FDB003E83D0 /* ADAL.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -28,6 +31,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B2708C6C1EA04FDB003E83D0 /* ADAL.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ADAL.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D664F1531D3014F60017B799 /* SampleSwiftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SampleSwiftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D664F1561D3014F70017B799 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D664F1581D3014F70017B799 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -42,6 +46,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2708C6D1EA04FDB003E83D0 /* ADAL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -51,6 +56,7 @@
 		D664F14A1D3014F60017B799 = {
 			isa = PBXGroup;
 			children = (
+				B2708C6C1EA04FDB003E83D0 /* ADAL.framework */,
 				D664F1551D3014F70017B799 /* SampleSwiftApp */,
 				D664F1541D3014F60017B799 /* Products */,
 			);
