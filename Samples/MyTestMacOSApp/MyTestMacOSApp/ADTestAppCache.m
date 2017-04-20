@@ -77,7 +77,11 @@
     @synchronized(self)
     {
         [self readFromKeychain];
-        [cache deserialize:_data error:nil];
+        
+        if (_data)
+        {
+            [cache deserialize:_data error:nil];
+        }
     }
 }
 
@@ -141,7 +145,7 @@
         CFDataRef data = NULL;
         OSStatus status = SecItemCopyMatching((CFDictionaryRef)readQuery, (CFTypeRef *)&data);
         
-        _data = (__bridge NSData*)data;
+        _data = (__bridge_transfer NSData*)data;
         
         return status;
     }
