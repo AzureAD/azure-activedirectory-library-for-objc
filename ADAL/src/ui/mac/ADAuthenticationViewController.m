@@ -47,7 +47,6 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
 @interface ADAuthenticationViewController ( ) <WebResourceLoadDelegate, WebPolicyDelegate, WebFrameLoadDelegate, NSWindowDelegate>
 {
     NSProgressIndicator* _progressIndicator;
-    BOOL _embeddedWebview;
 }
 
 @end
@@ -135,14 +134,6 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
     [_webView setFrameLoadDelegate:nil];
     [_webView setResourceLoadDelegate:nil];
     [_webView setPolicyDelegate:nil];
-    
-    if (!_embeddedWebview)
-    {
-        // Cleanup webview only if a new one was created
-        // If one was provided by the application, it might be reused
-        [_webView close];
-    }
-    
     _webView = nil;
 }
 
@@ -235,14 +226,6 @@ decisionListener:(id<WebPolicyDecisionListener>)listener
     (void)sender;
     (void)frame;
     [_delegate webAuthDidFailWithError:error];
-}
-
-#pragma mark - Overriden properties
-
-- (void)setWebView:(WebView *)webView
-{
-    _embeddedWebview = webView ? YES : NO;
-    _webView = webView;
 }
 
 @end
