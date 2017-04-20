@@ -178,7 +178,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     NSMutableURLRequest* responseUrl = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:value]];
     [ADURLProtocol addContext:_requestParams toRequest:responseUrl];
     
-    [responseUrl setValue:pKeyAuthHeaderVersion forHTTPHeaderField: pKeyAuthHeader];
+    [responseUrl setValue:kADALPKeyAuthHeaderVersion forHTTPHeaderField:kADALPKeyAuthHeader];
     [responseUrl setValue:authHeader forHTTPHeaderField:@"Authorization"];
     [_authenticationViewController loadRequest:responseUrl];
 }
@@ -324,7 +324,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
     }
     
     // check for pkeyauth challenge.
-    if ([requestURL hasPrefix:pKeyAuthUrn])
+    if ([requestURL hasPrefix:kADALPKeyAuthUrn])
     {
         // We still continue onwards from a pkeyauth challenge after it's handled, so the web auth flow
         // is not complete yet.
@@ -400,7 +400,7 @@ NSString* ADWebAuthWillSwitchToBrokerApp = @"ADWebAuthWillSwitchToBrokerApp";
         }
         
         // check for pkeyauth challenge.
-        if ([urlString hasPrefix:pKeyAuthUrn])
+        if ([urlString hasPrefix:kADALPKeyAuthUrn])
         {
             // We still continue onwards from a pkeyauth challenge after it's handled, so the web auth flow
             // is not complete yet.

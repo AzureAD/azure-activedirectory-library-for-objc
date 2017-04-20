@@ -25,29 +25,29 @@
 
 #pragma once
 
-extern NSString* const _defaultSharedGroup;
-extern NSString* const privateKeyIdentifier;
-extern NSString* const publicKeyIdentifier;
-extern NSString* const upnIdentifier;
-extern NSString* const applicationIdentifierPrefix;
-extern NSString* const _oauthRedirectUri;
-extern NSString* const protectionSpaceDistinguishedName;
+extern NSString* const kADALDefaultSharedGroup;
+extern NSString* const kADALPrivateKeyIdentifier;
+extern NSString* const kADALPublicKeyIdentifier;
+extern NSString* const kADALUpnIdentifier;
+extern NSString* const kADALApplicationIdentifierPrefix;
+extern NSString* const kADALOauthRedirectUri;
+extern NSString* const kADALProtectionSpaceDistinguishedName;
 
 #pragma mark Error strings
-extern NSString* const errorDomain;
-extern NSString* const alreadyWorkplaceJoined;
-extern NSString* const invalidUPN;
-extern NSString* const unabletoWriteToSharedKeychain;
-extern NSString* const unabletoReadFromSharedKeychain;
-extern NSString* const duplicateCertificateEntry;
-extern NSString* const certificateInstallFailure;
-extern NSString* const certificateDeleteFailure;
-extern NSString* const upnMismatchOnJoin;
-extern NSString* const wwwAuthenticateHeader;
-extern NSString* const pKeyAuthUrn;
-extern NSString* const pKeyAuthHeader;
-extern NSString* const pKeyAuthHeaderVersion;
-extern NSString* const pKeyAuthName;
+extern NSString* const kADALErrorDomain;
+extern NSString* const kADALAlreadyWorkplaceJoined;
+extern NSString* const kADALInvalidUPN;
+extern NSString* const kADALUnabletoWriteToSharedKeychain;
+extern NSString* const kADALUnabletoReadFromSharedKeychain;
+extern NSString* const kADALDuplicateCertificateEntry;
+extern NSString* const kADALCertificateInstallFailure;
+extern NSString* const kADALCertificateDeleteFailure;
+extern NSString* const kADALUpnMismatchOnJoin;
+extern NSString* const kADALWwwAuthenticateHeader;
+extern NSString* const kADALPKeyAuthUrn;
+extern NSString* const kADALPKeyAuthHeader;
+extern NSString* const kADALPKeyAuthHeaderVersion;
+extern NSString* const kADALPKeyAuthName;
 
 typedef enum errorCodeTypes
 {
@@ -62,22 +62,22 @@ typedef enum errorCodeTypes
 //ADAL
 
 #pragma mark general
-extern NSString* const OID;
-static NSInteger deviceIDLength = 38;
+extern NSString* const kADALOID;
+static NSInteger kADALDeviceIDLength = 38;
 
 #pragma Base64Decoding
 
 // Base64 quantum size (in bytes)
 // Note that a quantum is the smallest unit in base64-encoding/decoding.
-static NSInteger BASE64QUANTUM = 3;
+static NSInteger kADALBASE64QUANTUM = 3;
 
 // Each quantum takes 4 characters to represent.
-static NSInteger BASE64QUANTUMREP = 4;
+static NSInteger kADALBASE64QUANTUMREP = 4;
 
 //
 // Mapping from ASCII character to 6 bit pattern.
 //
-static unsigned char decodeBase64[256] = {
+static unsigned char kADALDecodeBase64[256] = {
     64, 64, 64, 64, 64, 64, 64, 64,  // 0x00
     64, 64, 64, 64, 64, 64, 64, 64,
     64, 64, 64, 64, 64, 64, 64, 64,  // 0x10

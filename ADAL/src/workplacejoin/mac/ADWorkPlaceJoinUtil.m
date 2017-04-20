@@ -85,7 +85,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
     // Get the private key
     AD_LOG_VERBOSE(@"Retrieving WPJ private key reference", context.correlationId, nil);
     
-    privateKey = [self copyPrivateKeyRefForIdentifier:privateKeyIdentifier context:context error:&adError];
+    privateKey = [self copyPrivateKeyRefForIdentifier:kADALPrivateKeyIdentifier context:context error:&adError];
     if (adError)
     {
         if (error)

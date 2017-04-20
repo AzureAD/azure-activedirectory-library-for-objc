@@ -51,7 +51,7 @@
     
     // Mac OS does not use PKeyAuth.
 #if TARGET_OS_IPHONE
-    [_requestHeaders setObject:pKeyAuthHeaderVersion forKey:pKeyAuthHeader];
+    [_requestHeaders setObject:kADALPKeyAuthHeaderVersion forKey:kADALPKeyAuthHeader];
 #endif
     
     _retryIfServerError = YES;
