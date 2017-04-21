@@ -148,6 +148,8 @@
          result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];//Verify the user (just in case)
          
          completionBlock(result);
+         
+         [webReq invalidate];
      }];
 }
 

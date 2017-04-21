@@ -54,6 +54,8 @@ static NSString* const s_kAuthorizationEndPointKey = @"authorization_endpoint";
         {
             completionBlock(response, nil);
         }
+        
+        [webRequest invalidate];
     }];
 }
 
