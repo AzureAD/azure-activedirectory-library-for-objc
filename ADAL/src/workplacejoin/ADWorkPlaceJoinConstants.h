@@ -23,30 +23,31 @@
 
 #import <Foundation/Foundation.h>
 
-static const UInt8 certificateIdentifier[]          = "WorkPlaceJoin-Access\0";
-static NSString* _defaultSharedGroup                = @"com.microsoft.workplacejoin";
-static NSString* privateKeyIdentifier               = @"com.microsoft.workplacejoin.privatekey\0";
-static NSString* publicKeyIdentifier                = @"com.microsoft.workplacejoin.publickey\0";
-static NSString* upnIdentifier                      = @"com.microsoft.workplacejoin.registeredUserPrincipalName";
-static NSString* applicationIdentifierPrefix        = @"applicationIdentifierPrefix";
-static NSString* _oauthRedirectUri                  = @"ms-app://windows.immersivecontrolpanel";
-static NSString* protectionSpaceDistinguishedName   = @"MS-Organization-Access";
+#pragma once
+
+extern NSString* const kADALDefaultSharedGroup;
+extern NSString* const kADALPrivateKeyIdentifier;
+extern NSString* const kADALPublicKeyIdentifier;
+extern NSString* const kADALUpnIdentifier;
+extern NSString* const kADALApplicationIdentifierPrefix;
+extern NSString* const kADALOauthRedirectUri;
+extern NSString* const kADALProtectionSpaceDistinguishedName;
 
 #pragma mark Error strings
-static NSString* errorDomain                        = @"com.microsoft.workplacejoin.errordomain";
-static NSString* alreadyWorkplaceJoined             = @"This device is already workplace joined";
-static NSString* invalidUPN                         = @"Invalid UPN";
-static NSString* unabletoWriteToSharedKeychain      = @"Unable to write to shared access group: %@";
-static NSString* unabletoReadFromSharedKeychain     = @"Unable to read from shared access group: %@ with error code: %@";
-static NSString* duplicateCertificateEntry          = @"Duplicate workplace certificate entry";
-static NSString* certificateInstallFailure          = @"Install workplace certificate failure";
-static NSString* certificateDeleteFailure           = @"Delete workplace certificate failure";
-static NSString* upnMismatchOnJoin                  = @"Original upn: %@ does not match the one we recieved from DRS: %@";
-static NSString* wwwAuthenticateHeader = @"WWW-Authenticate";
-static NSString* pKeyAuthUrn = @"urn:http-auth:PKeyAuth?";
-static NSString* pKeyAuthHeader = @"x-ms-PkeyAuth";
-static NSString* pKeyAuthHeaderVersion = @"1.0";
-static NSString* pKeyAuthName = @"PKeyAuth";
+extern NSString* const kADALErrorDomain;
+extern NSString* const kADALAlreadyWorkplaceJoined;
+extern NSString* const kADALInvalidUPN;
+extern NSString* const kADALUnabletoWriteToSharedKeychain;
+extern NSString* const kADALUnabletoReadFromSharedKeychain;
+extern NSString* const kADALDuplicateCertificateEntry;
+extern NSString* const kADALCertificateInstallFailure;
+extern NSString* const kADALCertificateDeleteFailure;
+extern NSString* const kADALUpnMismatchOnJoin;
+extern NSString* const kADALWwwAuthenticateHeader;
+extern NSString* const kADALPKeyAuthUrn;
+extern NSString* const kADALPKeyAuthHeader;
+extern NSString* const kADALPKeyAuthHeaderVersion;
+extern NSString* const kADALPKeyAuthName;
 
 typedef enum errorCodeTypes
 {
@@ -61,22 +62,22 @@ typedef enum errorCodeTypes
 //ADAL
 
 #pragma mark general
-static NSString* OID = @"1.2.840.113556.1.5.284.2";
-static NSInteger deviceIDLength = 38;
+extern NSString* const kADALOID;
+static NSInteger kADALDeviceIDLength = 38;
 
 #pragma Base64Decoding
 
 // Base64 quantum size (in bytes)
 // Note that a quantum is the smallest unit in base64-encoding/decoding.
-#define BASE64QUANTUM 3
+static NSInteger kADALBASE64QUANTUM = 3;
 
 // Each quantum takes 4 characters to represent.
-#define BASE64QUANTUMREP 4
+static NSInteger kADALBASE64QUANTUMREP = 4;
 
 //
 // Mapping from ASCII character to 6 bit pattern.
 //
-static unsigned char decodeBase64[256] = {
+static unsigned char kADALDecodeBase64[256] = {
     64, 64, 64, 64, 64, 64, 64, 64,  // 0x00
     64, 64, 64, 64, 64, 64, 64, 64,
     64, 64, 64, 64, 64, 64, 64, 64,  // 0x10

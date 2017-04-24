@@ -232,8 +232,8 @@
         case 401:
         {
 
-            NSString* wwwAuthValue = [webResponse.headers valueForKey:wwwAuthenticateHeader];
-            if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:pKeyAuthName])
+            NSString* wwwAuthValue = [webResponse.headers valueForKey:kADALWwwAuthenticateHeader];
+            if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:kADALPKeyAuthName])
             {
                 [self handlePKeyAuthChallenge:wwwAuthValue
                                    completion:completionBlock];
@@ -316,7 +316,7 @@
                      completion:(ADWebResponseCallback)completionBlock
 {
     //pkeyauth word length=8 + 1 whitespace
-    wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[pKeyAuthName length] + 1];
+    wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[kADALPKeyAuthName length] + 1];
     
     NSDictionary* authHeaderParams = [ADWebAuthResponse parseAuthHeader:wwwAuthHeaderValue];
     

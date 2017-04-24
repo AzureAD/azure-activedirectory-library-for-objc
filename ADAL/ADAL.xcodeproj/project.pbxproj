@@ -333,7 +333,8 @@
 		D6F999801D235ACF004E682C /* ADAcquireTokenPkeyAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F9997F1D235ACF004E682C /* ADAcquireTokenPkeyAuthTests.m */; };
 		E04F07751E64A050004BE649 /* ADIpAddressHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = E04F07731E649ED3004BE649 /* ADIpAddressHelper.m */; };
 		E04F07761E64A051004BE649 /* ADIpAddressHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = E04F07731E649ED3004BE649 /* ADIpAddressHelper.m */; };
-		E067ACDE1E6F33DD00664F1B /* NSStringHelperMethodsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E067ACDD1E6F33DD00664F1B /* NSStringHelperMethodsTests.m */; };
+		E0A4E9701EA8080E008472FF /* ADWorkPlaceJoinConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = E0A4E96E1EA807FD008472FF /* ADWorkPlaceJoinConstants.m */; };
+		E0A4E9711EA80810008472FF /* ADWorkPlaceJoinConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = E0A4E96E1EA807FD008472FF /* ADWorkPlaceJoinConstants.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -670,7 +671,7 @@
 		D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADUserIdentifier.m; sourceTree = "<group>"; };
 		E04F07721E649ED3004BE649 /* ADIpAddressHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADIpAddressHelper.h; sourceTree = "<group>"; };
 		E04F07731E649ED3004BE649 /* ADIpAddressHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADIpAddressHelper.m; sourceTree = "<group>"; };
-		E067ACDD1E6F33DD00664F1B /* NSStringHelperMethodsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringHelperMethodsTests.m; sourceTree = "<group>"; };
+		E0A4E96E1EA807FD008472FF /* ADWorkPlaceJoinConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWorkPlaceJoinConstants.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -966,6 +967,7 @@
 				9453C3481C5800E1006B9E79 /* ADPkeyAuthHelper.h */,
 				9453C3491C5800E1006B9E79 /* ADPkeyAuthHelper.m */,
 				D664F1481D25FC4C0017B799 /* ADWorkPlaceJoinConstants.h */,
+				E0A4E96E1EA807FD008472FF /* ADWorkPlaceJoinConstants.m */,
 				D664F1491D25FC4C0017B799 /* ADWorkPlaceJoinUtil.h */,
 				9453C3471C5800C6006B9E79 /* ios */,
 				94E0FD901C597A4700CD707B /* mac */,
@@ -1813,6 +1815,7 @@
 				9453C4111C586456006B9E79 /* ADAuthenticationSettings.m in Sources */,
 				9453C4651C58707B006B9E79 /* ADCredentialCollectionController.m in Sources */,
 				9453C4201C586462006B9E79 /* ADTokenCache.m in Sources */,
+				E0A4E9711EA80810008472FF /* ADWorkPlaceJoinConstants.m in Sources */,
 				2949ABC01E395FC400F56C57 /* ADTelemetryCollectionRules.m in Sources */,
 				9453C42B1C58646D006B9E79 /* ADAuthenticationRequest+AcquireAssertion.m in Sources */,
 				38DD074E1DE4A2060028BC7C /* ADRegistrationInformation.m in Sources */,
@@ -1975,6 +1978,7 @@
 				D664F1AA1D302B9C0017B799 /* ADAuthenticationParameters+Internal.m in Sources */,
 				D664F1AB1D302B9C0017B799 /* ADBrokerNotificationManager.m in Sources */,
 				D664F1AC1D302B9C0017B799 /* ADAuthenticationResult.m in Sources */,
+				E0A4E9701EA8080E008472FF /* ADWorkPlaceJoinConstants.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
