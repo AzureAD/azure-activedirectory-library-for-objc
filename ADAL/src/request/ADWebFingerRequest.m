@@ -51,6 +51,8 @@
         {
             completionBlock(response, nil);
         }
+        
+        [webRequest invalidate];
 
     }];
 }

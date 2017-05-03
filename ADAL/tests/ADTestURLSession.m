@@ -575,6 +575,11 @@ static NSMutableArray* s_responses = nil;
     return NO;
 }
 
+- (void)finishTasksAndInvalidate
+{
+    self.delegate = nil;
+    self.delegateQueue = nil;
+}
 
 
 

@@ -54,7 +54,6 @@
 @synthesize correlationId = _correlationId;
 @synthesize telemetryRequestId = _telemetryRequestId;
 @synthesize session = _session;
-@synthesize configuration = _configuration;
 
 - (NSData *)body
 {
@@ -98,8 +97,8 @@
     
     _telemetryRequestId = context.telemetryRequestId;
     
-    _configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    _session = [NSURLSession sessionWithConfiguration:_configuration delegate:self delegateQueue:nil];
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    _session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:nil];
     
     return self;
 }
@@ -169,6 +168,11 @@
     [_task resume];
 }
 
+- (void)invalidate
+{
+    [_session finishTasksAndInvalidate];
+    _completionHandler = nil;
+}
 
 #pragma mark - NSURLSession delegates
 - (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler

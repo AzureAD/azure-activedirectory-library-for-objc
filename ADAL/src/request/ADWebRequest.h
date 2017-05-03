@@ -32,7 +32,6 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
 {
     NSURLSessionDataTask * _task;
     
-    NSURLSessionConfiguration *_configuration;
     NSURLSession *_session;
     
     NSURL * _requestURL;
@@ -60,7 +59,6 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
 @property (readonly) NSUUID *correlationId;
 @property (readonly) NSString *telemetryRequestId;
 
-@property (atomic, copy,   readonly) NSURLSessionConfiguration* configuration;
 @property (atomic, strong, readonly) NSURLSession *session;
 
 - (id)initWithURL:(NSURL *)url
@@ -77,6 +75,13 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
     within the completionHandler block on -send:
  */
 - (void)resend;
+
+/*!
+    Invalidates session object and nils the completionHandler.
+    Caller must invoke this method once it's done with the session.
+    Do not use send or resend after calling invalidate.
+ */
+- (void)invalidate;
 
 @end
 

@@ -105,6 +105,7 @@
             parameters = [self parametersFromResponseHeaders:response.headers error:&adError];
         }
         completion(parameters, adError);
+        [request invalidate];
     }];
 }
 

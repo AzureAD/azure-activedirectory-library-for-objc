@@ -60,6 +60,8 @@
                                                          fromRefresh:NO
                                                 requestCorrelationId:[_requestParams correlationId]];
          completionBlock(result);
+         
+         [req invalidate];
      }];
 }
 
@@ -277,6 +279,7 @@
              }
              
              requestCompletion(error, endURL);
+             [req invalidate];
          }];
     }
 }
