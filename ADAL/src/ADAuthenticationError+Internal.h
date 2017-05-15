@@ -111,5 +111,10 @@
                                        code:(NSInteger)code
                               correlationId:(NSUUID *)correlationId;
 
+/*
+    Returns string representation of ADErrorCode or error code number as string, if mapping for that error is missing
+ */
++ (NSString*)stringForADErrorCode:(ADErrorCode)code;
+
 @end
 

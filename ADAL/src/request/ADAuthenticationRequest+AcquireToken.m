@@ -92,7 +92,7 @@
         }
         [event setResultStatus:result.status];
         [event setIsExtendedLifeTimeToken:[result extendedLifeTimeToken]? AD_TELEMETRY_VALUE_YES:AD_TELEMETRY_VALUE_NO];
-        [event setErrorCode:[NSString stringWithFormat:@"%ld",(long)[result.error code]]];
+        [event setErrorCode:[result.error code]];
         [event setErrorDomain:[result.error domain]];
         [event setProtocolCode:[[result error] protocolCode]];
         

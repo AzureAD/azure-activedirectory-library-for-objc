@@ -26,6 +26,7 @@
 #import "ADUserInformation.h"
 #import "ADTelemetryEventStrings.h"
 #import "ADHelpers.h"
+#import "ADAL_Internal.h"
 
 @implementation ADTelemetryAPIEvent
 
@@ -85,9 +86,10 @@
     [self setProperty:AD_TELEMETRY_KEY_IS_EXTENED_LIFE_TIME_TOKEN value:isExtendedLifeToken];
 }
 
-- (void)setErrorCode:(NSString *)errorCode
+- (void)setErrorCode:(NSUInteger)errorCode
 {
-    [self setProperty:AD_TELEMETRY_KEY_API_ERROR_CODE value:errorCode];
+    NSString *errorString = [ADAuthenticationError stringForADErrorCode:(ADErrorCode)errorCode];
+    [self setProperty:AD_TELEMETRY_KEY_API_ERROR_CODE value:errorString];
 }
 
 - (void)setProtocolCode:(NSString *)protocolCode

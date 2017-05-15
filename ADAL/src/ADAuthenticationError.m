@@ -283,14 +283,14 @@ NSString* const ADNonHttpsRedirectError = @"The server has redirected to a non-h
         [domain isEqualToString:ADBrokerResponseErrorDomain] ||
         [domain isEqualToString:ADOAuthServerErrorDomain])
     {
-        return [self stringForADErrorCode:(ADErrorCode)code];
+        return [self.class stringForADErrorCode:(ADErrorCode)code];
     }
     return [NSString stringWithFormat:@"%ld", (long)code];
 }
 
 #define AD_ERROR_CODE_ENUM_CASE(_enum) case _enum: return @#_enum;
 
-- (NSString*)stringForADErrorCode:(ADErrorCode)code
++ (NSString*)stringForADErrorCode:(ADErrorCode)code
 {
     switch (code)
     {
