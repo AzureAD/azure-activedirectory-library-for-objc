@@ -68,7 +68,7 @@
 
 - (void)setHttpErrorCode:(NSString*)code
 {
-    [self setProperty:AD_TELEMETRY_KEY_OAUTH_ERROR_CODE value:code];
+    [self setProperty:AD_TELEMETRY_KEY_HTTP_RESPONSE_CODE value:code];
 }
 
 - (void)setOAuthErrorCode:(ADWebResponse *)response
