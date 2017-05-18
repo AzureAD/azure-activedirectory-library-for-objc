@@ -33,7 +33,7 @@
 - (void)setUserId:(NSString *)userId;
 - (void)setClientId:(NSString *)clientId;
 - (void)setIsExtendedLifeTimeToken:(NSString *)isExtendedLifeToken;
-- (void)setErrorCode:(NSString *)errorCode;
+- (void)setErrorCode:(NSUInteger)errorCode;
 - (void)setProtocolCode:(NSString *)protocolCode;
 - (void)setErrorDescription:(NSString *)errorDescription;
 - (void)setErrorDomain:(NSString *)errorDomain;
