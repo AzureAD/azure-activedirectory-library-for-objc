@@ -158,6 +158,7 @@ static NSDictionary *s_eventPropertiesDictionary;
                                               AD_TELEMETRY_KEY_CORRELATION_ID,
                                               
                                               AD_TELEMETRY_KEY_OAUTH_ERROR_CODE,
+                                              AD_TELEMETRY_KEY_HTTP_RESPONSE_CODE,
                                               AD_TELEMETRY_KEY_HTTP_EVENT_COUNT
                                               ],
                                       NSStringFromClass([ADTelemetryCacheEvent class]): @[
