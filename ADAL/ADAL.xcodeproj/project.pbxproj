@@ -36,7 +36,6 @@
 		3889BE201E5C929600743037 /* ADClientCertAuthHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 3889BE1E1E5C929600743037 /* ADClientCertAuthHandler.h */; };
 		3889BE211E5C929600743037 /* ADClientCertAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 3889BE1F1E5C929600743037 /* ADClientCertAuthHandler.m */; };
 		3889BE221E5C929600743037 /* ADClientCertAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 3889BE1F1E5C929600743037 /* ADClientCertAuthHandler.m */; };
-		38DD074E1DE4A2060028BC7C /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3561C580143006B9E79 /* ADRegistrationInformation.m */; };
 		600401A51D3421480020EAAB /* ADTelemetry.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401A31D3421480020EAAB /* ADTelemetry.m */; };
 		600401A71D3426250020EAAB /* ADTelemetry+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 600401A61D3426250020EAAB /* ADTelemetry+Internal.h */; };
 		600401A91D3428770020EAAB /* ADTelemetryDefaultEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 600401A81D3428770020EAAB /* ADTelemetryDefaultEvent.h */; };
@@ -242,6 +241,8 @@
 		96C75D281E303DC40038D1EC /* ADTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D271E303DC40038D1EC /* ADTestURLSession.m */; };
 		96C75D291E303DC40038D1EC /* ADTestURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C75D271E303DC40038D1EC /* ADTestURLSession.m */; };
 		97A522501A1A8999001D77CE /* ADClientMetricsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */; };
+		B29CD3981EC1196C001791CC /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */; };
+		B29CD3991EC1196C001791CC /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */; };
 		D60D8FE81D25C8D400F3E6C9 /* ADHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D60D8FE71D25C8D400F3E6C9 /* ADHelpersTests.m */; };
 		D60D8FE91D25C8D400F3E6C9 /* ADHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D60D8FE71D25C8D400F3E6C9 /* ADHelpersTests.m */; };
 		D64C1F4C1DB9B05900850036 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D64C1F4B1DB9B05900850036 /* main.m */; };
@@ -272,7 +273,6 @@
 		D664F18D1D302B9C0017B799 /* ADALFrameworkUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C35F1C580157006B9E79 /* ADALFrameworkUtils.m */; };
 		D664F18E1D302B9C0017B799 /* ADAuthenticationSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB83464180764B6007F9F0D /* ADAuthenticationSettings.m */; };
 		D664F18F1D302B9C0017B799 /* NSDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3651C580157006B9E79 /* NSDictionary+ADExtensions.m */; };
-		D664F1901D302B9C0017B799 /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3561C580143006B9E79 /* ADRegistrationInformation.m */; };
 		D664F1911D302B9C0017B799 /* ADHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 9453C3611C580157006B9E79 /* ADHelpers.m */; };
 		D664F1921D302B9C0017B799 /* ADAuthenticationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB8346118074CFA007F9F0D /* ADAuthenticationParameters.m */; };
 		D664F1931D302B9C0017B799 /* ADWebAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 946818A41C59B7EE00CA0378 /* ADWebAuthController.m */; };
@@ -527,7 +527,6 @@
 		9453C33F1C57FC2A006B9E79 /* ADTokenCacheKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTokenCacheKey.m; sourceTree = "<group>"; };
 		9453C3481C5800E1006B9E79 /* ADPkeyAuthHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADPkeyAuthHelper.h; sourceTree = "<group>"; };
 		9453C3491C5800E1006B9E79 /* ADPkeyAuthHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADPkeyAuthHelper.m; sourceTree = "<group>"; };
-		9453C3561C580143006B9E79 /* ADRegistrationInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADRegistrationInformation.m; path = ios/ADRegistrationInformation.m; sourceTree = "<group>"; };
 		9453C35A1C580143006B9E79 /* ADWorkPlaceJoinUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWorkPlaceJoinUtil.m; sourceTree = "<group>"; };
 		9453C35E1C580157006B9E79 /* ADALFrameworkUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADALFrameworkUtils.h; sourceTree = "<group>"; };
 		9453C35F1C580157006B9E79 /* ADALFrameworkUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADALFrameworkUtils.m; sourceTree = "<group>"; };
@@ -641,6 +640,7 @@
 		97A5224F1A1A8999001D77CE /* ADClientMetricsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClientMetricsTests.m; sourceTree = "<group>"; };
 		97A522511A1A89C4001D77CE /* ADClientMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADClientMetrics.h; sourceTree = "<group>"; };
 		97EEE7B41A4C0D6000D003F8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADRegistrationInformation.m; sourceTree = "<group>"; };
 		D60D8FE71D25C8D400F3E6C9 /* ADHelpersTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADHelpersTests.m; sourceTree = "<group>"; };
 		D64C1F481DB9B05900850036 /* ADALAutomation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ADALAutomation.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D64C1F4B1DB9B05900850036 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -963,7 +963,7 @@
 				9453C46B1C5872AD006B9E79 /* ADJwtHelper.h */,
 				9453C46C1C5872AD006B9E79 /* ADJwtHelper.m */,
 				9453C3011C57149A006B9E79 /* ADRegistrationInformation.h */,
-				9453C3561C580143006B9E79 /* ADRegistrationInformation.m */,
+				B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */,
 				9453C3481C5800E1006B9E79 /* ADPkeyAuthHelper.h */,
 				9453C3491C5800E1006B9E79 /* ADPkeyAuthHelper.m */,
 				D664F1481D25FC4C0017B799 /* ADWorkPlaceJoinConstants.h */,
@@ -1818,10 +1818,10 @@
 				E0A4E9711EA80810008472FF /* ADWorkPlaceJoinConstants.m in Sources */,
 				2949ABC01E395FC400F56C57 /* ADTelemetryCollectionRules.m in Sources */,
 				9453C42B1C58646D006B9E79 /* ADAuthenticationRequest+AcquireAssertion.m in Sources */,
-				38DD074E1DE4A2060028BC7C /* ADRegistrationInformation.m in Sources */,
 				9453C4141C586456006B9E79 /* ADLogger.m in Sources */,
 				9453C41B1C586456006B9E79 /* ADClientMetrics.m in Sources */,
 				D68040301D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m in Sources */,
+				B29CD3991EC1196C001791CC /* ADRegistrationInformation.m in Sources */,
 				9671AF041E03796E00CAADB8 /* ADAuthorityValidationRequest.m in Sources */,
 				6010EDFB1D47B2F300B62072 /* ADTelemetryBrokerEvent.m in Sources */,
 				9453C43D1C58647E006B9E79 /* ADALFrameworkUtils.m in Sources */,
@@ -1941,8 +1941,8 @@
 				D664F18E1D302B9C0017B799 /* ADAuthenticationSettings.m in Sources */,
 				D664F18F1D302B9C0017B799 /* NSDictionary+ADExtensions.m in Sources */,
 				2949ABC11E39605F00F56C57 /* ADTelemetryCollectionRules.m in Sources */,
-				D664F1901D302B9C0017B799 /* ADRegistrationInformation.m in Sources */,
 				D664F1911D302B9C0017B799 /* ADHelpers.m in Sources */,
+				B29CD3981EC1196C001791CC /* ADRegistrationInformation.m in Sources */,
 				D664F1921D302B9C0017B799 /* ADAuthenticationParameters.m in Sources */,
 				D664F1931D302B9C0017B799 /* ADWebAuthController.m in Sources */,
 				D664F1951D302B9C0017B799 /* ADBrokerKeyHelper.m in Sources */,
