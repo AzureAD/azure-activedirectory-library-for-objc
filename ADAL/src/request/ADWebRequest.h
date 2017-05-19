@@ -54,6 +54,7 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
 }
 
 @property (strong, readonly, nonatomic) NSURL               *URL;
+@property (copy, nonatomic)             NSMutableDictionary *headers;
 @property (strong)                      NSData              *body;
 @property (nonatomic)                   NSUInteger           timeout;
 @property BOOL isGetRequest;

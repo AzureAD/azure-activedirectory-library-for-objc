@@ -49,6 +49,7 @@
 #pragma mark - Properties
 
 @synthesize URL      = _requestURL;
+@synthesize headers  = _requestHeaders;
 @synthesize timeout  = _timeout;
 @synthesize isGetRequest = _isGetRequest;
 @synthesize correlationId = _correlationId;
