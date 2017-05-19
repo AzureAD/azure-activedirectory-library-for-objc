@@ -49,7 +49,6 @@
 #pragma mark - Properties
 
 @synthesize URL      = _requestURL;
-@synthesize headers  = _requestHeaders;
 @synthesize timeout  = _timeout;
 @synthesize isGetRequest = _isGetRequest;
 @synthesize correlationId = _correlationId;
@@ -265,6 +264,11 @@
     [event setHttpRequestQueryParams:_requestURL.query];
     
     [[ADTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
+}
+
+- (void)addToHeadersFromDictionary:(NSDictionary *)headers
+{
+    [_requestHeaders addEntriesFromDictionary:headers];
 }
 
 - (void) setAuthorizationHeader:(NSString *)header

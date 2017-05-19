@@ -54,7 +54,6 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
 }
 
 @property (strong, readonly, nonatomic) NSURL               *URL;
-@property (copy, nonatomic)             NSMutableDictionary *headers;
 @property (strong)                      NSData              *body;
 @property (nonatomic)                   NSUInteger           timeout;
 @property BOOL isGetRequest;
@@ -69,7 +68,7 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
 
 - (void)send:( void (^)( NSError *, ADWebResponse *) )completionHandler;
 
-
+- (void)addToHeadersFromDictionary:(NSDictionary *)headers;
 - (void)setAuthorizationHeader:(NSString *)header;
 
 /*!
