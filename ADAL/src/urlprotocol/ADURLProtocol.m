@@ -176,6 +176,8 @@ static id<ADRequestContext> _reqContext(NSURLRequest* request)
         [ADURLProtocol addContext:_context toRequest:request];
     }
     
+    [ADCustomHeaderHandler applyCustomHeadersTo:request];
+    
     [NSURLProtocol setProperty:@YES forKey:s_kADURLProtocolPropertyKey inRequest:request];
     
     _dataTask = [[[self class] sharedDemux] dataTaskWithRequest:request delegate:self];
