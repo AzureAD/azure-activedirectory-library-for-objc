@@ -68,7 +68,7 @@ typedef void (^ADWebResponseCallback)(NSMutableDictionary *);
 
 - (void)send:( void (^)( NSError *, ADWebResponse *) )completionHandler;
 
-
+- (void)addToHeadersFromDictionary:(NSDictionary *)headers;
 - (void)setAuthorizationHeader:(NSString *)header;
 
 /*!

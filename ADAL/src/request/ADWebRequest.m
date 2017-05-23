@@ -266,6 +266,11 @@
     [[ADTelemetry sharedInstance] stopEvent:_telemetryRequestId event:event];
 }
 
+- (void)addToHeadersFromDictionary:(NSDictionary *)headers
+{
+    [_requestHeaders addEntriesFromDictionary:headers];
+}
+
 - (void) setAuthorizationHeader:(NSString *)header
 {
     [_requestHeaders setObject:header forKey:@"Authorization"];
