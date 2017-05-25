@@ -114,6 +114,9 @@
     
     [self stopTelemetryEvent:error response:response];
     _completionHandler(error, response);
+
+    SAFE_ARC_RELEASE(_completionHandler);
+    _completionHandler = nil;
 }
 
 - (void)send:(void (^)(NSError *, ADWebResponse *))completionHandler
