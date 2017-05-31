@@ -74,7 +74,7 @@
 
 - (ADTestURLResponse *)defaultTokenEndpointPkeyAuthChallenge
 {
-    return [self adDefaultRefreshReponseCode:200
+    return [self adDefaultRefreshReponseCode:401
                              responseHeaders:@{ @"WWW-Authenticate" : @"PKeyAuth nonce=\"AAABAAEAiL9Kn2Z27UubvWFPbm0gLdtsn-PXocm89MSCN-jy-PyMb1txkhQMWoFNUDgLkmMs1OnKIexU4jwre7oqMSKjpKk3wjvHvJlE6ZFBdeEKVQtd_IXHzbR9wT-obZUI5kM779akwJHoPQ4aBnGlrbqUTCAA\", CertAuthorities=\"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net\", Version=\"1.0\", Context=\"pkeyauth_context\"" }
                                 responseJson:nil];
 }

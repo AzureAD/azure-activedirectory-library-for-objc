@@ -1457,7 +1457,7 @@ const int sAsyncContextTimeout = 10;
     [cache addOrUpdateItem:atItem correlationId:nil error:&error];
     XCTAssertNil(error);
     
-    // Test resiliency when response code 503/504 happens
+    // Test resiliency when response code 500 ... 599 happens
     ADTestURLResponse* response = [ADTestURLResponse requestURLString:[NSString stringWithFormat:@"%@/oauth2/token?x-client-Ver=" ADAL_VERSION_STRING, TEST_AUTHORITY]
                                                     responseURLString:@"https://contoso.com"
                                                          responseCode:504
