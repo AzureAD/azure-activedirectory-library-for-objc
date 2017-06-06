@@ -1423,7 +1423,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8B0965CD17F25770002BDFB8 /* Build configuration list for PBXNativeTarget "ADALiOS" */;
 			buildPhases = (
-				6079EB5B1D79558000E95AB1 /* ShellScript */,
 				8B0965A817F25770002BDFB8 /* Copy Files */,
 				8B0965A617F25770002BDFB8 /* Sources */,
 				8B0965A717F25770002BDFB8 /* Frameworks */,
@@ -1535,7 +1534,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D664F1B01D302B9C0017B799 /* Build configuration list for PBXNativeTarget "ADAL-core" */;
 			buildPhases = (
-				6079EB5C1D79558700E95AB1 /* ShellScript */,
 				D664F1791D302B9C0017B799 /* Sources */,
 				D664F1AD1D302B9C0017B799 /* Frameworks */,
 			);
@@ -1679,38 +1677,15 @@
 			files = (
 			);
 			inputPaths = (
+				"$(PROJECT_DIR)/src/ADAL_Internal.h",
 			);
 			outputPaths = (
+				"$(SRCROOT)/$(INFOPLIST_FILE)",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"";
-		};
-		6079EB5B1D79558000E95AB1 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"";
-		};
-		6079EB5C1D79558700E95AB1 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"";
+			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${SRCROOT}/${INFOPLIST_FILE}\"";
+			showEnvVarsInLog = 0;
 		};
 		6079EB5D1D79559500E95AB1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1718,12 +1693,15 @@
 			files = (
 			);
 			inputPaths = (
+				"$(PROJECT_DIR)/src/ADAL_Internal.h",
 			);
 			outputPaths = (
+				"$(SRCROOT)/$(INFOPLIST_FILE)",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"";
+			shellScript = "/usr/bin/python \"${PROJECT_DIR}/tools/update_build_version.py\" \"${PROJECT_DIR}/src/ADAL_Internal.h\" \"${SRCROOT}/${INFOPLIST_FILE}\"";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
