@@ -252,7 +252,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
                                                  code:NSUserCancelledError
                                              userInfo:nil]];
     
-    completionHandler(mutableRequest);
+    completionHandler(nil);
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
