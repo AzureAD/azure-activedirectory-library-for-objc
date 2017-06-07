@@ -217,72 +217,64 @@
     [self checkCorrelationId:webResponse];
     [_responseDictionary setObject:webResponse.URL forKey:@"url"];
     
-    switch (webResponse.statusCode)
+    NSInteger statusCode = webResponse.statusCode;
+    
+    if (statusCode == 200)
     {
-        case 200:
-            if(_request.returnRawResponse)
-            {
-                NSString* rawResponse = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
-                [_responseDictionary setObject:rawResponse
-                                        forKey:@"raw_response"];
-                completionBlock(_responseDictionary);
-                return;
-            }
-        case 400:
-        case 401:
+        if (_request.returnRawResponse)
         {
-
-            NSString* wwwAuthValue = [webResponse.headers valueForKey:kADALWwwAuthenticateHeader];
-            if(![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:kADALPKeyAuthName])
-            {
-                [self handlePKeyAuthChallenge:wwwAuthValue
-                                   completion:completionBlock];
-                return;
-            }
+            NSString *rawResponse = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
+            [_responseDictionary setObject:rawResponse forKey:@"raw_response"];
             
-            if(_request.acceptOnlyOKResponse && webResponse.statusCode != 200)
-            {
-                _request.retryIfServerError = NO;
-            }
-            else
-            {
-                [self handleJSONResponse:webResponse completionBlock:completionBlock];
-                break;
-            }
+            completionBlock(_responseDictionary);
+            return;
         }
-        case 500:
-        case 503:
-        case 504:
+        else
         {
-            //retry if it is a server error
-            //500, 503 and 504 are the ones we retry
-            if (_request.retryIfServerError)
-            {
-                _request.retryIfServerError = NO;
-                //retry once after half second
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    [_request resend];
-                });
-                return;
-            }
-            //no "break;" here
-            //will go to default for handling if "retryIfServerError" is NO
-        }
-        default:
-        {
-            // Request failure
-            NSString* body = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
-            NSString* errorData = [NSString stringWithFormat:@"Full response: %@", body];
-            AD_LOG_WARN(([NSString stringWithFormat:@"HTTP Error %ld", (long)webResponse.statusCode]), _request.correlationId, errorData);
-            
-            ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
-                                                                             body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
-                                                                    correlationId:_request.correlationId];
-            
-            //Now add the information to the dictionary, so that the parser can extract it:
-            [self handleADError:adError completionBlock:completionBlock];
+            [self handleJSONResponse:webResponse completionBlock:completionBlock];
+            return;
         }
     }
+    
+    if (statusCode == 400 || statusCode == 401)
+    {
+        NSString *wwwAuthValue = [webResponse.headers valueForKey:kADALWwwAuthenticateHeader];
+        
+        if (![NSString adIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:kADALPKeyAuthName])
+        {
+            [self handlePKeyAuthChallenge:wwwAuthValue
+                               completion:completionBlock];
+            return;
+        }
+        
+        if (!_request.acceptOnlyOKResponse)
+        {
+            [self handleJSONResponse:webResponse completionBlock:completionBlock];
+            return;
+        }
+    }
+    
+    if (_request.retryIfServerError && statusCode >= 500 && statusCode <= 599)
+    {
+        _request.retryIfServerError = NO;
+        //retry once after half second
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [_request resend];
+        });
+        return;
+    }
+    
+    // Request failure
+    NSString* body = [[NSString alloc] initWithData:webResponse.body encoding:NSUTF8StringEncoding];
+    NSString* errorData = [NSString stringWithFormat:@"Full response: %@", body];
+    AD_LOG_WARN(([NSString stringWithFormat:@"HTTP Error %ld", (long)webResponse.statusCode]), _request.correlationId, errorData);
+    
+    ADAuthenticationError* adError = [ADAuthenticationError HTTPErrorCode:webResponse.statusCode
+                                                                     body:[NSString stringWithFormat:@"(%lu bytes)", (unsigned long)webResponse.body.length]
+                                                            correlationId:_request.correlationId];
+    
+    //Now add the information to the dictionary, so that the parser can extract it:
+    [self handleADError:adError completionBlock:completionBlock];
 }
 
 - (void)handleJSONResponse:(ADWebResponse*)webResponse
