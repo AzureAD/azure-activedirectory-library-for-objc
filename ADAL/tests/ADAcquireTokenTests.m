@@ -418,7 +418,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.cache_event_count"] isEqualToString:@"1"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"AD_ERROR_CACHE_MULTIPLE_USERS"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
-    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.is_successful"] isEqualToString:@"no"]);
     
     //unregister the dispatcher
     [[ADTelemetry sharedInstance] addDispatcher:[ADTelemetryTestDispatcher new] aggregationRequired:YES];
@@ -680,7 +680,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
     XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.oauth_error_code"] isEqualToString:@"invalid_grant"]);
-    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
+    XCTAssertTrue([[firstEvent objectForKey:@"Microsoft.ADAL.is_successful"] isEqualToString:@"no"]);
     
     // the following properties are expected for 2nd acquire token call
     NSDictionary* secondEvent = [receivedEvents objectAtIndex:1];
@@ -708,7 +708,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.token_frt_status"] isEqualToString:@"not_found"]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"AD_ERROR_SERVER_USER_INPUT_NEEDED"]);
     XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.error_domain"] isEqualToString:@"ADAuthenticationErrorDomain"]);
-    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"no"]);
+    XCTAssertTrue([[secondEvent objectForKey:@"Microsoft.ADAL.is_successful"] isEqualToString:@"no"]);
     
     //unregister the dispatcher
     [[ADTelemetry sharedInstance] addDispatcher:[ADTelemetryTestDispatcher new] aggregationRequired:YES];
@@ -1154,7 +1154,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.http_event_count"] isEqualToString:@"1"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.api_error_code"] isEqualToString:@"AD_ERROR_SUCCEEDED"]);
     XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.oauth_error_code"] isEqualToString:@""]);
-    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.is_successfull"] isEqualToString:@"yes"]);
+    XCTAssertTrue([[event objectForKey:@"Microsoft.ADAL.is_successful"] isEqualToString:@"yes"]);
     
     //unregister the dispatcher
     [[ADTelemetry sharedInstance] addDispatcher:[ADTelemetryTestDispatcher new] aggregationRequired:YES];
