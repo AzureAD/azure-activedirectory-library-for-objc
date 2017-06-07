@@ -227,13 +227,13 @@
             [_responseDictionary setObject:rawResponse forKey:@"raw_response"];
             
             completionBlock(_responseDictionary);
+            return;
         }
         else
         {
             [self handleJSONResponse:webResponse completionBlock:completionBlock];
+            return;
         }
-        
-        return;
     }
     
     if (statusCode == 400 || statusCode == 401)
