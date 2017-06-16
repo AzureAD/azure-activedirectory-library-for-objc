@@ -324,6 +324,18 @@ const int sAsyncContextTimeout = 10;
     TEST_WAIT;
     
     XCTAssertTrue([ADTestURLSession noResponsesLeft]);
+    
+    ADAuthenticationError *error = nil;
+    ADTokenCacheAccessor *cache = context.tokenCacheStore;
+    ADTokenCacheItem *item = [cache getATRTItemForUser:nil resource:TEST_RESOURCE clientId:TEST_CLIENT_ID context:nil error:&error];
+    XCTAssertNotNil(item);
+    XCTAssertNil(error);
+    XCTAssertNotNil(item.accessToken);
+    
+    ADTokenCacheItem *mrrtItem = [cache getMRRTItemForUser:nil clientId:TEST_CLIENT_ID context:nil error:&error];
+    XCTAssertNotNil(mrrtItem);
+    XCTAssertNil(error);
+    XCTAssertNotNil(mrrtItem.refreshToken);
 }
 
 
