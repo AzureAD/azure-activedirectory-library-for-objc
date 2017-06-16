@@ -61,14 +61,6 @@ __weak static NSAlert *_presentedPrompt = nil;
         [view.passwordLabel setStringValue:NSLocalizedString(@"Password", nil)];
         [alert setAccessoryView:view.customView];
         
-        [view.usernameField setNextKeyView:view.passwordField];
-        [view.passwordField setNextKeyView:cancelButton];
-        [cancelButton setNextKeyView:loginButton];
-        [loginButton setNextKeyView:view.usernameField];
-        
-        // TODO: NSAlert some time after this overides the keyview loop so that
-        // it gets stuck between loginButton and cancel button.To fix this bug
-        // we'll have to ditch NSAlert entirely. (#851)
         [[alert window] setInitialFirstResponder:view.usernameField];
         
         [alert beginSheetModalForWindow:[NSApp keyWindow] completionHandler:^(NSModalResponse returnCode)
@@ -87,6 +79,11 @@ __weak static NSAlert *_presentedPrompt = nil;
          }];
         
         _presentedPrompt = alert;
+        
+        [view.usernameField setNextKeyView:view.passwordField];
+        [view.passwordField setNextKeyView:cancelButton];
+        [cancelButton setNextKeyView:loginButton];
+        [loginButton setNextKeyView:view.usernameField];
     });
 }
 
