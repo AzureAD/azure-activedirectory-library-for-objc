@@ -90,6 +90,19 @@
 + (ADTestURLResponse*)responseUnreachableWebFinger:(NSString *)passiveEndpoint
                                          authority:(NSString *)authority;
 
+
+- (void)setRequestURL:(NSURL *)requestURL;
+- (void)setRequestHeaders:(NSDictionary *)headers;
+- (void)setRequestBody:(NSData *)body;
+- (void)setRequestJSONBody:(NSDictionary *)jsonBody;
+
+- (void)setResponseURL:(NSString *)urlString
+                  code:(NSInteger)code
+          headerFields:(NSDictionary *)headerFields;
+- (void)setResponseJSON:(id)jsonResponse;
+- (void)setResponseData:(NSData *)response;
+
+
 @end
 
 
