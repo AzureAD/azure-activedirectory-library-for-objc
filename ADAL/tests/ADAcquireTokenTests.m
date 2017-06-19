@@ -780,7 +780,7 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqualObjects(mrrtItem.refreshToken, @"new refresh token");
 }
 
-- (void)testSilentExpiredATRefreshMRRTNetworkWithExpiresInUsingUnquotedNumber
+- (void)testAcquireTokenSilent_whenRedeemingMRRT_withNSNumbersInParsedJSON
 {
     ADAuthenticationError* error = nil;
     ADAuthenticationContext* context = [self getTestAuthenticationContext];
