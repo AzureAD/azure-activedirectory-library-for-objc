@@ -28,6 +28,16 @@
 #import "ADWorkPlaceJoinUtil.h"
 #import "ADRegistrationInformation.h"
 #import "ADWorkPlaceJoinConstants.h"
+#import "ADWebAuthController+Internal.h"
+#import "ADAuthenticationViewController.h"
+
+@interface ADCertificateChooserHelper : NSObject 
+
++ (SecIdentityRef)showCertSelectionSheet:(NSArray *)identities
+                                    host:(NSString *)host
+                           correlationId:(NSUUID *)correlationId;
+
+@end
 
 
 @implementation ADClientCertAuthHandler
@@ -80,25 +90,6 @@
     return YES;
 }
 
-+ (SecIdentityRef)showCertSelectionDialog:(NSArray *)identities
-                                     host:(NSString *)host
-                            correlationId:(NSUUID *)correlationId
-{
-    SFChooseIdentityPanel *panel = [SFChooseIdentityPanel sharedChooseIdentityPanel];
-    
-    NSString *localizedTemplate = NSLocalizedString(@"Please select a certificate for %1", @"certificate dialog selection prompt \"%1\" will be replaced with the URL host");
-    NSString *message = [localizedTemplate stringByReplacingOccurrencesOfString:@"%1" withString:host];
-    
-    NSInteger result = [panel runModalForIdentities:identities message:message];
-    if (result == NSModalResponseCancel)
-    {
-        AD_LOG_INFO(@"User canceled cert selection dialog", correlationId, nil);
-        return NULL;
-    }
-    
-    return panel.identity;
-}
-
 + (SecIdentityRef)promptUserForIdentity:(NSArray *)issuers
                                    host:(NSString *)host
                           correlationId:(NSUUID *)correlationId
@@ -124,24 +115,7 @@
         return nil;
     }
     
-    if (![NSThread isMainThread])
-    {
-        __block dispatch_semaphore_t dsem = dispatch_semaphore_create(0);
-        __block SecIdentityRef certResult = NULL;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            certResult = [self showCertSelectionDialog:(__bridge NSArray *)result host:host correlationId:correlationId];
-            CFRetain(certResult);
-            dispatch_semaphore_signal(dsem);
-        });
-        
-        dispatch_semaphore_wait(dsem, DISPATCH_TIME_FOREVER);
-        CFAutorelease(certResult);
-        return certResult;
-    }
-    else
-    {
-        return [self showCertSelectionDialog:(__bridge NSArray *)result host:host correlationId:correlationId];
-    }
+    return [ADCertificateChooserHelper showCertSelectionSheet:(__bridge NSArray *)result host:host correlationId:correlationId];
 }
 
 
@@ -181,6 +155,7 @@
             return NO;
         }
         
+        // Adding a retain count to match the retain count from SecIdentityCopyPreferred
         CFRetain(identity);
         AD_LOG_INFO(@"Using user selected certificate", correlationId, nil);
     }
@@ -195,13 +170,72 @@
     }
     
     AD_LOG_INFO(@"Responding to cert auth challenge with certicate", correlationId, nil);
-    NSURLCredential *credential = [[NSURLCredential alloc] initWithIdentity:identity certificates:@[(__bridge id)cert] persistence:NSURLCredentialPersistenceForSession];
+    NSURLCredential *credential = [[NSURLCredential alloc] initWithIdentity:identity certificates:@[(__bridge id)cert] persistence:NSURLCredentialPersistenceNone];
     completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
     CFRelease(cert);
     CFRelease(identity);
     return YES;
 }
-    
 
+@end
+
+@implementation ADCertificateChooserHelper
+{
+    NSUUID *_correlationId;
+    SFChooseIdentityPanel *_panel;
+    dispatch_semaphore_t _sem;
+    NSInteger _returnCode;
+}
+
++ (SecIdentityRef)showCertSelectionSheet:(NSArray *)identities
+                                    host:(NSString *)host
+                           correlationId:(NSUUID *)correlationId
+{
+    NSString *localizedTemplate = NSLocalizedString(@"Please select a certificate for %1", @"certificate dialog selection prompt \"%1\" will be replaced with the URL host");
+    NSString *message = [localizedTemplate stringByReplacingOccurrencesOfString:@"%1" withString:host];
+    
+    ADCertificateChooserHelper *helper = [ADCertificateChooserHelper new];
+    helper->_correlationId = correlationId;
+    return [helper showCertSelectionSheet:identities message:message];
+}
+
+- (void)beginSheet:(NSArray *)identities
+           message:(NSString *)message
+{
+    [_panel beginSheetForWindow:[[[ADWebAuthController sharedInstance] viewController] webviewWindow]
+                  modalDelegate:self
+                 didEndSelector:@selector(sheetDidEnd:)
+                    contextInfo:NULL
+                     identities:identities
+                        message:message];
+}
+
+- (SecIdentityRef)showCertSelectionSheet:(NSArray *)identities
+                                 message:(NSString *)message
+{
+    _panel = [SFChooseIdentityPanel sharedChooseIdentityPanel];
+    _sem = dispatch_semaphore_create(0);
+    AD_LOG_INFO(@"Displaying Cert Selection Sheet", _correlationId, nil);
+    
+    // This code should always be called from a network thread.
+    assert(![NSThread isMainThread]);
+    
+    dispatch_async(dispatch_get_main_queue(), ^{ [self beginSheet:identities message:message]; });
+    dispatch_semaphore_wait(_sem, DISPATCH_TIME_FOREVER);
+    
+    if (_returnCode == NSModalResponseCancel)
+    {
+        AD_LOG_INFO(@"User canceled cert selection dialog", _correlationId, nil);
+        return NULL;
+    }
+    
+    return _panel.identity;
+}
+
+- (void)sheetDidEnd:(NSInteger)returnCode
+{
+    _returnCode = returnCode;
+    dispatch_semaphore_signal(_sem);
+}
 
 @end

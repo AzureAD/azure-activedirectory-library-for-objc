@@ -177,6 +177,11 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
     [self.window.contentView setNeedsDisplay:YES];
 }
 
+- (NSWindow *)webviewWindow
+{
+    return _webView.window;
+}
+
 - (void)webView:(WebView *)webView
 decidePolicyForNavigationAction:(NSDictionary *)actionInformation
         request:(NSURLRequest *)request
