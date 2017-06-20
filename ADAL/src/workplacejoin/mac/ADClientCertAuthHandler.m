@@ -202,9 +202,10 @@
 - (void)beginSheet:(NSArray *)identities
            message:(NSString *)message
 {
+    [_panel setAlternateButtonTitle:NSLocalizedString(@"Cancel", "Cancel button on cert selection sheet")];
     [_panel beginSheetForWindow:[[[ADWebAuthController sharedInstance] viewController] webviewWindow]
                   modalDelegate:self
-                 didEndSelector:@selector(sheetDidEnd:)
+                 didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
                     contextInfo:NULL
                      identities:identities
                         message:message];
@@ -232,8 +233,13 @@
     return _panel.identity;
 }
 
-- (void)sheetDidEnd:(NSInteger)returnCode
+- (void)sheetDidEnd:(NSWindow *)window
+         returnCode:(NSInteger)returnCode
+        contextInfo:(void *)contextInfo
 {
+    (void)window;
+    (void)contextInfo;
+    
     _returnCode = returnCode;
     dispatch_semaphore_signal(_sem);
 }
