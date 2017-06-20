@@ -76,7 +76,8 @@
     if (!info || ![info isWorkPlaceJoined])
     {
         AD_LOG_INFO_F(@"Device is not workplace joined.", protocol.context.correlationId, @"host: %@", challenge.protectionSpace.host);
-        return NO;
+        completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
+        return YES;
     }
     
     AD_LOG_INFO_F(@"Responding to WPJ cert challenge", protocol.context.correlationId, @"host: %@", challenge.protectionSpace.host);
@@ -152,7 +153,8 @@
         if (identity == NULL)
         {
             // If no identity comes back then we can't handle the request
-            return NO;
+            completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
+            return YES;
         }
         
         // Adding a retain count to match the retain count from SecIdentityCopyPreferred
@@ -166,7 +168,8 @@
     {
         CFRelease(identity);
         AD_LOG_ERROR(@"Failed to copy certificate from identity", AD_ERROR_UNEXPECTED, correlationId, nil);
-        return NO;
+        completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
+        return YES;
     }
     
     AD_LOG_INFO(@"Responding to cert auth challenge with certicate", correlationId, nil);
