@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 /*! The class contains an incrementally expanding list of errors */
-typedef enum
+typedef NS_ENUM(NSInteger, ADErrorCode)
 {
     /*! No error occurred. The value is added to make easier usage of functions that take error code,
      but no error condition occurred.*/
@@ -177,7 +177,7 @@ typedef enum
     /*! We can't call out to tokenbroker in an extension */
     AD_ERROR_TOKENBROKER_NOT_SUPPORTED_IN_EXTENSION = 511,
     
-} ADErrorCode;
+};
 
 /* HTTP status codes used by the library */
 typedef enum
