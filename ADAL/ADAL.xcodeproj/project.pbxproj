@@ -34,7 +34,6 @@
 		29DBF6D61E36D5A600D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */; };
 		29DBF6D71E36D5A900D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */; };
 		3889BE201E5C929600743037 /* ADClientCertAuthHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 3889BE1E1E5C929600743037 /* ADClientCertAuthHandler.h */; };
-		3889BE211E5C929600743037 /* ADClientCertAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 3889BE1F1E5C929600743037 /* ADClientCertAuthHandler.m */; };
 		3889BE221E5C929600743037 /* ADClientCertAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 3889BE1F1E5C929600743037 /* ADClientCertAuthHandler.m */; };
 		600401A51D3421480020EAAB /* ADTelemetry.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401A31D3421480020EAAB /* ADTelemetry.m */; };
 		600401A71D3426250020EAAB /* ADTelemetry+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 600401A61D3426250020EAAB /* ADTelemetry+Internal.h */; };
@@ -1732,7 +1731,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3889BE211E5C929600743037 /* ADClientCertAuthHandler.m in Sources */,
 				60C351BA1DA0D588006C8435 /* ADAL.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
