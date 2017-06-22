@@ -92,10 +92,10 @@
                XCTAssertNil(error);
                XCTAssertNotNil(url);
                XCTAssertEqual(url.absoluteString, TEST_REDIRECT_URL.absoluteString);
-               dispatch_semaphore_signal(_dsem);
+               TEST_SIGNAL;
     }];
     
-    [self waitSemaphoreWithoutBlockingMainQueue:_dsem];
+    TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
     
 }
 
@@ -127,19 +127,11 @@
                XCTAssertNotNil(error);
                XCTAssertEqual(error.code, AD_ERROR_SERVER_NON_HTTPS_REDIRECT);
                
-               dispatch_semaphore_signal(_dsem);
+               TEST_SIGNAL;
            }];
                
-    [self waitSemaphoreWithoutBlockingMainQueue:_dsem];
+    TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
     
-}
-
-- (void)waitSemaphoreWithoutBlockingMainQueue:(dispatch_semaphore_t)sem
-{
-    while (dispatch_semaphore_wait(sem, DISPATCH_TIME_NOW))
-    {
-        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate: [NSDate distantFuture]];
-    }
 }
 
 @end

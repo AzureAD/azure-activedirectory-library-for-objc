@@ -35,6 +35,7 @@
 #import "ADTelemetryBrokerEvent.h"
 #import "ADTelemetryEventStrings.h"
 #import "ADBrokerHelper.h"
+#import "NSDictionary+ADExtensions.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -174,6 +175,14 @@
     }
     
     NSString* queryParams = _queryParams.adTrimmedString;
+    
+    // if "claims" is passed in as EQP, cache lookup should be skipped
+    NSDictionary *queryParamsDict = [NSDictionary adURLFormDecode:queryParams];
+    if (queryParamsDict[@"claims"])
+    {
+        _skipCache = YES;
+    }
+    
     if ([queryParams hasPrefix:@"&"])
     {
         queryParams = [queryParams substringFromIndex:1];
@@ -187,7 +196,7 @@
 {
     [self ensureRequest];
     
-    if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && [_context hasCacheStore])
+    if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && !_skipCache && [_context hasCacheStore])
     {
         [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT];
         ADAcquireTokenSilentHandler* request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams];

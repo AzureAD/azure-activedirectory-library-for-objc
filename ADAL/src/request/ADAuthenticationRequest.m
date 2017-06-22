@@ -111,6 +111,7 @@ static dispatch_semaphore_t s_interactionLock = nil;
     
     // This line is here to suppress a analyzer warning, has no effect
     _allowSilent = NO;
+    _skipCache = NO;
     
     return self;
 }
@@ -169,6 +170,12 @@ static dispatch_semaphore_t s_interactionLock = nil;
 {
     CHECK_REQUEST_STARTED;
     _silent = silent;
+}
+
+- (void)setSkipCache:(BOOL)skipCache
+{
+    CHECK_REQUEST_STARTED;
+    _skipCache = skipCache;
 }
 
 - (void)setCorrelationId:(NSUUID*)correlationId

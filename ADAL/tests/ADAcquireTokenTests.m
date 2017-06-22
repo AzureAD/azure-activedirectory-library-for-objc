@@ -37,6 +37,7 @@
 #import "ADTokenCacheDataSource.h"
 #import "ADTelemetryTestDispatcher.h"
 #import "ADUserIdentifier.h"
+#import "ADTestAuthenticationViewController.h"
 
 const int sAsyncContextTimeout = 10;
 
@@ -1620,6 +1621,91 @@ const int sAsyncContextTimeout = 10;
      }];
     
     TEST_WAIT;
+}
+
+- (void)testSkipCacheRequestParameters_whenSkipCacheIsSet_shouldSkipCache
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
+                                                                        resource:TEST_RESOURCE
+                                                                        clientId:TEST_CLIENT_ID
+                                                                     redirectUri:TEST_REDIRECT_URL.absoluteString
+                                                                      identifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                                                                      tokenCache:context.tokenCacheStore
+                                                                extendedLifetime:NO
+                                                                   correlationId:nil
+                                                              telemetryRequestId:nil];
+    
+    // Add a token item to return in the cache
+    ADTokenCacheItem* item = [self adCreateCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    
+    // No skipCache is set, cached item should be found
+    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context requestParams:params error:nil];
+    [req acquireToken:@"123"
+      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
+    
+    // skipCache is set, cache should be skipped and webview controller should be hit
+    req = [ADAuthenticationRequest requestWithContext:context requestParams:params error:nil];
+    [req setSkipCache:YES];
+    
+    // Add a specific error as mock response to webview controller
+    [ADTestAuthenticationViewController addDelegateCallWebAuthDidFailWithError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER userInfo:nil]];
+    
+    [req acquireToken:@"123"
+      completionBlock:^(ADAuthenticationResult *result)
+     {
+         // If webview is hit, the specific error code should be returned
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
+}
+
+- (void)testAcquireToken_whenClaimsEQPIsPassed_shouldSkipCache
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    // Add a token item to cache
+    ADTokenCacheItem* item = [self adCreateCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    
+    // Add a specific error as mock response to webview controller
+    [ADTestAuthenticationViewController addDelegateCallWebAuthDidFailWithError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER userInfo:nil]];
+    
+    // "claims" is passed in in EQP, cache should be skipped and webview controller should be hit
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                               userId:TEST_USER_ID
+                 extraQueryParameters:@"claims=abc"
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         // If webview is hit, the specific error code should be returned
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
 }
 
 @end

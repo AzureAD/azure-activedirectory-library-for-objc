@@ -63,6 +63,7 @@
     
     BOOL _silent;
     BOOL _allowSilent;
+    BOOL _skipCache;
     
     NSString* _logComponent;
     
@@ -97,6 +98,7 @@
 - (void)setUserId:(NSString*)userId;
 - (void)setPromptBehavior:(ADPromptBehavior)promptBehavior;
 - (void)setSilent:(BOOL)silent;
+- (void)setSkipCache:(BOOL)skipCache;
 - (void)setCorrelationId:(NSUUID*)correlationId;
 - (NSUUID*)correlationId;
 - (NSString*)telemetryRequestId;
