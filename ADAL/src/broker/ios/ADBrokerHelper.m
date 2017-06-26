@@ -58,7 +58,7 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
     }
     else if (__original_ApplicationHandleOpenURL)
     {
-        return ((applicationHandleOpenURLPtr)__original_ApplicationHandleOpenURL)(self, _cmd, application, url);
+        return ((applicationHandleOpenURLPtr)__original_ApplicationHandleOpenURL)(self, @selector(application:handleOpenURL:), application, url);
     }
     else
     {
@@ -93,7 +93,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     }
     else if (__original_ApplicationHandleOpenURL)
     {
-        return ((applicationHandleOpenURLPtr)__original_ApplicationHandleOpenURL)(self, _cmd, application, url);
+        return ((applicationHandleOpenURLPtr)__original_ApplicationHandleOpenURL)(self, @selector(application:handleOpenURL:), application, url);
     }
     else
     {
