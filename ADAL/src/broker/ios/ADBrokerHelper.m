@@ -31,6 +31,9 @@
 #import "ADWebAuthController+Internal.h"
 #import "ADAppExtensionUtil.h"
 
+typedef BOOL (*applicationHandleOpenURLPtr)(id, SEL, UIApplication*, NSURL*);
+IMP __original_ApplicationHandleOpenURL = NULL;
+
 typedef BOOL (*applicationOpenURLPtr)(id, SEL, UIApplication*, NSURL*, NSString*, id);
 IMP __original_ApplicationOpenURL = NULL;
 
@@ -52,6 +55,10 @@ BOOL __swizzle_ApplicationOpenURL(id self, SEL _cmd, UIApplication* application,
     if (__original_ApplicationOpenURL)
     {
         return ((applicationOpenURLPtr)__original_ApplicationOpenURL)(self, _cmd, application, url, sourceApplication, annotation);
+    }
+    else if (__original_ApplicationHandleOpenURL)
+    {
+        return ((applicationHandleOpenURLPtr)__original_ApplicationHandleOpenURL)(self, _cmd, application, url);
     }
     else
     {
@@ -83,6 +90,10 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
     if (__original_ApplicationOpenURLiOS9)
     {
         return ((applicationOpenURLiOS9Ptr)__original_ApplicationOpenURLiOS9)(self, _cmd, application, url, options);
+    }
+    else if (__original_ApplicationHandleOpenURL)
+    {
+        return ((applicationHandleOpenURLPtr)__original_ApplicationHandleOpenURL)(self, _cmd, application, url);
     }
     else
     {
@@ -116,6 +127,7 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
          
          SEL sel = @selector(application:openURL:sourceApplication:annotation:);
          SEL seliOS9 = @selector(application:openURL:options:);
+         SEL handleOpenURLSel = @selector(application:handleOpenURL:);
          
          // Dig out the app delegate (if there is one)
          __strong id appDelegate = [[ADAppExtensionUtil sharedApplication] delegate];
@@ -124,6 +136,15 @@ BOOL __swizzle_ApplicationOpenURLiOS9(id self, SEL _cmd, UIApplication* applicat
          // that is valid...
          if (appDelegate == nil)
              return;
+         
+         // Support applications which implement handleOpenURL to handle URL requests.
+         // An openURL method will be added to the application's delegate, but the request will be
+         // forwarded to the application's handleOpenURL: method once handled by ADAL.
+         if ([appDelegate respondsToSelector:handleOpenURLSel])
+         {
+             Method m = class_getInstanceMethod([appDelegate class], handleOpenURLSel);
+             __original_ApplicationHandleOpenURL = method_getImplementation(m);
+         }
          
          BOOL iOS9OrGreater = [[[UIDevice currentDevice] systemVersion] intValue] >= 9;
          
