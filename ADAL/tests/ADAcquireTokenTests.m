@@ -1623,7 +1623,7 @@ const int sAsyncContextTimeout = 10;
     TEST_WAIT;
 }
 
-- (void)testSkipCacheRequestParameters_whenSkipCacheIsSet_shouldSkipCache
+- (void)testSkipCacheRequestParameters_whenSkipCacheIsNotSet_shouldNotSkipCache
 {
     ADAuthenticationError* error = nil;
     ADAuthenticationContext *context = [self getTestAuthenticationContext];
@@ -1653,9 +1653,28 @@ const int sAsyncContextTimeout = 10;
      }];
     
     TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
+}
+
+- (void)testSkipCacheRequestParameters_whenSkipCacheIsSet_shouldSkipCache
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
+                                                                        resource:TEST_RESOURCE
+                                                                        clientId:TEST_CLIENT_ID
+                                                                     redirectUri:TEST_REDIRECT_URL.absoluteString
+                                                                      identifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                                                                      tokenCache:context.tokenCacheStore
+                                                                extendedLifetime:NO
+                                                                   correlationId:nil
+                                                              telemetryRequestId:nil];
+    
+    // Add a token item to return in the cache
+    ADTokenCacheItem* item = [self adCreateCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
     
     // skipCache is set, cache should be skipped and webview controller should be hit
-    req = [ADAuthenticationRequest requestWithContext:context requestParams:params error:nil];
+    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context requestParams:params error:nil];
     [req setSkipCache:YES];
     
     // Add a specific error as mock response to webview controller
