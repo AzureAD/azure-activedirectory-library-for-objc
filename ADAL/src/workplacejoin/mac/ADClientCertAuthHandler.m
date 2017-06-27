@@ -189,6 +189,7 @@
 @implementation ADCertificateChooserHelper
 {
     NSUUID *_correlationId;
+    NSWindow *_window;
     SFChooseIdentityPanel *_panel;
     dispatch_semaphore_t _sem;
     NSInteger _returnCode;
@@ -209,19 +210,22 @@
 - (void)beginSheet:(NSArray *)identities
            message:(NSString *)message
 {
+    _window = [[[ADWebAuthController sharedInstance] viewController] webviewWindow];
+    _panel = [SFChooseIdentityPanel sharedChooseIdentityPanel];
     [_panel setAlternateButtonTitle:NSLocalizedString(@"Cancel", "Cancel button on cert selection sheet")];
-    [_panel beginSheetForWindow:[[[ADWebAuthController sharedInstance] viewController] webviewWindow]
+    [_panel beginSheetForWindow:_window
                   modalDelegate:self
                  didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
                     contextInfo:NULL
                      identities:identities
                         message:message];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(webAuthDidFail:) name:ADWebAuthDidFailNotification object:nil];
 }
 
 - (SecIdentityRef)showCertSelectionSheet:(NSArray *)identities
                                  message:(NSString *)message
 {
-    _panel = [SFChooseIdentityPanel sharedChooseIdentityPanel];
     _sem = dispatch_semaphore_create(0);
     AD_LOG_INFO(@"Displaying Cert Selection Sheet", _correlationId, nil);
     
@@ -231,9 +235,9 @@
     dispatch_async(dispatch_get_main_queue(), ^{ [self beginSheet:identities message:message]; });
     dispatch_semaphore_wait(_sem, DISPATCH_TIME_FOREVER);
     
-    if (_returnCode == NSModalResponseCancel)
+    if (_returnCode != NSModalResponseOK)
     {
-        AD_LOG_INFO(@"User canceled cert selection dialog", _correlationId, nil);
+        AD_LOG_INFO(@"no certificate selected", _correlationId, nil);
         return NULL;
     }
     
@@ -248,7 +252,35 @@
     (void)contextInfo;
     
     _returnCode = returnCode;
+    _panel = nil;
+    _window = nil;
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ADWebAuthDidFailNotification object:nil];
     dispatch_semaphore_signal(_sem);
+}
+
+- (void)webAuthDidFail:(NSNotification *)aNotification
+{
+    (void)aNotification;
+    
+    if (!_panel || !_window)
+    {
+        return;
+    }
+    
+    // If web auth fails while the sheet is up that usually means the connection timed out, tear
+    // down the cert selection sheet.
+    
+    AD_LOG_INFO(@"Aborting cert selection due to web auth failure", _correlationId, nil);
+    NSArray *sheets = _window.sheets;
+    if (sheets.count < 1)
+    {
+        AD_LOG_ERROR(@"Unable to find sheet to dismiss for client cert auth handler", AD_ERROR_UNEXPECTED, _correlationId, nil);
+        return;
+    }
+    // It turns out the SFChooseIdentityPanel is not the real sheet that gets displayed, so telling the window to end it
+    // results in nothing happening. If I instead pull out the sheet from the window itself I can tell the window to end
+    // that and it works.
+    [_window endSheet:sheets[0] returnCode:NSModalResponseCancel];
 }
 
 @end
