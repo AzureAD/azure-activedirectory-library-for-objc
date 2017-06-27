@@ -95,12 +95,16 @@
                                    host:(NSString *)host
                           correlationId:(NSUUID *)correlationId
 {
-    NSDictionary *query =
-    @{
+    NSMutableDictionary *query =
+    [@{
       (id)kSecClass : (id)kSecClassIdentity,
-      (id)kSecMatchIssuers : issuers,
       (id)kSecMatchLimit : (id)kSecMatchLimitAll,
-      };
+      } mutableCopy];
+    
+    if (issuers.count > 0)
+    {
+        [query setObject:issuers forKey:(id)kSecMatchIssuers];
+    }
     
     CFTypeRef result = NULL;
     
