@@ -156,6 +156,7 @@
         identity = [self promptUserForIdentity:distinguishedNames host:host correlationId:correlationId];
         if (identity == NULL)
         {
+            AD_LOG_INFO(@"No identity returned from cert chooser", correlationId, nil);
             // If no identity comes back then we can't handle the request
             completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
             return YES;
@@ -211,7 +212,7 @@
            message:(NSString *)message
 {
     _window = [[[ADWebAuthController sharedInstance] viewController] webviewWindow];
-    _panel = [SFChooseIdentityPanel sharedChooseIdentityPanel];
+    _panel = [SFChooseIdentityPanel new];
     [_panel setAlternateButtonTitle:NSLocalizedString(@"Cancel", "Cancel button on cert selection sheet")];
     [_panel beginSheetForWindow:_window
                   modalDelegate:self
@@ -241,7 +242,9 @@
         return NULL;
     }
     
-    return _panel.identity;
+    SecIdentityRef identity = _panel.identity;
+    _panel = nil;
+    return identity;
 }
 
 - (void)sheetDidEnd:(NSWindow *)window
@@ -252,7 +255,6 @@
     (void)contextInfo;
     
     _returnCode = returnCode;
-    _panel = nil;
     _window = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ADWebAuthDidFailNotification object:nil];
     dispatch_semaphore_signal(_sem);
