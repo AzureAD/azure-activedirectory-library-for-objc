@@ -378,6 +378,25 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request acquireToken:@"130" completionBlock:completionBlock];
 }
 
+- (void)acquireTokenWithResource:(NSString *)resource
+                        clientId:(NSString *)clientId
+                     redirectUri:(NSURL *)redirectUri
+                  promptBehavior:(ADPromptBehavior)promptBehavior
+                  userIdentifier:(ADUserIdentifier *)userId
+            extraQueryParameters:(NSString *)queryParams
+                          claims:(NSString *)claims
+                 completionBlock:(ADAuthenticationCallback)completionBlock
+{
+    API_ENTRY;
+    REQUEST_WITH_REDIRECT_URL(redirectUri, clientId, resource);
+    
+    [request setPromptBehavior:promptBehavior];
+    [request setUserIdentifier:userId];
+    [request setExtraQueryParameters:queryParams];
+    [request setClaims:claims];
+    [request acquireToken:@"130" completionBlock:completionBlock];
+}
+
 @end
 
 @implementation ADAuthenticationContext (CacheStorage)

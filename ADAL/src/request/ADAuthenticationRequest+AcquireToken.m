@@ -127,6 +127,17 @@
         return;
     }
     
+    if (![self checkClaims])
+    {
+        ADAuthenticationError* error =
+        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+                                               protocolCode:nil
+                                               errorDetails:@"claims is not properly encoded. Please make sure it is URL encoded."
+                                              correlationId:_requestParams.correlationId];
+        wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+        return;
+    }
+    
     if (!_silent && _context.credentialsType == AD_CREDENTIALS_AUTO && ![ADAuthenticationRequest validBrokerRedirectUri:_requestParams.redirectUri])
     {
         ADAuthenticationError* error =
@@ -175,19 +186,27 @@
     }
     
     NSString* queryParams = _queryParams.adTrimmedString;
-    
-    // if "claims" is passed in as EQP, cache lookup should be skipped
-    NSDictionary *queryParamsDict = [NSDictionary adURLFormDecode:queryParams];
-    if (queryParamsDict[@"claims"])
-    {
-        _skipCache = YES;
-    }
-    
     if ([queryParams hasPrefix:@"&"])
     {
         queryParams = [queryParams substringFromIndex:1];
     }
     NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?%@", _context.authority, queryParams]];
+    
+    return url!=nil;
+}
+
+- (BOOL)checkClaims
+{
+    if ([NSString adIsStringNilOrBlank:_claims])
+    {
+        return YES;
+    }
+    
+    // Always skip cache if claims parameter is not nil/empty
+    _skipCache = YES;
+    
+    NSString* claimsParams = _claims.adTrimmedString;
+    NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
     
     return url!=nil;
 }

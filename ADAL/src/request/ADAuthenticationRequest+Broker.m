@@ -316,6 +316,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"client_version" : adalVersion,
       BROKER_MAX_PROTOCOL_VERSION : @"2",
       @"extra_qp"       : _queryParams ? _queryParams : @"",
+      @"claims"         : _claims ? _claims : @"",
       };
     
     NSDictionary<NSString *, NSString *>* resumeDictionary = nil;
