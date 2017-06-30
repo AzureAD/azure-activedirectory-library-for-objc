@@ -127,8 +127,8 @@
         return;
     }
     
-    ADAuthenticationError *error = [self checkClaims];
-    if (error)
+    ADAuthenticationError *error = nil;
+    if (![self checkClaims:&error])
     {
         wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
         return;
@@ -191,20 +191,25 @@
     return url!=nil;
 }
 
-- (ADAuthenticationError *)checkClaims
+- (BOOL)checkClaims:(ADAuthenticationError *__autoreleasing *)error
 {
     if ([NSString adIsStringNilOrBlank:_claims])
     {
-        return nil;
+        return YES;
     }
-    
-    NSString *errorMsg = nil;
     
     // Make sure claims is not in EQP
     NSDictionary *queryParamsDict = [NSDictionary adURLFormDecode:_queryParams];
     if (queryParamsDict[@"claims"])
     {
-        errorMsg = @"Duplicate claims parameter is found in extraQueryParameters. Please remove it.";
+        if (error)
+        {
+            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+                                                            protocolCode:nil
+                                                            errorDetails:@"Duplicate claims parameter is found in extraQueryParameters. Please remove it."
+                                                           correlationId:_requestParams.correlationId];
+        }
+        return NO;
     }
     
     // Make sure claims is properly encoded
@@ -212,21 +217,20 @@
     NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
     if (!url)
     {
-        errorMsg = @"claims is not properly encoded. Please make sure it is URL encoded.";
-    }
-    
-    if (errorMsg)
-    {
-        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
-                                                      protocolCode:nil
-                                                      errorDetails:errorMsg
-                                                     correlationId:_requestParams.correlationId];
+        if (error)
+        {
+            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+                                                            protocolCode:nil
+                                                            errorDetails:@"claims is not properly encoded. Please make sure it is URL encoded."
+                                                           correlationId:_requestParams.correlationId];
+        }
+        return NO;
     }
     
     // Always skip cache if claims parameter is not nil/empty
     _skipCache = YES;
     
-    return nil;
+    return YES;
 }
 
 - (void)validatedAcquireToken:(ADAuthenticationCallback)completionBlock
