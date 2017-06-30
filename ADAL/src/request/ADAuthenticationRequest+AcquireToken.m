@@ -127,13 +127,9 @@
         return;
     }
     
-    if (![self checkClaims])
+    ADAuthenticationError *error = [self checkClaims];
+    if (error)
     {
-        ADAuthenticationError* error =
-        [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
-                                               protocolCode:nil
-                                               errorDetails:@"claims is not properly encoded. Please make sure it is URL encoded."
-                                              correlationId:_requestParams.correlationId];
         wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
         return;
     }
@@ -195,20 +191,42 @@
     return url!=nil;
 }
 
-- (BOOL)checkClaims
+- (ADAuthenticationError *)checkClaims
 {
     if ([NSString adIsStringNilOrBlank:_claims])
     {
-        return YES;
+        return nil;
+    }
+    
+    NSString *errorMsg = nil;
+    
+    // Make sure claims is not in EQP
+    NSDictionary *queryParamsDict = [NSDictionary adURLFormDecode:_queryParams];
+    if (queryParamsDict[@"claims"])
+    {
+        errorMsg = @"Duplicate claims parameter is found in extraQueryParameters. Please remove it.";
+    }
+    
+    // Make sure claims is properly encoded
+    NSString* claimsParams = _claims.adTrimmedString;
+    NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
+    if (!url)
+    {
+        errorMsg = @"claims is not properly encoded. Please make sure it is URL encoded.";
+    }
+    
+    if (errorMsg)
+    {
+        return [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+                                                      protocolCode:nil
+                                                      errorDetails:errorMsg
+                                                     correlationId:_requestParams.correlationId];
     }
     
     // Always skip cache if claims parameter is not nil/empty
     _skipCache = YES;
     
-    NSString* claimsParams = _claims.adTrimmedString;
-    NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
-    
-    return url!=nil;
+    return nil;
 }
 
 - (void)validatedAcquireToken:(ADAuthenticationCallback)completionBlock

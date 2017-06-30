@@ -394,7 +394,7 @@ NSString* ADAL_VERSION_VAR = @ADAL_VERSION_STRING;
     [request setUserIdentifier:userId];
     [request setExtraQueryParameters:queryParams];
     [request setClaims:claims];
-    [request acquireToken:@"130" completionBlock:completionBlock];
+    [request acquireToken:@"133" completionBlock:completionBlock];
 }
 
 @end
