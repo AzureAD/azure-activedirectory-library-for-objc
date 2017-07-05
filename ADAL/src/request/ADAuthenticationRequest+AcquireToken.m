@@ -35,6 +35,7 @@
 #import "ADTelemetryBrokerEvent.h"
 #import "ADTelemetryEventStrings.h"
 #import "ADBrokerHelper.h"
+#import "NSDictionary+ADExtensions.h"
 
 @implementation ADAuthenticationRequest (AcquireToken)
 
@@ -126,6 +127,13 @@
         return;
     }
     
+    ADAuthenticationError *error = nil;
+    if (![self checkClaims:&error])
+    {
+        wrappedCallback([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+        return;
+    }
+    
     if (!_silent && _context.credentialsType == AD_CREDENTIALS_AUTO && ![ADAuthenticationRequest validBrokerRedirectUri:_requestParams.redirectUri])
     {
         ADAuthenticationError* error =
@@ -183,11 +191,53 @@
     return url!=nil;
 }
 
+- (BOOL)checkClaims:(ADAuthenticationError *__autoreleasing *)error
+{
+    if ([NSString adIsStringNilOrBlank:_claims])
+    {
+        return YES;
+    }
+    
+    // Make sure claims is not in EQP
+    NSDictionary *queryParamsDict = [NSDictionary adURLFormDecode:_queryParams];
+    if (queryParamsDict[@"claims"])
+    {
+        if (error)
+        {
+            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+                                                            protocolCode:nil
+                                                            errorDetails:@"Duplicate claims parameter is found in extraQueryParameters. Please remove it."
+                                                           correlationId:_requestParams.correlationId];
+        }
+        return NO;
+    }
+    
+    // Make sure claims is properly encoded
+    NSString* claimsParams = _claims.adTrimmedString;
+    NSURL* url = [NSURL URLWithString:[NSMutableString stringWithFormat:@"%@?claims=%@", _context.authority, claimsParams]];
+    if (!url)
+    {
+        if (error)
+        {
+            *error = [ADAuthenticationError errorFromAuthenticationError:AD_ERROR_DEVELOPER_INVALID_ARGUMENT
+                                                            protocolCode:nil
+                                                            errorDetails:@"claims is not properly encoded. Please make sure it is URL encoded."
+                                                           correlationId:_requestParams.correlationId];
+        }
+        return NO;
+    }
+    
+    // Always skip cache if claims parameter is not nil/empty
+    _skipCache = YES;
+    
+    return YES;
+}
+
 - (void)validatedAcquireToken:(ADAuthenticationCallback)completionBlock
 {
     [self ensureRequest];
     
-    if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && [_context hasCacheStore])
+    if (![ADAuthenticationContext isForcedAuthorization:_promptBehavior] && !_skipCache && [_context hasCacheStore])
     {
         [[ADTelemetry sharedInstance] startEvent:[self telemetryRequestId] eventName:AD_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT];
         ADAcquireTokenSilentHandler* request = [ADAcquireTokenSilentHandler requestWithParams:_requestParams];

@@ -386,6 +386,25 @@ typedef enum
             extraQueryParameters:(NSString*)queryParams
                  completionBlock:(ADAuthenticationCallback)completionBlock;
 
+/*! Follows the OAuth2 protocol (RFC 6749). The function accepts claims challenge returned from middle tier service, which will be sent to authorization endpoint. If claims parameter is not nil/empty, tokens in cache will be skipped and webview credentials UI will be shown.
+ @param resource The resource for whom token is needed.
+ @param clientId The client identifier
+ @param redirectUri The redirect URI according to OAuth2 protocol
+ @param promptBehavior Controls if any credentials UI will be shown.
+ @param userId An ADUserIdentifier object describing the user being authenticated
+ @param queryParams The extra query parameters will be appended to the HTTP request to the authorization endpoint. This parameter can be nil.
+ @param claims The claims parameter that needs to be sent to authorization endpoint. It should be URL-encoded.
+ @param completionBlock the block to execute upon completion. You can use embedded block, e.g. "^(ADAuthenticationResult res){ <your logic here> }"
+ */
+- (void)acquireTokenWithResource:(NSString *)resource
+                        clientId:(NSString *)clientId
+                     redirectUri:(NSURL *)redirectUri
+                  promptBehavior:(ADPromptBehavior)promptBehavior
+                  userIdentifier:(ADUserIdentifier *)userId
+            extraQueryParameters:(NSString *)queryParams
+                          claims:(NSString *)claims
+                 completionBlock:(ADAuthenticationCallback)completionBlock;
+
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
  the function will use the refresh token automatically. This method will not show UI for the user to reauthorize resource usage.

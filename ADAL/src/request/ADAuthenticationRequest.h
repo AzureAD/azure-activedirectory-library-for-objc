@@ -55,6 +55,7 @@
     
     NSString* _scope;
     NSString* _queryParams;
+    NSString* _claims;
     
     NSString* _refreshTokenCredential;
     
@@ -63,6 +64,7 @@
     
     BOOL _silent;
     BOOL _allowSilent;
+    BOOL _skipCache;
     
     NSString* _logComponent;
     
@@ -93,10 +95,12 @@
 // These can only be set before the request gets sent out.
 - (void)setScope:(NSString*)scope;
 - (void)setExtraQueryParameters:(NSString*)queryParams;
+- (void)setClaims:(NSString *)claims;
 - (void)setUserIdentifier:(ADUserIdentifier*)identifier;
 - (void)setUserId:(NSString*)userId;
 - (void)setPromptBehavior:(ADPromptBehavior)promptBehavior;
 - (void)setSilent:(BOOL)silent;
+- (void)setSkipCache:(BOOL)skipCache;
 - (void)setCorrelationId:(NSUUID*)correlationId;
 - (NSUUID*)correlationId;
 - (NSString*)telemetryRequestId;

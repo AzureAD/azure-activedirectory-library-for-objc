@@ -40,6 +40,13 @@
 
 #define TEST_SIGNAL dispatch_semaphore_signal(_dsem)
 #define TEST_WAIT dispatch_semaphore_wait(_dsem, DISPATCH_TIME_FOREVER)
+#define TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE \
+{ \
+    while (dispatch_semaphore_wait(_dsem, DISPATCH_TIME_NOW)) \
+    { \
+        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate: [NSDate distantFuture]]; \
+    } \
+} \
 
 typedef enum
 {
