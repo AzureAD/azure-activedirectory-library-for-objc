@@ -23,7 +23,14 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import <ADAL/ADAL.h>
+
 int main(int argc, const char * argv[])
 {
+    [ADLogger setLevel:ADAL_LOG_LEVEL_INFO];
+    [ADLogger setLogCallBack:^(ADAL_LOG_LEVEL logLevel, NSString *message, NSString *additionalInfo, NSInteger errorCode, NSDictionary *userInfo) {
+        NSLog(@"%@ - %@", message, additionalInfo);
+    }];
+    
     return NSApplicationMain(argc, argv);
 }

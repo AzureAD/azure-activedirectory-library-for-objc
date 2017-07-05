@@ -27,6 +27,7 @@
 #import "ADTokenCache.h"
 #import "ADTestAppAcquireTokenWindowController.h"
 #import "ADTestAppCacheWindowController.h"
+#import "ADWebAuthController.h"
 
 // These are not public APIs, however the test app is pulling
 // in things that can't be done with public APIs and shouldn't
@@ -38,7 +39,6 @@
 
 
 @implementation ADTestAppDelegate
-
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
@@ -68,6 +68,11 @@
 - (IBAction)writeCacheToFile:(id)sender
 {
     
+}
+
+- (IBAction)cancelCurrentSession:(id)sender
+{
+    [ADWebAuthController cancelCurrentWebAuthSession];
 }
 
 @end
