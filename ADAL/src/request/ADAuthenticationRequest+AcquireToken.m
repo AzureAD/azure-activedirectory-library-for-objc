@@ -269,7 +269,17 @@
     
     if (_samlAssertion)
     {
-        [self requestTokenByAssertion:completionBlock];
+        [self requestTokenByAssertion:^(ADAuthenticationResult *result){
+            if (AD_SUCCEEDED == result.status)
+            {
+                [[_requestParams tokenCache] updateCacheToResult:result
+                                                       cacheItem:nil
+                                                    refreshToken:nil
+                                                         context:_requestParams];
+                result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
+            }
+            completionBlock(result);
+        }];
         return;
     }
 
