@@ -308,6 +308,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"username_type"  : _requestParams.identifier ? [_requestParams.identifier typeAsString] : @"",
       @"username"       : _requestParams.identifier.userId ? _requestParams.identifier.userId : @"",
       @"force"          : _promptBehavior == AD_FORCE_PROMPT ? @"YES" : @"NO",
+      @"skip_cache"     : _skipCache ? @"YES" : @"NO",
       @"correlation_id" : _requestParams.correlationId,
 #if TARGET_OS_IPHONE // Broker Message Encryption
       @"broker_key"     : base64UrlKey,
@@ -315,6 +316,7 @@ NSString* kAdalResumeDictionaryKey = @"adal-broker-resume-dictionary";
       @"client_version" : adalVersion,
       BROKER_MAX_PROTOCOL_VERSION : @"2",
       @"extra_qp"       : _queryParams ? _queryParams : @"",
+      @"claims"         : _claims ? _claims : @"",
       };
     
     NSDictionary<NSString *, NSString *>* resumeDictionary = nil;

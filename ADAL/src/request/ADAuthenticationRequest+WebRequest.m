@@ -135,6 +135,12 @@
         }
     }
     
+    if (![NSString adIsStringNilOrBlank:_claims])
+    {
+        NSString *claimsParam = _claims.adTrimmedString;
+        [startUrl appendFormat:@"&claims=%@", claimsParam];
+    }
+    
     return startUrl;
 }
 
