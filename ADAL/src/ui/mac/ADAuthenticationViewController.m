@@ -34,9 +34,6 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
     CGFloat x = rect1.origin.x + ((rect1.size.width - rect2.size.width) / 2);
     CGFloat y = rect1.origin.y + ((rect1.size.height - rect2.size.height) / 2);
     
-    x = x < 0 ? 0 : x;
-    y = y < 0 ? 0 : y;
-    
     rect2.origin.x = x;
     rect2.origin.y = y;
     
@@ -175,6 +172,11 @@ static NSRect _CenterRect(NSRect rect1, NSRect rect2)
     [_progressIndicator setHidden:NO];
     [_progressIndicator startAnimation:nil];
     [self.window.contentView setNeedsDisplay:YES];
+}
+
+- (NSWindow *)webviewWindow
+{
+    return _webView.window;
 }
 
 - (void)webView:(WebView *)webView

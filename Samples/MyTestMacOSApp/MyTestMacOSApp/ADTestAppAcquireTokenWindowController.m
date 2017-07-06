@@ -87,6 +87,7 @@
     _clientId.stringValue = settings.clientId;
     _redirectUri.stringValue = settings.redirectUri.absoluteString;
     _resource.stringValue = settings.resource;
+    _userIdField.stringValue = settings.defaultUser;
 }
 
 - (IBAction)selectedProfileChanged:(id)sender

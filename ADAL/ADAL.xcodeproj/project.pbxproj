@@ -34,7 +34,6 @@
 		29DBF6D61E36D5A600D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */; };
 		29DBF6D71E36D5A900D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 29DBF6D41E36CD1E00D5B690 /* NSMutableDictionary+ADExtensions.m */; };
 		3889BE201E5C929600743037 /* ADClientCertAuthHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 3889BE1E1E5C929600743037 /* ADClientCertAuthHandler.h */; };
-		3889BE211E5C929600743037 /* ADClientCertAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 3889BE1F1E5C929600743037 /* ADClientCertAuthHandler.m */; };
 		3889BE221E5C929600743037 /* ADClientCertAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 3889BE1F1E5C929600743037 /* ADClientCertAuthHandler.m */; };
 		600401A51D3421480020EAAB /* ADTelemetry.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401A31D3421480020EAAB /* ADTelemetry.m */; };
 		600401A71D3426250020EAAB /* ADTelemetry+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 600401A61D3426250020EAAB /* ADTelemetry+Internal.h */; };
@@ -328,6 +327,7 @@
 		D69A721A1D4FF68300E91DB3 /* ADDefaultDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401BC1D377E9F0020EAAB /* ADDefaultDispatcher.m */; };
 		D69A721B1D4FF68300E91DB3 /* ADAggregatedDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401B51D37658C0020EAAB /* ADAggregatedDispatcher.m */; };
 		D69A721C1D4FF68300E91DB3 /* ADTelemetryDefaultEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401AA1D3443D30020EAAB /* ADTelemetryDefaultEvent.m */; };
+		D6B658861EF8AB5B006CB0C6 /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6B658851EF8AB5B006CB0C6 /* SecurityInterface.framework */; };
 		D6D8A8401D4FD14E00D20DE6 /* ADKeychainUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D8A83F1D4FD14E00D20DE6 /* ADKeychainUtil.m */; };
 		D6F095151CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D6F095131CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h */; };
 		D6F095171CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F095141CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m */; };
@@ -664,6 +664,7 @@
 		D680402F1D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWorkPlaceJoinUtil.m; sourceTree = "<group>"; };
 		D68040311D22F686007A61AC /* ADWebAuthResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWebAuthResponse.h; sourceTree = "<group>"; };
 		D68040321D22F686007A61AC /* ADWebAuthResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthResponse.m; sourceTree = "<group>"; };
+		D6B658851EF8AB5B006CB0C6 /* SecurityInterface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityInterface.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/System/Library/Frameworks/SecurityInterface.framework; sourceTree = DEVELOPER_DIR; };
 		D6D8A83E1D4FD14100D20DE6 /* ADKeychainUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADKeychainUtil.h; sourceTree = "<group>"; };
 		D6D8A83F1D4FD14E00D20DE6 /* ADKeychainUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeychainUtil.m; sourceTree = "<group>"; };
 		D6E43A681B04026D000F5BE2 /* ADAuthenticationContext+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationContext+Internal.h"; sourceTree = "<group>"; };
@@ -720,6 +721,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6B658861EF8AB5B006CB0C6 /* SecurityInterface.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -841,6 +843,7 @@
 		8B0965AC17F25770002BDFB8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D6B658851EF8AB5B006CB0C6 /* SecurityInterface.framework */,
 				97EEE7B41A4C0D6000D003F8 /* QuartzCore.framework */,
 				8BA729B017FE0BDA00CACB46 /* UIKit.framework */,
 				8B0965AD17F25770002BDFB8 /* Foundation.framework */,
@@ -1728,7 +1731,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3889BE211E5C929600743037 /* ADClientCertAuthHandler.m in Sources */,
 				60C351BA1DA0D588006C8435 /* ADAL.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

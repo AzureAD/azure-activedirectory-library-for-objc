@@ -159,10 +159,10 @@
     _expiresOn = expires;
     
     // convert ext_expires_in to ext_expires_on
-    NSString* extendedExpiresIn = [responseDictionary valueForKey:@"ext_expires_in"];
+    id extendedExpiresIn = [responseDictionary valueForKey:@"ext_expires_in"];
     [responseDictionary removeObjectForKey:@"ext_expires_in"];
     
-    if (![NSString adIsStringNilOrBlank:extendedExpiresIn] && [extendedExpiresIn respondsToSelector:@selector(doubleValue)])
+    if (extendedExpiresIn && [extendedExpiresIn respondsToSelector:@selector(doubleValue)])
     {
         [responseDictionary setObject:[NSDate dateWithTimeIntervalSinceNow:[extendedExpiresIn doubleValue]]
                                  forKey:@"ext_expires_on"];

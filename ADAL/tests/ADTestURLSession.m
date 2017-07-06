@@ -288,6 +288,11 @@
     _response = response;
 }
 
+- (void)setResponseJSON:(id)jsonResponse
+{
+    [self setJSONResponse:jsonResponse];
+}
+
 - (void)setJSONResponse:(id)jsonResponse
 {
     if (!jsonResponse)
@@ -303,12 +308,32 @@
     NSAssert(_responseData, @"Invalid JSON object set for test response! %@", error);
 }
 
+- (void)setResponseData:(NSData *)response
+{
+    _responseData = response;
+}
+
 - (void)setRequestURL:(NSURL *)requestURL
 {
     
     _requestURL = requestURL;
     NSString *query = [requestURL query];
     _QPs = [NSString adIsStringNilOrBlank:query] ? nil : [NSDictionary adURLFormDecode:query];
+}
+
+- (void)setRequestHeaders:(NSDictionary *)headers
+{
+    _requestHeaders = [headers copy];
+}
+
+- (void)setRequestBody:(NSData *)body
+{
+    _requestBody = body;
+}
+
+- (void)setRequestJSONBody:(NSDictionary *)jsonBody
+{
+    _requestParamsBody = jsonBody;
 }
 
 - (BOOL)matchesURL:(NSURL *)url

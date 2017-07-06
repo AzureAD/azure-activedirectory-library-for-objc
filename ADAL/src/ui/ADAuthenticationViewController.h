@@ -48,4 +48,8 @@ NSWindowController
 - (void)startSpinner;
 - (void)stopSpinner;
 
+#if !TARGET_OS_IPHONE
+- (NSWindow *)webviewWindow;
+#endif
+
 @end

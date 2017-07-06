@@ -55,7 +55,16 @@ class ViewController: UIViewController {
             
             if (result!.status != AD_SUCCEEDED)
             {
-                self.updateStatusField(result!.error.description)
+                if result!.error.domain == ADAuthenticationErrorDomain
+                    && result!.error.code == ADErrorCode.ERROR_UNEXPECTED.rawValue {
+                    
+                    self.updateStatusField("Unexpected internal error occured");
+                    
+                } else {
+                    
+                    self.updateStatusField(result!.error.description)
+                }
+                
                 return;
             }
             

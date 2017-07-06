@@ -37,6 +37,7 @@
 #import "ADTokenCacheDataSource.h"
 #import "ADTelemetryTestDispatcher.h"
 #import "ADUserIdentifier.h"
+#import "ADTestAuthenticationViewController.h"
 
 const int sAsyncContextTimeout = 10;
 
@@ -791,6 +792,81 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqualObjects(atItem.accessToken, @"new access token");
     XCTAssertEqualObjects(mrrtItem.refreshToken, @"new refresh token");
 }
+
+- (void)testAcquireTokenSilent_whenRedeemingMRRT_withNSNumbersInParsedJSON
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    // Add a expired access token with refresh token to the cache
+    ADTokenCacheItem* item = [self adCreateATCacheItem];
+    item.expiresOn = [NSDate date];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    // Add an MRRT to the cache as well
+    [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    ADTestURLResponse *response = [self adDefaultRefreshResponse:@"new refresh token" accessToken:@"new access token"];
+    // We're using a hardcoded JSON string in the test because we want to test a specific string to see how it is decoded
+    // and make sure it gets handled properly
+    NSString *responseJson = @"{\"refresh_token\":\"new refresh token\",\"access_token\":\"new access token\",\"resource\":\"" TEST_RESOURCE "\",\"expires_in\":3600,\"ext_expires_in\":360000}" ;
+    [response setResponseData:[responseJson dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES]];
+    
+    [ADTestURLSession addResponse:response];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertTrue([result.correlationId isKindOfClass:[NSUUID class]]);
+         XCTAssertEqualObjects(result.accessToken, @"new access token");
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT;
+    
+    NSArray* allItems = [context.tokenCacheStore.dataSource allItems:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 2);
+    
+    ADTokenCacheItem* mrrtItem = nil;
+    ADTokenCacheItem* atItem = nil;
+    
+    // Pull the MRRT and AT items out of the cache
+    for (ADTokenCacheItem * item in allItems)
+    {
+        if (item.refreshToken)
+        {
+            mrrtItem = item;
+        }
+        else if (item.accessToken)
+        {
+            atItem = item;
+        }
+    }
+    
+    XCTAssertNotNil(mrrtItem);
+    XCTAssertNotNil(atItem);
+    
+    XCTAssertNil(atItem.refreshToken);
+    XCTAssertNil(mrrtItem.accessToken);
+    
+    // Make sure the tokens got updated
+    XCTAssertEqualObjects(atItem.accessToken, @"new access token");
+    XCTAssertEqualObjects(mrrtItem.refreshToken, @"new refresh token");
+}
+
+
+
 
 - (void)testMRRTNoNetworkConnection
 {
@@ -1634,4 +1710,218 @@ const int sAsyncContextTimeout = 10;
     TEST_WAIT;
 }
 
+- (void)testSkipCacheRequestParameters_whenSkipCacheIsNotSet_shouldNotSkipCache
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
+                                                                        resource:TEST_RESOURCE
+                                                                        clientId:TEST_CLIENT_ID
+                                                                     redirectUri:TEST_REDIRECT_URL.absoluteString
+                                                                      identifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                                                                      tokenCache:context.tokenCacheStore
+                                                                extendedLifetime:NO
+                                                                   correlationId:nil
+                                                              telemetryRequestId:nil];
+    
+    // Add a token item to return in the cache
+    ADTokenCacheItem* item = [self adCreateCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    
+    // No skipCache is set, cached item should be found
+    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context requestParams:params error:nil];
+    [req acquireToken:@"123"
+      completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
+}
+
+- (void)testSkipCacheRequestParameters_whenSkipCacheIsSet_shouldSkipCache
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext *context = [self getTestAuthenticationContext];
+    ADRequestParameters *params = [[ADRequestParameters alloc] initWithAuthority:context.authority
+                                                                        resource:TEST_RESOURCE
+                                                                        clientId:TEST_CLIENT_ID
+                                                                     redirectUri:TEST_REDIRECT_URL.absoluteString
+                                                                      identifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                                                                      tokenCache:context.tokenCacheStore
+                                                                extendedLifetime:NO
+                                                                   correlationId:nil
+                                                              telemetryRequestId:nil];
+    
+    // Add a token item to return in the cache
+    ADTokenCacheItem* item = [self adCreateCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    
+    // skipCache is set, cache should be skipped and webview controller should be hit
+    ADAuthenticationRequest *req = [ADAuthenticationRequest requestWithContext:context requestParams:params error:nil];
+    [req setSkipCache:YES];
+    
+    // Add a specific error as mock response to webview controller
+    [ADTestAuthenticationViewController addDelegateCallWebAuthDidFailWithError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER userInfo:nil]];
+    
+    [req acquireToken:@"123"
+      completionBlock:^(ADAuthenticationResult *result)
+     {
+         // If webview is hit, the specific error code should be returned
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
+}
+
+- (void)testAcquireToken_whenClaimsIsPassedViaOverloadedAcquireToken_shouldSkipCache
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    // Add a token item to cache
+    ADTokenCacheItem* item = [self adCreateCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    
+    // Add a specific error as mock response to webview controller
+    [ADTestAuthenticationViewController addDelegateCallWebAuthDidFailWithError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER userInfo:nil]];
+    
+    // "claims" is passed in, cache should be skipped and webview controller should be hit
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                       promptBehavior:AD_PROMPT_AUTO
+                       userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                 extraQueryParameters:nil
+                               claims:@"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D"
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         // If webview is hit, the specific error code should be returned
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
+}
+
+- (void)testAcquireToken_whenClaimsIsNotProperlyEncoded_shouldReturnError
+{
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                       promptBehavior:AD_PROMPT_AUTO
+                       userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                 extraQueryParameters:nil
+                               claims:@"{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}"
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         // Error code AD_ERROR_DEVELOPER_INVALID_ARGUMENT should be returned
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
+}
+
+- (void)testAcquireToken_whenClaimsIsNil_shouldNotSkipCache
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    // Add a token item to return in the cache
+    ADTokenCacheItem* item = [self adCreateCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                       promptBehavior:AD_PROMPT_AUTO
+                       userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                 extraQueryParameters:nil
+                               claims:nil
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         //Token in cache should be found
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
+}
+
+- (void)testAcquireToken_whenClaimsIsEmpty_shouldNotSkipCache
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    // Add a token item to return in the cache
+    ADTokenCacheItem* item = [self adCreateCacheItem];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                       promptBehavior:AD_PROMPT_AUTO
+                       userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                 extraQueryParameters:nil
+                               claims:@""
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         //Token in cache should be found
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
+}
+
+- (void)testAcquireToken_whenDuplicateClaimsIsPassedInEQP_shouldReturnError
+{
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    // Add a specific error as mock response to webview controller
+    [ADTestAuthenticationViewController addDelegateCallWebAuthDidFailWithError:[NSError errorWithDomain:ADAuthenticationErrorDomain code:AD_ERROR_UI_NO_MAIN_VIEW_CONTROLLER userInfo:nil]];
+    
+    [context acquireTokenWithResource:TEST_RESOURCE
+                             clientId:TEST_CLIENT_ID
+                          redirectUri:TEST_REDIRECT_URL
+                       promptBehavior:AD_PROMPT_AUTO
+                       userIdentifier:[ADUserIdentifier identifierWithId:TEST_USER_ID]
+                 extraQueryParameters:@"claims=%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D"
+                               claims:@"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D"
+                      completionBlock:^(ADAuthenticationResult *result)
+     {
+         //Error code AD_ERROR_DEVELOPER_INVALID_ARGUMENT should be returned
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_FAILED);
+         XCTAssertNotNil(result.error);
+         XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_INVALID_ARGUMENT);
+         
+         TEST_SIGNAL;
+     }];
+    
+    TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE;
+}
 @end
