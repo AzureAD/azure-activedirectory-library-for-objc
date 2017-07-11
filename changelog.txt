@@ -1,14 +1,19 @@
 Version 2.5.1 (07.10.2017)
 -------------
-
 * Add support for applications that use the handleOpenURL:UIApplicationDelegate method for accepting URL requests (#1000)
 * (Mac) Added CBA Support (#993)
+* Handle www-authenticate:Negotiate properly when together with NTLM  (#979)
 * Fixed compilation error in Swift caused by ADErrorCode enum (#990)
 * (Mac) Fixed authentication window position when using multiple monitors (#988)
 * Fixed crashes caused by “ext_expires_in” with more robust parsing (#987)
 * ADWebRequest header fields are now public and editable (#975)
-* Fixed memory leaks in ADWebRequest (#958)
+
+
+Version 2.5.0 (05.18.2017)
+-------------
+* (Mac) Conditional access support (#865)
 * Added "login.microsoftonline.us" to the hardcoded whitelist of AAD Authorities (#948)
+* Fixed memory leaks in ADWebRequest (#958)
 * Improved Swift support - Nullability specifiers update (#936), Swift sample update (#936, #949)
 
 Version 2.4.1 (03.29.2017)
