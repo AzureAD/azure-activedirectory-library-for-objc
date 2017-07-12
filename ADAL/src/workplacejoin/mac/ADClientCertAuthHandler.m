@@ -76,7 +76,16 @@
     if (!info || ![info isWorkPlaceJoined])
     {
         AD_LOG_INFO_F(@"Device is not workplace joined.", protocol.context.correlationId, @"host: %@", challenge.protectionSpace.host);
-        completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
+        
+        // In other cert auth cases we send Cancel to ensure that we continue to get
+        // auth challenges, however when we do that with WPJ we don't get the subsequent
+        // enroll dialog *after* the failed clientTLS challenge.
+        //
+        // Using DefaultHandling will result in the OS not handing back client TLS
+        // challenges for another ~60 seconds, behavior that looks broken in the
+        // user CBA case, but here is masked by the user having to enroll their
+        // device.
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
         return YES;
     }
     
