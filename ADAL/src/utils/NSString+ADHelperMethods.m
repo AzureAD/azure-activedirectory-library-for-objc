@@ -310,11 +310,17 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 - (NSString *)adUrlFormEncode
 {
     static NSCharacterSet* set = nil;
-    
+ 
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        set = [[NSCharacterSet characterSetWithCharactersInString:@"!#$&'()*+,/:;=?@[]%|^"] invertedSet];
+        
+        NSMutableCharacterSet *allowedSet = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
+        [allowedSet addCharactersInString:@" "];
+        [allowedSet removeCharactersInString:@"!$&'()*+,/:;=?@"];
+        
+        set = allowedSet;
     });
+    
     NSString* encodedString = [self stringByAddingPercentEncodingWithAllowedCharacters:set];
     return [encodedString stringByReplacingOccurrencesOfString:@" " withString:@"+"];
 }

@@ -146,4 +146,49 @@
     XCTAssertEqualObjects([encoded adUrlFormDecode], testString);
 }
 
+- (void)testAdUrlFormEncode_whenHasNewLine_shouldEncode
+{
+    NSString* testString = @"test\r\ntest2";
+    NSString* encoded = [testString adUrlFormEncode];
+    
+    XCTAssertEqualObjects(encoded, @"test%0D%0Atest2");
+    XCTAssertEqualObjects([encoded adUrlFormDecode], testString);
+}
+
+- (void)testAdUrlFormEncode_whenHasSpace_shouldEncodeWithPlus
+{
+    NSString* testString = @"test test2";
+    NSString* encoded = [testString adUrlFormEncode];
+    
+    XCTAssertEqualObjects(encoded, @"test+test2");
+    XCTAssertEqualObjects([encoded adUrlFormDecode], testString);
+}
+
+- (void)testAdUrlFormEncode_whenHasIllegalChars_shouldEncodeAll
+{
+    NSString* testString = @"` # % ^ [ ] { } \\ | \" < > ! # $ & ' ( ) * + , / : ; = ? @ [ ] % | ^";
+    NSString* encoded = [testString adUrlFormEncode];
+    
+    XCTAssertEqualObjects(encoded, @"%60+%23+%25+%5E+%5B+%5D+%7B+%7D+%5C+%7C+%22+%3C+%3E+%21+%23+%24+%26+%27+%28+%29+%2A+%2B+%2C+%2F+%3A+%3B+%3D+%3F+%40+%5B+%5D+%25+%7C+%5E");
+    XCTAssertEqualObjects([encoded adUrlFormDecode], testString);
+}
+
+- (void)testAdUrlFormEncode_whenHasLegalChars_shouldNotEncode
+{
+    NSString* testString = @"test-test2-test3.test4";
+    NSString* encoded = [testString adUrlFormEncode];
+    
+    XCTAssertEqualObjects(encoded, @"test-test2-test3.test4");
+    XCTAssertEqualObjects([encoded adUrlFormDecode], testString);
+}
+
+- (void)testAdUrlFormEncode_whenHasMixedChars_shouldEncode
+{
+    NSString* testString = @"CODE: The app needs access to a service (\"https://*.test.com/\") that your organization \"test.onmicrosoft.com\" has not subscribed to or enabled.\r\nTrace ID: 111111-1111-1111-1111-111111111111\r\nCorrelation ID: 111111-1111-1111-1111-111111111111\r\nTimestamp: 2000-01-01 23:59:00Z";
+    NSString* encoded = [testString adUrlFormEncode];
+    
+    XCTAssertEqualObjects(encoded, @"CODE%3A+The+app+needs+access+to+a+service+%28%22https%3A%2F%2F%2A.test.com%2F%22%29+that+your+organization+%22test.onmicrosoft.com%22+has+not+subscribed+to+or+enabled.%0D%0ATrace+ID%3A+111111-1111-1111-1111-111111111111%0D%0ACorrelation+ID%3A+111111-1111-1111-1111-111111111111%0D%0ATimestamp%3A+2000-01-01+23%3A59%3A00Z");
+    XCTAssertEqualObjects([encoded adUrlFormDecode], testString);
+}
+
 @end
