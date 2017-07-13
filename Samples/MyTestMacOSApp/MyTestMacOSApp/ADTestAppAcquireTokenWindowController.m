@@ -304,15 +304,16 @@
 
 - (IBAction)clearCache:(id)sender
 {
-    OSStatus status = [[ADTestAppCache sharedCache] deleteFromKeychain];
+    NSError* error = nil;
+    BOOL result = [[ADTestAppCache sharedCache] clearCacheWithError:&error];
     
-    if (status == errSecSuccess || status == errSecItemNotFound)
+    if (result)
     {
         _resultView.string = @"Successfully cleared cache.";
     }
     else
     {
-        _resultView.string = [NSString stringWithFormat:@"Failed to clear cache, error = %d", (int)status];
+        _resultView.string = [NSString stringWithFormat:@"Failed to clear cache, error = %@", error];
     }
 }
 
