@@ -64,6 +64,7 @@
 + (void)showWindow
 {
     [[self controller] showWindow:nil];
+    [[self controller] reloadCache];
 }
 
 - (id)init
