@@ -33,8 +33,18 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "94DD18E01C5ACFBF00F80C62"
-               BuildableName = "ADAL Mac Tests.xctest"
-               BlueprintName = "ADAL Mac Tests"
+               BuildableName = "ADAL_Mac_UTs.xctest"
+               BlueprintName = "ADAL_Mac_UTs"
+               ReferencedContainer = "container:ADAL.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B20DC5AF1F0D96A700957806"
+               BuildableName = "ADAL_Mac_ITs.xctest"
+               BlueprintName = "ADAL_Mac_ITs"
                ReferencedContainer = "container:ADAL.xcodeproj">
             </BuildableReference>
          </TestableReference>

@@ -33,4 +33,5 @@ typedef void(^TestCallback)(NSDictionary* event);
 }
 
 - (void)setTestCallback:(TestCallback)callback;
+
 @end
