@@ -28,6 +28,7 @@
 @property (readonly, nonatomic) NSDictionary *adFragmentParameters;
 
 - (BOOL)isEquivalentAuthority:(NSURL *)aURL;
+- (NSString *)adHostWithPortIfNecessary;
 
 - (NSDictionary *)adQueryParameters;
 

@@ -80,4 +80,16 @@ const unichar queryStringSeparator = '?';
     return YES;
 }
 
+- (NSString *)adHostWithPortIfNecessary
+{
+    NSNumber *port = self.port;
+    
+    // This assumes we're using https, which is mandatory for all AAD communications.
+    if (port == nil || port.intValue == 443)
+    {
+        return self.host.lowercaseString;
+    }
+    return [NSString stringWithFormat:@"%@:%d", self.host.lowercaseString, port.intValue];
+}
+
 @end
