@@ -185,15 +185,6 @@
 		960E93761E296CCF008036C0 /* ADURLSessionDemux.m in Sources */ = {isa = PBXBuildFile; fileRef = 960E93731E296CC2008036C0 /* ADURLSessionDemux.m */; };
 		960E93771E296CD0008036C0 /* ADURLSessionDemux.m in Sources */ = {isa = PBXBuildFile; fileRef = 960E93731E296CC2008036C0 /* ADURLSessionDemux.m */; };
 		962E379B1E70E7E200DE71FE /* ADAutoRequestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 962E379A1E70E7E200DE71FE /* ADAutoRequestViewController.m */; };
-		965EDDE01E02435C00CBB723 /* ADAuthorityValidation.m in Sources */ = {isa = PBXBuildFile; fileRef = 965EDDDB1E023B3D00CBB723 /* ADAuthorityValidation.m */; };
-		965EDDE11E02435C00CBB723 /* ADAuthorityValidation.m in Sources */ = {isa = PBXBuildFile; fileRef = 965EDDDB1E023B3D00CBB723 /* ADAuthorityValidation.m */; };
-		965EDDE21E02436600CBB723 /* ADDrsDiscoveryRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 965EDDD21E0232EE00CBB723 /* ADDrsDiscoveryRequest.m */; };
-		965EDDE31E02436700CBB723 /* ADDrsDiscoveryRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 965EDDD21E0232EE00CBB723 /* ADDrsDiscoveryRequest.m */; };
-		965EDDE41E02436A00CBB723 /* ADWebFingerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 965EDDD51E02330200CBB723 /* ADWebFingerRequest.m */; };
-		965EDDE51E02436B00CBB723 /* ADWebFingerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 965EDDD51E02330200CBB723 /* ADWebFingerRequest.m */; };
-		9671AEFC1E03752200CAADB8 /* ADAuthorityValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = 965EDDDA1E023B3D00CBB723 /* ADAuthorityValidation.h */; };
-		9671AEFD1E03752E00CAADB8 /* ADDrsDiscoveryRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 965EDDD11E0232EE00CBB723 /* ADDrsDiscoveryRequest.h */; };
-		9671AEFE1E03753000CAADB8 /* ADWebFingerRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 965EDDD41E02330200CBB723 /* ADWebFingerRequest.h */; };
 		9671AF021E03796600CAADB8 /* ADAuthorityValidationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 9671AEFF1E03795D00CAADB8 /* ADAuthorityValidationRequest.h */; };
 		9671AF031E03796900CAADB8 /* ADAuthorityValidationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9671AF001E03795D00CAADB8 /* ADAuthorityValidationRequest.m */; };
 		9671AF041E03796E00CAADB8 /* ADAuthorityValidationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9671AF001E03795D00CAADB8 /* ADAuthorityValidationRequest.m */; };
@@ -323,6 +314,15 @@
 		D664F1AF1D302B9C0017B799 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0965AD17F25770002BDFB8 /* Foundation.framework */; };
 		D664F1C21D302C190017B799 /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D664F1B41D302B9C0017B799 /* libADAL-core.a */; };
 		D664F1DE1D3032000017B799 /* libADAL-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D664F1B41D302B9C0017B799 /* libADAL-core.a */; };
+		D6669FAF1F1D4F51002492C5 /* ADAuthorityValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = D6669FA91F1D4F51002492C5 /* ADAuthorityValidation.h */; };
+		D6669FB01F1D4F51002492C5 /* ADAuthorityValidation.m in Sources */ = {isa = PBXBuildFile; fileRef = D6669FAA1F1D4F51002492C5 /* ADAuthorityValidation.m */; };
+		D6669FB11F1D4F51002492C5 /* ADAuthorityValidation.m in Sources */ = {isa = PBXBuildFile; fileRef = D6669FAA1F1D4F51002492C5 /* ADAuthorityValidation.m */; };
+		D6669FB21F1D4F51002492C5 /* ADDrsDiscoveryRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D6669FAB1F1D4F51002492C5 /* ADDrsDiscoveryRequest.h */; };
+		D6669FB31F1D4F51002492C5 /* ADDrsDiscoveryRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D6669FAC1F1D4F51002492C5 /* ADDrsDiscoveryRequest.m */; };
+		D6669FB41F1D4F51002492C5 /* ADDrsDiscoveryRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D6669FAC1F1D4F51002492C5 /* ADDrsDiscoveryRequest.m */; };
+		D6669FB51F1D4F51002492C5 /* ADWebFingerRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D6669FAD1F1D4F51002492C5 /* ADWebFingerRequest.h */; };
+		D6669FB61F1D4F51002492C5 /* ADWebFingerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D6669FAE1F1D4F51002492C5 /* ADWebFingerRequest.m */; };
+		D6669FB71F1D4F51002492C5 /* ADWebFingerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D6669FAE1F1D4F51002492C5 /* ADWebFingerRequest.m */; };
 		D68040301D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D680402F1D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m */; };
 		D68040331D22F686007A61AC /* ADWebAuthResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = D68040311D22F686007A61AC /* ADWebAuthResponse.h */; };
 		D68040351D22F686007A61AC /* ADWebAuthResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D68040321D22F686007A61AC /* ADWebAuthResponse.m */; };
@@ -639,12 +639,6 @@
 		960E93731E296CC2008036C0 /* ADURLSessionDemux.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADURLSessionDemux.m; sourceTree = "<group>"; };
 		962E37991E70E7E200DE71FE /* ADAutoRequestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAutoRequestViewController.h; sourceTree = "<group>"; };
 		962E379A1E70E7E200DE71FE /* ADAutoRequestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAutoRequestViewController.m; sourceTree = "<group>"; };
-		965EDDD11E0232EE00CBB723 /* ADDrsDiscoveryRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADDrsDiscoveryRequest.h; sourceTree = "<group>"; };
-		965EDDD21E0232EE00CBB723 /* ADDrsDiscoveryRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADDrsDiscoveryRequest.m; sourceTree = "<group>"; };
-		965EDDD41E02330200CBB723 /* ADWebFingerRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWebFingerRequest.h; sourceTree = "<group>"; };
-		965EDDD51E02330200CBB723 /* ADWebFingerRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebFingerRequest.m; sourceTree = "<group>"; };
-		965EDDDA1E023B3D00CBB723 /* ADAuthorityValidation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityValidation.h; sourceTree = "<group>"; };
-		965EDDDB1E023B3D00CBB723 /* ADAuthorityValidation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityValidation.m; sourceTree = "<group>"; };
 		9671AEFF1E03795D00CAADB8 /* ADAuthorityValidationRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityValidationRequest.h; sourceTree = "<group>"; };
 		9671AF001E03795D00CAADB8 /* ADAuthorityValidationRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityValidationRequest.m; sourceTree = "<group>"; };
 		96AC69371E70E184008183A7 /* ADAutoResultViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAutoResultViewController.h; sourceTree = "<group>"; };
@@ -703,6 +697,12 @@
 		D664F1481D25FC4C0017B799 /* ADWorkPlaceJoinConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADWorkPlaceJoinConstants.h; sourceTree = "<group>"; };
 		D664F1491D25FC4C0017B799 /* ADWorkPlaceJoinUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADWorkPlaceJoinUtil.h; sourceTree = "<group>"; };
 		D664F1B41D302B9C0017B799 /* libADAL-core.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libADAL-core.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6669FA91F1D4F51002492C5 /* ADAuthorityValidation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADAuthorityValidation.h; sourceTree = "<group>"; };
+		D6669FAA1F1D4F51002492C5 /* ADAuthorityValidation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAuthorityValidation.m; sourceTree = "<group>"; };
+		D6669FAB1F1D4F51002492C5 /* ADDrsDiscoveryRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADDrsDiscoveryRequest.h; sourceTree = "<group>"; };
+		D6669FAC1F1D4F51002492C5 /* ADDrsDiscoveryRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADDrsDiscoveryRequest.m; sourceTree = "<group>"; };
+		D6669FAD1F1D4F51002492C5 /* ADWebFingerRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWebFingerRequest.h; sourceTree = "<group>"; };
+		D6669FAE1F1D4F51002492C5 /* ADWebFingerRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebFingerRequest.m; sourceTree = "<group>"; };
 		D680402F1D21C4EB007A61AC /* ADWorkPlaceJoinUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWorkPlaceJoinUtil.m; sourceTree = "<group>"; };
 		D68040311D22F686007A61AC /* ADWebAuthResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWebAuthResponse.h; sourceTree = "<group>"; };
 		D68040321D22F686007A61AC /* ADWebAuthResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthResponse.m; sourceTree = "<group>"; };
@@ -935,8 +935,6 @@
 				8B0DA7DD182AD01100CF5E1E /* ADAuthenticationResult+Internal.m */,
 				8BB8345E18074B74007F9F0D /* ADAuthenticationResult.m */,
 				8BB83464180764B6007F9F0D /* ADAuthenticationSettings.m */,
-				965EDDDA1E023B3D00CBB723 /* ADAuthorityValidation.h */,
-				965EDDDB1E023B3D00CBB723 /* ADAuthorityValidation.m */,
 				8B92DB6F181B2335004AAB0E /* ADLogger.m */,
 				9434C3361BF6B72E0095E122 /* ADLogger+Internal.h */,
 				8B7E6FC61856A1E8000DC3C8 /* ADOAuth2Constants.h */,
@@ -955,6 +953,7 @@
 				9453C3191C57FB96006B9E79 /* ui */,
 				9453C3951C5826CF006B9E79 /* urlprotocol */,
 				9453C3171C57FA50006B9E79 /* utils */,
+				D6669FA81F1D4F51002492C5 /* validation */,
 				9453C3001C57148A006B9E79 /* workplacejoin */,
 			);
 			path = src;
@@ -1175,10 +1174,6 @@
 				D68040321D22F686007A61AC /* ADWebAuthResponse.m */,
 				9453C38C1C5820E3006B9E79 /* ADWebResponse.h */,
 				9453C38D1C5820E3006B9E79 /* ADWebResponse.m */,
-				965EDDD11E0232EE00CBB723 /* ADDrsDiscoveryRequest.h */,
-				965EDDD21E0232EE00CBB723 /* ADDrsDiscoveryRequest.m */,
-				965EDDD41E02330200CBB723 /* ADWebFingerRequest.h */,
-				965EDDD51E02330200CBB723 /* ADWebFingerRequest.m */,
 				9671AEFF1E03795D00CAADB8 /* ADAuthorityValidationRequest.h */,
 				9671AF001E03795D00CAADB8 /* ADAuthorityValidationRequest.m */,
 			);
@@ -1396,6 +1391,19 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		D6669FA81F1D4F51002492C5 /* validation */ = {
+			isa = PBXGroup;
+			children = (
+				D6669FA91F1D4F51002492C5 /* ADAuthorityValidation.h */,
+				D6669FAA1F1D4F51002492C5 /* ADAuthorityValidation.m */,
+				D6669FAB1F1D4F51002492C5 /* ADDrsDiscoveryRequest.h */,
+				D6669FAC1F1D4F51002492C5 /* ADDrsDiscoveryRequest.m */,
+				D6669FAD1F1D4F51002492C5 /* ADWebFingerRequest.h */,
+				D6669FAE1F1D4F51002492C5 /* ADWebFingerRequest.m */,
+			);
+			path = validation;
+			sourceTree = "<group>";
+		};
 		D6D8A83D1D4FD12300D20DE6 /* ios */ = {
 			isa = PBXGroup;
 			children = (
@@ -1455,12 +1463,10 @@
 				9453C4261C586462006B9E79 /* ADTokenCacheKey.h in Headers */,
 				60D2F3FF1D524F7A008725D9 /* ADRequestParameters.h in Headers */,
 				94DD18D21C5AC8DE00F80C62 /* ADAuthenticationParameters.h in Headers */,
-				9671AEFC1E03752200CAADB8 /* ADAuthorityValidation.h in Headers */,
 				9453C4081C586456006B9E79 /* ADAuthenticationContext+Internal.h in Headers */,
 				9453C42A1C58646D006B9E79 /* ADAuthenticationRequest+AcquireAssertion.h in Headers */,
 				94DD18D51C5AC8DE00F80C62 /* ADErrorCodes.h in Headers */,
 				600401C41D3D58D50020EAAB /* ADAggregatedDispatcher.h in Headers */,
-				9671AEFE1E03753000CAADB8 /* ADWebFingerRequest.h in Headers */,
 				9453C41C1C586456006B9E79 /* ADClientMetrics.h in Headers */,
 				9453C4381C586476006B9E79 /* ADNTLMHandler.h in Headers */,
 				9453C4641C58707B006B9E79 /* ADCredentialCollectionController.h in Headers */,
@@ -1474,6 +1480,7 @@
 				6010EDF31D47B2BD00B62072 /* ADTelemetryCacheEvent.h in Headers */,
 				94DD18D11C5AC8DE00F80C62 /* ADAuthenticationError.h in Headers */,
 				600401C21D39A18E0020EAAB /* ADDefaultDispatcher.h in Headers */,
+				D6669FAF1F1D4F51002492C5 /* ADAuthorityValidation.h in Headers */,
 				600401A91D3428770020EAAB /* ADTelemetryDefaultEvent.h in Headers */,
 				9453C43E1C58647E006B9E79 /* ADHelpers.h in Headers */,
 				9453C4211C586462006B9E79 /* ADTokenCache+Internal.h in Headers */,
@@ -1485,7 +1492,9 @@
 				9453C4341C58646D006B9E79 /* ADWebResponse.h in Headers */,
 				D6F095151CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h in Headers */,
 				94DD18D61C5AC8DE00F80C62 /* ADLogger.h in Headers */,
+				D6669FB51F1D4F51002492C5 /* ADWebFingerRequest.h in Headers */,
 				94DD18D71C5AC8DE00F80C62 /* ADTokenCacheItem.h in Headers */,
+				D6669FB21F1D4F51002492C5 /* ADDrsDiscoveryRequest.h in Headers */,
 				9453C4321C58646D006B9E79 /* ADWebRequest.h in Headers */,
 				9453C4301C58646D006B9E79 /* ADAuthenticationRequest+WebRequest.h in Headers */,
 				B267CA1B1EE0E9FF00C0B5A8 /* ADNegotiateHandler.h in Headers */,
@@ -1499,7 +1508,6 @@
 				94DD18D91C5AC8DE00F80C62 /* ADUserInformation.h in Headers */,
 				9453C4281C58646D006B9E79 /* ADAuthenticationRequest.h in Headers */,
 				6010EDF81D47B2E300B62072 /* ADTelemetryBrokerEvent.h in Headers */,
-				9671AEFD1E03752E00CAADB8 /* ADDrsDiscoveryRequest.h in Headers */,
 				9453C4061C586456006B9E79 /* ADAL_Internal.h in Headers */,
 				9453C4441C58647E006B9E79 /* NSString+ADHelperMethods.h in Headers */,
 				9453C4361C586476006B9E79 /* ADCustomHeaderHandler.h in Headers */,
@@ -1936,10 +1944,12 @@
 				94DD18CA1C5A00BC00F80C62 /* ADAuthenticationViewController.m in Sources */,
 				6010EDE71D47B21600B62072 /* ADTelemetryAPIEvent.m in Sources */,
 				946818A71C59B7F200CA0378 /* ADWebAuthController.m in Sources */,
+				D6669FB41F1D4F51002492C5 /* ADDrsDiscoveryRequest.m in Sources */,
 				9453C4071C586456006B9E79 /* ADAuthenticationContext.m in Sources */,
 				D68040351D22F686007A61AC /* ADWebAuthResponse.m in Sources */,
 				9453C4291C58646D006B9E79 /* ADAuthenticationRequest.m in Sources */,
 				9453C41D1C586456006B9E79 /* ADUserIdentifier.m in Sources */,
+				D6669FB71F1D4F51002492C5 /* ADWebFingerRequest.m in Sources */,
 				600401A51D3421480020EAAB /* ADTelemetry.m in Sources */,
 				9453C4251C586462006B9E79 /* ADTokenCacheItem+Internal.m in Sources */,
 				9453C4391C586476006B9E79 /* ADNTLMHandler.m in Sources */,
@@ -1982,12 +1992,10 @@
 				9453C4181C586456006B9E79 /* ADUserInformation.m in Sources */,
 				9424B6841CDD39E400729698 /* ADTokenCacheAccessor.m in Sources */,
 				3889BE221E5C929600743037 /* ADClientCertAuthHandler.m in Sources */,
-				965EDDE51E02436B00CBB723 /* ADWebFingerRequest.m in Sources */,
+				D6669FB11F1D4F51002492C5 /* ADAuthorityValidation.m in Sources */,
 				6010EDEC1D47B27400B62072 /* ADTelemetryUIEvent.m in Sources */,
 				9453C4331C58646D006B9E79 /* ADWebRequest.m in Sources */,
 				6010EDF61D47B2CE00B62072 /* ADTelemetryCacheEvent.m in Sources */,
-				965EDDE11E02435C00CBB723 /* ADAuthorityValidation.m in Sources */,
-				965EDDE31E02436700CBB723 /* ADDrsDiscoveryRequest.m in Sources */,
 				9453C4351C58646D006B9E79 /* ADWebResponse.m in Sources */,
 				9453C4171C586456006B9E79 /* ADOAuth2Constants.m in Sources */,
 				60D2F4021D531F16008725D9 /* ADRequestParameters.m in Sources */,
@@ -2085,10 +2093,12 @@
 				D664F17A1D302B9C0017B799 /* ADWebAuthRequest.m in Sources */,
 				D664F17B1D302B9C0017B799 /* ADNTLMUIPrompt.m in Sources */,
 				D664F17C1D302B9C0017B799 /* ADOAuth2Constants.m in Sources */,
+				D6669FB01F1D4F51002492C5 /* ADAuthorityValidation.m in Sources */,
 				D664F17D1D302B9C0017B799 /* ADWebRequest.m in Sources */,
 				D664F17E1D302B9C0017B799 /* ADTokenCacheKey.m in Sources */,
 				D664F17F1D302B9C0017B799 /* NSString+ADHelperMethods.m in Sources */,
 				D664F1801D302B9C0017B799 /* ADURLProtocol.m in Sources */,
+				D6669FB61F1D4F51002492C5 /* ADWebFingerRequest.m in Sources */,
 				D664F1811D302B9C0017B799 /* ADWebAuthResponse.m in Sources */,
 				D664F1821D302B9C0017B799 /* ADWorkPlaceJoinUtil.m in Sources */,
 				960E93761E296CCF008036C0 /* ADURLSessionDemux.m in Sources */,
@@ -2096,7 +2106,6 @@
 				D664F1841D302B9C0017B799 /* ADNTLMHandler.m in Sources */,
 				D664F1851D302B9C0017B799 /* ADAuthenticationRequest+Broker.m in Sources */,
 				D664F1861D302B9C0017B799 /* ADTokenCacheItem+Internal.m in Sources */,
-				965EDDE21E02436600CBB723 /* ADDrsDiscoveryRequest.m in Sources */,
 				D69A721A1D4FF68300E91DB3 /* ADDefaultDispatcher.m in Sources */,
 				D664F1881D302B9C0017B799 /* ADAuthenticationRequest.m in Sources */,
 				D664F1891D302B9C0017B799 /* ADClientMetrics.m in Sources */,
@@ -2118,11 +2127,11 @@
 				D6D8A8401D4FD14E00D20DE6 /* ADKeychainUtil.m in Sources */,
 				D664F1981D302B9C0017B799 /* NSURL+ADExtensions.m in Sources */,
 				29DBF6D61E36D5A600D5B690 /* NSMutableDictionary+ADExtensions.m in Sources */,
+				D6669FB31F1D4F51002492C5 /* ADDrsDiscoveryRequest.m in Sources */,
 				D664F1991D302B9C0017B799 /* ADUserIdentifier.m in Sources */,
 				D664F19A1D302B9C0017B799 /* NSUUID+ADExtensions.m in Sources */,
 				D664F19B1D302B9C0017B799 /* ADTokenCacheAccessor.m in Sources */,
 				D664F19C1D302B9C0017B799 /* ADTokenCacheItem.m in Sources */,
-				965EDDE41E02436A00CBB723 /* ADWebFingerRequest.m in Sources */,
 				E04F07751E64A050004BE649 /* ADIpAddressHelper.m in Sources */,
 				B267CA1C1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m in Sources */,
 				D664F19D1D302B9C0017B799 /* ADAuthenticationRequest+WebRequest.m in Sources */,
@@ -2140,7 +2149,6 @@
 				D664F1A71D302B9C0017B799 /* ADAuthenticationRequest+AcquireAssertion.m in Sources */,
 				D664F1A81D302B9C0017B799 /* UIApplication+ADExtensions.m in Sources */,
 				D69A721B1D4FF68300E91DB3 /* ADAggregatedDispatcher.m in Sources */,
-				965EDDE01E02435C00CBB723 /* ADAuthorityValidation.m in Sources */,
 				D664F1A91D302B9C0017B799 /* ADPkeyAuthHelper.m in Sources */,
 				D664F1AA1D302B9C0017B799 /* ADAuthenticationParameters+Internal.m in Sources */,
 				D664F1AB1D302B9C0017B799 /* ADBrokerNotificationManager.m in Sources */,
