@@ -46,7 +46,7 @@
 
 //tests the fragment extraction. Does not test any other URL logic,
 //which should have been handled by the NSURL class
--(void) testFragmentParameters
+- (void)testFragmentParameters
 {
     //Missing or invalid fragment:
     XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com"]).adFragmentParameters);
@@ -101,6 +101,24 @@
 {
     NSDictionary *withEncoded = @{@"foo1" : @"bar1", @"foo2" : @"bar2", @"foo3=bar3" : @"foo4&bar4=bar5"};
     XCTAssertEqualObjects(withEncoded, ([[NSURL URLWithString:@"https://contoso.com?foo1=bar1&foo2=bar2&foo3%3Dbar3=foo4%26bar4%3Dbar5"] adQueryParameters]));
+}
+
+- (void)testAdHostWithPortIfNecessary_whenNoPortSpecified
+{
+    NSURL *url = [NSURL URLWithString:@"https://somehost.com"];
+    XCTAssertEqualObjects(url.adHostWithPortIfNecessary, @"somehost.com");
+}
+
+- (void)testAdHostWithPortIfNecessary_whenStandardPortSpecified
+{
+    NSURL *url = [NSURL URLWithString:@"https://somehost.com:443"];
+    XCTAssertEqualObjects(url.adHostWithPortIfNecessary, @"somehost.com");
+}
+
+- (void)testAdHostWithPortIfNecessary_whenNonStandardPortSpecified
+{
+    NSURL *url = [NSURL URLWithString:@"https://somehost.com:652"];
+    XCTAssertEqualObjects(url.adHostWithPortIfNecessary, @"somehost.com:652");
 }
 
 @end
