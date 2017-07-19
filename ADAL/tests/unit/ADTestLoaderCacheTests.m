@@ -56,6 +56,19 @@
     XCTAssertEqual(cache.count, 0);
 }
 
+- (void)testCache_unsupportedElementType_shouldFail
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><MonsterToken/></Cache>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertFalse([loader parse:&error]);
+    XCTAssertNotNil(error);
+    
+    NSArray *cache = loader.cacheItems;
+    XCTAssertNil(cache);
+}
+
 - (void)testCache_basicSingleResourceRefreshToken_shouldSucceed
 {
     ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" /></Cache>"];
@@ -100,7 +113,7 @@
 
 - (void)testCache_whenRefreshTokenNoToken_shouldFail
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" /></Cache>"];
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken resource=\"resource\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" /></Cache>"];
     XCTAssertNotNil(loader);
     
     NSError *error = nil;
@@ -113,7 +126,7 @@
 
 - (void)testCache_whenRefreshTokenNoClientId_shouldFail
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" /></Cache>"];
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" authority=\"https://iamanauthority.com\" /></Cache>"];
     XCTAssertNotNil(loader);
     
     NSError *error = nil;
@@ -126,7 +139,7 @@
 
 - (void)testCache_whenRefreshTokenNoAuthority_shouldFail
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" /></Cache>"];
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" clientId=\"clientid\" /></Cache>"];
     XCTAssertNotNil(loader);
     
     NSError *error = nil;

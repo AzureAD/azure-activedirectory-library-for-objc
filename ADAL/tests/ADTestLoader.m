@@ -58,12 +58,43 @@ typedef enum ADTestLoaderParserState
     Finished,
 } ADTestLoaderParserState;
 
+
+// This is because -initWithBlock wasn't added to NSThread until macOS 10.12/iOS 10.
+@interface ADTestLoaderBlockWrapper : NSObject
+
+- (void)runBlock;
+
+@end
+
+@implementation ADTestLoaderBlockWrapper
+{
+    dispatch_block_t _block;
+}
+
+
++ (instancetype)wrapperWithBlock:(void(^)(void))block
+{
+    ADTestLoaderBlockWrapper *wrapper = [ADTestLoaderBlockWrapper new];
+    wrapper->_block = block;
+    return wrapper;
+}
+
+- (void)runBlock
+{
+    _block();
+}
+
+@end
+
 @interface ADTestLoader () <NSXMLParserDelegate>
 
 @end
 
 @implementation ADTestLoader
 {
+    NSString *_parseString;
+    NSInputStream *_parseStream;
+    
     NSXMLParser *_parser;
     NSString *_parserPath;
     NSMutableArray *_parserStack;
@@ -139,8 +170,7 @@ typedef enum ADTestLoaderParserState
         return nil;
     }
     
-    _parser = [[NSXMLParser alloc] initWithData:[string dataUsingEncoding:NSUTF8StringEncoding]];
-    _parser.delegate = self;
+    _parseString = string;
     _parserPath = @"string";
     
     return self;
@@ -153,8 +183,7 @@ typedef enum ADTestLoaderParserState
         return nil;
     }
     
-    _parser = [[NSXMLParser alloc] initWithStream:[NSInputStream inputStreamWithFileAtPath:path]];
-    _parser.delegate = self;
+    _parseStream = [NSInputStream inputStreamWithFileAtPath:path];
     _parserPath = path;
     
     return self;
@@ -162,46 +191,83 @@ typedef enum ADTestLoaderParserState
 
 - (BOOL)parse:(NSError * __autoreleasing *)error
 {
-    _state = Started;
-    _parserStack = [NSMutableArray new];
-    _parserPathStack = [NSMutableArray new];
-    
-    BOOL ret = NO;
+    __block BOOL ret = NO;
     // NSXMLParser is one of the few (only?) ObjC APIs that use exceptions, so to safely use this
     // parser we have to wrap the parser call in a try/catch block, and marshal out the exception as
     // an error.
-    @try
-    {
-        ret = [_parser parse];
-        if (ret == NO && error)
+    
+    __block NSError *parseError = nil;
+    __block dispatch_semaphore_t dsem = dispatch_semaphore_create(0);
+    
+    // On top of being one of the few ObjC APIs that use exceptions, it's also "non-reentrant", which
+    // doesn't really mean "non-reentrant" it means "we use a ton of thread local storage, so if you
+    // run multiple NSXMLParser instances on the same thread, even though they aren't actually re-
+    // entrant on each other, they will conflict with each other, so we throw an exception if we see
+    // any state laying around. Oh, and we aren't always the greatest at cleaning up after ourselves
+    // either so sometimes your thread might just end up in a hosed state where even though you've
+    // already released all of your NSXMLParsers, you can't spin up another!
+    //
+    // Long story short, the only safe way to use this API is to spin up a new thread (note, thread,
+    // not dispatch queue, because dispatch queues can reuse threads under the hood) so that way
+    // we know that we're getting clean thread every time.
+    ADTestLoaderBlockWrapper *wrapper = [ADTestLoaderBlockWrapper wrapperWithBlock:^{
+        _state = Started;
+        _parserStack = [NSMutableArray new];
+        _parserPathStack = [NSMutableArray new];
+        
+        if (_parseStream)
         {
-            *error = _parser.parserError;
-            
+            _parser = [[NSXMLParser alloc] initWithStream:_parseStream];
+            _parseStream = nil;
+        }
+        else
+        {
+            _parser = [[NSXMLParser alloc] initWithData:[_parseString dataUsingEncoding:NSUTF8StringEncoding]];
+            _parseString = nil;
+        }
+        _parser.delegate = self;
+        
+        @try
+        {
+            ret = [_parser parse];
+            if (ret == NO && error)
+            {
+                parseError = _parser.parserError;
+                
+                _testVariables = nil;
+                _cacheItems = nil;
+                _networkRequests = nil;
+            }
+        }
+        @catch (NSException *exception)
+        {
             _testVariables = nil;
             _cacheItems = nil;
             _networkRequests = nil;
+            
+            parseError = [NSError errorWithDomain:ADTestErrorDomain code:-1 userInfo:@{ @"exception" : exception }];
+            
+            ret = NO;
         }
-
-    }
-    @catch (NSException *exception)
-    {
-        _testVariables = nil;
-        _cacheItems = nil;
-        _networkRequests = nil;
-        
-        if (error)
+        @finally
         {
-            *error = [NSError errorWithDomain:ADTestErrorDomain code:-1 userInfo:@{ @"exception" : exception }];
+            _parser.delegate = nil;
+            _parser = nil;
+            _parserPath = nil;
+            _parserPathStack = nil;
+            _parserStack = nil;
+            
+            dispatch_semaphore_signal(dsem);
         }
-        
-        return NO;
-    }
-    @finally
+    }];
+    NSThread *parserThread = [[NSThread alloc] initWithTarget:wrapper selector:@selector(runBlock) object:nil];
+    [parserThread start];
+    dispatch_semaphore_wait(dsem, DISPATCH_TIME_FOREVER);
+    
+    
+    if (error)
     {
-        _parser = nil;
-        _parserPath = nil;
-        _parserPathStack = nil;
-        _parserStack = nil;
+        *error = parseError;
     }
     
     return ret;
@@ -221,15 +287,7 @@ typedef enum ADTestLoaderParserState
 {
     (void)parser;
     
-    if (_parserStack.count > 0)
-    {
-        _parser = _parserStack.lastObject;
-        [_parserStack removeLastObject];
-        
-        _parserPath = _parserPathStack.lastObject;
-        [_parserPathStack removeLastObject];
-    }
-    else
+    if (_parserStack.count == 0)
     {
         _state = Finished;
     }
@@ -306,16 +364,17 @@ typedef enum ADTestLoaderParserState
         NSString *filePath = [[self class] pathForFile:file];
         CHECK_THROW_EXCEPTION(filePath, @{ @"file" : file }, @"Unable to find file %@", file);
         
-        [_parserStack addObject:_parser];
-        [_parserPathStack addObject:_parserPath];
-        
-        _parser = [[NSXMLParser alloc] initWithStream:[NSInputStream inputStreamWithFileAtPath:filePath]];
-        _parser.delegate = self;
-        _parserPath = filePath;
-        
         __block NSException *thrownException = nil;
-        dispatch_queue_t reentrantAvoidanceQueue = dispatch_queue_create("reentrantAvoidanceQueue", DISPATCH_QUEUE_SERIAL);
-        dispatch_async(reentrantAvoidanceQueue, ^{
+        __block dispatch_semaphore_t dsem = dispatch_semaphore_create(0);
+        // See the comment in -parse about why we have to do this thread wrapping nonsense.
+        ADTestLoaderBlockWrapper *wrapper = [ADTestLoaderBlockWrapper wrapperWithBlock:^{
+            [_parserStack addObject:_parser];
+            [_parserPathStack addObject:_parserPath];
+            
+            _parser = [[NSXMLParser alloc] initWithStream:[NSInputStream inputStreamWithFileAtPath:filePath]];
+            _parser.delegate = self;
+            _parserPath = filePath;
+            
             @try
             {
                 [_parser parse];
@@ -324,8 +383,21 @@ typedef enum ADTestLoaderParserState
             {
                 thrownException = exception;
             }
-        });
-        dispatch_sync(reentrantAvoidanceQueue, ^{});
+            @finally
+            {
+                _parser.delegate = nil;
+                _parser = _parserStack.lastObject;
+                [_parserStack removeLastObject];
+                
+                _parserPath = _parserPathStack.lastObject;
+                [_parserPathStack removeLastObject];
+                
+                dispatch_semaphore_signal(dsem);
+            }
+        }];
+        NSThread *parserThread = [[NSThread alloc] initWithTarget:wrapper selector:@selector(runBlock) object:nil];
+        [parserThread start];
+        dispatch_semaphore_wait(dsem, DISPATCH_TIME_FOREVER);
         
         if (thrownException)
         {
@@ -551,13 +623,43 @@ typedef enum ADTestLoaderParserState
 {
     _currentCacheItem = [ADTokenCacheItem new];
     
-    (void)elementName;
-    (void)attributeDict;
+    if (!([elementName isEqualToString:@"accesstoken"] || [elementName isEqualToString:@"refreshtoken"]))
+    {
+        THROW_EXCEPTION(nil, @"element type \"%@\" not supported in cache section.", elementName);
+    }
+    
+    NSString *token = attributeDict[@"token"];
+    CHECK_THROW_EXCEPTION(token, nil, @"No token attribute on %@ item.", elementName);
+    
+    NSString *clientId = attributeDict[@"clientId"];
+    CHECK_THROW_EXCEPTION(clientId, nil, @"No clientId attribute on %@ item.", elementName);
+    
+    NSString *authority = attributeDict[@"authority"];
+    CHECK_THROW_EXCEPTION(authority, nil, @"No authority attribute on %@ item.", elementName);
+    NSURL *authorityUrl = [NSURL URLWithString:authority];
+    CHECK_THROW_EXCEPTION(authorityUrl, nil, @"Provided authority \"%@\" is not a valid URL.", authority);
+    
+    NSString *resource = attributeDict[@"resource"];
+    if ([elementName isEqualToString:@"accesstoken"])
+    {
+        CHECK_THROW_EXCEPTION(resource, nil, @"No resource attribute on AccessToken item.");
+    }
+    
+    _currentCacheItem.authority = authority;
+    _currentCacheItem.refreshToken = token;
+    _currentCacheItem.clientId = clientId;
+    _currentCacheItem.resource = resource;
 }
 
 - (void)endCache:(NSString *)elementName
 {
     (void)elementName;
+    
+    if (_currentCacheItem)
+    {
+        [_cacheItems addObject:_currentCacheItem];
+        _currentCacheItem = nil;
+    }
 }
 
 
