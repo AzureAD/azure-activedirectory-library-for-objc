@@ -1447,8 +1447,7 @@
 				D6F7305B1F1FEFDC00329967 /* include_file.xml */,
 				D6F7305C1F1FEFDC00329967 /* test_with_include.xml */,
 			);
-			name = data;
-			path = ../../../../dev/ADAL/tests/unit/data;
+			path = data;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
