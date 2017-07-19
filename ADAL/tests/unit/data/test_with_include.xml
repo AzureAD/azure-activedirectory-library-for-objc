@@ -1,0 +1,4 @@
+<TestVariables>
+	<val1>value</val1>
+	<Include file="include_file.xml"/>
+</TestVariables>

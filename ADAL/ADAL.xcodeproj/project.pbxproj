@@ -350,6 +350,20 @@
 		D6F095171CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F095141CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m */; };
 		D6F0951A1CDC2BC300D28FC2 /* ADWebAuthRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D6F095181CDC2BC300D28FC2 /* ADWebAuthRequest.h */; };
 		D6F0951C1CDC2BC300D28FC2 /* ADWebAuthRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F095191CDC2BC300D28FC2 /* ADWebAuthRequest.m */; };
+		D6F7305D1F1FEFDC00329967 /* include_file.xml in Resources */ = {isa = PBXBuildFile; fileRef = D6F7305B1F1FEFDC00329967 /* include_file.xml */; };
+		D6F7305E1F1FEFDC00329967 /* include_file.xml in Resources */ = {isa = PBXBuildFile; fileRef = D6F7305B1F1FEFDC00329967 /* include_file.xml */; };
+		D6F7305F1F1FEFDC00329967 /* test_with_include.xml in Resources */ = {isa = PBXBuildFile; fileRef = D6F7305C1F1FEFDC00329967 /* test_with_include.xml */; };
+		D6F730601F1FEFDC00329967 /* test_with_include.xml in Resources */ = {isa = PBXBuildFile; fileRef = D6F7305C1F1FEFDC00329967 /* test_with_include.xml */; };
+		D6F730641F1FEFED00329967 /* ADTestLoaderCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F730611F1FEFED00329967 /* ADTestLoaderCacheTests.m */; };
+		D6F730651F1FEFED00329967 /* ADTestLoaderCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F730611F1FEFED00329967 /* ADTestLoaderCacheTests.m */; };
+		D6F730661F1FEFED00329967 /* ADTestLoaderGenericParsingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F730621F1FEFED00329967 /* ADTestLoaderGenericParsingTests.m */; };
+		D6F730671F1FEFED00329967 /* ADTestLoaderGenericParsingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F730621F1FEFED00329967 /* ADTestLoaderGenericParsingTests.m */; };
+		D6F730681F1FEFED00329967 /* ADTestLoaderVariablesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F730631F1FEFED00329967 /* ADTestLoaderVariablesTests.m */; };
+		D6F730691F1FEFED00329967 /* ADTestLoaderVariablesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F730631F1FEFED00329967 /* ADTestLoaderVariablesTests.m */; };
+		D6F7306C1F1FF03F00329967 /* ADTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F7306B1F1FF03F00329967 /* ADTestLoader.m */; };
+		D6F7306D1F1FF03F00329967 /* ADTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F7306B1F1FF03F00329967 /* ADTestLoader.m */; };
+		D6F7306E1F1FF03F00329967 /* ADTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F7306B1F1FF03F00329967 /* ADTestLoader.m */; };
+		D6F7306F1F1FF03F00329967 /* ADTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F7306B1F1FF03F00329967 /* ADTestLoader.m */; };
 		E04F07751E64A050004BE649 /* ADIpAddressHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = E04F07731E649ED3004BE649 /* ADIpAddressHelper.m */; };
 		E04F07761E64A051004BE649 /* ADIpAddressHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = E04F07731E649ED3004BE649 /* ADIpAddressHelper.m */; };
 		E0A4E9701EA8080E008472FF /* ADWorkPlaceJoinConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = E0A4E96E1EA807FD008472FF /* ADWorkPlaceJoinConstants.m */; };
@@ -715,6 +729,13 @@
 		D6F095141CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADAcquireTokenSilentHandler.m; sourceTree = "<group>"; };
 		D6F095181CDC2BC300D28FC2 /* ADWebAuthRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWebAuthRequest.h; sourceTree = "<group>"; };
 		D6F095191CDC2BC300D28FC2 /* ADWebAuthRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthRequest.m; sourceTree = "<group>"; };
+		D6F7305B1F1FEFDC00329967 /* include_file.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = include_file.xml; sourceTree = "<group>"; };
+		D6F7305C1F1FEFDC00329967 /* test_with_include.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = test_with_include.xml; sourceTree = "<group>"; };
+		D6F730611F1FEFED00329967 /* ADTestLoaderCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADTestLoaderCacheTests.m; path = ../../../../dev/ADAL/tests/unit/ADTestLoaderCacheTests.m; sourceTree = "<group>"; };
+		D6F730621F1FEFED00329967 /* ADTestLoaderGenericParsingTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADTestLoaderGenericParsingTests.m; path = ../../../../dev/ADAL/tests/unit/ADTestLoaderGenericParsingTests.m; sourceTree = "<group>"; };
+		D6F730631F1FEFED00329967 /* ADTestLoaderVariablesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADTestLoaderVariablesTests.m; path = ../../../../dev/ADAL/tests/unit/ADTestLoaderVariablesTests.m; sourceTree = "<group>"; };
+		D6F7306A1F1FF03F00329967 /* ADTestLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestLoader.h; sourceTree = "<group>"; };
+		D6F7306B1F1FF03F00329967 /* ADTestLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestLoader.m; sourceTree = "<group>"; };
 		D6FB3E3B1B30D3630032F883 /* ADUserIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADUserIdentifier.m; sourceTree = "<group>"; };
 		E04F07721E649ED3004BE649 /* ADIpAddressHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADIpAddressHelper.h; sourceTree = "<group>"; };
 		E04F07731E649ED3004BE649 /* ADIpAddressHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADIpAddressHelper.m; sourceTree = "<group>"; };
@@ -971,6 +992,8 @@
 				601BEE301C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m */,
 				6038419E1DF9246D00D30F3D /* ADTelemetryTestDispatcher.h */,
 				6038419F1DF9248F00D30F3D /* ADTelemetryTestDispatcher.m */,
+				D6F7306A1F1FF03F00329967 /* ADTestLoader.h */,
+				D6F7306B1F1FF03F00329967 /* ADTestLoader.m */,
 				96C75D261E303DC40038D1EC /* ADTestURLSession.h */,
 				96C75D271E303DC40038D1EC /* ADTestURLSession.m */,
 				96C75D221E303A8E0038D1EC /* ADTestURLSessionDataTask.h */,
@@ -1298,6 +1321,9 @@
 				B20DC5E51F0D998A00957806 /* ADClientMetricsTests.m */,
 				B20DC5E61F0D998A00957806 /* ADHelpersTests.m */,
 				B20DC5E71F0D998A00957806 /* ADLoggerTests.m */,
+				D6F730611F1FEFED00329967 /* ADTestLoaderCacheTests.m */,
+				D6F730621F1FEFED00329967 /* ADTestLoaderGenericParsingTests.m */,
+				D6F730631F1FEFED00329967 /* ADTestLoaderVariablesTests.m */,
 				B20DC5E81F0D998A00957806 /* ADTelemetryTests.m */,
 				B20DC5E91F0D998A00957806 /* ADTokenCacheItemTests.m */,
 				B20DC5EA1F0D998A00957806 /* ADTokenCacheKeyTests.m */,
@@ -1308,6 +1334,7 @@
 				B20DC6141F0D9A7600957806 /* ADAuthorityValidationTests.m */,
 				B20DC6171F0DA2E800957806 /* ADTestNSStringHelperMethods.m */,
 				B20DC6201F0DA4BF00957806 /* ADWebAuthControllerTests.m */,
+				D6F7305A1F1FEFDC00329967 /* data */,
 				B20DC5D51F0D97C600957806 /* ios */,
 				B20DC5D81F0D97CD00957806 /* mac */,
 			);
@@ -1412,6 +1439,16 @@
 				8B4EC4971D70BF850047CA62 /* ADAppExtensionUtil.m */,
 			);
 			path = ios;
+			sourceTree = "<group>";
+		};
+		D6F7305A1F1FEFDC00329967 /* data */ = {
+			isa = PBXGroup;
+			children = (
+				D6F7305B1F1FEFDC00329967 /* include_file.xml */,
+				D6F7305C1F1FEFDC00329967 /* test_with_include.xml */,
+			);
+			name = data;
+			path = ../../../../dev/ADAL/tests/unit/data;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1790,6 +1827,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6F7305F1F1FEFDC00329967 /* test_with_include.xml in Resources */,
+				D6F7305D1F1FEFDC00329967 /* include_file.xml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1811,6 +1850,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6F730601F1FEFDC00329967 /* test_with_include.xml in Resources */,
+				D6F7305E1F1FEFDC00329967 /* include_file.xml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1920,8 +1961,12 @@
 				B20DC61F1F0DA3C500957806 /* ADKeychainTokenCacheTests.m in Sources */,
 				B20DC6091F0D998A00957806 /* NSURLExtensionsTests.m in Sources */,
 				B20DC61B1F0DA34B00957806 /* ADBrokerMessageTests.m in Sources */,
+				D6F7306C1F1FF03F00329967 /* ADTestLoader.m in Sources */,
+				D6F730641F1FEFED00329967 /* ADTestLoaderCacheTests.m in Sources */,
+				D6F730681F1FEFED00329967 /* ADTestLoaderVariablesTests.m in Sources */,
 				B20DC6011F0D998A00957806 /* ADTokenCacheKeyTests.m in Sources */,
 				B20DC5F71F0D998A00957806 /* ADClientMetricsTests.m in Sources */,
+				D6F730661F1FEFED00329967 /* ADTestLoaderGenericParsingTests.m in Sources */,
 				B20DC6211F0DA4BF00957806 /* ADWebAuthControllerTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2016,16 +2061,20 @@
 				B20DC5FE1F0D998A00957806 /* ADTelemetryTests.m in Sources */,
 				B20DC60A1F0D998A00957806 /* NSURLExtensionsTests.m in Sources */,
 				B20DC6021F0D998A00957806 /* ADTokenCacheKeyTests.m in Sources */,
+				D6F730671F1FEFED00329967 /* ADTestLoaderGenericParsingTests.m in Sources */,
 				B20DC5FA1F0D998A00957806 /* ADHelpersTests.m in Sources */,
 				B20DC6221F0DA4BF00957806 /* ADWebAuthControllerTests.m in Sources */,
 				B20DC5FC1F0D998A00957806 /* ADLoggerTests.m in Sources */,
 				B20DC6001F0D998A00957806 /* ADTokenCacheItemTests.m in Sources */,
 				B20DC5F01F0D998A00957806 /* ADAuthenticationContextTests.m in Sources */,
+				D6F730691F1FEFED00329967 /* ADTestLoaderVariablesTests.m in Sources */,
 				603841A11DF9248F00D30F3D /* ADTelemetryTestDispatcher.m in Sources */,
 				B20DC6081F0D998A00957806 /* ADWebAuthResponseTests.m in Sources */,
 				B20DC6161F0D9A7600957806 /* ADAuthorityValidationTests.m in Sources */,
+				D6F730651F1FEFED00329967 /* ADTestLoaderCacheTests.m in Sources */,
 				B20DC5F81F0D998A00957806 /* ADClientMetricsTests.m in Sources */,
 				B20DC5F61F0D998A00957806 /* ADAuthenticationResultTests.m in Sources */,
+				D6F7306E1F1FF03F00329967 /* ADTestLoader.m in Sources */,
 				B20DC5F21F0D998A00957806 /* ADAuthenticationErrorTests.m in Sources */,
 				96C75D251E303A8E0038D1EC /* ADTestURLSessionDataTask.m in Sources */,
 				94DD18F51C5ACFF900F80C62 /* XCTestCase+TestHelperMethods.m in Sources */,
@@ -2042,6 +2091,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B20DC60F1F0D99A300957806 /* ADAcquireTokenTests.m in Sources */,
+				D6F7306D1F1FF03F00329967 /* ADTestLoader.m in Sources */,
 				B23FC03E1F0DA8F5008262F2 /* ADAcquireTokenPkeyAuthTests.m in Sources */,
 				B20DC5891F0D96A100957806 /* ADTelemetryTestDispatcher.m in Sources */,
 				B20DC6121F0D9A5500957806 /* ADAuthorityValidationIntegrationTests.m in Sources */,
@@ -2061,6 +2111,7 @@
 				B20DC5C61F0D96A700957806 /* XCTestCase+TestHelperMethods.m in Sources */,
 				B20DC6131F0D9A5500957806 /* ADAuthorityValidationIntegrationTests.m in Sources */,
 				B20DC5C71F0D96A700957806 /* ADTestURLSession.m in Sources */,
+				D6F7306F1F1FF03F00329967 /* ADTestLoader.m in Sources */,
 				B20DC6101F0D99A300957806 /* ADAcquireTokenTests.m in Sources */,
 				B20DC5C81F0D96A700957806 /* ADTestAuthenticationViewController.m in Sources */,
 			);
