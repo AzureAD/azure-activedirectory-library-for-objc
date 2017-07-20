@@ -3,11 +3,11 @@
   "suppressions": [
     {
       "file": "ADBrokerKeyHelperTests.m",
-      "_justification": "Key beins used here is for testing purposes."
+      "_justification": "Key being used here is for testing purposes."
     },
     {
       "file": "ADBrokerMessageTests.m",
-      "_justification": "Key beins used here is for testing purposes."
+      "_justification": "Key being used here is for testing purposes."
     }
   ]
 }
