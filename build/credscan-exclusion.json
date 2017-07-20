@@ -1,0 +1,13 @@
+{
+  "tool": "Credential Scanner",
+  "suppressions": [
+    {
+      "file": "ADBrokerKeyHelperTests.m",
+      "_justification": "Key being used here is for testing purposes."
+    },
+    {
+      "file": "ADBrokerMessageTests.m",
+      "_justification": "Key being used here is for testing purposes."
+    }
+  ]
+}
