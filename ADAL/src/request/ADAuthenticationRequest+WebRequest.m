@@ -188,12 +188,25 @@
                  }
                  else
                  {
-                     NSDictionary* userInfo = @{
-                                                @"username": [[NSDictionary adURLFormDecode:[end query]] valueForKey:@"username"],
-                                                };
+                     NSMutableDictionary *userInfoDictionary = [NSMutableDictionary dictionary];
+                     NSDictionary *queryParameters = [NSDictionary adURLFormDecode:[end query]];
+                     NSString *userName = [queryParameters valueForKey:AUTH_USERNAME_KEY];
+                     
+                     if (![NSString adIsStringNilOrBlank:userName])
+                     {
+                         [userInfoDictionary setObject:userName forKey:AUTH_USERNAME_KEY];
+                     }
+                     
+                     NSString *graphHost = [queryParameters valueForKey:AUTH_CLOUD_GRAPH_HOST_KEY];
+                     
+                     if (![NSString adIsStringNilOrBlank:graphHost])
+                     {
+                         [userInfoDictionary setObject:graphHost forKey:AUTH_CLOUD_GRAPH_HOST_KEY];
+                     }
+                     
                      NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
                                                         code:AD_ERROR_SERVER_WPJ_REQUIRED
-                                                    userInfo:userInfo];
+                                                    userInfo:userInfoDictionary];
                      error = [ADAuthenticationError errorFromNSError:err errorDetails:@"work place join is required" correlationId:_requestParams.correlationId];
                  }
 #else
