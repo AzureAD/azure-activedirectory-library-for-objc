@@ -44,6 +44,8 @@
     IBOutlet NSTextField* _redirectUri;
     IBOutlet NSTextField* _resource;
     
+    IBOutlet NSTextField* _extraQueryParamsField;
+    
     ADUserIdentifierType _idType;
     ADPromptBehavior _promptBehavior;
     

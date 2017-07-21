@@ -88,6 +88,7 @@
     _redirectUri.stringValue = settings.redirectUri.absoluteString;
     _resource.stringValue = settings.resource;
     _userIdField.stringValue = settings.defaultUser ? settings.defaultUser : @"";
+    _extraQueryParamsField.stringValue = settings.extraQueryParameters ? settings.extraQueryParameters : @"";
 }
 
 - (IBAction)selectedProfileChanged:(id)sender
@@ -237,6 +238,8 @@
     NSString* resource = [settings resource];
     NSString* clientId = [settings clientId];
     NSURL* redirectUri = [settings redirectUri];
+    NSString* extraQueryParameters = _extraQueryParamsField.stringValue;
+    
     ADUserIdentifier* identifier = [self identifier];
     
     BOOL validateAuthority = _validateAuthority.selectedSegment == 0;
@@ -269,7 +272,7 @@
                           redirectUri:redirectUri
                        promptBehavior:_promptBehavior
                        userIdentifier:identifier
-                 extraQueryParameters:nil
+                 extraQueryParameters:extraQueryParameters
                       completionBlock:^(ADAuthenticationResult *result)
      {
          if (fBlockHit)
@@ -278,8 +281,6 @@
              return;
          }
          fBlockHit = YES;
-         
-         
          
          dispatch_async(dispatch_get_main_queue(), ^{
              [self updateResultView:result];

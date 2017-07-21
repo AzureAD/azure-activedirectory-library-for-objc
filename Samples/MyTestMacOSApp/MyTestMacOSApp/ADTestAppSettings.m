@@ -52,6 +52,7 @@ static NSUInteger s_currentProfileIdx = 0;
 @synthesize clientId = _clientId;
 @synthesize resource = _resource;
 @synthesize defaultUser = _defaultUser;
+@synthesize extraQueryParameters = _extraQueryParameters;
 
 + (void)initialize
 {
@@ -167,6 +168,7 @@ static NSUInteger s_currentProfileIdx = 0;
     self.redirectUri = [NSURL URLWithString:[settings objectForKey:@"redirectUri"]];
     self.resource = [settings objectForKey:@"resource"];
     self.defaultUser = [settings objectForKey:@"defaultUser"];
+    self.extraQueryParameters = [settings objectForKey:@"EQP"];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:ADTestAppProfileChangedNotification object:self];
 }
