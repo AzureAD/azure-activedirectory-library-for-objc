@@ -87,7 +87,7 @@
     _clientId.stringValue = settings.clientId;
     _redirectUri.stringValue = settings.redirectUri.absoluteString;
     _resource.stringValue = settings.resource;
-    _userIdField.stringValue = settings.defaultUser;
+    _userIdField.stringValue = settings.defaultUser ? settings.defaultUser : @"";
 }
 
 - (IBAction)selectedProfileChanged:(id)sender
@@ -304,15 +304,16 @@
 
 - (IBAction)clearCache:(id)sender
 {
-    OSStatus status = [[ADTestAppCache sharedCache] deleteFromKeychain];
+    NSError* error = nil;
+    BOOL result = [[ADTestAppCache sharedCache] clearCacheWithError:&error];
     
-    if (status == errSecSuccess || status == errSecItemNotFound)
+    if (result)
     {
         _resultView.string = @"Successfully cleared cache.";
     }
     else
     {
-        _resultView.string = [NSString stringWithFormat:@"Failed to clear cache, error = %d", (int)status];
+        _resultView.string = [NSString stringWithFormat:@"Failed to clear cache, error = %@", error];
     }
 }
 
