@@ -21,20 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-typedef void(^ADAuthorizationCodeCallback)(NSString*, NSString*, ADAuthenticationError*);
+#import <Foundation/Foundation.h>
 
-extern NSString* kAdalResumeDictionaryKey;
-extern NSString* s_brokerAppVersion;
-extern NSString* s_brokerProtocolVersion;
+@interface NSString (ADURLExtensions)
 
-@interface ADAuthenticationRequest (Broker)
-
-+ (BOOL)internalHandleBrokerResponse:(NSURL*)response;
-
-+ (BOOL)validBrokerRedirectUri:(NSString*)url;
-
-- (BOOL)canUseBroker;
-
-- (NSURL *)composeBrokerRequest:(ADAuthenticationError* __autoreleasing *)error;
+- (NSString *)adAuthorityWithCloudInstanceName:(NSString *)cloudInstanceName;
 
 @end

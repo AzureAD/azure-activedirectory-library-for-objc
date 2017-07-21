@@ -385,7 +385,7 @@
     
     // Get the code first:
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_AUTHORIZATION_CODE];
-    [self requestCode:^(NSString * code, ADAuthenticationError *error)
+    [self requestCode:^(NSString * code, NSString * cloudInstanceName, ADAuthenticationError *error)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_AUTHORIZATION_CODE
                                                                         context:_requestParams];
@@ -434,6 +434,7 @@
                  
                  [[ADTelemetry sharedInstance] startEvent:_requestParams.telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_GRANT];
                  [self requestTokenByCode:code
+                                  inCloud:cloudInstanceName
                           completionBlock:^(ADAuthenticationResult *result)
                   {
                       ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_GRANT
@@ -458,6 +459,7 @@
 
 // Generic OAuth2 Authorization Request, obtains a token from an authorization code.
 - (void)requestTokenByCode:(NSString *)code
+                   inCloud:(NSString *)cloudInstanceName
            completionBlock:(ADAuthenticationCallback)completionBlock
 {
     HANDLE_ARGUMENT(code, [_requestParams correlationId]);
@@ -477,6 +479,7 @@
     }
     
     [self executeRequest:request_data
+                 inCloud:cloudInstanceName
               completion:completionBlock];
 }
 

@@ -52,6 +52,7 @@ typedef enum
     NSUUID*                         _correlationId;
     BOOL                            _multiResourceRefreshToken;
     BOOL                            _extendedLifeTimeToken;
+    NSString*                       _authority;
 }
 
 /*! See the ADAuthenticationResultStatus details */
@@ -77,6 +78,14 @@ typedef enum
 /*! Some access tokens have extended lifetime when server is in an unavailable state.
  This property indicates whether the access token is returned in such a state. */
 @property (readonly) BOOL extendedLifeTimeToken;
+
+/*!
+ Represents the authority used for getting the token from STS and caching it.
+ This authority should be used for subsequent silent requests. 
+ It will be different from the authority provided by developer 
+ when initializing ADAuthenticationContext for sovereign cloud scenarios.
+ */
+@property (readonly) NSString* authority;
 
 @end
 

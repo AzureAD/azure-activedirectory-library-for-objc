@@ -37,6 +37,7 @@
 #import "ADAuthenticationRequest.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADWebAuthRequest.h"
+#import "NSString+ADURLExtensions.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -45,7 +46,18 @@
 - (void)executeRequest:(NSDictionary *)request_data
             completion:(ADAuthenticationCallback)completionBlock
 {
-    NSString* urlString = [_context.authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
+    [self executeRequest:request_data
+                 inCloud:nil
+              completion:completionBlock];
+}
+
+- (void)executeRequest:(NSDictionary *)request_data
+               inCloud:(NSString *)cloudInstanceName
+            completion:(ADAuthenticationCallback)completionBlock
+{
+    NSString *cloudAuthority = [_context.authority adAuthorityWithCloudInstanceName:cloudInstanceName];
+    
+    NSString* urlString = [cloudAuthority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
     ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString]
                                                           context:_requestParams];
     [req setRequestDictionary:request_data];
@@ -55,7 +67,7 @@
          ADTokenCacheItem* item = [ADTokenCacheItem new];
          item.resource = [_requestParams resource];
          item.clientId = [_requestParams clientId];
-         item.authority = _context.authority;
+         item.authority = cloudAuthority;
          ADAuthenticationResult* result = [item processTokenResponse:response
                                                          fromRefresh:NO
                                                 requestCorrelationId:[_requestParams correlationId]];
@@ -173,10 +185,11 @@
     {
         [ADAuthenticationRequest releaseExclusionLock]; // Allow other operations that use the UI for credentials.
          
-         NSString* code = nil;
-         if (!error)
-         {
-             
+        NSString *code = nil;
+        NSString *cloudInstance = nil;
+        
+        if (!error)
+        {
              if ([[[end scheme] lowercaseString] isEqualToString:@"msauth"]) {
 #if AD_BROKER
                  
@@ -185,6 +198,7 @@
                  {
                      NSDictionary* queryParams = [end adQueryParameters];
                      code = [queryParams objectForKey:OAUTH2_CODE];
+                     cloudInstance = [queryParams objectForKey:AUTH_CLOUD_INSTANCE_NAME];
                  }
                  else
                  {
@@ -236,11 +250,15 @@
                                                                         errorDetails:@"The authorization server did not return a valid authorization code."
                                                                        correlationId:[_requestParams correlationId]];
                      }
+                     
+                     
+                     cloudInstance = [parameters objectForKey:AUTH_CLOUD_INSTANCE_NAME];
+                     
                  }
              }
          }
          
-         completionBlock(code, error);
+         completionBlock(code, cloudInstance, error);
      };
     
     // If this request doesn't allow us to attempt to grab a code silently (using

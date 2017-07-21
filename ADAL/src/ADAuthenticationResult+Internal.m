@@ -51,6 +51,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         // ObjC Objects
         _tokenCacheItem = item;
         _correlationId = correlationId;
+        _authority = item.authority;
     }
     return self;
 }

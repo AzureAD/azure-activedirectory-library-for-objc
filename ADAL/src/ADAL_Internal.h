@@ -56,7 +56,7 @@
 
 /*! The completion block declaration. */
 typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
-typedef void(^ADAuthorizationCodeCallback)(NSString*, ADAuthenticationError*);
+typedef void(^ADAuthorizationCodeCallback)(NSString*, NSString*, ADAuthenticationError*);
 
 #if TARGET_OS_IPHONE
 //iOS:

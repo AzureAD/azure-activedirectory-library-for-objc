@@ -37,6 +37,7 @@
 
 // Generic OAuth2 Authorization Request, obtains a token from an authorization code.
 - (void)requestTokenByCode:(NSString*)code
+                   inCloud:(NSString *)cloudInstanceName
            completionBlock:(ADAuthenticationCallback)completionBlock;
 
 @end
