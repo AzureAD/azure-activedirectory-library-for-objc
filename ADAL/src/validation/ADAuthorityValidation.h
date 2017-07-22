@@ -52,7 +52,6 @@ typedef void(^ADAuthorityValidationCallback)(BOOL validated, ADAuthenticationErr
 /*!
  Validates an authority.
  
- @param authority            The AAD or ADFS authority. Example: @"https://login.windows.net/contoso.com"
  @param requestParams        Request parameters
  @param completionBlock      The block to execute upon completion.
 
