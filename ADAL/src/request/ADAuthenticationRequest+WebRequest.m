@@ -215,7 +215,8 @@
                      
                      if (![NSString adIsStringNilOrBlank:graphHost])
                      {
-                         [userInfoDictionary setObject:graphHost forKey:AUTH_CLOUD_GRAPH_HOST_KEY];
+                         NSString *graphUrl = [NSString stringWithFormat:@"https://%@", graphHost];
+                         [userInfoDictionary setObject:graphUrl forKey:AUTH_CLOUD_GRAPH_HOST_KEY];
                      }
                      
                      NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
