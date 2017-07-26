@@ -46,18 +46,8 @@
 - (void)executeRequest:(NSDictionary *)request_data
             completion:(ADAuthenticationCallback)completionBlock
 {
-    [self executeRequest:request_data
-                 inCloud:nil
-              completion:completionBlock];
-}
-
-- (void)executeRequest:(NSDictionary *)request_data
-               inCloud:(NSString *)cloudInstanceName
-            completion:(ADAuthenticationCallback)completionBlock
-{
-    NSString *cloudAuthority = [_context.authority adAuthorityWithCloudInstanceName:cloudInstanceName];
-    
-    NSString* urlString = [cloudAuthority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
+    NSString *authority = [NSString adIsStringNilOrBlank:_cloudAuthority] ? _context.authority : _cloudAuthority;
+    NSString* urlString = [authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
     ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString]
                                                           context:_requestParams];
     [req setRequestDictionary:request_data];
@@ -67,7 +57,7 @@
          ADTokenCacheItem* item = [ADTokenCacheItem new];
          item.resource = [_requestParams resource];
          item.clientId = [_requestParams clientId];
-         item.authority = cloudAuthority;
+         item.authority = authority;
          ADAuthenticationResult* result = [item processTokenResponse:response
                                                          fromRefresh:NO
                                                 requestCorrelationId:[_requestParams correlationId]];
@@ -186,7 +176,6 @@
         [ADAuthenticationRequest releaseExclusionLock]; // Allow other operations that use the UI for credentials.
          
         NSString *code = nil;
-        NSString *cloudInstance = nil;
         
         if (!error)
         {
@@ -198,7 +187,8 @@
                  {
                      NSDictionary* queryParams = [end adQueryParameters];
                      code = [queryParams objectForKey:OAUTH2_CODE];
-                     cloudInstance = [queryParams objectForKey:AUTH_CLOUD_INSTANCE_NAME];
+                     [self setCloudAuthority:[queryParams objectForKey:AUTH_CLOUD_INSTANCE_NAME]];
+                     [self setGraphResource:[queryParams objectForKey:AUTH_CLOUD_GRAPH_HOST_KEY]];
                  }
                  else
                  {
@@ -209,14 +199,6 @@
                      if (![NSString adIsStringNilOrBlank:userName])
                      {
                          [userInfoDictionary setObject:userName forKey:AUTH_USERNAME_KEY];
-                     }
-                     
-                     NSString *graphHost = [queryParameters valueForKey:AUTH_CLOUD_GRAPH_HOST_KEY];
-                     
-                     if (![NSString adIsStringNilOrBlank:graphHost])
-                     {
-                         NSString *graphUrl = [NSString stringWithFormat:@"https://%@", graphHost];
-                         [userInfoDictionary setObject:graphUrl forKey:AUTH_CLOUD_GRAPH_HOST_KEY];
                      }
                      
                      NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
@@ -252,14 +234,14 @@
                                                                        correlationId:[_requestParams correlationId]];
                      }
                      
-                     
-                     cloudInstance = [parameters objectForKey:AUTH_CLOUD_INSTANCE_NAME];
+                     [self setCloudAuthority:[parameters objectForKey:AUTH_CLOUD_INSTANCE_NAME]];
+                     [self setGraphResource:[parameters objectForKey:AUTH_CLOUD_GRAPH_HOST_KEY]];
                      
                  }
              }
          }
          
-         completionBlock(code, cloudInstance, error);
+         completionBlock(code, error);
      };
     
     // If this request doesn't allow us to attempt to grab a code silently (using

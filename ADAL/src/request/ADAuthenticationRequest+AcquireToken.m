@@ -385,7 +385,7 @@
     
     // Get the code first:
     [[ADTelemetry sharedInstance] startEvent:telemetryRequestId eventName:AD_TELEMETRY_EVENT_AUTHORIZATION_CODE];
-    [self requestCode:^(NSString * code, NSString * cloudInstanceName, ADAuthenticationError *error)
+    [self requestCode:^(NSString * code, ADAuthenticationError *error)
      {
          ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_AUTHORIZATION_CODE
                                                                         context:_requestParams];
@@ -401,6 +401,7 @@
              
              ADAuthenticationResult* result = (AD_ERROR_UI_USER_CANCEL == error.code) ? [ADAuthenticationResult resultFromCancellation:_requestParams.correlationId]
              : [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
+             
              [event setAPIStatus:(AD_ERROR_UI_USER_CANCEL == error.code) ? AD_TELEMETRY_VALUE_CANCELLED:AD_TELEMETRY_VALUE_FAILED];
              [[ADTelemetry sharedInstance] stopEvent:_requestParams.telemetryRequestId event:event];
              completionBlock(result);
@@ -417,7 +418,9 @@
                  NSURL* brokerRequestURL = [self composeBrokerRequest:&error];
                  if (!brokerRequestURL)
                  {
-                     completionBlock([ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId]);
+                     ADAuthenticationResult *result = [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
+                     [result setCloudParameters:_cloudAuthority graphResource:_graphResource];
+                     completionBlock(result);
                      return;
                  }
                  
@@ -434,7 +437,6 @@
                  
                  [[ADTelemetry sharedInstance] startEvent:_requestParams.telemetryRequestId eventName:AD_TELEMETRY_EVENT_TOKEN_GRANT];
                  [self requestTokenByCode:code
-                                  inCloud:cloudInstanceName
                           completionBlock:^(ADAuthenticationResult *result)
                   {
                       ADTelemetryAPIEvent* event = [[ADTelemetryAPIEvent alloc] initWithName:AD_TELEMETRY_EVENT_TOKEN_GRANT
@@ -449,6 +451,7 @@
                                                               refreshToken:nil
                                                                    context:_requestParams];
                           result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
+                          [result setCloudParameters:_cloudAuthority graphResource:_graphResource];
                       }
                       completionBlock(result);
                   }];
@@ -459,7 +462,6 @@
 
 // Generic OAuth2 Authorization Request, obtains a token from an authorization code.
 - (void)requestTokenByCode:(NSString *)code
-                   inCloud:(NSString *)cloudInstanceName
            completionBlock:(ADAuthenticationCallback)completionBlock
 {
     HANDLE_ARGUMENT(code, [_requestParams correlationId]);
@@ -479,7 +481,6 @@
     }
     
     [self executeRequest:request_data
-                 inCloud:cloudInstanceName
               completion:completionBlock];
 }
 

@@ -36,6 +36,7 @@
 @synthesize correlationId = _correlationId;
 @synthesize extendedLifeTimeToken = _extendedLifeTimeToken;
 @synthesize authority = _authority;
+@synthesize graphResource = _graphResource;
 
 - (id)init
 {

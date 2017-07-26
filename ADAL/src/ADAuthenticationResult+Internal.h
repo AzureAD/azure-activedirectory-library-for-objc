@@ -51,5 +51,6 @@
 
 /*! Internal method to set the extendedLifetimeToken flag. */
 - (void)setExtendedLifeTimeToken:(BOOL)extendedLifeTimeToken;
+- (void)setCloudParameters:(NSString *)cloudAuthority graphResource:(NSString *)graphResource;
 
 @end

@@ -32,6 +32,7 @@
 #import "NSURL+ADExtensions.h"
 #import "ADTelemetry.h"
 #import "ADTelemetry+Internal.h"
+#import "NSString+ADURLExtensions.h"
 
 #if TARGET_OS_IPHONE
 #import "ADBrokerKeyHelper.h"
@@ -196,6 +197,30 @@ static dispatch_semaphore_t s_interactionLock = nil;
         return;
     }
     [_requestParams setCorrelationId:correlationId];
+}
+
+- (void)setCloudAuthority:(NSString *)cloudInstanceName
+{
+    if (cloudInstanceName)
+    {
+        _cloudAuthority = [_context.authority adAuthorityWithCloudInstanceName:cloudInstanceName];
+    }
+    else
+    {
+        _cloudAuthority = _context.authority;
+    }
+}
+
+- (void)setGraphResource:(NSString *)graphResource
+{
+    if (graphResource)
+    {
+        _graphResource = [NSString stringWithFormat:@"https://%@", graphResource];
+    }
+    else
+    {
+        _graphResource = nil;
+    }
 }
 
 #if AD_BROKER
