@@ -25,6 +25,7 @@
 
 #import "ADTestLoader.h"
 #import "ADTokenCacheItem+Internal.h"
+#import "ADUserInformation.h"
 
 @interface ADTestLoaderCacheTests : XCTestCase
 
@@ -235,4 +236,28 @@
     XCTAssertEqualWithAccuracy(item.expiresOn.timeIntervalSinceNow, 60.0, 5.0);
 }
 
+- (void)testCache_whenAccessTokenWithIdToken_shouldSucceed
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" idToken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" tenant=\"mytenant\" /></Cache>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertTrue([loader parse:&error]);
+    XCTAssertNil(error);
+    
+    NSArray<ADTokenCacheItem *> *cache = loader.cacheItems;
+    XCTAssertNotNil(cache);
+    XCTAssertEqual(cache.count, 1);
+    XCTAssertEqualObjects(cache[0].userInformation.userId, @"user@contoso.com");
+}
+
+- (void)testCache_whenAccessTokenWithBadIdToken_shouldFail
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" idToken=\"asdasiudhy2098134ujijsad0897ny89ashujdoiajhdsoiukjhn098sd=-0123=uji9kaosdenlkiasdlk\" tenant=\"mytenant\" /></Cache>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertFalse([loader parse:&error]);
+    XCTAssertNotNil(error);
+}
 @end
