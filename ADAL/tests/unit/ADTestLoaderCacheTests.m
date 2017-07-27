@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 
 #import "ADTestLoader.h"
+#import "ADTokenCacheItem+Internal.h"
 
 @interface ADTestLoaderCacheTests : XCTestCase
 
@@ -71,7 +72,7 @@
 
 - (void)testCache_basicSingleResourceRefreshToken_shouldSucceed
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" /></Cache>"];
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" tenant=\"mytenant\" /></Cache>"];
     XCTAssertNotNil(loader);
     
     NSError *error = nil;
@@ -85,7 +86,7 @@
 
 - (void)testCache_basicMultiResourceRefreshToken_shouldSucceed
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" /></Cache>"];
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><MultiResourceRefreshToken token=\"i_am_a_refresh_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" tenant=\"mytenant\" /></Cache>"];
     XCTAssertNotNil(loader);
     
     NSError *error = nil;
@@ -95,6 +96,27 @@
     NSArray *cache = loader.cacheItems;
     XCTAssertNotNil(cache);
     XCTAssertEqual(cache.count, 1);
+    
+    ADTokenCacheItem *item = cache[0];
+    XCTAssertEqualObjects(item.refreshToken, @"i_am_a_refresh_token");
+    
+}
+
+- (void)testCache_MRRTWithIdToken_shouldSucceed
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><MultiResourceRefreshToken token=\"i_am_a_refresh_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" tenant=\"mytenant\" idtoken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" /></Cache>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertTrue([loader parse:&error]);
+    XCTAssertNil(error);
+    
+    NSArray *cache = loader.cacheItems;
+    XCTAssertNotNil(cache);
+    XCTAssertEqual(cache.count, 1);
+    
+    ADTokenCacheItem *item = cache[0];
+    XCTAssertEqualObjects(item.refreshToken, @"i_am_a_refresh_token");
 }
 
 - (void)testCache_whenRefreshTokenNoAttributes_shouldFail
@@ -175,6 +197,24 @@
     
     NSArray *cache = loader.cacheItems;
     XCTAssertNil(cache);
+}
+
+- (void)testCache_whenAccessTokenWithExpiresIn_shouldSucceed
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_refresh_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" expiresIn=\"60\" tenant=\"mytenant\" /></Cache>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertTrue([loader parse:&error]);
+    XCTAssertNil(error);
+    
+    NSArray *cache = loader.cacheItems;
+    XCTAssertNotNil(cache);
+    XCTAssertEqual(cache.count, 1);
+    
+    ADTokenCacheItem *item = cache[0];
+    XCTAssertNotNil(item.expiresOn);
+    XCTAssertEqualWithAccuracy(item.expiresOn.timeIntervalSinceNow, 60.0, 5.0);
 }
 
 @end

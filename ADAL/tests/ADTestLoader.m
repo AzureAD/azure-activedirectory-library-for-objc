@@ -53,6 +53,8 @@ typedef enum ADTestLoaderParserState
     
     // Curently parsing the cache element
     Cache,
+    CacheToken,
+    CacheTokenContents,
     
     // Parser completed
     Finished,
@@ -425,8 +427,13 @@ typedef enum ADTestLoaderParserState
             [self parseNetwork:elementName attributes:attributeDict];
             return;
         case Cache:
-            [self parseCache:elementName attributes:attributeDict];
+            [self startToken:elementName attributes:attributeDict];
             return;
+        case CacheToken:
+            [self startTokenContents:elementName attributes:attributeDict];
+            return;
+        case CacheTokenContents:
+            THROW_EXCEPTION(nil, @"can not have sub-sub elements in cache tokens");
         case Finished:
             THROW_EXCEPTION(nil, @"Parser encountered element after finished parsing.");
     }
@@ -465,6 +472,12 @@ typedef enum ADTestLoaderParserState
             return;
         case Cache:
             [self endCache:elementName];
+            return;
+        case CacheToken:
+            [self endToken:elementName];
+            return;
+        case CacheTokenContents:
+            [self endTokenContents:elementName];
             return;
         case Finished:
             THROW_EXCEPTION(nil, @"Parser encountered element after finished parsing.");
@@ -622,54 +635,176 @@ typedef enum ADTestLoaderParserState
 #pragma mark -
 #pragma mark Cache
 
+#pragma mark -
+#pragma mark Cache
+
+typedef enum ADALTokenType
+{
+    AccessToken,
+    RefreshToken,
+    MultiResourceRefreshToken,
+    FamilyRefreshToken,
+} ADALTokenType;
+
 - (void)startCache:(NSDictionary<NSString *, NSString *> *)attributeDict
 {
     (void)attributeDict;
     _cacheItems = [NSMutableArray new];
 }
 
-- (void)parseCache:(NSString *)elementName
+- (void)startToken:(NSString *)elementName
         attributes:(NSDictionary<NSString *, NSString *> *)attributeDict
 {
-    _currentCacheItem = [ADTokenCacheItem new];
+    ADALTokenType type;
     
-    if (!([elementName isEqualToString:@"accesstoken"] || [elementName isEqualToString:@"refreshtoken"]))
-    {
-        THROW_EXCEPTION(nil, @"element type \"%@\" not supported in cache section.", elementName);
-    }
-    
-    NSString *token = attributeDict[@"token"];
-    CHECK_THROW_EXCEPTION(token, nil, @"No token attribute on %@ item.", elementName);
-    
-    NSString *clientId = attributeDict[@"clientId"];
-    CHECK_THROW_EXCEPTION(clientId, nil, @"No clientId attribute on %@ item.", elementName);
-    
-    NSString *authority = attributeDict[@"authority"];
-    CHECK_THROW_EXCEPTION(authority, nil, @"No authority attribute on %@ item.", elementName);
-    NSURL *authorityUrl = [NSURL URLWithString:authority];
-    CHECK_THROW_EXCEPTION(authorityUrl, nil, @"Provided authority \"%@\" is not a valid URL.", authority);
-    
-    NSString *resource = attributeDict[@"resource"];
     if ([elementName isEqualToString:@"accesstoken"])
     {
-        CHECK_THROW_EXCEPTION(resource, nil, @"No resource attribute on AccessToken item.");
+        type = AccessToken;
+    }
+    else if ([elementName isEqualToString:@"refreshtoken"])
+    {
+        type = RefreshToken;
+    }
+    else if ([elementName isEqualToString:@"multiresourcerefreshtoken"])
+    {
+        type = MultiResourceRefreshToken;
+    }
+    else if ([elementName isEqualToString:@"familyrefreshtoken"])
+    {
+        type = FamilyRefreshToken;
+    }
+    else
+    {
+        THROW_EXCEPTION(nil, @"Unrecognized element type \"%@\" in Cache section.", elementName);
     }
     
+    NSString *authority = attributeDict[@"authority"];
+    CHECK_THROW_EXCEPTION(authority, nil, @"authority missing from %@", elementName);
+    NSURL *authorityUrl = [NSURL URLWithString:authority];
+    CHECK_THROW_EXCEPTION(authorityUrl, nil, @"authority \"%@\" is not a valid URL!", authority);
+    
+    // Not used in ObjC for legacy reasons, but required for document spec
+    NSString *tenant = attributeDict[@"tenant"];
+    CHECK_THROW_EXCEPTION(tenant, nil, @"tenant missing from %@", elementName);
+    
+    NSString *token = attributeDict[@"token"];
+    CHECK_THROW_EXCEPTION(token, nil, @"token missing from %@", elementName);
+    
+    NSString *resource = attributeDict[@"resource"];
+    switch (type)
+    {
+        case AccessToken:
+        case RefreshToken:
+            CHECK_THROW_EXCEPTION(resource, nil, @"resource is missing from %@", elementName);
+            break;
+        case MultiResourceRefreshToken:
+        case FamilyRefreshToken:
+            CHECK_THROW_EXCEPTION(!resource, nil, @"resource is invalid on %@", elementName);
+        default:
+            break;
+    }
+    
+    NSString *clientId = attributeDict[@"clientId"];
+    switch (type)
+    {
+        case AccessToken:
+        case RefreshToken:
+        case MultiResourceRefreshToken:
+            CHECK_THROW_EXCEPTION(clientId, nil, @"clientId is missing from %@", elementName);
+            break;
+            
+        case FamilyRefreshToken:
+            CHECK_THROW_EXCEPTION(!clientId, nil, @"clientId is invalid on %@", elementName);
+        default:
+            break;
+    }
+    
+    NSString *expiresIn = attributeDict[@"expiresIn"];
+    NSDate *expiresOn = nil;
+    switch (type)
+    {
+        case AccessToken:
+        {
+            NSScanner *scanner = [NSScanner scannerWithString:expiresIn];
+            int expiresInt;
+            CHECK_THROW_EXCEPTION([scanner scanInt:&expiresInt], nil, @"expiresIn value \"%@\" is not a valid integer", expiresIn);
+            expiresOn = [NSDate dateWithTimeIntervalSinceNow:(NSTimeInterval)expiresInt];
+            break;
+        }
+        case RefreshToken:
+        case MultiResourceRefreshToken:
+        case FamilyRefreshToken:
+            CHECK_THROW_EXCEPTION(!expiresIn, nil, @"expiresIn is invalid on %@", elementName);
+        default:
+            break;
+    }
+    
+    NSString *familyId = attributeDict[@"familyId"];
+    switch (type)
+    {
+        case AccessToken:
+        case RefreshToken:
+            CHECK_THROW_EXCEPTION(!familyId, nil, @"familyId is invalid on %@", elementName);
+            break;
+        case FamilyRefreshToken:
+            CHECK_THROW_EXCEPTION(familyId, nil, @"familyId is missing from %@", elementName);
+            clientId = [NSString stringWithFormat:@"foci-%@", familyId];
+        default:
+            break;
+    }
+    
+    _currentCacheItem = [ADTokenCacheItem new];
     _currentCacheItem.authority = authority;
-    _currentCacheItem.refreshToken = token;
-    _currentCacheItem.clientId = clientId;
     _currentCacheItem.resource = resource;
+    _currentCacheItem.clientId = clientId;
+    _currentCacheItem.familyId = familyId;
+    _currentCacheItem.expiresOn = expiresOn;
+    
+    switch (type)
+    {
+        case AccessToken:
+            _currentCacheItem.accessToken = token;
+            break;
+        case RefreshToken:
+        case MultiResourceRefreshToken:
+        case FamilyRefreshToken:
+            _currentCacheItem.refreshToken = token;
+    }
+    
+    _state = CacheToken;
+}
+
+- (void)startTokenContents:(NSString *)elementName
+                attributes:(NSDictionary<NSString *, NSString *> *)attributeDict
+{
+    (void)elementName;
+    (void)attributeDict;
+    CHECK_THROW_EXCEPTION(_state == CacheToken, nil, @"Parser in unexpected state");
+    
+    _state = CacheTokenContents;
+}
+
+- (void)endTokenContents:(NSString *)elementName
+{
+    (void)elementName;
+    
+    _state = CacheToken;
+}
+
+- (void)endToken:(NSString *)elementName
+{
+    (void)elementName;
+    
+    [_cacheItems addObject:_currentCacheItem];
+    _currentCacheItem = nil;
+    _state = Cache;
 }
 
 - (void)endCache:(NSString *)elementName
 {
     (void)elementName;
     
-    if (_currentCacheItem)
-    {
-        [_cacheItems addObject:_currentCacheItem];
-        _currentCacheItem = nil;
-    }
+    _state = Parsing;
 }
 
 
