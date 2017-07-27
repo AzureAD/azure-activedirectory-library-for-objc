@@ -26,11 +26,11 @@
 
 #define THROW_EXCEPTION_NOLINE(INFO, FMT, ...) @throw [NSException exceptionWithName:ADTestLoaderException reason:[NSString stringWithFormat:FMT, ##__VA_ARGS__] userInfo:INFO];
 
-#define CHECK_THROW_EXCEPTION_NOLINE(CHECK, INFO, FMT, ...) if (!CHECK) { THROW_EXCEPTION_NOLINE(INFO, FMT, ##__VA_ARGS__ ) }
+#define CHECK_THROW_EXCEPTION_NOLINE(CHECK, INFO, FMT, ...) if (!(CHECK)) { THROW_EXCEPTION_NOLINE(INFO, FMT, ##__VA_ARGS__ ) }
 
 #define THROW_EXCEPTION(INFO, FMT, ...) @throw [NSException exceptionWithName:ADTestLoaderException reason:[NSString stringWithFormat:FMT " (%@:%ld)", ##__VA_ARGS__, _parserPath.lastPathComponent, (long)_parser.lineNumber] userInfo:INFO];
 
-#define CHECK_THROW_EXCEPTION(CHECK, INFO, FMT, ...) if (!CHECK) { THROW_EXCEPTION(INFO, FMT, ##__VA_ARGS__ ) }
+#define CHECK_THROW_EXCEPTION(CHECK, INFO, FMT, ...) if (!(CHECK)) { THROW_EXCEPTION(INFO, FMT, ##__VA_ARGS__ ) }
 
 NSExceptionName ADTestLoaderException = @"ADTestLoaderException";
 NSErrorDomain ADTestErrorDomain = @"ADTestErrorDomain";
