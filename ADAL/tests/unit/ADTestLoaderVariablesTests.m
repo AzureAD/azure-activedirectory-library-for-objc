@@ -111,4 +111,63 @@
     XCTAssertEqualObjects(testVariables, (@{ @"val" : @"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0" }));
 }
 
+- (void)testVariables_whenContainsSubstitution_shouldSucceed
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables><val1>value!</val1><val2>$(val1)</val2></TestVariables>"];
+    NSError *error = nil;
+    XCTAssertTrue([loader parse:&error]);
+    XCTAssertNil(error);
+    
+    NSDictionary *testVariables = loader.testVariables;
+    XCTAssertNotNil(testVariables);
+    NSDictionary *expected = @{ @"val1" : @"value!", @"val2" : @"value!" };
+    XCTAssertEqualObjects(testVariables, expected);
+}
+- (void)testVariables_whenContainsSubstitutionAndWhitespace_shouldIgnoreExteriorWhitespace
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables><val1>value!</val1><val2>  $(val1)  </val2></TestVariables>"];
+    NSError *error = nil;
+    XCTAssertTrue([loader parse:&error]);
+    XCTAssertNil(error);
+    
+    NSDictionary *testVariables = loader.testVariables;
+    XCTAssertNotNil(testVariables);
+    NSDictionary *expected = @{ @"val1" : @"value!", @"val2" : @"value!" };
+    XCTAssertEqualObjects(testVariables, expected);
+}
+
+- (void)testVariables_whenContainsNotDefinedSubstitutions_shouldFail
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables><val2>$(val1)</val2></TestVariables>"];
+    NSError *error = nil;
+    XCTAssertFalse([loader parse:&error]);
+    XCTAssertNotNil(error);
+}
+
+- (void)testVariables_whenMultipleSubstitutesInSingleString_shouldPass
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables><val1>value1</val1><val2>value2</val2><val3>$(val1)$(val2)</val3></TestVariables>"];
+    NSError *error = nil;
+    XCTAssertTrue([loader parse:&error]);
+    XCTAssertNil(error);
+    
+    NSDictionary *testVariables = loader.testVariables;
+    XCTAssertNotNil(testVariables);
+    NSDictionary *expected = @{ @"val1" : @"value1", @"val2" : @"value2", @"val3" : @"value1value2" };
+    XCTAssertEqualObjects(testVariables, expected);
+}
+
+- (void)testVariables_whenMultipleSubstitutesAndWhitespaceInSingleString_shouldPass
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables><val1>value1</val1><val2>value2</val2><val3>  $(val1) and $(val2)  </val3></TestVariables>"];
+    NSError *error = nil;
+    XCTAssertTrue([loader parse:&error]);
+    XCTAssertNil(error);
+    
+    NSDictionary *testVariables = loader.testVariables;
+    XCTAssertNotNil(testVariables);
+    NSDictionary *expected = @{ @"val1" : @"value1", @"val2" : @"value2", @"val3" : @"value1 and value2" };
+    XCTAssertEqualObjects(testVariables, expected);
+}
+
 @end

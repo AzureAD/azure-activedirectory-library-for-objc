@@ -124,6 +124,8 @@ typedef enum ADTestLoaderParserState
     NSMutableDictionary *_testVariables;
     NSMutableArray *_networkRequests;
     NSMutableArray *_cacheItems;
+    
+    NSRegularExpression *_substitutionRegex;
 }
 
 + (ADTestVariables *)loadTest:(NSString *)testName
@@ -143,6 +145,20 @@ typedef enum ADTestLoaderParserState
     }
     
     return [[NSBundle bundleForClass:[self class]] pathForResource:resource ofType:extension];
+}
+
+- (id)init
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    NSError *error = nil;
+    _substitutionRegex = [NSRegularExpression regularExpressionWithPattern:@"\\$\\(([a-zA-Z0-9_-]+)\\)" options:0 error:&error];
+    CHECK_THROW_EXCEPTION_NOLINE(_substitutionRegex, @{ @"error" : error }, @"Failed to create substitution regex");
+    
+    return self;
 }
 
 - (id)initWithFile:(NSString *)file
@@ -167,7 +183,7 @@ typedef enum ADTestLoaderParserState
 
 - (id)initWithString:(NSString *)string
 {
-    if (!(self = [super init]))
+    if (!(self = [self init]))
     {
         return nil;
     }
@@ -180,7 +196,7 @@ typedef enum ADTestLoaderParserState
 
 - (id)initWithContentsOfPath:(NSString *)path
 {
-    if (!(self = [super init]))
+    if (!(self = [self init]))
     {
         return nil;
     }
@@ -273,6 +289,47 @@ typedef enum ADTestLoaderParserState
     }
     
     return ret;
+}
+
+- (NSString *)valueForMatch:(NSTextCheckingResult *)match
+                      input:(NSString *)input
+{
+    NSString *key = [input substringWithRange:[match rangeAtIndex:1]];
+    NSString *value = _testVariables[key];
+    CHECK_THROW_EXCEPTION(value, nil, @"Substitution value \"%@\" not defined", value);
+    
+    return value;
+}
+
+- (NSString *)replaceInlinedVariables:(NSString *)input
+{
+    NSUInteger cInput = input.length;
+    NSArray<NSTextCheckingResult *> *matches = [_substitutionRegex matchesInString:input options:0 range:NSMakeRange(0, cInput)];
+    if (matches.count == 0)
+        return [input copy];
+    
+    // Early exit case for when the input string is solely a substitute variable
+    if (matches.count == 1 && matches[0].range.length == cInput)
+    {
+        return [self valueForMatch:matches[0] input:input];
+    }
+    
+    NSMutableString *output = [NSMutableString new];
+    NSUInteger currPosition = 0;
+    for (NSTextCheckingResult *result in matches)
+    {
+        NSRange resultRange = result.range;
+        if (resultRange.location > currPosition)
+        {
+            [output appendString:[input substringWithRange:NSMakeRange(currPosition, resultRange.location - currPosition)]];
+            currPosition += resultRange.location;
+        }
+        
+        [output appendString:[self valueForMatch:result input:input]];
+        currPosition += resultRange.length;
+    }
+    
+    return [output copy];
 }
 
 #pragma mark -
@@ -522,7 +579,7 @@ typedef enum ADTestLoaderParserState
     
     if (_currentValue.length > 0)
     {
-        [parentDict setValue:[_currentValue copy] forKey:name];
+        [parentDict setValue:[self replaceInlinedVariables:_currentValue] forKey:name];
         [_currentValue setString:@""];
     }
     
@@ -806,6 +863,5 @@ typedef enum ADALTokenType
     
     _state = Parsing;
 }
-
 
 @end
