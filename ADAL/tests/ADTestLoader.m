@@ -23,6 +23,7 @@
 
 #import "ADTestLoader.h"
 #import "ADTokenCacheItem.h"
+#import "ADUserInformation.h"
 
 #define THROW_EXCEPTION_NOLINE(INFO, FMT, ...) @throw [NSException exceptionWithName:ADTestLoaderException reason:[NSString stringWithFormat:FMT, ##__VA_ARGS__] userInfo:INFO];
 
@@ -303,6 +304,11 @@ typedef enum ADTestLoaderParserState
 
 - (NSString *)replaceInlinedVariables:(NSString *)input
 {
+    if (!input)
+    {
+        return nil;
+    }
+    
     NSUInteger cInput = input.length;
     NSArray<NSTextCheckingResult *> *matches = [_substitutionRegex matchesInString:input options:0 range:NSMakeRange(0, cInput)];
     if (matches.count == 0)
@@ -813,12 +819,21 @@ typedef enum ADALTokenType
             break;
     }
     
+    NSString *idToken = [self replaceInlinedVariables:attributeDict[@"idToken"]];
+    
     _currentCacheItem = [ADTokenCacheItem new];
     _currentCacheItem.authority = authority;
     _currentCacheItem.resource = resource;
     _currentCacheItem.clientId = clientId;
     _currentCacheItem.familyId = familyId;
     _currentCacheItem.expiresOn = expiresOn;
+    
+    if (idToken)
+    {
+        ADAuthenticationError *error = nil;
+        _currentCacheItem.userInformation = [ADUserInformation userInformationWithIdToken:idToken error:&error];
+        CHECK_THROW_EXCEPTION(_currentCacheItem.userInformation, @{ @"error" : error }, @"Failed to parse idtoken \"%@\"", idToken);
+    }
     
     switch (type)
     {
