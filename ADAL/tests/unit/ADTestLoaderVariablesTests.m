@@ -94,7 +94,21 @@
     
     NSDictionary *testVariables = loader.testVariables;
     XCTAssertNotNil(testVariables);
-    XCTAssertEqualObjects(testVariables, (@{ @"val" : @"eyJqc29ua2V5IjoianNvbnZhbCJ9.eyAibW9yZWpzb24iIDogMjUwMCB9" }));
+    XCTAssertEqualObjects(testVariables, (@{ @"val" : @"eyJqc29ua2V5IjoianNvbnZhbCJ9.eyJtb3JlanNvbiI6MjUwMH0" }));
+}
+
+- (void)testVariables_typeJwtIdToken
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables><val type=\"jwt\"><part>{\"typ\":\"JWT\", \"alg\":\"none\"}</part><part>{ \"upn\" : \"user@contoso.com\" }</part></val></TestVariables>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertTrue([loader parse:&error]);
+    XCTAssertNil(error);
+    
+    NSDictionary *testVariables = loader.testVariables;
+    XCTAssertNotNil(testVariables);
+    XCTAssertEqualObjects(testVariables, (@{ @"val" : @"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0" }));
 }
 
 @end
