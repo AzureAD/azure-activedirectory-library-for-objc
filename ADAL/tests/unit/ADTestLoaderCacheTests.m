@@ -27,6 +27,16 @@
 #import "ADTokenCacheItem+Internal.h"
 #import "ADUserInformation.h"
 
+static NSString *GetReason(NSError *error)
+{
+    NSException *exception = error.userInfo[@"exception"];
+    if (![exception isKindOfClass:[NSException class]])
+    {
+        return nil;
+    }
+    return exception.reason;
+}
+
 @interface ADTestLoaderCacheTests : XCTestCase
 
 @end
@@ -71,7 +81,10 @@
     XCTAssertNil(cache);
 }
 
-- (void)testCache_basicSingleResourceRefreshToken_shouldSucceed
+#pragma mark -
+#pragma mark Single Resource Refresh Token Tests
+
+- (void)testRefreshToken_withMinimumAttributes_shouldSucceed
 {
     ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" tenant=\"mytenant\" /></Cache>"];
     XCTAssertNotNil(loader);
@@ -84,6 +97,23 @@
     XCTAssertNotNil(cache);
     XCTAssertEqual(cache.count, 1);
 }
+
+
+- (void)testRefreshToken_withNoAttributes_shouldFail
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken/></Cache>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertFalse([loader parse:&error]);
+    XCTAssertNotNil(error);
+    
+    NSArray *cache = loader.cacheItems;
+    XCTAssertNil(cache);
+}
+
+#pragma mark -
+#pragma mark MRRT Tests
 
 - (void)testCache_basicMultiResourceRefreshToken_shouldSucceed
 {
@@ -103,36 +133,8 @@
     
 }
 
-- (void)testCache_MRRTWithIdToken_shouldSucceed
-{
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><MultiResourceRefreshToken token=\"i_am_a_refresh_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" tenant=\"mytenant\" idtoken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" /></Cache>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
-    
-    NSArray *cache = loader.cacheItems;
-    XCTAssertNotNil(cache);
-    XCTAssertEqual(cache.count, 1);
-    
-    ADTokenCacheItem *item = cache[0];
-    XCTAssertEqualObjects(item.refreshToken, @"i_am_a_refresh_token");
-}
-
-- (void)testCache_whenRefreshTokenNoAttributes_shouldFail
-{
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken/></Cache>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertFalse([loader parse:&error]);
-    XCTAssertNotNil(error);
-    
-    NSArray *cache = loader.cacheItems;
-    XCTAssertNil(cache);
-}
-
+#pragma mark -
+#pragma mark Token Attribute Tests
 
 - (void)testCache_whenRefreshTokenNoToken_shouldFail
 {
@@ -147,124 +149,7 @@
     XCTAssertNil(cache);
 }
 
-- (void)testCache_whenRefreshTokenNoClientId_shouldFail
-{
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" authority=\"https://iamanauthority.com\" /></Cache>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertFalse([loader parse:&error]);
-    XCTAssertNotNil(error);
-    
-    NSArray *cache = loader.cacheItems;
-    XCTAssertNil(cache);
-}
-
-- (void)testCache_whenRefreshTokenNoAuthority_shouldFail
-{
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" clientId=\"clientid\" /></Cache>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertFalse([loader parse:&error]);
-    XCTAssertNotNil(error);
-    
-    NSArray *cache = loader.cacheItems;
-    XCTAssertNil(cache);
-}
-
-- (void)testCache_whenRefreshTokenAuthorityNotURL_shouldFail
-{
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" clientId=\"clientid\" authority=\"iamnotanauthority88(&@#@#$R12343\" /></Cache>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertFalse([loader parse:&error]);
-    XCTAssertNotNil(error);
-    
-    NSArray *cache = loader.cacheItems;
-    XCTAssertNil(cache);
-    
-}
-
-- (void)testCache_whenAccessTokenNoResource_shouldFail
-{
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_refresh_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" /></Cache>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertFalse([loader parse:&error]);
-    XCTAssertNotNil(error);
-    
-    NSArray *cache = loader.cacheItems;
-    XCTAssertNil(cache);
-}
-
-- (void)testCache_whenAccessTokenNoExpiresIn_shouldDefaultTo3600
-{
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" tenant=\"mytenant\" /></Cache>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
-    
-    NSArray *cache = loader.cacheItems;
-    XCTAssertNotNil(cache);
-    XCTAssertEqual(cache.count, 1);
-    
-    ADTokenCacheItem *item = cache[0];
-    XCTAssertNotNil(item.expiresOn);
-    XCTAssertEqualWithAccuracy(item.expiresOn.timeIntervalSinceNow, 3600.0, 5.0);
-}
-
-- (void)testCache_whenAccessTokenWithExpiresIn_shouldSucceed
-{
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" expiresIn=\"60\" tenant=\"mytenant\" /></Cache>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
-    
-    NSArray *cache = loader.cacheItems;
-    XCTAssertNotNil(cache);
-    XCTAssertEqual(cache.count, 1);
-    
-    ADTokenCacheItem *item = cache[0];
-    XCTAssertNotNil(item.expiresOn);
-    XCTAssertEqualWithAccuracy(item.expiresOn.timeIntervalSinceNow, 60.0, 5.0);
-}
-
-- (void)testCache_whenAccessTokenWithIdToken_shouldSucceed
-{
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" idToken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" tenant=\"mytenant\" /></Cache>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
-    
-    NSArray<ADTokenCacheItem *> *cache = loader.cacheItems;
-    XCTAssertNotNil(cache);
-    XCTAssertEqual(cache.count, 1);
-    XCTAssertEqualObjects(cache[0].userInformation.userId, @"user@contoso.com");
-}
-
-- (void)testCache_whenAccessTokenWithBadIdToken_shouldFail
-{
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" idToken=\"asdasiudhy2098134ujijsad0897ny89ashujdoiajhdsoiukjhn098sd=-0123=uji9kaosdenlkiasdlk\" tenant=\"mytenant\" /></Cache>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertFalse([loader parse:&error]);
-    XCTAssertNotNil(error);
-}
-
-#pragma mark -
-#pragma mark Variable Substitutions
-
-- (void)testCache_whenAccessTokenWithTokenSubstitution_shouldPass
+- (void)testTokenSubstitution_withAccessToken_shouldPass
 {
     ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"$(token)\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" idToken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" tenant=\"mytenant\" /></Cache>"];
     
@@ -283,7 +168,24 @@
     XCTAssertEqualObjects(item.accessToken, @"subaccesstoken");
 }
 
-- (void)testCache_whenAccessTokenWithClientIdSubstitution_shouldPass
+
+#pragma mark -
+#pragma mark ClientID Attribute Tests
+
+- (void)testCache_whenRefreshTokenNoClientId_shouldFail
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" authority=\"https://iamanauthority.com\" /></Cache>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertFalse([loader parse:&error]);
+    XCTAssertNotNil(error);
+    
+    NSArray *cache = loader.cacheItems;
+    XCTAssertNil(cache);
+}
+
+- (void)testClientIdSubstitution_withAccessToken_shouldPass
 {
     ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"$(clientId)\" authority=\"https://iamanauthority.com\" resource=\"resource\" idToken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" tenant=\"mytenant\" /></Cache>"];
     
@@ -302,26 +204,23 @@
     XCTAssertEqualObjects(item.clientId, @"subclientid");
 }
 
-- (void)testCache_whenAccessTokenWithAuthoritySubstitution_shouldPass
+#pragma mark -
+#pragma mark Resource Attribute Tests
+
+- (void)testCache_withAccessTokenNoResource_shouldFail
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"$(authority)\" resource=\"resource\" idToken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" tenant=\"mytenant\" /></Cache>"];
-    
-    loader.testVariables = [@{ @"authority" : @"https://subauthority.com"} mutableCopy];
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_refresh_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" /></Cache>"];
+    XCTAssertNotNil(loader);
     
     NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
+    XCTAssertFalse([loader parse:&error]);
+    XCTAssertNotNil(error);
     
-    NSArray<ADTokenCacheItem *> *cache = loader.cacheItems;
-    XCTAssertNotNil(cache);
-    XCTAssertEqual(cache.count, 1);
-    
-    ADTokenCacheItem *item = cache[0];
-    XCTAssertNotNil(item);
-    XCTAssertEqualObjects(item.authority, @"https://subauthority.com");
+    NSArray *cache = loader.cacheItems;
+    XCTAssertNil(cache);
 }
 
-- (void)testCache_whenAccessTokenWithResourceSubstitution_shouldPass
+- (void)testResourceSubstitution_withAccessToken_shouldPass
 {
     ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"$(resource)\" idToken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" tenant=\"mytenant\" /></Cache>"];
     
@@ -340,7 +239,101 @@
     XCTAssertEqualObjects(item.resource, @"subresource");
 }
 
-- (void)testCache_whenAccessTokenWithIdTokenVariableSubstitution_shouldSucceed
+#pragma mark -
+#pragma mark Authority Attribute Tests
+
+- (void)testNoAuthority_withRefreshToken_shouldFail
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" clientId=\"clientid\" /></Cache>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertFalse([loader parse:&error]);
+    XCTAssertNotNil(error);
+    
+    NSArray *cache = loader.cacheItems;
+    XCTAssertNil(cache);
+}
+
+- (void)testAuthorityNotURL_withRefreshToken_shouldFail
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><RefreshToken token=\"i_am_a_refresh_token\" resource=\"resource\" clientId=\"clientid\" authority=\"iamnotanauthority88(&@#@#$R12343\" /></Cache>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertFalse([loader parse:&error]);
+    XCTAssertNotNil(error);
+    
+    NSArray *cache = loader.cacheItems;
+    XCTAssertNil(cache);
+}
+
+- (void)testAuthoritySubstitution_withAccessToken_shouldPass
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"$(authority)\" resource=\"resource\" idToken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" tenant=\"mytenant\" /></Cache>"];
+    
+    loader.testVariables = [@{ @"authority" : @"https://subauthority.com"} mutableCopy];
+    
+    NSError *error = nil;
+    XCTAssertTrue([loader parse:&error]);
+    XCTAssertNil(error);
+    
+    NSArray<ADTokenCacheItem *> *cache = loader.cacheItems;
+    XCTAssertNotNil(cache);
+    XCTAssertEqual(cache.count, 1);
+    
+    ADTokenCacheItem *item = cache[0];
+    XCTAssertNotNil(item);
+    XCTAssertEqualObjects(item.authority, @"https://subauthority.com");
+}
+
+#pragma mark -
+#pragma mark ID Token Attribute Tests
+
+- (void)testIdToken_withMRRT_shouldSucceed
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><MultiResourceRefreshToken token=\"i_am_a_refresh_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" tenant=\"mytenant\" idtoken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" /></Cache>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertTrue([loader parse:&error]);
+    XCTAssertNil(error);
+    
+    NSArray *cache = loader.cacheItems;
+    XCTAssertNotNil(cache);
+    XCTAssertEqual(cache.count, 1);
+    
+    ADTokenCacheItem *item = cache[0];
+    XCTAssertEqualObjects(item.refreshToken, @"i_am_a_refresh_token");
+    XCTAssertEqualObjects(item.userInformation.userId, @"user@contoso.com");
+}
+
+- (void)testIdToken_withAccessToken_shouldSucceed
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" idToken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" tenant=\"mytenant\" /></Cache>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertTrue([loader parse:&error]);
+    XCTAssertNil(error);
+    
+    NSArray<ADTokenCacheItem *> *cache = loader.cacheItems;
+    XCTAssertNotNil(cache);
+    XCTAssertEqual(cache.count, 1);
+    XCTAssertEqualObjects(cache[0].userInformation.userId, @"user@contoso.com");
+}
+
+- (void)testBadIdToken_withAccessToken_shouldFail
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" idToken=\"asdasiudhy2098134ujijsad0897ny89ashujdoiajhdsoiukjhn098sd=-0123=uji9kaosdenlkiasdlk\" tenant=\"mytenant\" /></Cache>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertFalse([loader parse:&error]);
+    XCTAssertNotNil(error);
+}
+
+- (void)testIdTokenSubstitution_withAccessToken_shouldSucceed
 {
     ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" idToken=\"$(idtoken)\" tenant=\"mytenant\" /></Cache>"];
     
@@ -356,25 +349,47 @@
     XCTAssertEqualObjects(cache[0].userInformation.userId, @"user@contoso.com");
 }
 
+#pragma mark -
+#pragma mark ExpiresIn Attribute Tests
 
-- (void)testCache_whenAccessTokenWithTenantSubstitution_shouldPass
+
+- (void)testNoExpiresIn_withAccessToken_shouldDefaultTo3600
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" idToken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" tenant=\"$(tenant)\" /></Cache>"];
-    
-    loader.testVariables = [@{ @"tenant" : @"subtenant" } mutableCopy];
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" tenant=\"mytenant\" /></Cache>"];
+    XCTAssertNotNil(loader);
     
     NSError *error = nil;
     XCTAssertTrue([loader parse:&error]);
     XCTAssertNil(error);
     
-    NSArray<ADTokenCacheItem *> *cache = loader.cacheItems;
+    NSArray *cache = loader.cacheItems;
     XCTAssertNotNil(cache);
     XCTAssertEqual(cache.count, 1);
     
-    // Tenant doesn't get used in objC so we don't have anything to check for here, other platforms will want to check.
+    ADTokenCacheItem *item = cache[0];
+    XCTAssertNotNil(item.expiresOn);
+    XCTAssertEqualWithAccuracy(item.expiresOn.timeIntervalSinceNow, 3600.0, 5.0);
 }
 
-- (void)testCache_whenAccessTokenWithExpiresInSubstitution_shouldPass
+- (void)testExpiresIn_withAccessToken_shouldSucceed
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" expiresIn=\"60\" tenant=\"mytenant\" /></Cache>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertTrue([loader parse:&error]);
+    XCTAssertNil(error);
+    
+    NSArray *cache = loader.cacheItems;
+    XCTAssertNotNil(cache);
+    XCTAssertEqual(cache.count, 1);
+    
+    ADTokenCacheItem *item = cache[0];
+    XCTAssertNotNil(item.expiresOn);
+    XCTAssertEqualWithAccuracy(item.expiresOn.timeIntervalSinceNow, 60.0, 5.0);
+}
+
+- (void)testExpiresInSubstitution_withAccessToken_shouldPass
 {
     ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" idToken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" tenant=\"mytenant\" expiresIn=\"$(expiresIn)\" /></Cache>"];
     
@@ -392,5 +407,38 @@
     XCTAssertNotNil(item);
     XCTAssertEqualWithAccuracy(item.expiresOn.timeIntervalSinceNow, 90.0, 5.0);
 }
+
+
+
+#pragma mark -
+#pragma mark Tenant Attribute Tests
+
+- (void)testTenantSubstitution_withAccessToken_shouldPass
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" idToken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" tenant=\"$(tenant)\" /></Cache>"];
+    
+    loader.testVariables = [@{ @"tenant" : @"subtenant" } mutableCopy];
+    
+    NSError *error = nil;
+    XCTAssertTrue([loader parse:&error]);
+    XCTAssertNil(error);
+    
+    NSArray<ADTokenCacheItem *> *cache = loader.cacheItems;
+    XCTAssertNotNil(cache);
+    XCTAssertEqual(cache.count, 1);
+    
+    // Tenant doesn't get used in objC so we don't have anything to check for here, other platforms will want to check.
+}
+
+- (void)testTenantMissing_withAccessToken_shouldFail
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" idToken=\"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0\" /></Cache>"];
+    
+    NSError *error = nil;
+    XCTAssertFalse([loader parse:&error]);
+    XCTAssertNotNil(error);
+    XCTAssertTrue([GetReason(error) containsString:@"tenant"]);
+}
+
 
 @end
