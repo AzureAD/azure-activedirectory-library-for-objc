@@ -571,7 +571,17 @@ typedef enum ADTestLoaderParserState
 {
     if ([elementName isEqualToString:@"part"])
     {
-        NSString *base64Json = [_currentValue adBase64UrlEncode];
+        // Round trip through the JSON parser to ensure valid JSON and remove extraneous whitespace
+        NSError *error = nil;
+        id jsonObject =
+        [NSJSONSerialization JSONObjectWithData:[_currentValue dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+        
+        CHECK_THROW_EXCEPTION(jsonObject, @{ @"error" : error }, @"Unable to parse JSON object in JWT.");
+        
+        NSString *base64Json =
+        [NSString adBase64EncodeData:[NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error]];
+        CHECK_THROW_EXCEPTION(base64Json, @{ @"error" : error }, @"Unable to serialize object back to json string");
+        
         [_jwtParts addObject:base64Json];
         [_currentValue setString:@""];
     }
