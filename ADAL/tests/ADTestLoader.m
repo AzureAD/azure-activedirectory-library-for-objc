@@ -782,9 +782,12 @@ typedef enum ADALTokenType
     {
         case AccessToken:
         {
-            NSScanner *scanner = [NSScanner scannerWithString:expiresIn];
-            int expiresInt;
-            CHECK_THROW_EXCEPTION([scanner scanInt:&expiresInt], nil, @"expiresIn value \"%@\" is not a valid integer", expiresIn);
+            int expiresInt = 3600;
+            if (expiresIn)
+            {
+                NSScanner *scanner = [NSScanner scannerWithString:expiresIn];
+                CHECK_THROW_EXCEPTION([scanner scanInt:&expiresInt], nil, @"expiresIn value \"%@\" is not a valid integer", expiresIn);
+            }
             expiresOn = [NSDate dateWithTimeIntervalSinceNow:(NSTimeInterval)expiresInt];
             break;
         }

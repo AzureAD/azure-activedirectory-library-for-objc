@@ -199,9 +199,27 @@
     XCTAssertNil(cache);
 }
 
+- (void)testCache_whenAccessTokenNoExpiresIn_shouldDefaultTo3600
+{
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" tenant=\"mytenant\" /></Cache>"];
+    XCTAssertNotNil(loader);
+    
+    NSError *error = nil;
+    XCTAssertTrue([loader parse:&error]);
+    XCTAssertNil(error);
+    
+    NSArray *cache = loader.cacheItems;
+    XCTAssertNotNil(cache);
+    XCTAssertEqual(cache.count, 1);
+    
+    ADTokenCacheItem *item = cache[0];
+    XCTAssertNotNil(item.expiresOn);
+    XCTAssertEqualWithAccuracy(item.expiresOn.timeIntervalSinceNow, 3600.0, 5.0);
+}
+
 - (void)testCache_whenAccessTokenWithExpiresIn_shouldSucceed
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_refresh_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" expiresIn=\"60\" tenant=\"mytenant\" /></Cache>"];
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<Cache><AccessToken token=\"i_am_a_token\" clientId=\"clientid\" authority=\"https://iamanauthority.com\" resource=\"resource\" expiresIn=\"60\" tenant=\"mytenant\" /></Cache>"];
     XCTAssertNotNil(loader);
     
     NSError *error = nil;
