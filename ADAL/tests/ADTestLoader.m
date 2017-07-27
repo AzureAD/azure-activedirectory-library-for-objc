@@ -741,19 +741,19 @@ typedef enum ADALTokenType
         THROW_EXCEPTION(nil, @"Unrecognized element type \"%@\" in Cache section.", elementName);
     }
     
-    NSString *authority = attributeDict[@"authority"];
+    NSString *authority = [self replaceInlinedVariables:attributeDict[@"authority"]];
     CHECK_THROW_EXCEPTION(authority, nil, @"authority missing from %@", elementName);
     NSURL *authorityUrl = [NSURL URLWithString:authority];
     CHECK_THROW_EXCEPTION(authorityUrl, nil, @"authority \"%@\" is not a valid URL!", authority);
     
     // Not used in ObjC for legacy reasons, but required for document spec
-    NSString *tenant = attributeDict[@"tenant"];
+    NSString *tenant = [self replaceInlinedVariables:attributeDict[@"tenant"]];
     CHECK_THROW_EXCEPTION(tenant, nil, @"tenant missing from %@", elementName);
     
-    NSString *token = attributeDict[@"token"];
+    NSString *token = [self replaceInlinedVariables:attributeDict[@"token"]];
     CHECK_THROW_EXCEPTION(token, nil, @"token missing from %@", elementName);
     
-    NSString *resource = attributeDict[@"resource"];
+    NSString *resource = [self replaceInlinedVariables:attributeDict[@"resource"]];
     switch (type)
     {
         case AccessToken:
@@ -767,7 +767,7 @@ typedef enum ADALTokenType
             break;
     }
     
-    NSString *clientId = attributeDict[@"clientId"];
+    NSString *clientId = [self replaceInlinedVariables:attributeDict[@"clientId"]];
     switch (type)
     {
         case AccessToken:
@@ -782,7 +782,7 @@ typedef enum ADALTokenType
             break;
     }
     
-    NSString *expiresIn = attributeDict[@"expiresIn"];
+    NSString *expiresIn = [self replaceInlinedVariables:attributeDict[@"expiresIn"]];
     NSDate *expiresOn = nil;
     switch (type)
     {
@@ -805,7 +805,7 @@ typedef enum ADALTokenType
             break;
     }
     
-    NSString *familyId = attributeDict[@"familyId"];
+    NSString *familyId = [self replaceInlinedVariables:attributeDict[@"familyId"]];
     switch (type)
     {
         case AccessToken:
