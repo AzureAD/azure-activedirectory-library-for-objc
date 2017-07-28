@@ -326,11 +326,6 @@
     _QPs = [NSString adIsStringNilOrBlank:query] ? nil : [NSDictionary adURLFormDecode:query];
 }
 
-- (void)setRequestHeaders:(NSDictionary *)headers
-{
-    _requestHeaders = [headers copy];
-}
-
 - (void)setRequestBody:(NSData *)body
 {
     _requestBody = body;

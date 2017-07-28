@@ -44,9 +44,10 @@ typedef enum ADTestLoaderParserState
     Started,
     Parsing,
     
-    // Currently parsing the TestVariables element
-    TestVariables,
-    TestVariableJwt,
+    // The state creates a dictionary of the subsequent elements and values until it hits the end
+    // tag, it will restore the parser in the provided endState
+    DictionaryCapture,
+    DictionaryCaptureJWT,
     
     // Currently parsing the Network element
     Network,
@@ -118,6 +119,8 @@ typedef enum ADTestLoaderParserState
     NSMutableDictionary *_currentDict;
     NSMutableString *_currentValue;
     
+    ADTestLoaderParserState _endCaptureState;
+    
     // JWT Capture State
     NSMutableArray *_jwtParts;
     
@@ -126,6 +129,7 @@ typedef enum ADTestLoaderParserState
     
     // Network capture
     ADTestURLResponse *_currentRequest;
+    NSMutableDictionary *_requestHeaders;
     
     NSMutableDictionary *_testVariables;
     NSMutableArray *_networkRequests;
@@ -389,7 +393,6 @@ typedef enum ADTestLoaderParserState
     
     if ([elementName isEqualToString:@"testvariables"])
     {
-        _state = TestVariables;
         [self startTestVariables:attributeDict];
         return;
     }
@@ -483,11 +486,11 @@ typedef enum ADTestLoaderParserState
         case Parsing:
             [self startElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
             return;
-        case TestVariables:
-            [self parseTestVariables:elementName attributes:attributeDict];
+        case DictionaryCapture:
+            [self startCaptureElement:elementName attributes:attributeDict];
             return;
-        case TestVariableJwt:
-            [self parseJwt:elementName attributes:attributeDict];
+        case DictionaryCaptureJWT:
+            [self startJwtPart:elementName attributes:attributeDict];
             return;
         case Network:
             THROW_EXCEPTION(nil, @"Invalid document, network unexpected here.");
@@ -533,10 +536,10 @@ typedef enum ADTestLoaderParserState
         case Parsing:
             THROW_EXCEPTION(nil, @"End element before start element.");
             return;
-        case TestVariables:
-            [self endTestVariables:elementName];
+        case DictionaryCapture:
+            [self endCaptureElement:elementName];
             return;
-        case TestVariableJwt:
+        case DictionaryCaptureJWT:
             [self endJwt:elementName];
             return;
         case Network:
@@ -569,15 +572,20 @@ typedef enum ADTestLoaderParserState
 #pragma mark -
 #pragma mark Dictionary Capturing
 
-- (void)startDictionaryCapture:(NSString *)startingKey
+- (void)startDictionaryCapture:(NSMutableDictionary *)dictionary
+                   startingKey:(NSString *)startingKey
+                      endState:(ADTestLoaderParserState)endState
 {
     _keyStack = [NSMutableArray new];
     _valueStack = [NSMutableArray new];
-    _currentDict = [NSMutableDictionary new];
+    _currentDict = dictionary;
     _currentKey = startingKey;
+    _endCaptureState = endState;
+    _state = DictionaryCapture;
 }
 
-- (void)startElement:(NSString *)name
+- (void)startCaptureElement:(NSString *)name
+                 attributes:(NSDictionary<NSString *, NSString *> *)attributeDict
 {
     _captureText = YES;
     [_keyStack addObject:_currentKey];
@@ -589,9 +597,16 @@ typedef enum ADTestLoaderParserState
     [_valueStack addObject:_currentDict];
     _currentDict = nil;
     _currentKey = name;
+    
+    NSString *type = attributeDict[@"type"];
+    if ([type isEqualToString:@"jwt"])
+    {
+        _state = DictionaryCaptureJWT;
+        _jwtParts = [NSMutableArray new];
+    }
 }
 
-- (BOOL)endElement:(NSString *)name
+- (BOOL)endCaptureElement:(NSString *)name
 {
     NSAssert([name isEqualToString:_currentKey], @"mismatched end tag");
     _captureText = NO;
@@ -599,6 +614,10 @@ typedef enum ADTestLoaderParserState
     NSMutableDictionary *parentDict = _valueStack.lastObject;
     if (!parentDict)
     {
+        _state = _endCaptureState;
+        _keyStack = nil;
+        _valueStack = nil;
+        _currentDict = nil;
         return NO;
     }
     
@@ -618,44 +637,10 @@ typedef enum ADTestLoaderParserState
 }
 
 
-#pragma mark -
-#pragma mark Test Variables
-
-- (void)startTestVariables:(NSDictionary<NSString *, NSString *> *)attributeDict
-{
-    (void)attributeDict;
-    
-    CHECK_THROW_EXCEPTION(!_testVariables, nil, @"Multiple TestVariables dictionaries in test file");
-    
-    [self startDictionaryCapture:@"testvariables"];
-    _testVariables = _currentDict;
-}
-
-- (void)parseTestVariables:(NSString *)elementName
-                attributes:(NSDictionary<NSString *, NSString *> *)attributeDict
-{
-    [self startElement:elementName];
-    NSString *type = attributeDict[@"type"];
-    if ([type isEqualToString:@"jwt"])
-    {
-        _state = TestVariableJwt;
-        _jwtParts = [NSMutableArray new];
-    }
-}
-
-- (void)endTestVariables:(NSString *)elementName
-{
-    if (![self endElement:elementName])
-    {
-        _state = Parsing;
-        _testVariables = _currentDict;
-    }
-}
-
 #pragma mark JWT
 
-- (void)parseJwt:(NSString *)elementName
-      attributes:(NSDictionary<NSString *, NSString *> *)attributeDict
+- (void)startJwtPart:(NSString *)elementName
+          attributes:(NSDictionary<NSString *, NSString *> *)attributeDict
 {
     (void)attributeDict;
     
@@ -689,9 +674,22 @@ typedef enum ADTestLoaderParserState
             format = @".%@";
         }
         
-        [self endElement:elementName];
-        _state = TestVariables;
+        [self endCaptureElement:elementName];
+        _state = DictionaryCapture;
     }
+}
+
+#pragma mark -
+#pragma mark Test Variables
+
+- (void)startTestVariables:(NSDictionary<NSString *, NSString *> *)attributeDict
+{
+    (void)attributeDict;
+    
+    CHECK_THROW_EXCEPTION(!_testVariables, nil, @"Multiple TestVariables dictionaries in test file");
+    
+    _testVariables = [NSMutableDictionary new];
+    [self startDictionaryCapture:_testVariables startingKey:@"testvariables" endState:Parsing];
 }
 
 #pragma mark -
@@ -750,11 +748,20 @@ typedef enum ADTestLoaderParserState
 {
     (void)elementName;
     (void)attributeDict;
+    if ([elementName isEqualToString:@"headers"])
+    {
+        CHECK_THROW_EXCEPTION(!_requestHeaders, nil, @"Only one headers section allowed per request.");
+        _requestHeaders = [NSMutableDictionary new];
+        [self startDictionaryCapture:_requestHeaders startingKey:@"headers" endState:NetworkRequest];
+        return;
+    }
 }
 
 - (void)endRequest:(NSString *)elementName
 {
     (void)elementName;
+    _currentRequest.requestHeaders = _requestHeaders;
+    _requestHeaders = nil;
     _state = NetworkRequestResponse;
 }
 

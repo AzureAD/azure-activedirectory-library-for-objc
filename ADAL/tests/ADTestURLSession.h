@@ -40,6 +40,7 @@
 
 @property (copy) NSURL *requestURL;
 @property (copy) NSURLResponse *response;
+@property (copy) NSDictionary *requestHeaders;
 
 + (ADTestURLResponse*)requestURLString:(NSString *)requestUrlString
                      responseURLString:(NSString *)responseUrlString
@@ -94,7 +95,6 @@
                                          authority:(NSString *)authority;
 
 
-- (void)setRequestHeaders:(NSDictionary *)headers;
 - (void)setRequestBody:(NSData *)body;
 - (void)setRequestJSONBody:(NSDictionary *)jsonBody;
 

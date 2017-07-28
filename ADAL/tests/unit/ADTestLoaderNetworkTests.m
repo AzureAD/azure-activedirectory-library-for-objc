@@ -30,6 +30,40 @@
 
 @end
 
+#define ADTestGetOnlyRequest(_XML) \
+    ADTestURLResponse *request = nil; \
+    @try { request = ParseAndReturnOnlyRequest(_XML); } \
+    @catch (NSException *ex) { XCTFail(@"%@", ex.reason); }
+
+// This throws instead of using Asserts because that way we keep some semblance of locality on the test itself
+// by using the XCTAssertNoThrow macro
+static ADTestURLResponse *ParseAndReturnOnlyRequest(NSString * xml)
+{
+    NSError *error = nil;
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:xml];
+    if (![loader parse:&error])
+    {
+        if (error.userInfo[@"exception"])
+        {
+            @throw error.userInfo[@"exception"];
+        }
+        @throw [NSException exceptionWithName:@"ParseFailed" reason:error.description userInfo:@{ @"error" : error }];
+    }
+    
+    NSArray *requests = [loader networkRequests];
+    if (!requests || requests.count == 0)
+    {
+        @throw [NSException exceptionWithName:@"ParseFailed" reason:@"No network requests returned" userInfo:nil];
+    }
+    
+    if (requests.count > 1)
+    {
+        @throw [NSException exceptionWithName:@"ParseFailed" reason:@"Too many requests returned" userInfo:nil];
+    }
+    
+    return requests[0];
+}
+
 @implementation ADTestLoaderNetworkTests
 
 - (void)setUp {
@@ -44,20 +78,15 @@
 
 - (void)testBasicRequestResponse_shouldPass
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<network><request url=\"https://login.contoso.com\" /><response code=\"200\"/></network>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
-    
-    NSArray *requests = [loader networkRequests];
-    XCTAssertNotNil(requests);
-    XCTAssertEqual(requests.count, 1);
-    
-    ADTestURLResponse *request = requests[0];
+    ADTestGetOnlyRequest(@"<network><request url=\"https://login.contoso.com\" /><response code=\"200\"/></network>");
     XCTAssertEqualObjects(request.requestURL, [NSURL URLWithString:@"https://login.contoso.com"]);
     XCTAssertEqual(((NSHTTPURLResponse *)request.response).statusCode, 200);
+}
+
+- (void)testRequestHeaders_shouldPass
+{
+    ADTestGetOnlyRequest(@"<network>\n<request url=\"https://login.contoso.com\"><headers><WWW-Authenticate>token</WWW-Authenticate></headers></request>\n<response code=\"200\"/>\n</network>");
+    XCTAssertEqualObjects(@{ @"www-authenticate" : @"token" }, request.requestHeaders);
 }
 
 @end
