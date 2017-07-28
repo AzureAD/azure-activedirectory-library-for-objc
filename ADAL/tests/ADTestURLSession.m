@@ -313,6 +313,11 @@
     _responseData = response;
 }
 
+- (NSURL *)requestURL
+{
+    return [_requestURL copy];
+}
+
 - (void)setRequestURL:(NSURL *)requestURL
 {
     

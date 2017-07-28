@@ -255,6 +255,8 @@
 		B267CA1D1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B267CA1A1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m */; };
 		B29CD3981EC1196C001791CC /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */; };
 		B29CD3991EC1196C001791CC /* ADRegistrationInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */; };
+		D630B99B1F2AB88B00CE8EB6 /* ADTestLoaderNetworkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D630B99A1F2AB88B00CE8EB6 /* ADTestLoaderNetworkTests.m */; };
+		D630B99C1F2AB88B00CE8EB6 /* ADTestLoaderNetworkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D630B99A1F2AB88B00CE8EB6 /* ADTestLoaderNetworkTests.m */; };
 		D64C1F4C1DB9B05900850036 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D64C1F4B1DB9B05900850036 /* main.m */; };
 		D64C1F4F1DB9B05900850036 /* ADAutoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D64C1F4E1DB9B05900850036 /* ADAutoAppDelegate.m */; };
 		D64C1F521DB9B05900850036 /* ADAutoMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D64C1F511DB9B05900850036 /* ADAutoMainViewController.m */; };
@@ -697,6 +699,7 @@
 		B267CA191EE0E9FF00C0B5A8 /* ADNegotiateHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADNegotiateHandler.h; sourceTree = "<group>"; };
 		B267CA1A1EE0E9FF00C0B5A8 /* ADNegotiateHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADNegotiateHandler.m; sourceTree = "<group>"; };
 		B29CD3971EC1196C001791CC /* ADRegistrationInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADRegistrationInformation.m; sourceTree = "<group>"; };
+		D630B99A1F2AB88B00CE8EB6 /* ADTestLoaderNetworkTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestLoaderNetworkTests.m; sourceTree = "<group>"; };
 		D64C1F481DB9B05900850036 /* ADALAutomation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ADALAutomation.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D64C1F4B1DB9B05900850036 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D64C1F4D1DB9B05900850036 /* ADAutoAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADAutoAppDelegate.h; sourceTree = "<group>"; };
@@ -1323,6 +1326,7 @@
 				B20DC5E71F0D998A00957806 /* ADLoggerTests.m */,
 				D6F730611F1FEFED00329967 /* ADTestLoaderCacheTests.m */,
 				D6F730621F1FEFED00329967 /* ADTestLoaderGenericParsingTests.m */,
+				D630B99A1F2AB88B00CE8EB6 /* ADTestLoaderNetworkTests.m */,
 				D6F730631F1FEFED00329967 /* ADTestLoaderVariablesTests.m */,
 				B20DC5E81F0D998A00957806 /* ADTelemetryTests.m */,
 				B20DC5E91F0D998A00957806 /* ADTokenCacheItemTests.m */,
@@ -1950,6 +1954,7 @@
 				8B92DB5F1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m in Sources */,
 				96C75D281E303DC40038D1EC /* ADTestURLSession.m in Sources */,
 				601BEE311C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m in Sources */,
+				D630B99B1F2AB88B00CE8EB6 /* ADTestLoaderNetworkTests.m in Sources */,
 				B20DC6151F0D9A7600957806 /* ADAuthorityValidationTests.m in Sources */,
 				B20DC5F91F0D998A00957806 /* ADHelpersTests.m in Sources */,
 				B20DC6071F0D998A00957806 /* ADWebAuthResponseTests.m in Sources */,
@@ -2062,6 +2067,7 @@
 				B20DC6021F0D998A00957806 /* ADTokenCacheKeyTests.m in Sources */,
 				D6F730671F1FEFED00329967 /* ADTestLoaderGenericParsingTests.m in Sources */,
 				B20DC5FA1F0D998A00957806 /* ADHelpersTests.m in Sources */,
+				D630B99C1F2AB88B00CE8EB6 /* ADTestLoaderNetworkTests.m in Sources */,
 				B20DC6221F0DA4BF00957806 /* ADWebAuthControllerTests.m in Sources */,
 				B20DC5FC1F0D998A00957806 /* ADLoggerTests.m in Sources */,
 				B20DC6001F0D998A00957806 /* ADTokenCacheItemTests.m in Sources */,

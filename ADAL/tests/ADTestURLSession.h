@@ -38,6 +38,9 @@
     NSError *_error;
 }
 
+@property (copy) NSURL *requestURL;
+@property (copy) NSURLResponse *response;
+
 + (ADTestURLResponse*)requestURLString:(NSString *)requestUrlString
                      responseURLString:(NSString *)responseUrlString
                           responseCode:(NSInteger)responseCode
@@ -91,7 +94,6 @@
                                          authority:(NSString *)authority;
 
 
-- (void)setRequestURL:(NSURL *)requestURL;
 - (void)setRequestHeaders:(NSDictionary *)headers;
 - (void)setRequestBody:(NSData *)body;
 - (void)setRequestJSONBody:(NSDictionary *)jsonBody;

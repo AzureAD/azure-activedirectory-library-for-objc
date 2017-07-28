@@ -24,6 +24,7 @@
 #import "ADTestLoader.h"
 #import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
+#import "ADTestURLSession.h"
 
 #define THROW_EXCEPTION_NOLINE(INFO, FMT, ...) @throw [NSException exceptionWithName:ADTestLoaderException reason:[NSString stringWithFormat:FMT, ##__VA_ARGS__] userInfo:INFO];
 
@@ -49,6 +50,7 @@ typedef enum ADTestLoaderParserState
     
     // Currently parsing the Network element
     Network,
+    NetworkRequestResponse,
     NetworkRequest,
     NetworkResponse,
     
@@ -121,6 +123,9 @@ typedef enum ADTestLoaderParserState
     
     // Token Cache Capture
     ADTokenCacheItem *_currentCacheItem;
+    
+    // Network capture
+    ADTestURLResponse *_currentRequest;
     
     NSMutableDictionary *_testVariables;
     NSMutableArray *_networkRequests;
@@ -485,9 +490,15 @@ typedef enum ADTestLoaderParserState
             [self parseJwt:elementName attributes:attributeDict];
             return;
         case Network:
+            THROW_EXCEPTION(nil, @"Invalid document, network unexpected here.");
+        case NetworkRequestResponse:
+            [self startRequestResponse:elementName attributes:attributeDict];
+            return;
         case NetworkRequest:
+            [self parseRequest:elementName attributes:attributeDict];
+            return;
         case NetworkResponse:
-            [self parseNetwork:elementName attributes:attributeDict];
+            [self parseResponse:elementName attributes:attributeDict];
             return;
         case Cache:
             [self startToken:elementName attributes:attributeDict];
@@ -529,9 +540,17 @@ typedef enum ADTestLoaderParserState
             [self endJwt:elementName];
             return;
         case Network:
-        case NetworkRequest:
-        case NetworkResponse:
+            // The "Network" state jumps immediately into NetworkRequestResponse once it gets a
+            // request or response tag, and will go back to that.
+            THROW_EXCEPTION(nil, @"Network state should only be hit at the beginning of an element.");
+        case NetworkRequestResponse:
             [self endNetwork:elementName];
+            return;
+        case NetworkRequest:
+            [self endRequest:elementName];
+            return;
+        case NetworkResponse:
+            [self endResponse:elementName];
             return;
         case Cache:
             [self endCache:elementName];
@@ -681,22 +700,117 @@ typedef enum ADTestLoaderParserState
 - (void)startNetwork:(NSDictionary<NSString *, NSString *> *)attributeDict
 {
     (void)attributeDict;
+    
+    CHECK_THROW_EXCEPTION(!_networkRequests, nil, @"<Network> should only appear once in the load out file.");
+    _networkRequests = [NSMutableArray new];
+    
+    _state = NetworkRequestResponse;
 }
 
-- (void)parseNetwork:(NSString *)elementName
+- (void)startRequestResponse:(NSString *)elementName
+                  attributes:(NSDictionary<NSString *, NSString *> *)attributeDict
+{
+    (void)attributeDict;
+    
+    if ([elementName isEqualToString:@"request"])
+    {
+        [self startRequest:attributeDict];
+    }
+    else if ([elementName isEqualToString:@"response"])
+    {
+        [self startResponse:attributeDict];
+    }
+    else
+    {
+        THROW_EXCEPTION(nil, @"Unsupported element type \"%@\" in network section", elementName);
+    }
+}
+
+#pragma mark Network Requests
+
+- (void)startRequest:(NSDictionary<NSString *, NSString *> *)attributeDict
+{
+    (void)attributeDict;
+    _state = NetworkRequest;
+    
+    CHECK_THROW_EXCEPTION(!_currentRequest, nil, @"New request without a matching response! A <response> element must come after a request element.");
+    
+    NSString *urlString = attributeDict[@"url"];
+    CHECK_THROW_EXCEPTION(urlString, nil, @"Request element is required to have a url attribute.");
+    
+    NSURL *url = [NSURL URLWithString:urlString];
+    CHECK_THROW_EXCEPTION(url, nil, @"Provided request url \"%@\" is not a valid URL.", urlString);
+    
+    _currentRequest = [[ADTestURLResponse alloc] init];
+    _currentRequest.requestURL = url;
+}
+
+- (void)parseRequest:(NSString *)elementName
           attributes:(NSDictionary<NSString *, NSString *> *)attributeDict
 {
     (void)elementName;
     (void)attributeDict;
 }
 
+- (void)endRequest:(NSString *)elementName
+{
+    (void)elementName;
+    _state = NetworkRequestResponse;
+}
+
+#pragma mark Network Responses
+
+- (void)startResponse:(NSDictionary<NSString *, NSString *> *)attributeDict
+{
+    CHECK_THROW_EXCEPTION(_currentRequest, nil, @"An <request> element must appear before a respo;nse element.");
+    _state = NetworkResponse;
+    
+    NSString *code = attributeDict[@"code"];
+    NSString *error = attributeDict[@"error"];
+    CHECK_THROW_EXCEPTION(code || error, nil, @"Either \"code\" or \"error\" attribute must be provided on a network response.");
+    
+    NSString *urlString = attributeDict[@"url"];
+    NSURL *url = nil;
+    if (urlString)
+    {
+        url = [NSURL URLWithString:urlString];
+        CHECK_THROW_EXCEPTION(url, nil, @"Provided request url \"%@\" is not a valid URL.", urlString);
+    }
+    else
+    {
+        url = _currentRequest.requestURL;
+    }
+    
+    NSHTTPURLResponse *response =
+    [[NSHTTPURLResponse alloc] initWithURL:url
+                                statusCode:code.integerValue
+                               HTTPVersion:nil
+                              headerFields:nil];
+    _currentRequest.response = response;
+}
+
+- (void)parseResponse:(NSString *)elementName
+           attributes:(NSDictionary<NSString *, NSString *> *)attributeDict
+{
+    (void)elementName;
+    (void)attributeDict;
+}
+
+- (void)endResponse:(NSString *)elementName
+{
+    (void)elementName;
+    
+    [_networkRequests addObject:_currentRequest];
+    _currentRequest = nil;
+    _state = NetworkRequestResponse;
+}
+
 - (void)endNetwork:(NSString *)elementName
 {
     (void)elementName;
+    
+    _state = Parsing;
 }
-
-#pragma mark -
-#pragma mark Cache
 
 #pragma mark -
 #pragma mark Cache
