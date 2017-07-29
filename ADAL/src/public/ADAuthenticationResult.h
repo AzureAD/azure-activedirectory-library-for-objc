@@ -53,7 +53,6 @@ typedef enum
     BOOL                            _multiResourceRefreshToken;
     BOOL                            _extendedLifeTimeToken;
     NSString*                       _authority;
-    NSString*                       _graphResource;
 }
 
 /*! See the ADAuthenticationResultStatus details */
@@ -86,11 +85,6 @@ typedef enum
  It will be different from the authority provided by developer for sovereign cloud scenarios.
  */
 @property (readonly) NSString* authority;
-
-/*! 
- Represents graph resource URL for the user.
- */
-@property (readonly) NSString* graphResource;
 
 @end
 

@@ -419,7 +419,7 @@
                  if (!brokerRequestURL)
                  {
                      ADAuthenticationResult *result = [ADAuthenticationResult resultFromError:error correlationId:_requestParams.correlationId];
-                     [result setCloudParameters:_cloudAuthority graphResource:_graphResource];
+                     [result setCloudAuthority:_cloudAuthority];
                      completionBlock(result);
                      return;
                  }
@@ -451,7 +451,7 @@
                                                               refreshToken:nil
                                                                    context:_requestParams];
                           result = [ADAuthenticationContext updateResult:result toUser:[_requestParams identifier]];
-                          [result setCloudParameters:_cloudAuthority graphResource:_graphResource];
+                          [result setCloudAuthority:_cloudAuthority];
                       }
                       completionBlock(result);
                   }];

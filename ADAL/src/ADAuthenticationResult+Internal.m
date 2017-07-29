@@ -229,10 +229,9 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
     _extendedLifeTimeToken = extendedLifeTimeToken;
 }
 
-- (void)setCloudParameters:(NSString *)cloudAuthority graphResource:(NSString *)graphResource
+- (void)setCloudAuthority:(NSString *)cloudAuthority
 {
     _authority = cloudAuthority;
-    _graphResource = graphResource;
 }
 
 @end

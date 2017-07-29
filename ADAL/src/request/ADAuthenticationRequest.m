@@ -211,18 +211,6 @@ static dispatch_semaphore_t s_interactionLock = nil;
     }
 }
 
-- (void)setGraphResource:(NSString *)graphResource
-{
-    if (graphResource)
-    {
-        _graphResource = [NSString stringWithFormat:@"https://%@", graphResource];
-    }
-    else
-    {
-        _graphResource = nil;
-    }
-}
-
 #if AD_BROKER
 
 - (NSString*)redirectUri
