@@ -308,11 +308,6 @@
     NSAssert(_responseData, @"Invalid JSON object set for test response! %@", error);
 }
 
-- (void)setResponseData:(NSData *)response
-{
-    _responseData = response;
-}
-
 - (NSURL *)requestURL
 {
     return [_requestURL copy];

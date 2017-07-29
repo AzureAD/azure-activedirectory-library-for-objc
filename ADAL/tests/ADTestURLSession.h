@@ -42,6 +42,7 @@
 @property (copy) NSURLResponse *response;
 @property (copy) NSDictionary *requestHeaders;
 @property NSData *requestBody;
+@property NSData *responseData;
 
 + (ADTestURLResponse*)requestURLString:(NSString *)requestUrlString
                      responseURLString:(NSString *)responseUrlString

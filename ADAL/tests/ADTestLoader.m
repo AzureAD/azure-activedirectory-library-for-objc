@@ -52,9 +52,12 @@ typedef enum ADTestLoaderParserState
     // Currently parsing the Network element
     Network,
     NetworkRequestResponse,
+    
     NetworkRequest,
     NetworkRequestBody,
+    
     NetworkResponse,
+    NetworkResponseBody,
     
     // Curently parsing the cache element
     Cache,
@@ -502,6 +505,7 @@ typedef enum ADTestLoaderParserState
             [self parseRequest:elementName attributes:attributeDict];
             return;
         case NetworkRequestBody:
+        case NetworkResponseBody:
             THROW_EXCEPTION(nil, @"No xml elements supported within a <body> tag.");
         case NetworkResponse:
             [self parseResponse:elementName attributes:attributeDict];
@@ -557,6 +561,9 @@ typedef enum ADTestLoaderParserState
             return;
         case NetworkRequestBody:
             [self endRequestBody:elementName];
+            return;
+        case NetworkResponseBody:
+            [self endResponseBody:elementName];
             return;
         case NetworkResponse:
             [self endResponse:elementName];
@@ -825,8 +832,30 @@ typedef enum ADTestLoaderParserState
 - (void)parseResponse:(NSString *)elementName
            attributes:(NSDictionary<NSString *, NSString *> *)attributeDict
 {
-    (void)elementName;
     (void)attributeDict;
+    if ([elementName isEqualToString:@"body"])
+    {
+        [self startResponseBody:attributeDict];
+        return;
+    }
+    
+    THROW_EXCEPTION(nil, @"Unrecognized element type \"%@\" in network response", elementName);
+}
+
+- (void)startResponseBody:(NSDictionary<NSString *, NSString *> *)attributeDict
+{
+    (void)attributeDict;
+    _state = NetworkResponseBody;
+    _captureText = YES;
+}
+
+- (void)endResponseBody:(NSString *)elementName
+{
+    (void)elementName;
+    _currentRequest.responseData = [_currentValue dataUsingEncoding:NSUTF8StringEncoding];
+    [_currentValue setString:@""];
+    _state = NetworkResponse;
+    _captureText = NO;
 }
 
 - (void)endResponse:(NSString *)elementName
