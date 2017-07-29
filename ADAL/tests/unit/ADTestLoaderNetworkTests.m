@@ -89,4 +89,11 @@ static ADTestURLResponse *ParseAndReturnOnlyRequest(NSString * xml)
     XCTAssertEqualObjects(@{ @"www-authenticate" : @"token" }, request.requestHeaders);
 }
 
+- (void)testRequestBody_shouldPass
+{
+    ADTestGetOnlyRequest(@"<network><request url=\"https://login.contoso.com\"><body>{\"param\" : \"value\"}</body></request><response code=\"200\" /></network>");
+    
+    XCTAssertEqualObjects(request.requestBody, [@"{\"param\" : \"value\"}" dataUsingEncoding:NSUTF8StringEncoding]);
+}
+
 @end

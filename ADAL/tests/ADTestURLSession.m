@@ -321,14 +321,9 @@
 - (void)setRequestURL:(NSURL *)requestURL
 {
     
-    _requestURL = requestURL;
+    _requestURL = [requestURL copy];
     NSString *query = [requestURL query];
     _QPs = [NSString adIsStringNilOrBlank:query] ? nil : [NSDictionary adURLFormDecode:query];
-}
-
-- (void)setRequestBody:(NSData *)body
-{
-    _requestBody = body;
 }
 
 - (void)setRequestJSONBody:(NSDictionary *)jsonBody
