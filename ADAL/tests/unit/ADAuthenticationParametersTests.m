@@ -27,6 +27,7 @@
 #import "XCTestCase+TestHelperMethods.h"
 #import "ADAuthenticationParameters+Internal.h"
 #import "ADTestURLSession.h"
+#import "ADTestURLResponse.h"
 
 @interface ADAuthenticationParametersTests : XCTestCase
 {

@@ -318,11 +318,7 @@
 
 
 /*! Clears token cache details for specific keys.
- @param key: the key of the cache item. Key can be extracted from the ADTokenCacheItem using
- the method 'extractKeyWithError'
- @param userId: The user for which the item will be removed. Can be nil, in which case items for all users with
- the specified key will be removed.
- The method does not raise an error, if the item is not found.
+    @param item The item to remove from the array.
  */
 - (BOOL)removeItem:(ADTokenCacheItem *)item
              error:(ADAuthenticationError * __autoreleasing *)error

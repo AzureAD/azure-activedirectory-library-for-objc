@@ -347,6 +347,10 @@
 		D69A721B1D4FF68300E91DB3 /* ADAggregatedDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401B51D37658C0020EAAB /* ADAggregatedDispatcher.m */; };
 		D69A721C1D4FF68300E91DB3 /* ADTelemetryDefaultEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 600401AA1D3443D30020EAAB /* ADTelemetryDefaultEvent.m */; };
 		D6B658861EF8AB5B006CB0C6 /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6B658851EF8AB5B006CB0C6 /* SecurityInterface.framework */; };
+		D6D4D4981F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */; };
+		D6D4D4991F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */; };
+		D6D4D49A1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */; };
+		D6D4D49B1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */; };
 		D6D8A8401D4FD14E00D20DE6 /* ADKeychainUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D8A83F1D4FD14E00D20DE6 /* ADKeychainUtil.m */; };
 		D6F095151CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D6F095131CDC072200D28FC2 /* ADAcquireTokenSilentHandler.h */; };
 		D6F095171CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F095141CDC072200D28FC2 /* ADAcquireTokenSilentHandler.m */; };
@@ -724,6 +728,8 @@
 		D68040311D22F686007A61AC /* ADWebAuthResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADWebAuthResponse.h; sourceTree = "<group>"; };
 		D68040321D22F686007A61AC /* ADWebAuthResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADWebAuthResponse.m; sourceTree = "<group>"; };
 		D6B658851EF8AB5B006CB0C6 /* SecurityInterface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityInterface.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/System/Library/Frameworks/SecurityInterface.framework; sourceTree = DEVELOPER_DIR; };
+		D6D4D4961F2FCD8600CC1859 /* ADTestURLResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTestURLResponse.h; sourceTree = "<group>"; };
+		D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTestURLResponse.m; sourceTree = "<group>"; };
 		D6D8A83E1D4FD14100D20DE6 /* ADKeychainUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADKeychainUtil.h; sourceTree = "<group>"; };
 		D6D8A83F1D4FD14E00D20DE6 /* ADKeychainUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADKeychainUtil.m; sourceTree = "<group>"; };
 		D6E43A681B04026D000F5BE2 /* ADAuthenticationContext+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ADAuthenticationContext+Internal.h"; sourceTree = "<group>"; };
@@ -1001,6 +1007,8 @@
 				96C75D271E303DC40038D1EC /* ADTestURLSession.m */,
 				96C75D221E303A8E0038D1EC /* ADTestURLSessionDataTask.h */,
 				96C75D231E303A8E0038D1EC /* ADTestURLSessionDataTask.m */,
+				D6D4D4961F2FCD8600CC1859 /* ADTestURLResponse.h */,
+				D6D4D4971F2FCD8600CC1859 /* ADTestURLResponse.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -1744,7 +1752,7 @@
 		8B0965A217F25770002BDFB8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = "MS Open Tech";
 				TargetAttributes = {
 					04AB6D411D9D619B007E9A83 = {
@@ -1953,6 +1961,7 @@
 				B20DC5FD1F0D998A00957806 /* ADTelemetryTests.m in Sources */,
 				8B92DB5F1819E6A4004AAB0E /* XCTestCase+TestHelperMethods.m in Sources */,
 				96C75D281E303DC40038D1EC /* ADTestURLSession.m in Sources */,
+				D6D4D4981F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
 				601BEE311C6DAA86004AA8C1 /* ADTestAuthenticationViewController.m in Sources */,
 				D630B99B1F2AB88B00CE8EB6 /* ADTestLoaderNetworkTests.m in Sources */,
 				B20DC6151F0D9A7600957806 /* ADAuthorityValidationTests.m in Sources */,
@@ -2061,6 +2070,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6D4D49A1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
 				B20DC6061F0D998A00957806 /* ADUserInformationTests.m in Sources */,
 				B20DC5FE1F0D998A00957806 /* ADTelemetryTests.m in Sources */,
 				B20DC60A1F0D998A00957806 /* NSURLExtensionsTests.m in Sources */,
@@ -2101,6 +2111,7 @@
 				B20DC5891F0D96A100957806 /* ADTelemetryTestDispatcher.m in Sources */,
 				B20DC6121F0D9A5500957806 /* ADAuthorityValidationIntegrationTests.m in Sources */,
 				B20DC5951F0D96A100957806 /* ADTestURLSessionDataTask.m in Sources */,
+				D6D4D4991F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
 				B20DC5961F0D96A100957806 /* XCTestCase+TestHelperMethods.m in Sources */,
 				B20DC5981F0D96A100957806 /* ADTestURLSession.m in Sources */,
 				B20DC59A1F0D96A100957806 /* ADTestAuthenticationViewController.m in Sources */,
@@ -2116,6 +2127,7 @@
 				B20DC5C61F0D96A700957806 /* XCTestCase+TestHelperMethods.m in Sources */,
 				B20DC6131F0D9A5500957806 /* ADAuthorityValidationIntegrationTests.m in Sources */,
 				B20DC5C71F0D96A700957806 /* ADTestURLSession.m in Sources */,
+				D6D4D49B1F2FCD8600CC1859 /* ADTestURLResponse.m in Sources */,
 				D6F7306F1F1FF03F00329967 /* ADTestLoader.m in Sources */,
 				B20DC6101F0D99A300957806 /* ADAcquireTokenTests.m in Sources */,
 				B20DC5C81F0D96A700957806 /* ADTestAuthenticationViewController.m in Sources */,
@@ -2410,16 +2422,21 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = NO;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -2455,15 +2472,20 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = NO;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -2607,15 +2629,20 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = NO;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -3205,6 +3232,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DSTROOT = /usr/local/lib;
 				GCC_GENERATE_TEST_COVERAGE_FILES = NO;
@@ -3231,6 +3259,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DSTROOT = /usr/local/lib;
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
@@ -3257,6 +3286,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 946347851C644E13000A6DA1 /* adal__ios__staticlib.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DSTROOT = /usr/local/lib;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
