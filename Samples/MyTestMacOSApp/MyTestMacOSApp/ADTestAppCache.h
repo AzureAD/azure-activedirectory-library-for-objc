@@ -35,6 +35,6 @@
 - (void)readFromFile:(NSString *)filePath;
 - (void)writeToFile:(NSString *)filePath;
 
-- (OSStatus)deleteFromKeychain;
+- (BOOL)clearCacheWithError:(NSError *__autoreleasing *)error;
 
 @end
