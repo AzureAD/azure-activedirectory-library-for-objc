@@ -25,6 +25,7 @@
 
 #import "ADTestLoader.h"
 #import "ADTestURLSession.h"
+#import "ADTestURLResponse.h"
 
 @interface ADTestLoaderNetworkTests : XCTestCase
 
@@ -79,28 +80,28 @@ static ADTestURLResponse *ParseAndReturnOnlyRequest(NSString * xml)
 - (void)testBasicRequestResponse_shouldPass
 {
     ADTestGetOnlyRequest(@"<network><request url=\"https://login.contoso.com\" /><response code=\"200\"/></network>");
-    XCTAssertEqualObjects(request.requestURL, [NSURL URLWithString:@"https://login.contoso.com"]);
-    XCTAssertEqual(((NSHTTPURLResponse *)request.response).statusCode, 200);
+    XCTAssertEqualObjects(request->_requestURL, [NSURL URLWithString:@"https://login.contoso.com"]);
+    XCTAssertEqual(((NSHTTPURLResponse *)request->_response).statusCode, 200);
 }
 
 - (void)testRequestHeaders_shouldPass
 {
     ADTestGetOnlyRequest(@"<network>\n<request url=\"https://login.contoso.com\"><headers><WWW-Authenticate>token</WWW-Authenticate></headers></request>\n<response code=\"200\"/>\n</network>");
-    XCTAssertEqualObjects(@{ @"www-authenticate" : @"token" }, request.requestHeaders);
+    XCTAssertEqualObjects(@{ @"www-authenticate" : @"token" }, request->_requestHeaders);
 }
 
 - (void)testRequestBody_shouldPass
 {
     ADTestGetOnlyRequest(@"<network><request url=\"https://login.contoso.com\"><body>{\"param\" : \"value\"}</body></request><response code=\"200\" /></network>");
     
-    XCTAssertEqualObjects(request.requestBody, [@"{\"param\" : \"value\"}" dataUsingEncoding:NSUTF8StringEncoding]);
+    XCTAssertEqualObjects(request->_requestBody, [@"{\"param\" : \"value\"}" dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
 - (void)testResponseBody_shouldPass
 {
     ADTestGetOnlyRequest(@"<network><request url=\"https://login.contoso.com\"></request><response code=\"200\"><body>{\"param\" : \"value\"}</body></response></network>");
     
-    XCTAssertEqualObjects(request.responseData, [@"{\"param\" : \"value\"}" dataUsingEncoding:NSUTF8StringEncoding]);
+    XCTAssertEqualObjects(request->_responseData, [@"{\"param\" : \"value\"}" dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
 

@@ -25,6 +25,7 @@
 #import "ADTokenCacheItem.h"
 #import "ADUserInformation.h"
 #import "ADTestURLSession.h"
+#import "ADTestURLResponse.h"
 
 #define THROW_EXCEPTION_NOLINE(INFO, FMT, ...) @throw [NSException exceptionWithName:ADTestLoaderException reason:[NSString stringWithFormat:FMT, ##__VA_ARGS__] userInfo:INFO];
 
@@ -818,7 +819,7 @@ typedef enum ADTestLoaderParserState
     }
     else
     {
-        url = _currentRequest.requestURL;
+        url = _currentRequest->_requestURL;
     }
     
     NSHTTPURLResponse *response =
@@ -826,7 +827,7 @@ typedef enum ADTestLoaderParserState
                                 statusCode:code.integerValue
                                HTTPVersion:nil
                               headerFields:nil];
-    _currentRequest.response = response;
+    _currentRequest->_response = response;
 }
 
 - (void)parseResponse:(NSString *)elementName
