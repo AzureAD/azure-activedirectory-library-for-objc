@@ -102,4 +102,8 @@
 - (void)setResponseJSON:(id)jsonResponse;
 - (void)setResponseData:(NSData *)response;
 
+- (BOOL)matchesURL:(NSURL *)url;
+- (BOOL)matchesBody:(NSData *)body;
+- (BOOL)matchesHeaders:(NSDictionary *)headers;
+
 @end

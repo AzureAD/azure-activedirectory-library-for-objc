@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 
 #import "ADTestURLResponse.h"
+#import "ADOAuth2Constants.h"
+#import "NSDictionary+ADExtensions.h"
 
 @implementation ADTestURLResponse
 
