@@ -33,6 +33,8 @@
     }
     
     NSURLComponents *urlComponents = [NSURLComponents componentsWithString:self];
+    
+    // TODO: remove the hardcoded login prefix, once server starts sending a new parameter that includes full host name
     NSString *loginHost = [NSString stringWithFormat:@"login.%@", cloudInstanceName];
     
     return [self stringByReplacingOccurrencesOfString:[urlComponents host] withString:loginHost];
