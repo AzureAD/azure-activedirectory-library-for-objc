@@ -21,37 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
-#import "ADAL_Internal.h"
-#import "ADUserIdentifier.h"
+#import "NSString+ADURLExtensions.h"
 
-@interface ADTestAppAcquireTokenWindowController : NSWindowController
+@implementation NSString (ADURLExtensions)
+
+- (NSString *)adAuthorityWithCloudInstanceName:(NSString *)cloudInstanceName
 {
-    IBOutlet NSView* _authView;
-    IBOutlet WebView* _webView;
+    if (!cloudInstanceName)
+    {
+        return self;
+    }
     
-    IBOutlet NSView* _acquireSettingsView;
-    IBOutlet NSTextField* _userIdField;
-    IBOutlet NSTextView* _resultView;
-    IBOutlet NSSegmentedControl* _validateAuthority;
-    IBOutlet NSSegmentedControl* _webViewType;
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:self];
     
-    IBOutlet NSPopUpButton* _profiles;
+    // TODO: remove the hardcoded login prefix, once server starts sending a new parameter that includes full host name
+    NSString *loginHost = [NSString stringWithFormat:@"login.%@", cloudInstanceName];
     
-    IBOutlet NSTextField* _authority;
-    IBOutlet NSTextField* _clientId;
-    IBOutlet NSTextField* _redirectUri;
-    IBOutlet NSTextField* _resource;
+    return [self stringByReplacingOccurrencesOfString:[urlComponents host] withString:loginHost];
     
-    IBOutlet NSTextField* _extraQueryParamsField;
-    
-    ADUserIdentifierType _idType;
-    ADPromptBehavior _promptBehavior;
-    
-    BOOL _userIdEdited;
 }
-
-+ (void)showWindow;
 
 @end

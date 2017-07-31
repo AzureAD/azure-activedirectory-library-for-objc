@@ -42,6 +42,7 @@ extern NSString *ADTestAppProfileChangedNotification;
 @property NSString * clientId;
 @property NSString * resource;
 @property NSString * defaultUser;
+@property NSString * extraQueryParameters;
 
 + (ADTestAppSettings *)settings;
 + (NSUInteger)numberOfProfiles;

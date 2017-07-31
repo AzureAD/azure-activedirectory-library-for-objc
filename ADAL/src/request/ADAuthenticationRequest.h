@@ -74,6 +74,8 @@
     ADTokenCacheItem* _mrrtItem;
     
     ADAuthenticationError* _underlyingError;
+    
+    NSString *_cloudAuthority;
 }
 
 @property (retain) NSString* logComponent;
@@ -113,6 +115,9 @@
 #endif
 - (void)setSamlAssertion:(NSString*)samlAssertion;
 - (void)setAssertionType:(ADAssertionType)assertionType;
+
+// This can be set anyTime
+- (void)setCloudAuthority:(NSString *)cloudInstanceName;
 
 /*!
     Takes the UI interaction lock for the current request, will send an error

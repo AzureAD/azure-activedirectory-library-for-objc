@@ -37,6 +37,7 @@
 #import "ADAuthenticationRequest.h"
 #import "ADTokenCacheItem+Internal.h"
 #import "ADWebAuthRequest.h"
+#import "NSString+ADURLExtensions.h"
 
 #import <libkern/OSAtomic.h>
 
@@ -45,7 +46,8 @@
 - (void)executeRequest:(NSDictionary *)request_data
             completion:(ADAuthenticationCallback)completionBlock
 {
-    NSString* urlString = [_context.authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
+    NSString *authority = [NSString adIsStringNilOrBlank:_cloudAuthority] ? _context.authority : _cloudAuthority;
+    NSString* urlString = [authority stringByAppendingString:OAUTH2_TOKEN_SUFFIX];
     ADWebAuthRequest* req = [[ADWebAuthRequest alloc] initWithURL:[NSURL URLWithString:urlString]
                                                           context:_requestParams];
     [req setRequestDictionary:request_data];
@@ -55,7 +57,7 @@
          ADTokenCacheItem* item = [ADTokenCacheItem new];
          item.resource = [_requestParams resource];
          item.clientId = [_requestParams clientId];
-         item.authority = _context.authority;
+         item.authority = authority;
          ADAuthenticationResult* result = [item processTokenResponse:response
                                                          fromRefresh:NO
                                                 requestCorrelationId:[_requestParams correlationId]];
@@ -173,10 +175,10 @@
     {
         [ADAuthenticationRequest releaseExclusionLock]; // Allow other operations that use the UI for credentials.
          
-         NSString* code = nil;
-         if (!error)
-         {
-             
+        NSString *code = nil;
+        
+        if (!error)
+        {
              if ([[[end scheme] lowercaseString] isEqualToString:@"msauth"]) {
 #if AD_BROKER
                  
@@ -185,15 +187,22 @@
                  {
                      NSDictionary* queryParams = [end adQueryParameters];
                      code = [queryParams objectForKey:OAUTH2_CODE];
+                     [self setCloudAuthority:[queryParams objectForKey:AUTH_CLOUD_INSTANCE_NAME]];
                  }
                  else
                  {
-                     NSDictionary* userInfo = @{
-                                                @"username": [[NSDictionary adURLFormDecode:[end query]] valueForKey:@"username"],
-                                                };
+                     NSMutableDictionary *userInfoDictionary = [NSMutableDictionary dictionary];
+                     NSDictionary *queryParameters = [NSDictionary adURLFormDecode:[end query]];
+                     NSString *userName = [queryParameters valueForKey:AUTH_USERNAME_KEY];
+                     
+                     if (![NSString adIsStringNilOrBlank:userName])
+                     {
+                         [userInfoDictionary setObject:userName forKey:AUTH_USERNAME_KEY];
+                     }
+                     
                      NSError* err = [NSError errorWithDomain:ADAuthenticationErrorDomain
                                                         code:AD_ERROR_SERVER_WPJ_REQUIRED
-                                                    userInfo:userInfo];
+                                                    userInfo:userInfoDictionary];
                      error = [ADAuthenticationError errorFromNSError:err errorDetails:@"work place join is required" correlationId:_requestParams.correlationId];
                  }
 #else
@@ -223,6 +232,9 @@
                                                                         errorDetails:@"The authorization server did not return a valid authorization code."
                                                                        correlationId:[_requestParams correlationId]];
                      }
+                     
+                     [self setCloudAuthority:[parameters objectForKey:AUTH_CLOUD_INSTANCE_NAME]];
+                     
                  }
              }
          }

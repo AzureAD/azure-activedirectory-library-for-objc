@@ -51,6 +51,7 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
         // ObjC Objects
         _tokenCacheItem = item;
         _correlationId = correlationId;
+        _authority = item.authority;
     }
     return self;
 }
@@ -226,6 +227,11 @@ multiResourceRefreshToken: (BOOL) multiResourceRefreshToken
 - (void)setExtendedLifeTimeToken:(BOOL)extendedLifeTimeToken;
 {
     _extendedLifeTimeToken = extendedLifeTimeToken;
+}
+
+- (void)setCloudAuthority:(NSString *)cloudAuthority
+{
+    _authority = cloudAuthority;
 }
 
 @end
