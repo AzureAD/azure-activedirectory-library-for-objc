@@ -28,7 +28,7 @@
 #import "ADAuthorityValidationRequest.h"
 #import "ADDrsDiscoveryRequest.h"
 #import "ADTestURLSession.h"
-#import "ADTestURLSession.h"
+#import "ADTestURLResponse.h"
 
 #import "ADUserIdentifier.h"
 #import "ADWebFingerRequest.h"

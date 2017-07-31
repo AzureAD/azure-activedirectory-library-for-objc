@@ -28,6 +28,7 @@
 #import <libkern/OSAtomic.h>
 #import "ADWebRequest.h"
 #import "ADTestURLSession.h"
+#import "ADTestURLResponse.h"
 #import "ADOAuth2Constants.h"
 #import "ADAuthenticationSettings.h"
 #import "ADKeychainTokenCache+Internal.h"
