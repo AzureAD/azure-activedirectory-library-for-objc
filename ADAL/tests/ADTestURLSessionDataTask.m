@@ -24,6 +24,7 @@
 
 #import "ADTestURLSessionDataTask.h"
 #import "ADTestURLSession.h"
+#import "ADTestURLResponse.h"
 
 @interface ADTestURLSessionDataTask()
 
