@@ -25,6 +25,36 @@
 
 #import "ADTestLoader.h"
 
+#define ADTestGetTestVariables(_XML) \
+    NSDictionary *testVariables = nil; \
+    @try { testVariables = ParseAndReturnTestVariables(_XML); } \
+    @catch (NSException *ex) { XCTFail(@"%@", ex.reason); }
+
+// This throws instead of using Asserts because that way we keep some semblance of locality on the test itself
+// by using the XCTAssertNoThrow macro
+static NSDictionary *ParseAndReturnTestVariables(NSString *xml)
+{
+    NSError *error = nil;
+    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:xml];
+    if (![loader parse:&error])
+    {
+        if (error.userInfo[@"exception"])
+        {
+            @throw error.userInfo[@"exception"];
+        }
+        @throw [NSException exceptionWithName:@"ParseFailed" reason:error.description userInfo:@{ @"error" : error }];
+    }
+    
+    NSDictionary *testVariables = loader.testVariables;
+    if (!testVariables)
+    {
+        @throw [NSException exceptionWithName:@"ParseFailed" reason:@"testVariables came back nil" userInfo:nil];
+    }
+    
+    return testVariables;
+}
+
+
 @interface ADTestLoaderVariablesTests : XCTestCase
 
 @end
@@ -41,97 +71,45 @@
     [super tearDown];
 }
 
-- (void)testVariables_whenEmpty
+- (void)testVariables_whenEmpty_shouldReturnEmptyDictionary
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables></TestVariables>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
-    
-    NSDictionary *testVariables = loader.testVariables;
-    XCTAssertNotNil(testVariables);
+    ADTestGetTestVariables(@"<TestVariables></TestVariables>");
     XCTAssertEqual(testVariables.count, 0);
 }
 
-- (void)testVariables_whenSingleLevel
+- (void)testVariables_whenSingleLevel_shouldReturnValid
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables><val1>value 1</val1><val2>value 2</val2></TestVariables>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
-    
-    NSDictionary *testVariables = loader.testVariables;
-    XCTAssertNotNil(testVariables);
+    ADTestGetTestVariables(@"<TestVariables><val1>value 1</val1><val2>value 2</val2></TestVariables>");
     XCTAssertEqualObjects(testVariables, (@{ @"val1" : @"value 1", @"val2" : @"value 2" }));
 }
 
-- (void)testVariables_whenMultipleLevels
+- (void)testVariables_whenMultipleLevels_shouldReturnValid
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables><val1>value 1</val1><val2>value 2</val2><val3><val4>value 4</val4></val3></TestVariables>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
-    
-    NSDictionary *testVariables = loader.testVariables;
-    XCTAssertNotNil(testVariables);
+    ADTestGetTestVariables(@"<TestVariables><val1>value 1</val1><val2>value 2</val2><val3><val4>value 4</val4></val3></TestVariables>");
     XCTAssertEqualObjects(testVariables, (@{ @"val1" : @"value 1", @"val2" : @"value 2", @"val3" : @{ @"val4" : @"value 4" } }));
 }
 
-- (void)testVariables_typeJwt
+- (void)testVariables_withTypeJwt_shouldReturnValid
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables><val type=\"jwt\"><part>{\"jsonkey\":\"jsonval\"}</part><part>{ \"morejson\" : 2500 }</part></val></TestVariables>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
-    
-    NSDictionary *testVariables = loader.testVariables;
-    XCTAssertNotNil(testVariables);
+    ADTestGetTestVariables(@"<TestVariables><val type=\"jwt\"><part>{\"jsonkey\":\"jsonval\"}</part><part>{ \"morejson\" : 2500 }</part></val></TestVariables>");
     XCTAssertEqualObjects(testVariables, (@{ @"val" : @"eyJqc29ua2V5IjoianNvbnZhbCJ9.eyJtb3JlanNvbiI6MjUwMH0" }));
 }
 
-- (void)testVariables_typeJwtIdToken
+- (void)testVariables_typeJwtIdToken_shouldReturnValid
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables><val type=\"jwt\"><part>{\"typ\":\"JWT\", \"alg\":\"none\"}</part><part>{ \"upn\" : \"user@contoso.com\" }</part></val></TestVariables>"];
-    XCTAssertNotNil(loader);
-    
-    NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
-    
-    NSDictionary *testVariables = loader.testVariables;
-    XCTAssertNotNil(testVariables);
+    ADTestGetTestVariables(@"<TestVariables><val type=\"jwt\"><part>{\"typ\":\"JWT\", \"alg\":\"none\"}</part><part>{ \"upn\" : \"user@contoso.com\" }</part></val></TestVariables>");
     XCTAssertEqualObjects(testVariables, (@{ @"val" : @"eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ1cG4iOiJ1c2VyQGNvbnRvc28uY29tIn0" }));
 }
 
 - (void)testVariables_whenContainsSubstitution_shouldSucceed
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables><val1>value!</val1><val2>$(val1)</val2></TestVariables>"];
-    NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
-    
-    NSDictionary *testVariables = loader.testVariables;
-    XCTAssertNotNil(testVariables);
+    ADTestGetTestVariables(@"<TestVariables><val1>value!</val1><val2>$(val1)</val2></TestVariables>");
     NSDictionary *expected = @{ @"val1" : @"value!", @"val2" : @"value!" };
     XCTAssertEqualObjects(testVariables, expected);
 }
 - (void)testVariables_whenContainsSubstitutionAndWhitespace_shouldIgnoreExteriorWhitespace
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables><val1>value!</val1><val2>  $(val1)  </val2></TestVariables>"];
-    NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
-    
-    NSDictionary *testVariables = loader.testVariables;
-    XCTAssertNotNil(testVariables);
+    ADTestGetTestVariables(@"<TestVariables><val1>value!</val1><val2>  $(val1)  </val2></TestVariables>");
     NSDictionary *expected = @{ @"val1" : @"value!", @"val2" : @"value!" };
     XCTAssertEqualObjects(testVariables, expected);
 }
@@ -146,26 +124,14 @@
 
 - (void)testVariables_whenMultipleSubstitutesInSingleString_shouldPass
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables><val1>value1</val1><val2>value2</val2><val3>$(val1)$(val2)</val3></TestVariables>"];
-    NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
-    
-    NSDictionary *testVariables = loader.testVariables;
-    XCTAssertNotNil(testVariables);
+    ADTestGetTestVariables(@"<TestVariables><val1>value1</val1><val2>value2</val2><val3>$(val1)$(val2)</val3></TestVariables>");
     NSDictionary *expected = @{ @"val1" : @"value1", @"val2" : @"value2", @"val3" : @"value1value2" };
     XCTAssertEqualObjects(testVariables, expected);
 }
 
 - (void)testVariables_whenMultipleSubstitutesAndWhitespaceInSingleString_shouldPass
 {
-    ADTestLoader *loader = [[ADTestLoader alloc] initWithString:@"<TestVariables><val1>value1</val1><val2>value2</val2><val3>  $(val1) and $(val2)  </val3></TestVariables>"];
-    NSError *error = nil;
-    XCTAssertTrue([loader parse:&error]);
-    XCTAssertNil(error);
-    
-    NSDictionary *testVariables = loader.testVariables;
-    XCTAssertNotNil(testVariables);
+    ADTestGetTestVariables(@"<TestVariables><val1>value1</val1><val2>value2</val2><val3>  $(val1) and $(val2)  </val3></TestVariables>");
     NSDictionary *expected = @{ @"val1" : @"value1", @"val2" : @"value2", @"val3" : @"value1 and value2" };
     XCTAssertEqualObjects(testVariables, expected);
 }
