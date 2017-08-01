@@ -287,8 +287,8 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
                                       };
     
     NSString* idtoken = [NSString stringWithFormat:@"%@.%@",
-                         [NSString adBase64EncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
-                         [NSString adBase64EncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
+                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:part1_claims options:0 error:nil]],
+                         [NSString adBase64UrlEncodeData:[NSJSONSerialization dataWithJSONObject:idtoken_claims options:0 error:nil]]];
     
     ADUserInformation* userInfo = [ADUserInformation userInformationWithIdToken:idtoken error:nil];
     
