@@ -29,9 +29,6 @@
 #import "ADTokenCacheItem+Internal.h"
 
 @interface ADAcquireTokenPkeyAuthTests : XCTestCase
-{
-    dispatch_semaphore_t _dsem;
-}
 
 @end
 
@@ -40,21 +37,82 @@
 - (void)setUp
 {
     [super setUp];
-    _dsem = dispatch_semaphore_create(0);
 }
 
 - (void)tearDown
 {
-#if !__has_feature(objc_arc)
-    dispatch_release(_dsem);
-#endif
-    _dsem = nil;
-    
     XCTAssertTrue([ADTestURLSession noResponsesLeft]);
     [ADTestURLSession clearResponses];
     [self adTestEnd];
     [super tearDown];
 }
+
+#pragma mark - Tests
+
+- (void)testTokenEndpointPkeyAuthNoWPJ
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    
+    // Add an MRRT to the cache
+    [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    [ADTestURLSession addResponses:@[[self defaultTokenEndpointPkeyAuthChallenge],
+                                        [self defaultPkeyAuthNoWPJResponse]]];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilent should return new token."];
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         XCTAssertEqual(result.status, AD_SUCCEEDED);
+         XCTAssertNotNil(result.tokenCacheItem);
+         XCTAssertTrue([result.correlationId isKindOfClass:[NSUUID class]]);
+         XCTAssertEqualObjects(result.accessToken, @"new access token");
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+    
+    NSArray* allItems = [context.tokenCacheStore.dataSource allItems:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(allItems);
+    XCTAssertEqual(allItems.count, 2);
+    
+    ADTokenCacheItem* mrrtItem = nil;
+    ADTokenCacheItem* atItem = nil;
+    
+    // Pull the MRRT and AT items out of the cache
+    for (ADTokenCacheItem * item in allItems)
+    {
+        if (item.refreshToken)
+        {
+            mrrtItem = item;
+        }
+        else if (item.accessToken)
+        {
+            atItem = item;
+        }
+    }
+    
+    XCTAssertNotNil(mrrtItem);
+    XCTAssertNotNil(atItem);
+    
+    XCTAssertNil(atItem.refreshToken);
+    XCTAssertNil(mrrtItem.accessToken);
+    
+    // Make sure the tokens got updated
+    XCTAssertEqualObjects(atItem.accessToken, @"new access token");
+    XCTAssertEqualObjects(mrrtItem.refreshToken, @"new refresh token");
+}
+
+#pragma mark - Private
 
 - (ADAuthenticationContext *)getTestAuthenticationContext
 {
@@ -91,67 +149,6 @@
                         newRefreshToken:@"new refresh token"
                          newAccessToken:@"new access token"
                        additionalFields:nil];
-}
-
-- (void)testTokenEndpointPkeyAuthNoWPJ
-{
-    ADAuthenticationError* error = nil;
-    ADAuthenticationContext* context = [self getTestAuthenticationContext];
-    
-    // Add an MRRT to the cache
-    [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
-    XCTAssertNil(error);
-    
-    [ADTestURLSession addResponses:@[[self defaultTokenEndpointPkeyAuthChallenge],
-                                        [self defaultPkeyAuthNoWPJResponse]]];
-    
-    [context acquireTokenSilentWithResource:TEST_RESOURCE
-                                   clientId:TEST_CLIENT_ID
-                                redirectUri:TEST_REDIRECT_URL
-                                     userId:TEST_USER_ID
-                            completionBlock:^(ADAuthenticationResult *result)
-     {
-         XCTAssertNotNil(result);
-         XCTAssertEqual(result.status, AD_SUCCEEDED);
-         XCTAssertNotNil(result.tokenCacheItem);
-         XCTAssertTrue([result.correlationId isKindOfClass:[NSUUID class]]);
-         XCTAssertEqualObjects(result.accessToken, @"new access token");
-         
-         TEST_SIGNAL;
-     }];
-    
-    TEST_WAIT;
-    
-    NSArray* allItems = [context.tokenCacheStore.dataSource allItems:&error];
-    XCTAssertNil(error);
-    XCTAssertNotNil(allItems);
-    XCTAssertEqual(allItems.count, 2);
-    
-    ADTokenCacheItem* mrrtItem = nil;
-    ADTokenCacheItem* atItem = nil;
-    
-    // Pull the MRRT and AT items out of the cache
-    for (ADTokenCacheItem * item in allItems)
-    {
-        if (item.refreshToken)
-        {
-            mrrtItem = item;
-        }
-        else if (item.accessToken)
-        {
-            atItem = item;
-        }
-    }
-    
-    XCTAssertNotNil(mrrtItem);
-    XCTAssertNotNil(atItem);
-    
-    XCTAssertNil(atItem.refreshToken);
-    XCTAssertNil(mrrtItem.accessToken);
-    
-    // Make sure the tokens got updated
-    XCTAssertEqualObjects(atItem.accessToken, @"new access token");
-    XCTAssertEqualObjects(mrrtItem.refreshToken, @"new refresh token");
 }
 
 @end

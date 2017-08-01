@@ -38,16 +38,6 @@
 #define TEST_REFRESH_TOKEN @"refresh token"
 #define TEST_CORRELATION_ID ({NSUUID *testID = [[NSUUID alloc] initWithUUIDString:@"6fd1f5cd-a94c-4335-889b-6c598e6d8048"]; testID;})
 
-#define TEST_SIGNAL dispatch_semaphore_signal(_dsem)
-#define TEST_WAIT dispatch_semaphore_wait(_dsem, DISPATCH_TIME_FOREVER)
-#define TEST_WAIT_NOT_BLOCKING_MAIN_QUEUE \
-{ \
-    while (dispatch_semaphore_wait(_dsem, DISPATCH_TIME_NOW)) \
-    { \
-        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate: [NSDate distantFuture]]; \
-    } \
-} \
-
 typedef enum
 {
     TEST_LOG_LEVEL,

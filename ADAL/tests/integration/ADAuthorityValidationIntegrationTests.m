@@ -38,26 +38,19 @@
 static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 
 @interface ADAuthortyValidationTests : XCTestCase
-{
-    dispatch_semaphore_t _dsem;
-}
+
 @end
 
 @implementation ADAuthortyValidationTests
 
-- (void)setUp {
-    _dsem = dispatch_semaphore_create(0);
+- (void)setUp
+{
     [super setUp];
     [self adTestBegin:ADAL_LOG_LEVEL_INFO];
 }
 
 - (void)tearDown
 {
-#if !__has_feature(objc_arc)
-    dispatch_release(_dsem);
-#endif
-    _dsem = nil;
-    
     [self adTestEnd];
     [super tearDown];
 }
@@ -77,18 +70,20 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     for (NSString* testCase in cases)
     {
         [requestParams setAuthority:testCase];
+        
+        XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
         [authorityValidation validateAuthority:requestParams
                                completionBlock:^(BOOL validated, ADAuthenticationError *error)
         {
-                                   XCTAssertFalse(validated, @"\"%@\" should come back invalid.", testCase);
-                                   XCTAssertNotNil(error);
-                                   
-                                   TEST_SIGNAL;
+            XCTAssertFalse(validated, @"\"%@\" should come back invalid.", testCase);
+            XCTAssertNotNil(error);
+            
+            [expectation fulfill];
         }];
-        TEST_WAIT;
+        
+        [self waitForExpectationsWithTimeout:1 handler:nil];
     }
 }
-
 
 // Tests a normal authority
 - (void)testAadNormalFlow
@@ -104,16 +99,18 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     
     [ADTestURLSession addResponse:[ADTestURLResponse responseValidAuthority:authority]];
     
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Validate valid authority."];
     [authorityValidation validateAuthority:requestParams
                            completionBlock:^(BOOL validated, ADAuthenticationError * error)
      {
          XCTAssertTrue(validated);
          XCTAssertNil(error);
          
-         TEST_SIGNAL;
+         [expectation fulfill];
      }];
     
-    TEST_WAIT;
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
     XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:@"https://login.windows-ppe.net"]]);
 }
 
@@ -131,6 +128,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     
     [ADTestURLSession addResponse:[ADTestURLResponse responseInvalidAuthority:authority]];
     
+    XCTestExpectation* expectation = [self expectationWithDescription:@"Validate invalid authority."];
     [authorityValidation validateAuthority:requestParams
                            completionBlock:^(BOOL validated, ADAuthenticationError * error)
      {
@@ -138,15 +136,13 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
          XCTAssertNotNil(error);
          XCTAssertEqual(error.code, AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION);
          
-         TEST_SIGNAL;
+         [expectation fulfill];
      }];
     
-    TEST_WAIT;
+    [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority]]);
 }
-
-
 
 - (void)testBadAadAuthorityWithValidation
 {
@@ -163,7 +159,7 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     
     [ADTestURLSession addInvalidAuthorityResponse:authority];
     
-    __block dispatch_semaphore_t dsem = dispatch_semaphore_create(0);
+    XCTestExpectation* expectation = [self expectationWithDescription:@"acquireTokenWithResource: with invalid authority."];
     [context acquireTokenWithResource:TEST_RESOURCE
                              clientId:TEST_CLIENT_ID
                           redirectUri:TEST_REDIRECT_URL
@@ -175,12 +171,11 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
          XCTAssertNotNil(result.error);
          XCTAssertEqual(result.error.code, AD_ERROR_DEVELOPER_AUTHORITY_VALIDATION);
          
-         dispatch_semaphore_signal(dsem);
+         [expectation fulfill];
      }];
     
-    dispatch_semaphore_wait(dsem, DISPATCH_TIME_FOREVER);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
-
 
 - (void)testUnreachableAadServer
 {
@@ -204,16 +199,18 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLSession addResponse:[ADTestURLResponse request:requestURL
                                                respondWithError:responseError]];
     
+    XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority when server is unreachable."];
+    
     [authorityValidation validateAuthority:requestParams
                            completionBlock:^(BOOL validated, ADAuthenticationError *error)
     {
         XCTAssertFalse(validated);
         XCTAssertNotNil(error);
         
-        TEST_SIGNAL;
+        [expectation fulfill];
     }];
     
-    TEST_WAIT;
+    [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority]]);
 }
@@ -241,15 +238,17 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLSession addResponse:[ADTestURLResponse responseValidWebFinger:passiveEndpoint
                                                                      authority:authority]];
     
+    XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation validateAuthority:requestParams
                            completionBlock:^(BOOL validated, ADAuthenticationError *error)
     {
         XCTAssertTrue(validated);
         XCTAssertNil(error);
  
-        TEST_SIGNAL;
+        [expectation fulfill];
     }];
-    TEST_WAIT;
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
 }
@@ -280,20 +279,20 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLSession addResponse:[ADTestURLResponse responseValidWebFinger:passiveEndpoint
                                                                      authority:authority]];
     
+    XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation validateAuthority:requestParams
                            completionBlock:^(BOOL validated, ADAuthenticationError *error)
     {
         XCTAssertTrue(validated);
         XCTAssertNil(error);
         
-        TEST_SIGNAL;
+        [expectation fulfill];
     }];
     
-    TEST_WAIT;
+    [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertTrue([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
 }
-
 
 - (void)testAdfsInvalidDrs
 {
@@ -313,20 +312,21 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLSession addResponse: [ADTestURLResponse responseInvalidDrsPayload:upnSuffix onPrems:YES]];
     [ADTestURLSession addResponse: [ADTestURLResponse responseInvalidDrsPayload:upnSuffix onPrems:NO]];
     
+    XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
+    
     [authorityValidation validateAuthority:requestParams
                            completionBlock:^(BOOL validated, ADAuthenticationError *error)
     {
         XCTAssertFalse(validated);
         XCTAssertNotNil(error);
      
-        TEST_SIGNAL;
+        [expectation fulfill];
     }];
     
-    TEST_WAIT;
+    [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
 }
-
 
 // test invalid webfinger - 400
 - (void)testAdfsInvalidWebfinger
@@ -351,16 +351,17 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLSession addResponse: [ADTestURLResponse responseInvalidWebFinger:passiveEndpoint
                                                                         authority:authority]];
     
+    XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation validateAuthority:requestParams
                            completionBlock:^(BOOL validated, ADAuthenticationError *error)
     {
         XCTAssertFalse(validated);
         XCTAssertNotNil(error);
         
-        TEST_SIGNAL;
+        [expectation fulfill];
     }];
     
-    TEST_WAIT;
+    [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
 }
@@ -388,16 +389,17 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
     [ADTestURLSession addResponse: [ADTestURLResponse responseInvalidWebFingerNotTrusted:passiveEndpoint
                                                                                   authority:authority]];
     
+    XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation validateAuthority:requestParams
                            completionBlock:^(BOOL validated, ADAuthenticationError *error)
     {
         XCTAssertFalse(validated);
         XCTAssertNotNil(error);
         
-        TEST_SIGNAL;
+        [expectation fulfill];
     }];
     
-    TEST_WAIT;
+    [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
 }
@@ -424,16 +426,16 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
                                                    passiveAuthenticationEndpoint:passiveEndpoint]];
     [ADTestURLSession addResponse: [ADTestURLResponse responseUnreachableWebFinger:passiveEndpoint authority:authority]];
     
+    XCTestExpectation* expectation = [self expectationWithDescription:@"validateAuthority"];
     [authorityValidation validateAuthority:requestParams
                       completionBlock:^(BOOL validated, ADAuthenticationError *error)
     {
         XCTAssertFalse(validated);
         XCTAssertNotNil(error);
         
-        TEST_SIGNAL;
+        [expectation fulfill];
     }];
-    TEST_WAIT;
-    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:authority] domain:upnSuffix]);
 }
