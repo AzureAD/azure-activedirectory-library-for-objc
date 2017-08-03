@@ -43,7 +43,7 @@
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_ERROR];
+    
     // Runs before each test case. Just in case, set them to nil.
     mParameters = nil;
     mError = nil;

@@ -39,8 +39,7 @@ dispatch_semaphore_t sLoggerTestCompletedSignal;
 - (void)setUp
 {
     [super setUp];
-    // Put setup code here; it will be run once, before the first test case.
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
+    
     [ADLogger setNSLogging:YES];//We disable it by default in the rest of the tests to limit the log files
     XCTAssertTrue([ADLogger getNSLogging]);
 }

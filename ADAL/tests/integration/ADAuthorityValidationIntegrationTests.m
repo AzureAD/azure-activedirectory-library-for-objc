@@ -48,7 +48,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 - (void)setUp {
     _dsem = dispatch_semaphore_create(0);
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
 }
 
 - (void)tearDown
