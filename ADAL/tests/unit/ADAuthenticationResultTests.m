@@ -67,14 +67,12 @@
 
 -(void) testResultFromCancellation
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromCancellation];
     VERIFY_RESULT(result, AD_USER_CANCELLED, AD_ERROR_UI_USER_CANCEL);
 }
 
 -(void) testResultFromError
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationError* error = [ADAuthenticationError unexpectedInternalError:@"something" correlationId:nil];
     ADAuthenticationResult* result = [ADAuthenticationResult resultFromError:error];
     VERIFY_RESULT(result, AD_FAILED, AD_ERROR_UNEXPECTED);
@@ -96,11 +94,9 @@
 
 - (void)testResultFromtokenCacheItem
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADAuthenticationResult* nilItemResult = [ADAuthenticationResult resultFromTokenCacheItem:nil multiResourceRefreshToken:NO correlationId:nil];
     VERIFY_RESULT(nilItemResult, AD_FAILED, AD_ERROR_UNEXPECTED);
     
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     ADTokenCacheItem* item = [[ADTokenCacheItem alloc] init];
     item.resource = @"resource";
     item.authority = @"https://login.windows.net/mytennant.com";
@@ -147,7 +143,6 @@
 {
     // Older versions of the broker send the protocol code in "code", the error details in "error_details" and
     // nothing else. Let's at least try to use all this info.
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     NSDictionary* response = @{
                                @"code" : @"could_not_compute",
                                @"error_description" : @"EXTERMINATE!!!!!!",
@@ -167,7 +162,6 @@
 
 - (void)testBrokerFullErrorResponse
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     NSDictionary* response = @{
                                @"error_code" : @"5",
                                @"protocol_code" : @"wibbly_wobbly",
@@ -188,7 +182,6 @@
 
 - (void)testBrokerNonNetworkResponse
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     NSDictionary* response = @{
                                @"error_code" : @"6",
                                @"error_description" : @"I can't find my pants.",

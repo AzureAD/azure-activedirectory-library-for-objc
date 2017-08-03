@@ -156,8 +156,6 @@ typedef enum
  so that all warnings and errors will be cause the test to fail.*/
 - (void)adTestBegin:(ADAL_LOG_LEVEL)maxLogTolerance;
 
-/*! See description of adTestBegin. */
-- (void)adSetLogTolerance: (ADAL_LOG_LEVEL)maxLogTolerance;
 
 /*! Clears logging and other infrastructure after a test */
 - (void)adTestEnd;

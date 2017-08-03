@@ -58,7 +58,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 {
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     XCTAssertFalse([authorityValidation isAuthorityValidated:nil]);
     XCTAssertFalse([authorityValidation isAuthorityValidated:[NSURL URLWithString:@"  "]]);
     NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
@@ -70,7 +69,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 {
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     XCTAssertFalse([authorityValidation addValidAuthority:nil]);
     XCTAssertFalse([authorityValidation addValidAuthority:[NSURL URLWithString:@"  "]]);
     //Test that re-adding is ok. This can happen in multi-threaded scenarios:
@@ -85,8 +83,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 {
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
     
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
-  
     NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
     NSString* upnSuffix = @"user@foo.com";
     
@@ -98,8 +94,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 - (void)testAddAdfsAuthority
 {
     ADAuthorityValidation* authorityValidation = [[ADAuthorityValidation alloc] init];
-    
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     
     NSURL* anotherHost = [NSURL URLWithString:@"https://somedomain.com"];
     NSString* upnSuffix = @"user@foo.com";

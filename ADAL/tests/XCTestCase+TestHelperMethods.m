@@ -75,11 +75,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     [self adValidateForInvalidArgument:argument error:error];
 }
 
-- (void)adSetLogTolerance:(ADAL_LOG_LEVEL)maxLogTolerance
-{
-    [ADLogger setLevel:maxLogTolerance - 1];
-}
-
 /*! Sets logging and other infrastructure for a new test */
 - (void)adTestBegin:(ADAL_LOG_LEVEL)maxLogTolerance;
 {

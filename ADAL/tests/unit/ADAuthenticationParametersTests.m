@@ -152,7 +152,6 @@
 
 - (void) testParametersFromResourceURLParametersPositiveCase
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     //HTTP
     NSURL* resourceUrl = [[NSURL alloc] initWithString:@"http://testapi007.azurewebsites.net/api/WorkItem"];
     ADTestURLResponse* response = [ADTestURLResponse requestURLString:@"http://testapi007.azurewebsites.net/api/WorkItem?x-client-Ver=" ADAL_VERSION_STRING
@@ -237,7 +236,6 @@
 
 -(void)testParametersFromResponseDifferentHeaderCase
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     //HTTP headers are case-insensitive. This test validates that the underlying code is aware:
     NSURL *url = [NSURL URLWithString:@"http://www.example.com"];
     NSDictionary* headerFields1 = [NSDictionary dictionaryWithObject:@"Bearer authorization_uri=\"https://www.example.com\""
@@ -376,7 +374,6 @@
 
 -(void) testParametersFromResponseAuthenticateHeaderValid
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_INFO];
     ADAuthenticationError* error = nil;
     ADAuthenticationParameters* params = [ADAuthenticationParameters parametersFromResponseAuthenticateHeader:@"Bearer authorization_uri=\"https://login.windows.net/common\", resource_uri=\"something.com\", anotherParam=\"Indeed, another param=5\" "
                                                                             error:&error];
