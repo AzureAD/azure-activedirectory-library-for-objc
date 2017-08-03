@@ -32,6 +32,7 @@
 #import <Foundation/NSObjCRuntime.h>
 #import <objc/runtime.h>
 #import "ADTestURLSession.h"
+#import "ADTestURLResponse.h"
 #import "ADOAuth2Constants.h"
 #import "ADTokenCacheKey.h"
 #import "ADTokenCacheItem+Internal.h"
