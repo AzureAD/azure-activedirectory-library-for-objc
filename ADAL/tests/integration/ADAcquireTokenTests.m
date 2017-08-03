@@ -83,7 +83,7 @@ const int sAsyncContextTimeout = 10;
     
     XCTAssertTrue([ADTestURLSession noResponsesLeft]);
     [ADTestURLSession clearResponses];
-    [self adTestEnd];
+
     [super tearDown];
 }
 

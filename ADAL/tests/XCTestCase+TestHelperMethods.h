@@ -156,10 +156,6 @@ typedef enum
  so that all warnings and errors will be cause the test to fail.*/
 - (void)adTestBegin:(ADAL_LOG_LEVEL)maxLogTolerance;
 
-
-/*! Clears logging and other infrastructure after a test */
-- (void)adTestEnd;
-
 //Creates a new item with all of the properties having correct values
 - (ADTokenCacheItem *)adCreateCacheItem;
 - (ADTokenCacheItem *)adCreateCacheItem:(NSString*)userId;

@@ -38,7 +38,6 @@
 
 - (void)tearDown
 {
-    [self adTestEnd];
     [super tearDown];
 }
 

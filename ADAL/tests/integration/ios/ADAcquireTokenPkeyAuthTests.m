@@ -52,7 +52,7 @@
     
     XCTAssertTrue([ADTestURLSession noResponsesLeft]);
     [ADTestURLSession clearResponses];
-    [self adTestEnd];
+
     [super tearDown];
 }
 

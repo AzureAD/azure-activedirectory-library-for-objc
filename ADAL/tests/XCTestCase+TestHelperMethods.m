@@ -86,11 +86,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     [ADLogger setNSLogging:YES];
 }
 
-/*! Clears logging and other infrastructure after a test */
-- (void)adTestEnd
-{
-}
-
 //Parses backwards the log to find the test begin prefix. Returns the beginning
 //of the log string if not found:
 - (long)indexOfTestBegin:(NSString *)log

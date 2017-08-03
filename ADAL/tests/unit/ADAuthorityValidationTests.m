@@ -50,7 +50,6 @@ static NSString* const s_kTrustedAuthority = @"https://login.windows.net";
 
 - (void)tearDown
 {
-    [self adTestEnd];
     [super tearDown];
 }
 

@@ -55,7 +55,7 @@
     //Runs after each test case. Clean up to ensure that the memory is freed before the other test:
     mParameters = nil;
     mError = nil;
-    [self adTestEnd];
+
     [super tearDown];
 }
 
