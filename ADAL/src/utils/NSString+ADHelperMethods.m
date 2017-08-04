@@ -68,7 +68,7 @@ BOOL validBase64Characters(const byte* data, const int size)
 /// See RFC 4648, Section 5 plus switch characters 62 and 63 and no padding.
 /// For a good overview of Base64 encoding, see http://en.wikipedia.org/wiki/Base64
 /// </remarks>
-+ (NSData *)adBase64DecodeData:(NSString *)encodedString
++ (NSData *)adBase64UrlDecodeData:(NSString *)encodedString
 {
     if ( nil == encodedString )
     {
@@ -165,7 +165,7 @@ BOOL validBase64Characters(const byte* data, const int size)
 
 - (NSString *)adBase64UrlDecode
 {
-    NSData *decodedData = [self.class adBase64DecodeData:self];
+    NSData *decodedData = [self.class adBase64UrlDecodeData:self];
     
     return [[NSString alloc] initWithData:decodedData encoding:NSUTF8StringEncoding];
 }
@@ -187,7 +187,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 /// See RFC 4648, Section 5 plus switch characters 62 and 63 and no padding.
 /// For a good overview of Base64 encoding, see http://en.wikipedia.org/wiki/Base64
 /// </remarks>
-+ (NSString *)adBase64EncodeData:(NSData *)data
++ (NSString *)adBase64UrlEncodeData:(NSData *)data
 {
     if ( nil == data )
         return nil;
@@ -267,7 +267,7 @@ static inline void Encode3bytesTo4bytes(char* output, int b0, int b1, int b2)
 {
     NSData *decodedData = [self dataUsingEncoding:NSUTF8StringEncoding];
     
-    return [self.class adBase64EncodeData:decodedData];
+    return [self.class adBase64UrlEncodeData:decodedData];
 }
 
 + (BOOL)adIsStringNilOrBlank:(NSString *)string
