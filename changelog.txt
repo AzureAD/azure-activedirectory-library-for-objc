@@ -1,8 +1,7 @@
 Version 2.5.1 (07.10.2017)
 -------------
 * Add support for applications that use the handleOpenURL:UIApplicationDelegate method for accepting URL requests (#1000)
-* Add support for sending conditional access claims to acquire token call
-(#996)
+* Add support for sending conditional access claims to acquire token call(#996)
 * (Mac) Added CBA Support (#993)
 * Handle www-authenticate:Negotiate properly when together with NTLM  (#979)
 * Fixed compilation error in Swift caused by ADErrorCode enum (#990)
