@@ -75,27 +75,6 @@ volatile int sAsyncExecuted;//The number of asynchronous callbacks executed.
     [self adValidateForInvalidArgument:argument error:error];
 }
 
-- (void)adSetLogTolerance:(ADAL_LOG_LEVEL)maxLogTolerance
-{
-    [ADLogger setLevel:maxLogTolerance - 1];
-}
-
-/*! Sets logging and other infrastructure for a new test */
-- (void)adTestBegin:(ADAL_LOG_LEVEL)maxLogTolerance;
-{
-    // We don't want to fail merely on log statements as if the test is actually failing it should be capable of
-    // detecting that through some means OTHER then log statements. Not logging entirely also deprives us of a
-    // very useful tool for trying to figure out why tests are failing when they fail. So now we repurposes this
-    // previous "max tolerance" for our level to start logging at.
-    [ADLogger setLevel:maxLogTolerance - 1];
-    [ADLogger setNSLogging:YES];
-}
-
-/*! Clears logging and other infrastructure after a test */
-- (void)adTestEnd
-{
-}
-
 //Parses backwards the log to find the test begin prefix. Returns the beginning
 //of the log string if not found:
 - (long)indexOfTestBegin:(NSString *)log

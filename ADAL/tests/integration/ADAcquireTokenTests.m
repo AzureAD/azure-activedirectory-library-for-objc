@@ -70,7 +70,7 @@ const int sAsyncContextTimeout = 10;
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
+    
     _dsem = dispatch_semaphore_create(0);
 }
 
@@ -83,7 +83,7 @@ const int sAsyncContextTimeout = 10;
     
     XCTAssertTrue([ADTestURLSession noResponsesLeft]);
     [ADTestURLSession clearResponses];
-    [self adTestEnd];
+
     [super tearDown];
 }
 

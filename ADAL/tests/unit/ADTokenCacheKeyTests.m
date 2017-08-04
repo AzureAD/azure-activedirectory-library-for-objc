@@ -39,7 +39,7 @@
 - (void)setUp
 {
     [super setUp];
-    [self adTestBegin:ADAL_LOG_LEVEL_INFO];
+    
     mAuthority = @"https://login.windows.net/common";;
     mResource = @"http://mywebApi.com";
     mClientId = @"myclientid";
@@ -47,7 +47,6 @@
 
 - (void)tearDown
 {
-    [self adTestEnd];
     [super tearDown];
 }
 

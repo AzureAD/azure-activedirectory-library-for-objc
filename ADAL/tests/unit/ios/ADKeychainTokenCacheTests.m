@@ -73,7 +73,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
     [mStore testRemoveAll:nil];//Attempt to clear all things from the keychain
     mStore = nil;
     
-    [self adTestEnd];
     [super tearDown];
 }
 
@@ -178,7 +177,6 @@ NSString* const sFileNameEmpty = @"Invalid or empty file name";
 
 - (void)testInitializer
 {
-    [self adSetLogTolerance:ADAL_LOG_LEVEL_ERROR];
     ADKeychainTokenCache* simple = [ADKeychainTokenCache new];
     XCTAssertNotNil(simple);
     NSString* group = @"test";
